@@ -1,0 +1,2 @@
+-keep class com.realityforge.scanner.engine.NativeCore { *; }
+-keep class org.opencv.** { *; }

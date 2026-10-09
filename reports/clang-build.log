@@ -1,0 +1,4 @@
+[1/4] Building CXX object CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o
+[2/4] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o
+[3/4] Linking CXX shared library librealityforge.so
+[4/4] Linking CXX executable rf_native_tests

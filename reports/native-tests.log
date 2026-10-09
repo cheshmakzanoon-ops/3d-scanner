@@ -1,0 +1,19 @@
+PASS identity
+PASS transpose multiplication
+PASS triangulation known point
+PASS behind-camera rejection
+PASS quality uniform
+PASS quality texture
+PASS quality bad buffer
+PASS quality padded stride
+PASS clean two-view recovery
+PASS noisy outlier robust recovery
+PASS deterministic result
+PASS too few matches
+PASS nan rejection
+PASS invalid threshold
+PASS constant-feature rejection
+PASS empty GLB rejected
+PASS C ABI invalid input
+
+17 passed; 0 failed

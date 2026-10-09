@@ -1,0 +1,31 @@
+{
+  "project": "RealityForge",
+  "version": "0.1.0-m01",
+  "date": "2026-10-09",
+  "deliverable": "source milestone, not an installable Android app",
+  "native_test_cases_passed": 17,
+  "python_integration_and_static_checks_passed": 41,
+  "gcc_native_build_passed": true,
+  "clang_native_build_passed": true,
+  "asan_ubsan_native_suite_passed": true,
+  "jni_host_syntax_passed": true,
+  "android_build_completed": false,
+  "android_runtime_tested": false,
+  "apk_produced": false,
+  "github_actions_run": false,
+  "remote_repository_modified": false,
+  "real_object_quality_validated": false,
+  "reconstruction_type": "two-view sparse colored points, not a textured triangle mesh",
+  "synthetic_benchmark": {
+    "fixture": "Procedurally rendered textured relief (synthetic, not a physical-object scan)",
+    "matched_features": 589,
+    "accepted_points": 579,
+    "rotation_error_degrees": 0.045881992624927544,
+    "median_reprojection_error_pixels": 0.10854451553872001,
+    "median_depth_residual_synthetic_units": 0.009485892133214602,
+    "p90_depth_residual_synthetic_units": 0.019457412979587127,
+    "phone_performance_measured": false,
+    "real_object_quality_validated": false
+  },
+  "android_build_blocker": "DNS failure while downloading Gradle wrapper; build command exit 6 before compilation"
+}

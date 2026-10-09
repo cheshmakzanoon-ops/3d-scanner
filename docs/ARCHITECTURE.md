@@ -1,0 +1,85 @@
+# M01 architecture and representations
+
+## Current execution path
+
+Document picker or CameraX JPEG → private byte-preserving photo import → Room revision →
+upright analysis bitmap → native OpenCV SIFT → reciprocal L2 ratio matching → JNI →
+C++ robust essential matrix → world-to-camera pose → triangulated sparse points →
+JSON diagnostics + GLB POINTS/PLY → current-result pointer in Room.
+
+OpenCV's Android bindings dispatch feature extraction to its bundled native implementation;
+this is not a Kotlin SIFT implementation. The portable C++ kernel contains the two-view
+geometry, statistics and point exports. Python calls its C ABI for tests; Android calls
+its JNI bridge. The host tests therefore exercise the actual geometry code, not a separate
+Python replacement.
+
+## Native initializer
+
+Coordinates must be normalized by an appropriate camera calibration. Lens distortion is
+not corrected by the M01 Android adapter, so its outputs are diagnostic. Hartley-normalized
+eight-point fitting, a small symmetric Jacobi eigensolver, constrained essential matrices,
+seeded RANSAC, consensus refitting and pose decomposition recover a two-camera model.
+Triangulation rejects points behind either camera, near-infinite geometry, poor reprojection
+and insufficient parallax. Degenerate samples are discarded; no claim of exhaustive
+real-world degeneracy detection is made.
+
+The simple fixed-size numeric kernel is a tested initializer, not a substitute for the
+planned Ceres/Eigen multi-camera optimization stack. Bundle adjustment, PnP registration,
+track building and loop closure have not been implemented.
+
+## Coordinate conventions
+
+Internal and PLY coordinates: x right, y down, z forward; the first camera is [I|0]. The
+second pose is a row-major world-to-camera rotation plus unit-length translation. Baseline
+one is arbitrary, not one meter. glTF output uses (x,-y,-z) to express the geometry in a
+right-handed y-up frame. GLB declares primitive mode 0 (POINTS) and has no triangle indices.
+Point colors are individual source-image samples, not a UV atlas or photographic texture.
+
+## Native interfaces
+
+`rf_reconstruct_json`: C ABI with N×7 double rows `(x1,y1,x2,y2,r,g,b)` and an explicit
+normalized threshold. Returns allocated UTF-8 JSON; free it exactly once with `rf_free`.
+Failures become an `error` field at this boundary. No exception crosses the C boundary.
+JNI validates array shape/count and copies data into owned native storage.
+
+`NativeCore.quality` accepts a tightly packed grayscale buffer and returns mean intensity,
+standard deviation, Laplacian variance, dark fraction and bright fraction. These are raw
+measurements, not calibrated universal quality scores.
+
+`NativeCore.exportPoints` accepts N×6 position/color rows. It validates bounded, finite
+geometry before writing GLB or PLY. The Android caller writes a temporary file, flushes it,
+and publishes it by same-directory rename.
+
+## Persistent artifacts
+
+`files/projects/<UUID>/originals/` contains immutable imported copies. External display
+names are not used as paths. A SHA-256 index detects byte-identical duplicates. Room
+transactions couple photo insertion to revision invalidation.
+
+Feature files are keyed by original hash and extractor/cache version. Cache decoding checks
+magic, dimensions, count, length and finite values. Analysis is bounded to 1600 pixels on
+the long side and 3500 SIFT features. At most two descriptor frames are loaded for matching.
+
+Result artifacts use `sparse-r<revision>-<settings-fingerprint-prefix>`. Their settings hash
+includes photo hashes, extractor/engine version and fallback focal length. Room publishes
+the artifact key only after all exports are written and the photo revision still matches.
+Beginning a rerun clears the current-result pointer; failed reruns cannot leave a stale
+result falsely marked current. Old artifact files may remain as recoverable local history.
+A future storage manager must account for these old versions rather than accumulating them
+without limit.
+
+## Deliberate M01 limits
+
+Up to the first 12 photos, at most 24 local-neighbor comparisons, and one selected pair.
+No whole-object completeness, global scene graph, geometric scale, dense depth or texture
+reconstruction is implied by the sparse preview. The point viewer uses Compose Canvas for
+diagnostics; Filament is reserved for the later textured-model studio.
+
+## Threading and interruption
+
+Imports run off the UI thread. Matching/reconstruction run in a coroutine with cancellation
+checks between stages/pairs; the bounded native pair solve is not interruptible internally.
+Leaving the activity cancels the current job. Feature caches survive and the project reports
+interruption. This is not mid-RANSAC resume or an unrestricted Android background worker.
+After process death, the next app session marks any still-PROCESSING project INTERRUPTED.
+Production long-running processing requires a separate, platform-validated lifecycle design.

@@ -1,0 +1,15 @@
+.gradle/
+.idea/
+local.properties
+**/build/
+.cxx/
+**/.cxx/
+*.iml
+__pycache__/
+.pytest_cache/
+*.pyc
+.DS_Store
+*.jks
+*.keystore
+*.partial
+gradle/wrapper/gradle-wrapper.jar
