@@ -1,4 +1,4 @@
-# Status — M02 (2026-10-09)
+# Status — M03 (2026-10-09)
 
 | Plan area | Implemented evidence | Gate status |
 |---|---|---|
@@ -9,8 +9,8 @@
 | Android JNI integration | JNI methods and app bridge | Host C++ syntax checked; Android ABI/runtime untested |
 | Camera/import | CameraX, picker, EXIF, duplicate handling, private storage | Source implemented; Android build/device tests pending |
 | Features/matching | SIFT, reciprocal ratios, bounded neighbor pairs, caches | Host path tested; Android adapter pending execution |
-| Sparse SfM | Robust two-view initialization and triangulation | Prototype only; M02 PnP additional camera registration (bounded; no new-point triangulation) |
-| Bundle adjustment | Intended interfaces/next gates documented | Not implemented |
+| Sparse SfM | Two-view initialization, M02 PnP, M03 registered-pair triangulation and track consistency | Synthetic host verified; real scenes and full BA unverified |
+| Sparse optimization | M03 alternating damped, robust point/pose refinement with two fixed anchors | Implemented host-side; not production global Ceres BA and no intrinsic calibration |
 | Dense stereo/fusion/meshing | Preserved plan | Not implemented |
 | UVs/photographic texturing | Preserved plan | Not implemented |
 | Export | Sparse GLB POINTS and PLY | Host output validated; no mesh/OBJ/STL export yet |
@@ -30,3 +30,10 @@ milestone, exercised from synthetic images, inside a concrete Android source pro
 - Attempt registration of further images into the anchor coordinate system without inventing new triangles, points, or metric scale.
 - Synthetic three-photo benchmark validates the third pose, plus robustness/degeneracy suites.
 - On-device capture, thermal behavior, real-world datasets, triangulation of new multiview tracks, BA and dense MVS remain pending.
+
+## M03 increments
+
+- Adds conflict-aware tracks across registered photos with epipolar verification; triangulates pairs beyond the M02 anchor when supported.
+- Robust alternating sparse updates for points and non-anchor cameras; the first two poses remain fixed to resolve gauge. **Not** global Ceres bundle adjustment or camera-intrinsics optimization.
+- Adds native C ABI/JNI, Kotlin graph and regression tests; returns calibrated reprojection diagnostics and rejects degenerate camera geometry.
+- Continues exporting only POINTS in GLB/PLY. See [M03_VALIDATION.md](M03_VALIDATION.md). Physical camera tests and high-fidelity dense geometry are still outstanding.

@@ -28,7 +28,7 @@ import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 
-/** M02: two-view anchor + consistent additional camera poses, never a dense mesh or BA. */
+/** M03: bounded registered-camera track graph, triangulated sparse points and gauge-fixed refinement. */
 class SparsePipeline(private val repository: ProjectRepository) {
     data class Progress(val stage: String, val completed: Int, val total: Int)
     private data class PairMatches(val rows: DoubleArray, val firstKeys: IntArray, val secondKeys: IntArray) {
@@ -48,9 +48,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
         require(photos.size >= 2) { "Import at least two overlapping photographs." }
         val directory = repository.directory(projectId)
         val revision = project.revision
-        val fingerprintInput = "m02-pnp-1|opencv-4.12.0|sift-3500|ratio-.75|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        val fingerprintInput = "m03-multiview-1|opencv-4.12.0|sift-3500|ratio-.75|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m02-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m03-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
@@ -143,10 +143,105 @@ class SparsePipeline(private val repository: ProjectRepository) {
             }
         } }
         progress(Progress("Registering additional camera poses", outstanding.size, outstanding.size))
+        // M03: Build a shared observation graph across *registered* views, including points not seen
+        // by both anchors. The native optimizer fixes the first two cameras to preserve gauge.
+        var geometryWarning = "M03 sparse multi-view triangulation did not produce an acceptable result; retained the verified M02 anchor cloud. No dense mesh or textures."
+        try {
+            coroutineContext.ensureActive()
+            progress(Progress("Building multi-view feature tracks", 0, 1))
+            val registeredPhotoIndices = (0 until cameraArray.length()).map { camera ->
+                val id = cameraArray.getJSONObject(camera).getString("photoId")
+                photos.indexOfFirst { it.id == id }.also { check(it >= 0) { "Missing registered photograph" } }
+            }
+            val views = registeredPhotoIndices.mapIndexed { index, source ->
+                val photo = photos[source]
+                loadFrame(photo, cache).use { frame ->
+                    val camera = cameraArray.getJSONObject(index)
+                    val rotationJson = camera.getJSONArray("rotation")
+                    val translationJson = camera.getJSONArray("translation")
+                    SparseView(
+                        frame.width, frame.height,
+                        ImageLoader.focalPixels(frame.width, frame.height, photo.focal35mm ?: assumedFocal35),
+                        frame.xy.copyOf(), frame.colors.copyOf(),
+                        DoubleArray(9) { rotationJson.getDouble(it) },
+                        DoubleArray(3) { translationJson.getDouble(it) },
+                    )
+                }
+            }
+            val graph = MultiViewTrackGraph(views)
+            val graphPairs = buildList {
+                for (i in views.indices) for (j in i + 1 until views.size) {
+                    if ((i == 0 && j == 1) || kotlin.math.abs(registeredPhotoIndices[i] - registeredPhotoIndices[j]) <= 3)
+                        add(i to j)
+                }
+            }.take(42)
+            for ((step, pair) in graphPairs.withIndex()) {
+                coroutineContext.ensureActive()
+                progress(Progress("Verifying cross-camera feature tracks", step, graphPairs.size))
+                loadFrame(photos[registeredPhotoIndices[pair.first]], cache).use { left ->
+                    loadFrame(photos[registeredPhotoIndices[pair.second]], cache).use { right ->
+                        val correspondence = matches(left, right, views[pair.first].focalPixels, views[pair.second].focalPixels)
+                        for (k in 0 until correspondence.size) {
+                            graph.add(pair.first, correspondence.firstKeys[k], pair.second, correspondence.secondKeys[k])
+                        }
+                    }
+                }
+            }
+            progress(Progress("Verifying cross-camera feature tracks", graphPairs.size, graphPairs.size))
+            val observations = graph.packedRows()
+            output.put("multiViewCandidateTracks", graph.matchedTrackCount())
+            output.put("multiViewAcceptedEdges", graph.acceptedEdges)
+            output.put("multiViewRejectedEdges", graph.rejectedEdges)
+            if (observations.size >= 14) {
+                val poses = DoubleArray(views.size * 12) { i ->
+                    val camera = views[i / 12]
+                    if (i % 12 < 9) camera.rotation[i % 12] else camera.translation[i % 12 - 9]
+                }
+                progress(Progress("Triangulating and refining sparse geometry", 0, 1))
+                val threshold = 3.0 / views.minOf { it.focalPixels }
+                val refined = JSONObject(NativeCore.reconstructMultiview(poses, observations, threshold, 12))
+                coroutineContext.ensureActive()
+                if (!refined.has("error") &&
+                    refined.optInt("pointCount", 0) >= (output.getInt("pointCount") * .85).toInt() &&
+                    refined.getDouble("medianErrorAfterNormalized") < threshold * 2) {
+                    val newPoints = refined.getJSONArray("points")
+                    val newCameras = refined.getJSONArray("cameras")
+                    check(newCameras.length() == cameraArray.length())
+                    for (camera in 0 until cameraArray.length()) {
+                        val original = cameraArray.getJSONObject(camera)
+                        val corrected = newCameras.getJSONObject(camera)
+                        original.put("rotation", corrected.getJSONArray("rotation"))
+                            .put("translation", corrected.getJSONArray("translation"))
+                            .put("gaugeFixed", camera < 2)
+                    }
+                    val parallax = (0 until newPoints.length()).map { newPoints.getJSONArray(it).getDouble(7) }.sorted()
+                    output.put("schema", 3).put("points", newPoints)
+                        .put("pointCount", newPoints.length())
+                        .put("medianParallaxDegrees", parallax[parallax.size / 2])
+                        .put("medianErrorNormalized", refined.getDouble("medianErrorAfterNormalized"))
+                        .put("multiViewStats", JSONObject()
+                            .put("optimization", "gauge_fixed_alternating_sparse")
+                            .put("initialTracks", refined.getInt("inputTracks"))
+                            .put("rejectedTracks", refined.getInt("rejectedTracks"))
+                            .put("iterations", refined.getInt("iterations"))
+                            .put("medianBeforeNormalized", refined.getDouble("medianErrorBeforeNormalized"))
+                            .put("medianAfterNormalized", refined.getDouble("medianErrorAfterNormalized")))
+                    geometryWarning = "M03 sparse multi-view point triangulation and gauge-fixed pose/point refinement. Geometry is still sparse, unscaled, and untextured; estimated intrinsics are not optimized."
+                } else {
+                    geometryWarning = if (refined.has("error"))
+                        "M03 multi-view refinement rejected: ${refined.getString("error")}. Retained M02 anchor geometry."
+                    else "M03 multi-view quality gate rejected geometry; retained the M02 anchor point cloud."
+                }
+            }
+            progress(Progress("Triangulating and refining sparse geometry", 1, 1))
+        } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+        catch (failure: Exception) {
+            geometryWarning = "Multi-view geometry unavailable: ${failure.message ?: "invalid observations"}. Retained the M02 anchor point cloud."
+        }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m02-pnp-1").put("failedPairs", failures)
-            .put("warning", "Additional cameras share the anchor world frame, but points remain TWO-VIEW only. No bundle adjustment, dense mesh, metric scale or texturing.")
+            .put("engineVersion", "m03-multiview-1").put("failedPairs", failures)
+            .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }
         repository.writeAtomic(File(directory, "$artifactKey.json"), output.toString())

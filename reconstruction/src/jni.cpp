@@ -1,5 +1,6 @@
 #include "realityforge/core.hpp"
 #include "realityforge/pnp.hpp"
+#include "realityforge/multiview.hpp"
 #include <cmath>
 #include <jni.h>
 #include <vector>
@@ -24,6 +25,28 @@ Java_com_realityforge_scanner_engine_NativeCore_registerCamera(JNIEnv* env,jobje
     env->GetDoubleArrayRegion(rows,0,length,data.data());if(env->ExceptionCheck())return nullptr;
     auto* json=rf_register_camera_json(data.data(),data.size()/5,threshold);
     if(!json){illegal(env,"Native allocation failed");return nullptr;}
+    auto result=env->NewStringUTF(json);rf_free(json);return result;
+}
+// Gauge-fixed sparse multi-view triangulation and robust camera/point refinement.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructMultiview(
+    JNIEnv* env,jobject,jdoubleArray cameraRows,jdoubleArray observationRows,jdouble threshold,jint iterations) {
+    if(!cameraRows||!observationRows){illegal(env,"Missing multi-view geometry buffers");return nullptr;}
+    const auto cameraLength=env->GetArrayLength(cameraRows);
+    const auto observationLength=env->GetArrayLength(observationRows);
+    if(cameraLength<24||cameraLength>144||cameraLength%12!=0||
+       observationLength<14||observationLength>700000||observationLength%7!=0){
+        illegal(env,"Invalid packed multi-view camera/observation sizes");return nullptr;
+    }
+    std::vector<double> cameras(static_cast<std::size_t>(cameraLength));
+    std::vector<double> observations(static_cast<std::size_t>(observationLength));
+    env->GetDoubleArrayRegion(cameraRows,0,cameraLength,cameras.data());
+    if(env->ExceptionCheck())return nullptr;
+    env->GetDoubleArrayRegion(observationRows,0,observationLength,observations.data());
+    if(env->ExceptionCheck())return nullptr;
+    auto* json=rf_multiview_json(cameras.data(),cameras.size()/12,
+        observations.data(),observations.size()/7,threshold,iterations);
+    if(!json){illegal(env,"Native multi-view result allocation failed");return nullptr;}
     auto result=env->NewStringUTF(json);rf_free(json);return result;
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL

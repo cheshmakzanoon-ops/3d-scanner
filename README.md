@@ -1,13 +1,13 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 02 (0.2.0-m02).**
+**Fully local Android photogrammetry — engineering milestone 03 (0.3.0-m03).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
 geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M02 Android compilation and APK validation passed on
 GitHub Actions; emulator and physical-device execution remain unverified.**
 
-The current reconstruction is an **anchor-pair sparse point cloud with additional registered camera poses**, not a high-resolution,
-textured surface mesh. Dense multi-view stereo, bundle adjustment, surface generation and
+The current reconstruction is a **sparse point cloud triangulated from registered photo pairs with bounded gauge-fixed pose/point refinement**, not a high-resolution,
+textured surface mesh. Dense multi-view stereo, full/global sparse bundle adjustment with intrinsics, surface generation and
 photographic texturing remain subsequent milestones. Nothing substitutes a stock 3D model
 for the supplied photographs.
 
@@ -24,6 +24,7 @@ for the supplied photographs.
 - Robust essential-matrix estimation, pose disambiguation, triangulation, cheirality,
   parallax and reprojection checks; M02 also registers additional cameras to the same
   anchor frame using cycle-consistent feature tracks and robust native PnP.
+- M03 builds conflict-aware keypoint tracks across registered images and triangulates new sparse points from camera pairs outside the original anchor; first two cameras remain fixed during damped Huber refinement.
 - Sparse point viewer and local GLB POINTS / PLY export. Neither export contains mesh faces.
 - Source manifest strips INTERNET and ACCESS_NETWORK_STATE. No analytics, login,
   advertising SDK or cloud-processing client is included.
@@ -97,9 +98,8 @@ is a development/test tool, not a service required by the Android application.
 
 ## Important boundaries
 
-M02 examines up to 12 photos, chooses an anchor pair and attempts to register other
-photos from cycle-consistent 3D–2D tracks. It does not triangulate additional points or
-perform bundle adjustment. Intrinsics are estimated from EXIF or a visibly stated
+M03 examines up to 12 photos, chooses an anchor pair and attempts to register other
+photos from cycle-consistent 3D–2D tracks. It triangulates additional supported tracks and performs bounded point/pose sparse refinement, but not full Ceres bundle adjustment or intrinsics optimization. Intrinsics are estimated from EXIF or a visibly stated
 fallback, with no distortion calibration. No metric dimensions, texture atlas, watertight
 mesh, ARCore depth, Gaussian splats, animation topology or reconstruction-quality guarantees
 are provided. The capture screen does not yet lock exposure or provide measured coverage.
@@ -116,3 +116,7 @@ with cached SIFT descriptors and require agreement with both anchor images. Unre
 images are explicitly listed, not silently counted as geometry. Anchor points remain exactly
 anchor-pair derived; **no new mesh vertices, bundle adjustment, textured triangles, or
 metric scale are claimed**.
+
+## Milestone M03 — actual sparse multiview increment
+
+See [M03 validation](docs/M03_VALIDATION.md). M03 adds native calibrated triangulation of newly matched 3D tracks, Huber-weighted sparse point and non-anchor camera refinement, the Android JNI bridge, collision-checked track graph, and regression tests. This remains sparse, in arbitrary scale, untextured and not a commercial scanner. Any runtime failure preserves the valid M02 anchor geometry rather than publishing invented detail.

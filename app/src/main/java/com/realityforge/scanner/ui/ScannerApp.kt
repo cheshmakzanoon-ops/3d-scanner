@@ -81,7 +81,7 @@ fun ScannerApp(model: ScannerViewModel) {
                         Text("Photographs → verified camera geometry → sparse 3D preview.", color = MaterialTheme.colorScheme.secondary)
                     }
                     item {
-                        InfoCard("Development build", "This milestone tests capture and two-view geometry. High-detail surface reconstruction and photographic texturing are not available yet.")
+                        InfoCard("Development build", "This milestone tests offline sparse multi-camera geometry. High-detail surfaces and photographic texturing are not available yet.")
                     }
                     item { Button(onClick = { newProject = true }, modifier = Modifier.fillMaxWidth()) { Text("Create local project") } }
                     if (projects.isEmpty()) item { Text("No scans yet. Start with a matte, textured, rigid object and two overlapping views.") }
@@ -115,7 +115,7 @@ fun ScannerApp(model: ScannerViewModel) {
                         Card {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Text("Sparse reconstruction", style = MaterialTheme.typography.titleMedium)
-                                Text("Tests up to 12 photographs and chooses one reliable pair. Outputs real triangulated points—not a finished mesh.")
+                                Text("Examines up to 12 photographs, registers additional camera poses, and triangulates cross-view tracks—not a finished mesh.")
                                 OutlinedTextField(value = focal, onValueChange = { focal = it.take(6) }, enabled = !busy,
                                     label = { Text("Fallback 35 mm-equivalent focal length") }, suffix = { Text("mm") },
                                     supportingText = { Text("Used only when EXIF lacks a value. 26 mm is an explicit assumption, not measured calibration.") }, singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -141,7 +141,7 @@ fun ScannerApp(model: ScannerViewModel) {
                                     Text("${result.optInt("registeredCameras", 2)} registered cameras · arbitrary scale · drag to orbit, pinch to zoom", style = MaterialTheme.typography.labelMedium)
                                     PointCloudViewer(result, Modifier.fillMaxWidth().height(310.dp))
                                     Text("Median parallax: ${"%.2f".format(result.optDouble("medianParallaxDegrees"))}°", color = MaterialTheme.colorScheme.primary)
-                                    Text("M02 camera poses use a shared anchor frame. Points remain pair-derived; no bundle adjustment or dense surface exists.", style = MaterialTheme.typography.bodySmall)
+                                    Text("M03 can triangulate new sparse tracks and refine poses/points while holding the anchor pair fixed. No dense surface or textures exist.", style = MaterialTheme.typography.bodySmall)
                                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         OutlinedButton(enabled = !busy, onClick = { exportGlb.launch("realityforge-sparse.glb") }) { Text("Export GLB") }
                                         OutlinedButton(enabled = !busy, onClick = { exportPly.launch("realityforge-sparse.ply") }) { Text("Export PLY") }
@@ -153,7 +153,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }
-                    item { InfoCard("Next engineering gate", "Triangulate new multi-camera tracks and introduce measured bundle adjustment, then dense depth, surface meshing and photographic textures.") }
+                    item { InfoCard("Next engineering gate", "Validate real-object capture and full sparse bundle adjustment with camera intrinsics before implementing dense depth and textures.") }
                     item { TextButton(enabled = !busy, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }
