@@ -13,7 +13,10 @@ or metric geometry.
   282 PnP inliers, median normalized reprojection error ~0.000250, camera rotation error
   ~0.023 degrees and translation error ~0.005 in anchor unit-baseline coordinates.
 - Inputs are the bundled *synthetically rendered* photos, not a physical scanner test.
-- M02 native and Kotlin ABI paths require Android CI and device execution.
+- M02 Kotlin/NDK compilation, unit tests, lint, APK/permission/16KB validation passed
+  in GitHub Actions run 37968127815; native host job in that run failed strict GCC
+  warning checks for 3 loop-formatting statements (corrected in follow-up).
+  JNI/device runtime execution remains unverified.
 
 ## Known limitations
 
@@ -24,4 +27,5 @@ calibration is pinhole/estimated from EXIF where available and lacks lens-distor
 calibration. A new point cloud is **not** triangulated from the additional registered
 views. A dense photogrammetric mesh and photographic texturing remain unimplemented.
 
-Android UI work is covered by static contracts until a verified M02 APK is built.
+Android CI compiled an M02 debug APK, but GUI, camera and native JNI execution still
+require emulator and physical-device validation.

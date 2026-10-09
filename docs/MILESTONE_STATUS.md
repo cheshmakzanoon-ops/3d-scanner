@@ -17,7 +17,7 @@
 | Viewer | Android diagnostic point viewer | Source only; no device-render evidence |
 | Runtime/recovery | Feature cache, revisions, fingerprints, atomic publication | Source implemented; interruption/device tests pending |
 | Memory/thermal/Vulkan | Bounded prototype allocations; planned production design | No handset profiling or GPU backend |
-| CI/release | Build/test/privacy/alignment workflow and test sources | Supplied; M01 debug Android build succeeded on CI; M02 requires revalidation |
+| CI/release | Build/test/privacy/alignment workflow and test sources | Supplied; M02 debug Android compilation, lint and APK checks succeeded on CI; device runtime unverified |
 
 No phase requiring actual Android execution or high-quality physical-object reconstruction
 is marked complete. The main verified outcome is a functioning native two-view geometry

@@ -4,8 +4,8 @@
 
 CMake, GCC, Clang, Java/JDK 21 and Python/OpenCV were available. The native core and host
 regressions were compiled and executed. The Android SDK, NDK, Gradle and emulator were not
-installed. External download attempts failed at host/DNS resolution. M01 later compiled successfully on GitHub Actions, including Android lint, unit tests
-and APK structure checks. M02 has separate compilation and runtime gates. A build failure at dependency download does
+installed. External download attempts failed at host/DNS resolution. M02 compiled successfully on GitHub Actions, including Android lint, unit tests
+and APK structure checks. Device runtime remains a separate validation gate. A build failure at dependency download does
 not prove Android source compilation is correct; compiler/integration fixes may still be needed.
 
 ## Android prerequisites

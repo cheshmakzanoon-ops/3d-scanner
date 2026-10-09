@@ -87,7 +87,8 @@ CameraPose dlt(std::span<const Observation> points,const std::vector<std::size_t
     double k=(norm(row(m,0))+norm(row(m,1))+norm(row(m,2)))/3.;
     if(k<1e-14||!std::isfinite(k))throw Error("Degenerate camera matrix");
     if(determinant(m)<0)k=-k;
-    for(auto &x:m)x/=k;t=mul(t,1/k);
+    for(auto &x:m) { x/=k; }
+    t=mul(t,1/k);
     // Gram-Schmidt rows, preserving a proper rotation without external SVD.
     Vec3 a=normalized(row(m,0));
     Vec3 b=normalized(sub(row(m,1),mul(a,dot(a,row(m,1)))));
@@ -103,7 +104,8 @@ Mat3 exponential(Vec3 w){
     double g=a<1e-7?0.5-a*a/24:(1-std::cos(a))/(a*a);
     Mat3 crossm{0,-w.z,w.y,w.z,0,-w.x,-w.y,w.x,0};
     auto sq=multiply(crossm,crossm);
-    for(int i=0;i<9;++i)r[i]+=f*crossm[i]+g*sq[i];return r;
+    for(int i=0;i<9;++i) { r[i]+=f*crossm[i]+g*sq[i]; }
+    return r;
 }
 bool solve6(double a[6][7], double x[6]){
     for(int i=0;i<6;++i){
@@ -113,7 +115,8 @@ bool solve6(double a[6][7], double x[6]){
         double factor=a[i][i];for(int j=i;j<=6;++j)a[i][j]/=factor;
         for(int k=0;k<6;++k)if(k!=i){factor=a[k][i];for(int j=i;j<=6;++j)a[k][j]-=factor*a[i][j];}
     }
-    for(int i=0;i<6;++i)x[i]=a[i][6];return true;
+    for(int i=0;i<6;++i) { x[i]=a[i][6]; }
+    return true;
 }
 void refine(CameraPose& pose, std::span<const Observation> points,const std::vector<std::size_t>& ids,double threshold){
     for(int iter=0;iter<25;++iter){

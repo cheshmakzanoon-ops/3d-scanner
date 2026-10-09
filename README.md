@@ -3,8 +3,8 @@
 **Fully local Android photogrammetry — engineering milestone 02 (0.2.0-m02).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
-geometry core, regression fixtures and build automation. **This source snapshot is not a released app. Previous M01 Android compilation passed on
-GitHub Actions; M02 requires its own CI and device verification.**
+geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M02 Android compilation and APK validation passed on
+GitHub Actions; emulator and physical-device execution remain unverified.**
 
 The current reconstruction is an **anchor-pair sparse point cloud with additional registered camera poses**, not a high-resolution,
 textured surface mesh. Dense multi-view stereo, bundle adjustment, surface generation and
@@ -33,7 +33,8 @@ for the supplied photographs.
 The M02 portable core passes **20 C++ cases** and **57 Python integration/static-source checks** on the development host. M01 historically passed 17/41.
 M02 C++ tests also passed Clang with warnings as errors and GCC address/undefined
 behavior sanitizers with leak detection.
-The previous milestone passed Android builds on GitHub Actions, but M02 Android compilation and runtime require independent verification. JNI host syntax alone is not Android runtime proof.
+M02 Android builds, JVM tests, lint and APK inspection passed on GitHub Actions; runtime
+instrumentation and physical-camera behavior remain unverified.
 
 The bundled synthetic pair reconstructs 579 sparse points from 589 matches. M02 additionally forms
 283 three-view tracks, with 282 supporting the third camera, whose rotation differs from the
@@ -103,9 +104,8 @@ fallback, with no distortion calibration. No metric dimensions, texture atlas, w
 mesh, ARCore depth, Gaussian splats, animation topology or reconstruction-quality guarantees
 are provided. The capture screen does not yet lock exposure or provide measured coverage.
 
-M01 Android compilation and unit/lint checks passed on GitHub Actions. New M02 Android
-compilation and instrumentation remain independent gates; no physical camera test is
-claimed. Do not distribute this as a finished consumer scanner.
+M02 Android compilation, unit/lint checks and APK validation passed on GitHub Actions.
+Emulator instrumentation and physical camera tests remain outstanding. Do not distribute this as a finished consumer scanner.
 
 ## Milestone M02 additional camera registration
 
