@@ -1,4 +1,4 @@
-# Status at delivery — M01
+# Status — M02 (2026-10-09)
 
 | Plan area | Implemented evidence | Gate status |
 |---|---|---|
@@ -9,7 +9,7 @@
 | Android JNI integration | JNI methods and app bridge | Host C++ syntax checked; Android ABI/runtime untested |
 | Camera/import | CameraX, picker, EXIF, duplicate handling, private storage | Source implemented; Android build/device tests pending |
 | Features/matching | SIFT, reciprocal ratios, bounded neighbor pairs, caches | Host path tested; Android adapter pending execution |
-| Sparse SfM | Robust two-view initialization and triangulation | Prototype only; not incremental multi-camera SfM |
+| Sparse SfM | Robust two-view initialization and triangulation | Prototype only; M02 PnP additional camera registration (bounded; no new-point triangulation) |
 | Bundle adjustment | Intended interfaces/next gates documented | Not implemented |
 | Dense stereo/fusion/meshing | Preserved plan | Not implemented |
 | UVs/photographic texturing | Preserved plan | Not implemented |
@@ -17,8 +17,16 @@
 | Viewer | Android diagnostic point viewer | Source only; no device-render evidence |
 | Runtime/recovery | Feature cache, revisions, fingerprints, atomic publication | Source implemented; interruption/device tests pending |
 | Memory/thermal/Vulkan | Bounded prototype allocations; planned production design | No handset profiling or GPU backend |
-| CI/release | Build/test/privacy/alignment workflow and test sources | Supplied; not run; no APK/AAB or release |
+| CI/release | Build/test/privacy/alignment workflow and test sources | Supplied; M01 debug Android build succeeded on CI; M02 requires revalidation |
 
 No phase requiring actual Android execution or high-quality physical-object reconstruction
 is marked complete. The main verified outcome is a functioning native two-view geometry
 milestone, exercised from synthetic images, inside a concrete Android source project.
+
+## M02 increments
+
+- Added a native calibrated PnP solver with bounded DLT-RANSAC, camera-frame refinement, quality gates, exposed through C/JNI/ctypes.
+- Cycle-consistent 3-image track formation on Android, retaining anchor keypoint IDs and requiring agreement from **both** anchor views.
+- Attempt registration of further images into the anchor coordinate system without inventing new triangles, points, or metric scale.
+- Synthetic three-photo benchmark validates the third pose, plus robustness/degeneracy suites.
+- On-device capture, thermal behavior, real-world datasets, triangulation of new multiview tracks, BA and dense MVS remain pending.

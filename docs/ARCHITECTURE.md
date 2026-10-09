@@ -1,4 +1,4 @@
-# M01 architecture and representations
+# M02 architecture and representations
 
 ## Current execution path
 
@@ -83,3 +83,19 @@ Leaving the activity cancels the current job. Feature caches survive and the pro
 interruption. This is not mid-RANSAC resume or an unrestricted Android background worker.
 After process death, the next app session marks any still-PROCESSING project INTERRUPTED.
 Production long-running processing requires a separate, platform-validated lifecycle design.
+
+## M02 global coordinate-frame camera registration
+
+The anchor camera pair remains the only source of triangulated sparse points. Each retained
+`matchIndex` refers to a known reciprocal SIFT feature pair and its two original keypoint
+indices. New photos are compared independently to both anchor frames; only observations
+whose keypoint IDs form a consistent A→C and B→C cycle are used. C++ calibrated PnP
+uses normalized, undistorted *in principle* camera coordinates supplied by the adapter,
+robust DLT-RANSAC and 6-DOF camera-frame pose refinement. It rejects insufficient
+consensus and degenerate geometry and provides per-camera inlier indices and reprojection
+error. These camera poses use the same world frame/scale as the anchor pair; independent
+pair point clouds are never simply concatenated.
+
+**Current limit:** Android's estimated pinhole focal length and missing lens-distortion
+correction remain constraints. Extra poses do not increase point density, and there is no
+global BA, newly triangulated three-view points, loop closure or dense surface.

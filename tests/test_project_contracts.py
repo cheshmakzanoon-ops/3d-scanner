@@ -25,7 +25,7 @@ def test_jni_names_match_declared_methods():
     cpp=(ROOT/"reconstruction/src/jni.cpp").read_text()
     methods=set(re.findall(r"external fun (\w+)\(",kotlin))
     exports=set(re.findall(r"Java_com_realityforge_scanner_engine_NativeCore_(\w+)\(",cpp))
-    assert methods==exports=={"reconstruct","quality","exportPoints"}
+    assert methods==exports=={"reconstruct","registerCamera","quality","exportPoints"}
 
 
 def test_no_dynamic_dependency_versions():

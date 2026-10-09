@@ -1,4 +1,5 @@
 #include "realityforge/core.hpp"
+#include "realityforge/pnp.hpp"
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -30,6 +31,31 @@ int main(){
  test("invalid threshold",[]{auto m=fixture(50);rf::Settings s;s.threshold=0;mustReject([&]{rf::reconstruct(m,s);});});
  test("constant-feature rejection",[]{std::vector<rf::Match>m(40,{{.1,.2},{.1,.2}});mustReject([&]{rf::reconstruct(m);});});
  test("empty GLB rejected",[]{mustReject([]{rf::writeGlb({},"must_not_exist.glb");});});
+ test("M02 calibrated third-camera PnP",[]{
+     std::mt19937 rng(420);std::uniform_real_distribution<double> u(-1,1),z(3,8);
+     std::vector<rf::Observation> tracks;
+     rf::Mat3 r{std::cos(.15),0,std::sin(.15),0,1,0,-std::sin(.15),0,std::cos(.15)};
+     rf::Vec3 t{-1.1,.08,.12};
+     for(int i=0;i<140;++i){rf::Vec3 p{u(rng),u(rng),z(rng)};auto q=rf::multiply(r,p);q.x+=t.x;q.y+=t.y;q.z+=t.z;
+         tracks.push_back({p,{q.x/q.z,q.y/q.z}});}
+     for(int i=0;i<20;++i)tracks[i].image={u(rng),u(rng)};
+     auto result=rf::registerCamera(tracks,.003);
+     require(result.inliers.size()>=119,"PnP lost supported tracks");
+     require(std::abs(result.translation.x-t.x)<.02,"PnP translation inaccurate");
+     require(std::abs(result.rotation[2]-r[2])<.007,"PnP rotation inaccurate");
+     require(result.medianError<.001,"PnP reprojection too high");
+     require(rf::cameraJson(result).find("inlierIndices")!=std::string::npos,"PnP diagnostic JSON missing");
+ });
+ test("M02 invalid PnP rejected",[]{
+     std::vector<rf::Observation> all(25,{{0,0,4},{.1,.2}});
+     mustReject([&]{rf::registerCamera(all);});
+     all[0].image.x=std::numeric_limits<double>::infinity();
+     mustReject([&]{rf::registerCamera(all);});
+ });
+ test("M02 C ABI invalid camera buffer",[]{
+     auto*json=rf_register_camera_json(nullptr,0,.003);
+     require(json&&std::string(json).find("error")!=std::string::npos,"Camera ABI error contract");rf_free(json);
+ });
  test("C ABI invalid input",[]{char*json=rf_reconstruct_json(nullptr,0,.002,nullptr,nullptr);require(json&&std::string(json).find("error")!=std::string::npos,"C ABI error contract");rf_free(json);});
  std::cout<<"\n"<<passed<<" passed; "<<failed<<" failed\n";return failed?1:0;
 }

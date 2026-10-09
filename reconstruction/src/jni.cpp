@@ -1,4 +1,5 @@
 #include "realityforge/core.hpp"
+#include "realityforge/pnp.hpp"
 #include <cmath>
 #include <jni.h>
 #include <vector>
@@ -12,6 +13,18 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstruct(JNIEnv* env,jobject,
     std::vector<double> data(static_cast<std::size_t>(length));env->GetDoubleArrayRegion(rows,0,length,data.data());if(env->ExceptionCheck())return nullptr;
     auto* json=rf_reconstruct_json(data.data(),data.size()/7,threshold,nullptr,nullptr);
     if(!json){illegal(env,"Native allocation failed");return nullptr;}auto result=env->NewStringUTF(json);rf_free(json);return result;
+}
+// All camera poses use the anchor pair's shared, arbitrary SfM coordinate system.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_registerCamera(JNIEnv* env,jobject,jdoubleArray rows,jdouble threshold) {
+    if(!rows){illegal(env,"Missing 3D-2D tracks");return nullptr;}
+    auto length=env->GetArrayLength(rows);
+    if(length%5||length<80||length>25000){illegal(env,"Expected 16–5000 five-element tracks");return nullptr;}
+    std::vector<double> data(static_cast<std::size_t>(length));
+    env->GetDoubleArrayRegion(rows,0,length,data.data());if(env->ExceptionCheck())return nullptr;
+    auto* json=rf_register_camera_json(data.data(),data.size()/5,threshold);
+    if(!json){illegal(env,"Native allocation failed");return nullptr;}
+    auto result=env->NewStringUTF(json);rf_free(json);return result;
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_quality(JNIEnv* env,jobject,jbyteArray gray,jint width,jint height) {

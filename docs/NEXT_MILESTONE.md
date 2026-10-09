@@ -1,4 +1,4 @@
-# Next milestone: verified Android execution, then multi-camera sparse geometry
+# Next milestone: real-device validation and multi-camera expansion
 
 The agreed final product is unchanged. Continue from these files; do not replace the engine
 with canned geometry or a web/cloud service.
@@ -45,3 +45,17 @@ Only after real multi-camera geometry passes its benchmark gate: implement a CPU
 reference, then measured Vulkan acceleration, confidence-aware fusion, surface meshing and
 photographic UV/texture baking. Continue all 20 phases in PROJECT_PLAN.md. No present sparse
 point count should be presented as progress in triangles, texture quality or complete models.
+
+## Completed after M01
+
+- GitHub CI now compiles, lints and validates the M01 debug APK.
+- M02 adds a separately tested native PnP solver and Kotlin cycle-consistent extra-view registration.
+- Synthetic three-photo pose test agrees with known calibration.
+
+## Next implementation gate (M03)
+
+1. Run Android emulator/physical-device instrumentation for M02, collect actual logs, fix runtime issues.
+2. Capture a real textured-object three-plus-view dataset with verified calibration and masks.
+3. Build a global observation-track graph rather than anchor-only cycles, introduce point triangulation from newly registered views with parallax/cheirality checks.
+4. Integrate robust sparse bundle adjustment with gauge-fixed camera/point representation and genuine before/after error comparisons.
+5. Persist per-camera registration states and checkpoint resumption, before dense MVS.

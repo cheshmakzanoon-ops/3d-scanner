@@ -27,6 +27,8 @@ class NativeEngine:
         self.library=ctypes.CDLL(str(path or library_path()))
         self.library.rf_reconstruct_json.argtypes=[ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double,ctypes.c_char_p,ctypes.c_char_p]
         self.library.rf_reconstruct_json.restype=ctypes.c_void_p
+        self.library.rf_register_camera_json.argtypes=[ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double]
+        self.library.rf_register_camera_json.restype=ctypes.c_void_p
         self.library.rf_free.argtypes=[ctypes.c_void_p]
         self.library.rf_free.restype=None
 
@@ -42,4 +44,19 @@ class NativeEngine:
         try: result=json.loads(ctypes.string_at(pointer).decode("utf-8"))
         finally: self.library.rf_free(pointer)
         if "error" in result: raise ValueError(result["error"])
+        return result
+
+    def register_camera(self, observations:np.ndarray, threshold:float=.003) -> dict[str,Any]:
+        """Estimate one additional camera using known world points (XYZ, normalized UV).
+
+        Returns a pose in the existing anchor world frame. Does NOT fuse/triangulate new points.
+        """
+        rows=np.ascontiguousarray(observations,dtype=np.float64)
+        if rows.ndim!=2 or rows.shape[1]!=5 or len(rows)>5000:
+            raise ValueError("Expected up to 5000 N×5 [X,Y,Z,u,v] camera observations")
+        pointer=self.library.rf_register_camera_json(rows.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),len(rows),threshold)
+        if not pointer: raise MemoryError("Native pose JSON allocation failed")
+        try: result=json.loads(ctypes.string_at(pointer).decode("utf-8"))
+        finally: self.library.rf_free(pointer)
+        if "error" in result:raise ValueError(result["error"])
         return result

@@ -1,11 +1,11 @@
 # Build and run
 
-## What was actually possible here
+## Environment and verified build history
 
 CMake, GCC, Clang, Java/JDK 21 and Python/OpenCV were available. The native core and host
 regressions were compiled and executed. The Android SDK, NDK, Gradle and emulator were not
-installed. External download attempts failed at host/DNS resolution. No APK or AAB was
-compiled, signed, installed, booted or tested. A build failure at dependency download does
+installed. External download attempts failed at host/DNS resolution. M01 later compiled successfully on GitHub Actions, including Android lint, unit tests
+and APK structure checks. M02 has separate compilation and runtime gates. A build failure at dependency download does
 not prove Android source compilation is correct; compiler/integration fixes may still be needed.
 
 ## Android prerequisites
@@ -65,7 +65,7 @@ optional. Start with a local project and import 2–12 overlapping photographs. 
 fallback 35 mm-equivalent focal length only when actual EXIF data is unavailable. This
 fallback is an assumption, not a calibrated camera. Press **Build sparse 3D preview**.
 
-M01 keeps processing in the visible app and cancels on leaving it. Finished feature caches
+M02 keeps processing in the visible app and cancels on leaving it. Finished feature caches
 can be reused. It does not implement the long-running foreground-service architecture
 planned for dense reconstruction. No RAW or ARCore capture mode is shipped yet.
 
@@ -100,3 +100,13 @@ C++ sanitizer checks are available with `-DRF_SANITIZE=ON`.
 JVM tests, lint, native alignment/privacy checks, and opt-in emulator instrumentation.
 It contains no repository-specific identifiers or credentials. It has not been executed.
 Uploading it to a repository and running it is a separate action; none was taken here.
+
+## M02 additional-camera pose test
+
+```bash
+python3 tools/three_view.py
+```
+
+It uses three local, explicitly synthetic photos and the shared native C++ implementation
+for stereo initialization plus calibrated third-view PnP. This does not generate a mesh.
+The on-device Android SIFT/pose adapter still requires camera and emulator tests.

@@ -30,6 +30,21 @@ class NativeSmokeTest {
         assertFalse(result.toString(), result.has("error"))
         assertTrue(result.getInt("pointCount") >= 75)
     }
+    @Test fun registerThirdPoseOnDevice() {
+        val random = Random(121)
+        val tracks = DoubleArray(80 * 5)
+        for (i in 0 until 80) {
+            val x = random.nextDouble(-1.0, 1.0)
+            val y = random.nextDouble(-1.0, 1.0)
+            val z = random.nextDouble(3.0, 8.0)
+            val values = doubleArrayOf(x, y, z, (x - 1.2) / z, (y + 0.1) / z)
+            values.copyInto(tracks, i * 5)
+        }
+        val result = JSONObject(NativeCore.registerCamera(tracks, .003))
+        assertFalse(result.toString(), result.has("error"))
+        assertTrue(result.getInt("inlierCount") >= 75)
+        assertEquals(-1.2, result.getJSONArray("translation").getDouble(0), .02)
+    }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext

@@ -138,10 +138,10 @@ fun ScannerApp(model: ScannerViewModel) {
                             Card {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                     Text("${result.optInt("pointCount")} reconstructed points", style = MaterialTheme.typography.titleLarge)
-                                    Text("2 cameras · arbitrary scale · drag to orbit, pinch to zoom", style = MaterialTheme.typography.labelMedium)
+                                    Text("${result.optInt("registeredCameras", 2)} registered cameras · arbitrary scale · drag to orbit, pinch to zoom", style = MaterialTheme.typography.labelMedium)
                                     PointCloudViewer(result, Modifier.fillMaxWidth().height(310.dp))
                                     Text("Median parallax: ${"%.2f".format(result.optDouble("medianParallaxDegrees"))}°", color = MaterialTheme.colorScheme.primary)
-                                    Text("Estimated calibration. No bundle adjustment or dense surface exists in this result.", style = MaterialTheme.typography.bodySmall)
+                                    Text("M02 camera poses use a shared anchor frame. Points remain pair-derived; no bundle adjustment or dense surface exists.", style = MaterialTheme.typography.bodySmall)
                                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         OutlinedButton(enabled = !busy, onClick = { exportGlb.launch("realityforge-sparse.glb") }) { Text("Export GLB") }
                                         OutlinedButton(enabled = !busy, onClick = { exportPly.launch("realityforge-sparse.ply") }) { Text("Export PLY") }
@@ -153,7 +153,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }
-                    item { InfoCard("Next engineering gate", "Multi-camera registration and bundle adjustment, then dense depth, surface meshing and photographic texture baking. No sample mesh is substituted for your photos.") }
+                    item { InfoCard("Next engineering gate", "Triangulate new multi-camera tracks and introduce measured bundle adjustment, then dense depth, surface meshing and photographic textures.") }
                     item { TextButton(enabled = !busy, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }

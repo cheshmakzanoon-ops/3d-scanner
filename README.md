@@ -1,12 +1,12 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 01 (0.1.0-m01).**
+**Fully local Android photogrammetry — engineering milestone 02 (0.2.0-m02).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
-geometry core, regression fixtures and build automation. **It does not contain an installable
-APK. Android compilation and device operation were not verified in the authoring workspace.**
+geometry core, regression fixtures and build automation. **This source snapshot is not a released app. Previous M01 Android compilation passed on
+GitHub Actions; M02 requires its own CI and device verification.**
 
-The current reconstruction is a **two-view sparse point cloud**, not a high-resolution,
+The current reconstruction is an **anchor-pair sparse point cloud with additional registered camera poses**, not a high-resolution,
 textured surface mesh. Dense multi-view stereo, bundle adjustment, surface generation and
 photographic texturing remain subsequent milestones. Nothing substitutes a stock 3D model
 for the supplied photographs.
@@ -20,23 +20,25 @@ for the supplied photographs.
 - Room project metadata, photo revisions, interrupted-session recovery, feature caches,
   settings fingerprints, atomic result publication and stale-result invalidation.
 - Native OpenCV SIFT through its Android bindings, reciprocal descriptor matching and a
-  dependency-free C++20 two-view initializer reached through JNI.
+  dependency-free C++20 two-view initializer and bounded, robust PnP pose solver through JNI.
 - Robust essential-matrix estimation, pose disambiguation, triangulation, cheirality,
-  parallax and reprojection checks.
+  parallax and reprojection checks; M02 also registers additional cameras to the same
+  anchor frame using cycle-consistent feature tracks and robust native PnP.
 - Sparse point viewer and local GLB POINTS / PLY export. Neither export contains mesh faces.
 - Source manifest strips INTERNET and ACCESS_NETWORK_STATE. No analytics, login,
   advertising SDK or cloud-processing client is included.
 
 ## Executed validation
 
-The portable core passes **17 C++ cases** and **41 Python integration/static-source checks**.
-The native cases were also run under Clang and GCC address/undefined-behavior sanitizers.
-JNI C++ syntax was checked against installed JDK headers; this is not an Android ABI test.
+The M02 portable core passes **20 C++ cases** and **57 Python integration/static-source checks** on the development host. M01 historically passed 17/41.
+M02 C++ tests also passed Clang with warnings as errors and GCC address/undefined
+behavior sanitizers with leak detection.
+The previous milestone passed Android builds on GitHub Actions, but M02 Android compilation and runtime require independent verification. JNI host syntax alone is not Android runtime proof.
 
-The bundled synthetic stereo fixture produced **579 triangulated points from 589 reciprocal
-SIFT matches**, with 0.109 px median reprojection error and 0.046° rotation error against its
-known camera. These are **synthetic regression results**, not evidence of physical-object
-scan quality or phone performance. See [validation report](docs/VALIDATION_REPORT.md).
+The bundled synthetic pair reconstructs 579 sparse points from 589 matches. M02 additionally forms
+283 three-view tracks, with 282 supporting the third camera, whose rotation differs from the
+synthetic ground truth by about 0.023°. These are **synthetic regression results**, not physical-object
+accuracy, mobile performance, dense geometry or texture quality. See [M02 validation](docs/M02_VALIDATION.md).
 
 ## Open the project
 
@@ -73,7 +75,8 @@ python3 tools/photo_pair.py \
 ```
 
 The last command extracts image features, invokes the same native geometry library used by
-Android, and writes `sparse.glb`, `sparse.ply` and reconstruction diagnostics. The host harness
+Android, and writes `sparse.glb`, `sparse.ply` and reconstruction diagnostics. To validate
+third-camera registration, run `python3 tools/three_view.py`. The host harness
 is a development/test tool, not a service required by the Android application.
 
 ## Project map
@@ -93,12 +96,23 @@ is a development/test tool, not a service required by the Android application.
 
 ## Important boundaries
 
-M01 examines up to 12 photos, matches local neighbors, and retains **one** reliable camera
-pair. It does not register all photos. Intrinsics are estimated from EXIF or a visibly stated
+M02 examines up to 12 photos, chooses an anchor pair and attempts to register other
+photos from cycle-consistent 3D–2D tracks. It does not triangulate additional points or
+perform bundle adjustment. Intrinsics are estimated from EXIF or a visibly stated
 fallback, with no distortion calibration. No metric dimensions, texture atlas, watertight
 mesh, ARCore depth, Gaussian splats, animation topology or reconstruction-quality guarantees
 are provided. The capture screen does not yet lock exposure or provide measured coverage.
 
-The source includes Android unit and instrumentation tests, but those were **not executed**.
-The CI workflow is supplied, **not run or deployed**. No GitHub repository was created or
-modified. Do not distribute this as a finished consumer scanner.
+M01 Android compilation and unit/lint checks passed on GitHub Actions. New M02 Android
+compilation and instrumentation remain independent gates; no physical camera test is
+claimed. Do not distribute this as a finished consumer scanner.
+
+## Milestone M02 additional camera registration
+
+`tools/three_view.py` runs a genuine three-image SIFT correspondence cycle and native PnP,
+not an estimated pose copied from fixture calibration. It reports a third camera in the same
+unit-baseline world frame as the initial pair. On Android, additional cameras are attempted
+with cached SIFT descriptors and require agreement with both anchor images. Unregistered
+images are explicitly listed, not silently counted as geometry. Anchor points remain exactly
+anchor-pair derived; **no new mesh vertices, bundle adjustment, textured triangles, or
+metric scale are claimed**.
