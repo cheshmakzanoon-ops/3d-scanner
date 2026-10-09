@@ -1,0 +1,84 @@
+name: Import RealityForge M01 source
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/import-realityforge-m01.yml']
+permissions:
+  contents: write
+concurrency:
+  group: realityforge-m01-import
+  cancel-in-progress: false
+jobs:
+  import:
+    if: github.repository == 'cheshmakzanoon-ops/3d-scanner'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify and import delivered source archive
+        env:
+          ARCHIVE_URL: 'https://sdmntprwestus.oaiusercontent.com/files/00000000-0c5c-8230-a473-48d5144086f1/raw?se=2026-10-09T16%3A13%3A38Z&sp=r&sv=2026-02-06&sr=b&scid=1609f79a-742b-52c3-a88e-597939b4db16&skoid=fae15675-a81a-44b5-9d8c-d8445a7c26a2&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-09T14%3A07%3A12Z&ske=2026-10-10T14%3A07%3A12Z&sks=b&skv=2026-02-06&sig=eeGgRzSBy5%2BjnKb7now3LmmIbVdAsE6oBzCAvdXvOno%3D'
+        run: |
+          python3 - <<'PY'
+          import hashlib, io, os, pathlib, stat, subprocess, urllib.request, zipfile
+          url = os.environ['ARCHIVE_URL']
+          print('::add-mask::' + url, flush=True)
+          expected_parent = '45a34a3bc170fc137b63426986546f3e5b6e5a7e'
+          parent = subprocess.check_output(['git', 'rev-parse', 'HEAD^'], text=True).strip()
+          if parent != expected_parent:
+              raise SystemExit('Repository changed before import; refusing to overwrite existing work.')
+          tracked = set(subprocess.check_output(['git', 'ls-files'], text=True).splitlines())
+          if tracked != {'README.md', '.github/workflows/import-realityforge-m01.yml'}:
+              raise SystemExit('Unexpected existing files; import stopped without modifying them.')
+          try:
+              with urllib.request.urlopen(url, timeout=90) as response:
+                  archive = response.read(2 * 1024 * 1024)
+          except Exception:
+              raise SystemExit('Temporary archive download failed; refresh the transfer URL.') from None
+          expected = 'd4296bcc47166f490d07128b29b751e175f78cbc8e53420283f0ae504f05b062'
+          if hashlib.sha256(archive).hexdigest() != expected:
+              raise SystemExit('Archive checksum mismatch; nothing imported.')
+          entries = {}
+          with zipfile.ZipFile(io.BytesIO(archive)) as source:
+              if source.testzip() is not None:
+                  raise SystemExit('Archive integrity check failed.')
+              for item in source.infolist():
+                  if item.is_dir():
+                      continue
+                  path = pathlib.PurePosixPath(item.filename)
+                  if path.is_absolute() or '..' in path.parts or path.parts[0] != 'realityforge':
+                      raise SystemExit('Unsafe archive path.')
+                  relative = pathlib.PurePosixPath(*path.parts[1:])
+                  if not relative.parts or '.git' in relative.parts:
+                      raise SystemExit('Unsafe repository path.')
+                  mode = item.external_attr >> 16
+                  if stat.S_ISLNK(mode):
+                      raise SystemExit('Unexpected symlink.')
+                  entries[str(relative)] = (source.read(item), mode & 0o777 or 0o644)
+          if len(entries) != 81:
+              raise SystemExit('Unexpected source file count.')
+          for line in entries['SOURCE_MANIFEST.sha256'][0].decode().splitlines():
+              digest, path = line.split('  ', 1)
+              if hashlib.sha256(entries[path][0]).hexdigest() != digest:
+                  raise SystemExit('Source manifest checksum mismatch: ' + path)
+          for path, (content, mode) in entries.items():
+              if path.startswith('.github/workflows/'):
+                  continue
+              destination = pathlib.Path(path)
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_bytes(content)
+              destination.chmod(mode)
+          print('Verified all 81 archive files; imported 80 source files. Verification workflow is finalized separately.')
+          PY
+      - name: Commit and push source without rewriting history
+        run: |
+          git config user.name 'cheshmakzanoon-ops'
+          git config user.email '318354914+cheshmakzanoon-ops@users.noreply.github.com'
+          git add --all -- . ':!.github/workflows'
+          git diff --cached --stat
+          git commit -m 'feat: import RealityForge M01 Android app and native reconstruction prototype'
+          git push origin HEAD:main
+          printf 'Imported source commit: ' >> "$GITHUB_STEP_SUMMARY"
+          git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
