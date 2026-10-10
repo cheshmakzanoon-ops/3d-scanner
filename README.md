@@ -1,6 +1,6 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 04 (0.4.0-m04).**
+**Fully local Android photogrammetry — engineering milestone 05 (0.5.0-m05).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
 geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M02 Android compilation and APK validation passed on
@@ -126,3 +126,11 @@ See [M03 validation](docs/M03_VALIDATION.md). M03 adds native calibrated triangu
 M04 adds an optional per-project **checkerboard-derived Brown–Conrady lens model** (fx/fy/cx/cy and five distortion coefficients), fully offline. Capture 10–40 photos of the bundled [9×6-inner-corner printable checkerboard](docs/checkerboard-9x6.svg) using one lens and orientation, then select **Calibrate this lens** inside the project. The app detects/optimizes 2D corners with OpenCV, measures fit RMS, rejects insufficient geometry, and uses calibrated undistorted normalized rays in anchor matching, PnP and M03 multi-view tracks. The profile is local to the project; changing it invalidates old sparse results. Incompatible aspect or known EXIF focal ratio causes an explicit error, not a silent pinhole fallback. Without a profile the existing estimated-pinhole pipeline remains available.
 
 This milestone also repairs `ProjectRepository.artifact`: versioned sparse artifact keys now match the file-lookup pattern, restoring reopened/exported preview access. See [calibration guide](docs/M04_CALIBRATION_GUIDE.md). This is still a sparse prototype: **no dense mesh, no texture, no full Ceres BA, and no verified physical-scene accuracy**. CI compiles and validates; real phone testing is outstanding.
+
+## M05 — Real-photo acceptance benchmark, user-controlled capture ZIP and emulator QA
+
+M05 adds a **real physical-scene image test** using the Middlebury 2014 Motorcycle stereo dataset through scikit-image, cross-checking actual native sparse SfM against independent stereo disparity ground truth. The input images are not redistributed with this repo. The benchmark and conservative regression gates run in GitHub Actions using `tools/requirements-real-benchmark.txt`. See [M05 validation](docs/M05_REAL_VALIDATION.md) for real observed errors (including outliers).
+
+Capture projects can now export an **opt-in ZIP** containing original local photographs, SHA-256 hashes, metadata and the optional offline lens-calibration profile. Run `python tools/capture_audit.py /path/to/realityforge-capture.zip` to inspect it without contacting a server. This is a capture audit, **not** a reconstructed surface. Stricter reciprocal-SIFT filtering (.67 instead of .75) is used consistently in the host and Android implementations.
+
+The GitHub workflow also runs **API 35 x86_64 emulator instrumentation** on commits to `main` to validate JNI/OpenCV, database behavior, and ZIP export. Emulator validation cannot replace measurements from a physical arm64 camera, including calibration, thermal behavior and actual 3D reconstruction quality. Dense MVS, textured geometry, global Ceres-based BA, and metric scale remain unimplemented.

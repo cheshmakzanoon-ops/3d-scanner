@@ -1,0 +1,2 @@
+-r requirements.txt
+scikit-image==0.25.2

@@ -58,9 +58,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
         val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
-        val fingerprintInput = "m04-lens-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.75|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        val fingerprintInput = "m05-real-validation-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m04-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m05-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
@@ -253,7 +253,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
         }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m04-lens-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
+            .put("engineVersion", "m05-real-validation-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }
@@ -338,12 +338,12 @@ class SparsePipeline(private val repository: ProjectRepository) {
             matcher.knnMatch(a.descriptors, b.descriptors, forward, 2)
             matcher.knnMatch(b.descriptors, a.descriptors, backward, 2)
             val reverse = HashMap<Int, Int>()
-            for (row in backward) { val m = row.toArray(); if (m.size >= 2 && m[0].distance < .75 * m[1].distance) reverse[m[0].queryIdx] = m[0].trainIdx }
+            for (row in backward) { val m = row.toArray(); if (m.size >= 2 && m[0].distance < .67 * m[1].distance) reverse[m[0].queryIdx] = m[0].trainIdx }
             val output = ArrayList<Double>()
             val firstKeys = ArrayList<Int>(); val secondKeys = ArrayList<Int>()
             for (row in forward) {
                 val m = row.toArray()
-                if (m.size < 2 || m[0].distance >= .75 * m[1].distance) continue
+                if (m.size < 2 || m[0].distance >= .67 * m[1].distance) continue
                 val i = m[0].queryIdx; val j = m[0].trainIdx
                 if (reverse[j] != i) continue
                 val uvA = runCatching { a.projection.normalized(a.xy[2*i].toDouble(), a.xy[2*i+1].toDouble()) }.getOrNull() ?: continue

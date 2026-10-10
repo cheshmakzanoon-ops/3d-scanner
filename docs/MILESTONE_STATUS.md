@@ -1,4 +1,4 @@
-# Status — M04 (2026-10-10)
+# Status — M05 (2026-10-10)
 
 | Plan area | Implemented evidence | Gate status |
 |---|---|---|
@@ -46,3 +46,11 @@ milestone, exercised from synthetic images, inside a concrete Android source pro
 - Fixed regression where versioned sparse artifact keys failed the old `ProjectRepository` regex and could not be reopened/exported.
 - Adds synthetic calibration tests, JVM lens tests, printable reference board and capture guide.
 - **Still missing:** physical-device validation, real calibrated captures, global Ceres BA, dense surfaces and photo-textures.
+
+## M05 — Real-source validation and reproducible device testing
+
+- Added a non-synthetic **Middlebury Motorcycle** stereo benchmark using physically captured images and reference disparity. CI gates SIFT matches, native sparse points, disparity error, reference-scaled depth error and real-image pose stability; known stereo baseline is used **only for evaluation**. No datasets rehosted.
+- Added voluntary capture ZIP export of original project photos, hashes, per-photo metadata, optional calibration, and machine-readable schema-1 `session.json`; added offline `tools/capture_audit.py` and negative-path tests.
+- Reduced reciprocal SIFT ratio from .75 to .67 across native-host and Android image-matching adapters after measuring significantly better camera-pose stability on the independent real stereo pair.
+- Enabled automated emulator JNI/OpenCV/Room and capture-export instrumentation on CI pushes; this is not arm64 physical camera validation.
+- Deferred constrained global Ceres BA and CPU dense Multi-View Stereo until device/real multi-view acceptance is measured, per the original quality-first development plan.

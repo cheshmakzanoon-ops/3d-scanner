@@ -25,9 +25,9 @@ def pairs(a:np.ndarray,b:np.ndarray) -> list[tuple[int,int]]:
     forward=matcher.knnMatch(a,b,k=2)
     backward=matcher.knnMatch(b,a,k=2)
     reverse={m.queryIdx:m.trainIdx for matches in backward if len(matches)==2
-             for m,n in [matches] if m.distance < .75*n.distance}
+             for m,n in [matches] if m.distance < .67*n.distance}
     return [(m.queryIdx,m.trainIdx) for matches in forward if len(matches)==2
-            for m,n in [matches] if m.distance < .75*n.distance and reverse.get(m.trainIdx)==m.queryIdx]
+            for m,n in [matches] if m.distance < .67*n.distance and reverse.get(m.trainIdx)==m.queryIdx]
 
 
 def normalized(p:np.ndarray,k:np.ndarray) -> np.ndarray:

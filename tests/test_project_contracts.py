@@ -53,7 +53,7 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m04-lens-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "m05-real-validation-1" in engine and "LensCalibration.read(repository, projectId)" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
     assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
@@ -63,3 +63,27 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
 def test_export_artifact_key_supports_milestone_versions():
     src=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
     assert 'sparse-(?:m[0-9]{2}-)?r[0-9]+-[0-9a-f]{16}' in src
+
+
+def test_source_manifest_matches_every_tracked_artifact():
+    import hashlib
+    manifest=(ROOT/"SOURCE_MANIFEST.sha256").read_text().splitlines()
+    assert len(manifest) >= 105
+    assert len(set(row.split("  ",1)[1] for row in manifest)) == len(manifest)
+    for row in manifest:
+        expected,path=row.split("  ",1)
+        candidate=ROOT/path
+        assert candidate.is_file(), path
+        assert hashlib.sha256(candidate.read_bytes()).hexdigest()==expected, path
+
+
+def test_capture_package_requires_explicit_destination_and_preserves_hashes():
+    repository=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
+    view_model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
+    screen=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt").read_text()
+    assert "suspend fun exportCaptureBundle(projectId: String, destination: OutputStream)" in repository
+    assert 'MessageDigest.getInstance("SHA-256")' in repository
+    assert 'ZipEntry("session.json")' in repository
+    assert "ActivityResultContracts.CreateDocument(\"application/zip\")" in screen
+    assert "model.exportCaptureBundle(it)" in screen
+    assert "openOutputStream(uri, \"wt\")" in view_model

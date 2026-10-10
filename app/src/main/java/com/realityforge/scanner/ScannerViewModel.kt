@@ -167,6 +167,24 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
             runCatching { repository.delete(id) }.onSuccess { select(null) }.onFailure { notice.value = it.message }
         }
     }
+    fun exportCaptureBundle(uri: Uri) {
+        val id = selectedId.value ?: return
+        if (busy.value) return
+        busy.value = true
+        task = viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val stream = requireNotNull(getApplication<Application>().contentResolver.openOutputStream(uri, "wt")) {
+                    "Cannot open destination."
+                }
+                val count = repository.exportCaptureBundle(id, stream)
+                notice.value = "Exported $count original photos and a local benchmark manifest. Keep the ZIP private."
+            } catch (cancelled: CancellationException) {
+                notice.value = "Capture export interrupted. Delete any incomplete destination ZIP."
+            } catch (e: Exception) {
+                notice.value = "Capture export failed: ${e.message}. Delete any incomplete destination ZIP."
+            } finally { busy.value = false }
+        }
+    }
     fun export(uri: Uri, extension: String) {
         val id = selectedId.value ?: return
         if (busy.value || extension !in setOf("glb", "ply")) return

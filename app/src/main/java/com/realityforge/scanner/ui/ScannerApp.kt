@@ -58,6 +58,7 @@ fun ScannerApp(model: ScannerViewModel) {
     val checkerboardPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { model.calibrateLens(it) }
     val exportGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "glb") } }
     val exportPly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "ply") } }
+    val exportCapture = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri -> uri?.let { model.exportCaptureBundle(it) } }
     LaunchedEffect(notice) { notice?.let { snackbars.showSnackbar(it); model.notice.value = null } }
     BackHandler(enabled = selected != null || camera) { if (camera) camera = false else if (!busy) model.select(null) }
     MaterialTheme(colorScheme = palette) {
@@ -66,7 +67,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M04", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M05", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -168,6 +169,15 @@ fun ScannerApp(model: ScannerViewModel) {
                                 }
                             }
                         }
+                    }
+                    item {
+                        OutlinedButton(enabled = !busy && photos.size >= 3,
+                            onClick = { exportCapture.launch("realityforge-capture.zip") },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text("Export original photos + calibration for benchmark")
+                        }
+                        Text("Creates a local ZIP at your chosen destination containing your original photos; treat it as private. The export does not upload anything from RealityForge.",
+                            style = MaterialTheme.typography.bodySmall)
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }

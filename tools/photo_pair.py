@@ -27,12 +27,12 @@ def extract_matches(first:Path,second:Path,ka:np.ndarray,kb:np.ndarray) -> tuple
     if da is None or db is None or min(len(a),len(b))<2: raise ValueError("Insufficient distinct features")
     matcher=cv2.BFMatcher(cv2.NORM_L2)
     forward=matcher.knnMatch(da,db,k=2); backward=matcher.knnMatch(db,da,k=2)
-    reverse={m.queryIdx:m.trainIdx for row in backward if len(row)==2 for m,n in [row] if m.distance<.75*n.distance}
+    reverse={m.queryIdx:m.trainIdx for row in backward if len(row)==2 for m,n in [row] if m.distance<.67*n.distance}
     rows=[]
     for neighbors in forward:
         if len(neighbors)!=2: continue
         m,n=neighbors
-        if m.distance>=.75*n.distance or reverse.get(m.trainIdx)!=m.queryIdx: continue
+        if m.distance>=.67*n.distance or reverse.get(m.trainIdx)!=m.queryIdx: continue
         pa=np.array([*a[m.queryIdx].pt,1.]);pb=np.array([*b[m.trainIdx].pt,1.])
         na=np.linalg.solve(ka,pa);nb=np.linalg.solve(kb,pb)
         x,y=np.rint(pa[:2]).astype(int);h,w=images[0].shape[:2]
