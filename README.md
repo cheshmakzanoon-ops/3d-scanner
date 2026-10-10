@@ -1,13 +1,11 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 06 (0.6.0-m06).**
+**Fully local Android photogrammetry — engineering milestone 07 (0.7.0-m07).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
-geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M05 Android compilation, APK validation, and API-35 emulator JNI tests passed on GitHub Actions. M06 changes still require their own CI validation; physical arm64 camera testing remains outstanding.**
+geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M06 Android compilation and API-35 emulator instrumentation passed on GitHub Actions. M07 still requires its own build/runtime CI verification and physical arm64 camera testing.**
 
-The current reconstruction is a **sparse point cloud triangulated from registered photo pairs with M06 joint gauge-fixed Schur/Levenberg–Marquardt camera/point refinement**, not a high-resolution,
-textured surface mesh. Dense multi-view stereo, intrinsics-optimizing Ceres bundle adjustment, surface generation and
-photographic texturing remain subsequent milestones. Nothing substitutes a stock 3D model
+The app reconstructs **sparse SfM points** using registered cameras and M06 joint refinement. M07 also provides a **bounded CPU dense stereo point-cloud preview**, not a triangle mesh. High-resolution dense MVS, confidence-aware surface fusion, intrinsics-refining Ceres BA, surface meshing and photographic texturing remain separate milestones. Nothing substitutes a stock 3D model
 for the supplied photographs.
 
 ## Implemented in source
@@ -25,23 +23,24 @@ for the supplied photographs.
   anchor frame using cycle-consistent feature tracks and robust native PnP.
 - M03 builds conflict-aware keypoint tracks across registered images and triangulates new sparse points from camera pairs outside the original anchor; first two cameras remain fixed during damped Huber refinement.
 - M06 adds a coupled global Huber-weighted Schur/LM optimization of registered camera extrinsics and sparse points (first two anchor poses fixed; camera intrinsics not refined).
-- Sparse point viewer and local GLB POINTS / PLY export. Neither export contains mesh faces.
+- M07 adds offline rectified CPU photometric plane sweep, reciprocal depth-map consistency, bounded deduplicated dense POINTS, and separate dense-point GLB/PLY outputs. Both sparse and dense GLBs contain GLTF POINTS, not triangle faces.
+- Point-cloud diagnostic viewer with separate sparse and dense previews.
 - Source manifest strips INTERNET and ACCESS_NETWORK_STATE. No analytics, login,
   advertising SDK or cloud-processing client is included.
 
 ## Executed validation
 
-The M06 host suite passes GCC and Clang builds with warnings treated as errors,
-CTest's three native targets, ASan/UBSan and Python integration tests. On a
+The portable geometry core was tested using GCC and Clang -Werror,
+CTest native targets, ASan/UBSan and Python integration tests. On a
 synthetic four-camera geometry fixture, median normalized reprojection error
 fell from ~0.007915 to ~0.000179 while anchor poses stayed fixed. On three
 actual *synthetically rendered photographs* passed through SIFT/SfM/PnP, the
 Huber objective decreased by ~32%; these are not measured physical-object scans.
 See [M06 validation](docs/M06_VALIDATION.md).
 
-M05 CI passed Android build, lint, APK and API-35 emulator instrumentation,
-including privacy, JNI and capture ZIP tests. M06's Android runtime behavior
-must be checked by its own workflow; a physical phone has not been measured.
+M06 CI passed Android build, lint, APK and API-35 emulator instrumentation.
+M07 adds the dense JNI and on-device CPU stereo workflow, awaiting M07 CI.
+No physical-phone camera/thermal measurement has been performed.
 
 ## Open the project
 
@@ -83,6 +82,8 @@ third-camera registration, run `python3 tools/three_view.py`. For M06 joint
 camera/point optimization through actual rendered photo matches, run
 `python3 tools/bundle_three_view.py`. The host harness
 is a development/test tool, not a service required by the Android application.
+For the **independently measured real-photo dense stereo gate**, run
+`python tools/benchmark_dense_middlebury.py --gate`; see [M07 validation](docs/M07_VALIDATION.md).
 
 ## Project map
 
@@ -101,13 +102,13 @@ is a development/test tool, not a service required by the Android application.
 
 ## Important boundaries
 
-M06 examines up to 12 input photographs, uses M03 registered-camera sparse
-tracks and optionally couples camera/point increments through Schur-complement
-bundle adjustment. The first two anchor cameras are fixed. Calibration from
+M07 examines up to 12 input photos for sparse reconstruction, then uses
+up to three registered views for a low-resolution CPU stereo depth preview.
+M06 Schur bundle adjustment still holds both anchor cameras fixed. Calibration from
 M04 can correct Brown–Conrady distortion but M06 does **not** optimize
 intrinsics, provide an absolute metric scale or guarantee registration of all
-views. GLB/PLY export contains sparse points only; no dense point cloud,
-triangle mesh, UV textures, animation topology, or production-quality model.
+views. Separate sparse/dense GLB and PLY exports contain points only; no
+triangle mesh, UV texture atlas, animation topology, or production-quality model.
 M05 API-35 emulator tests passed; a real arm64 camera/thermal run is still
 outstanding. Do not distribute as a finished consumer scanner.
 
@@ -148,3 +149,11 @@ invokes it only after accepted M03 multiview geometry, checks loss and point
 retention, and retains M03 geometry if the new optimizer rejects the scene.
 The source and real-photos remain entirely on device. This **does not add Ceres,
 optimize intrinsics or generate dense surfaces**. [M06 validation](docs/M06_VALIDATION.md).
+
+## Milestone M07 — CPU dense depth proof of concept
+
+M07 produces real multi-view depth hypotheses and validates them against
+reciprocal depth maps, then exports **dense points**, not fabricated triangle
+surfaces. Its stage is optional and failure-safe: an unsupported image set
+still retains usable M06 sparse results. See [M07 technical report](docs/M07_VALIDATION.md)
+for real/synthetic benchmark metrics, hard memory limits and the M08 plan.

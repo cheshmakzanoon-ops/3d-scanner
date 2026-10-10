@@ -58,6 +58,8 @@ fun ScannerApp(model: ScannerViewModel) {
     val checkerboardPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { model.calibrateLens(it) }
     val exportGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "glb") } }
     val exportPly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "ply") } }
+    val exportDenseGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "dense.glb") } }
+    val exportDensePly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "dense.ply") } }
     val exportCapture = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri -> uri?.let { model.exportCaptureBundle(it) } }
     LaunchedEffect(notice) { notice?.let { snackbars.showSnackbar(it); model.notice.value = null } }
     BackHandler(enabled = selected != null || camera) { if (camera) camera = false else if (!busy) model.select(null) }
@@ -67,7 +69,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M06", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M07", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -81,10 +83,10 @@ fun ScannerApp(model: ScannerViewModel) {
                     item {
                         Text("Keep the world.\nKeep it on your phone.", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(12.dp))
-                        Text("Photographs → verified camera geometry → sparse 3D preview.", color = MaterialTheme.colorScheme.secondary)
+                        Text("Photographs → calibrated cameras → sparse geometry → dense stereo points.", color = MaterialTheme.colorScheme.secondary)
                     }
                     item {
-                        InfoCard("Development build", "This milestone tests offline sparse multi-camera geometry. High-detail surfaces and photographic texturing are not available yet.")
+                        InfoCard("Development build", "This milestone adds CPU stereo depth estimates and reciprocal-consistent dense POINTS. It does not generate triangles or photographic texture atlases.")
                     }
                     item { Button(onClick = { newProject = true }, modifier = Modifier.fillMaxWidth()) { Text("Create local project") } }
                     if (projects.isEmpty()) item { Text("No scans yet. Start with a matte, textured, rigid object and two overlapping views.") }
@@ -139,7 +141,7 @@ fun ScannerApp(model: ScannerViewModel) {
                                     label = { Text("Fallback 35 mm-equivalent focal length") }, suffix = { Text("mm") },
                                     supportingText = { Text("Used only when EXIF lacks a value. 26 mm is an explicit assumption, not measured calibration.") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                                 Button(enabled = !busy && photos.size >= 2 && (focal.toDoubleOrNull()?.let { it in 10.0..200.0 } == true),
-                                    onClick = { model.reconstruct(focal.toDouble()) }, modifier = Modifier.fillMaxWidth()) { Text("Build sparse 3D preview") }
+                                    onClick = { model.reconstruct(focal.toDouble()) }, modifier = Modifier.fillMaxWidth()) { Text("Build 3D point previews") }
                                 if (busy) {
                                     val p = progress
                                     Text(p?.let { "${it.stage}: ${it.completed}/${it.total}" } ?: "Preparing…")
@@ -160,7 +162,7 @@ fun ScannerApp(model: ScannerViewModel) {
                                     Text("${result.optInt("registeredCameras", 2)} registered cameras · arbitrary scale · drag to orbit, pinch to zoom", style = MaterialTheme.typography.labelMedium)
                                     PointCloudViewer(result, Modifier.fillMaxWidth().height(310.dp))
                                     Text("Median parallax: ${"%.2f".format(result.optDouble("medianParallaxDegrees"))}°", color = MaterialTheme.colorScheme.primary)
-                                    Text("M06 jointly refines registered camera poses and sparse points using a robust Schur solver with fixed anchor cameras. Geometry remains sparse—no triangles or textures.", style = MaterialTheme.typography.bodySmall)
+                                    Text("M06 joint BA refines camera poses and sparse points; M07 estimates additional CPU stereo depth. Both exports contain POINTS only, not a surface mesh.", style = MaterialTheme.typography.bodySmall)
                                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         OutlinedButton(enabled = !busy, onClick = { exportGlb.launch("realityforge-sparse.glb") }) { Text("Export GLB") }
                                         OutlinedButton(enabled = !busy, onClick = { exportPly.launch("realityforge-sparse.ply") }) { Text("Export PLY") }
@@ -168,6 +170,27 @@ fun ScannerApp(model: ScannerViewModel) {
                                     Text("GLB contains POINTS, not triangles. PLY offers broad point-cloud inspection support.", style = MaterialTheme.typography.bodySmall)
                                 }
                             }
+                        }
+                    }
+                    if (result != null) {
+                        val dense = result.optJSONObject("densePreview")
+                        if (dense != null) {
+                            item {
+                                Card {
+                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                        Text("${dense.optInt("pointCount")} dense stereo points",style=MaterialTheme.typography.titleLarge)
+                                        Text("Rectified ${dense.optInt("sourcePhotos")} camera views · inverse-depth plane sweep · reciprocal camera-z consistency",style=MaterialTheme.typography.labelMedium)
+                                        PointCloudViewer(dense,Modifier.fillMaxWidth().height(310.dp))
+                                        Text("CPU reference reconstruction: no triangles, UVs, photographic texture atlas, or measured physical scale.",style=MaterialTheme.typography.bodySmall)
+                                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            OutlinedButton(enabled = !busy, onClick = { exportDenseGlb.launch("realityforge-dense-points.glb") }) { Text("Dense GLB") }
+                                            OutlinedButton(enabled = !busy, onClick = { exportDensePly.launch("realityforge-dense-points.ply") }) { Text("Dense PLY") }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            item { Text("Dense stereo unavailable: ${result.optString("denseFailure", "insufficient calibrated coverage")}",style=MaterialTheme.typography.bodySmall) }
                         }
                     }
                     item {
@@ -181,7 +204,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }
-                    item { InfoCard("Next engineering gate", "Collect calibrated real-object captures and compare to independent SfM, then implement CPU dense multi-view stereo and confidence-aware fusion.") }
+                    item { InfoCard("Next engineering gate", "Benchmark dense stereo on real multi-camera object captures, improve depth consistency and implement geometric surface meshing before texture baking.") }
                     item { TextButton(enabled = !busy, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }

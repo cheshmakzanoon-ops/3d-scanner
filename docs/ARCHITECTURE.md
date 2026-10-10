@@ -116,3 +116,21 @@ solves a small coupled camera system, back-substitutes point increments and
 accepts a step only when the complete robust cost improves. Failure preserves
 M03 geometry. Intrinsics are not optimized. The output schema 6 still denotes
 sparse point primitives, not a mesh. Cache fingerprints use `m06-joint-ba-1`.
+
+## M07 bounded CPU stereo reference
+
+`reconstruction/{include/realityforge/dense.hpp,src/dense.cpp}` consumes 2–4
+calibrated **rectified** RGBA views, each with camera-to-world gauge shared
+with sparse registration (stored extrinsics are world-to-camera), intrinsics,
+and a validity mask. For each inverse-depth hypothesis, a reference patch is
+projected to another camera with fronto-parallel local geometry; ZNCC and
+non-adjacent-peak uniqueness reject textureless and ambiguous matches. After
+individual depth maps are built, depth is retained only when another camera
+reports compatible camera-z and reverse reprojection within bounded tolerances.
+This produces confidence-scored `dense_points`, not a watertight mesh.
+
+`DensePreview.kt` intentionally limits Android input images to 256-edge and
+three views; it rectifies with stored Brown–Conrady calibration, derives depth
+bounds from sparse points, uses the native C ABI through JNI and rejects weak
+results without replacing the sparse stage. Separate dense GLB/PLY outputs
+retain source-observed point colors. All computations and outputs stay local.

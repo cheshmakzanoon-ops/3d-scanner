@@ -28,7 +28,7 @@ import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 
-/** M06: calibrated SfM with bounded joint, gauge-fixed sparse bundle adjustment. */
+/** M07: calibrated joint SfM plus bounded CPU photometric dense-point preview. */
 class SparsePipeline(private val repository: ProjectRepository) {
     data class Progress(val stage: String, val completed: Int, val total: Int)
     private data class PairMatches(val rows: DoubleArray, val firstKeys: IntArray, val secondKeys: IntArray) {
@@ -58,9 +58,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
         val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
-        val fingerprintInput = "m06-joint-ba-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        val fingerprintInput = "m07-cpu-stereo-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m06-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m07-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
@@ -308,9 +308,25 @@ class SparsePipeline(private val repository: ProjectRepository) {
         catch (failure: Exception) {
             geometryWarning = "Multi-view geometry unavailable: ${failure.message ?: "invalid observations"}. Retained the M02 anchor point cloud."
         }
+        // Distinct M07 stage. Never silently replace verified sparse geometry with a
+        // failed or photometrically ambiguous dense reconstruction. No triangle faces.
+        try {
+            coroutineContext.ensureActive()
+            progress(Progress("Rectifying photographs and estimating CPU stereo depth", 0, 1))
+            val dense = DensePreview.reconstruct(repository,projectId,photos,cameraArray,
+                output.getJSONArray("points"),assumedFocal35,activeProfile)
+            coroutineContext.ensureActive()
+            output.put("densePreview",dense)
+            output.put("denseStatus","ready")
+            progress(Progress("Rectifying photographs and estimating CPU stereo depth", 1, 1))
+        } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+        catch (failure: Exception) {
+            output.put("denseStatus","unavailable")
+                .put("denseFailure",failure.message ?: "Unreliable dense depth")
+        }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m06-joint-ba-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
+            .put("engineVersion", "m07-cpu-stereo-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }
@@ -328,6 +344,25 @@ class SparsePipeline(private val repository: ProjectRepository) {
                 check(temp.renameTo(target)) { "Could not publish $extension export." }
             } finally { temp.delete() }
             progress(Progress("Saving diagnostic exports", index + 1, 2))
+        }
+        // Export dense POINTS separately. Never alias the sparse file paths.
+        if (output.has("densePreview")) {
+            val densePoints = output.getJSONObject("densePreview").getJSONArray("points")
+            val densePacked = DoubleArray(densePoints.length()*6) { i ->
+                densePoints.getJSONArray(i/6).getDouble(i%6)
+            }
+            for ((index, extension) in listOf("dense.glb", "dense.ply").withIndex()) {
+                coroutineContext.ensureActive()
+                progress(Progress("Saving dense point-cloud exports",index,2))
+                val target=File(directory,"$artifactKey.$extension")
+                val temporary=File(directory,"${target.name}.partial")
+                try {
+                    NativeCore.exportPoints(densePacked,temporary.path,extension=="dense.glb")
+                    FileOutputStream(temporary,true).use { it.fd.sync() }
+                    check(temporary.renameTo(target)) { "Could not publish dense point-cloud export" }
+                } finally { temporary.delete() }
+            }
+            progress(Progress("Saving dense point-cloud exports",2,2))
         }
         output
     }

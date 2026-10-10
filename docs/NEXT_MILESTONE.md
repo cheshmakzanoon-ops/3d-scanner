@@ -83,3 +83,15 @@ instrumentation and thermal tests on that hardware. Then implement a CPU
 multi-view depth-map baseline with explicit visibility, depth confidence and
 forward-backward geometry checks. Keep dense and sparse benchmarks separate;
 do not begin textured mesh advertising before this succeeds.
+
+## After M07 — M08: real capture gate and surface fusion
+
+The app now computes bounded, low-resolution **dense point clouds** after
+joint sparse BA, including reciprocal depth checks. This is not a dense
+surface mesh. First run real arm64 captures of 3+ viewpoints on two authorized
+matte objects using a verified checkerboard profile; compare point depths to
+independent surface truth, measure thermal/battery/memory behavior, and evaluate
+failure cases like shiny or textureless materials. Then implement confidence-
+weighted spatial fusion and topologically safe meshing (not arbitrary hole-fill),
+validate against ground truth and only afterward begin multi-photo UV/texture
+baking. Do not claim high-quality textures or a watertight mesh in M07.

@@ -1,4 +1,4 @@
-# Status — M05 (2026-10-10)
+# Status — M07 (2026-10-10)
 
 | Plan area | Implemented evidence | Gate status |
 |---|---|---|
@@ -11,9 +11,9 @@
 | Features/matching | SIFT, reciprocal ratios, bounded neighbor pairs, caches | Host path tested; Android adapter pending execution |
 | Sparse SfM | Two-view initialization, M02 PnP, M03 registered-pair triangulation and track consistency | Synthetic host verified; real scenes and full BA unverified |
 | Sparse optimization | M03 alternating damped, robust point/pose refinement with two fixed anchors | Implemented host-side; not production global Ceres BA and no intrinsic calibration |
-| Dense stereo/fusion/meshing | Preserved plan | Not implemented |
+| Dense stereo/fusion/meshing | M07 bounded CPU inverse-depth plane-sweep ZNCC, reciprocal depth agreement and deduplicated dense points | CPU baseline host-tested; no triangle meshes or texture atlas |
 | UVs/photographic texturing | Preserved plan | Not implemented |
-| Export | Sparse GLB POINTS and PLY | Host output validated; no mesh/OBJ/STL export yet |
+| Export | Sparse and M07 dense point-cloud GLB/PLY | Host code implemented; no mesh/OBJ/STL export yet |
 | Viewer | Android diagnostic point viewer | Source only; no device-render evidence |
 | Runtime/recovery | Feature cache, revisions, fingerprints, atomic publication | Source implemented; interruption/device tests pending |
 | Memory/thermal/Vulkan | Bounded prototype allocations; planned production design | No handset profiling or GPU backend |
@@ -69,3 +69,16 @@ milestone, exercised from synthetic images, inside a concrete Android source pro
   reconstructions, dense depths, mesh surfaces, textures, GPU acceleration.
 - Source: [M06 validation](M06_VALIDATION.md). Do not interpret native sparse
   improvements as improvements to full object completeness or surface quality.
+
+## M07 — CPU depth consistency and dense POINTS
+
+- Genuine rectified CPU multi-view photometric plane sweep (ZNCC), bounded
+  inverse-depth hypotheses and texture/uniqueness rejection; camera-z
+  depth maps must agree across viewpoints with reverse reprojection checks.
+- Kotlin downscales and Brown–Conrady rectifies originals to a uniform view grid,
+  derives scene-relative depth bounds from sparse 3D points and calls shared
+  native code through JNI. Failure preserves M06 sparse points and records why.
+- Separate dense GLB POINTS/PLY exports. Still **no triangle faces**, UV atlas,
+  metrically calibrated scale, watertight model or real-phone thermals.
+- Host synthetic three-camera planar test and real Middlebury stereo depth-vs-
+  independent-ground-truth benchmark; see [M07 validation](M07_VALIDATION.md).

@@ -2,6 +2,7 @@
 #include "realityforge/pnp.hpp"
 #include "realityforge/multiview.hpp"
 #include "realityforge/bundle_adjustment.hpp"
+#include "realityforge/dense.hpp"
 #include <cmath>
 #include <jni.h>
 #include <vector>
@@ -80,6 +81,32 @@ Java_com_realityforge_scanner_engine_NativeCore_bundleAdjust(
     jstring text=env->NewStringUTF(result);
     rf_free(result);
     return text;
+}
+// CPU-only rectified dense stereo. Never substitutes a mesh for point geometry.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructDense(
+    JNIEnv* env, jobject, jbyteArray rgba, jint width, jint height,
+    jdoubleArray cameraRows, jdouble nearDepth, jdouble farDepth,
+    jint depthPlanes, jint pixelStride) {
+    if(!rgba || !cameraRows || width<32 || height<32 || width>640 || height>640 ||
+       static_cast<long long>(width)*height>320000) {
+        illegal(env, "Invalid bounded dense stereo images");return nullptr;
+    }
+    auto n=env->GetArrayLength(cameraRows);
+    if(n<32 || n>64 || n%16!=0 ||
+       static_cast<long long>(width)*height*4*(n/16)!=env->GetArrayLength(rgba)) {
+        illegal(env, "Dense rectified image and camera shapes mismatch");return nullptr;
+    }
+    std::vector<std::uint8_t> colors(static_cast<std::size_t>(env->GetArrayLength(rgba)));
+    std::vector<double> cameras(static_cast<std::size_t>(n));
+    env->GetByteArrayRegion(rgba,0,env->GetArrayLength(rgba),reinterpret_cast<jbyte*>(colors.data()));
+    if(env->ExceptionCheck())return nullptr;
+    env->GetDoubleArrayRegion(cameraRows,0,n,cameras.data());
+    if(env->ExceptionCheck())return nullptr;
+    char* json=rf_dense_json(colors.data(),width,height,cameras.data(),static_cast<std::size_t>(n/16),
+         nearDepth,farDepth,depthPlanes,pixelStride);
+    if(!json){illegal(env,"CPU dense stereo memory allocation failed");return nullptr;}
+    auto result=env->NewStringUTF(json);rf_free(json);return result;
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_quality(JNIEnv* env,jobject,jbyteArray gray,jint width,jint height) {

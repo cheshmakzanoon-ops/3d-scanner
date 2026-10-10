@@ -76,6 +76,39 @@ class NativeSmokeTest {
         assertEquals(-1.0,result.getJSONArray("cameras").getJSONObject(1)
             .getJSONArray("translation").getDouble(0),0.0)
     }
+    @Test fun rectifiedCpuDenseStereoReconstructsActualPixelsThroughJni() {
+        val width=104;val height=76;val fx=116.0
+        val cx=(width-1)/2.0;val cy=(height-1)/2.0
+        val count=3
+        val cameras=DoubleArray(count*16)
+        val pixels=ByteArray(count*width*height*4)
+        for (camera in 0 until count) {
+            val offset=camera*16
+            val rotation=doubleArrayOf(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0)
+            rotation.copyInto(cameras,offset)
+            cameras[offset+9]=-camera*0.55
+            cameras[offset+12]=fx;cameras[offset+13]=fx
+            cameras[offset+14]=cx;cameras[offset+15]=cy
+            for (y in 0 until height)for(x in 0 until width) {
+                val wx=(x-cx)*5.0/fx+camera*.55
+                val wy=(y-cy)*5.0/fx
+                val signal=120 + 45*kotlin.math.sin(wx*10+wy*3) +
+                    42*kotlin.math.cos(wx*20-wy*12) + 27*kotlin.math.sin(wx*37+wy*25)
+                val c=signal.toInt().coerceIn(0,255)
+                val idx=(((camera*height+y)*width+x)*4)
+                pixels[idx]=c.toByte()
+                pixels[idx+1]=c.toByte()
+                pixels[idx+2]=c.toByte()
+                pixels[idx+3]=255.toByte()
+            }
+        }
+        val result=JSONObject(NativeCore.reconstructDense(pixels,width,height,cameras,3.2,7.2,56,3))
+        assertFalse(result.toString().take(400),result.has("error"))
+        assertEquals("dense_points",result.getString("representation"))
+        assertEquals(0,result.getInt("triangleCount"))
+        assertTrue(result.getInt("photometricPixels")>100)
+        assertTrue(result.getInt("pointCount")>50)
+    }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
