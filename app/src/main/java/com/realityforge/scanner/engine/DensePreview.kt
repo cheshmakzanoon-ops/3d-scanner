@@ -103,7 +103,7 @@ internal object DensePreview {
             require(points>=60 && output.getInt("consistentPixels")>=60) {
                 "Insufficient reciprocal-consistent dense pixels; recapture a textured, non-reflective object."
             }
-            output.put("sourcePhotos",chosen.length)
+            output.put("sourcePhotos",chosen.size)
                 .put("rectifiedWidth",width).put("rectifiedHeight",height)
                 .put("depthPlanes",DEPTH_PLANES).put("pixelStride",PIXEL_STRIDE)
                 .put("nearDepthInAnchorUnits",near).put("farDepthInAnchorUnits",far)

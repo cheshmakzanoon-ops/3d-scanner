@@ -18,7 +18,7 @@ f59a600942b0c5066f1160475aea0ecdc729af227e0dae315a46abdb05d30051  app/src/main/j
 25cd063bf31d6092fdddbecbc07207c7090f3f64f31b9ca59ce05d8044f1f53c  app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt
 68df182dbacf8f4b6023fe24efe57b874ed4f343b4b13d4a91fcf22327d5b6eb  app/src/main/java/com/realityforge/scanner/data/Database.kt
 ab3300ce239aade4da580cf815a2e714182da06255598279cba3b02d464db2a3  app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt
-b5ae55101bf683995eb4f36621076ee5619e5aa051a923cb6040627065ad5b86  app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt
+1e73cb88adfbd90644beb722138418a1c034f96c797226c6003a9419c01aedaa  app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt
 673bcd062832ff24805dde3bbad3da7434b3b21e6c949316138caae43fed1e48  app/src/main/java/com/realityforge/scanner/engine/ImageLoader.kt
 773c1029cf26cd6799fb3ad3cc71e377caf19014a34d8e4c9a0e139d4d0d2461  app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt
 98149f2827efb2382e9adea7b6f444a94ff0f090270f93b54e413c8e0036dbd3  app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt
