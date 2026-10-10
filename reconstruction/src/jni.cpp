@@ -4,7 +4,9 @@
 #include "realityforge/bundle_adjustment.hpp"
 #include "realityforge/dense.hpp"
 #include "realityforge/surface.hpp"
+#include "realityforge/texture.hpp"
 #include <cmath>
+#include <array>
 #include <jni.h>
 #include <vector>
 namespace {
@@ -142,6 +144,50 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructSurface(
     auto* json=rf_surface_json(pixels.data(),width,height,cameras.data(),static_cast<std::size_t>(count/16),
         nearDepth,farDepth,depthPlanes,pixelStride,glb.c_str(),ply.c_str());
     if(!json){illegal(env,"Native surface response allocation failed");return nullptr;}
+    auto result=env->NewStringUTF(json);rf_free(json);return result;
+}
+// Native M09: one calibrated depth pass, M08 mesh, view-ranked photo atlas,
+// embedded GLB PNG, and a separate PNG. All paths are app-private partial files.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
+    JNIEnv* env, jobject, jbyteArray depthRgba, jint width, jint height,
+    jbyteArray textureRgba, jint texWidth, jint texHeight, jdoubleArray cameraRows,
+    jdouble nearDepth, jdouble farDepth, jint depthPlanes, jint pixelStride,
+    jstring meshGlbPath, jstring meshPlyPath, jstring texturedGlbPath, jstring atlasPngPath) {
+    if(!depthRgba||!textureRgba||!cameraRows||!meshGlbPath||!meshPlyPath||!texturedGlbPath||!atlasPngPath||
+       width<32||height<32||width>640||height>640||
+       texWidth<32||texHeight<32||texWidth>1024||texHeight>1024||
+       static_cast<long long>(width)*height>320000||
+       static_cast<long long>(texWidth)*texHeight>1048576) {
+        illegal(env,"Invalid bounded M09 photo/mesh input");return nullptr;
+    }
+    const auto count=env->GetArrayLength(cameraRows);
+    if(count<32||count>64||count%16!=0||
+       static_cast<long long>(width)*height*4*(count/16)!=env->GetArrayLength(depthRgba)||
+       static_cast<long long>(texWidth)*texHeight*4*(count/16)!=env->GetArrayLength(textureRgba)) {
+        illegal(env,"M09 image buffers do not match camera row count");return nullptr;
+    }
+    std::vector<std::uint8_t> low(static_cast<std::size_t>(env->GetArrayLength(depthRgba)));
+    std::vector<std::uint8_t> high(static_cast<std::size_t>(env->GetArrayLength(textureRgba)));
+    std::vector<double> camera(static_cast<std::size_t>(count));
+    env->GetByteArrayRegion(depthRgba,0,env->GetArrayLength(depthRgba),reinterpret_cast<jbyte*>(low.data()));
+    if(env->ExceptionCheck())return nullptr;
+    env->GetByteArrayRegion(textureRgba,0,env->GetArrayLength(textureRgba),reinterpret_cast<jbyte*>(high.data()));
+    if(env->ExceptionCheck())return nullptr;
+    env->GetDoubleArrayRegion(cameraRows,0,count,camera.data());
+    if(env->ExceptionCheck())return nullptr;
+    const std::array<jstring,4> jpaths{meshGlbPath,meshPlyPath,texturedGlbPath,atlasPngPath};
+    std::array<std::string,4> paths{};
+    for(int i=0;i<4;++i){
+        const char* text=env->GetStringUTFChars(jpaths[i],nullptr);
+        if(!text)return nullptr;
+        paths[i]=text;env->ReleaseStringUTFChars(jpaths[i],text);
+    }
+    auto* json=rf_textured_surface_json(low.data(),width,height,
+        high.data(),texWidth,texHeight,camera.data(),static_cast<std::size_t>(count/16),
+        nearDepth,farDepth,depthPlanes,pixelStride,
+        paths[0].c_str(),paths[1].c_str(),paths[2].c_str(),paths[3].c_str());
+    if(!json){illegal(env,"M09 native allocation failed");return nullptr;}
     auto result=env->NewStringUTF(json);rf_free(json);return result;
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL

@@ -26,7 +26,7 @@ class ProjectRepository(private val context: Context, val dao: ScanDao) {
         return File(root, id).apply { mkdirs() }
     }
     fun artifact(id: String, key: String, extension: String): File {
-        require(key.matches(Regex("sparse-(?:m[0-9]{2}-)?r[0-9]+-[0-9a-f]{16}")) && extension in setOf("json", "glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply")) { "Invalid artifact key." }
+        require(key.matches(Regex("sparse-(?:m[0-9]{2}-)?r[0-9]+-[0-9a-f]{16}")) && extension in setOf("json", "glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png")) { "Invalid artifact key." }
         return File(directory(id), "$key.$extension")
     }
     fun photoFile(photo: ScanPhoto): File = File(directory(photo.projectId), "originals/${photo.filename}")

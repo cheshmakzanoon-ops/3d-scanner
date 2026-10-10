@@ -41,6 +41,12 @@ class NativeEngine:
             ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double,ctypes.c_double,
             ctypes.c_int,ctypes.c_int,ctypes.c_char_p,ctypes.c_char_p]
         self.library.rf_surface_json.restype=ctypes.c_void_p
+        self.library.rf_textured_surface_json.argtypes=[
+            ctypes.POINTER(ctypes.c_uint8),ctypes.c_int,ctypes.c_int,
+            ctypes.POINTER(ctypes.c_uint8),ctypes.c_int,ctypes.c_int,
+            ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double,ctypes.c_double,
+            ctypes.c_int,ctypes.c_int,ctypes.c_char_p,ctypes.c_char_p,ctypes.c_char_p,ctypes.c_char_p]
+        self.library.rf_textured_surface_json.restype=ctypes.c_void_p
         self.library.rf_free.argtypes=[ctypes.c_void_p]
         self.library.rf_free.restype=None
 
@@ -142,3 +148,37 @@ class NativeEngine:
         finally:self.library.rf_free(ptr)
         if 'error' in result:raise ValueError(result['error'])
         return result
+
+    def textured_surface(self,depth_rgba:np.ndarray,photo_rgba:np.ndarray,cameras:np.ndarray,
+                         near:float,far:float,depth_planes:int=56,pixel_stride:int=3,
+                         mesh_glb:Path|None=None,mesh_ply:Path|None=None,
+                         textured_glb:Path|None=None,atlas_png:Path|None=None)->dict[str,Any]:
+        """Single stereo pass to open triangle mesh plus real photographic UV atlas.
+
+        Inputs are calibrated, rectified RGBA N×H×W×4. Photo source may be
+        higher resolution but must have identical crop/pose to the depth input.
+        A textureError leaves the depth/mesh products available.
+        """
+        depth=np.ascontiguousarray(depth_rgba,dtype=np.uint8)
+        photos=np.ascontiguousarray(photo_rgba,dtype=np.uint8)
+        camera=np.ascontiguousarray(cameras,dtype=np.float64)
+        if depth.ndim!=4 or photos.ndim!=4 or depth.shape[-1]!=4 or photos.shape[-1]!=4 or depth.shape[0] not in range(2,5) or depth.shape[0]!=photos.shape[0]:
+            raise ValueError('Expected 2–4 matching calibrated N×H×W×4 RGBA photographs')
+        if depth.shape[1]<32 or depth.shape[2]<32 or depth.shape[1]>640 or depth.shape[2]>640 or depth.shape[1]*depth.shape[2]>320000:
+            raise ValueError('Invalid bounded depth image size')
+        if photos.shape[1]<32 or photos.shape[2]<32 or photos.shape[1]>1024 or photos.shape[2]>1024 or photos.shape[1]*photos.shape[2]>1024**2:
+            raise ValueError('Invalid bounded photographic texture size')
+        if camera.shape!=(len(depth),16):
+            raise ValueError('Camera rows must be N×16')
+        def ptr(array,type_):return array.ctypes.data_as(ctypes.POINTER(type_))
+        def pathname(file):return os.fsencode(file) if file else None
+        result=self.library.rf_textured_surface_json(
+            ptr(depth,ctypes.c_uint8),depth.shape[2],depth.shape[1],
+            ptr(photos,ctypes.c_uint8),photos.shape[2],photos.shape[1],
+            ptr(camera,ctypes.c_double),len(camera),near,far,depth_planes,pixel_stride,
+            pathname(mesh_glb),pathname(mesh_ply),pathname(textured_glb),pathname(atlas_png))
+        if not result:raise MemoryError('M09 texture engine failed to allocate native response')
+        try:decoded=json.loads(ctypes.string_at(result).decode('utf-8'))
+        finally:self.library.rf_free(result)
+        if 'error' in decoded:raise ValueError(decoded['error'])
+        return decoded

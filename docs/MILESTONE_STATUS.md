@@ -1,4 +1,4 @@
-# Status — M07 (2026-10-10)
+# Status — M09 (2026-10-10)
 
 | Plan area | Implemented evidence | Gate status |
 |---|---|---|
@@ -102,3 +102,16 @@ milestone, exercised from synthetic images, inside a concrete Android source pro
   photographic textures, metric scale, full closed object reconstruction,
   physical phone capture tests, photogrammetry on shiny/transparent objects,
   TSDF/Poisson globally fused surface, and industrial topology cleanup.
+
+## M09 increments
+
+- Actual multi-photo UV atlas through the native C++ CPU pipeline with camera-ranked
+  visibility; source camera must observe the face, alternative cameras also pass
+  calibrated depth consistency checks. No arbitrary geometric hole filling.
+- PNG camera atlas with gutters and indexed GLB TRIANGLES with embedded `image/png`
+  + `TEXCOORD_0`, separate from the earlier M08 vertex-color GLB and POINTS.
+- Android independent up-to-768px photo rectification, JNI, atomic texture files,
+  visual export controls, and texture-only failure recovery.
+- Synthetic/native, real Middlebury, Android instrumentation and Python contracts;
+  [M09_VALIDATION.md](M09_VALIDATION.md). Physical device and true multi-side
+  textured object benchmarks remain outstanding.

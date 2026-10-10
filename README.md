@@ -1,11 +1,11 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 08 (0.8.0-m08).**
+**Fully local Android photogrammetry — engineering milestone 09 (0.9.0-m09).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
-geometry core, regression fixtures and build automation. **This source snapshot is an engineering prototype, not a released app. M07 passed native, Android and API-35 emulator GitHub Actions; M08 requires its own CI and physical arm64 camera validation.**
+geometry core, regression fixtures and build automation. **This is an engineering prototype, not a released app. M08 passed native, Android and API-35 emulator CI; M09 requires its own CI and physical ARM64 camera validation.**
 
-The app reconstructs **sparse SfM points** using registered cameras and M06 joint refinement. M07 also provides a **bounded CPU dense stereo point-cloud preview**. M08 adds conservative **camera-supported open triangle meshing** with confidence-weighted cross-view vertex/color fusion. Accurate high-resolution dense MVS, camera-intrinsics-refining Ceres BA, UV atlas generation and photographic texture baking remain future milestones. Nothing substitutes a stock 3D model
+The app reconstructs **sparse SfM points** using registered cameras and M06 joint refinement. M07 also provides a **bounded CPU dense stereo point-cloud preview**. M08 adds conservative **camera-supported open triangle meshing** with confidence-weighted cross-view vertex/color fusion. M09 adds an **optional camera-projected photographic UV atlas with embedded PNG inside indexed textured GLB**, using actual higher-resolution local photo pixels. Accurate full-resolution MVS, seam-free materials, strong topology repair and physical-device validation remain future milestones. Nothing substitutes a stock 3D model
 for the supplied photographs.
 
 ## Implemented in source
@@ -25,7 +25,10 @@ for the supplied photographs.
 - M06 adds a coupled global Huber-weighted Schur/LM optimization of registered camera extrinsics and sparse points (first two anchor poses fixed; camera intrinsics not refined).
 - M07 adds offline rectified CPU photometric plane sweep, reciprocal depth-map consistency, bounded deduplicated dense POINTS, and separate dense-point GLB/PLY outputs. Both sparse and dense GLBs contain GLTF POINTS, not triangle faces.
 - M08 creates indexed triangle meshes from **reciprocal-verified neighboring depth pixels**, with confidence-weighted spatial vertex fusion, conservative discontinuity gating and normal generation. Exports GLB TRIANGLES and face-indexed PLY separately from original POINTS.
-- An orbitable shaded surface mesh preview/wireframe and GLB/PLY export controls complement sparse and dense point-viewer modes. Vertex colors are photographed samples, **not UV image textures**.
+- An orbitable shaded surface mesh preview/wireframe and GLB/PLY export controls complement sparse and dense point-viewer modes. The original M08 vertex-color formats remain distinct from new M09 photo-textured GLB/PNG.
+- M09 selects visible camera images for the verified open mesh, creates UV charts,
+  a PNG photo atlas, and exports textured GLB with `TEXCOORD_0` and embedded `image/png`.
+  Texture failure does not discard already-verified M08 mesh/point outputs.
 - Source manifest strips INTERNET and ACCESS_NETWORK_STATE. No analytics, login,
   advertising SDK or cloud-processing client is included.
 
@@ -39,8 +42,7 @@ actual *synthetically rendered photographs* passed through SIFT/SfM/PnP, the
 Huber objective decreased by ~32%; these are not measured physical-object scans.
 See [M06 validation](docs/M06_VALIDATION.md).
 
-M06 CI passed Android build, lint, APK and API-35 emulator instrumentation.
-M07 adds the dense JNI and on-device CPU stereo workflow, awaiting M07 CI.
+M08 CI passed Android build, lint, native tests, real-image mesh benchmark and API-35 emulator instrumentation. M09 native tests validate the embedded photo atlas and indexed UV GLB.
 No physical-phone camera/thermal measurement has been performed.
 
 ## Open the project
@@ -108,8 +110,7 @@ up to three registered views for a low-resolution CPU stereo depth preview.
 M06 Schur bundle adjustment still holds both anchor cameras fixed. Calibration from
 M04 can correct Brown–Conrady distortion but M06 does **not** optimize
 intrinsics, provide an absolute metric scale or guarantee registration of all
-views. Separate sparse/dense GLB and PLY exports contain points only; no
-triangle mesh, UV texture atlas, animation topology, or production-quality model.
+views. Sparse and dense GLB/PLY remain POINTS, M08 mesh GLB/PLY contain TRIANGLES, and M09 textured GLB contains camera-projected UVs plus photographic PNG. These products are separate and not globally complete, watertight or metric.
 M05 API-35 emulator tests passed; a real arm64 camera/thermal run is still
 outstanding. Do not distribute as a finished consumer scanner.
 
@@ -178,3 +179,18 @@ or physical-device thermal tests** yet.
 
 Run the new CI gate via `python tools/benchmark_surface_middlebury.py --gate`.
 The complete development roadmap remains in `PROJECT_PLAN.md`.
+
+## M09 — Photographic UV textures and camera-ranked atlas
+
+M09 projects verified M08 surface triangles back into actual undistorted source photographs,
+checks face orientation, photo validity and calibrated z-buffer agreement for alternate
+views, and builds lossless RGBA8 photo tiles with 3px safe gutters. It splits UV seams
+without inventing any unsupported geometry; emits standalone `texture.png` and a
+**self-contained textured GLB** with actual `TEXCOORD_0`, embedded `image/png`,
+NORMAL and indexed triangles. Android uses photo RGB at up to 768px while the CPU MVS
+stage remains at 256px. Mesh and POINTS results survive photo preprocessing/texture errors.
+
+The separate [M09 validation report](docs/M09_VALIDATION.md) documents synthetic/native
+and independently measured real stereo tests, texture coverage limitations, memory bounds
+and the next field-validation gate. Real physical 360° photos, texture seam harmonization,
+full-object geometry and production-quality scans are not yet validated.

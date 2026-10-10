@@ -131,7 +131,41 @@ class NativeSmokeTest {
                 bytes
             }
             assertArrayEquals(byteArrayOf(0x67,0x6c,0x54,0x46),header)
+            // M09 must export photo pixels as a real PNG and embedded GLB UV atlas.
+            val textured=File(root,"realityforge-m09-smoke.glb")
+            val atlas=File(root,"realityforge-m09-atlas.png")
+            try {
+                val complete=JSONObject(NativeCore.reconstructTexturedSurface(
+                    pixels,width,height,pixels,width,height,cameras,
+                    3.2,7.2,56,3,glb.path,ply.path,textured.path,atlas.path))
+                assertFalse(complete.toString().take(400),complete.has("error"))
+                assertFalse(complete.toString().take(400),complete.has("meshError"))
+                assertFalse(complete.toString().take(400),complete.has("textureError"))
+                val uv=complete.getJSONObject("texture")
+                assertTrue(uv.getInt("triangleCount")>30)
+                assertTrue(uv.getDouble("faceCoverage")>.10)
+                assertTrue(textured.isFile && textured.length()>1024)
+                assertTrue(atlas.isFile && atlas.length()>128)
+                val signature=atlas.inputStream().use { input ->
+                    ByteArray(8).also { assertEquals(8,input.read(it)) }
+                }
+                assertArrayEquals(byteArrayOf(137.toByte(),80,78,71,13,10,26,10),signature)
+                val gltfMagic=textured.inputStream().use { input ->
+                    ByteArray(4).also { assertEquals(4,input.read(it)) }
+                }
+                assertArrayEquals(byteArrayOf(0x67,0x6c,0x54,0x46),gltfMagic)
+            } finally { textured.delete();atlas.delete() }
         } finally { glb.delete(); ply.delete() }
+    }
+    @Test fun invalidPhotoTextureBuffersAreRejectedBeforeNativeAccess() {
+        val rgba=ByteArray(2*64*64*4)
+        val invalid=ByteArray(13)
+        val cameras=DoubleArray(2*16)
+        try {
+            NativeCore.reconstructTexturedSurface(rgba,64,64,invalid,64,64,cameras,
+                2.0,7.0,24,3,"/tmp/a.glb","/tmp/b.ply","/tmp/c.glb","/tmp/d.png")
+            fail("Mismatched photo buffer must be rejected")
+        } catch(expected: IllegalArgumentException) { /* JNI rejects before native read */ }
     }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {

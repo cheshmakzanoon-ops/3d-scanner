@@ -116,3 +116,14 @@ mask/outlier/color/exposure correction, seam handling and real-file GLB UV
 exports, all offline and with bounded memory. Benchmark geometry and appearance
 separately. Upgrade to genuinely denser coarse-to-fine MVS/Vulkan only with
 measured mobile workloads and quality regressions.
+
+## After M09 — M10: improve scan coverage and real-material texture validation
+
+M09 produces camera-projected photographic UVs and an embedded PNG atlas, but
+untextured M08 faces remain when no confidently visible photo exists. Camera
+transitions retain exposure seams, and the real-photo validation is calibrated
+**two-view** stereo rather than a captured all-sides object. Next implement
+measured real ARM64 12–40-photo capture benchmarks, exposure-balanced camera
+charts, occlusion/topology audits and higher-resolution CPU MVS under strict
+RAM/thermal bounds. Only trust separately measured geometric and material
+quality; do not imply a watertight or metrically scaled object.

@@ -12,13 +12,14 @@ import kotlin.coroutines.coroutineContext
 import kotlin.math.*
 
 /**
- * M08: calibrated CPU depth, reciprocal support and conservative observed-surface triangles.
- * No watertight guarantees, UV photographic textures, or physical scale.
+ * M09: calibrated CPU depth, observed triangles and camera-ranked photographic UV textures.
+ * No watertight guarantees, full photo quality, seam-free atlases, or physical scale.
  * All geometry is expressed in the already-registered sparse anchor coordinate frame.
  * If a view has a mismatched aspect/lens, reject the dense stage instead of inventing rays.
  */
 internal object DensePreview {
     private const val EDGE = 256
+    private const val TEXTURE_EDGE = 768 // independent, higher-res rectified photographic source
     private const val DEPTH_PLANES = 56
     private const val PIXEL_STRIDE = 3
     private const val MAX_VIEWS = 3
@@ -98,17 +99,38 @@ internal object DensePreview {
             val far=max(q90*1.30,near*1.4)
             require(far<100000 && far>near*1.05)
             coroutineContext.ensureActive()
-            require(artifactKey.matches(Regex("sparse-m08-r[0-9]+-[0-9a-f]{16}"))) {
-                "Invalid M08 artifact key."
+            require(artifactKey.matches(Regex("sparse-m09-r[0-9]+-[0-9a-f]{16}"))) {
+                "Invalid M09 artifact key."
             }
             val folder=repository.directory(projectId)
             val glb=File(folder,"$artifactKey.mesh.glb")
             val ply=File(folder,"$artifactKey.mesh.ply")
+            val texturedGlb=File(folder,"$artifactKey.textured.glb")
+            val atlasPng=File(folder,"$artifactKey.texture.png")
             val glbPartial=File(folder,"${glb.name}.partial")
             val plyPartial=File(folder,"${ply.name}.partial")
+            val texturedPartial=File(folder,"${texturedGlb.name}.partial")
+            val pngPartial=File(folder,"${atlasPng.name}.partial")
             var publishedGlb=false
+            // The atlas samples the *same originals* at higher resolution than the
+            // 256-pixel CPU stereo geometry. This never synthesizes photographic detail.
+            var textureInputFailure: String? = null
+            val photographic = try {
+                preparePhotoAtlasInput(repository,images.map{it.first},cameraRows,
+                    profile,fallbackFocal35,width,height)
+            } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+            catch (failure: Exception) {
+                textureInputFailure=failure.message ?: "Higher-resolution photograph preprocessing failed"
+                null
+            }
             try {
-                val result=JSONObject(NativeCore.reconstructSurface(rectified,width,height,cameraRows,
+                val result=if(photographic!=null) {
+                    val (texturePixels,textureWidth,textureHeight)=photographic
+                    JSONObject(NativeCore.reconstructTexturedSurface(
+                        rectified,width,height,texturePixels,textureWidth,textureHeight,cameraRows,
+                        near,far,DEPTH_PLANES,PIXEL_STRIDE,
+                        glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path))
+                } else JSONObject(NativeCore.reconstructSurface(rectified,width,height,cameraRows,
                     near,far,DEPTH_PLANES,PIXEL_STRIDE,glbPartial.path,plyPartial.path))
                 coroutineContext.ensureActive()
                 require(!result.has("error")) { result.optString("error","Depth or mesh solver failed") }
@@ -122,7 +144,7 @@ internal object DensePreview {
                     .put("nearDepthInAnchorUnits",near).put("farDepthInAnchorUnits",far)
                     .put("photographsRectified",true)
                     .put("calibrationProfileApplied",profile!=null)
-                    .put("limitations","Bounded CPU stereo. Mesh is open with vertex colors, no UV textures or metric scale")
+                    .put("limitations","Bounded CPU stereo with optional actual photographic UV atlas. Open mesh, arbitrary scale, no global appearance or completeness guarantee")
                 val composite=JSONObject().put("dense",output)
                 val mesh=result.optJSONObject("mesh")
                 if (mesh!=null && mesh.optInt("triangleCount")>=40 &&
@@ -136,6 +158,26 @@ internal object DensePreview {
                     publishedGlb=true
                     check(plyPartial.renameTo(ply)) { "Cannot publish surface PLY" }
                     composite.put("mesh",mesh)
+                    // Texture errors do NOT invalidate the already-published M08 mesh.
+                    val texture=result.optJSONObject("texture")
+                    if(texture!=null && texture.optInt("triangleCount")>=40 &&
+                        texture.optDouble("faceCoverage")>=.10 &&
+                        texturedPartial.isFile && pngPartial.isFile &&
+                        texturedPartial.length()>256 && pngPartial.length()>128) {
+                        try {
+                            coroutineContext.ensureActive()
+                            FileOutputStream(texturedPartial,true).use { it.fd.sync() }
+                            FileOutputStream(pngPartial,true).use { it.fd.sync() }
+                            check(texturedPartial.renameTo(texturedGlb)) { "Cannot publish textured GLB" }
+                            check(pngPartial.renameTo(atlasPng)) { "Cannot publish photo atlas PNG" }
+                            composite.put("texture",texture)
+                        } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+                        catch (failure: Exception) {
+                            texturedGlb.delete();atlasPng.delete()
+                            composite.put("textureError",failure.message ?: "Cannot publish photographic texture")
+                        }
+                    } else composite.put("textureError",textureInputFailure ?: result.optString("textureError",
+                        "Insufficient visible photo coverage for UV texturing"))
                 } else {
                     composite.put("meshError",result.optString("meshError",
                         "Surface confidence/coverage gate rejected geometry"))
@@ -145,9 +187,57 @@ internal object DensePreview {
             finally {
                 glbPartial.delete()
                 plyPartial.delete()
+                texturedPartial.delete()
+                pngPartial.delete()
                 if (publishedGlb && !ply.isFile) glb.delete()
             }
         } finally { images.forEach { it.second.recycle() } }
+    }
+
+    /** Collect actual photograph RGB at up to 768px using the SAME camera/crop.
+     * Decode one bitmap at a time and rectify only into bounded destination pixels.
+     * Intrinsics are scaled from the depth stage so all photo UVs share the gauge.
+     */
+    private suspend fun preparePhotoAtlasInput(
+        repository: ProjectRepository, photos: List<ScanPhoto>, cameraRows: DoubleArray,
+        profile: LensProfile?, fallbackFocal35: Double,
+        depthWidth: Int, depthHeight: Int,
+    ): Triple<ByteArray,Int,Int> {
+        val first=ImageLoader.upright(repository.photoFile(photos.first()),TEXTURE_EDGE)
+        val w=first.width;val h=first.height
+        first.recycle()
+        require(w in 32..1024 && h in 32..1024 && w.toLong()*h<=1_048_576)
+        val data=ByteArray(photos.size*w*h*4)
+        for ((index,photo) in photos.withIndex()) {
+            coroutineContext.ensureActive()
+            val image=ImageLoader.upright(repository.photoFile(photo),TEXTURE_EDGE)
+            try {
+                require(abs(image.width.toDouble()/image.height - w.toDouble()/h)<.002) {
+                    "Photograph dimensions differ; cannot safely project shared UV charts"
+                }
+                val scaled=if(image.width==w && image.height==h) image
+                    else Bitmap.createScaledBitmap(image,w,h,true)
+                try {
+                    // A calibrated profile is revalidated for each original photo,
+                    // even though the actual projection uses the depth camera's
+                    // consistent scaled K (with principal-point pixel-centre mapping).
+                    val nativeLens = profile?.forScan(w,h,photo.focal35mm) ?:
+                        LensProjection.estimated(w,h,ImageLoader.focalPixels(w,h,
+                            photo.focal35mm ?: fallbackFocal35))
+                    val sx=w.toDouble()/depthWidth
+                    val sy=h.toDouble()/depthHeight
+                    val lowFx=cameraRows[index*16+12];val lowFy=cameraRows[index*16+13]
+                    val lowCx=cameraRows[index*16+14];val lowCy=cameraRows[index*16+15]
+                    val corrected=LensProjection(lowFx*sx,lowFy*sy,(lowCx+.5)*sx-.5,
+                        (lowCy+.5)*sy-.5,nativeLens.k1,nativeLens.k2,
+                        nativeLens.p1,nativeLens.p2,nativeLens.k3)
+                    val argb=IntArray(w*h)
+                    scaled.getPixels(argb,0,w,0,0,w,h)
+                    rectify(argb,w,h,corrected,data,index*w*h*4)
+                } finally { if(scaled!==image)scaled.recycle() }
+            } finally { image.recycle() }
+        }
+        return Triple(data,w,h)
     }
 
     private fun rectify(source: IntArray,w:Int,h:Int,lens: LensProjection,

@@ -58,9 +58,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
         val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
-        val fingerprintInput = "m08-observed-surface-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        val fingerprintInput = "m09-photographic-uv-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m08-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m09-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
@@ -308,11 +308,11 @@ class SparsePipeline(private val repository: ProjectRepository) {
         catch (failure: Exception) {
             geometryWarning = "Multi-view geometry unavailable: ${failure.message ?: "invalid observations"}. Retained the M02 anchor point cloud."
         }
-        // M08: do not replace verified sparse geometry with an unsupported surface.
+        // M09: retain all accepted geometry if appearance reconstruction is unavailable.
         // Native CPU depth remains a fallback when conservative triangle meshing fails.
         try {
             coroutineContext.ensureActive()
-            progress(Progress("Estimating stereo depth and meshing observed surfaces", 0, 1))
+            progress(Progress("Estimating stereo depth, meshing and projecting photographs", 0, 1))
             val surface=DensePreview.reconstruct(repository,projectId,artifactKey,photos,cameraArray,
                 output.getJSONArray("points"),assumedFocal35,activeProfile)
             coroutineContext.ensureActive()
@@ -321,21 +321,33 @@ class SparsePipeline(private val repository: ProjectRepository) {
             if(surface.has("mesh")) {
                 output.put("meshPreview",surface.getJSONObject("mesh"))
                 output.put("meshStatus","ready")
+                if(surface.has("texture")) {
+                    output.put("texturePreview",surface.getJSONObject("texture"))
+                    output.put("textureStatus","ready")
+                } else {
+                    output.put("textureStatus","unavailable")
+                    output.put("textureFailure",surface.optString("textureError",
+                        "No consistent photograph projection was supported"))
+                }
             } else {
                 output.put("meshStatus","unavailable")
                 output.put("meshFailure",surface.optString("meshError","Insufficient supported surface geometry"))
+                output.put("textureStatus","unavailable")
+                output.put("textureFailure","A supported triangle mesh is required before UV projection")
             }
-            progress(Progress("Estimating stereo depth and meshing observed surfaces", 1, 1))
+            progress(Progress("Estimating stereo depth, meshing and projecting photographs", 1, 1))
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
         catch (failure: Exception) {
             output.put("denseStatus","unavailable")
                 .put("denseFailure",failure.message ?: "Unreliable dense depth")
                 .put("meshStatus","unavailable")
                 .put("meshFailure","Depth prerequisite failed; no supported triangles")
+                .put("textureStatus","unavailable")
+                .put("textureFailure","Depth or mesh prerequisite unavailable")
         }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m08-observed-surface-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
+            .put("engineVersion", "m09-photographic-uv-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }

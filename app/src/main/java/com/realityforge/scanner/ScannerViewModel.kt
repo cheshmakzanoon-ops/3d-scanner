@@ -144,7 +144,7 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
                 ensureActive()
                 check(repository.dao.complete(id, project.revision, output.getString("artifactKey"), "${output.getInt("pointCount")} sparse points; ${output.optJSONObject("densePreview")?.optInt("pointCount") ?: 0} dense points; ${output.optJSONObject("meshPreview")?.optInt("triangleCount") ?: 0} observed triangles.") == 1) { "Result became stale." }
                 if (selectedId.value == id) preview.value = output
-                notice.value = "Preview saved. M08 exports observed open triangle meshes when depth support passes. UV textures are not implemented."
+                notice.value = "Preview saved. M09 exports real photo-based UV textures when visibility is sufficient; geometry remains open and unscaled."
             } catch (e: CancellationException) {
                 sourceRevision?.let { revision ->
                     withContext(NonCancellable) { repository.dao.state(id, revision, "INTERRUPTED", "Paused. Originals and feature caches are safe; rerun to continue from cached features.") }
@@ -187,7 +187,7 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun export(uri: Uri, extension: String) {
         val id = selectedId.value ?: return
-        if (busy.value || extension !in setOf("glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply")) return
+        if (busy.value || extension !in setOf("glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png")) return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val project = requireNotNull(repository.dao.project(id))
@@ -195,9 +195,12 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
                 check(revision == project.revision)
                 val file = repository.artifact(id, requireNotNull(project.resultKey), extension)
                 file.inputStream().use { input -> requireNotNull(getApplication<Application>().contentResolver.openOutputStream(uri, "wt")).use { input.copyTo(it) } }
-                notice.value = if (extension.startsWith("mesh."))
-                    "Exported verified open surface mesh ($extension), vertex colors and arbitrary scale."
-                else "Exported $extension point cloud. Your document provider controls the destination."
+                notice.value = when(extension) {
+                    "textured.glb" -> "Exported photo-textured GLB with embedded PNG and indexed UVs. Open surfaces, arbitrary scale."
+                    "texture.png" -> "Exported actual rectified photographic atlas PNG."
+                    "mesh.glb", "mesh.ply" -> "Exported verified open surface mesh ($extension), vertex colors and arbitrary scale."
+                    else -> "Exported $extension point cloud. Your document provider controls the destination."
+                }
             } catch (e: Exception) { notice.value = e.message }
         }
     }

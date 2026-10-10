@@ -59,6 +59,8 @@ fun ScannerApp(model: ScannerViewModel) {
     val exportGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "glb") } }
     val exportPly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "ply") } }
     val exportMeshGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "mesh.glb") } }
+    val exportTexturedGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "textured.glb") } }
+    val exportTexturePng = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("image/png")) { uri -> uri?.let { model.export(it, "texture.png") } }
     val exportMeshPly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "mesh.ply") } }
     val exportDenseGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "dense.glb") } }
     val exportDensePly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "dense.ply") } }
@@ -71,7 +73,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M08", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M09", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -88,7 +90,7 @@ fun ScannerApp(model: ScannerViewModel) {
                         Text("Photos → calibrated cameras → observed open triangle meshes.", color = MaterialTheme.colorScheme.secondary)
                     }
                     item {
-                        InfoCard("Development build", "M08 builds indexed triangle meshes from depth evidence when capture quality permits. UV photographic textures and full-object completeness are not available yet.")
+                        InfoCard("Development build", "M09 can project real photographs into a UV-textured GLB on supported triangles. Missing surfaces stay open; texture seams and full-object completeness still need real-device validation.")
                     }
                     item { Button(onClick = { newProject = true }, modifier = Modifier.fillMaxWidth()) { Text("Create local project") } }
                     if (projects.isEmpty()) item { Text("No scans yet. Start with a matte, textured, rigid object and two overlapping views.") }
@@ -216,8 +218,23 @@ fun ScannerApp(model: ScannerViewModel) {
                                             Button(enabled = !busy,onClick = { exportMeshGlb.launch("realityforge-open-mesh.glb") },modifier=Modifier.weight(1f)) { Text("Mesh GLB") }
                                             OutlinedButton(enabled = !busy,onClick = { exportMeshPly.launch("realityforge-open-mesh.ply") },modifier=Modifier.weight(1f)) { Text("Mesh PLY") }
                                         }
-                                        Text("These exports contain TRIANGLES, surface normals and vertex colors, but not UV textures.",
+                                        Text("These original mesh exports contain triangle normals and vertex colors. M09 photo-textured output is separate.",
                                             style=MaterialTheme.typography.bodySmall)
+                                        val texture=result.optJSONObject("texturePreview")
+                                        if(texture!=null) {
+                                            Text("Photo UV atlas: ${texture.optInt("atlasWidth")} × ${texture.optInt("atlasHeight")} pixels · ${texture.optInt("triangleCount")} textured triangles",
+                                                style=MaterialTheme.typography.titleMedium)
+                                            Text("Photographs projected onto camera-ranked UV charts. Atlas is embedded in the GLB. The interactive preview still uses vertex colors.",
+                                                style=MaterialTheme.typography.bodySmall)
+                                            Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                                                Button(enabled = !busy,onClick = { exportTexturedGlb.launch("realityforge-photo-textured.glb") },modifier=Modifier.weight(1f)) { Text("Textured GLB") }
+                                                OutlinedButton(enabled = !busy,onClick = { exportTexturePng.launch("realityforge-photo-atlas.png") },modifier=Modifier.weight(1f)) { Text("Atlas PNG") }
+                                            }
+                                            Text("Open mesh, arbitrary scale. Boundaries can retain visible seams or overlap; no watertight or real-scale guarantee.",style=MaterialTheme.typography.bodySmall)
+                                        } else {
+                                            Text("Photo atlas unavailable: ${result.optString("textureFailure","insufficient registered photo overlap")}",
+                                                style=MaterialTheme.typography.bodySmall)
+                                        }
                                     }
                                 }
                             }
@@ -235,7 +252,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }
-                    item { InfoCard("Next engineering gate", "Validate open meshes on physical 360° scans and implement multi-view UV seams and high-resolution photographic texture baking.") }
+                    item { InfoCard("Next engineering gate", "Validate textured mesh alignment, UV chart seams and 3D completeness using real physical-device multi-photo captures; then improve atlas blending and native MVS resolution.") }
                     item { TextButton(enabled = !busy, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }

@@ -169,7 +169,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         std::array<std::uint32_t,3> sorted{static_cast<std::uint32_t>(ids[0]),static_cast<std::uint32_t>(ids[1]),static_cast<std::uint32_t>(ids[2])};
         std::sort(sorted.begin(),sorted.end());
         if(!faces.insert({sorted[0],sorted[1],sorted[2]}).second)return false;
-        auto tri=SurfaceTriangle{static_cast<std::uint32_t>(ids[0]),static_cast<std::uint32_t>(ids[1]),static_cast<std::uint32_t>(ids[2])};
+        auto tri=SurfaceTriangle{static_cast<std::uint32_t>(ids[0]),static_cast<std::uint32_t>(ids[1]),static_cast<std::uint32_t>(ids[2]),static_cast<std::uint8_t>(cam)};
         const Vec3 centroid=mul(add(add(A,B),C),1./3);
         if(dot(normal,sub(cameraCenter(view),centroid))<0)std::swap(tri.b,tri.c);
         mesh.triangles.push_back(tri);

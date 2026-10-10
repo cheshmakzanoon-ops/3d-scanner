@@ -32,6 +32,8 @@ jobs:
         run: python tools/benchmark_dense_middlebury.py --output reports/m07-middlebury-dense.json --gate
       - name: Benchmark confidence-fused triangle mesh on real Middlebury photographs
         run: python tools/benchmark_surface_middlebury.py --output reports/m08-middlebury-surface.json --gate
+      - name: Benchmark real photographic UV atlas and embedded GLB PNG
+        run: python tools/benchmark_texture_middlebury.py --output reports/m09-middlebury-texture.json --gate
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -42,6 +44,7 @@ jobs:
             reports/m06-three-photographs.json
             reports/m07-middlebury-dense.json
             reports/m08-middlebury-surface.json
+            reports/m09-middlebury-texture.json
   android:
     runs-on: ubuntu-24.04
     steps:

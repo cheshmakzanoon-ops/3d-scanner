@@ -27,6 +27,7 @@ struct SurfaceVertex {
 };
 struct SurfaceTriangle {
     std::uint32_t a{},b{},c{};
+    std::uint8_t sourceCamera{}; // original depth map that supported the face
 };
 struct SurfaceMesh {
     std::vector<SurfaceVertex> vertices;

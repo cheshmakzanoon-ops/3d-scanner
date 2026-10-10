@@ -25,7 +25,7 @@ def test_jni_names_match_declared_methods():
     cpp=(ROOT/"reconstruction/src/jni.cpp").read_text()
     methods=set(re.findall(r"external fun (\w+)\(",kotlin))
     exports=set(re.findall(r"Java_com_realityforge_scanner_engine_NativeCore_(\w+)\(",cpp))
-    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","quality","exportPoints"}
+    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","quality","exportPoints"}
 
 
 def test_no_dynamic_dependency_versions():
@@ -53,7 +53,7 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m08-observed-surface-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "m09-photographic-uv-1" in engine and "LensCalibration.read(repository, projectId)" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
     assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
@@ -110,3 +110,16 @@ def test_dense_source_is_bounded_cpu_reference_and_preserves_sparse_fallback():
     assert "reciprocal" in native.lower() and "depthConsistencyFraction" in native
     assert "denseFailure" in pipeline and 'output.put("densePreview",surface.getJSONObject("dense"))' in pipeline
     assert '"dense.glb"' in store and '"dense.ply"' in store
+
+
+def test_m09_camera_projected_uvs_are_embedded_and_exportable():
+    native=(ROOT/"reconstruction/src/texture.cpp").read_text()
+    adapter=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
+    repo=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
+    app=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt").read_text()
+    assert "TEXCOORD_0" in native and "image/png" in native
+    assert "depthAgreement(" in native and "visiblePixel(" in native
+    assert "NativeCore.reconstructTexturedSurface" in adapter
+    assert "textureError" in adapter and "textured.glb" in adapter and "texture.png" in adapter
+    assert "textured.glb" in repo and "texture.png" in repo
+    assert "exportTexturedGlb" in app and "exportTexturePng" in app
