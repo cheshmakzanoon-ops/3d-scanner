@@ -63,3 +63,7 @@ point count should be presented as progress in triangles, texture quality or com
 ## After M03: next gate M04 — real captures and global calibration
 
 M03 adds registered-camera triangulation, bounded point/non-anchor camera refinement and conflict-checked track construction. Its synthetic 3-view test does not substitute for real data. Next: collect licensed, calibrated physical-object photo sets; run actual arm64 and emulator instrumentation and thermal profiling; validate lens distortion and true calibration; integrate sparse global BA (Ceres/Eigen or equally validated sparse optimizer with gauge-fixing and reliable derivatives); then build CPU dense multi-view stereo baseline before Vulkan and meshing.
+
+## After M04: next gate M05
+
+M04 adds optional checkerboard-fitted Brown–Conrady intrinsics and corrected undistortion across the complete sparse feature graph, plus the artifact-lookup repair. Next: **physical-device calibration and real-object benchmarks**. Capture/label at least two rigid matte objects on an arm64 phone; print/capture the calibration board using a locked lens; compare with a known-good desktop SfM result; run Android instrumentation and airplane-mode recovery. Then integrate constrained global sparse bundle adjustment (including carefully bounded intrinsics refinement), followed by a CPU dense multi-view stereo baseline only after measured real data is stable. Calibration-fit RMS is not object-geometry error.

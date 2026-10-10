@@ -47,3 +47,19 @@ def test_revision_guard_in_database():
     assert "revision = :revision" in source
     assert "resultRevision = NULL" in source
     assert "@Transaction suspend fun addPhoto" in source
+
+def test_lens_calibration_is_wired_to_all_reconstruction_stages():
+    engine=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt").read_text()
+    graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
+    model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
+    lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
+    assert "m04-lens-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "projection.normalized" in engine and "c.projection.normalized" in engine
+    assert "projection?.normalized" in graph
+    assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
+    assert "findChessboardCorners" in lens and "calibrateCamera" in lens
+
+
+def test_export_artifact_key_supports_milestone_versions():
+    src=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
+    assert 'sparse-(?:m[0-9]{2}-)?r[0-9]+-[0-9a-f]{16}' in src

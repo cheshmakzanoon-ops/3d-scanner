@@ -1,4 +1,4 @@
-# Status — M03 (2026-10-09)
+# Status — M04 (2026-10-10)
 
 | Plan area | Implemented evidence | Gate status |
 |---|---|---|
@@ -37,3 +37,12 @@ milestone, exercised from synthetic images, inside a concrete Android source pro
 - Robust alternating sparse updates for points and non-anchor cameras; the first two poses remain fixed to resolve gauge. **Not** global Ceres bundle adjustment or camera-intrinsics optimization.
 - Adds native C ABI/JNI, Kotlin graph and regression tests; returns calibrated reprojection diagnostics and rejects degenerate camera geometry.
 - Continues exporting only POINTS in GLB/PLY. See [M03_VALIDATION.md](M03_VALIDATION.md). Physical camera tests and high-fidelity dense geometry are still outstanding.
+
+## M04 increments
+
+- User-initiated **offline 9×6-inner-corner checkerboard calibration** via Android document picker/OpenCV. Profile persists privately with RMS/view count and optional EXIF focal identity.
+- Per-feature Brown–Conrady inversion replaces estimated-pinhole rays throughout two-view matching, PnP and multi-view track graph when a profile exists. Projects without calibration still use explicit pinhole fallback.
+- Profile changes invalidate reconstruction revision and fingerprint; wrong aspect/known zoom is explicitly rejected.
+- Fixed regression where versioned sparse artifact keys failed the old `ProjectRepository` regex and could not be reopened/exported.
+- Adds synthetic calibration tests, JVM lens tests, printable reference board and capture guide.
+- **Still missing:** physical-device validation, real calibrated captures, global Ceres BA, dense surfaces and photo-textures.

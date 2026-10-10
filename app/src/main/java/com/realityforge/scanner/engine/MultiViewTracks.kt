@@ -12,20 +12,23 @@ internal data class SparseView(
     val colors: IntArray,
     val rotation: DoubleArray,
     val translation: DoubleArray,
+    val projection: LensProjection? = null,
 ) {
     init {
         require(width > 2 && height > 2 && focalPixels > 0 && focalPixels.isFinite())
         require(xy.size == colors.size * 2 && rotation.size == 9 && translation.size == 3)
     }
     fun normalized(key: Int): Pair<Double, Double> =
-        ((xy[2 * key] - (width - 1) / 2.0) / focalPixels) to
-            ((xy[2 * key + 1] - (height - 1) / 2.0) / focalPixels)
+        projection?.normalized(xy[2*key].toDouble(), xy[2*key+1].toDouble()) ?:
+            (((xy[2*key] - (width-1)/2.0) / focalPixels) to
+                ((xy[2*key+1] - (height-1)/2.0) / focalPixels))
 }
 
 /**
  * Conflict-aware union of reciprocal feature pairs, constrained by registered camera epipolar geometry.
  * Never merges components containing different keypoints from the same photograph.
- * No claimed physical scale, calibration of lens distortion, or dense/texture geometry.
+ * Camera observations use Brown-Conrady undistortion when a verified project profile exists.
+ * Does not measure physical scale or generate dense/textured geometry.
  */
 internal class MultiViewTrackGraph(private val views: List<SparseView>) {
     init { require(views.size in 2..12) }

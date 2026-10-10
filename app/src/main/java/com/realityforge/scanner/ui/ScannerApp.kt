@@ -47,6 +47,7 @@ fun ScannerApp(model: ScannerViewModel) {
     val progress by model.progress.collectAsStateWithLifecycle()
     val notice by model.notice.collectAsStateWithLifecycle()
     val preview by model.preview.collectAsStateWithLifecycle()
+    val calibrationStatus by model.calibrationStatus.collectAsStateWithLifecycle()
     var camera by rememberSaveable { mutableStateOf(false) }
     var newProject by rememberSaveable { mutableStateOf(false) }
     var deleteDialog by rememberSaveable { mutableStateOf(false) }
@@ -54,6 +55,7 @@ fun ScannerApp(model: ScannerViewModel) {
     var focal by rememberSaveable { mutableStateOf("26") }
     val snackbars = remember { SnackbarHostState() }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { model.import(it) }
+    val checkerboardPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { model.calibrateLens(it) }
     val exportGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "glb") } }
     val exportPly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "ply") } }
     LaunchedEffect(notice) { notice?.let { snackbars.showSnackbar(it); model.notice.value = null } }
@@ -64,7 +66,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M01", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M04", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -109,6 +111,22 @@ fun ScannerApp(model: ScannerViewModel) {
                         }
                     }
                     item {
+                        Card {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("Offline lens calibration", style = MaterialTheme.typography.titleMedium)
+                                Text(calibrationStatus, style = MaterialTheme.typography.bodyMedium)
+                                Text("Print the 10×7-square board (9×6 INNER corners). Photograph it 10–40 times using the SAME camera, zoom, aspect and orientation as your object photos; vary angle, distance and board position.")
+                                Button(enabled = !busy, onClick = {
+                                    checkerboardPicker.launch(arrayOf("image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"))
+                                }, modifier = Modifier.fillMaxWidth()) { Text("Calibrate this lens") }
+                                if (calibrationStatus.startsWith("Calibrated:")) {
+                                    OutlinedButton(enabled = !busy, onClick = { model.clearLensCalibration() }) { Text("Remove calibration") }
+                                }
+                                Text("Calibration improves geometry but does not provide absolute physical scale. Mismatched crops/lenses are rejected.", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                    }
+                    item {
                         InfoCard("Capture for geometry", "Keep the object still. Move sideways between overlapping views; do not just rotate the phone. Keep the same lens and avoid glossy, transparent or flat subjects. M01 has no object masking, so background points can appear.")
                     }
                     item {
@@ -141,7 +159,7 @@ fun ScannerApp(model: ScannerViewModel) {
                                     Text("${result.optInt("registeredCameras", 2)} registered cameras · arbitrary scale · drag to orbit, pinch to zoom", style = MaterialTheme.typography.labelMedium)
                                     PointCloudViewer(result, Modifier.fillMaxWidth().height(310.dp))
                                     Text("Median parallax: ${"%.2f".format(result.optDouble("medianParallaxDegrees"))}°", color = MaterialTheme.colorScheme.primary)
-                                    Text("M03 can triangulate new sparse tracks and refine poses/points while holding the anchor pair fixed. No dense surface or textures exist.", style = MaterialTheme.typography.bodySmall)
+                                    Text("M04 uses locally calibrated Brown-Conrady rays when available. Geometry remains sparse with no dense surface or textures.", style = MaterialTheme.typography.bodySmall)
                                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         OutlinedButton(enabled = !busy, onClick = { exportGlb.launch("realityforge-sparse.glb") }) { Text("Export GLB") }
                                         OutlinedButton(enabled = !busy, onClick = { exportPly.launch("realityforge-sparse.ply") }) { Text("Export PLY") }
@@ -153,7 +171,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }
-                    item { InfoCard("Next engineering gate", "Validate real-object capture and full sparse bundle adjustment with camera intrinsics before implementing dense depth and textures.") }
+                    item { InfoCard("Next engineering gate", "Validate calibrated real-object captures and full global bundle adjustment before implementing dense depth and texturing.") }
                     item { TextButton(enabled = !busy, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }

@@ -28,7 +28,7 @@ import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 
-/** M03: bounded registered-camera track graph, triangulated sparse points and gauge-fixed refinement. */
+/** M04: lens-aware normalized rays feeding the M03 sparse multi-view reconstruction core. */
 class SparsePipeline(private val repository: ProjectRepository) {
     data class Progress(val stage: String, val completed: Int, val total: Int)
     private data class PairMatches(val rows: DoubleArray, val firstKeys: IntArray, val secondKeys: IntArray) {
@@ -37,8 +37,14 @@ class SparsePipeline(private val repository: ProjectRepository) {
     }
     private data class Frame(
         val width: Int, val height: Int, val xy: FloatArray, val colors: IntArray,
-        val descriptors: Mat,
+        val descriptors: Mat, val projection: LensProjection,
     ) : Closeable { override fun close() { descriptors.release() } }
+    private var activeProfile: LensProfile? = null
+    private var fallbackFocal35 = 26.0
+    private fun lens(photo: ScanPhoto, width: Int, height: Int): LensProjection =
+        activeProfile?.forScan(width, height, photo.focal35mm) ?:
+            LensProjection.estimated(width, height,
+                ImageLoader.focalPixels(width, height, photo.focal35mm ?: fallbackFocal35))
 
     suspend fun run(projectId: String, assumedFocal35: Double, progress: suspend (Progress) -> Unit): JSONObject = withContext(Dispatchers.Default) {
         require(assumedFocal35 in 10.0..200.0) { "Use a plausible 35 mm-equivalent focal length." }
@@ -48,9 +54,13 @@ class SparsePipeline(private val repository: ProjectRepository) {
         require(photos.size >= 2) { "Import at least two overlapping photographs." }
         val directory = repository.directory(projectId)
         val revision = project.revision
-        val fingerprintInput = "m03-multiview-1|opencv-4.12.0|sift-3500|ratio-.75|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        activeProfile = LensCalibration.read(repository, projectId)
+        fallbackFocal35 = assumedFocal35
+        val calibrationFile = LensCalibration.file(repository, projectId)
+        val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
+        val fingerprintInput = "m04-lens-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.75|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m03-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m04-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
@@ -71,9 +81,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
             progress(Progress("Verifying overlapping photo pairs", index, candidates.size))
             val first = photos[pair.first]; val second = photos[pair.second]
             loadFrame(first, cache).use { a -> loadFrame(second, cache).use { b ->
-                val fA = ImageLoader.focalPixels(a.width, a.height, first.focal35mm ?: assumedFocal35)
-                val fB = ImageLoader.focalPixels(b.width, b.height, second.focal35mm ?: assumedFocal35)
-                val rows = matches(a, b, fA, fB)
+                val fA = min(a.projection.fx, a.projection.fy)
+                val fB = min(b.projection.fx, b.projection.fy)
+                val rows = matches(a, b)
                 if (rows.size >= 20) {
                     val result = JSONObject(NativeCore.reconstruct(rows.rows, 1.5 / min(fA, fB)))
                     coroutineContext.ensureActive()
@@ -83,7 +93,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
                         if (score > bestScore) {
                             result.put("firstPhotoId", first.id).put("secondPhotoId", second.id)
                             result.put("firstFocalPixels", fA).put("secondFocalPixels", fB)
-                            result.put("calibration", "Estimated pinhole; no distortion calibration or bundle adjustment in M02")
+                            result.put("calibration", if (activeProfile == null) "Estimated pinhole (no measured lens distortion)" else "Local checkerboard Brown-Conrady correction; RMS ${activeProfile!!.reprojectionRmsPixels} px")
                             result.put("assumedFocal35mm", assumedFocal35)
                             result.put("metadataFocalAvailable", first.focal35mm != null && second.focal35mm != null)
                             best = result; bestScore = score
@@ -108,17 +118,17 @@ class SparsePipeline(private val repository: ProjectRepository) {
         val outstanding = photos.indices.filter { it != selected.first && it != selected.second }
         // The features anchoring world XYZ are identified by matchIndex, not rounded coordinates.
         loadFrame(first, cache).use { a -> loadFrame(second, cache).use { b ->
-            val fA = ImageLoader.focalPixels(a.width, a.height, first.focal35mm ?: assumedFocal35)
-            val fB = ImageLoader.focalPixels(b.width, b.height, second.focal35mm ?: assumedFocal35)
+            val fA = min(a.projection.fx, a.projection.fy)
+            val fB = min(b.projection.fx, b.projection.fy)
             for ((step, candidateIndex) in outstanding.withIndex()) {
                 coroutineContext.ensureActive()
                 progress(Progress("Registering additional camera poses", step, outstanding.size))
                 val third = photos[candidateIndex]
                 loadFrame(third, cache).use { c ->
-                    val fC = ImageLoader.focalPixels(c.width, c.height, third.focal35mm ?: assumedFocal35)
+                    val fC = min(c.projection.fx, c.projection.fy)
                     // Require a cycle-consistent third keypoint match to BOTH anchor views.
-                    val ac = matches(a, c, fA, fC).destinationBySource()
-                    val bc = matches(b, c, fB, fC).destinationBySource()
+                    val ac = matches(a, c).destinationBySource()
+                    val bc = matches(b, c).destinationBySource()
                     val packed = ArrayList<Double>()
                     for (i in 0 until anchorPoints.length()) {
                         val point = anchorPoints.getJSONArray(i)
@@ -127,9 +137,11 @@ class SparsePipeline(private val repository: ProjectRepository) {
                         val fromA = ac[pairTracks.firstKeys[trackIndex]] ?: continue
                         val fromB = bc[pairTracks.secondKeys[trackIndex]] ?: continue
                         if (fromA != fromB) continue
+                        val observation = runCatching {
+                            c.projection.normalized(c.xy[2 * fromA].toDouble(), c.xy[2 * fromA + 1].toDouble())
+                        }.getOrNull() ?: continue
                         packed.add(point.getDouble(0));packed.add(point.getDouble(1));packed.add(point.getDouble(2))
-                        packed.add((c.xy[2 * fromA] - (c.width - 1) / 2.0) / fC)
-                        packed.add((c.xy[2 * fromA + 1] - (c.height - 1) / 2.0) / fC)
+                        packed.add(observation.first);packed.add(observation.second)
                     }
                     if (packed.size / 5 < 16) {
                         cameraFailures.put(JSONObject().put("photoId",third.id).put("reason","Fewer than 16 cycle-consistent 3D-2D tracks"))
@@ -161,10 +173,11 @@ class SparsePipeline(private val repository: ProjectRepository) {
                     val translationJson = camera.getJSONArray("translation")
                     SparseView(
                         frame.width, frame.height,
-                        ImageLoader.focalPixels(frame.width, frame.height, photo.focal35mm ?: assumedFocal35),
+                        min(frame.projection.fx, frame.projection.fy),
                         frame.xy.copyOf(), frame.colors.copyOf(),
                         DoubleArray(9) { rotationJson.getDouble(it) },
                         DoubleArray(3) { translationJson.getDouble(it) },
+                        projection = frame.projection,
                     )
                 }
             }
@@ -180,7 +193,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
                 progress(Progress("Verifying cross-camera feature tracks", step, graphPairs.size))
                 loadFrame(photos[registeredPhotoIndices[pair.first]], cache).use { left ->
                     loadFrame(photos[registeredPhotoIndices[pair.second]], cache).use { right ->
-                        val correspondence = matches(left, right, views[pair.first].focalPixels, views[pair.second].focalPixels)
+                        val correspondence = matches(left, right)
                         for (k in 0 until correspondence.size) {
                             graph.add(pair.first, correspondence.firstKeys[k], pair.second, correspondence.secondKeys[k])
                         }
@@ -240,7 +253,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
         }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m03-multiview-1").put("failedPairs", failures)
+            .put("engineVersion", "m04-lens-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }
@@ -264,7 +277,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
 
     private fun loadFrame(photo: ScanPhoto, cache: File): Frame {
         val file = File(cache, "${photo.sha256}-sift1600-v1.bin")
-        if (file.isFile) runCatching { readFrame(file) }.getOrNull()?.let { return it }
+        if (file.isFile) runCatching { readFrame(file, photo) }.getOrNull()?.let { return it }
         val bitmap = ImageLoader.upright(repository.photoFile(photo))
         val rgba = Mat(); val gray = Mat(); val keys = MatOfKeyPoint(); val desc = Mat(); val mask = Mat()
         val sift = SIFT.create(3500)
@@ -279,7 +292,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
                 xy[2 * i] = key.pt.x.toFloat(); xy[2 * i + 1] = key.pt.y.toFloat()
                 colors[i] = bitmap.getPixel(key.pt.x.toInt().coerceIn(0, bitmap.width - 1), key.pt.y.toInt().coerceIn(0, bitmap.height - 1))
             }
-            val frame = Frame(bitmap.width, bitmap.height, xy, colors, desc)
+            val frame = Frame(bitmap.width, bitmap.height, xy, colors, desc, lens(photo, bitmap.width, bitmap.height))
             writeFrame(file, frame)
             return frame
         } catch (exception: Throwable) { desc.release(); throw exception }
@@ -303,7 +316,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
             check(temporary.renameTo(file)) { "Cannot save feature cache." }
         } finally { temporary.delete() }
     }
-    private fun readFrame(file: File): Frame {
+    private fun readFrame(file: File, photo: ScanPhoto): Frame {
         DataInputStream(FileInputStream(file).buffered()).use { input ->
             check(input.readInt() == 0x52464631)
             val width = input.readInt(); val height = input.readInt(); val count = input.readInt()
@@ -314,10 +327,10 @@ class SparsePipeline(private val repository: ProjectRepository) {
             val values = FloatArray(count * 128) { input.readFloat() }
             check(xy.all { it.isFinite() } && values.all { it.isFinite() })
             val desc = if (count == 0) Mat() else Mat(count, 128, CvType.CV_32F).apply { put(0, 0, values) }
-            return Frame(width, height, xy, colors, desc)
+            return Frame(width, height, xy, colors, desc, lens(photo, width, height))
         }
     }
-    private fun matches(a: Frame, b: Frame, fA: Double, fB: Double): PairMatches {
+    private fun matches(a: Frame, b: Frame): PairMatches {
         if (a.colors.size < 2 || b.colors.size < 2) return PairMatches(doubleArrayOf(), intArrayOf(), intArrayOf())
         val matcher = BFMatcher.create(Core.NORM_L2, false)
         val forward = ArrayList<MatOfDMatch>(); val backward = ArrayList<MatOfDMatch>()
@@ -333,12 +346,12 @@ class SparsePipeline(private val repository: ProjectRepository) {
                 if (m.size < 2 || m[0].distance >= .75 * m[1].distance) continue
                 val i = m[0].queryIdx; val j = m[0].trainIdx
                 if (reverse[j] != i) continue
+                val uvA = runCatching { a.projection.normalized(a.xy[2*i].toDouble(), a.xy[2*i+1].toDouble()) }.getOrNull() ?: continue
+                val uvB = runCatching { b.projection.normalized(b.xy[2*j].toDouble(), b.xy[2*j+1].toDouble()) }.getOrNull() ?: continue
                 val c = a.colors[i]
                 firstKeys.add(i); secondKeys.add(j)
-                output.add((a.xy[2 * i] - (a.width - 1) / 2.0) / fA)
-                output.add((a.xy[2 * i + 1] - (a.height - 1) / 2.0) / fA)
-                output.add((b.xy[2 * j] - (b.width - 1) / 2.0) / fB)
-                output.add((b.xy[2 * j + 1] - (b.height - 1) / 2.0) / fB)
+                output.add(uvA.first); output.add(uvA.second)
+                output.add(uvB.first); output.add(uvB.second)
                 output.add(Color.red(c).toDouble()); output.add(Color.green(c).toDouble()); output.add(Color.blue(c).toDouble())
             }
             return PairMatches(output.toDoubleArray(), firstKeys.toIntArray(), secondKeys.toIntArray())

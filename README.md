@@ -1,13 +1,13 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 03 (0.3.0-m03).**
+**Fully local Android photogrammetry — engineering milestone 04 (0.4.0-m04).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
 geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M02 Android compilation and APK validation passed on
 GitHub Actions; emulator and physical-device execution remain unverified.**
 
 The current reconstruction is a **sparse point cloud triangulated from registered photo pairs with bounded gauge-fixed pose/point refinement**, not a high-resolution,
-textured surface mesh. Dense multi-view stereo, full/global sparse bundle adjustment with intrinsics, surface generation and
+textured surface mesh. Dense multi-view stereo, full/global sparse bundle adjustment, surface generation and
 photographic texturing remain subsequent milestones. Nothing substitutes a stock 3D model
 for the supplied photographs.
 
@@ -120,3 +120,9 @@ metric scale are claimed**.
 ## Milestone M03 — actual sparse multiview increment
 
 See [M03 validation](docs/M03_VALIDATION.md). M03 adds native calibrated triangulation of newly matched 3D tracks, Huber-weighted sparse point and non-anchor camera refinement, the Android JNI bridge, collision-checked track graph, and regression tests. This remains sparse, in arbitrary scale, untextured and not a commercial scanner. Any runtime failure preserves the valid M02 anchor geometry rather than publishing invented detail.
+
+## M04 — Offline camera calibration
+
+M04 adds an optional per-project **checkerboard-derived Brown–Conrady lens model** (fx/fy/cx/cy and five distortion coefficients), fully offline. Capture 10–40 photos of the bundled [9×6-inner-corner printable checkerboard](docs/checkerboard-9x6.svg) using one lens and orientation, then select **Calibrate this lens** inside the project. The app detects/optimizes 2D corners with OpenCV, measures fit RMS, rejects insufficient geometry, and uses calibrated undistorted normalized rays in anchor matching, PnP and M03 multi-view tracks. The profile is local to the project; changing it invalidates old sparse results. Incompatible aspect or known EXIF focal ratio causes an explicit error, not a silent pinhole fallback. Without a profile the existing estimated-pinhole pipeline remains available.
+
+This milestone also repairs `ProjectRepository.artifact`: versioned sparse artifact keys now match the file-lookup pattern, restoring reopened/exported preview access. See [calibration guide](docs/M04_CALIBRATION_GUIDE.md). This is still a sparse prototype: **no dense mesh, no texture, no full Ceres BA, and no verified physical-scene accuracy**. CI compiles and validates; real phone testing is outstanding.
