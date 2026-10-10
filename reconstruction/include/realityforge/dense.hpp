@@ -40,9 +40,20 @@ struct DenseDepthMap {
     std::vector<float> depth;      // 0 for invalid; camera-z (not Euclidean range)
     std::vector<float> confidence; // [0,1]
 };
+// A pixel supported by reciprocal camera-z depth checks (not merely ZNCC).
+// Preserves its source pixel so M08 can triangulate only observed neighbor cells.
+struct VerifiedDepthSample {
+    Vec3 xyz{};
+    std::array<std::uint8_t,3> color{};
+    float confidence{};
+    std::uint8_t supportingViews{};
+    std::uint8_t camera{};
+    std::uint16_t x{}, y{};
+};
 struct DenseResult {
     std::vector<DenseDepthMap> maps;
     std::vector<DensePoint> points;
+    std::vector<VerifiedDepthSample> verifiedSamples; // bounded, transient; omitted from M07 JSON
     std::size_t sampledPixels{}, photometricPixels{}, consistentPixels{};
     double medianConfidence{};
 };

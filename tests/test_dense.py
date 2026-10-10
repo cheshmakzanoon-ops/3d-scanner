@@ -49,7 +49,7 @@ def test_dense_jni_wiring_and_explicit_limit_contract():
     app=(ROOT/'app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt').read_text()
     core=(ROOT/'reconstruction/src/dense.cpp').read_text()
     assert 'Java_com_realityforge_scanner_engine_NativeCore_reconstructDense' in bridge
-    assert 'NativeCore.reconstructDense' in app
+    assert 'NativeCore.reconstructSurface' in app # M08 invokes dense + surface in one bounded native pass
     assert 'depthConsistencyFraction' in core
     assert 'sampledPixels' in core
     assert 'triangleCount' in core

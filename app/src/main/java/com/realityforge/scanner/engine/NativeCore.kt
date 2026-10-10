@@ -9,6 +9,9 @@ object NativeCore {
     external fun bundleAdjust(poses: DoubleArray, points: DoubleArray, tracks: DoubleArray, threshold: Double, iterations: Int): String
     external fun reconstructDense(rgba: ByteArray, width: Int, height: Int, cameras: DoubleArray,
         near: Double, far: Double, depthPlanes: Int, pixelStride: Int): String
+    external fun reconstructSurface(rgba: ByteArray, width: Int, height: Int, cameras: DoubleArray,
+        near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        glbPartialPath: String, plyPartialPath: String): String
     external fun quality(gray: ByteArray, width: Int, height: Int): DoubleArray
     external fun exportPoints(rows: DoubleArray, destination: String, glb: Boolean)
 }

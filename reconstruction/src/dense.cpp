@@ -129,6 +129,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     }
     const std::size_t n=static_cast<std::size_t>(w)*h;
     result.maps.reserve(views.size());
+    result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,50000));
     for(std::size_t ref=0;ref<views.size();++ref){
         DenseDepthMap map;map.width=w;map.height=h;map.depth.assign(n,0);map.confidence.assign(n,0);
         const auto& image=views[ref];
@@ -202,13 +203,19 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             }
             if(confirmations==0)continue;
             ++result.consistentPixels;
+            auto i=idx*4;
+            const auto confidence=static_cast<float>(map.confidence[idx]*std::min(1.0,confirmations/2.0+0.5));
+            // Verified samples retain their image neighborhood for confidence-weighted
+            // M08 meshing. Strict cap prevents unbounded 2D-grid memory consumption.
+            if(result.verifiedSamples.size()<std::min<std::size_t>(settings.maxPoints*2,50000))
+                result.verifiedSamples.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},
+                    confidence,static_cast<std::uint8_t>(confirmations+1),static_cast<std::uint8_t>(ref),
+                    static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y)});
             if(result.points.size()>=settings.maxPoints)continue;
             Voxel key{static_cast<long long>(std::floor(world.x/voxel)),
                       static_cast<long long>(std::floor(world.y/voxel)),
                       static_cast<long long>(std::floor(world.z/voxel))};
             if(!occupied.insert(key).second)continue;
-            auto i=idx*4;
-            auto confidence=map.confidence[idx]*std::min(1.0,confirmations/2.0+0.5);
             result.points.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},static_cast<float>(confidence),
                                      static_cast<std::uint8_t>(confirmations+1)});
             scores.push_back(confidence);

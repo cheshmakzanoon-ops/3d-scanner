@@ -142,9 +142,9 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
                 repository.dao.state(id, project.revision, "PROCESSING", "Reconstructing sparse geometry and attempting CPU dense stereo preview.")
                 val output = SparsePipeline(repository).run(id, focal35) { progress.value = it }
                 ensureActive()
-                check(repository.dao.complete(id, project.revision, output.getString("artifactKey"), "${output.getInt("pointCount")} sparse points; ${output.optJSONObject("densePreview")?.optInt("pointCount") ?: 0} dense candidate points; no mesh.") == 1) { "Result became stale." }
+                check(repository.dao.complete(id, project.revision, output.getString("artifactKey"), "${output.getInt("pointCount")} sparse points; ${output.optJSONObject("densePreview")?.optInt("pointCount") ?: 0} dense points; ${output.optJSONObject("meshPreview")?.optInt("triangleCount") ?: 0} observed triangles.") == 1) { "Result became stale." }
                 if (selectedId.value == id) preview.value = output
-                notice.value = "Sparse preview saved. M07 optionally exports dense points; surface meshing and textures remain unavailable."
+                notice.value = "Preview saved. M08 exports observed open triangle meshes when depth support passes. UV textures are not implemented."
             } catch (e: CancellationException) {
                 sourceRevision?.let { revision ->
                     withContext(NonCancellable) { repository.dao.state(id, revision, "INTERRUPTED", "Paused. Originals and feature caches are safe; rerun to continue from cached features.") }
@@ -187,7 +187,7 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun export(uri: Uri, extension: String) {
         val id = selectedId.value ?: return
-        if (busy.value || extension !in setOf("glb", "ply", "dense.glb", "dense.ply")) return
+        if (busy.value || extension !in setOf("glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply")) return
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val project = requireNotNull(repository.dao.project(id))
@@ -195,7 +195,9 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
                 check(revision == project.revision)
                 val file = repository.artifact(id, requireNotNull(project.resultKey), extension)
                 file.inputStream().use { input -> requireNotNull(getApplication<Application>().contentResolver.openOutputStream(uri, "wt")).use { input.copyTo(it) } }
-                notice.value = "Exported $extension point cloud (no triangle mesh). The chosen destination is controlled by your document provider."
+                notice.value = if (extension.startsWith("mesh."))
+                    "Exported verified open surface mesh ($extension), vertex colors and arbitrary scale."
+                else "Exported $extension point cloud. Your document provider controls the destination."
             } catch (e: Exception) { notice.value = e.message }
         }
     }

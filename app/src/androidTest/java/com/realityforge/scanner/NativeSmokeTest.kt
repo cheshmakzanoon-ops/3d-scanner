@@ -9,6 +9,7 @@ import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.opencv.android.OpenCVLoader
+import java.io.File
 import kotlin.random.Random
 
 @RunWith(AndroidJUnit4::class)
@@ -108,6 +109,25 @@ class NativeSmokeTest {
         assertEquals(0,result.getInt("triangleCount"))
         assertTrue(result.getInt("photometricPixels")>100)
         assertTrue(result.getInt("pointCount")>50)
+        // M08 must actually create indexed TRIANGLES through the installed NDK .so.
+        val root=InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
+        val glb=File(root,"realityforge-m08-smoke.glb")
+        val ply=File(root,"realityforge-m08-smoke.ply")
+        try {
+            val surface=JSONObject(NativeCore.reconstructSurface(pixels,width,height,cameras,
+                3.2,7.2,56,3,glb.path,ply.path))
+            assertFalse(surface.toString().take(300),surface.has("error"))
+            assertFalse(surface.toString().take(300),surface.has("meshError"))
+            val mesh=surface.getJSONObject("mesh")
+            assertEquals("observed_open_triangle_mesh",mesh.getString("representation"))
+            assertTrue(mesh.getInt("triangleCount")>30)
+            assertTrue(mesh.getInt("vertexCount")>30)
+            assertEquals(mesh.getInt("triangleCount"),mesh.getJSONArray("triangles").length())
+            assertTrue(glb.isFile && glb.length()>1024)
+            assertTrue(ply.isFile && ply.length()>1024)
+            val header=glb.inputStream().use { it.readNBytes(4) }
+            assertArrayEquals(byteArrayOf(0x67,0x6c,0x54,0x46),header)
+        } finally { glb.delete(); ply.delete() }
     }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {

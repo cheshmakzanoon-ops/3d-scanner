@@ -1,11 +1,11 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 07 (0.7.0-m07).**
+**Fully local Android photogrammetry — engineering milestone 08 (0.8.0-m08).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
-geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M06 Android compilation and API-35 emulator instrumentation passed on GitHub Actions. M07 still requires its own build/runtime CI verification and physical arm64 camera testing.**
+geometry core, regression fixtures and build automation. **This source snapshot is an engineering prototype, not a released app. M07 passed native, Android and API-35 emulator GitHub Actions; M08 requires its own CI and physical arm64 camera validation.**
 
-The app reconstructs **sparse SfM points** using registered cameras and M06 joint refinement. M07 also provides a **bounded CPU dense stereo point-cloud preview**, not a triangle mesh. High-resolution dense MVS, confidence-aware surface fusion, intrinsics-refining Ceres BA, surface meshing and photographic texturing remain separate milestones. Nothing substitutes a stock 3D model
+The app reconstructs **sparse SfM points** using registered cameras and M06 joint refinement. M07 also provides a **bounded CPU dense stereo point-cloud preview**. M08 adds conservative **camera-supported open triangle meshing** with confidence-weighted cross-view vertex/color fusion. Accurate high-resolution dense MVS, camera-intrinsics-refining Ceres BA, UV atlas generation and photographic texture baking remain future milestones. Nothing substitutes a stock 3D model
 for the supplied photographs.
 
 ## Implemented in source
@@ -24,7 +24,8 @@ for the supplied photographs.
 - M03 builds conflict-aware keypoint tracks across registered images and triangulates new sparse points from camera pairs outside the original anchor; first two cameras remain fixed during damped Huber refinement.
 - M06 adds a coupled global Huber-weighted Schur/LM optimization of registered camera extrinsics and sparse points (first two anchor poses fixed; camera intrinsics not refined).
 - M07 adds offline rectified CPU photometric plane sweep, reciprocal depth-map consistency, bounded deduplicated dense POINTS, and separate dense-point GLB/PLY outputs. Both sparse and dense GLBs contain GLTF POINTS, not triangle faces.
-- Point-cloud diagnostic viewer with separate sparse and dense previews.
+- M08 creates indexed triangle meshes from **reciprocal-verified neighboring depth pixels**, with confidence-weighted spatial vertex fusion, conservative discontinuity gating and normal generation. Exports GLB TRIANGLES and face-indexed PLY separately from original POINTS.
+- An orbitable shaded surface mesh preview/wireframe and GLB/PLY export controls complement sparse and dense point-viewer modes. Vertex colors are photographed samples, **not UV image textures**.
 - Source manifest strips INTERNET and ACCESS_NETWORK_STATE. No analytics, login,
   advertising SDK or cloud-processing client is included.
 
@@ -157,3 +158,23 @@ reciprocal depth maps, then exports **dense points**, not fabricated triangle
 surfaces. Its stage is optional and failure-safe: an unsupported image set
 still retains usable M06 sparse results. See [M07 technical report](docs/M07_VALIDATION.md)
 for real/synthetic benchmark metrics, hard memory limits and the M08 plan.
+
+## M08 — open triangle mesh validation
+
+[Read the M08 validation report](docs/M08_VALIDATION.md). Native tests on a
+calibrated three-camera rendered plane produce **2,570 vertices / 7,125
+triangles**, with 2,101 cross-view fusion events. On real, independently
+calibrated Middlebury stereo photos, the engine reconstructs **2,454 vertices /
+3,530 triangles** with median GT disparity error 0.479 pixels and 90th
+percentile 2.315 pixels. These are bounded low-resolution tests, **not** a
+complete real-object scan or a promise of commercial photographic quality.
+
+The Android project now creates `.mesh.glb` and `.mesh.ply` when there is enough
+reciprocal support. Each mesh contains indexed faces, vertex colors, normals,
+and measured open-surface gaps where coverage fails. The existing `.dense.glb`
+and `.dense.ply` remain **point clouds**; they must not be confused with mesh
+exports. There are **no UV textures, watertight guarantees, metric measurements,
+or physical-device thermal tests** yet.
+
+Run the new CI gate via `python tools/benchmark_surface_middlebury.py --gate`.
+The complete development roadmap remains in `PROJECT_PLAN.md`.

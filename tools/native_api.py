@@ -37,6 +37,10 @@ class NativeEngine:
             ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double,ctypes.c_double,
             ctypes.c_int,ctypes.c_int]
         self.library.rf_dense_json.restype=ctypes.c_void_p
+        self.library.rf_surface_json.argtypes=[ctypes.POINTER(ctypes.c_uint8),ctypes.c_int,ctypes.c_int,
+            ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double,ctypes.c_double,
+            ctypes.c_int,ctypes.c_int,ctypes.c_char_p,ctypes.c_char_p]
+        self.library.rf_surface_json.restype=ctypes.c_void_p
         self.library.rf_free.argtypes=[ctypes.c_void_p]
         self.library.rf_free.restype=None
 
@@ -111,6 +115,30 @@ class NativeEngine:
             len(poses),near,far,depth_planes,pixel_stride)
         if not ptr:raise MemoryError('Dense native allocation failed')
         try: result=json.loads(ctypes.string_at(ptr).decode('utf-8'))
+        finally:self.library.rf_free(ptr)
+        if 'error' in result:raise ValueError(result['error'])
+        return result
+
+    def surface(self,rgba:np.ndarray,cameras:np.ndarray,near:float,far:float,
+                depth_planes:int=56,pixel_stride:int=3,
+                glb:Path|None=None,ply:Path|None=None)->dict[str,Any]:
+        """One native dense stereo pass plus confidence-weighted OPEN triangle meshing.
+
+        GLB/PLY filenames are optional; when mesh lacks support the dense results
+        remain and meshError explains why. Does not infer unseen surfaces or UVs.
+        """
+        images=np.ascontiguousarray(rgba,dtype=np.uint8)
+        poses=np.ascontiguousarray(cameras,dtype=np.float64)
+        if images.ndim!=4 or images.shape[-1]!=4 or images.shape[0] not in range(2,5):
+            raise ValueError('Surface reconstruction expects 2–4 rectified RGBA images')
+        if poses.shape!=(images.shape[0],16) or images.shape[1]>640 or images.shape[2]>640:
+            raise ValueError('Surface reconstruction camera rows must be N×16 and <=640px images')
+        ptr=self.library.rf_surface_json(images.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),
+            images.shape[2],images.shape[1],poses.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
+            len(poses),near,far,depth_planes,pixel_stride,
+            os.fsencode(glb) if glb else None,os.fsencode(ply) if ply else None)
+        if not ptr:raise MemoryError('Surface native allocation failed')
+        try:result=json.loads(ctypes.string_at(ptr).decode('utf-8'))
         finally:self.library.rf_free(ptr)
         if 'error' in result:raise ValueError(result['error'])
         return result

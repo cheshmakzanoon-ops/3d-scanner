@@ -82,3 +82,23 @@ milestone, exercised from synthetic images, inside a concrete Android source pro
   metrically calibrated scale, watertight model or real-phone thermals.
 - Host synthetic three-camera planar test and real Middlebury stereo depth-vs-
   independent-ground-truth benchmark; see [M07 validation](M07_VALIDATION.md).
+
+## M08 — Confirmed-depth fusion and observed open triangle topology
+
+- Native M07 depth keeps only reciprocal camera-z confirmed samples for M08;
+  samples retain origin pixel, source view, confidence, and support count.
+- Spatially close, independent observations are confidence-weighted and fused;
+  topology derives from four verified neighboring pixel samples, with strict
+  depth discontinuity, edge length, normal and degeneracy checks. No invented
+  backfaces or automatic hole filling.
+- Real `mode=TRIANGLES` glTF 2.0 GLB with vertex normals and COLOR_0, plus
+  face-indexed PLY. Old point-only formats remain distinct.
+- Android receives one native depth+mesh pass through JNI, displays interactive
+  triangle/wireframe previews, publishes model exports atomically, and falls
+  back explicitly when surface coverage is inadequate.
+- New synthetic and real stereo benchmark gates, binary format checks and
+  Android emulator JNI instrumentation. See [M08 validation](M08_VALIDATION.md).
+- **Still not implemented/verified:** UV atlas, continuous high-resolution
+  photographic textures, metric scale, full closed object reconstruction,
+  physical phone capture tests, photogrammetry on shiny/transparent objects,
+  TSDF/Poisson globally fused surface, and industrial topology cleanup.

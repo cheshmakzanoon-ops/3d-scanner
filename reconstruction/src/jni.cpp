@@ -3,6 +3,7 @@
 #include "realityforge/multiview.hpp"
 #include "realityforge/bundle_adjustment.hpp"
 #include "realityforge/dense.hpp"
+#include "realityforge/surface.hpp"
 #include <cmath>
 #include <jni.h>
 #include <vector>
@@ -106,6 +107,41 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructDense(
     char* json=rf_dense_json(colors.data(),width,height,cameras.data(),static_cast<std::size_t>(n/16),
          nearDepth,farDepth,depthPlanes,pixelStride);
     if(!json){illegal(env,"CPU dense stereo memory allocation failed");return nullptr;}
+    auto result=env->NewStringUTF(json);rf_free(json);return result;
+}
+// Reuses the same bounded rectified image and camera contract as M07's dense engine.
+// Paths refer only to app-private .partial exports, never user-controlled filesystem paths.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructSurface(
+    JNIEnv* env, jobject, jbyteArray rgba, jint width, jint height,
+    jdoubleArray cameraRows, jdouble nearDepth, jdouble farDepth,
+    jint depthPlanes, jint pixelStride, jstring glbPath, jstring plyPath) {
+    if(!rgba||!cameraRows||!glbPath||!plyPath||width<32||height<32||width>640||height>640||
+       static_cast<long long>(width)*height>320000) {
+        illegal(env,"Invalid bounded M08 surface input");return nullptr;
+    }
+    const auto count=env->GetArrayLength(cameraRows);
+    if(count<32||count>64||count%16!=0||
+       static_cast<long long>(width)*height*4*(count/16)!=env->GetArrayLength(rgba)) {
+        illegal(env,"Surface image and camera shapes mismatch");return nullptr;
+    }
+    std::vector<std::uint8_t> pixels(static_cast<std::size_t>(env->GetArrayLength(rgba)));
+    std::vector<double> cameras(static_cast<std::size_t>(count));
+    env->GetByteArrayRegion(rgba,0,env->GetArrayLength(rgba),reinterpret_cast<jbyte*>(pixels.data()));
+    if(env->ExceptionCheck())return nullptr;
+    env->GetDoubleArrayRegion(cameraRows,0,count,cameras.data());
+    if(env->ExceptionCheck())return nullptr;
+    const char* rawGlb=env->GetStringUTFChars(glbPath,nullptr);
+    if(!rawGlb)return nullptr;
+    const char* rawPly=env->GetStringUTFChars(plyPath,nullptr);
+    if(!rawPly){env->ReleaseStringUTFChars(glbPath,rawGlb);return nullptr;}
+    // Own the strings before release; a native failure still produces explicit JSON.
+    std::string glb(rawGlb),ply(rawPly);
+    env->ReleaseStringUTFChars(glbPath,rawGlb);
+    env->ReleaseStringUTFChars(plyPath,rawPly);
+    auto* json=rf_surface_json(pixels.data(),width,height,cameras.data(),static_cast<std::size_t>(count/16),
+        nearDepth,farDepth,depthPlanes,pixelStride,glb.c_str(),ply.c_str());
+    if(!json){illegal(env,"Native surface response allocation failed");return nullptr;}
     auto result=env->NewStringUTF(json);rf_free(json);return result;
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL

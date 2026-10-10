@@ -7,11 +7,13 @@ import kotlinx.coroutines.ensureActive
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.FileOutputStream
 import kotlin.coroutines.coroutineContext
 import kotlin.math.*
 
 /**
- * M07: small, rectified, bounded CPU ZNCC stereo baseline, NOT dense mesh/texturing.
+ * M08: calibrated CPU depth, reciprocal support and conservative observed-surface triangles.
+ * No watertight guarantees, UV photographic textures, or physical scale.
  * All geometry is expressed in the already-registered sparse anchor coordinate frame.
  * If a view has a mismatched aspect/lens, reject the dense stage instead of inventing rays.
  */
@@ -24,6 +26,7 @@ internal object DensePreview {
     suspend fun reconstruct(
         repository: ProjectRepository,
         projectId: String,
+        artifactKey: String,
         photos: List<ScanPhoto>,
         cameras: JSONArray,
         sparsePoints: JSONArray,
@@ -95,22 +98,55 @@ internal object DensePreview {
             val far=max(q90*1.30,near*1.4)
             require(far<100000 && far>near*1.05)
             coroutineContext.ensureActive()
-            val output=JSONObject(NativeCore.reconstructDense(rectified,width,height,cameraRows,
-                near,far,DEPTH_PLANES,PIXEL_STRIDE))
-            coroutineContext.ensureActive()
-            require(!output.has("error")){output.optString("error","Dense solver failed")}
-            val points=output.getInt("pointCount")
-            require(points>=60 && output.getInt("consistentPixels")>=60) {
-                "Insufficient reciprocal-consistent dense pixels; recapture a textured, non-reflective object."
+            require(artifactKey.matches(Regex("sparse-m08-r[0-9]+-[0-9a-f]{16}"))) {
+                "Invalid M08 artifact key."
             }
-            output.put("sourcePhotos",chosen.size)
-                .put("rectifiedWidth",width).put("rectifiedHeight",height)
-                .put("depthPlanes",DEPTH_PLANES).put("pixelStride",PIXEL_STRIDE)
-                .put("nearDepthInAnchorUnits",near).put("farDepthInAnchorUnits",far)
-                .put("photographsRectified",true)
-                .put("calibrationProfileApplied",profile!=null)
-                .put("limitations","CPU plane sweep preview; sparse-depth priors, nonmetric scale, no surface mesh or UV textures")
-            return output
+            val folder=repository.directory(projectId)
+            val glb=File(folder,"$artifactKey.mesh.glb")
+            val ply=File(folder,"$artifactKey.mesh.ply")
+            val glbPartial=File(folder,"${glb.name}.partial")
+            val plyPartial=File(folder,"${ply.name}.partial")
+            var publishedGlb=false
+            try {
+                val result=JSONObject(NativeCore.reconstructSurface(rectified,width,height,cameraRows,
+                    near,far,DEPTH_PLANES,PIXEL_STRIDE,glbPartial.path,plyPartial.path))
+                coroutineContext.ensureActive()
+                require(!result.has("error")) { result.optString("error","Depth or mesh solver failed") }
+                val output=result.getJSONObject("dense")
+                require(output.getInt("pointCount")>=60 && output.getInt("consistentPixels")>=60) {
+                    "Insufficient reciprocal-consistent depth; recapture a textured rigid object."
+                }
+                output.put("sourcePhotos",chosen.size)
+                    .put("rectifiedWidth",width).put("rectifiedHeight",height)
+                    .put("depthPlanes",DEPTH_PLANES).put("pixelStride",PIXEL_STRIDE)
+                    .put("nearDepthInAnchorUnits",near).put("farDepthInAnchorUnits",far)
+                    .put("photographsRectified",true)
+                    .put("calibrationProfileApplied",profile!=null)
+                    .put("limitations","Bounded CPU stereo. Mesh is open with vertex colors, no UV textures or metric scale")
+                val composite=JSONObject().put("dense",output)
+                val mesh=result.optJSONObject("mesh")
+                if (mesh!=null && mesh.optInt("triangleCount")>=40 &&
+                    mesh.optInt("vertexCount")>=30 &&
+                    glbPartial.isFile && plyPartial.isFile &&
+                    glbPartial.length()>100 && plyPartial.length()>100) {
+                    coroutineContext.ensureActive()
+                    FileOutputStream(glbPartial,true).use { it.fd.sync() }
+                    FileOutputStream(plyPartial,true).use { it.fd.sync() }
+                    check(glbPartial.renameTo(glb)) { "Cannot publish surface GLB" }
+                    publishedGlb=true
+                    check(plyPartial.renameTo(ply)) { "Cannot publish surface PLY" }
+                    composite.put("mesh",mesh)
+                } else {
+                    composite.put("meshError",result.optString("meshError",
+                        "Surface confidence/coverage gate rejected geometry"))
+                }
+                return composite
+            } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+            finally {
+                glbPartial.delete()
+                plyPartial.delete()
+                if (publishedGlb && !ply.isFile) glb.delete()
+            }
         } finally { images.forEach { it.second.recycle() } }
     }
 

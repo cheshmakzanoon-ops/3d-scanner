@@ -95,3 +95,24 @@ failure cases like shiny or textureless materials. Then implement confidence-
 weighted spatial fusion and topologically safe meshing (not arbitrary hole-fill),
 validate against ground truth and only afterward begin multi-photo UV/texture
 baking. Do not claim high-quality textures or a watertight mesh in M07.
+
+## After M08 — M09: photographed material projection and stronger mesh fusion
+
+M08 turns independently verified CPU stereo depth samples into **actual indexed,
+open triangles** with conservative neighborhood/depth/edge gating, confidence
+weighted cross-view vertex/color fusion, GLB/PLY face export and an orbitable
+mesh preview. Its real-photo accuracy data is a **rectified two-view stereo
+benchmark**, not a measured physical 360-degree object scan.
+
+**First:** capture 12–40 authorized photographs of at least two textured matte
+objects on a physical Android phone; use the printed checkerboard, fix lens,
+quantify registered-camera errors, use external calibrated reference geometry,
+record memory, CPU/thermal measurements and actual object-completeness metrics.
+Audit all mesh boundaries, disconnected components, self-intersections,
+back-facing patches and duplicate overlapping faces. No indiscriminate hole
+filling or waterproof/print-ready claims. **Then:** integrate carefully licensed
+UV unwrapping and view-ranked high-resolution photographic texture baking,
+mask/outlier/color/exposure correction, seam handling and real-file GLB UV
+exports, all offline and with bounded memory. Benchmark geometry and appearance
+separately. Upgrade to genuinely denser coarse-to-fine MVS/Vulkan only with
+measured mobile workloads and quality regressions.

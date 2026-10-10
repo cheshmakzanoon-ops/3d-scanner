@@ -25,7 +25,7 @@ def test_jni_names_match_declared_methods():
     cpp=(ROOT/"reconstruction/src/jni.cpp").read_text()
     methods=set(re.findall(r"external fun (\w+)\(",kotlin))
     exports=set(re.findall(r"Java_com_realityforge_scanner_engine_NativeCore_(\w+)\(",cpp))
-    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","quality","exportPoints"}
+    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","quality","exportPoints"}
 
 
 def test_no_dynamic_dependency_versions():
@@ -53,7 +53,7 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m07-cpu-stereo-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "m08-observed-surface-1" in engine and "LensCalibration.read(repository, projectId)" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
     assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
@@ -108,5 +108,5 @@ def test_dense_source_is_bounded_cpu_reference_and_preserves_sparse_fallback():
     store=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
     assert "settings.maxPoints" in native and "reconstructDense(" in native
     assert "reciprocal" in native.lower() and "depthConsistencyFraction" in native
-    assert "denseFailure" in pipeline and 'output.put("densePreview",dense)' in pipeline
+    assert "denseFailure" in pipeline and 'output.put("densePreview",surface.getJSONObject("dense"))' in pipeline
     assert '"dense.glb"' in store and '"dense.ply"' in store
