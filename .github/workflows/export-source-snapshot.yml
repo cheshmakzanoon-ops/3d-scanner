@@ -1,0 +1,21 @@
+name: Export repository source snapshot
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/export-source-snapshot.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Archive exact checked-out source
+        run: tar -czf "$RUNNER_TEMP/source.tar.gz" --exclude=.git .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: realityforge-source-snapshot
+          path: ${{ runner.temp }}/source.tar.gz
+          compression-level: 0
+          retention-days: 2
