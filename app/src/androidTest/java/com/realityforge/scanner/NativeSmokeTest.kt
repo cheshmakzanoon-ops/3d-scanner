@@ -125,7 +125,11 @@ class NativeSmokeTest {
             assertEquals(mesh.getInt("triangleCount"),mesh.getJSONArray("triangles").length())
             assertTrue(glb.isFile && glb.length()>1024)
             assertTrue(ply.isFile && ply.length()>1024)
-            val header=glb.inputStream().use { it.readNBytes(4) }
+            val header=glb.inputStream().use { input ->
+                val bytes=ByteArray(4)
+                assertEquals(4,input.read(bytes))
+                bytes
+            }
             assertArrayEquals(byteArrayOf(0x67,0x6c,0x54,0x46),header)
         } finally { glb.delete(); ply.delete() }
     }

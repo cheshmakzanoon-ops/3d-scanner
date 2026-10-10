@@ -85,10 +85,10 @@ fun ScannerApp(model: ScannerViewModel) {
                     item {
                         Text("Keep the world.\nKeep it on your phone.", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(12.dp))
-                        Text("Photographs → calibrated cameras → sparse geometry → dense stereo points.", color = MaterialTheme.colorScheme.secondary)
+                        Text("Photos → calibrated cameras → observed open triangle meshes.", color = MaterialTheme.colorScheme.secondary)
                     }
                     item {
-                        InfoCard("Development build", "This milestone adds CPU stereo depth estimates and reciprocal-consistent dense POINTS. It does not generate triangles or photographic texture atlases.")
+                        InfoCard("Development build", "M08 builds indexed triangle meshes from depth evidence when capture quality permits. UV photographic textures and full-object completeness are not available yet.")
                     }
                     item { Button(onClick = { newProject = true }, modifier = Modifier.fillMaxWidth()) { Text("Create local project") } }
                     if (projects.isEmpty()) item { Text("No scans yet. Start with a matte, textured, rigid object and two overlapping views.") }
