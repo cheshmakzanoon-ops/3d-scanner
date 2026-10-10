@@ -25,7 +25,7 @@ def test_jni_names_match_declared_methods():
     cpp=(ROOT/"reconstruction/src/jni.cpp").read_text()
     methods=set(re.findall(r"external fun (\w+)\(",kotlin))
     exports=set(re.findall(r"Java_com_realityforge_scanner_engine_NativeCore_(\w+)\(",cpp))
-    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","quality","exportPoints"}
+    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","quality","exportPoints"}
 
 
 def test_no_dynamic_dependency_versions():
@@ -53,7 +53,7 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m05-real-validation-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "m06-joint-ba-1" in engine and "LensCalibration.read(repository, projectId)" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
     assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
@@ -87,3 +87,16 @@ def test_capture_package_requires_explicit_destination_and_preserves_hashes():
     assert "ActivityResultContracts.CreateDocument(\"application/zip\")" in screen
     assert "model.exportCaptureBundle(it)" in screen
     assert "openOutputStream(uri, \"wt\")" in view_model
+
+
+def test_bundle_adjustment_engine_and_jni_have_true_joint_contract():
+    engine=(ROOT/"reconstruction/src/bundle_adjustment.cpp").read_text()
+    jni=(ROOT/"reconstruction/src/jni.cpp").read_text()
+    kotlin=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt").read_text()
+    assert "computeStep" in engine and "schur" in engine
+    assert "out.cameras=std::move(candidateCameras)" in engine
+    assert "cameraStep" in engine and "point.touched" in engine
+    assert "Java_com_realityforge_scanner_engine_NativeCore_bundleAdjust" in jni
+    assert "NativeCore.bundleAdjust(" in kotlin
+    assert "bundleAdjustmentFailure" in kotlin
+    assert "robustCostAfter" in kotlin

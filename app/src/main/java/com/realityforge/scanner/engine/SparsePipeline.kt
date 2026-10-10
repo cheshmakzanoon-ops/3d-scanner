@@ -28,7 +28,7 @@ import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 
-/** M04: lens-aware normalized rays feeding the M03 sparse multi-view reconstruction core. */
+/** M06: calibrated SfM with bounded joint, gauge-fixed sparse bundle adjustment. */
 class SparsePipeline(private val repository: ProjectRepository) {
     data class Progress(val stage: String, val completed: Int, val total: Int)
     private data class PairMatches(val rows: DoubleArray, val firstKeys: IntArray, val secondKeys: IntArray) {
@@ -58,9 +58,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
         val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
-        val fingerprintInput = "m05-real-validation-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        val fingerprintInput = "m06-joint-ba-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m05-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m06-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
@@ -217,8 +217,65 @@ class SparsePipeline(private val repository: ProjectRepository) {
                 if (!refined.has("error") &&
                     refined.optInt("pointCount", 0) >= (output.getInt("pointCount") * .85).toInt() &&
                     refined.getDouble("medianErrorAfterNormalized") < threshold * 2) {
-                    val newPoints = refined.getJSONArray("points")
-                    val newCameras = refined.getJSONArray("cameras")
+                    // Joint BA starts ONLY from geometrically accepted M03 sparse tracks.
+                    // It uses the same observation graph, holds both anchor cameras fixed,
+                    // and publishes nothing unless the robust objective improves.
+                    var selectedGeometry = refined
+                    var jointAccepted = false
+                    if (cameraArray.length() >= 3 && refined.getJSONArray("points").length() >= 24) {
+                        try {
+                            coroutineContext.ensureActive()
+                            progress(Progress("Joint camera and point bundle adjustment", 0, 1))
+                            val cameraRows = refined.getJSONArray("cameras")
+                            val baCameras = DoubleArray(cameraRows.length() * 12) { i ->
+                                val pose = cameraRows.getJSONObject(i / 12)
+                                if (i % 12 < 9) pose.getJSONArray("rotation").getDouble(i % 12)
+                                else pose.getJSONArray("translation").getDouble(i % 12 - 9)
+                            }
+                            val seeds = refined.getJSONArray("points")
+                            val baPoints = DoubleArray(seeds.length() * 7) { i ->
+                                val row = seeds.getJSONArray(i / 7)
+                                if (i % 7 == 0) row.getDouble(8)
+                                else row.getDouble(i % 7 - 1)
+                            }
+                            val joint = JSONObject(NativeCore.bundleAdjust(baCameras, baPoints, observations, threshold, 15))
+                            coroutineContext.ensureActive()
+                            val acceptable = !joint.has("error") &&
+                                joint.optInt("pointCount") >= (seeds.length() * 0.90).toInt() &&
+                                joint.optDouble("robustCostAfter", Double.POSITIVE_INFINITY) <=
+                                    joint.optDouble("robustCostBefore", 0.0) + 1e-12 &&
+                                joint.optDouble("medianErrorAfterNormalized", Double.POSITIVE_INFINITY) <= threshold * 2 &&
+                                joint.optDouble("medianErrorAfterNormalized", Double.POSITIVE_INFINITY) <=
+                                    refined.getDouble("medianErrorAfterNormalized") * 1.2 + 1e-8
+                            if (acceptable) {
+                                selectedGeometry = joint
+                                jointAccepted = true
+                                output.put("bundleAdjustment", JSONObject()
+                                    .put("solver", "coupled_huber_schur_lm")
+                                    .put("anchorCamerasFixed", 2)
+                                    .put("attemptedIterations", joint.getInt("iterations"))
+                                    .put("acceptedSteps", joint.getInt("acceptedSteps"))
+                                    .put("inputObservations", joint.getInt("inputObservations"))
+                                    .put("usableObservations", joint.getInt("usableObservations"))
+                                    .put("rejectedObservations", joint.getInt("rejectedObservations"))
+                                    .put("robustCostBefore", joint.getDouble("robustCostBefore"))
+                                    .put("robustCostAfter", joint.getDouble("robustCostAfter"))
+                                    .put("medianBeforeNormalized", joint.getDouble("medianErrorBeforeNormalized"))
+                                    .put("medianAfterNormalized", joint.getDouble("medianErrorAfterNormalized")))
+                            } else {
+                                output.put("bundleAdjustmentFailure", if (joint.has("error"))
+                                    joint.getString("error") else "Joint BA quality gate rejected result")
+                            }
+                        } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+                        catch (failure: Exception) {
+                            output.put("bundleAdjustmentFailure", failure.message ?: "Joint BA failed")
+                        }
+                        progress(Progress("Joint camera and point bundle adjustment", 1, 1))
+                    } else {
+                        output.put("bundleAdjustmentFailure", "Joint BA requires at least 3 registered cameras and 24 sparse points")
+                    }
+                    val newPoints = selectedGeometry.getJSONArray("points")
+                    val newCameras = selectedGeometry.getJSONArray("cameras")
                     check(newCameras.length() == cameraArray.length())
                     for (camera in 0 until cameraArray.length()) {
                         val original = cameraArray.getJSONObject(camera)
@@ -228,10 +285,10 @@ class SparsePipeline(private val repository: ProjectRepository) {
                             .put("gaugeFixed", camera < 2)
                     }
                     val parallax = (0 until newPoints.length()).map { newPoints.getJSONArray(it).getDouble(7) }.sorted()
-                    output.put("schema", 3).put("points", newPoints)
+                    output.put("schema", if (jointAccepted) 6 else 3).put("points", newPoints)
                         .put("pointCount", newPoints.length())
                         .put("medianParallaxDegrees", parallax[parallax.size / 2])
-                        .put("medianErrorNormalized", refined.getDouble("medianErrorAfterNormalized"))
+                        .put("medianErrorNormalized", selectedGeometry.getDouble("medianErrorAfterNormalized"))
                         .put("multiViewStats", JSONObject()
                             .put("optimization", "gauge_fixed_alternating_sparse")
                             .put("initialTracks", refined.getInt("inputTracks"))
@@ -239,7 +296,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
                             .put("iterations", refined.getInt("iterations"))
                             .put("medianBeforeNormalized", refined.getDouble("medianErrorBeforeNormalized"))
                             .put("medianAfterNormalized", refined.getDouble("medianErrorAfterNormalized")))
-                    geometryWarning = "M03 sparse multi-view point triangulation and gauge-fixed pose/point refinement. Geometry is still sparse, unscaled, and untextured; estimated intrinsics are not optimized."
+                    geometryWarning = if (jointAccepted) "M06 coupled robust sparse bundle adjustment optimized all registered camera poses (except both fixed anchors) and existing sparse points. Still no dense surface, texture or measured scale." else "M03 sparse multi-view geometry retained; joint optimization unavailable or rejected. Still no dense surface, texture or measured scale."
                 } else {
                     geometryWarning = if (refined.has("error"))
                         "M03 multi-view refinement rejected: ${refined.getString("error")}. Retained M02 anchor geometry."
@@ -253,7 +310,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
         }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m05-real-validation-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
+            .put("engineVersion", "m06-joint-ba-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }

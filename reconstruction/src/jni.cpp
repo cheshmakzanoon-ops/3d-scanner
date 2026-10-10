@@ -1,6 +1,7 @@
 #include "realityforge/core.hpp"
 #include "realityforge/pnp.hpp"
 #include "realityforge/multiview.hpp"
+#include "realityforge/bundle_adjustment.hpp"
 #include <cmath>
 #include <jni.h>
 #include <vector>
@@ -48,6 +49,37 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructMultiview(
         observations.data(),observations.size()/7,threshold,iterations);
     if(!json){illegal(env,"Native multi-view result allocation failed");return nullptr;}
     auto result=env->NewStringUTF(json);rf_free(json);return result;
+}
+// M06 joint, gauge-fixed coupled BA; packed buffers are validated before native calls.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_bundleAdjust(
+    JNIEnv* env,jobject,jdoubleArray cameraRows,jdoubleArray pointRows,
+    jdoubleArray trackRows,jdouble threshold,jint iterations) {
+    if(!cameraRows||!pointRows||!trackRows){illegal(env,"Missing BA buffers");return nullptr;}
+    const auto camCount=env->GetArrayLength(cameraRows);
+    const auto pointCount=env->GetArrayLength(pointRows);
+    const auto observationCount=env->GetArrayLength(trackRows);
+    if(camCount<36||camCount>144||camCount%12||
+       pointCount<112||pointCount>140000||pointCount%7||
+       observationCount<224||observationCount>700000||observationCount%7) {
+        illegal(env,"Invalid packed joint BA buffer sizes");return nullptr;
+    }
+    std::vector<double> cams(static_cast<std::size_t>(camCount));
+    std::vector<double> points(static_cast<std::size_t>(pointCount));
+    std::vector<double> observations(static_cast<std::size_t>(observationCount));
+    env->GetDoubleArrayRegion(cameraRows,0,camCount,cams.data());
+    if(env->ExceptionCheck())return nullptr;
+    env->GetDoubleArrayRegion(pointRows,0,pointCount,points.data());
+    if(env->ExceptionCheck())return nullptr;
+    env->GetDoubleArrayRegion(trackRows,0,observationCount,observations.data());
+    if(env->ExceptionCheck())return nullptr;
+    char* result=rf_bundle_adjust_json(cams.data(),cams.size()/12,
+        points.data(),points.size()/7,observations.data(),observations.size()/7,
+        threshold,iterations);
+    if(!result){illegal(env,"BA result allocation failed");return nullptr;}
+    jstring text=env->NewStringUTF(result);
+    rf_free(result);
+    return text;
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_quality(JNIEnv* env,jobject,jbyteArray gray,jint width,jint height) {

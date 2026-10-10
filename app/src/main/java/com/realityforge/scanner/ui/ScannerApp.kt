@@ -67,7 +67,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M05", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M06", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -160,7 +160,7 @@ fun ScannerApp(model: ScannerViewModel) {
                                     Text("${result.optInt("registeredCameras", 2)} registered cameras · arbitrary scale · drag to orbit, pinch to zoom", style = MaterialTheme.typography.labelMedium)
                                     PointCloudViewer(result, Modifier.fillMaxWidth().height(310.dp))
                                     Text("Median parallax: ${"%.2f".format(result.optDouble("medianParallaxDegrees"))}°", color = MaterialTheme.colorScheme.primary)
-                                    Text("M04 uses locally calibrated Brown-Conrady rays when available. Geometry remains sparse with no dense surface or textures.", style = MaterialTheme.typography.bodySmall)
+                                    Text("M06 jointly refines registered camera poses and sparse points using a robust Schur solver with fixed anchor cameras. Geometry remains sparse—no triangles or textures.", style = MaterialTheme.typography.bodySmall)
                                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         OutlinedButton(enabled = !busy, onClick = { exportGlb.launch("realityforge-sparse.glb") }) { Text("Export GLB") }
                                         OutlinedButton(enabled = !busy, onClick = { exportPly.launch("realityforge-sparse.ply") }) { Text("Export PLY") }
@@ -181,7 +181,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }
-                    item { InfoCard("Next engineering gate", "Validate calibrated real-object captures and full global bundle adjustment before implementing dense depth and texturing.") }
+                    item { InfoCard("Next engineering gate", "Collect calibrated real-object captures and compare to independent SfM, then implement CPU dense multi-view stereo and confidence-aware fusion.") }
                     item { TextButton(enabled = !busy, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }

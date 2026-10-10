@@ -29,6 +29,10 @@ class NativeEngine:
         self.library.rf_reconstruct_json.restype=ctypes.c_void_p
         self.library.rf_register_camera_json.argtypes=[ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double]
         self.library.rf_register_camera_json.restype=ctypes.c_void_p
+        self.library.rf_bundle_adjust_json.argtypes=[ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_double),ctypes.c_size_t,ctypes.c_double,ctypes.c_int]
+        self.library.rf_bundle_adjust_json.restype=ctypes.c_void_p
         self.library.rf_free.argtypes=[ctypes.c_void_p]
         self.library.rf_free.restype=None
 
@@ -58,5 +62,29 @@ class NativeEngine:
         if not pointer: raise MemoryError("Native pose JSON allocation failed")
         try: result=json.loads(ctypes.string_at(pointer).decode("utf-8"))
         finally: self.library.rf_free(pointer)
+        if "error" in result:raise ValueError(result["error"])
+        return result
+
+    def bundle_adjust(self,cameras:np.ndarray,seeds:np.ndarray,observations:np.ndarray,
+                      threshold:float=.003,iterations:int=15) -> dict[str,Any]:
+        """Coupled global sparse camera/point BA in the registered anchor coordinate frame.
+
+        Input rows: cameras N x 12, seed points M x 7 (track,XYZ,RGB),
+        observations K x 7 (track,camera,u,v,RGB). Does not estimate intrinsics.
+        """
+        c=np.ascontiguousarray(cameras,dtype=np.float64)
+        p=np.ascontiguousarray(seeds,dtype=np.float64)
+        o=np.ascontiguousarray(observations,dtype=np.float64)
+        if c.ndim!=2 or c.shape[1]!=12 or not 3<=len(c)<=12:
+            raise ValueError("Expected 3–12 camera rows N×12")
+        if p.ndim!=2 or p.shape[1]!=7 or not 16<=len(p)<=20000:
+            raise ValueError("Expected 16–20000 point rows N×7")
+        if o.ndim!=2 or o.shape[1]!=7 or not 32<=len(o)<=100000:
+            raise ValueError("Expected 32–100000 observation rows N×7")
+        f=lambda a: a.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
+        ptr=self.library.rf_bundle_adjust_json(f(c),len(c),f(p),len(p),f(o),len(o),threshold,iterations)
+        if not ptr:raise MemoryError("Native joint BA allocation failed")
+        try: result=json.loads(ctypes.string_at(ptr).decode("utf-8"))
+        finally: self.library.rf_free(ptr)
         if "error" in result:raise ValueError(result["error"])
         return result

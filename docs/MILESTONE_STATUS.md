@@ -54,3 +54,18 @@ milestone, exercised from synthetic images, inside a concrete Android source pro
 - Reduced reciprocal SIFT ratio from .75 to .67 across native-host and Android image-matching adapters after measuring significantly better camera-pose stability on the independent real stereo pair.
 - Enabled automated emulator JNI/OpenCV/Room and capture-export instrumentation on CI pushes; this is not arm64 physical camera validation.
 - Deferred constrained global Ceres BA and CPU dense Multi-View Stereo until device/real multi-view acceptance is measured, per the original quality-first development plan.
+
+## M06 — Coupled sparse optimization
+
+- Added native C++20 Huber-weighted Schur-complement Levenberg–Marquardt with
+  *simultaneous* camera/point increments, global objective acceptance, two fixed
+  anchor cameras and bounded allocations. C ABI/JNI/Python bridges are shared.
+- Android invokes this only on supported M03 sparse tracks; errors or
+  quality-gate failures preserve the previous accepted geometry explicitly.
+- Four-camera synthetic pose/point tests, real SIFT matches from rendered
+  three-photo fixture and new API-35 Android JNI smoke test. M05 real two-view
+  images remain a separate, existing regression suite.
+- **Not done:** Ceres/intrinsics global refinement, tested physical-camera
+  reconstructions, dense depths, mesh surfaces, textures, GPU acceleration.
+- Source: [M06 validation](M06_VALIDATION.md). Do not interpret native sparse
+  improvements as improvements to full object completeness or surface quality.

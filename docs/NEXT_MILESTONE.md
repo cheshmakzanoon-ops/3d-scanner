@@ -71,3 +71,15 @@ M04 adds optional checkerboard-fitted Brown–Conrady intrinsics and corrected u
 ## After M05: real multiview and production BA (M06)
 
 M05 introduces reproducible **real-image** two-view error measurement, local real capture ZIPs and emulator instrumentation. The next gate is a physical Android device with printed 9×6-inner-corner checkerboard and two *real* textured matte objects photographed from 12–40 viewpoints; capture calibration fit, merged APK permissions, CPU/GPU temperatures, RAM and Android logs. Export archives and compare independent COLMAP SfM poses to RealityForge. Only then optimize global camera/point bundle adjustment with fixed gauge and bounded intrinsics, and implement a dense CPU MVS baseline with measurable depth consistency. Do not call M05's real two-view motorcycle benchmark a fully validated 360-degree object scan.
+
+## After M06: M07 — calibrated physical sequences and CPU dense stereo
+
+M06 adds a shared C++/JNI Schur-complement solver for jointly optimizing
+registered camera extrinsics and sparse points (fixed two-view gauge) with
+Huber loss. This is not Ceres and does not optimize focal/distortion. Next
+collect real 3+ view matte-object photographs on a physical arm64 phone with
+measured calibration/ground truth and compare independent SfM outputs. Run
+instrumentation and thermal tests on that hardware. Then implement a CPU
+multi-view depth-map baseline with explicit visibility, depth confidence and
+forward-backward geometry checks. Keep dense and sparse benchmarks separate;
+do not begin textured mesh advertising before this succeeds.

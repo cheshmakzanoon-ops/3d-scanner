@@ -1,13 +1,12 @@
 # RealityForge
 
-**Fully local Android photogrammetry — engineering milestone 05 (0.5.0-m05).**
+**Fully local Android photogrammetry — engineering milestone 06 (0.6.0-m06).**
 
 This package contains actual Android application source, a compiled-and-tested portable C++
-geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M02 Android compilation and APK validation passed on
-GitHub Actions; emulator and physical-device execution remain unverified.**
+geometry core, regression fixtures and build automation. **This source snapshot is not a released app. M05 Android compilation, APK validation, and API-35 emulator JNI tests passed on GitHub Actions. M06 changes still require their own CI validation; physical arm64 camera testing remains outstanding.**
 
-The current reconstruction is a **sparse point cloud triangulated from registered photo pairs with bounded gauge-fixed pose/point refinement**, not a high-resolution,
-textured surface mesh. Dense multi-view stereo, full/global sparse bundle adjustment, surface generation and
+The current reconstruction is a **sparse point cloud triangulated from registered photo pairs with M06 joint gauge-fixed Schur/Levenberg–Marquardt camera/point refinement**, not a high-resolution,
+textured surface mesh. Dense multi-view stereo, intrinsics-optimizing Ceres bundle adjustment, surface generation and
 photographic texturing remain subsequent milestones. Nothing substitutes a stock 3D model
 for the supplied photographs.
 
@@ -25,22 +24,24 @@ for the supplied photographs.
   parallax and reprojection checks; M02 also registers additional cameras to the same
   anchor frame using cycle-consistent feature tracks and robust native PnP.
 - M03 builds conflict-aware keypoint tracks across registered images and triangulates new sparse points from camera pairs outside the original anchor; first two cameras remain fixed during damped Huber refinement.
+- M06 adds a coupled global Huber-weighted Schur/LM optimization of registered camera extrinsics and sparse points (first two anchor poses fixed; camera intrinsics not refined).
 - Sparse point viewer and local GLB POINTS / PLY export. Neither export contains mesh faces.
 - Source manifest strips INTERNET and ACCESS_NETWORK_STATE. No analytics, login,
   advertising SDK or cloud-processing client is included.
 
 ## Executed validation
 
-The M02 portable core passes **20 C++ cases** and **57 Python integration/static-source checks** on the development host. M01 historically passed 17/41.
-M02 C++ tests also passed Clang with warnings as errors and GCC address/undefined
-behavior sanitizers with leak detection.
-M02 Android builds, JVM tests, lint and APK inspection passed on GitHub Actions; runtime
-instrumentation and physical-camera behavior remain unverified.
+The M06 host suite passes GCC and Clang builds with warnings treated as errors,
+CTest's three native targets, ASan/UBSan and Python integration tests. On a
+synthetic four-camera geometry fixture, median normalized reprojection error
+fell from ~0.007915 to ~0.000179 while anchor poses stayed fixed. On three
+actual *synthetically rendered photographs* passed through SIFT/SfM/PnP, the
+Huber objective decreased by ~32%; these are not measured physical-object scans.
+See [M06 validation](docs/M06_VALIDATION.md).
 
-The bundled synthetic pair reconstructs 579 sparse points from 589 matches. M02 additionally forms
-283 three-view tracks, with 282 supporting the third camera, whose rotation differs from the
-synthetic ground truth by about 0.023°. These are **synthetic regression results**, not physical-object
-accuracy, mobile performance, dense geometry or texture quality. See [M02 validation](docs/M02_VALIDATION.md).
+M05 CI passed Android build, lint, APK and API-35 emulator instrumentation,
+including privacy, JNI and capture ZIP tests. M06's Android runtime behavior
+must be checked by its own workflow; a physical phone has not been measured.
 
 ## Open the project
 
@@ -78,7 +79,9 @@ python3 tools/photo_pair.py \
 
 The last command extracts image features, invokes the same native geometry library used by
 Android, and writes `sparse.glb`, `sparse.ply` and reconstruction diagnostics. To validate
-third-camera registration, run `python3 tools/three_view.py`. The host harness
+third-camera registration, run `python3 tools/three_view.py`. For M06 joint
+camera/point optimization through actual rendered photo matches, run
+`python3 tools/bundle_three_view.py`. The host harness
 is a development/test tool, not a service required by the Android application.
 
 ## Project map
@@ -98,14 +101,15 @@ is a development/test tool, not a service required by the Android application.
 
 ## Important boundaries
 
-M03 examines up to 12 photos, chooses an anchor pair and attempts to register other
-photos from cycle-consistent 3D–2D tracks. It triangulates additional supported tracks and performs bounded point/pose sparse refinement, but not full Ceres bundle adjustment or intrinsics optimization. Intrinsics are estimated from EXIF or a visibly stated
-fallback, with no distortion calibration. No metric dimensions, texture atlas, watertight
-mesh, ARCore depth, Gaussian splats, animation topology or reconstruction-quality guarantees
-are provided. The capture screen does not yet lock exposure or provide measured coverage.
-
-M02 Android compilation, unit/lint checks and APK validation passed on GitHub Actions.
-Emulator instrumentation and physical camera tests remain outstanding. Do not distribute this as a finished consumer scanner.
+M06 examines up to 12 input photographs, uses M03 registered-camera sparse
+tracks and optionally couples camera/point increments through Schur-complement
+bundle adjustment. The first two anchor cameras are fixed. Calibration from
+M04 can correct Brown–Conrady distortion but M06 does **not** optimize
+intrinsics, provide an absolute metric scale or guarantee registration of all
+views. GLB/PLY export contains sparse points only; no dense point cloud,
+triangle mesh, UV textures, animation topology, or production-quality model.
+M05 API-35 emulator tests passed; a real arm64 camera/thermal run is still
+outstanding. Do not distribute as a finished consumer scanner.
 
 ## Milestone M02 additional camera registration
 
@@ -134,3 +138,13 @@ M05 adds a **real physical-scene image test** using the Middlebury 2014 Motorcyc
 Capture projects can now export an **opt-in ZIP** containing original local photographs, SHA-256 hashes, metadata and the optional offline lens-calibration profile. Run `python tools/capture_audit.py /path/to/realityforge-capture.zip` to inspect it without contacting a server. This is a capture audit, **not** a reconstructed surface. Stricter reciprocal-SIFT filtering (.67 instead of .75) is used consistently in the host and Android implementations.
 
 The GitHub workflow also runs **API 35 x86_64 emulator instrumentation** on commits to `main` to validate JNI/OpenCV, database behavior, and ZIP export. Emulator validation cannot replace measurements from a physical arm64 camera, including calibration, thermal behavior and actual 3D reconstruction quality. Dense MVS, textured geometry, global Ceres-based BA, and metric scale remain unimplemented.
+
+## M06 — Joint sparse bundle adjustment
+
+`reconstruction/src/bundle_adjustment.cpp` implements genuinely coupled robust
+camera/point optimization using a Schur complement and damped steps (up to 12
+cameras and 20,000 sparse points). Two anchor cameras remain fixed. Android
+invokes it only after accepted M03 multiview geometry, checks loss and point
+retention, and retains M03 geometry if the new optimizer rejects the scene.
+The source and real-photos remain entirely on device. This **does not add Ceres,
+optimize intrinsics or generate dense surfaces**. [M06 validation](docs/M06_VALIDATION.md).

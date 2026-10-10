@@ -110,3 +110,20 @@ python3 tools/three_view.py
 It uses three local, explicitly synthetic photos and the shared native C++ implementation
 for stereo initialization plus calibrated third-view PnP. This does not generate a mesh.
 The on-device Android SIFT/pose adapter still requires camera and emulator tests.
+
+
+## M06 joint sparse optimizer (current)
+
+To run the calibrated three-image fixture and joint Schur solver on a host:
+
+```bash
+cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror
+cmake --build build/host --parallel 3
+ctest --test-dir build/host --output-on-failure
+python3 -m pytest tests -q
+python3 tools/bundle_three_view.py
+```
+
+Android GitHub Actions builds the debug and instrumentation APKs, checks
+permissions/ELF alignment and executes API-35 emulator tests. Emulator success
+cannot verify physical smartphone camera, performance or dense reconstruction.

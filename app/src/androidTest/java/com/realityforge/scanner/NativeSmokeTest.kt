@@ -45,6 +45,37 @@ class NativeSmokeTest {
         assertTrue(result.getInt("inlierCount") >= 75)
         assertEquals(-1.2, result.getJSONArray("translation").getDouble(0), .02)
     }
+    @Test fun jointBundleAdjustmentRunsThroughArmOrEmulatorJni() {
+        val random = Random(606)
+        val trueCameraTranslations = arrayOf(0.0, -1.0, -1.8)
+        val rotations = doubleArrayOf(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0)
+        val cameras = trueCameraTranslations.flatMapIndexed { index, value ->
+            (rotations + doubleArrayOf(value + if (index == 2) 0.022 else 0.0,
+                if (index == 2) -0.02 else 0.0, 0.0)).asList()
+        }.toDoubleArray()
+        val points = DoubleArray(96 * 7)
+        val observations = DoubleArray(96 * 3 * 7)
+        for (i in 0 until 96) {
+            val x=random.nextDouble(-1.0,1.0)
+            val y=random.nextDouble(-1.0,1.0)
+            val z=random.nextDouble(3.0,8.0)
+            val seed=doubleArrayOf(i.toDouble(),x+0.006,y-0.004,z+0.008,125.0,172.0,210.0)
+            seed.copyInto(points,i*7)
+            for (camera in 0 until 3) {
+                val row=doubleArrayOf(i.toDouble(),camera.toDouble(),
+                    (x+trueCameraTranslations[camera])/z,y/z,125.0,172.0,210.0)
+                row.copyInto(observations,(i*3+camera)*7)
+            }
+        }
+        val result=JSONObject(NativeCore.bundleAdjust(cameras,points,observations,0.025,15))
+        assertFalse(result.toString(),result.has("error"))
+        assertEquals("coupled_huber_schur_lm",result.getString("optimization"))
+        assertTrue(result.getInt("pointCount")>=90)
+        assertTrue(result.getDouble("robustCostAfter")<result.getDouble("robustCostBefore"))
+        assertEquals(2,result.getInt("anchorCamerasFixed"))
+        assertEquals(-1.0,result.getJSONArray("cameras").getJSONObject(1)
+            .getJSONArray("translation").getDouble(0),0.0)
+    }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext

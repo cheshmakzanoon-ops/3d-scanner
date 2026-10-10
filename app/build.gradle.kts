@@ -13,8 +13,8 @@ android {
         applicationId = "com.realityforge.scanner"
         minSdk = 29
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.5.0-m05"
+        versionCode = 6
+        versionName = "0.6.0-m06"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
         externalNativeBuild { cmake { cppFlags += "-std=c++20" } }

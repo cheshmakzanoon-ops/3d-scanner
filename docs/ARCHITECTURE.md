@@ -99,3 +99,20 @@ pair point clouds are never simply concatenated.
 **Current limit:** Android's estimated pinhole focal length and missing lens-distortion
 correction remain constraints. Extra poses do not increase point density, and there is no
 global BA, newly triangulated three-view points, loop closure or dense surface.
+
+
+## M06 architectural addendum (current sparse optimizer)
+
+Older descriptions above are historical M01/M02 stages. Current M06 pipeline
+adds the M03 conflict-aware multiview feature graph, M04 optional
+checkerboard-derived Brown–Conrady undistorted rays, M05 real stereo benchmark
+and capture archive, then invokes joint sparse BA after successful M03
+point/camera registration. The first two anchor poses remain fixed to retain
+coordinate gauge and unit baseline. `rf_bundle_adjust_json` receives 12-column
+world-to-camera pose matrices, 7-column track/XYZ/RGB seeds and 7-column
+track/camera/normalized-ray/RGB observations. The solver assembles shared
+point/camera normal equations, eliminates points with 3×3 Schur complements,
+solves a small coupled camera system, back-substitutes point increments and
+accepts a step only when the complete robust cost improves. Failure preserves
+M03 geometry. Intrinsics are not optimized. The output schema 6 still denotes
+sparse point primitives, not a mesh. Cache fingerprints use `m06-joint-ba-1`.

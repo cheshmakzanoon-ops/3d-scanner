@@ -24,6 +24,8 @@ jobs:
       - run: cmake --build build/host --parallel 2
       - run: ctest --test-dir build/host --output-on-failure
       - run: python -m pytest tests -q --junitxml=reports/ci-pytest.xml
+      - name: Exercise joint BA on calibrated synthetic photographs
+        run: python tools/bundle_three_view.py > reports/m06-three-photographs.json
       - name: Benchmark REAL Middlebury stereo images against disparity ground truth
         run: python tools/benchmark_middlebury.py --output reports/m05-middlebury-real.json --gate
       - uses: actions/upload-artifact@v4
@@ -33,6 +35,7 @@ jobs:
           path: |
             reports/ci-pytest.xml
             reports/m05-middlebury-real.json
+            reports/m06-three-photographs.json
   android:
     runs-on: ubuntu-24.04
     steps:
