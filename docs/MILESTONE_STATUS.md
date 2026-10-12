@@ -1,4 +1,4 @@
-# Current status — M10
+# Current status — M11
 
 | Area | Actual state |
 |---|---|
@@ -7,9 +7,9 @@
 | Depth/surface | Bounded CPU stereo, reciprocal checks and open indexed triangle patches; not complete manifold reconstruction |
 | Photographic UV | Full XYZ cross product and glTF top-left origin repaired; all 3,530 existing triangles textured on one real stereo benchmark |
 | Appearance | Bounded, measured exposure gains and deterministic camera-label smoothing; not seamless blending |
-| Native validation | Seven CTest targets and 98 Python checks; GCC/Clang strict builds; eight new photometric cases pass ASan/UBSan |
-| Android validation | Requires commit-specific Actions build and emulator results; no physical camera proof |
-| Preview | Vertex-colored diagnostic view; photographic GLB exports are separate |
+| Native validation | Seven CTest targets and 99 Python checks passed locally; M10 photometric GCC/Clang/sanitizer evidence retained |
+| Android validation | M10 full CI succeeded; M11 requires new build/emulator results; no physical camera proof |
+| Preview | Bounded local photographic GLES3 viewer plus vertex-color diagnostics; new shader/file/lifecycle tests |
 | Resource limits | At most 12 sparse photos, three Android depth views at 256px edge, texture sources up to 768px |
 | Release status | Engineering prototype only; not consumer/store ready |
 
@@ -21,3 +21,5 @@ Historical implementation/validation records are retained in M02–M09 documents
 The full product contract remains PROJECT_PLAN.md; phases requiring physical
 handsets, complete-object ground truth and sustained resource measurements remain
 open. No synthetic or two-camera stereo test closes those gates.
+
+See M11_VIEWER.md for supported GLB subset, memory budgets and exact tests. No reconstruction quality ceiling or physical-device gate is changed by the viewer.

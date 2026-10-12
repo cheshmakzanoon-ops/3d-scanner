@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.io.File
 
 private val palette = darkColorScheme(
     primary = Color(0xFF73D8C7), onPrimary = Color(0xFF002F29),
@@ -49,6 +50,8 @@ fun ScannerApp(model: ScannerViewModel) {
     val preview by model.preview.collectAsStateWithLifecycle()
     val calibrationStatus by model.calibrationStatus.collectAsStateWithLifecycle()
     var camera by rememberSaveable { mutableStateOf(false) }
+    var photographicFile by remember { mutableStateOf<File?>(null) }
+    LaunchedEffect(selected, busy, preview?.optString("artifactKey")) { photographicFile = null }
     var newProject by rememberSaveable { mutableStateOf(false) }
     var deleteDialog by rememberSaveable { mutableStateOf(false) }
     var name by rememberSaveable { mutableStateOf("") }
@@ -73,7 +76,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M10", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M11", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -90,7 +93,7 @@ fun ScannerApp(model: ScannerViewModel) {
                         Text("Photos → calibrated cameras → observed open triangle meshes.", color = MaterialTheme.colorScheme.secondary)
                     }
                     item {
-                        InfoCard("Development build", "M09 can project real photographs into a UV-textured GLB on supported triangles. Missing surfaces stay open; texture seams and full-object completeness still need real-device validation.")
+                        InfoCard("Development build", "M11 can inspect exported photographic GLB textures directly on your phone. Missing surfaces stay open; texture seams and full-object completeness still need real-device validation.")
                     }
                     item { Button(onClick = { newProject = true }, modifier = Modifier.fillMaxWidth()) { Text("Create local project") } }
                     if (projects.isEmpty()) item { Text("No scans yet. Start with a matte, textured, rigid object and two overlapping views.") }
@@ -228,8 +231,16 @@ fun ScannerApp(model: ScannerViewModel) {
                                                 style=MaterialTheme.typography.bodySmall)
                                             Text("Camera-switch edges: ${texture.optInt("viewSwitchEdgesBefore")} → ${texture.optInt("viewSwitchEdges")}. Exposure observations: ${texture.optInt("exposureSamples")}.",
                                                 style=MaterialTheme.typography.bodySmall)
-                                            Text("Exposure-balanced camera UV charts. Atlas is embedded in the GLB; this diagnostic preview still uses vertex colors.",
+                                            Text("Exposure-balanced camera UV charts. Inspect the actual embedded photographic atlas separately from the vertex-color diagnostic above.",
                                                 style=MaterialTheme.typography.bodySmall)
+                                            Button(enabled = !busy, onClick = {
+                                                val id = selected
+                                                if (id != null) {
+                                                    runCatching { model.repository.artifact(id, result.getString("artifactKey"), "textured.glb") }
+                                                        .onSuccess { photographicFile = it }
+                                                        .onFailure { model.notice.value = it.message }
+                                                }
+                                            }, modifier = Modifier.fillMaxWidth()) { Text("Inspect photo-textured model") }
                                             Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                                                 Button(enabled = !busy,onClick = { exportTexturedGlb.launch("realityforge-photo-textured.glb") },modifier=Modifier.weight(1f)) { Text("Textured GLB") }
                                                 OutlinedButton(enabled = !busy,onClick = { exportTexturePng.launch("realityforge-photo-atlas.png") },modifier=Modifier.weight(1f)) { Text("Atlas PNG") }
@@ -261,6 +272,7 @@ fun ScannerApp(model: ScannerViewModel) {
                 }
             }
         }
+        photographicFile?.let { file -> PhotographicModelViewer(file) { photographicFile = null } }
         if (newProject) AlertDialog(
             onDismissRequest = { newProject = false }, title = { Text("New scan") },
             text = { OutlinedTextField(name, { name = it.take(80) }, label = { Text("Project name") }, singleLine = true) },

@@ -4,6 +4,7 @@ import android.content.pm.PackageManager
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.engine.NativeCore
+import com.realityforge.scanner.viewer.PhotographicGlb
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -148,6 +149,10 @@ class NativeSmokeTest {
                 assertTrue(uv.getInt("viewSwitchEdges")<=uv.getInt("viewSwitchEdgesBefore"))
                 assertTrue(uv.getDouble("overlapMedianLogErrorAfter")<=uv.getDouble("overlapMedianLogErrorBefore")+1e-9)
                 assertTrue(textured.isFile && textured.length()>1024)
+                val inspected = PhotographicGlb.read(textured)
+                assertEquals(uv.getInt("triangleCount") * 3, inspected.indices.size)
+                assertEquals(uv.getInt("atlasWidth"), inspected.imageWidth)
+                assertEquals(uv.getInt("atlasHeight"), inspected.imageHeight)
                 assertTrue(atlas.isFile && atlas.length()>128)
                 val signature=atlas.inputStream().use { input ->
                     ByteArray(8).also { assertEquals(8,input.read(it)) }

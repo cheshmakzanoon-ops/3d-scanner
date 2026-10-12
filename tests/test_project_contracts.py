@@ -123,3 +123,15 @@ def test_m09_camera_projected_uvs_are_embedded_and_exportable():
     assert "textureError" in adapter and "textured.glb" in adapter and "texture.png" in adapter
     assert "textured.glb" in repo and "texture.png" in repo
     assert "exportTexturedGlb" in app and "exportTexturePng" in app
+
+
+def test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl():
+    parser=(ROOT/"app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt").read_text()
+    renderer=(ROOT/"app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt").read_text()
+    screen=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt").read_text()
+    assert "MAX_FILE_BYTES" in parser and "MAX_IMAGE_PIXELS" in parser
+    assert "CRC32" in parser and "External model data is not permitted" in parser
+    assert "glDrawElements" in renderer and "glTF v=0" in renderer
+    assert "RENDERMODE_WHEN_DIRTY" in screen
+    assert "Lifecycle.Event.ON_PAUSE" in screen and "surface.dispose()" in screen
+    assert "PhotographicGlb.read(file)" in screen
