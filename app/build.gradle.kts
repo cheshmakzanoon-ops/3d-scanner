@@ -13,8 +13,8 @@ android {
         applicationId = "com.realityforge.scanner"
         minSdk = 29
         targetSdk = 36
-        versionCode = 11
-        versionName = "0.11.0-m11"
+        versionCode = 12
+        versionName = "0.12.0-m12"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
         externalNativeBuild { cmake { cppFlags += "-std=c++20" } }
@@ -34,6 +34,8 @@ android {
     }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     testOptions { unitTests.isIncludeAndroidResources = true }
+    // Synthetic photographic regression fixtures are test APK assets, never release assets.
+    sourceSets.getByName("androidTest").assets.srcDir("../benchmarks/fixtures")
     lint { abortOnError = true }
 }
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }

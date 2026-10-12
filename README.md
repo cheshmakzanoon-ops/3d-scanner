@@ -1,6 +1,6 @@
 # RealityForge — offline Android photogrammetry
 
-**M11 engineering build, 0.11.0-m11. Not a completed consumer scanner.**
+**M12 engineering build, 0.12.0-m12. Not a completed consumer scanner.**
 
 Capture or import photographs, estimate calibrated cameras, reconstruct observed
 surfaces, export a photograph-textured GLB, and inspect that exact model locally.
@@ -20,6 +20,21 @@ preserved until the user deletes the project; export important files before unin
   and lifecycle handling. The vertex-colored diagnostic remains available.
 - Separate sparse/depth POINTS and mesh GLB/PLY exports. User-selected capture
   ZIP export includes original-photo hashes and calibration for reproducible audits.
+
+## M12 session safety
+
+Saved previews are size/nesting bounded and must match both the database revision
+and artifact identity. In-flight loads cannot republish stale data after a new
+operation. Exports, deletion, imports and calibration reserve a single operation;
+export cancellation reports incomplete destinations explicitly. Capture archives
+are rejected when the project revision changes during copying.
+
+The emulator suite now includes the entire real application/controller workflow
+using the existing **synthetic** three-photo relief fixture: import and duplicate
+checks, native reconstruction, textured-file parsing, database reopening, exact
+export hashes, original preservation and a rendered photographic screenshot.
+This is not physical-phone or real full-object quality evidence. M11's 20 emulator
+tests previously passed; M12's additional cases require their commit-specific CI.
 
 ## Current limits
 
@@ -49,7 +64,7 @@ ctest --test-dir build/host --output-on-failure
 python -m pytest tests -q
 ```
 
-M11 local native verification: seven CTest targets and 99 Python checks passed.
+M12 local native verification: seven CTest targets and 100 Python checks passed.
 Android build/lint, JNI tests, real GLES pixel readback, activity resume and model
 validation must pass the commit-specific GitHub Actions run before Android success
 is claimed. Synthetic analytical fixtures are labeled; real benchmark data is
@@ -58,7 +73,7 @@ used only as documented. The app itself never downloads those benchmark datasets
 ## Engineering records
 
 [Approved 20-phase plan](PROJECT_PLAN.md) · [Current status](docs/MILESTONE_STATUS.md) ·
-[M10 fixes and measurements](docs/M10_VALIDATION.md) · [M11 viewer/tests](docs/M11_VIEWER.md) ·
+[M10 fixes and measurements](docs/M10_VALIDATION.md) · [M11 viewer/tests](docs/M11_VIEWER.md) · [M12 session/tests](docs/M12_SESSION_RELIABILITY.md) ·
 [Next gates](docs/NEXT_MILESTONE.md) · [Privacy](docs/PRIVACY.md)
 
 Native code is in `reconstruction/`, Android source in `app/`, regression harnesses

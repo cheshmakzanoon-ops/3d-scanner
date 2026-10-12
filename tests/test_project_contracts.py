@@ -135,3 +135,14 @@ def test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl():
     assert "RENDERMODE_WHEN_DIRTY" in screen
     assert "Lifecycle.Event.ON_PAUSE" in screen and "surface.dispose()" in screen
     assert "PhotographicGlb.read(file)" in screen
+
+
+def test_session_reopen_and_export_have_revision_and_operation_guards():
+    repository=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
+    model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
+    assert "MAX_PREVIEW_BYTES" in repository and "suspend fun currentPreview(" in repository
+    assert "storedRevision is Int || storedRevision is Long" in repository
+    assert "Project changed during capture export" in repository
+    assert "busy.compareAndSet(false, true)" in model and "selectionGeneration" in model
+    assert "repository.currentPreview(id)" in model
+    assert "stream.use { repository.exportCaptureBundle" in model

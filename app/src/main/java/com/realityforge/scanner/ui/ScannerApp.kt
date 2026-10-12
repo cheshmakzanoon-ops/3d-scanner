@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.realityforge.scanner.ScannerViewModel
+import com.realityforge.scanner.BuildConfig
 import com.realityforge.scanner.data.ScanPhoto
 import com.realityforge.scanner.engine.ImageLoader
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +77,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M11", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -93,7 +94,7 @@ fun ScannerApp(model: ScannerViewModel) {
                         Text("Photos → calibrated cameras → observed open triangle meshes.", color = MaterialTheme.colorScheme.secondary)
                     }
                     item {
-                        InfoCard("Development build", "M11 can inspect exported photographic GLB textures directly on your phone. Missing surfaces stay open; texture seams and full-object completeness still need real-device validation.")
+                        InfoCard("Development build", "Inspect exported photographic GLB textures directly on your phone. Missing surfaces stay open; texture seams and full-object completeness still need real-device validation.")
                     }
                     item { Button(onClick = { newProject = true }, modifier = Modifier.fillMaxWidth()) { Text("Create local project") } }
                     if (projects.isEmpty()) item { Text("No scans yet. Start with a matte, textured, rigid object and two overlapping views.") }

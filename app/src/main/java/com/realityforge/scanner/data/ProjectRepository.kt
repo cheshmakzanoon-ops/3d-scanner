@@ -29,6 +29,52 @@ class ProjectRepository(private val context: Context, val dao: ScanDao) {
         require(key.matches(Regex("sparse-(?:m[0-9]{2}-)?r[0-9]+-[0-9a-f]{16}")) && extension in setOf("json", "glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png")) { "Invalid artifact key." }
         return File(directory(id), "$key.$extension")
     }
+    /** Read only the completed revision, bounded before JSON allocation and rechecked after I/O. */
+    suspend fun currentPreview(id: String): JSONObject? = withContext(Dispatchers.IO) {
+        val before = dao.project(id) ?: return@withContext null
+        if (before.resultRevision == null || before.resultRevision != before.revision) return@withContext null
+        val key = requireNotNull(before.resultKey) { "Completed scan has no artifact identity." }
+        val encodedRevision = Regex("sparse-(?:m[0-9]{2}-)?r([0-9]+)-[0-9a-f]{16}")
+            .matchEntire(key)?.groupValues?.get(1)?.toLongOrNull()
+        check(encodedRevision == before.revision) { "Saved model revision does not match this project." }
+        val file = artifact(id, key, "json")
+        val bytes = file.inputStream().use { input ->
+            val size = file.length()
+            require(size in 2..MAX_PREVIEW_BYTES) { "Saved preview exceeds the memory limit." }
+            val data = ByteArray(size.toInt())
+            var cursor = 0
+            while (cursor < data.size) {
+                coroutineContext.ensureActive()
+                val count = input.read(data, cursor, minOf(65536, data.size - cursor))
+                check(count > 0) { "Saved preview is truncated." }
+                cursor += count
+            }
+            check(input.read() == -1) { "Saved preview changed during loading." }
+            data
+        }
+        val text = bytes.toString(Charsets.UTF_8)
+        var depth = 0; var quoted = false; var escaped = false
+        for (c in text) {
+            if (quoted) { if (escaped) escaped = false else if (c == '\\') escaped = true else if (c == '\"') quoted = false }
+            else if (c == '\"') quoted = true
+            else if (c == '{' || c == '[') { depth++; require(depth <= 32) { "Saved preview JSON is too deeply nested." } }
+            else if (c == '}' || c == ']') { depth--; require(depth >= 0) }
+        }
+        require(depth == 0 && !quoted) { "Saved preview JSON is incomplete." }
+        val reader = org.json.JSONTokener(text)
+        val json = reader.nextValue() as? JSONObject ?: error("Saved preview is not an object.")
+        require(reader.nextClean() == '\u0000') { "Unexpected data after preview." }
+        val storedRevision = json.get("revision")
+        check((storedRevision is Int || storedRevision is Long) &&
+            (storedRevision as Number).toLong() == before.revision && json.getString("artifactKey") == key) {
+            "Saved preview belongs to a different reconstruction."
+        }
+        val after = dao.project(id)
+        if (after == null || after.revision != before.revision || after.resultRevision != before.resultRevision || after.resultKey != key)
+            return@withContext null
+        json
+    }
+    companion object { const val MAX_PREVIEW_BYTES = 32L * 1024 * 1024 }
     fun photoFile(photo: ScanPhoto): File = File(directory(photo.projectId), "originals/${photo.filename}")
     suspend fun create(name: String): String = withContext(Dispatchers.IO) {
         val id = UUID.randomUUID().toString()
@@ -130,6 +176,9 @@ class ProjectRepository(private val context: Context, val dao: ScanDao) {
                 zip.closeEntry()
                 manifest.put("calibrationIncluded", true)
             } else manifest.put("calibrationIncluded", false)
+            check(dao.project(projectId)?.revision == project.revision) {
+                "Project changed during capture export; discard this incomplete archive."
+            }
             manifest.put("photos", rows)
             zip.putNextEntry(ZipEntry("session.json"))
             zip.write(manifest.toString(2).toByteArray(Charsets.UTF_8))

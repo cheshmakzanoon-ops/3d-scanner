@@ -1,8 +1,9 @@
-# Next gate after M11 — complete-session reliability and measured scan quality
+# Next gate after M12 — complete-session reliability and measured scan quality
 
 M10 corrected face normals and glTF UV orientation and reduced exposure mismatch.
-M11 adds bounded local photographic GLB inspection, real shader pixel tests, and
-activity/EGL lifecycle tests. Neither result establishes full-scene scanning.
+M11 adds bounded local photographic GLB inspection and real shader/lifecycle tests.
+M12 adds revision/operation safety and a complete synthetic Android session test.
+None of these results establishes physical full-scene scanning.
 
 1. Exercise a complete import → reconstruction → photographic inspection →
    reopen/export session, with malformed profiles, process death, cancellation,

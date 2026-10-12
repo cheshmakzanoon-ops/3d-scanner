@@ -97,7 +97,7 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          script: gradle --no-daemon :app:connectedDebugAndroidTest
+          script: bash tools/run-device-tests.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -105,3 +105,4 @@ jobs:
           path: |
             app/build/reports/androidTests/
             app/build/outputs/androidTest-results/connected/
+            reports/device/
