@@ -63,12 +63,18 @@ def run(output_dir:Path|None=None,width:int=228, photo_width:int=608) -> dict:
     from PIL import Image
     photographic=Image.open(io.BytesIO(embedded));photographic.load()
     assert photographic.size==(texture['atlasWidth'],texture['atlasHeight'])
-    # Exact pixel provenance check: atlas interiors reproduce photographs, not
+    # Pixel provenance check: atlas interiors equal measured exposure transforms, not
     # vertex-color procedural fills. The two camera tiles are side-by-side.
     gutter=3
+    def corrected(pixel, gains):
+        rgb=np.array(pixel[:3],dtype=float)/255
+        linear=np.where(rgb<=.04045,rgb/12.92,((rgb+.055)/1.055)**2.4)
+        c=np.clip(linear*np.array(gains),0,1)
+        srgb=np.where(c<=.0031308,12.92*c,1.055*c**(1/2.4)-.055)
+        return tuple(np.floor(srgb*255+.5).astype(int))+(int(pixel[3]),)
     for camera in (0,1):
         for x,y in ((22,21),(photo_width//3,photo_height//2),(photo_width-22,photo_height-21)):
-            assert photographic.getpixel((camera*(photo_width+2*gutter)+gutter+x,gutter+y))==tuple(high[camera,y,x])
+            assert photographic.getpixel((camera*(photo_width+2*gutter)+gutter+x,gutter+y))==corrected(high[camera,y,x],texture['cameraColorGains'][camera])
     # independently check UV accessor values and bounds.
     uv_acc=gltf['accessors'][prim['attributes']['TEXCOORD_0']]
     view=gltf['bufferViews'][uv_acc['bufferView']]
@@ -88,7 +94,7 @@ def run(output_dir:Path|None=None,width:int=228, photo_width:int=608) -> dict:
     disp=FOCAL_PIXELS/zs-(CX_RIGHT-CX_LEFT)
     errors=np.abs(disp[valid]-observed[valid])
     return {
-        'schema':9,'dataset':'Middlebury Motorcycle 2014, two real calibrated photographs',
+        'schema':10,'dataset':'Middlebury Motorcycle 2014, two real calibrated photographs',
         'groundTruthUsedForTextureOrOptimization':False,'realPhotographs':True,
         'denseDimensions':[width,height],'sourcePhotoDimensions':[photo_width,photo_height],
         'atlasedDimensions':[texture['atlasWidth'],texture['atlasHeight']],
@@ -96,6 +102,12 @@ def run(output_dir:Path|None=None,width:int=228, photo_width:int=608) -> dict:
         'uvVertices':texture['uvVertexCount'],'texturedTriangles':texture['triangleCount'],
         'candidateMeshTriangles':texture['inputTriangles'],'faceCoverage':texture['faceCoverage'],
         'cameraTriangleCounts':texture['cameraTriangleCounts'],'potentialViewSeamEdges':texture['viewSwitchEdges'],
+        'uvOrigin':texture['uvOrigin'],'exposureSamples':texture['exposureSamples'],
+        'cameraColorGains':texture['cameraColorGains'],
+        'overlapMedianLogErrorBefore':texture['overlapMedianLogErrorBefore'],
+        'overlapMedianLogErrorAfter':texture['overlapMedianLogErrorAfter'],
+        'potentialViewSeamEdgesBefore':texture['viewSwitchEdgesBefore'],
+        'reassignedFaces':texture['reassignedFaces'],
         'meshVertexCount':mesh['vertexCount'],'medianDisparityErrorPx':float(np.median(errors)),
         'limits':['2 real stereo photos only, no physical-device 360 capture',
                   'Camera-tiled UV atlas; not seamless multi-view material blending',
@@ -105,7 +117,7 @@ def run(output_dir:Path|None=None,width:int=228, photo_width:int=608) -> dict:
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
-    ap.add_argument('--output',type=Path,default=Path('reports/m09-middlebury-texture.json'))
+    ap.add_argument('--output',type=Path,default=Path('reports/m10-middlebury-texture.json'))
     ap.add_argument('--gate',action='store_true')
     args=ap.parse_args()
     result=run()
@@ -113,7 +125,10 @@ def main():
     args.output.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
     if args.gate:
         assert result['texturedTriangles']>=100
-        assert result['faceCoverage']>=.25
+        assert result['faceCoverage']>=.95
+        assert result['uvOrigin']=='upper_left'
+        assert result['potentialViewSeamEdges']<=result['potentialViewSeamEdgesBefore']
+        assert result['overlapMedianLogErrorAfter']<=result['overlapMedianLogErrorBefore']
         assert result['medianDisparityErrorPx']<5
         assert result['textureEmbeddedPng'] and result['gltfUvAccessorValidated']
     print(json.dumps(result,indent=2))

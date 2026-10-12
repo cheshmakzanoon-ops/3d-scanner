@@ -53,7 +53,7 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m09-photographic-uv-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "m10-balanced-uv-1" in engine and "LensCalibration.read(repository, projectId)" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
     assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model

@@ -1,5 +1,6 @@
 #pragma once
 #include "realityforge/surface.hpp"
+#include "realityforge/photometric.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <span>
@@ -15,6 +16,8 @@ struct TextureSettings {
     double minimumFacing = 0.12;      // Reject back-facing/edge-on photos
     double depthTolerance = 0.075;    // Reject visibility contradictions
     std::size_t maxUvVertices = 240000;
+    bool balanceColors = true;
+    double seamPenalty = .18; // local label smoothing over manifold, similarly oriented faces
 };
 struct TextureSource {
     int width{},height{};
@@ -24,7 +27,7 @@ struct TextureSource {
 };
 struct TextureVertex {
     std::uint32_t surfaceVertex{};
-    float u{},v{}; // glTF UV convention (v flipped for top-down PNG)
+    float u{},v{}; // glTF UV convention: (0,0) is the upper-left of PNG
 };
 struct TexturedSurface {
     int atlasWidth{},atlasHeight{};
@@ -34,6 +37,8 @@ struct TexturedSurface {
     std::vector<std::size_t> sourceTriangleCounts;
     std::size_t inputTriangles{},skippedTriangles{},viewSwitchEdges{};
     double faceCoverage{},medianFacing{};
+    std::size_t viewSwitchEdgesBefore{}, reassignedFaces{};
+    ExposureBalance exposure;
 };
 TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     std::span<const DenseView> depthViews,std::span<const DenseDepthMap> depthMaps,

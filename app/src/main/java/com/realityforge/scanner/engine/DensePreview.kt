@@ -99,7 +99,7 @@ internal object DensePreview {
             val far=max(q90*1.30,near*1.4)
             require(far<100000 && far>near*1.05)
             coroutineContext.ensureActive()
-            require(artifactKey.matches(Regex("sparse-m09-r[0-9]+-[0-9a-f]{16}"))) {
+            require(artifactKey.matches(Regex("sparse-m10-r[0-9]+-[0-9a-f]{16}"))) {
                 "Invalid M09 artifact key."
             }
             val folder=repository.directory(projectId)

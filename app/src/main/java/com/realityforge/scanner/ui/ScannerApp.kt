@@ -73,7 +73,7 @@ fun ScannerApp(model: ScannerViewModel) {
         } else Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M09", style = MaterialTheme.typography.labelSmall) } },
+                    title = { Column { Text("RealityForge", fontWeight = FontWeight.Bold); Text("LOCAL PHOTOGRAMMETRY / M10", style = MaterialTheme.typography.labelSmall) } },
                     navigationIcon = { if (selected != null) TextButton(enabled = !busy, onClick = { model.select(null) }) { Text("Library") } },
                 )
             },
@@ -218,13 +218,17 @@ fun ScannerApp(model: ScannerViewModel) {
                                             Button(enabled = !busy,onClick = { exportMeshGlb.launch("realityforge-open-mesh.glb") },modifier=Modifier.weight(1f)) { Text("Mesh GLB") }
                                             OutlinedButton(enabled = !busy,onClick = { exportMeshPly.launch("realityforge-open-mesh.ply") },modifier=Modifier.weight(1f)) { Text("Mesh PLY") }
                                         }
-                                        Text("These original mesh exports contain triangle normals and vertex colors. M09 photo-textured output is separate.",
+                                        Text("These original mesh exports contain triangle normals and vertex colors. Photo-textured output is separate.",
                                             style=MaterialTheme.typography.bodySmall)
                                         val texture=result.optJSONObject("texturePreview")
                                         if(texture!=null) {
                                             Text("Photo UV atlas: ${texture.optInt("atlasWidth")} × ${texture.optInt("atlasHeight")} pixels · ${texture.optInt("triangleCount")} textured triangles",
                                                 style=MaterialTheme.typography.titleMedium)
-                                            Text("Photographs projected onto camera-ranked UV charts. Atlas is embedded in the GLB. The interactive preview still uses vertex colors.",
+                                            Text("Photographic coverage: ${"%.1f".format(texture.optDouble("faceCoverage")*100)}% of reconstructed triangles. This is not full-object completeness.",
+                                                style=MaterialTheme.typography.bodySmall)
+                                            Text("Camera-switch edges: ${texture.optInt("viewSwitchEdgesBefore")} → ${texture.optInt("viewSwitchEdges")}. Exposure observations: ${texture.optInt("exposureSamples")}.",
+                                                style=MaterialTheme.typography.bodySmall)
+                                            Text("Exposure-balanced camera UV charts. Atlas is embedded in the GLB; this diagnostic preview still uses vertex colors.",
                                                 style=MaterialTheme.typography.bodySmall)
                                             Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                                                 Button(enabled = !busy,onClick = { exportTexturedGlb.launch("realityforge-photo-textured.glb") },modifier=Modifier.weight(1f)) { Text("Textured GLB") }

@@ -143,7 +143,10 @@ class NativeSmokeTest {
                 assertFalse(complete.toString().take(400),complete.has("textureError"))
                 val uv=complete.getJSONObject("texture")
                 assertTrue(uv.getInt("triangleCount")>30)
-                assertTrue(uv.getDouble("faceCoverage")>.10)
+                assertTrue(uv.getDouble("faceCoverage")>.90)
+                assertEquals("upper_left",uv.getString("uvOrigin"))
+                assertTrue(uv.getInt("viewSwitchEdges")<=uv.getInt("viewSwitchEdgesBefore"))
+                assertTrue(uv.getDouble("overlapMedianLogErrorAfter")<=uv.getDouble("overlapMedianLogErrorBefore")+1e-9)
                 assertTrue(textured.isFile && textured.length()>1024)
                 assertTrue(atlas.isFile && atlas.length()>128)
                 val signature=atlas.inputStream().use { input ->

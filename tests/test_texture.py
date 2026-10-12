@@ -49,7 +49,11 @@ def test_real_image_texture_is_embedded_losslessly(tmp_path):
     assert result['texturedTriangles']>100
     assert result['gltfUvAccessorValidated'] and result['textureEmbeddedPng']
     assert result['photographicPixelsVerified']>=6
-    assert result['faceCoverage']>.20
+    assert result['faceCoverage']>.95
+    assert result['uvOrigin']=='upper_left'
+    assert result['exposureSamples']>=32
+    assert result['overlapMedianLogErrorAfter']<result['overlapMedianLogErrorBefore']
+    assert result['potentialViewSeamEdges']<=result['potentialViewSeamEdgesBefore']
     assert result['medianDisparityErrorPx']<2
     gltf,buffer=parse_glb(tmp_path/'middlebury-photographic-texture.glb')
     primitive=gltf['meshes'][0]['primitives'][0]
@@ -80,12 +84,11 @@ def test_actual_uv_geometry_corresponds_to_photo_projection(tmp_path):
     left,right,_=load_middlebury();h,w=left.shape[:2]
     tex_w,tex_h=608,round(h*608/w)
     width,height=(2*(tex_w+6)),tex_h+6
-    assert tuple((width,height))==(gltf['buffers'][0]['byteLength']//gltf['buffers'][0]['byteLength'] * width,height) # size known
     for k in np.linspace(0,len(xyz)-1,25,dtype=int):
         # glTF uses Y and Z axes inverted relative to native camera coordinates.
         x,y,z=xyz[k];p=np.array([x,-y,-z])
         atlas_x=float(uv[k,0])*width-.5
-        atlas_y=(1-float(uv[k,1]))*height-.5
+        atlas_y=float(uv[k,1])*height-.5
         camera=0 if atlas_x<width/2 else 1
         local_x=atlas_x-(camera*(tex_w+6)+3)
         local_y=atlas_y-3

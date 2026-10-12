@@ -20,7 +20,7 @@ Vec3 add(Vec3 a,Vec3 b){return {a.x+b.x,a.y+b.y,a.z+b.z};}
 Vec3 sub(Vec3 a,Vec3 b){return {a.x-b.x,a.y-b.y,a.z-b.z};}
 Vec3 times(Vec3 a,double n){return {a.x*n,a.y*n,a.z*n};}
 double dot(Vec3 a,Vec3 b){return a.x*b.x+a.y*b.y+a.z*b.z;}
-Vec3 cross(Vec3 a,Vec3 b){return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z};}
+Vec3 cross(Vec3 a,Vec3 b){return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};}
 double norm(Vec3 a){return std::sqrt(dot(a,a));}
 bool finite(Vec3 a){return std::isfinite(a.x)&&std::isfinite(a.y)&&std::isfinite(a.z);}
 Vec3 cameraCenter(const ViewPose& v){return times(multiply(transpose(v.rotation),v.translation),-1);}
@@ -121,6 +121,59 @@ struct Candidate {
     double score=-std::numeric_limits<double>::infinity();
     double facing{};
 };
+bool sampleLinear(const TextureSource& image,const Projected& uv,std::array<double,3>& color) {
+    const int x=static_cast<int>(std::floor(uv.u)),y=static_cast<int>(std::floor(uv.v));
+    if (x<0 || y<0 || x+1>=image.width || y+1>=image.height) return false;
+    color={0,0,0};
+    const double fx=uv.u-x,fy=uv.v-y;
+    for (int j=0;j<2;++j) for (int i=0;i<2;++i) {
+        const auto pixel=(static_cast<std::size_t>(y+j)*image.width+x+i)*4;
+        if (image.rgba[pixel+3]<250) return false;
+        const double w=(i?fx:1-fx)*(j?fy:1-fy);
+        for (int c=0;c<3;++c) color[c]+=w*srgbToLinear(image.rgba[pixel+c]/255.);
+    }
+    return true;
+}
+ExposureBalance measuredBalance(const SurfaceMesh& mesh,std::span<const DenseView> views,
+    std::span<const DenseDepthMap> maps,std::span<const TextureSource> photos,double tolerance) {
+    std::vector<ExposureSample> samples;
+    const auto stride=std::max<std::size_t>(1,(mesh.vertices.size()+1999)/2000);
+    for (std::size_t a=0;a<photos.size();++a) for (std::size_t b=a+1;b<photos.size();++b) {
+        std::vector<ExposureSample> pair;
+        double minX=photos[a].width,maxX=0,minY=photos[a].height,maxY=0;
+        for (std::size_t i=0;i<mesh.vertices.size();i+=stride) {
+            const auto& v=mesh.vertices[i];
+            if (v.confidence<.10) continue;
+            Projected pa{},pb{};
+            if (!project(photos[a],v.xyz,pa) || !project(photos[b],v.xyz,pb) ||
+                !depthAgreement(views[a],maps[a],photos[a],pa,tolerance,3) ||
+                !depthAgreement(views[b],maps[b],photos[b],pb,tolerance,3)) continue;
+            ExposureSample sample;sample.first=a;sample.second=b;
+            if (!sampleLinear(photos[a],pa,sample.a) || !sampleLinear(photos[b],pb,sample.b)) continue;
+            pair.push_back(sample);
+            minX=std::min(minX,pa.u);maxX=std::max(maxX,pa.u);
+            minY=std::min(minY,pa.v);maxY=std::max(maxY,pa.v);
+        }
+        // A tiny repeated patch is not sufficient to calibrate an entire camera.
+        if (pair.size()>=32 && maxX-minX>photos[a].width*.1 && maxY-minY>photos[a].height*.1)
+            samples.insert(samples.end(),pair.begin(),pair.end());
+    }
+    return balanceExposure(photos.size(),samples);
+}
+std::size_t seamCount(const SurfaceMesh& mesh,const std::vector<int>& labels) {
+    std::map<std::pair<std::uint32_t,std::uint32_t>,int> edges;
+    std::size_t switches=0;
+    for (std::size_t i=0;i<mesh.triangles.size();++i) {
+        if (labels[i]<0) continue;
+        const auto& t=mesh.triangles[i];
+        for (auto [a,b]:{std::pair{t.a,t.b},std::pair{t.b,t.c},std::pair{t.c,t.a}}) {
+            const auto key=std::minmax(a,b);
+            const auto [it,inserted]=edges.emplace(std::pair{key.first,key.second},labels[i]);
+            if (!inserted && it->second!=labels[i]) ++switches;
+        }
+    }
+    return switches;
+}
 void checkMesh(const SurfaceMesh& mesh){
     if(mesh.triangles.empty()||mesh.vertices.empty()||mesh.vertices.size()>40000||mesh.triangles.size()>80000)
         throw Error("M09 requires a bounded nonempty observed triangle mesh");
@@ -137,7 +190,8 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     if(sources.size()<2||sources.size()>4||sources.size()!=depthViews.size()||sources.size()!=depthMaps.size()||
        s.gutter<2||s.gutter>16||!std::isfinite(s.minimumFacing)||s.minimumFacing<0||s.minimumFacing>.8||
        !std::isfinite(s.depthTolerance)||s.depthTolerance<.01||s.depthTolerance>.20||
-       s.maxUvVertices<24||s.maxUvVertices>240000)throw Error("Invalid M09 texture options");
+       s.maxUvVertices<24||s.maxUvVertices>240000||
+       !std::isfinite(s.seamPenalty)||s.seamPenalty<0||s.seamPenalty>.5)throw Error("Invalid M09 texture options");
     const int w=sources.front().width,h=sources.front().height;
     if(w<32||h<32||w>1024||h>1024||static_cast<std::int64_t>(w)*h>1024*1024)
         throw Error("Photographic source exceeds bounded texture resolution");
@@ -147,7 +201,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
            d.width<32||d.height<32||map.width!=d.width||map.height!=d.height||
            map.depth.size()!=static_cast<std::size_t>(d.width)*d.height||
            map.confidence.size()!=map.depth.size())throw Error("Mismatched depth/photograph sizes");
-        if(v.fx<=0||v.fy<=0||!std::isfinite(v.cx)||!std::isfinite(v.cy))throw Error("Invalid photographic camera intrinsics");
+        if(v.fx<=0||v.fy<=0||!std::isfinite(v.fx)||!std::isfinite(v.fy)||!std::isfinite(v.cx)||!std::isfinite(v.cy))throw Error("Invalid photographic camera intrinsics");
         const double sx=static_cast<double>(w)/d.width,sy=static_cast<double>(h)/d.height;
         if(std::abs(v.fx-sx*d.fx)>std::max(1e-3,sx*d.fx*.02)||
            std::abs(v.fy-sy*d.fy)>std::max(1e-3,sy*d.fy*.02)||
@@ -160,7 +214,11 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
                          v.pose.translation.z-d.pose.translation.z})
             if(!std::isfinite(diff)||std::abs(diff)>1e-6)throw Error("Texture extrinsics differ from M08 stereo");
     }
+    for (const auto& t:mesh.triangles) if (t.sourceCamera>=sources.size())
+        throw Error("Invalid texture source-camera provenance");
     TexturedSurface result;
+    result.exposure.gains.assign(sources.size(),{1,1,1});
+    if (s.balanceColors) result.exposure=measuredBalance(mesh,depthViews,depthMaps,sources,s.depthTolerance);
     result.inputTriangles=mesh.triangles.size();
     result.sourceTriangleCounts.assign(sources.size(),0);
     const int columns=sources.size()>1?2:1;
@@ -169,7 +227,8 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     result.atlasWidth=columns*pitchX;result.atlasHeight=rows*pitchY;
     if(result.atlasWidth>4096||result.atlasHeight>4096)throw Error("Photographic atlas exceeds memory budget");
     result.atlasRgba.assign(static_cast<std::size_t>(result.atlasWidth)*result.atlasHeight*4,0);
-    // Copy actual photo pixels, retaining invalidity alpha. Edge gutters are
+    // Copy photograph pixels with measured linear-sRGB gains; preserve validity alpha.
+    // Originals remain unchanged. Edge gutters are
     // independently clamped within each photo tile to prevent cross-photo bleeding.
     for(std::size_t cam=0;cam<sources.size();++cam){
         const auto& source=sources[cam];const int startX=static_cast<int>(cam%columns)*pitchX;
@@ -180,20 +239,26 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
             const auto to=(static_cast<std::size_t>(startY+y+s.gutter)*result.atlasWidth+
                            startX+x+s.gutter)*4;
             std::copy_n(source.rgba.data()+from,4,result.atlasRgba.data()+to);
+            for (int k=0;k<3;++k) {
+                const double gain=result.exposure.gains[cam][k];
+                if (std::abs(gain-1)>1e-12) result.atlasRgba[to+k]=static_cast<std::uint8_t>(
+                    std::round(255*linearToSrgb(srgbToLinear(source.rgba[from+k]/255.)*gain)));
+            }
         }
     }
     std::map<std::pair<std::uint32_t,int>,std::uint32_t> vertexMaps;
     std::vector<int> faceCameras(mesh.triangles.size(),-1);
     std::vector<double> scores;
+    std::vector<std::array<Candidate,4>> choices(mesh.triangles.size());
+    std::vector<Vec3> faceNormals(mesh.triangles.size());
     for(std::size_t face=0;face<mesh.triangles.size();++face){
         const auto& tri=mesh.triangles[face];
-        const std::array<std::uint32_t,3> ids{tri.a,tri.b,tri.c};
         const std::array<Vec3,3> vertices{mesh.vertices[tri.a].xyz,mesh.vertices[tri.b].xyz,mesh.vertices[tri.c].xyz};
         const auto centre=times(add(add(vertices[0],vertices[1]),vertices[2]),1./3);
         const auto rawNormal=cross(sub(vertices[1],vertices[0]),sub(vertices[2],vertices[0]));
         const double length=norm(rawNormal);
-        if(length<1e-12){++result.skippedTriangles;continue;}
-        const auto normal=times(rawNormal,1./length);
+        if(length<1e-12) continue;
+        const auto normal=times(rawNormal,1./length); faceNormals[face]=normal;
         Candidate selected;
         for(std::size_t camera=0;camera<sources.size();++camera){
             const auto& view=sources[camera];
@@ -224,10 +289,59 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
             if(pixelArea<.01)continue;
             const double quality=facing*(1+std::log1p(pixelArea)*.08)+
                 (camera==tri.sourceCamera?.20:0.);
-            if(quality>selected.score){selected={static_cast<int>(camera),projected,quality,facing};}
+            choices[face][camera]={static_cast<int>(camera),projected,quality,facing};
+            if(quality>selected.score) selected=choices[face][camera];
         }
-        if(selected.camera<0){++result.skippedTriangles;continue;}
+        faceCameras[face]=selected.camera;
+    }
+    result.viewSwitchEdgesBefore=seamCount(mesh,faceCameras);
+    const auto initialLabels=faceCameras;
+    // ICM reduces a bounded pairwise label energy. Only already-visible source
+    // candidates are permitted; coverage/depth/mask tests are never relaxed.
+    std::map<std::pair<std::uint32_t,std::uint32_t>,std::vector<std::size_t>> edges;
+    for (std::size_t face=0;face<mesh.triangles.size();++face) {
+        if (faceCameras[face]<0) continue;
+        const auto& t=mesh.triangles[face];
+        for (auto [a,b]:{std::pair{t.a,t.b},std::pair{t.b,t.c},std::pair{t.c,t.a}}) {
+            const auto key=std::minmax(a,b);
+            edges[{key.first,key.second}].push_back(face);
+        }
+    }
+    std::vector<std::vector<std::size_t>> neighbors(mesh.triangles.size());
+    for (const auto& [edge,faces]:edges) {
+        (void)edge;
+        if (faces.size()!=2 || dot(faceNormals[faces[0]],faceNormals[faces[1]])<.8) continue;
+        neighbors[faces[0]].push_back(faces[1]);neighbors[faces[1]].push_back(faces[0]);
+    }
+    for (int pass=0;pass<4 && s.seamPenalty>0;++pass) {
+        bool changed=false;
+        for (std::size_t face=0;face<choices.size();++face) {
+            const int old=faceCameras[face]; if (old<0) continue;
+            auto energy=[&](int camera) {
+                double e=-choices[face][camera].score;
+                for (auto n:neighbors[face]) if (faceCameras[n]!=camera) e+=s.seamPenalty;
+                return e;
+            };
+            int best=old;double bestCost=energy(old);
+            for (std::size_t camera=0;camera<sources.size();++camera) {
+                if (choices[face][camera].camera<0) continue;
+                const double cost=energy(static_cast<int>(camera));
+                if (cost<bestCost-1e-10) {best=static_cast<int>(camera);bestCost=cost;}
+            }
+            if (best!=old) {faceCameras[face]=best;changed=true;}
+        }
+        if (!changed) break;
+    }
+    // Nonmanifold overlap edges were intentionally not smoothed. Never publish
+    // a larger total seam count due to such unmatched adjacency constraints.
+    if (seamCount(mesh,faceCameras)>result.viewSwitchEdgesBefore) faceCameras=initialLabels;
+    for (std::size_t face=0;face<mesh.triangles.size();++face) {
+        if (faceCameras[face]<0) {++result.skippedTriangles;continue;}
+        const auto& tri=mesh.triangles[face];
+        const std::array<std::uint32_t,3> ids{tri.a,tri.b,tri.c};
+        const auto& selected=choices[face][faceCameras[face]];
         const auto cam=selected.camera;
+        if (cam!=initialLabels[face]) ++result.reassignedFaces;
         const int x0=(cam%columns)*pitchX+s.gutter,y0=(cam/columns)*pitchY+s.gutter;
         std::array<std::uint32_t,3> finalIds{};
         bool good=true;
@@ -239,9 +353,9 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
                 if(result.vertices.size()>=s.maxUvVertices){good=false;break;}
                 TextureVertex tex;
                 tex.surfaceVertex=ids[i];
-                // glTF's UV v=0 is the bottom of the PNG texture in sampler space.
+                // glTF 2.0 uses upper-left (0,0); PNG row zero needs no V flip.
                 tex.u=static_cast<float>((x0+selected.uv[i].u+.5)/result.atlasWidth);
-                tex.v=static_cast<float>(1.-(y0+selected.uv[i].v+.5)/result.atlasHeight);
+                tex.v=static_cast<float>((y0+selected.uv[i].v+.5)/result.atlasHeight);
                 if(tex.u<0||tex.u>1||tex.v<0||tex.v>1){good=false;break;}
                 finalIds[i]=static_cast<std::uint32_t>(result.vertices.size());
                 result.vertices.push_back(tex);vertexMaps.emplace(key,finalIds[i]);
@@ -252,18 +366,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
         ++result.sourceTriangleCounts[cam];faceCameras[face]=cam;
         scores.push_back(selected.facing);
     }
-    // Report chart boundaries (potential seams), not false promises of seam-free output.
-    std::map<std::pair<std::uint32_t,std::uint32_t>,int> edges;
-    for(std::size_t f=0;f<mesh.triangles.size();++f){
-        if(faceCameras[f]<0)continue;
-        const auto& t=mesh.triangles[f];
-        for(auto [a,b]:{std::pair{t.a,t.b},std::pair{t.b,t.c},std::pair{t.c,t.a}}){
-            const auto edge=std::minmax(a,b);
-            auto key=std::pair{edge.first,edge.second};
-            const auto [it,inserted]=edges.emplace(key,faceCameras[f]);
-            if(!inserted&&it->second!=faceCameras[f])++result.viewSwitchEdges;
-        }
-    }
+    result.viewSwitchEdges=seamCount(mesh,faceCameras);
     result.faceCoverage=static_cast<double>(result.indices.size()/3)/mesh.triangles.size();
     if(!scores.empty()){
         std::nth_element(scores.begin(),scores.begin()+static_cast<std::ptrdiff_t>(scores.size()/2),scores.end());
@@ -274,14 +377,24 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
 }
 std::string texturedSurfaceJson(const TexturedSurface& t){
     std::ostringstream o;o.imbue(std::locale::classic());o<<std::setprecision(10);
-    o<<"{\"schema\":9,\"representation\":\"camera_ranked_photographic_atlas\",\"textured\":true,\"watertight\":false,\"scale\":\"arbitrary\","
+    o<<"{\"schema\":10,\"representation\":\"camera_ranked_photographic_atlas\",\"textured\":true,\"watertight\":false,\"scale\":\"arbitrary\","
      <<"\"atlasWidth\":"<<t.atlasWidth<<",\"atlasHeight\":"<<t.atlasHeight
      <<",\"atlasFormat\":\"image/png\",\"uvVertexCount\":"<<t.vertices.size()
      <<",\"triangleCount\":"<<t.indices.size()/3<<",\"inputTriangles\":"<<t.inputTriangles
      <<",\"skippedTriangles\":"<<t.skippedTriangles
-     <<",\"viewSwitchEdges\":"<<t.viewSwitchEdges<<",\"faceCoverage\":"<<t.faceCoverage
+     <<",\"viewSwitchEdges\":"<<t.viewSwitchEdges
+     <<",\"viewSwitchEdgesBefore\":"<<t.viewSwitchEdgesBefore
+     <<",\"reassignedFaces\":"<<t.reassignedFaces
+     <<",\"exposurePairs\":"<<t.exposure.supportedPairs
+     <<",\"exposureSamples\":"<<t.exposure.acceptedSamples
+     <<",\"overlapMedianLogErrorBefore\":"<<t.exposure.medianLogErrorBefore
+     <<",\"overlapMedianLogErrorAfter\":"<<t.exposure.medianLogErrorAfter
+     <<",\"uvOrigin\":\"upper_left\",\"faceCoverage\":"<<t.faceCoverage
      <<",\"medianFacing\":"<<t.medianFacing<<",\"cameraTriangleCounts\":[";
     for(std::size_t i=0;i<t.sourceTriangleCounts.size();++i){if(i)o<<',';o<<t.sourceTriangleCounts[i];}
+    o<<"],\"cameraColorGains\":[";
+    for(std::size_t i=0;i<t.exposure.gains.size();++i){if(i)o<<',';
+        const auto& g=t.exposure.gains[i];o<<'['<<g[0]<<','<<g[1]<<','<<g[2]<<']';}
     o<<"]}";return o.str();
 }
 void writeTexturePng(const TexturedSurface& t,const std::string& path){
@@ -317,7 +430,7 @@ void writeTexturedGlb(const SurfaceMesh& m,const TexturedSurface& t,const std::s
     const auto textureLength=tex.size();
     while(buffer.size()%4)buffer.push_back(0);
     std::ostringstream json;json.imbue(std::locale::classic());json<<std::setprecision(9);
-    json<<"{\"asset\":{\"version\":\"2.0\",\"generator\":\"RealityForge M09\"},"
+    json<<"{\"asset\":{\"version\":\"2.0\",\"generator\":\"RealityForge M10\"},"
         <<"\"extras\":{\"scale\":\"arbitrary\",\"watertight\":false,\"photographicUV\":true,\"cameraRanked\":true},"
         <<"\"scene\":0,\"scenes\":[{\"nodes\":[0]}],\"nodes\":[{\"mesh\":0,\"name\":\"Observed textured open surface\"}],"
         <<"\"meshes\":[{\"primitives\":[{\"attributes\":{\"POSITION\":0,\"NORMAL\":1,\"TEXCOORD_0\":2},\"indices\":3,\"mode\":4,\"material\":0}]}],"
@@ -384,7 +497,7 @@ extern "C" char* rf_textured_surface_json(
         rf::DenseSettings ds;ds.nearDepth=near_depth;ds.farDepth=far_depth;
         ds.depthPlanes=depth_planes;ds.pixelStride=pixel_stride;
         auto dense=rf::reconstructDense(views,ds);
-        response="{\"schema\":9,\"dense\":"+rf::denseJson(dense);
+        response="{\"schema\":10,\"dense\":"+rf::denseJson(dense);
         try{
             rf::SurfaceSettings s;s.pixelStride=pixel_stride;
             auto mesh=rf::fuseDepthSurfaces(views,dense,s);
