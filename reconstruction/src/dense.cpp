@@ -1,4 +1,5 @@
 #include "realityforge/dense.hpp"
+#include "realityforge/stereo_warp.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -24,23 +25,31 @@ Vec3 fromDepth(const DenseView& view,double x,double y,double z){
 }
 Vec3 cameraPoint(const DenseView& view,Vec3 world){return add(multiply(view.pose.rotation,world),view.pose.translation);}
 Vec3 center(const DenseView& v){return scale(multiply(transpose(v.pose.rotation),v.pose.translation),-1);}
+// Luminance is an exactly representable /256 weighted integer. Cache it once
+// per input view, rather than recomputing RGB at every patch/depth hypothesis.
+struct GrayView {
+    const DenseView& image;
+    std::vector<float> pixels;
+    explicit GrayView(const DenseView& v):image(v),pixels(v.rgba.size()/4) {
+        for(std::size_t i=0;i<pixels.size();++i) {
+            pixels[i]=(77.f*v.rgba[i*4]+150.f*v.rgba[i*4+1]+29.f*v.rgba[i*4+2])/256.f;
+        }
+    }
+};
 struct Bilinear {double gray{};bool valid{};};
-Bilinear sample(const DenseView& image,double x,double y){
+Bilinear sample(const GrayView& cached,double x,double y){
+    const auto& image=cached.image;
     if(!std::isfinite(x)||!std::isfinite(y)||x<0||y<0||x>=image.width-1||y>=image.height-1)return {};
     int ix=static_cast<int>(x),iy=static_cast<int>(y);
     double fx=x-ix,fy=y-iy;
-    const std::array<std::size_t,4> pos{
-        (static_cast<std::size_t>(iy)*image.width+ix)*4,
-        (static_cast<std::size_t>(iy)*image.width+ix+1)*4,
-        (static_cast<std::size_t>(iy+1)*image.width+ix)*4,
-        (static_cast<std::size_t>(iy+1)*image.width+ix+1)*4};
-    for(auto i:pos)if(image.rgba[i+3]!=255)return {};
-    auto gray=[&](std::size_t p){return (77.0*image.rgba[p]+150.0*image.rgba[p+1]+29.0*image.rgba[p+2])/256.;};
-    return {gray(pos[0])*(1-fx)*(1-fy)+gray(pos[1])*fx*(1-fy)+
-            gray(pos[2])*(1-fx)*fy+gray(pos[3])*fx*fy,true};
+    const std::size_t p=static_cast<std::size_t>(iy)*image.width+ix;
+    const std::array<std::size_t,4> pos{p,p+1,p+image.width,p+image.width+1};
+    for(auto i:pos)if(image.rgba[i*4+3]!=255)return {};
+    return {cached.pixels[pos[0]]*(1-fx)*(1-fy)+cached.pixels[pos[1]]*fx*(1-fy)+
+            cached.pixels[pos[2]]*(1-fx)*fy+cached.pixels[pos[3]]*fx*fy,true};
 }
 struct Patch {double mean{},var{};std::array<double,49> pixels{};};
-Patch referencePatch(const DenseView& v,int x,int y,int radius){
+Patch referencePatch(const GrayView& v,int x,int y,int radius){
     Patch p;int n=0;double sum=0,sumSq=0;
     for(int dy=-radius;dy<=radius;++dy)for(int dx=-radius;dx<=radius;++dx){
         auto s=sample(v,x+dx,y+dy);if(!s.valid)return {};
@@ -48,17 +57,18 @@ Patch referencePatch(const DenseView& v,int x,int y,int radius){
     }
     p.mean=sum/n;p.var=std::max(0.,sumSq/n-p.mean*p.mean);return p;
 }
-// Warps a local fronto-parallel reference patch using actual calibrated cameras.
-// Zero-mean NCC suppresses gain/offset changes without claiming photometric calibration.
-double ncc(const DenseView& reference,const DenseView& neighbor,
+// Algebraically identical calibrated fronto-parallel warp. Relative transforms
+// are prepared once per pair; the hot loop never reconstructs world points.
+double ncc(const GrayView& neighbor,const detail::StereoWarp& warp,
     int x,int y,double z,const Patch& patch,int radius){
     int n=0;double srcSum=0,srcSumSq=0,cross=0;
+    const auto base=warp.homogeneous(x,y,1./z);
     for(int dy=-radius;dy<=radius;++dy)for(int dx=-radius;dx<=radius;++dx){
-        Vec3 world=fromDepth(reference,x+dx,y+dy,z);
-        Vec3 projected=cameraPoint(neighbor,world);
-        if(projected.z<=1e-5||!finite(projected))return -2;
-        auto intensity=sample(neighbor,neighbor.fx*projected.x/projected.z+neighbor.cx,
-                             neighbor.fy*projected.y/projected.z+neighbor.cy);
+        const Vec3 q{base.x+warp.h[0]*dx+warp.h[1]*dy,
+                     base.y+warp.h[3]*dx+warp.h[4]*dy,
+                     base.z+warp.h[6]*dx+warp.h[7]*dy};
+        if(q.z*z<=1e-5||!finite(q))return -2;
+        auto intensity=sample(neighbor,q.x/q.z,q.y/q.z);
         if(!intensity.valid)return -2;
         srcSum+=intensity.gray;srcSumSq+=intensity.gray*intensity.gray;
         cross+=(patch.pixels[n]-patch.mean)*intensity.gray;
@@ -95,7 +105,8 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
     if(views.size()<2||views.size()>4)throw Error("Dense MVS requires 2 to 4 calibrated views");
     if(!std::isfinite(s.nearDepth)||!std::isfinite(s.farDepth)||s.nearDepth<=.01||s.farDepth<=s.nearDepth*1.05||s.farDepth>100000||
        s.depthPlanes<12||s.depthPlanes>128||s.pixelStride<2||s.pixelStride>8||
-       s.patchRadius<1||s.patchRadius>3||s.minimumNcc<0||s.minimumNcc>1||
+       s.patchRadius<1||s.patchRadius>3||!std::isfinite(s.minimumNcc)||s.minimumNcc<0||s.minimumNcc>1||
+       !std::isfinite(s.minUniqueness)||!std::isfinite(s.depthConsistencyFraction)||
        s.minUniqueness<.005||s.minUniqueness>.5||s.depthConsistencyFraction<.005||s.depthConsistencyFraction>.25||
        s.maxPoints<10||s.maxPoints>50000)throw Error("Invalid bounded CPU MVS configuration");
     int w=views.front().width,h=views.front().height;
@@ -128,22 +139,28 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         planes[k]=1./((1-t)/settings.nearDepth+t/settings.farDepth);
     }
     const std::size_t n=static_cast<std::size_t>(w)*h;
+    std::vector<GrayView> grayscale;grayscale.reserve(views.size());
+    for(const auto& v:views)grayscale.emplace_back(v);
+    std::vector<detail::StereoWarp> warps;warps.reserve(views.size()*views.size());
+    for(const auto& a:views)for(const auto& b:views)warps.push_back(detail::StereoWarp::between(a,b));
     result.maps.reserve(views.size());
     result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,50000));
     for(std::size_t ref=0;ref<views.size();++ref){
         DenseDepthMap map;map.width=w;map.height=h;map.depth.assign(n,0);map.confidence.assign(n,0);
-        const auto& image=views[ref];
+        const auto& image=grayscale[ref];
+        // One scratch cost vector per reference, not an allocation per pixel.
+        std::vector<double> costs(settings.depthPlanes,2.);
         for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
             ++result.sampledPixels;
             auto reference=referencePatch(image,x,y,r);
             if(reference.var<18.)continue; // no reliable photometric texture
-            std::vector<double> costs(settings.depthPlanes,2.);
+            std::fill(costs.begin(),costs.end(),2.);
             for(int k=0;k<settings.depthPlanes;++k){
                 // A candidate must be supported by another photo, not a single-image guess.
                 double best=2.;
                 for(std::size_t src=0;src<views.size();++src){
                     if(src==ref)continue;
-                    double corr=ncc(image,views[src],x,y,planes[k],reference,r);
+                    double corr=ncc(grayscale[src],warps[ref*views.size()+src],x,y,planes[k],reference,r);
                     if(corr>-.999)best=std::min(best,1.-corr);
                 }
                 costs[k]=best;
