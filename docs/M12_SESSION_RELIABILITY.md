@@ -55,3 +55,15 @@ physical ARM64 temperature/memory/battery data, complete-object reference scans,
 production topology/atlas quality, high-resolution MVS or release signing is
 provided by this phase. Reconstruction fingerprints are unchanged (M10 engine);
 M12 changes session behavior and app/test versions only.
+
+## Screenshot collection correction
+
+The initial M12 commit passed all 24 Android instrumentation tests, but AGP
+uninstalled the test application before the post-Gradle `run-as` capture. ADB
+reported a successful process exit while its output contained an error rather
+than PNG bytes. That output was rejected during independent artifact inspection.
+The instrumented test now captures through UiAutomation's shell identity into
+/data/local/tmp before teardown. The collector pulls that file, validates PNG
+signature, chunk ranges, CRC, dimensions and completion, and removes the temporary
+file. Regression tests reject the exact old error text and corrupt/truncated PNGs.
+This capture path exists only in instrumentation, not in the shipped application.

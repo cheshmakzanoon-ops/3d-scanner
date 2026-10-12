@@ -64,7 +64,7 @@ ctest --test-dir build/host --output-on-failure
 python -m pytest tests -q
 ```
 
-M12 local native verification: seven CTest targets and 100 Python checks passed.
+M12 local native verification: seven CTest targets and 105 Python checks passed.
 Android build/lint, JNI tests, real GLES pixel readback, activity resume and model
 validation must pass the commit-specific GitHub Actions run before Android success
 is claimed. Synthetic analytical fixtures are labeled; real benchmark data is

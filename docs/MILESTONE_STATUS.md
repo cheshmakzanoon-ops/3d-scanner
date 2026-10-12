@@ -7,7 +7,7 @@
 | Depth/surface | Bounded CPU stereo, reciprocal checks and open indexed triangle patches; not complete manifold reconstruction |
 | Photographic UV | Full XYZ cross product and glTF top-left origin repaired; all 3,530 existing triangles textured on one real stereo benchmark |
 | Appearance | Bounded, measured exposure gains and deterministic camera-label smoothing; not seamless blending |
-| Native validation | Seven CTest targets and 100 Python checks passed locally; M10 photometric GCC/Clang/sanitizer evidence retained |
+| Native validation | Seven CTest targets and 105 Python checks passed locally; M10 photometric GCC/Clang/sanitizer evidence retained |
 | Android validation | M11 full CI and 20 emulator tests passed; M12 new session tests require CI; no physical camera proof |
 | Preview | Bounded local photographic GLES3 viewer plus vertex-color diagnostics; new shader/file/lifecycle tests |
 | Resource limits | At most 12 sparse photos, three Android depth views at 256px edge, texture sources up to 768px |

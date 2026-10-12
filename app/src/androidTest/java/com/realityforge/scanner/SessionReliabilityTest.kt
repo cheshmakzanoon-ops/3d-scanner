@@ -1,7 +1,6 @@
 package com.realityforge.scanner
 
 import android.net.Uri
-import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.view.inspector.WindowInspector
@@ -96,12 +95,19 @@ class SessionReliabilityTest {
                 assertNotNull(repository.dao.project(id))
                 scenario.onActivity { activity -> activity.setContent { PhotographicModelViewer(artifact) {} } }
                 awaitPhotographicFrame()
-                val screenshot = requireNotNull(instrumentation.uiAutomation.takeScreenshot()) { "No emulator screenshot" }
-                try {
-                    File(app.filesDir,"m12-test-photographic-viewer.png").outputStream().use {
-                        assertTrue(screenshot.compress(Bitmap.CompressFormat.PNG,100,it))
-                    }
-                } finally { screenshot.recycle() }
+                // AGP removes the test app after instrumentation. Capture with the test-only
+                // shell identity into /data/local/tmp, not app-private storage that disappears.
+                val capture = instrumentation.uiAutomation.executeShellCommand(
+                    "screencap -p /data/local/tmp/realityforge-m12-session.png")
+                android.os.ParcelFileDescriptor.AutoCloseInputStream(capture).use { input ->
+                    val buffer = ByteArray(4096)
+                    while (input.read(buffer) >= 0) { /* Drain completion, no shell operators. */ }
+                }
+                val verify = instrumentation.uiAutomation.executeShellCommand(
+                    "head -c 8 /data/local/tmp/realityforge-m12-session.png")
+                val signature = android.os.ParcelFileDescriptor.AutoCloseInputStream(verify).use { it.readBytes() }
+                assertArrayEquals("Emulator screenshot capture failed",
+                    byteArrayOf(137.toByte(),80,78,71,13,10,26,10), signature)
             }
         } finally { temporary.forEach { it.delete() }; repository.delete(id) }
     }

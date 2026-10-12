@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
-# Keep the test exit status and collect the synthetic full-session screenshot
-# before android-emulator-runner shuts the emulator down. No user photo data.
+# AGP may uninstall the app before Gradle returns. The instrumented test creates
+# this synthetic screenshot using UiAutomation's shell identity outside app data.
+# Validate actual PNG bytes: adb exec-out may return success for remote errors.
 set -u
 status=0
+adb -e shell rm -f /data/local/tmp/realityforge-m12-session.png
 gradle --no-daemon :app:connectedDebugAndroidTest || status=$?
 mkdir -p reports/device
-if ! adb -e exec-out run-as com.realityforge.scanner cat files/m12-test-photographic-viewer.png > reports/device/photographic-viewer.png; then
+if ! adb -e pull /data/local/tmp/realityforge-m12-session.png reports/device/photographic-viewer.png; then
     rm -f reports/device/photographic-viewer.png
     echo "Full-session photographic screenshot was not produced." >&2
     if [ "$status" -eq 0 ]; then status=1; fi
+else
+    python3 tools/check_screenshot.py reports/device/photographic-viewer.png || status=1
 fi
+adb -e shell rm -f /data/local/tmp/realityforge-m12-session.png
 exit "$status"
