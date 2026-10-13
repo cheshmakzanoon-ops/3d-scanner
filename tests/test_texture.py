@@ -106,6 +106,6 @@ def test_actual_uv_geometry_corresponds_to_photo_projection(tmp_path):
 def test_android_source_has_fallback_for_photo_preprocess_failure():
     src=(ROOT/'app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt').read_text()
     assert 'textureInputFailure' in src
-    assert 'NativeCore.reconstructSurface(' in src
-    assert 'NativeCore.reconstructTexturedSurface(' in src
+    assert 'NativeCore.reconstructSurfaceCancellable(' in src
+    assert 'NativeCore.reconstructTexturedSurfaceCancellable(' in src
     assert 'texturedGlb.delete();atlasPng.delete()' in src

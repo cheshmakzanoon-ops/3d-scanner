@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.realityforge.scanner.data.ScanPhoto
 import com.realityforge.scanner.engine.SparsePipeline
 import com.realityforge.scanner.engine.LensCalibration
+import com.realityforge.scanner.engine.NativeCore
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.json.JSONObject
@@ -26,6 +28,7 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
     val calibrationStatus = MutableStateFlow("No calibration: estimated pinhole")
     private var task: Job? = null
     private var previewTask: Job? = null
+    private val nativeOperation = AtomicLong(0)
     private var selectionGeneration = 0L
 
     /** Called from UI actions before any suspension, so exports/mutations cannot overlap. */
@@ -163,13 +166,18 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
         if (!reserveOperation()) return
         task = viewModelScope.launch {
             var sourceRevision: Long? = null
+            var token = 0L
             try {
                 recovery.await()
                 val project = requireNotNull(repository.dao.project(id)) { "Project no longer exists." }
                 sourceRevision = project.revision
                 preview.value = null
                 repository.dao.state(id, project.revision, "PROCESSING", "Reconstructing sparse geometry and attempting CPU dense stereo preview.")
-                val output = SparsePipeline(repository).run(id, focal35) { progress.value = it }
+                // Ownership is created once for this specific reconstruction.
+                // pause() can signal the atomic flag while JNI is still executing.
+                token = NativeCore.beginReconstruction()
+                check(nativeOperation.compareAndSet(0,token)) { "Another native scan is already active" }
+                val output = SparsePipeline(repository).run(id, focal35, token) { progress.value = it }
                 ensureActive()
                 check(repository.dao.complete(id, project.revision, output.getString("artifactKey"), "${output.getInt("pointCount")} sparse points; ${output.optJSONObject("densePreview")?.optInt("pointCount") ?: 0} dense points; ${output.optJSONObject("meshPreview")?.optInt("triangleCount") ?: 0} observed triangles.") == 1) { "Result became stale." }
                 if (selectedId.value == id) preview.value = output
@@ -185,10 +193,26 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
             } catch (e: LinkageError) {
                 sourceRevision?.let { repository.dao.state(id, it, "FAILED", "Native library load failed. This device/build needs verification.") }
                 notice.value = "Native library load failed: ${e.message}"
-            } finally { busy.value = false; progress.value = null }
+            } finally {
+                if(token>0) {
+                    nativeOperation.compareAndSet(token,0L)
+                    NativeCore.finishReconstruction(token)
+                }
+                busy.value = false; progress.value = null
+            }
         }
     }
-    fun pause() { task?.cancel() }
+    fun pause() {
+        val token=nativeOperation.get()
+        if(token>0) NativeCore.cancelReconstruction(token)
+        task?.cancel()
+    }
+    override fun onCleared() {
+        // Cancels the native worker even if Activity recreation closes the owner.
+        val token=nativeOperation.get()
+        if(token>0) NativeCore.cancelReconstruction(token)
+        super.onCleared()
+    }
     fun deleteSelected() {
         val id = selectedId.value ?: return
         if (!reserveOperation()) return

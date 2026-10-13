@@ -1,4 +1,5 @@
 #include "realityforge/texture.hpp"
+#include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -58,14 +59,18 @@ std::vector<std::uint8_t> png(const TexturedSurface& atlas){
     std::vector<std::uint8_t> raw;
     raw.reserve(height*(1+width*4));
     for(std::size_t y=0;y<height;++y){
+        cancellation::checkpoint();
         raw.push_back(0); // PNG filter 0
         const auto b=atlas.atlasRgba.begin()+static_cast<std::ptrdiff_t>(y*width*4);
         raw.insert(raw.end(),b,b+static_cast<std::ptrdiff_t>(width*4));
     }
     std::vector<std::uint8_t> zlib{0x78,0x01};
     std::uint32_t adlerA=1,adlerB=0;
-    for(auto v:raw){adlerA=(adlerA+v)%65521u;adlerB=(adlerB+adlerA)%65521u;}
+    for(std::size_t i=0;i<raw.size();++i){
+        if((i & 65535u)==0) cancellation::checkpoint();
+        const auto v=raw[i];adlerA=(adlerA+v)%65521u;adlerB=(adlerB+adlerA)%65521u;}
     for(std::size_t p=0;p<raw.size();){
+        cancellation::checkpoint();
         const auto n=std::min<std::size_t>(65535,raw.size()-p);
         const bool final=p+n==raw.size();
         zlib.push_back(final?1u:0u);
@@ -231,9 +236,12 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     // Originals remain unchanged. Edge gutters are
     // independently clamped within each photo tile to prevent cross-photo bleeding.
     for(std::size_t cam=0;cam<sources.size();++cam){
+        cancellation::checkpoint();
         const auto& source=sources[cam];const int startX=static_cast<int>(cam%columns)*pitchX;
         const int startY=static_cast<int>(cam/columns)*pitchY;
-        for(int y=-s.gutter;y<h+s.gutter;++y)for(int x=-s.gutter;x<w+s.gutter;++x){
+        for(int y=-s.gutter;y<h+s.gutter;++y){
+          cancellation::checkpoint();
+          for(int x=-s.gutter;x<w+s.gutter;++x){
             const int sx=std::clamp(x,0,w-1),sy=std::clamp(y,0,h-1);
             const auto from=(static_cast<std::size_t>(sy)*w+sx)*4;
             const auto to=(static_cast<std::size_t>(startY+y+s.gutter)*result.atlasWidth+
@@ -244,6 +252,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
                 if (std::abs(gain-1)>1e-12) result.atlasRgba[to+k]=static_cast<std::uint8_t>(
                     std::round(255*linearToSrgb(srgbToLinear(source.rgba[from+k]/255.)*gain)));
             }
+          }
         }
     }
     std::map<std::pair<std::uint32_t,int>,std::uint32_t> vertexMaps;
@@ -252,6 +261,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     std::vector<std::array<Candidate,MAX_DENSE_VIEWS>> choices(mesh.triangles.size());
     std::vector<Vec3> faceNormals(mesh.triangles.size());
     for(std::size_t face=0;face<mesh.triangles.size();++face){
+        if((face & 63u)==0) cancellation::checkpoint();
         const auto& tri=mesh.triangles[face];
         const std::array<Vec3,3> vertices{mesh.vertices[tri.a].xyz,mesh.vertices[tri.b].xyz,mesh.vertices[tri.c].xyz};
         const auto centre=times(add(add(vertices[0],vertices[1]),vertices[2]),1./3);
@@ -497,6 +507,7 @@ extern "C" char* rf_textured_surface_json(
         rf::DenseSettings ds;ds.nearDepth=near_depth;ds.farDepth=far_depth;
         ds.depthPlanes=depth_planes;ds.pixelStride=pixel_stride;
         auto dense=rf::reconstructDense(views,ds);
+        rf::cancellation::checkpoint();
         response="{\"schema\":10,\"dense\":"+rf::denseJson(dense);
         try{
             rf::SurfaceSettings s;s.pixelStride=pixel_stride;
@@ -510,8 +521,10 @@ extern "C" char* rf_textured_surface_json(
                 if(textured_glb_path&&*textured_glb_path)rf::writeTexturedGlb(mesh,baked,textured_glb_path);
                 if(texture_png_path&&*texture_png_path)rf::writeTexturePng(baked,texture_png_path);
                 response+=",\"texture\":"+rf::texturedSurfaceJson(baked);
-            }catch(const std::exception& e){response+=",\"textureError\":\""+appendError(e.what())+'"';}
-        }catch(const std::exception& e){response+=",\"meshError\":\""+appendError(e.what())+'"';}
+            }catch(const rf::cancellation::Cancelled&){throw;}
+            catch(const std::exception& e){response+=",\"textureError\":\""+appendError(e.what())+'"';}
+        }catch(const rf::cancellation::Cancelled&){throw;}
+        catch(const std::exception& e){response+=",\"meshError\":\""+appendError(e.what())+'"';}
         response+='}';
     }catch(const std::exception& e){response="{\"error\":\""+appendError(e.what())+"\"}";}
     auto* ret=static_cast<char*>(std::malloc(response.size()+1));if(!ret)return nullptr;

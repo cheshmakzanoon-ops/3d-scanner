@@ -46,7 +46,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
             LensProjection.estimated(width, height,
                 ImageLoader.focalPixels(width, height, photo.focal35mm ?: fallbackFocal35))
 
-    suspend fun run(projectId: String, assumedFocal35: Double, progress: suspend (Progress) -> Unit): JSONObject = withContext(Dispatchers.Default) {
+    suspend fun run(projectId: String, assumedFocal35: Double, nativeToken: Long, progress: suspend (Progress) -> Unit): JSONObject = withContext(Dispatchers.Default) {
         require(assumedFocal35 in 10.0..200.0) { "Use a plausible 35 mm-equivalent focal length." }
         check(OpenCVLoader.initLocal()) { "OpenCV could not load on this device." }
         val project = requireNotNull(repository.dao.project(projectId))
@@ -369,7 +369,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
             coroutineContext.ensureActive()
             progress(Progress("Estimating stereo depth, meshing and projecting photographs", 0, 1))
             val surface=DensePreview.reconstruct(repository,projectId,artifactKey,photos,cameraArray,
-                output.getJSONArray("points"),assumedFocal35,activeProfile) { stage, done, total -> progress(Progress(stage,done,total)) }
+                output.getJSONArray("points"),assumedFocal35,activeProfile,nativeToken) { stage, done, total -> progress(Progress(stage,done,total)) }
             coroutineContext.ensureActive()
             output.put("densePreview",surface.getJSONObject("dense"))
             output.put("denseStatus","ready")

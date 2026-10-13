@@ -5,12 +5,58 @@
 #include "realityforge/dense.hpp"
 #include "realityforge/surface.hpp"
 #include "realityforge/texture.hpp"
+#include "realityforge/cancellation.hpp"
 #include <cmath>
 #include <array>
 #include <jni.h>
 #include <vector>
+#include <atomic>
+#include <cstdint>
+#include <memory>
+#include <mutex>
+#include <unordered_map>
 namespace {
 void illegal(JNIEnv* env,const char* message){auto type=env->FindClass("java/lang/IllegalArgumentException");if(type)env->ThrowNew(type,message);}
+// Opaque handles are leases on shared atomic flags. Holding a flag during JNI
+// execution keeps it alive even if Android closes the handle during an error.
+// Each flag is attached to exactly one executing reconstruction thread.
+std::mutex operationMutex;
+std::unordered_map<std::uint64_t,std::shared_ptr<std::atomic_bool>> operations;
+std::uint64_t nextOperation=1;
+std::shared_ptr<std::atomic_bool> operationFor(JNIEnv* env,jlong token){
+    std::lock_guard lock(operationMutex);
+    if(token<=0 || !operations.contains(static_cast<std::uint64_t>(token))){
+        illegal(env,"Unknown or finished reconstruction operation");return {};
+    }
+    return operations.at(static_cast<std::uint64_t>(token));
+}
+}
+// Resource-bounded, per-scan native cancellation. Only the owning Kotlin
+// session can publish or close its token; cancelling one operation never
+// affects another in this process. Handles are deliberately not recycled.
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_beginReconstruction(JNIEnv* env,jobject){
+    std::lock_guard lock(operationMutex);
+    if(operations.size()>=16 || nextOperation>static_cast<std::uint64_t>(INT64_MAX)){
+        illegal(env,"Too many simultaneous native reconstructions");return 0;
+    }
+    const auto id=nextOperation++;
+    operations.emplace(id,std::make_shared<std::atomic_bool>(false));
+    return static_cast<jlong>(id);
+}
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_cancelReconstruction(JNIEnv*,jobject,jlong token){
+    std::lock_guard lock(operationMutex);
+    auto it=operations.find(static_cast<std::uint64_t>(token));
+    if(token<=0||it==operations.end())return JNI_FALSE;
+    it->second->store(true,std::memory_order_relaxed);
+    return JNI_TRUE;
+}
+extern "C" JNIEXPORT jboolean JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_finishReconstruction(JNIEnv*,jobject,jlong token){
+    std::lock_guard lock(operationMutex);
+    if(token<=0)return JNI_FALSE;
+    return operations.erase(static_cast<std::uint64_t>(token)) ? JNI_TRUE : JNI_FALSE;
 }
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_reconstruct(JNIEnv* env,jobject,jdoubleArray rows,jdouble threshold) {
@@ -189,6 +235,30 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
         paths[0].c_str(),paths[1].c_str(),paths[2].c_str(),paths[3].c_str());
     if(!json){illegal(env,"M09 native allocation failed");return nullptr;}
     auto result=env->NewStringUTF(json);rf_free(json);return result;
+}
+// Existing JNI entry points retain their exact legacy ABI. These adapters
+// install a thread-local scope only during the current native execution.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructSurfaceCancellable(
+    JNIEnv* env,jobject receiver,jbyteArray rgba,jint w,jint h,
+    jdoubleArray cameras,jdouble near,jdouble far,jint planes,jint stride,
+    jstring glb,jstring ply,jlong token){
+    auto flag=operationFor(env,token);if(!flag)return nullptr;
+    rf::cancellation::Scope scope(flag.get());
+    return Java_com_realityforge_scanner_engine_NativeCore_reconstructSurface(
+        env,receiver,rgba,w,h,cameras,near,far,planes,stride,glb,ply);
+}
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceCancellable(
+    JNIEnv* env,jobject receiver,jbyteArray rgba,jint w,jint h,
+    jbyteArray texture,jint tw,jint th,jdoubleArray cameras,
+    jdouble near,jdouble far,jint planes,jint stride,
+    jstring meshGlb,jstring meshPly,jstring texturedGlb,jstring png,jlong token){
+    auto flag=operationFor(env,token);if(!flag)return nullptr;
+    rf::cancellation::Scope scope(flag.get());
+    return Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
+        env,receiver,rgba,w,h,texture,tw,th,cameras,near,far,planes,stride,
+        meshGlb,meshPly,texturedGlb,png);
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_quality(JNIEnv* env,jobject,jbyteArray gray,jint width,jint height) {

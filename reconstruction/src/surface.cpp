@@ -1,4 +1,5 @@
 #include "realityforge/surface.hpp"
+#include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -104,6 +105,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     std::vector<std::vector<std::int32_t>> imageVertices(views.size(),std::vector<std::int32_t>(pixels,-1));
     accum.reserve(std::min<std::size_t>(dense.verifiedSamples.size(),s.maxVertices));
     for(auto& sample:dense.verifiedSamples){
+        if((mesh.acceptedSamples & 255u)==0) cancellation::checkpoint();
         if(sample.confidence<s.minimumConfidence)continue;
         const std::size_t pixel=static_cast<std::size_t>(sample.y)*width+sample.x;
         if(imageVertices[sample.camera][pixel]>=0)continue;
@@ -176,11 +178,13 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         return true;
     };
     for(std::size_t cam=0;cam<views.size();++cam){
+        cancellation::checkpoint();
         const auto& grid=imageVertices[cam]; const auto& depth=dense.maps[cam].depth;
         // M07 samples patch centres at r+1; its default radius is 2.
         // We explicitly couple to that CPU reference, not arbitrary resampling.
         constexpr int start=3;
         for(int y=start;y+step<height-3 && mesh.triangles.size()<s.maxTriangles;y+=step){
+            cancellation::checkpoint();
             for(int x=start;x+step<width-3 && mesh.triangles.size()<s.maxTriangles;x+=step){
                 const std::size_t i=static_cast<std::size_t>(y)*width+x;
                 std::array<std::size_t,4> pix{i,i+step,i+static_cast<std::size_t>(step)*width,i+static_cast<std::size_t>(step)*width+step};
@@ -201,6 +205,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
             }
         }
     }
+    cancellation::checkpoint();
     // Area-weighted normals from accepted geometry; no normal guesses in holes.
     for(auto& t:mesh.triangles){
         const auto n=cross(sub(mesh.vertices[t.b].xyz,mesh.vertices[t.a].xyz),
@@ -325,7 +330,8 @@ extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
             if(glb_path&&*glb_path)rf::writeSurfaceGlb(mesh,glb_path);
             if(ply_path&&*ply_path)rf::writeSurfacePly(mesh,ply_path);
             response+=",\"mesh\":"+rf::surfaceJson(mesh);
-        }catch(const std::exception& e){
+        }catch(const rf::cancellation::Cancelled&){throw;}
+        catch(const std::exception& e){
             response+=",\"meshError\":\"";
             for(char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(static_cast<unsigned char>(c)>=32)response+=c;}
             response+='"';

@@ -1,6 +1,7 @@
 #include "realityforge/dense.hpp"
 #include "realityforge/stereo_warp.hpp"
 #include "realityforge/dense_selection.hpp"
+#include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -33,6 +34,7 @@ struct GrayView {
     std::vector<float> pixels;
     explicit GrayView(const DenseView& v):image(v),pixels(v.rgba.size()/4) {
         for(std::size_t i=0;i<pixels.size();++i) {
+            if((i & 4095u)==0) cancellation::checkpoint();
             pixels[i]=(77.f*v.rgba[i*4]+150.f*v.rgba[i*4+1]+29.f*v.rgba[i*4+2])/256.f;
         }
     }
@@ -135,6 +137,7 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
 }
 
 DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& settings){
+    cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
     const int w=views.front().width,h=views.front().height,r=settings.patchRadius,step=settings.pixelStride;
@@ -150,6 +153,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     result.maps.reserve(views.size());
     result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,MAX_DENSE_SAMPLES));
     for(std::size_t ref=0;ref<views.size();++ref){
+        cancellation::checkpoint();
         DenseDepthMap map;map.width=w;map.height=h;map.depth.assign(n,0);map.confidence.assign(n,0);
         // Only the active reference plus <=3 source luminance buffers are resident.
         const auto& sources=result.sourceViews[ref];
@@ -163,7 +167,9 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(1+sources.size())*n*sizeof(float));
         // One scratch cost vector per reference, not an allocation per pixel.
         std::vector<double> costs(settings.depthPlanes,2.);
-        for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
+        for(int y=r+1;y<h-r-2;y+=step){
+          cancellation::checkpoint();
+          for(int x=r+1;x<w-r-2;x+=step){
             ++result.sampledPixels;
             auto reference=referencePatch(image,x,y,r);
             if(reference.var<18.)continue; // no reliable photometric texture
@@ -198,6 +204,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             map.confidence[idx]=static_cast<float>(std::clamp(margin/.20,0.,1.)*
                 std::clamp((1.-costs[best])/.9,0.,1.));
             ++result.photometricPixels;
+          }
         }
         result.maps.push_back(std::move(map));
     }
@@ -206,8 +213,11 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     std::unordered_set<Voxel,VoxelHash> occupied;
     std::vector<double> scores;
     for(std::size_t ref=0;ref<views.size();++ref){
+        cancellation::checkpoint();
         const auto& camera=views[ref];const auto& map=result.maps[ref];
-        for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
+        for(int y=r+1;y<h-r-2;y+=step){
+          cancellation::checkpoint();
+          for(int x=r+1;x<w-r-2;x+=step){
             std::size_t idx=static_cast<std::size_t>(y)*w+x;
             float depth=map.depth[idx];if(depth<=0)continue;
             auto world=fromDepth(camera,x,y,depth);
@@ -249,8 +259,10 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             result.points.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},static_cast<float>(confidence),
                                      static_cast<std::uint8_t>(confirmations+1)});
             scores.push_back(confidence);
+          }
         }
     }
+    cancellation::checkpoint();
     result.medianConfidence=median(scores);
     return result;
 }

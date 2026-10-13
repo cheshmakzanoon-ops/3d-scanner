@@ -54,3 +54,25 @@ images and all-pairs final refinement. Eight JVM cases and a production-JNI
 synthetic visibility-chain regression accompany the source. These need the
 commit-specific Android CI result; no physical-device or full-object completion
 claim is made. See M15_ADAPTIVE_ANDROID.md and M16_INCREMENTAL_REGISTRATION.md.
+
+
+## M17 — CPU-native cancellation (operation scoped)
+
+- Added independent, nonrecycled JNI operation handles backed by atomics and
+  shared lifetime guards. The caller can signal an active native depth/mesh/
+  photographic-texture job from the Android main thread. Token registration is
+  limited to 16 concurrent operations to prevent unbounded resources.
+- Every native execution installs a thread-local scope; no process-global stop
+  flag and no cross-project interruption. Nested calls restore the earlier flag.
+- CPU loops periodically check for cancellation, including long image/atlas rows.
+  Cancellation propagates as a top-level error, never silently as an acceptable
+  mesh or UV-quality warning.
+- `ScannerViewModel.pause()` signals the native token *before* cancelling the
+  coroutine; activity/view-model teardown signals too. Kotlin checks the job
+  after JNI and deletes `.partial` exports in `finally`.
+- Added five native cancellation regressions and an Android instrumentation
+  case verifying token isolation, stale-handle rejection, and no output files
+  from pre-cancelled native runs.
+- This is **cooperative** cancellation: the maximum pause delay is bounded by
+  the next native checkpoint; sparse SfM operations still cancel at Kotlin
+  boundaries rather than mid-C++ iteration. No per-reference resume yet.

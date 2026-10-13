@@ -45,3 +45,14 @@ then restartable per-reference depth checkpoints with strict input/calibration/
 engine identities. Validate process interruption and unchanged completed exports.
 Physical complete-object captures, intrinsic/drift correction and high-detail
 multi-view benchmarking remain required; do not raise limits without measurements.
+
+
+## After M17 — M18: checkpointed per-reference depth work
+
+M17 now stops a running CPU depth/mesh/texture job cooperatively without affecting
+another operation in the same process. Next persist **per-reference** depth
+checkpoints with SHA-256 identity of photographs, calibration, registered poses,
+engine version, depth settings, and application revision. Create outputs through
+atomic temporary writes, refuse mismatched/residual caches and validate resume
+across actual Android process termination. Partial files must never be exposed
+as finished models. This is separate from any claim of real-world 360° quality.

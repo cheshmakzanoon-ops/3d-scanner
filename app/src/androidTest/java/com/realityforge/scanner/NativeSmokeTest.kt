@@ -175,6 +175,53 @@ class NativeSmokeTest {
             fail("Mismatched photo buffer must be rejected")
         } catch(expected: IllegalArgumentException) { /* JNI rejects before native read */ }
     }
+    @Test fun nativeCancellationTokensAreIsolatedAndRejectStaleHandles() {
+        val first=NativeCore.beginReconstruction()
+        val second=NativeCore.beginReconstruction()
+        val w=64;val h=64
+        val rgba=ByteArray(2*w*h*4) { i -> if(i%4==3) 255.toByte() else 128.toByte() }
+        val camera=DoubleArray(32)
+        for(i in 0..1) {
+            val base=i*16
+            camera[base]=1.0;camera[base+4]=1.0;camera[base+8]=1.0
+            camera[base+9]=-i*.5
+            camera[base+12]=84.0;camera[base+13]=84.0
+            camera[base+14]=31.5;camera[base+15]=31.5
+        }
+        val root=InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
+        val glb=File(root,"rf-cancel-m17.glb")
+        val ply=File(root,"rf-cancel-m17.ply")
+        val photo=File(root,"rf-cancel-m17-textured.glb")
+        val png=File(root,"rf-cancel-m17-atlas.png")
+        listOf(glb,ply,photo,png).forEach { it.delete() }
+        try {
+            assertTrue(first>0L&&second>first)
+            assertTrue(NativeCore.cancelReconstruction(first))
+            assertFalse(NativeCore.cancelReconstruction(-1))
+            val stopped=JSONObject(NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
+                3.0,7.0,24,3,glb.path,ply.path,first))
+            assertEquals("Reconstruction cancelled",stopped.getString("error"))
+            val stoppedTexture=JSONObject(NativeCore.reconstructTexturedSurfaceCancellable(
+                rgba,w,h,rgba,w,h,camera,3.0,7.0,24,3,
+                glb.path,ply.path,photo.path,png.path,first))
+            assertEquals("Reconstruction cancelled",stoppedTexture.getString("error"))
+            assertFalse(glb.exists()||ply.exists()||photo.exists()||png.exists())
+            val healthy=JSONObject(NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
+                3.0,7.0,24,3,glb.path,ply.path,second))
+            assertFalse(healthy.toString().take(150),healthy.has("error"))
+            assertTrue(healthy.has("dense"))
+        } finally {
+            assertTrue(NativeCore.finishReconstruction(first))
+            assertTrue(NativeCore.finishReconstruction(second))
+            listOf(glb,ply,photo,png).forEach { it.delete() }
+        }
+        assertFalse(NativeCore.cancelReconstruction(first))
+        try {
+            NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
+                3.0,7.0,24,3,glb.path,ply.path,first)
+            fail("Finished lease was accepted")
+        }catch(expected: IllegalArgumentException){ }
+    }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext

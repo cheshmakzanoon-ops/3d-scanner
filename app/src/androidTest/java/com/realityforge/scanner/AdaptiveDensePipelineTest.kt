@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.engine.DensePreview
 import com.realityforge.scanner.engine.DenseWorkload
 import com.realityforge.scanner.engine.LensProfile
+import com.realityforge.scanner.engine.NativeCore
 import com.realityforge.scanner.viewer.PhotographicGlb
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
@@ -54,7 +55,10 @@ class AdaptiveDensePipelineTest {
                 0.0,0.0,0.0,0.0,0.0,0.0,10,null)
             val key="sparse-m16-r8-0123456789abcdef"
             val stages=mutableListOf<String>()
-            val result=DensePreview.reconstruct(repo,id,key,photos,cameras,points,35.0,profile) { stage,_,_ -> stages.add(stage) }
+            val token=NativeCore.beginReconstruction()
+            val result=try {
+                DensePreview.reconstruct(repo,id,key,photos,cameras,points,35.0,profile,token) { stage,_,_ -> stages.add(stage) }
+            } finally { assertTrue(NativeCore.finishReconstruction(token)) }
             val dense=result.getJSONObject("dense")
             assertEquals(8,dense.getInt("sourcePhotos"))
             assertEquals(0,dense.getInt("excludedRegisteredCameraCount"))

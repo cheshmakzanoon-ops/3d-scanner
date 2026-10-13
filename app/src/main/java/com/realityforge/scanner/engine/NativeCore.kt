@@ -16,6 +16,18 @@ object NativeCore {
         photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
         near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
         meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String): String
+    /** A unique lease; cancel only the native worker that owns this token. */
+    external fun beginReconstruction(): Long
+    external fun cancelReconstruction(token: Long): Boolean
+    external fun finishReconstruction(token: Long): Boolean
+    external fun reconstructSurfaceCancellable(rgba: ByteArray, width: Int, height: Int,
+        cameras: DoubleArray, near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        glbPartialPath: String, plyPartialPath: String, token: Long): String
+    external fun reconstructTexturedSurfaceCancellable(depthRgba: ByteArray, width: Int, height: Int,
+        photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
+        near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
+        token: Long): String
     external fun quality(gray: ByteArray, width: Int, height: Int): DoubleArray
     external fun exportPoints(rows: DoubleArray, destination: String, glb: Boolean)
 }

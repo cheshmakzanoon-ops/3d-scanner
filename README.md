@@ -1,6 +1,6 @@
 # RealityForge — offline Android photo-to-3D scanner
 
-**Current engineering increment: M16, version 0.16.0-m16. Not a completed
+**Current engineering increment: M17, version 0.17.0-m17. Not a completed
 consumer product or a guarantee of high-quality complete-object scanning.**
 
 Capture/import photographs, estimate calibrated camera positions, reconstruct
@@ -20,6 +20,12 @@ the project is deleted; export important captures before uninstalling.
   all but the first three cameras. The unfinished source publication was recovered
   from its checksum-verified payload and the temporary transport files removed.
 - **M16:** incremental camera registration from newly triangulated landmarks.
+- **M17:** each reconstruction now owns an opaque native cancellation token. Pause
+  signals a shared atomic flag, checked during CPU depth, mesh fusion and UV
+  baking, even while Kotlin awaits a JNI call. Distinct workers are isolated;
+  interrupted `.partial` results are deleted, not published. M16 input/cache
+  fingerprint intentionally stays unchanged because the geometry algorithm is
+  identical. See [M17 validation](docs/M17_CANCELLATION.md).
   A later view need not see BOTH original anchor photographs. Conflicting feature
   identities are rejected, unsupported images remain explicitly unregistered,
   and failed candidates are retried only when more cameras/landmarks become

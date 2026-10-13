@@ -25,7 +25,7 @@ def test_jni_names_match_declared_methods():
     cpp=(ROOT/"reconstruction/src/jni.cpp").read_text()
     methods=set(re.findall(r"external fun (\w+)\(",kotlin))
     exports=set(re.findall(r"Java_com_realityforge_scanner_engine_NativeCore_(\w+)\(",cpp))
-    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","quality","exportPoints"}
+    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","reconstructSurfaceCancellable","reconstructTexturedSurfaceCancellable","beginReconstruction","cancelReconstruction","finishReconstruction","quality","exportPoints"}
 
 
 def test_no_dynamic_dependency_versions():
@@ -177,3 +177,34 @@ def test_track_snapshot_enforces_native_observation_bound():
     source=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     assert "observations + group.size > 100000" in source
     assert "val groups = snapshot(maxTracks)" in source
+
+
+def test_m17_native_cancellation_uses_scoped_tokens_not_global_stop():
+    root=ROOT/"reconstruction"
+    native=(root/"src/cancellation.cpp").read_text()
+    header=(root/"include/realityforge/cancellation.hpp").read_text()
+    jni=(root/"src/jni.cpp").read_text()
+    dense=(root/"src/dense.cpp").read_text()
+    texture=(root/"src/texture.cpp").read_text()
+    model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
+    adapter=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
+    assert "thread_local const std::atomic_bool* flag" in native
+    assert "Scope::~Scope() noexcept {flag=previous_;}" in native
+    assert "class Cancelled final : public Error" in header
+    assert "std::unordered_map<std::uint64_t,std::shared_ptr<std::atomic_bool>> operations" in jni
+    assert "rf::cancellation::Scope scope(flag.get())" in jni
+    assert "Java_com_realityforge_scanner_engine_NativeCore_cancelReconstruction" in jni
+    assert "cancellation::checkpoint();" in dense and "cancellation::checkpoint();" in texture
+    assert "NativeCore.cancelReconstruction(token)" in model and "task?.cancel()" in model
+    assert "NativeCore.reconstructSurfaceCancellable" in adapter
+    assert "NativeCore.reconstructTexturedSurfaceCancellable" in adapter
+    assert 'glbPartial.delete()' in adapter and 'texturedPartial.delete()' in adapter
+
+
+def test_cancelled_worker_has_native_and_android_regressions():
+    cpp=(ROOT/"reconstruction/tests/cancellation_test.cpp").read_text()
+    android=(ROOT/"app/src/androidTest/java/com/realityforge/scanner/NativeSmokeTest.kt").read_text()
+    assert "long-running dense scan observes cancellation" in cpp
+    assert "nested scopes restore caller" in cpp
+    assert "nativeCancellationTokensAreIsolatedAndRejectStaleHandles" in android
+    assert "Reconstruction cancelled" in android

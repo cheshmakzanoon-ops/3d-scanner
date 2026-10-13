@@ -29,6 +29,7 @@ internal object DensePreview {
         sparsePoints: JSONArray,
         fallbackFocal35: Double,
         profile: LensProfile?,
+        nativeToken: Long = 0L,
         onProgress: suspend (String, Int, Int) -> Unit = { _, _, _ -> },
     ): JSONObject {
         require(cameras.length() in 2..12 && sparsePoints.length() in 30..30000) {
@@ -105,17 +106,21 @@ internal object DensePreview {
             null
         }
         try {
+            require(nativeToken>0) { "Missing scoped native operation token" }
+            coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",0,1)
             val result=if(photographic!=null) {
                 val (texturePixels,textureWidth,textureHeight)=photographic
-                JSONObject(NativeCore.reconstructTexturedSurface(
+                JSONObject(NativeCore.reconstructTexturedSurfaceCancellable(
                     rectified,width,height,texturePixels,textureWidth,textureHeight,cameraRows,
                     near,far,DEPTH_PLANES,workload.pixelStride,
-                    glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path))
-            } else JSONObject(NativeCore.reconstructSurface(rectified,width,height,cameraRows,
-                near,far,DEPTH_PLANES,workload.pixelStride,glbPartial.path,plyPartial.path))
+                    glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path,nativeToken))
+            } else JSONObject(NativeCore.reconstructSurfaceCancellable(rectified,width,height,cameraRows,
+                near,far,DEPTH_PLANES,workload.pixelStride,glbPartial.path,plyPartial.path,nativeToken))
             coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",1,1)
+            // C++ cancellation must not be treated as a nonfatal M08 mesh/texture
+            // quality warning: no partial asset may be published after Pause.
             require(!result.has("error")) { result.optString("error","Depth or mesh solver failed") }
             val output=result.getJSONObject("dense")
             require(output.getInt("pointCount")>=60 && output.getInt("consistentPixels")>=60) {
