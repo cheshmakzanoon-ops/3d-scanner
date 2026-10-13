@@ -1,5 +1,6 @@
 #include "realityforge/dense.hpp"
 #include "realityforge/stereo_warp.hpp"
+#include "realityforge/dense_selection.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -102,7 +103,7 @@ struct VoxelHash {
 };
 double median(std::vector<double>& v){if(v.empty())return 0.;std::nth_element(v.begin(),v.begin()+v.size()/2,v.end());return v[v.size()/2];}
 void validate(std::span<const DenseView> views,const DenseSettings& s){
-    if(views.size()<2||views.size()>4)throw Error("Dense MVS requires 2 to 4 calibrated views");
+    if(views.size()<2||views.size()>MAX_DENSE_VIEWS)throw Error("Dense MVS requires 2 to 8 calibrated views");
     if(!std::isfinite(s.nearDepth)||!std::isfinite(s.farDepth)||s.nearDepth<=.01||s.farDepth<=s.nearDepth*1.05||s.farDepth>100000||
        s.depthPlanes<12||s.depthPlanes>128||s.pixelStride<2||s.pixelStride>8||
        s.patchRadius<1||s.patchRadius>3||!std::isfinite(s.minimumNcc)||s.minimumNcc<0||s.minimumNcc>1||
@@ -111,6 +112,11 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
        s.maxPoints<10||s.maxPoints>50000)throw Error("Invalid bounded CPU MVS configuration");
     int w=views.front().width,h=views.front().height;
     if(w<32||h<32||w>640||h>640||static_cast<std::int64_t>(w)*h>320000)throw Error("Dense MVS image exceeds CPU reference limits");
+    const int start=s.patchRadius+1;
+    const auto columns=(w-s.patchRadius-3-start+s.pixelStride)/s.pixelStride;
+    const auto rows=(h-s.patchRadius-3-start+s.pixelStride)/s.pixelStride;
+    if (static_cast<std::size_t>(columns)*rows*views.size()>MAX_DENSE_SAMPLES)
+        throw Error("Dense sampling budget exceeded; reduce resolution or increase stride");
     for(auto& v:views){
         if(v.width!=w||v.height!=h||v.rgba.size()!=static_cast<std::size_t>(w)*h*4)
             throw Error("Views must share bounded rectified dimensions and RGBA buffers");
@@ -130,7 +136,7 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
 
 DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& settings){
     validate(views,settings);
-    DenseResult result;
+    DenseResult result;result.pointBudget=settings.maxPoints;
     const int w=views.front().width,h=views.front().height,r=settings.patchRadius,step=settings.pixelStride;
     // Inverse camera-z sampling allocates more candidates to nearby surfaces.
     std::vector<double> planes(settings.depthPlanes);
@@ -139,15 +145,22 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         planes[k]=1./((1-t)/settings.nearDepth+t/settings.farDepth);
     }
     const std::size_t n=static_cast<std::size_t>(w)*h;
-    std::vector<GrayView> grayscale;grayscale.reserve(views.size());
-    for(const auto& v:views)grayscale.emplace_back(v);
-    std::vector<detail::StereoWarp> warps;warps.reserve(views.size()*views.size());
-    for(const auto& a:views)for(const auto& b:views)warps.push_back(detail::StereoWarp::between(a,b));
+    result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
+    result.consistentPixelsPerView.assign(views.size(),0);
     result.maps.reserve(views.size());
-    result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,50000));
+    result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,MAX_DENSE_SAMPLES));
     for(std::size_t ref=0;ref<views.size();++ref){
         DenseDepthMap map;map.width=w;map.height=h;map.depth.assign(n,0);map.confidence.assign(n,0);
-        const auto& image=grayscale[ref];
+        // Only the active reference plus <=3 source luminance buffers are resident.
+        const auto& sources=result.sourceViews[ref];
+        const GrayView image(views[ref]);
+        std::vector<GrayView> grayscale;grayscale.reserve(sources.size());
+        std::vector<detail::StereoWarp> warps;warps.reserve(sources.size());
+        for (auto source:sources) {
+            grayscale.emplace_back(views[source]);
+            warps.push_back(detail::StereoWarp::between(views[ref],views[source]));
+        }
+        result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(1+sources.size())*n*sizeof(float));
         // One scratch cost vector per reference, not an allocation per pixel.
         std::vector<double> costs(settings.depthPlanes,2.);
         for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
@@ -158,9 +171,8 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             for(int k=0;k<settings.depthPlanes;++k){
                 // A candidate must be supported by another photo, not a single-image guess.
                 double best=2.;
-                for(std::size_t src=0;src<views.size();++src){
-                    if(src==ref)continue;
-                    double corr=ncc(grayscale[src],warps[ref*views.size()+src],x,y,planes[k],reference,r);
+                for(std::size_t src=0;src<sources.size();++src){
+                    double corr=ncc(grayscale[src],warps[src],x,y,planes[k],reference,r);
                     if(corr>-.999)best=std::min(best,1.-corr);
                 }
                 costs[k]=best;
@@ -220,11 +232,12 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             }
             if(confirmations==0)continue;
             ++result.consistentPixels;
+            ++result.consistentPixelsPerView[ref];
             auto i=idx*4;
             const auto confidence=static_cast<float>(map.confidence[idx]*std::min(1.0,confirmations/2.0+0.5));
             // Verified samples retain their image neighborhood for confidence-weighted
             // M08 meshing. Strict cap prevents unbounded 2D-grid memory consumption.
-            if(result.verifiedSamples.size()<std::min<std::size_t>(settings.maxPoints*2,50000))
+            if(result.verifiedSamples.size()<MAX_DENSE_SAMPLES)
                 result.verifiedSamples.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},
                     confidence,static_cast<std::uint8_t>(confirmations+1),static_cast<std::uint8_t>(ref),
                     static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y)});
@@ -252,7 +265,19 @@ std::string denseJson(const DenseResult& result){
         out<<'['<<p.xyz.x<<','<<p.xyz.y<<','<<p.xyz.z<<','<<int(p.color[0])<<','<<int(p.color[1])<<','<<int(p.color[2])
            <<','<<p.confidence<<','<<int(p.consistentViews)<<']';
     }
-    out<<"]}";return out.str();
+    out<<"],\"sourceViewIndices\":[";
+    for(std::size_t i=0;i<result.sourceViews.size();++i){
+        if(i)out<<',';
+        out<<'[';
+        for(std::size_t j=0;j<result.sourceViews[i].size();++j){if(j)out<<',';out<<result.sourceViews[i][j];}
+        out<<']';
+    }
+    out<<"],\"consistentPixelsPerView\":[";
+    for(std::size_t i=0;i<result.consistentPixelsPerView.size();++i){if(i)out<<',';out<<result.consistentPixelsPerView[i];}
+    out<<"],\"peakLuminanceBytes\":"<<result.peakLuminanceBytes
+       <<",\"verifiedSampleCount\":"<<result.verifiedSamples.size()
+       <<",\"pointExportLimitReached\":"<<(result.points.size()>=result.pointBudget?"true":"false")<<'}';
+    return out.str();
 }
 } // namespace rf
 
@@ -260,7 +285,7 @@ extern "C" char* rf_dense_json(const std::uint8_t* rgba,int width,int height,
     const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,int planes,int stride){
     std::string response;
     try{
-        if(!rgba||!camera_rows||camera_count<2||camera_count>4||width<32||height<32||width>640||height>640||
+        if(!rgba||!camera_rows||camera_count<2||camera_count>rf::MAX_DENSE_VIEWS||width<32||height<32||width>640||height>640||
            static_cast<std::int64_t>(width)*height>320000)throw rf::Error("Invalid dense C ABI buffers");
         std::vector<rf::DenseView> views;views.reserve(camera_count);
         const auto n=static_cast<std::size_t>(width)*height*4;

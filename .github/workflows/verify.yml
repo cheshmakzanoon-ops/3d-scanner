@@ -26,6 +26,8 @@ jobs:
       - run: python -m pytest tests -q --junitxml=reports/ci-pytest.xml
       - name: Exercise joint BA on calibrated synthetic photographs
         run: python tools/bundle_three_view.py > reports/m06-three-photographs.json
+      - name: Measure eight-view synthetic observable-grid completeness
+        run: python tools/benchmark_multiview_coverage.py --gate --output reports/m14-eight-view-coverage.json
       - name: Benchmark REAL Middlebury stereo images against disparity ground truth
         run: python tools/benchmark_middlebury.py --output reports/m05-middlebury-real.json --gate
       - name: Benchmark bounded CPU dense stereo on real Middlebury photographs
@@ -40,6 +42,7 @@ jobs:
           name: native-test-reports
           path: |
             reports/ci-pytest.xml
+            reports/m14-eight-view-coverage.json
             reports/m05-middlebury-real.json
             reports/m06-three-photographs.json
             reports/m07-middlebury-dense.json

@@ -80,3 +80,10 @@ Native code is in `reconstruction/`, Android source in `app/`, regression harnes
 in `tests/` and `tools/`, and measured results in `reports/`. Historical M01–M10
 documentation remains in `docs/`. Do not interpret isolated successful benchmarks
 or green builds as production quality or flawless operation on physical phones.
+
+## M14 native multi-view backend
+
+The shared C++/JNI depth, fusion and photographic atlas now accept up to eight
+calibrated views with capped source caches and workload validation. Existing
+Android selection defaults remain unchanged until the next UI integration gate.
+See [M14 implementation and measured bounds](docs/M14_MULTIVIEW.md).

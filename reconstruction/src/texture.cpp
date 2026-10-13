@@ -187,7 +187,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     std::span<const DenseView> depthViews,std::span<const DenseDepthMap> depthMaps,
     std::span<const TextureSource> sources,const TextureSettings& s){
     checkMesh(mesh);
-    if(sources.size()<2||sources.size()>4||sources.size()!=depthViews.size()||sources.size()!=depthMaps.size()||
+    if(sources.size()<2||sources.size()>MAX_DENSE_VIEWS||sources.size()!=depthViews.size()||sources.size()!=depthMaps.size()||
        s.gutter<2||s.gutter>16||!std::isfinite(s.minimumFacing)||s.minimumFacing<0||s.minimumFacing>.8||
        !std::isfinite(s.depthTolerance)||s.depthTolerance<.01||s.depthTolerance>.20||
        s.maxUvVertices<24||s.maxUvVertices>240000||
@@ -221,11 +221,11 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     if (s.balanceColors) result.exposure=measuredBalance(mesh,depthViews,depthMaps,sources,s.depthTolerance);
     result.inputTriangles=mesh.triangles.size();
     result.sourceTriangleCounts.assign(sources.size(),0);
-    const int columns=sources.size()>1?2:1;
+    const int columns=sources.size()<=4?2:3;
     const int rows=static_cast<int>((sources.size()+columns-1)/columns);
     const int pitchX=w+2*s.gutter,pitchY=h+2*s.gutter;
     result.atlasWidth=columns*pitchX;result.atlasHeight=rows*pitchY;
-    if(result.atlasWidth>4096||result.atlasHeight>4096)throw Error("Photographic atlas exceeds memory budget");
+    if(result.atlasWidth>4096||result.atlasHeight>4096||static_cast<std::size_t>(result.atlasWidth)*result.atlasHeight>4500000)throw Error("Photographic atlas exceeds memory budget");
     result.atlasRgba.assign(static_cast<std::size_t>(result.atlasWidth)*result.atlasHeight*4,0);
     // Copy photograph pixels with measured linear-sRGB gains; preserve validity alpha.
     // Originals remain unchanged. Edge gutters are
@@ -249,7 +249,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     std::map<std::pair<std::uint32_t,int>,std::uint32_t> vertexMaps;
     std::vector<int> faceCameras(mesh.triangles.size(),-1);
     std::vector<double> scores;
-    std::vector<std::array<Candidate,4>> choices(mesh.triangles.size());
+    std::vector<std::array<Candidate,MAX_DENSE_VIEWS>> choices(mesh.triangles.size());
     std::vector<Vec3> faceNormals(mesh.triangles.size());
     for(std::size_t face=0;face<mesh.triangles.size();++face){
         const auto& tri=mesh.triangles[face];
@@ -472,7 +472,7 @@ extern "C" char* rf_textured_surface_json(
     auto appendError=[&](std::string_view message){
         std::string s;for(char c:message){if(c=='"'||c=='\\')s+='\\';if(static_cast<unsigned char>(c)>=32)s+=c;}return s;};
     try{
-        if(!depth_rgba||!camera_rows||camera_count<2||camera_count>4||width<32||height<32||width>640||height>640||
+        if(!depth_rgba||!camera_rows||camera_count<2||camera_count>rf::MAX_DENSE_VIEWS||width<32||height<32||width>640||height>640||
            static_cast<std::int64_t>(width)*height>320000||
            !texture_rgba||texture_width<32||texture_height<32||texture_width>1024||texture_height>1024||
            static_cast<std::int64_t>(texture_width)*texture_height>1024*1024)

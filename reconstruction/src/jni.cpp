@@ -96,7 +96,7 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructDense(
         illegal(env, "Invalid bounded dense stereo images");return nullptr;
     }
     auto n=env->GetArrayLength(cameraRows);
-    if(n<32 || n>64 || n%16!=0 ||
+    if(n<32 || n>128 || n%16!=0 ||
        static_cast<long long>(width)*height*4*(n/16)!=env->GetArrayLength(rgba)) {
         illegal(env, "Dense rectified image and camera shapes mismatch");return nullptr;
     }
@@ -123,7 +123,7 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructSurface(
         illegal(env,"Invalid bounded M08 surface input");return nullptr;
     }
     const auto count=env->GetArrayLength(cameraRows);
-    if(count<32||count>64||count%16!=0||
+    if(count<32||count>128||count%16!=0||
        static_cast<long long>(width)*height*4*(count/16)!=env->GetArrayLength(rgba)) {
         illegal(env,"Surface image and camera shapes mismatch");return nullptr;
     }
@@ -162,7 +162,7 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
         illegal(env,"Invalid bounded M09 photo/mesh input");return nullptr;
     }
     const auto count=env->GetArrayLength(cameraRows);
-    if(count<32||count>64||count%16!=0||
+    if(count<32||count>128||count%16!=0||
        static_cast<long long>(width)*height*4*(count/16)!=env->GetArrayLength(depthRgba)||
        static_cast<long long>(texWidth)*texHeight*4*(count/16)!=env->GetArrayLength(textureRgba)) {
         illegal(env,"M09 image buffers do not match camera row count");return nullptr;

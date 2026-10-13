@@ -8,6 +8,8 @@
 #include <vector>
 
 namespace rf {
+inline constexpr std::size_t MAX_DENSE_VIEWS = 8;
+inline constexpr std::size_t MAX_DENSE_SAMPLES = 100000;
 /**
  * Rectified, calibrated RGB + validity pixels, row major. Pose maps SfM world
  * to camera. This is a CPU REFERENCE for photometric multi-view stereo, NOT a mesh.
@@ -56,6 +58,9 @@ struct DenseResult {
     std::vector<VerifiedDepthSample> verifiedSamples; // bounded, transient; omitted from M07 JSON
     std::size_t sampledPixels{}, photometricPixels{}, consistentPixels{};
     double medianConfidence{};
+    std::vector<std::vector<std::size_t>> sourceViews; // <=3 source photos per reference
+    std::vector<std::size_t> consistentPixelsPerView;
+    std::size_t peakLuminanceBytes{}, pointBudget{};
 };
 // Never invents unobserved geometry. Patches assume locally fronto-parallel
 // surfaces and ZNCC; it rejects textureless/ambiguous/occluded observations.

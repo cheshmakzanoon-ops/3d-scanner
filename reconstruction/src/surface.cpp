@@ -67,11 +67,11 @@ void validateMesh(const SurfaceMesh& m){
 }
 }
 SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult& dense,const SurfaceSettings& s){
-    if(views.size()<2||views.size()>4||dense.maps.size()!=views.size()||
+    if(views.size()<2||views.size()>MAX_DENSE_VIEWS||dense.maps.size()!=views.size()||
        s.pixelStride<2||s.pixelStride>8||!std::isfinite(s.minimumConfidence)||
        s.minimumConfidence<0||s.minimumConfidence>1||
-       s.maximumRelativeDepthJump<=0||s.maximumRelativeDepthJump>.25||
-       s.maximumEdgePixelFactor<1.0||s.maximumEdgePixelFactor>8||
+       !std::isfinite(s.maximumRelativeDepthJump)||s.maximumRelativeDepthJump<=0||s.maximumRelativeDepthJump>.25||
+       !std::isfinite(s.maximumEdgePixelFactor)||s.maximumEdgePixelFactor<1.0||s.maximumEdgePixelFactor>8||
        s.maxVertices<10||s.maxVertices>40000||s.maxTriangles<10||s.maxTriangles>80000)
         throw Error("Invalid surface settings or camera counts");
     const auto width=views.front().width,height=views.front().height;
@@ -301,7 +301,7 @@ extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
     const char* glb_path,const char* ply_path){
     std::string response;
     try{
-        if(!rgba||!camera_rows||camera_count<2||camera_count>4||width<32||height<32||width>640||height>640||
+        if(!rgba||!camera_rows||camera_count<2||camera_count>rf::MAX_DENSE_VIEWS||width<32||height<32||width>640||height>640||
            static_cast<std::int64_t>(width)*height>320000)throw rf::Error("Invalid surface input buffers");
         std::vector<rf::DenseView> views;views.reserve(camera_count);
         const std::size_t bytes=static_cast<std::size_t>(width)*height*4;

@@ -110,8 +110,8 @@ class NativeEngine:
         """
         images=np.ascontiguousarray(rgba,dtype=np.uint8)
         poses=np.ascontiguousarray(cameras,dtype=np.float64)
-        if images.ndim!=4 or images.shape[-1]!=4 or images.shape[0] not in range(2,5):
-            raise ValueError('Dense stereo expects 2–4 rectified RGBA images')
+        if images.ndim!=4 or images.shape[-1]!=4 or images.shape[0] not in range(2,9):
+            raise ValueError('Dense stereo expects 2–8 rectified RGBA images')
         if poses.shape!=(images.shape[0],16):
             raise ValueError('Dense camera rows must be N×16')
         if images.shape[1]>640 or images.shape[2]>640:
@@ -135,8 +135,8 @@ class NativeEngine:
         """
         images=np.ascontiguousarray(rgba,dtype=np.uint8)
         poses=np.ascontiguousarray(cameras,dtype=np.float64)
-        if images.ndim!=4 or images.shape[-1]!=4 or images.shape[0] not in range(2,5):
-            raise ValueError('Surface reconstruction expects 2–4 rectified RGBA images')
+        if images.ndim!=4 or images.shape[-1]!=4 or images.shape[0] not in range(2,9):
+            raise ValueError('Surface reconstruction expects 2–8 rectified RGBA images')
         if poses.shape!=(images.shape[0],16) or images.shape[1]>640 or images.shape[2]>640:
             raise ValueError('Surface reconstruction camera rows must be N×16 and <=640px images')
         ptr=self.library.rf_surface_json(images.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),
@@ -162,8 +162,8 @@ class NativeEngine:
         depth=np.ascontiguousarray(depth_rgba,dtype=np.uint8)
         photos=np.ascontiguousarray(photo_rgba,dtype=np.uint8)
         camera=np.ascontiguousarray(cameras,dtype=np.float64)
-        if depth.ndim!=4 or photos.ndim!=4 or depth.shape[-1]!=4 or photos.shape[-1]!=4 or depth.shape[0] not in range(2,5) or depth.shape[0]!=photos.shape[0]:
-            raise ValueError('Expected 2–4 matching calibrated N×H×W×4 RGBA photographs')
+        if depth.ndim!=4 or photos.ndim!=4 or depth.shape[-1]!=4 or photos.shape[-1]!=4 or depth.shape[0] not in range(2,9) or depth.shape[0]!=photos.shape[0]:
+            raise ValueError('Expected 2–8 matching calibrated N×H×W×4 RGBA photographs')
         if depth.shape[1]<32 or depth.shape[2]<32 or depth.shape[1]>640 or depth.shape[2]>640 or depth.shape[1]*depth.shape[2]>320000:
             raise ValueError('Invalid bounded depth image size')
         if photos.shape[1]<32 or photos.shape[2]<32 or photos.shape[1]>1024 or photos.shape[2]>1024 or photos.shape[1]*photos.shape[2]>1024**2:

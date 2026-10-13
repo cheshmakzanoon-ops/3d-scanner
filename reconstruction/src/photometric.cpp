@@ -17,7 +17,7 @@ struct PairFit {
     std::array<double,3> target{};
     std::vector<ExposureSample> samples;
 };
-bool solve(double a[3][4], int n, std::array<double,3>& x) {
+bool solve(double a[7][8], int n, std::array<double,7>& x) {
     for (int i=0;i<n;++i) {
         int p=i;
         for (int j=i+1;j<n;++j) if (std::abs(a[j][i])>std::abs(a[p][i])) p=j;
@@ -43,7 +43,7 @@ double linearToSrgb(double x) {
     return x<=.0031308 ? 12.92*x : 1.055*std::pow(x,1./2.4)-.055;
 }
 ExposureBalance balanceExposure(std::size_t count, std::span<const ExposureSample> input) {
-    if (count<2 || count>4 || input.size()>24000) throw Error("Invalid exposure sample budget");
+    if (count<2 || count>8 || input.size()>64000) throw Error("Invalid exposure sample budget");
     ExposureBalance result; result.gains.assign(count,{1,1,1});
     std::map<std::pair<std::size_t,std::size_t>,std::vector<ExposureSample>> grouped;
     for (const auto& s:input) {
@@ -75,11 +75,11 @@ ExposureBalance balanceExposure(std::size_t count, std::span<const ExposureSampl
     for (std::size_t pass=0;pass<count;++pass) for (const auto& p:fits) {
         if (reachable[p.a] || reachable[p.b]) reachable[p.a]=reachable[p.b]=true;
     }
-    std::array<int,4> index{-1,-1,-1,-1}; int n=0;
+    std::array<int,8> index{}; index.fill(-1); int n=0;
     for (std::size_t i=1;i<count;++i) if (reachable[i]) index[i]=n++;
     if (n==0) return result;
     for (int channel=0;channel<3;++channel) {
-        double a[3][4]{};
+        double a[7][8]{};
         for (const auto& p:fits) if (reachable[p.a] && reachable[p.b]) {
             // g_b - g_a = median(log(I_a/I_b)); camera zero fixes gauge.
             double weight=std::min<std::size_t>(p.count,512);
@@ -88,7 +88,7 @@ ExposureBalance balanceExposure(std::size_t count, std::span<const ExposureSampl
             if (ib>=0) { a[ib][ib]+=weight; a[ib][n]+=weight*p.target[channel]; }
             if (ia>=0 && ib>=0) { a[ia][ib]-=weight; a[ib][ia]-=weight; }
         }
-        std::array<double,3> x{};
+        std::array<double,7> x{};
         if (!solve(a,n,x)) return ExposureBalance{std::vector<std::array<double,3>>(count,{1,1,1}),0,0,0,0};
         for (std::size_t cam=1;cam<count;++cam) if (index[cam]>=0)
             result.gains[cam][channel]=std::exp(std::clamp(x[index[cam]],-std::log(2.),std::log(2.)));
