@@ -35,3 +35,13 @@ Next validate calibrated physical captures and actual phone resource consumption
 expand registration beyond the anchor intersection; add restartable per-reference
 depth artifacts and cancellation before increasing view/resolution limits again.
 Do not substitute the synthetic plane coverage test for full object completeness.
+
+## After M16: native cancellation and restartable work
+
+Registration now grows beyond the original anchor intersection with fresh
+triangulation and two-view-supported PnP. The twelve-photo sparse cap remains.
+Next implement operation-scoped native cancellation without global interference,
+then restartable per-reference depth checkpoints with strict input/calibration/
+engine identities. Validate process interruption and unchanged completed exports.
+Physical complete-object captures, intrinsic/drift correction and high-detail
+multi-view benchmarking remain required; do not raise limits without measurements.

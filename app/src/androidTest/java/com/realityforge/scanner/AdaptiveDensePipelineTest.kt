@@ -52,7 +52,7 @@ class AdaptiveDensePipelineTest {
             for (x in -15..50) for(y in -8..8) points.put(JSONArray(listOf(x*.1,y*.1,5.0)))
             val profile=LensProfile(width,height,f,f,(width-1)/2.0,(height-1)/2.0,
                 0.0,0.0,0.0,0.0,0.0,0.0,10,null)
-            val key="sparse-m15-r8-0123456789abcdef"
+            val key="sparse-m16-r8-0123456789abcdef"
             val stages=mutableListOf<String>()
             val result=DensePreview.reconstruct(repo,id,key,photos,cameras,points,35.0,profile) { stage,_,_ -> stages.add(stage) }
             val dense=result.getJSONObject("dense")

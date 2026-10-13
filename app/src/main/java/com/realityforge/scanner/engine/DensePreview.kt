@@ -80,7 +80,7 @@ internal object DensePreview {
         val xyz = DoubleArray(sparsePoints.length()*3) { i -> sparsePoints.getJSONArray(i/3).getDouble(i%3) }
         val (near,far) = DenseWorkload.depthBounds(cameraRows,xyz,width,height)
         coroutineContext.ensureActive()
-        require(artifactKey.matches(Regex("sparse-m15-r[0-9]+-[0-9a-f]{16}"))) {
+        require(artifactKey.matches(Regex("sparse-m16-r[0-9]+-[0-9a-f]{16}"))) {
             "Invalid reconstruction artifact key."
         }
         val folder=repository.directory(projectId)

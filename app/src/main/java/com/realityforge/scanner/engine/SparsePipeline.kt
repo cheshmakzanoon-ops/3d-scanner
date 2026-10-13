@@ -58,10 +58,23 @@ class SparsePipeline(private val repository: ProjectRepository) {
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
         val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
-        val fingerprintInput = "m15-adaptive-depth-1|${DenseWorkload.tier(Runtime.getRuntime().maxMemory())}|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        val fingerprintInput = "m16-registration-frontier-1|${DenseWorkload.tier(Runtime.getRuntime().maxMemory())}|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m15-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m16-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
+        // At most 66 pairs for twelve photos; cache key IDs, never image pixels/descriptors.
+        val featurePairCache = HashMap<Pair<Int, Int>, FeaturePairs>()
+        suspend fun featurePairs(a: Int, b: Int): FeaturePairs {
+            require(a in photos.indices && b in photos.indices && a != b)
+            val key = minOf(a,b) to maxOf(a,b)
+            val pair = featurePairCache[key] ?: loadFrame(photos[key.first],cache).use { left ->
+                loadFrame(photos[key.second],cache).use { right ->
+                    val match = matches(left,right)
+                    FeaturePairs(match.firstKeys,match.secondKeys)
+                }
+            }.also { featurePairCache[key] = it }
+            return if(a == key.first) pair else pair.reversed()
+        }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
             progress(Progress("Detecting SIFT features", index, photos.size))
@@ -112,7 +125,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
             .put("translation", JSONArray(listOf(0,0,0))).put("kind", "anchor"))
         cameraArray.put(JSONObject().put("photoId", photos[selected.second].id).put("rotation", output.getJSONArray("rotation"))
             .put("translation", output.getJSONArray("translation")).put("kind", "anchor"))
-        val cameraFailures = JSONArray()
+        var cameraFailures = JSONArray()
         val first = photos[selected.first]; val second = photos[selected.second]
         val anchorPoints = output.getJSONArray("points")
         val outstanding = photos.indices.filter { it != selected.first && it != selected.second }
@@ -155,6 +168,53 @@ class SparsePipeline(private val repository: ProjectRepository) {
             }
         } }
         progress(Progress("Registering additional camera poses", outstanding.size, outstanding.size))
+        // Extend from newly triangulated landmarks, not just the original anchor intersection.
+        // Failure leaves every accepted M02 pose and original photograph intact.
+        if (cameraArray.length() < photos.size) {
+            try {
+                val templates=photos.map { photo -> loadFrame(photo,cache).use { frame ->
+                    SparseView(frame.width,frame.height,min(frame.projection.fx,frame.projection.fy),
+                        frame.xy.copyOf(),frame.colors.copyOf(),
+                        doubleArrayOf(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0),
+                        doubleArrayOf(0.0,0.0,0.0),projection=frame.projection)
+                } }
+                val initial=(0 until cameraArray.length()).map { local ->
+                    val camera=cameraArray.getJSONObject(local)
+                    val photo=photos.indexOfFirst { it.id==camera.getString("photoId") }
+                    require(photo>=0)
+                    RegisteredFrame(photo,templates[photo].copy(
+                        rotation=DoubleArray(9) { camera.getJSONArray("rotation").getDouble(it) },
+                        translation=DoubleArray(3) { camera.getJSONArray("translation").getDouble(it) }))
+                }
+                val growth=IncrementalRegistration.grow(templates,initial,::featurePairs,
+                    NativeFrontierGeometry::triangulate,NativeFrontierGeometry::register) { stage,done,total ->
+                    progress(Progress(stage,done,total))
+                }
+                coroutineContext.ensureActive()
+                for (camera in growth.cameras.drop(initial.size)) {
+                    cameraArray.put(JSONObject().put("photoId",photos[camera.photo].id)
+                        .put("rotation",JSONArray(camera.view.rotation.toList()))
+                        .put("translation",JSONArray(camera.view.translation.toList()))
+                        .put("kind","incremental"))
+                }
+                val attempts=JSONArray()
+                for(attempt in growth.attempts) attempts.put(JSONObject()
+                    .put("photoId",photos[attempt.photo].id).put("registeredBasis",attempt.registeredBasis)
+                    .put("candidateTracks",attempt.tracks).put("accepted",attempt.accepted).put("reason",attempt.reason))
+                output.put("incrementalRegistration",JSONObject().put("initialCameraCount",initial.size)
+                    .put("addedCameraCount",growth.cameras.size-initial.size).put("attempts",attempts)
+                    .put("remainingPhotoIds",JSONArray(growth.unregistered.map { photos[it].id })))
+                // Superseded anchor-only failures must not be shown for newly aligned photographs.
+                val remaining=JSONArray()
+                for(photo in growth.unregistered) remaining.put(JSONObject().put("photoId",photos[photo].id)
+                    .put("reason",growth.attempts.lastOrNull { it.photo==photo }?.reason ?:
+                        "No connected, triangulated landmark support"))
+                cameraFailures=remaining
+            } catch(cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+            catch(failure: Exception) {
+                output.put("incrementalRegistrationFailure",failure.message ?: "Registration expansion unavailable")
+            }
+        }
         // M03: Build a shared observation graph across *registered* views, including points not seen
         // by both anchors. The native optimizer fixes the first two cameras to preserve gauge.
         var geometryWarning = "M03 sparse multi-view triangulation did not produce an acceptable result; retained the verified M02 anchor cloud. No dense mesh or textures."
@@ -184,20 +244,15 @@ class SparsePipeline(private val repository: ProjectRepository) {
             val graph = MultiViewTrackGraph(views)
             val graphPairs = buildList {
                 for (i in views.indices) for (j in i + 1 until views.size) {
-                    if ((i == 0 && j == 1) || kotlin.math.abs(registeredPhotoIndices[i] - registeredPhotoIndices[j]) <= 3)
-                        add(i to j)
+                    add(i to j)
                 }
-            }.take(42)
+            }.take(66)
             for ((step, pair) in graphPairs.withIndex()) {
                 coroutineContext.ensureActive()
                 progress(Progress("Verifying cross-camera feature tracks", step, graphPairs.size))
-                loadFrame(photos[registeredPhotoIndices[pair.first]], cache).use { left ->
-                    loadFrame(photos[registeredPhotoIndices[pair.second]], cache).use { right ->
-                        val correspondence = matches(left, right)
-                        for (k in 0 until correspondence.size) {
-                            graph.add(pair.first, correspondence.firstKeys[k], pair.second, correspondence.secondKeys[k])
-                        }
-                    }
+                val correspondence = featurePairs(registeredPhotoIndices[pair.first],registeredPhotoIndices[pair.second])
+                for (k in correspondence.first.indices) {
+                    graph.add(pair.first,correspondence.first[k],pair.second,correspondence.second[k])
                 }
             }
             progress(Progress("Verifying cross-camera feature tracks", graphPairs.size, graphPairs.size))
@@ -347,7 +402,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
         }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m15-adaptive-depth-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
+            .put("engineVersion", "m16-registration-frontier-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }

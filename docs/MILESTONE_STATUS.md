@@ -43,3 +43,14 @@ See M12_SESSION_RELIABILITY.md; unchanged geometry limits and physical gates rem
 - Kotlin and device assertions are commit-specific CI gates. Physical handset,
   large-scene resumption, arbitrary 360-degree registration and final-quality
   topology/textures remain outstanding. Neither milestone establishes perfection.
+
+## M15 recovery and M16 incremental registration
+
+M15's staged, checksum-verified eight-view Android adaptation was recovered and
+published after an interrupted session. M16 then adds first-party incremental
+registration over the current shared sparse frame, stable bounded track snapshots,
+candidate-identity conflict rejection, native pose validation, explicit remaining
+images and all-pairs final refinement. Eight JVM cases and a production-JNI
+synthetic visibility-chain regression accompany the source. These need the
+commit-specific Android CI result; no physical-device or full-object completion
+claim is made. See M15_ADAPTIVE_ANDROID.md and M16_INCREMENTAL_REGISTRATION.md.

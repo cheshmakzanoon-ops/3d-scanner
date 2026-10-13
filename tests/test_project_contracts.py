@@ -53,7 +53,7 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m15-adaptive-depth-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "m16-registration-frontier-1" in engine and "LensCalibration.read(repository, projectId)" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
     assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
@@ -157,5 +157,23 @@ def test_adaptive_dense_adapter_has_eight_view_and_bitmap_lifetime_guards():
     assert "finally { image.recycle() }" in adapter
     assert "val images = chosen.map" not in adapter
     assert "DenseWorkload.depthBounds" in adapter and "DenseWorkload.atlasPixels" in adapter
-    assert "m15-adaptive-depth-1" in pipeline and "DenseWorkload.tier" in pipeline
+    assert "m16-registration-frontier-1" in pipeline and "DenseWorkload.tier" in pipeline
     assert "selectedCameraIndices" in adapter and "plannedGridSamples" in adapter
+
+
+def test_incremental_registration_uses_shared_triangulation_and_verified_landmarks():
+    folder=ROOT/"app/src/main/java/com/realityforge/scanner/engine"
+    source=(folder/"IncrementalRegistration.kt").read_text()
+    bridge=(folder/"NativeFrontierGeometry.kt").read_text()
+    pipeline=(folder/"SparsePipeline.kt").read_text()
+    assert "identities.size < 2" in source and "frequencies[it.first] == 1" in source
+    assert "validatePose(" in source and "projectedError(" in source
+    assert "NativeCore.reconstructMultiview" in bridge and "NativeCore.registerCamera" in bridge
+    assert "IncrementalRegistration.grow(" in pipeline and "incrementalRegistrationFailure" in pipeline
+    assert "m16-registration-frontier-1" in pipeline and ".take(66)" in pipeline
+
+
+def test_track_snapshot_enforces_native_observation_bound():
+    source=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
+    assert "observations + group.size > 100000" in source
+    assert "val groups = snapshot(maxTracks)" in source

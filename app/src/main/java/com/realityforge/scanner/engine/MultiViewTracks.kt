@@ -103,10 +103,24 @@ internal class MultiViewTrackGraph(private val views: List<SparseView>) {
         ++acceptedEdges
         return true
     }
-    fun packedRows(maxTracks: Int = 15000): DoubleArray {
-        val groups = members.values.filter { it.size >= 2 }
+    /** Stable track IDs shared by native rows and incremental landmark provenance.
+     * Take whole tracks only; never exceed the native 100,000-observation contract.
+     */
+    fun snapshot(maxTracks: Int = 15000): List<Map<Int, Int>> {
+        require(maxTracks in 1..15000)
+        val ordered = members.values.filter { it.size >= 2 }
             .sortedWith(compareBy({ it.entries.minOf { e -> node(e.key,e.value) } }, { it.size }))
-            .take(maxTracks)
+        val selected = ArrayList<Map<Int, Int>>()
+        var observations = 0
+        for (group in ordered) {
+            if (selected.size == maxTracks || observations + group.size > 100000) break
+            selected.add(group.toSortedMap())
+            observations += group.size
+        }
+        return selected
+    }
+    fun packedRows(maxTracks: Int = 15000): DoubleArray {
+        val groups = snapshot(maxTracks)
         val packed = ArrayList<Double>(groups.sumOf { it.size } * 7)
         for ((trackId,group) in groups.withIndex()) {
             for ((camera,key) in group.toSortedMap()) {
