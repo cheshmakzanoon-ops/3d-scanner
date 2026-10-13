@@ -83,3 +83,13 @@ All code stays on `main`. Native algorithms are in `reconstruction/`, Android in
 `app/`, reproducible host harnesses in `tools/`, and measured outputs in `reports/`.
 Historical milestone documents remain available. Green builds and isolated
 benchmarks are not evidence of flawless performance or commercial readiness.
+
+## M18 — Offline depth checkpoint recovery
+
+Completed per-camera depth maps now survive app cancellation or process
+termination in private, checksum-verified, exact-input-identity-bound files.
+Restarting the unchanged scan skips accepted depth passes; invalid/stale
+checkpoints are recomputed. The final mesh and photo texture are always
+regenerated and checked, and no partial output becomes a finished model.
+See [M18 checkpoints](docs/M18_DEPTH_CHECKPOINTS.md). The app remains an
+engineering prototype, not a fully validated real-world object scanner.

@@ -56,3 +56,13 @@ engine version, depth settings, and application revision. Create outputs through
 atomic temporary writes, refuse mismatched/residual caches and validate resume
 across actual Android process termination. Partial files must never be exposed
 as finished models. This is separate from any claim of real-world 360° quality.
+
+## After M18 — M19: physical capture truth and resumable full sessions
+
+M18 checkpoints only accepted per-reference photometric depth, never partial
+surface/texture outputs. Next collect same-lens calibrated images of actual
+textured objects on an ARM64 device; validate memory, temperature and object
+coverage against reference meshes. Then add on-device interruption/relaunch
+instrumentation, explicit checkpoint cache inspection/clearing, and better
+cross-view fusion to avoid redundant overlapping faces before raising the
+resolution. Do not claim release completeness from emulators or synthetic rigs.

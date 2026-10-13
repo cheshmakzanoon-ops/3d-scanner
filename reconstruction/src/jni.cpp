@@ -6,6 +6,7 @@
 #include "realityforge/surface.hpp"
 #include "realityforge/texture.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/depth_checkpoint.hpp"
 #include <cmath>
 #include <array>
 #include <jni.h>
@@ -15,6 +16,7 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <stdexcept>
 namespace {
 void illegal(JNIEnv* env,const char* message){auto type=env->FindClass("java/lang/IllegalArgumentException");if(type)env->ThrowNew(type,message);}
 // Opaque handles are leases on shared atomic flags. Holding a flag during JNI
@@ -259,6 +261,41 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceCancel
     return Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
         env,receiver,rgba,w,h,texture,tw,th,cameras,near,far,planes,stride,
         meshGlb,meshPly,texturedGlb,png);
+}
+// M18: one scoped native depth-cache context per JNI thread. Both wrappers
+// retain the M17 cancellation lease and legacy C ABI used in host tests.
+namespace {
+std::string jString(JNIEnv* env,jstring input){
+    if(!input)throw std::invalid_argument("Missing depth cache location or identity");
+    const char* value=env->GetStringUTFChars(input,nullptr);
+    if(!value)throw std::runtime_error("Cannot decode depth cache location");
+    std::string out(value);env->ReleaseStringUTFChars(input,value);return out;
+}
+}
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructSurfaceCheckpointed(
+    JNIEnv* env,jobject receiver,jbyteArray rgba,jint w,jint h,
+    jdoubleArray cameras,jdouble near,jdouble far,jint planes,jint stride,
+    jstring glb,jstring ply,jlong token,jstring directory,jstring identity){
+    try{
+        rf::depth_checkpoint::Scope cache(jString(env,directory),jString(env,identity));
+        return Java_com_realityforge_scanner_engine_NativeCore_reconstructSurfaceCancellable(
+            env,receiver,rgba,w,h,cameras,near,far,planes,stride,glb,ply,token);
+    }catch(const std::exception& e){illegal(env,e.what());return nullptr;}
+}
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceCheckpointed(
+    JNIEnv* env,jobject receiver,jbyteArray rgba,jint w,jint h,
+    jbyteArray texture,jint tw,jint th,jdoubleArray cameras,
+    jdouble near,jdouble far,jint planes,jint stride,
+    jstring meshGlb,jstring meshPly,jstring texturedGlb,jstring png,
+    jlong token,jstring directory,jstring identity){
+    try{
+        rf::depth_checkpoint::Scope cache(jString(env,directory),jString(env,identity));
+        return Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceCancellable(
+            env,receiver,rgba,w,h,texture,tw,th,cameras,near,far,planes,stride,
+            meshGlb,meshPly,texturedGlb,png,token);
+    }catch(const std::exception& e){illegal(env,e.what());return nullptr;}
 }
 extern "C" JNIEXPORT jdoubleArray JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_quality(JNIEnv* env,jobject,jbyteArray gray,jint width,jint height) {

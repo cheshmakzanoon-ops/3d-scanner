@@ -28,6 +28,16 @@ object NativeCore {
         near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
         meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
         token: Long): String
+    /** M18: same native cancellation lease, with atomic camera-depth checkpoints. */
+    external fun reconstructSurfaceCheckpointed(rgba: ByteArray, width: Int, height: Int,
+        cameras: DoubleArray, near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        glbPartialPath: String, plyPartialPath: String, token: Long,
+        checkpointDirectory: String, checkpointIdentity: String): String
+    external fun reconstructTexturedSurfaceCheckpointed(depthRgba: ByteArray, width: Int, height: Int,
+        photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
+        near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
+        token: Long, checkpointDirectory: String, checkpointIdentity: String): String
     external fun quality(gray: ByteArray, width: Int, height: Int): DoubleArray
     external fun exportPoints(rows: DoubleArray, destination: String, glb: Boolean)
 }

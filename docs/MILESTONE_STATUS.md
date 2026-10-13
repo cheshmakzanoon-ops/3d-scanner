@@ -76,3 +76,14 @@ claim is made. See M15_ADAPTIVE_ANDROID.md and M16_INCREMENTAL_REGISTRATION.md.
 - This is **cooperative** cancellation: the maximum pause delay is bounded by
   the next native checkpoint; sparse SfM operations still cancel at Kotlin
   boundaries rather than mid-C++ iteration. No per-reference resume yet.
+
+## M18 — Native per-reference depth resumption
+
+- Calibrated rectified camera depth maps can be atomically cached and reused
+  when their SHA-256 input identity and binary CRC validate; invalid and
+  incomplete files are recomputed without discarding valid references.
+- M17 cancellation remains scoped, and the resulting point/surface/photographic
+  exports are freshly validated, not read directly from checkpoint files.
+- Host/JVM/Android regression gates are in `docs/M18_DEPTH_CHECKPOINTS.md`.
+- No physical-device 360-degree accuracy, watertightness, or power-loss
+  durability claim.

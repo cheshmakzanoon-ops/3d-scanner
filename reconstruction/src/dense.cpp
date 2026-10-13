@@ -1,4 +1,5 @@
 #include "realityforge/dense.hpp"
+#include "realityforge/depth_checkpoint.hpp"
 #include "realityforge/stereo_warp.hpp"
 #include "realityforge/dense_selection.hpp"
 #include "realityforge/cancellation.hpp"
@@ -155,8 +156,19 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     for(std::size_t ref=0;ref<views.size();++ref){
         cancellation::checkpoint();
         DenseDepthMap map;map.width=w;map.height=h;map.depth.assign(n,0);map.confidence.assign(n,0);
-        // Only the active reference plus <=3 source luminance buffers are resident.
+        // Reuse only fully validated, input-identity-bound depth maps. Camera-z
+        // consistency, meshing and UV projection still run afresh on every scan.
         const auto& sources=result.sourceViews[ref];
+        if(depth_checkpoint::load(ref,map)){
+            for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
+                ++result.sampledPixels;
+                if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;
+            }
+            result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(1+sources.size())*n*sizeof(float));
+            result.maps.push_back(std::move(map));
+            ++result.resumedDepthMaps;
+            continue;
+        }
         const GrayView image(views[ref]);
         std::vector<GrayView> grayscale;grayscale.reserve(sources.size());
         std::vector<detail::StereoWarp> warps;warps.reserve(sources.size());
@@ -206,6 +218,10 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             ++result.photometricPixels;
           }
         }
+        // Publish the completed reference atomically before processing the next.
+        // A cancelled or killed process can reuse previous references, never a
+        // half-solved reference or an unverified mesh.
+        if(depth_checkpoint::store(ref,map))++result.writtenDepthMaps;
         result.maps.push_back(std::move(map));
     }
     // Reciprocal camera-z depth checks: don't infer an object surface from NCC alone.
@@ -286,7 +302,9 @@ std::string denseJson(const DenseResult& result){
     }
     out<<"],\"consistentPixelsPerView\":[";
     for(std::size_t i=0;i<result.consistentPixelsPerView.size();++i){if(i)out<<',';out<<result.consistentPixelsPerView[i];}
-    out<<"],\"peakLuminanceBytes\":"<<result.peakLuminanceBytes
+    out<<"],\"resumedDepthMaps\":"<<result.resumedDepthMaps
+       <<",\"writtenDepthMaps\":"<<result.writtenDepthMaps
+       <<",\"peakLuminanceBytes\":"<<result.peakLuminanceBytes
        <<",\"verifiedSampleCount\":"<<result.verifiedSamples.size()
        <<",\"pointExportLimitReached\":"<<(result.points.size()>=result.pointBudget?"true":"false")<<'}';
     return out.str();

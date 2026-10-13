@@ -61,6 +61,7 @@ struct DenseResult {
     std::vector<std::vector<std::size_t>> sourceViews; // <=3 source photos per reference
     std::vector<std::size_t> consistentPixelsPerView;
     std::size_t peakLuminanceBytes{}, pointBudget{};
+    std::size_t resumedDepthMaps{}, writtenDepthMaps{};
 };
 // Never invents unobserved geometry. Patches assume locally fronto-parallel
 // surfaces and ZNCC; it rejects textureless/ambiguous/occluded observations.

@@ -25,7 +25,7 @@ def test_jni_names_match_declared_methods():
     cpp=(ROOT/"reconstruction/src/jni.cpp").read_text()
     methods=set(re.findall(r"external fun (\w+)\(",kotlin))
     exports=set(re.findall(r"Java_com_realityforge_scanner_engine_NativeCore_(\w+)\(",cpp))
-    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","reconstructSurfaceCancellable","reconstructTexturedSurfaceCancellable","beginReconstruction","cancelReconstruction","finishReconstruction","quality","exportPoints"}
+    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","reconstructSurfaceCancellable","reconstructTexturedSurfaceCancellable","beginReconstruction","cancelReconstruction","finishReconstruction","reconstructSurfaceCheckpointed","reconstructTexturedSurfaceCheckpointed","quality","exportPoints"}
 
 
 def test_no_dynamic_dependency_versions():
@@ -196,8 +196,10 @@ def test_m17_native_cancellation_uses_scoped_tokens_not_global_stop():
     assert "Java_com_realityforge_scanner_engine_NativeCore_cancelReconstruction" in jni
     assert "cancellation::checkpoint();" in dense and "cancellation::checkpoint();" in texture
     assert "NativeCore.cancelReconstruction(token)" in model and "task?.cancel()" in model
-    assert "NativeCore.reconstructSurfaceCancellable" in adapter
-    assert "NativeCore.reconstructTexturedSurfaceCancellable" in adapter
+    assert "NativeCore.reconstructSurfaceCheckpointed" in adapter
+    assert "NativeCore.reconstructTexturedSurfaceCheckpointed" in adapter
+    assert "Java_com_realityforge_scanner_engine_NativeCore_reconstructSurfaceCancellable" in jni
+    assert "Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceCancellable" in jni
     assert 'glbPartial.delete()' in adapter and 'texturedPartial.delete()' in adapter
 
 
@@ -208,3 +210,20 @@ def test_cancelled_worker_has_native_and_android_regressions():
     assert "nested scopes restore caller" in cpp
     assert "nativeCancellationTokensAreIsolatedAndRejectStaleHandles" in android
     assert "Reconstruction cancelled" in android
+
+
+def test_m18_depth_resume_is_input_identified_atomic_and_native_scoped():
+    native=(ROOT/"reconstruction/src/depth_checkpoint.cpp").read_text()
+    pipeline=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
+    identity=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt").read_text()
+    core=(ROOT/"reconstruction/src/dense.cpp").read_text()
+    assert 'SHA-256' in identity and 'digest.update(rgba)' in identity
+    assert 'digest.update("realityforge-m18-native-reference-depth-v1' in identity
+    assert 'std::filesystem::rename(temporary,target,ec)' in native
+    assert 'read32(bytes,28+64)!=crc32(' in native
+    assert 'thread_local const Scope* active' in native
+    assert 'depth_checkpoint::load(ref,map)' in core and 'depth_checkpoint::store(ref,map)' in core
+    assert 'reconstructTexturedSurfaceCheckpointed(' in pipeline
+    assert 'reconstructSurfaceCheckpointed(' in pipeline
+    assert 'depthCheckpointResumed' in pipeline and 'depthCheckpointWritten' in pipeline
+    assert 'depth_checkpoint::Scope cache' in (ROOT/"reconstruction/src/jni.cpp").read_text()

@@ -12,7 +12,7 @@ import kotlin.coroutines.coroutineContext
 import kotlin.math.*
 
 /**
- * M15: adaptive eight-view calibrated depth, observed triangles and photographic UV textures.
+ * M18: resumable per-reference, adaptive eight-view calibrated depth, observed triangles and photographic UV textures.
  * No watertight guarantees, full photo quality, seam-free atlases, or physical scale.
  * All geometry is expressed in the already-registered sparse anchor coordinate frame.
  * If a view has a mismatched aspect/lens, reject the dense stage instead of inventing rays.
@@ -109,14 +109,19 @@ internal object DensePreview {
             require(nativeToken>0) { "Missing scoped native operation token" }
             coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",0,1)
+            val depthIdentity=DepthCheckpointIdentity.fingerprint(
+                artifactKey,rectified,cameraRows,width,height,near,far,DEPTH_PLANES,workload.pixelStride)
+            val checkpointDirectory=DepthCheckpointIdentity.directory(folder,depthIdentity)
             val result=if(photographic!=null) {
                 val (texturePixels,textureWidth,textureHeight)=photographic
-                JSONObject(NativeCore.reconstructTexturedSurfaceCancellable(
+                JSONObject(NativeCore.reconstructTexturedSurfaceCheckpointed(
                     rectified,width,height,texturePixels,textureWidth,textureHeight,cameraRows,
                     near,far,DEPTH_PLANES,workload.pixelStride,
-                    glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path,nativeToken))
-            } else JSONObject(NativeCore.reconstructSurfaceCancellable(rectified,width,height,cameraRows,
-                near,far,DEPTH_PLANES,workload.pixelStride,glbPartial.path,plyPartial.path,nativeToken))
+                    glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path,nativeToken,
+                    checkpointDirectory.path,depthIdentity))
+            } else JSONObject(NativeCore.reconstructSurfaceCheckpointed(rectified,width,height,cameraRows,
+                near,far,DEPTH_PLANES,workload.pixelStride,glbPartial.path,plyPartial.path,nativeToken,
+                checkpointDirectory.path,depthIdentity))
             coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",1,1)
             // C++ cancellation must not be treated as a nonfatal M08 mesh/texture
@@ -140,6 +145,9 @@ internal object DensePreview {
                     .put("maximumCachedLuminanceBytes",workload.maximumCachedLuminanceBytes)
                     .put("memoryMeasurement","allocation bounds only; not process RSS"))
                 .put("nearDepthInAnchorUnits",near).put("farDepthInAnchorUnits",far)
+                .put("depthCheckpointSchema",18)
+                .put("depthCheckpointResumed",output.optInt("resumedDepthMaps"))
+                .put("depthCheckpointWritten",output.optInt("writtenDepthMaps"))
                 .put("photographsRectified",true)
                 .put("calibrationProfileApplied",profile!=null)
                 .put("limitations","Bounded CPU stereo with optional actual photographic UV atlas. Open mesh, arbitrary scale, no global appearance or completeness guarantee")

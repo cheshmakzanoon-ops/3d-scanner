@@ -1,0 +1,133 @@
+#include "realityforge/depth_checkpoint.hpp"
+#include "realityforge/dense.hpp"
+#include "realityforge/cancellation.hpp"
+#include <algorithm>
+#include <array>
+#include <bit>
+#include <cstdint>
+#include <cstring>
+#include <cmath>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <utility>
+#include <limits>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <vector>
+
+namespace rf::depth_checkpoint {
+namespace {
+thread_local const Scope* active = nullptr;
+constexpr std::array<char,8> MAGIC{'R','F','D','P','T','0','1','8'};
+constexpr std::size_t HEADER = 8+4*6+64;
+constexpr std::size_t MAX_PIXELS = 320000;
+void append32(std::vector<std::uint8_t>& out,std::uint32_t n){
+    for(int i=0;i<4;++i)out.push_back(static_cast<std::uint8_t>(n>>(8*i)));
+}
+std::uint32_t read32(const std::vector<std::uint8_t>& data,std::size_t offset){
+    return std::uint32_t(data[offset])|(std::uint32_t(data[offset+1])<<8)|
+        (std::uint32_t(data[offset+2])<<16)|(std::uint32_t(data[offset+3])<<24);
+}
+std::uint32_t crc32(const std::uint8_t* data,std::size_t size){
+    std::uint32_t crc=~0u;
+    for(std::size_t i=0;i<size;++i){
+        crc^=data[i];
+        for(int k=0;k<8;++k)crc=(crc>>1)^(0xedb88320u & (0u-(crc&1u)));
+    }
+    return ~crc;
+}
+std::filesystem::path pathFor(const Scope& scoped,std::size_t index){
+    return std::filesystem::path(scoped.directory())/("ref-"+std::to_string(index)+".bin");
+}
+}
+Scope::Scope(std::string directory,std::string sha256Identity):
+    previous_(active),directory_(std::move(directory)),identity_(std::move(sha256Identity)){
+    if(directory_.empty()||directory_.size()>1000||identity_.size()!=64||
+        !std::all_of(identity_.begin(),identity_.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
+        throw std::invalid_argument("Invalid bounded depth checkpoint identity");
+    active=this;
+}
+Scope::~Scope() noexcept {active=previous_;}
+
+bool load(std::size_t index,DenseDepthMap& map){
+    if(!active)return false;
+    cancellation::checkpoint();
+    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
+    const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
+    if(count>MAX_PIXELS)return false;
+    const auto file=pathFor(*active,index);
+    std::error_code ec;
+    if(!std::filesystem::is_regular_file(file,ec)||std::filesystem::is_symlink(file,ec))return false;
+    if(std::filesystem::file_size(file,ec)!=HEADER+count*8||ec)return false;
+    std::ifstream stream(file,std::ios::binary);
+    if(!stream)return false;
+    std::vector<std::uint8_t> bytes(HEADER+count*8);
+    stream.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
+    if(!stream || stream.gcount()!=static_cast<std::streamsize>(bytes.size()))return false;
+    if(!std::equal(MAGIC.begin(),MAGIC.end(),bytes.begin()))return false;
+    if(read32(bytes,8)!=1||read32(bytes,12)!=static_cast<std::uint32_t>(map.width)||
+       read32(bytes,16)!=static_cast<std::uint32_t>(map.height)||
+       read32(bytes,20)!=index||read32(bytes,24)!=count*8)return false;
+    if(!std::equal(active->identity().begin(),active->identity().end(),bytes.begin()+28))return false;
+    if(read32(bytes,28+64)!=crc32(bytes.data()+HEADER,count*8))return false;
+    // Decode into temporary buffers, only publish fully validated maps.
+    std::vector<float> depth(count),confidence(count);
+    for(std::size_t i=0;i<count;++i){
+        if((i&8191)==0)cancellation::checkpoint();
+        const auto d=std::bit_cast<float>(read32(bytes,HEADER+i*8));
+        const auto c=std::bit_cast<float>(read32(bytes,HEADER+i*8+4));
+        if(!std::isfinite(d)||!std::isfinite(c)||d<0||d>100000||c<0||c>1||
+           (d==0&&c!=0))return false;
+        depth[i]=d;confidence[i]=c;
+    }
+    map.depth=std::move(depth);map.confidence=std::move(confidence);
+    return true;
+}
+
+bool store(std::size_t index,const DenseDepthMap& map){
+    if(!active)return false;
+    cancellation::checkpoint();
+    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
+    const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
+    if(count>MAX_PIXELS||map.depth.size()!=count||map.confidence.size()!=count)return false;
+    std::vector<std::uint8_t> bytes;
+    bytes.reserve(HEADER+count*8);
+    bytes.insert(bytes.end(),MAGIC.begin(),MAGIC.end());
+    append32(bytes,1);append32(bytes,static_cast<std::uint32_t>(map.width));
+    append32(bytes,static_cast<std::uint32_t>(map.height));
+    append32(bytes,static_cast<std::uint32_t>(index));
+    append32(bytes,static_cast<std::uint32_t>(count*8));
+    bytes.insert(bytes.end(),active->identity().begin(),active->identity().end());
+    // CRC slot after the 64-character SHA identity.
+    append32(bytes,0);
+    for(std::size_t i=0;i<count;++i){
+        if((i&8191)==0)cancellation::checkpoint();
+        float d=map.depth[i],c=map.confidence[i];
+        if(!std::isfinite(d)||!std::isfinite(c)||d<0||d>100000||c<0||c>1)return false;
+        append32(bytes,std::bit_cast<std::uint32_t>(d));
+        append32(bytes,std::bit_cast<std::uint32_t>(c));
+    }
+    auto crc=crc32(bytes.data()+HEADER,count*8);
+    for(int i=0;i<4;++i)bytes[HEADER-4+i]=static_cast<std::uint8_t>(crc>>(8*i));
+    const auto target=pathFor(*active,index);
+    const auto temporary=target.string()+".partial-"+
+        std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+    std::error_code ec;
+    std::filesystem::create_directories(target.parent_path(),ec);
+    if(ec)return false; // caching must never prevent normal reconstruction
+    try{
+        std::ofstream file(temporary,std::ios::binary|std::ios::trunc);
+        if(!file)return false;
+        file.write(reinterpret_cast<const char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
+        file.flush();
+        if(!file){file.close();std::filesystem::remove(temporary,ec);return false;}
+        file.close();
+        cancellation::checkpoint();
+        std::filesystem::rename(temporary,target,ec);
+        if(ec){std::filesystem::remove(temporary,ec);return false;}
+        return true;
+    }catch(...){std::filesystem::remove(temporary,ec);throw;}
+}
+} // namespace rf::depth_checkpoint
