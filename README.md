@@ -1,3 +1,13 @@
+# RealityForge
+
+**Current increment: M15 / 0.15.0-m15.** The Android app now activates M14's
+bounded eight-view depth backend with adaptive 384px/256px decode and sampling
+limits, sequential bitmap lifetimes, image-visible depth priors and a photo-atlas
+budget compatible with the in-app GLB viewer. This remains an engineering build,
+not a complete-object or production-quality guarantee. See
+[adaptive Android workflow](docs/M15_ADAPTIVE_ANDROID.md) and
+[eight-view native evidence](docs/M14_MULTIVIEW.md).
+
 # RealityForge — offline Android photogrammetry
 
 **M12 engineering build, 0.12.0-m12. Not a completed consumer scanner.**

@@ -25,3 +25,13 @@ None of these results establishes physical full-scene scanning.
 
 No claim of perfection or release completeness follows from compiler success,
 synthetic rendering tests, or isolated rectified-stereo reconstruction results.
+
+
+## After M15: complete-object registration and device-scale execution
+
+M14/M15 replace the three-input depth bottleneck with up to eight reference views,
+three selected stereo sources per reference, and bounded adaptive Android decode.
+Next validate calibrated physical captures and actual phone resource consumption;
+expand registration beyond the anchor intersection; add restartable per-reference
+depth artifacts and cancellation before increasing view/resolution limits again.
+Do not substitute the synthetic plane coverage test for full object completeness.

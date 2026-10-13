@@ -143,8 +143,8 @@ fun ScannerApp(model: ScannerViewModel) {
                     item {
                         Card {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("Sparse reconstruction", style = MaterialTheme.typography.titleMedium)
-                                Text("Examines up to 12 photographs, registers additional camera poses, and triangulates cross-view tracks—not a finished mesh.")
+                                Text("Photographic reconstruction", style = MaterialTheme.typography.titleMedium)
+                                Text("Examines up to 12 photographs. Up to eight registered views contribute to adaptive depth and optional photographic mesh output—not a finished mesh guarantee.")
                                 OutlinedTextField(value = focal, onValueChange = { focal = it.take(6) }, enabled = !busy,
                                     label = { Text("Fallback 35 mm-equivalent focal length") }, suffix = { Text("mm") },
                                     supportingText = { Text("Used only when EXIF lacks a value. 26 mm is an explicit assumption, not measured calibration.") }, singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -189,7 +189,8 @@ fun ScannerApp(model: ScannerViewModel) {
                                         Text("${dense.optInt("pointCount")} dense stereo points",style=MaterialTheme.typography.titleLarge)
                                         Text("Rectified ${dense.optInt("sourcePhotos")} camera views · inverse-depth plane sweep · reciprocal camera-z consistency",style=MaterialTheme.typography.labelMedium)
                                         PointCloudViewer(dense,Modifier.fillMaxWidth().height(310.dp))
-                                        Text("M07 dense points are kept separately. M08 uses confidence-gated depth to form an optional open surface. No UV texture atlas or metric scale.",style=MaterialTheme.typography.bodySmall)
+                                        Text("Depth grid: ${dense.optInt("rectifiedWidth")} × ${dense.optInt("rectifiedHeight")} · stride ${dense.optInt("pixelStride")} · ${dense.optInt("excludedRegisteredCameraCount")} registered views not selected",style=MaterialTheme.typography.bodySmall)
+                                        Text("Points and open meshes remain separate. Texture exports are available only when photo visibility checks pass; scale is arbitrary.",style=MaterialTheme.typography.bodySmall)
                                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                             OutlinedButton(enabled = !busy, onClick = { exportDenseGlb.launch("realityforge-dense-points.glb") }) { Text("Dense GLB") }
                                             OutlinedButton(enabled = !busy, onClick = { exportDensePly.launch("realityforge-dense-points.ply") }) { Text("Dense PLY") }
@@ -268,7 +269,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     items(photos, key = { it.id }) { photo -> PhotoRow(photo, model) }
-                    item { InfoCard("Next engineering gate", "Validate textured mesh alignment, UV chart seams and 3D completeness using real physical-device multi-photo captures; then improve atlas blending and native MVS resolution.") }
+                    item { InfoCard("Next engineering gate", "Validate the adaptive eight-view workload on physical devices. Larger complete objects still need stronger camera registration, resumable depth processing and topology repair.") }
                     item { TextButton(enabled = !busy, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }

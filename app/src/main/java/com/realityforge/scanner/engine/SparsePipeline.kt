@@ -58,9 +58,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
         val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
-        val fingerprintInput = "m10-balanced-uv-1|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
+        val fingerprintInput = "m15-adaptive-depth-1|${DenseWorkload.tier(Runtime.getRuntime().maxMemory())}|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
-        val artifactKey = "sparse-m10-r$revision-${fingerprint.take(16)}"
+        val artifactKey = "sparse-m15-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
@@ -314,7 +314,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
             coroutineContext.ensureActive()
             progress(Progress("Estimating stereo depth, meshing and projecting photographs", 0, 1))
             val surface=DensePreview.reconstruct(repository,projectId,artifactKey,photos,cameraArray,
-                output.getJSONArray("points"),assumedFocal35,activeProfile)
+                output.getJSONArray("points"),assumedFocal35,activeProfile) { stage, done, total -> progress(Progress(stage,done,total)) }
             coroutineContext.ensureActive()
             output.put("densePreview",surface.getJSONObject("dense"))
             output.put("denseStatus","ready")
@@ -347,7 +347,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
         }
         output.put("cameras",cameraArray).put("registeredCameras",cameraArray.length()).put("cameraRegistrationFailures",cameraFailures)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
-            .put("engineVersion", "m10-balanced-uv-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
+            .put("engineVersion", "m15-adaptive-depth-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }

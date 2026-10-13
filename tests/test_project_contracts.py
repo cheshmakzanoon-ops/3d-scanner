@@ -53,7 +53,7 @@ def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m10-balanced-uv-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "m15-adaptive-depth-1" in engine and "LensCalibration.read(repository, projectId)" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
     assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
@@ -146,3 +146,16 @@ def test_session_reopen_and_export_have_revision_and_operation_guards():
     assert "busy.compareAndSet(false, true)" in model and "selectionGeneration" in model
     assert "repository.currentPreview(id)" in model
     assert "stream.use { repository.exportCaptureBundle" in model
+
+
+def test_adaptive_dense_adapter_has_eight_view_and_bitmap_lifetime_guards():
+    adapter=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
+    policy=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt").read_text()
+    pipeline=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt").read_text()
+    assert "MAX_VIEWS = 8" in policy and "MAX_SAMPLES = 100_000L" in policy
+    assert "DenseWorkload.selectCameraIndices" in adapter
+    assert "finally { image.recycle() }" in adapter
+    assert "val images = chosen.map" not in adapter
+    assert "DenseWorkload.depthBounds" in adapter and "DenseWorkload.atlasPixels" in adapter
+    assert "m15-adaptive-depth-1" in pipeline and "DenseWorkload.tier" in pipeline
+    assert "selectedCameraIndices" in adapter and "plannedGridSamples" in adapter
