@@ -90,7 +90,7 @@ def test_android_mesh_is_shown_and_exportable_without_network_calls():
     viewer=(root/'ui/SurfaceMeshViewer.kt').read_text()
     assert 'external fun reconstructSurface(' in core
     assert 'NativeCore_reconstructSurface(' in jni
-    assert 'NativeCore.reconstructSurfaceCancellable(' in adapter
+    assert 'NativeCore.reconstructSurfaceCheckpointed(' in adapter
     assert 'output.put("meshPreview",' in pipeline
     assert 'SurfaceMeshViewer(mesh,' in screen
     assert 'mesh.glb' in screen and 'mesh.ply' in screen
