@@ -1,0 +1,62 @@
+name: Prepare checksum-verified M15 source blobs
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/prepare-tested-source.yml']
+permissions:
+  contents: write
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Verify exact tested source and publish unreferenced blobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python
+        run: |
+          import base64, hashlib, json, lzma, os, pathlib, subprocess, urllib.request
+          repo = 'cheshmakzanoon-ops/3d-scanner'
+          assert os.environ['GITHUB_REPOSITORY'] == repo
+          base = '985943a2657130835ca0e29134afcfee178725be'
+          target = '6c300c1bf1f57ed30d5133a4cf9971bfaa08c664'
+          payload = ''.join(pathlib.Path(f'.github/m15-source-{i}.b64').read_text() for i in range(1, 4))
+          patch = lzma.decompress(base64.b64decode(payload, validate=True))
+          assert hashlib.sha256(patch).hexdigest() == 'f627e968d3331c5df19fdea7f5749d3c9dedfb1a3f1e5932319860b99c3b6af5'
+          def git(*args, data=None):
+              return subprocess.check_output(['git', *args], input=data)
+          assert git('rev-parse', 'HEAD^').decode().strip() == base
+          git('reset', '--hard', base)
+          git('apply', '--index', '--whitespace=error', '-', data=patch)
+          paths = sorted(set(git('ls-files', '-z').decode().split('\0')) - {'', 'SOURCE_MANIFEST.sha256'})
+          manifest = ''.join(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() + '  ' + p + '\n' for p in paths)
+          pathlib.Path('SOURCE_MANIFEST.sha256').write_text(manifest)
+          git('add', 'SOURCE_MANIFEST.sha256')
+          assert git('write-tree').decode().strip() == target, 'Source differs from tested tree'
+          changed = git('diff', '--cached', '--name-only', '-z').decode().strip('\0').split('\0')
+          assert len(changed) == 15
+          entries = []
+          for path in changed:
+              content = git('show', ':' + path)
+              local_blob = git('rev-parse', ':' + path).decode().strip()
+              request = urllib.request.Request('https://api.github.com/repos/' + repo + '/git/blobs',
+                  data=json.dumps({'content': base64.b64encode(content).decode(), 'encoding': 'base64'}).encode(),
+                  method='POST', headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                  'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json',
+                  'X-GitHub-Api-Version': '2022-11-28'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  blob = json.load(response)
+              assert blob['sha'] == local_blob
+              mode = git('ls-files', '-s', '--', path).decode().split()[0]
+              entries.append({'path': path, 'mode': mode, 'type': 'blob', 'sha': blob['sha']})
+          report = {'base': base, 'tree': target, 'files': entries, 'branch_updated': False}
+          pathlib.Path(os.environ['RUNNER_TEMP'], 'prepared-blobs.json').write_text(json.dumps(report, indent=2))
+          print(json.dumps(report))
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prepared-tested-source
+          path: ${{ runner.temp }}/prepared-blobs.json
+          retention-days: 2
