@@ -227,3 +227,18 @@ def test_m18_depth_resume_is_input_identified_atomic_and_native_scoped():
     assert 'reconstructSurfaceCheckpointed(' in pipeline
     assert 'depthCheckpointResumed' in pipeline and 'depthCheckpointWritten' in pipeline
     assert 'depth_checkpoint::Scope cache' in (ROOT/"reconstruction/src/jni.cpp").read_text()
+
+
+def test_m19_persisted_scan_evidence_and_local_export():
+    root=ROOT/"app/src/main/java/com/realityforge/scanner"
+    engine=(root/"engine/ScanQualityEvidence.kt").read_text()
+    report=(root/"engine/ScanQualityReport.kt").read_text()
+    pipeline=(root/"engine/SparsePipeline.kt").read_text()
+    ui=(root/"ui/ScannerApp.kt").read_text()
+    model=(root/"ScannerViewModel.kt").read_text()
+    assert "RECIPROCAL" in engine.upper() and "PHOTOS_NOT_REGISTERED" in engine
+    assert "NOT 360-degree completeness" in report
+    assert 'output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))' in pipeline
+    assert 'model.export(it, "json")' in ui
+    assert '"json", "glb"' in model
+    assert "ScanQualityReportDeviceTest" in (ROOT/"app/src/androidTest/java/com/realityforge/scanner/ScanQualityReportDeviceTest.kt").read_text()

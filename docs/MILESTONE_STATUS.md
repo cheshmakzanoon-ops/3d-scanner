@@ -87,3 +87,17 @@ claim is made. See M15_ADAPTIVE_ANDROID.md and M16_INCREMENTAL_REGISTRATION.md.
 - Host/JVM/Android regression gates are in `docs/M18_DEPTH_CHECKPOINTS.md`.
 - No physical-device 360-degree accuracy, watertightness, or power-loss
   durability claim.
+
+## M19 — Persisted objective scan diagnostics
+
+- Counts registered cameras against the imported photo total. Reports optional
+  sparse parallax and normalized reprojection residuals without inventing
+  ground-truth measurements.
+- Distinguishes sampled depth pixels from reciprocal-consistent pixels;
+  reports observed mesh vertices/triangles and measured photographic face
+  support, never extrapolates to an unseen complete object.
+- Deterministic, testable recapture guidance in JSON and a dedicated Android
+  quality card. User exports the revision-bound JSON through the system picker.
+- Pure Kotlin heuristics have JVM tests, JSON adapter has Android instrumentation.
+- No change to native reconstruction acceptance gates, save revisions, or
+  capture privacy. Real physical object coverage/accuracy remains unmeasured.

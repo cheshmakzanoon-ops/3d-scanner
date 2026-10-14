@@ -244,7 +244,7 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun export(uri: Uri, extension: String) {
         val id = selectedId.value ?: return
-        if (extension !in setOf("glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png") || !reserveOperation()) return
+        if (extension !in setOf("json", "glb", "ply", "dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png") || !reserveOperation()) return
         task = viewModelScope.launch(Dispatchers.IO) {
             try {
                 val project = requireNotNull(repository.dao.project(id))
@@ -265,6 +265,7 @@ class ScannerViewModel(app: Application) : AndroidViewModel(app) {
                 val latest = repository.dao.project(id)
                 check(latest != null && latest.revision == revision && latest.resultKey == project.resultKey) { "Project changed during export; discard the destination file." }
                 notice.value = when(extension) {
+                    "json" -> "Exported revision-checked reconstruction diagnostic JSON with scan metadata and point data."
                     "textured.glb" -> "Exported photo-textured GLB with embedded PNG and indexed UVs. Open surfaces, arbitrary scale."
                     "texture.png" -> "Exported actual rectified photographic atlas PNG."
                     "mesh.glb", "mesh.ply" -> "Exported verified open surface mesh ($extension), vertex colors and arbitrary scale."

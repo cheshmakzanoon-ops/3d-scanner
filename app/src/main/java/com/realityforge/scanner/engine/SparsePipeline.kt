@@ -404,6 +404,9 @@ class SparsePipeline(private val repository: ProjectRepository) {
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
             .put("engineVersion", "m16-registration-frontier-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
+        // Always preserve measured evidence and actionable failure reasons in
+        // the same revision-bound JSON that the library reopens.
+        output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))
         coroutineContext.ensureActive()
         check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }
         repository.writeAtomic(File(directory, "$artifactKey.json"), output.toString())

@@ -66,3 +66,14 @@ coverage against reference meshes. Then add on-device interruption/relaunch
 instrumentation, explicit checkpoint cache inspection/clearing, and better
 cross-view fusion to avoid redundant overlapping faces before raising the
 resolution. Do not claim release completeness from emulators or synthetic rigs.
+
+## After M19 — M20: physical-device benchmark and topology evidence
+
+M19 adds honest observed-evidence diagnostics rather than a misleading
+"90% complete" score. M20 should instrument ARM64 process RSS, CPU/thermal
+behavior, frame counts, power impact, and image/mat buffer lifetimes across
+real 12-photo and 8-depth-view projects. Collect repeatable, authorized,
+calibrated 360-degree sessions for at least two matte objects, compare with
+external reference geometry and report missing sides, disconnected patches and
+nonmanifold edges before increasing depth resolution or claiming completeness.
+The emulator and synthetic datasets cannot replace physical handset validation.

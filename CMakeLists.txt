@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(RealityForge VERSION 0.18.0 LANGUAGES CXX)
+project(RealityForge VERSION 0.19.0 LANGUAGES CXX)
 option(RF_SANITIZE "Enable host address and undefined behavior sanitizers" OFF)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

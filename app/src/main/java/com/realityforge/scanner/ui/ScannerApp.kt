@@ -69,6 +69,7 @@ fun ScannerApp(model: ScannerViewModel) {
     val exportDenseGlb = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("model/gltf-binary")) { uri -> uri?.let { model.export(it, "dense.glb") } }
     val exportDensePly = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri -> uri?.let { model.export(it, "dense.ply") } }
     val exportCapture = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri -> uri?.let { model.exportCaptureBundle(it) } }
+    val exportDiagnostics = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> uri?.let { model.export(it, "json") } }
     LaunchedEffect(notice) { notice?.let { snackbars.showSnackbar(it); model.notice.value = null } }
     BackHandler(enabled = selected != null || camera) { if (camera) camera = false else if (!busy) model.select(null) }
     MaterialTheme(colorScheme = palette) {
@@ -156,12 +157,45 @@ fun ScannerApp(model: ScannerViewModel) {
                                     if (p != null && p.total > 0) LinearProgressIndicator(progress = { p.completed.toFloat() / p.total }, modifier = Modifier.fillMaxWidth())
                                     else LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                                     OutlinedButton(onClick = { model.pause() }) { Text("Stop at safe boundary") }
-                                    Text("Keep the app open. Leaving it stops this bounded preview; feature caches remain available.", style = MaterialTheme.typography.bodySmall)
+                                    Text("Stopping preserves completed per-camera depth checkpoints. Relaunching a scan with unchanged inputs can reuse them; unfinished exports are discarded.", style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
                     }
                     val result = preview
+                    if (result != null) {
+                        val diagnostics=result.optJSONObject("scanDiagnostics")
+                        if (diagnostics != null) {
+                            item {
+                                Card {
+                                    Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                                        Text("Scan evidence and next actions",style=MaterialTheme.typography.titleMedium)
+                                        val title=when(diagnostics.optString("status")) {
+                                            "PHOTO_TEXTURED_OPEN_SURFACE" -> "Photographic texture on observed open surfaces"
+                                            "PARTIAL_OPEN_MESH" -> "Partial open mesh, limited photographic coverage"
+                                            else -> "Sparse or depth-only reconstruction"
+                                        }
+                                        Text(title,style=MaterialTheme.typography.bodyMedium)
+                                        Text("${diagnostics.optInt("registeredCameraCount")}/${diagnostics.optInt("importedPhotoCount")} cameras registered · ${diagnostics.optInt("observedMeshTriangles")} observed triangles")
+                                        if(!diagnostics.isNull("reciprocalDepthFraction"))
+                                            Text("Reciprocal depth support: ${"%.1f".format(diagnostics.optDouble("reciprocalDepthFraction")*100)}% of sampled depth pixels")
+                                        if(!diagnostics.isNull("photographicallyCoveredFaceFraction"))
+                                            Text("Photographic texture: ${"%.1f".format(diagnostics.optDouble("photographicallyCoveredFaceFraction")*100)}% of observed triangles")
+                                        val actions=diagnostics.optJSONArray("recommendations")
+                                        if (actions != null) {
+                                            for (index in 0 until minOf(actions.length(),4)) {
+                                                Text("• ${actions.getJSONObject(index).optString("action")}",style=MaterialTheme.typography.bodySmall)
+                                            }
+                                        }
+                                        Text("These measurements do not establish full-object completeness, millimeter accuracy, or print-ready topology.",style=MaterialTheme.typography.bodySmall)
+                                        OutlinedButton(enabled=!busy,onClick={exportDiagnostics.launch("realityforge-reconstruction-report.json")}) {
+                                            Text("Export scan diagnostics (JSON)")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                     if (result != null) {
                         item {
                             Card {

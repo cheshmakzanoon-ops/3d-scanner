@@ -93,3 +93,20 @@ checkpoints are recomputed. The final mesh and photo texture are always
 regenerated and checked, and no partial output becomes a finished model.
 See [M18 checkpoints](docs/M18_DEPTH_CHECKPOINTS.md). The app remains an
 engineering prototype, not a fully validated real-world object scanner.
+
+## M19 — Scan evidence and honest quality guidance
+
+The local app now persists a revision-bound `scanDiagnostics` object alongside
+its actual sparse/dense/mesh/UV artifact. A distinct UI card reports how many
+photographs registered, the fraction of sampled depth pixels confirmed by a
+second view, observed triangle counts and the share of triangles supported by
+actual photographs. Recapture guidance is derived from specific indicators:
+low overlap, low parallax, reprojection disagreement, insufficient reciprocal
+depth, missing triangles or low photographic face coverage.
+
+**These are diagnostics, not a scan-quality score or whole-object percentage.**
+No automatic metric can establish unseen rear surfaces, ground-truth physical
+accuracy or watertightness from the current photographs. A user-directed JSON
+export includes the diagnostic report and the complete revision-checked scan
+metadata; it does not upload data or require an account. See
+[docs/M19_SCAN_EVIDENCE.md](docs/M19_SCAN_EVIDENCE.md).
