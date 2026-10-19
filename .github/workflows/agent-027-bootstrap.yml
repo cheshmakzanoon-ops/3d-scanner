@@ -1,0 +1,204 @@
+name: Agent 027 exact branch publication
+
+on:
+  push:
+    branches:
+      - agents/027-lens-calibration-workflow
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agent-027-exact-branch-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact bootstrap head
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: agents/027-lens-calibration-workflow
+
+      - name: Verify payload, publish implementation, handoffs and receipt
+        shell: bash
+        env:
+          BRANCH: agents/027-lens-calibration-workflow
+          EXPECTED_BOOTSTRAP_SHA: ${{ github.sha }}
+          PAYLOAD_B64_SHA256: 41f650f9b5eac819c985daeb9dd81cac185a0d10e7185fd6bb3e70ecb700802a
+          PAYLOAD_TGZ_SHA256: a463c8f65702345bcbc99e7009b0d65023fb438fd37ecf07bb703acd3b5f91fc
+        run: |
+          set -euo pipefail
+
+          git fetch --no-tags origin "${BRANCH}"
+          test "$(git rev-parse HEAD)" = "${EXPECTED_BOOTSTRAP_SHA}"
+          test "$(git rev-parse "origin/${BRANCH}")" = "${EXPECTED_BOOTSTRAP_SHA}"
+
+          cat docs/agents/bootstrap/027/payload.00 \
+              docs/agents/bootstrap/027/payload.01 \
+              docs/agents/bootstrap/027/payload.02 \
+              docs/agents/bootstrap/027/payload.03 \
+              docs/agents/bootstrap/027/payload.04 \
+              docs/agents/bootstrap/027/payload.05 \
+              docs/agents/bootstrap/027/payload.06 > /tmp/agent027-payload.b64
+          printf '%s  %s\n' "${PAYLOAD_B64_SHA256}" /tmp/agent027-payload.b64 | sha256sum --check --strict
+          base64 --decode /tmp/agent027-payload.b64 > /tmp/agent027-payload.tgz
+          printf '%s  %s\n' "${PAYLOAD_TGZ_SHA256}" /tmp/agent027-payload.tgz | sha256sum --check --strict
+
+          mkdir -p /tmp/agent027
+          tar --extract --gzip --file /tmp/agent027-payload.tgz --directory /tmp/agent027
+
+          git config user.name "Agent 027"
+          git config user.email "agent-027@users.noreply.github.com"
+
+          rm -rf docs/agents/bootstrap/027
+          rm -f .github/workflows/agent-027-bootstrap.yml
+          cp -a /tmp/agent027/repo/. .
+          git add -A -- \
+            .github/workflows/agent-027-bootstrap.yml \
+            docs/agents/bootstrap/027 \
+            app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt \
+            app/src/main/java/com/realityforge/scanner/capture/calibration \
+            app/src/test/java/com/realityforge/scanner/CalibrationTest.kt \
+            app/src/test/java/com/realityforge/scanner/agents/a027 \
+            app/src/androidTest/java/com/realityforge/scanner/agents/a027 \
+            docs/agents/contracts/027.md
+
+          python3 - <<'PY'
+          import hashlib
+          import subprocess
+          from pathlib import Path
+
+          records = subprocess.check_output(['git', 'ls-files', '--stage', '-z']).split(b'\0')
+          rows = []
+          for record in records:
+              if not record:
+                  continue
+              metadata, raw_path = record.split(b'\t', 1)
+              mode, oid, stage = metadata.split()
+              path = raw_path.decode('utf-8')
+              if stage != b'0':
+                  raise SystemExit('Resolve all semantic merge conflicts before regenerating the manifest.')
+              if path == 'SOURCE_MANIFEST.sha256':
+                  continue
+              if mode not in (b'100644', b'100755') or '\n' in path or '\r' in path:
+                  raise SystemExit('Unsupported tracked entry; coordinate with Agent 094: ' + path)
+              content = subprocess.check_output(['git', 'cat-file', 'blob', oid.decode('ascii')])
+              rows.append((path, hashlib.sha256(content).hexdigest()))
+          Path('SOURCE_MANIFEST.sha256').write_text(
+              ''.join(f'{digest}  {path}\n' for path, digest in sorted(rows)),
+              encoding='utf-8',
+          )
+          PY
+          git add SOURCE_MANIFEST.sha256
+
+          python3 - <<'PY'
+          import subprocess
+
+          allowed = {
+              '.github/workflows/agent-027-bootstrap.yml',
+              'SOURCE_MANIFEST.sha256',
+              'app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt',
+              'app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt',
+              'app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationAndroidContracts.kt',
+              'app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt',
+              'app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt',
+              'app/src/test/java/com/realityforge/scanner/CalibrationTest.kt',
+              'app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.kt',
+              'app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.kt',
+              'app/src/test/java/com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.kt',
+              'app/src/androidTest/java/com/realityforge/scanner/agents/a027/CalibrationProfileDeviceTest.kt',
+              'docs/agents/contracts/027.md',
+              *{f'docs/agents/bootstrap/027/payload.{index:02d}' for index in range(7)},
+          }
+          changed = set(subprocess.check_output(
+              ['git', 'diff', '--cached', '--name-only', '-z'],
+          ).decode('utf-8').rstrip('\0').split('\0'))
+          changed.discard('')
+          unexpected = sorted(changed - allowed)
+          required = {
+              'SOURCE_MANIFEST.sha256',
+              'app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt',
+              'app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt',
+              'app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt',
+              'app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt',
+              'app/src/test/java/com/realityforge/scanner/CalibrationTest.kt',
+              'docs/agents/contracts/027.md',
+          }
+          missing = sorted(required - changed)
+          if unexpected or missing:
+              raise SystemExit(f'unexpected={unexpected} missing={missing}')
+          PY
+
+          git diff --check --cached
+          git diff --exit-code
+          git commit -m "feat(agent-027): implement evidence-driven lens calibration workflow"
+          IMPLEMENTATION_SHA="$(git rev-parse HEAD)"
+
+          mkdir -p docs/agents/requests docs/agents/status
+          for template in /tmp/agent027/templates/requests/*.md.in; do
+            output="docs/agents/requests/$(basename "${template}" .in)"
+            sed "s/__IMPLEMENTATION_SHA__/${IMPLEMENTATION_SHA}/g" "${template}" > "${output}"
+          done
+          sed "s/__IMPLEMENTATION_SHA__/${IMPLEMENTATION_SHA}/g" \
+            /tmp/agent027/templates/status.md.in > docs/agents/status/027.md
+
+          git add -- docs/agents/requests/027-to-*.md docs/agents/status/027.md
+
+          python3 - <<'PY'
+          import hashlib
+          import subprocess
+          from pathlib import Path
+
+          records = subprocess.check_output(['git', 'ls-files', '--stage', '-z']).split(b'\0')
+          rows = []
+          for record in records:
+              if not record:
+                  continue
+              metadata, raw_path = record.split(b'\t', 1)
+              mode, oid, stage = metadata.split()
+              path = raw_path.decode('utf-8')
+              if stage != b'0':
+                  raise SystemExit('Resolve all semantic merge conflicts before regenerating the manifest.')
+              if path == 'SOURCE_MANIFEST.sha256':
+                  continue
+              if mode not in (b'100644', b'100755') or '\n' in path or '\r' in path:
+                  raise SystemExit('Unsupported tracked entry; coordinate with Agent 094: ' + path)
+              content = subprocess.check_output(['git', 'cat-file', 'blob', oid.decode('ascii')])
+              rows.append((path, hashlib.sha256(content).hexdigest()))
+          Path('SOURCE_MANIFEST.sha256').write_text(
+              ''.join(f'{digest}  {path}\n' for path, digest in sorted(rows)),
+              encoding='utf-8',
+          )
+          PY
+          git add SOURCE_MANIFEST.sha256
+
+          python3 - <<'PY'
+          import subprocess
+
+          allowed = {
+              'SOURCE_MANIFEST.sha256',
+              'docs/agents/status/027.md',
+              *{f'docs/agents/requests/027-to-{agent:03d}.md' for agent in (1, 5, 6, 9, 10, 12, 13, 21, 23, 31, 73, 75)},
+          }
+          changed = set(subprocess.check_output(
+              ['git', 'diff', '--cached', '--name-only', '-z'],
+          ).decode('utf-8').rstrip('\0').split('\0'))
+          changed.discard('')
+          unexpected = sorted(changed - allowed)
+          missing = sorted(allowed - changed)
+          if unexpected or missing:
+              raise SystemExit(f'unexpected={unexpected} missing={missing}')
+          PY
+
+          git diff --check --cached
+          git diff --exit-code
+          git commit -m "docs(agent-027): publish integration handoffs and status"
+
+          test ! -e .github/workflows/agent-027-bootstrap.yml
+          test ! -e docs/agents/bootstrap/027
+          git status --short --branch
+          git push origin "HEAD:refs/heads/${BRANCH}"
