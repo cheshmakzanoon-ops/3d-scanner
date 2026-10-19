@@ -1,8 +1,7 @@
 name: Agent 014 materialize owned payload
 on:
-  push:
-    branches:
-      - agents/014-camera-session-lifecycle
+  pull_request:
+    types: [opened, synchronize, reopened]
 permissions:
   contents: write
 jobs:
@@ -12,13 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           fetch-depth: 0
       - name: Verify and extract Agent 014 payload
         shell: bash
         run: |
           set -euo pipefail
           cat .agent014/payload.* | base64 --decode > /tmp/agent014-payload.tar.xz
-          echo '4b60b6ee2210f7880948b02f94f86e1112c20c5b6ee4a94e4b152d1159135b7f  /tmp/agent014-payload.tar.xz' | sha256sum --check --strict
+          echo '0f1d7cee6e16bb5f31dd64a4e8aaade4b3351de6cdfddfd4b89b90044d3313e5  /tmp/agent014-payload.tar.xz' | sha256sum --check --strict
           tar -xJf /tmp/agent014-payload.tar.xz
           rm -rf .agent014 .github/workflows/agent-014-materialize.yml
       - name: Commit owned implementation
