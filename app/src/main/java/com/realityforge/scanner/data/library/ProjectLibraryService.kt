@@ -88,7 +88,11 @@ class ProjectLibraryService(private val port: ProjectLibraryPort, private val pr
         val (source, photos) = requireNotNull(port.snapshot(id)) { "Source project not found." }
         check(source.revision == expectedRevision) { "Source project changed." }
         require(photos.size <= 250) { "Duplicate exceeds supported photo count." }
-        val total = photos.sumOf { require(it.bytes in 1..150L * 1024 * 1024); it.bytes }
+        val total = photos.fold(0L) { size, photo ->
+            require(photo.bytes in 1..150L * 1024 * 1024) { "Invalid original size." }
+            require(photo.filename.matches(Regex("[a-zA-Z0-9_-]+\\.image"))) { "Unsafe original filename." }
+            Math.addExact(size, photo.bytes)
+        }
         val newId = UUID.randomUUID().toString()
         val folder = File(projectRoot, newId)
         check(!folder.exists()) { "Destination already exists." }
