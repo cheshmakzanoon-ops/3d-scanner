@@ -1,0 +1,60 @@
+name: Refresh Agent 010 verification manifest
+
+on:
+  push:
+    branches: [agents/010-diagnostics-contract]
+    paths:
+      - .github/workflows/agent-010-refresh-manifest.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Regenerate source manifest and remove finalizer
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(sha256sum docs/agents/status/010.md | awk '{print $1}')" = "e1f0683776b1fad521e5a6c292579c9163a8b2259b147d8e770bd8ad1c465e8f"
+          test "$(git hash-object docs/agents/status/010.md)" = "113ee8d037a3c2212cfe111bb68f75267b8dadd6"
+          git rm .github/workflows/agent-010-refresh-manifest.yml
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import subprocess
+
+          rows = []
+          raw = subprocess.check_output(['git', 'ls-files', '--stage', '-z'])
+          for record in raw.split(b'\0'):
+              if not record:
+                  continue
+              metadata, path_bytes = record.split(b'\t', 1)
+              _mode, blob_sha, stage = metadata.split()
+              if stage != b'0' or path_bytes == b'SOURCE_MANIFEST.sha256':
+                  continue
+              data = subprocess.check_output(['git', 'cat-file', 'blob', blob_sha.decode('ascii')])
+              path = path_bytes.decode('utf-8')
+              rows.append((path, hashlib.sha256(data).hexdigest()))
+          rows.sort(key=lambda item: item[0])
+          Path('SOURCE_MANIFEST.sha256').write_text(
+              ''.join(f'{digest}  {path}\n' for path, digest in rows),
+              encoding='utf-8',
+          )
+          PY
+          grep -Fx "e1f0683776b1fad521e5a6c292579c9163a8b2259b147d8e770bd8ad1c465e8f  docs/agents/status/010.md" SOURCE_MANIFEST.sha256
+          git add SOURCE_MANIFEST.sha256
+          git diff --cached --check
+      - name: Commit refreshed receipt manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'RealityForge Agent 010'
+          git config user.email 'agent-010@users.noreply.github.com'
+          git commit -m '[Agent 010] Synchronize verification manifest'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
