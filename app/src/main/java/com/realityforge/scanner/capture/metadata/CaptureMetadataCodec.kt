@@ -55,6 +55,7 @@ object CaptureMetadataCodec {
         val metadata = CaptureMetadata(
             schemaVersion = schema,
             captureSources = captureSources,
+            captureDeviceId = readEvidence(values, "captureDeviceId", ::identityString),
             imageSize = readEvidence(values, "imageSize", ::parsePixelSize),
             orientation = readEvidence(values, "orientation", ::parseOrientation),
             logicalCameraId = readEvidence(values, "logicalCameraId", ::identityString),
@@ -78,12 +79,13 @@ object CaptureMetadataCodec {
     }
 
     private fun canonicalLines(metadata: CaptureMetadata, header: String, includeRetention: Boolean): String {
-        val lines = ArrayList<String>(90)
+        val lines = ArrayList<String>(96)
         lines += header
         lines += "schema=${metadata.schemaVersion}"
         lines += "captureSources=${metadata.captureSources.sortedBy { it.ordinal }.joinToString(",") { it.name }}"
         lines += "issues=${metadata.issues.sortedBy { it.ordinal }.joinToString(",") { it.name }}"
         if (includeRetention) lines += "originalMetadataRetained=${metadata.originalMetadataRetained}"
+        appendEvidence(lines, "captureDeviceId", metadata.captureDeviceId, ::identityString)
         appendEvidence(lines, "imageSize", metadata.imageSize) { "${it.width},${it.height}" }
         appendEvidence(lines, "orientation", metadata.orientation) { it.name }
         appendEvidence(lines, "logicalCameraId", metadata.logicalCameraId, ::identityString)

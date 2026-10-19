@@ -9,9 +9,11 @@ enum class EvidenceOrigin {
     CALLER_IMAGE_DIMENSIONS,
     ENCODED_IMAGE_METADATA,
     EXIF,
+    ANDROID_DEVICE_BUILD,
     CAMERA_CHARACTERISTICS,
     CAMERA_CAPTURE_RESULT,
     CAMERAX_RUNTIME_STATE,
+    CAPTURE_DEVICE_BINDING,
     CAPTURE_SESSION_BINDING,
     DERIVED_SENSOR_GEOMETRY,
 }
@@ -205,6 +207,8 @@ enum class CaptureMetadataIssue {
 data class CaptureMetadata(
     val schemaVersion: Int = SCHEMA_VERSION,
     val captureSources: Set<CaptureSource>,
+    /** Opaque app-local installation/device namespace supplied by the capture owner, never a hardware serial. */
+    val captureDeviceId: FieldEvidence<String>,
     val imageSize: FieldEvidence<PixelSize>,
     val orientation: FieldEvidence<ImageOrientation>,
     val logicalCameraId: FieldEvidence<String>,
@@ -225,6 +229,7 @@ data class CaptureMetadata(
     init {
         require(schemaVersion == SCHEMA_VERSION) { "Unsupported in-memory capture metadata schema" }
         require(captureSources.isNotEmpty())
+        validateEvidence(captureDeviceId, ::validText)
         validateEvidence(imageSize) { true }
         validateEvidence(orientation) { true }
         listOf(logicalCameraId, physicalCameraId, reportedCameraMake, reportedCameraModel, reportedLensMake, reportedLensModel)
@@ -242,6 +247,7 @@ data class CaptureMetadata(
 
         fun empty(source: CaptureSource): CaptureMetadata = CaptureMetadata(
             captureSources = setOf(source),
+            captureDeviceId = FieldEvidence.missing(),
             imageSize = FieldEvidence.missing(),
             orientation = FieldEvidence.missing(),
             logicalCameraId = FieldEvidence.missing(),
@@ -272,6 +278,7 @@ data class CaptureMetadata(
 /** Combines independent EXIF/camera observations without hiding disagreements. */
 object CaptureMetadataMerger {
     fun merge(left: CaptureMetadata, right: CaptureMetadata): CaptureMetadata {
+        val captureDeviceId = mergeField(left.captureDeviceId, right.captureDeviceId, String::equals, { it })
         val imageSize = mergeField(left.imageSize, right.imageSize, { a, b -> a == b }, { it.toString() })
         val orientation = mergeField(left.orientation, right.orientation, { a, b -> a == b }, { it.name })
         val logicalCameraId = mergeField(left.logicalCameraId, right.logicalCameraId, String::equals, { it })
@@ -289,12 +296,13 @@ object CaptureMetadataMerger {
         val focal = mergeNumeric(left.focalLengthMm, right.focalLengthMm, 0.02)
         val focal35 = mergeNumeric(left.focal35mmEquivalent, right.focal35mmEquivalent, 0.03)
         val mergedFields = listOf(
-            imageSize, orientation, logicalCameraId, physicalCameraId, cameraMake, cameraModel,
+            captureDeviceId, imageSize, orientation, logicalCameraId, physicalCameraId, cameraMake, cameraModel,
             lensMake, lensModel, zoom, crop, sensorSize, sensorOrientation, focal, focal35,
         )
         val hasConflict = mergedFields.any { it.status == EvidenceStatus.CONFLICTING }
         return CaptureMetadata(
             captureSources = left.captureSources + right.captureSources,
+            captureDeviceId = captureDeviceId,
             imageSize = imageSize,
             orientation = orientation,
             logicalCameraId = logicalCameraId,
@@ -345,8 +353,11 @@ object CaptureMetadataMerger {
             return FieldEvidence.conflicting(observations, checked)
         }
         val selected = observations.minWith(compareBy<EvidenceObservation<T>>({ originRank(it.origin) }, { valueKey(it.value) }))
-        val uncertainty = listOfNotNull(left.relativeUncertainty, right.relativeUncertainty,
-            observations.maxOfOrNull { spread(selected.value, it.value) }).maxOrNull()?.takeIf { it > 0.0 }
+        val uncertainty = listOfNotNull(
+            left.relativeUncertainty,
+            right.relativeUncertainty,
+            observations.maxOfOrNull { spread(selected.value, it.value) },
+        ).maxOrNull()?.takeIf { it > 0.0 }
         val status = if (
             selected.origin == EvidenceOrigin.DERIVED_SENSOR_GEOMETRY ||
             (left.status == EvidenceStatus.DERIVED && right.status in setOf(EvidenceStatus.DERIVED, EvidenceStatus.MISSING)) ||
@@ -357,13 +368,15 @@ object CaptureMetadataMerger {
 
     private fun originRank(origin: EvidenceOrigin): Int = when (origin) {
         EvidenceOrigin.CAMERA_CAPTURE_RESULT -> 0
-        EvidenceOrigin.CAPTURE_SESSION_BINDING -> 1
-        EvidenceOrigin.EXIF -> 2
-        EvidenceOrigin.ENCODED_IMAGE_METADATA -> 3
-        EvidenceOrigin.CAMERAX_RUNTIME_STATE -> 4
-        EvidenceOrigin.CAMERA_CHARACTERISTICS -> 5
-        EvidenceOrigin.CALLER_IMAGE_DIMENSIONS -> 6
-        EvidenceOrigin.DERIVED_SENSOR_GEOMETRY -> 7
+        EvidenceOrigin.CAPTURE_DEVICE_BINDING -> 1
+        EvidenceOrigin.CAPTURE_SESSION_BINDING -> 2
+        EvidenceOrigin.EXIF -> 3
+        EvidenceOrigin.ENCODED_IMAGE_METADATA -> 4
+        EvidenceOrigin.CAMERAX_RUNTIME_STATE -> 5
+        EvidenceOrigin.CAMERA_CHARACTERISTICS -> 6
+        EvidenceOrigin.ANDROID_DEVICE_BUILD -> 7
+        EvidenceOrigin.CALLER_IMAGE_DIMENSIONS -> 8
+        EvidenceOrigin.DERIVED_SENSOR_GEOMETRY -> 9
     }
 
     internal fun relativeDifference(a: Double, b: Double): Double = abs(a - b) / max(max(abs(a), abs(b)), 1e-12)

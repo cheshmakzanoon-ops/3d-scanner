@@ -70,6 +70,7 @@ object ExifCaptureMetadataAdapter {
 
         return CaptureMetadata(
             captureSources = setOf(if (hasExifIdentity) CaptureSource.IMPORTED_EXIF else CaptureSource.IMPORTED_NO_METADATA),
+            captureDeviceId = FieldEvidence.missing(EvidenceOrigin.EXIF),
             imageSize = imageSize,
             orientation = orientation,
             logicalCameraId = FieldEvidence.missing(EvidenceOrigin.EXIF),
@@ -90,7 +91,7 @@ object ExifCaptureMetadataAdapter {
     }
 
     private fun textEvidence(exif: ExifInterface, tag: String): FieldEvidence<String> {
-        val value = exif.getAttribute(tag)?.trim()?.takeIf { it.isNotEmpty() && it.length <= 256 && it.none { c -> c.code < 0x20 } }
+        val value = normalizedText(exif.getAttribute(tag))
         return value?.let { FieldEvidence.observed(it, EvidenceOrigin.EXIF) }
             ?: FieldEvidence.missing(EvidenceOrigin.EXIF)
     }
@@ -128,6 +129,9 @@ object ExifCaptureMetadataAdapter {
 /**
  * Camera2/CameraX adapter. A physical camera id is accepted only from the capture-session
  * binding/callback; the logical camera's set of possible physical ids is never guessed.
+ *
+ * Camera IDs are interpreted inside [captureDeviceId], an opaque app-local namespace supplied
+ * by the session owner. The adapter never reads a hardware serial or invents that namespace.
  */
 object CameraCaptureMetadataAdapter {
     fun fromCamera2(
@@ -138,10 +142,16 @@ object CameraCaptureMetadataAdapter {
         imageSize: PixelSize,
         encodedOrientation: ImageOrientation?,
         fallbackZoomRatio: Double? = null,
+        captureDeviceId: String? = null,
+        deviceManufacturer: String? = Build.MANUFACTURER,
+        deviceModel: String? = Build.MODEL,
     ): CaptureMetadata = build(
         sources = setOf(CaptureSource.CAMERA2_CAPTURE),
+        captureDeviceId = captureDeviceId,
         logicalCameraId = logicalCameraId,
         physicalCameraId = physicalCameraId,
+        deviceManufacturer = deviceManufacturer,
+        deviceModel = deviceModel,
         activeArray = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE),
         sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE),
         sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION),
@@ -160,12 +170,18 @@ object CameraCaptureMetadataAdapter {
         captureResult: CaptureResult?,
         imageSize: PixelSize,
         encodedOrientation: ImageOrientation?,
+        captureDeviceId: String? = null,
+        deviceManufacturer: String? = Build.MANUFACTURER,
+        deviceModel: String? = Build.MODEL,
     ): CaptureMetadata {
         val camera2 = Camera2CameraInfo.from(cameraInfo)
         return build(
             sources = setOf(CaptureSource.CAMERAX_CAPTURE) + if (captureResult != null) setOf(CaptureSource.CAMERA2_CAPTURE) else emptySet(),
+            captureDeviceId = captureDeviceId,
             logicalCameraId = camera2.cameraId,
             physicalCameraId = physicalCameraId,
+            deviceManufacturer = deviceManufacturer,
+            deviceModel = deviceModel,
             activeArray = camera2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE),
             sensorSize = camera2.getCameraCharacteristic(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE),
             sensorOrientation = camera2.getCameraCharacteristic(CameraCharacteristics.SENSOR_ORIENTATION),
@@ -179,8 +195,11 @@ object CameraCaptureMetadataAdapter {
 
     private fun build(
         sources: Set<CaptureSource>,
+        captureDeviceId: String?,
         logicalCameraId: String,
         physicalCameraId: String?,
+        deviceManufacturer: String?,
+        deviceModel: String?,
         activeArray: Rect?,
         sensorSize: SizeF?,
         sensorOrientation: Int?,
@@ -192,12 +211,21 @@ object CameraCaptureMetadataAdapter {
     ): CaptureMetadata {
         val issues = linkedSetOf<CaptureMetadataIssue>()
         if (captureResult == null) issues += CaptureMetadataIssue.CAMERA_CAPTURE_RESULT_UNAVAILABLE
-        val logical = normalizedId(logicalCameraId)?.let {
+        val deviceBinding = normalizedText(captureDeviceId)?.let {
+            FieldEvidence.observed(it, EvidenceOrigin.CAPTURE_DEVICE_BINDING)
+        } ?: FieldEvidence.missing(EvidenceOrigin.CAPTURE_DEVICE_BINDING)
+        val logical = normalizedText(logicalCameraId)?.let {
             FieldEvidence.observed(it, EvidenceOrigin.CAPTURE_SESSION_BINDING)
         } ?: throw IllegalArgumentException("Logical camera id is empty or invalid")
-        val physical = normalizedId(physicalCameraId)?.let {
+        val physical = normalizedText(physicalCameraId)?.let {
             FieldEvidence.observed(it, EvidenceOrigin.CAPTURE_SESSION_BINDING)
         } ?: FieldEvidence.missing(EvidenceOrigin.CAPTURE_SESSION_BINDING)
+        val cameraMake = normalizedText(deviceManufacturer)?.let {
+            FieldEvidence.observed(it, EvidenceOrigin.ANDROID_DEVICE_BUILD)
+        } ?: FieldEvidence.missing(EvidenceOrigin.ANDROID_DEVICE_BUILD)
+        val cameraModel = normalizedText(deviceModel)?.let {
+            FieldEvidence.observed(it, EvidenceOrigin.ANDROID_DEVICE_BUILD)
+        } ?: FieldEvidence.missing(EvidenceOrigin.ANDROID_DEVICE_BUILD)
         val orientation = encodedOrientation?.let {
             FieldEvidence.observed(it, EvidenceOrigin.ENCODED_IMAGE_METADATA)
         } ?: FieldEvidence.missing(EvidenceOrigin.ENCODED_IMAGE_METADATA)
@@ -270,12 +298,13 @@ object CameraCaptureMetadataAdapter {
 
         return CaptureMetadata(
             captureSources = sources,
+            captureDeviceId = deviceBinding,
             imageSize = FieldEvidence.observed(imageSize, EvidenceOrigin.CALLER_IMAGE_DIMENSIONS),
             orientation = orientation,
             logicalCameraId = logical,
             physicalCameraId = physical,
-            reportedCameraMake = FieldEvidence.missing(EvidenceOrigin.CAMERA_CHARACTERISTICS),
-            reportedCameraModel = FieldEvidence.missing(EvidenceOrigin.CAMERA_CHARACTERISTICS),
+            reportedCameraMake = cameraMake,
+            reportedCameraModel = cameraModel,
             reportedLensMake = FieldEvidence.missing(EvidenceOrigin.CAMERA_CHARACTERISTICS),
             reportedLensModel = FieldEvidence.missing(EvidenceOrigin.CAMERA_CHARACTERISTICS),
             zoomRatio = zoom,
@@ -288,9 +317,6 @@ object CameraCaptureMetadataAdapter {
             issues = issues,
         )
     }
-
-    private fun normalizedId(value: String?): String? = value?.trim()
-        ?.takeIf { it.isNotEmpty() && it.length <= 256 && it.none { c -> c.code < 0x20 } }
 
     private fun Rect.toSensorCrop(reference: Rect): SensorCrop = SensorCrop(
         left = left,
@@ -305,3 +331,6 @@ object CameraCaptureMetadataAdapter {
 
     private const val FULL_FRAME_DIAGONAL_MM = 43.266615305567875
 }
+
+private fun normalizedText(value: String?): String? = value?.trim()
+    ?.takeIf { it.isNotEmpty() && it.length <= 256 && it.none { c -> c.code < 0x20 || c.code == 0x7f } }

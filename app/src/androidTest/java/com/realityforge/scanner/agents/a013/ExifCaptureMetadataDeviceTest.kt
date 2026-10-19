@@ -15,7 +15,7 @@ import java.security.MessageDigest
 
 @RunWith(AndroidJUnit4::class)
 class ExifCaptureMetadataDeviceTest {
-    @Test fun exifAdapterPreservesOriginalBytesAndNeverInventsPhysicalCameraId() {
+    @Test fun exifAdapterPreservesOriginalBytesAndNeverInventsPhysicalOrCaptureDeviceId() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val file = File(context.cacheDir, "agent-013-exif-${System.nanoTime()}.jpg")
         try {
@@ -46,6 +46,7 @@ class ExifCaptureMetadataDeviceTest {
             assertEquals(23.0, metadata.focal35mmEquivalent.value!!, 1e-9)
             assertEquals(1.25, metadata.zoomRatio.value!!, 1e-9)
             assertEquals("Wide Fixture", metadata.reportedLensModel.value)
+            assertEquals(EvidenceStatus.MISSING, metadata.captureDeviceId.status)
             assertEquals(EvidenceStatus.MISSING, metadata.physicalCameraId.status)
             assertTrue(metadata.originalMetadataRetained)
             assertEquals(metadata, CaptureMetadataCodec.decode(CaptureMetadataCodec.encode(metadata)))
@@ -65,6 +66,7 @@ class ExifCaptureMetadataDeviceTest {
             val before = sha256(file)
             val metadata = ExifCaptureMetadataAdapter.read(file, PixelSize(8, 6))
             assertEquals(before, sha256(file))
+            assertEquals(EvidenceStatus.MISSING, metadata.captureDeviceId.status)
             assertEquals(EvidenceStatus.MISSING, metadata.orientation.status)
             assertEquals(EvidenceStatus.MISSING, metadata.focalLengthMm.status)
             assertEquals(EvidenceStatus.MISSING, metadata.zoomRatio.status)

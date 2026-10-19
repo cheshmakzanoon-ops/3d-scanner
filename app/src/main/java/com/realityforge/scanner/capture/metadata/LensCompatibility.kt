@@ -12,6 +12,8 @@ enum class LensCompatibilityLevel {
 
 enum class LensCompatibilityReason {
     CONFLICTING_OPTICAL_EVIDENCE,
+    CAPTURE_DEVICE_MISMATCH,
+    CAMERA_DEVICE_MODEL_MISMATCH,
     PHYSICAL_LENS_MISMATCH,
     LOGICAL_CAMERA_MISMATCH,
     REPORTED_LENS_MISMATCH,
@@ -23,6 +25,8 @@ enum class LensCompatibilityReason {
     FOCAL_LENGTH_MISMATCH,
     FOCAL_35MM_MISMATCH,
     SENSOR_SIZE_MISMATCH,
+    CAPTURE_DEVICE_ID_UNAVAILABLE,
+    CAMERA_DEVICE_IDENTITY_UNAVAILABLE,
     PHYSICAL_LENS_ID_UNAVAILABLE,
     CAMERA_IDENTITY_UNAVAILABLE,
     REPORTED_LENS_ID_UNAVAILABLE,
@@ -74,7 +78,13 @@ data class LensCompatibilityResult(
     }
 }
 
-/** Conservative same-optics decision. It never treats missing identifiers as a physical-lens match. */
+/**
+ * Conservative same-optics decision.
+ *
+ * Camera2 logical/physical IDs are interpreted only inside the opaque capture-device
+ * namespace supplied by the capture owner. Equal local camera IDs without that namespace
+ * can support an uncertain grouping, but can never authorize automatic calibration reuse.
+ */
 object LensCompatibilityAssessor {
     fun assess(
         reference: CaptureMetadata,
@@ -85,10 +95,13 @@ object LensCompatibilityAssessor {
         var hardMismatch = false
 
         val criticalEvidence = listOf(
+            reference.captureDeviceId, candidate.captureDeviceId,
             reference.imageSize, candidate.imageSize,
             reference.orientation, candidate.orientation,
             reference.logicalCameraId, candidate.logicalCameraId,
             reference.physicalCameraId, candidate.physicalCameraId,
+            reference.reportedCameraMake, candidate.reportedCameraMake,
+            reference.reportedCameraModel, candidate.reportedCameraModel,
             reference.reportedLensModel, candidate.reportedLensModel,
             reference.zoomRatio, candidate.zoomRatio,
             reference.cropRegion, candidate.cropRegion,
@@ -100,6 +113,26 @@ object LensCompatibilityAssessor {
         if (criticalEvidence.any { it.status == EvidenceStatus.CONFLICTING }) {
             reasons += LensCompatibilityReason.CONFLICTING_OPTICAL_EVIDENCE
             hardMismatch = true
+        }
+
+        val captureDeviceA = reference.captureDeviceId.value
+        val captureDeviceB = candidate.captureDeviceId.value
+        val sameCaptureDevice = captureDeviceA != null && captureDeviceB != null && captureDeviceA == captureDeviceB
+        if (captureDeviceA != null && captureDeviceB != null && captureDeviceA != captureDeviceB) {
+            reasons += LensCompatibilityReason.CAPTURE_DEVICE_MISMATCH
+            hardMismatch = true
+        } else if (captureDeviceA == null || captureDeviceB == null) {
+            reasons += LensCompatibilityReason.CAPTURE_DEVICE_ID_UNAVAILABLE
+        }
+
+        val cameraDeviceA = normalizedCameraDevice(reference)
+        val cameraDeviceB = normalizedCameraDevice(candidate)
+        val cameraDeviceMatch = cameraDeviceA != null && cameraDeviceB != null && cameraDeviceA == cameraDeviceB
+        if (cameraDeviceA != null && cameraDeviceB != null && cameraDeviceA != cameraDeviceB) {
+            reasons += LensCompatibilityReason.CAMERA_DEVICE_MODEL_MISMATCH
+            hardMismatch = true
+        } else if (cameraDeviceA == null || cameraDeviceB == null) {
+            reasons += LensCompatibilityReason.CAMERA_DEVICE_IDENTITY_UNAVAILABLE
         }
 
         val physicalA = reference.physicalCameraId.value
@@ -114,6 +147,7 @@ object LensCompatibilityAssessor {
 
         val logicalA = reference.logicalCameraId.value
         val logicalB = candidate.logicalCameraId.value
+        val logicalMatch = logicalA != null && logicalB != null && logicalA == logicalB
         if (!physicalMatch && logicalA != null && logicalB != null && logicalA != logicalB) {
             reasons += LensCompatibilityReason.LOGICAL_CAMERA_MISMATCH
             hardMismatch = true
@@ -121,6 +155,7 @@ object LensCompatibilityAssessor {
 
         val reportedLensA = normalizedLensName(reference)
         val reportedLensB = normalizedLensName(candidate)
+        val reportedLensMatch = reportedLensA != null && reportedLensB != null && reportedLensA == reportedLensB
         if (!physicalMatch && reportedLensA != null && reportedLensB != null && reportedLensA != reportedLensB) {
             reasons += LensCompatibilityReason.REPORTED_LENS_MISMATCH
             hardMismatch = true
@@ -212,6 +247,7 @@ object LensCompatibilityAssessor {
             listOf(reference.focal35mmEquivalent, candidate.focal35mmEquivalent)
         }
         val relevantEvidence = listOf(
+            reference.captureDeviceId, candidate.captureDeviceId,
             reference.imageSize, candidate.imageSize,
             reference.orientation, candidate.orientation,
             reference.zoomRatio, candidate.zoomRatio,
@@ -228,15 +264,15 @@ object LensCompatibilityAssessor {
             (reference.focalLengthMm.value != null && candidate.focalLengthMm.value != null) ||
                 (reference.focal35mmEquivalent.value != null && candidate.focal35mmEquivalent.value != null),
         ).count { it }
-        val weakIdentityMatch = (logicalA != null && logicalA == logicalB) ||
-            (reportedLensA != null && reportedLensA == reportedLensB)
-        val directComplete = physicalMatch && knownOpticalPairs == 5 && !hasDerived
+        val weakIdentityMatch = logicalMatch || reportedLensMatch || (cameraDeviceMatch && physicalMatch)
+        val directComplete = sameCaptureDevice && physicalMatch && knownOpticalPairs == 5 && !hasDerived
 
         val level = when {
             hardMismatch -> LensCompatibilityLevel.INCOMPATIBLE
             directComplete -> LensCompatibilityLevel.COMPATIBLE
-            (physicalMatch && knownOpticalPairs >= 3) || (weakIdentityMatch && knownOpticalPairs >= 4) ->
-                LensCompatibilityLevel.COMPATIBLE_WITH_UNCERTAINTY
+            (sameCaptureDevice && (physicalMatch || weakIdentityMatch) && knownOpticalPairs >= 3) ||
+                (cameraDeviceMatch && physicalMatch && knownOpticalPairs >= 4) ||
+                (weakIdentityMatch && knownOpticalPairs >= 4) -> LensCompatibilityLevel.COMPATIBLE_WITH_UNCERTAINTY
             else -> LensCompatibilityLevel.INSUFFICIENT_EVIDENCE
         }
         return LensCompatibilityResult(
@@ -249,6 +285,12 @@ object LensCompatibilityAssessor {
             ),
             requiresIndependentIntrinsics = level != LensCompatibilityLevel.COMPATIBLE,
         )
+    }
+
+    private fun normalizedCameraDevice(metadata: CaptureMetadata): String? {
+        val make = metadata.reportedCameraMake.value?.trim()?.lowercase()
+        val model = metadata.reportedCameraModel.value?.trim()?.lowercase()
+        return if (make != null && model != null) "$make|$model" else null
     }
 
     private fun normalizedLensName(metadata: CaptureMetadata): String? {
