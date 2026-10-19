@@ -20,7 +20,7 @@ class CurationUndoToken internal constructor(
     internal val afterStateFingerprint: String,
 )
 
-enum class CurationChangeKind { METADATA_ONLY, RECONSTRUCTION_INPUTS, RETAINED_ORIGINALS }
+enum class CurationChangeKind { METADATA_ONLY, RECONSTRUCTION_INPUTS, REMOVAL_LIFECYCLE, RETAINED_ORIGINALS }
 data class CurationChange(val kind: CurationChangeKind, val projectRevisionChanged: Boolean, val selectedInputChanged: Boolean)
 
 sealed interface PhotoRemovalDirective {

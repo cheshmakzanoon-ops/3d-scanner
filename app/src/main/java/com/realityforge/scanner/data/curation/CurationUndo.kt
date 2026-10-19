@@ -7,7 +7,10 @@ internal fun undo(current: CurationSnapshot, token: CurationUndoToken): Reductio
     return try {
         val restored = CurationSnapshot(current.projectId, current.revision, immutable(token.beforePhotos))
         if (curationStateFingerprint(restored) == curationStateFingerprint(current)) Reduction.unchanged()
-        else Reduction.changed(restored.orderedPhotos(), pendingIds(current) != pendingIds(restored))
+        else Reduction.changed(
+            restored.orderedPhotos(),
+            removalLifecycle = pendingIds(current) != pendingIds(restored),
+        )
     } catch (bad: IllegalArgumentException) {
         undoFailure("UNDO_TOKEN_INVALID", bad.message ?: "Undo token is invalid.")
     }

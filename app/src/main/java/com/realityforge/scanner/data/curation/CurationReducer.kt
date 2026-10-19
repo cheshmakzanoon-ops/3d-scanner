@@ -3,11 +3,20 @@ package com.realityforge.scanner.data.curation
 internal data class Reduction(
     val photos: List<CuratedPhoto>? = null,
     val failure: PhotoCurationFailure? = null,
+    val removalLifecycleChanged: Boolean = false,
     val retainedOriginalsChanged: Boolean = false,
 ) {
     companion object {
         fun unchanged() = Reduction()
-        fun changed(photos: List<CuratedPhoto>, retained: Boolean = false) = Reduction(immutable(photos), retainedOriginalsChanged = retained)
+        fun changed(
+            photos: List<CuratedPhoto>,
+            removalLifecycle: Boolean = false,
+            retainedOriginals: Boolean = false,
+        ) = Reduction(
+            immutable(photos),
+            removalLifecycleChanged = removalLifecycle,
+            retainedOriginalsChanged = retainedOriginals,
+        )
         fun failed(failure: PhotoCurationFailure) = Reduction(failure = failure)
     }
 }
@@ -58,13 +67,16 @@ private fun requestRemoval(
 ): Reduction = mutatePhoto(s, id) { p ->
     if (p.state == CuratedPhotoState.REMOVAL_PENDING) return@mutatePhoto pending(p)
     val rid = requestId().also { stableId(it, "removal request") }
+    if (s.photos.any { it.pendingRemoval?.requestId == rid }) {
+        return@mutatePhoto invalid("REMOVAL_REQUEST_DUPLICATE", "Removal request identity is already active.")
+    }
     val previous = if (p.state == CuratedPhotoState.EXCLUDED) RestorablePhotoState.EXCLUDED else RestorablePhotoState.INCLUDED
     val staged = p.copy(
         state = CuratedPhotoState.REMOVAL_PENDING,
         exclusion = null,
         pendingRemoval = PendingPhotoRemoval(rid, clock(), reason, previous, p.exclusion),
     )
-    replace(s, p, staged, true)
+    replace(s, p, staged, removalLifecycle = true)
 }
 
 private fun restoreRemoval(s: CurationSnapshot, id: String): Reduction = mutatePhoto(s, id) { p ->
@@ -72,21 +84,35 @@ private fun restoreRemoval(s: CurationSnapshot, id: String): Reduction = mutateP
     val restored = if (pending.previousState == RestorablePhotoState.EXCLUDED)
         p.copy(state = CuratedPhotoState.EXCLUDED, exclusion = pending.previousExclusion, pendingRemoval = null)
     else p.copy(state = CuratedPhotoState.INCLUDED, pendingRemoval = null)
-    replace(s, p, restored, true)
+    replace(s, p, restored, removalLifecycle = true)
 }
 
 private fun completeRemoval(s: CurationSnapshot, c: PhotoCurationCommand.CompleteRemoval): Reduction = mutatePhoto(s, c.photoId) { p ->
     val pending = p.pendingRemoval ?: return@mutatePhoto invalid("REMOVAL_NOT_PENDING", "Photo is not pending removal.")
     if (pending.requestId != c.removalRequestId) return@mutatePhoto invalid("REMOVAL_REQUEST_MISMATCH", "Removal proof does not match the staged request.")
     if (p.sha256 != c.removedOriginalSha256) return@mutatePhoto invalid("REMOVED_ORIGINAL_MISMATCH", "Removal proof does not match the original SHA-256.")
-    Reduction.changed(s.orderedPhotos().filter { it.id != p.id }.mapIndexed { i, photo -> photo.copy(position = i) }, true)
+    Reduction.changed(
+        s.orderedPhotos().filter { it.id != p.id }.mapIndexed { i, photo -> photo.copy(position = i) },
+        retainedOriginals = true,
+    )
 }
 
 private inline fun mutatePhoto(s: CurationSnapshot, id: String, block: (CuratedPhoto) -> Reduction): Reduction {
     val photo = s.photos.firstOrNull { it.id == id } ?: return Reduction.failed(PhotoCurationFailure.PhotoNotFound(id))
     return block(photo)
 }
-private fun replace(s: CurationSnapshot, old: CuratedPhoto, next: CuratedPhoto, retained: Boolean = false) =
-    Reduction.changed(s.orderedPhotos().map { if (it.id == old.id) next else it }, retained)
+
+private fun replace(
+    s: CurationSnapshot,
+    old: CuratedPhoto,
+    next: CuratedPhoto,
+    removalLifecycle: Boolean = false,
+    retainedOriginals: Boolean = false,
+) = Reduction.changed(
+    s.orderedPhotos().map { if (it.id == old.id) next else it },
+    removalLifecycle = removalLifecycle,
+    retainedOriginals = retainedOriginals,
+)
+
 private fun pending(p: CuratedPhoto) = Reduction.failed(PhotoCurationFailure.PhotoPendingRemoval(p.id, requireNotNull(p.pendingRemoval).requestId))
 internal fun invalid(code: String, message: String) = Reduction.failed(PhotoCurationFailure.InvalidCommand(code, message))

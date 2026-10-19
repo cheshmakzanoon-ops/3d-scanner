@@ -32,6 +32,10 @@ data class CurationSnapshot(
         require(photos.size <= MAX_CURATED_PHOTOS)
         require(photos.map { it.id }.toSet().size == photos.size)
         require(photos.map { it.position }.sorted() == photos.indices.toList())
+        val removalRequestIds = photos.mapNotNull { it.pendingRemoval?.requestId }
+        require(removalRequestIds.toSet().size == removalRequestIds.size) {
+            "Pending removal request identities must be unique within a project."
+        }
     }
 
     fun orderedPhotos() = photos.sortedBy { it.position }

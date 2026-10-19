@@ -17,14 +17,20 @@ internal suspend fun executeCuration(service: DefaultPhotoCurationService, comma
     val photos = reduced.photos ?: return PhotoCurationOutcome.Unchanged(current, current.toSelectedPhotoSet())
     val proposal = CurationSnapshot(current.projectId, current.revision, photos)
     val selectedChanged = current.toSelectedPhotoSet().inputFingerprint != proposal.toSelectedPhotoSet().inputFingerprint
-    val projectChanged = projectInputFingerprint(current) != projectInputFingerprint(proposal)
+    val projectChanged = selectedChanged || reduced.removalLifecycleChanged || reduced.retainedOriginalsChanged
     val nextRevision = advance(current.revision, projectChanged) ?: return PhotoCurationOutcome.Rejected(
         PhotoCurationFailure.InvalidCommand("REVISION_OVERFLOW", "Revision cannot be advanced safely."), current.toSelectedPhotoSet(),
     )
     val next = proposal.copy(revision = nextRevision)
     val change = CurationChange(
-        when { reduced.retainedOriginalsChanged -> CurationChangeKind.RETAINED_ORIGINALS; projectChanged -> CurationChangeKind.RECONSTRUCTION_INPUTS; else -> CurationChangeKind.METADATA_ONLY },
-        projectChanged, selectedChanged,
+        when {
+            reduced.retainedOriginalsChanged -> CurationChangeKind.RETAINED_ORIGINALS
+            reduced.removalLifecycleChanged -> CurationChangeKind.REMOVAL_LIFECYCLE
+            selectedChanged -> CurationChangeKind.RECONSTRUCTION_INPUTS
+            else -> CurationChangeKind.METADATA_ONLY
+        },
+        projectChanged,
+        selectedChanged,
     )
     val undoId = if (command is PhotoCurationCommand.CompleteRemoval) null else try {
         service.undoTokenId().also { stableId(it, "undo token") }
