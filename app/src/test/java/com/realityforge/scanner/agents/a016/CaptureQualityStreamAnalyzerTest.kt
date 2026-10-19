@@ -1,6 +1,7 @@
 package com.realityforge.scanner.agents.a016
 
 import com.realityforge.scanner.capture.analysis.CaptureAnalysisBudget
+import com.realityforge.scanner.capture.analysis.CaptureAnalysisBudgetProvider
 import com.realityforge.scanner.capture.analysis.CaptureAnalysisSessionId
 import com.realityforge.scanner.capture.analysis.CaptureQualityActionCode
 import com.realityforge.scanner.capture.analysis.CaptureQualityEvidenceCode
@@ -75,6 +76,77 @@ class CaptureQualityStreamAnalyzerTest {
     }
 
     @Test
+    fun outOfOrderFramesDoNotReplaceRetainedEvidence() {
+        val analyzer = analyzer(
+            CaptureAnalysisBudget(
+                maxAnalysisEdge = 128,
+                minFrameIntervalNanos = 50_000_000L,
+                maxRetainedFrameBytes = 128 * 128,
+                actionConfirmationFrames = 1,
+                readyConfirmationFrames = 1,
+            ),
+        )
+        analyzer.analyze(pattern(1_000_000_000L))
+        analyzer.analyze(pattern(1_100_000_000L))
+        assertNull(analyzer.analyze(pattern(1_050_000_000L, shift = 8)))
+        val afterStaleFrame = analyzer.analyze(pattern(1_200_000_000L))!!
+
+        assertEquals(0.0, afterStaleFrame.metrics!!.interFrameResidual!!, 1e-12)
+        assertEquals(1L, analyzer.stateSnapshot().outOfOrderDroppedFrameCount)
+        assertEquals(3L, analyzer.stateSnapshot().analyzedFrameCount)
+    }
+
+    @Test
+    fun missingComparableMotionEvidenceRevokesReadyImmediately() {
+        val analyzer = analyzer(
+            CaptureAnalysisBudget(
+                maxAnalysisEdge = 128,
+                minFrameIntervalNanos = 50_000_000L,
+                maxRetainedFrameBytes = 128 * 128,
+                actionConfirmationFrames = 3,
+                readyConfirmationFrames = 1,
+            ),
+        )
+        analyzer.analyze(pattern(1_000_000_000L))
+        assertEquals(
+            CaptureQualityActionCode.READY_TO_CAPTURE,
+            analyzer.analyze(pattern(1_100_000_000L))!!.action,
+        )
+
+        val resized = analyzer.analyze(
+            pattern(1_200_000_000L, width = 48, height = 64),
+        )!!
+        assertEquals(CaptureQualityActionCode.WAIT_FOR_EVIDENCE, resized.action)
+        assertEquals(CaptureQualityStatus.WARMING_UP, resized.status)
+        assertTrue(CaptureQualityEvidenceCode.MOTION_UNAVAILABLE in resized.evidenceCodes)
+    }
+
+    @Test
+    fun dynamicBudgetShrinkDropsOversizedRetainedEvidence() {
+        var budget = CaptureAnalysisBudget(
+            maxAnalysisEdge = 128,
+            minFrameIntervalNanos = 50_000_000L,
+            maxRetainedFrameBytes = 128 * 128,
+            actionConfirmationFrames = 1,
+            readyConfirmationFrames = 1,
+        )
+        val analyzer = CaptureQualityStreamAnalyzer(
+            sessionId = CaptureAnalysisSessionId("session-a016-dynamic"),
+            budgetProvider = CaptureAnalysisBudgetProvider { budget },
+        )
+        analyzer.analyze(pattern(1_000_000_000L, width = 80, height = 80))
+        assertEquals(6_400, analyzer.stateSnapshot().retainedFrameBytes)
+
+        budget = budget.copy(maxAnalysisEdge = 64, maxRetainedFrameBytes = 4_096)
+        val afterShrink = analyzer.analyze(
+            pattern(1_100_000_000L, width = 64, height = 64),
+        )!!
+        assertNull(afterShrink.metrics!!.interFrameResidual)
+        assertEquals(CaptureQualityActionCode.WAIT_FOR_EVIDENCE, afterShrink.action)
+        assertEquals(4_096, analyzer.stateSnapshot().retainedFrameBytes)
+    }
+
+    @Test
     fun outOfBudgetAndClosedSessionsCannotPublishStaleEvidence() {
         val analyzer = analyzer(
             CaptureAnalysisBudget(
@@ -107,21 +179,22 @@ class CaptureQualityStreamAnalyzerTest {
         budgetProvider = StaticCaptureAnalysisBudgetProvider(budget),
     )
 
-    private fun pattern(timestamp: Long, shift: Int = 0): LumaFrame {
-        val width = 64
-        val height = 48
-        return LumaFrame(
-            width,
-            height,
-            ByteArray(width * height) { index ->
-                val x = (index % width - shift).mod(width)
-                val y = index / width
-                if (((x / 4) + (y / 4)) % 2 == 0) 35 else 220.toByte()
-            },
-            timestamp,
-            0,
-        )
-    }
+    private fun pattern(
+        timestamp: Long,
+        shift: Int = 0,
+        width: Int = 64,
+        height: Int = 48,
+    ): LumaFrame = LumaFrame(
+        width,
+        height,
+        ByteArray(width * height) { index ->
+            val x = (index % width - shift).mod(width)
+            val y = index / width
+            if (((x / 4) + (y / 4)) % 2 == 0) 35 else 220.toByte()
+        },
+        timestamp,
+        0,
+    )
 
     private fun darkPattern(timestamp: Long): LumaFrame {
         val width = 64

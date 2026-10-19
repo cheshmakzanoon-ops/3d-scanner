@@ -53,7 +53,40 @@ class CameraXCaptureQualityAnalyzerDeviceTest {
             listOf(9, 5, 1, 10, 6, 2, 11, 7, 3, 12, 8, 4),
             frame.pixels.map { it.toInt() and 0xff },
         )
-        // The reader borrows the proxy. The Analyzer, not the reader, owns closure.
+        // The reader borrows the proxy. The analyzer, not the reader, owns closure.
+        assertEquals(0, image.closeCount.get())
+    }
+
+    @Test
+    fun yuvReaderRespectsCropRowStrideAndPixelStride() {
+        val width = 6
+        val height = 5
+        val rowStride = 16
+        val pixelStride = 2
+        val luma = ByteArray(rowStride * height) { 0x7f }
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                luma[y * rowStride + x * pixelStride] = (y * width + x + 1).toByte()
+            }
+        }
+        val image = fakeImage(
+            width = width,
+            height = height,
+            timestampNanos = 1_000_000_000L,
+            luma = luma,
+            rowStride = rowStride,
+            pixelStride = pixelStride,
+            cropRect = Rect(1, 1, 5, 4),
+        )
+
+        val frame = CameraXLumaFrameReader.read(image.proxy, budget)
+
+        assertEquals(4, frame.width)
+        assertEquals(3, frame.height)
+        assertEquals(
+            listOf(8, 9, 10, 11, 14, 15, 16, 17, 20, 21, 22, 23),
+            frame.pixels.map { it.toInt() and 0xff },
+        )
         assertEquals(0, image.closeCount.get())
     }
 
@@ -69,16 +102,20 @@ class CameraXCaptureQualityAnalyzerDeviceTest {
         assertEquals(1, first.closeCount.get())
         assertEquals(1, dropped.closeCount.get())
         assertEquals(1, observations.size)
+        assertEquals(1L, analyzer.stateSnapshot().analyzedFrameCount)
+        assertEquals(1L, analyzer.stateSnapshot().cadenceDroppedFrameCount)
 
         analyzer.close()
         val disposed = patternedImage(1_200_000_000L)
         analyzer.analyze(disposed.proxy)
         assertEquals(1, disposed.closeCount.get())
         assertEquals(1, observations.size)
+        assertTrue(analyzer.stateSnapshot().closed)
+        assertEquals(0, analyzer.stateSnapshot().retainedFrameCount)
     }
 
     @Test
-    fun unsupportedInvalidAndCancelledFramesCloseExactlyOnceWithoutThrowing() {
+    fun unsupportedInvalidCancelledAndGenericFailuresCloseExactlyOnceWithoutThrowing() {
         val failures = mutableListOf<CaptureAnalysisFailureCode>()
         val unsupportedAnalyzer = analyzer(onFailure = { failures += it.code })
         val unsupported = fakeImage(
@@ -110,6 +147,15 @@ class CameraXCaptureQualityAnalyzerDeviceTest {
         cancelledAnalyzer.analyze(cancelled.proxy)
         assertEquals(1, cancelled.closeCount.get())
         assertEquals(CaptureAnalysisFailureCode.CANCELLED, failures.last())
+
+        val failedAnalyzer = analyzer(
+            frameReader = CameraXFrameReader { _, _ -> error("reader failed") },
+            onFailure = { failures += it.code },
+        )
+        val failed = patternedImage(1_600_000_000L)
+        failedAnalyzer.analyze(failed.proxy)
+        assertEquals(1, failed.closeCount.get())
+        assertEquals(CaptureAnalysisFailureCode.ANALYZER_FAILURE, failures.last())
     }
 
     @Test
@@ -125,6 +171,33 @@ class CameraXCaptureQualityAnalyzerDeviceTest {
 
         assertEquals(1, image.closeCount.get())
         assertEquals(listOf(CaptureAnalysisFailureCode.OBSERVER_FAILURE), failures)
+    }
+
+    @Test
+    fun closeDuringFrameReadSuppressesStaleObservationAndClosesExactlyOnce() {
+        val observations = mutableListOf<CaptureQualityObservation>()
+        lateinit var analyzer: CameraXCaptureQualityAnalyzer
+        analyzer = analyzer(
+            frameReader = CameraXFrameReader { image, _ ->
+                analyzer.close()
+                LumaFrame(
+                    width = image.width,
+                    height = image.height,
+                    pixels = ByteArray(image.width * image.height) { 96 },
+                    timestampNanos = image.imageInfo.timestamp,
+                    sourceRotationDegrees = image.imageInfo.rotationDegrees,
+                )
+            },
+            onObservation = observations::add,
+        )
+        val image = patternedImage(1_000_000_000L)
+
+        analyzer.analyze(image.proxy)
+
+        assertEquals(1, image.closeCount.get())
+        assertTrue(observations.isEmpty())
+        assertTrue(analyzer.isClosed())
+        assertEquals(0, analyzer.stateSnapshot().retainedFrameCount)
     }
 
     private fun analyzer(
@@ -159,6 +232,7 @@ class CameraXCaptureQualityAnalyzerDeviceTest {
         luma: ByteArray,
         rowStride: Int = width,
         pixelStride: Int = 1,
+        cropRect: Rect = Rect(0, 0, width, height),
     ): FakeImage {
         val closeCount = AtomicInteger()
         val plane = proxy(ImageProxy.PlaneProxy::class.java) { method, _ ->
@@ -177,7 +251,7 @@ class CameraXCaptureQualityAnalyzerDeviceTest {
                 else -> defaultValue(method)
             }
         }
-        var crop = Rect(0, 0, width, height)
+        var crop = Rect(cropRect)
         val imageProxy = proxy(ImageProxy::class.java) { method, args ->
             when (method.name) {
                 "getWidth" -> width

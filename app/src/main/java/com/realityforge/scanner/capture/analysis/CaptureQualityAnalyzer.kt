@@ -25,6 +25,8 @@ class CaptureQualityStreamAnalyzer(
     fun analyze(frame: LumaFrame): CaptureQualityObservation? {
         if (closed) return null
         val budget = budgetProvider.currentBudget()
+        discardRetainedFrameOutside(budget)
+
         val lastTimestamp = lastAnalyzedTimestampNanos
         if (lastTimestamp != null) {
             if (frame.timestampNanos <= lastTimestamp) {
@@ -39,9 +41,7 @@ class CaptureQualityStreamAnalyzer(
         lastAnalyzedTimestampNanos = frame.timestampNanos
         sequence++
 
-        if (frame.width > budget.maxAnalysisEdge || frame.height > budget.maxAnalysisEdge ||
-            frame.byteCount > budget.maxRetainedFrameBytes
-        ) {
+        if (!frame.fitsWithin(budget)) {
             budgetRejectedFrameCount++
             previousFrame = null
             smoother.reset()
@@ -63,7 +63,7 @@ class CaptureQualityStreamAnalyzer(
 
         val metrics = CaptureQualityEstimator.measure(frame, previousFrame)
         previousFrame = frame.retainedCopy()
-        val profile = threshldProvider.currentProfile()
+        val profile = thresholdProvider.currentProfile()
         val raw = classify(metrics, profile.thresholds)
         val smoothed = smoother.update(
             raw.action,
@@ -79,7 +79,7 @@ class CaptureQualityStreamAnalyzer(
         evidence += raw.evidence
         if (smoothed.pending) evidence += CaptureQualityEvidenceCode.SMOOTHING_PENDING
         val status = when (smoothed.action) {
-            CaptureQualityActionCode.WAIT_FOR_EVIDENCE -> CaptureQualityStatus.WARMING_TP
+            CaptureQualityActionCode.WAIT_FOR_EVIDENCE -> CaptureQualityStatus.WARMING_UP
             CaptureQualityActionCode.READY_TO_CAPTURE -> CaptureQualityStatus.ACCEPTABLE
             else -> CaptureQualityStatus.ACTION_REQUIRED
         }
@@ -95,7 +95,7 @@ class CaptureQualityStreamAnalyzer(
             metrics = metrics,
             evidenceCodes = evidence,
             thresholdSource = profile.source,
-            threshldEvidenceIds = profile.evidenceIds,
+            thresholdEvidenceIds = profile.evidenceIds,
         )
     }
 
@@ -122,6 +122,19 @@ class CaptureQualityStreamAnalyzer(
         lastAnalyzedTimestampNanos = lastAnalyzedTimestampNanos,
         closed = closed,
     )
+
+    private fun discardRetainedFrameOutside(budget: CaptureAnalysisBudget) {
+        val retained = previousFrame ?: return
+        if (!retained.fitsWithin(budget)) {
+            previousFrame = null
+            smoother.reset()
+        }
+    }
+
+    private fun LumaFrame.fitsWithin(budget: CaptureAnalysisBudget): Boolean =
+        width <= budget.maxAnalysisEdge &&
+            height <= budget.maxAnalysisEdge &&
+            byteCount <= budget.maxRetainedFrameBytes
 
     private fun observationId(sequence: Long, timestampNanos: Long): String =
         "${sessionId.value}:$sequence:$timestampNanos"
@@ -185,7 +198,7 @@ class CaptureQualityStreamAnalyzer(
             0.35 * sampleConfidence +
                 0.30 * textureConfidence +
                 0.15 * motionConfidence +
-                0.20 * threshldConfidence
+                0.20 * thresholdConfidence
             ).coerceIn(0.0, 1.0)
     }
 
@@ -215,10 +228,10 @@ class CaptureQualityStreamAnalyzer(
                 candidate = raw
                 candidateCount = 1
             }
-            val required = if (raw == CaptureQualityActionCode.READY_TO_CAPTURE) {
-                readyConfirmationFrames
-            } else {
-                actionConfirmationFrames
+            val required = when (raw) {
+                CaptureQualityActionCode.WAIT_FOR_EVIDENCE -> 1
+                CaptureQualityActionCode.READY_TO_CAPTURE -> readyConfirmationFrames
+                else -> actionConfirmationFrames
             }
             if (candidateCount >= required) {
                 published = raw

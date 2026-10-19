@@ -24,7 +24,7 @@ enum class CaptureQualityStatus {
 
 enum class CaptureQualityActionCode {
     WAIT_FOR_EVIDENCE,
-    READY_TO_CATTURE,
+    READY_TO_CAPTURE,
     HOLD_STEADY,
     ADD_LIGHT,
     REDUCE_LIGHT,
@@ -99,10 +99,22 @@ data class CaptureQualityObservation(
         require(frameTimestampNanos >= 0)
         require(sourceRotationDegrees in VALID_ROTATIONS)
         require(confidence in 0.0..1.0)
+        require(evidenceCodes.isNotEmpty())
         require(thresholdEvidenceIds.size <= MAX_THRESHOLD_EVIDENCE_IDS)
         require(thresholdEvidenceIds.all { it.isNotBlank() && it.length <= MAX_EVIDENCE_ID_LENGTH })
         require(thresholdEvidenceIds.distinct().size == thresholdEvidenceIds.size)
-        if (status == CaptureQualityStatus.UNAVAILABLE) require(metrics == null)
+        if (status == CaptureQualityStatus.UNAVAILABLE) {
+            require(metrics == null)
+            require(action == CaptureQualityActionCode.WAIT_FOR_EVIDENCE)
+            require(confidence == 0.0)
+        } else {
+            require(metrics != null)
+        }
+        if (thresholdSource == CaptureQualityThresholdSource.CONSERVATIVE_DEFAULTS) {
+            require(thresholdEvidenceIds.isEmpty())
+        } else {
+            require(thresholdEvidenceIds.isNotEmpty())
+        }
     }
 
     companion object {

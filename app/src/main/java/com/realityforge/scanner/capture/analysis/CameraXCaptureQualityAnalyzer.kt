@@ -3,7 +3,6 @@ package com.realityforge.scanner.capture.analysis
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import java.nio.ByteBuffer
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
@@ -152,6 +151,8 @@ class CameraXCaptureQualityAnalyzer(
     }
 
     fun isClosed(): Boolean = closed.get()
+
+    fun stateSnapshot(): CaptureAnalysisStateSnapshot = streamAnalyzer.stateSnapshot()
 
     private fun publishObservation(observation: CaptureQualityObservation) {
         synchronized(lifecycleLock) {
