@@ -1,0 +1,74 @@
+name: Materialize Agent 010 source
+
+on:
+  push:
+    branches: [agents/010-diagnostics-contract]
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct verified diagnostics source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+          import hashlib
+
+          chunks = sorted(Path('.agent-010-transfer').glob('report.b64.*'))
+          if len(chunks) != 9:
+              raise SystemExit(f'expected 9 source chunks, found {len(chunks)}')
+          encoded = ''.join(path.read_text(encoding='ascii').strip() for path in chunks)
+          source = base64.b64decode(encoded, validate=True)
+          expected = '22552453223a73da027657dce79cb0e41fb449ae95a05d59b332d8a3fb359310'
+          actual = hashlib.sha256(source).hexdigest()
+          if actual != expected:
+              raise SystemExit(f'diagnostics source checksum mismatch: {actual}')
+          target = Path('app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt')
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_bytes(source)
+          PY
+          git rm -r .agent-010-transfer .github/workflows/agent-010-materialize.yml
+          git add -A
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          import subprocess
+
+          rows = []
+          raw = subprocess.check_output(['git', 'ls-files', '--stage', '-z'])
+          for record in raw.split(b'\0'):
+              if not record:
+                  continue
+              metadata, path_bytes = record.split(b'\t', 1)
+              _mode, blob_sha, stage = metadata.split()
+              if stage != b'0' or path_bytes == b'SOURCE_MANIFEST.sha256':
+                  continue
+              data = subprocess.check_output(['git', 'cat-file', 'blob', blob_sha.decode('ascii')])
+              path = path_bytes.decode('utf-8')
+              rows.append((path, hashlib.sha256(data).hexdigest()))
+          rows.sort(key=lambda item: item[0])
+          Path('SOURCE_MANIFEST.sha256').write_text(
+              ''.join(f'{digest}  {path}\n' for path, digest in rows),
+              encoding='utf-8',
+          )
+          PY
+          git add SOURCE_MANIFEST.sha256
+          test "$(git hash-object app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt)" = "f4c0fa871290cb6b3f18bd6102fb9a9955345270"
+          git diff --cached --check
+      - name: Commit exact candidate source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'RealityForge Agent 010'
+          git config user.email 'agent-010@users.noreply.github.com'
+          git commit -m 'feat(agent-010): add typed diagnostics contract'
+          git push origin "HEAD:${GITHUB_REF_NAME}"
