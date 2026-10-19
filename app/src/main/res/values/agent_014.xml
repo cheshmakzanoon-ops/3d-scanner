@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a014_capture_title">Object capture</string>
+    <string name="a014_capture_guidance">Keep the object still. Move the camera between shots. Avoid changing lenses or zoom.</string>
+    <string name="a014_import_remains_available">Camera access is optional. Close capture to import existing photographs.</string>
+    <string name="a014_permission_request">Grant camera permission</string>
+    <string name="a014_permission_rationale">Camera access is used only to save photographs into this local scan. You can continue with imported photographs instead.</string>
+    <string name="a014_permission_retry">Allow camera</string>
+    <string name="a014_permission_permanent">Camera access is disabled for this app. Enable it in system settings, then return here. Photo import remains available.</string>
+    <string name="a014_open_settings">Open app settings</string>
+    <string name="a014_camera_unavailable">No compatible back camera is available. Photo import remains supported.</string>
+    <string name="a014_camera_binding">Starting camera…</string>
+    <string name="a014_camera_paused">Camera paused. Return to the app to continue this session.</string>
+    <string name="a014_camera_bind_failed">The camera could not be started. Photo import remains supported.</string>
+    <string name="a014_zoom_failed">The camera could not apply the requested 1× zoom. Verify the lens before continuing.</string>
+    <string name="a014_capture_failed">The photograph could not be saved.</string>
+    <string name="a014_publication_cancelled">Photograph publication was cancelled; the private staging file was removed.</string>
+    <string name="a014_publication_failed">The photograph could not be added to this project.</string>
+    <string name="a014_back">Back</string>
+    <string name="a014_take_photo">Take photograph</string>
+    <string name="a014_saving">Saving…</string>
+    <string name="a014_committing">Adding photograph…</string>
+    <string name="a014_saved_count">%1$d photographs saved in this capture session</string>
+    <string name="a014_session_revision">Next project revision: %1$d</string>
+    <string name="a014_capture_footer">JPEG capture stays local. Optical locks and live analysis appear only when their device-qualified extensions are available.</string>
+</resources>
