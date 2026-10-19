@@ -1,0 +1,155 @@
+name: Finalize Agent 026 receipt
+
+on:
+  push:
+    branches:
+      - agents/026-saf-export-io
+    paths:
+      - ".github/workflows/agent026-finalize-receipt.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Finalize receipt and checksum manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > docs/agents/status/026.md <<'EOF'
+          agent: 026
+          role: SAF export transfer, cancellation and partial failure handling
+          branch: agents/026-saf-export-io
+          campaign_base: ad3029193f304c70931b94ea7a0df90b69d84b07
+          implementation_commits:
+            - 515bc7e725d0916ba6135d610856e121bcf5ba19
+          verification_commits:
+            - 4eefedb1bf0287f34e403e39109cbca38b3e0127
+            - edc18fdd962c8f5df92fdc487a3fa55dc17513ad
+          state: READY_FOR_INTEGRATION
+          owned_paths_changed:
+            - app/src/main/java/com/realityforge/scanner/data/safexport/
+            - app/src/test/java/com/realityforge/scanner/agents/a026/
+            - app/src/androidTest/java/com/realityforge/scanner/agents/a026/
+            - docs/agents/contracts/026.md
+            - docs/agents/requests/026-to-001.md
+            - docs/agents/requests/026-to-006.md
+            - docs/agents/requests/026-to-021.md
+            - docs/agents/requests/026-to-023.md
+            - docs/agents/requests/026-to-025.md
+            - docs/agents/requests/026-to-067.md
+            - docs/agents/requests/026-to-088.md
+            - docs/agents/status/026.md
+            - SOURCE_MANIFEST.sha256
+          interfaces_published:
+            - saf-export-v1 immutable source and picker binding contracts
+            - DestinationTransferService(VerifiedExportSourceAccess, DestinationDocumentStore)
+            - AndroidSafDestinationStore direct non-atomic SAF adapter
+          integration_requests:
+            - docs/agents/requests/026-to-001.md
+            - docs/agents/requests/026-to-006.md
+            - docs/agents/requests/026-to-021.md
+            - docs/agents/requests/026-to-023.md
+            - docs/agents/requests/026-to-025.md
+            - docs/agents/requests/026-to-067.md
+            - docs/agents/requests/026-to-088.md
+          acceptance_results:
+            - criterion: bounded transfer state machine handles short writes, revoked access, unavailable destination, storage exhaustion and cancellation without false success
+              result: PASS
+              command: gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+              source_sha: 515bc7e725d0916ba6135d610856e121bcf5ba19
+              artifact_sha256: null
+              environment: GitHub Actions ubuntu-24.04; Temurin 17; Android SDK 36; NDK 28.2.13676358
+              dataset_identity: 11 deterministic in-memory source/provider fault fixtures
+              evidence: https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39186487826
+            - criterion: successful exports preserve exact expected bytes and SHA-256 and cannot switch project, artifact or revision after picker binding
+              result: PASS
+              command: gradle --no-daemon :app:testDebugUnitTest
+              source_sha: 515bc7e725d0916ba6135d610856e121bcf5ba19
+              artifact_sha256: null
+              environment: GitHub Actions ubuntu-24.04 JVM unit-test runner
+              dataset_identity: exact byte-readback, stale-revision and immutable-binding fixtures
+              evidence: https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39186487826/job/117849890454
+            - criterion: failure cleanup affects only newly-created owned documents and unsupported provider atomicity remains explicit
+              result: PASS
+              command: gradle --no-daemon :app:testDebugUnitTest
+              source_sha: 515bc7e725d0916ba6135d610856e121bcf5ba19
+              artifact_sha256: null
+              environment: GitHub Actions ubuntu-24.04 JVM unit-test runner
+              dataset_identity: newly-created, pre-existing and unsupported-temporary-provider fixtures
+              evidence: https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39186487826/job/117849890454
+            - criterion: repository native, Python, Android compilation, Android test APK, JVM tests, lint and APK validation
+              result: PASS
+              command: cmake/ctest/pytest plus gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+              source_sha: 515bc7e725d0916ba6135d610856e121bcf5ba19
+              artifact_sha256: null
+              environment: GitHub Actions ubuntu-24.04 native and Android jobs
+              dataset_identity: repository baseline native, Python, JVM and APK validation suites
+              evidence: https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39186487826
+            - criterion: exact implementation commit is independently rebuilt by the one-use Android verification workflow
+              result: PASS
+              command: gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+              source_sha: 515bc7e725d0916ba6135d610856e121bcf5ba19
+              artifact_sha256: null
+              environment: GitHub Actions macos-14; frozen worktree at the implementation SHA
+              dataset_identity: repository Android build, JVM and lint suites
+              evidence: https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39187310320
+            - criterion: shared SAF DocumentsProvider fault matrix including provider process failure and relaunch
+              result: BLOCKED_EXTERNAL
+              command: ./gradlew :app:connectedDebugAndroidTest
+              source_sha: 515bc7e725d0916ba6135d610856e121bcf5ba19
+              artifact_sha256: null
+              environment: Agent 088 shared FaultDocumentProvider/process controller is not yet available; no authorized emulator or physical provider device was supplied
+              dataset_identity: null
+              evidence: docs/agents/requests/026-to-088.md
+          remaining_work:
+            - Agent 001 must bind activity-result callbacks to immutable destination requests.
+            - Agents 006, 023, 025 and 067 must connect verified repository artifacts, archives and export orchestration through the published ports.
+            - Agent 088 must publish the single shared test-only FaultDocumentProvider/process controller before the connected provider fault matrix can run.
+            - Final integrated-candidate and physical document-provider interoperability gates remain open and must not be inferred from host or compile evidence.
+          external_blockers:
+            - shared Agent 088 FaultDocumentProvider/process controller is not yet available
+            - no authorized connected Android emulator or physical document-provider device is available for the required provider fault matrix
+          next_action: Agent 100 can integrate commit 515bc7e725d0916ba6135d610856e121bcf5ba19 with the indexed owner requests; rerun connected provider and physical interoperability gates when Agent 088 infrastructure and hardware are available.
+          EOF
+
+          rm .github/workflows/agent026-finalize-receipt.yml
+          git config user.name "agent-026"
+          git config user.email "agent-026@users.noreply.github.com"
+          git add -A -- docs/agents/status/026.md .github/workflows/agent026-finalize-receipt.yml
+          python3 - <<'PY'
+          import hashlib
+          import subprocess
+          from pathlib import Path
+
+          records = subprocess.check_output(['git', 'ls-files', '--stage', '-z']).split(b'\0')
+          rows = []
+          for record in records:
+              if not record:
+                  continue
+              metadata, raw_path = record.split(b'\t', 1)
+              mode, oid, stage = metadata.split()
+              path = raw_path.decode('utf-8')
+              if stage != b'0':
+                  raise SystemExit('Resolve all semantic merge conflicts before regenerating the manifest.')
+              if path == 'SOURCE_MANIFEST.sha256':
+                  continue
+              if mode not in (b'100644', b'100755') or '\n' in path or '\r' in path:
+                  raise SystemExit('Unsupported tracked entry: ' + path)
+              content = subprocess.check_output(['git', 'cat-file', 'blob', oid.decode('ascii')])
+              rows.append((path, hashlib.sha256(content).hexdigest()))
+          Path('SOURCE_MANIFEST.sha256').write_text(
+              ''.join(f'{digest}  {path}\n' for path, digest in sorted(rows)),
+              encoding='utf-8',
+          )
+          PY
+          git add SOURCE_MANIFEST.sha256
+          git diff --check --cached
+          test -n "$(git diff --cached --name-only)"
+          git commit -m "docs(agent-026): finalize verified delivery receipt"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
