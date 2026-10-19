@@ -36,6 +36,7 @@ enum class LensCompatibilityReason {
     CROP_UNAVAILABLE,
     FOCAL_LENGTH_UNAVAILABLE,
     DERIVED_OPTICAL_EVIDENCE,
+    UNCERTAIN_OPTICAL_EVIDENCE,
 }
 
 data class LensCompatibilityPolicy(
@@ -194,13 +195,21 @@ object LensCompatibilityAssessor {
         ) || hardMismatch
         if (reference.orientation.value == null || candidate.orientation.value == null) reasons += LensCompatibilityReason.ORIENTATION_UNAVAILABLE
 
-        val uprightA = uprightSize(reference)
-        val uprightB = uprightSize(candidate)
-        if (uprightA == null || uprightB == null) {
+        val imageSizeA = reference.imageSize.value
+        val imageSizeB = candidate.imageSize.value
+        if (imageSizeA == null || imageSizeB == null) {
             reasons += LensCompatibilityReason.IMAGE_SIZE_UNAVAILABLE
-        } else if (relativeDifference(uprightA.aspectRatio, uprightB.aspectRatio) > policy.uprightAspectRelativeTolerance) {
-            reasons += LensCompatibilityReason.IMAGE_ASPECT_MISMATCH
-            hardMismatch = true
+        } else {
+            val orientationA = reference.orientation.value
+            val orientationB = candidate.orientation.value
+            if (orientationA != null && orientationB != null) {
+                val uprightA = imageSizeA.upright(orientationA)
+                val uprightB = imageSizeB.upright(orientationB)
+                if (relativeDifference(uprightA.aspectRatio, uprightB.aspectRatio) > policy.uprightAspectRelativeTolerance) {
+                    reasons += LensCompatibilityReason.IMAGE_ASPECT_MISMATCH
+                    hardMismatch = true
+                }
+            }
         }
 
         hardMismatch = compareKnown(
@@ -248,13 +257,16 @@ object LensCompatibilityAssessor {
         }
         val relevantEvidence = listOf(
             reference.captureDeviceId, candidate.captureDeviceId,
+            reference.physicalCameraId, candidate.physicalCameraId,
             reference.imageSize, candidate.imageSize,
             reference.orientation, candidate.orientation,
             reference.zoomRatio, candidate.zoomRatio,
             reference.cropRegion, candidate.cropRegion,
         ) + focalEvidence
         val hasDerived = relevantEvidence.any { it.status == EvidenceStatus.DERIVED }
+        val hasUncertainty = relevantEvidence.any { (it.relativeUncertainty ?: 0.0) > 0.0 }
         if (hasDerived) reasons += LensCompatibilityReason.DERIVED_OPTICAL_EVIDENCE
+        if (hasUncertainty) reasons += LensCompatibilityReason.UNCERTAIN_OPTICAL_EVIDENCE
 
         val knownOpticalPairs = listOf(
             reference.imageSize.value != null && candidate.imageSize.value != null,
@@ -265,7 +277,8 @@ object LensCompatibilityAssessor {
                 (reference.focal35mmEquivalent.value != null && candidate.focal35mmEquivalent.value != null),
         ).count { it }
         val weakIdentityMatch = logicalMatch || reportedLensMatch || (cameraDeviceMatch && physicalMatch)
-        val directComplete = sameCaptureDevice && physicalMatch && knownOpticalPairs == 5 && !hasDerived
+        val directComplete =
+            sameCaptureDevice && physicalMatch && knownOpticalPairs == 5 && !hasDerived && !hasUncertainty
 
         val level = when {
             hardMismatch -> LensCompatibilityLevel.INCOMPATIBLE
@@ -301,12 +314,6 @@ object LensCompatibilityAssessor {
             model != null -> model
             else -> null
         }
-    }
-
-    private fun uprightSize(metadata: CaptureMetadata): PixelSize? {
-        val size = metadata.imageSize.value ?: return null
-        val orientation = metadata.orientation.value ?: return null
-        return size.upright(orientation)
     }
 
     private fun <T : Any> compareKnown(

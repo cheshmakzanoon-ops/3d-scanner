@@ -174,11 +174,15 @@ data class SensorCrop(
     val referenceBottom: Int,
 ) {
     init {
-        require(referenceRight > referenceLeft && referenceBottom > referenceTop)
-        require(right > left && bottom > top)
+        val referenceWidth = referenceRight.toLong() - referenceLeft.toLong()
+        val referenceHeight = referenceBottom.toLong() - referenceTop.toLong()
+        val cropWidth = right.toLong() - left.toLong()
+        val cropHeight = bottom.toLong() - top.toLong()
+        require(referenceWidth > 0L && referenceHeight > 0L)
+        require(cropWidth > 0L && cropHeight > 0L)
         require(left >= referenceLeft && top >= referenceTop)
         require(right <= referenceRight && bottom <= referenceBottom)
-        require((referenceRight - referenceLeft).toLong() * (referenceBottom - referenceTop) <= 1_000_000_000L)
+        require(referenceWidth * referenceHeight <= 1_000_000_000L)
     }
 
     val width: Int get() = right - left
@@ -266,7 +270,11 @@ data class CaptureMetadata(
         )
 
         private fun validText(value: String): Boolean =
-            value.isNotBlank() && value == value.trim() && value.length <= 256 && value.none { it.code < 0x20 || it.code == 0x7f }
+            value.isNotBlank() &&
+                value == value.trim() &&
+                value.length <= 256 &&
+                value.none { it.code < 0x20 || it.code == 0x7f } &&
+                value.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8) == value
 
         private fun <T : Any> validateEvidence(evidence: FieldEvidence<T>, validator: (T) -> Boolean) {
             evidence.value?.let { require(validator(it)) { "Invalid resolved capture metadata value" } }

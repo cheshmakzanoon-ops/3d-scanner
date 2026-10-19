@@ -52,6 +52,44 @@ class CaptureMetadataIdentityTest {
         assertTrue(result.requiresIndependentIntrinsics)
     }
 
+    @Test fun derivedPhysicalLensIdentityCannotAuthorizeStrictCalibrationReuse() {
+        val reference = fixture()
+        val candidate = fixture().copy(
+            physicalCameraId = FieldEvidence.derived(
+                "0-wide",
+                setOf(EvidenceOrigin.CAPTURE_SESSION_BINDING),
+            ),
+        )
+        val result = LensCompatibilityAssessor.assess(reference, candidate)
+        assertEquals(LensCompatibilityLevel.COMPATIBLE_WITH_UNCERTAINTY, result.level)
+        assertTrue(LensCompatibilityReason.DERIVED_OPTICAL_EVIDENCE in result.reasons)
+        assertFalse(result.mayShareCalibrationProfile)
+        assertTrue(result.requiresIndependentIntrinsics)
+    }
+
+    @Test fun observedOpticalUncertaintyDowngradesStrictCalibrationReuse() {
+        val candidate = fixture().copy(
+            zoomRatio = FieldEvidence.observed(
+                1.0,
+                EvidenceOrigin.CAMERA_CAPTURE_RESULT,
+                relativeUncertainty = 0.01,
+            ),
+        )
+        val result = LensCompatibilityAssessor.assess(fixture(), candidate)
+        assertEquals(LensCompatibilityLevel.COMPATIBLE_WITH_UNCERTAINTY, result.level)
+        assertTrue(LensCompatibilityReason.UNCERTAIN_OPTICAL_EVIDENCE in result.reasons)
+        assertFalse(result.mayShareCalibrationProfile)
+    }
+
+    @Test fun missingOrientationDoesNotClaimKnownImageSizeIsMissing() {
+        val candidate = fixture().copy(
+            orientation = FieldEvidence.missing(EvidenceOrigin.ENCODED_IMAGE_METADATA),
+        )
+        val result = LensCompatibilityAssessor.assess(candidate, candidate)
+        assertTrue(LensCompatibilityReason.ORIENTATION_UNAVAILABLE in result.reasons)
+        assertFalse(LensCompatibilityReason.IMAGE_SIZE_UNAVAILABLE in result.reasons)
+    }
+
     @Test fun cameraDeviceModelMismatchIsRejectedEvenWhenLocalIdsMatch() {
         val reference = fixture().copy(
             captureDeviceId = FieldEvidence.missing(EvidenceOrigin.CAPTURE_DEVICE_BINDING),
@@ -154,6 +192,29 @@ class CaptureMetadataIdentityTest {
             fixture(crop = SensorCrop(10, 0, 3990, 3000, 0, 0, 4000, 3000)),
         ))
         assertEquals(identity, CaptureMetadataCodec.opticalIdentitySha256(original.copy(originalMetadataRetained = false)))
+    }
+
+    @Test fun malformedUtf16TextIsRejectedBeforeCanonicalEncoding() {
+        assertThrows(IllegalArgumentException::class.java) {
+            fixture().copy(
+                reportedLensModel = FieldEvidence.observed("bad\uD800", EvidenceOrigin.EXIF),
+            )
+        }
+    }
+
+    @Test fun cropCoordinateOverflowIsRejected() {
+        assertThrows(IllegalArgumentException::class.java) {
+            SensorCrop(
+                left = Int.MIN_VALUE,
+                top = 0,
+                right = Int.MAX_VALUE,
+                bottom = 1,
+                referenceLeft = Int.MIN_VALUE,
+                referenceTop = 0,
+                referenceRight = Int.MAX_VALUE,
+                referenceBottom = 1,
+            )
+        }
     }
 
     @Test fun unknownVersionAndNonCanonicalPayloadsAreRejected() {
