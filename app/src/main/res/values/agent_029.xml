@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a029_channel_processing_name">Scan processing</string>
+    <string name="a029_channel_processing_description">Ongoing offline reconstruction status and controls</string>
+    <string name="a029_channel_results_name">Scan results</string>
+    <string name="a029_channel_results_description">Completed or failed offline reconstruction results</string>
+
+    <string name="a029_notification_queued_title">Scan queued</string>
+    <string name="a029_notification_running_title">Processing scan</string>
+    <string name="a029_notification_paused_title">Scan paused</string>
+    <string name="a029_notification_failed_title">Scan processing needs attention</string>
+    <string name="a029_notification_completed_title">Scan processing complete</string>
+
+    <string name="a029_notification_queued_body">Waiting for the offline processor to start</string>
+    <string name="a029_notification_running_unknown_body">%1$s · Time remaining is not yet known</string>
+    <string name="a029_notification_running_known_body">%1$s · %2$d of %3$d in this stage</string>
+    <string name="a029_notification_paused_body">Paused during %1$s. Completed work is retained.</string>
+    <string name="a029_notification_failed_body">Open RealityForge for the failure details and recovery options.</string>
+    <string name="a029_notification_completed_body">Open RealityForge to inspect the saved result.</string>
+
+    <string name="a029_stage_unknown">Current stage unavailable</string>
+    <string name="a029_stage_preparing">Preparing inputs</string>
+    <string name="a029_stage_features">Detecting image features</string>
+    <string name="a029_stage_matching">Matching photographs</string>
+    <string name="a029_stage_camera_registration">Registering cameras</string>
+    <string name="a029_stage_dense_depth">Estimating observed depth</string>
+    <string name="a029_stage_surface">Building observed surface</string>
+    <string name="a029_stage_texture">Baking photographic texture</string>
+    <string name="a029_stage_finalizing">Validating saved output</string>
+
+    <string name="a029_action_pause">Pause</string>
+    <string name="a029_action_resume">Resume</string>
+    <string name="a029_action_cancel">Cancel</string>
+    <string name="a029_action_open">Open</string>
+
+    <string name="a029_public_title">RealityForge processing</string>
+    <string name="a029_public_body">Unlock and open RealityForge to view scan status.</string>
+</resources>
