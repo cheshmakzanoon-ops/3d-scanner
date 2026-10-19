@@ -162,7 +162,7 @@ object CameraCaptureMetadataAdapter {
         fallbackZoomRatio = fallbackZoomRatio,
     )
 
-    @OptIn(ExperimentalCamera2Interop::class)
+    @ExperimentalCamera2Interop
     @Suppress("DEPRECATION")
     fun fromCameraX(
         cameraInfo: CameraInfo,
