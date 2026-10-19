@@ -4,11 +4,14 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.realityforge.scanner.data.jobs.IsolatedJobStoreDatabase
 import com.realityforge.scanner.data.jobs.JobId
+import com.realityforge.scanner.data.jobs.JobTransitionRejectedException
 import com.realityforge.scanner.data.jobs.ReconstructionJobState
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -90,6 +93,55 @@ class DurableJobStoreStateDeviceTest : DurableJobStoreDeviceSupport() {
             }
         } finally {
             context.deleteDatabase(databaseName)
+        }
+    }
+
+    @Test
+    fun clockRollbackCannotAcquireOrSupersedeQueuedJob() = runBlocking {
+        val database = Room.inMemoryDatabaseBuilder(
+            context,
+            IsolatedJobStoreDatabase::class.java,
+        ).build()
+        try {
+            val store = store(database, "clock-rollback")
+            val queued = store.enqueue(input("clock-rollback-project"), 100)
+            store.pause(queued.jobId, 110)
+            store.resume(queued.jobId, 120)
+            val before = requireNotNull(store.snapshot(queued.jobId))
+
+            expectTransitionRejected {
+                store.acquireNext("clock-rollback-worker", 119, 100)
+            }
+            assertEquals(before, requireNotNull(store.snapshot(queued.jobId)))
+
+            val changedInput = input("clock-rollback-project").copy(
+                projectRevision = 2,
+                requestId = "request-clock-rollback-2",
+                inputSha256 = "7".repeat(64),
+            )
+            expectTransitionRejected {
+                store.enqueue(changedInput, 119)
+            }
+            assertEquals(before, requireNotNull(store.snapshot(queued.jobId)))
+
+            val replacement = store.enqueue(changedInput, 121)
+            assertNotEquals(queued.jobId, replacement.jobId)
+            assertEquals(ReconstructionJobState.QUEUED, replacement.state)
+            assertEquals(
+                ReconstructionJobState.STALE,
+                requireNotNull(store.snapshot(queued.jobId)).state,
+            )
+        } finally {
+            database.close()
+        }
+    }
+
+    private suspend fun expectTransitionRejected(block: suspend () -> Unit) {
+        try {
+            block()
+            fail("Expected durable timestamp rollback rejection")
+        } catch (_: JobTransitionRejectedException) {
+            // Expected typed monotonic-time rejection.
         }
     }
 }

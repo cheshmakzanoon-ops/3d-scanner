@@ -17,8 +17,8 @@ object JobStateMachine {
     }
 
     fun requireValidLease(snapshot: JobSnapshot, lease: JobLease, nowEpochMillis: Long) {
-        if (nowEpochMillis < snapshot.createdAtEpochMillis) {
-            throw JobLeaseRejectedException("Lease validation timestamp predates the job.")
+        if (nowEpochMillis < snapshot.updatedAtEpochMillis) {
+            throw JobLeaseRejectedException("Lease validation timestamp predates the durable job state.")
         }
         if (snapshot.state != ReconstructionJobState.RUNNING) {
             throw JobLeaseRejectedException("Job ${snapshot.jobId} is not running.")
@@ -78,14 +78,25 @@ object JobStateMachine {
     ): Boolean {
         require(nowEpochMillis >= 0)
         if (previous == null || previousAtEpochMillis == null) return true
-        if (previous.stage != candidate.stage || previous.unit != candidate.unit) return true
+        val elapsed = nowEpochMillis - previousAtEpochMillis
+        if (elapsed < 0) throw JobTransitionRejectedException("Progress timestamp moved backwards.")
+
+        val stageDelta = candidate.stage.order - previous.stage.order
+        if (stageDelta < 0) {
+            throw JobTransitionRejectedException("Progress stage cannot move backwards.")
+        }
+        if (stageDelta > 1) {
+            throw JobTransitionRejectedException("Progress stage cannot skip durable stages.")
+        }
+        if (stageDelta == 1) return true
+        if (previous.unit != candidate.unit) {
+            throw JobTransitionRejectedException("Progress unit cannot change within a stage.")
+        }
         if (candidate.completedUnits < previous.completedUnits) {
             throw JobTransitionRejectedException("Progress cannot move backwards within a stage.")
         }
         if (candidate.totalUnits != previous.totalUnits) return true
         if (candidate.totalUnits != null && candidate.completedUnits == candidate.totalUnits) return true
-        val elapsed = nowEpochMillis - previousAtEpochMillis
-        if (elapsed < 0) throw JobTransitionRejectedException("Progress timestamp moved backwards.")
         val enoughTime = elapsed >= MIN_PROGRESS_INTERVAL_MILLIS
         val enoughChange = if (candidate.totalUnits != null && previous.totalUnits == candidate.totalUnits) {
             val denominator = candidate.totalUnits.toDouble()
@@ -97,8 +108,8 @@ object JobStateMachine {
     }
 
     fun requireCommandTime(snapshot: JobSnapshot, nowEpochMillis: Long) {
-        if (nowEpochMillis < snapshot.createdAtEpochMillis) {
-            throw JobTransitionRejectedException("Command timestamp predates the job.")
+        if (nowEpochMillis < snapshot.updatedAtEpochMillis) {
+            throw JobTransitionRejectedException("Command timestamp predates the durable job state.")
         }
     }
 }

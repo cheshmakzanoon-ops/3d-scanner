@@ -3,6 +3,7 @@ package com.realityforge.scanner.data.jobs
 import androidx.room.RoomDatabase
 import androidx.room.withTransaction
 import java.util.UUID
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -23,6 +24,7 @@ class RoomJobStore(
 
             for (active in dao.activeForProject(input.projectId)) {
                 if (active.identityKey == identityKey) return@withTransaction active.toSnapshot()
+                JobStateMachine.requireCommandTime(active.toSnapshot(), nowEpochMillis)
                 val stale = active.copy(
                     state = ReconstructionJobState.STALE.name,
                     leaseToken = null,
@@ -104,6 +106,7 @@ class RoomJobStore(
         val expiry = JobStateMachine.checkedExpiry(nowEpochMillis, leaseDurationMillis)
         return database.withTransaction {
             val current = dao.oldestQueued() ?: return@withTransaction null
+            JobStateMachine.requireCommandTime(current.toSnapshot(), nowEpochMillis)
             val token = tokenFactory.nextToken().also { requireSafeId("lease token", it) }
             val next = current.copy(
                 state = ReconstructionJobState.RUNNING.name,
@@ -364,26 +367,30 @@ class RoomJobStore(
         var conflicts = 0
         var failures = 0
         for (candidate in candidates) {
-            val snapshot = try { candidate.toSnapshot() } catch (_: RuntimeException) {
+            val snapshot = try {
+                candidate.toSnapshot()
+            } catch (_: RuntimeException) {
                 failures++
                 continue
             }
             val decision = try {
                 validator.validate(snapshot)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 failures++
-                CheckpointRecoveryDecision.RestartFromBeginning("CHECKPOINT_VALIDATOR_FAILED")
+                continue
             }
             val requestedCursor = when (decision) {
                 is CheckpointRecoveryDecision.ResumeFrom -> decision.cursor
                 is CheckpointRecoveryDecision.RestartFromBeginning -> JobStageCursor.initial()
             }
-            val (cursor, recoveryCode) = try {
+            val recoveryCode = try {
                 JobStateMachine.requireRecoveryCursor(snapshot.cursor, requestedCursor)
-                requestedCursor to decision.code
+                decision.code
             } catch (_: JobTransitionRejectedException) {
                 failures++
-                JobStageCursor.initial() to "CHECKPOINT_REJECTED"
+                continue
             }
             try {
                 database.withTransaction {
@@ -393,12 +400,14 @@ class RoomJobStore(
                         current.state != ReconstructionJobState.RUNNING.name ||
                         (current.leaseExpiresAtEpochMillis ?: Long.MIN_VALUE) > nowEpochMillis
                     ) throw JobWriteConflictException(snapshot.jobId)
-                    JobStateMachine.requireRecoveryCursor(current.toSnapshot().cursor, cursor)
+                    val currentSnapshot = current.toSnapshot()
+                    JobStateMachine.requireCommandTime(currentSnapshot, nowEpochMillis)
+                    JobStateMachine.requireRecoveryCursor(currentSnapshot.cursor, requestedCursor)
                     val next = current.copy(
                         state = ReconstructionJobState.PAUSED.name,
-                        acceptedStage = cursor.acceptedStage.name,
-                        checkpointIdentity = cursor.checkpointIdentity,
-                        checkpointSha256 = cursor.checkpointSha256,
+                        acceptedStage = requestedCursor.acceptedStage.name,
+                        checkpointIdentity = requestedCursor.checkpointIdentity,
+                        checkpointSha256 = requestedCursor.checkpointSha256,
                         leaseToken = null,
                         leaseOwner = null,
                         leaseExpiresAtEpochMillis = null,

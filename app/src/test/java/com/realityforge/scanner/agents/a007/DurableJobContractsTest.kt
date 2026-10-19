@@ -1,5 +1,6 @@
 package com.realityforge.scanner.agents.a007
 
+import com.realityforge.scanner.data.jobs.JobId
 import com.realityforge.scanner.data.jobs.JobInputSnapshot
 import com.realityforge.scanner.data.jobs.JobLease
 import com.realityforge.scanner.data.jobs.JobLeaseRejectedException
@@ -9,9 +10,9 @@ import com.realityforge.scanner.data.jobs.JobSnapshot
 import com.realityforge.scanner.data.jobs.JobStageCursor
 import com.realityforge.scanner.data.jobs.JobStateMachine
 import com.realityforge.scanner.data.jobs.JobTransitionRejectedException
-import com.realityforge.scanner.data.jobs.JobId
 import com.realityforge.scanner.data.jobs.ReconstructionJobState
 import com.realityforge.scanner.data.jobs.ReconstructionStage
+import com.realityforge.scanner.data.jobs.RecoverySummary
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -119,6 +120,20 @@ class DurableJobContractsTest {
     }
 
     @Test
+    fun leaseAndCommandsRejectClockRollbackBeforeLastDurableState() {
+        val snapshot = runningSnapshot().copy(updatedAtEpochMillis = 140)
+        val lease = requireNotNull(snapshot.lease)
+        JobStateMachine.requireValidLease(snapshot, lease, 140)
+        JobStateMachine.requireCommandTime(snapshot, 140)
+        expect<JobLeaseRejectedException> {
+            JobStateMachine.requireValidLease(snapshot, lease, 139)
+        }
+        expect<JobTransitionRejectedException> {
+            JobStateMachine.requireCommandTime(snapshot, 139)
+        }
+    }
+
+    @Test
     fun progressIsCoarseMonotonicAndCoalescedInsteadOfPersistingPixelEvents() {
         assertFalse(JobProgressUnit.values().any { it.name == "PIXELS" })
         val previous = JobProgress(ReconstructionStage.FEATURES, 10, 100, JobProgressUnit.PHOTOS)
@@ -153,6 +168,64 @@ class DurableJobContractsTest {
                 candidate = previous.copy(completedUnits = 9, totalUnits = 50),
                 nowEpochMillis = 2_000,
             )
+        }
+    }
+
+    @Test
+    fun progressRejectsStageRollbackUnitChangeStageSkipAndClockRollback() {
+        val features = JobProgress(
+            ReconstructionStage.FEATURES,
+            completedUnits = 20,
+            totalUnits = 100,
+            unit = JobProgressUnit.FEATURES,
+        )
+        val matches = JobProgress(
+            ReconstructionStage.MATCHES,
+            completedUnits = 1,
+            totalUnits = 50,
+            unit = JobProgressUnit.MATCHES,
+        )
+        assertTrue(
+            JobStateMachine.shouldPersistProgress(features, 1_000, matches, 1_001),
+        )
+        expect<JobTransitionRejectedException> {
+            JobStateMachine.shouldPersistProgress(matches, 1_000, features, 2_000)
+        }
+        expect<JobTransitionRejectedException> {
+            JobStateMachine.shouldPersistProgress(
+                features,
+                1_000,
+                features.copy(unit = JobProgressUnit.PHOTOS),
+                2_000,
+            )
+        }
+        expect<JobTransitionRejectedException> {
+            JobStateMachine.shouldPersistProgress(
+                features,
+                1_000,
+                features.copy(stage = ReconstructionStage.SPARSE),
+                2_000,
+            )
+        }
+        expect<JobTransitionRejectedException> {
+            JobStateMachine.shouldPersistProgress(features, 1_000, matches, 999)
+        }
+    }
+
+    @Test
+    fun recoverySummaryAccountsForEveryCandidateExactlyOnce() {
+        val summary = RecoverySummary(
+            considered = 3,
+            recovered = 1,
+            conflicts = 1,
+            validationFailures = 1,
+        )
+        assertEquals(3, summary.considered)
+        expect<IllegalArgumentException> {
+            RecoverySummary(considered = 1, recovered = 1, conflicts = 0, validationFailures = 1)
+        }
+        expect<IllegalArgumentException> {
+            RecoverySummary(considered = -1, recovered = 0, conflicts = 0, validationFailures = -1)
         }
     }
 

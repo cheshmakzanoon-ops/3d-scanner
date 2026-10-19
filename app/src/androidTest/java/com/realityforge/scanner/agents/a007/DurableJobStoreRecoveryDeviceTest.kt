@@ -10,10 +10,12 @@ import com.realityforge.scanner.data.jobs.ReconstructionJobState
 import com.realityforge.scanner.data.jobs.ReconstructionStage
 import java.io.File
 import java.util.UUID
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -135,6 +137,81 @@ class DurableJobStoreRecoveryDeviceTest : DurableJobStoreDeviceSupport() {
         } finally {
             checkpoint.delete()
             context.deleteDatabase(databaseName)
+        }
+    }
+
+    @Test
+    fun failedValidationInvalidCursorAndCancellationLeaveExpiredRowUntouched() = runBlocking {
+        val database = Room.inMemoryDatabaseBuilder(
+            context,
+            IsolatedJobStoreDatabase::class.java,
+        ).build()
+        try {
+            val store = store(database, "recovery-failure")
+            val queued = store.enqueue(input("recovery-failure-project"), 2_000)
+            val acquired = requireNotNull(
+                store.acquireNext("recovery-failure-worker", 2_001, 10),
+            )
+            val acceptedCursor = JobStageCursor(
+                acceptedStage = ReconstructionStage.PREPARED,
+                checkpointIdentity = "recovery-failure-checkpoint",
+                checkpointSha256 = hash("recovery-failure-checkpoint"),
+            )
+            val accepted = store.acceptStage(acquired.lease, acceptedCursor, 2_002)
+            val before = accepted.snapshot
+
+            val validatorFailure = store.recoverExpired(
+                nowEpochMillis = 2_011,
+                validator = { throw IllegalStateException("transient validator failure") },
+            )
+            assertEquals(1, validatorFailure.considered)
+            assertEquals(0, validatorFailure.recovered)
+            assertEquals(0, validatorFailure.conflicts)
+            assertEquals(1, validatorFailure.validationFailures)
+            assertEquals(before, requireNotNull(store.snapshot(queued.jobId)))
+
+            try {
+                store.recoverExpired(
+                    nowEpochMillis = 2_011,
+                    validator = { throw CancellationException("cancelled recovery") },
+                )
+                fail("Expected recovery cancellation to propagate")
+            } catch (_: CancellationException) {
+                // Cancellation is control flow, not a checkpoint rejection.
+            }
+            assertEquals(before, requireNotNull(store.snapshot(queued.jobId)))
+
+            val invalidCursor = JobStageCursor(
+                acceptedStage = ReconstructionStage.PREPARED,
+                checkpointIdentity = "different-checkpoint",
+                checkpointSha256 = hash("different-checkpoint"),
+            )
+            val rejectedCursor = store.recoverExpired(
+                nowEpochMillis = 2_011,
+                validator = { CheckpointRecoveryDecision.ResumeFrom(invalidCursor) },
+            )
+            assertEquals(1, rejectedCursor.considered)
+            assertEquals(0, rejectedCursor.recovered)
+            assertEquals(0, rejectedCursor.conflicts)
+            assertEquals(1, rejectedCursor.validationFailures)
+            assertEquals(before, requireNotNull(store.snapshot(queued.jobId)))
+
+            val restarted = store.recoverExpired(
+                nowEpochMillis = 2_011,
+                validator = {
+                    CheckpointRecoveryDecision.RestartFromBeginning("CHECKPOINT_MISSING")
+                },
+            )
+            assertEquals(1, restarted.considered)
+            assertEquals(1, restarted.recovered)
+            assertEquals(0, restarted.conflicts)
+            assertEquals(0, restarted.validationFailures)
+            val paused = requireNotNull(store.snapshot(queued.jobId))
+            assertEquals(ReconstructionJobState.PAUSED, paused.state)
+            assertEquals(JobStageCursor.initial(), paused.cursor)
+            assertNull(paused.lease)
+        } finally {
+            database.close()
         }
     }
 }

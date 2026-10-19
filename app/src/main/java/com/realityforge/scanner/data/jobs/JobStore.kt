@@ -31,7 +31,17 @@ data class RecoverySummary(
     val recovered: Int,
     val conflicts: Int,
     val validationFailures: Int,
-)
+) {
+    init {
+        require(considered >= 0) { "Considered recovery jobs cannot be negative." }
+        require(recovered >= 0) { "Recovered job count cannot be negative." }
+        require(conflicts >= 0) { "Recovery conflict count cannot be negative." }
+        require(validationFailures >= 0) { "Recovery validation failures cannot be negative." }
+        require(recovered + conflicts + validationFailures == considered) {
+            "Recovery outcomes must account for every considered job exactly once."
+        }
+    }
+}
 
 enum class JobCommandDisposition { APPLIED, ALREADY_SATISFIED, TERMINAL_UNCHANGED }
 
