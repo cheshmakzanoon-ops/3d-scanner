@@ -1,0 +1,36 @@
+name: Agent 030 Bootstrap
+
+on:
+  push:
+    branches:
+      - agents/030-bootstrap-upload
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reconstruct and publish Agent 030 source
+        env:
+          TARGET_BRANCH: agents/030-resource-thermal-scheduling
+          BASE_SHA: ad3029193f304c70931b94ea7a0df90b69d84b07
+          ARCHIVE_SHA256: 22b12b8958b8c1b74568d16e5ee4250e45e862ecc2334c909ddfa5bb299c9781
+        run: |
+          set -euo pipefail
+          cat .agent030/stage1.tar.gz.part-* > /tmp/agent030-stage1.tar.gz
+          echo "${ARCHIVE_SHA256}  /tmp/agent030-stage1.tar.gz" | sha256sum --check --strict
+          git checkout -B "${TARGET_BRANCH}" "${BASE_SHA}"
+          tar -xzf /tmp/agent030-stage1.tar.gz -C .
+          sha256sum --check --strict SOURCE_MANIFEST.sha256
+          git config user.name "Agent 030"
+          git config user.email "agent-030@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          test "$(git diff --cached --name-only | wc -l)" -eq 14
+          git commit -m "feat(android): add resource-aware workload policy"
+          git push origin "HEAD:refs/heads/${TARGET_BRANCH}"
