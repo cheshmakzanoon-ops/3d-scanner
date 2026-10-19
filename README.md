@@ -79,7 +79,10 @@ Android build or device tests passed. Source contracts are not runtime evidence.
 [M14](docs/M14_MULTIVIEW.md) · [M15](docs/M15_ADAPTIVE_ANDROID.md) ·
 [M16](docs/M16_INCREMENTAL_REGISTRATION.md)
 
-All code stays on `main`. Native algorithms are in `reconstruction/`, Android in
+For numbered parallel assignments, follow the
+[100-agent production execution plan](PRODUCTION_100_AGENT_EXECUTION_PLAN.md):
+each agent uses its assigned branch and Agent 100 coordinates integration into `main`.
+Native algorithms are in `reconstruction/`, Android in
 `app/`, reproducible host harnesses in `tools/`, and measured outputs in `reports/`.
 Historical milestone documents remain available. Green builds and isolated
 benchmarks are not evidence of flawless performance or commercial readiness.
