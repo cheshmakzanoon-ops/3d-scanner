@@ -1,6 +1,7 @@
 package com.realityforge.scanner.agents.a030
 
 import com.realityforge.scanner.processing.resources.*
+import com.realityforge.scanner.engine.DenseWorkload
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -44,6 +45,17 @@ class ResourcePolicyTest {
     @Test(expected = IllegalArgumentException::class)
     fun invalidPlanCannotEnableParallelNativeProcessing() {
         plan.copy(maxConcurrentNativeTasks = 2)
+    }
+
+    @Test fun existingDensePlanKeepsLimitsAndReportsNonnegativeCostEstimates() {
+        val baseline = DenseWorkload.plan(256, 256, 8, 192L * 1024 * 1024)
+        val costs = baseline.resourcePlan()
+        assertEquals(1, costs.version)
+        assertEquals(baseline.depthEdge, costs.depthEdge)
+        assertEquals(1, costs.maxConcurrentNativeTasks)
+        assertTrue(costs.estimatedManagedBytes >= baseline.maximumCachedLuminanceBytes)
+        assertTrue(costs.estimatedNativeBytes >= baseline.packedDepthBytes)
+        assertTrue(costs.estimatedTransientStorageBytes > 0)
     }
 
     @Test(expected = IllegalArgumentException::class)
