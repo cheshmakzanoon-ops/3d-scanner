@@ -14,7 +14,7 @@ permissions:
 jobs:
   materialize:
     if: github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-24.04
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,9 +23,22 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .agent017-transfer/chunk-*.b64 > /tmp/agent017.tar.gz.b64
-          base64 --decode /tmp/agent017.tar.gz.b64 > /tmp/agent017.tar.gz
-          echo "27e0b817e71c9b249537d19d3ac9e13c55dcf6d126efb4992c10b949054a0773  /tmp/agent017.tar.gz" | sha256sum --check -
+          python3 - <<'PY'
+          import base64
+          import hashlib
+          from pathlib import Path
+
+          encoded = b"".join(
+              path.read_bytes()
+              for path in sorted(Path(".agent017-transfer").glob("chunk-*.b64"))
+          )
+          archive = base64.b64decode(encoded, validate=True)
+          expected = "27e0b817e71c9b249537d19d3ac9e13c55dcf6d126efb4992c10b949054a0773"
+          actual = hashlib.sha256(archive).hexdigest()
+          if actual != expected:
+              raise SystemExit(f"archive checksum mismatch: {actual}")
+          Path("/tmp/agent017.tar.gz").write_bytes(archive)
+          PY
           tar -xzf /tmp/agent017.tar.gz
           rm -rf .agent017-transfer
           rm .github/workflows/agent017-transfer.yml
