@@ -27,9 +27,9 @@ class PrivateFileCleanerTest {
             val project = Files.createDirectories(projects.resolve(projectId).resolve("originals"))
             repeat(5) { Files.write(project.resolve("$it.image"), ByteArray(it + 1) { 7 }) }
             val unrelated = Files.createDirectories(projects.resolve(unrelatedId))
-            Files.writeString(unrelated.resolve("keep.txt"), "keep")
+            Files.write(unrelated.resolve("keep.txt"), ("keep").toByteArray())
             val external = Files.createDirectories(sandbox.resolve("external"))
-            val externalFile = Files.writeString(external.resolve("outside.txt"), "outside")
+            val externalFile = Files.write(external.resolve("outside.txt"), ("outside").toByteArray())
             try {
                 Files.createSymbolicLink(projects.resolve(projectId).resolve("external-link"), external)
             } catch (unsupported: UnsupportedOperationException) {
@@ -71,7 +71,7 @@ class PrivateFileCleanerTest {
             val projectId = UUID.randomUUID().toString()
             val project = Files.createDirectories(projects.resolve(projectId))
             val external = Files.createDirectories(sandbox.resolve("external"))
-            val secret = Files.writeString(external.resolve("secret.txt"), "preserve")
+            val secret = Files.write(external.resolve("secret.txt"), ("preserve").toByteArray())
             try {
                 Files.createSymbolicLink(project.resolve("alias"), external)
             } catch (unsupported: UnsupportedOperationException) {
@@ -106,8 +106,8 @@ class PrivateFileCleanerTest {
             val projects = Files.createDirectories(sandbox.resolve("projects"))
             val projectId = UUID.randomUUID().toString()
             val originals = Files.createDirectories(projects.resolve(projectId).resolve("originals"))
-            val removed = Files.writeString(originals.resolve("remove.image"), "remove")
-            val retained = Files.writeString(originals.resolve("retained.image"), "retain")
+            val removed = Files.write(originals.resolve("remove.image"), ("remove").toByteArray())
+            val retained = Files.write(originals.resolve("retained.image"), ("retain").toByteArray())
 
             val result = PrivateFileCleaner(projects).clean(
                 listOf(OwnedDeletionTarget.ProjectRelativeNode(projectId, "originals/remove.image")),
@@ -127,7 +127,7 @@ class PrivateFileCleanerTest {
             val projects = Files.createDirectories(sandbox.resolve("projects"))
             val projectId = UUID.randomUUID().toString()
             val project = Files.createDirectories(projects.resolve(projectId))
-            repeat(4) { Files.writeString(project.resolve("$it.tmp"), "$it") }
+            repeat(4) { Files.write(project.resolve("$it.tmp"), ("$it").toByteArray()) }
             val cleaner = PrivateFileCleaner(projects)
             var checkpoints = 0
             assertThrows(CancellationException::class.java) {

@@ -30,11 +30,11 @@ class DeletionServiceTest {
             val projects = Files.createDirectories(sandbox.resolve("projects"))
             val projectId = UUID.randomUUID().toString()
             val project = Files.createDirectories(projects.resolve(projectId).resolve("originals"))
-            repeat(5) { Files.writeString(project.resolve("$it.image"), "private-$it") }
-            val externalSource = Files.writeString(sandbox.resolve("gallery-source.jpg"), "external")
+            repeat(5) { Files.write(project.resolve("$it.image"), ("private-$it").toByteArray()) }
+            val externalSource = Files.write(sandbox.resolve("gallery-source.jpg"), ("external").toByteArray())
             val unrelatedId = UUID.randomUUID().toString()
             val unrelated = Files.createDirectories(projects.resolve(unrelatedId))
-            Files.writeString(unrelated.resolve("keep.txt"), "keep")
+            Files.write(unrelated.resolve("keep.txt"), ("keep").toByteArray())
 
             val persistence = FakeDeletionPersistence(
                 targetsFor = { listOf(OwnedDeletionTarget.ProjectTree(projectId)) },
@@ -95,7 +95,7 @@ class DeletionServiceTest {
             val projects = Files.createDirectories(sandbox.resolve("projects"))
             val projectId = UUID.randomUUID().toString()
             Files.createDirectories(projects.resolve(projectId)).resolve("model.glb")
-                .let { Files.writeString(it, "model") }
+                .let { Files.write(it, ("model").toByteArray()) }
             val persistence = FakeDeletionPersistence(
                 targetsFor = { listOf(OwnedDeletionTarget.ProjectTree(projectId)) },
             )
@@ -142,7 +142,7 @@ class DeletionServiceTest {
                 val projects = Files.createDirectories(sandbox.resolve("projects"))
                 val projectId = UUID.randomUUID().toString()
                 val project = Files.createDirectories(projects.resolve(projectId))
-                Files.writeString(project.resolve("original.image"), "private original")
+                Files.write(project.resolve("original.image"), ("private original").toByteArray())
                 val persistence = FakeDeletionPersistence(
                     targetsFor = { listOf(OwnedDeletionTarget.ProjectTree(projectId)) },
                 )
@@ -187,7 +187,7 @@ class DeletionServiceTest {
         val sandbox = Files.createTempDirectory("agent022-failure-")
         try {
             val projectsPath = sandbox.resolve("projects")
-            Files.writeString(projectsPath, "not a directory")
+            Files.write(projectsPath, ("not a directory").toByteArray())
             val projectId = UUID.randomUUID().toString()
             val persistence = FakeDeletionPersistence(
                 targetsFor = { listOf(OwnedDeletionTarget.ProjectTree(projectId)) },
@@ -214,7 +214,7 @@ class DeletionServiceTest {
 
             Files.delete(projectsPath)
             Files.createDirectories(projectsPath.resolve(projectId))
-            Files.writeString(projectsPath.resolve(projectId).resolve("private.bin"), "private")
+            Files.write(projectsPath.resolve(projectId).resolve("private.bin"), ("private").toByteArray())
             val completed = service.retry(intent.operationId)
             assertTrue(completed is DeletionRunResult.Completed)
             assertFalse(Files.exists(projectsPath.resolve(projectId)))
