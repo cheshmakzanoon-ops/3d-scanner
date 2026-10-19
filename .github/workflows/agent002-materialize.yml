@@ -106,8 +106,10 @@ jobs:
                       raise SystemExit(f'Unsafe archive member: {member.name!r}')
           PY
 
-          git reset --hard "$BASE_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" HEAD
           tar -xzf /tmp/a002-changes.tar.gz
+          git rm .github/workflows/agent002-materialize.yml
           git diff --check
           git add \
             SOURCE_MANIFEST.sha256 \
@@ -120,13 +122,13 @@ jobs:
             docs/agents/contracts/002.md \
             docs/agents/status/002.md
           git diff --cached --check
-          test "$(git diff --cached --name-only | wc -l | tr -d ' ')" = "9"
+          test "$(git diff --cached --name-only | wc -l | tr -d ' ')" = "10"
 
           git config user.name "Agent 002"
           git config user.email "agent002@users.noreply.github.com"
           git commit -m "feat(pipeline): add resumable typed reconstruction graph"
           NEW_SHA="$(git rev-parse HEAD)"
-          git push --force-with-lease="refs/heads/$BRANCH_NAME:$GITHUB_SHA" origin "HEAD:refs/heads/$BRANCH_NAME"
+          git push origin "HEAD:refs/heads/$BRANCH_NAME"
           export NEW_SHA
 
           python3 <<'PY'
