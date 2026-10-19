@@ -83,8 +83,11 @@ object CameraCapabilityInterpreter {
             zoom = zoom,
             exposureCompensation = exposure,
             focusModes = focusModes,
-            focusMeteringSupported = positive(raw.maximumAfRegions) && focusModes.any {
-                it != FocusMode.FIXED
+            focusMeteringSupported = positive(raw.maximumAfRegions) && focusModes.any { mode ->
+                mode == FocusMode.AUTO ||
+                    mode == FocusMode.CONTINUOUS_PICTURE ||
+                    mode == FocusMode.CONTINUOUS_VIDEO ||
+                    mode == FocusMode.MACRO
             },
             aeMeteringSupported = positive(raw.maximumAeRegions),
             awbMeteringSupported = positive(raw.maximumAwbRegions),

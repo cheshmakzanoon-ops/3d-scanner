@@ -79,6 +79,20 @@ class CameraCapabilityInterpreterTest {
     }
 
     @Test
+    fun manualFocusOnlyCameraDoesNotAdvertiseTapToFocus() {
+        val capabilities = CameraCapabilityInterpreter.interpret(
+            RawCameraCapabilities(
+                logicalCameraId = "manual-only",
+                focusModes = listOf(FocusMode.MANUAL),
+                maximumAfRegions = 1,
+            ),
+        )
+
+        assertFalse(capabilities.focusMeteringSupported)
+        assertEquals(setOf(FocusMode.MANUAL), capabilities.focusModes)
+    }
+
+    @Test
     fun invalidSelectedPhysicalIdIsNotReportedAsSelected() {
         val capabilities = CameraCapabilityInterpreter.interpret(
             RawCameraCapabilities(

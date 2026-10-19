@@ -136,6 +136,28 @@ class CameraOpticsControllerTest {
     }
 
     @Test
+    fun unbindDropsLateCompletionAndKeepsDisposedState() = runBlocking {
+        val controller = CameraOpticsController()
+        val backend = FakeBackend()
+        val zoomGate = CompletableDeferred<BackendControlResult<Float>>()
+        backend.zoomHandler = { zoomGate.await() }
+        controller.bind(SESSION_A, CAMERA, capabilities(), backend)
+
+        val job = launch {
+            controller.submit(request(command = "permission-loss", zoom = 2f))
+        }
+        awaitCondition { controller.state.value.zoom.status == ControlStatus.PENDING }
+
+        controller.unbind("camera permission revoked")
+        zoomGate.complete(BackendControlResult.Confirmed(2f))
+        job.join()
+
+        assertEquals(AppliedOpticsPhase.DISPOSED, controller.state.value.phase)
+        assertEquals("OPTICS_SESSION_DISPOSED", controller.state.value.diagnosticCode)
+        assertTrue(backend.cancelCalls.get() >= 1)
+    }
+
+    @Test
     fun logicalOrPhysicalCameraMismatchIsRejectedBeforeCommand() = runBlocking {
         val controller = CameraOpticsController()
         val backend = FakeBackend()
