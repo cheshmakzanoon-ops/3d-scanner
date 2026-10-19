@@ -1,0 +1,64 @@
+name: Agent 026 Android gate
+
+on:
+  push:
+    branches:
+      - agents/026-saf-export-io
+    paths:
+      - ".github/workflows/agent026-android-gate.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Check out frozen Agent 026 implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          readonly expected=515bc7e725d0916ba6135d610856e121bcf5ba19
+          git cat-file -e "${expected}^{commit}"
+          git worktree add "$RUNNER_TEMP/agent026-exact" "$expected"
+          test "$(git -C "$RUNNER_TEMP/agent026-exact" rev-parse HEAD)" = "$expected"
+      - name: Build, test and lint exact Agent 026 source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/agent026-exact"
+          gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug 2>&1 | tee "$RUNNER_TEMP/agent026-gradle.log"
+      - name: Upload exact-commit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent026-android-gate
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/agent026-gradle.log
+            ${{ runner.temp }}/agent026-exact/app/build/outputs/apk/debug/*.apk
+            ${{ runner.temp }}/agent026-exact/app/build/outputs/apk/androidTest/debug/*.apk
+            ${{ runner.temp }}/agent026-exact/app/build/test-results/
+            ${{ runner.temp }}/agent026-exact/app/build/reports/
+      - name: Remove one-use workflow after success
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm .github/workflows/agent026-android-gate.yml
+          git config user.name "agent-026"
+          git config user.email "agent-026@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(agent-026): record successful Android gate"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
