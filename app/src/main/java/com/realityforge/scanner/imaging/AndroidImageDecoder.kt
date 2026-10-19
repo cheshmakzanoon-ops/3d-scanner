@@ -80,7 +80,6 @@ object AndroidImageDecoder {
                 inPreferredConfig = Bitmap.Config.ARGB_8888
                 inPreferredColorSpace = srgb
                 inScaled = false
-                inDither = false
                 inMutable = false
             }
             decoded = try {

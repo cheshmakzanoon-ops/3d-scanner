@@ -339,7 +339,8 @@ object AnalysisColorContract {
         val red = argb ushr 16 and 0xff
         val green = argb ushr 8 and 0xff
         val blue = argb and 0xff
-        val opaqueLuma = (red * 77 + green * 150 + blue * 29 + 128) ushr 8
+        // Preserve the legacy quality path exactly for opaque pixels; only alpha handling is new.
+        val opaqueLuma = (red * 77 + green * 150 + blue * 29) ushr 8
         return (opaqueLuma * alpha + 127) / 255
     }
 }

@@ -108,9 +108,10 @@ class ImageContractsTest {
         assertEquals(255, AnalysisColorContract.lumaFromArgb(0xffffffff.toInt()))
         assertEquals(0, AnalysisColorContract.lumaFromArgb(0x00ffffff))
         assertEquals(128, AnalysisColorContract.lumaFromArgb(0x80ffffff.toInt()))
-        assertEquals(77, AnalysisColorContract.lumaFromArgb(0xffff0000.toInt()))
-        assertEquals(150, AnalysisColorContract.lumaFromArgb(0xff00ff00.toInt()))
-        assertEquals(29, AnalysisColorContract.lumaFromArgb(0xff0000ff.toInt()))
+        // These values intentionally match the pre-Agent-012 floor-based 77/150/29 pipeline.
+        assertEquals(76, AnalysisColorContract.lumaFromArgb(0xffff0000.toInt()))
+        assertEquals(149, AnalysisColorContract.lumaFromArgb(0xff00ff00.toInt()))
+        assertEquals(28, AnalysisColorContract.lumaFromArgb(0xff0000ff.toInt()))
     }
 
     @Test
