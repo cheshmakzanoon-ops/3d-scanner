@@ -1,0 +1,173 @@
+name: Agent 002 Materialize
+
+on:
+  push:
+    branches:
+      - agents/002-pipeline-orchestration
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  materialize:
+    if: github.actor == 'cheshmakzanoon-ops'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Materialize exact tested tree
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: '3'
+          EXPECTED_ARCHIVE_SHA256: f37e716528ab0c4ab7a272637578f25c09da20a8ed7bb85cb35f2e6e832b5a15
+          BASE_SHA: ad3029193f304c70931b94ea7a0df90b69d84b07
+          BRANCH_NAME: agents/002-pipeline-orchestration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 <<'PY'
+          import base64
+          import json
+          import os
+          import urllib.request
+
+          api = os.environ['GITHUB_API_URL']
+          repo = os.environ['GITHUB_REPOSITORY']
+          issue = os.environ['ISSUE_NUMBER']
+          token = os.environ['GH_TOKEN']
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+          }
+          request = urllib.request.Request(
+              f'{api}/repos/{repo}/issues/{issue}/comments?per_page=100',
+              headers=headers,
+          )
+          with urllib.request.urlopen(request) as response:
+              comments = json.load(response)
+
+          chunks = {}
+          comment_ids = []
+          for comment in comments:
+              body = comment.get('body') or ''
+              if not body.startswith('A002_PAYLOAD_'):
+                  continue
+              marker, payload = body.split('\n', 1)
+              parts = marker.split('_')
+              if len(parts) != 5 or parts[0:2] != ['A002', 'PAYLOAD'] or parts[3] != 'OF':
+                  raise SystemExit(f'Invalid payload marker: {marker!r}')
+              index = int(parts[2])
+              total = int(parts[4])
+              if total != 3 or index in chunks:
+                  raise SystemExit(f'Invalid or duplicate payload marker: {marker!r}')
+              chunks[index] = payload.strip()
+              comment_ids.append(str(comment['id']))
+
+          if sorted(chunks) != [1, 2, 3]:
+              raise SystemExit(f'Expected payload chunks 1..3, found {sorted(chunks)}')
+          encoded = ''.join(chunks[index] for index in [1, 2, 3])
+          archive = base64.b64decode(encoded, validate=True)
+          with open('/tmp/a002-changes.tar.gz', 'wb') as handle:
+              handle.write(archive)
+          with open('/tmp/a002-comment-ids', 'w', encoding='utf-8') as handle:
+              handle.write('\n'.join(comment_ids) + '\n')
+          PY
+
+          test "$(sha256sum /tmp/a002-changes.tar.gz | awk '{print $1}')" = "$EXPECTED_ARCHIVE_SHA256"
+
+          python3 <<'PY'
+          import pathlib
+          import tarfile
+
+          expected = {
+              'SOURCE_MANIFEST.sha256',
+              'app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt',
+              'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt',
+              'app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineAdapterTrace.kt',
+              'app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt',
+              'app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineGraph.kt',
+              'app/src/test/java/com/realityforge/scanner/agents/a002/PipelineGraphTest.kt',
+              'docs/agents/contracts/002.md',
+              'docs/agents/status/002.md',
+          }
+          with tarfile.open('/tmp/a002-changes.tar.gz', 'r:gz') as archive:
+              members = archive.getmembers()
+              files = {member.name for member in members if member.isfile()}
+              if files != expected:
+                  raise SystemExit(f'Unexpected archive members: {sorted(files ^ expected)}')
+              for member in members:
+                  path = pathlib.PurePosixPath(member.name)
+                  if path.is_absolute() or '..' in path.parts or not member.isfile():
+                      raise SystemExit(f'Unsafe archive member: {member.name!r}')
+          PY
+
+          git reset --hard "$BASE_SHA"
+          tar -xzf /tmp/a002-changes.tar.gz
+          git diff --check
+          git add \
+            SOURCE_MANIFEST.sha256 \
+            app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt \
+            app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt \
+            app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineAdapterTrace.kt \
+            app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt \
+            app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineGraph.kt \
+            app/src/test/java/com/realityforge/scanner/agents/a002/PipelineGraphTest.kt \
+            docs/agents/contracts/002.md \
+            docs/agents/status/002.md
+          git diff --cached --check
+          test "$(git diff --cached --name-only | wc -l | tr -d ' ')" = "9"
+
+          git config user.name "Agent 002"
+          git config user.email "agent002@users.noreply.github.com"
+          git commit -m "feat(pipeline): add resumable typed reconstruction graph"
+          NEW_SHA="$(git rev-parse HEAD)"
+          git push --force-with-lease="refs/heads/$BRANCH_NAME:$GITHUB_SHA" origin "HEAD:refs/heads/$BRANCH_NAME"
+          export NEW_SHA
+
+          python3 <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          api = os.environ['GITHUB_API_URL']
+          repo = os.environ['GITHUB_REPOSITORY']
+          issue = os.environ['ISSUE_NUMBER']
+          token = os.environ['GH_TOKEN']
+          new_sha = os.environ['NEW_SHA']
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'Content-Type': 'application/json',
+          }
+
+          with open('/tmp/a002-comment-ids', encoding='utf-8') as handle:
+              comment_ids = [line.strip() for line in handle if line.strip()]
+          for comment_id in comment_ids:
+              data = json.dumps({
+                  'body': f'Agent 002 staging payload consumed and redacted by `{new_sha}`.'
+              }).encode()
+              request = urllib.request.Request(
+                  f'{api}/repos/{repo}/issues/comments/{comment_id}',
+                  data=data,
+                  headers=headers,
+                  method='PATCH',
+              )
+              with urllib.request.urlopen(request) as response:
+                  response.read()
+
+          data = json.dumps({'state': 'closed', 'state_reason': 'completed'}).encode()
+          request = urllib.request.Request(
+              f'{api}/repos/{repo}/issues/{issue}',
+              data=data,
+              headers=headers,
+              method='PATCH',
+          )
+          with urllib.request.urlopen(request) as response:
+              response.read()
+          PY
