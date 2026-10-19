@@ -21,10 +21,12 @@ caller-owned bitmap exactly as before.
   per source dimension, 200 megapixels, 1,600 output edge and 64 MiB estimated decode peak.
 - Sampling is power-of-two and selected before decode. The planner reserves a decoded ARGB bitmap,
   one final rendered ARGB bitmap and fixed decoder overhead; exact Android allocation sizes are
-  checked before the final render.
-- All eight TIFF/EXIF orientations are represented by `ExifOrientation`. Missing or malformed
-  orientation metadata is explicit evidence and falls back to normal orientation rather than
-  leaking a decoded bitmap or changing the original.
+  checked before the final render. Final dimensions remain within `maxEdge` and preserve the
+  existing three-pixel minimum on either axis, including highly sampled panoramic inputs.
+- All eight TIFF/EXIF orientations are represented by `ExifOrientation`. Pixel-center coordinate
+  goldens and the actual Canvas affine matrices are independently checked for all eight values.
+  Missing or malformed orientation metadata is explicit evidence and falls back to normal
+  orientation rather than leaking a decoded bitmap or changing the original.
 - Orientation, final downscale and color conversion are combined into one Canvas render, avoiding
   an orientation bitmap followed by a second scaled bitmap. A coroutine cancellation observed after
   the blocking platform decode closes the undelivered owned bitmap before propagating cancellation.

@@ -50,6 +50,27 @@ class ImageContractsTest {
     }
 
     @Test
+    fun canvasRenderMatricesMatchGoldenPixelCentersForAllOrientations() {
+        for (orientation in ExifOrientation.entries) {
+            val (outputWidth, outputHeight) = orientation.outputDimensions(3, 2)
+            val matrix = orientation.renderMatrixValues(3, 2, outputWidth, outputHeight)
+            val determinant = matrix[0] * matrix[4] - matrix[1] * matrix[3]
+            assertTrue("$orientation matrix must be invertible", kotlin.math.abs(determinant) > 0.5f)
+            for (outputY in 0 until outputHeight) {
+                for (outputX in 0 until outputWidth) {
+                    val targetX = outputX + 0.5f - matrix[2]
+                    val targetY = outputY + 0.5f - matrix[5]
+                    val sourceX = (matrix[4] * targetX - matrix[1] * targetY) / determinant
+                    val sourceY = (-matrix[3] * targetX + matrix[0] * targetY) / determinant
+                    val expected = orientation.sourceCoordinate(outputX, outputY, 3, 2)
+                    assertEquals("$orientation source x at $outputX,$outputY", expected.x + 0.5f, sourceX, 0.0001f)
+                    assertEquals("$orientation source y at $outputX,$outputY", expected.y + 0.5f, sourceY, 0.0001f)
+                }
+            }
+        }
+    }
+
+    @Test
     fun plannerBoundsDecodeAndReducesResolutionToHonorMemoryBudget() {
         val bounds = ImageBounds(12_000, 8_000, ImageFormat.JPEG, 12_000_000)
         val ordinary = DecodePlanner.plan(
@@ -88,6 +109,7 @@ class ImageContractsTest {
     fun plannerPreservesThreePixelMinimumForExtremeAspectRatios() {
         assertEquals(32 to 3, DecodePlanner.fitWithin(32_768, 3, 32))
         assertEquals(3 to 32, DecodePlanner.fitWithin(3, 32_768, 32))
+        assertEquals(3 to 3, DecodePlanner.fitWithin(1, 2, 32))
     }
 
     @Test

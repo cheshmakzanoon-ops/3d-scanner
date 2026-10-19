@@ -163,7 +163,7 @@ class ImageDecodingInstrumentedTest {
             val malformedExif = File(folder, "malformed-orientation.jpg")
             jpeg.copyTo(malformedExif)
             ExifInterface(malformedExif).apply {
-                setAttribute(ExifInterface.TAG_ORIENTATION, "9")
+                setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED.toString())
                 saveAttributes()
             }
             AndroidImageDecoder.decodeBlocking(DecodeRequest(malformedExif)).use { owner ->

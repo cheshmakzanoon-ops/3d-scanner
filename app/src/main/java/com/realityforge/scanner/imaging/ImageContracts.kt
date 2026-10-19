@@ -284,7 +284,10 @@ object DecodePlanner {
     fun fitWithin(width: Int, height: Int, maxEdge: Int): Pair<Int, Int> {
         require(width > 0 && height > 0 && maxEdge > 0)
         val largest = max(width, height)
-        if (largest <= maxEdge) return width to height
+        if (largest <= maxEdge) {
+            return width.coerceAtLeast(ImageDecodeLimits.MIN_SOURCE_DIMENSION) to
+                height.coerceAtLeast(ImageDecodeLimits.MIN_SOURCE_DIMENSION)
+        }
         val scale = maxEdge.toDouble() / largest
         // Preserve the legacy three-pixel minimum so downstream native kernels never receive a
         // degenerate one- or two-pixel axis from an extreme panorama.
