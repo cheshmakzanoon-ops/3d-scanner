@@ -1,6 +1,7 @@
 package com.realityforge.scanner.data.operations
 
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
 
 internal fun requireCanonicalUuid(value: String, label: String): String {
     require(value.length == 36 && runCatching { UUID.fromString(value).toString() == value }.getOrDefault(false)) {
@@ -77,11 +78,31 @@ data class ProjectOperationRequest(
     }
 }
 
-data class ProjectAccessSession(
+/**
+ * Capability for the currently held project reservation.
+ *
+ * The constructor and lifecycle methods are internal so callers can only receive a live session
+ * from ProjectAccess.withProjectAccess. A session is bound to the repository that created it and
+ * becomes unusable as soon as the reservation scope ends.
+ */
+class ProjectAccessSession internal constructor(
     val request: ProjectOperationRequest,
     val acquiredRevision: Long,
     val acquiredAtEpochMillis: Long,
-)
+    private val ownerToken: Any,
+) {
+    private val active = AtomicBoolean(true)
+
+    internal fun requireActive(expectedOwnerToken: Any) {
+        if (ownerToken !== expectedOwnerToken || !active.get()) {
+            throw ProjectAccessException("Project access session is no longer active for this repository.")
+        }
+    }
+
+    internal fun invalidate() {
+        active.set(false)
+    }
+}
 
 open class ProjectAccessException(message: String, cause: Throwable? = null) : IllegalStateException(message, cause)
 

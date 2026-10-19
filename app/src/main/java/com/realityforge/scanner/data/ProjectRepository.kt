@@ -7,6 +7,7 @@ import com.realityforge.scanner.data.operations.CaptureArchiveServiceImpl
 import com.realityforge.scanner.data.operations.CoordinatedScanDao
 import com.realityforge.scanner.data.operations.PhotoImportServiceImpl
 import com.realityforge.scanner.data.operations.PreviewReopeningServiceImpl
+import com.realityforge.scanner.data.operations.ProjectAccessException
 import com.realityforge.scanner.data.operations.ProjectAccessSession
 import com.realityforge.scanner.data.operations.ProjectCreationServiceImpl
 import com.realityforge.scanner.data.operations.ProjectDeletionServiceImpl
@@ -40,6 +41,7 @@ class ProjectRepository(
     private val paths = ProjectPathPolicy(File(context.filesDir, "projects"))
     private val coordinator = providedCoordinator ?: ProjectLeaseCoordinator.shared(paths)
     private val services = providedServices ?: defaultServices()
+    private val sessionOwnerToken = Any()
 
     /** Compatibility adapter. New application code should consume ProjectAccess and focused services. */
     val dao: ScanDao = CoordinatedScanDao(rawDao, coordinator, paths)
@@ -127,45 +129,55 @@ class ProjectRepository(
             kind = ProjectOperationKind.READ_INPUTS,
             expectedRevision = project.revision,
         )
-        return withProjectAccess(request) {
-            val photos = rawDao.photos(projectId).map { photo ->
-                paths.photoFile(photo)
-                ProjectInputPhoto(
-                    id = photo.id,
-                    sha256 = photo.sha256,
-                    bytes = photo.bytes,
-                    width = photo.width,
-                    height = photo.height,
-                    focal35mm = photo.focal35mm,
-                    addedAt = photo.addedAt,
-                )
-            }
-            ProjectInputSnapshot(projectId, project.revision, photos.toList())
+        return withProjectAccess(request) { session -> inputSnapshot(session) }
+    }
+
+    override suspend fun inputSnapshot(session: ProjectAccessSession): ProjectInputSnapshot {
+        val project = requireStableSession(session)
+        val photos = rawDao.photos(project.id).map { photo ->
+            paths.photoFile(photo)
+            ProjectInputPhoto(
+                id = photo.id,
+                sha256 = photo.sha256,
+                bytes = photo.bytes,
+                width = photo.width,
+                height = photo.height,
+                focal35mm = photo.focal35mm,
+                addedAt = photo.addedAt,
+            )
         }
+        requireStableSession(session)
+        return ProjectInputSnapshot(project.id, session.acquiredRevision, photos.toList())
     }
 
     override suspend fun currentResult(projectId: String): ProjectCurrentResult? {
         val project = rawDao.project(projectId) ?: return null
-        val resultRevision = project.resultRevision ?: return null
-        if (resultRevision != project.revision) return null
-        val key = project.resultKey ?: return null
         val request = ProjectOperationRequest.create(
             projectId = projectId,
             kind = ProjectOperationKind.READ_CURRENT_RESULT,
             expectedRevision = project.revision,
         )
-        return withProjectAccess(request) {
+        return withProjectAccess(request) { session -> currentResult(session) }
+    }
+
+    override suspend fun currentResult(session: ProjectAccessSession): ProjectCurrentResult? {
+        val project = requireStableSession(session)
+        val resultRevision = project.resultRevision
+        val key = project.resultKey
+        val result = if (resultRevision == null || resultRevision != session.acquiredRevision || key == null) {
+            null
+        } else {
             check(paths.artifactRevision(key) == resultRevision) {
                 "Current result identity does not match the project revision."
             }
-            val diagnostic = paths.artifact(projectId, key, "json")
+            val diagnostic = paths.artifact(project.id, key, "json")
             check(diagnostic.isFile) { "Current result diagnostic is missing." }
             ProjectCurrentResult(
-                projectId = projectId,
+                projectId = project.id,
                 revision = resultRevision,
                 artifactKey = key,
                 diagnosticJson = ProjectArtifactReference(
-                    projectId = projectId,
+                    projectId = project.id,
                     revision = resultRevision,
                     artifactKey = key,
                     extension = "json",
@@ -173,6 +185,8 @@ class ProjectRepository(
                 ),
             )
         }
+        requireStableSession(session)
+        return result
     }
 
     override suspend fun <T> withProjectAccess(
@@ -180,6 +194,7 @@ class ProjectRepository(
         block: suspend (ProjectAccessSession) -> T,
     ): T {
         val lease = withContext(Dispatchers.IO) { coordinator.acquire(request) }
+        var session: ProjectAccessSession? = null
         try {
             val before = rawDao.project(request.projectId) ?: throw ProjectMissingException(request.projectId)
             request.expectedRevision?.let { expected ->
@@ -187,7 +202,14 @@ class ProjectRepository(
                     throw StaleProjectRevisionException(request.projectId, expected, before.revision)
                 }
             }
-            val result = block(ProjectAccessSession(request, before.revision, lease.acquiredAtEpochMillis))
+            val activeSession = ProjectAccessSession(
+                request = request,
+                acquiredRevision = before.revision,
+                acquiredAtEpochMillis = lease.acquiredAtEpochMillis,
+                ownerToken = sessionOwnerToken,
+            )
+            session = activeSession
+            val result = block(activeSession)
             if (request.kind.stableRevisionRequired) {
                 val after = rawDao.project(request.projectId) ?: throw ProjectMissingException(request.projectId)
                 if (after.revision != before.revision) {
@@ -196,8 +218,28 @@ class ProjectRepository(
             }
             return result
         } finally {
+            session?.invalidate()
             withContext(NonCancellable + Dispatchers.IO) { lease.close() }
         }
+    }
+
+    private suspend fun requireStableSession(session: ProjectAccessSession): ScanProject {
+        session.requireActive(sessionOwnerToken)
+        if (!session.request.kind.stableRevisionRequired) {
+            throw ProjectAccessException(
+                "${session.request.kind.name.lowercase()} does not provide a stable-revision read scope.",
+            )
+        }
+        val project = rawDao.project(session.request.projectId)
+            ?: throw ProjectMissingException(session.request.projectId)
+        if (project.revision != session.acquiredRevision) {
+            throw StaleProjectRevisionException(
+                session.request.projectId,
+                session.acquiredRevision,
+                project.revision,
+            )
+        }
+        return project
     }
 
     private fun defaultServices(): ProjectStorageServices {

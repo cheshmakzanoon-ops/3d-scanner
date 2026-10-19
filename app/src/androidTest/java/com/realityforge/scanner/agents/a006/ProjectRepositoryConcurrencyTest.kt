@@ -5,6 +5,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.data.ProjectRepository
 import com.realityforge.scanner.data.ScanDatabase
+import com.realityforge.scanner.data.operations.ProjectAccessException
+import com.realityforge.scanner.data.operations.ProjectAccessSession
+import com.realityforge.scanner.data.operations.ProjectJobIdentity
 import com.realityforge.scanner.data.operations.ProjectOperationConflictException
 import com.realityforge.scanner.data.operations.ProjectOperationKind
 import com.realityforge.scanner.data.operations.ProjectOperationRequest
@@ -14,9 +17,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class ProjectRepositoryConcurrencyTest {
@@ -74,6 +79,50 @@ class ProjectRepositoryConcurrencyTest {
         } catch (_: IllegalStateException) {
             // Typed stale revision derives from IllegalStateException.
         }
+        repository.delete(project)
+        database.close()
+    }
+
+    @Test fun reconstructionLeaseCanReadItsBoundSnapshotWithoutNestingAndSessionExpires() = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val database = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        val repository = ProjectRepository(context, database.dao())
+        val foreignRepository = ProjectRepository(context, database.dao())
+        val project = repository.create("session-bound-snapshot")
+        val revision = requireNotNull(repository.dao.project(project)).revision
+        var escapedSession: ProjectAccessSession? = null
+        val snapshot = repository.withProjectAccess(
+            ProjectOperationRequest.create(
+                projectId = project,
+                kind = ProjectOperationKind.RECONSTRUCT,
+                expectedRevision = revision,
+                job = ProjectJobIdentity(
+                    jobId = UUID.randomUUID().toString(),
+                    attemptToken = UUID.randomUUID().toString(),
+                ),
+            ),
+        ) { session ->
+            escapedSession = session
+            assertNull(repository.currentResult(session))
+            try {
+                foreignRepository.inputSnapshot(session)
+                fail("A repository accepted another repository's active session")
+            } catch (_: ProjectAccessException) {
+                // Expected owner-token validation failure.
+            }
+            repository.inputSnapshot(session)
+        }
+        assertEquals(project, snapshot.projectId)
+        assertEquals(revision, snapshot.revision)
+        assertEquals(0, snapshot.photos.size)
+
+        try {
+            repository.inputSnapshot(requireNotNull(escapedSession))
+            fail("A session escaped its reservation lifetime")
+        } catch (_: ProjectAccessException) {
+            // Expected.
+        }
+
         repository.delete(project)
         database.close()
     }

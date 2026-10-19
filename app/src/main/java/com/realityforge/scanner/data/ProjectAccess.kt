@@ -11,9 +11,17 @@ import com.realityforge.scanner.data.operations.ProjectOperationRequest
  * The repository validates that identity after obtaining the project reservation.
  */
 interface ProjectAccess {
+    /** Convenience read that acquires and releases its own READ_INPUTS reservation. */
     suspend fun inputSnapshot(projectId: String): ProjectInputSnapshot
 
+    /** Read inputs through an already-held stable-revision reservation without nesting a lease. */
+    suspend fun inputSnapshot(session: ProjectAccessSession): ProjectInputSnapshot
+
+    /** Convenience read that acquires and releases its own READ_CURRENT_RESULT reservation. */
     suspend fun currentResult(projectId: String): ProjectCurrentResult?
+
+    /** Read the current result through an already-held stable-revision reservation. */
+    suspend fun currentResult(session: ProjectAccessSession): ProjectCurrentResult?
 
     suspend fun <T> withProjectAccess(
         request: ProjectOperationRequest,

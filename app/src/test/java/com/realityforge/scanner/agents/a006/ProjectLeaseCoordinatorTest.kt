@@ -1,6 +1,8 @@
 package com.realityforge.scanner.agents.a006
 
 import com.realityforge.scanner.data.operations.FileProjectLeaseStore
+import com.realityforge.scanner.data.operations.ProjectAccessException
+import com.realityforge.scanner.data.operations.ProjectAccessSession
 import com.realityforge.scanner.data.operations.ProjectJobIdentity
 import com.realityforge.scanner.data.operations.ProjectOperationConflictException
 import com.realityforge.scanner.data.operations.ProjectOperationKind
@@ -101,6 +103,20 @@ class ProjectLeaseCoordinatorTest {
         assertEquals(job, request.job)
     }
 
+    @Test fun accessSessionIsBoundToItsRepositoryAndReservationLifetime() {
+        val owner = Any()
+        val session = ProjectAccessSession(
+            request = request(UUID.randomUUID().toString(), ProjectOperationKind.READ_INPUTS, revision = 3),
+            acquiredRevision = 3,
+            acquiredAtEpochMillis = 10,
+            ownerToken = owner,
+        )
+        session.requireActive(owner)
+        expectAccessFailure { session.requireActive(Any()) }
+        session.invalidate()
+        expectAccessFailure { session.requireActive(owner) }
+    }
+
     private fun request(
         project: String,
         kind: ProjectOperationKind,
@@ -122,6 +138,15 @@ class ProjectLeaseCoordinatorTest {
             fail("Invalid operation request was accepted")
         } catch (_: IllegalArgumentException) {
             // Expected validation failure.
+        }
+    }
+
+    private fun expectAccessFailure(block: () -> Unit) {
+        try {
+            block()
+            fail("Inactive or foreign access session was accepted")
+        } catch (_: ProjectAccessException) {
+            // Expected capability validation failure.
         }
     }
 }
