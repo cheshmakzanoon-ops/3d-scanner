@@ -112,6 +112,21 @@ class CaptureMetadataIdentityTest {
         assertTrue(LensCompatibilityReason.CONFLICTING_OPTICAL_EVIDENCE in result.reasons)
     }
 
+    @Test fun upstreamConflictCannotBeErasedByNumericMergeTolerance() {
+        val conflict = fixture().copy(
+            focalLengthMm = FieldEvidence.conflicting(
+                listOf(
+                    EvidenceObservation(4.25, EvidenceOrigin.CAMERA_CAPTURE_RESULT),
+                    EvidenceObservation(4.26, EvidenceOrigin.EXIF),
+                ),
+            ),
+        )
+        val merged = CaptureMetadataMerger.merge(conflict, fixture())
+        assertEquals(EvidenceStatus.CONFLICTING, merged.focalLengthMm.status)
+        assertEquals(setOf(4.25, 4.26), merged.focalLengthMm.observations.map { it.value }.toSet())
+        assertTrue(CaptureMetadataIssue.CONFLICTING_OBSERVATIONS in merged.issues)
+    }
+
     @Test fun canonicalCodecRoundTripsWithoutLoss() {
         val original = CaptureMetadataMerger.merge(
             fixture(),

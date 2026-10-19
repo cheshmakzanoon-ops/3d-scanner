@@ -348,6 +348,12 @@ object CaptureMetadataMerger {
             .sortedWith(compareBy<EvidenceObservation<T>>({ it.origin.ordinal }, { valueKey(it.value) }))
         val checked = left.checkedOrigins + right.checkedOrigins + observations.map { it.origin }
         if (observations.isEmpty()) return FieldEvidence.missing(*checked.toTypedArray())
+        // A conflict is semantic evidence supplied by an upstream adapter. Numeric merge
+        // tolerance may reconcile independent rounded observations, but it must never erase an
+        // already-declared conflict merely because the conflicting values are close together.
+        if (left.status == EvidenceStatus.CONFLICTING || right.status == EvidenceStatus.CONFLICTING) {
+            return FieldEvidence.conflicting(observations, checked)
+        }
         val first = observations.first().value
         if (observations.any { !equivalent(first, it.value) }) {
             return FieldEvidence.conflicting(observations, checked)
