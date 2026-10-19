@@ -29,55 +29,86 @@ import org.junit.runner.RunWith
 class DatabaseContractTest {
     @Test
     fun revisionInvalidationAndCascade() = runBlocking {
-        database().use { db ->
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val db = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        try {
             val dao = db.dao()
             dao.insert(ScanProject("test", "Fixture", 0))
-            dao.addPhoto(photo("p1", "test", "abc", 0))
+            dao.addPhoto(photo(id = "p1", projectId = "test", sha256 = "abc", addedAt = 0))
             assertEquals(1L, dao.project("test")!!.revision)
             assertEquals(0, dao.complete("test", 0, "key", "stale result"))
             assertEquals(1, dao.complete("test", 1, "key", "current result"))
-            dao.addPhoto(photo("p2", "test", "def", 1))
+
+            dao.addPhoto(photo(id = "p2", projectId = "test", sha256 = "def", addedAt = 1))
             assertNull(dao.project("test")!!.resultRevision)
             dao.deleteProject("test")
             assertTrue(dao.photos("test").isEmpty())
+        } finally {
+            db.close()
         }
     }
 
     @Test
     fun interruptedSessionCannotStayProcessing() = runBlocking {
-        database().use { db ->
-            db.dao().insert(ScanProject("test", "Fixture", 0, state = "PROCESSING"))
-            db.dao().recoverInterrupted()
-            assertEquals("INTERRUPTED", db.dao().project("test")!!.state)
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val db = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        try {
+            val dao = db.dao()
+            dao.insert(ScanProject("test", "Fixture", 0, state = "PROCESSING"))
+            dao.recoverInterrupted()
+            assertEquals("INTERRUPTED", dao.project("test")!!.state)
+        } finally {
+            db.close()
         }
     }
 
     @Test
     fun stalePhotoCurationRollsBackAsOneTransaction() = runBlocking {
-        database().use { db ->
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val db = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        try {
             val dao = db.dao()
             dao.insert(ScanProject("curation", "Fixture", 0))
-            dao.addPhoto(photo("photo", "curation", "hash", 1))
+            dao.addPhoto(photo(id = "photo", projectId = "curation", sha256 = "hash", addedAt = 1))
 
             val stale = runCatching {
-                dao.curatePhoto("curation", "photo", 0, included = false, selectionOrder = 4)
+                dao.curatePhoto(
+                    projectId = "curation",
+                    photoId = "photo",
+                    expectedRevision = 0,
+                    included = false,
+                    selectionOrder = 4,
+                )
             }
             assertTrue(stale.exceptionOrNull() is IllegalStateException)
-            assertTrue(dao.photos("curation").single().included)
-            assertNull(dao.photos("curation").single().selectionOrder)
+            val afterRollback = dao.photos("curation").single()
+            assertTrue(afterRollback.included)
+            assertNull(afterRollback.selectionOrder)
             assertEquals(1L, dao.project("curation")!!.revision)
 
-            assertTrue(dao.curatePhoto("curation", "photo", 1, included = false, selectionOrder = 4))
+            assertTrue(
+                dao.curatePhoto(
+                    projectId = "curation",
+                    photoId = "photo",
+                    expectedRevision = 1,
+                    included = false,
+                    selectionOrder = 4,
+                ),
+            )
             val committed = dao.photos("curation").single()
             assertFalse(committed.included)
             assertEquals(4L, requireNotNull(committed.selectionOrder))
             assertEquals(2L, dao.project("curation")!!.revision)
+        } finally {
+            db.close()
         }
     }
 
     @Test
     fun captureIdentityAndSameProjectForeignKeysAreEnforced() = runBlocking {
-        database().use { db ->
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val db = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        try {
             val projects = db.dao()
             val durable = db.durableStateDao()
             projects.insert(ScanProject("a", "Project A", 0, revision = 2))
@@ -94,30 +125,51 @@ class DatabaseContractTest {
                 lensIdentitySha256 = "lens-a",
             )
             assertTrue(durable.createCaptureSessionForCurrentRevision(session))
-            assertFalse(durable.createCaptureSessionForCurrentRevision(session.copy(id = "duplicate")))
+            assertFalse(durable.createCaptureSessionForCurrentRevision(session.copy(id = "duplicate-session")))
             assertFalse(
                 durable.createCaptureSessionForCurrentRevision(
                     session.copy(
-                        id = "stale",
+                        id = "stale-session",
                         sourceRevision = 1,
-                        identitySha256 = "stale-session-identity",
+                        identitySha256 = "stale-capture-session-identity",
                     ),
                 ),
             )
             assertFalse(
                 projects.addCapturedPhoto(
-                    photo("wrong-project", "b", "wrong", 10, session.id, 0),
+                    photo(
+                        id = "cross-project-capture",
+                        projectId = "b",
+                        sha256 = "cross-project-capture-hash",
+                        addedAt = 10,
+                        captureSessionId = session.id,
+                        captureSequence = 0,
+                    ),
                 ),
             )
             assertTrue(
                 projects.addCapturedPhoto(
-                    photo("capture-1", "a", "capture-hash-1", 11, session.id, 0),
+                    photo(
+                        id = "capture-1",
+                        projectId = "a",
+                        sha256 = "capture-hash-1",
+                        addedAt = 11,
+                        captureSessionId = session.id,
+                        captureSequence = 0,
+                    ),
                 ),
             )
             assertTrue(
                 runCatching {
                     projects.addCapturedPhoto(
-                        photo("capture-2", "a", "capture-hash-2", 12, session.id, 0),
+                        photo(
+                            id = "capture-2",
+                            projectId = "a",
+                            sha256 = "capture-hash-2",
+                            addedAt = 12,
+                            captureSessionId = session.id,
+                            captureSequence = 0,
+                        ),
                     )
                 }.isFailure,
             )
@@ -125,39 +177,51 @@ class DatabaseContractTest {
             assertEquals(
                 1,
                 durable.transitionCaptureSession(
-                    session.id,
-                    CaptureSessionState.OPEN,
-                    CaptureSessionState.CLOSED,
-                    20,
+                    id = session.id,
+                    fromState = CaptureSessionState.OPEN,
+                    toState = CaptureSessionState.CLOSED,
+                    updatedAt = 20,
                 ),
             )
             assertFalse(
                 projects.addCapturedPhoto(
-                    photo("after-close", "a", "after-close", 13, session.id, 1),
+                    photo(
+                        id = "capture-after-close",
+                        projectId = "a",
+                        sha256 = "capture-after-close-hash",
+                        addedAt = 13,
+                        captureSessionId = session.id,
+                        captureSequence = 1,
+                    ),
                 ),
             )
             assertEquals(
                 0,
                 durable.transitionCaptureSession(
-                    session.id,
-                    CaptureSessionState.CLOSED,
-                    CaptureSessionState.CANCELLED,
-                    21,
+                    id = session.id,
+                    fromState = CaptureSessionState.CLOSED,
+                    toState = CaptureSessionState.CANCELLED,
+                    updatedAt = 21,
                 ),
             )
 
-            val foreignJob = job("job-b", "b", 2, "job-b-identity")
+            val foreignJob = job(
+                id = "job-b",
+                projectId = "b",
+                revision = 2,
+                identity = "job-b-identity",
+            )
             assertTrue(durable.createJobForCurrentRevision(foreignJob))
             assertTrue(
                 runCatching {
                     durable.createPendingArtifactForCurrentRevision(
                         artifact(
-                            "cross-artifact",
-                            "a",
-                            3,
-                            "cross-artifact-identity",
-                            "artifacts/cross.glb",
-                            foreignJob.id,
+                            id = "cross-project-artifact",
+                            projectId = "a",
+                            revision = 3,
+                            identity = "cross-project-artifact-identity",
+                            relativePath = "artifacts/cross.glb",
+                            jobId = foreignJob.id,
                         ),
                     )
                 }.isFailure,
@@ -165,102 +229,188 @@ class DatabaseContractTest {
             db.openHelper.writableDatabase.query("PRAGMA foreign_key_check").use { cursor ->
                 assertFalse(cursor.moveToFirst())
             }
+        } finally {
+            db.close()
         }
     }
 
     @Test
     fun concurrentJobArtifactAndDeletionTransitionsAreCompareAndSet() = runBlocking {
-        database().use { db ->
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val db = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        try {
             val projects = db.dao()
             val durable = db.durableStateDao()
             projects.insert(ScanProject("project", "Fixture", 0, revision = 4))
 
-            val job = job("job", "project", 4, "job-identity")
-            assertTrue(durable.createJobForCurrentRevision(job))
-            assertFalse(durable.createJobForCurrentRevision(job.copy(id = "duplicate-job")))
+            val reconstruction = job(
+                id = "job",
+                projectId = "project",
+                revision = 4,
+                identity = "job-identity",
+            )
+            assertTrue(durable.createJobForCurrentRevision(reconstruction))
+            assertFalse(
+                durable.createJobForCurrentRevision(
+                    reconstruction.copy(id = "duplicate-job"),
+                ),
+            )
             assertEquals(
                 0,
-                durable.tryAcquireJob(job.id, 0, "bad-expiry", "worker", 100, 100),
+                durable.tryAcquireJob(
+                    jobId = reconstruction.id,
+                    expectedAttempt = 0,
+                    leaseToken = "bad-expiry",
+                    leaseOwner = "worker",
+                    now = 100,
+                    leaseExpiresAt = 100,
+                ),
             )
 
             val acquisitions = coroutineScope {
                 (0 until 8).map { worker ->
                     async(Dispatchers.IO) {
                         durable.tryAcquireJob(
-                            job.id,
-                            0,
-                            "lease-$worker",
-                            "worker-$worker",
-                            100,
-                            10_000,
+                            jobId = reconstruction.id,
+                            expectedAttempt = 0,
+                            leaseToken = "lease-$worker",
+                            leaseOwner = "worker-$worker",
+                            now = 100,
+                            leaseExpiresAt = 10_000,
                         )
                     }
                 }.awaitAll()
             }
             assertEquals(1, acquisitions.sum())
-            val acquired = durable.job(job.id)!!
+            val acquired = durable.job(reconstruction.id)!!
             assertEquals(ReconstructionJobState.RUNNING, acquired.stateCode)
             assertEquals(1L, acquired.attempt)
             val token = requireNotNull(acquired.leaseToken)
 
             assertTrue(
                 durable.createPendingArtifactForCurrentRevision(
-                    artifact("artifact", "project", 4, "artifact-identity", "artifacts/result.glb", job.id),
+                    artifact(
+                        id = "artifact",
+                        projectId = "project",
+                        revision = 4,
+                        identity = "artifact-identity",
+                        relativePath = "artifacts/result.glb",
+                        jobId = reconstruction.id,
+                    ),
                 ),
             )
             assertEquals(1, durable.commitArtifact("artifact", "project", 4))
-            assertEquals(0, durable.completeJob(job.id, 0, token, "artifact", 200))
-            assertEquals(1, durable.completeJob(job.id, 1, token, "artifact", 200))
-            assertEquals(ReconstructionJobState.COMPLETED, durable.job(job.id)!!.stateCode)
+            assertEquals(
+                0,
+                durable.completeJob(
+                    jobId = reconstruction.id,
+                    attempt = 0,
+                    leaseToken = token,
+                    resultArtifactId = "artifact",
+                    now = 200,
+                ),
+            )
+            assertEquals(
+                1,
+                durable.completeJob(
+                    jobId = reconstruction.id,
+                    attempt = 1,
+                    leaseToken = token,
+                    resultArtifactId = "artifact",
+                    now = 200,
+                ),
+            )
+            assertEquals(ReconstructionJobState.COMPLETED, durable.job(reconstruction.id)!!.stateCode)
 
-            val staleJob = job("stale-job", "project", 4, "stale-job-identity", 250)
+            val staleJob = job(
+                id = "stale-job",
+                projectId = "project",
+                revision = 4,
+                identity = "stale-job-identity",
+                createdAt = 250,
+            )
             assertTrue(durable.createJobForCurrentRevision(staleJob))
-            assertEquals(1, durable.tryAcquireJob(staleJob.id, 0, "stale-lease", "worker", 250, 10_000))
+            assertEquals(
+                1,
+                durable.tryAcquireJob(
+                    jobId = staleJob.id,
+                    expectedAttempt = 0,
+                    leaseToken = "stale-lease",
+                    leaseOwner = "worker",
+                    now = 250,
+                    leaseExpiresAt = 10_000,
+                ),
+            )
             assertTrue(
                 durable.createPendingArtifactForCurrentRevision(
                     artifact(
-                        "stale-artifact",
-                        "project",
-                        4,
-                        "stale-artifact-identity",
-                        "artifacts/stale.glb",
-                        staleJob.id,
-                        260,
+                        id = "stale-artifact",
+                        projectId = "project",
+                        revision = 4,
+                        identity = "stale-artifact-identity",
+                        relativePath = "artifacts/stale.glb",
+                        jobId = staleJob.id,
+                        createdAt = 260,
                     ),
                 ),
             )
             projects.invalidate("project")
             assertEquals(5L, projects.project("project")!!.revision)
             assertEquals(0, durable.commitArtifact("stale-artifact", "project", 4))
-            assertEquals(0, durable.completeJob(staleJob.id, 1, "stale-lease", "stale-artifact", 300))
+            assertEquals(
+                0,
+                durable.completeJob(
+                    jobId = staleJob.id,
+                    attempt = 1,
+                    leaseToken = "stale-lease",
+                    resultArtifactId = "stale-artifact",
+                    now = 300,
+                ),
+            )
 
-            val failureJob = job("failure-job", "project", 5, "failure-job-identity", 310)
+            val failureJob = job(
+                id = "failure-job",
+                projectId = "project",
+                revision = 5,
+                identity = "failure-job-identity",
+                createdAt = 310,
+            )
             assertTrue(durable.createJobForCurrentRevision(failureJob))
-            assertEquals(1, durable.tryAcquireJob(failureJob.id, 0, "failure-lease", "worker", 310, 10_000))
+            assertEquals(
+                1,
+                durable.tryAcquireJob(
+                    jobId = failureJob.id,
+                    expectedAttempt = 0,
+                    leaseToken = "failure-lease",
+                    leaseOwner = "worker",
+                    now = 310,
+                    leaseExpiresAt = 10_000,
+                ),
+            )
             assertEquals(
                 0,
                 durable.finishJobWithFailure(
-                    failureJob.id,
-                    1,
-                    "failure-lease",
-                    ReconstructionJobState.QUEUED,
-                    "ILLEGAL_TERMINAL",
-                    320,
+                    jobId = failureJob.id,
+                    attempt = 1,
+                    leaseToken = "failure-lease",
+                    terminalState = ReconstructionJobState.QUEUED,
+                    terminalCode = "ILLEGAL_TERMINAL",
+                    now = 320,
                 ),
             )
             assertEquals(
                 1,
                 durable.finishJobWithFailure(
-                    failureJob.id,
-                    1,
-                    "failure-lease",
-                    ReconstructionJobState.FAILED,
-                    "NATIVE_FAILURE",
-                    320,
+                    jobId = failureJob.id,
+                    attempt = 1,
+                    leaseToken = "failure-lease",
+                    terminalState = ReconstructionJobState.FAILED,
+                    terminalCode = "NATIVE_FAILURE",
+                    now = 320,
                 ),
             )
 
-            val starts = coroutineScope {
+            val journalResults = coroutineScope {
                 (0 until 6).map { worker ->
                     async(Dispatchers.IO) {
                         durable.beginDeletionForCurrentRevision(
@@ -276,73 +426,70 @@ class DatabaseContractTest {
                     }
                 }.awaitAll()
             }
-            assertEquals(1, starts.count { it })
-            assertEquals(5, starts.count { !it })
+            assertEquals(1, journalResults.count { it })
+            assertEquals(5, journalResults.count { !it })
             assertEquals(
                 0,
                 durable.advanceDeletion(
-                    "project",
-                    DeletionPhase.PLANNED,
-                    0,
-                    DeletionPhase.FILES_REMOVED,
-                    499,
-                    null,
+                    projectId = "project",
+                    expectedPhase = DeletionPhase.PLANNED,
+                    expectedAttempt = 0,
+                    nextPhase = DeletionPhase.FILES_REMOVED,
+                    updatedAt = 499,
+                    lastErrorCode = null,
                 ),
             )
             assertEquals(
                 1,
                 durable.advanceDeletion(
-                    "project",
-                    DeletionPhase.PLANNED,
-                    0,
-                    DeletionPhase.FILES_REMOVING,
-                    500,
-                    null,
+                    projectId = "project",
+                    expectedPhase = DeletionPhase.PLANNED,
+                    expectedAttempt = 0,
+                    nextPhase = DeletionPhase.FILES_REMOVING,
+                    updatedAt = 500,
+                    lastErrorCode = null,
                 ),
             )
             assertEquals(
                 0,
                 durable.advanceDeletion(
-                    "project",
-                    DeletionPhase.PLANNED,
-                    0,
-                    DeletionPhase.FILES_REMOVING,
-                    501,
-                    null,
+                    projectId = "project",
+                    expectedPhase = DeletionPhase.PLANNED,
+                    expectedAttempt = 0,
+                    nextPhase = DeletionPhase.FILES_REMOVING,
+                    updatedAt = 501,
+                    lastErrorCode = null,
                 ),
             )
             assertEquals(
                 1,
                 durable.advanceDeletion(
-                    "project",
-                    DeletionPhase.FILES_REMOVING,
-                    1,
-                    DeletionPhase.FAILED_RETRYABLE,
-                    502,
-                    "DELETE_IO_FAILURE",
+                    projectId = "project",
+                    expectedPhase = DeletionPhase.FILES_REMOVING,
+                    expectedAttempt = 1,
+                    nextPhase = DeletionPhase.FAILED_RETRYABLE,
+                    updatedAt = 502,
+                    lastErrorCode = "DELETE_IO_FAILURE",
                 ),
             )
             assertEquals(
                 1,
                 durable.advanceDeletion(
-                    "project",
-                    DeletionPhase.FAILED_RETRYABLE,
-                    2,
-                    DeletionPhase.FILES_REMOVING,
-                    503,
-                    null,
+                    projectId = "project",
+                    expectedPhase = DeletionPhase.FAILED_RETRYABLE,
+                    expectedAttempt = 2,
+                    nextPhase = DeletionPhase.FILES_REMOVING,
+                    updatedAt = 503,
+                    lastErrorCode = null,
                 ),
             )
             val journal = durable.deletionJournal("project")!!
             assertEquals(DeletionPhase.FILES_REMOVING, journal.phaseCode)
             assertEquals(3L, journal.attempt)
             assertNull(journal.lastErrorCode)
+        } finally {
+            db.close()
         }
-    }
-
-    private fun database(): ScanDatabase {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        return Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
     }
 
     private fun photo(
