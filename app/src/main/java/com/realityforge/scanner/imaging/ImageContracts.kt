@@ -286,8 +286,10 @@ object DecodePlanner {
         val largest = max(width, height)
         if (largest <= maxEdge) return width to height
         val scale = maxEdge.toDouble() / largest
-        return (width * scale).roundToInt().coerceAtLeast(1) to
-            (height * scale).roundToInt().coerceAtLeast(1)
+        // Preserve the legacy three-pixel minimum so downstream native kernels never receive a
+        // degenerate one- or two-pixel axis from an extreme panorama.
+        return (width * scale).roundToInt().coerceIn(ImageDecodeLimits.MIN_SOURCE_DIMENSION, maxEdge) to
+            (height * scale).roundToInt().coerceIn(ImageDecodeLimits.MIN_SOURCE_DIMENSION, maxEdge)
     }
 
     fun checkedBitmapBytes(width: Int, height: Int): Long {

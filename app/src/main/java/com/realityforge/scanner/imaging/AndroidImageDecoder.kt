@@ -55,6 +55,9 @@ object AndroidImageDecoder {
             fail(ImageDecodeFailure.CORRUPT_IMAGE, "Image header is malformed.", failure)
         }
         val mimeType = options.outMimeType?.lowercase(Locale.ROOT)
+        if (options.outWidth <= 0 || options.outHeight <= 0) {
+            fail(ImageDecodeFailure.CORRUPT_IMAGE, "Image header has no valid pixel dimensions.")
+        }
         val format = ImageFormat.fromMimeType(mimeType)
         if (format == null) {
             if (mimeType != null) {

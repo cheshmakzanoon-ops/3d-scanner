@@ -85,6 +85,12 @@ class ImageContractsTest {
     }
 
     @Test
+    fun plannerPreservesThreePixelMinimumForExtremeAspectRatios() {
+        assertEquals(32 to 3, DecodePlanner.fitWithin(32_768, 3, 32))
+        assertEquals(3 to 32, DecodePlanner.fitWithin(3, 32_768, 32))
+    }
+
+    @Test
     fun unsupportedFormatAndOversizedSourceUseTypedFailures() {
         val unsupported = runCatching {
             DecodePlanner.validateBounds(
