@@ -1,0 +1,167 @@
+{
+  "repo": "/workspace/scratch/16a420565b0d/3d-scanner",
+  "output": "/dev/shm/scanner-jvm-021-030-extra",
+  "dependency_root": "/dev/shm/scanner-jvm-checks",
+  "source_ref": "54ae92a822693b439452cf53852bc4c30150002a",
+  "production": [
+    "app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+    "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionModels.kt",
+    "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionStateReducer.kt",
+    "app/src/main/java/com/realityforge/scanner/data/deletion/OwnedPathResolver.kt",
+    "app/src/main/java/com/realityforge/scanner/data/deletion/PrivateFileCleaner.kt",
+    "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionService.kt",
+    "app/src/main/java/com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator.kt",
+    "app/src/main/java/com/realityforge/scanner/data/publication/PublicationAdapters.kt",
+    "app/src/main/java/com/realityforge/scanner/data/publication/PublicationCodec.kt",
+    "app/src/main/java/com/realityforge/scanner/data/publication/PublicationModels.kt",
+    "app/src/main/java/com/realityforge/scanner/data/publication/PublicationStorage.kt",
+    "app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt",
+    "app/src/main/java/com/realityforge/scanner/data/safexport/SafExportContracts.kt",
+    "app/src/main/java/com/realityforge/scanner/data/safexport/SafTransferPorts.kt",
+    "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+    "app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+    "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt",
+    "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt",
+    "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.kt",
+    "app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/notifications/JobNotificationActions.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationPermissionPolicy.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationUpdateGate.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationModel.kt",
+    "app/src/main/java/com/realityforge/scanner/work/execution/ProcessingServiceDrain.kt",
+    "app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+    "app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+    "app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt"
+  ],
+  "tests": [
+    "app/src/test/java/com/realityforge/scanner/agents/a021/StorageBudgetTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionServiceTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a022/PrivateFileCleanerTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionStateReducerTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationCaptureMetadataAdapterTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a029/JobNotificationActionAuthorizerTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a029/NotificationUpdateGateTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a029/NotificationPermissionPolicyTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingServiceDrainTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a030/ResourcePolicyTest.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest.kt"
+  ],
+  "fixtures": [
+    "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionTestSupport.kt"
+  ],
+  "test_classes": [
+    "com.realityforge.scanner.agents.a021.StorageBudgetTest",
+    "com.realityforge.scanner.agents.a022.DeletionServiceTest",
+    "com.realityforge.scanner.agents.a022.PrivateFileCleanerTest",
+    "com.realityforge.scanner.agents.a022.DeletionStateReducerTest",
+    "com.realityforge.scanner.agents.a023.ArtifactPublicationProtocolTest",
+    "com.realityforge.scanner.agents.a026.DestinationTransferServiceTest",
+    "com.realityforge.scanner.agents.a027.CalibrationProfileCodecTest",
+    "com.realityforge.scanner.agents.a027.CalibrationSetEvaluatorTest",
+    "com.realityforge.scanner.agents.a027.TransactionalProfileStoreTest",
+    "com.realityforge.scanner.agents.a027.CalibrationCaptureMetadataAdapterTest",
+    "com.realityforge.scanner.agents.a029.ProcessingNotificationMapperTest",
+    "com.realityforge.scanner.agents.a029.JobNotificationActionAuthorizerTest",
+    "com.realityforge.scanner.agents.a029.NotificationUpdateGateTest",
+    "com.realityforge.scanner.agents.a029.NotificationPermissionPolicyTest",
+    "com.realityforge.scanner.agents.a029.ProcessingServiceDrainTest",
+    "com.realityforge.scanner.agents.a030.ResourcePolicyTest",
+    "com.realityforge.scanner.agents.a030.ResourceWorkloadSelectionTest"
+  ],
+  "expected_test_methods": 96,
+  "dependencies": [
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/2.1.21/kotlin-compiler-embeddable-2.1.21.jar",
+      "file": "kotlin-compiler-embeddable-2.1.21.jar",
+      "bytes": 56958642,
+      "sha256": "67a2e3673765f097725608cc7c843b0d8fdd94bd9af41327211361614aa57d49"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar",
+      "file": "kotlin-stdlib-2.1.21.jar",
+      "bytes": 1724058,
+      "sha256": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-script-runtime:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-script-runtime/2.1.21/kotlin-script-runtime-2.1.21.jar",
+      "file": "kotlin-script-runtime-2.1.21.jar",
+      "bytes": 43365,
+      "sha256": "d8221f445854f30ac92c248d543609e0ecb5d85bb5ba34c043684b013cb5b897"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-reflect:1.6.10",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/1.6.10/kotlin-reflect-1.6.10.jar",
+      "file": "kotlin-reflect-1.6.10.jar",
+      "bytes": 3038560,
+      "sha256": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-daemon-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-embeddable/2.1.21/kotlin-daemon-embeddable-2.1.21.jar",
+      "file": "kotlin-daemon-embeddable-2.1.21.jar",
+      "bytes": 345429,
+      "sha256": "9401effd82de8606df3289308a275cc1d3573768665ca5edd09dc319c71715f4"
+    },
+    {
+      "coordinate": "org.jetbrains.intellij.deps:trove4j:1.0.20200330",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+      "file": "trove4j-1.0.20200330.jar",
+      "bytes": 572985,
+      "sha256": "c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.0/kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "bytes": 1548360,
+      "sha256": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.10.2/kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "bytes": 1479317,
+      "sha256": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd"
+    },
+    {
+      "coordinate": "org.jetbrains:annotations:13.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+      "file": "annotations-13.0.jar",
+      "bytes": 17536,
+      "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478"
+    },
+    {
+      "coordinate": "org.json:json:20250517",
+      "url": "https://repo.maven.apache.org/maven2/org/json/json/20250517/json-20250517.jar",
+      "file": "json-20250517.jar",
+      "bytes": 82710,
+      "sha256": "3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796"
+    },
+    {
+      "coordinate": "junit:junit:4.13.2",
+      "url": "https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar",
+      "file": "junit-4.13.2.jar",
+      "bytes": 384581,
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3"
+    },
+    {
+      "coordinate": "org.hamcrest:hamcrest-core:1.3",
+      "url": "https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+      "file": "hamcrest-core-1.3.jar",
+      "bytes": 45024,
+      "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9"
+    }
+  ]
+}
