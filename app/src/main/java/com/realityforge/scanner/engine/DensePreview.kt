@@ -1,6 +1,16 @@
 package com.realityforge.scanner.engine
 
 import android.graphics.Bitmap
+import com.realityforge.scanner.imaging.AndroidImageDecoder
+import androidx.exifinterface.media.ExifInterface
+import com.realityforge.scanner.engine.geometry.PixelTransform
+import com.realityforge.scanner.engine.imaging.PyramidRectifier
+import com.realityforge.scanner.engine.imaging.PyramidStore
+import com.realityforge.scanner.engine.dense.DenseViewSelection.Plan as DenseSelectionPlan
+import com.realityforge.scanner.engine.pipeline.withNativeStageProgress
+import com.realityforge.scanner.engine.pipeline.DensePreviewProfile
+import com.realityforge.scanner.engine.pipeline.DenseExecutionPolicy
+import com.realityforge.scanner.engine.pipeline.StableDigest
 import com.realityforge.scanner.data.ProjectRepository
 import com.realityforge.scanner.data.ScanPhoto
 import com.realityforge.scanner.engine.pipeline.PipelineArtifactReference
@@ -44,10 +54,14 @@ internal object DensePreview {
         fallbackFocal35: Double,
         profile: LensProfile?,
         nativeToken: Long = 0L,
+        selection: DenseSelectionPlan? = null,
+        executionProfile: DensePreviewProfile = DensePreviewProfile.Compatibility,
+        acceptedSparseSupport: Map<Int,Set<String>> = emptyMap(),
+        sparseThresholdNormalized: Double? = null,
         onProgress: suspend (String, Int, Int) -> Unit = { _, _, _ -> },
     ): JSONObject = reconstructInternal(
         repository, projectId, artifactKey, photos, cameras, sparsePoints,
-        fallbackFocal35, profile, nativeToken, null, onProgress,
+        fallbackFocal35, profile, nativeToken, null, selection, executionProfile, acceptedSparseSupport, sparseThresholdNormalized, onProgress,
     ).payload
 
     /** Typed C2 adapter used by SparsePipeline while dense providers are extracted incrementally. */
@@ -62,10 +76,14 @@ internal object DensePreview {
         profile: LensProfile?,
         nativeToken: Long,
         pipelineSnapshot: PipelineInputSnapshot,
+        selection: DenseSelectionPlan? = null,
+        executionProfile: DensePreviewProfile = DensePreviewProfile.Compatibility,
+        acceptedSparseSupport: Map<Int,Set<String>> = emptyMap(),
+        sparseThresholdNormalized: Double? = null,
         onProgress: suspend (String, Int, Int) -> Unit = { _, _, _ -> },
     ): DensePreviewResult = reconstructInternal(
         repository, projectId, artifactKey, photos, cameras, sparsePoints,
-        fallbackFocal35, profile, nativeToken, pipelineSnapshot, onProgress,
+        fallbackFocal35, profile, nativeToken, pipelineSnapshot, selection, executionProfile, acceptedSparseSupport, sparseThresholdNormalized, onProgress,
     )
 
     private suspend fun reconstructInternal(
@@ -79,12 +97,26 @@ internal object DensePreview {
         profile: LensProfile?,
         nativeToken: Long,
         pipelineSnapshot: PipelineInputSnapshot?,
+        selection: DenseSelectionPlan?,
+        executionProfile: DensePreviewProfile,
+        acceptedSparseSupport: Map<Int,Set<String>>,
+        sparseThresholdNormalized: Double?,
         onProgress: suspend (String, Int, Int) -> Unit,
     ): DensePreviewResult {
-        require(cameras.length() in 2..12 && sparsePoints.length() in 30..30000) {
+        require(cameras.length() in 2..(if(selection==null)12 else 250) && sparsePoints.length() in 30..30000) {
             "Dense stereo requires two registered cameras and a usable sparse depth prior."
         }
-        val selected = DenseWorkload.selectCameraIndices(cameras.length())
+        require(executionProfile != DensePreviewProfile.VerifiedRefinedCompact || selection != null) { "Refined execution requires verified sparse view evidence" }
+        val cameraIds = (0 until cameras.length()).map { cameras.getJSONObject(it).getString("photoId") }
+        require(cameraIds.distinct().size == cameraIds.size) { "Repeated registered camera identity" }
+        val selected = if (selection == null) DenseWorkload.selectCameraIndices(cameras.length()).toList() else {
+            require(selection.referencePhotoIds.size in 2..DenseWorkload.MAX_VIEWS) { "No connected verified dense reference set" }
+            require(selection.sourcePhotoIds.keys == selection.referencePhotoIds.toSet())
+            require(selection.sourcePhotoIds.values.all { it.size in 1..3 }) { "Dense reference lacks verified source candidates" }
+            val activeIds = (selection.referencePhotoIds + selection.sourcePhotoIds.values.flatten()).distinct()
+            require(activeIds.size <= DenseWorkload.MAX_VIEWS) { "Dense source plan exceeds admitted active-camera budget" }
+            activeIds.map { id -> cameraIds.indexOf(id).also { require(it >= 0) { "Dense plan references an unregistered photograph" } } }
+        }
         val chosen = selected.map { cameras.getJSONObject(it) }
         val photoLookup = photos.associateBy { it.id }
         val chosenPhotos = chosen.map { camera -> requireNotNull(photoLookup[camera.getString("photoId")]) }
@@ -99,36 +131,32 @@ internal object DensePreview {
         val workload = DenseWorkload.plan(width, height, chosen.size, heapBytes)
         val cameraRows = DoubleArray(chosen.size * 16)
         val rectified = ByteArray(workload.packedDepthBytes.toInt())
+        val depthLevelIdentities = ArrayList<String>(chosen.size)
         for ((index,photo) in chosenPhotos.withIndex()) {
             coroutineContext.ensureActive()
             onProgress("Rectifying depth photographs", index, chosenPhotos.size)
-            val image = ImageLoader.upright(repository.photoFile(photo), edge)
-            try {
-                require(abs(image.width.toDouble() / image.height - width.toDouble() / height) < .005) {
-                    "Dense photographs have incompatible aspect ratios."
-                }
-                val resized = if (image.width == width && image.height == height) image
-                    else Bitmap.createScaledBitmap(image,width,height,true)
-                try {
-                    val lens = profile?.forScan(width,height,photo.focal35mm) ?:
-                        LensProjection.estimated(width,height,
-                            ImageLoader.focalPixels(width,height,photo.focal35mm ?: fallbackFocal35))
-                    val camera = chosen[index]
-                    val rotation = camera.getJSONArray("rotation")
-                    val translation = camera.getJSONArray("translation")
-                    for (k in 0 until 9) cameraRows[index*16+k] = rotation.getDouble(k)
-                    for (k in 0 until 3) cameraRows[index*16+9+k] = translation.getDouble(k)
-                    cameraRows[index*16+12] = lens.fx; cameraRows[index*16+13] = lens.fy
-                    cameraRows[index*16+14] = lens.cx; cameraRows[index*16+15] = lens.cy
-                    val source = IntArray(width*height)
-                    resized.getPixels(source,0,width,0,0,width,height)
-                    rectify(source,width,height,lens,rectified,index*width*height*4)
-                } finally { if (resized !== image) resized.recycle() }
-            } finally { image.recycle() }
+            val camera = chosen[index]
+            val lens = cameraLens(camera,width,height,photo,profile,fallbackFocal35)
+            val rotation = camera.getJSONArray("rotation"); val translation = camera.getJSONArray("translation")
+            for (k in 0 until 9) cameraRows[index*16+k] = rotation.getDouble(k)
+            for (k in 0 until 3) cameraRows[index*16+9+k] = translation.getDouble(k)
+            cameraRows[index*16+12] = lens.fx; cameraRows[index*16+13] = lens.fy
+            cameraRows[index*16+14] = lens.cx; cameraRows[index*16+15] = lens.cy
+            depthLevelIdentities += writePhotoLevel(repository,photo,edge,width,height,lens,rectified,index*width*height*4,
+                calibrationProvenance(camera,profile,photo,fallbackFocal35))
         }
         onProgress("Rectifying depth photographs", chosenPhotos.size, chosenPhotos.size)
+        val refined = executionProfile == DensePreviewProfile.VerifiedRefinedCompact
+        val approvedAdjacency = if(refined) {
+            val plan=requireNotNull(selection)
+            chosenPhotos.flatMap { photo -> val sources=plan.sourcePhotoIds.getValue(photo.id)
+                listOf(sources.size)+sources.map { id -> chosenPhotos.indexOfFirst {it.id==id}.also { require(it>=0) } }
+            }.toIntArray()
+        } else IntArray(0)
+        val coarse = if(refined) prepareCoarseInput(rectified,width,height,cameraRows) else null
         val xyz = DoubleArray(sparsePoints.length()*3) { i -> sparsePoints.getJSONArray(i/3).getDouble(i%3) }
         val (near,far) = DenseWorkload.depthBounds(cameraRows,xyz,width,height)
+        val sparsePriors=if(refined) prepareSparsePriors(sparsePoints,acceptedSparseSupport,chosenPhotos.map {it.id},cameraRows,width,height,sparseThresholdNormalized) else SparsePriors(DoubleArray(0),"compatibility-no-refined-priors")
         coroutineContext.ensureActive()
         require(artifactKey.matches(Regex("sparse-m16-r[0-9]+-[0-9a-f]{16}"))) {
             "Invalid reconstruction artifact key."
@@ -147,7 +175,7 @@ internal object DensePreview {
         // adaptive CPU stereo geometry. This never synthesizes photographic detail.
         var textureInputFailure: String? = null
         val photographic = try {
-            preparePhotoAtlasInput(repository,chosenPhotos,cameraRows,
+            preparePhotoAtlasInput(repository,chosenPhotos,chosen,cameraRows,
                 profile,fallbackFocal35,width,height,workload.textureEdge,onProgress)
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
         catch (failure: Exception) {
@@ -158,19 +186,54 @@ internal object DensePreview {
             require(nativeToken>0) { "Missing scoped native operation token" }
             coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",0,1)
-            val depthIdentity=DepthCheckpointIdentity.fingerprint(
-                artifactKey,rectified,cameraRows,width,height,near,far,DEPTH_PLANES,workload.pixelStride)
+            val denseStageDigest=pipelineSnapshot?.identity(PipelineStage.DENSE)?.digest
+            // Publication attempts have unique artifact names; reusable depth uses the immutable stage instead.
+            val depthArtifactKey=if(pipelineSnapshot!=null)
+                "sparse-m16-r${pipelineSnapshot.revision}-${requireNotNull(denseStageDigest).take(16)}" else artifactKey
+            val baseIdentity=DepthCheckpointIdentity.fingerprint(
+                depthArtifactKey,rectified,cameraRows,width,height,near,far,DEPTH_PLANES,workload.pixelStride)
+            val identity=StableDigest().text("rf-002-dense-producer-v3").text(baseIdentity).text(executionProfile.name)
+                .text(denseStageDigest ?: "compatibility-adapter")
+                .text("044-approved-adjacency-v1|045-upright-rgba-v2")
+                .text(DenseExecutionPolicy.depth(executionProfile))
+            chosenPhotos.forEachIndexed { i,photo -> identity.text(photo.id).text(photo.sha256).text(depthLevelIdentities[i]) }
+            identity.text(sparsePriors.identity).long(sparsePriors.rows.size.toLong())
+            sparsePriors.rows.forEach {identity.long(it.toBits())}
+            identity.long(approvedAdjacency.size.toLong());approvedAdjacency.forEach { identity.long(it.toLong()) }
+            if(coarse!=null){identity.long(coarse.width.toLong()).long(coarse.height.toLong()).text(bytesSha256(coarse.pixels))
+                coarse.cameras.forEach { identity.long(it.toBits()) }}
+            val depthIdentity=identity.finish()
+            // Atlas policy and photograph buffers cannot invalidate reusable depth maps.
+            val textureInputIdentity=photographic?.let { source ->
+                val textureIdentity=StableDigest().text("rf-002-photographic-input-v1").text(depthIdentity)
+                    .text(pipelineSnapshot?.identity(PipelineStage.TEXTURE)?.digest ?: "compatibility-adapter")
+                    .text(DenseExecutionPolicy.ATLAS_ENGINE)
+                    .text(DenseExecutionPolicy.texture(executionProfile))
+                    .long(source.width.toLong()).long(source.height.toLong()).text(bytesSha256(source.pixels))
+                source.identities.forEach {textureIdentity.text(it)}
+                textureIdentity.finish()
+            }
             val checkpointDirectory=DepthCheckpointIdentity.directory(folder,depthIdentity)
-            val result=if(photographic!=null) {
+            val result=withNativeStageProgress(nativeToken,onProgress) { if(photographic!=null) {
                 val (texturePixels,textureWidth,textureHeight)=photographic
-                JSONObject(NativeCore.reconstructTexturedSurfaceCheckpointed(
+                if(refined) {
+                    val level=requireNotNull(coarse)
+                    JSONObject(NativeCore.reconstructTexturedSurfaceRefinedCheckpointed(
+                        rectified,width,height,texturePixels,textureWidth,textureHeight,cameraRows,
+                        near,far,DEPTH_PLANES,workload.pixelStride,
+                        glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path,
+                        sparsePriors.rows,level.pixels,level.width,level.height,level.cameras,depthIdentity,
+                        approvedAdjacency,true,nativeToken,checkpointDirectory.path,depthIdentity))
+                } else JSONObject(NativeCore.reconstructTexturedSurfaceCheckpointed(
                     rectified,width,height,texturePixels,textureWidth,textureHeight,cameraRows,
                     near,far,DEPTH_PLANES,workload.pixelStride,
                     glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path,nativeToken,
                     checkpointDirectory.path,depthIdentity))
-            } else JSONObject(NativeCore.reconstructSurfaceCheckpointed(rectified,width,height,cameraRows,
+            } else {
+                require(!refined) { "Refined photographic export requires valid photograph sources" }
+                JSONObject(NativeCore.reconstructSurfaceCheckpointed(rectified,width,height,cameraRows,
                 near,far,DEPTH_PLANES,workload.pixelStride,glbPartial.path,plyPartial.path,nativeToken,
-                checkpointDirectory.path,depthIdentity))
+                checkpointDirectory.path,depthIdentity)) } }
             coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",1,1)
             // C++ cancellation must not be treated as a nonfatal M08 mesh/texture
@@ -180,12 +243,44 @@ internal object DensePreview {
             require(output.getInt("pointCount")>=60 && output.getInt("consistentPixels")>=60) {
                 "Insufficient reciprocal-consistent depth; recapture a textured rigid object."
             }
+            if(refined){
+                val executed=output.getJSONArray("sourceViewIndices")
+                require(executed.length()==chosenPhotos.size) { "Approved source plan reference count changed" }
+                chosenPhotos.forEachIndexed { ref,photo ->
+                    val expected=requireNotNull(selection).sourcePhotoIds.getValue(photo.id).map { id -> chosenPhotos.indexOfFirst { it.id==id } }
+                    val actual=executed.getJSONArray(ref)
+                    require(actual.length()==expected.size && expected.indices.all { actual.getInt(it)==expected[it] }) { "Native execution did not preserve the approved source plan" }
+                }
+            }
             output.put("sourcePhotos",chosen.size)
                 .put("rectifiedWidth",width).put("rectifiedHeight",height)
                 .put("depthPlanes",DEPTH_PLANES).put("pixelStride",workload.pixelStride)
                 .put("selectedCameraIndices",JSONArray(selected.toList()))
                 .put("selectedPhotoIds",JSONArray(chosenPhotos.map { it.id }))
                 .put("excludedRegisteredCameraCount",cameras.length()-chosen.size)
+                .put("selectionMethod",if(selection!=null)"verified_sparse_tracks" else "legacy_index_compatibility")
+                .put("selectionPolicyVersion",if(selection!=null)"verified-track-cover-connected-8x3-v1" else "legacy-index-m18")
+                .put("executionProfile",executionProfile.name)
+                .put("executedSourceViewIndices",output.getJSONArray("sourceViewIndices"))
+                .put("executedSourcePhotoIds",JSONArray().also { actual ->
+                    val sources=output.getJSONArray("sourceViewIndices")
+                    require(sources.length()==chosenPhotos.size) { "Native source plan lost a reference" }
+                    for(ref in chosenPhotos.indices){val row=sources.getJSONArray(ref);val ids=JSONArray()
+                        for(k in 0 until row.length()){val index=row.getInt(k);require(index in chosenPhotos.indices && index!=ref);ids.put(chosenPhotos[index].id)}
+                        actual.put(ids)
+                    }
+                })
+                .put("rectifierProducerVersion","upright-rgba-v2|opaque-four-neighbour|invalid-border")
+                .put("rectifiedLevelIdentities",JSONArray(depthLevelIdentities))
+                .put("approvedSourceAdjacencyApplied",refined)
+                .put("depthInputIdentity",depthIdentity)
+                .put("refinementInputIdentity",if(refined)depthIdentity else JSONObject.NULL)
+                .put("coarseInputWidth",coarse?.width ?: 0).put("coarseInputHeight",coarse?.height ?: 0)
+                .put("sparsePriorObservationCount",sparsePriors.rows.size/6)
+                .put("sparsePriorBoundPolicy","normalized-threshold-over-measured-sine-parallax-v1; algorithmic bound, not physical sigma")
+                .put("candidateSourcePhotoIds",selection?.let { JSONObject(it.sourcePhotoIds) } ?: JSONObject.NULL)
+                .put("selectionExclusions",selection?.let { JSONObject(it.exclusions) } ?: JSONObject.NULL)
+                .put("rectificationConvention",LensProjection.COORDINATE_CONVENTION)
                 .put("workload",JSONObject().put("memoryTier",workload.memoryTier)
                     .put("depthEdgeLimit",edge).put("textureEdgeLimit",workload.textureEdge)
                     .put("sampledGridLimit",DenseWorkload.MAX_SAMPLES)
@@ -199,6 +294,7 @@ internal object DensePreview {
                 .put("depthCheckpointWritten",output.optInt("writtenDepthMaps"))
                 .put("photographsRectified",true)
                 .put("calibrationProfileApplied",profile!=null)
+                .put("refinedIntrinsicsApplied",chosen.any {it.has("refinedIntrinsics")})
                 .put("limitations","Bounded CPU stereo with optional actual photographic UV atlas. Open mesh, arbitrary scale, no global appearance or completeness guarantee")
             val composite=JSONObject().put("dense",output)
             val mesh=result.optJSONObject("mesh")
@@ -214,7 +310,9 @@ internal object DensePreview {
                 check(plyPartial.renameTo(ply)) { "Cannot publish surface PLY" }
                 composite.put("mesh",mesh)
                 // Texture errors do NOT invalidate the already-published M08 mesh.
-                val texture=result.optJSONObject("texture")
+                val texture=result.optJSONObject("texture")?.also {
+                    it.put("textureInputIdentity",textureInputIdentity ?: JSONObject.NULL)
+                }
                 if(texture!=null && texture.optInt("triangleCount")>=40 &&
                     texture.optDouble("faceCoverage")>=.10 &&
                     texturedPartial.isFile && pngPartial.isFile &&
@@ -330,12 +428,119 @@ internal object DensePreview {
      * Decode one bitmap at a time and rectify only into bounded destination pixels.
      * Intrinsics are scaled from the depth stage so all photo UVs share the gauge.
      */
+    private data class PhotoAtlasInput(val pixels:ByteArray,val width:Int,val height:Int,val identities:List<String>)
+    private data class CoarseInput(val pixels:ByteArray,val width:Int,val height:Int,val cameras:DoubleArray)
+
+    private data class SparsePriors(val rows:DoubleArray,val identity:String)
+
+    /** Only native-retained track/photo pairs are visible evidence. Projection is an additional image-bound gate. */
+    private suspend fun prepareSparsePriors(points:JSONArray,support:Map<Int,Set<String>>,photos:List<String>,cameras:DoubleArray,
+                                            width:Int,height:Int,threshold:Double?):SparsePriors {
+        val context=coroutineContext
+        context.ensureActive()
+        require(support.size<=20_000)
+        var supportObservations=0
+        for((index,entry) in support.entries.withIndex()){
+            if(index%32==0)context.ensureActive()
+            require(entry.key>=0 && entry.value.size in 2..250)
+            supportObservations+=entry.value.size
+            require(supportObservations<=100_000) { "Accepted sparse support exceeds observation budget" }
+            require(entry.value.none(String::isBlank))
+        }
+        require(threshold==null || (threshold.isFinite() && threshold>0 && threshold<=.05))
+        val identity=StableDigest().text("normalized-threshold-over-measured-sine-parallax-v1; algorithmic-bound-not-physical-sigma")
+            .long(threshold?.toBits() ?: Long.MIN_VALUE)
+        context.ensureActive()
+        val orderedSupport=support.toSortedMap()
+        context.ensureActive()
+        orderedSupport.entries.forEachIndexed { index,(track,ids) ->
+            if(index%32==0)context.ensureActive()
+            identity.long(track.toLong()).long(ids.size.toLong());ids.sorted().forEach {identity.text(it)}
+        }
+        val rows=ArrayList<Double>();val seen=HashSet<Int>()
+        for(index in 0 until points.length()){
+            if(index%32==0)context.ensureActive()
+            val point=points.getJSONArray(index)
+            require(point.length()>=9) { "Sparse priors require explicit retained native track IDs" }
+            val id=point.getDouble(8);require(id.isFinite() && id>=0 && id<=Int.MAX_VALUE && id%1.0==0.0 && seen.add(id.toInt()))
+            val xyz=DoubleArray(3){point.getDouble(it)};require(xyz.all(Double::isFinite))
+            identity.long(id.toLong());xyz.forEach {identity.long(it.toBits())}
+            val supported=support[id.toInt()] ?: continue
+            if(threshold==null)continue
+            val cameraIndices=photos.indices.filter { photos[it] in supported }
+            if(cameraIndices.size<2)continue
+            val rays=cameraIndices.map { camera -> val base=camera*16
+                DoubleArray(3) { k -> xyz[k]+(0..2).sumOf { row -> cameras[base+row*3+k]*cameras[base+9+row] } }
+            }
+            var maxSine=0.0
+            for(a in rays.indices)for(b in 0 until a){val x=rays[a];val y=rays[b]
+                val xn=sqrt(x.sumOf {it*it});val yn=sqrt(y.sumOf {it*it})
+                if(!xn.isFinite() || !yn.isFinite() || xn<=1e-12 || yn<=1e-12)continue
+                val dot=(0..2).sumOf { x[it]/xn*(y[it]/yn) }.coerceIn(-1.0,1.0)
+                // Opposite/behind rays are not a usable small-angle triangulation observation.
+                if(dot<=0)continue
+                maxSine=max(maxSine,sqrt((1-dot*dot).coerceAtLeast(0.0)))
+            }
+            if(maxSine<1e-4)continue
+            val uncertainty=threshold/maxSine
+            if(!uncertainty.isFinite() || uncertainty>0.25)continue
+            for(camera in cameraIndices){
+                if(rows.size/6>=20_000)break
+                val base=camera*16
+                val q=DoubleArray(3){r -> (0..2).sumOf {c -> cameras[base+r*3+c]*xyz[c]}+cameras[base+9+r]}
+                if(!q.all(Double::isFinite) || q[2]<=.01)continue
+                val x=cameras[base+12]*q[0]/q[2]+cameras[base+14];val y=cameras[base+13]*q[1]/q[2]+cameras[base+15]
+                if(!x.isFinite() || !y.isFinite() || x<2 || x>width-3 || y<2 || y>height-3)continue
+                rows.addAll(listOf(camera.toDouble(),x,y,q[2],uncertainty,1.0))
+            }
+        }
+        support.keys.forEachIndexed { index,track ->
+            if(index%32==0)context.ensureActive()
+            require(track in seen) { "Sparse support does not belong to the accepted point snapshot" }
+        }
+        context.ensureActive()
+        return SparsePriors(rows.toDoubleArray(),identity.finish())
+    }
+
+    /** Real observed coarse pixels; no extra original decode, inferred depths, or visibility labels. */
+    private suspend fun prepareCoarseInput(full:ByteArray,width:Int,height:Int,cameras:DoubleArray):CoarseInput {
+        val context=coroutineContext
+        val w=width/2;val h=height/2;val views=cameras.size/16
+        require(w>=32 && h>=32 && w<width && h<height) { "Photographs are too small for bounded coarse refinement" }
+        val extra=w.toLong()*h*4*views+width.toLong()*height*4+w.toLong()*32*18
+        val runtime=Runtime.getRuntime();val free=runtime.maxMemory()-(runtime.totalMemory()-runtime.freeMemory())
+        require(extra<=runtime.maxMemory()/16 && extra<=free/4) { "Insufficient managed heap for bounded coarse refinement" }
+        val pixels=ByteArray(w*h*4*views);val source=IntArray(width*height);val rows=cameras.copyOf()
+        val resize=PixelTransform.resize(width,height,w,h)
+        for(camera in 0 until views){
+            context.ensureActive()
+            val offset=camera*width*height*4
+            for(i in source.indices){val p=offset+i*4;source[i]=((full[p+3].toInt() and 255) shl 24) or
+                ((full[p].toInt() and 255) shl 16) or ((full[p+1].toInt() and 255) shl 8) or (full[p+2].toInt() and 255)}
+            val base=camera*16;val k=resize.intrinsics(cameras[base+12],cameras[base+13],cameras[base+14],cameras[base+15])
+            rows[base+12]=k[0];rows[base+13]=k[4];rows[base+14]=k[2];rows[base+15]=k[5]
+            val input=LensProjection(cameras[base+12],cameras[base+13],cameras[base+14],cameras[base+15],0.0,0.0,0.0,0.0,0.0)
+            val output=LensProjection(k[0],k[4],k[2],k[5],0.0,0.0,0.0,0.0,0.0)
+            PyramidRectifier.tiles(source,width,height,PixelTransform.identity(width,height),input,output,w,h,
+                cancelled={context[kotlinx.coroutines.Job]?.isActive==false}) { tile ->
+                val colors=tile.pixels;val valid=tile.validity
+                for(i in colors.indices){val p=(camera*w*h+tile.firstRow*w+i)*4;val color=colors[i]
+                    if(valid[i].toInt()==1){pixels[p]=(color ushr 16).toByte();pixels[p+1]=(color ushr 8).toByte();pixels[p+2]=color.toByte();pixels[p+3]=255.toByte()}}
+            }
+        }
+        context.ensureActive()
+        return CoarseInput(pixels,w,h,rows)
+    }
+
+    private fun bytesSha256(bytes:ByteArray):String = MessageDigest.getInstance("SHA-256").digest(bytes)
+        .joinToString("") { "%02x".format(it.toInt() and 255) }
+
     private suspend fun preparePhotoAtlasInput(
-        repository: ProjectRepository, photos: List<ScanPhoto>, cameraRows: DoubleArray,
+        repository: ProjectRepository, photos: List<ScanPhoto>, cameras:List<JSONObject>, cameraRows: DoubleArray,
         profile: LensProfile?, fallbackFocal35: Double,
         depthWidth: Int, depthHeight: Int, textureEdge: Int,
         onProgress: suspend (String, Int, Int) -> Unit,
-    ): Triple<ByteArray,Int,Int> {
+    ): PhotoAtlasInput {
         val dimensions=ImageLoader.upright(repository.photoFile(photos.first()),textureEdge).let { first ->
             try { first.width to first.height } finally { first.recycle() }
         }
@@ -343,66 +548,85 @@ internal object DensePreview {
         DenseWorkload.atlasPixels(w,h,photos.size)
         require(w in 32..1024 && h in 32..1024 && w.toLong()*h<=1_048_576)
         val data=ByteArray(photos.size*w*h*4)
+        val identities=ArrayList<String>(photos.size)
         for ((index,photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
             onProgress("Rectifying photographic texture sources",index,photos.size)
-            val image=ImageLoader.upright(repository.photoFile(photo),textureEdge)
-            try {
-                require(abs(image.width.toDouble()/image.height - w.toDouble()/h)<.005) {
-                    "Photograph dimensions differ; cannot safely project shared UV charts"
-                }
-                val scaled=if(image.width==w && image.height==h) image
-                    else Bitmap.createScaledBitmap(image,w,h,true)
-                try {
-                    // A calibrated profile is revalidated for each original photo,
-                    // even though the actual projection uses the depth camera's
-                    // consistent scaled K (with principal-point pixel-centre mapping).
-                    val nativeLens = profile?.forScan(w,h,photo.focal35mm) ?:
-                        LensProjection.estimated(w,h,ImageLoader.focalPixels(w,h,
-                            photo.focal35mm ?: fallbackFocal35))
-                    val sx=w.toDouble()/depthWidth
-                    val sy=h.toDouble()/depthHeight
-                    val lowFx=cameraRows[index*16+12];val lowFy=cameraRows[index*16+13]
-                    val lowCx=cameraRows[index*16+14];val lowCy=cameraRows[index*16+15]
-                    val corrected=LensProjection(lowFx*sx,lowFy*sy,(lowCx+.5)*sx-.5,
-                        (lowCy+.5)*sy-.5,nativeLens.k1,nativeLens.k2,
-                        nativeLens.p1,nativeLens.p2,nativeLens.k3)
-                    val argb=IntArray(w*h)
-                    scaled.getPixels(argb,0,w,0,0,w,h)
-                    rectify(argb,w,h,corrected,data,index*w*h*4)
-                } finally { if(scaled!==image)scaled.recycle() }
-            } finally { image.recycle() }
+            val camera=cameras[index]
+            val nativeLens = cameraLens(camera,w,h,photo,profile,fallbackFocal35)
+            // 031 owns the exact pixel-centre transformation; do not duplicate private scaling formulas.
+            val transform = PixelTransform.resize(depthWidth,depthHeight,w,h)
+            val k = transform.intrinsics(cameraRows[index*16+12],cameraRows[index*16+13],cameraRows[index*16+14],cameraRows[index*16+15])
+            val corrected = LensProjection(k[0],k[4],k[2],k[5],nativeLens.k1,nativeLens.k2,nativeLens.p1,nativeLens.p2,nativeLens.k3)
+            identities += writePhotoLevel(repository,photo,textureEdge,w,h,corrected,data,index*w*h*4,
+                calibrationProvenance(camera,profile,photo,fallbackFocal35))
         }
         onProgress("Rectifying photographic texture sources",photos.size,photos.size)
-        return Triple(data,w,h)
+        return PhotoAtlasInput(data,w,h,identities)
     }
 
-    private suspend fun rectify(source: IntArray,w:Int,h:Int,lens: LensProjection,
-                        target: ByteArray,offset:Int) {
-        for(y in 0 until h){
-            if (y % 16 == 0) coroutineContext.ensureActive()
-            for(x in 0 until w){
-                val out=offset+(y*w+x)*4
-                val nx=(x-lens.cx)/lens.fx;val ny=(y-lens.cy)/lens.fy
-                val (dx,dy)=lens.distort(nx,ny)
-                val sx=dx*lens.fx+lens.cx;val sy=dy*lens.fy+lens.cy
-                if(!sx.isFinite()||!sy.isFinite()||sx<0||sy<0||sx>=w-1||sy>=h-1) {
-                    target[out+3]=0;continue
-                }
-                val ix=sx.toInt();val iy=sy.toInt();val fx=sx-ix;val fy=sy-iy
-                val p00=source[iy*w+ix]; val p10=source[iy*w+ix+1]
-                val p01=source[(iy+1)*w+ix]; val p11=source[(iy+1)*w+ix+1]
-                for(c in 0..2){
-                    val shift=16-8*c
-                    val a=(p00 shr shift) and 255
-                    val b=(p10 shr shift) and 255
-                    val d=(p01 shr shift) and 255
-                    val e=(p11 shr shift) and 255
-                    val color=(a*(1-fx)*(1-fy)+b*fx*(1-fy)+d*(1-fx)*fy+e*fx*fy)
-                    target[out+c]=color.roundToInt().coerceIn(0,255).toByte()
-                }
-                target[out+3]=255.toByte()
-            }
-        }
+    private fun cameraLens(camera:JSONObject,width:Int,height:Int,photo:ScanPhoto,profile:LensProfile?,fallback:Double):LensProjection {
+        val row=camera.optJSONArray("refinedIntrinsics") ?: return profile?.forScan(width,height,photo.focal35mm)
+            ?: LensProjection.estimated(width,height,ImageLoader.focalPixels(width,height,photo.focal35mm ?: fallback))
+        require(row.length()==11)
+        val values=DoubleArray(11){row.getDouble(it)}
+        require(values.all(Double::isFinite) && values[0]%1.0==0.0 && values[1]%1.0==0.0 && values[0] in 2.0..100000.0 && values[1] in 2.0..100000.0)
+        require(values[2]>0 && values[3]>0 && (6..10).all {abs(values[it])<=2.0})
+        require(abs(values[0]/values[1]-width.toDouble()/height)<.005) { "Refined intrinsic image domain differs from photograph" }
+        val k=PixelTransform.resize(values[0].toInt(),values[1].toInt(),width,height).intrinsics(values[2],values[3],values[4],values[5])
+        return LensProjection(k[0],k[4],k[2],k[5],values[6],values[7],values[8],values[9],values[10])
+    }
+
+    private fun calibrationProvenance(camera:JSONObject,profile: LensProfile?, photo: ScanPhoto, fallback: Double): String =
+        if(camera.has("refinedIntrinsics")) "native-bundle-schema1:${camera.getJSONArray("refinedIntrinsics")}:${camera.optString("intrinsicPolicy","explicit-model")}:${LensProjection.COORDINATE_CONVENTION}"
+        else if (profile == null) "estimated-focal35:${photo.focal35mm ?: fallback}:${LensProjection.COORDINATE_CONVENTION}"
+        else "measured-checkerboard:${profile.width}x${profile.height}:rms=${profile.reprojectionRmsPixels}:views=${profile.acceptedViews}:focal=${profile.focal35mm}:${LensProjection.COORDINATE_CONVENTION}"
+
+    /** Cache admission never increases030 image/view/sample caps. Conservative transient-heap estimate only. */
+    private fun pyramidStore(repository: ProjectRepository, projectId: String, pixels: Long): PyramidStore? = runCatching {
+        val runtime = Runtime.getRuntime()
+        val transientBytes = Math.multiplyExact(pixels,48L)
+        val freeHeap = runtime.maxMemory() - (runtime.totalMemory()-runtime.freeMemory())
+        if (transientBytes > runtime.maxMemory()/16 || transientBytes > freeHeap/4) return null
+        val project = repository.directory(projectId).absoluteFile
+        val projects = requireNotNull(project.parentFile)
+        require(projects.canonicalFile.parentFile == projects.parentFile?.canonicalFile && projects.canonicalFile.name == projects.name)
+        val canonical = project.canonicalFile
+        require(canonical.parentFile == projects.canonicalFile && canonical.name == projectId)
+        val folder = File(project,".pyramid-levels-v2")
+        require(folder.canonicalFile.parentFile == canonical && folder.canonicalFile.name == folder.name)
+        require(folder.mkdirs() || folder.isDirectory)
+        require(folder.canonicalFile.parentFile == canonical && folder.canonicalFile.name == folder.name)
+        PyramidStore(folder,minOf(32L*1024*1024,runtime.maxMemory()/8))
+    }.getOrNull()
+
+    private suspend fun writePhotoLevel(repository: ProjectRepository, photo: ScanPhoto, edge: Int,
+        width: Int, height: Int, lens: LensProjection, target: ByteArray, offset: Int, provenance: String):String {
+        coroutineContext.ensureActive()
+        val context = coroutineContext
+        val original = repository.photoFile(photo)
+        val project = repository.directory(photo.projectId).canonicalFile
+        require(original.canonicalFile.toPath().startsWith(project.toPath()) && original.canonicalFile != project) { "Original photograph escapes its private project" }
+        val (rawWidth,rawHeight) = ImageLoader.bounds(original)
+        val orientation = ExifInterface(original).getAttributeInt(ExifInterface.TAG_ORIENTATION,ExifInterface.ORIENTATION_NORMAL)
+            .let { if(it==ExifInterface.ORIENTATION_UNDEFINED) ExifInterface.ORIENTATION_NORMAL else it }
+        val upright = PixelTransform.exif(rawWidth,rawHeight,orientation)
+        require(abs(upright.width.toDouble()/upright.height-width.toDouble()/height)<.005) { "Photographs have incompatible aspect/crop" }
+        val originalToLevel = upright.then(PixelTransform.resize(upright.width,upright.height,width,height))
+        val store = pyramidStore(repository,photo.projectId,width.toLong()*height)
+        val result=PyramidRectifier.writeUprightRgba(sourceArgb = {
+            context.ensureActive()
+            val image = ImageLoader.upright(original,edge)
+            try {
+                require(abs(image.width.toDouble()/image.height-width.toDouble()/height)<.005) { "Decoded photograph dimensions changed" }
+                val scaled = if(image.width==width && image.height==height) image else Bitmap.createScaledBitmap(image,width,height,true)
+                try { IntArray(width*height).also { scaled.getPixels(it,0,width,0,0,width,height) } }
+                finally { if(scaled!==image)scaled.recycle() }
+            } finally { image.recycle() }
+        }, width=width,height=height,lens=lens,target=target,offset=offset,originalSha256=photo.sha256,
+            calibrationProvenance="$provenance|decoder=${AndroidImageDecoder.POLICY_IDENTITY}|decodeEdge=$edge",originalToLevel=originalToLevel,store=store,
+            cancelled = { context[kotlinx.coroutines.Job]?.isActive == false })
+        context.ensureActive()
+        return result.identity
     }
 }
