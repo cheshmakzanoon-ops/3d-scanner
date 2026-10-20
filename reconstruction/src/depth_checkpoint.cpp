@@ -217,22 +217,25 @@ std::vector<std::uint8_t> tilePrefix(const TileKey& k,const std::string& identit
 }
 std::filesystem::path tilePath(const TileKey& k){return std::filesystem::path(active->directory())/("tile-"+std::to_string(k.reference)+"-"+std::to_string(k.tile)+".bin");}
 }
-bool loadTile(const TileKey& key,DenseDepthMap& map){
- if(!active||!validTile(key))return false;
+bool enabled() noexcept{return active!=nullptr;}
+bool loadTile(const TileKey& key,DenseDepthMap& map,TileLoadStatus* status){
+ if(status)*status=TileLoadStatus::Rejected;
+ if(!active){if(status)*status=TileLoadStatus::Unavailable;return false;}
+ if(!validTile(key))return false;
  cancellation::checkpoint();
  auto prefix=tilePrefix(key,active->identity());const auto count=static_cast<std::size_t>(key.width)*key.height,header=prefix.size()+4,total=header+count*8;
  if(total>active->byteBudget_)return false;
 #if defined(__unix__) || defined(__ANDROID__)
  struct Lease{int fd{-1};~Lease(){if(fd>=0)::close(fd);}} lease;
  lease.fd=::open(active->directory().c_str(),O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
- if(lease.fd<0||!lockDirectory(lease.fd,LOCK_SH))return false;
+ if(lease.fd<0||!lockDirectory(lease.fd,LOCK_SH)){if(status)*status=TileLoadStatus::Unavailable;return false;}
 #endif
- const auto path=tilePath(key);std::error_code ec;if(std::filesystem::is_symlink(path,ec)||!std::filesystem::is_regular_file(path,ec)||std::filesystem::file_size(path,ec)!=total||ec)return false;
+ const auto path=tilePath(key);std::error_code ec;if(!std::filesystem::exists(path,ec)&&!ec){if(status)*status=TileLoadStatus::Missing;return false;}if(std::filesystem::is_symlink(path,ec)||!std::filesystem::is_regular_file(path,ec)||std::filesystem::file_size(path,ec)!=total||ec)return false;
  std::ifstream file(path,std::ios::binary);std::vector<std::uint8_t> bytes(total);file.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
  if(!file||file.gcount()!=static_cast<std::streamsize>(bytes.size())||!std::equal(prefix.begin(),prefix.end(),bytes.begin())||read32(bytes,prefix.size())!=crc32(bytes.data()+header,count*8))return false;
  std::vector<float> depth(count),confidence(count);
  for(std::size_t i=0;i<count;++i){if((i&8191)==0)cancellation::checkpoint();float d=std::bit_cast<float>(read32(bytes,header+i*8)),c=std::bit_cast<float>(read32(bytes,header+i*8+4));if(!std::isfinite(d)||!std::isfinite(c)||d<0||d>100000||c<0||c>1||(d==0&&c!=0))return false;depth[i]=d;confidence[i]=c;}
- map.width=static_cast<int>(key.width);map.height=static_cast<int>(key.height);map.depth=std::move(depth);map.confidence=std::move(confidence);return true;
+ map.width=static_cast<int>(key.width);map.height=static_cast<int>(key.height);map.depth=std::move(depth);map.confidence=std::move(confidence);if(status)*status=TileLoadStatus::Hit;return true;
 }
 bool storeTile(const TileKey& key,const DenseDepthMap& map){
  if(!active||!validTile(key)||map.width!=static_cast<int>(key.width)||map.height!=static_cast<int>(key.height))return false;
