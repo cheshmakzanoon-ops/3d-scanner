@@ -1,0 +1,1409 @@
+{
+  "schema": 1,
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "source_plan": "PRODUCTION_100_AGENT_EXECUTION_PLAN.md",
+  "source_plan_sha256": "da0c0efe7cd7bf63bd31612d8d00680130079f38226be4dd38e0d4882489161c",
+  "authority": "Exclusive existing/reserved ownership is parsed from the recorded production plan; mechanical manifest and per-agent receipt/test/handoff exceptions are enforced by tools/agents/campaign.py. Agent100 only accepts unchanged blobs from recorded, scope-validated supplying ancestors.",
+  "agents": [
+    {
+      "agent": "001",
+      "role": "Android application composition and operation ownership",
+      "branch": "agents/001-app-composition",
+      "receipt": "docs/agents/status/001.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt",
+        "app/src/main/java/com/realityforge/scanner/MainActivity.kt",
+        "app/src/main/java/com/realityforge/scanner/RealityForgeApplication.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/application/",
+        "app/src/main/java/com/realityforge/scanner/domain/OperationContext.kt",
+        "app/src/main/java/com/realityforge/scanner/domain/ScannerState.kt"
+      ]
+    },
+    {
+      "agent": "002",
+      "role": "Reconstruction orchestration and resumable stage graph",
+      "branch": "agents/002-pipeline-orchestration",
+      "receipt": "docs/agents/status/002.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/pipeline/"
+      ]
+    },
+    {
+      "agent": "003",
+      "role": "JNI safety, ownership and native API compatibility",
+      "branch": "agents/003-jni-boundary",
+      "receipt": "docs/agents/status/003.md",
+      "existing": [
+        "reconstruction/src/jni.cpp",
+        "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt",
+        "tools/native_api.py",
+        "app/src/androidTest/java/com/realityforge/scanner/NativeSmokeTest.kt"
+      ],
+      "reserved": [
+        "reconstruction/include/realityforge/jni_support.hpp",
+        "app/src/main/java/com/realityforge/scanner/engine/nativebridge/"
+      ]
+    },
+    {
+      "agent": "004",
+      "role": "Reproducible build foundation and dependency integration",
+      "branch": "agents/004-build-foundation",
+      "receipt": "docs/agents/status/004.md",
+      "existing": [
+        "CMakeLists.txt",
+        "build.gradle.kts",
+        "settings.gradle.kts",
+        "gradle.properties",
+        "app/build.gradle.kts",
+        "gradlew",
+        "gradlew.bat",
+        "gradle/wrapper/gradle-wrapper.properties",
+        "tools/bootstrap-wrapper.sh",
+        "tools/bootstrap-wrapper.ps1",
+        "tools/requirements.txt",
+        "tools/requirements-real-benchmark.txt",
+        ".gitignore"
+      ],
+      "reserved": [
+        "gradle/wrapper/gradle-wrapper.jar",
+        "cmake/",
+        "build-logic/"
+      ]
+    },
+    {
+      "agent": "005",
+      "role": "Database schemas, upgrades and durable state model",
+      "branch": "agents/005-database-migrations",
+      "receipt": "docs/agents/status/005.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/data/Database.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/DatabaseContractTest.kt"
+      ],
+      "reserved": [
+        "app/schemas/",
+        "app/src/main/java/com/realityforge/scanner/data/migrations/"
+      ]
+    },
+    {
+      "agent": "006",
+      "role": "Project repository boundaries and operation leases",
+      "branch": "agents/006-repository-boundaries",
+      "receipt": "docs/agents/status/006.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/operations/",
+        "app/src/main/java/com/realityforge/scanner/data/ProjectAccess.kt"
+      ]
+    },
+    {
+      "agent": "007",
+      "role": "Persistent reconstruction jobs and recovery ledger",
+      "branch": "agents/007-durable-job-store",
+      "receipt": "docs/agents/status/007.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/jobs/"
+      ]
+    },
+    {
+      "agent": "008",
+      "role": "Android long-running execution and platform lifecycle",
+      "branch": "agents/008-execution-lifecycle",
+      "receipt": "docs/agents/status/008.md",
+      "existing": [
+        "app/src/main/AndroidManifest.xml"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/work/execution/"
+      ]
+    },
+    {
+      "agent": "009",
+      "role": "Artifact identity, stage manifests and safe checkpoint reuse",
+      "branch": "agents/009-artifact-provenance",
+      "receipt": "docs/agents/status/009.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/artifacts/"
+      ]
+    },
+    {
+      "agent": "010",
+      "role": "Typed failures, truthful diagnostics and progress evidence",
+      "branch": "agents/010-diagnostics-contract",
+      "receipt": "docs/agents/status/010.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/ScanQualityEvidenceTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/ScanQualityReportDeviceTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/diagnostics/"
+      ]
+    },
+    {
+      "agent": "011",
+      "role": "Bounded photo import and document-provider ingestion",
+      "branch": "agents/011-bounded-photo-import",
+      "receipt": "docs/agents/status/011.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/importing/",
+        "docs/agents/status/011.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a011/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a011/"
+      ]
+    },
+    {
+      "agent": "012",
+      "role": "Image decoding, EXIF orientation and memory ownership",
+      "branch": "agents/012-image-decoding-lifetimes",
+      "receipt": "docs/agents/status/012.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/ImageLoader.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/imaging/",
+        "docs/agents/status/012.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a012/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a012/"
+      ]
+    },
+    {
+      "agent": "013",
+      "role": "Lens and capture metadata identity",
+      "branch": "agents/013-capture-metadata-identity",
+      "receipt": "docs/agents/status/013.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/capture/metadata/",
+        "docs/agents/status/013.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a013/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a013/"
+      ]
+    },
+    {
+      "agent": "014",
+      "role": "Camera session identity, lifecycle and permission recovery",
+      "branch": "agents/014-camera-session-lifecycle",
+      "receipt": "docs/agents/status/014.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/capture/session/",
+        "app/src/main/java/com/realityforge/scanner/capture/permissions/",
+        "docs/agents/status/014.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a014/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a014/"
+      ]
+    },
+    {
+      "agent": "015",
+      "role": "Camera optical controls and device capabilities",
+      "branch": "agents/015-camera-optical-controls",
+      "receipt": "docs/agents/status/015.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/capture/controls/",
+        "docs/agents/status/015.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a015/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a015/"
+      ]
+    },
+    {
+      "agent": "016",
+      "role": "Bounded live capture quality analysis",
+      "branch": "agents/016-live-capture-quality",
+      "receipt": "docs/agents/status/016.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/capture/analysis/",
+        "docs/agents/status/016.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a016/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a016/"
+      ]
+    },
+    {
+      "agent": "017",
+      "role": "Measured overlap and capture diversity guidance",
+      "branch": "agents/017-capture-overlap-guidance",
+      "receipt": "docs/agents/status/017.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/capture/guidance/",
+        "docs/agents/status/017.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a017/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a017/"
+      ]
+    },
+    {
+      "agent": "018",
+      "role": "Photo curation commands and reconstruction selection",
+      "branch": "agents/018-photo-curation",
+      "receipt": "docs/agents/status/018.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/curation/",
+        "docs/agents/status/018.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a018/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a018/"
+      ]
+    },
+    {
+      "agent": "019",
+      "role": "Project library queries, rename and independent duplication",
+      "branch": "agents/019-project-library-commands",
+      "receipt": "docs/agents/status/019.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/library/",
+        "docs/agents/status/019.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a019/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a019/"
+      ]
+    },
+    {
+      "agent": "020",
+      "role": "Derived artifact and cache garbage collection",
+      "branch": "agents/020-derived-cache-gc",
+      "receipt": "docs/agents/status/020.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/cachegc/",
+        "docs/agents/status/020.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a020/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a020/"
+      ]
+    },
+    {
+      "agent": "021",
+      "role": "Storage preflight, reservations and peak-space budgets",
+      "branch": "agents/021-storage-budgets",
+      "receipt": "docs/agents/status/021.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/storagebudget/",
+        "docs/agents/status/021.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a021/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a021/"
+      ]
+    },
+    {
+      "agent": "022",
+      "role": "Deletion tombstones and recoverable private-file removal",
+      "branch": "agents/022-deletion-tombstones",
+      "receipt": "docs/agents/status/022.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/deletion/",
+        "docs/agents/status/022.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a022/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a022/"
+      ]
+    },
+    {
+      "agent": "023",
+      "role": "Atomic result publication and last-completed preservation",
+      "branch": "agents/023-atomic-result-publication",
+      "receipt": "docs/agents/status/023.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/publication/",
+        "docs/agents/status/023.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a023/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a023/"
+      ]
+    },
+    {
+      "agent": "024",
+      "role": "Safe reopening and typed preview schema validation",
+      "branch": "agents/024-reopen-schema-integrity",
+      "receipt": "docs/agents/status/024.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/reopening/",
+        "docs/agents/status/024.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a024/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a024/"
+      ]
+    },
+    {
+      "agent": "025",
+      "role": "Capture archive export, validation and project restoration",
+      "branch": "agents/025-capture-archive-roundtrip",
+      "receipt": "docs/agents/status/025.md",
+      "existing": [
+        "app/src/androidTest/java/com/realityforge/scanner/OfflineCaptureBundleTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/archives/",
+        "docs/agents/status/025.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a025/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a025/"
+      ]
+    },
+    {
+      "agent": "026",
+      "role": "SAF export transfer, cancellation and partial failure handling",
+      "branch": "agents/026-saf-export-io",
+      "receipt": "docs/agents/status/026.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/data/safexport/",
+        "docs/agents/status/026.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a026/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a026/"
+      ]
+    },
+    {
+      "agent": "027",
+      "role": "Lens calibration and profile lifecycle workflow",
+      "branch": "agents/027-lens-calibration-workflow",
+      "receipt": "docs/agents/status/027.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt",
+        "app/src/test/java/com/realityforge/scanner/CalibrationTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/capture/calibration/",
+        "docs/agents/status/027.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a027/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a027/"
+      ]
+    },
+    {
+      "agent": "028",
+      "role": "Storage inspection and safe cleanup screen",
+      "branch": "agents/028-storage-management-ui",
+      "receipt": "docs/agents/status/028.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/storage/",
+        "docs/agents/status/028.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a028/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a028/"
+      ]
+    },
+    {
+      "agent": "029",
+      "role": "Processing notification controls and permission experience",
+      "branch": "agents/029-processing-notifications",
+      "receipt": "docs/agents/status/029.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/processing/notifications/",
+        "docs/agents/status/029.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a029/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a029/"
+      ]
+    },
+    {
+      "agent": "030",
+      "role": "Thermal and memory-aware Android workload scheduling",
+      "branch": "agents/030-resource-thermal-scheduling",
+      "receipt": "docs/agents/status/030.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/AdaptiveDensePipelineTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/processing/resources/",
+        "docs/agents/status/030.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a030/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a030/"
+      ]
+    },
+    {
+      "agent": "031",
+      "role": "Lens geometry and pixel coordinate consistency",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "receipt": "docs/agents/status/031.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt",
+        "tests/test_camera_calibration.py"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/geometry/PixelTransform.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/geometry/PixelTransformTest.kt"
+      ]
+    },
+    {
+      "agent": "032",
+      "role": "Bounded feature extraction",
+      "branch": "agents/032-feature-extraction",
+      "receipt": "docs/agents/status/032.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureExtractor.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/engine/features/FeatureExtractorTest.kt"
+      ]
+    },
+    {
+      "agent": "033",
+      "role": "Feature cache integrity and eviction",
+      "branch": "agents/033-feature-cache-integrity",
+      "receipt": "docs/agents/status/033.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureCacheFormat.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/features/FeatureCacheTest.kt"
+      ]
+    },
+    {
+      "agent": "034",
+      "role": "Scalable overlap candidate graph",
+      "branch": "agents/034-overlap-candidate-graph",
+      "receipt": "docs/agents/status/034.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/matching/OverlapGraph.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/matching/OverlapGraphTest.kt"
+      ]
+    },
+    {
+      "agent": "035",
+      "role": "Descriptor matching and verified correspondence service",
+      "branch": "agents/035-verified-feature-matching",
+      "receipt": "docs/agents/status/035.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/matching/FeatureMatcher.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/engine/matching/FeatureMatcherTest.kt"
+      ]
+    },
+    {
+      "agent": "036",
+      "role": "Stable scalable multi-view track graph",
+      "branch": "agents/036-stable-feature-tracks",
+      "receipt": "docs/agents/status/036.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/tracks/TrackSnapshot.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/tracks/TrackSnapshotTest.kt"
+      ]
+    },
+    {
+      "agent": "037",
+      "role": "Two-view initializer and degeneracy diagnostics",
+      "branch": "agents/037-two-view-initializer",
+      "receipt": "docs/agents/status/037.md",
+      "existing": [
+        "reconstruction/src/core.cpp",
+        "reconstruction/include/realityforge/core.hpp",
+        "reconstruction/tests/core_test.cpp"
+      ],
+      "reserved": [
+        "reconstruction/tests/initializer_degeneracy_test.cpp"
+      ]
+    },
+    {
+      "agent": "038",
+      "role": "Robust PnP camera resection",
+      "branch": "agents/038-robust-camera-resection",
+      "receipt": "docs/agents/status/038.md",
+      "existing": [
+        "reconstruction/src/pnp.cpp",
+        "reconstruction/include/realityforge/pnp.hpp"
+      ],
+      "reserved": [
+        "reconstruction/tests/pnp_robustness_test.cpp"
+      ]
+    },
+    {
+      "agent": "039",
+      "role": "Incremental registration and restartable frontier",
+      "branch": "agents/039-incremental-registration",
+      "receipt": "docs/agents/status/039.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/NativeFrontierGeometry.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/IncrementalNativeRegistrationTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/registration/RegistrationFrontier.kt"
+      ]
+    },
+    {
+      "agent": "040",
+      "role": "Multi-view triangulation and sparse geometry refinement",
+      "branch": "agents/040-multiview-triangulation",
+      "receipt": "docs/agents/status/040.md",
+      "existing": [
+        "reconstruction/src/multiview.cpp",
+        "reconstruction/include/realityforge/multiview.hpp",
+        "reconstruction/tests/multiview_test.cpp",
+        "tests/test_multiview.py"
+      ],
+      "reserved": [
+        "reconstruction/tests/triangulation_conditioning_test.cpp"
+      ]
+    },
+    {
+      "agent": "041",
+      "role": "Scalable robust bundle adjustment and gauge",
+      "branch": "agents/041-bundle-adjustment",
+      "receipt": "docs/agents/status/041.md",
+      "existing": [
+        "reconstruction/src/bundle_adjustment.cpp",
+        "reconstruction/include/realityforge/bundle_adjustment.hpp",
+        "reconstruction/tests/bundle_adjustment_test.cpp",
+        "tests/test_bundle_adjustment.py"
+      ],
+      "reserved": [
+        "reconstruction/tests/bundle_gauge_scaling_test.cpp"
+      ]
+    },
+    {
+      "agent": "042",
+      "role": "Bounded intrinsic refinement model",
+      "branch": "agents/042-intrinsic-refinement",
+      "receipt": "docs/agents/status/042.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/intrinsics.hpp",
+        "reconstruction/src/intrinsics.cpp",
+        "reconstruction/tests/intrinsics_test.cpp"
+      ]
+    },
+    {
+      "agent": "043",
+      "role": "Verified loop closure and global drift constraints",
+      "branch": "agents/043-loop-closure-drift",
+      "receipt": "docs/agents/status/043.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/registration/LoopClosure.kt",
+        "reconstruction/include/realityforge/loop_closure.hpp",
+        "reconstruction/src/loop_closure.cpp",
+        "reconstruction/tests/loop_closure_test.cpp",
+        "app/src/test/java/com/realityforge/scanner/engine/registration/LoopClosureTest.kt"
+      ]
+    },
+    {
+      "agent": "044",
+      "role": "Geometry-aware dense reference and source selection",
+      "branch": "agents/044-dense-view-selection",
+      "receipt": "docs/agents/status/044.md",
+      "existing": [
+        "reconstruction/include/realityforge/dense_selection.hpp",
+        "reconstruction/tests/dense_selection_test.cpp"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/dense/DenseViewSelection.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/dense/DenseViewSelectionTest.kt"
+      ]
+    },
+    {
+      "agent": "045",
+      "role": "Versioned image pyramids and exact rectification",
+      "branch": "agents/045-image-pyramids-rectification",
+      "receipt": "docs/agents/status/045.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidStore.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidRectifier.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidLevel.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/engine/imaging/PyramidRectifierTest.kt"
+      ]
+    },
+    {
+      "agent": "046",
+      "role": "Bounded tiled CPU depth core",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "receipt": "docs/agents/status/046.md",
+      "existing": [
+        "reconstruction/src/dense.cpp",
+        "reconstruction/include/realityforge/dense.hpp",
+        "reconstruction/include/realityforge/stereo_warp.hpp",
+        "reconstruction/tests/dense_test.cpp",
+        "reconstruction/tests/stereo_warp_test.cpp",
+        "tests/test_dense.py",
+        "tests/test_dense_multicamera.py",
+        "app/src/androidTest/java/com/realityforge/scanner/MultiCameraNativeTest.kt"
+      ],
+      "reserved": [
+        "reconstruction/src/depth_tiles.cpp",
+        "reconstruction/include/realityforge/depth_tiles.hpp",
+        "reconstruction/tests/depth_tiles_test.cpp"
+      ]
+    },
+    {
+      "agent": "047",
+      "role": "Coarse-to-fine depth and local refinement",
+      "branch": "agents/047-depth-refinement",
+      "receipt": "docs/agents/status/047.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/depth_refinement.hpp",
+        "reconstruction/src/depth_refinement.cpp",
+        "reconstruction/tests/depth_refinement_test.cpp"
+      ]
+    },
+    {
+      "agent": "048",
+      "role": "Photometric matching costs and validity masks",
+      "branch": "agents/048-photometric-matching-costs",
+      "receipt": "docs/agents/status/048.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/matching_cost.hpp",
+        "reconstruction/src/matching_cost.cpp",
+        "reconstruction/tests/matching_cost_test.cpp"
+      ]
+    },
+    {
+      "agent": "049",
+      "role": "Reciprocal confidence and occlusion consistency",
+      "branch": "agents/049-depth-confidence-occlusion",
+      "receipt": "docs/agents/status/049.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/depth_consistency.hpp",
+        "reconstruction/src/depth_consistency.cpp",
+        "reconstruction/tests/depth_consistency_test.cpp"
+      ]
+    },
+    {
+      "agent": "050",
+      "role": "Depth checkpoints and bounded durable cache",
+      "branch": "agents/050-depth-checkpoint-durability",
+      "receipt": "docs/agents/status/050.md",
+      "existing": [
+        "reconstruction/src/depth_checkpoint.cpp",
+        "reconstruction/include/realityforge/depth_checkpoint.hpp",
+        "reconstruction/tests/depth_checkpoint_test.cpp",
+        "app/src/androidTest/java/com/realityforge/scanner/DepthCheckpointDeviceTest.kt"
+      ],
+      "reserved": [
+        "reconstruction/include/realityforge/depth_cache_manifest.hpp",
+        "reconstruction/src/depth_cache_manifest.cpp",
+        "reconstruction/tests/depth_cache_manifest_test.cpp"
+      ]
+    },
+    {
+      "agent": "051",
+      "role": "Scoped cancellation and measurable native progress",
+      "branch": "agents/051-native-cancellation-progress",
+      "receipt": "docs/agents/status/051.md",
+      "existing": [
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/tests/cancellation_test.cpp"
+      ],
+      "reserved": [
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/tests/progress_test.cpp"
+      ]
+    },
+    {
+      "agent": "052",
+      "role": "Measured Vulkan depth backend with CPU fallback",
+      "branch": "agents/052-vulkan-depth-backend",
+      "receipt": "docs/agents/status/052.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/vulkan_depth.hpp",
+        "reconstruction/src/vulkan/",
+        "reconstruction/shaders/depth/",
+        "reconstruction/tests/vulkan_depth_contract_test.cpp"
+      ]
+    },
+    {
+      "agent": "053",
+      "role": "Observed surface fusion and overlap reduction",
+      "branch": "agents/053-surface-fusion-meshing",
+      "receipt": "docs/agents/status/053.md",
+      "existing": [
+        "reconstruction/src/surface.cpp",
+        "reconstruction/include/realityforge/surface.hpp",
+        "reconstruction/tests/surface_test.cpp",
+        "tests/test_surface.py"
+      ],
+      "reserved": [
+        "reconstruction/src/surface_fusion.cpp",
+        "reconstruction/include/realityforge/surface_fusion.hpp",
+        "reconstruction/tests/surface_fusion_test.cpp"
+      ]
+    },
+    {
+      "agent": "054",
+      "role": "Surface normals and geometric uncertainty",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "receipt": "docs/agents/status/054.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/surface_evidence.hpp",
+        "reconstruction/src/surface_evidence.cpp",
+        "reconstruction/tests/surface_evidence_test.cpp"
+      ]
+    },
+    {
+      "agent": "055",
+      "role": "Mesh topology and self-intersection diagnostics",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "receipt": "docs/agents/status/055.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/mesh_topology.hpp",
+        "reconstruction/src/mesh_topology.cpp",
+        "reconstruction/tests/mesh_topology_test.cpp"
+      ]
+    },
+    {
+      "agent": "056",
+      "role": "Conservative mesh cleanup and explicit repair",
+      "branch": "agents/056-conservative-mesh-cleanup",
+      "receipt": "docs/agents/status/056.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/mesh_cleanup.hpp",
+        "reconstruction/src/mesh_cleanup.cpp",
+        "reconstruction/tests/mesh_cleanup_test.cpp"
+      ]
+    },
+    {
+      "agent": "057",
+      "role": "Photographic atlas pipeline and bounded encoding",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "receipt": "docs/agents/status/057.md",
+      "existing": [
+        "reconstruction/src/texture.cpp",
+        "reconstruction/include/realityforge/texture.hpp",
+        "reconstruction/tests/texture_test.cpp",
+        "tests/test_texture.py"
+      ],
+      "reserved": [
+        "reconstruction/src/texture_visibility.cpp",
+        "reconstruction/include/realityforge/texture_visibility.hpp",
+        "reconstruction/src/texture_png.cpp",
+        "reconstruction/include/realityforge/texture_png.hpp",
+        "reconstruction/tests/texture_visibility_test.cpp",
+        "reconstruction/tests/texture_png_test.cpp"
+      ]
+    },
+    {
+      "agent": "058",
+      "role": "Compact UV charts and atlas packing",
+      "branch": "agents/058-uv-charts-packing",
+      "receipt": "docs/agents/status/058.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/uv_atlas.hpp",
+        "reconstruction/src/uv_atlas.cpp",
+        "reconstruction/tests/uv_atlas_test.cpp"
+      ]
+    },
+    {
+      "agent": "059",
+      "role": "Seam-aware photographic blending and rebake",
+      "branch": "agents/059-texture-seam-blending",
+      "receipt": "docs/agents/status/059.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/texture_blend.hpp",
+        "reconstruction/src/texture_blend.cpp",
+        "reconstruction/tests/texture_blend_test.cpp"
+      ]
+    },
+    {
+      "agent": "060",
+      "role": "Measured exposure and color consistency",
+      "branch": "agents/060-photometric-color-consistency",
+      "receipt": "docs/agents/status/060.md",
+      "existing": [
+        "reconstruction/src/photometric.cpp",
+        "reconstruction/include/realityforge/photometric.hpp",
+        "reconstruction/tests/photometric_test.cpp"
+      ],
+      "reserved": [
+        "reconstruction/tests/photometric_adversarial_test.cpp"
+      ]
+    },
+    {
+      "agent": "061",
+      "role": "Canonical 3D asset model and correct GLB export",
+      "branch": "agents/061-glb-asset-contract",
+      "receipt": "docs/agents/status/061.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/asset_model.hpp",
+        "reconstruction/include/realityforge/glb_export.hpp",
+        "reconstruction/src/asset_model.cpp",
+        "reconstruction/src/glb_export.cpp"
+      ]
+    },
+    {
+      "agent": "062",
+      "role": "OBJ and MTL photographic export",
+      "branch": "agents/062-obj-export",
+      "receipt": "docs/agents/status/062.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/obj_export.hpp",
+        "reconstruction/src/obj_export.cpp"
+      ]
+    },
+    {
+      "agent": "063",
+      "role": "STL export and printability diagnostics",
+      "branch": "agents/063-stl-export",
+      "receipt": "docs/agents/status/063.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/stl_export.hpp",
+        "reconstruction/src/stl_export.cpp"
+      ]
+    },
+    {
+      "agent": "064",
+      "role": "PLY export with normals, confidence and provenance",
+      "branch": "agents/064-ply-export",
+      "receipt": "docs/agents/status/064.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/ply_export.hpp",
+        "reconstruction/src/ply_export.cpp"
+      ]
+    },
+    {
+      "agent": "065",
+      "role": "Detail-preserving mesh decimation and LODs",
+      "branch": "agents/065-mesh-lod",
+      "receipt": "docs/agents/status/065.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/include/realityforge/mesh_lod.hpp",
+        "reconstruction/src/mesh_lod.cpp"
+      ]
+    },
+    {
+      "agent": "066",
+      "role": "Non-destructive orientation, crop, scale and measurements",
+      "branch": "agents/066-model-editing",
+      "receipt": "docs/agents/status/066.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/studio/editing/",
+        "reconstruction/include/realityforge/asset_edit.hpp",
+        "reconstruction/src/asset_edit.cpp"
+      ]
+    },
+    {
+      "agent": "067",
+      "role": "Android export product flow and format orchestration",
+      "branch": "agents/067-export-coordinator",
+      "receipt": "docs/agents/status/067.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/export/"
+      ]
+    },
+    {
+      "agent": "068",
+      "role": "Bounded model loading and GLB parser hardening",
+      "branch": "agents/068-model-loader",
+      "receipt": "docs/agents/status/068.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/viewer/loading/"
+      ]
+    },
+    {
+      "agent": "069",
+      "role": "Production Filament renderer and GPU lifecycle",
+      "branch": "agents/069-studio-renderer",
+      "receipt": "docs/agents/status/069.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/PhotographicViewerTest.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/viewer/filament/",
+        "app/src/main/java/com/realityforge/scanner/viewer/RenderBackend.kt"
+      ]
+    },
+    {
+      "agent": "070",
+      "role": "Interactive studio controls and diagnostic viewers",
+      "branch": "agents/070-studio-controls",
+      "receipt": "docs/agents/status/070.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt",
+        "app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt",
+        "app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/studio/"
+      ]
+    },
+    {
+      "agent": "071",
+      "role": "Application navigation and feature composition",
+      "branch": "agents/071-app-navigation-composition",
+      "receipt": "docs/agents/status/071.md",
+      "existing": [
+        "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/navigation/",
+        "docs/agents/status/071.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a071/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a071/"
+      ]
+    },
+    {
+      "agent": "072",
+      "role": "Production project library screen",
+      "branch": "agents/072-project-library-ui",
+      "receipt": "docs/agents/status/072.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/library/",
+        "docs/agents/status/072.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a072/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a072/"
+      ]
+    },
+    {
+      "agent": "073",
+      "role": "Photo review, project detail and recapture actions",
+      "branch": "agents/073-photo-review-project-ui",
+      "receipt": "docs/agents/status/073.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/photoreview/",
+        "docs/agents/status/073.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a073/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a073/"
+      ]
+    },
+    {
+      "agent": "074",
+      "role": "Processing progress, pause and recovery screen",
+      "branch": "agents/074-processing-recovery-ui",
+      "receipt": "docs/agents/status/074.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/processing/",
+        "docs/agents/status/074.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a074/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a074/"
+      ]
+    },
+    {
+      "agent": "075",
+      "role": "Offline onboarding and practical capture instructions",
+      "branch": "agents/075-capture-onboarding-instructions",
+      "receipt": "docs/agents/status/075.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/onboarding/",
+        "app/src/main/assets/onboarding/",
+        "docs/agents/status/075.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a075/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a075/"
+      ]
+    },
+    {
+      "agent": "076",
+      "role": "Shared design system and adaptive layout primitives",
+      "branch": "agents/076-adaptive-design-system",
+      "receipt": "docs/agents/status/076.md",
+      "existing": [
+        "app/src/main/res/values/styles.xml",
+        "app/src/main/res/drawable/ic_launcher.xml"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/designsystem/",
+        "app/src/main/res/values/design_system.xml",
+        "docs/agents/status/076.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a076/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a076/"
+      ]
+    },
+    {
+      "agent": "077",
+      "role": "Accessibility semantics and complete-flow verification",
+      "branch": "agents/077-accessibility-verification",
+      "receipt": "docs/agents/status/077.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/ui/accessibility/",
+        "docs/agents/status/077.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a077/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a077/"
+      ]
+    },
+    {
+      "agent": "078",
+      "role": "Localization resources and structured user messages",
+      "branch": "agents/078-localization-resources",
+      "receipt": "docs/agents/status/078.md",
+      "existing": [
+        "app/src/main/res/values/strings.xml"
+      ],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/localization/",
+        "app/src/main/res/values/localization.xml",
+        "docs/agents/status/078.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a078/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a078/"
+      ]
+    },
+    {
+      "agent": "079",
+      "role": "Preferences, supported profiles and about/privacy screen",
+      "branch": "agents/079-preferences-about-privacy-ui",
+      "receipt": "docs/agents/status/079.md",
+      "existing": [],
+      "reserved": [
+        "app/src/main/java/com/realityforge/scanner/preferences/",
+        "app/src/main/java/com/realityforge/scanner/ui/preferences/",
+        "docs/agents/status/079.md",
+        "app/src/test/java/com/realityforge/scanner/agents/a079/",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a079/"
+      ]
+    },
+    {
+      "agent": "080",
+      "role": "Actual Android UI end-to-end and interruption tests",
+      "branch": "agents/080-actual-ui-end-to-end",
+      "receipt": "docs/agents/status/080.md",
+      "existing": [],
+      "reserved": [
+        "app/src/androidTest/java/com/realityforge/scanner/uiflow/",
+        "tools/android-ui-e2e/",
+        "docs/agents/status/080.md"
+      ]
+    },
+    {
+      "agent": "081",
+      "role": "Host numerical regression and sanitizer harness",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "receipt": "docs/agents/status/081.md",
+      "existing": [
+        "tests/test_pipeline.py",
+        "tools/photo_pair.py",
+        "tools/three_view.py",
+        "tools/bundle_three_view.py",
+        "tools/benchmark_stereo_kernel.py"
+      ],
+      "reserved": [
+        "tools/qa/native_regression/",
+        "tests/test_native_regression_harness.py",
+        ".github/workflows/native-sanitizers.yml"
+      ]
+    },
+    {
+      "agent": "082",
+      "role": "Native, JNI and parser fuzzing harness",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "receipt": "docs/agents/status/082.md",
+      "existing": [],
+      "reserved": [
+        "reconstruction/fuzz/",
+        "tools/qa/fuzz/",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/FuzzBridgeContractTest.kt",
+        ".github/workflows/native-fuzz.yml"
+      ]
+    },
+    {
+      "agent": "083",
+      "role": "Licensed real benchmark corpus and fixture tooling",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "receipt": "docs/agents/status/083.md",
+      "existing": [
+        "tools/make_fixture.py"
+      ],
+      "reserved": [
+        "benchmarks/corpus/",
+        "tools/qa/corpus/",
+        "tests/test_benchmark_corpus.py"
+      ]
+    },
+    {
+      "agent": "084",
+      "role": "Full-object geometric quality benchmarks",
+      "branch": "agents/084-full-object-geometry-quality",
+      "receipt": "docs/agents/status/084.md",
+      "existing": [
+        "tests/test_real_benchmark.py",
+        "tools/benchmark_middlebury.py",
+        "tools/benchmark_dense_middlebury.py",
+        "tools/benchmark_surface_middlebury.py",
+        "tools/benchmark_multiview_coverage.py"
+      ],
+      "reserved": [
+        "tools/qa/geometry_quality/",
+        "tests/test_geometry_quality_metrics.py",
+        "benchmarks/quality_protocols/geometry.json"
+      ]
+    },
+    {
+      "agent": "085",
+      "role": "Photographic texture quality benchmarks",
+      "branch": "agents/085-photographic-texture-quality",
+      "receipt": "docs/agents/status/085.md",
+      "existing": [
+        "tools/benchmark_texture_middlebury.py"
+      ],
+      "reserved": [
+        "tools/qa/texture_quality/",
+        "tests/test_texture_quality_metrics.py",
+        "benchmarks/quality_protocols/texture.json"
+      ]
+    },
+    {
+      "agent": "086",
+      "role": "Physical ARM64 camera-capture validation",
+      "branch": "agents/086-physical-arm64-capture-validation",
+      "receipt": "docs/agents/status/086.md",
+      "existing": [],
+      "reserved": [
+        "tools/device/capture_validation/",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/PhysicalCaptureContractTest.kt",
+        "docs/device-protocols/physical-capture.md"
+      ]
+    },
+    {
+      "agent": "087",
+      "role": "Physical memory, thermal and power profiling",
+      "branch": "agents/087-physical-resource-profiling",
+      "receipt": "docs/agents/status/087.md",
+      "existing": [],
+      "reserved": [
+        "tools/device/resource_profiling/",
+        "app/src/debug/java/com/realityforge/scanner/qa/ResourceProbe.kt",
+        "tests/test_resource_trace_analysis.py",
+        "docs/device-protocols/resource-profiling.md"
+      ]
+    },
+    {
+      "agent": "088",
+      "role": "Process-death, storage-fault and resume instrumentation",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "receipt": "docs/agents/status/088.md",
+      "existing": [
+        "app/src/androidTest/java/com/realityforge/scanner/SessionReliabilityTest.kt"
+      ],
+      "reserved": [
+        "tools/device/failure_recovery/",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/RecoveryStageContractTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/FaultDocumentProvider.kt",
+        "tests/test_recovery_controller.py",
+        "app/src/androidTest/AndroidManifest.xml"
+      ]
+    },
+    {
+      "agent": "089",
+      "role": "Runtime offline and privacy verification",
+      "branch": "agents/089-runtime-offline-privacy",
+      "receipt": "docs/agents/status/089.md",
+      "existing": [
+        "docs/PRIVACY.md",
+        "app/src/main/res/xml/data_extraction_rules.xml"
+      ],
+      "reserved": [
+        "tools/device/offline_privacy/",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/OfflinePrivacyJourneyTest.kt",
+        "tests/test_privacy_evidence.py"
+      ]
+    },
+    {
+      "agent": "090",
+      "role": "Independent exported-asset interoperability validators",
+      "branch": "agents/090-export-interoperability-validation",
+      "receipt": "docs/agents/status/090.md",
+      "existing": [],
+      "reserved": [
+        "tools/qa/export_interoperability/",
+        "tests/test_export_interoperability.py",
+        "benchmarks/export_fixtures/",
+        "docs/quality-protocols/export-interoperability.md"
+      ]
+    },
+    {
+      "agent": "091",
+      "role": "Release APK/AAB, signing and R8 validation",
+      "branch": "agents/091-release-package-validation",
+      "receipt": "docs/agents/status/091.md",
+      "existing": [
+        "tools/check_apk.py",
+        "app/proguard-rules.pro"
+      ],
+      "reserved": [
+        "gradle/release-validation.gradle.kts",
+        ".github/workflows/release-candidate.yml",
+        "tools/release/package_validation/",
+        "tests/test_release_package_validation.py",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/ReleaseNativeContractTest.kt"
+      ]
+    },
+    {
+      "agent": "092",
+      "role": "Android API, ABI and 16KB runtime matrix",
+      "branch": "agents/092-android-compatibility-matrix",
+      "receipt": "docs/agents/status/092.md",
+      "existing": [
+        "tools/run-device-tests.sh",
+        "tools/check_screenshot.py",
+        "tests/test_screenshot_artifact.py"
+      ],
+      "reserved": [
+        ".github/workflows/android-compatibility.yml",
+        "tools/device/compatibility/",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/CompatibilityContractTest.kt"
+      ]
+    },
+    {
+      "agent": "093",
+      "role": "Per-branch, PR and integration CI validation",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "receipt": "docs/agents/status/093.md",
+      "existing": [
+        ".github/workflows/verify.yml"
+      ],
+      "reserved": [
+        "tools/ci/validation/",
+        "tests/test_ci_evidence_validation.py",
+        "docs/ci/required-checks.md"
+      ]
+    },
+    {
+      "agent": "094",
+      "role": "Source manifest and source-snapshot reproducibility",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "receipt": "docs/agents/status/094.md",
+      "existing": [
+        ".github/workflows/export-source-snapshot.yml",
+        "tests/test_project_contracts.py"
+      ],
+      "reserved": [
+        "tools/source_manifest.py",
+        "tests/test_source_manifest_tool.py",
+        "tools/ci/source_snapshot/"
+      ]
+    },
+    {
+      "agent": "095",
+      "role": "Dependency, notices, SBOM and supply provenance",
+      "branch": "agents/095-dependency-notices-sbom",
+      "receipt": "docs/agents/status/095.md",
+      "existing": [
+        "THIRD_PARTY_NOTICES.md"
+      ],
+      "reserved": [
+        "tools/dependencies/",
+        "gradle/verification-metadata.xml",
+        "gradle/dependency-locks/",
+        "tools/requirements.lock",
+        "app/src/main/assets/third-party-notices/",
+        "tests/test_dependency_inventory.py"
+      ]
+    },
+    {
+      "agent": "096",
+      "role": "Security hardening and hostile-input assurance",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "receipt": "docs/agents/status/096.md",
+      "existing": [
+        "tools/capture_audit.py",
+        "tests/test_capture_audit.py"
+      ],
+      "reserved": [
+        "tools/security/",
+        "tests/test_security_evidence.py",
+        ".github/workflows/security-analysis.yml",
+        "docs/security/threat-model.md"
+      ]
+    },
+    {
+      "agent": "097",
+      "role": "Startup and viewer performance qualification",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "receipt": "docs/agents/status/097.md",
+      "existing": [],
+      "reserved": [
+        "macrobenchmark/",
+        "gradle/macrobenchmark-validation.gradle.kts",
+        "app/src/main/baseline-prof.txt",
+        "tools/device/ui_performance/",
+        "docs/quality-protocols/ui-performance.md"
+      ]
+    },
+    {
+      "agent": "098",
+      "role": "Current documentation and developer runbook",
+      "branch": "agents/098-current-documentation-runbook",
+      "receipt": "docs/agents/status/098.md",
+      "existing": [
+        "README.md",
+        "docs/BUILDING.md",
+        "docs/ARCHITECTURE.md",
+        "docs/MILESTONE_STATUS.md",
+        "docs/NEXT_MILESTONE.md"
+      ],
+      "reserved": [
+        "tools/docs/check_runbook.py",
+        "tests/test_runbook_consistency.py"
+      ]
+    },
+    {
+      "agent": "099",
+      "role": "Complete release-candidate journey qualification",
+      "branch": "agents/099-release-candidate-journey-qualification",
+      "receipt": "docs/agents/status/099.md",
+      "existing": [],
+      "reserved": [
+        "tools/release/qualification/",
+        "schemas/release-evidence-v1.json",
+        "tests/test_release_qualification.py",
+        "docs/release/qualification.md",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/ReleaseJourneyTest.kt"
+      ]
+    },
+    {
+      "agent": "100",
+      "role": "Integration lead and release acceptance coordinator",
+      "branch": "agents/100-integration-lead",
+      "receipt": "docs/agents/status/100.md",
+      "existing": [
+        "AGENTS.md",
+        "PRODUCTION_100_AGENT_EXECUTION_PLAN.md",
+        "VERSION",
+        "PROJECT_PLAN.md"
+      ],
+      "reserved": [
+        "docs/agents/integration/",
+        "tools/agents/",
+        ".github/PULL_REQUEST_TEMPLATE/agent-delivery.md"
+      ]
+    }
+  ]
+}
