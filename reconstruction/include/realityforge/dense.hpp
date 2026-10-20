@@ -58,7 +58,9 @@ struct DenseRefinementInputs {
     std::string identitySha256; // canonical identity of exact admitted observations/levels
 };
 // A synchronous borrowed immutable lease around existing surface/texture entry
-// points. No scope means baseline behavior; nested null scope disables inheritance.
+// points. Explicit scope admits cpu-refined-v2: 6 local iterations plus strict
+// continuous reciprocal depth support. No scope means baseline behavior; nested
+// null scope disables inheritance. Inputs stay immutable through synchronous call.
 class DenseRefinementScope final {
 public:
     explicit DenseRefinementScope(const DenseRefinementInputs* inputs) noexcept;
@@ -109,6 +111,7 @@ extern "C" char* rf_dense_json(const std::uint8_t* rgba, int width, int height,
 // prior_rows:6doubles(cameraIndex,x,y,cameraZ,relativeUncertainty,visible0|1), <=20000.
 // Coarse buffers may all be absent (null,0,0,null); otherwise same camera count.
 // identity is a valid NUL-terminated64-lowerhex SHA256 of every admitted input.
+// Opt-in cpu-refined-v2 profile:6 local iterations, strict continuous consistency.
 // Inputs are borrowed immutable for call duration; returned JSON is malloc/rf_free.
 extern "C" char* rf_dense_refined_json(const std::uint8_t* rgba,int width,int height,
     const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,

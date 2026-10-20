@@ -146,7 +146,7 @@ DenseRefinementScope::DenseRefinementScope(const DenseRefinementInputs* inputs) 
 DenseRefinementScope::~DenseRefinementScope() noexcept{currentRefinementInputs=previous_;}
 DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& requestedSettings,const DenseRefinementInputs* inputs){
     auto settings=requestedSettings;
-    if(!inputs&&currentRefinementInputs){inputs=currentRefinementInputs;settings.localRefinementIterations=6;}
+    if(!inputs&&currentRefinementInputs){inputs=currentRefinementInputs;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;}
     cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
@@ -200,8 +200,9 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         coarseMaps=std::move(coarseResult.maps);result.coarseDepthMaps=coarseMaps.size();
     }
     std::ostringstream settingsText;settingsText.imbue(std::locale::classic());settingsText<<std::hexfloat<<"tile-cpu-v1|"<<settings.nearDepth<<'|'<<settings.farDepth<<'|'<<settings.depthPlanes<<'|'<<step<<'|'<<r<<'|'<<settings.minimumNcc<<'|'<<settings.minUniqueness<<'|'<<settings.depthConsistencyFraction<<'|'<<settings.maxPoints<<'|'<<settings.executionVersion<<'|'<<settings.tileEdge<<'|'<<settings.workingSetBudgetBytes<<'|'<<settings.referenceMode<<'|'<<settings.discontinuityAwareConsistency<<'|'<<settings.localRefinementIterations<<'|'<<settings.robustSourceAggregation<<'|'<<(inputs?inputs->identitySha256:std::string("none"));
-    const auto solverIdentity=settingsText.str();
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
+    settingsText<<"|sources:";for(std::size_t ref=0;ref<result.sourceViews.size();++ref){settingsText<<ref<<':';for(auto source:result.sourceViews[ref])settingsText<<source<<',';settingsText<<';';}
+    const auto solverIdentity=settingsText.str();
     result.consistentPixelsPerView.assign(views.size(),0);
     result.maps.reserve(views.size());
     result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,MAX_DENSE_SAMPLES));
@@ -486,7 +487,7 @@ extern "C" char* rf_dense_refined_json(const std::uint8_t* rgba,int width,int he
   std::vector<rf::DenseSparseDepthPrior> priors;priors.reserve(prior_count);
   for(std::size_t i=0;i<prior_count;++i){const auto* row=prior_rows+i*6;for(int k=0;k<6;++k)if(!std::isfinite(row[k]))throw rf::Error("Nonfinite sparse prior row");if(row[0]<0||row[0]>=camera_count||row[0]!=std::floor(row[0])||(row[5]!=0&&row[5]!=1))throw rf::Error("Invalid sparse prior camera/visibility");priors.push_back({static_cast<std::uint32_t>(row[0]),row[1],row[2],row[3],row[4],row[5]==1});}
   rf::DenseRefinementInputs inputs{priors,coarse,std::string(identity,identitySize)};
-  rf::DenseSettings settings;settings.nearDepth=near_depth;settings.farDepth=far_depth;settings.depthPlanes=planes;settings.pixelStride=stride;settings.localRefinementIterations=6;
+  rf::DenseSettings settings;settings.nearDepth=near_depth;settings.farDepth=far_depth;settings.depthPlanes=planes;settings.pixelStride=stride;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;
   auto response=rf::denseJson(rf::reconstructDense(views,settings,&inputs));auto* out=static_cast<char*>(std::malloc(response.size()+1));if(out)std::memcpy(out,response.c_str(),response.size()+1);return out;
  }catch(const std::exception& e){
   try{std::string response="{\"error\":\"";for(const unsigned char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(c>=32)response+=static_cast<char>(c);}response+="\"}";auto* out=static_cast<char*>(std::malloc(response.size()+1));if(out)std::memcpy(out,response.c_str(),response.size()+1);return out;}catch(...){}

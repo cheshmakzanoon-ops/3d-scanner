@@ -9,6 +9,11 @@ object NativeCore {
     external fun registerCameraCancellable(tracks: DoubleArray, threshold: Double, token: Long): String
     external fun reconstructMultiviewCancellable(poses: DoubleArray, tracks: DoubleArray, threshold: Double, iterations: Int, token: Long): String
     external fun bundleAdjustCancellable(poses: DoubleArray, points: DoubleArray, tracks: DoubleArray, threshold: Double, iterations: Int, token: Long): String
+    /** Versioned pixel observations, intrinsics and stable source IDs; same exclusive token lease. */
+    external fun bundleAdjustProblemCancellable(cameraRows12: DoubleArray, seedRows7: DoubleArray,
+        pixelObservationRows7: DoubleArray, intrinsicRows11: DoubleArray, groupIds: Array<String>,
+        photoIds: Array<String>, sourceTrackIds: Array<String>, measured: Boolean, refineFocal: Boolean,
+        thresholdNormalized: Double, iterations: Int, token: Long): String
     /** Schema1: schema, stage(0Sparse..6Checkpoint), reference, tile, completed, total(-1unknown), sequence. */
     external fun pollNativeProgress(token: Long): LongArray
     external fun registerCamera(tracks: DoubleArray, threshold: Double): String
