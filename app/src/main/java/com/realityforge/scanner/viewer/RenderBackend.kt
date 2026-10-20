@@ -58,4 +58,12 @@ data class RenderBudget(
         require(gpu <= maximumGpuBytes) { "Model exceeds GPU upload budget." }
         return RenderStatistics(cpu, gpu)
     }
+
+    fun admitViewport(modelGpuBytes: Long, width: Int, height: Int): Long {
+        require(modelGpuBytes >= 0 && width in 1..8192 && height in 1..8192)
+        // Color/depth plus multiple swap-chain images; conservative admission, not a driver measurement.
+        val estimated = Math.addExact(modelGpuBytes, Math.multiplyExact(width.toLong()*height,16L))
+        require(estimated <= maximumGpuBytes) { "Model and viewport exceed the GPU admission budget." }
+        return estimated
+    }
 }

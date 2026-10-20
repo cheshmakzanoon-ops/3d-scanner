@@ -37,6 +37,7 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
     private var zoom = 1.0
     private var panX = 0.0
     private var panY = 0.0
+    private var modelGpuBytes = 0L
 
     companion object {
         fun create(budget: RenderBudget = RenderBudget()): FilamentBackend {
@@ -89,6 +90,7 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
         val validated = PhotographicGlb.decode(source)
         val admission = budget.admit(bytes.size.toLong(), validated.positions.size / 3L,
             validated.indices.size.toLong(), validated.imageWidth, validated.imageHeight)
+        val admittedGpuBytes = if (swapChain != null) budget.admitViewport(admission.estimatedGpuBytes,width,height) else admission.estimatedGpuBytes
         unload()
         val e = engine!!
         val prepared = materialVariant(source, header.getInt(12), mode)
@@ -107,7 +109,8 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
             scene!!.addEntities(candidate.entities)
             candidate.releaseSourceData()
             model = candidate
-            statistics = admission.copy(uploadNanos = System.nanoTime() - started)
+            modelGpuBytes = admission.estimatedGpuBytes
+            statistics = admission.copy(estimatedGpuBytes=admittedGpuBytes,uploadNanos=System.nanoTime()-started)
             reset()
         } catch (failure: Throwable) {
             loader!!.destroyAsset(candidate); resources!!.evictResourceData(); throw failure
@@ -140,16 +143,19 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
 
     override fun attach(surface: Surface, width: Int, height: Int) {
         checkOwner(); require(surface.isValid); detach()
-        swapChain = engine!!.createSwapChain(surface); resize(width,height)
+        resize(width,height); swapChain = engine!!.createSwapChain(surface)
     }
     override fun detach() {
         checkOwner()
         swapChain?.let { engine!!.destroySwapChain(it); engine!!.flushAndWait() }
         swapChain = null
+        statistics = statistics.copy(estimatedGpuBytes=modelGpuBytes)
     }
     override fun resize(width: Int, height: Int) {
         checkOwner(); require(width > 0 && height > 0)
+        val gpuBytes = budget.admitViewport(modelGpuBytes,width,height)
         this.width = width; this.height = height
+        statistics = statistics.copy(estimatedGpuBytes=gpuBytes)
         view!!.viewport = Viewport(0,0,width,height)
     }
     override fun orbit(horizontalDegrees: Float, verticalDegrees: Float) {
@@ -180,7 +186,7 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
 
     private fun unload() {
         model?.let { scene!!.removeEntities(it.entities); loader!!.destroyAsset(it) }
-        model = null; resources?.evictResourceData()
+        model = null; modelGpuBytes=0L; resources?.evictResourceData()
     }
     override fun close() {
         check(Looper.myLooper() == Looper.getMainLooper())

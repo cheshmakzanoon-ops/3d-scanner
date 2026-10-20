@@ -27,6 +27,7 @@ class PhotographicRenderer(
     private var panY = 0f
     private var width = 1
     private var height = 1
+    private var estimatedModelGpuBytes = 0L
     private var program = 0
     private var vao = 0
     private var texture = 0
@@ -64,7 +65,7 @@ class PhotographicRenderer(
             GLES30.glBindVertexArray(vao)
             GLES30.glGenBuffers(2, buffers, 0)
             val count = asset.positions.size / 3
-            RenderBudget().admit(28L + asset.png.size, count.toLong(), asset.indices.size.toLong(), asset.imageWidth, asset.imageHeight)
+            estimatedModelGpuBytes = RenderBudget().admit(28L + asset.png.size,count.toLong(),asset.indices.size.toLong(),asset.imageWidth,asset.imageHeight).estimatedGpuBytes
             val vertices = ByteBuffer.allocateDirect(count * 20).order(ByteOrder.nativeOrder()).asFloatBuffer()
             for (i in 0 until count) {
                 for (j in 0..2) vertices.put((asset.positions[3*i+j] - asset.center[j]) / asset.radius)
@@ -110,7 +111,10 @@ class PhotographicRenderer(
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         this.width = width.coerceAtLeast(1); this.height = height.coerceAtLeast(1)
-        GLES30.glViewport(0, 0, this.width, this.height)
+        try {
+            RenderBudget().admitViewport(estimatedModelGpuBytes,this.width,this.height)
+            GLES30.glViewport(0,0,this.width,this.height)
+        } catch (e: Exception) { failed(e) }
     }
     override fun onDrawFrame(gl: GL10?) {
         GLES30.glClearColor(.055f, .065f, .075f, 1f)
