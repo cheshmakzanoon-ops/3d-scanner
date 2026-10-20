@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import re
@@ -17,6 +18,14 @@ CLASS = PACKAGE + '.qa.RecoveryStageContractTest#externalProcessBoundary'
 STAGES = ('import', 'registration', 'mesh-texture', 'checkpoint', 'publication')
 
 
+# Use the same raw runner protocol for UI and dedicated recovery fixtures, both
+# when executed as a script and when loaded from a source-bound host harness.
+_protocol_spec = importlib.util.spec_from_file_location(
+    'recovery_instrumentation_protocol', Path(__file__).with_name('stdio_controller.py'))
+_protocol = importlib.util.module_from_spec(_protocol_spec)
+_protocol_spec.loader.exec_module(_protocol)
+
+
 def validate_marker(text, nonce, stage):
     marker = json.loads(text)
     if marker.get('nonce') != nonce or marker.get('readyStage') != stage:
@@ -27,39 +36,23 @@ def validate_marker(text, nonce, stage):
     return marker
 
 
+def _parse_transcript(output):
+    try:
+        return _protocol.parse_instrumentation(output, 0, CLASS, extra_result_keys=('recoveryReceipt',))
+    except _protocol.EvidenceError as error:
+        raise ValueError('Recovery requires one complete actually passing dedicated test: ' + str(error)) from error
+
+
 def validate_transcript(output):
     """One exact dedicated test must really pass; ignored/assumption/partial output fails."""
-    expected_class, expected_test = CLASS.split('#')
-    events = []
-    fields = {}
-    for line in output.splitlines():
-        if line.startswith('INSTRUMENTATION_STATUS: '):
-            pair = line.removeprefix('INSTRUMENTATION_STATUS: ').split('=', 1)
-            if len(pair) == 2 and pair[0] in ('class', 'test', 'current', 'numtests'):
-                if pair[0] in fields: raise ValueError('Duplicate instrumentation identity field')
-                fields[pair[0]] = pair[1]
-        elif line.startswith('INSTRUMENTATION_STATUS_CODE: '):
-            code = line.removeprefix('INSTRUMENTATION_STATUS_CODE: ')
-            if fields != {'class': expected_class, 'test': expected_test, 'current': '1', 'numtests': '1'}:
-                raise ValueError('Wrong or incomplete dedicated recovery test event')
-            events.append(code)
-            fields = {}
-    summaries = re.findall(r'^OK \(1 tests?\)\s*$', output, re.MULTILINE)
-    completion = re.findall(r'^INSTRUMENTATION_CODE: (-?[0-9]+)\s*$', output, re.MULTILINE)
-    if (fields or events != ['1', '0'] or len(summaries) != 1 or completion != ['-1']
-            or not output.rstrip().endswith('INSTRUMENTATION_CODE: -1') or 'FAILURES!!!' in output or 'INSTRUMENTATION_FAILED' in output):
-        raise ValueError('Recovery requires one complete actually passing dedicated test')
+    _parse_transcript(output)
     return {'tests': 1, 'passed': 1, 'skipped': 0, 'failed': 0}
 
 
 def validate_result(output, marker, nonce, stage):
-    validate_transcript(output)
-    matches = re.findall(r'^INSTRUMENTATION_RESULT: recoveryReceipt=(\{[^\n]+\})$', output, re.MULTILINE)
-    found = re.search(r'INSTRUMENTATION_RESULT: recoveryReceipt=(\{[^\n]+\})', output)
-    if len(matches) != 1: raise ValueError('One exact recovery receipt required')
-    if not found or not re.search(r'OK \([1-9][0-9]* tests?\)', output) or 'FAILURES!!!' in output:
-        raise ValueError('No successful nonzero recovery instrumentation receipt')
-    result = json.loads(found[1])
+    result = _parse_transcript(output)['results'].get('recoveryReceipt')
+    if result is None:
+        raise ValueError('One exact recovery receipt required')
     if (result.get('nonce') != nonce or result.get('stage') != stage or result.get('status') != 'PASS'
             or result.get('preparePid') != marker['preparePid'] or result.get('verifyPid') == marker['preparePid']
             or type(result.get('verifyPid')) is not int or result['verifyPid'] <= 1

@@ -24,7 +24,9 @@ class RecoveryStageContractTest {
     private fun providerAccess(grant: Boolean) {
         val operation = if (grant) "grant" else "revoke"
         val component = "com.realityforge.scanner.test/com.realityforge.scanner.qa.FaultDocumentProvider\$GrantReceiver"
-        val command = "am broadcast --receiver-foreground -n '$component' --es operation $operation"
+        // UiAutomation executes argv directly; shell quotes would become literal
+        // component characters. The fixed component has no whitespace.
+        val command = "am broadcast --receiver-foreground -n $component --es operation $operation"
         val output = android.os.ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(command))
             .bufferedReader().use { it.readText() }
         assertTrue("Explicit test-only URI $operation failed: $output", output.contains("Broadcast completed: result=-1") && output.contains("RF088_$operation"))

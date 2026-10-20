@@ -251,44 +251,76 @@ def instrument(request: dict, nonce: str, phase: str, test: str) -> list[str]:
             "-e", "rf088ControllerPhase", phase, "-e", "rf088ControllerRequest", canonical(request), RUNNER]
 
 
-def parse_instrumentation(stdout: str, returncode: int, expected: str) -> dict:
+def parse_instrumentation(stdout: str, returncode: int, expected: str,
+                          extra_result_keys: tuple[str, ...] = ()) -> dict:
+    """Require the complete raw AndroidJUnitRunner protocol for one selected test.
+
+    Only stream fields are multiline. Unknown protocol lines, error result keys,
+    orphan text and anything following completion fail instead of being ignored.
+    """
     if returncode or not isinstance(stdout, str) or len(stdout.encode()) > MAX_OUTPUT:
         raise EvidenceError("UI instrumentation failed or exceeded output budget")
-    fields, events, results, final = {}, [], {}, []
+    identity = expected.split("#")
+    if len(identity) != 2 or not all(identity):
+        raise EvidenceError("One exact class#method selector is required")
+    class_name, method = identity
+    fields, events, results = {}, [], {}
+    active_stream = None
+    result_phase = False
+    complete = False
+    status_keys = {"class", "test", "current", "numtests", "id", "stream"}
     for line in stdout.splitlines():
+        if complete:
+            if line:
+                raise EvidenceError("Trailing output after UI instrumentation completion")
+            continue
         if line.startswith("INSTRUMENTATION_STATUS: "):
+            if result_phase or len(events) >= 2:
+                raise EvidenceError("UI status after terminal event/results")
             key, sep, value = line[len("INSTRUMENTATION_STATUS: "):].partition("=")
-            if not sep or key in fields:
-                raise EvidenceError("Malformed/duplicate UI instrumentation status field")
+            if (not sep or key in fields
+                    or (key not in status_keys and not re.fullmatch(r"rf088[A-Za-z0-9_]*", key))):
+                raise EvidenceError("Malformed/unknown/duplicate UI instrumentation status field")
             fields[key] = value
+            active_stream = fields if key == "stream" else None
         elif line.startswith("INSTRUMENTATION_STATUS_CODE:"):
-            try:
-                code = int(line.partition(":")[2])
-            except ValueError as error:
-                raise EvidenceError("Malformed UI instrumentation status code") from error
-            events.append((code, fields))
+            code_text = line[len("INSTRUMENTATION_STATUS_CODE:"):]
+            if result_phase or len(events) >= 2 or code_text != (" 1" if not events else " 0"):
+                raise EvidenceError("UI instrumentation requires one start and one success; no skips/failures")
+            required = {"class": class_name, "test": method, "current": "1", "numtests": "1",
+                        "id": "AndroidJUnitRunner", "stream": "\n" + class_name + ":" if not events else "."}
+            if any(fields.get(key) != value for key, value in required.items()):
+                raise EvidenceError("UI test identity/count/runner/stream mismatch")
+            events.append(fields)
             fields = {}
+            active_stream = None
         elif line.startswith("INSTRUMENTATION_RESULT: "):
+            if fields or len(events) != 2:
+                raise EvidenceError("UI results before complete successful test events")
+            result_phase = True
             key, sep, value = line[len("INSTRUMENTATION_RESULT: "):].partition("=")
-            if sep and key.startswith("rf088"):
-                if key in results:
-                    raise EvidenceError("Duplicate fixture instrumentation result")
-                results[key] = read_json(value)
+            if (not sep or key in results or (key != "stream" and key not in extra_result_keys
+                    and not re.fullmatch(r"rf088[A-Za-z0-9_]*", key))):
+                raise EvidenceError("Malformed/unknown/duplicate UI instrumentation result")
+            results[key] = value if key == "stream" else read_json(value)
+            active_stream = results if key == "stream" else None
         elif line.startswith("INSTRUMENTATION_CODE:"):
-            final.append(line.strip())
-    class_name, method = expected.split("#")
-    if fields or len(events) != 2 or [code for code, _ in events] != [1, 0]:
-        raise EvidenceError("UI instrumentation requires exactly one start and successful terminal event; no skips")
-    for _, event in events:
-        if any(event.get(key) != value for key, value in {
-            "class": class_name, "test": method, "current": "1", "numtests": "1"}.items()):
-            raise EvidenceError("UI test identity/count mismatch")
-    if (final != ["INSTRUMENTATION_CODE: -1"] or stdout.strip().splitlines()[-1] != final[0]
-            or len(re.findall(r"^OK \(1 tests?\)\s*$", stdout, re.M)) != 1
-            or re.search(r"FAILURES!!!|INSTRUMENTATION_FAILED|Process crashed", stdout)):
-        raise EvidenceError("UI instrumentation did not complete with an exact successful JUnit/final-code result")
+            if fields or len(events) != 2 or not result_phase or line != "INSTRUMENTATION_CODE: -1":
+                raise EvidenceError("UI instrumentation has no exact successful completion")
+            complete = True
+            active_stream = None
+        elif line.startswith("INSTRUMENTATION_"):
+            raise EvidenceError("Unknown UI instrumentation protocol line")
+        elif active_stream is not None:
+            active_stream["stream"] += "\n" + line
+        elif line:
+            raise EvidenceError("Orphan text outside UI instrumentation stream")
+    if (not complete or fields or len(events) != 2 or "stream" not in results
+            or not re.fullmatch(r"\n+Time: [0-9]+(?:\.[0-9]+)?\n+OK \(1 tests?\)\n*", results["stream"])):
+        raise EvidenceError("UI instrumentation requires the exact JUnit Time/OK result stream and final code")
     return {"test_identity": expected, "started_count": 1, "completed_count": 1,
-            "passed_count": 1, "skipped_count": 0, "results": results}
+            "passed_count": 1, "skipped_count": 0,
+            "results": {key: value for key, value in results.items() if key != "stream"}}
 
 
 def fixture_is_missing(stdout: str) -> bool:
