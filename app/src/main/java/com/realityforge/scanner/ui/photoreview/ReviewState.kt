@@ -11,7 +11,7 @@ data class ReviewPhoto(val id:String,val filename:String,val width:Int,val heigh
 data class ProjectReviewUiState(val projectId:String,val revision:Long,val photos:List<ReviewPhoto>,
     val title:String,val busy:Boolean=false,val calibrationStatus:String?=null,val diagnostics:List<String> = emptyList(),
     val canCurate:Boolean=false,val canUndo:Boolean=false,val canCalibrate:Boolean=true,
-    val canInspectResult:Boolean=false,val canReconstruct:Boolean=true,val maximumSelectedPhotos:Int=12,val canRemove:Boolean=canCurate) {
+    val canInspectResult:Boolean=false,val canReconstruct:Boolean=true,val maximumSelectedPhotos:Int=12,val canRemove:Boolean=canCurate,val evidence:List<ReviewDiagnostic> = emptyList()) {
     init { require(projectId.isNotBlank() && revision>=0 && maximumSelectedPhotos>=2); require(photos.map { it.id }.distinct().size==photos.size) }
     val selectedCount:Int get()=photos.count { it.included }
     fun canStart(focal:Double?)=canReconstruct && !busy && selectedCount in 2..maximumSelectedPhotos && photos.none { it.included && it.calibrationCompatible==false } && focal!=null && focal.isFinite() && focal in 10.0..200.0
@@ -44,4 +44,13 @@ object ReviewAdmission {
             }
         }
     }
+}
+
+/** Owner010 supplies actual references; never infer affected photos from a guessed threshold. */
+data class ReviewDiagnostic(val projectId:String,val revision:Long,val code:String,val message:String,
+    val photoIds:List<String> = emptyList(),val recapture:Boolean=false) {
+    init { require(projectId.isNotBlank() && revision>=0 && code.isNotBlank());require(photoIds.size<=4096) }
+    fun currentFor(state:ProjectReviewUiState)=projectId==state.projectId && revision==state.revision
+    fun referencedPhotos(state:ProjectReviewUiState):List<ReviewPhoto> =
+        if(currentFor(state)) photoIds.distinct().take(12).mapNotNull(state::photo) else emptyList()
 }

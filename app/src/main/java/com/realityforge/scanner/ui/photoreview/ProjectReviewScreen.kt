@@ -54,6 +54,17 @@ fun ProjectReviewScreen(state:ProjectReviewUiState,onAction:(ReviewAction)->Unit
             TextButton(onClick={send(ReviewCommand.HELP)},enabled=!state.busy) { Text(stringResource(R.string.a073_help)) }
             if(state.canUndo) TextButton(enabled=!state.busy,onClick={send(ReviewCommand.UNDO)}) { Text(stringResource(R.string.a073_undo)) }
             state.diagnostics.take(32).forEach { Text(it) }
+            state.evidence.filter { it.currentFor(state) }.take(32).forEach { diagnostic ->
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text(diagnostic.message)
+                        diagnostic.referencedPhotos(state).forEach { photo ->
+                            TextButton(onClick={inspectId=photo.id}) { Text(photo.filename) }
+                        }
+                        if(diagnostic.recapture) OutlinedButton(enabled=!state.busy,onClick={send(ReviewCommand.CAPTURE)}) { Text(stringResource(R.string.a073_capture)) }
+                    }
+                }
+            }
             if(state.canCurate) Text(stringResource(R.string.a073_originals),style=MaterialTheme.typography.bodySmall)
         }
         itemsIndexed(state.photos,key={_,p->p.id}) { index,photo ->

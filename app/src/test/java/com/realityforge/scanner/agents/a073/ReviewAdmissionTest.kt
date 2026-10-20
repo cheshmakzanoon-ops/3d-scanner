@@ -21,6 +21,12 @@ class ReviewAdmissionTest {
         assertFalse(state.copy(photos=(0..12).map { photos.first().copy(id=it.toString()) }).canStart(26.0))
         assertFalse(state.copy(photos=photos.map { it.copy(calibrationCompatible=false) }).canStart(26.0))
     }
+    @Test fun diagnosticLinksCannotSelectUnknownOrStaleProjectInputs() {
+        val diagnostic=ReviewDiagnostic("p",3,"LOW_OVERLAP","localised message",listOf("a","missing","a"),recapture=true)
+        assertEquals(listOf("a"),diagnostic.referencedPhotos(state).map {it.id})
+        assertTrue(diagnostic.copy(revision=2).referencedPhotos(state).isEmpty())
+        assertTrue(diagnostic.copy(projectId="other").referencedPhotos(state).isEmpty())
+    }
     @Test fun absentCurationBackendOffersNoMutation() {
         assertFalse(ReviewAdmission.allowed(state.copy(canCurate=false),ReviewAction.Include("p",3,"a",false)))
         assertEquals(2,state.selectedCount)
