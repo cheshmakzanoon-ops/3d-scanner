@@ -20,6 +20,7 @@ int main(int argc,char** argv){
     assert(metric.measurement.metersPerOriginalUnit==.2);assert(metric.provenance.parentId=="original");assert(metric.provenance.assetId.empty());
     OrientationEdit reflection{{-1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}};
     recipe.operations={reflection};auto reflected=applyEdits(source,recipe,uv);assert(reflected.positions[1].x==-2);assert(reflected.indices[1]==2&&reflected.indices[2]==1);
+    if(argc==2)writeGlbFile(reflected.surface(),std::filesystem::path(argv[1]).parent_path()/"reflected-edit.glb");
     assert(reflected.normals[0].z==1);assert(reflected.uv[1].x==1);
     recipe.operations={CropEdit{{-1,-1,-1},{3,3,1}}};auto crop=applyEdits(source,recipe,uv);assert(crop.positions.size()==3&&crop.indices.size()==3);
     recipe.operations={ComponentEdit{{1}}};auto selected=applyEdits(source,recipe,uv);assert(selected.positions[0].x==10&&selected.indices.size()==3);

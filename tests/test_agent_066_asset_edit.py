@@ -16,7 +16,7 @@ def test_native_edit_materialization(tmp_path):
         "-I" + str(root / "reconstruction/include"), "-I" + str(provider / "reconstruction/include"),
         str(root / "reconstruction/src/asset_edit.cpp"), str(provider / "reconstruction/src/asset_model.cpp"),
         str(provider / "reconstruction/src/glb_export.cpp"),
-        str(root / "reconstruction/tests/agent_066_asset_edit.cpp"), "-o", str(executable),
+        str(root / "reconstruction/tests/agent_066_asset_edit.cpp"), "-lz", "-o", str(executable),
     ], check=True)
     output = tmp_path / "metric-edit.glb"
     subprocess.run([str(executable), str(output)], check=True)
@@ -30,3 +30,20 @@ def test_native_edit_materialization(tmp_path):
     assert primitive["mode"] == 4 and index_accessor["count"] == 6
     assert positions["min"][0] == 0 and abs(positions["min"][1] + .4) < 1e-6 and positions["min"][2] == 0
     assert abs(positions["max"][0] - 2.4) < 1e-6
+    reflected = (tmp_path / "reflected-edit.glb").read_bytes()
+    length = struct.unpack_from("<I", reflected, 12)[0]
+    doc = json.loads(reflected[20:20 + length])
+    primitive = doc["meshes"][0]["primitives"][0]
+    def values(index, fmt, width):
+        accessor = doc["accessors"][index]
+        view = doc["bufferViews"][accessor["bufferView"]]
+        offset = 28 + length + view.get("byteOffset", 0) + accessor.get("byteOffset", 0)
+        stride = view.get("byteStride", struct.calcsize(fmt) * width)
+        return [struct.unpack_from("<" + fmt * width, reflected, offset + i * stride) for i in range(accessor["count"])]
+    vertices = values(primitive["attributes"]["POSITION"], "f", 3)
+    normals = values(primitive["attributes"]["NORMAL"], "f", 3)
+    indices = [v[0] for v in values(primitive["indices"], "I", 1)]
+    assert all(n == (0, 0, -1) for n in normals)
+    for i in range(0, len(indices), 3):
+        a, b, c = (vertices[j] for j in indices[i:i + 3])
+        assert (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]) < 0
