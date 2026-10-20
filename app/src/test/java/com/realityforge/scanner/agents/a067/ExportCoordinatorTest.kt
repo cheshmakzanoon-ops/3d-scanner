@@ -90,6 +90,14 @@ class ExportCoordinatorTest {
         val all = file.readBytes(); all[4] = (all[4].toInt() xor 1).toByte(); file.writeBytes(all)
         try { PendingExportStore(file).restore(); fail() } catch (_: IllegalArgumentException) {}
     }
+    @Test fun invalidPendingStateCanBeExplicitlyQuarantinedWithoutLosingEvidence() = temporary { root ->
+        val file = File(root,"picker").apply { writeText("broken") }
+        val rejected = requireNotNull(PendingExportStore(file).quarantineInvalid())
+        assertEquals("broken", rejected.readText()); assertFalse(file.exists())
+        PendingExportStore(file).save(request())
+        try { PendingExportStore(file).quarantineInvalid(); fail() } catch (_: IllegalStateException) {}
+        assertTrue(file.exists())
+    }
     @Test fun objectPackageRemainsRelocatableAndChecksContent() = temporary { root ->
         val model = File(root, "scan.obj").apply { writeText("mtllib scan.mtl\nv 0 0 0\n") }
         val mtl = File(root, "scan.mtl").apply { writeText("newmtl photograph\nmap_Kd atlas.png\n") }

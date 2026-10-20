@@ -50,5 +50,13 @@ class PendingExportStore(private val file: File) {
         require(request.requestId == requestId) { "PICKER_ID_MISMATCH" }
         check(file.delete()) { "PENDING_DELETE_FAILED" }
     } }
+    /** User-directed recovery only: retain invalid bytes; never discard a valid outstanding picker. */
+    fun quarantineInvalid(): File? = synchronized(gate) {
+        if (!file.exists()) return@synchronized null
+        check(runCatching { restore() }.isFailure) { "VALID_PENDING_REQUEST" }
+        val rejected = File(file.parentFile, file.name + ".rejected." + java.util.UUID.randomUUID())
+        java.nio.file.Files.move(file.toPath(), rejected.toPath(), java.nio.file.StandardCopyOption.ATOMIC_MOVE)
+        rejected
+    }
     companion object { private val locks = java.util.concurrent.ConcurrentHashMap<String, Any>() }
 }
