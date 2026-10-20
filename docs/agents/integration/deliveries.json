@@ -10,6 +10,13 @@
       "agent": "094",
       "source_sha": "3926fa7969e0b76142a463abeb13bd47c27e8a0f",
       "ownership": "PASS"
+    },
+    {
+      "agent": "090",
+      "source_sha": "401cf77dce27a849a8a48d7c16fb7d7911f2f330",
+      "branch": "agents/090-export-interoperability-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
