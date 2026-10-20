@@ -88,4 +88,49 @@ class IncrementalRegistrationTest {
         assertEquals(listOf(2),result.unregistered)
         assertTrue(result.attempts.single().reason.contains("reprojection"))
     }
+
+    @Test fun frontierCheckpointRoundTripAndStaleInputRejection() = runBlocking {
+        val views=listOf(view(),view(tx=-.5),view());var checkpoint:com.realityforge.scanner.engine.registration.RegistrationFrontier?=null
+        val initial=listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1]))
+        suspend fun run(input:List<SparseView>, resume:com.realityforge.scanner.engine.registration.RegistrationFrontier?)=
+            IncrementalRegistration.grow(input,initial,{_,_->FeaturePairs(intArrayOf(),intArrayOf())},{_,_,_->emptyList()},{_,_->error("Unexpected pose")},
+                photoIds=listOf("photo-a","photo-b","photo-c"),resume=resume,checkpoint={checkpoint=it})
+        val first=run(views,null);val decoded=com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(requireNotNull(checkpoint).encode())
+        val resumed=run(views,decoded);assertEquals(first.unregistered,resumed.unregistered);assertEquals(2,resumed.cameras.size)
+        val bytes=decoded.encode();bytes[20]=(bytes[20].toInt() xor 1).toByte()
+        assertThrows(IllegalArgumentException::class.java){com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(bytes)}
+        try { run(views.toMutableList().also{it[2]=view(tx=.1)},decoded);fail("Stale input accepted") } catch(_:IllegalArgumentException){}
+    }
+    @Test fun largerPhotoManifestsRemainExplicitlyDisconnected() = runBlocking {
+        for(count in listOf(30,80,250)){
+            val views=List(count){view(tx=if(it==1)-.5 else 0.0)};var pairCalls=0
+            val result=IncrementalRegistration.grow(views,listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1])),
+                {_,_->++pairCalls;FeaturePairs(intArrayOf(),intArrayOf())},{_,_,_->error("No geometry")},{_,_->error("No pose")})
+            assertEquals(count-2,result.unregistered.size);assertEquals(1,pairCalls)
+        }
+    }
+    @Test fun duplicatePhotoIdentityIsRejectedBeforeMatching()=runBlocking {
+        val views=listOf(view(),view(tx=-.5));try{
+            IncrementalRegistration.grow(views,listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1])),{_,_->error("Duplicate matched")},{_,_,_->emptyList()},{_,_->error("pose")},photoIds=listOf("same","same"));fail("Duplicate accepted")
+        }catch(_:IllegalArgumentException){}
+    }
+
+    /** Analytic scheduler fixture: test-only triangulation/PnP use known points;
+     * production JNI accuracy is a distinct instrumentation gate. */
+    @Test fun boundedVisibilityChainsRegisterAndResumeThirtyEightyAndTwoHundredFiftyViews()=runBlocking {
+        for(count in listOf(30,80,250)){
+            val views=List(count){view(20,tx=-it*.01)};val initial=listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1]))
+            val ids=List(count){"photo-%03d".format(it)};var calls=0;var latest:com.realityforge.scanner.engine.registration.RegistrationFrontier?=null
+            suspend fun run(resume:com.realityforge.scanner.engine.registration.RegistrationFrontier?,interrupt:Boolean)=IncrementalRegistration.grow(views,initial,
+                {a,b->++calls;assertTrue(kotlin.math.abs(a-b)<=2);FeaturePairs(IntArray(20){it},IntArray(20){it})},
+                {poses,_,_->assertTrue(poses.size<=144);List(20){FrontierPoint(it,doubleArrayOf(it*.1,0.0,5.0))}},
+                {rows,_->val tx=rows[3]*5-rows[0];FrontierPose(views[0].rotation,doubleArrayOf(tx,0.0,0.0),IntArray(rows.size/5){it})},
+                photoIds=ids,resume=resume,checkpoint={latest=it;if(interrupt&&it.cameras.size==10)throw CancellationException("simulated persisted interruption")},
+                neighbors={a->setOf(a-2,a-1,a+1,a+2).filter {it in views.indices}.toSet()})
+            try{run(null,true);fail("Did not interrupt") }catch(_:CancellationException){}
+            val resumed=run(com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(requireNotNull(latest).encode()),false)
+            assertEquals(count,resumed.cameras.size);assertTrue(resumed.unregistered.isEmpty());assertTrue(calls<count*8)
+            for(camera in resumed.cameras)assertEquals(-camera.photo*.01,camera.view.translation[0],1e-5)
+        }
+    }
 }

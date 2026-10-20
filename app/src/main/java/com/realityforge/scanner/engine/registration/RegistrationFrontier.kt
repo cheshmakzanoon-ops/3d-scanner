@@ -1,0 +1,33 @@
+package com.realityforge.scanner.engine.registration
+
+import java.io.*
+import java.security.MessageDigest
+import kotlin.math.abs
+
+internal data class FrontierCamera(val photoId:String,val rotation:List<Double>,val translation:List<Double>){
+ init {require(photoId.isNotBlank() && photoId.toByteArray().size<=1024 && rotation.size==9 && translation.size==3)
+  require(rotation.all {it.isFinite()} && translation.all {it.isFinite()&&abs(it)<100000})
+  for(a in 0..2)for(b in 0..2)require(abs((0..2).sumOf {rotation[a*3+it]*rotation[b*3+it]}-if(a==b)1.0 else 0.0)<.01)
+  val r=rotation;require(abs(r[0]*(r[4]*r[8]-r[5]*r[7])-r[1]*(r[3]*r[8]-r[5]*r[6])+r[2]*(r[3]*r[7]-r[4]*r[6])-1)<.01)
+ }
+}
+/** A checksummed stage checkpoint, never a published completed reconstruction. */
+internal data class RegistrationFrontier(val inputIdentity:String,val photoIds:List<String>,val cameras:List<FrontierCamera>,val failureReasons:Map<String,String>){
+ init {require(inputIdentity.matches(Regex("[a-f0-9]{64}")))
+  require(photoIds.size in 2..250 && photoIds.distinct().size==photoIds.size && photoIds.all {it.isNotBlank()&&it.toByteArray().size<=1024})
+  require(cameras.size in 2..photoIds.size && cameras.map {it.photoId}.distinct().size==cameras.size && cameras.all {it.photoId in photoIds})
+  require(failureReasons.size<=250 && failureReasons.all {it.key in photoIds&&it.value.toByteArray().size<=2048}) }
+ fun encode():ByteArray{val bytes=ByteArrayOutputStream();DataOutputStream(bytes).use {o->
+  o.writeInt(0x52465246);o.writeInt(1);o.writeUTF(inputIdentity);o.writeInt(photoIds.size);photoIds.forEach {o.writeUTF(it)}
+  o.writeInt(cameras.size);for(c in cameras){o.writeUTF(c.photoId);c.rotation.forEach {o.writeDouble(it)};c.translation.forEach {o.writeDouble(it)}}
+  o.writeInt(failureReasons.size);for((id,reason) in failureReasons.toSortedMap()){o.writeUTF(id);o.writeUTF(reason)} }
+  val payload=bytes.toByteArray();return payload+MessageDigest.getInstance("SHA-256").digest(payload) }
+ companion object {
+  fun decode(bytes:ByteArray):RegistrationFrontier{require(bytes.size in 64..1_000_000);val payload=bytes.copyOfRange(0,bytes.size-32)
+   require(MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(payload),bytes.copyOfRange(bytes.size-32,bytes.size)))
+   val i=DataInputStream(ByteArrayInputStream(payload));require(i.readInt()==0x52465246&&i.readInt()==1);val identity=i.readUTF();val n=i.readInt();require(n in 2..250)
+   val ids=List(n){i.readUTF()};val c=i.readInt();require(c in 2..n);val cameras=List(c){FrontierCamera(i.readUTF(),List(9){i.readDouble()},List(3){i.readDouble()})}
+   val f=i.readInt();require(f in 0..250);val failures=linkedMapOf<String,String>();repeat(f){val id=i.readUTF();require(id !in failures);failures[id]=i.readUTF()};require(i.available()==0)
+   return RegistrationFrontier(identity,ids,cameras,failures) }
+ }
+}

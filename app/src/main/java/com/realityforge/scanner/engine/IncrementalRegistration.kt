@@ -1,5 +1,8 @@
 package com.realityforge.scanner.engine
 
+import com.realityforge.scanner.engine.registration.*
+import java.security.MessageDigest
+import java.nio.ByteBuffer
 import kotlinx.coroutines.ensureActive
 import kotlin.coroutines.coroutineContext
 import kotlin.math.*
@@ -101,33 +104,62 @@ internal object IncrementalRegistration {
         triangulate: (DoubleArray,DoubleArray,Double) -> List<FrontierPoint>,
         register: (DoubleArray,Double) -> FrontierPose,
         progress: suspend (String,Int,Int) -> Unit = { _,_,_ -> },
+        photoIds: List<String> = templates.indices.map { it.toString() },
+        resume: RegistrationFrontier? = null,
+        checkpoint: (RegistrationFrontier) -> Unit = {},
+        neighbors: ((Int) -> Set<Int>)? = null,
+        pairBudget: Int = 100000,
     ): RegistrationGrowth {
-        require(templates.size in 2..12 && initial.size in 2..templates.size)
+        require(templates.size in 2..250 && initial.size in 2..templates.size)
+        require(photoIds.size==templates.size && photoIds.distinct().size==photoIds.size && photoIds.all {it.isNotBlank()&&it.toByteArray().size<=1024})
+        require(pairBudget in 1..1000000)
         require(initial.map { it.photo }.toSet().size == initial.size &&
             initial.all { it.photo in templates.indices })
-        val cameras=initial.toMutableList()
-        val attempts=ArrayList<RegistrationAttempt>()
+        val digest=MessageDigest.getInstance("SHA-256")
+        for(index in templates.indices.sortedBy {photoIds[it]}){
+            digest.update(photoIds[index].toByteArray());digest.update(0.toByte());val view=templates[index]
+            digest.update(ByteBuffer.allocate(20).putInt(view.width).putInt(view.height).putDouble(view.focalPixels).putInt(view.colors.size).array())
+            for(value in view.xy)digest.update(ByteBuffer.allocate(4).putFloat(value).array())
+            digest.update(view.projection.toString().toByteArray())
+        }
+        val identity=digest.digest().joinToString(""){"%02x".format(it)}
+        if(resume!=null)require(resume.inputIdentity==identity && resume.photoIds.toSet()==photoIds.toSet()) { "Stale registration frontier" }
+        val cameras=(resume?.cameras?.map { c -> val photo=photoIds.indexOf(c.photoId);RegisteredFrame(photo,templates[photo].copy(rotation=c.rotation.toDoubleArray(),translation=c.translation.toDoubleArray())) }?:initial).toMutableList()
+        for(anchor in initial){val recovered=cameras.firstOrNull {it.photo==anchor.photo};require(recovered!=null && recovered.view.rotation.contentEquals(anchor.view.rotation) && recovered.view.translation.contentEquals(anchor.view.translation)) { "Resume changed anchor frame" }}
+        val attempts=ArrayList<RegistrationAttempt>();val failures=(resume?.failureReasons?:emptyMap()).toMutableMap()
+        fun save(){checkpoint(RegistrationFrontier(identity,photoIds.toList(),cameras.map {FrontierCamera(photoIds[it.photo],it.view.rotation.toList(),it.view.translation.toList())},failures.toMap()))}
+        val cache=object:LinkedHashMap<Pair<Int,Int>,FeaturePairs>(512,.75f,true){override fun removeEldestEntry(eldest:MutableMap.MutableEntry<Pair<Int,Int>,FeaturePairs>)=size>512}
+        var evaluations=0
+        suspend fun pair(a:Int,b:Int):FeaturePairs{
+            val key=minOf(a,b) to maxOf(a,b);var value=cache[key]
+            if(value==null){require(evaluations<pairBudget){"Registration pair-evaluation budget exhausted"};++evaluations;value=matches(key.first,key.second);cache[key]=value}
+            return if(a==key.first)value else value.reversed()
+        }
         // Each successful round appends exactly one camera; one unsuccessful round terminates.
         while (cameras.size < templates.size) {
             coroutineContext.ensureActive()
             val pending=templates.indices.filter { photo -> cameras.none { it.photo == photo } }
-            val graph=MultiViewTrackGraph(cameras.map { it.view })
+            // A native window is capped at12 cameras while all poses retain the
+            // same world frame. Preserve anchors plus the newest frontier support.
+            val window=if(cameras.size<=12)cameras.toList() else cameras.take(2)+cameras.takeLast(10)
+            val graph=MultiViewTrackGraph(window.map { it.view })
             var pairIndex=0
-            val pairCount=cameras.size*(cameras.size-1)/2
-            for (a in cameras.indices) for (b in a+1 until cameras.size) {
+            val pairCount=window.size*(window.size-1)/2
+            for (a in window.indices) for (b in a+1 until window.size) {
                 progress("Linking registered camera features",pairIndex++,pairCount)
                 coroutineContext.ensureActive()
-                val pair=matches(cameras[a].photo,cameras[b].photo)
-                for (k in pair.first.indices) graph.add(a,pair.first[k],b,pair.second[k])
+                if(neighbors!=null && window[b].photo !in neighbors(window[a].photo) && window[a].photo !in neighbors(window[b].photo))continue
+                val links=pair(window[a].photo,window[b].photo)
+                for (k in links.first.indices) graph.add(a,links.first[k],b,links.second[k])
             }
             val groups=graph.snapshot()
             val observations=graph.packedRows()
             if (groups.size<16) break
-            val cameraRows=DoubleArray(cameras.size*12) {
-                val view=cameras[it/12].view
+            val cameraRows=DoubleArray(window.size*12) {
+                val view=window[it/12].view
                 if(it%12<9)view.rotation[it%12] else view.translation[it%12-9]
             }
-            val threshold=3.0/cameras.minOf { it.view.focalPixels }
+            val threshold=3.0/window.minOf { it.view.focalPixels }
             progress("Triangulating registration landmarks",0,1)
             coroutineContext.ensureActive()
             val points=triangulate(cameraRows,observations,threshold)
@@ -135,23 +167,29 @@ internal object IncrementalRegistration {
             val landmarks=points.mapNotNull { point ->
                 require(point.track in groups.indices && point.xyz.size==3 && point.xyz.all { it.isFinite() })
                 val supported=groups[point.track].filter { (local,key) ->
-                    val view=cameras[local].view
+                    val view=window[local].view
                     val uv=runCatching { view.normalized(key) }.getOrNull()
                     uv!=null && projectedError(view,point.xyz,uv)<=threshold*2
-                }.mapKeys { (local,_) -> cameras[local].photo }
+                }.mapKeys { (local,_) -> window[local].photo }
                 if(supported.size>=2)Landmark(point.xyz,supported) else null
             }
             if(landmarks.size<16) break
             var added=false
-            for ((step,photo) in pending.withIndex()) {
+            // Rank actual unambiguous two-view landmark support, independent of
+            // import ordering. Retain only8 bounded candidate row buffers.
+            val ranked=mutableListOf<Pair<Int,DoubleArray>>()
+            for(photo in pending.sortedBy {photoIds[it]}){
+                coroutineContext.ensureActive();val maps=HashMap<Int,Map<Int,Int>>()
+                for(camera in window){if(neighbors!=null && photo !in neighbors(camera.photo) && camera.photo !in neighbors(photo))continue
+                    val links=pair(camera.photo,photo);maps[camera.photo]=links.first.indices.associate { links.first[it] to links.second[it] }}
+                val rows=candidateRows(landmarks.map {it.xyz},landmarks.map {it.features},maps,templates[photo])
+                if(rows.size/5<16){failures[photoIds[photo]]="Fewer than16 unambiguous two-view-supported landmarks";continue}
+                ranked.add(photo to rows);ranked.sortWith(compareByDescending<Pair<Int,DoubleArray>>{it.second.size}.thenBy {photoIds[it.first]});if(ranked.size>8)ranked.removeAt(ranked.lastIndex)
+            }
+            for ((step,candidate) in ranked.withIndex()) {
+                val (photo,rows)=candidate
                 coroutineContext.ensureActive()
-                progress("Registering beyond the anchor pair",step,pending.size)
-                val maps=HashMap<Int,Map<Int,Int>>()
-                for(camera in cameras) {
-                    val pair=matches(camera.photo,photo)
-                    maps[camera.photo]=pair.first.indices.associate { pair.first[it] to pair.second[it] }
-                }
-                val rows=candidateRows(landmarks.map { it.xyz },landmarks.map { it.features },maps,templates[photo])
+                progress("Registering beyond the anchor pair",step,ranked.size)
                 val count=rows.size/5
                 if(count<16) {
                     attempts.add(RegistrationAttempt(photo,cameras.size,count,false,"Fewer than 16 unambiguous two-view-supported landmarks"))
@@ -165,15 +203,18 @@ internal object IncrementalRegistration {
                     attempts.add(RegistrationAttempt(photo,cameras.size,count,true,"Verified native PnP and reprojection consensus"))
                     cameras.add(RegisteredFrame(photo,templates[photo].copy(
                         rotation=pose.rotation.copyOf(),translation=pose.translation.copyOf())))
+                    failures.remove(photoIds[photo]);save()
                     added=true
                     break // Re-triangulate with the new camera before trying the remaining views.
                 } catch(cancelled: java.util.concurrent.CancellationException) { throw cancelled }
                 catch(failure: IllegalArgumentException) {
-                    attempts.add(RegistrationAttempt(photo,cameras.size,count,false,failure.message.orEmpty().take(200)))
+                    val reason=failure.message.orEmpty().take(200);failures[photoIds[photo]]=reason
+                    attempts.add(RegistrationAttempt(photo,cameras.size,count,false,reason))
                 }
             }
             if(!added) break
         }
+        save()
         return RegistrationGrowth(cameras.toList(),attempts.toList(),
             templates.indices.filter { photo -> cameras.none { it.photo==photo } })
     }
