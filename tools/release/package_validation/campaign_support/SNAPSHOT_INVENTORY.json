@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "reason": "User STOP; preserve exact existing authored helper bytes",
+  "releaseFinalV2": "NOT_RUN",
+  "runtime": "NOT_RUN",
+  "helpers": [
+    {
+      "originalPath": "/workspace/campaign/run-final-release-runtime.py",
+      "archivedPath": "tools/release/package_validation/campaign_support/run-final-release-runtime.py",
+      "sha256": "ce5c90dc0b4fe386c3d6c5401e1d4cfd923b22b9cf3e8bb04a54354edd030f6d",
+      "bytes": 14955
+    },
+    {
+      "originalPath": "/workspace/campaign/summarize-test100-release.py",
+      "archivedPath": "tools/release/package_validation/campaign_support/summarize-test100-release.py",
+      "sha256": "4e624d0ebb5179a08fb58439b37bf1aab727c330245b625c31b93154689f14fd",
+      "bytes": 5104
+    },
+    {
+      "originalPath": "/workspace/campaign/prepare-test100-release.py",
+      "archivedPath": "tools/release/package_validation/campaign_support/prepare-test100-release.py",
+      "sha256": "33447a24991bd45d68c205ebc27b33aebe4068694cbbfc0beee6c69125e71fa9",
+      "bytes": 4796
+    },
+    {
+      "originalPath": "/workspace/campaign/run-test100-release.sh",
+      "archivedPath": "tools/release/package_validation/campaign_support/run-test100-release.sh",
+      "sha256": "4e4510ef3f065cbd014dd354860ea89ced999125e1db68bae9aa2df7e6ad6dd5",
+      "bytes": 5087
+    },
+    {
+      "originalPath": "/workspace/campaign/test-release-runtime-helper.py",
+      "archivedPath": "tools/release/package_validation/campaign_support/test-release-runtime-helper.py",
+      "sha256": "83425e81dc28dc2ab5a3b74a4978924210d5a6e7bfd4645154056ffd592f5df9",
+      "bytes": 3774
+    },
+    {
+      "originalPath": "/workspace/campaign/verify-test100-release-signers.py",
+      "archivedPath": "tools/release/package_validation/campaign_support/verify-test100-release-signers.py",
+      "sha256": "23029dad9fd6076b1f041a8070f32fd1b213fbca0826f64930d16f85f052151d",
+      "bytes": 1497
+    }
+  ]
+}
