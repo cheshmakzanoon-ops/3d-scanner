@@ -12,6 +12,10 @@ import re
 import subprocess
 import uuid
 
+EXPECTED_CLASS = 'com.realityforge.scanner.qa.ReleaseJourneyTest'
+EXPECTED_METHOD = 'importCalibrateReconstructInspectExportReopenPreservesOriginals'
+EXPECTED_PACKAGES = ('com.realityforge.scanner', 'com.realityforge.scanner.test')
+
 
 def sha256(path):
     digest = hashlib.sha256()
@@ -22,26 +26,101 @@ def sha256(path):
 
 
 def parse_instrumentation(text):
-    parts = re.split(r'^INSTRUMENTATION_STATUS_CODE: (-?\d+)\s*$', text, flags=re.M)
-    statuses = []
-    for offset in range(0, len(parts)-1, 2):
-        block, code = parts[offset], int(parts[offset+1])
-        # Custom sendStatus bundles also use code0; count actual JUnit cases only.
-        if re.search(r'^INSTRUMENTATION_STATUS: class\s*=\s*\S+', block, re.M) and re.search(r'^INSTRUMENTATION_STATUS: test\s*=\s*\S+', block, re.M):
-            statuses.append(code)
-    passed = statuses.count(0)
-    skipped = statuses.count(-3) + statuses.count(-4)
-    failed = statuses.count(-1) + statuses.count(-2)
-    total = re.search(r'OK \((\d+) tests?\)', text)
-    complete = 'INSTRUMENTATION_CODE: -1' in text and total is not None and int(total[1]) == passed+failed+skipped
-    receipt = re.findall(r'^INSTRUMENTATION_STATUS: rf099_evidence=(.*)$', text, flags=re.M)
-    # Android's field printer may use spaces around '=' depending on runner.
-    if not receipt:
-        receipt = re.findall(r'^INSTRUMENTATION_STATUS: rf099_evidence = (.*)$', text, flags=re.M)
-    return {'status': 'PASS' if complete and passed >= 1 and not failed and not skipped and len(receipt) == 1 else 'FAIL',
-            'executed_tests': passed + failed + skipped, 'failed_tests': failed,
-            'skipped_tests': skipped, 'disabled_tests': 0,
-            'app_receipt': json.loads(receipt[0]) if len(receipt) == 1 else None}
+    """One selected AndroidJUnitRunner method, with complete raw event linkage.
+
+    The test's custom sendStatus(0, rf099_evidence) is metadata inside its active
+    start/end span. It never counts as an executed or passing JUnit method.
+    """
+    result = {'status': 'FAIL', 'executed_tests': 0, 'failed_tests': 0,
+              'skipped_tests': 0, 'disabled_tests': 0, 'app_receipt': None,
+              'events': []}
+    def require(value, message):
+        if not value:
+            raise ValueError(message)
+    try:
+        require(isinstance(text, str) and len(text) <= 16 * 1024 * 1024, 'missing/oversized instrumentation transcript')
+        require(not any(marker in text for marker in ('FAILURES!!!', 'INSTRUMENTATION_FAILED', 'INSTRUMENTATION_ABORTED', 'Process crashed')), 'instrumentation reported failure/abort')
+        fields, started, finished, final = {}, False, False, False
+        summaries, receipt_count = [], 0
+        for line in text.splitlines():
+            if not line.strip():
+                continue
+            require(not final, 'output after final instrumentation code')
+            if line.startswith('INSTRUMENTATION_STATUS: '):
+                key, separator, value = line[len('INSTRUMENTATION_STATUS: '):].partition('=')
+                key = key.strip()
+                require(separator and key and key not in fields, 'malformed/duplicate instrumentation field')
+                require(key in {'id', 'class', 'test', 'current', 'numtests', 'stream', 'stack', 'rf099_evidence'}, 'unknown instrumentation field')
+                fields[key] = value.strip()
+            elif line.startswith('INSTRUMENTATION_STATUS_CODE:'):
+                match = re.fullmatch(r'INSTRUMENTATION_STATUS_CODE: (-?\d+)', line)
+                require(match is not None, 'malformed instrumentation event code')
+                code = int(match[1])
+                if 'rf099_evidence' in fields:
+                    require(set(fields) == {'rf099_evidence'} and code == 0 and started and not finished and receipt_count == 0, 'unexpected/duplicate app receipt event')
+                    def unique(pairs):
+                        record = {}
+                        for key, value in pairs:
+                            require(key not in record, 'duplicate app receipt JSON key')
+                            record[key] = value
+                        return record
+                    receipt = json.loads(fields['rf099_evidence'], object_pairs_hook=unique)
+                    require(isinstance(receipt, dict) and type(receipt.get('schema')) is int and receipt['schema'] == 1, 'invalid app receipt schema')
+                    require(receipt.get('kind') in ('synthetic', 'physical') and receipt.get('originals_preserved') is True, 'invalid app receipt provenance/preservation')
+                    require(all(isinstance(receipt.get(key), str) and re.fullmatch(pattern, receipt[key]) for key, pattern in [('source_sha', '[0-9a-f]{40}'), ('artifact_sha256', '[0-9a-f]{64}'), ('export_sha256', '[0-9a-f]{64}')]), 'invalid app receipt artifact identity')
+                    require(type(receipt.get('photo_count')) is int and 3 <= receipt['photo_count'] <= 12 and type(receipt.get('triangle_count')) is int and receipt['triangle_count'] > 0, 'invalid app receipt observed counts')
+                    result['app_receipt'], receipt_count = receipt, 1
+                else:
+                    require({'class', 'test', 'current', 'numtests'} <= set(fields), 'incomplete raw test identity/count')
+                    require(fields['class'] == EXPECTED_CLASS and fields['test'] == EXPECTED_METHOD, 'selected required method did not execute')
+                    require(fields['current'] == '1' and fields['numtests'] == '1', 'selected-method indices/count are missing, duplicated or inconsistent')
+                    require('id' not in fields or fields['id'] == 'AndroidJUnitRunner', 'unexpected instrumentation runner')
+                    if code == 1:
+                        require(not started and not finished, 'duplicate/out-of-order test start')
+                        started = True
+                    elif code in (0, -1, -2, -3, -4):
+                        require(started and not finished, 'missing start or duplicate terminal test event')
+                        finished = True
+                        result['executed_tests'] = 1
+                        result['failed_tests'] = int(code in (-1, -2))
+                        result['skipped_tests'] = int(code in (-3, -4))
+                        result['events'].append({'class': fields['class'], 'test': fields['test'], 'current': 1, 'numtests': 1, 'code': code})
+                    else:
+                        raise ValueError('unknown raw instrumentation event code')
+                fields = {}
+            elif line.startswith('INSTRUMENTATION_CODE:'):
+                require(re.fullmatch(r'INSTRUMENTATION_CODE: -1', line) is not None and not fields and started and finished, 'missing/invalid final instrumentation code')
+                require(summaries == [1], 'missing/duplicate/inconsistent JUnit summary')
+                final = True
+            else:
+                summary = re.fullmatch(r'OK \((\d+) tests?\)', line)
+                if summary:
+                    require(finished and not fields, 'JUnit summary before completed test events')
+                    summaries.append(int(summary[1]))
+                elif line.startswith('INSTRUMENTATION_'):
+                    require(line.startswith('INSTRUMENTATION_RESULT: stream=') and finished and not fields, 'unknown/out-of-order instrumentation control output')
+        require(final and not fields and started and finished and receipt_count == 1, 'missing/incomplete instrumentation events or app receipt')
+        require(result['executed_tests'] == 1 and not result['failed_tests'] and not result['skipped_tests'], 'required method failed/skipped')
+        result['status'] = 'PASS'
+    except (ValueError, TypeError, KeyError) as error:
+        result['parse_error'] = str(error)
+    return result
+
+
+def verify_installed_package(adb, package, expected_sha256):
+    """Read the actual expected package, refusing partial split identities."""
+    installed = adb('shell', 'pm', 'path', package).strip().splitlines()
+    if len(installed) != 1 or not installed[0].startswith('package:'):
+        raise ValueError('Expected exactly one installed base APK for ' + package + '; splits require complete set validation')
+    path = installed[0][8:]
+    # adb shell joins its arguments remotely; never pass an untrusted shell token.
+    if not re.fullmatch(r'/data/app/(?:[A-Za-z0-9_.=+~-]+/)+base\.apk', path):
+        raise ValueError('Unsafe or unsupported installed APK path for ' + package)
+    checksum = adb('shell', 'sha256sum', path).strip()
+    match = re.fullmatch(r'([0-9a-f]{64})\s+\*?' + re.escape(path), checksum)
+    if match is None or match[1] != expected_sha256:
+        raise ValueError('Installed package hash differs from supplied original: ' + package)
+    return {'package': package, 'path': path, 'sha256': match[1]}
 
 
 def validate_bundle(root):
@@ -90,6 +169,8 @@ def execute(candidate, apk, test_apk, serial, output, bundle=None):
             adb_prefix[:] = ['adb', '-s', serial]
         if sha256(apk) != candidate['artifact_sha256']:
             raise ValueError('APK differs from frozen candidate')
+        test_sha256 = sha256(test_apk)
+        result['test_apk_sha256'] = test_sha256
         qemu = adb('shell', 'getprop', 'ro.kernel.qemu').strip() == '1'
         environment = {'kind': 'emulator' if qemu else 'physical', 'emulator': qemu, 'identity': adb('shell', 'getprop', 'ro.build.fingerprint').strip(), 'abi': adb('shell', 'getprop', 'ro.product.cpu.abi').strip(), 'api': int(adb('shell', 'getprop', 'ro.build.version.sdk').strip()), 'device_id': hashlib.sha256(serial.encode()).hexdigest()[:16]}
         result['environment'] = environment
@@ -101,9 +182,10 @@ def execute(candidate, apk, test_apk, serial, output, bundle=None):
             adb('shell', 'mkdir', remote)
             for name in ['manifest.json', 'calibration.json'] + [p['filename'] for p in validate_bundle(bundle)['photos']]:
                 adb('push', str(bundle / name), remote + '/' + name)
-        adb('install', '-r', str(apk))
-        adb('install', '-r', str(test_apk))
-        argv = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class', 'com.realityforge.scanner.qa.ReleaseJourneyTest', '-e', 'rf099_source_sha', candidate['source_sha'], '-e', 'rf099_apk_sha256', candidate['artifact_sha256']]
+        adb('install', '-r', '-t', str(apk))
+        adb('install', '-r', '-t', str(test_apk))
+        result['installed_packages'] = [verify_installed_package(adb, package, checksum) for package, checksum in zip(EXPECTED_PACKAGES, (candidate['artifact_sha256'], test_sha256))]
+        argv = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'class', EXPECTED_CLASS + '#' + EXPECTED_METHOD, '-e', 'rf099_source_sha', candidate['source_sha'], '-e', 'rf099_apk_sha256', candidate['artifact_sha256']]
         if remote:
             argv += ['-e', 'rf099_physical_dir', remote]
         argv += ['com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner']
@@ -114,7 +196,6 @@ def execute(candidate, apk, test_apk, serial, output, bundle=None):
         if result['app_receipt'] is None or result['app_receipt'].get('artifact_sha256') != candidate['artifact_sha256'] or result['app_receipt'].get('source_sha') != candidate['source_sha']:
             result['status'] = 'FAIL'
         result['command'] = adb_prefix + argv
-        result['test_apk_sha256'] = sha256(test_apk)
         result['evidence_sha256'] = sha256(log)
         if result['status'] != 'PASS':
             result['blockers'] = ['Instrumentation failed, skipped, incomplete, or lacked app receipt']

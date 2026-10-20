@@ -32,15 +32,21 @@ Gradle workflow, then run from the source checkout:
 python -m tools.release.qualification.journey --candidate /private/candidate.json --apk app/build/outputs/apk/debug/app-debug.apk --test-apk app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk --serial DEVICE_SERIAL --output /private/099-installed
 ```
 
-The runner checks selected ADB identity, installed candidate APK hash inside the
-app test, preserves app data with install-r, imports actual original bytes, verifies
+The runner checks selected ADB identity and independently verifies both installed
+expected app/test packages using `pm path` plus device `sha256sum`, matching the
+supplied originals. It rejects splits until their complete set can be validated.
+The app test additionally hashes its installed source APK. The runner preserves
+app data with install-r, imports actual original bytes, verifies
 duplicates, loads calibration, runs reconstruction, demands an actual photographic
 GLES frame, exports and checks exact model bytes, reopens through a new repository,
 checks every original hash and rejects stale revision. No test app data is cleared.
 Only the newly created qualification project/temp files are cleaned up. Output is
 `journey.json` plus complete `instrumentation.txt`; no attached device yields
 BLOCKED_EXTERNAL. ADB nonzero, skipped/zero/incomplete test runs or missing app
-receipt fail. Default bundled relief pictures are synthetic; their success does
+receipt fail. The selected method must have one matched raw start/end pair with
+current1/numtests1, one in-span metadata receipt, and one consistent summary/final
+code. Metadata events never count as executed tests. Default bundled relief pictures
+are synthetic; their success does
 not satisfy physical or held-out gates.
 
 For real originals, add `--physical-bundle /private/physical-bundle`. That directory
