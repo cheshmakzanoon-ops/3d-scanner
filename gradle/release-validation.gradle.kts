@@ -1,4 +1,4 @@
-// Apply from :app. GroovyBuilder avoids Android plugin classloader duplication in applied Kotlin scripts.
+// Inline via render_convention.py into :app (AGP8.11 lint crashes on applied Kotlin scripts). GroovyBuilder avoids Android plugin classloader duplication in applied Kotlin scripts.
 import org.gradle.kotlin.dsl.withGroovyBuilder
 @Suppress("UNCHECKED_CAST")
 fun Any.dsl(name: String): Any = withGroovyBuilder { getProperty(name) } ?: error("Missing Android DSL property $name")
@@ -30,3 +30,6 @@ candidateTypes.getByName("release").apply {
     dsl("ndk").setDsl("debugSymbolLevel", "FULL")
 }
 candidateAndroid.setDsl("testBuildType", "release")
+
+// AndroidX test tracing retains these annotations; provide actual classes for test R8.
+dependencies { add("androidTestCompileOnly", "com.google.errorprone:error_prone_annotations:2.26.1") }

@@ -2,7 +2,7 @@ import importlib.util,struct,sys,zipfile
 from pathlib import Path
 import pytest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from release.package_validation.apk import manifest_policy,archive_policy,elf_alignment,signature_policy,backup_policy,LIBRARIES
+from release.package_validation.apk import manifest_policy,archive_policy,elf_alignment,signature_policy,backup_policy,backup_resource_name,LIBRARIES
 
 def elf(align=16384,machine=183):
  d=bytearray(120);d[:6]=b'\x7fELF\x02\x01';struct.pack_into('<H',d,18,machine);struct.pack_into('<Q',d,32,64);struct.pack_into('<HH',d,54,56,1)
@@ -71,3 +71,10 @@ def test_production_refuses_debug_identity():
  output='Signer #1 certificate DN: CN=Android Debug\nVerified using v2 scheme: true\nSigner #1 certificate SHA-256 digest: '+'a'*64
  with pytest.raises(ValueError):signature_policy(output,'production','a'*64)
  with pytest.raises(ValueError):signature_policy(output.replace('CN=Android Debug','CN=Unknown'),'test')
+
+def test_shrunk_backup_resource_is_resolved_from_manifest_identity():
+ xml=manifest().replace('@xml/rules','@ref/0x7f0e0000')
+ resources='resource 0x7f0e0000 xml/data_extraction_rules\n () (file) res/4j.xml type=XML'
+ assert backup_resource_name(xml,resources)=='data_extraction_rules'
+ with pytest.raises(ValueError):backup_resource_name(xml,resources.replace('0x7f0e0000','0x7f0e0001'))
+ assert backup_resource_name(manifest().replace('@xml/rules','@xml/data_extraction_rules'),resources)=='data_extraction_rules'
