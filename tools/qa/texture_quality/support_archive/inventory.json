@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "role": "085",
+  "status": "HISTORICAL_SOURCE_ARCHIVE_ONLY",
+  "executed_after_user_stop": false,
+  "sources": [
+    {
+      "archive": "assess057.py",
+      "original_path": "/tmp/quality-review/assess057.py",
+      "sha256": "bf459134169f9a61147ff27f0a328812716db60f0779aa1f360e14a0dc3091c5",
+      "bytes": 11645
+    }
+  ]
+}
