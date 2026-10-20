@@ -1,0 +1,34 @@
+name: Native bounded input regressions
+on:
+  pull_request:
+    paths: ['reconstruction/**', 'tools/qa/fuzz/**', '.github/workflows/native-fuzz.yml']
+  push:
+    branches: ['agents/082-native-jni-parser-fuzzing', 'agents/100-integration-lead']
+  workflow_dispatch:
+  schedule:
+    - cron: '31 4 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: native-fuzz-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  bounded-native-inputs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - name: Install signed compiler packages
+        run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build cmake
+      - name: Run bounded synthetic input regressions with sanitizers
+        run: |
+          python tools/qa/fuzz/run.py --compiler /usr/bin/clang++-18 --runs 10000 --seconds 60 --output reports/fuzz
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: native-inputs-${{ github.sha }}
+          path: reports/fuzz/
+          if-no-files-found: error
