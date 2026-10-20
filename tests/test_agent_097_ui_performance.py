@@ -44,3 +44,19 @@ def test_identity_and_context_values_are_required():
  with pytest.raises(ValueError):report.evaluate(d,c,protocol)
  d,c=evidence();c['refreshRateHz']=float('nan')
  with pytest.raises(ValueError):report.evaluate(d,c,protocol)
+
+validator=module('validate_target')
+def manifest_pair():
+ target='<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.realityforge.scanner"><application android:debuggable="false"><profileable android:shell="true"/><activity android:name="com.realityforge.scanner.bench97.BenchmarkViewerActivity"/></application></manifest>'
+ driver='<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.realityforge.scanner.macrobenchmark"><instrumentation android:name="androidx.test.runner.AndroidJUnitRunner" android:targetPackage="com.realityforge.scanner.macrobenchmark"/></manifest>'
+ return target,driver
+
+def test_release_like_profileable_self_instrumenting_target():
+ target,driver=manifest_pair();assert validator.manifests(target,driver)['targetNonDebuggable']
+@pytest.mark.parametrize('bad',[('debuggable="false"','debuggable="true"'),('shell="true"','shell="false"'),('bench97.BenchmarkViewerActivity','WrongActivity')])
+def test_invalid_benchmark_target_is_rejected(bad):
+ target,driver=manifest_pair()
+ with pytest.raises(ValueError):validator.manifests(target.replace(*bad),driver)
+def test_wrong_test_target_is_rejected():
+ target,driver=manifest_pair()
+ with pytest.raises(ValueError):validator.manifests(target,driver.replace('android:targetPackage="com.realityforge.scanner.macrobenchmark"','android:targetPackage="com.realityforge.scanner"'))

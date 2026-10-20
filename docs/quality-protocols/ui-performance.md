@@ -28,6 +28,7 @@ After conventions are applied:
 
 ```
 gradle :app:assembleBenchmark :macrobenchmark:assembleBenchmark
+python tools/device/ui_performance/validate_target.py --target-apk app/build/outputs/apk/benchmark/app-benchmark.apk --benchmark-apk macrobenchmark/build/outputs/apk/benchmark/macrobenchmark-benchmark.apk --mapping app/build/outputs/mapping/benchmark/mapping.txt --output /tmp/benchmark-target.json
 python tools/device/ui_performance/run.py --serial DEVICE --apk app/build/outputs/apk/benchmark/app-benchmark.apk --ambient-c 22 --refresh-rate-hz 60 --output /tmp/ui-run
 python tools/device/ui_performance/report.py PATH_TO_ACTUAL_ANDROIDX_BENCHMARK_JSON --context /tmp/ui-run/context.json --output /tmp/ui-report.json
 ```
