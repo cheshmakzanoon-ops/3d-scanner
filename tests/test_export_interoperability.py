@@ -43,6 +43,12 @@ def test_wrong_scale_and_axes(corpus):
         assert validate(corpus / 'asymmetric.glb', {'bounds': bounds})['status'] == 'FAIL'
 
 
+def test_tangent_smooth_vertex_normal_is_legal(corpus):
+    # A tangent vertex is valid for a smooth/hard-edge transition; the face's
+    # average normal still faces outward and no vertex points behind the face.
+    assert validate(corpus / 'tangent-normal.glb')['status'] == 'PASS'
+
+
 def test_missing_validator_is_not_run(corpus, monkeypatch):
     monkeypatch.delenv('RF_GLTF_VALIDATOR', raising=False)
     assert validate(corpus / 'asymmetric.glb')['status'] == 'NOT_RUN'

@@ -8,10 +8,12 @@ import numpy as np
 from PIL import Image
 
 
-def glb(path, *, bad_index=False, flipped=False, bad_normal=False, metric=False):
+def glb(path, *, bad_index=False, flipped=False, bad_normal=False, metric=False, tangent_normal=False):
     positions = np.array([[0, 0, 0], [2, 0, 0], [0, 1, 3]], '<f4')
     normal = np.array([0, -3, 1], '<f4') / np.sqrt(10)
     normals = np.tile(normal * (-1 if bad_normal else 1), (3, 1)).astype('<f4')
+    if tangent_normal:
+        normals[1] = [1, 0, 0]
     uv = np.array([[0, 0], [1, 0], [0, 1]], '<f4')
     if flipped:
         uv[:, 1] = 1 - uv[:, 1]
@@ -49,6 +51,7 @@ def glb(path, *, bad_index=False, flipped=False, bad_normal=False, metric=False)
 def make(root):
     root.mkdir(parents=True, exist_ok=True)
     image = glb(root / 'asymmetric.glb')
+    glb(root / 'tangent-normal.glb', tangent_normal=True)
     for name, kwargs in [('invalid-index', {'bad_index': True}), ('flipped-uv', {'flipped': True}),
                          ('reversed-normal', {'bad_normal': True}), ('unproven-metric', {'metric': True})]:
         glb(root / (name + '.glb'), **kwargs)

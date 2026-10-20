@@ -199,6 +199,13 @@
       "branch": "agents/089-runtime-offline-privacy",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "090",
+      "source_sha": "50d224e7cfbcb3b5d17df006da723560fb38b962",
+      "branch": "agents/090-export-interoperability-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

@@ -132,7 +132,7 @@ def read_independent(path):
             require(normals.shape == (len(points), 3) and np.isfinite(normals).all(), 'invalid normals')
             normals = normals @ np.linalg.inv(transform[:3, :3])
             dots = np.einsum('fi,fvi->fv', cross, normals[indices])
-            require(np.all(dots > 0), 'normal/winding disagreement')
+            require(np.all(dots >= -1e-9) and np.all(dots.mean(axis=1) > 0), 'normal/winding disagreement')
             faces += len(indices)
         visual = getattr(geometry, 'visual', None)
         if visual is not None and visual.kind in ('vertex', 'face'):

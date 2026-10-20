@@ -47,8 +47,8 @@ Current committed baseline exports contain 579 sparse points, no triangles and
 arbitrary scale. They pass independent read/GLB format validation; the Blender
 mesh round-trip gate deliberately refuses points. The synthetic triangle fixtures
 round-trip in all four formats, including textured GLB/OBJ. These fixtures do not
-prove production OBJ/STL export: their source owners 061–067 are inactive in this
-campaign. Candidate generated GLB/PLY must be rerun on the integrated candidate.
+prove production OBJ/STL export: their source owners061–067 have published remote serializers that require
+combined-candidate integration and actual validation. Candidate generated GLB/PLY must be rerun on the integrated candidate.
 No physical geometry/texture quality or complete-object claim follows.
 
 Remaining release gates: actual candidate photographic GLB/OBJ and representation
@@ -57,3 +57,22 @@ inventory and target-tool reports on those outputs. Point clouds remain point
 clouds, open surfaces remain open, and metric provenance must be supplied before
 a measured-unit claim is accepted. No parser can infer real-world units from raw
 coordinates; expectations must bind independently known scale and axis landmarks.
+
+## Published writer snapshots, independent matrix
+
+`python -m tools.qa.export_interoperability.provider_matrix --output /tmp/rf090-new`
+extracts immutable061–064 Git snapshots into a new external directory, serially
+compiles/runs7 real native writer tests, and validates their actual output files
+through Trimesh/Khronos/Blender. No other role code enters090's branch. The pinned
+source SHAs are in the script and generated report. Target GLB/OBJ/STL pass actual
+round-trips, coordinate bounds and photographic corner checks. The064 analytic
+surface fixture fails normal/winding quality: one supplied normal points behind
+its face. Its serializer preserves that input; no serializer coordinate corruption
+is inferred. Request090-to-064 gives exact values and reproduction. The matrix
+therefore exits1 and retains the failure. Do not silently replace the failed
+fixture or treat this analytic result as physical candidate qualification.
+
+Vertex normals may be tangent at a smooth/hard-edge transition. The quality check
+allows zero face dot at a vertex only when no vertex normal points behind the
+face and the face-average dot remains positive. The synthetic tangent-normal
+fixture and reversed-normal rejection test exercise that distinction.
