@@ -9,6 +9,15 @@ m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 
 
+def transcript(codes=(0,)*32):
+    text=[]
+    for index,code in enumerate(codes,1):
+        fields=f'INSTRUMENTATION_STATUS: class=synthetic.ParserFixture\nINSTRUMENTATION_STATUS: test=case{index}\nINSTRUMENTATION_STATUS: current={index}\nINSTRUMENTATION_STATUS: numtests={len(codes)}\n'
+        text.extend([fields+'INSTRUMENTATION_STATUS_CODE: 1\n',fields+f'INSTRUMENTATION_STATUS_CODE: {code}\n'])
+    text.append(f"OK ({len(codes)-sum(code==-3 for code in codes)} tests)\nINSTRUMENTATION_CODE: -1")
+    return ''.join(text)
+
+
 def test_selection_rejects_ambiguity_and_unauthorized():
     listing = 'List of devices attached\na device\nb unauthorized\nc device\n'
     assert m.select_serial(listing, 'a') == 'a'
@@ -40,7 +49,7 @@ def test_missing_screenshot_fails_and_cleanup_is_serial_bound(tmp_path):
             return hashlib.sha256(apk.read_bytes()).hexdigest() + ' /data/app/synthetic.apk'
         return {'getprop ro.build.fingerprint': 'synthetic', 'getprop ro.build.version.sdk': '36',
                 'getprop ro.product.cpu.abi': 'arm64-v8a', 'getconf PAGESIZE': '16384',
-                'getprop ro.kernel.qemu': '0'}.get(key, 'OK (32 tests)')
+                'getprop ro.kernel.qemu': '0'}.get(key, transcript())
     assert m.run(args, execute) == 1
     import json
     receipt = json.loads((args.output / 'compatibility.json').read_text())
@@ -62,7 +71,7 @@ def test_complete_candidate_run_records_actual_runtime16k_and_decoded_screenshot
         key=' '.join(cmd[4:])
         if key.startswith('pm path '):return 'package:/data/app/fixture.apk'
         if key.startswith('sha256sum '):return hashlib.sha256(apk.read_bytes()).hexdigest()+' /data/app/fixture.apk'
-        return {'getprop ro.build.fingerprint':'synthetic parser fixture','getprop ro.build.version.sdk':'36','getprop ro.product.cpu.abi':'arm64-v8a','getconf PAGESIZE':'16384','getprop ro.kernel.qemu':'0'}.get(key,'OK (32 tests)')
+        return {'getprop ro.build.fingerprint':'synthetic parser fixture','getprop ro.build.version.sdk':'36','getprop ro.product.cpu.abi':'arm64-v8a','getconf PAGESIZE':'16384','getprop ro.kernel.qemu':'0'}.get(key,transcript())
     assert m.run(args,execute)==0
     receipt=json.loads((args.output/'compatibility.json').read_text())
     assert receipt['runtime16kb']=='PASS' and receipt['physicalCapture']=='NOT_RUN'
@@ -71,3 +80,23 @@ def test_complete_candidate_run_records_actual_runtime16k_and_decoded_screenshot
     assert m.run(args,wrong)==1
     receipt=json.loads((args.output/'compatibility.json').read_text())
     assert 'Installed package hash differs' in receipt['error'] and receipt['runtime16kb']=='NOT_RUN'
+
+
+
+def test_raw_android_statuses_keep_assumptions_and_ignored_separate_from_passes():
+    assert m.instrumentation_counts(transcript((0,-4,-3)))=={'tests':3,'passed':1,'skipped':2,'failed':0}
+
+@pytest.mark.parametrize('text',[
+    transcript((0,)).replace('INSTRUMENTATION_STATUS_CODE: 0','INSTRUMENTATION_STATUS_CODE: 1'),
+    transcript((0,)).replace('numtests=1','numtests=2'),
+    transcript((0,)).replace('OK (1 tests)','OK (2 tests)'),
+    transcript((-4,)),transcript((-3,)),transcript((0,-2)),
+    'OK (1 test)',
+])
+def test_incomplete_zero_pass_failed_or_forged_status_events_fail(text):
+    with pytest.raises(ValueError):m.instrumentation_counts(text)
+
+
+def test_different_names_cannot_reuse_current_and_mask_a_missing_test_index():
+    text=transcript((0,0)).replace('current=2','current=1')
+    with pytest.raises(ValueError,match='current indices'):m.instrumentation_counts(text)
