@@ -79,6 +79,6 @@ class FeatureMatcher(val ratio:Double=.67,val blockSize:Int=256) {
     }
     private fun validate(mat:Mat,count:Int) {
         require(count in 2..20000 && mat.rows()==count && mat.cols()==128 && mat.type()==CvType.CV_32F)
-        require(Core.checkRange(mat,true,0.0,513.0)) { "Nonfinite or invalid SIFT descriptors" }
+        require(Core.checkRange(mat,true,0.0,Math.nextUp(512.0))) { "Nonfinite or invalid SIFT descriptors" }
     }
 }
