@@ -2,6 +2,7 @@
 #include "realityforge/dense.hpp"
 #include <sys/wait.h>
 #include <sys/file.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -12,14 +13,21 @@
 #include <stdexcept>
 #include <chrono>
 #include <array>
+#include <cerrno>
 namespace {
-int notifyFd=-1;unsigned stoppedStage=0;
+int notifyFd=-1;unsigned stoppedStage=0;bool failStorageWrite=false;
 void require(bool v,const char* m){if(!v)throw std::runtime_error(m);}
 constexpr auto HASH="abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
 struct Temp{std::filesystem::path dir=std::filesystem::temp_directory_path()/("rf-process-cache-"+std::to_string(::getpid())+"-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));Temp(){std::filesystem::create_directory(dir);}~Temp(){std::error_code ec;std::filesystem::remove_all(dir,ec);}};
 void waitOkay(pid_t child){int status=0;require(::waitpid(child,&status,0)==child&&WIFEXITED(status)&&WEXITSTATUS(status)==0,"cache subprocess failed");}
 rf::DenseDepthMap patch(float z=4){return {32,48,std::vector<float>(32*48,z),std::vector<float>(32*48,.8f)};}
 rf::DenseDepthMap map(float z=4){return {64,48,std::vector<float>(64*48,z),std::vector<float>(64*48,.8f)};}
+}
+// Fault the real production POSIX write call, rather than returning a fake
+// checkpoint result. Production builds have no interposer or fault switch.
+extern "C" ssize_t write(int fd,const void* bytes,std::size_t count){
+ if(failStorageWrite){errno=ENOSPC;return -1;}
+ return static_cast<ssize_t>(::syscall(SYS_write,fd,bytes,count));
 }
 extern "C" void rf_depth_checkpoint_test_stage(unsigned stage){
  if(notifyFd>=0&&stage==stoppedStage){char c='R';if(::write(notifyFd,&c,1)!=1)::_exit(91);for(;;)::pause();}
@@ -50,6 +58,16 @@ int main(){ChildPool pool;try{
   require(rf::depth_checkpoint::storeTile(second,patch(6)),"tile recompute after append failed");}
  {std::string changed(HASH);changed[0]='1';rf::depth_checkpoint::Scope scope(t.dir.string(),changed);auto recovered=patch(0);require(!rf::depth_checkpoint::loadTile(first,recovered),"changed global input SHA reused tile");}
  {rf::depth_checkpoint::Scope scope(t.dir.string(),HASH,32);require(!rf::depth_checkpoint::storeTile(second,patch(6)),"oversized tile escaped cache byte admission");}
+ // Actual syscall failure after temporary creation must preserve old accepted
+ // work, publish no current tile, clean its temporary, and allow recomputation.
+ {rf::depth_checkpoint::Scope scope(t.dir.string(),HASH);std::filesystem::remove(t.dir/"tile-0-1.bin");
+  failStorageWrite=true;const bool stored=rf::depth_checkpoint::storeTile(second,patch(6));failStorageWrite=false;
+  require(!stored,"ENOSPC write failure reported success");auto recovered=patch(0),previous=map(0);
+  require(!rf::depth_checkpoint::loadTile(second,recovered),"ENOSPC published partial tile");
+  require(rf::depth_checkpoint::loadTile(first,recovered)&&recovered.depth==patch().depth,"ENOSPC damaged completed tile");
+  require(rf::depth_checkpoint::load(0,previous)&&previous.depth==original.depth,"ENOSPC damaged prior reference");
+  for(const auto&e:std::filesystem::directory_iterator(t.dir))require(e.path().filename().string().find(".partial-")==std::string::npos,"ENOSPC leaked temporary");
+  require(rf::depth_checkpoint::storeTile(second,patch(6)),"post-ENOSPC recomputation failed");}
  // Real independent writers share only the filesystem; the directory inode
  // flock serializes admission/eviction/publication across processes.
  Temp budget;{std::ofstream originalFile(budget.dir/"original.jpg");originalFile<<"preserve";}
@@ -69,6 +87,6 @@ int main(){ChildPool pool;try{
  // Lock acquisition, not a timing delay, is the deterministic assertion.
  int competing=::open(budget.dir.c_str(),O_RDONLY|O_DIRECTORY);require(competing>=0&&::flock(competing,LOCK_EX|LOCK_NB)!=0,"exclusive writer ignored actual reader lease");::close(competing);
  require(::kill(reader,SIGKILL)==0,"reader kill failed");int readerStatus=0;require(::waitpid(reader,&readerStatus,0)==reader&&WIFSIGNALED(readerStatus),"reader did not terminate");waitOkay(writer);
- std::cout<<"SIGKILL at temporary-create and fsync boundaries; exact relaunch; independent-process budget and reader leases passed\n";
+ std::cout<<"SIGKILL at temporary-create and fsync boundaries; ENOSPC; exact relaunch; independent-process budget and reader leases passed\n";
  return 0;
  }catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

@@ -86,6 +86,23 @@ double ncc(const GrayView& neighbor,const detail::StereoWarp& warp,
     const auto cost=matching::zncc(std::span<const double>(patch.pixels).first(n),std::span<const double>(sourcePatch).first(n));
     return cost.valid?1.-cost.value:-2.;
 }
+// A plane is a bounded proposal, never geometric support. Each patch ray is
+// intersected with that plane and evaluated against actual source pixels.
+double planeNcc(const GrayView& neighbor,const detail::StereoWarp& warp,
+    const DenseView& camera,const refinement::PlaneHypothesis& plane,
+    int x,int y,double z,const Patch& patch,int radius){
+    int n=0;std::array<double,49> sourcePatch{};
+    for(int dy=-radius;dy<=radius;++dy)for(int dx=-radius;dx<=radius;++dx){
+        const double depth=refinement::planeDepth(plane,camera,x,y,z,x+dx,y+dy);
+        if(depth<=0)return -2;
+        const auto q=warp.homogeneous(x+dx,y+dy,1./depth);
+        if(q.z*depth<=1e-5||!finite(q))return -2;
+        const auto intensity=sample(neighbor,q.x/q.z,q.y/q.z);if(!intensity.valid)return -2;
+        sourcePatch[n++]=intensity.gray;
+    }
+    const auto cost=matching::zncc(std::span<const double>(patch.pixels).first(n),std::span<const double>(sourcePatch).first(n));
+    return cost.valid?1.-cost.value:-2.;
+}
 
 float relativeDifference(double a,double b){return static_cast<float>(std::abs(a-b)/std::max(a,b));}
 // Nearest *sampled* depth neighbor in the sparse grid, with a small reprojection budget.
@@ -117,7 +134,8 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
        s.patchRadius<1||s.patchRadius>3||!std::isfinite(s.minimumNcc)||s.minimumNcc<0||s.minimumNcc>1||
        !std::isfinite(s.minUniqueness)||!std::isfinite(s.depthConsistencyFraction)||
        s.minUniqueness<.005||s.minUniqueness>.5||s.depthConsistencyFraction<.005||s.depthConsistencyFraction>.25||
-       s.maxPoints<10||s.maxPoints>50000||s.executionVersion!=1||s.tileEdge<16||s.tileEdge>640||s.localRefinementIterations>12)throw Error("Invalid bounded CPU MVS configuration");
+       s.maxPoints<10||s.maxPoints>50000||s.executionVersion!=1||s.tileEdge<16||s.tileEdge>640||s.localRefinementIterations>12||s.normalRefinementIterations>3||
+       !std::isfinite(s.normalMaxAngleDegrees)||s.normalMaxAngleDegrees<15||s.normalMaxAngleDegrees>60)throw Error("Invalid bounded CPU MVS configuration");
     int w=views.front().width,h=views.front().height;
     if(w<32||h<32||w>640||h>640||static_cast<std::int64_t>(w)*h>320000)throw Error("Dense MVS image exceeds CPU reference limits");
     const int start=s.patchRadius+1;
@@ -146,7 +164,7 @@ DenseRefinementScope::DenseRefinementScope(const DenseRefinementInputs* inputs) 
 DenseRefinementScope::~DenseRefinementScope() noexcept{currentRefinementInputs=previous_;}
 DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& requestedSettings,const DenseRefinementInputs* inputs){
     auto settings=requestedSettings;
-    if(!inputs&&currentRefinementInputs){inputs=currentRefinementInputs;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;}
+    if(!inputs&&currentRefinementInputs){inputs=currentRefinementInputs;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;settings.normalRefinementIterations=3;settings.normalConsistency=true;settings.normalMaxAngleDegrees=35;settings.robustSourceAggregation=false;}
     cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
@@ -194,12 +212,12 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     }
     std::vector<DenseDepthMap> coarseMaps;
     if(inputs&&!inputs->coarseViews.empty()){
-        auto coarseSettings=settings;coarseSettings.localRefinementIterations=0;coarseSettings.referenceMode=true;coarseSettings.maxPoints=10;
+        auto coarseSettings=settings;coarseSettings.localRefinementIterations=0;coarseSettings.normalRefinementIterations=0;coarseSettings.normalConsistency=false;coarseSettings.referenceMode=true;coarseSettings.maxPoints=10;
         DenseRefinementScope noRecursiveInheritance(nullptr);
         auto coarseResult=reconstructDense(inputs->coarseViews,coarseSettings,nullptr);
         coarseMaps=std::move(coarseResult.maps);result.coarseDepthMaps=coarseMaps.size();
     }
-    std::ostringstream settingsText;settingsText.imbue(std::locale::classic());settingsText<<std::hexfloat<<"tile-cpu-v1|"<<settings.nearDepth<<'|'<<settings.farDepth<<'|'<<settings.depthPlanes<<'|'<<step<<'|'<<r<<'|'<<settings.minimumNcc<<'|'<<settings.minUniqueness<<'|'<<settings.depthConsistencyFraction<<'|'<<settings.maxPoints<<'|'<<settings.executionVersion<<'|'<<settings.tileEdge<<'|'<<settings.workingSetBudgetBytes<<'|'<<settings.referenceMode<<'|'<<settings.discontinuityAwareConsistency<<'|'<<settings.localRefinementIterations<<'|'<<settings.robustSourceAggregation<<'|'<<(inputs?inputs->identitySha256:std::string("none"));
+    std::ostringstream settingsText;settingsText.imbue(std::locale::classic());settingsText<<std::hexfloat<<"tile-cpu-v2|"<<settings.nearDepth<<'|'<<settings.farDepth<<'|'<<settings.depthPlanes<<'|'<<step<<'|'<<r<<'|'<<settings.minimumNcc<<'|'<<settings.minUniqueness<<'|'<<settings.depthConsistencyFraction<<'|'<<settings.maxPoints<<'|'<<settings.executionVersion<<'|'<<settings.tileEdge<<'|'<<settings.workingSetBudgetBytes<<'|'<<settings.referenceMode<<'|'<<settings.discontinuityAwareConsistency<<'|'<<settings.localRefinementIterations<<'|'<<settings.robustSourceAggregation<<'|'<<settings.normalRefinementIterations<<'|'<<settings.normalConsistency<<'|'<<settings.normalMaxAngleDegrees<<'|'<<refinement::SETTINGS_VERSION<<'|'<<consistency::NORMAL_SETTINGS_VERSION<<'|'<<(inputs?inputs->identitySha256:std::string("none"));
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
     settingsText<<"|sources:";for(std::size_t ref=0;ref<result.sourceViews.size();++ref){settingsText<<ref<<':';for(auto source:result.sourceViews[ref])settingsText<<source<<',';settingsText<<';';}
     const auto solverIdentity=settingsText.str();
@@ -214,7 +232,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         const auto& sources=result.sourceViews[ref];
         // Existing Kotlin identity predates optional refinement/aggregation.
         // Never reuse a legacy checkpoint with altered photometric semantics.
-        const bool checkpointCompatible=!inputs&&!settings.referenceMode&&settings.localRefinementIterations==0&&!settings.robustSourceAggregation;
+        const bool checkpointCompatible=!inputs&&!settings.referenceMode&&settings.localRefinementIterations==0&&!settings.robustSourceAggregation&&settings.normalRefinementIterations==0;
         if(checkpointCompatible&&depth_checkpoint::load(ref,map)){
             for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
                 ++result.sampledPixels;
@@ -300,6 +318,31 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                     if(proposed.valid&&proposed.cost<=costs[best]){inverse=1./proposal;++result.propagatedHypotheses;}
                 }
             }
+            if(settings.normalRefinementIterations&&!coarseMaps.empty()&&inverse>0){
+                const auto& coarse=coarseMaps[ref];const double sx=double(coarse.width)/w,sy=double(coarse.height)/h;
+                const auto hypotheses=refinement::planeHypotheses(inputs->coarseViews[ref],coarse,(x+.5)*sx-.5,(y+.5)*sy-.5,step,r+1,settings.depthConsistencyFraction);
+                const auto evaluate=[&](const refinement::PlaneHypothesis& plane,double depth){
+                    cancellation::checkpoint();std::array<matching::Cost,7> candidateCosts{};
+                    for(std::size_t src=0;src<sources.size();++src){
+                        const double corr=planeNcc(grayscale[src],warps[src],views[ref],plane,x,y,depth,reference,r);
+                        if(corr>-.999)candidateCosts[src]={1.-corr,static_cast<std::size_t>((2*r+1)*(2*r+1)),true};
+                    }
+                    return matching::aggregate(std::span<const matching::Cost>(candidateCosts).first(sources.size()),settings.robustSourceAggregation).cost;
+                };
+                const double selectedDepth=1./inverse;double winningCost=evaluate(hypotheses.values[0],selectedDepth);std::size_t winner=0;
+                ++result.normalHypothesesEvaluated;
+                for(std::size_t k=1;k<hypotheses.count;++k){const double cost=evaluate(hypotheses.values[k],selectedDepth);++result.normalHypothesesEvaluated;
+                    if(cost+1e-8<winningCost){winningCost=cost;winner=k;}}
+                if(winner&&hypotheses.values[winner].observed){
+                    ++result.normalRefinedPixels;
+                    const double left=std::max(range.nearDepth,selectedDepth/1.03),right=std::min(range.farDepth,selectedDepth*1.03);
+                    if(left<selectedDepth&&selectedDepth<right){
+                        const auto refined=refinement::local(left,selectedDepth,right,settings.normalRefinementIterations,
+                            [&](double depth){return evaluate(hypotheses.values[winner],depth);});
+                        if(refined.valid&&refined.cost<=winningCost)inverse=1./refined.depth;
+                    }
+                }
+            }
             if(inverse<=0)continue;
             auto idx=static_cast<std::size_t>(y)*w+x;
             map.depth[idx]=static_cast<float>(1./inverse);
@@ -339,9 +382,9 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             float depth=map.depth[idx];if(depth<=0)continue;
             auto world=fromDepth(camera,x,y,depth);
             if(!finite(world))continue;
-            int confirmations=0;
-            for(std::size_t src=0;src<views.size();++src){
-                if(src==ref)continue;
+            int confirmations=0,normalConfirmations=0;double normalConfidence=1;
+            const auto referenceNormal=settings.normalConsistency?consistency::estimateNormal(camera,map,x,y,step,r+1,settings.depthConsistencyFraction):consistency::SurfaceNormal{};
+            for(std::size_t src:result.sourceViews[ref]){
                 auto q=cameraPoint(views[src],world);if(q.z<=.01||!finite(q))continue;
                 double sx=views[src].fx*q.x/q.z+views[src].cx;
                 double sy=views[src].fy*q.y/q.z+views[src].cy;
@@ -356,6 +399,13 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                 double px=camera.fx*refCamera.x/refCamera.z+camera.cx;
                 double py=camera.fy*refCamera.y/refCamera.z+camera.cy;
                 if(std::hypot(px-x,py-y)>step*1.6)continue;
+                if(settings.normalConsistency){
+                    const auto sourceNormal=consistency::estimateNormal(views[src],result.maps[src],sx,sy,step,r+1,settings.depthConsistencyFraction);
+                    const auto agreement=consistency::verifyNormals(referenceNormal,camera.pose,sourceNormal,views[src].pose,settings.normalMaxAngleDegrees);
+                    if(agreement.classification==consistency::Visibility::Inconsistent){++result.normalRejectedPairs;continue;}
+                    if(agreement.classification==consistency::Visibility::Supported){++result.normalSupportPairs;++normalConfirmations;normalConfidence=std::min({normalConfidence,referenceNormal.confidence,sourceNormal.confidence});}
+                    else ++result.normalUnknownPairs;
+                }
                 ++confirmations;
             }
             if(confirmations==0)continue;
@@ -363,12 +413,16 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             ++result.consistentPixelsPerView[ref];
             auto i=idx*4;
             const auto confidence=static_cast<float>(map.confidence[idx]*std::min(1.0,confirmations/2.0+0.5));
+            auto observedNormal=normalConfirmations?multiply(transpose(camera.pose.rotation),referenceNormal.cameraNormal):Vec3{};
+            if(normalConfirmations)observedNormal=scale(observedNormal,1./norm(observedNormal));
             // Verified samples retain their image neighborhood for confidence-weighted
             // M08 meshing. Strict cap prevents unbounded 2D-grid memory consumption.
             if(result.verifiedSamples.size()<MAX_DENSE_SAMPLES)
                 result.verifiedSamples.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},
                     confidence,static_cast<std::uint8_t>(confirmations+1),static_cast<std::uint8_t>(ref),
-                    static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y)});
+                    static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y),
+                    observedNormal,
+                    normalConfirmations?static_cast<float>(normalConfidence):0.f,static_cast<std::uint8_t>(normalConfirmations)});
 
           }
         }
@@ -423,6 +477,8 @@ std::string denseJson(const DenseResult& result){
        <<",\"resumedDepthTiles\":"<<result.resumedDepthTiles<<",\"recomputedDepthTiles\":"<<result.recomputedDepthTiles<<",\"writtenDepthTiles\":"<<result.writtenDepthTiles
        <<",\"rejectedDepthTiles\":"<<result.rejectedDepthTiles
        <<",\"coarseDepthMaps\":"<<result.coarseDepthMaps<<",\"propagatedHypotheses\":"<<result.propagatedHypotheses<<",\"sparsePriorTiles\":"<<result.sparsePriorTiles
+       <<",\"normalHypothesesEvaluated\":"<<result.normalHypothesesEvaluated<<",\"normalRefinedPixels\":"<<result.normalRefinedPixels
+       <<",\"normalSupportPairs\":"<<result.normalSupportPairs<<",\"normalRejectedPairs\":"<<result.normalRejectedPairs<<",\"normalUnknownPairs\":"<<result.normalUnknownPairs
        <<",\"completedTiles\":"<<result.completedTiles<<",\"totalTiles\":"<<result.totalTiles
        <<",\"admittedWorkingSetBytes\":"<<result.admittedWorkingSetBytes
        <<",\"peakLuminanceBytes\":"<<result.peakLuminanceBytes
@@ -487,7 +543,7 @@ extern "C" char* rf_dense_refined_json(const std::uint8_t* rgba,int width,int he
   std::vector<rf::DenseSparseDepthPrior> priors;priors.reserve(prior_count);
   for(std::size_t i=0;i<prior_count;++i){const auto* row=prior_rows+i*6;for(int k=0;k<6;++k)if(!std::isfinite(row[k]))throw rf::Error("Nonfinite sparse prior row");if(row[0]<0||row[0]>=camera_count||row[0]!=std::floor(row[0])||(row[5]!=0&&row[5]!=1))throw rf::Error("Invalid sparse prior camera/visibility");priors.push_back({static_cast<std::uint32_t>(row[0]),row[1],row[2],row[3],row[4],row[5]==1});}
   rf::DenseRefinementInputs inputs{priors,coarse,std::string(identity,identitySize)};
-  rf::DenseSettings settings;settings.nearDepth=near_depth;settings.farDepth=far_depth;settings.depthPlanes=planes;settings.pixelStride=stride;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;
+  rf::DenseSettings settings;settings.nearDepth=near_depth;settings.farDepth=far_depth;settings.depthPlanes=planes;settings.pixelStride=stride;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;settings.normalRefinementIterations=3;settings.normalConsistency=true;
   auto response=rf::denseJson(rf::reconstructDense(views,settings,&inputs));auto* out=static_cast<char*>(std::malloc(response.size()+1));if(out)std::memcpy(out,response.c_str(),response.size()+1);return out;
  }catch(const std::exception& e){
   try{std::string response="{\"error\":\"";for(const unsigned char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(c>=32)response+=static_cast<char>(c);}response+="\"}";auto* out=static_cast<char*>(std::malloc(response.size()+1));if(out)std::memcpy(out,response.c_str(),response.size()+1);return out;}catch(...){}
