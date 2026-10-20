@@ -19,6 +19,8 @@ struct ExposureBalance {
     std::size_t rejectedSamples{}, rejectedPairs{}, heldOutSamples{};
     double heldOutLogErrorBefore{}, heldOutLogErrorAfter{};
     bool correctionAccepted{};
+    std::array<double,3> heldOutChannelErrorBefore{},heldOutChannelErrorAfter{};
+    std::array<bool,3> channelCorrectionAccepted{};
 };
 double srgbToLinear(double value);
 double linearToSrgb(double value);

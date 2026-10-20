@@ -103,6 +103,18 @@ ExposureBalance balanceExposure(std::size_t count, std::span<const ExposureSampl
         for (std::size_t cam=1;cam<count;++cam) if (index[cam]>=0)
             result.gains[cam][channel]=std::exp(std::clamp(x[index[cam]],-std::log(2.),std::log(2.)));
     }
+    // RGB medians must not hide a regressing white-balance channel.
+    for(int channel=0;channel<3;++channel){
+        cancellation::checkpoint();std::vector<double> baseline,candidate;
+        for(const auto& p:fits)if(reachable[p.a]&&reachable[p.b])for(std::size_t i=0;i<p.samples.size();i+=5){
+            const auto& sample=p.samples[i];const double error=std::log(sample.a[channel]/sample.b[channel]);
+            baseline.push_back(std::abs(error));candidate.push_back(std::abs(error+std::log(result.gains[p.a][channel]/result.gains[p.b][channel])));
+        }
+        const double before=median(baseline),after=median(candidate);result.heldOutChannelErrorBefore[channel]=before;
+        const bool accepted=!baseline.empty()&&after<before-1e-6;result.channelCorrectionAccepted[channel]=accepted;
+        result.heldOutChannelErrorAfter[channel]=accepted?after:before;
+        if(!accepted)for(auto& gain:result.gains)gain[channel]=1;
+    }
     std::vector<double> before,after,withheldBefore,withheldAfter;
     for (const auto& p:fits) if (reachable[p.a] && reachable[p.b]) {
         cancellation::checkpoint();
@@ -129,12 +141,13 @@ ExposureBalance balanceExposure(std::size_t count, std::span<const ExposureSampl
     result.heldOutLogErrorBefore=median(withheldBefore);
     result.heldOutLogErrorAfter=median(withheldAfter);
     // Publication gate: an unsupported improvement must never alter photo colors.
-    if (result.medianLogErrorAfter>=result.medianLogErrorBefore-1e-6 ||
-        result.heldOutLogErrorAfter>=result.heldOutLogErrorBefore-1e-6) {
+    if (result.medianLogErrorAfter>result.medianLogErrorBefore+1e-6 ||
+        result.heldOutLogErrorAfter>result.heldOutLogErrorBefore+1e-6) {
         result.gains.assign(count,{1,1,1}); result.medianLogErrorAfter=result.medianLogErrorBefore;
         result.heldOutLogErrorAfter=result.heldOutLogErrorBefore;
+        result.channelCorrectionAccepted.fill(false);result.heldOutChannelErrorAfter=result.heldOutChannelErrorBefore;
     }
-    result.correctionAccepted=result.heldOutLogErrorAfter<result.heldOutLogErrorBefore-1e-6;
+    result.correctionAccepted=std::any_of(result.channelCorrectionAccepted.begin(),result.channelCorrectionAccepted.end(),[](bool accepted){return accepted;});
     return result;
 }
 }
