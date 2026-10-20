@@ -28,7 +28,7 @@ def main():
   lines.append(m['coordinate']+(' [metadata only]' if m['metadataOnly'] else ''))
   lines.extend('  '+l['name']+' '+(l['url'] or '') for l in m['licenses'])
  (a.output/'DEPENDENCIES.txt').write_text('\n'.join(lines)+'\n')
- files={p.name:sha(p.read_bytes()) for p in sorted(a.output.iterdir()) if p.is_file() and p.name!='NOTICE_INDEX.json'}
+ files={p.name:sha(p.read_bytes()) for p in sorted(a.output.iterdir()) if p.is_file() and not p.name.startswith('.') and p.name!='NOTICE_INDEX.json'}
  index=dict(schemaVersion=1,runtimeCoordinates=[m['coordinate'] for m in runtime],files=files,unresolved=[],distributionAuthorization='BLOCKED_EXTERNAL: first-party owner license decision; no permission inferred')
  (a.output/'NOTICE_INDEX.json').write_text(json.dumps(index,indent=2)+'\n')
 if __name__=='__main__':main()

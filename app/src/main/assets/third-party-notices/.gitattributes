@@ -1,0 +1,2 @@
+# Preserve exact upstream license/notice bytes, including their whitespace.
+* -whitespace
