@@ -35,8 +35,12 @@ internal data class SparseView(
  * Camera observations use Brown-Conrady undistortion when a verified project profile exists.
  * Does not measure physical scale or generate dense/textured geometry.
  */
-internal class MultiViewTrackGraph(private val views: List<SparseView>) {
-    init { require(views.size in 2..250) }
+internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
+    private val views: List<SparseView>
+    init {
+        require(sourceViews.size in 2..250 && sourceViews.sumOf {it.colors.size.toLong()}<=1_000_000)
+        views=sourceViews.map { it.copy(xy=it.xy.copyOf(),colors=it.colors.copyOf(),rotation=it.rotation.copyOf(),translation=it.translation.copyOf()) }
+    }
     enum class Rejection { INVALID_RAY, EPIPOLAR, SAME_PHOTO_CONFLICT, NODE_BUDGET }
     private val rejections = mutableMapOf<Rejection,Int>()
     fun rejectionCounts(): Map<Rejection,Int> = rejections.toMap()

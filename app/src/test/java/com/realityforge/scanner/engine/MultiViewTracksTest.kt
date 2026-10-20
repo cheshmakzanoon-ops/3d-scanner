@@ -64,4 +64,7 @@ class MultiViewTracksTest {
     @Test fun zeroNativeBudgetCannotProduceFakeEmptySuccess(){val graph=MultiViewTrackGraph(listOf(frame(0.0),frame(-1.0)));graph.add(0,0,1,0)
         assertThrows(IllegalArgumentException::class.java){graph.nativeBatches(listOf("a","b"),maxObservations=0)}
     }
+    @Test fun graphOwnsValidatedPoseAndFeatureInputs(){val a=frame(0.0);val b=frame(-1.0);val inputs=mutableListOf(a,b);val graph=MultiViewTrackGraph(inputs)
+        a.xy[0]=Float.NaN;a.rotation[0]=100.0;b.translation[0]=Double.NaN;inputs.clear();assertTrue(graph.add(0,0,1,0));assertEquals(1,graph.matchedTrackCount())
+    }
 }
