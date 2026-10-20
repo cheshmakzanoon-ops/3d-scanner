@@ -10,6 +10,7 @@
 #include "realityforge/jni_support.hpp"
 #include "realityforge/progress.hpp"
 #include "realityforge/dense_selection.hpp"
+#include "bundle_problem_bridge.hpp"
 #include <optional>
 #include <cmath>
 #include <algorithm>
@@ -563,5 +564,39 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceRefine
         std::optional<rf::detail::DenseSourcePlanScope> sourcePlan;if(!adjacency.empty())sourcePlan.emplace(adjacency,fullCameras);
         rf::depth_checkpoint::Scope cache(jString(env,directory),jString(env,checkpointIdentity));
         return texturedSurface(env,receiver,rgba,width,height,photos,photoWidth,photoHeight,cameras,near,far,planes,stride,meshGlb,meshPly,texturedGlb,png,compactAtlas==JNI_TRUE);
+    });});
+}
+
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_bundleAdjustProblemCancellable(
+    JNIEnv* env,jobject,jdoubleArray cameraRows,jdoubleArray seedRows,jdoubleArray observationRows,
+    jdoubleArray intrinsicRows,jobjectArray groupIds,jobjectArray photoIds,jobjectArray sourceTrackIds,
+    jboolean measured,jboolean refineFocal,jdouble threshold,jint iterations,jlong token){
+    return rf::jni::boundary<jstring>(env,nullptr,[&]{return withOperation(env,token,[&]{
+        if(!cameraRows||!seedRows||!observationRows||!intrinsicRows||!groupIds||!photoIds||!sourceTrackIds)
+            throw std::invalid_argument("Missing versioned bundle problem buffers");
+        const auto cameras=env->GetArrayLength(cameraRows),seeds=env->GetArrayLength(seedRows),observations=env->GetArrayLength(observationRows),models=env->GetArrayLength(intrinsicRows);
+        const auto groups=env->GetArrayLength(groupIds),photos=env->GetArrayLength(photoIds),tracks=env->GetArrayLength(sourceTrackIds);
+        if(cameras<36||cameras>384||cameras%12||seeds<112||seeds>140000||seeds%7||observations<224||observations>700000||observations%7||models!=(cameras/12)*11||groups!=cameras/12||photos!=cameras/12||tracks<16||tracks>20000)
+            throw std::invalid_argument("Versioned bundle problem exceeds admitted array bounds");
+        std::vector<double> cameraData(static_cast<std::size_t>(cameras)),seedData(static_cast<std::size_t>(seeds)),pixelData(static_cast<std::size_t>(observations)),modelData(static_cast<std::size_t>(models));
+        rf::jni::doubles(env,cameraRows,0,cameras,cameraData.data());rf::jni::doubles(env,seedRows,0,seeds,seedData.data());
+        rf::jni::doubles(env,observationRows,0,observations,pixelData.data());rf::jni::doubles(env,intrinsicRows,0,models,modelData.data());
+        const auto strings=[&](jobjectArray input,jsize count,jsize maxChars){
+            std::vector<std::string> values;values.reserve(static_cast<std::size_t>(count));
+            for(jsize i=0;i<count;++i){
+                if((i%64)==0)rf::cancellation::checkpoint();
+                auto value=static_cast<jstring>(env->GetObjectArrayElement(input,i));
+                if(env->ExceptionCheck())throw rf::jni::PendingJavaException();
+                struct LocalReference {JNIEnv* env;jstring value;~LocalReference()noexcept{if(value)env->DeleteLocalRef(value);}} local{env,value};
+                if(!value||env->GetStringLength(value)>maxChars)throw std::invalid_argument("Bundle identity string exceeds admitted bounds");
+                values.push_back(jString(env,value));
+            }return values;
+        };
+        const auto groupData=strings(groupIds,groups,1024),photoData=strings(photoIds,photos,256),trackData=strings(sourceTrackIds,tracks,64);
+        rf::progress::begin(rf::progress::Stage::Bundle);
+        const auto json=rf::jni::bundleProblemJson(cameraData,seedData,pixelData,modelData,groupData,photoData,trackData,measured==JNI_TRUE,refineFocal==JNI_TRUE,threshold,iterations);
+        rf::cancellation::checkpoint();return env->NewStringUTF(json.c_str());
     });});
 }
