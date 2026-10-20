@@ -17,9 +17,23 @@ def network_disabled(settings: dict) -> bool:
 
 def completed(text: str) -> bool:
     match = re.search(r'OK \((\d+) tests?\)', text)
-    return bool(match and int(match.group(1)) >= 3 and not any(
+    terminal = [int(c) for c in re.findall(r'^INSTRUMENTATION_STATUS_CODE:\s*(-?\d+)\s*$', text, re.M) if c != '1']
+    return bool(match and int(match.group(1)) == 3 and terminal == [0, 0, 0] and not any(
         marker in text for marker in ['FAILURES!!!', 'INSTRUMENTATION_FAILED', 'AssumptionFailure',
-                                      'Process crashed', 'shortMsg=', 'INSTRUMENTATION_STATUS_CODE: -3']))
+                                      'Process crashed', 'shortMsg=']))
+
+
+def installed_hash(adb, package: str) -> str:
+    rows = adb('shell', 'pm', 'path', package).splitlines()
+    if len(rows) != 1 or not rows[0].startswith('package:'):
+        raise ValueError('Exact single-APK installed package required; splits need their own package validation')
+    path = rows[0][len('package:'):]
+    if not re.fullmatch(r'/(?:data/app|mnt/expand)/[A-Za-z0-9._/~=+/-]+\.apk', path):
+        raise ValueError('Unexpected installed candidate path')
+    digest = adb('shell', 'sha256sum', path).split()[0]
+    if not re.fullmatch('[0-9a-f]{64}', digest):
+        raise ValueError('Installed APK hash unavailable')
+    return digest
 
 
 def run(args) -> dict:
@@ -53,6 +67,11 @@ def run(args) -> dict:
         text = adb('install', '-r', str(artifact), timeout=180)
         if 'Success' not in text:
             raise ValueError('Candidate installation did not complete')
+    record['installed_apk_sha256'] = installed_hash(adb, 'com.realityforge.scanner')
+    record['installed_test_apk_sha256'] = installed_hash(adb, 'com.realityforge.scanner.test')
+    if (record['installed_apk_sha256'] != record['artifact_sha256'] or
+            record['installed_test_apk_sha256'] != record['test_apk_sha256']):
+        raise ValueError('Supplied and installed candidate APKs differ')
     command = ['shell', 'am', 'instrument', '-w', '-r', '-e', 'offlinePrivacy', 'true', '-e', 'class',
                'com.realityforge.scanner.qa.OfflinePrivacyJourneyTest',
                'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner']
