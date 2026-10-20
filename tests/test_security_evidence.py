@@ -224,7 +224,7 @@ def test_requirements_directory_symlink_rejected(tmp_path):
 
 
 def test_oversized_requirements_never_uses_unbounded_read(tmp_path, monkeypatch):
-    source=tmp_path/'source';source.mkdir()
+    source=tmp_path  # Actual workflow shape: dependency inputs are inside scanned tools.
     requirements=tmp_path/'requirements.txt'
     with requirements.open('wb') as stream:stream.truncate(4*1024*1024+1)
     read=Path.read_bytes

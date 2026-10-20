@@ -15,6 +15,11 @@ import tempfile
 PINS = {'bandit': '1.8.6', 'detect-secrets': '1.5.0', 'pip-audit': '2.9.0'}
 
 
+def file_sha256(path):
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
 def run_json(argv, accepted=(0, 1), timeout=180, cwd=None):
     run = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, cwd=cwd)
     if run.returncode not in accepted:
@@ -41,7 +46,7 @@ def source_identity(root):
         if path.is_symlink():
             raise ValueError('scan scope contains a symlink')
         if path.is_file():
-            rows.append([path.relative_to(root).as_posix(), hashlib.sha256(path.read_bytes()).hexdigest()])
+            rows.append([path.relative_to(root).as_posix(), file_sha256(path)])
     revision = subprocess.run(['git', '-C', str(root), 'rev-parse', 'HEAD'], capture_output=True, text=True, timeout=10)
     dirty = None
     if revision.returncode == 0:
@@ -118,8 +123,8 @@ def apply_suppressions(report, root, path):
     active, suppressed = [], []
     for finding in report['findings']:
         source = source_path(root, finding['path']) if finding['scanner'] in ('bandit', 'detect-secrets') else None
-        digest = 'sha256:' + hashlib.sha256(source.read_bytes()).hexdigest() if source else None
-        matches = [entry for entry in entries['entries'] if all(entry.get(key) == finding.get(key) for key in ('scanner', 'path', 'line', 'rule')) and entry.get('source_sha256') == digest and all('sha256:' + hashlib.sha256(source_path(root, name).read_bytes()).hexdigest() == expected for name, expected in entry.get('context_sha256', {}).items())]
+        digest = 'sha256:' + file_sha256(source) if source else None
+        matches = [entry for entry in entries['entries'] if all(entry.get(key) == finding.get(key) for key in ('scanner', 'path', 'line', 'rule')) and entry.get('source_sha256') == digest and all('sha256:' + file_sha256(source_path(root, name)) == expected for name, expected in entry.get('context_sha256', {}).items())]
         if matches:
             if len(matches) != 1 or not isinstance(matches[0].get('justification'), str) or len(matches[0]['justification']) < 30 or date.fromisoformat(matches[0]['expires']) < date.today():
                 raise ValueError('invalid/expired suppression')
@@ -143,14 +148,14 @@ def scan(root, python, requirements=None, suppressions=None, expected_source=Non
         if expected_source is not None and (not re.fullmatch('[0-9a-f]{40}', expected_source) or original['source_sha'] != expected_source or original['source_dirty'] is not False):
             raise ValueError('candidate source differs or is dirty')
         driver = Path(__file__).resolve()
-        report['scanner_source_sha256'] = hashlib.sha256(driver.read_bytes()).hexdigest()
-        input_hashes = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest() for path in (suppressions, driver) if path}
+        report['scanner_source_sha256'] = file_sha256(driver)
+        input_hashes = {str(path.resolve()): file_sha256(path) for path in (suppressions, driver) if path}
         if requirements:
             flattened, closure_hashes, expected_packages = requirements_closure(requirements)
             report['requirements_files_sha256'] = closure_hashes
             report['requirements_packages_count'] = len(expected_packages)
         if suppressions:
-            report['suppressions_sha256'] = hashlib.sha256(suppressions.read_bytes()).hexdigest()
+            report['suppressions_sha256'] = file_sha256(suppressions)
         # Verify exact installed distributions through the selected isolated Python.
         code = 'import importlib.metadata,json; print(json.dumps({n:importlib.metadata.version(n) for n in '+repr(list(PINS))+'}))'
         if run_json([str(python), '-c', code], accepted=(0,)) != PINS:
@@ -197,7 +202,7 @@ def scan(root, python, requirements=None, suppressions=None, expected_source=Non
             apply_suppressions(report, root, suppressions)
         report['finding_counts'] = finding_counts(report['raw_findings'], report['findings'], report['suppressed'])
         if (source_identity(root) != original
-                or any(hashlib.sha256(Path(name).read_bytes()).hexdigest() != digest for name, digest in input_hashes.items())
+                or any(file_sha256(Path(name)) != digest for name, digest in input_hashes.items())
                 or (requirements and requirements_closure(requirements) != (flattened, closure_hashes, expected_packages))):
             raise ValueError('source or policy/requirements changed during scan')
         report['status'] = 'FAIL' if report['findings'] else 'PASS' if requirements else 'NOT_RUN'

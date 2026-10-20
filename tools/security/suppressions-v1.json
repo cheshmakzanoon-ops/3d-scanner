@@ -2198,57 +2198,57 @@
       "line": 12,
       "rule": "B404",
       "severity": "LOW",
-      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
+      "source_sha256": "sha256:10ec478a0cf9db21c6d0d6cccdf3bc7050539970170dce06fbc9168ebb437cd0",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "security/scan.py",
-      "line": 19,
+      "line": 24,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
+      "source_sha256": "sha256:10ec478a0cf9db21c6d0d6cccdf3bc7050539970170dce06fbc9168ebb437cd0",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "security/scan.py",
-      "line": 45,
+      "line": 50,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
+      "source_sha256": "sha256:10ec478a0cf9db21c6d0d6cccdf3bc7050539970170dce06fbc9168ebb437cd0",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "security/scan.py",
-      "line": 45,
+      "line": 50,
       "rule": "B607",
       "severity": "LOW",
-      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
+      "source_sha256": "sha256:10ec478a0cf9db21c6d0d6cccdf3bc7050539970170dce06fbc9168ebb437cd0",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "security/scan.py",
-      "line": 48,
+      "line": 53,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
+      "source_sha256": "sha256:10ec478a0cf9db21c6d0d6cccdf3bc7050539970170dce06fbc9168ebb437cd0",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "security/scan.py",
-      "line": 48,
+      "line": 53,
       "rule": "B607",
       "severity": "LOW",
-      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
+      "source_sha256": "sha256:10ec478a0cf9db21c6d0d6cccdf3bc7050539970170dce06fbc9168ebb437cd0",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -11519,9 +11519,9 @@
     {
       "scanner": "detect-secrets",
       "path": "security/scan.py",
-      "line": 170,
+      "line": 175,
       "rule": "Secret Keyword",
-      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
+      "source_sha256": "sha256:10ec478a0cf9db21c6d0d6cccdf3bc7050539970170dce06fbc9168ebb437cd0",
       "expires": "2026-11-20",
       "justification": "Public PASS/FAIL status enum assigned to the secret-scanner result; the literal is report metadata, never a secret credential value."
     }
