@@ -18,7 +18,7 @@ class PixelProjectionDeviceTest {
             val lens=profile.forScan(width,height,26.0)
             val points=MatOfPoint3f(*(-4..4).flatMap{x->(-3..3).map{y->Point3(x*.09,y*.09,1.0)}}.toTypedArray())
             val rvec=Mat.zeros(3,1,CvType.CV_64F);val tvec=Mat.zeros(3,1,CvType.CV_64F)
-            val k=Mat(3,3,CvType.CV_64F).apply{put(0,0,doubleArrayOf(lens.fx,0.0,lens.cx,0.0,lens.fy,lens.cy,0.0,0.0,1.0))}
+            val k=Mat(3,3,CvType.CV_64F).apply{put(0,0,*doubleArrayOf(lens.fx,0.0,lens.cx,0.0,lens.fy,lens.cy,0.0,0.0,1.0))}
             val distortion=MatOfDouble(lens.k1,lens.k2,lens.p1,lens.p2,lens.k3);val pixels=MatOfPoint2f()
             try {
                 Calib3d.projectPoints(points,rvec,tvec,k,distortion,pixels)
