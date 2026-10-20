@@ -17,6 +17,13 @@
       "branch": "agents/090-export-interoperability-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "b00f66276bd22d4bb0fdf4c38bd30cd9e47d2a35",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

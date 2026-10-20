@@ -182,3 +182,13 @@ def test_archive_refuses_commit_with_stale_manifest(repo, tmp_path):
     git(repo, "add", ".")
     git(repo, "commit", "-qm", "invalid manifest")
     assert run_archive(repo, "create", "--output", tmp_path / "bad.tar.gz", "--record", tmp_path / "bad.json").returncode != 0
+
+
+def test_intent_to_add_cannot_manifest_an_uncommittable_index(repo):
+    (repo / "intent.txt").write_text("not staged content")
+    git(repo, "add", "--intent-to-add", "intent.txt")
+    with pytest.raises(manifest.ManifestError, match="intent-to-add"):
+        manifest.render(repo, "index")
+    git(repo, "add", "intent.txt")
+    regenerate(repo)
+    assert manifest.verify(repo, "index")["status"] == "PASS"
