@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import subprocess
 import xml.etree.ElementTree as E
+import zipfile
 
 DOMAINS = {'root', 'file', 'database', 'sharedpref', 'external', 'device_root',
            'device_file', 'device_database', 'device_sharedpref'}
@@ -99,6 +100,53 @@ def check_manifest(root: E.Element) -> list[str]:
     return errors
 
 
+def extraction_resource(manifest: E.Element, resources: str) -> tuple[str, str, str]:
+    """Resolve only the manifest's numeric resource, refusing aliases/variants."""
+    apps = manifest.findall('application')
+    reference = apps[0].get('dataExtractionRules', '') if len(apps) == 1 else ''
+    if not re.fullmatch(r'@0x[0-9a-fA-F]{8}', reference):
+        raise ValueError('Expected exact manifest extraction resource ID')
+    if len(resources) > 20_000_000:
+        raise ValueError('Resource table report too large')
+    entries = []
+    current = None
+    for line in resources.splitlines():
+        header = re.fullmatch(r'\s*resource (0x[0-9a-fA-F]{8}) (\S+)', line)
+        if header:
+            current = (header[1].lower(), header[2], [])
+            entries.append(current)
+        elif line.lstrip().startswith('resource '):
+            raise ValueError('Unknown resource table declaration')
+        elif line.lstrip().startswith(('type ', 'Package ')):
+            current = None
+        elif current is not None and line.strip():
+            current[2].append(line.strip())
+    matches = [entry for entry in entries if entry[0] == reference[1:].lower()]
+    if len(matches) != 1:
+        raise ValueError('Unknown or multiple manifest extraction resources')
+    identity, name, values = matches[0]
+    if not re.fullmatch(r'xml/[a-zA-Z_][a-zA-Z0-9_]*', name):
+        raise ValueError('Extraction resource must identify one XML resource')
+    if sum(entry[1] == name for entry in entries) != 1:
+        raise ValueError('Ambiguous extraction resource name')
+    # Qualified variants and aliases need separate policy evaluation. They cannot
+    # be silently certified using only a harmless default/unreferenced XML file.
+    if len(values) != 1:
+        raise ValueError('Extraction resource must have one default XML value')
+    value = re.fullmatch(r'\(\) \(file\) (\S+) type=XML', values[0])
+    if not value:
+        raise ValueError('Unknown or qualified extraction resource value')
+    return identity, name[4:], compiled_xml_path(value[1])
+
+
+def compiled_xml_path(value: str) -> str:
+    path = value.strip()
+    if (not re.fullmatch(r'res/[A-Za-z0-9_./-]+\.xml', path) or
+            any(part in ('', '.', '..') for part in path.split('/'))):
+        raise ValueError('Unsafe compiled extraction resource path')
+    return path
+
+
 def package_report(apk: Path, sdk: Path, source_sha: str) -> dict:
     if not re.fullmatch('[0-9a-f]{40}', source_sha):
         raise ValueError('Exact source SHA required')
@@ -106,11 +154,30 @@ def package_report(apk: Path, sdk: Path, source_sha: str) -> dict:
     def dump(name):
         return aapt_tree(subprocess.check_output([str(aapt), 'dump', 'xmltree', str(apk), '--file', name],
                                                 text=True, timeout=45))
-    manifest, rules = dump('AndroidManifest.xml'), dump('res/xml/data_extraction_rules.xml')
+    manifest = dump('AndroidManifest.xml')
+    resources = subprocess.check_output([str(aapt), 'dump', 'resources', str(apk)],
+                                        text=True, timeout=45)
+    identity, name, table_path = extraction_resource(manifest, resources)
+    analyzer = sdk / 'cmdline-tools/latest/bin/apkanalyzer'
+    actual_path = compiled_xml_path(subprocess.check_output(
+        [str(analyzer), 'resources', 'value', '--config', 'default', '--type', 'xml',
+         '--name', name, str(apk)], text=True, timeout=45))
+    if actual_path != table_path:
+        raise ValueError('Compiled extraction path disagrees with resource table')
+    with zipfile.ZipFile(apk) as archive:
+        names = archive.namelist()
+        if len(names) != len(set(names)) or names.count(actual_path) != 1:
+            raise ValueError('Missing or duplicate compiled extraction ZIP entry')
+        if archive.getinfo(actual_path).file_size > 2_000_000:
+            raise ValueError('Compiled extraction XML too large')
+        policy_digest = hashlib.sha256(archive.read(actual_path)).hexdigest()
+    rules = dump(actual_path)
     errors = check_manifest(manifest) + check_rules(rules)
     return {'schema': 1, 'agent': '089', 'source_sha': source_sha,
             'artifact_sha256': hashlib.file_digest(apk.open('rb'), 'sha256').hexdigest(),
             'gate': 'packaged_privacy_policy', 'status': 'FAIL' if errors else 'PASS',
+            'extraction_policy': {'resource_id': identity, 'resource_name': name,
+                                  'apk_entry': actual_path, 'sha256': policy_digest},
             'errors': errors, 'runtime_offline_journey': 'NOT_RUN',
             'physical_backup_transfer': 'NOT_RUN'}
 
@@ -124,7 +191,7 @@ def main():
     args = parser.parse_args()
     try:
         result = package_report(args.apk, args.sdk, args.source_sha)
-    except (ValueError, OSError, subprocess.SubprocessError) as exc:
+    except (ValueError, OSError, subprocess.SubprocessError, zipfile.BadZipFile) as exc:
         result = {'schema': 1, 'agent': '089', 'status': 'FAIL', 'error': str(exc),
                   'runtime_offline_journey': 'NOT_RUN'}
     args.output.parent.mkdir(parents=True, exist_ok=True)

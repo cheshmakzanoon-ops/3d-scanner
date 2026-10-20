@@ -283,6 +283,13 @@
       "branch": "agents/099-release-candidate-journey-qualification",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "b3bd4d173c7d525a8dff919207239223b6080bdb",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

@@ -10,17 +10,70 @@ from pathlib import Path
 import re
 import subprocess
 
+TEST_CLASS = 'com.realityforge.scanner.qa.OfflinePrivacyJourneyTest'
+TEST_METHODS = frozenset({
+    'packagedAppHasNoNetworkPermissionAndOptionalCamera',
+    'deletingAProjectPreservesExternalOriginalsExportsAndOtherProjects',
+    'explicitOfflineSyntheticImportReconstructionInspectionReopenExportJourney',
+})
+
 
 def network_disabled(settings: dict) -> bool:
     return settings == {'airplane_mode_on': '1', 'wifi_on': '0', 'mobile_data': '0'}
 
 
 def completed(text: str) -> bool:
-    match = re.search(r'OK \((\d+) tests?\)', text)
-    terminal = [int(c) for c in re.findall(r'^INSTRUMENTATION_STATUS_CODE:\s*(-?\d+)\s*$', text, re.M) if c != '1']
-    return bool(match and int(match.group(1)) == 3 and terminal == [0, 0, 0] and not any(
-        marker in text for marker in ['FAILURES!!!', 'INSTRUMENTATION_FAILED', 'AssumptionFailure',
-                                      'Process crashed', 'shortMsg=']))
+    """Require complete AndroidJUnitRunner start/end records and final summary."""
+    if len(text) > 2_000_000 or any(marker in text for marker in (
+            'FAILURES!!!', 'INSTRUMENTATION_FAILED', 'AssumptionFailure',
+            'AssumptionViolatedException', 'Process crashed', 'shortMsg=')):
+        return False
+    required = {'class', 'current', 'id', 'numtests', 'stream', 'test'}
+    fields, events, results = {}, [], {}
+    phase, continuation = 'tests', None
+    for line in text.splitlines():
+        status = re.fullmatch(r'INSTRUMENTATION_STATUS: ([A-Za-z][A-Za-z0-9_]*)=(.*)', line)
+        code = re.fullmatch(r'INSTRUMENTATION_STATUS_CODE: (-?\d+)', line)
+        result = re.fullmatch(r'INSTRUMENTATION_RESULT: ([A-Za-z][A-Za-z0-9_]*)=(.*)', line)
+        if status:
+            key, value = status.groups()
+            if phase != 'tests' or key not in required or key in fields:
+                return False
+            fields[key] = value
+            continuation = fields if key == 'stream' else None
+        elif code:
+            if phase != 'tests' or len(events) >= 6 or fields.keys() != required:
+                return False
+            if (code[1] != ('1' if len(events) % 2 == 0 else '0') or
+                    fields['class'] != TEST_CLASS or fields['test'] not in TEST_METHODS or
+                    fields['id'] != 'AndroidJUnitRunner' or fields['numtests'] != '3' or
+                    fields['current'] != str(len(events) // 2 + 1)):
+                return False
+            if len(events) % 2 and fields['test'] != events[-1]['test']:
+                return False
+            events.append(fields)
+            fields, continuation = {}, None
+        elif result:
+            key, value = result.groups()
+            if phase != 'tests' or len(events) != 6 or fields or key != 'stream' or results:
+                return False
+            results[key] = value
+            phase, continuation = 'summary', results
+        elif line == 'INSTRUMENTATION_CODE: -1':
+            if phase != 'summary' or fields or not results:
+                return False
+            phase, continuation = 'done', None
+        elif line.startswith('INSTRUMENTATION_'):
+            return False
+        elif continuation is not None:
+            continuation['stream'] += '\n' + line
+        elif line.strip():
+            return False
+    return (phase == 'done' and len(events) == 6 and
+            {event['test'] for event in events[1::2]} == TEST_METHODS and
+            re.fullmatch(r'\s*Time: (?:0|[1-9]\d*)(?:\.\d+)?\s+OK \(3 tests\)\s*',
+                         results.get('stream', '')) is not None and
+            len(re.findall(r'^OK \(', text, re.M)) == 1)
 
 
 def installed_hash(adb, package: str) -> str:
