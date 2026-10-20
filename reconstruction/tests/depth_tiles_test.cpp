@@ -2,6 +2,8 @@
 #include "realityforge/depth_tiles.hpp"
 #include "realityforge/progress.hpp"
 #include "realityforge/depth_checkpoint.hpp"
+#include "realityforge/texture.hpp"
+#include <thread>
 #include <filesystem>
 #include <fstream>
 #include <chrono>
@@ -83,6 +85,19 @@ int main(){
  const auto fullRows=packCameras(images),coarseRows=packCameras(coarse);const auto fullPixels=packPixels(images),coarsePixels=packPixels(coarse);
  char* abi=rf_dense_refined_json(fullPixels.data(),images[0].width,images[0].height,fullRows.data(),images.size(),settings.nearDepth,settings.farDepth,settings.depthPlanes,settings.pixelStride,nullptr,0,coarsePixels.data(),coarse[0].width,coarse[0].height,coarseRows.data(),std::string(64,'b').c_str());
  assert(abi&&std::string(abi).find("error")==std::string::npos&&std::string(abi).find("dense_points")!=std::string::npos);rf_free(abi);
+ {
+  rf::DenseRefinementScope installed(&inputs);
+  char* photographed=rf_textured_surface_json(fullPixels.data(),images[0].width,images[0].height,fullPixels.data(),images[0].width,images[0].height,fullRows.data(),images.size(),settings.nearDepth,settings.farDepth,settings.depthPlanes,settings.pixelStride,nullptr,nullptr,nullptr,nullptr);
+  assert(photographed&&std::string(photographed).find("error")==std::string::npos&&std::string(photographed).find("meshError")==std::string::npos&&std::string(photographed).find("textureError")==std::string::npos&&std::string(photographed).find("camera_ranked_photographic_atlas")!=std::string::npos&&std::string(photographed).find("\"coarseDepthMaps\":3")!=std::string::npos);rf_free(photographed);
+  {rf::DenseRefinementScope disabled(nullptr);assert(rf::reconstructDense(images,settings).coarseDepthMaps==0);}
+  assert(rf::reconstructDense(images,settings).coarseDepthMaps==3);
+ }
+ assert(rf::reconstructDense(images,settings).coarseDepthMaps==0);
+ auto cancellableProgress=std::make_shared<rf::progress::State>();std::atomic_bool cancelled=false;char* cancelledResult=nullptr;
+ std::thread worker([&]{rf::cancellation::Scope cancel(&cancelled);rf::progress::Scope progress(cancellableProgress);rf::DenseRefinementScope installed(&inputs);cancelledResult=rf_textured_surface_json(fullPixels.data(),images[0].width,images[0].height,fullPixels.data(),images[0].width,images[0].height,fullRows.data(),images.size(),settings.nearDepth,settings.farDepth,settings.depthPlanes,settings.pixelStride,nullptr,nullptr,nullptr,nullptr);});
+ const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(10);bool observedWork=false;
+ while(std::chrono::steady_clock::now()<deadline){const auto snapshot=cancellableProgress->snapshot();if(snapshot.stage==rf::progress::Stage::Depth&&snapshot.completed>0){observedWork=true;break;}std::this_thread::sleep_for(std::chrono::milliseconds(1));}
+ cancelled.store(true);worker.join();assert(observedWork&&cancelledResult&&std::string(cancelledResult).find("Reconstruction cancelled")!=std::string::npos);rf_free(cancelledResult);
  settings.workingSetBudgetBytes=1;bool rejected=false;try{rf::reconstructDense(images,settings);}catch(const std::invalid_argument&){rejected=true;}assert(rejected);
  auto* invalid=rf_dense_json(nullptr,32,32,nullptr,2,2,9,56,3);assert(invalid&&std::string(invalid).find("error")!=std::string::npos);rf_free(invalid);
  std::cout<<"tiled/reference float-bit equality, halo coverage, camera-order point equality, byte admission, voxel bounds and C ABI rejection passed\n";
