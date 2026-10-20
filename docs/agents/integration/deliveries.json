@@ -66,6 +66,13 @@
       "branch": "agents/098-current-documentation-runbook",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "086",
+      "source_sha": "edf7729e10c1cb1e2b8078a6d4d912f2adc7014b",
+      "branch": "agents/086-physical-arm64-capture-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
