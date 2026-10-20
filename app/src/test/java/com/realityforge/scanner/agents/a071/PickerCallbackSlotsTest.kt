@@ -222,6 +222,47 @@ class PickerCallbackSlotsTest {
             store.clear(b.requestId)
         }
     }
+    @Test fun terminalStartupReconcilesActualRestoredAdmissionsAcrossIndependentDiskStates() {
+        for(cancelled in listOf(false,true)) for(pendingB in listOf(false,true))
+            for(diskState in listOf("absent","a","b","corrupt","unsupported-b")) temporary {store,file->
+                val first=OperationCoordinator();val aBound=first.bindArtifact(projectA,1,"asset-${projectA.revision}",projectA.revision,"json")!!
+                val a=ui(aBound)
+                val second=OperationCoordinator();val bBound=second.bindArtifact(projectB,2,"asset-${projectB.revision}",projectB.revision,"json")!!
+                val b=ui(bBound)
+                val launched=PickerCallbackSlots.empty().launched(a)
+                val saved=if(cancelled) launched.cancel(a.requestId) else launched.take(PendingKind.EXPORT).second
+                val slots=PickerCallbackSlots.restore(saved.encode())
+                val restored=OperationCoordinator().apply {restorePending(listOf(BoundExternalRequestCodec.decode(
+                    BoundExternalRequestCodec.encode(if(pendingB) bBound else aBound))))}
+                when(diskState) {
+                    "a"->store.save(typed(a));"b"->store.save(typed(b))
+                    "corrupt"->file.writeBytes(byteArrayOf(7,8,9))
+                    "unsupported-b"->store.save(typed(b).copy(option=typed(b).option.copy(id="canonical_json")))
+                }
+                val original=file.takeIf {it.exists()}?.readBytes()
+                val read=runCatching {store.restore()}
+                val current=b.takeIf {pendingB};val snapshot=ExportRestoreSnapshot(6,8,current)
+                val decision=PickerCallbackBinding.reconcileStartup(snapshot,6,8,current,false,slots,read.getOrNull())!!
+                assertEquals(listOf(a),decision.terminalRequests)
+                val expectedPending=if(pendingB || (diskState=="b" && !cancelled)) b else null
+                assertEquals(expectedPending,decision.pendingAfter) // A valid distinct B can still restore for explicit cancellation.
+                assertEquals(a.requestId.takeIf {diskState=="a"},decision.clearStoredRequestId)
+                decision.terminalRequests.forEach {restored.cancelPending(RequestId(it.requestId))}
+                decision.clearStoredRequestId?.let(store::clear)
+                if(pendingB) assertEquals(b.requestId,restored.pendingRequests().single().requestId.value)
+                else {assertTrue(restored.pendingRequests().isEmpty());assertNotNull(restored.bindImport(projectB,3))}
+                if(diskState=="a" || diskState=="absent") assertFalse(file.exists())
+                else assertArrayEquals(original,file.readBytes())
+                assertEquals(diskState=="corrupt",read.isFailure)
+                assertEquals(saved.encode(),slots.encode()) // Cancellation never releases the OS tombstone.
+                for(epochs in listOf(7L to 8L,6L to 9L))
+                    assertNull(PickerCallbackBinding.reconcileStartup(snapshot,epochs.first,epochs.second,current,false,slots,read.getOrNull()))
+                val blocked=PickerCallbackSlots.restore("unrecognized")
+                val blockedDecision=PickerCallbackBinding.reconcileStartup(snapshot,6,8,current,false,blocked,read.getOrNull())!!
+                assertTrue(blockedDecision.terminalRequests.isEmpty());assertNull(blockedDecision.clearStoredRequestId)
+                assertEquals(current,blockedDecision.pendingAfter)
+            }
+    }
     @Test fun restoreRequiresAnUncancelledMatchingSlotOrNoLaunchYet() {
         val first=OperationCoordinator();val a=artifact(first)
         val other=OperationCoordinator();val b=artifact(other,projectB)

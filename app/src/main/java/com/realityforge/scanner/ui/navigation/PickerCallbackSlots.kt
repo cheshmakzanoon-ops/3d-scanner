@@ -13,12 +13,12 @@ class PickerCallbackSlots private constructor(
 ) {
     val awaitingCancelledResult: Boolean get() = blocked || slots.values.any { it.cancelled }
     fun canLaunch(kind: PendingKind): Boolean = channel(kind)?.let { !blocked && it !in slots } ?: true
-    /** Only an exactly matching saved terminal origin may release a restored legacy C1 intent. */
-    fun terminalExport(request: PendingRequest): PendingRequest? = when {
-        blocked || request.kind != PendingKind.EXPORT -> null
-        consumedExport == request -> consumedExport
-        else -> slots[PickerChannel.EXPORT]?.takeIf { it.cancelled && it.request == request }?.request
-    }
+    /** Known saved terminal origins release only their own legacy C1 IDs, independently of disk cleanup. */
+    fun terminalExports(): List<PendingRequest> = if (blocked) emptyList() else listOfNotNull(
+        consumedExport,
+        slots[PickerChannel.EXPORT]?.takeIf { it.cancelled && it.request.kind == PendingKind.EXPORT }?.request,
+    ).distinct()
+    fun terminalExport(request: PendingRequest): PendingRequest? = terminalExports().firstOrNull { it == request }
     fun permitsRestore(request: PendingRequest): Boolean {
         if (blocked || consumedExport?.requestId == request.requestId) return false
         val channel = channel(request.kind) ?: return false
@@ -92,6 +92,11 @@ class PickerCallbackSlots private constructor(
 
 data class PickerConsumption(val accepted: PendingRequest?, val pendingAfter: PendingRequest?, val cancelRequestId: String?)
 data class ExportRestoreSnapshot(val pendingEpoch: Long, val launchEpoch: Long, val pendingAtStart: PendingRequest?)
+data class ExportStartupDecision(
+    val terminalRequests: List<PendingRequest>,
+    val pendingAfter: PendingRequest?,
+    val clearStoredRequestId: String?,
+)
 object PickerCallbackBinding {
     /** A callback may consume only its launch's fixed request, never a newer pending request. */
     fun consume(slot: PickerCallbackSlot, current: PendingRequest?, busy: Boolean): PickerConsumption {
@@ -103,6 +108,20 @@ object PickerCallbackBinding {
         request.kind == PendingKind.EXPORT && request.requestId == stored.requestId &&
         request.projectId == stored.artifact.projectId && request.revision == stored.artifact.revision &&
         request.artifactKey == stored.artifact.artifactKey && request.extension == stored.option.id
+    /** Saved terminal identity and disk presence are independent after process death while stopped. */
+    fun reconcileStartup(snapshot: ExportRestoreSnapshot, pendingEpoch: Long, launchEpoch: Long,
+                         current: PendingRequest?, exportInFlight: Boolean, slots: PickerCallbackSlots,
+                         stored: ExportRequest?): ExportStartupDecision? {
+        if (!epochsMatch(snapshot, pendingEpoch, launchEpoch)) return null
+        val terminal = slots.terminalExports()
+        var next = current?.takeUnless { it in terminal }
+        // A valid generic067 record may contain a canonical option outside the legacy shell whitelist.
+        val disk = stored?.let { runCatching { PendingRequest(it.requestId, PendingKind.EXPORT, it.artifact.projectId,
+            it.artifact.revision, it.artifact.artifactKey, it.option.id) }.getOrNull() }
+        val clearId = disk?.let(slots::terminalExport)?.requestId
+        if (disk != null && clearId == null && mayRestore(snapshot, pendingEpoch, launchEpoch, current, exportInFlight) && slots.permitsRestore(disk)) next = disk
+        return ExportStartupDecision(terminal, next, clearId)
+    }
     fun epochsMatch(snapshot: ExportRestoreSnapshot, pendingEpoch: Long, launchEpoch: Long): Boolean =
         snapshot.pendingEpoch == pendingEpoch && snapshot.launchEpoch == launchEpoch
     fun mayRestore(snapshot: ExportRestoreSnapshot, pendingEpoch: Long, launchEpoch: Long,

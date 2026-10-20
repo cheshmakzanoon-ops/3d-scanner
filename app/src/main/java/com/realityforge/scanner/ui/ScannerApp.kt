@@ -99,12 +99,16 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
     val staleText = stringResource(R.string.a071_pending_stale)
     val pendingText = stringResource(R.string.a071_picker_busy)
     val drainingText = stringResource(R.string.a071_picker_draining)
+    val blockedPickerText = stringResource(R.string.a071_picker_blocked)
     val unconfirmedText = stringResource(R.string.a071_export_unconfirmed)
     val errorText = stringResource(R.string.a071_error)
     fun navigate(next: AppRoute) { routeValue = next.encode() }
     fun currentRequest(kind: PendingKind, extension: String? = null): PendingRequest? {
         if (PendingRequest.restore(pendingValue) != null || model.busy.value || exportAdmission) { model.notice.value = pendingText; return null }
-        if(!PickerCallbackSlots.restore(callbackSlotsValue).canLaunch(kind)) {model.notice.value=drainingText;return null}
+        if(!PickerCallbackSlots.restore(callbackSlotsValue).canLaunch(kind)) {
+            model.notice.value=if(PickerCallbackSlots.restore(callbackSlotsValue).blocked) blockedPickerText else drainingText
+            return null
+        }
         val project = model.projects.value.find { it.id == model.selectedId.value } ?: return null
         val requestId=when(kind) {
             PendingKind.IMPORT->model.beginImportRequest()
@@ -149,19 +153,15 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
     LaunchedEffect(exportStore) {
         val snapshot=ExportRestoreSnapshot(pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue))
         val restore=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}}
-        if(PickerCallbackBinding.epochsMatch(snapshot,pendingEpoch,launchEpoch)) invalidExport=restore.isFailure
-        val restored=restore.getOrNull()
-        if(restored!=null && PickerCallbackBinding.epochsMatch(snapshot,pendingEpoch,launchEpoch)) {
-            val request=PendingRequest(restored.requestId,PendingKind.EXPORT,restored.artifact.projectId,restored.artifact.revision,restored.artifact.artifactKey,restored.option.id)
-            val slots=PickerCallbackSlots.restore(callbackSlotsValue)
-            val terminal=slots.terminalExport(request)
-            if(terminal!=null) {
-                // Death may precede callback-finally cleanup. Retire only the saved terminal origin;
-                // a mismatched durable request and any newer pending request remain untouched.
-                clearPending(terminal)
-                model.cancelPendingRequest(terminal.requestId)
-                if(!clearStored(terminal.requestId)) model.notice.value=unconfirmedText
-            } else if(PickerCallbackBinding.mayRestore(snapshot,pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue),exportAdmission) && slots.permitsRestore(request)) setPending(request)
+        val current=PendingRequest.restore(pendingValue)
+        val decision=PickerCallbackBinding.reconcileStartup(snapshot,pendingEpoch,launchEpoch,current,exportAdmission,
+            PickerCallbackSlots.restore(callbackSlotsValue),restore.getOrNull())
+        if(decision!=null) {
+            invalidExport=restore.isFailure
+            if(decision.pendingAfter!=current) setPending(decision.pendingAfter)
+            // Saved terminal C1 identity can outlive disk cleanup (or vice versa) while stopped.
+            decision.terminalRequests.forEach {model.cancelPendingRequest(it.requestId)}
+            decision.clearStoredRequestId?.let {if(!clearStored(it)) model.notice.value=unconfirmedText}
         }
     }
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
@@ -296,7 +296,9 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
             snackbarHost={SnackbarHost(snackbars)},
             bottomBar={if((pending!=null && pending.kind!=PendingKind.CAMERA) || PickerCallbackSlots.restore(callbackSlotsValue).awaitingCancelledResult) Surface(tonalElevation=3.dp) {
                 Column(Modifier.fillMaxWidth().padding(12.dp)) {
-                    Text(if(pending!=null) stringResource(R.string.a071_pending_waiting) else drainingText)
+                    Text(when {PickerCallbackSlots.restore(callbackSlotsValue).blocked->blockedPickerText
+                        pending!=null->stringResource(R.string.a071_pending_waiting)
+                        else->drainingText})
                     if(pending!=null) TextButton(onClick={
                         val cancelled=PendingRequest.restore(pendingValue)
                         cancelled?.let(::cancelRequest)

@@ -44,5 +44,6 @@
     <string name="a071_calibration_estimated">No lens calibration. Estimated optics do not establish physical scale.</string>
     <string name="a071_no_active_job">No active processing job is recorded for this project. Review its photographs before starting a reconstruction.</string>
     <string name="a071_picker_draining">Close the outstanding system picker before reopening this action. Its cancelled result cannot be applied to another request.</string>
+    <string name="a071_picker_blocked">The saved picker state cannot be recovered. Close any system picker, remove this app from Recents, and reopen it. Saved project data is unchanged.</string>
     <string name="a071_export_unconfirmed">Export was not confirmed. The picker may have created an empty or incomplete file. Check the destination before trying again.</string>
 </resources>
