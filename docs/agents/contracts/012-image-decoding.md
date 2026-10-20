@@ -89,3 +89,13 @@ absent, stored0 and all eight stored valid values, without using AndroidX's attr
 This corrects warning/evidence classification only: fallback orientation, decoded pixels,
 allocation limits and ownership remain identical, so the decoder pixel-policy identity is
 unchanged. Actual platform execution of the corrected fixture must be recorded separately.
+
+User-requested stop snapshot: the conservative physical-presence fallback is saved as WIP.
+It checks bounded JPEG/PNG/WebP EXIF containers and primary TIFF directories before claiming
+ABSENT. Present tags, malformed/truncated metadata, duplicates, caps and unreadable evidence
+remain untrusted. Unsupported HEIF absence proof maps to the existing MALFORMED evidence enum;
+that conservative mapping does not assert that the image bytes are corrupt. Valid1..8 derived
+rotations are handled first. Pixel transforms, limits, ownership and policy identity are unchanged.
+The actual Android wrong-type ASCII-tag injection fixture was not implemented before the stop;
+no corrected-device success or final immutable review is claimed. Prior focused source/JVM
+results are preserved separately. Standalone032/035 have not received this unfinished followup.
