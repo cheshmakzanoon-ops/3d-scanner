@@ -17,7 +17,7 @@
 #include <iostream>
 #include <random>
 #include <memory>
-std::vector<rf::DenseView> fixture(int count=3,bool texture=true,bool occlude=false){
+std::vector<rf::DenseView> fixture(int count=3,bool texture=true,bool occlude=false,int shape=0){
     constexpr int w=104,h=76;
     std::mt19937 engine(504);std::uniform_int_distribution<int> rgb(0,255);
     std::vector<std::array<int,3>> surface(256*256);
@@ -36,14 +36,22 @@ std::vector<rf::DenseView> fixture(int count=3,bool texture=true,bool occlude=fa
         view.rgba.resize(w*h*4);
         for(int y=0;y<h;++y)for(int x=0;x<w;++x){
             std::size_t idx=(y*w+x)*4;
-            double wx=(x-view.cx)/view.fx*5.0+cam*.55;
-            double wy=(y-view.cy)/view.fy*5.0;
+            const double ax=(x-view.cx)/view.fx,ay=(y-view.cy)/view.fy,originX=cam*.55;
+            double z=5;
+            if(shape==1)z=(5+.28*originX)/(1-.28*ax-.10*ay);
+            if(shape==2){const double a=.07*ax*ax+.04*ay*ay,b=.14*ax*originX-1,c=5+.07*originX*originX;z=2*c/(-b+std::sqrt(b*b-4*a*c));}
+            double wx=ax*z+originX;
+            double wy=ay*z;
             for(int c=0;c<3;++c)view.rgba[idx+c]=texture?static_cast<std::uint8_t>(std::round(sample(wx,wy,c))):128;
             view.rgba[idx+3]=occlude && cam==2 && x>20&&x<70&&y>15&&y<60?0:255;
         }
         views.push_back(std::move(view));
     }
     return views;
+}
+std::vector<rf::DenseView> pyramid(const std::vector<rf::DenseView>& images){
+ auto coarse=images;for(auto& image:coarse){const auto source=image.rgba;int fullWidth=image.width,fullHeight=image.height;image.width/=2;image.height/=2;double sx=double(image.width)/fullWidth,sy=double(image.height)/fullHeight;image.fx*=sx;image.fy*=sy;image.cx=(image.cx+.5)*sx-.5;image.cy=(image.cy+.5)*sy-.5;image.rgba.assign(static_cast<std::size_t>(image.width)*image.height*4,0);for(int y=0;y<image.height;++y)for(int x=0;x<image.width;++x){for(int c=0;c<3;++c){unsigned sum=0;for(int dy=0;dy<2;++dy)for(int dx=0;dx<2;++dx)sum+=source[(static_cast<std::size_t>(2*y+dy)*fullWidth+2*x+dx)*4+c];image.rgba[(static_cast<std::size_t>(y)*image.width+x)*4+c]=static_cast<std::uint8_t>((sum+2)/4);}image.rgba[(static_cast<std::size_t>(y)*image.width+x)*4+3]=255;}}
+ return coarse;
 }
 int main(){
  long long voxel=0;assert(!rf::tiles::voxelCoordinate(std::ldexp(1.,63),1,voxel));assert(!rf::tiles::voxelCoordinate(1e300,.003,voxel));assert(!rf::tiles::voxelCoordinate(-1e300,.003,voxel));assert(rf::tiles::voxelCoordinate(-.5,.1,voxel)&&voxel==-5);
@@ -75,7 +83,7 @@ int main(){
  // Coarse images below are derived from input photographs by exact2x area
  // reduction, not rendered truth/depth. Sparse priors are explicitly labeled
  // synthetic measured-estimate inputs and never substitute for quality proof.
- auto coarse=images;for(auto& image:coarse){const auto source=image.rgba;int fullWidth=image.width,fullHeight=image.height;image.width/=2;image.height/=2;double sx=double(image.width)/fullWidth,sy=double(image.height)/fullHeight;image.fx*=sx;image.fy*=sy;image.cx=(image.cx+.5)*sx-.5;image.cy=(image.cy+.5)*sy-.5;image.rgba.assign(static_cast<std::size_t>(image.width)*image.height*4,0);for(int y=0;y<image.height;++y)for(int x=0;x<image.width;++x){for(int c=0;c<3;++c){unsigned sum=0;for(int dy=0;dy<2;++dy)for(int dx=0;dx<2;++dx)sum+=source[(static_cast<std::size_t>(2*y+dy)*fullWidth+2*x+dx)*4+c];image.rgba[(static_cast<std::size_t>(y)*image.width+x)*4+c]=static_cast<std::uint8_t>((sum+2)/4);}image.rgba[(static_cast<std::size_t>(y)*image.width+x)*4+3]=255;}}
+ auto coarse=pyramid(images);
  std::array<rf::DenseSparseDepthPrior,3> priors{{{0,8,8,3.9,.1,true},{0,12,8,5.2,.1,true},{0,8,12,6.1,.1,true}}};
  rf::DenseRefinementInputs inputs{priors,coarse,std::string(64,'b')};
  auto refined=rf::reconstructDense(images,settings,&inputs);assert(refined.coarseDepthMaps==images.size()&&refined.sparsePriorTiles>0&&refined.propagatedHypotheses>0);
@@ -103,6 +111,18 @@ int main(){
  auto permuted=rf::reconstructDense(reversedImages,normalSettings,&permutedInputs);
  assert(normals.points.size()==permuted.points.size()&&normals.normalSupportPairs==permuted.normalSupportPairs);
  for(std::size_t i=0;i<normals.points.size();++i)assert(normals.points[i].xyz.x==permuted.points[i].xyz.x&&normals.points[i].xyz.y==permuted.points[i].xyz.y&&normals.points[i].xyz.z==permuted.points[i].xyz.z);
+ // Independently rendered tilted/curved photographs. Truth is used only by
+ // this evaluator after reconstruction, never supplied as a depth/normal seed.
+ for(int shape:{1,2}){
+  auto photographs=fixture(3,true,false,shape),levels=pyramid(photographs);rf::DenseRefinementInputs observed{{},levels,std::string(64,'e')};
+  const auto old=rf::reconstructDense(photographs,settings),updated=rf::reconstructDense(photographs,normalSettings,&observed);
+  const auto errors=[&](const rf::DenseResult& result){std::vector<double> e;for(const auto& p:result.points){const double truth=shape==1?5+.28*p.xyz.x+.10*p.xyz.y:5+.07*p.xyz.x*p.xyz.x+.04*p.xyz.y*p.xyz.y;e.push_back(std::abs(p.xyz.z-truth)/truth);}std::sort(e.begin(),e.end());assert(!e.empty());return std::array<double,2>{e[e.size()/2],e[e.size()*9/10]};};
+  const auto before=errors(old),after=errors(updated);
+  std::cout<<"synthetic shape="<<shape<<" baseline="<<old.points.size()<<" refined="<<updated.points.size()<<" median="<<after[0]<<" p90="<<after[1]<<" observed-normal-winners="<<updated.normalRefinedPixels<<'\n';
+  assert(updated.points.size()>=100&&updated.points.size()>=old.points.size()*.60);
+  assert(updated.normalHypothesesEvaluated>updated.photometricPixels&&updated.normalRefinedPixels>0&&updated.normalSupportPairs>0);
+  assert(after[0]<.03&&after[1]<.08&&after[0]<=before[0]*1.15+.003&&after[1]<=before[1]*1.15+.01);
+ }
  auto packCameras=[](const auto& cameras){std::vector<double> rows;for(const auto& camera:cameras){rows.insert(rows.end(),camera.pose.rotation.begin(),camera.pose.rotation.end());rows.insert(rows.end(),{camera.pose.translation.x,camera.pose.translation.y,camera.pose.translation.z,camera.fx,camera.fy,camera.cx,camera.cy});}return rows;};
  auto packPixels=[](const auto& cameras){std::vector<std::uint8_t> pixels;for(const auto& camera:cameras)pixels.insert(pixels.end(),camera.rgba.begin(),camera.rgba.end());return pixels;};
  const auto fullRows=packCameras(images),coarseRows=packCameras(coarse);const auto fullPixels=packPixels(images),coarsePixels=packPixels(coarse);

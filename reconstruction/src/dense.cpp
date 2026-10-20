@@ -164,7 +164,7 @@ DenseRefinementScope::DenseRefinementScope(const DenseRefinementInputs* inputs) 
 DenseRefinementScope::~DenseRefinementScope() noexcept{currentRefinementInputs=previous_;}
 DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& requestedSettings,const DenseRefinementInputs* inputs){
     auto settings=requestedSettings;
-    if(!inputs&&currentRefinementInputs){inputs=currentRefinementInputs;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;settings.normalRefinementIterations=3;settings.normalConsistency=true;}
+    if(!inputs&&currentRefinementInputs){inputs=currentRefinementInputs;settings.localRefinementIterations=6;settings.discontinuityAwareConsistency=true;settings.normalRefinementIterations=3;settings.normalConsistency=true;settings.normalMaxAngleDegrees=35;settings.robustSourceAggregation=false;}
     cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
@@ -413,13 +413,15 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             ++result.consistentPixelsPerView[ref];
             auto i=idx*4;
             const auto confidence=static_cast<float>(map.confidence[idx]*std::min(1.0,confirmations/2.0+0.5));
+            auto observedNormal=normalConfirmations?multiply(transpose(camera.pose.rotation),referenceNormal.cameraNormal):Vec3{};
+            if(normalConfirmations)observedNormal=scale(observedNormal,1./norm(observedNormal));
             // Verified samples retain their image neighborhood for confidence-weighted
             // M08 meshing. Strict cap prevents unbounded 2D-grid memory consumption.
             if(result.verifiedSamples.size()<MAX_DENSE_SAMPLES)
                 result.verifiedSamples.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},
                     confidence,static_cast<std::uint8_t>(confirmations+1),static_cast<std::uint8_t>(ref),
                     static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y),
-                    normalConfirmations?multiply(transpose(camera.pose.rotation),referenceNormal.cameraNormal):Vec3{},
+                    observedNormal,
                     normalConfirmations?static_cast<float>(normalConfidence):0.f,static_cast<std::uint8_t>(normalConfirmations)});
 
           }
