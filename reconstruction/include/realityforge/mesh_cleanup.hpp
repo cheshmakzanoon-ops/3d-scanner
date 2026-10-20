@@ -5,6 +5,7 @@
 #include <cmath>
 #include <numeric>
 #include <set>
+#include <limits>
 
 namespace rf {
 // Schema 1: deletion-only proposal. No vertex welding, displacement, hole filling,
@@ -15,6 +16,31 @@ struct CleanupPlan {
     std::size_t inputVertices{},inputFaces{};
 };
 struct CleanupResult {SurfaceMesh mesh; CleanupPlan plan; double maxDisplacement{}; std::size_t generatedFaces{};};
+namespace detail {
+// Deletion needs a proof of zero area, not a rounded double determinant. On
+// supported GNU/NDK targets the wider exponent range prevents product underflow.
+// If an exact difference cannot be represented, preserve the uncertain face.
+inline bool cleanupProvesZeroArea(Vec3 a,Vec3 b,Vec3 c) {
+    if constexpr(std::numeric_limits<long double>::max_exponent<=2*std::numeric_limits<double>::max_exponent ||
+        std::numeric_limits<long double>::min_exponent>2*(std::numeric_limits<double>::min_exponent-std::numeric_limits<double>::digits))return false;
+    std::array<long double,3> u{},v{};
+    const auto difference=[](long double first,long double second,long double& result){
+        result=first-second;
+        const auto virtualSecond=first-result,virtualFirst=result+virtualSecond;
+        return ((first-virtualFirst)+(virtualSecond-second))==0;
+    };
+    const std::array<double,3> aa{a.x,a.y,a.z},bb{b.x,b.y,b.z},cc{c.x,c.y,c.z};
+    for(std::size_t i=0;i<3;++i)if(!difference(bb[i],aa[i],u[i])||!difference(cc[i],aa[i],v[i]))return false;
+    for(std::size_t i=0;i<3;++i){
+        const auto j=(i+1)%3,k=(i+2)%3;
+        const auto first=u[j]*v[k],second=u[k]*v[j];
+        // fma retains the product's low part; equal rounded products alone are
+        // insufficient for nearly collinear, otherwise valid thin geometry.
+        if(first!=second||std::fma(u[j],v[k],-first)!=std::fma(u[k],v[j],-second))return false;
+    }
+    return true;
+}
+}
 inline CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const CleanupSettings& s={}) {
     if(s.maxVertices>1000000||s.maxTriangles>2000000||mesh.vertices.size()>s.maxVertices||mesh.triangles.size()>s.maxTriangles)
         throw Error("Mesh cleanup budget exceeded");
@@ -36,7 +62,8 @@ inline CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const CleanupSettings
         // Cyclic rotations preserve orientation. The opposite side of a thin
         // two-sided sheet is not a duplicate and must remain observed geometry.
         const auto first=std::min_element(key.begin(),key.end());std::rotate(key.begin(),first,key.end());
-        const bool degenerate=t.a==t.b||t.a==t.c||t.b==t.c||(cross.x==0&&cross.y==0&&cross.z==0);
+        const bool degenerate=t.a==t.b||t.a==t.c||t.b==t.c||
+            ((cross.x==0&&cross.y==0&&cross.z==0)&&detail::cleanupProvesZeroArea(a,b,c));
         if(degenerate||!seen.insert(key).second)p.removedFaces.push_back(i);else p.sourceFaceForResult.push_back(i);
     }
     return p;
