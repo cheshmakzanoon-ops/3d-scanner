@@ -1,0 +1,13 @@
+<resources>
+    <string name="a072_library">Projects</string><string name="a072_search">Search projects</string>
+    <string name="a072_create">Create local project</string><string name="a072_restore">Restore capture archive</string>
+    <string name="a072_empty">No matching projects. Create a project or change the search.</string>
+    <string name="a072_name">Project name</string><string name="a072_cancel">Cancel</string><string name="a072_save">Save</string>
+    <string name="a072_rename">Rename</string><string name="a072_duplicate">Duplicate</string><string name="a072_delete">Delete</string>
+    <string name="a072_delete_title">Delete %1$s?</string><string name="a072_delete_body">This removes this project’s private originals, caches and results. External photos stay unchanged. Export important files first. This cannot be undone.</string>
+    <string name="a072_ready">Completed result available</string><string name="a072_not_ready">No current completed result</string>
+    <string name="a072_retry">Retry</string><string name="a072_newest">Newest</string><string name="a072_oldest">Oldest</string><string name="a072_sort_name">Name</string>
+    <string name="a072_all">All</string><string name="a072_results">With results</string><string name="a072_attention">Needs attention</string>
+    <string name="a072_invalid_name">Use 1–80 characters without control characters.</string>
+    <plurals name="a072_photo_count"><item quantity="one">%d photograph</item><item quantity="other">%d photographs</item></plurals>
+</resources>
