@@ -105,7 +105,8 @@ int main(){
         std::reverse(evidence.begin(),evidence.end());const auto b=rf::detail::selectDenseEvidence(evidence,8,3);
         require(a.references==b.references&&a.sources==b.sources,"Permutation changed stable selection");
         require(a.references.size()==8&&a.uniqueSparseTracks==80,"Set cover lost observed tracks");
-        for(const auto& sources:a.sources)require(sources.size()<=3&&!sources.empty(),"Source cap violated");
+        for(const auto& sources:a.sources){require(sources.size()<=3&&!sources.empty(),"Source cap violated");
+            for(const auto& id:sources)require(std::find(a.references.begin(),a.references.end(),id)!=a.references.end(),"Hidden source outside admitted working set");}
         evidence[0].photoId="unconnected";evidence[0].verifiedTracks={1000,1001};
         const auto c=rf::detail::selectDenseEvidence(evidence);bool excluded=false;
         for(const auto& x:c.excluded)if(x.first=="unconnected")excluded=x.second=="insufficient_verified_overlap_or_baseline";

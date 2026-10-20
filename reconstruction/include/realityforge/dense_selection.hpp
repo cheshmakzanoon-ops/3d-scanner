@@ -87,6 +87,12 @@ inline DenseEvidenceSelection selectDenseEvidence(std::span<const DenseCameraEvi
     std::size_t referenceCap=8,std::size_t sourceCap=3,std::size_t minCommonTracks=8) {
     if(input.size()>250||referenceCap<2||referenceCap>8||sourceCap<1||sourceCap>3||minCommonTracks<2)
         throw Error("Invalid dense evidence selection budget");
+    // Reject input budgets before copying caller-owned feature arrays.
+    std::size_t inputTracks=0;
+    for(const auto& c:input){
+        if(c.photoId.empty()||c.photoId.size()>256||c.verifiedTracks.size()>20000||inputTracks>500000-c.verifiedTracks.size())throw Error("Dense evidence input budget exceeded");
+        inputTracks+=c.verifiedTracks.size();
+    }
     std::vector<DenseCameraEvidence> cameras(input.begin(),input.end());
     std::sort(cameras.begin(),cameras.end(),[](const auto& a,const auto& b){return a.photoId<b.photoId;});
     std::size_t trackBudget=0;
@@ -115,6 +121,7 @@ inline DenseEvidenceSelection selectDenseEvidence(std::span<const DenseCameraEvi
     while(out.references.size()<referenceCap){
         std::size_t best=cameras.size();double bestScore=-1;
         for(std::size_t i=0;i<cameras.size();++i){if(selected[i]||adjacency[i].empty())continue;
+            if(!out.references.empty()&&std::none_of(adjacency[i].begin(),adjacency[i].end(),[&](auto edge){return selected[edge.second];}))continue;
             std::size_t novel=0;for(auto t:cameras[i].verifiedTracks)if(!covered.contains(t))++novel;
             const double score=double(novel)+.1*cameras[i].verifiedTracks.size()+cameras[i].sharpness;
             if(score>bestScore){bestScore=score;best=i;}}
@@ -126,9 +133,17 @@ inline DenseEvidenceSelection selectDenseEvidence(std::span<const DenseCameraEvi
         std::vector<std::string> sources;for(std::size_t k=0;k<std::min(sourceCap,edges.size());++k)sources.push_back(cameras[edges[k].second].photoId);
         out.sources.push_back(std::move(sources));
     }
+    // Sources share the admitted active reference set; no hidden extra decoded cameras.
+    for(std::size_t i=0;i<out.references.size();++i){
+        const auto it=std::find_if(cameras.begin(),cameras.end(),[&](const auto& c){return c.photoId==out.references[i];});
+        const auto index=static_cast<std::size_t>(it-cameras.begin());auto edges=adjacency[index];
+        std::sort(edges.begin(),edges.end(),[&](auto a,auto b){return a.first!=b.first?a.first>b.first:cameras[a.second].photoId<cameras[b.second].photoId;});
+        out.sources[i].clear();
+        for(auto edge:edges)if(selected[edge.second]&&out.sources[i].size()<sourceCap)out.sources[i].push_back(cameras[edge.second].photoId);
+    }
     out.uniqueSparseTracks=covered.size();
     for(std::size_t i=0;i<cameras.size();++i)if(!selected[i])out.excluded.emplace_back(cameras[i].photoId,
-        !cameras[i].textureAvailable?"texture_unavailable":adjacency[i].empty()?"insufficient_verified_overlap_or_baseline":"reference_budget");
+        !cameras[i].textureAvailable?"texture_unavailable":adjacency[i].empty()?"insufficient_verified_overlap_or_baseline":std::none_of(adjacency[i].begin(),adjacency[i].end(),[&](auto edge){return selected[edge.second];})?"disconnected_from_selected_component":"reference_budget");
     return out;
 }
 } // namespace rf::detail
