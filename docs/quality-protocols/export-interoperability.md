@@ -47,8 +47,8 @@ Current committed baseline exports contain 579 sparse points, no triangles and
 arbitrary scale. They pass independent read/GLB format validation; the Blender
 mesh round-trip gate deliberately refuses points. The synthetic triangle fixtures
 round-trip in all four formats, including textured GLB/OBJ. These fixtures do not
-prove production OBJ/STL export: their source owners 061–067 are inactive in this
-campaign. Candidate generated GLB/PLY must be rerun on the integrated candidate.
+prove production OBJ/STL export: their source owners061–067 have published remote serializers that require
+combined-candidate integration and actual validation. Candidate generated GLB/PLY must be rerun on the integrated candidate.
 No physical geometry/texture quality or complete-object claim follows.
 
 Remaining release gates: actual candidate photographic GLB/OBJ and representation
