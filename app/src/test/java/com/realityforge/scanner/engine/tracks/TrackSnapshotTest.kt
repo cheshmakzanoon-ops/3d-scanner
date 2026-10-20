@@ -10,4 +10,11 @@ class TrackSnapshotTest {
  @Test fun rejectsAppendedBytesAndUnknownVersion(){val bytes=TrackSnapshot(listOf(track("a","b"))).encode();assertThrows(IllegalArgumentException::class.java){TrackSnapshot.decode(bytes+byteArrayOf(0))}
   val payload=bytes.copyOfRange(0,bytes.size-32);payload[7]=2;val checksum=java.security.MessageDigest.getInstance("SHA-256").digest(payload)
   assertThrows(IllegalArgumentException::class.java){TrackSnapshot.decode(payload+checksum)}}
+ @Test fun snapshotsAndBatchesDefendTheirValidatedInputs(){
+  val source=mutableListOf(SourceObservation("a",1),SourceObservation("b",2));val t=StableTrack(source.minOf {it.identity()},source);val list=mutableListOf(t);val snapshot=TrackSnapshot(list);val encoded=snapshot.encode()
+  source.clear();list.clear();assertArrayEquals(encoded,snapshot.encode());assertEquals(2,t.observations.size)
+  assertThrows(UnsupportedOperationException::class.java){(snapshot.tracks as MutableList).clear()}
+  val photos=mutableListOf("a","b");val ids=mutableListOf(t.id);val rows=doubleArrayOf(0.0,0.0,0.0,0.0,1.0,2.0,3.0,0.0,1.0,0.0,0.0,1.0,2.0,3.0);val batch=NativeTrackBatch(photos,ids,rows)
+  rows[0]=55.0;photos.clear();ids.clear();batch.rows[0]=99.0;assertEquals(0.0,batch.rows[0],0.0);assertEquals(2,batch.photoIds.size)
+ }
 }
