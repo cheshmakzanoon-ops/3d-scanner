@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "inputs": {
+    "app/build.gradle.kts": "ed3649d365213d19f872a459e23cbb26c92d22a48317d97a2772eb74df3cfaee",
+    "build.gradle.kts": "dd74fbdff2f6186f7ad526f54a07aeea8f010e6a9dc7d887948378393cf2e879",
+    "settings.gradle.kts": "62c711aefc8c3b5f3acf66d70bf2279e964222c1536e2db755a3255ffe78795c",
+    "gradle/verification-metadata.xml": "794b55053d55ff16152c2fdab694282f1dde240a06ef568ec5d70f3297b413d3",
+    "gradle/dependency-locks/app.lockfile": "3b5ecf95accb960d78c578a96929b0b43b6159596470109cc4768317ae543655",
+    "tools/requirements.lock": "7e906b6903ec44e1ae1c77eb534f6d101ab70e161b06d4ff497f16aa0e2e8c6f"
+  },
+  "runtimeModules": 123,
+  "distinctResolvedModules": 155,
+  "nativeRedistributables": 10,
+  "noticeFiles": 92
+}
