@@ -22,7 +22,7 @@ def test_obj_package_geometry_texture_and_failures(tmp_path):
         "-I" + str(canonical / "reconstruction/include"),
         str(ROOT / "reconstruction/src/obj_export.cpp"),
         str(canonical / "reconstruction/src/asset_model.cpp"),
-        str(ROOT / "reconstruction/tests/agent_062_obj_test.cpp"), "-o", str(executable),
+        str(ROOT / "reconstruction/tests/agent_062_obj_test.cpp"), "-lz", "-o", str(executable),
     ], check=True)
     # Explicitly synthetic asymmetric checker: top red/green, bottom blue/white.
     checker = np.array([[[0, 0, 255], [0, 255, 0]], [[255, 0, 0], [255, 255, 255]]], dtype=np.uint8)
