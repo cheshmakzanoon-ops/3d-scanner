@@ -15,8 +15,10 @@ import com.realityforge.scanner.engine.DenseWorkload
 import com.realityforge.scanner.engine.LensCalibration
 import com.realityforge.scanner.engine.NativeCore
 import com.realityforge.scanner.engine.SparsePipeline
+import com.realityforge.scanner.engine.pipeline.ProductionPipelineSnapshot
 import com.realityforge.scanner.engine.pipeline.sha256Utf8
 import com.realityforge.scanner.engine.nativebridge.NativeBoundaryFailure
+import com.realityforge.scanner.engine.diagnostics.*
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
@@ -45,6 +47,8 @@ class ReconstructionExecutionController(
     val current: StateFlow<JobSnapshot?> = mutableCurrent
     private val mutableProgress = MutableStateFlow<ExecutionProgress?>(null)
     val progress: StateFlow<ExecutionProgress?> = mutableProgress
+    private val mutableDiagnosticProgress = MutableStateFlow<StageProgress?>(null)
+    internal val diagnosticProgress: StateFlow<StageProgress?> = mutableDiagnosticProgress
     private val workerId = UUID.randomUUID().toString()
 
     private val initialization = scope.async {
@@ -55,7 +59,7 @@ class ReconstructionExecutionController(
         repository.storageBudget?.recover(queue.map { it.requestId }.toSet())
         // Opening the application never resumes expensive work after force-stop/process death.
         // Queued work remains a durable user-resumable command until a fresh visible action.
-        for (row in queue) if (row.state == "QUEUED") jobs.pause(JobId(row.jobId), System.currentTimeMillis())
+        for (row in queue) if (row.state == "QUEUED") jobs.pause(JobId(row.jobId), System.currentTimeMillis(), "REOPEN_REQUIRES_RESUME")
         mutableCurrent.value = database.jobDao().observeQueue(1000).first().firstOrNull()?.toSnapshot()
         restoreNotifications()
         if (queue.any { it.state == "RUNNING" }) scope.launch {
@@ -88,7 +92,7 @@ class ReconstructionExecutionController(
             .put("resourceSelection", selection.encode()).toString()
         val inputHash = com.realityforge.scanner.data.InputPhotoIdentity.snapshotSha256(input)
         val calibration = LensCalibration.file(repository, projectId)
-        val calibrationHash = sha256Utf8(if (calibration.isFile) calibration.readText() else "pinhole-no-profile-v1")
+        val calibrationHash = ProductionPipelineSnapshot.calibrationSha256(calibration)
         val snapshot = jobs.enqueue(JobInputSnapshot(projectId, revision, operationId, inputHash,
             calibrationHash, sha256Utf8(settings), sha256Utf8(ENGINE_VERSION), ENGINE_VERSION,
             settingsJson = settings), System.currentTimeMillis())
@@ -97,7 +101,7 @@ class ReconstructionExecutionController(
             ContextCompat.startForegroundService(context, Intent(context, ReconstructionService::class.java)
                 .setAction(ReconstructionService.ACTION_START))
         } catch (failure: RuntimeException) {
-            mutableCurrent.value = jobs.pause(snapshot.jobId, System.currentTimeMillis()).snapshot
+            mutableCurrent.value = jobs.pause(snapshot.jobId, System.currentTimeMillis(), "FOREGROUND_START_BLOCKED").snapshot
             throw IllegalStateException("Android could not start processing. Open the app and resume the saved job.", failure)
         }
         snapshot
@@ -139,8 +143,17 @@ class ReconstructionExecutionController(
         suspend fun checkResources() = resourceMutex.withLock { resources.check(requireNotNull(resourcePlan)) }
         var heartbeat: Job? = null
         var token = 0L
+        var diagnostics: RuntimeDiagnosticRecorder? = null
+        var executingPipeline: SparsePipeline? = null
+        fun recordFailure(failure: Throwable): ScanFailure? = diagnostics?.recordFailure(
+            executingPipeline?.activeDiagnosticStage ?: ScanStage.STORAGE, failure)
         try {
             emit(acquired.snapshot)
+            diagnostics = RuntimeDiagnosticRecorder(DiagnosticScope(acquired.snapshot.jobId.value,
+                Math.toIntExact(acquired.snapshot.attempt), input.projectRevision))
+            if (input.engineVersion != ENGINE_VERSION || input.engineSha256 != sha256Utf8(ENGINE_VERSION))
+                throw DiagnosticOperationException(ScanFailure(ScanFailureCode.INPUT_CHANGED, ScanStage.IMPORT,
+                    StageOutcome.FAILED, RecoveryAction.RETRY_JOB, "scan.failure.engine_changed"))
             val settings = JSONObject(input.settingsJson)
             val selection = when (settings.getInt("schema")) {
                 1 -> ResourceWorkloadSelection.COMPACT // Explicit conservative migration of old queued settings.
@@ -166,11 +179,17 @@ class ReconstructionExecutionController(
             }
             checkResources()
             repository.withProjectAccess(access) {
-                check(repository.dao.project(input.projectId)?.revision == input.projectRevision) { "STALE_INPUT" }
+                if (repository.dao.project(input.projectId)?.revision != input.projectRevision)
+                    throw DiagnosticOperationException(ScanFailure(ScanFailureCode.REVISION_MISMATCH, ScanStage.IMPORT,
+                        StageOutcome.FAILED, RecoveryAction.REVIEW_INPUTS, "scan.failure.revision_mismatch"))
                 val currentInputs = repository.inputSnapshot(input.projectId)
-                check(com.realityforge.scanner.data.InputPhotoIdentity.snapshotSha256(currentInputs) == input.inputSha256) { "STALE_INPUT" }
+                if (com.realityforge.scanner.data.InputPhotoIdentity.snapshotSha256(currentInputs) != input.inputSha256)
+                    throw DiagnosticOperationException(ScanFailure(ScanFailureCode.INPUT_CHANGED, ScanStage.IMPORT,
+                        StageOutcome.FAILED, RecoveryAction.REVIEW_INPUTS, "scan.failure.input_changed"))
                 val calibration = LensCalibration.file(repository, input.projectId)
-                check(sha256Utf8(if (calibration.isFile) calibration.readText() else "pinhole-no-profile-v1") == input.calibrationSha256) { "STALE_CALIBRATION" }
+                if (ProductionPipelineSnapshot.calibrationSha256(calibration) != input.calibrationSha256)
+                    throw DiagnosticOperationException(ScanFailure(ScanFailureCode.INPUT_CHANGED, ScanStage.CALIBRATION,
+                        StageOutcome.FAILED, RecoveryAction.RECALIBRATE, "scan.failure.calibration_changed"))
                 if (acquired.snapshot.cursor.acceptedStage != ReconstructionStage.CREATED) {
                     val decision = PipelineJobCheckpointValidator(repository).validate(acquired.snapshot)
                     // Each new attempt receives its own immutable binding. The verified source
@@ -187,7 +206,7 @@ class ReconstructionExecutionController(
                 repository.dao.state(input.projectId, input.projectRevision, "PROCESSING", "Processing local photographs; previous completed results remain available.")
                 token = NativeCore.beginReconstruction()
                 check(nativeToken.compareAndSet(0L, token))
-                val result = SparsePipeline(repository, selection,
+                val processingPipeline = SparsePipeline(repository, selection,
                     com.realityforge.scanner.engine.artifacts.ArtifactBinding(input.projectId, input.projectRevision,
                         acquired.snapshot.jobId.value, acquired.snapshot.attempt),
                     object : com.realityforge.scanner.engine.pipeline.PipelineCheckpointSink {
@@ -213,8 +232,18 @@ class ReconstructionExecutionController(
                             mutableCurrent.value = measured.snapshot
                         }
                     }
-                    })
-                    .run(input.projectId, settings.getDouble("focal35"), token) { update ->
+                    }).apply {
+                        diagnosticRecorder = diagnostics
+                        onDiagnosticProgress = { measured ->
+                            ensureActive()
+                            check(measured.scope.jobId == acquired.snapshot.jobId.value &&
+                                measured.scope.attempt.toLong() == acquired.snapshot.attempt &&
+                                measured.scope.sourceRevision == input.projectRevision)
+                            mutableDiagnosticProgress.value = measured
+                        }
+                    }
+                executingPipeline = processingPipeline
+                val result = processingPipeline.run(input.projectId, settings.getDouble("focal35"), token) { update ->
                     ensureActive()
                     checkResources()
                     mutableProgress.value = ExecutionProgress(acquired.snapshot.jobId.value, input.projectId, acquired.snapshot.attempt, update)
@@ -277,9 +306,15 @@ class ReconstructionExecutionController(
             withContext(NonCancellable) {
                 val persisted = jobs.snapshot(acquired.snapshot.jobId)
                 if (persisted?.state == ReconstructionJobState.COMPLETED) { emit(persisted); return@withContext }
-                resourceFailure.get()?.let {
-                    val paused = jobs.pause(acquired.snapshot.jobId, System.currentTimeMillis()).snapshot
+                val resourcePause = resourceFailure.get()
+                if (resourcePause != null) {
+                    val failure = recordFailure(resourcePause)
+                    val paused = jobs.pause(acquired.snapshot.jobId, System.currentTimeMillis(),
+                        failure?.code?.wireName ?: "RESOURCE_PAUSED").snapshot
                     emit(paused)
+                } else {
+                    diagnostics?.outcome(executingPipeline?.activeDiagnosticStage ?: ScanStage.STORAGE,
+                        if (persisted?.state == ReconstructionJobState.CANCELLED) StageOutcome.CANCELLED else StageOutcome.PAUSED)
                 }
                 leaseMutex.withLock {
                     runCatching { jobs.relinquish(lease, "PROCESSING_INTERRUPTED", System.currentTimeMillis()) }
@@ -290,18 +325,25 @@ class ReconstructionExecutionController(
             throw cancelled
         } catch (paused: ResourceCheckpointPause) {
             withContext(NonCancellable) {
-                emit(jobs.pause(acquired.snapshot.jobId, System.currentTimeMillis()).snapshot)
+                val failure = recordFailure(paused)
+                emit(jobs.pause(acquired.snapshot.jobId, System.currentTimeMillis(),
+                    failure?.code?.wireName ?: "RESOURCE_PAUSED").snapshot)
                 repository.dao.state(input.projectId, input.projectRevision, "INTERRUPTED", paused.message.orEmpty().take(500))
             }
         } catch (failure: Throwable) {
             withContext(NonCancellable) {
                 val persisted = jobs.snapshot(acquired.snapshot.jobId)
                 if (persisted?.state == ReconstructionJobState.COMPLETED) { emit(persisted); return@withContext }
+                val typedFailure = recordFailure(failure)
+                val paused = typedFailure?.outcome == StageOutcome.PAUSED
                 leaseMutex.withLock {
-                    runCatching { jobs.fail(lease, NativeBoundaryFailure.from(failure).name, System.currentTimeMillis()) }
-                        .getOrNull()?.let { emit(it) }
+                    runCatching {
+                        if (paused) jobs.pause(acquired.snapshot.jobId, System.currentTimeMillis(), typedFailure?.code?.wireName).snapshot
+                        else jobs.fail(lease, typedFailure?.code?.wireName ?: NativeBoundaryFailure.from(failure).name, System.currentTimeMillis())
+                    }.getOrNull()?.let { emit(it) }
                 }
-                repository.dao.state(input.projectId, input.projectRevision, "FAILED", failure.message.orEmpty().take(500))
+                repository.dao.state(input.projectId, input.projectRevision, if (paused) "INTERRUPTED" else "FAILED",
+                    failure.message.orEmpty().take(500))
             }
         } finally {
             withContext(NonCancellable) { repository.storageBudget?.release(reservation) }
@@ -311,6 +353,8 @@ class ReconstructionExecutionController(
                 NativeCore.finishReconstruction(token)
             }
             mutableProgress.value = null
+            mutableDiagnosticProgress.value = null
+            diagnostics?.close()
             runningJobId.compareAndSet(acquired.snapshot.jobId, null)
         }
     }
@@ -336,7 +380,10 @@ class ReconstructionExecutionController(
         val current = mutableCurrent.value
         stopNative()
         if (current?.state == ReconstructionJobState.RUNNING) scope.launch {
-            runCatching { pause(current.jobId) }
+            runCatching {
+                val paused = jobs.pause(current.jobId, System.currentTimeMillis(), "PROCESSING_INTERRUPTED").snapshot
+                if (runningJobId.get() == current.jobId || runningJobId.get() == null) mutableCurrent.value = paused
+            }
         }
     }
     private fun stopNative() { nativeToken.get().takeIf { it > 0 }?.let { NativeCore.cancelReconstruction(it) }; worker?.cancel() }

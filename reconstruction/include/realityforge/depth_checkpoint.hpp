@@ -22,6 +22,8 @@ private:
     friend bool load(std::size_t, DenseDepthMap&);
     friend bool store(std::size_t, const DenseDepthMap&);
 };
+// Read-only access for a dependent accepted-surface checkpoint; lifetime remains scoped by caller.
+const Scope* current() noexcept;
 // Corrupt, wrong-sized and truncated files are cache misses, never accepted geometry.
 bool load(std::size_t referenceCamera, DenseDepthMap& map);
 // Best effort write; all files are private, bounded, checksummed and atomically published.

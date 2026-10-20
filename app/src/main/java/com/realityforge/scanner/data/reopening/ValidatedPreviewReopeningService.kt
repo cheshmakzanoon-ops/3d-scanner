@@ -9,6 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.security.DigestInputStream
+import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 
 /** C6 compatibility returns JSON only after the same strict typed validation used by new readers. */
@@ -33,14 +37,27 @@ class ValidatedPreviewReopeningService(
         val before = dao.project(projectId) ?: return@withContext ReopenResult.Missing to null
         val scope = coroutineContext
         try {
-            val published = if (previous) publications?.previous(projectId) else publications?.current(projectId)
+            if (before.state in setOf("DELETING", "DELETING_PHOTO", "DELETED")) return@withContext ReopenResult.Changed to null
+            val resultRevision = before.resultRevision ?: return@withContext ReopenResult.Missing to null
+            require(resultRevision <= before.revision) { "Saved result is from an impossible future revision." }
+            val stale = resultRevision != before.revision
+            if (!previous && stale) return@withContext ReopenResult.Missing to null
+            // Input edits retain the latest completed set in the current publication slot. In that
+            // state it is the user's previous result; selecting previousCompletedResult would skip
+            // it and display an older, penultimate reconstruction instead.
+            val usePreviousHead = previous && !stale
+            val published = if (usePreviousHead) publications?.previous(projectId) else publications?.current(projectId)
             if (published is PublicationReadResult.Invalid)
                 return@withContext ReopenResult.Invalid("invalid_artifact_set", published.reason.take(300)) to null
             val verified = (published as? PublicationReadResult.Verified)?.value
-            if (previous && verified == null) return@withContext ReopenResult.Missing to null
-            if (!previous && before.resultRevision != before.revision) return@withContext ReopenResult.Missing to null
+            if (usePreviousHead && verified == null) return@withContext ReopenResult.Missing to null
             val key = before.resultKey ?: return@withContext ReopenResult.Missing to null
-            val revision = verified?.manifest?.identity?.projectRevision ?: before.revision
+            val revision = verified?.manifest?.identity?.projectRevision ?: resultRevision
+            if (verified != null) {
+                require(verified.manifest.identity.projectId == projectId && verified.pointer.projectId == projectId)
+                require(verified.pointer.projectRevision == revision && revision <= before.revision)
+                if (!usePreviousHead) require(revision == resultRevision) { "Saved result pointer disagrees with the project." }
+            }
             val file = if (verified != null) {
                 verified.artifact(previewLogicalName)
                     ?: return@withContext ReopenResult.Invalid("missing_preview", "Completed artifact set has no preview.") to null
@@ -49,11 +66,20 @@ class ValidatedPreviewReopeningService(
                 check(paths.artifactRevision(key) == revision) { "Saved preview revision is inconsistent." }
                 paths.artifact(projectId, key, "json")
             }
-            require(file.isFile && file.length() in 2..PreviewSchemaValidator.MAX_BYTES.toLong()) {
+            require(paths.requireOwnedFile(file).projectId == projectId)
+            require(Files.isRegularFile(file.toPath(), LinkOption.NOFOLLOW_LINKS) && file.length() in 2..PreviewSchemaValidator.MAX_BYTES.toLong()) {
                 "Saved preview is missing or exceeds its memory budget."
             }
-            val json = file.inputStream().use { BoundedJson.read(it, PreviewSchemaValidator.MAX_BYTES) { scope.ensureActive() } }
-            val expectedKey = if (previous && verified != null) {
+            val expectedEntry = verified?.manifest?.entries?.single { it.declaration.logicalName == previewLogicalName }
+            if (expectedEntry != null) require(file.length() == expectedEntry.bytes) { "Preview length changed after set verification." }
+            val digest = MessageDigest.getInstance("SHA-256")
+            val json = DigestInputStream(file.inputStream(), digest).use {
+                BoundedJson.read(it, PreviewSchemaValidator.MAX_BYTES) { scope.ensureActive() }
+            }
+            if (expectedEntry != null) require(digest.digest().joinToString("") { "%02x".format(it.toInt() and 255) } == expectedEntry.sha256) {
+                "Preview bytes changed after set verification."
+            }
+            val expectedKey = if (usePreviousHead && verified != null) {
                 // The immutable set verifies bytes; accept its encoded legacy key only at the pointer revision.
                 val stored = json.get("artifactKey") as? String ?: error("Saved preview has no artifact key.")
                 check(paths.artifactRevision(stored) == revision)
@@ -64,7 +90,9 @@ class ValidatedPreviewReopeningService(
             if (after == null || after.revision != before.revision || after.resultKey != before.resultKey ||
                 after.resultRevision != before.resultRevision) return@withContext ReopenResult.Changed to null
             scope.ensureActive()
-            validated to if (validated is ReopenResult.Ready) json else null
+            if (validated is ReopenResult.Ready) {
+                validated.copy(publicationSetId = verified?.manifest?.setId) to json
+            } else validated to null
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled
         } catch (failure: Exception) {
             ReopenResult.Invalid("preview_load_failed", failure.message?.take(300) ?: "Saved preview could not be loaded.") to null

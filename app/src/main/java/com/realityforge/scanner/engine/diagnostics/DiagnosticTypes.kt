@@ -33,6 +33,7 @@ internal enum class StageOutcome(val wireName: String) {
     PARTIAL("PARTIAL"),
     FAILED("FAILED"),
     CANCELLED("CANCELLED"),
+    PAUSED("PAUSED"),
     NOT_RUN("NOT_RUN"),
     UNSUPPORTED("UNSUPPORTED"),
     BLOCKED_BY_DEPENDENCY("BLOCKED_BY_DEPENDENCY");
@@ -46,6 +47,7 @@ internal enum class RecoveryAction(val wireName: String) {
     NONE("NONE"),
     RETRY_STAGE("RETRY_STAGE"),
     RETRY_JOB("RETRY_JOB"),
+    RESUME_JOB("RESUME_JOB"),
     RECAPTURE_OVERLAP("RECAPTURE_OVERLAP"),
     RECAPTURE_SIDEWAYS("RECAPTURE_SIDEWAYS"),
     RECAPTURE_TEXTURE("RECAPTURE_TEXTURE"),
@@ -79,6 +81,12 @@ internal enum class ProgressUnit(val wireName: String) {
 
 internal enum class ScanFailureCode(val wireName: String) {
     CANCELLED("CANCELLED"),
+    RESOURCE_EXHAUSTED("RESOURCE_EXHAUSTED"),
+    RESOURCE_PAUSED("RESOURCE_PAUSED"),
+    NATIVE_LIBRARY_UNAVAILABLE("NATIVE_LIBRARY_UNAVAILABLE"),
+    PROJECT_ACCESS_BLOCKED("PROJECT_ACCESS_BLOCKED"),
+    STORAGE_MEASUREMENT_UNAVAILABLE("STORAGE_MEASUREMENT_UNAVAILABLE"),
+    IO_FAILURE("IO_FAILURE"),
     STORAGE_FULL("STORAGE_FULL"),
     STORAGE_PERMISSION_REVOKED("STORAGE_PERMISSION_REVOKED"),
     INPUT_CORRUPT("INPUT_CORRUPT"),
@@ -129,7 +137,7 @@ internal sealed class DiagnosticValue {
             require(value.none { it.isISOControl() }) { "Diagnostic text contains control characters." }
             val lowered = value.lowercase()
             require(
-                listOf("://", "content:", "file:", "data:image", "/sdcard", "/storage/", "\\").none {
+                listOf("://", "content:", "file:", "data:image", "/", "\\").none {
                     lowered.contains(it)
                 },
             ) { "Diagnostic text must not contain paths, URIs, or embedded image data." }
@@ -191,7 +199,7 @@ internal data class DiagnosticReportIdentity(
     init {
         jobId?.let { requireSafeIdentifier(it, "jobId") }
         artifactId?.let { requireSafeIdentifier(it, "artifactId") }
-        engineVersion?.let { requireSafeIdentifier(it, "engineVersion") }
+        engineVersion?.let(::requireEngineVersion)
         settingsFingerprint?.let { requireSafeIdentifier(it, "settingsFingerprint") }
         require(source in setOf("EXPLICIT_JOB", "DERIVED_FROM_ARTIFACT", "UNBOUND")) {
             "Unknown diagnostic identity source."
@@ -234,5 +242,13 @@ internal fun requireSafeIdentifier(value: String, label: String) {
     require(value.length in 1..160) { "$label length is invalid." }
     require(value.matches(Regex("[A-Za-z0-9][A-Za-z0-9._:+@-]*"))) {
         "$label must be an opaque identifier, not a path or URI."
+    }
+}
+
+/** Compatibility domains are versioned independently and joined by a literal pipe. */
+private fun requireEngineVersion(value: String) {
+    require(value.length in 1..160) { "engineVersion length is invalid." }
+    require(value.matches(Regex("[A-Za-z0-9][A-Za-z0-9._+@-]*(\\|[A-Za-z0-9][A-Za-z0-9._+@-]*)*"))) {
+        "engineVersion must contain bounded version identifiers, not a path or URI."
     }
 }

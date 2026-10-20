@@ -28,8 +28,3 @@ internal class ResourceCheckpointGate(
         return decision
     }
 }
-
-/** Execution owner maps this to durable PAUSED, retaining depth checkpoints and prior results. */
-internal class ResourceCheckpointPause(val decision: ResourcePolicyDecision) : IllegalStateException(
-    "Processing paused at a checkpoint: ${decision.reasons.joinToString()}",
-)

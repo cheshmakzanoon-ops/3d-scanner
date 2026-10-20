@@ -17,7 +17,7 @@ interface ExecutionPublicationDao {
     fun complete(jobId: String, attempt: Long, stateVersion: Long, leaseToken: String,
         setId: String, manifestSha256: String, now: Long): Int
 
-    @Query("UPDATE projects SET state = 'SPARSE_READY', resultRevision = :revision, resultKey = :artifactKey, message = :message WHERE id = :projectId AND revision = :revision AND state NOT IN ('DELETING', 'DELETING_PHOTO')")
+    @Query("UPDATE projects SET state = 'SPARSE_READY', resultRevision = :revision, resultKey = :artifactKey, message = :message WHERE id = :projectId AND revision = :revision AND state NOT IN ('DELETING', 'DELETING_PHOTO', 'RECOVERY_REQUIRED')")
     fun publishProject(projectId: String, revision: Long, artifactKey: String, message: String): Int
 
     @Insert

@@ -163,8 +163,12 @@ class ScannerViewModel(
                 if (coordinator.activeOperation() == null) busy.value = processing
                 if (job?.state == com.realityforge.scanner.data.jobs.ReconstructionJobState.COMPLETED && selectedId.value == job.input.projectId) {
                     val source = ProjectRevision(job.input.projectId, job.input.projectRevision)
-                    val saved = withContext(dispatchers.io) { runCatching { repository.currentPreview(source.projectId) }.getOrNull() }
-                    if (selectedId.value == source.projectId && saved != null) {
+                    val saved = withContext(dispatchers.io) {
+                        runCatching { repository.currentPreview(source.projectId)?.let(
+                            com.realityforge.scanner.data.reopening.PreviewUiSummary::fromValidated) }.getOrNull()
+                    }
+                    if (selectedId.value == source.projectId && saved != null &&
+                        saved.optLong("revision", -1) == source.revision && selectedProject.value?.revision == source.revision) {
                         preview.value = saved
                         typedPreview.value = PreviewState.Ready(source, saved.getString("artifactKey"), representationOf(saved))
                     }
@@ -252,14 +256,16 @@ class ScannerViewModel(
         return ProjectRevision(project.id, project.revision)
     }
 
-    private suspend fun requireCurrent(source: ProjectRevision): ScanProject {
+    private suspend fun requireCurrent(source: ProjectRevision, allowPendingPhotoDeletion: Boolean = false): ScanProject {
         val project = requireNotNull(repository.dao.project(source.projectId)) {
             "Project no longer exists."
         }
         check(project.revision == source.revision) {
             "Project changed after this request was opened. Repeat the operation for the current revision."
         }
-        check(project.state !in setOf("DELETING", "DELETING_PHOTO")) { "Project deletion is pending. Retry deletion before changing this project." }
+        check(project.state != "DELETING" && (allowPendingPhotoDeletion || project.state != "DELETING_PHOTO")) {
+            "Project deletion is pending. Retry deletion before changing this project."
+        }
         return project
     }
 
@@ -403,14 +409,14 @@ class ScannerViewModel(
     }
 
     /** Bind the selected project before dispatching any UI-initiated library or curation mutation. */
-    fun projectCommand(action: suspend (ProjectRevision) -> String) {
+    fun projectCommand(allowPendingPhotoDeletion: Boolean = false, action: suspend (ProjectRevision) -> String) {
         val source = selectedSource() ?: return
         val context = reserveOperation(OperationKind.EDIT_PROJECT, source) ?: return
         task = viewModelScope.launch {
             try {
                 recovery.await()
                 val message = withContext(dispatchers.io) {
-                    requireCurrent(source)
+                    requireCurrent(source, allowPendingPhotoDeletion)
                     action(source)
                 }
                 publishMessage("project.command_completed", message)
@@ -476,7 +482,8 @@ class ScannerViewModel(
                                     CalibrationState.Invalid(id, error.message.orEmpty())
                             },
                         )
-                        Triple(project, status, repository.currentPreview(id))
+                        Triple(project, status, repository.currentPreview(id)?.let(
+                            com.realityforge.scanner.data.reopening.PreviewUiSummary::fromValidated))
                     }
                     ensureActive()
                     // Main-thread publication cannot race another UI operation's reservation.
@@ -798,15 +805,20 @@ class ScannerViewModel(
         super.onCleared()
     }
 
-    fun deleteSelected() {
+    fun deleteSelected(confirmedSource: ProjectRevision? = null) {
         val source = selectedSource() ?: return
+        if (confirmedSource != null && confirmedSource != source) {
+            publishMessage("project.delete_stale", "The selected project changed. Open the deletion confirmation again.")
+            return
+        }
         val context = reserveOperation(OperationKind.DELETE_PROJECT, source) ?: return
         task = viewModelScope.launch {
             var deleted = false
             try {
                 withContext(dispatchers.io) {
-                    requireCurrent(source)
-                    repository.delete(source.projectId)
+                    val current = requireNotNull(repository.dao.project(source.projectId)) { "Project no longer exists." }
+                    check(current.revision == source.revision) { "Project changed after deletion was confirmed." }
+                    repository.deleteConfirmed(source.projectId, source.revision)
                 }
                 deleted = true
             } catch (_: CancellationException) {

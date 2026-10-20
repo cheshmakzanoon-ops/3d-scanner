@@ -1,0 +1,26 @@
+[ 33%] Built target realityforge
+[ 35%] Linking CXX executable rf_native_tests
+[ 38%] Linking CXX executable rf_multiview_tests
+[ 41%] Built target rf_native_tests
+[ 43%] Built target rf_multiview_tests
+[ 46%] Linking CXX executable rf_bundle_tests
+[ 48%] Linking CXX executable rf_dense_tests
+[ 51%] Built target rf_bundle_tests
+[ 53%] Built target rf_dense_tests
+[ 56%] Linking CXX executable rf_surface_tests
+[ 58%] Linking CXX executable rf_texture_tests
+[ 61%] Built target rf_texture_tests
+[ 64%] Linking CXX executable rf_photometric_tests
+[ 66%] Built target rf_surface_tests
+[ 69%] Linking CXX executable rf_stereo_warp_tests
+[ 71%] Built target rf_photometric_tests
+[ 74%] Linking CXX executable rf_dense_selection_tests
+[ 76%] Built target rf_stereo_warp_tests
+[ 79%] Linking CXX executable rf_cancellation_tests
+[ 82%] Built target rf_dense_selection_tests
+[ 84%] Built target rf_cancellation_tests
+[ 87%] Linking CXX executable rf_depth_checkpoint_tests
+[ 89%] Linking CXX executable rf_boundary_tests
+[ 92%] Built target rf_depth_checkpoint_tests
+[ 97%] Built target rf_surface_checkpoint_tests
+[100%] Built target rf_boundary_tests

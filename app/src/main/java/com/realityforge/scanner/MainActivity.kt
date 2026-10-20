@@ -16,9 +16,8 @@ class MainActivity : ComponentActivity() {
         setContent { ScannerApp(model) }
     }
 
-    // M01 intentionally does not claim unlimited background reconstruction. Native pair calls
-    // are bounded; cancellation is applied on return and before artifacts become current.
-    // Agent 008 owns the durable runner/service gate required before this policy can be removed.
+    // UI host events do not own the foreground runner's lifetime. The application controller
+    // retains its durable job/attempt; platform service interruption follows the C7 policy.
     override fun onStop() {
         model.onHostStopped()
         super.onStop()

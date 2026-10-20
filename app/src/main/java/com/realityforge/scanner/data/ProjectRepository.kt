@@ -18,6 +18,7 @@ import com.realityforge.scanner.data.operations.ProjectMissingException
 import com.realityforge.scanner.data.operations.ProjectOperationKind
 import com.realityforge.scanner.data.operations.ProjectOperationRequest
 import com.realityforge.scanner.data.operations.ProjectPathPolicy
+import com.realityforge.scanner.data.operations.ProjectRecoveryAdmission
 import com.realityforge.scanner.data.operations.ProjectStorageServices
 import com.realityforge.scanner.data.operations.StaleProjectRevisionException
 import kotlinx.coroutines.Dispatchers
@@ -147,6 +148,21 @@ class ProjectRepository(
         }
     }
 
+    /** Keep an irreversible UI confirmation bound to the revision the user actually reviewed. */
+    suspend fun deleteConfirmed(id: String, expectedRevision: Long) {
+        require(expectedRevision >= 0) { "The confirmed project revision is invalid." }
+        if (services.deletion is com.realityforge.scanner.data.deletion.DurableProjectDeletionService) {
+            services.deletion.deleteConfirmed(id, expectedRevision)
+            return
+        }
+        val request = ProjectOperationRequest.create(
+            projectId = id,
+            kind = ProjectOperationKind.DELETE_PROJECT,
+            expectedRevision = expectedRevision,
+        )
+        withProjectAccess(request) { services.deletion.delete(id) }
+    }
+
     suspend fun delete(id: String) {
         if (services.deletion is com.realityforge.scanner.data.deletion.DurableProjectDeletionService) {
             services.deletion.delete(id)
@@ -159,6 +175,19 @@ class ProjectRepository(
             expectedRevision = project.revision,
         )
         withProjectAccess(request) { services.deletion.delete(id) }
+    }
+
+    /** Owner 022 retains the immutable confirmation and acquires its own exclusive C6 lease. */
+    suspend fun deletePhoto(
+        projectId: String,
+        photoId: String,
+        expectedRevision: Long,
+        expectedRemovalRequestId: String? = null,
+        expectedOriginalSha256: String? = null,
+    ) {
+        val deletion = services.deletion as? com.realityforge.scanner.data.deletion.DurableProjectDeletionService
+            ?: error("Durable photo removal is unavailable.")
+        deletion.deletePhoto(projectId, photoId, expectedRevision, expectedRemovalRequestId, expectedOriginalSha256)
     }
 
     /** Atomic within this private filesystem; power-loss durability remains owner 023's publication gate. */
@@ -265,6 +294,12 @@ class ProjectRepository(
     override suspend fun <T> withProjectAccess(
         request: ProjectOperationRequest,
         block: suspend (ProjectAccessSession) -> T,
+    ): T = withProjectAccessInternal(request, recovering = false, block = block)
+
+    private suspend fun <T> withProjectAccessInternal(
+        request: ProjectOperationRequest,
+        recovering: Boolean,
+        block: suspend (ProjectAccessSession) -> T,
     ): T {
         val lease = withContext(Dispatchers.IO) { coordinator.acquire(request) }
         var session: ProjectAccessSession? = null
@@ -279,6 +314,7 @@ class ProjectRepository(
                 request.kind != ProjectOperationKind.DELETE_PROJECT) {
                 throw ProjectAccessException("Project deletion is pending. Retry deletion before opening or changing this project.")
             }
+            if (!recovering) ProjectRecoveryAdmission.requireAllowed(before.state, request.kind)
             val activeSession = ProjectAccessSession(
                 request = request,
                 acquiredRevision = before.revision,
@@ -324,21 +360,67 @@ class ProjectRepository(
         (services.captureArchive as? com.realityforge.scanner.data.archives.ProjectCaptureArchiveService)?.recover()
         database?.let { com.realityforge.scanner.data.library.RoomProjectLibraryPort(it, paths.root).recoverAbandoned() }
         (services.deletion as? com.realityforge.scanner.data.deletion.DurableProjectDeletionService)?.recoverPending()
-        publications?.reconcile()
         val importer = services.photoImport as? BoundPhotoImportService
         importer?.recoverAbandonedStaging()
         if (importer != null && database != null) {
             for (id in database.executionPublicationDao().projectIds()) {
                 val project = rawDao.project(id) ?: continue
                 if (project.state in setOf("DELETING", "DELETING_PHOTO")) continue
-                withProjectAccess(ProjectOperationRequest.create(id, ProjectOperationKind.IMPORT_PHOTO)) {
-                    calibrationPublication?.recover(id)?.let { check(it.failures.isEmpty()) {
-                        "Optical profile recovery is incomplete. Processing is blocked until the profile can be recovered."
-                    } }
-                    importer.recover(id)
-                }
+                recoverProjectStorage(id)
             }
         }
+    }
+
+    /** An explicit retry uses the same exclusive reservation; corruption never enables a mutation. */
+    suspend fun recoverProjectStorage(projectId: String): Boolean = withContext(Dispatchers.IO) {
+        val importer = services.photoImport as? BoundPhotoImportService ?: return@withContext true
+        try {
+            withProjectAccessInternal(ProjectOperationRequest.create(projectId, ProjectOperationKind.IMPORT_PHOTO),
+                recovering = true) {
+                try {
+                    val prior = rawDao.project(projectId) ?: throw ProjectMissingException(projectId)
+                    val retrying = prior.state == ProjectRecoveryAdmission.STATE
+                    if (retrying) check(rawDao.transitionState(projectId, prior.revision, ProjectRecoveryAdmission.STATE,
+                        "INTERRUPTED", "Recovering project storage.") == 1)
+                    // The exclusive recovery reservation remains held during this temporary
+                    // state. Only the journal adapters can publish their verified recovery here.
+                    publications?.reconcileProject(projectId)?.let { check(it.corruptJournals == 0) }
+                    calibrationPublication?.recover(projectId)?.let { check(it.failures.isEmpty()) }
+                    importer.recover(projectId)
+                    val project = rawDao.project(projectId) ?: throw ProjectMissingException(projectId)
+                    if (retrying && project.state == "INTERRUPTED") {
+                        val restoredState = when {
+                            project.resultRevision == project.revision && project.resultKey != null -> "SPARSE_READY"
+                            rawDao.photos(projectId).isNotEmpty() -> "READY"
+                            else -> "NEW"
+                        }
+                        check(rawDao.transitionState(projectId, project.revision, "INTERRUPTED",
+                            restoredState, "Storage recovery completed. Saved inputs and results are available.") == 1)
+                    }
+                    true
+                } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled
+                } catch (_: Exception) {
+                    markRecoveryRequired(projectId)
+                    false
+                }
+            }
+        } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled
+        } catch (_: com.realityforge.scanner.data.operations.ProjectOperationConflictException) {
+            false // Another live operation retains the reservation; its project is not called corrupt.
+        } catch (_: ProjectMissingException) {
+            true
+        } catch (_: Exception) {
+            // Broken owned paths may fail before a filesystem lease is obtainable. A revision-CAS
+            // admission marker still fences subsequent work; no unowned bytes are changed here.
+            markRecoveryRequired(projectId)
+            false
+        }
+    }
+
+    private suspend fun markRecoveryRequired(projectId: String) {
+        val current = rawDao.project(projectId) ?: return
+        if (current.state !in setOf("DELETING", "DELETING_PHOTO"))
+            rawDao.state(projectId, current.revision, ProjectRecoveryAdmission.STATE, ProjectRecoveryAdmission.MESSAGE)
     }
 
     private fun defaultServices(): ProjectStorageServices {

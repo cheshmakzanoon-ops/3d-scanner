@@ -197,7 +197,11 @@ def test_incremental_registration_uses_shared_triangulation_and_verified_landmar
     assert "validatePose(" in source and "projectedError(" in source
     assert "NativeCore.reconstructMultiview" in bridge and "NativeCore.registerCamera" in bridge
     assert "IncrementalRegistration.grow(" in pipeline and "incrementalRegistrationFailure" in pipeline
-    assert "m16-registration-frontier-1" in pipeline and ".take(66)" in pipeline
+    identity=(folder/"pipeline/ProductionPipelineSnapshot.kt").read_text()
+    compatibility=(folder/"pipeline/ProductionEngineCompatibility.kt").read_text()
+    assert "m16-registration-frontier-1" in compatibility
+    assert "ProductionEngineCompatibility.VALUE" in identity and "pipelineSnapshot.engineVersion" in pipeline
+    assert ".take(66)" in pipeline
 
 
 def test_track_snapshot_enforces_native_observation_bound():
@@ -270,7 +274,9 @@ def test_m19_persisted_scan_evidence_and_local_export():
     model=(root/"ScannerViewModel.kt").read_text()
     assert "RECIPROCAL" in engine.upper() and "PHOTOS_NOT_REGISTERED" in engine
     assert "NOT 360-degree completeness" in report
-    assert 'output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))' in pipeline
+    assert 'ScanQualityReport.build(output, photos.size, diagnosticRecorder?.snapshot())' in pipeline
+    assert 'diagnosticProgress.collectAsStateWithLifecycle()' in ui
+    assert 'measured.scope.sourceRevision == job.input.projectRevision' in ui
     assert 'rememberBoundExporter(model, "json", "application/json")' in ui
     assert "model.beginArtifactExportRequest(extension)" in ui
     assert "model.completeArtifactExport(captured, uri)" in ui

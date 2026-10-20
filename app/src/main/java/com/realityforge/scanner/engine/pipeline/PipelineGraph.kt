@@ -15,13 +15,20 @@ data class PipelineCheckpoint(
     }
 
     fun isReusable(expected: PipelineStageIdentity): Boolean =
-        committed && identity == expected &&
+        committed && identity.stage == expected.stage && identity.schema == expected.schema &&
+            identity.digest == expected.digest && identity.parentDigest == expected.parentDigest &&
             artifact.identity.projectId == expected.projectId &&
-            artifact.identity.sourceRevision == expected.sourceRevision &&
             artifact.representation == expected.stage.representation
+
+    /** Explicit ownership rebind; the committed bytes and measured content identity remain exact. */
+    fun rebound(expected: PipelineStageIdentity): PipelineCheckpoint {
+        require(isReusable(expected)) { "Cannot rebind changed or incomplete stage content." }
+        return if (identity == expected) this else copy(identity = expected,
+            artifact = artifact.copy(identity = expected))
+    }
 }
 
-/** Agent 009 supplies the durable implementation; this contract forbids partial publication. */
+/** Stores return independently verified committed records, never unchecked or partial file pointers. */
 interface PipelineCheckpointStore {
     suspend fun latest(projectId: String, stage: PipelineStage): PipelineCheckpoint?
     suspend fun commit(checkpoint: PipelineCheckpoint)
@@ -162,7 +169,9 @@ class PipelineGraph(
             val expected = snapshot.identity(stage)
             val previous = checkpoints.latest(snapshot.projectId, stage)
             if (previous?.isReusable(expected) == true) {
-                artifacts[stage] = previous.artifact
+                val bound = previous.rebound(expected)
+                if (bound !== previous) checkpoints.commit(bound)
+                artifacts[stage] = bound.artifact
                 trace += PipelineStageTrace(
                     stage,
                     expected.digest,

@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "source_checkpoint": "d758de993a6b4d2f12dbc7bd30ea98b31c193784",
+  "recorded_at_utc": "2026-10-20T05:03:16.081974+00:00",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+  "python": "3.12.14",
+  "compiler": "c++ (Ubuntu 13.3.0-6ubuntu2~24.04) 13.3.0",
+  "validation_scope": "GNU host C++ and Python at the local source checkpoint; no Android execution or physical scene qualification",
+  "commands": [
+    {
+      "command": "cmake -S . -B build/host -DCMAKE_BUILD_TYPE=Release",
+      "exit_code": 0,
+      "note": "Configuration completed before the implementation commit; the identical generated build was rebuilt below."
+    },
+    {
+      "command": "cmake --build build/host -j 2",
+      "exit_code": 0,
+      "log": "native-build.log"
+    },
+    {
+      "command": "ctest --test-dir build/host --output-on-failure",
+      "exit_code": 0,
+      "tests": 13,
+      "failed": 0,
+      "log": "native-ctest.log"
+    },
+    {
+      "command": "build/host/rf_surface_checkpoint_tests",
+      "exit_code": 0,
+      "cases": 10,
+      "failed": 0,
+      "log": "native-surface-checkpoint.log"
+    },
+    {
+      "command": "python -m pytest -q",
+      "exit_code": 1,
+      "passed": 123,
+      "failed": 3,
+      "log": "pytest.log",
+      "failure_scope": "Two existing source-string assertions after adapter moves, plus the final source manifest deferred to the integration owner."
+    },
+    {
+      "command": "c++ -std=c++20 -Wall -Wextra -Wpedantic -fsyntax-only -Ireconstruction/include -I/usr/lib/jvm/java-17-openjdk-amd64/include -I/usr/lib/jvm/java-17-openjdk-amd64/include/linux reconstruction/src/jni.cpp",
+      "exit_code": 0,
+      "log": "jni-syntax.log",
+      "note": "JNI syntax only; does not establish Android compilation or execution."
+    }
+  ],
+  "logs": {
+    "jni-syntax.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-build.log": {
+      "bytes": 1147,
+      "sha256": "32b2f10e7e9528be8220330f50466ab1440ee07f7344135330307a0dc3b4dc58"
+    },
+    "native-ctest.log": {
+      "bytes": 1677,
+      "sha256": "6c3bef1d216e5f103f5280094855f9efe90fe571af8ecc2a347ffb904622627d"
+    },
+    "native-surface-checkpoint.log": {
+      "bytes": 962,
+      "sha256": "854e7425a811014fd82ee54f75280b511750eac5e5377af831f9c8dc658b4944"
+    },
+    "pytest.log": {
+      "bytes": 4783,
+      "sha256": "106833d66adb09340e1d732131fa98647acc4638510963c49b57afa8b203834c"
+    }
+  },
+  "android_compile": "NOT_RUN in this checkpoint",
+  "android_instrumentation": "NOT_RUN",
+  "physical_benchmark": "NOT_RUN"
+}

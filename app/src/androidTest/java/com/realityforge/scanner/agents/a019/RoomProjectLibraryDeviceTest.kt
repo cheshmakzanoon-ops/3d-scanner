@@ -50,13 +50,14 @@ class RoomProjectLibraryDeviceTest {
             File(root, source.id).deleteRecursively()
             database.close()
             val context = InstrumentationRegistry.getInstrumentation().targetContext
-            Room.databaseBuilder(context, ScanDatabase::class.java, name).build().use { reopened ->
+            val reopened = Room.databaseBuilder(context, ScanDatabase::class.java, name).build()
+            try {
                 assertEquals("PUBLISHED", reopened.libraryDao().reservation(result)?.phase)
                 assertEquals(copied.map { it.sha256 }, copied.map {
                     hash(File(File(File(root, result), "originals"), it.filename))
                 })
                 assertEquals(copied.size, reopened.dao().photos(result).size)
-            }
+            } finally { reopened.close() }
         }
     }
 

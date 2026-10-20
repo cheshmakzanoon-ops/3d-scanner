@@ -16,6 +16,7 @@ import com.realityforge.scanner.engine.diagnostics.MAX_DIAGNOSTIC_EVENTS
 import com.realityforge.scanner.engine.diagnostics.MAX_DIAGNOSTIC_FAILURES
 import com.realityforge.scanner.engine.diagnostics.ProgressUnit
 import com.realityforge.scanner.engine.diagnostics.RecoveryAction
+import com.realityforge.scanner.engine.diagnostics.RuntimeDiagnosticSnapshot
 import com.realityforge.scanner.engine.diagnostics.ScaleKind
 import com.realityforge.scanner.engine.diagnostics.ScanFailure
 import com.realityforge.scanner.engine.diagnostics.ScanFailureCode
@@ -63,7 +64,11 @@ internal object ScanQualityReport {
     private fun JSONObject.putNullable(key: String, value: Any?): JSONObject =
         put(key, value ?: JSONObject.NULL)
 
-    fun build(result: JSONObject, importedPhotos: Int): JSONObject {
+    fun build(
+        result: JSONObject,
+        importedPhotos: Int,
+        runtime: RuntimeDiagnosticSnapshot? = null,
+    ): JSONObject {
         val registered = result.optInt("registeredCameras", 0)
         val sparse = result.optInt("pointCount", 0)
         val dense = result.optJSONObject("densePreview")
@@ -72,7 +77,14 @@ internal object ScanQualityReport {
         val fraction = texture?.let {
             finiteNonnegative(it, "faceCoverage")?.takeIf { coverage -> coverage <= 1 }
         }
-        val failures = legacyFailures(result)
+        val identity = identity(result)
+        runtime?.let {
+            require(identity.jobId == it.scope.jobId && identity.attempt == it.scope.attempt &&
+                identity.sourceRevision == it.scope.sourceRevision) {
+                "Runtime diagnostics do not belong to this exact artifact job attempt."
+            }
+        }
+        val failures = runtimeFailures(runtime, legacyFailures(result))
         val topologyKind = when {
             mesh == null || mesh.optInt("triangleCount", 0) == 0 -> TopologyKind.UNKNOWN
             mesh.optBoolean("watertight", false) &&
@@ -115,9 +127,9 @@ internal object ScanQualityReport {
             stageFailures = failures,
         )
         val summary = ScanQualityEvidence.assess(measurements)
-        val identity = identity(result)
         val recommendations = recommendations(summary)
-        val events = terminalEvents(identity, failures)
+        val events = runtime?.events ?: terminalEvents(identity, failures)
+        val progress = runtime?.progress.orEmpty()
 
         return JSONObject()
             .put("schema", DIAGNOSTIC_SCHEMA_VERSION)
@@ -142,6 +154,7 @@ internal object ScanQualityReport {
             .put("outcomes", outcomesToJson(summary.evidence.conditions, failures))
             .put("stageFailures", JSONArray().apply { failures.forEach { put(failureToJson(it)) } })
             .put("events", JSONArray().apply { events.forEach { put(eventToJson(it)) } })
+            .put("progressEvents", JSONArray().apply { progress.forEach { put(progressToJson(it)) } })
             .put("recommendations", JSONArray().apply { recommendations.forEach { put(findingToJson(it)) } })
     }
 
@@ -164,6 +177,19 @@ internal object ScanQualityReport {
         .put("actionCode", failure.action.wireName)
         .put("messageKey", failure.messageKey)
         .put("context", contextToJson(failure.context))
+
+    private fun runtimeFailures(
+        runtime: RuntimeDiagnosticSnapshot?,
+        compatibility: List<ScanFailure>,
+    ): List<ScanFailure> {
+        if (runtime == null) return compatibility
+        // Preserve measured per-stage/per-scene contexts. Legacy adapter fallbacks fill only
+        // absent codes; they cannot replace an owner's exact typed failure with generic copy.
+        val measured = runtime.failures
+        return (measured + compatibility.filter { old -> measured.none {
+            it.stage == old.stage && it.code == old.code
+        } }).take(MAX_DIAGNOSTIC_FAILURES)
+    }
 
     /**
      * Validate a report before local import/export and rebuild it from an allowlist. Unknown
@@ -576,6 +602,7 @@ internal object ScanQualityReport {
             .put("outcomes", outcomesToJson(conditions, emptyList()))
             .put("stageFailures", JSONArray())
             .put("events", JSONArray())
+            .put("progressEvents", JSONArray())
             .put("recommendations", JSONArray().apply {
                 recommendations.forEach { put(findingToJson(it)) }
             })
@@ -631,6 +658,10 @@ internal object ScanQualityReport {
             conditions,
         )
         val events = parseEvents(input.optJSONArray("events"), identity)
+        val progress = parseProgressEvents(input.optJSONArray("progressEvents"), identity)
+        require(events.size + progress.size <= MAX_DIAGNOSTIC_EVENTS) { "Diagnostic history is oversized." }
+        require((events.map { it.sequence } + progress.map { it.sequence }).distinct().size ==
+            events.size + progress.size) { "Diagnostic history contains duplicate sequences." }
 
         return JSONObject()
             .put("schema", DIAGNOSTIC_SCHEMA_VERSION)
@@ -654,6 +685,7 @@ internal object ScanQualityReport {
             .put("outcomes", outcomesToJson(conditions, failures))
             .put("stageFailures", JSONArray().apply { failures.forEach { put(failureToJson(it)) } })
             .put("events", JSONArray().apply { events.forEach { put(eventToJson(it)) } })
+            .put("progressEvents", JSONArray().apply { progress.forEach { put(progressToJson(it)) } })
             .put("recommendations", JSONArray().apply {
                 recommendations.forEach { put(findingToJson(it)) }
             })
@@ -799,37 +831,76 @@ internal object ScanQualityReport {
         else -> throw IllegalArgumentException("Unsupported diagnostic context value.")
     }
 
+    private fun parseProgressEvents(array: JSONArray?, identity: DiagnosticReportIdentity): List<StageProgress> {
+        if (array == null || array.length() == 0) return emptyList()
+        require(array.length() <= MAX_DIAGNOSTIC_EVENTS)
+        val expected = boundScope(identity)
+        val ledger = StageProgressLedger(expected)
+        val progress = ArrayList<StageProgress>(array.length())
+        var previous = -1L
+        for (index in 0 until array.length()) {
+            val obj = array.getJSONObject(index)
+            val scope = progressScope(obj)
+            require(scope == expected) { "Cross-job measured progress rejected." }
+            val stage = strictStage(obj.getString("stage"))
+            val measured = parseProgressBody(obj, scope, stage)
+            require(measured.sequence > previous) { "Measured progress was reordered." }
+            previous = measured.sequence
+            ledger.record(measured)
+            progress += measured
+        }
+        return progress
+    }
+
+    private fun boundScope(identity: DiagnosticReportIdentity): DiagnosticScope {
+        require(identity.jobId != null && identity.attempt != null && identity.sourceRevision != null) {
+            "Unbound reports cannot contain job events."
+        }
+        return DiagnosticScope(identity.jobId, identity.attempt, identity.sourceRevision)
+    }
+
+    private fun progressScope(obj: JSONObject): DiagnosticScope {
+        val attempt = exactProgressCount(obj, "attempt")
+        require(attempt in 1..Int.MAX_VALUE.toLong()) { "Invalid diagnostic attempt." }
+        return DiagnosticScope(obj.getString("jobId"), attempt.toInt(), exactProgressCount(obj, "sourceRevision"))
+    }
+
+    private fun exactProgressCount(obj: JSONObject, key: String): Long {
+        val raw = obj.get(key)
+        require(raw is Int || raw is Long) { "Diagnostic $key must be an exact integer." }
+        return (raw as Number).toLong().also { require(it >= 0) { "Negative diagnostic $key." } }
+    }
+
+    private fun parseProgressBody(obj: JSONObject, scope: DiagnosticScope, stage: ScanStage): StageProgress {
+        val reuse = if (obj.has("reusedCheckpoint")) obj.get("reusedCheckpoint").also {
+            require(it is Boolean) { "Checkpoint reuse must be an explicit boolean." }
+        } as Boolean else false
+        return StageProgress(scope, stage, exactProgressCount(obj, "completed"),
+            if (!obj.has("total") || obj.isNull("total")) null else exactProgressCount(obj, "total"),
+            ProgressUnit.fromWire(obj.getString("unit")) ?: throw IllegalArgumentException("Unknown progress unit."),
+            exactProgressCount(obj, "sequence"), reuse)
+    }
+
     private fun parseEvents(array: JSONArray?, identity: DiagnosticReportIdentity): List<DiagnosticEvent> {
         if (array == null) return emptyList()
         require(array.length() <= MAX_DIAGNOSTIC_EVENTS)
         if (array.length() == 0) return emptyList()
-        require(identity.jobId != null && identity.attempt != null && identity.sourceRevision != null) {
-            "Unbound reports cannot contain job events."
-        }
-        val expectedScope = DiagnosticScope(identity.jobId, identity.attempt, identity.sourceRevision)
+        val expectedScope = boundScope(identity)
         val progressLedger = StageProgressLedger(expectedScope)
         val eventLog = BoundedDiagnosticEventLog()
+        var previous = -1L
         for (index in 0 until array.length()) {
             val obj = array.getJSONObject(index)
-            val scope = DiagnosticScope(
-                obj.getString("jobId"), obj.getInt("attempt"), obj.getLong("sourceRevision"),
-            )
+            val scope = progressScope(obj)
             require(scope == expectedScope) { "Cross-job diagnostic event rejected." }
             val stage = strictStage(obj.getString("stage"))
             val outcome = StageOutcome.fromWire(obj.getString("outcome"))
                 ?: throw IllegalArgumentException("Unknown event outcome.")
-            val sequence = obj.getLong("sequence")
+            val sequence = exactProgressCount(obj, "sequence")
+            require(sequence > previous) { "Diagnostic events were reordered." }
+            previous = sequence
             val progress = obj.optJSONObject("progress")?.let { body ->
-                StageProgress(
-                    scope = scope,
-                    stage = stage,
-                    completed = body.getLong("completed"),
-                    total = optionalLong(body, "total"),
-                    unit = ProgressUnit.fromWire(body.getString("unit"))
-                        ?: throw IllegalArgumentException("Unknown progress unit."),
-                    sequence = body.getLong("sequence"),
-                    reusedCheckpoint = body.optBoolean("reusedCheckpoint", false),
-                ).also(progressLedger::record)
+                parseProgressBody(body, scope, stage).also(progressLedger::record)
             }
             val failure = obj.optJSONObject("failure")?.let(::parseFailure)
             eventLog.append(DiagnosticEvent(scope, stage, outcome, sequence, progress, failure))

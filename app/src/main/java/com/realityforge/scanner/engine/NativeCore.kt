@@ -38,6 +38,11 @@ object NativeCore {
         near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
         meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
         token: Long, checkpointDirectory: String, checkpointIdentity: String): String
+    /** Reopens complete accepted geometry and depth; only photographic texture work is executed. */
+    external fun textureAcceptedSurfaceCheckpointed(depthRgba: ByteArray, width: Int, height: Int,
+        photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
+        meshCheckpointPath: String, texturedGlbPath: String, atlasPngPath: String,
+        token: Long, checkpointDirectory: String, checkpointIdentity: String): String
     external fun quality(gray: ByteArray, width: Int, height: Int): DoubleArray
     const val SPARSE_POINTS = 0
     const val DENSE_POINTS = 1

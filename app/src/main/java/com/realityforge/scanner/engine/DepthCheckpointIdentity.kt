@@ -32,6 +32,19 @@ internal object DepthCheckpointIdentity {
 
     fun supports(compatibility: Compatibility): Boolean = compatibility == M18_COMPATIBILITY
 
+    /**
+     * Production geometry is content-addressed independently of the owning project revision.
+     * The versioned key intentionally misses older revision-bound entries once; native M18
+     * layout validation remains unchanged. Exact sparse/C8 and pixel/camera digests still gate reuse.
+     */
+    fun contentGeometryKey(sparseIdentitySha256: String): String {
+        require(sparseIdentitySha256.matches(HASH)) { "Invalid sparse geometry identity" }
+        val digest = MessageDigest.getInstance("SHA-256").digest(
+            ("realityforge-depth-content-key-v1\u0000" + sparseIdentitySha256).toByteArray(StandardCharsets.US_ASCII),
+        ).joinToString("") { "%02x".format(it.toInt() and 255) }
+        return "sparse-m16-r0-${digest.take(16)}"
+    }
+
     fun fingerprint(
         artifactKey: String,
         rgba: ByteArray,

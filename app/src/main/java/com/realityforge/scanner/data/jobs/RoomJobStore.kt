@@ -300,8 +300,9 @@ class RoomJobStore(
         )
     }
 
-    override suspend fun pause(jobId: JobId, nowEpochMillis: Long): JobCommandResult =
-        command(jobId, nowEpochMillis) { current, state ->
+    override suspend fun pause(jobId: JobId, nowEpochMillis: Long, reasonCode: String?): JobCommandResult {
+        reasonCode?.let { requireSafeCode("pauseReasonCode", it) }
+        return command(jobId, nowEpochMillis) { current, state ->
             when {
                 state == ReconstructionJobState.PAUSED -> CommandMutation.already()
                 state in setOf(ReconstructionJobState.QUEUED, ReconstructionJobState.RUNNING) ->
@@ -311,14 +312,15 @@ class RoomJobStore(
                             leaseToken = null,
                             leaseOwner = null,
                             leaseExpiresAtEpochMillis = null,
-                            outcomeCode = null,
+                            outcomeCode = reasonCode,
                         ),
                         JobEventKind.PAUSED,
-                        "PAUSED_BY_USER",
+                        reasonCode ?: "PAUSED_BY_USER",
                     )
                 else -> CommandMutation.terminal()
             }
         }
+    }
 
     override suspend fun resume(jobId: JobId, nowEpochMillis: Long): JobCommandResult =
         command(jobId, nowEpochMillis) { current, state ->

@@ -5,12 +5,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.data.ProjectRepository
 import com.realityforge.scanner.data.ScanDatabase
+import com.realityforge.scanner.data.ScanPhoto
 import com.realityforge.scanner.data.operations.ProjectAccessException
 import com.realityforge.scanner.data.operations.ProjectAccessSession
 import com.realityforge.scanner.data.operations.ProjectJobIdentity
 import com.realityforge.scanner.data.operations.ProjectOperationConflictException
 import com.realityforge.scanner.data.operations.ProjectOperationKind
 import com.realityforge.scanner.data.operations.ProjectOperationRequest
+import com.realityforge.scanner.data.operations.ProjectRecoveryAdmission
+import com.realityforge.scanner.data.operations.ProjectRecoveryRequiredException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -18,13 +21,74 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.UUID
+import java.io.File
+import android.content.ContextWrapper
 
 @RunWith(AndroidJUnit4::class)
 class ProjectRepositoryConcurrencyTest {
+    @Test fun corruptProjectRecoveryIsIsolatedRetainsOriginalsAndCanRetryOrDelete() = runBlocking {
+        val base = InstrumentationRegistry.getInstrumentation().targetContext
+        val files = File(base.cacheDir, "agent006-recovery-${UUID.randomUUID()}").apply { check(mkdirs()) }
+        val context = object : ContextWrapper(base) {
+            override fun getFilesDir() = files
+            override fun getApplicationContext() = this
+        }
+        val database = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        try {
+            val repository = ProjectRepository(context, database.dao(), database = database)
+            val broken = repository.create("recovery-broken")
+            val healthy = repository.create("recovery-healthy")
+            val bytes = "original bytes preserved across a failed project recovery".toByteArray()
+            val hash = java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+            val photoId = UUID.randomUUID().toString()
+            val photo = ScanPhoto(photoId, broken, "$photoId.image", hash, bytes.size.toLong(),
+                640, 480, 26.0, 1.0, 0.0, 0.0, 1L)
+            repository.photoFile(photo).apply { parentFile?.mkdirs(); writeBytes(bytes) }
+            database.dao().addPhotoExpected(photo, 0)
+            val key = "sparse-m16-r1-${"a".repeat(16)}"
+            database.dao().complete(broken, 1, key, "Previously completed diagnostic result.")
+            val journal = File(repository.directory(broken), "import-${UUID.randomUUID()}-0.journal")
+                .apply { writeText("{incomplete original publication") }
+
+            repository.recoverStorage()
+            val blocked = requireNotNull(database.dao().project(broken))
+            assertEquals(ProjectRecoveryAdmission.STATE, blocked.state)
+            assertEquals(1L, blocked.revision)
+            assertEquals(1L, blocked.resultRevision)
+            assertEquals(key, blocked.resultKey)
+            assertEquals(ProjectRecoveryAdmission.MESSAGE, blocked.message)
+            assertFalse(blocked.message.contains(files.absolutePath))
+            assertTrue(repository.photoFile(photo).readBytes().contentEquals(bytes))
+            assertEquals(healthy, repository.inputSnapshot(healthy).projectId)
+            try { repository.inputSnapshot(broken); fail("Unrecovered inputs were admitted") }
+            catch (_: ProjectRecoveryRequiredException) { }
+            try { repository.dao.invalidate(broken); fail("Compatibility DAO bypassed recovery admission") }
+            catch (_: ProjectRecoveryRequiredException) { }
+            // A failed old worker's late status update must not erase the recovery marker.
+            assertEquals(0, repository.dao.state(broken, 1, "FAILED", "late worker message"))
+            repository.withProjectAccess(ProjectOperationRequest.create(broken,
+                ProjectOperationKind.READ_CURRENT_RESULT, 1)) { assertEquals(key, database.dao().project(broken)?.resultKey) }
+
+            assertTrue(journal.delete())
+            assertTrue(repository.recoverProjectStorage(broken))
+            assertEquals("SPARSE_READY", database.dao().project(broken)?.state)
+            assertEquals(hash, repository.inputSnapshot(broken).photos.single().sha256)
+
+            journal.writeText("{another interrupted publication")
+            assertFalse(repository.recoverProjectStorage(broken))
+            repository.delete(broken)
+            assertNull(database.dao().project(broken))
+            assertEquals(healthy, repository.inputSnapshot(healthy).projectId)
+            repository.delete(healthy)
+        } finally { database.close(); files.deleteRecursively() }
+    }
+
     @Test fun oneProjectReadBlocksMutationWhileAnotherProjectRemainsIndependent() = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val database = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()

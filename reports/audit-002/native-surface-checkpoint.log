@@ -1,0 +1,11 @@
+PASS checkpoint SHA-256 matches published digest vectors and streaming boundaries
+PASS accepted full mesh and actual dense evidence round-trip bit-for-bit
+PASS texture-only C ABI changes atlas while accepted mesh and depth hashes stay equal
+PASS combined production solver publishes complete accepted binary before texturing
+PASS optical geometry pixels algorithm and depth identity changes never reuse stale evidence
+PASS truncation oversized counts nonfinite geometry and invalid provenance fail before publication
+PASS even checksummed replacement depth is rejected by independent full map SHA
+PASS symlink escape and preexisting unknown files preserve all referenced bytes
+PASS cancellation is typed and never writes texture or replaces accepted geometry
+PASS unavailable atlas preserves truthful loaded dense and mesh without fake texture
+10 accepted-surface checkpoint cases passed; synthetic measured vertices=924, triangles=2288, checkpoint bytes=225623
