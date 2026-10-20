@@ -17,4 +17,14 @@ int main(){
  bool rejected=false;try{rf::linearToSrgb(std::numeric_limits<double>::quiet_NaN());}catch(const rf::Error&){rejected=true;}assert(rejected);
  std::atomic_bool flag{true};rejected=false;
  try{rf::cancellation::Scope scope(&flag);rf::balanceExposure(2,s);}catch(const rf::cancellation::Cancelled&){rejected=true;}assert(rejected);
+ std::vector<rf::ExposureSample> adversarial;
+ for(int i=0;i<100;++i)adversarial.push_back({0,1,{.2,.2,.2},{i%5==0?.2:.24,.28,.28}});
+ const auto separated=rf::balanceExposure(2,adversarial);
+ assert(!separated.channelCorrectionAccepted[0]&&separated.gains[1][0]==1);
+ assert(separated.channelCorrectionAccepted[1]&&separated.channelCorrectionAccepted[2]);
+ assert(separated.heldOutChannelErrorAfter[0]==0&&separated.correctionAccepted);
+ for(auto& p:adversarial){p.b={.28,.2,.2};}
+ const auto redOnly=rf::balanceExposure(2,adversarial);
+ assert(redOnly.channelCorrectionAccepted[0]&&redOnly.gains[1][0]<1&&redOnly.gains[1][1]==1&&redOnly.gains[1][2]==1);
+
 }
