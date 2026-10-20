@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "frozen_before_measurement": true,
+  "uv_out_of_bounds_vertices_max": 0,
+  "degenerate_uv_faces_max": 0,
+  "uv_overlap_pairs_max": 0,
+  "supported_face_fraction_original_min": 0.95,
+  "held_out_support_fraction_min": 0.95,
+  "held_out_linear_rgb_rmse_max": 0.05,
+  "seam_linear_rgb_abs_p95_max": 0.10,
+  "opaque_unknown_pixels_max": 0,
+  "distortion_anisotropy_p95_max": 4.0,
+  "overlap_face_budget": 5000,
+  "color_space": "decode sRGB to linear RGB for photometric errors",
+  "uv_origin": "upper_left",
+  "physical_gate": "requires authorized multi-side corpus and independent held-out photographs, no synthetic/stereo substitution"
+}
