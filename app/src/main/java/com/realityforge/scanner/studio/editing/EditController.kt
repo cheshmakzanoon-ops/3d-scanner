@@ -65,6 +65,9 @@ class EditController(initial: EditRecipe) {
     @Synchronized fun undo(): Boolean = if (cursor == 0) false else { cursor--; true }
     @Synchronized fun redo(): Boolean = if (cursor == history.size) false else { cursor++; true }
 
+    /** Active recipe only, excluding redo history; owner 009 hashes this as a descendant parameter. */
+    @Synchronized fun materializationBytes(): ByteArray = EditController(recipe).save()
+
     /** Versioned, bounded, checksummed history preserves both undo and redo across reopen. */
     @Synchronized fun save(): ByteArray {
         val bytes = ByteArrayOutputStream()

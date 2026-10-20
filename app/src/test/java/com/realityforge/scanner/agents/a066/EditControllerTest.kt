@@ -12,6 +12,8 @@ class EditControllerTest {
         val c = controller(); c.apply(crop); c.apply(EditOperation.KeepComponents(setOf(2, 0)))
         assertTrue(c.undo()); val saved = c.save(); val restored = EditController.restore(saved)
         assertEquals(c.recipe, restored.recipe); assertTrue(restored.canRedo)
+        assertArrayEquals(c.materializationBytes(), EditController(c.recipe).save())
+        assertArrayEquals(c.materializationBytes(), restored.materializationBytes())
         assertTrue(restored.redo()); assertEquals(2, restored.recipe.operations.size)
         assertTrue(restored.undo()); restored.apply(crop); assertFalse(restored.canRedo)
         assertEquals("immutable-parent", restored.recipe.parentAssetId)
