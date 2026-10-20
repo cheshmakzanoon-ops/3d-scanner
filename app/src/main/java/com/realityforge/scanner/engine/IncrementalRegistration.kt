@@ -20,11 +20,16 @@ internal data class FeaturePairs(val first: IntArray, val second: IntArray) {
 }
 internal data class RegisteredFrame(val photo: Int, val view: SparseView)
 internal data class FrontierPoint(val track: Int, val xyz: DoubleArray)
+internal data class FrontierConditioning(val model:String,val worldPlanarityRatio:Double,val hypotheses:Int) {
+    init { require(model in setOf("normalized_dlt","calibrated_plane_homography") && worldPlanarityRatio.isFinite() && worldPlanarityRatio in 0.0..1.0 && hypotheses in 1..450) }
+}
 internal data class FrontierPose(
     val rotation: DoubleArray, val translation: DoubleArray, val inliers: IntArray,
+    val conditioning: FrontierConditioning? = null,
 )
 internal data class RegistrationAttempt(
     val photo: Int, val registeredBasis: Int, val tracks: Int, val accepted: Boolean, val reason: String,
+    val conditioning: FrontierConditioning? = null,
 )
 internal data class RegistrationGrowth(
     val cameras: List<RegisteredFrame>, val attempts: List<RegistrationAttempt>, val unregistered: List<Int>,
@@ -214,7 +219,7 @@ internal object IncrementalRegistration {
                     val pose=register(rows,gate)
                     coroutineContext.ensureActive()
                     validatePose(templates[photo],rows,pose,gate)
-                    attempts.add(RegistrationAttempt(photo,cameras.size,count,true,"Verified native PnP and reprojection consensus"))
+                    attempts.add(RegistrationAttempt(photo,cameras.size,count,true,"Verified native PnP and reprojection consensus",pose.conditioning))
                     cameras.add(RegisteredFrame(photo,templates[photo].copy(
                         rotation=pose.rotation.copyOf(),translation=pose.translation.copyOf())))
                     failures.remove(photoIds[photo]);save()

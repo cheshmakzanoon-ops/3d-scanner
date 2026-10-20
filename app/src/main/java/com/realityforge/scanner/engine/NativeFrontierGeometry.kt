@@ -18,7 +18,9 @@ internal object NativeFrontierGeometry {
         val rotation=result.getJSONArray("rotation")
         val translation=result.getJSONArray("translation")
         val inliers=result.getJSONArray("inlierIndices")
+        val conditioning=if(result.has("initializationModel"))FrontierConditioning(result.getString("initializationModel"),
+            result.getDouble("worldPlanarityRatio"),result.getInt("hypothesesTested")) else null
         return FrontierPose(DoubleArray(9) { rotation.getDouble(it) },
-            DoubleArray(3) { translation.getDouble(it) },IntArray(inliers.length()) { inliers.getInt(it) })
+            DoubleArray(3) { translation.getDouble(it) },IntArray(inliers.length()) { inliers.getInt(it) },conditioning)
     }
 }
