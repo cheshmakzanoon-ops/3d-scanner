@@ -3,10 +3,16 @@ package com.realityforge.scanner.engine.matching
 import kotlin.math.sqrt
 
 class CandidateGraph internal constructor(
-    val pairs:List<PairCandidate>,val candidateComponents:List<List<String>>,
-    val duplicateSummaryGroups:List<List<String>>,val zeroEvidencePhotos:List<String>,
+    pairs:List<PairCandidate>,candidateComponents:List<List<String>>,
+    duplicateSummaryGroups:List<List<String>>,zeroEvidencePhotos:List<String>,
     val comparisons:Int,val maxNeighbors:Int,
-)
+) {
+    val pairs:List<PairCandidate> = java.util.Collections.unmodifiableList(ArrayList(pairs))
+    val candidateComponents:List<List<String>> = immutableGroups(candidateComponents)
+    val duplicateSummaryGroups:List<List<String>> = immutableGroups(duplicateSummaryGroups)
+    val zeroEvidencePhotos:List<String> = java.util.Collections.unmodifiableList(ArrayList(zeroEvidencePhotos))
+    private fun immutableGroups(groups:List<List<String>>):List<List<String>> = java.util.Collections.unmodifiableList(groups.map{java.util.Collections.unmodifiableList(ArrayList(it))})
+}
 /** Bounded angular retrieval. No EXIF/file-order proximity is used as geometric evidence.
  * Small collections use exhaustive summary retrieval as a diagnostic reference. Large
  * collections use eight deterministic angular LSH tables with one-bit probing, at most
