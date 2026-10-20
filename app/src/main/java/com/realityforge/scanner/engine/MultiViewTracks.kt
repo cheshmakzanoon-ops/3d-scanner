@@ -43,6 +43,7 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
     }
     enum class Rejection { INVALID_RAY, EPIPOLAR, SAME_PHOTO_CONFLICT, NODE_BUDGET }
     private val rejections = mutableMapOf<Rejection,Int>()
+    @Synchronized
     fun rejectionCounts(): Map<Rejection,Int> = rejections.toMap()
     private fun reject(reason: Rejection): Boolean { ++rejectedEdges;rejections[reason]=(rejections[reason]?:0)+1;return false }
     private val parents = HashMap<Long, Long>()
@@ -94,6 +95,7 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
         val tolerance = 4.0 / minOf(p.focalPixels,q.focalPixels)
         return denominator > 1e-18 && (residual*residual/denominator) <= tolerance*tolerance
     }
+    @Synchronized
     fun add(cameraA: Int, keyA: Int, cameraB: Int, keyB: Int): Boolean {
         require(cameraA in views.indices && cameraB in views.indices && cameraA != cameraB)
         require(keyA in views[cameraA].colors.indices && keyB in views[cameraB].colors.indices)
@@ -121,9 +123,11 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
         ++acceptedEdges
         return true
     }
-    /** Stable track IDs shared by native rows and incremental landmark provenance.
+    /** Legacy compact native snapshot: indices are local to this exact snapshot.
+     * Persist stableSnapshot source identities instead of these array positions.
      * Take whole tracks only; never exceed the native 100,000-observation contract.
      */
+    @Synchronized
     fun snapshot(maxTracks: Int = 15000): List<Map<Int, Int>> {
         require(maxTracks in 1..15000)
         val ordered = members.values.filter { it.size >= 2 }
@@ -137,6 +141,7 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
         }
         return selected
     }
+    @Synchronized
     fun packedRows(maxTracks: Int = 15000): DoubleArray {
         require(views.size<=12) { "Use bounded nativeBatches for larger graphs" }
         val groups = snapshot(maxTracks)
@@ -156,6 +161,16 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
         }
         return packed.toDoubleArray()
     }
+    /** Exact compatibility mapping for legacy packedRows: original camera order
+     * and the selected whole-track order, never the SHA-sorted durable order. */
+    @Synchronized
+    fun nativeSnapshot(photoIds: List<String>, maxTracks: Int=15000): NativeTrackBatch {
+        require(views.size<=12 && photoIds.size==views.size && photoIds.distinct().size==photoIds.size)
+        val groups=snapshot(maxTracks)
+        val ids=groups.map { group -> group.entries.minOf { SourceObservation(photoIds[it.key],it.value).identity() } }
+        return NativeTrackBatch(photoIds,ids,packedRows(maxTracks))
+    }
+    @Synchronized
     fun stableSnapshot(photoIds: List<String>): TrackSnapshot {
         require(photoIds.size==views.size && photoIds.distinct().size==photoIds.size)
         val tracks=members.values.filter { it.size>=2 }.map { group ->
@@ -166,6 +181,7 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
     }
     /** Whole-track windows only. A track longer than a native window is explicitly
      * unsupported rather than silently chopped and relabeled as a full track. */
+    @Synchronized
     fun nativeBatches(photoIds: List<String>, maxCameras: Int=12, maxObservations: Int=100000): List<NativeTrackBatch> {
         require(maxCameras in 2..12 && maxObservations in 2..100000)
         val snapshot=stableSnapshot(photoIds);val byPhoto=photoIds.withIndex().associate { it.value to it.index }
@@ -179,5 +195,6 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
             cameras.addAll(t.observations.map { it.photo });tracks.add(t);count+=t.observations.size }
         flush();return result
     }
+    @Synchronized
     fun matchedTrackCount(): Int = members.values.count { it.size >= 2 }
 }

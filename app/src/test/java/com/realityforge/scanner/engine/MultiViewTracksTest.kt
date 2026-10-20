@@ -67,4 +67,12 @@ class MultiViewTracksTest {
     @Test fun graphOwnsValidatedPoseAndFeatureInputs(){val a=frame(0.0);val b=frame(-1.0);val inputs=mutableListOf(a,b);val graph=MultiViewTrackGraph(inputs)
         a.xy[0]=Float.NaN;a.rotation[0]=100.0;b.translation[0]=Double.NaN;inputs.clear();assertTrue(graph.add(0,0,1,0));assertEquals(1,graph.matchedTrackCount())
     }
+    @Test fun nativeSnapshotPreservesLegacyRowOrderAndOriginalCameras(){
+        val graph=MultiViewTrackGraph(listOf(frame(0.0),frame(-1.0),frame(-1.7)));graph.add(0,2,1,2);graph.add(0,0,2,0)
+        val photos=mutableListOf("z-source","a-source","m-source");val groups=graph.snapshot();val batch=graph.nativeSnapshot(photos)
+        val expected=groups.map {group->group.entries.minOf {com.realityforge.scanner.engine.tracks.SourceObservation(photos[it.key],it.value).identity()}}
+        assertEquals(expected,batch.trackIds);assertEquals(photos,batch.photoIds);assertArrayEquals(graph.packedRows(),batch.rows,0.0)
+        photos.reverse();assertEquals(listOf("z-source","a-source","m-source"),batch.photoIds)
+        assertEquals(0.0,batch.rows[0],0.0);assertEquals(1.0,batch.rows[14],0.0)
+    }
 }

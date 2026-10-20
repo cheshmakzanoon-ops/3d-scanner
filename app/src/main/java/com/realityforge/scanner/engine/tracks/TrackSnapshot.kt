@@ -11,7 +11,11 @@ internal data class SourceObservation(val photo: String, val keypoint: Int) : Co
     private val stableIdentity: String by lazy { digest("observation-v1\u0000$photo\u0000$keypoint".toByteArray(Charsets.UTF_8)) }
     fun identity(): String = stableIdentity
 }
-internal fun digest(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+internal fun digest(bytes: ByteArray): String {
+    val hash=MessageDigest.getInstance("SHA-256").digest(bytes);val alphabet="0123456789abcdef";val out=CharArray(hash.size*2)
+    for(i in hash.indices){val value=hash[i].toInt() and 255;out[i*2]=alphabet[value ushr 4];out[i*2+1]=alphabet[value and 15]}
+    return String(out)
+}
 internal class StableTrack(val id: String, sourceObservations: List<SourceObservation>) {
     val observations: List<SourceObservation> = Collections.unmodifiableList(sourceObservations.toList())
     override fun equals(other: Any?) = other is StableTrack && id==other.id && observations==other.observations
@@ -68,9 +72,10 @@ internal class NativeTrackBatch(sourcePhotoIds: List<String>, sourceTrackIds: Li
     val trackIds: List<String> = Collections.unmodifiableList(sourceTrackIds.toList())
     private val values = sourceRows.copyOf()
     val rows: DoubleArray get() = values.copyOf()
-    init { require(photoIds.size in 2..12 && photoIds.distinct().size==photoIds.size && trackIds.size in 1..15000 && trackIds.distinct().size==trackIds.size)
+    init { require(photoIds.size in 2..12 && photoIds.distinct().size==photoIds.size && trackIds.size in 0..15000 && trackIds.distinct().size==trackIds.size)
         require(photoIds.all {it.isNotBlank() && it.toByteArray().size<=1024} && trackIds.all {it.matches(Regex("[0-9a-f]{64}"))})
-        require(values.size%7==0 && values.size/7 in 2..100000 && values.all {it.isFinite()})
+        require(values.size%7==0 && values.size/7 in 0..100000 && values.all {it.isFinite()})
+        require(trackIds.isEmpty()==values.isEmpty())
         val support=Array(trackIds.size){mutableSetOf<Int>()}
         for(i in values.indices step 7){require(values[i]>=0 && values[i]<trackIds.size && values[i]%1.0==0.0)
             require(values[i+1]>=0 && values[i+1]<photoIds.size && values[i+1]%1.0==0.0)
