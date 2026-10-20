@@ -1,8 +1,8 @@
 package com.realityforge.scanner.ui.processing
 
-enum class JobPhase { QUEUED, RUNNING, PAUSED, INTERRUPTED, FAILED, CANCELLED, COMPLETED }
-data class JobIdentity(val projectId: String, val revision: Long, val jobId: String) {
-    init { require(projectId.isNotBlank() && revision >= 0 && jobId.isNotBlank()) }
+enum class JobPhase { QUEUED, RUNNING, PAUSED, INTERRUPTED, FAILED, CANCELLED, COMPLETED, STALE, BLOCKED_EXTERNAL }
+data class JobIdentity(val projectId: String, val revision: Long, val jobId: String, val attempt:Long=0,val stateVersion:Long=0) {
+    init { require(projectId.isNotBlank() && revision >= 0 && jobId.isNotBlank() && attempt>=0 && stateVersion>=0) }
 }
 enum class JobCommand { PAUSE, RESUME, RETRY, CANCEL, OPEN_PREVIOUS, NOTIFICATION_SETTINGS }
 data class JobAction(val identity: JobIdentity, val command: JobCommand)
@@ -17,9 +17,9 @@ data class JobUiState(val identity: JobIdentity, val phase: JobPhase, val stage:
     val stageFraction: Float? get() = if (completed != null && total != null && total > 0 && completed in 0..total)
         (completed.toDouble()/total).toFloat() else null
     fun can(command: JobCommand): Boolean = when(command) {
-        JobCommand.PAUSE -> pauseSupported && phase == JobPhase.RUNNING
+        JobCommand.PAUSE -> pauseSupported && phase in setOf(JobPhase.QUEUED,JobPhase.RUNNING)
         JobCommand.RESUME -> resumeSupported && inputsCurrent && phase in setOf(JobPhase.PAUSED,JobPhase.INTERRUPTED)
-        JobCommand.RETRY -> inputsCurrent && phase in setOf(JobPhase.FAILED,JobPhase.CANCELLED,JobPhase.INTERRUPTED)
+        JobCommand.RETRY -> inputsCurrent && phase in setOf(JobPhase.FAILED,JobPhase.BLOCKED_EXTERNAL,JobPhase.INTERRUPTED)
         JobCommand.CANCEL -> cancelSupported && phase in setOf(JobPhase.QUEUED,JobPhase.RUNNING,JobPhase.PAUSED)
         JobCommand.OPEN_PREVIOUS -> hasPreviousResult && phase != JobPhase.RUNNING
         JobCommand.NOTIFICATION_SETTINGS -> notificationsBlocked

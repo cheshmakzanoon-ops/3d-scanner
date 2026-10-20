@@ -19,7 +19,7 @@ fun ProcessingScreen(state: JobUiState, onAction: (JobAction)->Unit, modifier: M
         Text(stringResource(R.string.a074_title),style=MaterialTheme.typography.headlineMedium)
         val phaseLabel=stringResource(when(state.phase) {
             JobPhase.QUEUED->R.string.a074_queued; JobPhase.RUNNING->R.string.a074_running; JobPhase.PAUSED->R.string.a074_paused
-            JobPhase.INTERRUPTED->R.string.a074_interrupted; JobPhase.FAILED->R.string.a074_failed; JobPhase.CANCELLED->R.string.a074_cancelled; JobPhase.COMPLETED->R.string.a074_completed })
+            JobPhase.INTERRUPTED->R.string.a074_interrupted; JobPhase.FAILED->R.string.a074_failed; JobPhase.CANCELLED->R.string.a074_cancelled; JobPhase.COMPLETED->R.string.a074_completed; JobPhase.STALE->R.string.a074_stale; JobPhase.BLOCKED_EXTERNAL->R.string.a074_blocked })
         Text(phaseLabel,Modifier.semantics { liveRegion=LiveRegionMode.Polite; heading() },style=MaterialTheme.typography.titleLarge)
         state.stage?.let { Text(it) }
         if (state.phase == JobPhase.RUNNING || state.phase == JobPhase.QUEUED) {
