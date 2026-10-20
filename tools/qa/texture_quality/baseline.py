@@ -32,7 +32,9 @@ def main():
     failed=[]
     for key in ('uv_out_of_bounds_vertices','degenerate_uv_faces','uv_overlap_pairs','distortion_anisotropy_p95','seam_linear_rgb_abs_p95'):
         value=metrics.get(key)
-        if value is not None and value>config[key+'_max']:failed.append(key)
+        if value is None:
+            if key!='seam_linear_rgb_abs_p95' or metrics.get('potential_seam_edges',0)>0:failed.append(key+'_unmeasured')
+        elif value>config[key+'_max']:failed.append(key)
     report['independent_uv_gate']='FAIL' if failed else 'PASS_LIMITED_UV'
     report['independent_uv_failures']=failed
     (args.output_dir/'baseline-receipt.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2));return int(report['status']!='PASS')

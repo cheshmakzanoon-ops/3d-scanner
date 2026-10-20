@@ -13,6 +13,10 @@ def sample(texture, uv):
     tex=np.asarray(texture,float);p=np.asarray(uv,float)
     if tex.ndim!=3 or tex.shape[2]!=4 or not np.isfinite(tex).all() or np.any((tex<0)|(tex>1)):raise ValueError('texture must be normalized RGBA')
     if p.shape[-1]!=2 or not np.isfinite(p).all():raise ValueError('invalid texture coordinates')
+    return _sample_validated(tex,p)
+
+
+def _sample_validated(tex,p):
     x=np.clip(p[...,0]*tex.shape[1]-.5,0,tex.shape[1]-1);y=np.clip(p[...,1]*tex.shape[0]-.5,0,tex.shape[0]-1)
     x0=x.astype(int);y0=y.astype(int);x1=np.minimum(x0+1,tex.shape[1]-1);y1=np.minimum(y0+1,tex.shape[0]-1)
     dx=(x-x0)[...,None];dy=(y-y0)[...,None]
@@ -92,7 +96,7 @@ def uv_metrics(vertices,faces,uv,texture,supported_faces=None,original_face_coun
         (i,a,b),(j,c,d)=records
         if np.allclose([a,b],[c,d],atol=1e-10):adjacency[i].add(j);adjacency[j].add(i);continue
         seam_edges+=1
-        left,right=sample(tex,a+(b-a)*t),sample(tex,c+(d-c)*t)
+        left,right=_sample_validated(tex,a+(b-a)*t),_sample_validated(tex,c+(d-c)*t)
         good=(left[:,3]>=.99)&(right[:,3]>=.99)
         unknown_seams+=int(not good.all())
         if good.any():seam_values.extend(np.mean(np.abs(linear_rgb(left[good,:3])-linear_rgb(right[good,:3])),axis=1))
@@ -130,6 +134,7 @@ def render(vertices,faces,uv,texture,width,height,K,R,t):
     if K.shape!=(3,3) or R.shape!=(3,3) or t.shape!=(3,) or not np.isfinite([K,R]).all() or not np.isfinite(t).all() or not np.allclose(R@R.T,np.eye(3),atol=1e-6) or not np.isclose(np.linalg.det(R),1):raise ValueError('invalid camera pose/intrinsics')
     if type(width)!=int or type(height)!=int or not 0<width*height<=16000000:raise ValueError('render image budget')
     if uv.shape!=(len(v),2) or not np.isfinite(uv).all():raise ValueError('invalid UVs')
+    texture=np.asarray(texture,float);sample(texture,uv[:1])
     camera=v@R.T+t;projected=camera@K.T
     image=np.zeros((height,width,4),float);depth=np.full((height,width),np.inf)
     for face in f:
@@ -145,7 +150,7 @@ def render(vertices,faces,uv,texture,width,height,K,R,t):
         inside=(bary>=-1e-10).all(axis=2);weights=bary/z;invdepth=weights.sum(axis=2)
         d=1/np.maximum(invdepth,1e-30);weights/=np.maximum(invdepth[:,:,None],1e-30)
         coords=weights@uv[face]
-        rgba=sample(texture,coords)
+        rgba=_sample_validated(texture,coords)
         good=inside&(d<depth[ys,xs])
         image[ys[good],xs[good]]=rgba[good];depth[ys[good],xs[good]]=d[good]
     return image,depth

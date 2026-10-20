@@ -15,6 +15,7 @@ def load(path, expected_png=None):
         if color_texture.get('texCoord',0)!=0 or color_texture.get('extensions') or 'COLOR_0' in prim['attributes']:raise ValueError('unsupported texture transform/color modulation')
         texture_index=color_texture['index']
         texture=data['textures'][texture_index];image=data['images'][texture['source']]
+        if 'sampler' not in texture:raise ValueError('unsupported implicit repeat sampler; explicit linear clamp required')
         if 'sampler' in texture:
             sampler=data['samplers'][texture['sampler']]
             if sampler.get('wrapS',10497)!=33071 or sampler.get('wrapT',10497)!=33071 or sampler.get('magFilter',9729)!=9729 or sampler.get('minFilter',9729)!=9729:raise ValueError('unsupported sampler; linear clamp required')

@@ -23,7 +23,9 @@ def main():
     engine=NativeEngine(args.native_library)
     try:call=engine.library.rf_textured_surface_compact_json
     except AttributeError:
-        (out/'compact-receipt.json').write_text(json.dumps({'status':'NOT_RUN','reason':'candidate lacks057 compact C ABI','candidate_source_sha':args.candidate_source_sha},indent=2)+'\n');return 2
+        report['native_execution_status']='FAIL' if errors else 'PASS'
+    if report.get('independent_uv_failures'):report['status']='FAIL'
+    (out/'compact-receipt.json').write_text(json.dumps({'status':'NOT_RUN','reason':'candidate lacks057 compact C ABI','candidate_source_sha':args.candidate_source_sha},indent=2)+'\n');return 2
     call.argtypes=engine.library.rf_textured_surface_json.argtypes;call.restype=ctypes.c_void_p
     import cv2
     left,right,_=load_middlebury();original_h,original_w=left.shape[:2]
@@ -58,10 +60,14 @@ def main():
         config=json.loads((root/'benchmarks/quality_protocols/texture.json').read_text());metrics=report['independent_metrics'];failures=[]
         for key in ('uv_out_of_bounds_vertices','degenerate_uv_faces','uv_overlap_pairs','distortion_anisotropy_p95','seam_linear_rgb_abs_p95'):
             value=metrics.get(key)
-            if value is not None and value>config[key+'_max']:failures.append(key)
+            if value is None:
+                if key!='seam_linear_rgb_abs_p95' or metrics.get('potential_seam_edges',0)>0:failures.append(key+'_unmeasured')
+            elif value>config[key+'_max']:failures.append(key)
         if metrics['supported_face_fraction_original']<config['supported_face_fraction_original_min']:failures.append('face_support')
         report.update(independent_uv_gate='FAIL' if failures else 'PASS_LIMITED_UV',independent_uv_failures=failures)
-    (out/'compact-receipt.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2));return int(bool(errors))
+    report['native_execution_status']='FAIL' if errors else 'PASS'
+    if report.get('independent_uv_failures'):report['status']='FAIL'
+    (out/'compact-receipt.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2));return int(report['status']=='FAIL')
 
 
 if __name__=='__main__':raise SystemExit(main())

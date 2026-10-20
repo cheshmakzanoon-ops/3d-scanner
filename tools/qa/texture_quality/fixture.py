@@ -21,7 +21,7 @@ def generate(root: Path):
           'buffers':[{'byteLength':len(binary)}],
           'bufferViews':[{'buffer':0,'byteOffset':0,'byteLength':48},{'buffer':0,'byteOffset':48,'byteLength':32},{'buffer':0,'byteOffset':80,'byteLength':24},{'buffer':0,'byteOffset':104,'byteLength':len(png)}],
           'accessors':[{'bufferView':0,'componentType':5126,'count':4,'type':'VEC3'},{'bufferView':1,'componentType':5126,'count':4,'type':'VEC2'},{'bufferView':2,'componentType':5125,'count':6,'type':'SCALAR'}],
-          'images':[{'bufferView':3,'mimeType':'image/png'}],'textures':[{'source':0}],
+          'images':[{'bufferView':3,'mimeType':'image/png'}],'textures':[{'source':0,'sampler':0}],'samplers':[{'magFilter':9729,'minFilter':9729,'wrapS':33071,'wrapT':33071}],
           'materials':[{'pbrMetallicRoughness':{'baseColorTexture':{'index':0}},'alphaMode':'BLEND'}]}
     js=json.dumps(data,separators=(',',':')).encode();js+=b' '*((-len(js))%4);binary+=b'\0'*((-len(binary))%4)
     body=struct.pack('<III',0x46546c67,2,28+len(js)+len(binary))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(binary),0x004e4942)+binary

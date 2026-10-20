@@ -130,3 +130,26 @@ def test_measured_legacy_overlap_minimal_reproducer():
     pair=json.loads((Path(__file__).resolve().parents[1]/'tools/qa/texture_quality/fixtures/middlebury-overlap.json').read_text())['pair']
     assert overlap_area(np.asarray(pair['uv_a']),np.asarray(pair['uv_b']))==pytest.approx(pair['area'],abs=1e-12)
     assert pair['area']>1e-6
+
+
+def test_distortion_uses_pixel_aspect_not_normalized_uv():
+    v=np.array([[0,0,0],[1,0,0],[1,1,0],[0,1,0]],float)
+    f=np.array([[0,1,2],[0,2,3]])
+    uv=np.array([[0,0],[.5,0],[.5,1],[0,1]],float)
+    assert uv_metrics(v,f,uv,np.ones((8,16,4)))['distortion_anisotropy_p95']==pytest.approx(1)
+
+
+@pytest.mark.parametrize('defect',['missing_uv','missing_texture','repeat_sampler','truncated_image'])
+def test_hostile_actual_glb_metadata(tmp_path,defect):
+    import json,struct
+    from tools.qa.texture_quality.fixture import generate
+    from tools.qa.texture_quality.assets import load
+    from tools.qa.geometry_quality.glb import read
+    path=generate(tmp_path);data,binary=read(path)
+    if defect=='missing_uv':del data['meshes'][0]['primitives'][0]['attributes']['TEXCOORD_0']
+    elif defect=='missing_texture':data['images'][0]['uri']='https://invalid.example/image.png'
+    elif defect=='repeat_sampler':data['samplers'][0]['wrapS']=10497
+    else:data['bufferViews'][3]['byteLength']=10
+    js=json.dumps(data).encode();js+=b' '*((-len(js))%4)
+    path.write_bytes(struct.pack('<III',0x46546c67,2,28+len(js)+len(binary))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(binary),0x004e4942)+binary)
+    with pytest.raises(ValueError):load(path)
