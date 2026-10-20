@@ -31,6 +31,13 @@
       "branch": "agents/096-security-hostile-input-assurance",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "084",
+      "source_sha": "4cc6f123b38027921e477eda9c243d7c0c1b4ed8",
+      "branch": "agents/084-full-object-geometry-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
