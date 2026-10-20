@@ -74,13 +74,20 @@ struct NormalVerification { Visibility classification{Visibility::Unknown}; doub
 inline NormalVerification verifyNormals(const SurfaceNormal& reference,const ViewPose& referencePose,
     const SurfaceNormal& source,const ViewPose& sourcePose,double maximumAngleDegrees=35.){
     if(!reference.valid||!source.valid||!std::isfinite(maximumAngleDegrees)||maximumAngleDegrees<=0||maximumAngleDegrees>60)return {};
-    for(double v:referencePose.rotation)if(!std::isfinite(v))return {};
-    for(double v:sourcePose.rotation)if(!std::isfinite(v))return {};
+    const auto calibrated=[](const ViewPose& pose){const auto& r=pose.rotation;
+        for(double v:r)if(!std::isfinite(v))return false;
+        for(int row=0;row<3;++row)for(int col=0;col<3;++col){double dot=0;for(int k=0;k<3;++k)dot+=r[row*3+k]*r[col*3+k];
+            if(!std::isfinite(dot)||std::abs(dot-(row==col?1.:0.))>.025)return false;}
+        const double det=r[0]*(r[4]*r[8]-r[5]*r[7])-r[1]*(r[3]*r[8]-r[5]*r[6])+r[2]*(r[3]*r[7]-r[4]*r[6]);
+        return std::isfinite(det)&&std::abs(det-1)<.025;};
+    if(!calibrated(referencePose)||!calibrated(sourcePose))return {};
+    const auto unit=[](const SurfaceNormal& a){const double n=std::hypot(a.cameraNormal.x,a.cameraNormal.y,a.cameraNormal.z);return std::isfinite(n)&&std::abs(n-1)<1e-6;};
+    if(!unit(reference)||!unit(source))return {};
     const auto world=[](const SurfaceNormal& a,const ViewPose& pose){const auto& r=pose.rotation;const auto n=a.cameraNormal;
         return Vec3{r[0]*n.x+r[3]*n.y+r[6]*n.z,r[1]*n.x+r[4]*n.y+r[7]*n.z,r[2]*n.x+r[5]*n.y+r[8]*n.z};};
     const auto a=world(reference,referencePose),b=world(source,sourcePose);const double an=std::hypot(a.x,a.y,a.z),bn=std::hypot(b.x,b.y,b.z);
     if(!std::isfinite(an)||!std::isfinite(bn)||an<1e-12||bn<1e-12||!std::isfinite(reference.confidence)||!std::isfinite(source.confidence)||reference.confidence<=0||source.confidence<=0||reference.confidence>1||source.confidence>1)return {};
-    const double cosine=std::clamp(std::abs((a.x*b.x+a.y*b.y+a.z*b.z)/(an*bn)),0.,1.);
+    const double cosine=std::clamp(std::abs((a.x/an)*(b.x/bn)+(a.y/an)*(b.y/bn)+(a.z/an)*(b.z/bn)),0.,1.);
     const double angle=std::acos(cosine)*57.29577951308232;
     return {angle<=maximumAngleDegrees?Visibility::Supported:Visibility::Inconsistent,angle};
 }
