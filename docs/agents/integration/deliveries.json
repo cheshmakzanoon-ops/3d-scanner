@@ -423,6 +423,13 @@
       "branch": "agents/096-security-hostile-input-assurance",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "361c3214982c650d0eeb538f49e30916dcf5ccad",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
