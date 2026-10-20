@@ -374,6 +374,13 @@
       "branch": "agents/081-host-numerical-sanitizers",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "754f2892902eb18ece95c6bc1bfde0d4a20861af",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "advisory": "PYSEC-2026-1845",
+  "previousVersion": "8.4.1",
+  "fixedVersion": "9.0.3",
+  "suppressionAdded": false,
+  "publisherEvidence": "pytest-9.0.3-provenance.json",
+  "audits": [
+    {
+      "name": "host",
+      "lock": "tools/requirements.lock",
+      "lockSha256": "684bc89eeb263683e4e8ca82dfa0dbc1cdc28839a7bff556ab15eb96344d01a0",
+      "packages": 14,
+      "vulnerabilities": 0,
+      "result": "PASS",
+      "rawReportSha256": "348a611b0ca744f2b0f06970cd7a553eec26ef5367a75630c25a14e31e4a5853",
+      "command": "python -m pip_audit --no-deps --disable-pip --progress-spinner off -r tools/requirements.lock -f json"
+    },
+    {
+      "name": "qa",
+      "lock": "tools/dependencies/qa-requirements.lock",
+      "lockSha256": "095f55cc9cc8ec1d6ab5e8ee5f08fef8da8cb336358728fe81d546cb5d060b48",
+      "packages": 15,
+      "vulnerabilities": 0,
+      "result": "PASS",
+      "rawReportSha256": "91bdff406a63f0157cd7d6862fb0b93a5715a189ca624c93cfeb965aa496277e",
+      "command": "python -m pip_audit --no-deps --disable-pip --progress-spinner off -r tools/dependencies/qa-requirements.lock -f json"
+    },
+    {
+      "name": "security",
+      "lock": "tools/dependencies/security-requirements.lock",
+      "lockSha256": "a4a0176a006636f295065f8420aca5ea2b418379b3a21fc096801e533d6c1295",
+      "packages": 31,
+      "vulnerabilities": 0,
+      "result": "PASS",
+      "rawReportSha256": "ff665bcd4a01d094176c4b5195237635c13f017c717ae5e16f39b5858c645d71",
+      "command": "python -m pip_audit --no-deps --disable-pip --progress-spinner off -r tools/dependencies/security-requirements.lock -f json"
+    }
+  ],
+  "freshQaInstallationSha256": "2ce194570d5ee6fe89e787430f668b0cbe067a5b5b9d8e8a25aaea3990e5ea21",
+  "functionalTestsPassed": 31,
+  "functionalLogSha256": "3006112bd262876f802ad5736bcac6fa7847023f3c9fbdf41f450195f2094e15"
+}

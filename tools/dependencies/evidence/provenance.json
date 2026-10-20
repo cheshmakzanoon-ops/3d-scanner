@@ -7,7 +7,7 @@
     "settings.gradle.kts": "62c711aefc8c3b5f3acf66d70bf2279e964222c1536e2db755a3255ffe78795c",
     "gradle/verification-metadata.xml": "989946291acb27b7d6a191b1ea5880272213b4866a0613726e5ff5732ef01652",
     "gradle/dependency-locks/app.lockfile": "b27b4b02a696d5ca23c411f8c09fa346a6d6ff5357368b914954ee172833e297",
-    "tools/requirements.lock": "7e906b6903ec44e1ae1c77eb534f6d101ab70e161b06d4ff497f16aa0e2e8c6f"
+    "tools/requirements.lock": "684bc89eeb263683e4e8ca82dfa0dbc1cdc28839a7bff556ab15eb96344d01a0"
   },
   "runtimeModules": 123,
   "distinctResolvedModules": 155,
@@ -19,7 +19,8 @@
     "nodeVersion": "24.19.0",
     "khronosVersion": "2.0.0-dev.3.10",
     "blenderVersion": "4.3.2",
-    "functionalTestsPassed": 25,
-    "installationReceiptSha256": "047cfd4a41f8f374c00cc4265b698d80ebd8543b80b5b93f833a245f1567ce79"
+    "functionalTestsPassed": 31,
+    "installationReceiptSha256": "2ce194570d5ee6fe89e787430f668b0cbe067a5b5b9d8e8a25aaea3990e5ea21",
+    "pytestVersion": "9.0.3"
   }
 }
