@@ -500,6 +500,13 @@
       "branch": "agents/095-dependency-notices-sbom",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "084",
+      "source_sha": "a6751721f063db8daee08b72f19cd3f5cc8f2f14",
+      "branch": "agents/084-full-object-geometry-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
