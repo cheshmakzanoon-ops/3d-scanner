@@ -121,6 +121,20 @@ int main(){
         require(!std::filesystem::exists(t.dir/"ref-1.bin"),"cancelled partial became accepted");
         require(std::filesystem::file_size(t.dir/"ref-0.bin")==acceptedSize,"cancel erased a completed view");
     });
+    test("byte admission and orphan cleanup preserve accepted work and originals",[]{
+        Temp t;rf::DenseDepthMap map{64,48,std::vector<float>(64*48),std::vector<float>(64*48)};
+        {std::ofstream f(t.dir/"ref-0.bin.partial-orphan");f<<"interrupted";}
+        {std::ofstream f(t.dir/"original.jpg");f<<"original";}
+        {rf::depth_checkpoint::Scope scope(t.dir.string(),HASH,96+64*48*8);
+         require(rf::depth_checkpoint::store(0,map),"bounded valid store failed");
+         require(rf::depth_checkpoint::store(1,map),"bounded eviction store failed");}
+        require(!std::filesystem::exists(t.dir/"ref-0.bin.partial-orphan"),"orphan not recovered");
+        require(!std::filesystem::exists(t.dir/"ref-0.bin"),"byte eviction did not remove oldest reference");
+        require(std::filesystem::exists(t.dir/"original.jpg"),"cache eviction touched original");
+        {rf::depth_checkpoint::Scope scope(t.dir.string(),HASH,32);
+         require(!rf::depth_checkpoint::store(2,map),"oversized cache payload accepted");}
+        require(std::filesystem::exists(t.dir/"ref-1.bin"),"failed admission erased accepted work");
+    });
     test("invalid directory or non-SHA identities are rejected",[]{
         bool caught=false;
         try{rf::depth_checkpoint::Scope invalid("/tmp","../wrong");}catch(const std::invalid_argument&){caught=true;}
