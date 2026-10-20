@@ -97,18 +97,29 @@ internal object IncrementalRegistration {
         }
     }
 
+    /** Preserve the original trailing-progress-lambda API for existing pipeline
+     * and instrumentation callers. New persisted sessions pass explicit IDs. */
+    suspend fun grow(
+        templates: List<SparseView>, initial: List<RegisteredFrame>,
+        matches: suspend (Int,Int) -> FeaturePairs,
+        triangulate: (DoubleArray,DoubleArray,Double) -> List<FrontierPoint>,
+        register: (DoubleArray,Double) -> FrontierPose,
+        progress: suspend (String,Int,Int) -> Unit = { _,_,_ -> },
+    ): RegistrationGrowth = grow(templates,initial,matches,triangulate,register,
+        photoIds=templates.indices.map {it.toString()},progress=progress)
+
     suspend fun grow(
         templates: List<SparseView>,
         initial: List<RegisteredFrame>,
         matches: suspend (Int,Int) -> FeaturePairs,
         triangulate: (DoubleArray,DoubleArray,Double) -> List<FrontierPoint>,
         register: (DoubleArray,Double) -> FrontierPose,
-        progress: suspend (String,Int,Int) -> Unit = { _,_,_ -> },
-        photoIds: List<String> = templates.indices.map { it.toString() },
+        photoIds: List<String>,
         resume: RegistrationFrontier? = null,
         checkpoint: (RegistrationFrontier) -> Unit = {},
         neighbors: ((Int) -> Set<Int>)? = null,
         pairBudget: Int = 100000,
+        progress: suspend (String,Int,Int) -> Unit = { _,_,_ -> },
     ): RegistrationGrowth {
         require(templates.size in 2..250 && initial.size in 2..templates.size)
         require(photoIds.size==templates.size && photoIds.distinct().size==photoIds.size && photoIds.all {it.isNotBlank()&&it.toByteArray().size<=1024})
@@ -156,7 +167,7 @@ internal object IncrementalRegistration {
             sourceTracks=graph.stableSnapshot(window.map {photoIds[it.photo]}).encode()
             val groups=graph.snapshot()
             val observations=graph.packedRows()
-            if (groups.size<16) break
+            if (groups.size<16){for(photo in pending)failures[photoIds[photo]]="Insufficient verified registered tracks in the admitted native window";break}
             val cameraRows=DoubleArray(window.size*12) {
                 val view=window[it/12].view
                 if(it%12<9)view.rotation[it%12] else view.translation[it%12-9]
@@ -175,7 +186,7 @@ internal object IncrementalRegistration {
                 }.mapKeys { (local,_) -> window[local].photo }
                 if(supported.size>=2)Landmark(point.xyz,supported) else null
             }
-            if(landmarks.size<16) break
+            if(landmarks.size<16){for(photo in pending)failures[photoIds[photo]]="Insufficient positive-depth reprojection-supported landmarks";break}
             var added=false
             // Rank actual unambiguous two-view landmark support, independent of
             // import ordering. Retain only8 bounded candidate row buffers.
