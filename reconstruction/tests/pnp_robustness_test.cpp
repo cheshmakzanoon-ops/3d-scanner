@@ -43,11 +43,11 @@ int main(){
   auto pose=rf::registerCamera(rows,.0015);assert(pose.inliers.size()>=95);for(int j=0;j<9;++j)assert(std::abs(pose.rotation[j]-truth[j])<.015);
   assert(std::abs(pose.translation.x-translation.x)<.06);assert(std::abs(pose.translation.y-translation.y)<.06);assert(std::abs(pose.translation.z-translation.z)<.06);
  }
+ auto snapshot=state->snapshot();assert(snapshot.stage==rf::progress::Stage::Sparse&&snapshot.tile==1&&snapshot.completed>0&&!snapshot.total);
  for(int failure=0;failure<8;++failure){failAfter=failure;char* value=rf_register_camera_json(nullptr,0,.001);failAfter=-1;if(value)rf_free(value);}
  {std::vector<rf::Observation> many;for(int i=0;i<5000;++i){rf::Vec3 p{std::sin(i)*.8,std::cos(i*.7)*.7,3.+(i%10)*.2};many.push_back({p,{(p.x-.2)/p.z,p.y/p.z}});}
   std::atomic_bool runningStop{false};rf::cancellation::Scope runningScope(&runningStop);std::thread stopper([&]{std::this_thread::sleep_for(std::chrono::milliseconds(1));runningStop=true;});
   bool interrupted=false;try{rf::registerCamera(many,.001);}catch(const rf::cancellation::Cancelled&){interrupted=true;}stopper.join();assert(interrupted);}
- auto snapshot=state->snapshot();assert(snapshot.stage==rf::progress::Stage::Sparse&&snapshot.tile==1&&snapshot.completed>0&&!snapshot.total);
  std::vector<rf::Observation> rows(20,{{0,0,4},{0,0}});
  bool rejected=false;try{rf::registerCamera(rows);}catch(const rf::Error&){rejected=true;}assert(rejected);
  std::atomic_bool stop{true};rf::cancellation::Scope scope(&stop);
