@@ -45,6 +45,12 @@ def entries(root: Path, source: str = "index") -> dict[str, tuple[str, str]]:
     """Return exact regular-file set; reject unresolved conflicts and special entries."""
     result = {}
     if source in ("index", "worktree"):
+        # Intent-to-add appears in ls-files with the empty blob but is omitted
+        # from a commit. Reject it rather than manifesting a tree Git cannot commit.
+        visible = git(root, "diff", "--cached", "--no-renames", "--name-only", "-z", "--ita-visible-in-index")
+        staged = git(root, "diff", "--cached", "--no-renames", "--name-only", "-z", "--ita-invisible-in-index")
+        if visible != staged:
+            raise ManifestError("Fully stage or remove intent-to-add entries before manifest generation/verification")
         records = git(root, "ls-files", "--stage", "-z")
     else:
         revision = git(root, "rev-parse", "--verify", source + "^{commit}").decode().strip()
