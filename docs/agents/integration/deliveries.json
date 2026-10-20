@@ -598,6 +598,13 @@
       "branch": "agents/096-security-hostile-input-assurance",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "081",
+      "source_sha": "444ada9422b5c308283b9c34aa21fcfaba50b4d9",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
