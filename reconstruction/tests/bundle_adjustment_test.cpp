@@ -68,6 +68,7 @@ int main(){
         auto out=rf::bundleAdjust(s.initial,s.seeds,s.observations,{.025,18});
         require(out.points.size()>220,"Most point tracks lost");
         require(out.usableObservations>400,"Not enough valid observations used");
+        for(const auto& p:out.points)require(p.supportingCameraIndices.size()==p.supportingViews,"Retained support metadata was fabricated or lost");
         require(out.robustCostAfter<out.robustCostBefore*.30,"Coupled global cost not reduced substantially");
         require(out.medianErrorAfter<out.medianErrorBefore*.35,"Median reprojection error did not decrease");
         require(out.acceptedSteps>0,"No useful optimization step accepted");

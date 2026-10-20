@@ -29,6 +29,7 @@ struct BundlePoint {
     BundleSeed seed;
     std::size_t supportingViews{};
     double medianErrorNormalized{}, maxParallaxDegrees{};
+    std::vector<std::size_t> supportingCameraIndices;
 };
 struct BundleResult {
     std::vector<ViewPose> cameras;

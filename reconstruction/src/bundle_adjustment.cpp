@@ -346,7 +346,9 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
                 parallax(out.cameras[u.camera],out.cameras[active.observations[j].camera],xyz));
         }
         if(*std::max_element(errors.begin(),errors.end())>settings.maxReprojectionError*3.||maxAngle<.8)continue;
-        out.points.push_back({active.seed,active.observations.size(),median(errors),maxAngle});
+        std::vector<std::size_t> supportingCameras;for(const auto& o:active.observations)supportingCameras.push_back(o.camera);
+        std::sort(supportingCameras.begin(),supportingCameras.end());
+        out.points.push_back({active.seed,active.observations.size(),median(errors),maxAngle,std::move(supportingCameras)});
     }
     for(std::size_t c=0;c<out.cameras.size();++c){
         std::vector<double> errors;for(const auto& p:points)for(const auto& o:p.observations)if(o.camera==c)errors.push_back(residual(out.cameras[c],p.seed.xyz,o.image));
@@ -460,6 +462,9 @@ std::string bundleJson(const BundleResult& r){
         for(int j=0;j<9;++j){if(j)out<<',';out<<c.rotation[j];}
         out<<"],\"translation\":["<<c.translation.x<<','<<c.translation.y<<','<<c.translation.z<<"]}";
     }
+    out<<"],\"trackEvidence\":[";
+    for(std::size_t i=0;i<r.points.size();++i){if(i)out<<',';const auto& p=r.points[i];out<<"{\"track\":"<<p.seed.track<<",\"supportingCameras\":[";
+        for(std::size_t c=0;c<p.supportingCameraIndices.size();++c){if(c)out<<',';out<<p.supportingCameraIndices[c];}out<<"]}";}
     out<<"],\"points\":[";
     for(std::size_t i=0;i<r.points.size();++i){
         if(i)out<<',';
