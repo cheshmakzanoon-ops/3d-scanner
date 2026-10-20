@@ -192,6 +192,13 @@
       "branch": "agents/088-failure-recovery-instrumentation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "3b8da57874a5ae2fd9ddeb127acc85f587ba289f",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

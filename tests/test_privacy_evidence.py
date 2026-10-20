@@ -90,7 +90,25 @@ def test_runtime_evidence_rejects_disabled_partial_and_skipped_runs():
     assert journey.network_disabled({'airplane_mode_on': '1', 'wifi_on': '0', 'mobile_data': '0'})
     assert not journey.network_disabled({'airplane_mode_on': '1', 'wifi_on': '1', 'mobile_data': '0'})
     assert not journey.network_disabled({})
-    assert journey.completed('OK (3 tests)')
+    actual = 'INSTRUMENTATION_STATUS_CODE: 0\n' * 3 + 'OK (3 tests)'
+    assert journey.completed(actual)
     for output in ['OK (0 tests)', 'OK (2 tests)', 'FAILURES!!!\nOK (3 tests)',
-                   'INSTRUMENTATION_FAILED\nOK (3 tests)', 'INSTRUMENTATION_STATUS_CODE: -3\nOK (3 tests)']:
+                   'OK (3 tests)', 'INSTRUMENTATION_FAILED\n' + actual,
+                   'INSTRUMENTATION_STATUS_CODE: -3\nOK (3 tests)',
+                   'INSTRUMENTATION_STATUS_CODE: -4\n' + actual]:
         assert not journey.completed(output)
+
+
+def test_installed_identity_rejects_wrong_package_or_mixed_splits():
+    spec = importlib.util.spec_from_file_location('journey', ROOT / 'tools/device/offline_privacy/journey.py')
+    journey = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(journey)
+    def invoke(*args):
+        if args[1:3] == ('pm', 'path'):
+            return 'package:/data/app/~~safe/package/base.apk'
+        return 'a' * 64 + '  /data/app/~~safe/package/base.apk'
+    assert journey.installed_hash(invoke, 'com.realityforge.scanner') == 'a' * 64
+    for response in ['', 'package:/data/app/a/base.apk\npackage:/data/app/a/split.apk',
+                     'package:/data/app/a/$(unsafe).apk']:
+        with pytest.raises(ValueError):
+            journey.installed_hash(lambda *args: response, 'com.realityforge.scanner')
