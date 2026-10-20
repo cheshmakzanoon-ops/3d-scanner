@@ -1,2 +1,4 @@
 # Preserve exact upstream license/notice bytes, including their whitespace.
 * -whitespace
+# This exact upstream Markdown uses seven '=' heading underlines, not merge conflicts.
+OpenCV-4.12.0-SDK-libjpeg-turbo-README.md conflict-marker-size=32
