@@ -21,8 +21,28 @@ std::pair<std::vector<rf::DenseView>,rf::DenseResult> plane(bool opposite){
 }
 }
 int main(){
+    constexpr double radians=3.14159265358979323846/180.;
+    for(double scale:{1e-300,.01,.4,1.,1e300,std::numeric_limits<double>::max()}){
+        check(rf::surface_fusion::compatibleNormal({0,0,scale},{std::sin(20*radians),0,std::cos(20*radians)}),"positive normal scale changed20degree agreement");
+        check(!rf::surface_fusion::compatibleNormal({0,0,scale},{std::sin(40*radians),0,std::cos(40*radians)}),"normal40degree disagreement was accepted");
+        check(!rf::surface_fusion::compatibleNormal({0,0,scale},{0,0,-1}),"opposing weighted normal accepted");
+    }
+    check(rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::denorm_min()},{0,0,1}),"positive subnormal direction rejected");
+    check(!rf::surface_fusion::compatibleNormal({},{0,0,1}),"zero normal accepted");
+    check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::infinity()},{0,0,1}),"infinite normal accepted");
+    check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::quiet_NaN()},{0,0,1}),"NaN normal accepted");
     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
     auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");
+    // Confidence is an admitted observation weight, not a normal-vector length.
+    // Identical supported planes must associate identically above the configured
+    // minimum confidence; changing weights must not rotate or invalidate normals.
+    auto lowerConfidence=dense;
+    for(auto& map:lowerConfidence.maps)for(auto& confidence:map.confidence)if(confidence>0)confidence=.20f;
+    for(auto& sample:lowerConfidence.verifiedSamples)sample.confidence=.20f;
+    const auto lowMesh=rf::fuseDepthSurfaces(views,lowerConfidence);
+    check(lowMesh.fusedObservations==mesh.fusedObservations,"admitted confidence weights invalidated identical supported normal directions");
+    check(lowMesh.triangles.size()==mesh.triangles.size(),"confidence-only change altered exact plane topology");
+    check(lowMesh.medianConfidence<=.20f,"fusion inflated admitted observation confidence");
     auto duplicate=dense;duplicate.verifiedSamples.push_back(duplicate.verifiedSamples.front());bool duplicateRejected=false;try{(void)rf::fuseDepthSurfaces(views,duplicate);}catch(const rf::Error&){duplicateRejected=true;}check(duplicateRejected,"duplicate source identity accepted");
     auto reversed=dense;std::reverse(reversed.verifiedSamples.begin(),reversed.verifiedSamples.end());const auto reordered=rf::fuseDepthSurfaces(views,reversed);check(rf::surfaceJson(mesh)==rf::surfaceJson(reordered),"sample order changed fused geometry");
     auto [thinViews,thinDense]=plane(true);const auto thin=rf::fuseDepthSurfaces(thinViews,thinDense);check(thin.fusedObservations==0,"opposite thin sides were merged");check(thin.triangles.size()>100,"thin observations disappeared");
