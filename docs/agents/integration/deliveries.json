@@ -563,6 +563,13 @@
       "branch": "agents/088-failure-recovery-instrumentation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "77b58ccdbf03c8f40b0dfc21ce445c942088ec2a",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

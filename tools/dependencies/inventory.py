@@ -40,7 +40,7 @@ def build_id(data):
 def native_inventory(resolution):
  records={}
  for conf in resolution['configurations']:
-  if conf['configuration'] not in ('releaseRuntimeClasspath','benchmarkRuntimeClasspath','releaseAndroidTestRuntimeClasspath'):continue
+  if conf['configuration'] not in ('releaseRuntimeClasspath','debugRuntimeClasspath','benchmarkRuntimeClasspath','releaseAndroidTestRuntimeClasspath','debugAndroidTestRuntimeClasspath'):continue
   for artifact in conf['artifacts']:
    path=Path(artifact['path'])
    if not zipfile.is_zipfile(path):continue
@@ -55,13 +55,18 @@ def native_inventory(resolution):
 def configuration_scope(name):
  if name=='releaseRuntimeClasspath':return 'android-runtime'
  if name=='releaseCompileClasspath':return 'android-compile'
- if name=='debugRuntimeClasspath':return 'qa-debug-runtime'
- if name=='debugCompileClasspath':return 'qa-debug-compile'
+ if name=='debugRuntimeClasspath':return 'android-runtime'
+ if name=='debugCompileClasspath':return 'android-compile'
  if name.startswith('benchmark') and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-benchmark'
  if name.startswith(('releaseAndroidTest','debugAndroidTest')) and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-instrumentation'
  if name.startswith(('releaseUnitTest','debugUnitTest')) and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-jvm'
  if name in ('kspReleaseKotlinProcessorClasspath','kspDebugKotlinProcessorClasspath'):return 'build-processor'
  raise ValueError('Unsupported resolved dependency configuration: '+name)
+
+def resolution_variant(resolution):
+ names={c['configuration'] for c in resolution['configurations']}
+ if {'debugRuntimeClasspath','releaseRuntimeClasspath'}<=names:raise ValueError('One APK variant required per runtime inventory')
+ return 'debug' if 'debugRuntimeClasspath' in names else 'release' if 'releaseRuntimeClasspath' in names else 'qa'
 
 def artifacts_export(resolution,cache):
  modules={};artifacts={}
@@ -105,7 +110,7 @@ def extract_notices(resolution,output):
  # Preserve all upstream license/notice resources even when packaging strips META-INF.
  records=[]
  for conf in resolution['configurations']:
-  if conf['configuration'] not in ('releaseRuntimeClasspath','benchmarkRuntimeClasspath','releaseAndroidTestRuntimeClasspath','releaseUnitTestRuntimeClasspath'):continue
+  if conf['configuration'] not in ('releaseRuntimeClasspath','debugRuntimeClasspath','benchmarkRuntimeClasspath','releaseAndroidTestRuntimeClasspath','debugAndroidTestRuntimeClasspath','releaseUnitTestRuntimeClasspath','debugUnitTestRuntimeClasspath'):continue
   for a in conf['artifacts']:
    path=Path(a['path'])
    if not zipfile.is_zipfile(path):continue
@@ -126,6 +131,7 @@ def extract_notices(resolution,output):
 
 def package_audit(package,assets,inventory):
  manifest=json.loads((assets/'NOTICE_INDEX.json').read_text())
+ if manifest.get('variant','release')!=inventory.get('variant','release'):raise ValueError('Attribution variant mismatch')
  for path,expected in manifest['files'].items():
   if digest((assets/path).read_bytes())!=expected:raise ValueError('Notice source integrity mismatch: '+path)
  prefix='base/assets/third-party-notices/' if package.suffix=='.aab' else 'assets/third-party-notices/'
@@ -144,7 +150,7 @@ def package_audit(package,assets,inventory):
    if canonical not in approved or build_id(z.read(name))!=approved[canonical]['gnuBuildId']:
     raise ValueError('Native binary identity differs from resolved dependency: '+name)
  if manifest.get('unresolved'):raise ValueError('BLOCKED_EXTERNAL: unresolved redistribution evidence: '+', '.join(manifest['unresolved']))
- return dict(schemaVersion=1,artifact=package.name,artifactSha256=digest(package.read_bytes()),runtimeModules=len(runtime),nativeLibraries=native,noticeFiles=len(manifest['files']),status='PASS')
+ return dict(schemaVersion=1,variant=inventory.get('variant','release'),artifact=package.name,artifactSha256=digest(package.read_bytes()),runtimeModules=len(runtime),nativeLibraries=native,noticeFiles=len(manifest['files']),status='PASS')
 
 def main():
  p=argparse.ArgumentParser();sub=p.add_subparsers(dest='command',required=True)
@@ -154,7 +160,7 @@ def main():
  a=p.parse_args()
  if a.command=='generate':
   resolution=json.loads(a.resolution.read_text());modules=artifacts_export(resolution,a.cache);a.output.mkdir(parents=True,exist_ok=True);a.notices.mkdir(parents=True,exist_ok=True)
-  inventory=dict(schemaVersion=1,nativeRedistributables=native_inventory(resolution),source='Gradle resolved configurations: '+', '.join(c['configuration'] for c in resolution['configurations']),modules=modules)
+  inventory=dict(schemaVersion=1,variant=resolution_variant(resolution),nativeRedistributables=native_inventory(resolution),source='Gradle resolved configurations: '+', '.join(c['configuration'] for c in resolution['configurations']),modules=modules)
   (a.output/'inventory.json').write_text(json.dumps(inventory,indent=2)+'\n');(a.output/'sbom.cdx.json').write_text(json.dumps(sbom(inventory),indent=2)+'\n')
   extracted=extract_notices(resolution,a.notices);(a.output/'extracted-notices.json').write_text(json.dumps(extracted,indent=2)+'\n')
  elif a.command=='verify':verify_resolution(json.loads(a.resolution.read_text()),json.loads(a.inventory.read_text()));print('Approved resolved graph and artifact bytes verified')

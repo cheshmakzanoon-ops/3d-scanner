@@ -1,4 +1,4 @@
-import copy,hashlib,importlib.util,json,struct,zipfile
+import copy,hashlib,importlib.util,json,struct,sys,zipfile
 from pathlib import Path
 import pytest
 ROOT=Path(__file__).resolve().parents[1];spec=importlib.util.spec_from_file_location('inventory',ROOT/'tools/dependencies/inventory.py');inv=importlib.util.module_from_spec(spec);spec.loader.exec_module(inv)
@@ -26,20 +26,38 @@ def test_native_identity_survives_nonidentity_changes():
  data=elf();assert inv.build_id(data)==b'identity'.hex();assert inv.build_id(data+b'debug symbols')==inv.build_id(data)
  assert inv.build_id(elf(b'tampered'))!=inv.build_id(data)
  with pytest.raises(ValueError):inv.build_id(b'not an ELF')
+
+def test_debug_inventory_keeps_native_identity_and_full_notice_bytes(tmp_path):
+ p=tmp_path/'qa.aar';native=elf()
+ with zipfile.ZipFile(p,'w') as archive:
+  archive.writestr('jni/arm64-v8a/libfixture.so',native)
+  archive.writestr('META-INF/LICENSE.txt','Full upstream synthetic license fixture\n')
+ row={'coordinate':'x:qa:1','path':str(p),'name':p.name,'sha256':inv.digest(p.read_bytes())}
+ r={'configurations':[{'configuration':'debugRuntimeClasspath','modules':['x:qa:1'],'artifacts':[row]}]}
+ record=inv.native_inventory(r)[0]
+ assert record['sha256']==inv.digest(native) and record['gnuBuildId']==inv.build_id(native)
+ notices=tmp_path/'notices';notices.mkdir()
+ extracted=inv.extract_notices(r,notices)
+ assert (notices/extracted[0]['path']).read_text()=='Full upstream synthetic license fixture\n'
 def test_parent_pom_license_inheritance(tmp_path):
  for name,text in [('child','<parent><groupId>x</groupId><artifactId>parent</artifactId><version>1</version></parent>'),('parent','<licenses><license><name>Apache-2.0</name><url>https://apache.org/license</url></license></licenses>')]:
   path=tmp_path/'x'/name/'1'/'hash';path.mkdir(parents=True);(path/(name+'.pom')).write_text('<project xmlns="http://maven.apache.org/POM/4.0.0">'+text+'</project>')
  licenses,evidence=inv.pom_evidence('x:child:1',tmp_path);assert licenses[0]['name']=='Apache-2.0';assert len(evidence)==2
 
-def test_debug_resolution_retains_qa_scope_and_actual_hash_evidence(tmp_path):
+def test_debug_resolution_retains_actual_variant_runtime_and_hash_evidence(tmp_path):
  r,_,_=resolution(tmp_path)
  r['configurations'][0]['configuration']='debugRuntimeClasspath'
  pom=tmp_path/'cache/org.example/lib/1/hash/lib.pom';pom.parent.mkdir(parents=True)
  pom.write_text('<project xmlns="http://maven.apache.org/POM/4.0.0"><licenses><license><name>MIT</name><url>https://example.org/MIT</url></license></licenses></project>')
  modules=inv.artifacts_export(r,tmp_path/'cache')
- assert modules[0]['scopes']==['qa-debug-runtime']
+ assert modules[0]['scopes']==['android-runtime']
  assert inv.verify_resolution(r,{'modules':modules})
- assert inv.sbom({'modules':modules})['components'][0]['scope']=='excluded'
+ assert inv.sbom({'modules':modules})['components'][0]['scope']=='required'
+ assert inv.resolution_variant(r)=='debug'
+ r['configurations'].append({'configuration':'releaseRuntimeClasspath','modules':[],'artifacts':[]})
+ with pytest.raises(ValueError,match='One APK variant'):
+  inv.resolution_variant(r)
+ r['configurations'].pop()
  r['configurations'][0]['configuration']='unreviewedRuntimeClasspath'
  with pytest.raises(ValueError,match='Unsupported resolved'):
   inv.artifacts_export(r,tmp_path/'cache')
@@ -70,6 +88,37 @@ def test_blocked_terms_fail_closed(tmp_path):
  with zipfile.ZipFile(p) as src,zipfile.ZipFile(q,'w') as dest:
   for n in src.namelist():dest.writestr(n,(a/'NOTICE_INDEX.json').read_bytes() if n.endswith('NOTICE_INDEX.json') else src.read(n))
  with pytest.raises(ValueError,match='BLOCKED_EXTERNAL'):inv.package_audit(q,a,i)
+
+def test_debug_attribution_rejects_release_inventory_and_missing_runtime(tmp_path):
+ p,a,i=package(tmp_path);i['variant']='debug'
+ with pytest.raises(ValueError,match='variant'):inv.package_audit(p,a,i)
+ index=json.loads((a/'NOTICE_INDEX.json').read_text());index['variant']='debug';index['runtimeCoordinates'].append('x:extra-debug:1')
+ (a/'NOTICE_INDEX.json').write_text(json.dumps(index))
+ q=tmp_path/'debug.apk'
+ with zipfile.ZipFile(p) as source,zipfile.ZipFile(q,'w') as out:
+  for name in source.namelist():out.writestr(name,(a/'NOTICE_INDEX.json').read_bytes() if name.endswith('NOTICE_INDEX.json') else source.read(name))
+ with pytest.raises(ValueError,match='graph'):inv.package_audit(q,a,i)
+
+def test_debug_notice_generation_preserves_bytes_and_requires_reviewed_licenses(tmp_path):
+ sys.path.insert(0,str(ROOT/'tools/dependencies'))
+ import variant_notices
+ r,_,_=resolution(tmp_path);r['configurations'][0]['configuration']='debugRuntimeClasspath'
+ row=r['configurations'][0]['artifacts'][0]
+ module={'coordinate':row['coordinate'],'scopes':['android-runtime'],'artifacts':[row],'metadataOnly':False,
+         'licenses':[{'name':'Apache License, Version 2.0','url':'https://www.apache.org/licenses/LICENSE-2.0'}],'licenseEvidence':[]}
+ inventory={'variant':'debug','modules':[module]};base=tmp_path/'base';base.mkdir()
+ text=b'Complete synthetic Apache license fixture; unit test only\n';(base/'Apache-2.0.txt').write_bytes(text)
+ (base/'NOTICE_INDEX.json').write_text(json.dumps({'files':{'Apache-2.0.txt':inv.digest(text)},'runtimeCoordinates':[],'unresolved':[]}))
+ output=tmp_path/'debug'
+ result=variant_notices.generate(r,inventory,{'modules':[]},base,output)
+ assert result['runtimeModules']==1 and (output/'Apache-2.0.txt').read_bytes()==text
+ index=json.loads((output/'NOTICE_INDEX.json').read_text());assert index['variant']=='debug' and index['runtimeCoordinates']==[row['coordinate']]
+ module['licenses'][0]['name']='Unreviewed license'
+ with pytest.raises(ValueError,match='explicit full-text review'):
+  variant_notices.generate(r,inventory,{'modules':[]},base,tmp_path/'blocked')
+ (base/'Apache-2.0.txt').write_bytes(b'tamper')
+ with pytest.raises(ValueError,match='integrity'):
+  variant_notices.generate(r,inventory,{'modules':[]},base,tmp_path/'tampered')
 def test_committed_runtime_graph_and_complete_notice_texts():
  inventory=json.loads((ROOT/'tools/dependencies/evidence/inventory.json').read_text());assets=ROOT/'app/src/main/assets/third-party-notices';index=json.loads((assets/'NOTICE_INDEX.json').read_text())
  runtime={m['coordinate'] for m in inventory['modules'] if 'android-runtime' in m['scopes']};assert runtime==set(index['runtimeCoordinates']);assert len(runtime)>100

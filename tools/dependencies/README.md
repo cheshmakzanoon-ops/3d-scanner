@@ -88,4 +88,26 @@ when AGP actually creates them. Export debug main with `-PrfInventoryScope=debug
 and debug tests with `-PrfInventoryScope=debug-tests`; export release tests with
 `-PrfInventoryScope=tests -PrealityForgeTestBuildType=release`. Requested absent
 configurations or unknown scopes fail rather than yielding a partial approved graph.
-Debug supplemental SBOM scopes remain QA-only and do not enlarge shipping notices.
+The actual debug APK has129 runtime modules and a separate variant-bound runtime
+inventory/SBOM at tools/dependencies/evidence/debug/. Its complete95 notice texts
+and index are in app/src/debug/assets/third-party-notices and merge through the normal
+AGP debug source set. The release remains123 modules with its unchanged92 texts.
+Debug test/KSP dependencies retain separate QA scopes.
+
+Generate debug main evidence with `-PrfInventoryScope=debug` and the actual combined
+module lock. Then run:
+
+```
+python tools/dependencies/variant_notices.py --resolution DEBUG_RESOLVED_JSON --inventory tools/dependencies/evidence/debug/inventory.json --release-inventory tools/dependencies/evidence/inventory.json --base-notices app/src/main/assets/third-party-notices --output app/src/debug/assets/third-party-notices --report tools/dependencies/evidence/debug/notice-provenance.json
+python tools/dependencies/inventory.py audit app/build/outputs/apk/debug/app-debug.apk --inventory tools/dependencies/evidence/debug/inventory.json --notices app/src/debug/assets/third-party-notices --report DEBUG_REPORT
+```
+
+The generator verifies common release artifact identities and all common legal
+bytes, preserves actual additional artifact notices, and binds all129 coordinates.
+The six additional Compose1.8.2 coordinates declare Apache2.0; full shared Apache2.0
+and three artifact-specific license texts cover them, with exact POM/artifact hashes.
+An additional unreviewed license fails generation. The audit rejects variant/graph
+mismatches and altered packaged index/text bytes; auditing the debug package against
+the123-module release inventory is invalid. Normal004 build locking activates only
+the14 explicitly approved debug/release configurations; CI does not require an init
+script solely for activation once that source-owner integration is present.
