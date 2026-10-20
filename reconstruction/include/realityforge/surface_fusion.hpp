@@ -18,6 +18,25 @@ inline std::array<std::int64_t,3> checkedVoxel(Vec3 p,double size){
         result[k]=static_cast<std::int64_t>(value);
     }return result;
 }
+// Each vertex occupies one power-of-two level. A cell is at least as wide
+// as its source radius, so any admissible pair lies in 27 adjacent cells at
+// that vertex's level; all 24 levels require at most 648 bounded lookups.
+inline constexpr std::size_t radiusLevelCount=24;
+inline double radiusCellSize(std::size_t level){
+    if(level>=radiusLevelCount)throw Error("Invalid surface radius level");
+    return std::ldexp(.0001,static_cast<int>(level));
+}
+inline double observedFusionRadius(double cameraZ,double minimumFocal,int stride){
+    if(!std::isfinite(cameraZ)||cameraZ<=0||!std::isfinite(minimumFocal)||minimumFocal<=0||stride<2||stride>8)throw Error("Invalid observed surface footprint");
+    const long double spacing=static_cast<long double>(cameraZ)*stride/minimumFocal;
+    return std::max(.0001,static_cast<double>(std::clamp(spacing,.00001L,1000.L))*.60);
+}
+inline std::size_t radiusLevel(double radius){
+    if(!std::isfinite(radius)||radius<.0001||radius>600)throw Error("Invalid surface fusion radius");
+    std::size_t level=0;
+    while(radiusCellSize(level)<radius)++level;
+    return level;
+}
 inline bool compatibleNormal(Vec3 a,Vec3 b){
     // Accumulators carry confidence/support-weighted normals. Their magnitude
     // is not angular evidence: any finite positive scale preserves direction.
