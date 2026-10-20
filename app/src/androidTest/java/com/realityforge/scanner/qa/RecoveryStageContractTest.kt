@@ -21,6 +21,14 @@ import java.security.MessageDigest
 @RunWith(AndroidJUnit4::class)
 class RecoveryStageContractTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
+    private fun providerAccess(grant: Boolean) {
+        val operation = if (grant) "grant" else "revoke"
+        val component = "com.realityforge.scanner.test/com.realityforge.scanner.qa.FaultDocumentProvider\$GrantReceiver"
+        val command = "am broadcast --receiver-foreground -n '$component' --es operation $operation"
+        val output = android.os.ParcelFileDescriptor.AutoCloseInputStream(instrumentation.uiAutomation.executeShellCommand(command))
+            .bufferedReader().use { it.readText() }
+        assertTrue("Explicit test-only URI $operation failed: $output", output.contains("Broadcast completed: result=-1") && output.contains("RF088_$operation"))
+    }
     private fun hash(file: File) = file.inputStream().use { stream ->
         val digest = MessageDigest.getInstance("SHA-256"); val buffer = ByteArray(65536)
         while(true) { val n=stream.read(buffer); if(n<0) break; digest.update(buffer,0,n) }
@@ -30,7 +38,7 @@ class RecoveryStageContractTest {
         val app = instrumentation.targetContext.applicationContext as RealityForgeApplication
         val repository = app.repository
         val id = repository.create("Synthetic bounded fault fixture")
-        instrumentation.uiAutomation.adoptShellPermissionIdentity("android.permission.MANAGE_DOCUMENTS")
+        providerAccess(true)
         fun uri(mode: String) = DocumentsContract.buildDocumentUri(FaultDocumentProvider.AUTHORITY, mode)
         try {
             assertTrue(repository.importPhoto(id, uri("normal")))
@@ -59,7 +67,7 @@ class RecoveryStageContractTest {
             assertTrue("Slow import must cancel through real repository copying",cancelledImport is kotlinx.coroutines.TimeoutCancellationException)
             assertFalse(repository.directory(id).walkTopDown().any { it.name.endsWith(".partial") })
             assertEquals(before,repository.dao.photos(id).associate { it.id to hash(repository.photoFile(it)) })
-        } finally { instrumentation.uiAutomation.dropShellPermissionIdentity(); repository.delete(id) }
+        } finally { try { providerAccess(false) } finally { repository.delete(id) } }
     }
 
     /** Shared provider contract only:026 still owns real DestinationTransferService outcome assertions. */
@@ -84,7 +92,7 @@ class RecoveryStageContractTest {
             check(it.moveToFirst()); if (it.isNull(0)) null else it.getLong(0)
         }
         val bytes = ByteArray(256) { ((it * 17) and 255).toByte() }
-        instrumentation.uiAutomation.adoptShellPermissionIdentity("android.permission.MANAGE_DOCUMENTS")
+        providerAccess(true)
         try {
             val (normal, normalUri) = configure()
             write(normalUri, bytes)
@@ -143,7 +151,7 @@ class RecoveryStageContractTest {
                     if (!removed) failed += id
                 }
                 assertTrue("Synthetic request cleanup failed: $failed", failed.isEmpty())
-            } finally { instrumentation.uiAutomation.dropShellPermissionIdentity() }
+            } finally { providerAccess(false) }
         }
     }
 
@@ -158,7 +166,11 @@ class RecoveryStageContractTest {
             ids += id
             return id to DocumentsContract.buildDocumentUri(FaultDocumentProvider.AUTHORITY, "request/$id")
         }
-        instrumentation.uiAutomation.adoptShellPermissionIdentity("android.permission.MANAGE_DOCUMENTS")
+        providerAccess(false)
+        assertTrue("Provider configuration must reject a consumer without explicit URI access", runCatching {
+            resolver.call(authority, "qa.snapshot", "not_configured", null)
+        }.exceptionOrNull() is SecurityException)
+        providerAccess(true)
         try {
             val (_, denied) = configure("revoked")
             assertTrue(runCatching { resolver.openOutputStream(denied, "wt") }.exceptionOrNull() is SecurityException)
@@ -191,7 +203,7 @@ class RecoveryStageContractTest {
                     if (!removed) failed += id
                 }
                 assertTrue("Synthetic request cleanup failed: $failed", failed.isEmpty())
-            } finally { instrumentation.uiAutomation.dropShellPermissionIdentity() }
+            } finally { providerAccess(false) }
         }
     }
 
