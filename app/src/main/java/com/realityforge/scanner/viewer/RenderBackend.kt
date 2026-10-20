@@ -2,6 +2,8 @@ package com.realityforge.scanner.viewer
 
 import android.view.Surface
 import android.view.View
+import kotlin.math.cos
+import kotlin.math.sin
 
 /** C14. Implementations own GPU resources; callers retain immutable master files. */
 interface RenderControls {
@@ -28,6 +30,30 @@ interface RenderBackend : RenderControls, AutoCloseable {
 }
 
 enum class InspectionMode { PHOTOGRAPHIC_UNLIT, NEUTRAL_GEOMETRY }
+
+/** Shared display-only convention: V(pan,distance) * Rx(pitch) * Ry(yaw) * normalization. */
+object DisplayCamera {
+    fun rotation(yawDegrees: Float,pitchDegrees: Float,result: FloatArray): FloatArray {
+        require(yawDegrees.isFinite() && pitchDegrees.isFinite() && result.size>=16)
+        val yaw=Math.toRadians(yawDegrees.toDouble()); val pitch=Math.toRadians(pitchDegrees.toDouble())
+        val cy=cos(yaw).toFloat(); val sy=sin(yaw).toFloat(); val cp=cos(pitch).toFloat(); val sp=sin(pitch).toFloat()
+        result.fill(0f)
+        result[0]=cy; result[1]=sp*sy; result[2]=-cp*sy
+        result[5]=cp; result[6]=sp
+        result[8]=sy; result[9]=-sp*cy; result[10]=cp*cy; result[15]=1f
+        return result
+    }
+    fun distance(width: Int,height: Int,zoom: Float): Float {
+        require(width>0 && height>0 && zoom.isFinite() && zoom>0)
+        return 3f/minOf(1f,width.toFloat()/height)/zoom
+    }
+    fun view(panX: Float,panY: Float,distance: Float,result: FloatArray): FloatArray {
+        require(panX.isFinite() && panY.isFinite() && distance.isFinite() && distance>0 && result.size>=16)
+        result.fill(0f); result[0]=1f; result[5]=1f; result[10]=1f; result[15]=1f
+        result[12]=-panX; result[13]=-panY; result[14]=-distance
+        return result
+    }
+}
 
 /** Byte counts are admission estimates, never reported as measured driver residency. */
 data class RenderStatistics(

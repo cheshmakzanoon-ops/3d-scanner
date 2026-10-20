@@ -128,12 +128,10 @@ class PhotographicRenderer(
             GLES30.glUseProgram(program)
             // Frame the full bounding sphere in either portrait or landscape.
             val aspect = width.toFloat() / height
-            val distance = 3.0f / minOf(1f, aspect) / zoom
+            val distance = DisplayCamera.distance(width,height,zoom)
             Matrix.perspectiveM(projection, 0, 45f, aspect, .02f, 100f)
-            Matrix.setLookAtM(view, 0, panX, panY, distance, panX, panY, 0f, 0f, 1f, 0f)
-            Matrix.setIdentityM(model, 0)
-            Matrix.rotateM(model, 0, pitch, 1f, 0f, 0f)
-            Matrix.rotateM(model, 0, yaw, 0f, 1f, 0f)
+            DisplayCamera.view(panX,panY,distance,view)
+            DisplayCamera.rotation(yaw,pitch,model)
             Matrix.multiplyMM(mv, 0, view, 0, model, 0)
             Matrix.multiplyMM(mvp, 0, projection, 0, mv, 0)
             GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(program, "uMvp"), 1, false, mvp, 0)

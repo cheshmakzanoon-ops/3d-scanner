@@ -37,6 +37,8 @@ import java.util.zip.CRC32
 /** Analytical color/UV fixtures are synthetic; they do not claim real-object scan quality. */
 @RunWith(AndroidJUnit4::class)
 class PhotographicViewerTest {
+    /** Shared analytical fixture for owner070's real AndroidView replacement regression. */
+    internal fun photographicFixtureBytes(): ByteArray = fixture().pack()
     private data class Fixture(val json: JSONObject, val binary: ByteArray) {
         fun pack(): ByteArray {
             var text = json.toString().toByteArray()
@@ -67,7 +69,7 @@ class PhotographicViewerTest {
           "bufferViews":[{"buffer":0,"byteOffset":0,"byteLength":48},
             {"buffer":0,"byteOffset":48,"byteLength":48},{"buffer":0,"byteOffset":96,"byteLength":32},
             {"buffer":0,"byteOffset":128,"byteLength":24},{"buffer":0,"byteOffset":152,"byteLength":${png.size}}],
-          "accessors":[{"bufferView":0,"componentType":5126,"count":4,"type":"VEC3"},
+          "accessors":[{"bufferView":0,"componentType":5126,"count":4,"type":"VEC3","min":[-1,-1,0],"max":[1,1,0]},
             {"bufferView":1,"componentType":5126,"count":4,"type":"VEC3"},
             {"bufferView":2,"componentType":5126,"count":4,"type":"VEC2"},
             {"bufferView":3,"componentType":5125,"count":6,"type":"SCALAR"}],
@@ -171,15 +173,16 @@ class PhotographicViewerTest {
             }
         } finally { file.delete() }
     }
-    @Test fun filamentUploadsLocalFixtureAndStopsFramesWhilePaused() {
+    @Test fun filamentRestoresCameraPausesAndRejectsOversizedResize() {
         val inst=InstrumentationRegistry.getInstrumentation()
         val bytes=fixture().pack(); val original=bytes.copyOf()
         val failure=AtomicReference<String?>(null)
+        val failureCount=java.util.concurrent.atomic.AtomicInteger(0)
         val current=AtomicReference<FilamentStudioView?>(null)
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 activity.setContent {
-                    val surface=remember { FilamentStudioView(activity,bytes,onFailure={ failure.set(it) }).also {
+                    val surface=remember { FilamentStudioView(activity,bytes,onFailure={ failure.set(it); failureCount.incrementAndGet() }).also {
                         // The view receives restored controls before its Surface/backend exists.
                         it.orbit(35f,10f); it.magnify(1.2f); current.set(it)
                     } }
@@ -203,16 +206,27 @@ class PhotographicViewerTest {
             }
             awaitFrame(0)
             var restoredPose=FloatArray(0)
-            inst.runOnMainSync { restoredPose=current.get()!!.cameraViewMatrix() }
+            var restoredModel=FloatArray(0)
+            inst.runOnMainSync {
+                restoredPose=current.get()!!.cameraViewMatrix()
+                restoredModel=current.get()!!.displayModelMatrix()
+            }
             var beforeReset=0L
             inst.runOnMainSync { beforeReset=current.get()!!.renderStatistics.submittedFrames; current.get()!!.reset() }
             awaitFrame(beforeReset)
-            inst.runOnMainSync { assertFalse(restoredPose.contentEquals(current.get()!!.cameraViewMatrix())) }
+            inst.runOnMainSync {
+                assertFalse(restoredPose.contentEquals(current.get()!!.cameraViewMatrix()))
+                assertFalse(restoredModel.contentEquals(current.get()!!.displayModelMatrix()))
+            }
             inst.runOnMainSync { current.get()!!.pauseRendering() }
             val paused=frames(); Thread.sleep(150); assertEquals(paused,frames())
             inst.runOnMainSync { current.get()!!.resumeRendering() }
             awaitFrame(paused)
-            inst.runOnMainSync { current.get()!!.dispose(); current.get()!!.dispose() }
+            inst.runOnMainSync {
+                current.get()!!.surfaceChanged(current.get()!!.holder,android.graphics.PixelFormat.RGBA_8888,8192,8192)
+                current.get()!!.dispose(); current.get()!!.dispose()
+            }
+            assertNotNull(failure.get()); assertEquals(1,failureCount.get())
         }
         assertArrayEquals(original,bytes)
     }

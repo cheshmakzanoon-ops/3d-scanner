@@ -38,6 +38,9 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
     private var panX = 0.0
     private var panY = 0.0
     private var modelGpuBytes = 0L
+    private var normalization = FloatArray(16)
+    private val rotation = FloatArray(16)
+    private val modelTransform = FloatArray(16)
 
     companion object {
         fun create(budget: RenderBudget = RenderBudget()): FilamentBackend {
@@ -99,6 +102,10 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
         try {
             require(candidate.resourceUris.isEmpty()) { "External glTF resources are unsupported." }
             resources!!.loadResources(candidate)
+            // Filament's documented sunny exposure matches the 100,000 lux diagnostic light.
+            // The photographic unlit inspection retains unit exposure.
+            if(mode==InspectionMode.NEUTRAL_GEOMETRY) camera!!.setExposure(16f,1f/125f,100f)
+            else camera!!.setExposure(1f)
             val tm = e.transformManager
             val transform = FloatArray(16)
             Matrix.setIdentityM(transform,0)
@@ -106,6 +113,7 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
             Matrix.scaleM(transform,0,scale,scale,scale)
             Matrix.translateM(transform,0,-validated.center[0],-validated.center[1],-validated.center[2])
             tm.setTransform(tm.getInstance(candidate.root),transform)
+            normalization=transform
             scene!!.addEntities(candidate.entities)
             candidate.releaseSourceData()
             model = candidate
@@ -173,11 +181,13 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
         val chain = swapChain ?: return false
         if (model == null) return false
         val aspect = width.toDouble()/height
-        val distance = 3.0/min(1.0,aspect)/zoom
-        val y = Math.toRadians(yaw); val p = Math.toRadians(pitch)
-        camera!!.setProjection(45.0,aspect,.01,100.0,Camera.Fov.VERTICAL)
-        camera!!.lookAt(panX+distance*sin(y)*cos(p),panY+distance*sin(p),distance*cos(y)*cos(p),
-            panX,panY,0.0,0.0,1.0,0.0)
+        val distance=DisplayCamera.distance(width,height,zoom.toFloat()).toDouble()
+        DisplayCamera.rotation(yaw.toFloat(),pitch.toFloat(),rotation)
+        Matrix.multiplyMM(modelTransform,0,rotation,0,normalization,0)
+        val transforms=engine!!.transformManager
+        transforms.setTransform(transforms.getInstance(model!!.root),modelTransform)
+        camera!!.setProjection(45.0,aspect,.02,100.0,Camera.Fov.VERTICAL)
+        camera!!.lookAt(panX,panY,distance,panX,panY,0.0,0.0,1.0,0.0)
         if (!renderer!!.beginFrame(chain,frameTimeNanos)) return false
         renderer!!.render(view!!); renderer!!.endFrame()
         statistics = statistics.copy(submittedFrames=statistics.submittedFrames+1)
@@ -185,6 +195,11 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
     }
     internal fun cameraViewMatrix(): FloatArray {
         checkOwner(); return camera!!.getViewMatrix(FloatArray(16))
+    }
+    internal fun displayModelMatrix(): FloatArray {
+        checkOwner()
+        val transforms=engine!!.transformManager
+        return transforms.getTransform(transforms.getInstance(checkNotNull(model).root),FloatArray(16))
     }
 
     private fun unload() {

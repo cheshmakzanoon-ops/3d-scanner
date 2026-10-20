@@ -27,6 +27,7 @@ class FilamentStudioView(
     private var pendingPanY = 0f
     val renderStatistics: RenderStatistics get() = backend?.statistics ?: RenderStatistics()
     internal fun cameraViewMatrix(): FloatArray = checkNotNull(backend).cameraViewMatrix()
+    internal fun displayModelMatrix(): FloatArray = checkNotNull(backend).displayModelMatrix()
 
     init {
         require(localGlb.size <= PhotographicGlb.MAX_FILE_BYTES)
@@ -48,7 +49,8 @@ class FilamentStudioView(
     }
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         if (closed || width <= 0 || height <= 0) return
-        backend?.resize(width,height)
+        try { backend?.resize(width,height) }
+        catch (failure: Exception) { failed(failure.message ?: "Filament viewport is unavailable.") }
     }
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         unschedule(); backend?.detach()
