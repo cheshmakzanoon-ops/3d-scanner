@@ -4,7 +4,7 @@ import org.json.JSONObject
 
 internal object NativeFrontierGeometry {
     fun triangulate(poses: DoubleArray, observations: DoubleArray, threshold: Double): List<FrontierPoint> {
-        val result=JSONObject(NativeCore.reconstructMultiview(poses,observations,threshold,0))
+        val result=com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(NativeCore.reconstructMultiview(poses,observations,threshold,0))
         require(!result.has("error")) { result.optString("error") }
         val points=result.getJSONArray("points")
         return List(points.length()) { index ->
@@ -13,7 +13,7 @@ internal object NativeFrontierGeometry {
         }
     }
     fun register(observations: DoubleArray, threshold: Double): FrontierPose {
-        val result=JSONObject(NativeCore.registerCamera(observations,threshold))
+        val result=com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(NativeCore.registerCamera(observations,threshold))
         require(!result.has("error")) { result.optString("error") }
         val rotation=result.getJSONArray("rotation")
         val translation=result.getJSONArray("translation")

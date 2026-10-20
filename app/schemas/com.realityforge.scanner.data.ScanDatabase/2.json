@@ -1,0 +1,1650 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "0401e921deb1c66f9dfd36ff82646b3d",
+    "entities": [
+      {
+        "tableName": "projects",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `revision` INTEGER NOT NULL, `state` TEXT NOT NULL, `message` TEXT NOT NULL, `resultRevision` INTEGER, `resultKey` TEXT, `curationVersion` INTEGER NOT NULL DEFAULT 0, `libraryNameKey` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revision",
+            "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "message",
+            "columnName": "message",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resultRevision",
+            "columnName": "resultRevision",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "resultKey",
+            "columnName": "resultKey",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "curationVersion",
+            "columnName": "curationVersion",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "libraryNameKey",
+            "columnName": "libraryNameKey",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_projects_revision",
+            "unique": false,
+            "columnNames": [
+              "revision"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_projects_revision` ON `${TABLE_NAME}` (`revision`)"
+          },
+          {
+            "name": "index_projects_state",
+            "unique": false,
+            "columnNames": [
+              "state"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_projects_state` ON `${TABLE_NAME}` (`state`)"
+          },
+          {
+            "name": "index_projects_createdAt_id",
+            "unique": false,
+            "columnNames": [
+              "createdAt",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_projects_createdAt_id` ON `${TABLE_NAME}` (`createdAt`, `id`)"
+          },
+          {
+            "name": "index_projects_libraryNameKey_id",
+            "unique": false,
+            "columnNames": [
+              "libraryNameKey",
+              "id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_projects_libraryNameKey_id` ON `${TABLE_NAME}` (`libraryNameKey`, `id`)"
+          }
+        ]
+      },
+      {
+        "tableName": "photos",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `projectId` TEXT NOT NULL, `filename` TEXT NOT NULL, `sha256` TEXT NOT NULL, `bytes` INTEGER NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `focal35mm` REAL, `sharpness` REAL NOT NULL, `darkFraction` REAL NOT NULL, `brightFraction` REAL NOT NULL, `addedAt` INTEGER NOT NULL, `included` INTEGER NOT NULL DEFAULT 1, `selectionOrder` INTEGER, `captureSessionId` TEXT, `captureSequence` INTEGER, `captureMetadataRecord` TEXT, `opticalIdentitySha256` TEXT, `curationRecord` TEXT, `captureSettingsRecord` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`projectId`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`captureSessionId`) REFERENCES `capture_sessions`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filename",
+            "columnName": "filename",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sha256",
+            "columnName": "sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bytes",
+            "columnName": "bytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "width",
+            "columnName": "width",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "focal35mm",
+            "columnName": "focal35mm",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sharpness",
+            "columnName": "sharpness",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "darkFraction",
+            "columnName": "darkFraction",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "brightFraction",
+            "columnName": "brightFraction",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "addedAt",
+            "columnName": "addedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "included",
+            "columnName": "included",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "selectionOrder",
+            "columnName": "selectionOrder",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "captureSessionId",
+            "columnName": "captureSessionId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "captureSequence",
+            "columnName": "captureSequence",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "captureMetadataRecord",
+            "columnName": "captureMetadataRecord",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "opticalIdentitySha256",
+            "columnName": "opticalIdentitySha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "curationRecord",
+            "columnName": "curationRecord",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "captureSettingsRecord",
+            "columnName": "captureSettingsRecord",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_photos_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_photos_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          },
+          {
+            "name": "index_photos_captureSessionId",
+            "unique": false,
+            "columnNames": [
+              "captureSessionId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_photos_captureSessionId` ON `${TABLE_NAME}` (`captureSessionId`)"
+          },
+          {
+            "name": "index_photos_projectId_sha256",
+            "unique": true,
+            "columnNames": [
+              "projectId",
+              "sha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_photos_projectId_sha256` ON `${TABLE_NAME}` (`projectId`, `sha256`)"
+          },
+          {
+            "name": "index_photos_projectId_included_selectionOrder",
+            "unique": false,
+            "columnNames": [
+              "projectId",
+              "included",
+              "selectionOrder"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_photos_projectId_included_selectionOrder` ON `${TABLE_NAME}` (`projectId`, `included`, `selectionOrder`)"
+          },
+          {
+            "name": "index_photos_captureSessionId_captureSequence",
+            "unique": true,
+            "columnNames": [
+              "captureSessionId",
+              "captureSequence"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_photos_captureSessionId_captureSequence` ON `${TABLE_NAME}` (`captureSessionId`, `captureSequence`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "projects",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "projectId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "capture_sessions",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "captureSessionId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "capture_sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `projectId` TEXT NOT NULL, `sourceRevision` INTEGER NOT NULL, `identitySha256` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `stateCode` INTEGER NOT NULL, `cameraIdentitySha256` TEXT, `lensIdentitySha256` TEXT, `closedAt` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`projectId`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceRevision",
+            "columnName": "sourceRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identitySha256",
+            "columnName": "identitySha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateCode",
+            "columnName": "stateCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cameraIdentitySha256",
+            "columnName": "cameraIdentitySha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lensIdentitySha256",
+            "columnName": "lensIdentitySha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "closedAt",
+            "columnName": "closedAt",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_capture_sessions_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_capture_sessions_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          },
+          {
+            "name": "index_capture_sessions_projectId_stateCode",
+            "unique": false,
+            "columnNames": [
+              "projectId",
+              "stateCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_capture_sessions_projectId_stateCode` ON `${TABLE_NAME}` (`projectId`, `stateCode`)"
+          },
+          {
+            "name": "index_capture_sessions_projectId_identitySha256",
+            "unique": true,
+            "columnNames": [
+              "projectId",
+              "identitySha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_capture_sessions_projectId_identitySha256` ON `${TABLE_NAME}` (`projectId`, `identitySha256`)"
+          },
+          {
+            "name": "index_capture_sessions_id_projectId",
+            "unique": true,
+            "columnNames": [
+              "id",
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_capture_sessions_id_projectId` ON `${TABLE_NAME}` (`id`, `projectId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "projects",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "projectId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "reconstruction_jobs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `projectId` TEXT NOT NULL, `inputRevision` INTEGER NOT NULL, `identitySha256` TEXT NOT NULL, `settingsSha256` TEXT NOT NULL, `engineVersion` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `stateCode` INTEGER NOT NULL, `stageCode` INTEGER NOT NULL, `attempt` INTEGER NOT NULL, `leaseToken` TEXT, `leaseOwner` TEXT, `leaseExpiresAt` INTEGER, `cancelRequestedAt` INTEGER, `resultArtifactId` TEXT, `terminalCode` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`projectId`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inputRevision",
+            "columnName": "inputRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identitySha256",
+            "columnName": "identitySha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "settingsSha256",
+            "columnName": "settingsSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "engineVersion",
+            "columnName": "engineVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateCode",
+            "columnName": "stateCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stageCode",
+            "columnName": "stageCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempt",
+            "columnName": "attempt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "leaseToken",
+            "columnName": "leaseToken",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "leaseOwner",
+            "columnName": "leaseOwner",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "leaseExpiresAt",
+            "columnName": "leaseExpiresAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "cancelRequestedAt",
+            "columnName": "cancelRequestedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "resultArtifactId",
+            "columnName": "resultArtifactId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "terminalCode",
+            "columnName": "terminalCode",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reconstruction_jobs_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reconstruction_jobs_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          },
+          {
+            "name": "index_reconstruction_jobs_projectId_stateCode",
+            "unique": false,
+            "columnNames": [
+              "projectId",
+              "stateCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reconstruction_jobs_projectId_stateCode` ON `${TABLE_NAME}` (`projectId`, `stateCode`)"
+          },
+          {
+            "name": "index_reconstruction_jobs_projectId_identitySha256",
+            "unique": true,
+            "columnNames": [
+              "projectId",
+              "identitySha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_reconstruction_jobs_projectId_identitySha256` ON `${TABLE_NAME}` (`projectId`, `identitySha256`)"
+          },
+          {
+            "name": "index_reconstruction_jobs_id_projectId",
+            "unique": true,
+            "columnNames": [
+              "id",
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_reconstruction_jobs_id_projectId` ON `${TABLE_NAME}` (`id`, `projectId`)"
+          },
+          {
+            "name": "index_reconstruction_jobs_leaseToken",
+            "unique": true,
+            "columnNames": [
+              "leaseToken"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_reconstruction_jobs_leaseToken` ON `${TABLE_NAME}` (`leaseToken`)"
+          },
+          {
+            "name": "index_reconstruction_jobs_leaseExpiresAt",
+            "unique": false,
+            "columnNames": [
+              "leaseExpiresAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reconstruction_jobs_leaseExpiresAt` ON `${TABLE_NAME}` (`leaseExpiresAt`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "projects",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "projectId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "artifacts",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `projectId` TEXT NOT NULL, `projectRevision` INTEGER NOT NULL, `kindCode` INTEGER NOT NULL, `representationCode` INTEGER NOT NULL, `identitySha256` TEXT NOT NULL, `relativePath` TEXT NOT NULL, `byteSize` INTEGER NOT NULL, `contentSha256` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `jobId` TEXT, `parentArtifactId` TEXT, `committed` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`projectId`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`jobId`, `projectId`) REFERENCES `reconstruction_jobs`(`id`, `projectId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectRevision",
+            "columnName": "projectRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kindCode",
+            "columnName": "kindCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "representationCode",
+            "columnName": "representationCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identitySha256",
+            "columnName": "identitySha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "relativePath",
+            "columnName": "relativePath",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "byteSize",
+            "columnName": "byteSize",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentSha256",
+            "columnName": "contentSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "jobId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "parentArtifactId",
+            "columnName": "parentArtifactId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "committed",
+            "columnName": "committed",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_artifacts_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_artifacts_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          },
+          {
+            "name": "index_artifacts_jobId_projectId",
+            "unique": false,
+            "columnNames": [
+              "jobId",
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_artifacts_jobId_projectId` ON `${TABLE_NAME}` (`jobId`, `projectId`)"
+          },
+          {
+            "name": "index_artifacts_id_projectId",
+            "unique": true,
+            "columnNames": [
+              "id",
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_artifacts_id_projectId` ON `${TABLE_NAME}` (`id`, `projectId`)"
+          },
+          {
+            "name": "index_artifacts_parentArtifactId",
+            "unique": false,
+            "columnNames": [
+              "parentArtifactId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_artifacts_parentArtifactId` ON `${TABLE_NAME}` (`parentArtifactId`)"
+          },
+          {
+            "name": "index_artifacts_projectId_identitySha256",
+            "unique": true,
+            "columnNames": [
+              "projectId",
+              "identitySha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_artifacts_projectId_identitySha256` ON `${TABLE_NAME}` (`projectId`, `identitySha256`)"
+          },
+          {
+            "name": "index_artifacts_projectId_relativePath",
+            "unique": true,
+            "columnNames": [
+              "projectId",
+              "relativePath"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_artifacts_projectId_relativePath` ON `${TABLE_NAME}` (`projectId`, `relativePath`)"
+          },
+          {
+            "name": "index_artifacts_projectId_projectRevision_committed",
+            "unique": false,
+            "columnNames": [
+              "projectId",
+              "projectRevision",
+              "committed"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_artifacts_projectId_projectRevision_committed` ON `${TABLE_NAME}` (`projectId`, `projectRevision`, `committed`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "projects",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "projectId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "reconstruction_jobs",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "jobId",
+              "projectId"
+            ],
+            "referencedColumns": [
+              "id",
+              "projectId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "edit_recipes",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `projectId` TEXT NOT NULL, `parentArtifactId` TEXT NOT NULL, `recipeVersion` INTEGER NOT NULL, `operationsJson` TEXT NOT NULL, `identitySha256` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`projectId`) REFERENCES `projects`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`parentArtifactId`, `projectId`) REFERENCES `artifacts`(`id`, `projectId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentArtifactId",
+            "columnName": "parentArtifactId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recipeVersion",
+            "columnName": "recipeVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "operationsJson",
+            "columnName": "operationsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identitySha256",
+            "columnName": "identitySha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_edit_recipes_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_edit_recipes_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          },
+          {
+            "name": "index_edit_recipes_parentArtifactId_projectId",
+            "unique": false,
+            "columnNames": [
+              "parentArtifactId",
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_edit_recipes_parentArtifactId_projectId` ON `${TABLE_NAME}` (`parentArtifactId`, `projectId`)"
+          },
+          {
+            "name": "index_edit_recipes_projectId_identitySha256",
+            "unique": true,
+            "columnNames": [
+              "projectId",
+              "identitySha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_edit_recipes_projectId_identitySha256` ON `${TABLE_NAME}` (`projectId`, `identitySha256`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "projects",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "projectId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "artifacts",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "parentArtifactId",
+              "projectId"
+            ],
+            "referencedColumns": [
+              "id",
+              "projectId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "deletion_journals",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `projectId` TEXT NOT NULL, `expectedRevision` INTEGER NOT NULL, `rootRelativePath` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `phaseCode` INTEGER NOT NULL, `attempt` INTEGER NOT NULL, `lastErrorCode` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expectedRevision",
+            "columnName": "expectedRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rootRelativePath",
+            "columnName": "rootRelativePath",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phaseCode",
+            "columnName": "phaseCode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempt",
+            "columnName": "attempt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastErrorCode",
+            "columnName": "lastErrorCode",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_deletion_journals_projectId",
+            "unique": true,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_deletion_journals_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          },
+          {
+            "name": "index_deletion_journals_phaseCode",
+            "unique": false,
+            "columnNames": [
+              "phaseCode"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_deletion_journals_phaseCode` ON `${TABLE_NAME}` (`phaseCode`)"
+          }
+        ]
+      },
+      {
+        "tableName": "execution_jobs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`jobId` TEXT NOT NULL, `schemaVersion` INTEGER NOT NULL, `identityKey` TEXT NOT NULL, `projectId` TEXT NOT NULL, `projectRevision` INTEGER NOT NULL, `requestId` TEXT NOT NULL, `inputSha256` TEXT NOT NULL, `calibrationSha256` TEXT NOT NULL, `settingsSha256` TEXT NOT NULL, `engineSha256` TEXT NOT NULL, `engineVersion` TEXT NOT NULL, `state` TEXT NOT NULL, `acceptedStage` TEXT NOT NULL, `checkpointIdentity` TEXT, `checkpointSha256` TEXT, `attempt` INTEGER NOT NULL, `leaseToken` TEXT, `leaseOwner` TEXT, `leaseExpiresAtEpochMillis` INTEGER, `resultArtifactIdentity` TEXT, `resultArtifactSha256` TEXT, `outcomeCode` TEXT, `progressStage` TEXT, `progressCompletedUnits` INTEGER, `progressTotalUnits` INTEGER, `progressUnit` TEXT, `progressUpdatedAtEpochMillis` INTEGER, `createdAtEpochMillis` INTEGER NOT NULL, `updatedAtEpochMillis` INTEGER NOT NULL, `stateVersion` INTEGER NOT NULL, `settingsJson` TEXT NOT NULL, PRIMARY KEY(`jobId`))",
+        "fields": [
+          {
+            "fieldPath": "jobId",
+            "columnName": "jobId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "schemaVersion",
+            "columnName": "schemaVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "identityKey",
+            "columnName": "identityKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectRevision",
+            "columnName": "projectRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "requestId",
+            "columnName": "requestId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inputSha256",
+            "columnName": "inputSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "calibrationSha256",
+            "columnName": "calibrationSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "settingsSha256",
+            "columnName": "settingsSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "engineSha256",
+            "columnName": "engineSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "engineVersion",
+            "columnName": "engineVersion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acceptedStage",
+            "columnName": "acceptedStage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checkpointIdentity",
+            "columnName": "checkpointIdentity",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "checkpointSha256",
+            "columnName": "checkpointSha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "attempt",
+            "columnName": "attempt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "leaseToken",
+            "columnName": "leaseToken",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "leaseOwner",
+            "columnName": "leaseOwner",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "leaseExpiresAtEpochMillis",
+            "columnName": "leaseExpiresAtEpochMillis",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "resultArtifactIdentity",
+            "columnName": "resultArtifactIdentity",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "resultArtifactSha256",
+            "columnName": "resultArtifactSha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "outcomeCode",
+            "columnName": "outcomeCode",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "progressStage",
+            "columnName": "progressStage",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "progressCompletedUnits",
+            "columnName": "progressCompletedUnits",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "progressTotalUnits",
+            "columnName": "progressTotalUnits",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "progressUnit",
+            "columnName": "progressUnit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "progressUpdatedAtEpochMillis",
+            "columnName": "progressUpdatedAtEpochMillis",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "createdAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAtEpochMillis",
+            "columnName": "updatedAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateVersion",
+            "columnName": "stateVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "settingsJson",
+            "columnName": "settingsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "jobId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_execution_jobs_identityKey",
+            "unique": true,
+            "columnNames": [
+              "identityKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_execution_jobs_identityKey` ON `${TABLE_NAME}` (`identityKey`)"
+          },
+          {
+            "name": "index_execution_jobs_projectId_projectRevision",
+            "unique": false,
+            "columnNames": [
+              "projectId",
+              "projectRevision"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_execution_jobs_projectId_projectRevision` ON `${TABLE_NAME}` (`projectId`, `projectRevision`)"
+          },
+          {
+            "name": "index_execution_jobs_state_createdAtEpochMillis",
+            "unique": false,
+            "columnNames": [
+              "state",
+              "createdAtEpochMillis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_execution_jobs_state_createdAtEpochMillis` ON `${TABLE_NAME}` (`state`, `createdAtEpochMillis`)"
+          },
+          {
+            "name": "index_execution_jobs_leaseExpiresAtEpochMillis",
+            "unique": false,
+            "columnNames": [
+              "leaseExpiresAtEpochMillis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_execution_jobs_leaseExpiresAtEpochMillis` ON `${TABLE_NAME}` (`leaseExpiresAtEpochMillis`)"
+          }
+        ]
+      },
+      {
+        "tableName": "execution_job_events",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `jobId` TEXT NOT NULL, `attempt` INTEGER NOT NULL, `kind` TEXT NOT NULL, `state` TEXT NOT NULL, `stage` TEXT NOT NULL, `stateVersion` INTEGER NOT NULL, `code` TEXT, `progressStage` TEXT, `progressCompletedUnits` INTEGER, `progressTotalUnits` INTEGER, `progressUnit` TEXT, `createdAtEpochMillis` INTEGER NOT NULL, FOREIGN KEY(`jobId`) REFERENCES `execution_jobs`(`jobId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "eventId",
+            "columnName": "eventId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "jobId",
+            "columnName": "jobId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempt",
+            "columnName": "attempt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stage",
+            "columnName": "stage",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateVersion",
+            "columnName": "stateVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "progressStage",
+            "columnName": "progressStage",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "progressCompletedUnits",
+            "columnName": "progressCompletedUnits",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "progressTotalUnits",
+            "columnName": "progressTotalUnits",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "progressUnit",
+            "columnName": "progressUnit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "createdAtEpochMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "eventId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_execution_job_events_jobId_eventId",
+            "unique": false,
+            "columnNames": [
+              "jobId",
+              "eventId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_execution_job_events_jobId_eventId` ON `${TABLE_NAME}` (`jobId`, `eventId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "execution_jobs",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "jobId"
+            ],
+            "referencedColumns": [
+              "jobId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "storage_reservations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`operationId` TEXT NOT NULL, `projectId` TEXT NOT NULL, `revision` INTEGER NOT NULL, `remainingBytes` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`operationId`))",
+        "fields": [
+          {
+            "fieldPath": "operationId",
+            "columnName": "operationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revision",
+            "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remainingBytes",
+            "columnName": "remainingBytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "operationId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_storage_reservations_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_storage_reservations_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "deletion_requests",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`operationId` TEXT NOT NULL, `projectId` TEXT NOT NULL, `stateVersion` INTEGER NOT NULL, `completed` INTEGER NOT NULL, `payload` TEXT NOT NULL, PRIMARY KEY(`operationId`))",
+        "fields": [
+          {
+            "fieldPath": "operationId",
+            "columnName": "operationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateVersion",
+            "columnName": "stateVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completed",
+            "columnName": "completed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "operationId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_deletion_requests_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_deletion_requests_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          },
+          {
+            "name": "index_deletion_requests_completed",
+            "unique": false,
+            "columnNames": [
+              "completed"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_deletion_requests_completed` ON `${TABLE_NAME}` (`completed`)"
+          }
+        ]
+      },
+      {
+        "tableName": "publication_heads",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`projectId` TEXT NOT NULL, `metadataVersion` INTEGER NOT NULL, `currentPointer` TEXT, `previousPointer` TEXT, PRIMARY KEY(`projectId`))",
+        "fields": [
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metadataVersion",
+            "columnName": "metadataVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentPointer",
+            "columnName": "currentPointer",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "previousPointer",
+            "columnName": "previousPointer",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "projectId"
+          ]
+        }
+      },
+      {
+        "tableName": "publication_commits",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`projectId` TEXT NOT NULL, `setId` TEXT NOT NULL, `pointer` TEXT NOT NULL, PRIMARY KEY(`projectId`, `setId`))",
+        "fields": [
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "setId",
+            "columnName": "setId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pointer",
+            "columnName": "pointer",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "projectId",
+            "setId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_publication_commits_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_publication_commits_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "project_duplicate_reservations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`newId` TEXT NOT NULL, `sourceId` TEXT NOT NULL, `sourceRevision` INTEGER NOT NULL, `name` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `phase` TEXT NOT NULL, `photoProvenanceJson` TEXT, PRIMARY KEY(`newId`))",
+        "fields": [
+          {
+            "fieldPath": "newId",
+            "columnName": "newId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceId",
+            "columnName": "sourceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceRevision",
+            "columnName": "sourceRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "phase",
+            "columnName": "phase",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photoProvenanceJson",
+            "columnName": "photoProvenanceJson",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "newId"
+          ]
+        }
+      },
+      {
+        "tableName": "calibration_mutations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`operationId` TEXT NOT NULL, `projectId` TEXT NOT NULL, `expectedRevision` INTEGER NOT NULL, `kind` TEXT NOT NULL, `profileId` TEXT, `targetSha256` TEXT, `committedRevision` INTEGER, PRIMARY KEY(`operationId`))",
+        "fields": [
+          {
+            "fieldPath": "operationId",
+            "columnName": "operationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "projectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "expectedRevision",
+            "columnName": "expectedRevision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profileId",
+            "columnName": "profileId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "targetSha256",
+            "columnName": "targetSha256",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "committedRevision",
+            "columnName": "committedRevision",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "operationId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_calibration_mutations_projectId",
+            "unique": false,
+            "columnNames": [
+              "projectId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_calibration_mutations_projectId` ON `${TABLE_NAME}` (`projectId`)"
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0401e921deb1c66f9dfd36ff82646b3d')"
+    ]
+  }
+}

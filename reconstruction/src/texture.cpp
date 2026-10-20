@@ -1,3 +1,4 @@
+#include "realityforge/c_abi_support.hpp"
 #include "realityforge/texture.hpp"
 #include "realityforge/cancellation.hpp"
 #include <algorithm>
@@ -477,7 +478,7 @@ extern "C" char* rf_textured_surface_json(
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
     const char* mesh_glb_path,const char* mesh_ply_path,
-    const char* textured_glb_path,const char* texture_png_path){
+    const char* textured_glb_path,const char* texture_png_path)noexcept try {
     std::string response;
     auto appendError=[&](std::string_view message){
         std::string s;for(char c:message){if(c=='"'||c=='\\')s+='\\';if(static_cast<unsigned char>(c)>=32)s+=c;}return s;};
@@ -522,11 +523,20 @@ extern "C" char* rf_textured_surface_json(
                 if(texture_png_path&&*texture_png_path)rf::writeTexturePng(baked,texture_png_path);
                 response+=",\"texture\":"+rf::texturedSurfaceJson(baked);
             }catch(const rf::cancellation::Cancelled&){throw;}
-            catch(const std::exception& e){response+=",\"textureError\":\""+appendError(e.what())+'"';}
+            catch(const std::bad_alloc&){throw;}
+    catch(const std::exception& e){response+=",\"textureError\":\""+appendError(e.what())+'"';}
         }catch(const rf::cancellation::Cancelled&){throw;}
-        catch(const std::exception& e){response+=",\"meshError\":\""+appendError(e.what())+'"';}
+        catch(const std::bad_alloc&){throw;}
+    catch(const std::exception& e){response+=",\"meshError\":\""+appendError(e.what())+'"';}
         response+='}';
-    }catch(const std::exception& e){response="{\"error\":\""+appendError(e.what())+"\"}";}
+    }catch(const std::bad_alloc&){throw;}
+    catch(const std::exception& e){response="{\"error\":\""+appendError(e.what())+"\"}";}
     auto* ret=static_cast<char*>(std::malloc(response.size()+1));if(!ret)return nullptr;
     std::memcpy(ret,response.c_str(),response.size()+1);return ret;
+} catch (const std::bad_alloc&) {
+    return rf::abi::error("RESOURCE_EXHAUSTED", "Native allocation failed");
+} catch (const std::exception&) {
+    return rf::abi::error("NATIVE_FAILURE", "Native boundary failure");
+} catch (...) {
+    return rf::abi::error("UNKNOWN_NATIVE_FAILURE", "Unknown native boundary failure");
 }

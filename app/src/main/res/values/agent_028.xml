@@ -1,0 +1,35 @@
+<resources>
+    <string name="a028_title">Scan storage</string>
+    <string name="a028_originals_safe">Cleanup preserves original photographs and protected completed results.</string>
+    <string name="a028_back">Back to scan</string>
+    <string name="a028_available_unknown">Available storage: measurement unavailable</string>
+    <string name="a028_available">Available storage: %1$s bytes measured</string>
+    <string name="a028_measuring">Measuring files and checking active references…</string>
+    <string name="a028_byte_count">%1$s bytes</string>
+    <string name="a028_total">Total project files: %1$s bytes</string>
+    <string name="a028_partial_total">Measured project files: at least %1$s bytes. Some files could not be fully measured.</string>
+    <string name="a028_inventory_issues">%1$d inventory issues. Unrecognized or unsafe files are preserved.</string>
+    <string name="a028_budget_failure">The last rejected operation needed %1$s additional bytes; available at that check: %2$s.</string>
+    <string name="a028_budget_reserved">Other operations reserved %1$s bytes; the free-space safety allowance was %2$s bytes.</string>
+    <string name="a028_budget_retry">Review safe cleanup and measure again, then return to the scan to retry. Exports require a fresh destination selection.</string>
+    <string name="a028_unknown">unknown</string>
+    <string name="a028_reclaimable">Cleanup estimate: %1$s bytes in %2$d files</string>
+    <string name="a028_recompute">Deleted derived work will be recomputed when needed. Estimated reclaimed bytes do not count as available storage until cleanup succeeds.</string>
+    <string name="a028_cleanup_category">%1$s: %2$d files, %3$s bytes selected for cleanup</string>
+    <string name="a028_reclaimed">Cleanup removed %1$s bytes. The inventory below reflects a fresh measurement.</string>
+    <string name="a028_busy">Wait for the current scan operation before reviewing cleanup.</string>
+    <string name="a028_cleaning">Cleaning only the approved derived files…</string>
+    <string name="a028_cancel">Cancel</string>
+    <string name="a028_review">Review cleanup</string>
+    <string name="a028_refresh">Measure again</string>
+    <string name="a028_confirmation_title">Clear these derived files?</string>
+    <string name="a028_confirmation_body">Remove %1$d reviewed files, totaling %2$s bytes. Originals and protected completed results are preserved. Discarded processing work must be recomputed.</string>
+    <string name="a028_confirm">Clear reviewed files</string>
+    <string name="a028_originals">Original photographs</string>
+    <string name="a028_features">Feature caches</string>
+    <string name="a028_depth">Depth checkpoints</string>
+    <string name="a028_intermediate">Analysis and intermediate data</string>
+    <string name="a028_results">Completed results</string>
+    <string name="a028_temporary">Temporary files</string>
+    <string name="a028_other">Other preserved files</string>
+</resources>

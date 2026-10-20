@@ -50,4 +50,4 @@ void writeSurfacePly(const SurfaceMesh& mesh,const std::string& filename);
 extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
-    const char* glb_path,const char* ply_path);
+    const char* glb_path,const char* ply_path) noexcept;

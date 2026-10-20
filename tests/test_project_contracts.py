@@ -25,7 +25,9 @@ def test_jni_names_match_declared_methods():
     cpp=(ROOT/"reconstruction/src/jni.cpp").read_text()
     methods=set(re.findall(r"external fun (\w+)\(",kotlin))
     exports=set(re.findall(r"Java_com_realityforge_scanner_engine_NativeCore_(\w+)\(",cpp))
-    assert methods==exports=={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","reconstructSurfaceCancellable","reconstructTexturedSurfaceCancellable","beginReconstruction","cancelReconstruction","finishReconstruction","reconstructSurfaceCheckpointed","reconstructTexturedSurfaceCheckpointed","quality","exportPoints"}
+    required={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","reconstructSurfaceCancellable","reconstructTexturedSurfaceCancellable","beginReconstruction","cancelReconstruction","finishReconstruction","reconstructSurfaceCheckpointed","reconstructTexturedSurfaceCheckpointed","quality","exportPoints","exportPointCloud"}
+    assert methods == exports
+    assert required <= methods
 
 
 def test_no_dynamic_dependency_versions():
@@ -44,19 +46,28 @@ def test_sparse_output_disclosed_in_ui():
 
 def test_revision_guard_in_database():
     source=(ROOT/"app/src/main/java/com/realityforge/scanner/data/Database.kt").read_text()
+    repository=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
     assert "revision = :revision" in source
-    assert "resultRevision = NULL" in source
-    assert "@Transaction suspend fun addPhoto" in source
+    assert re.search(r"@Transaction\s+suspend fun addPhoto\(", source)
+    assert "invalidateExpected" in source and "expectedRevision" in source
+    # An edit invalidates currentness by revision without erasing the last completed pointer.
+    assert "resultRevision = NULL" not in source
+    assert "project.resultRevision != project.revision" in repository
 
 def test_lens_calibration_is_wired_to_all_reconstruction_stages():
     engine=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt").read_text()
     graph=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     lens=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt").read_text()
-    assert "m16-registration-frontier-1" in engine and "LensCalibration.read(repository, projectId)" in engine
+    assert "LensCalibration.readRecord(repository, projectId)" in engine
+    assert "CalibrationCompatibility" in engine
     assert "projection.normalized" in engine and "c.projection.normalized" in engine
     assert "projection?.normalized" in graph
-    assert "fun calibrateLens(" in model and "dao.invalidate(id)" in model
+    assert "fun calibrateLens(" in model and "repository.saveCalibration(" in model
+    assert "repository.removeCalibration(" in model
+    mutation=(ROOT/"app/src/main/java/com/realityforge/scanner/capture/calibration/RoomCalibrationMutationStore.kt").read_text()
+    assert "revision = :expectedRevision" in mutation and "revision = revision + 1" in mutation
+    assert "markCommitted(operationId, revision)" in mutation
     assert "findChessboardCorners" in lens and "calibrateCamera" in lens
 
 
@@ -67,9 +78,12 @@ def test_export_artifact_key_supports_milestone_versions():
 
 def test_source_manifest_matches_every_tracked_artifact():
     import hashlib
+    import subprocess
     manifest=(ROOT/"SOURCE_MANIFEST.sha256").read_text().splitlines()
-    assert len(manifest) >= 105
-    assert len(set(row.split("  ",1)[1] for row in manifest)) == len(manifest)
+    listed={row.split("  ",1)[1] for row in manifest}
+    assert len(listed) == len(manifest)
+    tracked=set(subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().rstrip("\0").split("\0"))
+    assert listed == tracked - {"SOURCE_MANIFEST.sha256"}
     for row in manifest:
         expected,path=row.split("  ",1)
         candidate=ROOT/path
@@ -82,11 +96,19 @@ def test_capture_package_requires_explicit_destination_and_preserves_hashes():
     view_model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     screen=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt").read_text()
     assert "suspend fun exportCaptureBundle(projectId: String, destination: OutputStream)" in repository
-    assert 'MessageDigest.getInstance("SHA-256")' in repository
-    assert 'ZipEntry("session.json")' in repository
-    assert "ActivityResultContracts.CreateDocument(\"application/zip\")" in screen
-    assert "model.exportCaptureBundle(it)" in screen
-    assert "openOutputStream(uri, \"wt\")" in view_model
+    archive=(ROOT/"app/src/main/java/com/realityforge/scanner/data/archives/CaptureArchive.kt").read_text()
+    assert '"session.json"' in archive and '"sha256"' in archive
+    assert 'rememberBoundExporter(model, "capture.zip", "application/zip")' in screen
+    assert "ActivityResultContracts.CreateDocument(mimeType)" in screen
+    assert "model.beginCaptureBundleExportRequest()" in screen
+    assert "model.completeCaptureBundleExport(captured, uri)" in screen
+    assert "exportTransfers.captureArchive(request, uri" in view_model
+    adapter=(ROOT/"app/src/main/java/com/realityforge/scanner/application/BoundSafExportService.kt").read_text()
+    transfer=(ROOT/"app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt").read_text()
+    assert "ProjectOperationKind.EXPORT_CAPTURE, request.project.revision" in adapter
+    assert "DestinationOwnership.NEWLY_CREATED" in adapter
+    assert "DestinationTransferService(access, AndroidSafDestinationStore(context))" in adapter
+    assert "CompletionEvidence.READ_BACK_SHA256" in transfer and "TransferOutcome.CompletedUnverified" in transfer
 
 
 def test_bundle_adjustment_engine_and_jni_have_true_joint_contract():
@@ -142,10 +164,12 @@ def test_session_reopen_and_export_have_revision_and_operation_guards():
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
     assert "MAX_PREVIEW_BYTES" in repository and "suspend fun currentPreview(" in repository
     assert "storedRevision is Int || storedRevision is Long" in repository
-    assert "Project changed during capture export" in repository
+    archive=(ROOT/"app/src/main/java/com/realityforge/scanner/data/archives/ProjectCaptureArchiveService.kt").read_text()
+    assert "store.project(projectId)?.revision } == project.revision" in archive
     assert "busy.compareAndSet(false, true)" in model and "selectionGeneration" in model
     assert "repository.currentPreview(id)" in model
-    assert "stream.use { repository.exportCaptureBundle" in model
+    assert "exportTransfers.captureArchive(request, uri" in model
+    assert "exportTransfers.artifact(request, uri" in model
 
 
 def test_adaptive_dense_adapter_has_eight_view_and_bitmap_lifetime_guards():
@@ -157,7 +181,10 @@ def test_adaptive_dense_adapter_has_eight_view_and_bitmap_lifetime_guards():
     assert "finally { image.recycle() }" in adapter
     assert "val images = chosen.map" not in adapter
     assert "DenseWorkload.depthBounds" in adapter and "DenseWorkload.atlasPixels" in adapter
-    assert "m16-registration-frontier-1" in pipeline and "DenseWorkload.tier" in pipeline
+    snapshot=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt").read_text()
+    assert "ProductionPipelineSnapshot.create(" in pipeline
+    assert "resources.geometryIdentityText" in snapshot and "resources.appearanceIdentityText" in snapshot
+    assert "resourceSelection.geometryIdentitySha256" in adapter
     assert "selectedCameraIndices" in adapter and "plannedGridSamples" in adapter
 
 
@@ -187,6 +214,7 @@ def test_m17_native_cancellation_uses_scoped_tokens_not_global_stop():
     dense=(root/"src/dense.cpp").read_text()
     texture=(root/"src/texture.cpp").read_text()
     model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
+    execution=(ROOT/"app/src/main/java/com/realityforge/scanner/work/execution/ReconstructionExecutionController.kt").read_text()
     adapter=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
     assert "thread_local const std::atomic_bool* flag" in native
     assert "Scope::~Scope() noexcept {flag=previous_;}" in native
@@ -195,7 +223,8 @@ def test_m17_native_cancellation_uses_scoped_tokens_not_global_stop():
     assert "rf::cancellation::Scope scope(flag.get())" in jni
     assert "Java_com_realityforge_scanner_engine_NativeCore_cancelReconstruction" in jni
     assert "cancellation::checkpoint();" in dense and "cancellation::checkpoint();" in texture
-    assert "NativeCore.cancelReconstruction(token)" in model and "task?.cancel()" in model
+    assert "NativeCore.cancelReconstruction" in execution and "task?.cancel()" in model
+    assert "root.execution.pause" in model
     assert "NativeCore.reconstructSurfaceCheckpointed" in adapter
     assert "NativeCore.reconstructTexturedSurfaceCheckpointed" in adapter
     assert "Java_com_realityforge_scanner_engine_NativeCore_reconstructSurfaceCancellable" in jni
@@ -218,7 +247,10 @@ def test_m18_depth_resume_is_input_identified_atomic_and_native_scoped():
     identity=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt").read_text()
     core=(ROOT/"reconstruction/src/dense.cpp").read_text()
     assert 'SHA-256' in identity and 'digest.update(rgba)' in identity
-    assert 'digest.update("realityforge-m18-native-reference-depth-v1' in identity
+    assert 'M18_DOMAIN = "realityforge-m18-native-reference-depth-v1' in identity
+    assert "digest.update(compatibility.algorithmDomain" in identity and "require(supports(compatibility))" in identity
+    assert "cameraRows.forEach" in identity and "long(planes.toLong())" in identity
+    assert "deleteRecursively" not in identity
     assert 'std::filesystem::rename(temporary,target,ec)' in native
     assert 'read32(bytes,28+64)!=crc32(' in native
     assert 'thread_local const Scope* active' in native
@@ -239,6 +271,8 @@ def test_m19_persisted_scan_evidence_and_local_export():
     assert "RECIPROCAL" in engine.upper() and "PHOTOS_NOT_REGISTERED" in engine
     assert "NOT 360-degree completeness" in report
     assert 'output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))' in pipeline
-    assert 'model.export(it, "json")' in ui
+    assert 'rememberBoundExporter(model, "json", "application/json")' in ui
+    assert "model.beginArtifactExportRequest(extension)" in ui
+    assert "model.completeArtifactExport(captured, uri)" in ui
     assert '"json", "glb"' in model
     assert "ScanQualityReportDeviceTest" in (ROOT/"app/src/androidTest/java/com/realityforge/scanner/ScanQualityReportDeviceTest.kt").read_text()

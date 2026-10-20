@@ -28,6 +28,9 @@ def main():
     subprocess.run([str(align),"-c","-P","16","-v","4",str(args.apk)],check=True,capture_output=True,text=True)
     checked=[]
     with zipfile.ZipFile(args.apk) as archive, tempfile.TemporaryDirectory() as directory:
+        test_assets = [name for name in archive.namelist() if name.startswith((
+            "assets/relief/", "assets/landmark/", "assets/com.realityforge.scanner.data.ScanDatabase/"))]
+        if test_assets: raise RuntimeError(f"Production APK contains instrumentation fixtures: {test_assets[:5]}")
         for info in archive.infolist():
             if info.filename.startswith("lib/") and info.filename.endswith(".so"):
                 local=Path(directory)/("-".join(Path(info.filename).parts))
@@ -38,7 +41,7 @@ def main():
                     raise RuntimeError(f"Native library lacks 16 KB segment alignment: {info.filename}")
                 checked.append(info.filename)
     if not checked:raise RuntimeError("APK contains no native libraries")
-    result={"apk":args.apk.name,"internetPermission":False,"zipAlignment16k":True,"elfLibrariesChecked":checked}
+    result={"apk":args.apk.name,"internetPermission":False,"testFixturesIncluded":False,"zipAlignment16k":True,"elfLibrariesChecked":checked}
     if args.report:args.report.parent.mkdir(parents=True,exist_ok=True);args.report.write_text(json.dumps(result,indent=2)+"\n")
     print(json.dumps(result,indent=2))
 

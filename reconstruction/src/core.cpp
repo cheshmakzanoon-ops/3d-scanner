@@ -1,3 +1,4 @@
+#include "realityforge/c_abi_support.hpp"
 #include "realityforge/core.hpp"
 #include <algorithm>
 #include <cmath>
@@ -171,32 +172,44 @@ std::string resultJson(const Result& r) {
     for(std::size_t i=0;i<9;++i){if(i)o<<',';o<<r.rotation[i];}o<<"],\"translation\":["<<r.translation.x<<','<<r.translation.y<<','<<r.translation.z<<"],\"points\":[";
     for(std::size_t i=0;i<r.points.size();++i){auto&p=r.points[i];if(i)o<<',';o<<'['<<p.xyz.x<<','<<p.xyz.y<<','<<p.xyz.z<<','<<int(p.color[0])<<','<<int(p.color[1])<<','<<int(p.color[2])<<','<<p.error<<','<<p.parallax<<','<<p.matchIndex<<']';}o<<"]}";return o.str();
 }
-void writePly(const Result& r,const std::string& path) {
+void writePointPly(const Result& r,const std::string& path,PointRepresentation representation) {
+    if(representation!=PointRepresentation::Sparse && representation!=PointRepresentation::Dense)throw Error("Invalid point representation");
     validateResult(r);std::ofstream o(path);if(!o)throw Error("Cannot open PLY destination");o.imbue(std::locale::classic());o<<std::setprecision(9);
-    o<<"ply\nformat ascii 1.0\ncomment RealityForge sparse reconstruction; arbitrary scale; x-right y-down z-forward\nelement vertex "<<r.points.size()<<"\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
+    o<<"ply\nformat ascii 1.0\ncomment RealityForge "<<(representation==PointRepresentation::Dense?"dense_points":"sparse_points")<<"; arbitrary scale; x-right y-down z-forward\nelement vertex "<<r.points.size()<<"\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
     for(auto&p:r.points)o<<p.xyz.x<<' '<<p.xyz.y<<' '<<p.xyz.z<<' '<<int(p.color[0])<<' '<<int(p.color[1])<<' '<<int(p.color[2])<<'\n';
     o.flush();if(!o)throw Error("PLY write failed; storage may be full");
 }
-void writeGlb(const Result& r,const std::string& path) {
+void writePointGlb(const Result& r,const std::string& path,PointRepresentation representation) {
+    if(representation!=PointRepresentation::Sparse && representation!=PointRepresentation::Dense)throw Error("Invalid point representation");
     validateResult(r);std::array<float,3>lo{INFINITY,INFINITY,INFINITY},hi{-INFINITY,-INFINITY,-INFINITY};
     for(auto&p:r.points){std::array<float,3>x{static_cast<float>(p.xyz.x),static_cast<float>(-p.xyz.y),static_cast<float>(-p.xyz.z)};for(int j=0;j<3;++j){lo[j]=std::min(lo[j],x[j]);hi[j]=std::max(hi[j],x[j]);}}
     auto n=static_cast<std::uint32_t>(r.points.size()),positionBytes=n*12,colorBytes=n*4,binBytes=positionBytes+colorBytes;
     std::ostringstream j;j.imbue(std::locale::classic());j<<std::setprecision(9);
-    j<<"{\"asset\":{\"version\":\"2.0\",\"generator\":\"RealityForge M01\"},\"extras\":{\"representation\":\"sparse_points\",\"scale\":\"arbitrary\",\"notSurfaceMesh\":true},\"scene\":0,\"scenes\":[{\"nodes\":[0]}],\"nodes\":[{\"mesh\":0,\"name\":\"Sparse diagnostic points\"}],\"meshes\":[{\"primitives\":[{\"attributes\":{\"POSITION\":0,\"COLOR_0\":1},\"mode\":0}]}],\"buffers\":[{\"byteLength\":"<<binBytes<<"}],\"bufferViews\":[{\"buffer\":0,\"byteOffset\":0,\"byteLength\":"<<positionBytes<<",\"target\":34962},{\"buffer\":0,\"byteOffset\":"<<positionBytes<<",\"byteLength\":"<<colorBytes<<",\"target\":34962}],\"accessors\":[{\"bufferView\":0,\"componentType\":5126,\"count\":"<<n<<",\"type\":\"VEC3\",\"min\":["<<lo[0]<<','<<lo[1]<<','<<lo[2]<<"],\"max\":["<<hi[0]<<','<<hi[1]<<','<<hi[2]<<"]},{\"bufferView\":1,\"componentType\":5121,\"normalized\":true,\"count\":"<<n<<",\"type\":\"VEC4\"}]}";
+    j<<"{\"asset\":{\"version\":\"2.0\",\"generator\":\"RealityForge M01\"},\"extras\":{\"representation\":\""<<(representation==PointRepresentation::Dense?"dense_points":"sparse_points")<<"\",\"scale\":\"arbitrary\",\"notSurfaceMesh\":true},\"scene\":0,\"scenes\":[{\"nodes\":[0]}],\"nodes\":[{\"mesh\":0,\"name\":\""<<(representation==PointRepresentation::Dense?"Dense observed points":"Sparse diagnostic points")<<"\"}],\"meshes\":[{\"primitives\":[{\"attributes\":{\"POSITION\":0,\"COLOR_0\":1},\"mode\":0}]}],\"buffers\":[{\"byteLength\":"<<binBytes<<"}],\"bufferViews\":[{\"buffer\":0,\"byteOffset\":0,\"byteLength\":"<<positionBytes<<",\"target\":34962},{\"buffer\":0,\"byteOffset\":"<<positionBytes<<",\"byteLength\":"<<colorBytes<<",\"target\":34962}],\"accessors\":[{\"bufferView\":0,\"componentType\":5126,\"count\":"<<n<<",\"type\":\"VEC3\",\"min\":["<<lo[0]<<','<<lo[1]<<','<<lo[2]<<"],\"max\":["<<hi[0]<<','<<hi[1]<<','<<hi[2]<<"]},{\"bufferView\":1,\"componentType\":5121,\"normalized\":true,\"count\":"<<n<<",\"type\":\"VEC4\"}]}";
     std::string json=j.str();while(json.size()%4)json+=' ';std::ofstream out(path,std::ios::binary);if(!out)throw Error("Cannot open GLB destination");
     u32(out,0x46546C67);u32(out,2);u32(out,static_cast<std::uint32_t>(12+8+json.size()+8+binBytes));u32(out,static_cast<std::uint32_t>(json.size()));u32(out,0x4E4F534A);out.write(json.data(),static_cast<std::streamsize>(json.size()));u32(out,binBytes);u32(out,0x004E4942);
     for(auto&p:r.points){f32(out,static_cast<float>(p.xyz.x));f32(out,static_cast<float>(-p.xyz.y));f32(out,static_cast<float>(-p.xyz.z));}
     for(auto&p:r.points){for(auto c:p.color)out.put(static_cast<char>(c));out.put(static_cast<char>(255));}out.flush();if(!out)throw Error("GLB write failed; storage may be full");
 }
+void writePly(const Result& result,const std::string& path) { writePointPly(result,path,PointRepresentation::Sparse); }
+void writeGlb(const Result& result,const std::string& path) { writePointGlb(result,path,PointRepresentation::Sparse); }
 } // namespace rf
-extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double threshold,const char* glb,const char* ply) {
+extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double threshold,const char* glb,const char* ply) noexcept try {
     std::string text;
     try {
         if(!data||count>20000)throw rf::Error("Invalid input buffer");
         std::vector<rf::Match>matches;matches.reserve(count);
         for(std::size_t i=0;i<count;++i){const auto*p=data+i*7;rf::Match m{{p[0],p[1]},{p[2],p[3]},{}};for(int c=0;c<3;++c){if(!std::isfinite(p[4+c]))throw rf::Error("Non-finite color");m.color[c]=static_cast<std::uint8_t>(std::clamp(p[4+c],0.0,255.0));}matches.push_back(m);}
         rf::Settings s;s.threshold=threshold;auto result=rf::reconstruct(matches,s);if(glb&&*glb)rf::writeGlb(result,glb);if(ply&&*ply)rf::writePly(result,ply);text=rf::resultJson(result);
-    }catch(const std::exception&e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"}";}
+    }catch(const std::bad_alloc&){throw;}
+    catch(const std::exception&e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"}";}
     auto*p=static_cast<char*>(std::malloc(text.size()+1));if(!p)return nullptr;std::memcpy(p,text.c_str(),text.size()+1);return p;
+} catch (const std::bad_alloc&) {
+    return rf::abi::error("RESOURCE_EXHAUSTED", "Native allocation failed");
+} catch (const std::exception&) {
+    return rf::abi::error("NATIVE_FAILURE", "Native boundary failure");
+} catch (...) {
+    return rf::abi::error("UNKNOWN_NATIVE_FAILURE", "Unknown native boundary failure");
 }
-extern "C" void rf_free(void* p){std::free(p);}
+
+extern "C" void rf_free(void* p) noexcept {std::free(p);}

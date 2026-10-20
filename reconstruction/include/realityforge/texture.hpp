@@ -57,4 +57,4 @@ extern "C" char* rf_textured_surface_json(
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
     const char* mesh_glb_path,const char* mesh_ply_path,
-    const char* textured_glb_path,const char* texture_png_path);
+    const char* textured_glb_path,const char* texture_png_path) noexcept;

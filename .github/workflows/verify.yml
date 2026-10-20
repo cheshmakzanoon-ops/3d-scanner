@@ -59,10 +59,11 @@ jobs:
       - uses: android-actions/setup-android@v4
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.13'
-      - run: gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+      - name: Verify committed Gradle wrapper
+        run: python3 build-logic/verify_wrapper.py
+      - run: ./gradlew --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug :app:assembleRelease :app:lintRelease
       - run: python3 tools/check_apk.py app/build/outputs/apk/debug/app-debug.apk --sdk "$ANDROID_HOME" --report reports/apk-validation.json
+      - run: python3 tools/check_apk.py app/build/outputs/apk/release/app-release-unsigned.apk --sdk "$ANDROID_HOME" --report reports/release-apk-validation.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -70,10 +71,13 @@ jobs:
           path: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/apk/androidTest/debug/*.apk
+            app/build/outputs/apk/release/*.apk
             app/build/reports/
+            app/schemas/
             reports/apk-validation.json
+            reports/release-apk-validation.json
   device:
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_device_tests)
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.run_device_tests)
     needs: android
     runs-on: ubuntu-24.04
     timeout-minutes: 40
@@ -86,8 +90,6 @@ jobs:
       - uses: android-actions/setup-android@v4
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.13'
       - name: Enable KVM for accelerated Android emulation
         run: |
           test -e /dev/kvm

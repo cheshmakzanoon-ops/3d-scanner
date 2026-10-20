@@ -1,5 +1,6 @@
 package com.realityforge.scanner.engine
 
+import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -9,6 +10,9 @@ internal data class DenseWorkload(
     val textureEdge: Int, val pixelStride: Int, val sampledGridPixels: Long,
     val packedDepthBytes: Long, val maximumCachedLuminanceBytes: Long,
     val memoryTier: String,
+    val resourceSelectionIdentity: String? = null,
+    val sampledGridLimit: Long = MAX_SAMPLES,
+    val nativeThreads: Int = 1,
 ) {
     companion object {
         const val MAX_VIEWS = 8
@@ -23,11 +27,14 @@ internal data class DenseWorkload(
         fun depthEdge(heapBytes: Long): Int = if (tier(heapBytes) == "standard") 384 else 256
 
         /** Keep anchors and distribute remaining slots across the registered sequence, not just its prefix. */
-        fun selectCameraIndices(registered: Int): IntArray {
+        fun selectCameraIndices(registered: Int, maximumViews: Int = MAX_VIEWS): IntArray {
             require(registered in 2..12) { "Expected two to twelve registered cameras" }
-            if (registered <= MAX_VIEWS) return IntArray(registered) { it }
-            return intArrayOf(0, 1) + IntArray(MAX_VIEWS - 2) { slot ->
-                2 + (slot * (registered - 3).toDouble() / (MAX_VIEWS - 3)).roundToInt()
+            require(maximumViews in 2..MAX_VIEWS)
+            if (registered <= maximumViews) return IntArray(registered) { it }
+            if (maximumViews == 2) return intArrayOf(0, 1)
+            if (maximumViews == 3) return intArrayOf(0, 1, registered - 1)
+            return intArrayOf(0, 1) + IntArray(maximumViews - 2) { slot ->
+                2 + (slot * (registered - 3).toDouble() / (maximumViews - 3)).roundToInt()
             }
         }
         fun gridSamples(width: Int, height: Int, views: Int, stride: Int): Long {
@@ -46,6 +53,17 @@ internal data class DenseWorkload(
             return DenseWorkload(width, height, views, edge, texture, stride,
                 gridSamples(width, height, views, stride), width.toLong()*height*4*views,
                 width.toLong()*height*4*minOf(views, 4), tier(heapBytes))
+        }
+
+        fun plan(width: Int, height: Int, views: Int, selection: ResourceWorkloadSelection): DenseWorkload {
+            require(width in 32..selection.depthEdge && height in 32..selection.depthEdge && views in 2..selection.maximumViews)
+            val stride = (3..8).firstOrNull { gridSamples(width, height, views, it) <= selection.maximumGridSamples }
+                ?: error("Selected reconstruction sampling budget exceeded")
+            val texture = minOf(selection.textureEdgeLimit, if (views > 4) 640 else 768)
+            return DenseWorkload(width, height, views, selection.depthEdge, texture, stride,
+                gridSamples(width, height, views, stride), width.toLong() * height * 4 * views,
+                width.toLong() * height * 4 * minOf(views, 4), selection.memoryTier,
+                selection.identitySha256, selection.maximumGridSamples, selection.nativeThreads)
         }
         fun atlasPixels(width: Int, height: Int, views: Int): Long {
             require(width in 32..1024 && height in 32..1024 && views in 2..MAX_VIEWS)

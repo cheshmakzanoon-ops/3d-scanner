@@ -3,11 +3,23 @@ package com.realityforge.scanner.engine
 import android.graphics.Bitmap
 import com.realityforge.scanner.data.ProjectRepository
 import com.realityforge.scanner.data.ScanPhoto
+import com.realityforge.scanner.engine.pipeline.PipelineArtifactReference
+import com.realityforge.scanner.engine.pipeline.PipelineFailure
+import com.realityforge.scanner.engine.pipeline.PipelineInputSnapshot
+import com.realityforge.scanner.engine.pipeline.PipelineStage
+import com.realityforge.scanner.engine.pipeline.PipelineStageOutcome
+import com.realityforge.scanner.engine.pipeline.sha256Utf8
+import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
+import com.realityforge.scanner.processing.resources.ResourceCheckpointPause
+import com.realityforge.scanner.engine.nativebridge.NativeResultJson
+import com.realityforge.scanner.engine.nativebridge.NativeResourceExhaustedException
 import kotlinx.coroutines.ensureActive
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileInputStream
+import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 import kotlin.math.*
 
@@ -17,9 +29,15 @@ import kotlin.math.*
  * All geometry is expressed in the already-registered sparse anchor coordinate frame.
  * If a view has a mismatched aspect/lens, reject the dense stage instead of inventing rays.
  */
+internal data class DensePreviewResult(
+    val payload: JSONObject,
+    val outcomes: List<PipelineStageOutcome>,
+)
+
 internal object DensePreview {
     private const val DEPTH_PLANES = 56
 
+    /** Compatibility adapter retained for existing callers and instrumentation. */
     suspend fun reconstruct(
         repository: ProjectRepository,
         projectId: String,
@@ -31,23 +49,61 @@ internal object DensePreview {
         profile: LensProfile?,
         nativeToken: Long = 0L,
         onProgress: suspend (String, Int, Int) -> Unit = { _, _, _ -> },
-    ): JSONObject {
+    ): JSONObject = reconstructInternal(
+        repository, projectId, artifactKey, photos, cameras, sparsePoints,
+        fallbackFocal35, profile, nativeToken, null, ResourceWorkloadSelection.COMPACT, onProgress,
+    ).payload
+
+    /** Typed C2 adapter used by SparsePipeline while dense providers are extracted incrementally. */
+    suspend fun reconstructTyped(
+        repository: ProjectRepository,
+        projectId: String,
+        artifactKey: String,
+        photos: List<ScanPhoto>,
+        cameras: JSONArray,
+        sparsePoints: JSONArray,
+        fallbackFocal35: Double,
+        profile: LensProfile?,
+        nativeToken: Long,
+        pipelineSnapshot: PipelineInputSnapshot,
+        resourceSelection: ResourceWorkloadSelection = ResourceWorkloadSelection.COMPACT,
+        onProgress: suspend (String, Int, Int) -> Unit = { _, _, _ -> },
+    ): DensePreviewResult = reconstructInternal(
+        repository, projectId, artifactKey, photos, cameras, sparsePoints,
+        fallbackFocal35, profile, nativeToken, pipelineSnapshot, resourceSelection, onProgress,
+    )
+
+    private suspend fun reconstructInternal(
+        repository: ProjectRepository,
+        projectId: String,
+        artifactKey: String,
+        photos: List<ScanPhoto>,
+        cameras: JSONArray,
+        sparsePoints: JSONArray,
+        fallbackFocal35: Double,
+        profile: LensProfile?,
+        nativeToken: Long,
+        pipelineSnapshot: PipelineInputSnapshot?,
+        resourceSelection: ResourceWorkloadSelection,
+        onProgress: suspend (String, Int, Int) -> Unit,
+    ): DensePreviewResult {
         require(cameras.length() in 2..12 && sparsePoints.length() in 30..30000) {
             "Dense stereo requires two registered cameras and a usable sparse depth prior."
         }
-        val selected = DenseWorkload.selectCameraIndices(cameras.length())
+        // Selection was persisted with the job before admission. Use it unchanged for every resumed allocation.
+        val selected = DenseWorkload.selectCameraIndices(cameras.length(), resourceSelection.maximumViews)
         val chosen = selected.map { cameras.getJSONObject(it) }
         val photoLookup = photos.associateBy { it.id }
         val chosenPhotos = chosen.map { camera -> requireNotNull(photoLookup[camera.getString("photoId")]) }
         require(chosenPhotos.map { it.id }.toSet().size == chosenPhotos.size) { "Repeated camera/photo identity" }
-        val heapBytes = Runtime.getRuntime().maxMemory()
-        val edge = DenseWorkload.depthEdge(heapBytes)
+        val edge = resourceSelection.depthEdge
         // At most one original decoder bitmap and its optional rescaled copy exist at a time.
         val dimensions = ImageLoader.upright(repository.photoFile(chosenPhotos.first()), edge).let { first ->
             try { first.width to first.height } finally { first.recycle() }
         }
         val width = dimensions.first; val height = dimensions.second
-        val workload = DenseWorkload.plan(width, height, chosen.size, heapBytes)
+        val workload = DenseWorkload.plan(width, height, chosen.size, resourceSelection)
+        org.opencv.core.Core.setNumThreads(workload.nativeThreads)
         val cameraRows = DoubleArray(chosen.size * 16)
         val rectified = ByteArray(workload.packedDepthBytes.toInt())
         for ((index,photo) in chosenPhotos.withIndex()) {
@@ -101,6 +157,8 @@ internal object DensePreview {
             preparePhotoAtlasInput(repository,chosenPhotos,cameraRows,
                 profile,fallbackFocal35,width,height,workload.textureEdge,onProgress)
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+        catch (paused: ResourceCheckpointPause) { throw paused }
+        catch (exhausted: NativeResourceExhaustedException) { throw exhausted }
         catch (failure: Exception) {
             textureInputFailure=failure.message ?: "Higher-resolution photograph preprocessing failed"
             null
@@ -110,16 +168,18 @@ internal object DensePreview {
             coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",0,1)
             val depthIdentity=DepthCheckpointIdentity.fingerprint(
-                artifactKey,rectified,cameraRows,width,height,near,far,DEPTH_PLANES,workload.pixelStride)
+                pipelineSnapshot?.let { "sparse-m16-r${it.revision}-${it.identity(PipelineStage.SPARSE).digest.take(16)}" } ?: artifactKey,
+                rectified,cameraRows,width,height,near,far,DEPTH_PLANES,workload.pixelStride,
+                resourceSelectionIdentity = resourceSelection.geometryIdentitySha256)
             val checkpointDirectory=DepthCheckpointIdentity.directory(folder,depthIdentity)
             val result=if(photographic!=null) {
                 val (texturePixels,textureWidth,textureHeight)=photographic
-                JSONObject(NativeCore.reconstructTexturedSurfaceCheckpointed(
+                NativeResultJson.decode(NativeCore.reconstructTexturedSurfaceCheckpointed(
                     rectified,width,height,texturePixels,textureWidth,textureHeight,cameraRows,
                     near,far,DEPTH_PLANES,workload.pixelStride,
                     glbPartial.path,plyPartial.path,texturedPartial.path,pngPartial.path,nativeToken,
                     checkpointDirectory.path,depthIdentity))
-            } else JSONObject(NativeCore.reconstructSurfaceCheckpointed(rectified,width,height,cameraRows,
+            } else NativeResultJson.decode(NativeCore.reconstructSurfaceCheckpointed(rectified,width,height,cameraRows,
                 near,far,DEPTH_PLANES,workload.pixelStride,glbPartial.path,plyPartial.path,nativeToken,
                 checkpointDirectory.path,depthIdentity))
             coroutineContext.ensureActive()
@@ -139,13 +199,17 @@ internal object DensePreview {
                 .put("excludedRegisteredCameraCount",cameras.length()-chosen.size)
                 .put("workload",JSONObject().put("memoryTier",workload.memoryTier)
                     .put("depthEdgeLimit",edge).put("textureEdgeLimit",workload.textureEdge)
-                    .put("sampledGridLimit",DenseWorkload.MAX_SAMPLES)
+                    .put("sampledGridLimit",workload.sampledGridLimit)
+                    .put("resourceSelectionVersion",resourceSelection.version)
+                    .put("resourceSelectionIdentity",resourceSelection.identitySha256)
+                    .put("nativeThreads",workload.nativeThreads)
                     .put("plannedGridSamples",workload.sampledGridPixels)
                     .put("packedDepthBytes",workload.packedDepthBytes)
                     .put("maximumCachedLuminanceBytes",workload.maximumCachedLuminanceBytes)
                     .put("memoryMeasurement","allocation bounds only; not process RSS"))
                 .put("nearDepthInAnchorUnits",near).put("farDepthInAnchorUnits",far)
                 .put("depthCheckpointSchema",18)
+                .put("depthCheckpointIdentity",depthIdentity)
                 .put("depthCheckpointResumed",output.optInt("resumedDepthMaps"))
                 .put("depthCheckpointWritten",output.optInt("writtenDepthMaps"))
                 .put("photographsRectified",true)
@@ -178,6 +242,8 @@ internal object DensePreview {
                         check(pngPartial.renameTo(atlasPng)) { "Cannot publish photo atlas PNG" }
                         composite.put("texture",texture)
                     } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
+                    catch (paused: ResourceCheckpointPause) { throw paused }
+                    catch (exhausted: NativeResourceExhaustedException) { throw exhausted }
                     catch (failure: Exception) {
                         texturedGlb.delete();atlasPng.delete()
                         composite.put("textureError",failure.message ?: "Cannot publish photographic texture")
@@ -188,7 +254,10 @@ internal object DensePreview {
                 composite.put("meshError",result.optString("meshError",
                     "Surface confidence/coverage gate rejected geometry"))
             }
-            return composite
+            val outcomes = pipelineSnapshot?.let { snapshot ->
+                typedOutcomes(snapshot, artifactKey, composite, glb, ply, texturedGlb, atlasPng)
+            }.orEmpty()
+            return DensePreviewResult(composite, outcomes)
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
         finally {
             glbPartial.delete()
@@ -197,6 +266,81 @@ internal object DensePreview {
             pngPartial.delete()
             if (publishedGlb && !ply.isFile) glb.delete()
         }
+    }
+
+
+    private fun typedOutcomes(
+        snapshot: PipelineInputSnapshot,
+        artifactKey: String,
+        composite: JSONObject,
+        meshGlb: File,
+        meshPly: File,
+        texturedGlb: File,
+        atlasPng: File,
+    ): List<PipelineStageOutcome> {
+        val outcomes = mutableListOf<PipelineStageOutcome>()
+        val denseIdentity = snapshot.identity(PipelineStage.DENSE)
+        outcomes += PipelineStageOutcome.Completed(
+            PipelineArtifactReference.forStage(
+                denseIdentity,
+                "$artifactKey.json#densePreview",
+                contentSha256 = sha256Utf8(composite.getJSONObject("dense").toString()),
+            ),
+        )
+
+        if (composite.has("mesh") && meshGlb.isFile && meshPly.isFile) {
+            outcomes += PipelineStageOutcome.Completed(
+                PipelineArtifactReference.forStage(
+                    snapshot.identity(PipelineStage.SURFACE),
+                    meshGlb.name,
+                    companionLocations = listOf(meshPly.name),
+                    contentSha256 = fileSha256(meshGlb),
+                ),
+            )
+        } else {
+            outcomes += PipelineStageOutcome.Unavailable(
+                PipelineFailure(
+                    PipelineStage.SURFACE,
+                    "SURFACE_QUALITY_REJECTED",
+                    composite.optString("meshError", "Insufficient supported surface geometry"),
+                    recoverable = true,
+                ),
+            )
+        }
+
+        if (composite.has("texture") && texturedGlb.isFile && atlasPng.isFile) {
+            outcomes += PipelineStageOutcome.Completed(
+                PipelineArtifactReference.forStage(
+                    snapshot.identity(PipelineStage.TEXTURE),
+                    texturedGlb.name,
+                    companionLocations = listOf(atlasPng.name),
+                    contentSha256 = fileSha256(texturedGlb),
+                ),
+            )
+        } else {
+            outcomes += PipelineStageOutcome.Unavailable(
+                PipelineFailure(
+                    PipelineStage.TEXTURE,
+                    "TEXTURE_UNAVAILABLE",
+                    composite.optString("textureError", "Photographic texture was not produced"),
+                    recoverable = true,
+                ),
+            )
+        }
+        return outcomes
+    }
+
+    private fun fileSha256(file: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        FileInputStream(file).use { input ->
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            while (true) {
+                val read = input.read(buffer)
+                if (read < 0) break
+                digest.update(buffer, 0, read)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it.toInt() and 0xff) }
     }
 
     /** Collect actual photograph RGB at up to 768px using the SAME camera/crop.

@@ -48,4 +48,4 @@ std::string bundleJson(const BundleResult& result);
 extern "C" char* rf_bundle_adjust_json(const double* cameras, std::size_t camera_count,
     const double* points, std::size_t point_count,
     const double* observations, std::size_t observation_count,
-    double threshold, int iterations);
+    double threshold, int iterations) noexcept;

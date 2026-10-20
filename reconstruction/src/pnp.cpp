@@ -1,3 +1,4 @@
+#include "realityforge/c_abi_support.hpp"
 #include "realityforge/pnp.hpp"
 #include <algorithm>
 #include <array>
@@ -202,14 +203,21 @@ std::string cameraJson(const CameraPose& p){
     o<<"]}";return o.str();
 }
 } // namespace rf
-extern "C" char* rf_register_camera_json(const double* data,std::size_t count,double threshold){
+extern "C" char* rf_register_camera_json(const double* data,std::size_t count,double threshold)noexcept try {
     std::string text;
     try{
         if(!data||count<16||count>5000)throw rf::Error("Invalid camera input buffer");
         std::vector<rf::Observation> observations;observations.reserve(count);
         for(std::size_t i=0;i<count;++i){const double* p=data+i*5;observations.push_back({{p[0],p[1],p[2]},{p[3],p[4]}});}
         text=rf::cameraJson(rf::registerCamera(observations,threshold));
-    }catch(const std::exception& e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='\"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"}";}
+    }catch(const std::bad_alloc&){throw;}
+    catch(const std::exception& e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='\"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"}";}
     auto* out=static_cast<char*>(std::malloc(text.size()+1));if(!out)return nullptr;
     std::memcpy(out,text.c_str(),text.size()+1);return out;
+} catch (const std::bad_alloc&) {
+    return rf::abi::error("RESOURCE_EXHAUSTED", "Native allocation failed");
+} catch (const std::exception&) {
+    return rf::abi::error("NATIVE_FAILURE", "Native boundary failure");
+} catch (...) {
+    return rf::abi::error("UNKNOWN_NATIVE_FAILURE", "Unknown native boundary failure");
 }

@@ -1,3 +1,4 @@
+#include "realityforge/c_abi_support.hpp"
 #include "realityforge/bundle_adjustment.hpp"
 #include <algorithm>
 #include <array>
@@ -362,7 +363,7 @@ std::size_t exactIndex(double x,std::size_t maximum){
 }
 extern "C" char* rf_bundle_adjust_json(const double* cameras,std::size_t nc,
     const double* points,std::size_t np,const double* observations,std::size_t no,
-    double threshold,int iterations){
+    double threshold,int iterations)noexcept try {
     std::string response;
     try{
         if(!cameras||!points||!observations||nc<3||nc>12||np<16||np>20000||no<32||no>100000)
@@ -383,11 +384,18 @@ extern "C" char* rf_bundle_adjust_json(const double* cameras,std::size_t nc,
             rows.push_back(o);}
         rf::BundleSettings cfg;cfg.maxReprojectionError=threshold;cfg.maxIterations=iterations;
         response=rf::bundleJson(rf::bundleAdjust(poses,seeds,rows,cfg));
-    }catch(const std::exception& e){
+    }catch(const std::bad_alloc&){throw;}
+    catch(const std::exception& e){
         response="{\"error\":\"";
         for(const unsigned char ch:std::string(e.what())){if(ch=='"'||ch=='\\')response+='\\';if(ch>=32)response+=static_cast<char>(ch);}
         response+="\"}";
     }
     auto* p=static_cast<char*>(std::malloc(response.size()+1));if(!p)return nullptr;
     std::memcpy(p,response.c_str(),response.size()+1);return p;
+} catch (const std::bad_alloc&) {
+    return rf::abi::error("RESOURCE_EXHAUSTED", "Native allocation failed");
+} catch (const std::exception&) {
+    return rf::abi::error("NATIVE_FAILURE", "Native boundary failure");
+} catch (...) {
+    return rf::abi::error("UNKNOWN_NATIVE_FAILURE", "Unknown native boundary failure");
 }

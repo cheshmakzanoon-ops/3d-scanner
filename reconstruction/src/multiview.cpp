@@ -1,3 +1,4 @@
+#include "realityforge/c_abi_support.hpp"
 #include "realityforge/multiview.hpp"
 #include <algorithm>
 #include <array>
@@ -254,7 +255,7 @@ std::string multiViewJson(const MultiViewResult& r){
 }
 } // namespace rf
 extern "C" char* rf_multiview_json(const double* cameras,std::size_t camera_count,
-    const double* observations,std::size_t observation_count,double threshold,int iterations){
+    const double* observations,std::size_t observation_count,double threshold,int iterations)noexcept try {
     std::string response;
     try{
         if(!cameras||!observations||camera_count<2||camera_count>12||observation_count==0||observation_count>100000)
@@ -272,7 +273,14 @@ extern "C" char* rf_multiview_json(const double* cameras,std::size_t camera_coun
         }
         rf::MultiViewSettings s;s.maxReprojectionError=threshold;s.iterations=iterations;
         response=rf::multiViewJson(rf::reconstructMultiView(poses,tracks,s));
-    }catch(const std::exception& e){response="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(static_cast<unsigned char>(c)>=32)response+=c;}response+="\"}";}
+    }catch(const std::bad_alloc&){throw;}
+    catch(const std::exception& e){response="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(static_cast<unsigned char>(c)>=32)response+=c;}response+="\"}";}
     auto* p=static_cast<char*>(std::malloc(response.size()+1));if(!p)return nullptr;
     std::memcpy(p,response.c_str(),response.size()+1);return p;
+} catch (const std::bad_alloc&) {
+    return rf::abi::error("RESOURCE_EXHAUSTED", "Native allocation failed");
+} catch (const std::exception&) {
+    return rf::abi::error("NATIVE_FAILURE", "Native boundary failure");
+} catch (...) {
+    return rf::abi::error("UNKNOWN_NATIVE_FAILURE", "Unknown native boundary failure");
 }

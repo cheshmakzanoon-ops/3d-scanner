@@ -20,4 +20,4 @@ CameraPose registerCamera(std::span<const Observation> observations,
 std::string cameraJson(const CameraPose& pose);
 }
 // rows N x 5 = X,Y,Z,normalized_u,normalized_v; malloc-owned UTF-8 JSON.
-extern "C" char* rf_register_camera_json(const double* rows, std::size_t count, double threshold);
+extern "C" char* rf_register_camera_json(const double* rows, std::size_t count, double threshold) noexcept;

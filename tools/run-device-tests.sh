@@ -5,7 +5,7 @@
 set -u
 status=0
 adb -e shell rm -f /data/local/tmp/realityforge-m12-session.png
-gradle --no-daemon :app:connectedDebugAndroidTest || status=$?
+./gradlew --no-daemon :app:connectedDebugAndroidTest || status=$?
 mkdir -p reports/device
 if ! adb -e pull /data/local/tmp/realityforge-m12-session.png reports/device/photographic-viewer.png; then
     rm -f reports/device/photographic-viewer.png
