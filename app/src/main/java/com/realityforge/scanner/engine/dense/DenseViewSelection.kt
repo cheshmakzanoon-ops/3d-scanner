@@ -20,13 +20,15 @@ object DenseViewSelection {
         val covered=HashSet<Long>();val references=ArrayList<Camera>();val sources=linkedMapOf<String,List<String>>()
         while(references.size<referenceCap){
             if(cancelled())throw java.util.concurrent.CancellationException("Dense selection cancelled")
-            val best=sorted.filter{it !in references && neighbours.getValue(it.photoId).isNotEmpty()}
+            val best=sorted.filter{it !in references && neighbours.getValue(it.photoId).isNotEmpty() && (references.isEmpty() || neighbours.getValue(it.photoId).any { n -> n in references })}
                 .maxWithOrNull(compareBy<Camera>{c->c.tracks.count{it !in covered}+.1*c.tracks.size+c.sharpness}.thenByDescending{it.photoId}) ?: break
             references+=best;covered+=best.tracks;sources[best.photoId]=neighbours.getValue(best.photoId).take(sourceCap).map{it.photoId}
         }
+        for (ref in references) sources[ref.photoId]=neighbours.getValue(ref.photoId).filter { it in references }.take(sourceCap).map { it.photoId }
         val excluded=sorted.filter{it !in references}.associate{it.photoId to when {
             !it.textureAvailable -> "texture_unavailable"
             neighbours.getValue(it.photoId).isEmpty() -> "insufficient_verified_overlap_or_baseline"
+            neighbours.getValue(it.photoId).none { n -> n in references } -> "disconnected_from_selected_component"
             else -> "reference_budget"
         }}
         return Plan(references.map{it.photoId},sources,excluded,covered.size)
