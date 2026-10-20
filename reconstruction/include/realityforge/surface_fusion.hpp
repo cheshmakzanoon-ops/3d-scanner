@@ -19,8 +19,19 @@ inline std::array<std::int64_t,3> checkedVoxel(Vec3 p,double size){
     }return result;
 }
 inline bool compatibleNormal(Vec3 a,Vec3 b){
-    const double la=std::hypot(a.x,a.y,a.z),lb=std::hypot(b.x,b.y,b.z);
-    return std::isfinite(la)&&std::isfinite(lb)&&la>.5&&lb>.5&&
-        (a.x*b.x+a.y*b.y+a.z*b.z)/(la*lb)>=.8660254037844386;
+    // Accumulators carry confidence/support-weighted normals. Their magnitude
+    // is not angular evidence: any finite positive scale preserves direction.
+    // Scale before hypot so both subnormal and DBL_MAX inputs remain usable.
+    const auto unit=[](Vec3 n,Vec3& result){
+        if(!std::isfinite(n.x)||!std::isfinite(n.y)||!std::isfinite(n.z))return false;
+        const double scale=std::max({std::abs(n.x),std::abs(n.y),std::abs(n.z)});
+        if(scale==0)return false;
+        n={n.x/scale,n.y/scale,n.z/scale};
+        const double length=std::hypot(n.x,n.y,n.z);
+        result={n.x/length,n.y/length,n.z/length};return true;
+    };
+    Vec3 first{},second{};
+    return unit(a,first)&&unit(b,second)&&
+        first.x*second.x+first.y*second.y+first.z*second.z>=.8660254037844386;
 }
 }
