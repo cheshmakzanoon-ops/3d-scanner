@@ -14,6 +14,9 @@ struct CameraPose {
     std::vector<std::size_t> inliers; // indexes into the input observations
     std::size_t inputCount{};
     double medianError{}; // Euclidean reprojection error, normalized camera units
+    std::size_t hypothesesTested{};
+    bool usedPlanarInitialization{};
+    double worldPlanarityRatio{}; // smallest/largest centered world covariance eigenvalue
 };
 CameraPose registerCamera(std::span<const Observation> observations,
     double reprojectionThreshold = 0.003, std::uint32_t seed = 20261009);

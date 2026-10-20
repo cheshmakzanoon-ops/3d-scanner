@@ -84,6 +84,8 @@ CameraPose planar(std::span<const Observation> points,const std::vector<std::siz
         if(good>positive){positive=good;best={r,t,{},points.size(),0};}
     }
     if(positive*10<ids.size()*9)throw Error("Planar pose has ambiguous cheirality");
+    best.usedPlanarInitialization=true;
+    best.worldPlanarityRatio=std::max(0.,covariance.values[0])/std::max(covariance.values[2],1e-30);
     return best;
 }
 
@@ -134,7 +136,9 @@ CameraPose dlt(std::span<const Observation> points,const std::vector<std::size_t
     Vec3 b=normalized(sub(row(m,1),mul(a,dot(a,row(m,1)))));
     Vec3 c=cross(a,b);
     Mat3 r{};setRow(r,0,a);setRow(r,1,b);setRow(r,2,c);
-    return {r,t,{},points.size(),0};
+    CameraPose result{r,t,{},points.size(),0};
+    result.worldPlanarityRatio=std::max(0.,shape.values[0])/std::max(shape.values[2],1e-30);
+    return result;
 }
 
 // Exp SO(3); post-multiplication not assumed. Pose increments act in camera coordinates.
@@ -220,7 +224,9 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
     // Sparse work-unit1 counts tested PnP hypotheses; adaptive termination
     // means remaining work is unknown, never a fabricated whole-scan percentage.
     progress::begin(progress::Stage::Sparse,0,1);
+    std::size_t hypotheses=0;
     for(int iter=0;iter<450;++iter){
+        ++hypotheses;
         cancellation::checkpoint();
         std::vector<std::size_t> sample;sample.reserve(8);
         while(sample.size()<8){auto i=pick(random);if(std::find(sample.begin(),sample.end(),i)==sample.end())sample.push_back(i);}
@@ -250,12 +256,15 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
     std::vector<double> errors;errors.reserve(best.inliers.size());for(auto i:best.inliers)errors.push_back(reprojection(best,observations[i]));
     best.medianError=median(errors);
     if(determinant(best.rotation)<.99||determinant(best.rotation)>1.01)throw Error("Nonrigid camera pose");
+    best.hypothesesTested=hypotheses;
     return best;
 }
 std::string cameraJson(const CameraPose& p){
     std::ostringstream o;o.imbue(std::locale::classic());o<<std::setprecision(12);
     o<<"{\"schema\":2,\"representation\":\"camera_pose\",\"scale\":\"arbitrary\",\"inputTracks\":"<<p.inputCount
-     <<",\"inlierCount\":"<<p.inliers.size()<<",\"medianErrorNormalized\":"<<p.medianError<<",\"rotation\":[";
+     <<",\"inlierCount\":"<<p.inliers.size()<<",\"medianErrorNormalized\":"<<p.medianError
+     <<",\"hypothesesTested\":"<<p.hypothesesTested<<",\"worldPlanarityRatio\":"<<p.worldPlanarityRatio
+     <<",\"initializationModel\":\""<<(p.usedPlanarInitialization?"calibrated_plane_homography":"normalized_dlt")<<"\",\"rotation\":[";
     for(int i=0;i<9;++i){if(i)o<<',';o<<p.rotation[i];}
     o<<"],\"translation\":["<<p.translation.x<<','<<p.translation.y<<','<<p.translation.z<<"],\"inlierIndices\":[";
     for(std::size_t i=0;i<p.inliers.size();++i){if(i)o<<',';o<<p.inliers[i];}

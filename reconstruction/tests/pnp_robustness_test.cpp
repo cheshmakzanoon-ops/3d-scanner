@@ -28,7 +28,7 @@ int main(){
    rf::Vec2 uv{q.x/q.z+std::sin(i)*.0001,q.y/q.z+std::cos(i)*.0001};
    if(i%5==0)uv={.8*std::sin(i),.8*std::cos(i)};
    rows.push_back({p,uv});}
-  auto p=rf::registerCamera(rows,.001);
+  auto p=rf::registerCamera(rows,.001);assert(p.hypothesesTested>=61&&p.hypothesesTested<=450);assert(p.usedPlanarInitialization==plane);assert(p.worldPlanarityRatio>=0&&p.worldPlanarityRatio<=1);
   assert(p.inliers.size()>=78);assert(p.medianError<.0002);
   assert(std::abs(p.translation.x/scale-.21)<.015);
   assert(std::abs(p.translation.y/scale+.12)<.015);
