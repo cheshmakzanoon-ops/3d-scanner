@@ -40,3 +40,11 @@ permission and makes no legal approval claim. Ceres, Eigen, Filament, xatlas,
 meshoptimizer and VulkanMVS are not approved or shipped by this baseline. Each proposed
 addition needs exact version/origin/hash/license review before shared dependency wiring.
 The candidate package gate must rerun after any integrated dependency change.
+
+The debug APK resolves129 runtime modules, with a separate actual debug inventory
+and SBOM under tools/dependencies/evidence/debug/. Its app/src/debug notice source
+set supplies all95 full texts and a129-coordinate index, replacing common asset paths
+through normal AGP merging. The six additional coordinates are Compose material,
+ui-tooling and ui-tooling-data Android artifacts and their metadata, all version1.8.2
+with actual Apache2.0 POM declarations and preserved artifact notices. These are
+actual debug runtime dependencies; they are absent from the123-module release.
