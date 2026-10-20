@@ -101,8 +101,7 @@ class ActualUiJourneyTest {
                 val project = runBlocking { app.repository.dao.observeProjects().first().single { it.name == name } }
                 val original = runBlocking { app.repository.dao.photos(project.id).associate { it.id to sha(app.repository.photoFile(it)) } }
                 assertEquals(3, original.size)
-                ui.scrollUntilEditable("Fallback 35 mm")
-                ui.setText("32.88", "Fallback")
+                ui.setSoleLabeledText("32.88", "a073_focal", "Fallback 35 mm-equivalent focal length")
                 ui.scrollToClick("Reconstruct selected photographs", "Reconstruct points + surface", "Reconstruct")
                 ui.await(240000) { runBlocking { app.repository.dao.project(project.id)?.let { it.resultRevision == it.revision && it.resultKey != null } == true } }
                 ui.screenshot("synthetic-reconstruction")
@@ -115,7 +114,7 @@ class ActualUiJourneyTest {
                 ui.click("Reset view", "Fit model", "Reset")
                 ui.click("Close")
                 ui.optionalClick("Export available results")
-                ui.scrollToClick("Textured GLB", "Photographic surface · GLB", "Photographic surface")
+                ui.scrollToClickPrefix(ui.exportOptionPrefix("a071_photographic", "Photographic surface", "GLB"), "Textured GLB", "Photographic surface · GLB")
                 val exportName = "rf-ui-export-$batch.glb"
                 exportedName = exportName
                 ui.documentsSave(exportName)
@@ -215,6 +214,38 @@ internal class UiJourneyDriver {
         val args=Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,value) }
         check(requireNotNull(field).performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,args))
     }
+    private fun localizedString(name:String,fallback:String):String {
+        val context=instrumentation.targetContext
+        val id=context.resources.getIdentifier(name,"string",context.packageName)
+        return if(id!=0) context.getString(id) else fallback
+    }
+    fun exportOptionPrefix(representationResource:String,fallback:String,format:String):String {
+        val context=instrumentation.targetContext
+        val label=localizedString(representationResource,fallback)
+        val id=context.resources.getIdentifier("a071_export_option","string",context.packageName)
+        if(id==0) return "$label · $format · "
+        val marker="RF_UI_BYTE_COUNT"
+        val rendered=context.getString(id,label,format,marker)
+        require(rendered.contains(marker)) {"Export option resource lacks byte-count field"}
+        return rendered.substringBefore(marker).also {require(it.contains(label) && it.contains(format))}
+    }
+    /** Compose may expose a floating label as a separate node. Require its actual localized text and one editable. */
+    fun setSoleLabeledText(value:String,labelResource:String,fallback:String) {
+        val label=localizedString(labelResource,fallback)
+        repeat(35) {
+            val visible=nodes(instrumentation.uiAutomation.rootInActiveWindow).filter {it.isVisibleToUser}
+            val labelPresent=visible.any {it.text?.toString()==label || it.contentDescription?.toString()==label || it.hintText?.toString()==label}
+            val fields=visible.filter {it.isEditable && it.isEnabled}
+            if(labelPresent && fields.isNotEmpty()) {
+                check(fields.size==1) {"Visible label has multiple editable candidates: $label"}
+                val args=Bundle().apply {putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,value)}
+                check(fields.single().performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,args))
+                return
+            }
+            scroll();SystemClock.sleep(100)
+        }
+        error("Visible localized label and sole editable control missing: $label")
+    }
     fun back() { check(instrumentation.uiAutomation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)) }
     fun awaitDocuments() = await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
     /** Real HOME event and task relaunch; this is neither process death nor a lock event. */
@@ -231,6 +262,16 @@ internal class UiJourneyDriver {
     fun scrollToClick(vararg labels:String) {
         repeat(35) { if(optionalClick(*labels)) return; if(!scroll()) SystemClock.sleep(150); SystemClock.sleep(100) }
         click(*labels)
+    }
+    fun scrollToClickPrefix(prefix:String,vararg legacyExact:String) {
+        require(prefix.isNotBlank())
+        repeat(35) {
+            val match=nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull {node->node.isVisibleToUser &&
+                listOfNotNull(node.text?.toString(),node.contentDescription?.toString()).any {it.startsWith(prefix) || it in legacyExact}}
+            if(match!=null && clickNode(match)) return
+            scroll();SystemClock.sleep(100)
+        }
+        error("Visible export option prefix missing: $prefix")
     }
     fun scrollUntilEditable(label:String) {
         repeat(35) { if(nodes(instrumentation.uiAutomation.rootInActiveWindow).any { it.isEditable && "${it.text} ${it.hintText} ${it.contentDescription}".contains(label,true) }) return; scroll(); SystemClock.sleep(100) }
