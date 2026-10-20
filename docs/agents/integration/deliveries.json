@@ -87,6 +87,13 @@
       "branch": "agents/092-android-compatibility-matrix",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
