@@ -1,4 +1,5 @@
 #include "realityforge/core.hpp"
+#include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -132,28 +133,49 @@ Point triangulate(const Match& m,const Mat3& r,Vec3 t) {
 Result reconstruct(std::span<const Match> matches,const Settings& s) {
     if(matches.size()<std::max(std::size_t{8},s.minInliers))throw Error("Too few matches; capture overlapping, textured views");
     if(matches.size()>20000)throw Error("Too many matches for bounded preview");
-    if(!std::isfinite(s.threshold)||s.threshold<=0||s.threshold>0.05||s.iterations<1||s.iterations>100000||!std::isfinite(s.minParallaxDegrees)||s.minParallaxDegrees<=0)throw Error("Invalid reconstruction settings");
+    if(!std::isfinite(s.threshold)||s.threshold<=0||s.threshold>0.05||s.iterations<1||s.iterations>100000||
+       matches.size()*static_cast<std::size_t>(s.iterations)>50000000||!std::isfinite(s.minParallaxDegrees)||s.minParallaxDegrees<=0||s.minParallaxDegrees>30||s.minInliers<8)
+        throw InitializationError(InitializationFailure::InvalidInput,"Invalid or excessive reconstruction budget");
     for(auto& m:matches)for(double x:{m.a.x,m.a.y,m.b.x,m.b.y})if(!std::isfinite(x)||std::abs(x)>100)throw Error("Invalid normalized image coordinates");
+    cancellation::checkpoint();
+    // Reject collinear image support before sampling. A count alone is not rank.
+    for(bool second:{false,true}){
+        Vec2 center{};for(auto& m:matches){auto p=second?m.b:m.a;center.x+=p.x;center.y+=p.y;}
+        center.x/=matches.size();center.y/=matches.size();double xx=0,xy=0,yy=0;
+        for(auto& m:matches){auto p=second?m.b:m.a;double x=p.x-center.x,y=p.y-center.y;xx+=x*x;xy+=x*y;yy+=y*y;}
+        if(xx+yy<1e-12||xx*yy-xy*xy<=1e-10*(xx+yy)*(xx+yy))throw InitializationError(InitializationFailure::CollinearFeatures,"Collinear image support");
+    }
+    // A calibrated pure rotation explains bearing directions without a baseline.
+    Mat3 correlation{};
+    for(auto& m:matches){auto a=unit(Vec3{m.a.x,m.a.y,1}),b=unit(Vec3{m.b.x,m.b.y,1});double av[3]{a.x,a.y,a.z},bv[3]{b.x,b.y,b.z};for(int i=0;i<3;++i)for(int j=0;j<3;++j)correlation[i*3+j]+=bv[i]*av[j];}
+    try {auto d=svd(correlation);auto rotation=multiply(d.u,transpose(d.v));std::size_t supported=0;
+        for(auto& m:matches){auto q=multiply(rotation,Vec3{m.a.x,m.a.y,1});if(q.z>0&&std::hypot(q.x/q.z-m.b.x,q.y/q.z-m.b.y)<s.threshold*.5)++supported;}
+        if(supported>=matches.size()*.95)throw InitializationError(InitializationFailure::RotationOnly,"Rotation-only or unobservable baseline");
+    } catch(const InitializationError&){throw;}catch(const Error&){}
     std::mt19937 rng(s.seed);std::uniform_int_distribution<std::size_t> distribution(0,matches.size()-1);
-    Mat3 best{};std::vector<std::size_t>bestInliers;
+    Mat3 best{};std::vector<std::size_t>bestInliers;double bestResidual=std::numeric_limits<double>::infinity();int validHypotheses=0;
     for(int trial=0;trial<s.iterations;++trial) {
+        cancellation::checkpoint();
         std::vector<std::size_t>ids;ids.reserve(8);while(ids.size()<8){auto i=distribution(rng);if(std::find(ids.begin(),ids.end(),i)==ids.end())ids.push_back(i);}
-        try{auto e=fitEssential(matches,ids);auto good=inliers(matches,e,s.threshold);if(good.size()>bestInliers.size()){best=e;bestInliers=std::move(good);}}
-        catch(const Error&){} // Degenerate samples are expected in robust sampling.
+        try{auto e=fitEssential(matches,ids);++validHypotheses;auto good=inliers(matches,e,s.threshold);double residual=0;for(auto i:good)residual+=sampson(e,matches[i]);
+            if(good.size()>bestInliers.size()||(good.size()==bestInliers.size()&&residual<bestResidual)){best=e;bestResidual=residual;bestInliers=std::move(good);}}
+        catch(const cancellation::Cancelled&){throw;}catch(const Error&){} // Degenerate samples are expected in robust sampling.
         if(trial>=80&&bestInliers.size()>matches.size()*0.98)break;
     }
-    if(bestInliers.size()<s.minInliers)throw Error("No reliable two-view geometry; avoid flat scenes, repeated texture and rotation-only capture");
+    if(bestInliers.size()<s.minInliers)throw InitializationError(validHypotheses==0?InitializationFailure::PlanarAmbiguity:InitializationFailure::InsufficientConsensus,
+        validHypotheses==0?"Planar or rank-deficient two-view geometry":"Insufficient verified consensus; repeated texture or mismatches remain possible");
     // Refit on consensus, without accepting a large loss of support.
-    for(int round=0;round<3;++round){try{auto e=fitEssential(matches,bestInliers);auto good=inliers(matches,e,s.threshold);if(good.size()<bestInliers.size()*0.9)break;best=e;bestInliers=std::move(good);}catch(const Error&){break;}}
+    for(int round=0;round<3;++round){cancellation::checkpoint();try{auto e=fitEssential(matches,bestInliers);auto good=inliers(matches,e,s.threshold);if(good.size()<bestInliers.size()*0.9)break;best=e;bestInliers=std::move(good);}catch(const Error&){break;}}
     auto decomp=svd(best);Mat3 w{0,-1,0,1,0,0,0,0,1};
     std::array<Mat3,2>rotations{multiply(multiply(decomp.u,w),transpose(decomp.v)),multiply(multiply(decomp.u,transpose(w)),transpose(decomp.v))};
     Result out;out.inputMatches=matches.size();out.epipolarInliers=bestInliers.size();
     for(auto r:rotations)for(int sign:{-1,1}) {
+        cancellation::checkpoint();
         Vec3 t=scale(column(decomp.u,2),sign);std::vector<Point>points;
-        for(auto i:bestInliers)try{auto p=triangulate(matches[i],r,t);p.matchIndex=i;if(p.error<3*s.threshold&&p.parallax>=s.minParallaxDegrees&&length(p.xyz)<10000)points.push_back(p);}catch(const Error&){}
+        for(auto i:bestInliers)try{if(i%128==0)cancellation::checkpoint();auto p=triangulate(matches[i],r,t);p.matchIndex=i;if(p.error<3*s.threshold&&p.parallax>=s.minParallaxDegrees&&length(p.xyz)<10000)points.push_back(p);}catch(const cancellation::Cancelled&){throw;}catch(const Error&){}
         if(points.size()>out.points.size()){out.rotation=r;out.translation=t;out.points=std::move(points);}
     }
-    if(out.points.size()<s.minInliers||out.points.size()<bestInliers.size()*0.65)throw Error("Weak baseline or ambiguous pose; move sideways and keep the object in view");
+    if(out.points.size()<s.minInliers||out.points.size()<bestInliers.size()*0.65)throw InitializationError(InitializationFailure::WeakBaseline,"Weak baseline or ambiguous pose; move sideways and keep the object in view");
     std::vector<double>errors,angles;for(auto& p:out.points){errors.push_back(p.error);angles.push_back(p.parallax);}
     out.medianError=median(errors);out.medianParallax=median(angles);
     return out;
@@ -190,6 +212,7 @@ void writeGlb(const Result& r,const std::string& path) {
 }
 } // namespace rf
 extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double threshold,const char* glb,const char* ply) {
+    try { // Error JSON allocation and serialization are also inside the no-throw boundary.
     std::string text;
     try {
         if(!data||count>20000)throw rf::Error("Invalid input buffer");
@@ -198,5 +221,6 @@ extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double
         rf::Settings s;s.threshold=threshold;auto result=rf::reconstruct(matches,s);if(glb&&*glb)rf::writeGlb(result,glb);if(ply&&*ply)rf::writePly(result,ply);text=rf::resultJson(result);
     }catch(const std::exception&e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"}";}
     auto*p=static_cast<char*>(std::malloc(text.size()+1));if(!p)return nullptr;std::memcpy(p,text.c_str(),text.size()+1);return p;
+    }catch(...){return nullptr;}
 }
 extern "C" void rf_free(void* p){std::free(p);}

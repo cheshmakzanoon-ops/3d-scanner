@@ -31,6 +31,12 @@ struct Quality {
     double mean{}, standardDeviation{}, laplacianVariance{}, darkFraction{}, brightFraction{};
 };
 class Error : public std::runtime_error { public: using std::runtime_error::runtime_error; };
+enum class InitializationFailure { InvalidInput, CollinearFeatures, PlanarAmbiguity, RotationOnly, InsufficientConsensus, WeakBaseline };
+class InitializationError : public Error {
+public:
+    InitializationError(InitializationFailure value,const char* message):Error(message),code(value){}
+    const InitializationFailure code;
+};
 Mat3 identity();
 Mat3 transpose(const Mat3& a);
 Mat3 multiply(const Mat3& a, const Mat3& b);
