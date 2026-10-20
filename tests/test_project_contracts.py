@@ -207,7 +207,8 @@ def test_adaptive_dense_adapter_has_eight_view_and_bitmap_lifetime_guards():
     assert "activeIds.size <= DenseWorkload.MAX_VIEWS" in adapter
     assert "Native execution did not preserve the approved source plan" in adapter
     assert "PyramidRectifier.writeUprightRgba(" in adapter and "PixelTransform.exif(" in adapter
-    assert "originalToLevel=originalToLevel" in adapter and "calibrationProvenance=provenance" in adapter
+    assert "originalToLevel=originalToLevel" in adapter
+    assert 'calibrationProvenance="$provenance|decoder=${AndroidImageDecoder.POLICY_IDENTITY}|decodeEdge=$edge"' in adapter
 
 
 def test_dense_and_texture_cache_identities_consume_the_shared_versioned_policy():
@@ -292,7 +293,11 @@ def test_m18_depth_resume_is_input_identified_atomic_and_native_scoped():
     identity=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt").read_text()
     core=(ROOT/"reconstruction/src/dense.cpp").read_text()
     assert 'SHA-256' in identity and 'digest.update(rgba)' in identity
-    assert 'digest.update("realityforge-m18-native-reference-depth-v1' in identity
+    assert r'private const val M18_DOMAIN = "realityforge-m18-native-reference-depth-v1\u0000"' in identity
+    assert 'val M18_COMPATIBILITY = Compatibility(18, M18_DOMAIN)' in identity
+    assert 'compatibility: Compatibility = M18_COMPATIBILITY' in identity
+    assert 'require(supports(compatibility))' in identity
+    assert 'digest.update(compatibility.algorithmDomain.toByteArray(StandardCharsets.UTF_8))' in identity
     assert 'std::filesystem::rename(temporary,target,ec)' in native
     assert 'read32(bytes,28+64)!=crc32(' in native
     assert 'thread_local const Scope* active' in native
