@@ -1,0 +1,74 @@
+package com.realityforge.scanner.export
+
+import com.realityforge.scanner.data.ProjectRepository
+import com.realityforge.scanner.viewer.PhotographicGlb
+import java.io.File
+import java.util.UUID
+
+/** Adapter for existing completed M19 files. Dense legacy writers are excluded until 037/003 fixes their sparse metadata. */
+class RepositoryExportSource(private val repository: ProjectRepository) : ExportSource {
+    override suspend fun isCurrent(identity: ArtifactIdentity): Boolean {
+        val p = repository.dao.project(identity.projectId) ?: return false
+        if (p.revision != identity.revision || p.resultRevision != identity.revision || p.resultKey != identity.artifactKey) return false
+        val json = repository.artifact(identity.projectId, identity.artifactKey, "json")
+        return json.isFile && json.length() in 2..ProjectRepository.MAX_PREVIEW_BYTES && ExportCoordinator.digest(json) == identity.sha256
+    }
+    suspend fun snapshot(projectId: String): ArtifactIdentity? {
+        val result = repository.currentPreview(projectId) ?: return null
+        val p = repository.dao.project(projectId) ?: return null
+        if (p.resultRevision != p.revision || p.resultKey != result.getString("artifactKey")) return null
+        val identity = ArtifactIdentity(projectId, p.revision, requireNotNull(p.resultKey), ExportCoordinator.digest(repository.artifact(projectId, requireNotNull(p.resultKey), "json")))
+        return identity.takeIf { isCurrent(it) }
+    }
+    override suspend fun available(identity: ArtifactIdentity): List<ExportOption> {
+        if (!isCurrent(identity)) return emptyList()
+        val metadata = repository.currentPreview(identity.projectId) ?: return emptyList()
+        val choices = mutableListOf<ExportOption>()
+        fun add(id: String, format: ExportFormat, representation: AssetRepresentation, photographic: Boolean = false) {
+            val file = repository.artifact(identity.projectId, identity.artifactKey, id)
+            if (file.isFile && file.length() > 0) choices += ExportOption(id, format, representation, file.length(), photographic = photographic)
+        }
+        add("json", ExportFormat.JSON, AssetRepresentation.DIAGNOSTICS)
+        if (metadata.optInt("pointCount") > 0) {
+            add("glb", ExportFormat.GLB, AssetRepresentation.SPARSE_POINTS)
+            add("ply", ExportFormat.PLY, AssetRepresentation.SPARSE_POINTS)
+        }
+        if ((metadata.optJSONObject("meshPreview")?.optInt("triangleCount") ?: 0) > 0) {
+            add("mesh.glb", ExportFormat.GLB, AssetRepresentation.OBSERVED_SURFACE)
+            add("mesh.ply", ExportFormat.PLY, AssetRepresentation.OBSERVED_SURFACE)
+        }
+        if ((metadata.optJSONObject("texturePreview")?.optInt("triangleCount") ?: 0) > 0) {
+            add("textured.glb", ExportFormat.GLB, AssetRepresentation.PHOTOGRAPHIC_SURFACE, true)
+            add("texture.png", ExportFormat.PNG, AssetRepresentation.PHOTOGRAPHIC_ATLAS, true)
+        }
+        return choices.takeIf { isCurrent(identity) } ?: emptyList()
+    }
+    override fun materialize(request: ExportRequest, target: File, checkpoint: () -> Unit) {
+        require(request.options.editIdentity == null && request.options.lodIdentity == null) { "VARIANT_UNAVAILABLE" }
+        val source = repository.artifact(request.artifact.projectId, request.artifact.artifactKey, request.option.id)
+        source.inputStream().use { input -> target.outputStream().use { output ->
+            val buffer = ByteArray(65536); var bytes = 0L
+            while (true) { checkpoint(); val n = input.read(buffer); if (n < 0) break; require(bytes <= request.option.bytes - n); output.write(buffer, 0, n); bytes += n }
+            require(bytes == request.option.bytes)
+        } }
+    }
+    override fun validate(request: ExportRequest, file: File) {
+        require(file.length() == request.option.bytes)
+        when (request.option.id) {
+            "textured.glb" -> PhotographicGlb.read(file)
+            "texture.png" -> file.inputStream().use { input ->
+                val magic = ByteArray(8); require(input.read(magic) == 8)
+                require(magic.contentEquals(byteArrayOf(-119,80,78,71,13,10,26,10)))
+            }
+            "json" -> require(ExportCoordinator.digest(file) == request.artifact.sha256)
+            "glb", "mesh.glb" -> file.inputStream().use { input ->
+                val header = ByteArray(12); require(input.read(header) == 12)
+                val b = java.nio.ByteBuffer.wrap(header).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+                require(b.int == 0x46546c67 && b.int == 2 && b.int.toLong() == file.length())
+            }
+            "ply", "mesh.ply" -> file.inputStream().bufferedReader().use { require(it.readLine() == "ply") }
+            else -> error("OPTION_UNAVAILABLE")
+        }
+    }
+    companion object { fun request(identity: ArtifactIdentity, option: ExportOption) = ExportRequest(UUID.randomUUID().toString(), identity, option) }
+}
