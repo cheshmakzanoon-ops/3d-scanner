@@ -34,4 +34,12 @@ class JobActionGate {
         pending = action; return true
     }
     @Synchronized fun acknowledge(action: JobAction) { if (pending == action) pending = null }
+    /** An accepted job mutation remains pending until a new persisted identity/version arrives.
+     * Navigation does not mutate a job and can finish against the same snapshot.
+     */
+    @Synchronized fun complete(action: JobAction, accepted: Boolean) {
+        if (!accepted || action.command == JobCommand.OPEN_PREVIOUS || action.command == JobCommand.NOTIFICATION_SETTINGS)
+            acknowledge(action)
+    }
+    @Synchronized fun isPending(identity: JobIdentity): Boolean = pending?.identity == identity
 }

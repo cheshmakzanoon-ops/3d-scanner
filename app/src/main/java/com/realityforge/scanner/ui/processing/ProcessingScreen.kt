@@ -11,10 +11,17 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import com.realityforge.scanner.R
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 @Composable
-fun ProcessingScreen(state: JobUiState, onAction: (JobAction)->Unit, modifier: Modifier = Modifier) {
+fun ProcessingScreen(state: JobUiState, onAction: suspend (JobAction)->Boolean, modifier: Modifier = Modifier) {
     var details by rememberSaveable(state.identity.jobId) { mutableStateOf(false) }
+    val gate = remember(state.identity) { JobActionGate() }
+    var actionPending by remember(state.identity) { mutableStateOf(false) }
+    var actionRejected by remember(state.identity) { mutableStateOf(false) }
+    val dispatch by rememberUpdatedState(onAction)
+    val scope = rememberCoroutineScope()
     Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement=Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.a074_title),style=MaterialTheme.typography.headlineMedium)
         val phaseLabel=stringResource(when(state.phase) {
@@ -32,10 +39,29 @@ fun ProcessingScreen(state: JobUiState, onAction: (JobAction)->Unit, modifier: M
         state.message?.let { Text(it,color=if(state.phase==JobPhase.FAILED) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface) }
         if(!state.inputsCurrent) Text(stringResource(R.string.a074_changed))
         JobCommand.entries.filter(state::can).forEach { command ->
-            OutlinedButton(onClick={onAction(JobAction(state.identity,command))},modifier=Modifier.fillMaxWidth()) {
+            OutlinedButton(enabled=!actionPending,onClick={
+                val action=JobAction(state.identity,command)
+                // Admit on the UI thread before launching: two rapid clicks cannot both dispatch.
+                if(gate.admit(state,action)) {
+                    actionPending=true; actionRejected=false
+                    scope.launch {
+                        var accepted=false
+                        try { accepted=dispatch(action); actionRejected=!accepted }
+                        catch(cancelled:CancellationException) { throw cancelled }
+                        catch(_:Exception) { actionRejected=true }
+                        finally {
+                            gate.complete(action,accepted)
+                            // These remembered values belong to this full identity. An old completion
+                            // cannot clear the new version's gate or re-enable its controls.
+                            actionPending=gate.isPending(state.identity)
+                        }
+                    }
+                }
+            },modifier=Modifier.fillMaxWidth()) {
                 Text(stringResource(when(command) { JobCommand.PAUSE->R.string.a074_pause; JobCommand.RESUME->R.string.a074_resume; JobCommand.RETRY->R.string.a074_retry; JobCommand.CANCEL->R.string.a074_cancel; JobCommand.OPEN_PREVIOUS->R.string.a074_previous; JobCommand.NOTIFICATION_SETTINGS->R.string.a074_notifications }))
             }
         }
+        if(actionRejected) Text(stringResource(R.string.a074_failed),color=MaterialTheme.colorScheme.error)
         Text(stringResource(R.string.a074_preserved),style=MaterialTheme.typography.bodySmall)
         if(state.technicalDetails!=null || state.settingsIdentity!=null) {
             TextButton(onClick={details=!details}) { Text(stringResource(R.string.a074_details)) }

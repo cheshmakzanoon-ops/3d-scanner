@@ -10,6 +10,9 @@ import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.realityforge.scanner.ui.processing.*
+import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.CompletableDeferred
+import java.util.concurrent.atomic.AtomicInteger
 
 /** Android accessibility-tree interactions with the real composable; fixture states are synthetic. */
 @RunWith(AndroidJUnit4::class)
@@ -37,10 +40,46 @@ class ScreenInteractionTest {
         val actions=java.util.concurrent.CopyOnWriteArrayList<JobAction>()
         val identity=JobIdentity("p",4,"job-synthetic")
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            scenario.onActivity { activity -> activity.setContent { androidx.compose.material3.MaterialTheme { ProcessingScreen(JobUiState(identity,JobPhase.RUNNING),actions::add) } } }
+            scenario.onActivity { activity -> activity.setContent { androidx.compose.material3.MaterialTheme { ProcessingScreen(JobUiState(identity,JobPhase.RUNNING),{ actions.add(it) }) } } }
             node("The remaining amount of work is unknown.")
             click("Pause")
             assertEquals(JobAction(identity,JobCommand.PAUSE),actions.single())
+        }
+    }
+    @Test fun actualScreenBlocksRepeatedDispatchUntilAcceptedIdentityChanges() {
+        val calls=AtomicInteger()
+        val completion=CompletableDeferred<Boolean>()
+        val identity=JobIdentity("p",4,"job-synthetic",1,2)
+        val visible=mutableStateOf(JobUiState(identity,JobPhase.RUNNING))
+        val instrumentation=InstrumentationRegistry.getInstrumentation()
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity -> activity.setContent {
+                androidx.compose.material3.MaterialTheme {
+                    ProcessingScreen(visible.value,{ calls.incrementAndGet();completion.await() })
+                }
+            } }
+            click("Pause")
+            assertEquals(1,calls.get())
+            fun target():AccessibilityNodeInfo {
+                var value=node("Pause")
+                while(value.className?.toString()!="android.widget.Button" &&
+                    value.actionList.none { it.id==AccessibilityNodeInfo.ACTION_CLICK } && value.parent!=null) value=value.parent
+                return value
+            }
+            assertFalse("Pending action must disable the actual button",target().isEnabled)
+            target().performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            instrumentation.waitForIdleSync()
+            assertEquals("Repeated accessibility action must not dispatch",1,calls.get())
+            completion.complete(true)
+            instrumentation.waitForIdleSync()
+            assertFalse("Accepted mutation stays pending until persisted version changes",target().isEnabled)
+            scenario.onActivity {
+                visible.value=visible.value.copy(identity=identity.copy(stateVersion=3))
+            }
+            instrumentation.waitForIdleSync()
+            assertTrue(target().isEnabled)
+            click("Pause")
+            assertEquals(2,calls.get())
         }
     }
 }
