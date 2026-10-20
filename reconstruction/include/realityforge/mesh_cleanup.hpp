@@ -20,6 +20,7 @@ inline CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const CleanupSettings
         throw Error("Mesh cleanup budget exceeded");
     for(const auto& v:mesh.vertices) for(double d:{v.xyz.x,v.xyz.y,v.xyz.z,v.normal.x,v.normal.y,v.normal.z})
         if(!std::isfinite(d)) throw Error("Nonfinite cleanup geometry");
+    for(const auto& v:mesh.vertices)if(!std::isfinite(v.confidence)||v.confidence<0||v.confidence>1)throw Error("Invalid cleanup confidence");
     CleanupPlan p;p.inputVertices=mesh.vertices.size();p.inputFaces=mesh.triangles.size();
     std::set<std::array<std::uint32_t,3>> seen;
     for(std::size_t i=0;i<mesh.triangles.size();++i) {
@@ -29,6 +30,7 @@ inline CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const CleanupSettings
         const auto a=mesh.vertices[t.a].xyz,b=mesh.vertices[t.b].xyz,c=mesh.vertices[t.c].xyz;
         const Vec3 u{b.x-a.x,b.y-a.y,b.z-a.z},v{c.x-a.x,c.y-a.y,c.z-a.z};
         const Vec3 cross{u.y*v.z-u.z*v.y,u.z*v.x-u.x*v.z,u.x*v.y-u.y*v.x};
+        for(double d:{u.x,u.y,u.z,v.x,v.y,v.z,cross.x,cross.y,cross.z})if(!std::isfinite(d))throw Error("Cleanup coordinate dynamic range exceeded");
         std::array<std::uint32_t,3> key{t.a,t.b,t.c};std::sort(key.begin(),key.end());
         const bool degenerate=t.a==t.b||t.a==t.c||t.b==t.c||(cross.x==0&&cross.y==0&&cross.z==0);
         if(degenerate||!seen.insert(key).second)p.removedFaces.push_back(i);else p.sourceFaceForResult.push_back(i);
@@ -44,9 +46,9 @@ CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const TopologyReport& report
     for(auto face:report.degenerateFaces)if(face>=mesh.triangles.size())throw Error("Invalid topology face provenance");
     return p;
 }
-inline CleanupResult applyMeshCleanup(const SurfaceMesh& source,const CleanupPlan& plan) {
+inline CleanupResult applyMeshCleanup(const SurfaceMesh& source,const CleanupPlan& plan,const CleanupSettings& settings={}) {
     // Revalidate against current content; a stale/tampered plan cannot delete faces.
-    const auto expected=planMeshCleanup(source);
+    const auto expected=planMeshCleanup(source,settings);
     if(plan.inputVertices!=expected.inputVertices||plan.inputFaces!=expected.inputFaces||
        plan.removedFaces!=expected.removedFaces||plan.sourceFaceForResult!=expected.sourceFaceForResult)
         throw Error("Stale or unsafe cleanup plan");

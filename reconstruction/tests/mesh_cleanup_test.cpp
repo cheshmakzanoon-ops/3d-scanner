@@ -17,4 +17,8 @@ int main(){
  try{rf::planMeshCleanup(bad);}catch(const rf::Error&){rejected=true;}assert(rejected);
  // A genuine hole remains open; no face or vertex is ever synthesized.
  rf::SurfaceMesh thin=m;thin.triangles={{0,1,2,0}};assert(rf::applyMeshCleanup(thin,rf::planMeshCleanup(thin)).mesh.triangles.size()==1);
+ std::atomic_bool stop{true};rejected=false;try{rf::cancellation::Scope scope(&stop);rf::planMeshCleanup(m);}catch(const rf::cancellation::Cancelled&){rejected=true;}assert(rejected);
+ auto large=m;large.triangles.assign(50000,{0,1,2,0});auto lp=rf::planMeshCleanup(large);assert(lp.removedFaces.size()==49999&&lp.sourceFaceForResult.size()==1);
+ auto copy=rf::applyMeshCleanup(large,lp);assert(copy.mesh.triangles.size()==1&&large.triangles.size()==50000);
+
 }
