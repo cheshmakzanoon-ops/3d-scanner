@@ -23,6 +23,9 @@ struct MultiViewSettings {
 struct SparseTrackPoint {
     Point point;
     std::size_t track{}, supportingViews{};
+    // Geometric sensitivity, not a posterior covariance or physical accuracy claim.
+    double angularCondition{}; // 1/sin(maximum observed ray angle)
+    std::vector<std::size_t> supportingCameras{};
 };
 struct MultiViewResult {
     std::vector<ViewPose> cameras;
@@ -34,6 +37,17 @@ struct MultiViewResult {
 // Does NOT reconstruct dense depth/triangles or refine focal length/distortion.
 MultiViewResult reconstructMultiView(std::span<const ViewPose> cameras,
     std::span<const TrackObservation> observations, const MultiViewSettings& settings = {});
+// Compact native indices are never durable landmark identities. The caller
+// supplies source mappings; every supported observation returns its global ID.
+struct NativeWindowMapping { std::vector<std::string> cameraIds, trackIds; };
+struct MappedSparseTrackPoint {
+    SparseTrackPoint estimate;
+    std::string trackId;
+    std::vector<std::string> cameraIds;
+};
+std::vector<MappedSparseTrackPoint> reconstructMultiViewWindow(
+    std::span<const ViewPose> cameras,std::span<const TrackObservation> observations,
+    const NativeWindowMapping& mapping,const MultiViewSettings& settings = {});
 std::string multiViewJson(const MultiViewResult& result);
 }
 // Camera array: 12 doubles per camera [9 rotation,row-major;3 translation].
