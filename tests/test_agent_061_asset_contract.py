@@ -79,3 +79,32 @@ def test_representation_lengths_bounds_winding_and_uv(outputs, name, representat
         image_view = root['bufferViews'][root['images'][0]['bufferView']]
         assert binary[image_view['byteOffset']:image_view['byteOffset']+image_view['byteLength']] == png()
     assert root['materials'][0]['extensions'] == {'KHR_materials_unlit': {}}
+
+
+def validate_in_trimesh(folder):
+    """Optional independent consumer, installed separately from app requirements."""
+    import numpy as np
+    import trimesh
+    expected = np.array([[-2,-1,-3],[4,-1,-3],[-2,-5,-3]], dtype=float)
+    for name in ('sparse','dense','metric','surface','texture'):
+        scene = trimesh.load_scene(Path(folder)/f'{name}.glb', process=False)
+        assert len(scene.geometry) == 1
+        geometry = next(iter(scene.geometry.values()))
+        np.testing.assert_allclose(geometry.vertices, expected)
+        if name in ('sparse','dense','metric'):
+            assert isinstance(geometry, trimesh.points.PointCloud)
+        else:
+            assert isinstance(geometry, trimesh.Trimesh)
+            np.testing.assert_array_equal(geometry.faces, [[0,1,2]])
+            np.testing.assert_allclose(geometry.face_normals, [[0,0,-1]])
+        if name == 'texture':
+            # Trimesh exposes OpenGL bottom-left UVs from glTF top-left UVs.
+            np.testing.assert_allclose(geometry.visual.uv, [[0,1],[1,1],[0,0]])
+            np.testing.assert_array_equal(np.array(geometry.visual.material.baseColorTexture),
+                [[[255,0,0,255],[0,255,0,255]], [[0,0,255,255],[255,255,0,255]]])
+    return 5
+
+
+if __name__ == '__main__':
+    import sys
+    print(f'{validate_in_trimesh(Path(sys.argv[1]))} independent Trimesh imports passed.')
