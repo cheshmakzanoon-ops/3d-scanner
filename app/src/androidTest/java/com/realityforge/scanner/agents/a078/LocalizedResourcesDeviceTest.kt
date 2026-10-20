@@ -16,5 +16,8 @@ class LocalizedResourcesDeviceTest {
         val message=UserMessage(UserMessage.Code.StorageFull,"technical-private-marker")
         assertFalse(resolver.resolve(message).contains("technical-private-marker"))
         assertTrue(UserMessage.Code.entries.all {resolver.resolve(UserMessage(it)).isNotBlank()})
+        assertFalse(resolver.resolveCode("project.delete_failed").contains("unchanged"))
+        assertNotEquals(resolver.resolveCode("reconstruction.saved"),resolver.resolveCode("reconstruction.failed"))
+        assertTrue(resolver.resolveCode("future.unrecognized_code").isNotBlank())
     }
 }
