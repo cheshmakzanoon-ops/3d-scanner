@@ -74,7 +74,9 @@ class FeatureCache(private val directory:File,private val byteBudget:Long) {
     }catch(_:Exception){false}
     private fun <T> withMutationLock(root:File,block:()->T):T {
         val stripe=mutationStripes[(root.path.hashCode() and Int.MAX_VALUE)%mutationStripes.size]
-        if(!stripe.tryLock(500,java.util.concurrent.TimeUnit.MILLISECONDS))throw java.io.IOException("Feature cache writer busy")
+        val locallyAcquired=try { stripe.tryLock(500,java.util.concurrent.TimeUnit.MILLISECONDS) }
+            catch(interrupted:InterruptedException){Thread.currentThread().interrupt();throw interrupted}
+        if(!locallyAcquired)throw java.io.IOException("Feature cache writer busy")
         try {
             val path=File(root,".feature-cache.lock").toPath()
             require(!Files.isSymbolicLink(path))

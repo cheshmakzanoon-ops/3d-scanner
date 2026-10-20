@@ -39,7 +39,7 @@ f249696a5581071d385d75491b75e911eff5163b984d6c6a1b411009e2293dec  app/src/main/j
 f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt
 8bf8038aae0a36e779ea3e59a56dd82c5a1c875e1fc1598a61af05b609291d56  app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt
 679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0  app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt
-63fc2c0056461759cc00a8499014a44236d2938fe2a8bf986baf04c100ed21df  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt
+010dbeef1ac8c6305581102768c8d7c1b17cb0e85f11f2e663487faf900abd10  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt
 9c26f8c7ac5f30e7690345598bc1f619f5efe0d3fc6507da358bdc9950f9e245  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCacheFormat.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
