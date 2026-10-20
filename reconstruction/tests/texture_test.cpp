@@ -162,5 +162,32 @@ int main(){
         check(previousContent=="previous","write failure overwrote prior GLB artifact");std::filesystem::remove(glbPath);
     });
 #endif
+    test("compact exposure samples require exact co-visible depth support",[&]{
+        std::vector<rf::DenseView> views(2);
+        std::vector<rf::DenseDepthMap> maps(2);
+        for(std::size_t camera=0;camera<2;++camera){
+            auto& view=views[camera];view.width=32;view.height=32;view.fx=24;view.fy=24;view.cx=15.5;view.cy=15.5;
+            view.pose={rf::identity(),{0,0,0}};view.rgba.resize(32*32*4);
+            for(std::size_t pixel=0;pixel<32*32;++pixel){
+                for(std::size_t channel=0;channel<3;++channel)view.rgba[pixel*4+channel]=camera?160:190;
+                view.rgba[pixel*4+3]=255;
+            }
+            auto& map=maps[camera];map.width=32;map.height=32;map.depth.assign(32*32,5);map.confidence.assign(32*32,1);
+        }
+        rf::SurfaceMesh plane;
+        for(int y=0;y<8;++y)for(int x=0;x<8;++x){
+            const int px=4+3*x,py=4+3*y;
+            rf::SurfaceVertex vertex;vertex.xyz={(px-15.5)*5/24.,(py-15.5)*5/24.,5};vertex.normal={0,0,-1};vertex.confidence=.9;
+            plane.vertices.push_back(vertex);maps[1].depth[py*32+px]=2.5;
+        }
+        for(std::uint32_t y=0;y<7;++y)for(std::uint32_t x=0;x<7;++x){const auto a=y*8+x;
+            plane.triangles.push_back({a,a+8,a+1,0});plane.triangles.push_back({a+1,a+8,a+9,0});}
+        rf::TextureSettings settings;settings.compactCharts=true;
+        const auto baked=rf::bakePhotographicAtlas(plane,views,maps,sources(views,1),settings);
+        check(baked.supportedTexels>0,"visible reference photograph was lost");
+        check(baked.exposure.acceptedSamples==0&&baked.exposure.supportedPairs==0,
+              "nearby background depth incorrectly authorized an occluded radiometric sample");
+        check(baked.exposure.gains[1]==std::array<double,3>{1,1,1},"unsupported camera changed radiometry");
+    });
     std::cout<<done<<" texture cases passed\n";
 }
