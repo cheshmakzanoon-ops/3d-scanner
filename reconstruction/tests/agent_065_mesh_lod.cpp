@@ -49,6 +49,18 @@ int main(int argc,char** argv){
     assert(lod.geometry.parentVertexIndices.size()==lod.geometry.positions.size());
     for(std::size_t i=0;i<lod.geometry.positions.size();++i){auto p=lod.geometry.positions[i],q=f.positions[lod.geometry.parentVertexIndices[i]];assert(p.x==q.x&&p.y==q.y&&p.z==q.z);}
     for(auto i:lod.geometry.parentTriangleIndices)assert(i<32);
+    std::vector<Vec3> unitNormals(f.positions.size(),Vec3{0,0,1});
+    std::vector<std::array<std::uint8_t,3>> colors(f.positions.size(),{17,29,43});
+    std::vector<float> confidence(f.positions.size(),.8f);
+    std::vector<std::uint32_t> support(f.positions.size(),3);
+    auto attributed=f.view();attributed.vertices.normals=unitNormals;attributed.vertices.colors=colors;
+    attributed.vertices.confidence=confidence;attributed.vertices.supportingViews=support;
+    auto retained=simplifySurface(attributed,r);
+    for(std::size_t i=0;i<retained.geometry.positions.size();++i){
+        assert(retained.geometry.normals[i].z==1&&retained.geometry.normals[i].x==0&&retained.geometry.normals[i].y==0);
+        assert(retained.geometry.colors[i]==colors[retained.geometry.parentVertexIndices[i]]);
+        assert(retained.geometry.confidence[i]==.8f&&retained.geometry.supportingViews[i]==3);
+    }
     auto g=grid(10);auto disconnected=f;disconnected.positions.insert(disconnected.positions.end(),g.positions.begin(),g.positions.end());
     for(auto i:g.indices)disconnected.indices.push_back(i+25);
     r.targetTriangles=48;
