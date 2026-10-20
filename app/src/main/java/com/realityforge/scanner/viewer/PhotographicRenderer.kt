@@ -15,7 +15,7 @@ import javax.microedition.khronos.opengles.GL10
 class PhotographicRenderer(
     private val asset: PhotographicAsset,
     private val reportFailure: (String) -> Unit = {},
-) : GLSurfaceView.Renderer {
+) : GLSurfaceView.Renderer, RenderControls {
     @Volatile var failure: String? = null
         private set
     @Volatile var framesDrawn = 0
@@ -23,6 +23,8 @@ class PhotographicRenderer(
     private var yaw = 0f
     private var pitch = 0f
     private var zoom = 1f
+    private var panX = 0f
+    private var panY = 0f
     private var width = 1
     private var height = 1
     private var program = 0
@@ -36,15 +38,21 @@ class PhotographicRenderer(
     private val mvp = FloatArray(16)
 
     /** Call only on the GL thread (GLSurfaceView.queueEvent in the UI). */
-    fun orbit(horizontal: Float, vertical: Float) {
+    override fun orbit(horizontalDegrees: Float, verticalDegrees: Float) {
+        val horizontal = horizontalDegrees; val vertical = verticalDegrees
         if (!horizontal.isFinite() || !vertical.isFinite()) return
         yaw = (yaw + horizontal).rem(360f)
         pitch = (pitch + vertical).coerceIn(-89f, 89f)
     }
-    fun magnify(factor: Float) {
+    override fun magnify(factor: Float) {
         if (factor.isFinite() && factor > 0f) zoom = (zoom * factor).coerceIn(.35f, 5f)
     }
-    fun reset() { yaw = 0f; pitch = 0f; zoom = 1f }
+    override fun pan(horizontal: Float, vertical: Float) {
+        if (!horizontal.isFinite() || !vertical.isFinite()) return
+        panX = (panX + horizontal).coerceIn(-2f, 2f)
+        panY = (panY + vertical).coerceIn(-2f, 2f)
+    }
+    override fun reset() { yaw = 0f; pitch = 0f; zoom = 1f; panX = 0f; panY = 0f }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         // EGL context loss invalidates old names. Never delete old names in a NEW context.
@@ -56,6 +64,7 @@ class PhotographicRenderer(
             GLES30.glBindVertexArray(vao)
             GLES30.glGenBuffers(2, buffers, 0)
             val count = asset.positions.size / 3
+            RenderBudget().admit(28L + asset.png.size, count.toLong(), asset.indices.size.toLong(), asset.imageWidth, asset.imageHeight)
             val vertices = ByteBuffer.allocateDirect(count * 20).order(ByteOrder.nativeOrder()).asFloatBuffer()
             for (i in 0 until count) {
                 for (j in 0..2) vertices.put((asset.positions[3*i+j] - asset.center[j]) / asset.radius)
@@ -117,7 +126,7 @@ class PhotographicRenderer(
             val aspect = width.toFloat() / height
             val distance = 3.0f / minOf(1f, aspect) / zoom
             Matrix.perspectiveM(projection, 0, 45f, aspect, .02f, 100f)
-            Matrix.setLookAtM(view, 0, 0f, 0f, distance, 0f, 0f, 0f, 0f, 1f, 0f)
+            Matrix.setLookAtM(view, 0, panX, panY, distance, panX, panY, 0f, 0f, 1f, 0f)
             Matrix.setIdentityM(model, 0)
             Matrix.rotateM(model, 0, pitch, 1f, 0f, 0f)
             Matrix.rotateM(model, 0, yaw, 0f, 1f, 0f)

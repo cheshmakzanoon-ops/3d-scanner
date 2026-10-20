@@ -17,6 +17,11 @@ import com.realityforge.scanner.ui.PhotoGlView
 import com.realityforge.scanner.ui.PhotographicModelViewer
 import com.realityforge.scanner.viewer.PhotographicGlb
 import com.realityforge.scanner.viewer.PhotographicRenderer
+import com.realityforge.scanner.viewer.filament.FilamentStudioView
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.viewinterop.AndroidView
+import java.util.concurrent.atomic.AtomicReference
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -165,6 +170,42 @@ class PhotographicViewerTest {
                 assertNull(resumed.renderFailure)
             }
         } finally { file.delete() }
+    }
+    @Test fun filamentUploadsLocalFixtureAndStopsFramesWhilePaused() {
+        val inst=InstrumentationRegistry.getInstrumentation()
+        val bytes=fixture().pack(); val original=bytes.copyOf()
+        val failure=AtomicReference<String?>(null)
+        val current=AtomicReference<FilamentStudioView?>(null)
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                activity.setContent {
+                    val surface=remember { FilamentStudioView(activity,bytes,onFailure={ failure.set(it) }).also(current::set) }
+                    DisposableEffect(surface) { onDispose { surface.dispose() } }
+                    AndroidView(factory={ surface })
+                }
+            }
+            fun frames(): Long {
+                var count=0L
+                inst.runOnMainSync { count=current.get()?.renderStatistics?.submittedFrames ?: 0L }
+                assertNull(failure.get())
+                return count
+            }
+            fun awaitFrame(previous: Long) {
+                val deadline=android.os.SystemClock.elapsedRealtime()+30_000
+                while (android.os.SystemClock.elapsedRealtime()<deadline) {
+                    if (frames()>previous) return
+                    Thread.sleep(50)
+                }
+                fail("Filament did not submit a fixture frame; inspect actual driver support")
+            }
+            awaitFrame(0)
+            inst.runOnMainSync { current.get()!!.pauseRendering() }
+            val paused=frames(); Thread.sleep(150); assertEquals(paused,frames())
+            inst.runOnMainSync { current.get()!!.resumeRendering() }
+            awaitFrame(paused)
+            inst.runOnMainSync { current.get()!!.dispose(); current.get()!!.dispose() }
+        }
+        assertArrayEquals(original,bytes)
     }
     private fun waitForSurface(previousFrames: Int = 0): PhotoGlView {
         val inst = InstrumentationRegistry.getInstrumentation()
