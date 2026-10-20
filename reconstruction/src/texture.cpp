@@ -1,5 +1,7 @@
 #include "realityforge/texture.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/texture_png.hpp"
+#include <filesystem>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -32,64 +34,11 @@ void appendU32(std::vector<std::uint8_t>& out,std::uint32_t val){
 void appendFloat(std::vector<std::uint8_t>& out,float val){
     std::uint32_t bits=0;std::memcpy(&bits,&val,4);appendU32(out,bits);
 }
-void appendBig(std::vector<std::uint8_t>& out,std::uint32_t val){
-    for(int k=3;k>=0;--k)out.push_back(static_cast<std::uint8_t>((val>>(8*k))&255));
-}
-std::uint32_t crc32(std::span<const std::uint8_t> bytes){
-    std::uint32_t crc=0xffffffffu;
-    for(auto v:bytes){crc^=v;for(int k=0;k<8;++k)crc=(crc>>1) ^ (crc&1?0xedb88320u:0u);}
-    return ~crc;
-}
-void pngChunk(std::vector<std::uint8_t>& file,const char* name,std::span<const std::uint8_t> bytes){
-    if(bytes.size()>std::numeric_limits<std::uint32_t>::max())throw Error("Oversized PNG chunk");
-    appendBig(file,static_cast<std::uint32_t>(bytes.size()));
-    const std::size_t offset=file.size();
-    for(int k=0;k<4;++k)file.push_back(static_cast<std::uint8_t>(name[k]));
-    file.insert(file.end(),bytes.begin(),bytes.end());
-    appendBig(file,crc32(std::span<const std::uint8_t>(file).subspan(offset,file.size()-offset)));
-}
 std::vector<std::uint8_t> png(const TexturedSurface& atlas){
-    if(atlas.atlasWidth<1||atlas.atlasHeight<1||atlas.atlasWidth>4096||atlas.atlasHeight>4096||
-       atlas.atlasRgba.size()!=static_cast<std::size_t>(atlas.atlasWidth)*atlas.atlasHeight*4)
-        throw Error("Invalid photographic atlas");
-    // PNG RGBA8, uncompressed RFC1950/DEFLATE blocks: bounded, dependency-free,
-    // deterministic and lossless. A compressing PNG implementation is a future optimization.
-    const auto width=static_cast<std::size_t>(atlas.atlasWidth);
-    const auto height=static_cast<std::size_t>(atlas.atlasHeight);
-    std::vector<std::uint8_t> raw;
-    raw.reserve(height*(1+width*4));
-    for(std::size_t y=0;y<height;++y){
-        cancellation::checkpoint();
-        raw.push_back(0); // PNG filter 0
-        const auto b=atlas.atlasRgba.begin()+static_cast<std::ptrdiff_t>(y*width*4);
-        raw.insert(raw.end(),b,b+static_cast<std::ptrdiff_t>(width*4));
-    }
-    std::vector<std::uint8_t> zlib{0x78,0x01};
-    std::uint32_t adlerA=1,adlerB=0;
-    for(std::size_t i=0;i<raw.size();++i){
-        if((i & 65535u)==0) cancellation::checkpoint();
-        const auto v=raw[i];adlerA=(adlerA+v)%65521u;adlerB=(adlerB+adlerA)%65521u;}
-    for(std::size_t p=0;p<raw.size();){
-        cancellation::checkpoint();
-        const auto n=std::min<std::size_t>(65535,raw.size()-p);
-        const bool final=p+n==raw.size();
-        zlib.push_back(final?1u:0u);
-        zlib.push_back(static_cast<std::uint8_t>(n&255));zlib.push_back(static_cast<std::uint8_t>((n>>8)&255));
-        auto neg=static_cast<std::uint16_t>(~static_cast<std::uint16_t>(n));
-        zlib.push_back(static_cast<std::uint8_t>(neg&255));zlib.push_back(static_cast<std::uint8_t>((neg>>8)&255));
-        zlib.insert(zlib.end(),raw.begin()+static_cast<std::ptrdiff_t>(p),raw.begin()+static_cast<std::ptrdiff_t>(p+n));
-        p+=n;
-    }
-    appendBig(zlib,(adlerB<<16)|adlerA);
-    std::vector<std::uint8_t> file{137,80,78,71,13,10,26,10};
-    std::vector<std::uint8_t> header;
-    appendBig(header,static_cast<std::uint32_t>(atlas.atlasWidth));
-    appendBig(header,static_cast<std::uint32_t>(atlas.atlasHeight));
-    header.insert(header.end(),{8,6,0,0,0}); // 8bit RGBA, no interlace
-    pngChunk(file,"IHDR",header);
-    pngChunk(file,"IDAT",zlib);
-    pngChunk(file,"IEND",{});
-    return file;
+    std::vector<std::uint8_t> output;
+    encodeRgbaPng(atlas.atlasWidth,atlas.atlasHeight,atlas.atlasRgba,
+        [&](std::span<const std::uint8_t> block){output.insert(output.end(),block.begin(),block.end());});
+    return output;
 }
 struct Projected {double u{},v{},z{};};
 bool project(const TextureSource& source,Vec3 xyz,Projected& out){
@@ -408,10 +357,19 @@ std::string texturedSurfaceJson(const TexturedSurface& t){
     o<<"]}";return o.str();
 }
 void writeTexturePng(const TexturedSurface& t,const std::string& path){
-    auto bytes=png(t);std::ofstream file(path,std::ios::binary);
-    if(!file)throw Error("Cannot create PNG atlas");
-    file.write(reinterpret_cast<const char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
-    file.flush();if(!file)throw Error("PNG atlas write failed");
+    if(path.empty())throw Error("Empty PNG output path");
+    const auto partial=path+".partial";
+    try {
+        std::ofstream file(partial,std::ios::binary|std::ios::trunc);
+        if(!file)throw Error("Cannot create PNG atlas");
+        encodeRgbaPng(t.atlasWidth,t.atlasHeight,t.atlasRgba,[&](std::span<const std::uint8_t> bytes){
+            file.write(reinterpret_cast<const char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
+            if(!file)throw Error("PNG atlas write failed");
+        });
+        file.flush();if(!file)throw Error("PNG atlas flush failed");
+        file.close();if(!file)throw Error("PNG atlas close failed");
+        cancellation::checkpoint();std::filesystem::rename(partial,path);
+    } catch(...) {std::error_code ec;std::filesystem::remove(partial,ec);throw;}
 }
 void writeTexturedGlb(const SurfaceMesh& m,const TexturedSurface& t,const std::string& path){
     checkMesh(m);
@@ -478,6 +436,7 @@ extern "C" char* rf_textured_surface_json(
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
     const char* mesh_glb_path,const char* mesh_ply_path,
     const char* textured_glb_path,const char* texture_png_path){
+    try {
     std::string response;
     auto appendError=[&](std::string_view message){
         std::string s;for(char c:message){if(c=='"'||c=='\\')s+='\\';if(static_cast<unsigned char>(c)>=32)s+=c;}return s;};
@@ -529,4 +488,5 @@ extern "C" char* rf_textured_surface_json(
     }catch(const std::exception& e){response="{\"error\":\""+appendError(e.what())+"\"}";}
     auto* ret=static_cast<char*>(std::malloc(response.size()+1));if(!ret)return nullptr;
     std::memcpy(ret,response.c_str(),response.size()+1);return ret;
+    } catch(...) {return nullptr;}
 }
