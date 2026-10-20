@@ -45,11 +45,18 @@ struct CellHash {
     }
 };
 Cell voxel(Vec3 p,double size){const auto v=surface_fusion::checkedVoxel(p,size);return {v[0],v[1],v[2]};}
+struct PreparedSource { Vec3 normal{};double frontRadius{},bound{};bool supported{}; };
+static_assert(sizeof(PreparedSource)<=48);
+static_assert(MAX_DENSE_SAMPLES<=std::numeric_limits<std::uint32_t>::max());
 struct Accum {
     Vec3 weightedPosition{},weightedNormal{};
     bool supportedNormal{};
     std::array<double,3> weightedColor{};
-    double weight{};
+    double weight{},fusionRadius{};
+    std::size_t radiusLevel{};
+    Cell cell{};
+    std::array<std::uint32_t,MAX_DENSE_VIEWS> sourceIds{};
+    std::uint8_t sourceCount{};
     float maxConfidence{};
     std::uint8_t viewMask{};
 };
@@ -120,7 +127,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     }
     SurfaceMesh mesh;mesh.inputSamples=dense.verifiedSamples.size();
     if(dense.verifiedSamples.empty())return mesh;
-    std::vector<float> sampleSpacings;sampleSpacings.reserve(dense.verifiedSamples.size());
+    std::vector<PreparedSource> prepared(dense.verifiedSamples.size());std::size_t validationIndex=0;
     std::unordered_set<std::size_t> sourcePixels;
     for(auto& p:dense.verifiedSamples){
         if(p.camera>=views.size())throw Error("Invalid dense sample camera index");
@@ -132,69 +139,117 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         if(!sourcePixels.insert(static_cast<std::size_t>(p.camera)*pixels+pixel).second)throw Error("Repeated source pixel identity in surface observations");
         const double z=dense.maps[p.camera].depth[pixel];
         if(z<=0||std::abs(c.z-z)/z>.001||std::abs(v.fx*c.x/c.z+v.cx-p.x)>.25||std::abs(v.fy*c.y/c.z+v.cy-p.y)>.25)throw Error("Verified sample does not match source pixel/depth");
-        sampleSpacings.push_back(static_cast<float>(c.z*s.pixelStride/std::min(v.fx,v.fy)));
+        prepared[validationIndex++].frontRadius=surface_fusion::observedFusionRadius(c.z,std::min(v.fx,v.fy),s.pixelStride);
     }
-    // Median world-space pixel footprint bounds fusion distance and triangle edges.
-    // Samples with two different source cameras may fuse; never fold two distinct
-    // samples of the same image onto the same vertex (avoids triangle collapses).
-    const float spacing=std::clamp(median(sampleSpacings),.00001f,1000.f);
-    const double fusionRadius=std::max(.0001,static_cast<double>(spacing)*.60);
-    const double cellSize=fusionRadius;
-    std::unordered_map<Cell,std::vector<std::uint32_t>,CellHash> buckets;
+    progress::begin(progress::Stage::Surface,0,0,2*prepared.size());
+    for(std::size_t i=0;i<prepared.size();++i){
+        const auto& sample=dense.verifiedSamples[i];auto& source=prepared[i];
+        const auto evidence=estimateDepthNeighborhoodNormal(views[sample.camera],dense.maps[sample.camera],sample.x,sample.y,s.pixelStride,s.maximumRelativeDepthJump);
+        source.supported=evidence.validity==NormalValidity::Supported&&surface_fusion::unitNormal(evidence.direction,source.normal);
+        source.bound=source.frontRadius;
+        if(source.supported){
+            const auto bound=surface_fusion::planePixelEnclosingRadius(views[sample.camera],sample,source.normal,source.frontRadius,s.pixelStride);
+            source.supported=bound.has_value();if(bound)source.bound=*bound;
+        }
+        progress::advance(i+1);
+    }
+    const auto visibleIn=[&](std::size_t camera,Vec3 point){
+        const auto& view=views[camera];const auto projected=cameraPoint(view,point);
+        if(!finite(projected)||projected.z<=0)return false;
+        const auto visibility=consistency::sampleDepth(dense.maps[camera],view.fx*projected.x/projected.z+view.cx,view.fy*projected.y/projected.z+view.cy,s.pixelStride,3,s.maximumRelativeDepthJump);
+        return consistency::verify(visibility,projected.z,0,s.maximumRelativeDepthJump,1).classification==consistency::Visibility::Supported;
+    };
+    // Exact calibrated pixel/normal gates stay anchored to original evidence.
+    // Frustum/slab balls enclose that metric; centroid offsets keep cluster
+    // indexing complete without replacing observed anchors by drifting means.
+    // One spatial level per accumulator bounds memory and search at all scales.
+    using BucketMap=std::unordered_map<Cell,std::vector<std::uint32_t>,CellHash>;
+    std::array<BucketMap,surface_fusion::radiusLevelCount> buckets;
     std::vector<Accum> accum;
     std::vector<std::vector<std::int32_t>> imageVertices(views.size(),std::vector<std::int32_t>(pixels,-1));
     accum.reserve(std::min<std::size_t>(dense.verifiedSamples.size(),s.maxVertices));
     std::vector<std::size_t> sampleOrder(dense.verifiedSamples.size());std::iota(sampleOrder.begin(),sampleOrder.end(),0);
     std::sort(sampleOrder.begin(),sampleOrder.end(),[&](auto a,auto b){const auto& p=dense.verifiedSamples[a];const auto& q=dense.verifiedSamples[b];return std::tie(p.xyz.x,p.xyz.y,p.xyz.z,p.camera,p.y,p.x)<std::tie(q.xyz.x,q.xyz.y,q.xyz.z,q.camera,q.y,q.x);});
-    progress::begin(progress::Stage::Surface,0,0,sampleOrder.size());
     std::size_t processed=0;
     for(auto sourceId:sampleOrder){
         const auto& sample=dense.verifiedSamples[sourceId];
-        progress::advance(processed++);
-        const auto observedNormal=estimateDepthNeighborhoodNormal(views[sample.camera],dense.maps[sample.camera],sample.x,sample.y,s.pixelStride,s.maximumRelativeDepthJump);
-        const bool normalSupported=observedNormal.validity==NormalValidity::Supported;
+        progress::advance(prepared.size()+processed++);
+        const auto& source=prepared[sourceId];const bool normalSupported=source.supported;
         if(sample.confidence<s.minimumConfidence)continue;
         const std::size_t pixel=static_cast<std::size_t>(sample.y)*width+sample.x;
         if(imageVertices[sample.camera][pixel]>=0)continue;
-        const auto key=voxel(sample.xyz,cellSize);
-        std::int64_t best=-1;double minDist=fusionRadius;std::size_t candidateVisits=0;
-        for(int dz=-1;dz<=1;++dz)for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
-            auto it=buckets.find({key.x+dx,key.y+dy,key.z+dz});
-            if(it==buckets.end())continue;
-            for(auto index:it->second){
-                if(++candidateVisits>s.maxFusionCandidates)throw Error("Surface fusion spatial candidate budget exceeded");
-                const auto& a=accum[index];
-                if(a.viewMask & (1u<<sample.camera))continue;
-                if(!normalSupported||!a.supportedNormal||!surface_fusion::compatibleNormal(a.weightedNormal,observedNormal.direction))continue;
-                auto avg=mul(a.weightedPosition,1./a.weight);
-                double d=norm(sub(avg,sample.xyz));
-                const auto projected=cameraPoint(views[sample.camera],avg);
-                if(projected.z<=0)continue;
-                const auto visibility=consistency::sampleDepth(dense.maps[sample.camera],views[sample.camera].fx*projected.x/projected.z+views[sample.camera].cx,views[sample.camera].fy*projected.y/projected.z+views[sample.camera].cy,s.pixelStride,3,s.maximumRelativeDepthJump);
-                if(consistency::verify(visibility,projected.z,0,s.maximumRelativeDepthJump,1).classification!=consistency::Visibility::Supported)continue;
-                if(d<minDist){best=index;minDist=d;}
+        const double fusionRadius=source.bound;
+        const double w=std::max(.005f,sample.confidence)*sample.supportingViews;
+        std::int64_t best=-1;double minDist=INFINITY;std::size_t candidateVisits=0;
+        for(std::size_t level=0;level<buckets.size();++level){
+            const auto& cells=buckets[level];if(cells.empty())continue;
+            const auto key=voxel(sample.xyz,surface_fusion::radiusCellSize(level));
+            for(int dz=-1;dz<=1;++dz)for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
+                const auto it=cells.find({key.x+dx,key.y+dy,key.z+dz});
+                if(it==cells.end())continue;
+                for(auto index:it->second){
+                    if(++candidateVisits>s.maxFusionCandidates)throw Error("Surface fusion spatial candidate budget exceeded");
+                    if((candidateVisits&63u)==0)cancellation::checkpoint();
+                    const auto& a=accum[index];
+                    if(a.viewMask & (1u<<sample.camera))continue;
+                    if(!normalSupported||!a.supportedNormal||!surface_fusion::compatibleNormal(a.weightedNormal,source.normal))continue;
+                    const auto avg=mul(a.weightedPosition,1./a.weight);
+                    const double d=norm(sub(avg,sample.xyz));
+                    if(d>=minDist||d>fusionRadius||d>a.fusionRadius)continue;
+                    if(!visibleIn(sample.camera,avg))continue;
+                    const auto proposed=mul(add(a.weightedPosition,mul(sample.xyz,w)),1./(a.weight+w));
+                    bool admissible=surface_fusion::originalAnchorMetric(views[sample.camera],sample,source.normal,source.frontRadius,source.bound,proposed,s.pixelStride)&&visibleIn(sample.camera,proposed);
+                    for(std::size_t member=0;member<a.sourceCount&&admissible;++member){
+                        const auto anchorId=a.sourceIds[member];const auto& anchor=dense.verifiedSamples[anchorId];const auto& evidence=prepared[anchorId];
+                        admissible=surface_fusion::originalPairMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,
+                            views[sample.camera],sample,source.normal,source.frontRadius,source.bound,s.pixelStride)&&
+                            visibleIn(anchor.camera,sample.xyz)&&visibleIn(sample.camera,anchor.xyz)&&
+                            surface_fusion::originalAnchorMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,proposed,s.pixelStride)&&visibleIn(anchor.camera,proposed);
+                    }
+                    if(!admissible)continue;
+                    best=index;minDist=d;
+                }
             }
         }
-        const double w=std::max(.005f,sample.confidence)*sample.supportingViews;
         std::uint32_t assigned{};
         if(best>=0){
             assigned=static_cast<std::uint32_t>(best);
             auto& a=accum[assigned];a.weightedPosition=add(a.weightedPosition,mul(sample.xyz,w));
             for(int k=0;k<3;++k)a.weightedColor[k]+=w*sample.color[k];
-            a.weightedNormal=add(a.weightedNormal,mul(observedNormal.direction,w));
+            a.weightedNormal=add(a.weightedNormal,mul(source.normal,w));
             a.weight+=w;a.viewMask|=static_cast<std::uint8_t>(1u<<sample.camera);
             a.maxConfidence=std::max(a.maxConfidence,sample.confidence);
+            if(a.sourceCount>=MAX_DENSE_VIEWS)throw Error("Surface source anchor budget exceeded");
+            a.sourceIds[a.sourceCount++]=static_cast<std::uint32_t>(sourceId);
+            a.fusionRadius=600;
+            const auto centroid=mul(a.weightedPosition,1./a.weight);
+            for(std::size_t member=0;member<a.sourceCount;++member){const auto id=a.sourceIds[member];a.fusionRadius=std::min(a.fusionRadius,prepared[id].bound+norm(sub(centroid,dense.verifiedSamples[id].xyz)));}
+            a.fusionRadius=std::max(.0001,a.fusionRadius);
+            const auto nextLevel=surface_fusion::radiusLevel(a.fusionRadius);
+            const auto nextCell=voxel(mul(a.weightedPosition,1./a.weight),surface_fusion::radiusCellSize(nextLevel));
+            if(nextLevel!=a.radiusLevel||nextCell!=a.cell){
+                auto& previous=buckets[a.radiusLevel];const auto old=previous.find(a.cell);
+                if(old==previous.end())throw Error("Missing surface spatial bucket");
+                const auto entry=std::find(old->second.begin(),old->second.end(),assigned);
+                if(entry==old->second.end())throw Error("Missing surface spatial entry");
+                old->second.erase(entry);if(old->second.empty())previous.erase(old);
+                auto& next=buckets[nextLevel][nextCell];
+                if(next.size()>=s.maxVoxelOccupancy)throw Error("Surface voxel occupancy budget exceeded");
+                next.push_back(assigned);a.radiusLevel=nextLevel;a.cell=nextCell;
+            }
             ++mesh.fusedObservations;
         } else {
             if(accum.size()>=s.maxVertices)continue;
             assigned=static_cast<std::uint32_t>(accum.size());
-            if(buckets[key].size()>=s.maxVoxelOccupancy)throw Error("Surface voxel occupancy budget exceeded");
-            Accum a;a.weightedPosition=mul(sample.xyz,w);a.weight=w;
-            a.supportedNormal=normalSupported;if(normalSupported)a.weightedNormal=mul(observedNormal.direction,w);
+            Accum a;a.weightedPosition=mul(sample.xyz,w);a.weight=w;a.fusionRadius=fusionRadius;a.sourceIds[0]=static_cast<std::uint32_t>(sourceId);a.sourceCount=1;
+            a.radiusLevel=surface_fusion::radiusLevel(fusionRadius);a.cell=voxel(sample.xyz,surface_fusion::radiusCellSize(a.radiusLevel));
+            auto& cell=buckets[a.radiusLevel][a.cell];
+            if(cell.size()>=s.maxVoxelOccupancy)throw Error("Surface voxel occupancy budget exceeded");
+            a.supportedNormal=normalSupported;if(normalSupported)a.weightedNormal=mul(source.normal,w);
             for(int k=0;k<3;++k)a.weightedColor[k]=w*sample.color[k];
             a.maxConfidence=sample.confidence;a.viewMask=static_cast<std::uint8_t>(1u<<sample.camera);
             accum.push_back(a);
-            buckets[key].push_back(assigned);
+            cell.push_back(assigned);
         }
         imageVertices[sample.camera][pixel]=static_cast<std::int32_t>(assigned);
         mesh.observations.push_back({assigned,sample.camera,sample.x,sample.y,sourceId});
@@ -262,7 +317,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
             }
         }
     }
-    progress::advance(sampleOrder.size());
+    progress::advance(2*prepared.size());
     {
         const auto initialTopology=analyzeMeshTopology(mesh);
         auto cleaned=applyMeshCleanup(mesh,planMeshCleanup(mesh,initialTopology));
@@ -304,7 +359,7 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<",\"triangleCount\":"<<m.triangles.size()<<",\"inputSamples\":"<<m.inputSamples
      <<",\"acceptedSamples\":"<<m.acceptedSamples<<",\"fusedObservations\":"<<m.fusedObservations
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":3,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":5,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])
