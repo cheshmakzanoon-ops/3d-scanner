@@ -183,7 +183,7 @@ def receipt_record(text: str) -> dict:
         results = []
         row = None
         for line in block('acceptance_results').splitlines():
-            first = re.match(r'^\s+- ([a-z_]+):\s*(.*)$', line)
+            first = re.match(r'^[ \t]*- ([a-z_]+):\s*(.*)$', line)
             field = first or re.match(r'^\s+([a-z_]+):\s*(.*)$', line)
             if first:
                 row = {}; results.append(row)

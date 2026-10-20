@@ -102,7 +102,8 @@ external_blockers: []
     assert campaign.receipt_checks(fenced) == []
 
 
-def test_compact_yaml_completion_requires_the_same_evidence():
+@pytest.mark.parametrize('indent', ['', '  '])
+def test_compact_yaml_completion_requires_the_same_evidence(indent):
     text = 'state: DONE\nimplementation_commits: [' + 'b' * 40 + ''']
 acceptance_results:
   - criterion: actual run
@@ -113,8 +114,14 @@ remaining_work: []
 external_blockers: []
 next_action: integrate
 '''
+    text = text.replace('  - criterion:', indent + '- criterion:').replace(
+        '    result:', indent + '  result:').replace(
+        '    command:', indent + '  command:').replace(
+        '    source_sha:', indent + '  source_sha:')
     assert campaign.receipt_checks(text) == []
     assert campaign.receipt_checks(text.replace('result: PASS', 'result: FAIL'))
+    assert campaign.receipt_checks(text.replace('    source_sha:', '    absent:').replace(
+        '  source_sha:', '  absent:'))
 
 
 def test_integration_ledger_cannot_launder_an_unowned_ancestor_change(tmp_path):
