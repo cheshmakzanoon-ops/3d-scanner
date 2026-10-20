@@ -39,7 +39,7 @@ class CameraPermissionJourneyTest {
                 scenario.recreate();ui.awaitText(name)
                 ui.scrollToClick("Use camera","Capture")
                 ui.click("Grant camera permission","Allow camera")
-                ui.click("While using the app","While using this app","Only this time")
+                ui.click("While using the app","While using this app","Only this time","Allow")
                 ui.await { ContextCompat.checkSelfPermission(app,Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED }
                 // Permissions do not invent a captured image or change selected project revision.
                 ui.click("Back");ui.awaitText(name)
