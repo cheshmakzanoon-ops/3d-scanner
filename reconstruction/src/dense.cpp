@@ -218,6 +218,10 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         coarseMaps=std::move(coarseResult.maps);result.coarseDepthMaps=coarseMaps.size();
     }
     std::ostringstream settingsText;settingsText.imbue(std::locale::classic());settingsText<<std::hexfloat<<"tile-cpu-v2|"<<settings.nearDepth<<'|'<<settings.farDepth<<'|'<<settings.depthPlanes<<'|'<<step<<'|'<<r<<'|'<<settings.minimumNcc<<'|'<<settings.minUniqueness<<'|'<<settings.depthConsistencyFraction<<'|'<<settings.maxPoints<<'|'<<settings.executionVersion<<'|'<<settings.tileEdge<<'|'<<settings.workingSetBudgetBytes<<'|'<<settings.referenceMode<<'|'<<settings.discontinuityAwareConsistency<<'|'<<settings.localRefinementIterations<<'|'<<settings.robustSourceAggregation<<'|'<<settings.normalRefinementIterations<<'|'<<settings.normalConsistency<<'|'<<settings.normalMaxAngleDegrees<<'|'<<refinement::SETTINGS_VERSION<<'|'<<consistency::NORMAL_SETTINGS_VERSION<<'|'<<(inputs?inputs->identitySha256:std::string("none"));
+    // Only this previously inconsistent optional combination changes its
+    // objective. Preserve all established robust=false checkpoint bytes.
+    if(settings.robustSourceAggregation&&settings.localRefinementIterations)
+        settingsText<<"|robust-local-objective-v2";
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
     settingsText<<"|sources:";for(std::size_t ref=0;ref<result.sourceViews.size();++ref){settingsText<<ref<<':';for(auto source:result.sourceViews[ref])settingsText<<source<<',';settingsText<<';';}
     const auto solverIdentity=settingsText.str();
@@ -302,9 +306,15 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             double inverse=refinement::parabolicInverseDepth(costs,planes,static_cast<std::size_t>(best));
             if(settings.localRefinementIterations){
                 auto refined=refinement::local(planes[best-1],1./inverse,planes[best+1],settings.localRefinementIterations,[&](double depth){
-                    cancellation::checkpoint();double bestCost=2.;
-                    for(std::size_t src=0;src<sources.size();++src){double corr=ncc(grayscale[src],warps[src],x,y,depth,reference,r);if(corr>-.999)bestCost=std::min(bestCost,1.-corr);}
-                    return bestCost;
+                    cancellation::checkpoint();
+                    if(!settings.robustSourceAggregation){
+                        double bestCost=2.;
+                        for(std::size_t src=0;src<sources.size();++src){double corr=ncc(grayscale[src],warps[src],x,y,depth,reference,r);if(corr>-.999)bestCost=std::min(bestCost,1.-corr);}
+                        return bestCost;
+                    }
+                    std::array<matching::Cost,7> sourceCosts{};
+                    for(std::size_t src=0;src<sources.size();++src){const double corr=ncc(grayscale[src],warps[src],x,y,depth,reference,r);if(corr>-.999)sourceCosts[src]={1.-corr,static_cast<std::size_t>((2*r+1)*(2*r+1)),true};}
+                    return matching::aggregate(std::span<const matching::Cost>(sourceCosts).first(sources.size()),true).cost;
                 });
                 if(refined.valid&&refined.cost<=costs[best])inverse=1./refined.depth;
             }
