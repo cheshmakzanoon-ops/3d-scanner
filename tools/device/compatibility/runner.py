@@ -172,8 +172,16 @@ def run(args, execute=command):
                 raise ValueError('Expected single installed base APK; candidate splits require complete package identity')
             if shell('sha256sum', installed[0][8:]).split()[0] != receipt[key]:
                 raise ValueError('Installed package hash differs from selected candidate')
-        transcript = shell('am', 'instrument', '-w', '-r', *suite_arguments(receipt['suite']),
-                           'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner')
+        try:
+            transcript = shell('am', 'instrument', '-w', '-r', *suite_arguments(receipt['suite']),
+                               'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner')
+        except subprocess.TimeoutExpired as error:
+            # TimeoutExpired retains partial pipes even with text=True. Preserve the
+            # original bytes for diagnosis; incomplete output must never earn counts.
+            for name, data in [('instrumentation.txt', error.stdout), ('instrumentation.stderr.txt', error.stderr)]:
+                (output / name).write_bytes(data.encode() if isinstance(data, str) else data or b'')
+            receipt['instrumentationTimedOut'] = True
+            raise
         (output / 'instrumentation.txt').write_text(transcript + '\n')
         receipt['counts'] = scoped_counts(transcript, receipt['suite'])
         receipt['tests'] = receipt['counts']['tests']

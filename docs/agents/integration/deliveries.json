@@ -528,6 +528,13 @@
       "branch": "agents/057-photographic-atlas-pipeline",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "a87f2b923d5ea3bd2b225f75d59be84b8661fdb6",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
