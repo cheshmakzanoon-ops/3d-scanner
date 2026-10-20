@@ -190,6 +190,11 @@ int main(){
         require(result.intrinsics[0].parameters==camera.parameters,"Measured profile changed");
         require(result.geometry.robustCostAfter<result.geometry.robustCostBefore,"Pixel bundle geometry did not improve");
         problem.schema=999;rejects([&]{rf::bundleAdjustProblem(problem);});
+        problem.schema=1;
+        problem.seeds.push_back({9999,{0,0,-3},{100,120,140}});
+        problem.observations.push_back({9999,0,{camera.parameters[2],camera.parameters[3]},{100,120,140}});
+        problem.observations.push_back({9999,1,{camera.parameters[2],camera.parameters[3]},{100,120,140}});
+        rejects([&]{rf::bundleAdjustProblem(problem,{.025,0});});
     });
     test("verified circular revisit corrects withheld geometry without publishing failed loops",[]{
         rf::BundleProblem p;rf::IntrinsicModel lens;lens.width=1200;lens.height=900;lens.lensCropIdentity="synthetic-circular-fixed";lens.parameters={900,910,599.5,449.5,0,0,0,0,0};

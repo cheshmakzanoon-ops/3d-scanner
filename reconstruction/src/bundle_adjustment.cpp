@@ -419,6 +419,7 @@ BundleProblemResult bundleAdjustProblem(const BundleProblem& p,const BundleSetti
             cost+=huber(std::hypot((pixel.x-o.pixel.x)/initial.parameters[0],(pixel.y-o.pixel.y)/initial.parameters[1]),settings.maxReprojectionError);}
         return cost;};
     double cost=pixelCost(out.geometry,out.intrinsics);
+    if(!std::isfinite(cost))throw Error("Initial pixel bundle objective is not finite");
     for(const auto& loop:p.loops){cancellation::checkpoint();
         if(loop.schema!=1||loop.camera<2||loop.camera>=p.cameras.size()||loop.supportingTrackIds.size()<16||loop.supportingTrackIds.size()>20000||loop.supportingStableTrackIds.size()!=loop.supportingTrackIds.size()||!std::isfinite(loop.inlierFraction)||loop.inlierFraction<.65||loop.inlierFraction>1||loop.componentId.empty()||
            loop.sourcePhotoId.empty()||loop.revisitPhotoId.empty()||!std::isfinite(loop.medianNormalizedError)||loop.medianNormalizedError>settings.maxReprojectionError)
@@ -428,7 +429,7 @@ BundleProblemResult bundleAdjustProblem(const BundleProblem& p,const BundleSetti
         auto cameras=out.geometry.cameras;cameras[loop.camera]=loop.correctedPose;
         std::vector<BundleSeed> seeds;for(const auto& point:out.geometry.points)seeds.push_back(point.seed);
         auto candidate=bundleAdjust(cameras,seeds,observations,settings);const double value=pixelCost(candidate,out.intrinsics);
-        if(value<cost){cost=value;out.geometry=std::move(candidate);++out.acceptedLoopCorrections;}
+        if(std::isfinite(value)&&value<cost){cost=value;out.geometry=std::move(candidate);++out.acceptedLoopCorrections;}
     }
     for(std::size_t group=0;group<p.intrinsicGroups.size();++group){cancellation::checkpoint();
         std::map<std::size_t,Vec3> points;for(const auto& point:out.geometry.points)points[point.seed.track]=point.seed.xyz;
@@ -439,7 +440,7 @@ BundleProblemResult bundleAdjustProblem(const BundleProblem& p,const BundleSetti
         auto models=out.intrinsics;models[group]=fit.model;auto revised=normalized(models);
         std::vector<BundleSeed> seeds;for(const auto& point:out.geometry.points)seeds.push_back(point.seed);
         auto candidate=bundleAdjust(out.geometry.cameras,seeds,revised,settings);const double value=pixelCost(candidate,models);
-        if(value<=cost){cost=value;out.geometry=std::move(candidate);out.intrinsics=std::move(models);observations=std::move(revised);++out.acceptedIntrinsicGroups;}
+        if(std::isfinite(value)&&value<=cost){cost=value;out.geometry=std::move(candidate);out.intrinsics=std::move(models);observations=std::move(revised);++out.acceptedIntrinsicGroups;}
     }
     return out;
 }
