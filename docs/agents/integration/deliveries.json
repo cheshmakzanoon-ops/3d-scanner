@@ -73,6 +73,13 @@
       "branch": "agents/086-physical-arm64-capture-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "ee146ab8e93b599a1a198e21a40d3a1c2870a88f",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
