@@ -10,7 +10,7 @@ namespace rf::depth_checkpoint {
 // exact rectified pixels, calibrated camera rows, depth bounds and settings.
 class Scope {
 public:
-    Scope(std::string directory, std::string sha256Identity);
+    Scope(std::string directory, std::string sha256Identity, std::size_t byteBudget = 32u*1024u*1024u);
     ~Scope() noexcept;
     Scope(const Scope&) = delete;
     Scope& operator=(const Scope&) = delete;
@@ -19,6 +19,7 @@ public:
 private:
     const Scope* previous_{};
     std::string directory_, identity_;
+    std::size_t byteBudget_{};
     friend bool load(std::size_t, DenseDepthMap&);
     friend bool store(std::size_t, const DenseDepthMap&);
 };
