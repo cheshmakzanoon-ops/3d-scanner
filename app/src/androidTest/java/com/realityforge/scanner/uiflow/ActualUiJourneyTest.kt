@@ -47,6 +47,8 @@ class ActualUiJourneyTest {
                 ui.back()
                 ui.click(name)
                 ui.awaitText(name)
+                ui.back()
+                if (ui.hasLabel("Search projects")) ui.setText(name, "Search projects") else ui.click(name)
                 ui.scrollToClick("Delete this local project", "Delete project", "Delete")
                 ui.awaitText("originals", exact = false)
                 ui.click("Cancel")
@@ -156,6 +158,7 @@ internal class UiJourneyDriver {
     private fun find(vararg labels:String,exact:Boolean=true)=nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull { n ->
         labels.any { value -> listOf(n.text?.toString(),n.contentDescription?.toString(),n.viewIdResourceName).any { it!=null && if(exact) it==value else it.contains(value,true) } }
     }
+    fun hasLabel(vararg labels:String):Boolean = find(*labels) != null
     fun awaitText(label:String,exact:Boolean=true,timeout:Long=20000) = await(timeout) { find(label,exact=exact)!=null }
     private fun clickNode(value:AccessibilityNodeInfo):Boolean {
         var n=value; while(!n.isClickable && n.parent!=null) n=n.parent
