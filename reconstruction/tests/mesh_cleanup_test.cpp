@@ -7,7 +7,7 @@
 int main(){
  rf::SurfaceMesh m;
  for(auto p:{rf::Vec3{0,0,0},rf::Vec3{1,0,0},rf::Vec3{1,1,0},rf::Vec3{0,1,0},rf::Vec3{3,0,0},rf::Vec3{3.001,0,0},rf::Vec3{3,.001,0}}){rf::SurfaceVertex v;v.xyz=p;v.normal={0,0,1};m.vertices.push_back(v);}
- m.triangles={{0,1,2,0},{0,2,3,0},{4,5,6,0},{2,1,0,1},{0,0,1,0}};
+ m.triangles={{0,1,2,0},{0,2,3,0},{4,5,6,0},{2,0,1,1},{0,0,1,0}};
  auto p=rf::planMeshCleanup(m);assert((p.removedFaces==std::vector<std::size_t>{3,4}));
  auto r=rf::applyMeshCleanup(m,p);assert(r.mesh.triangles.size()==3&&m.triangles.size()==5);
  assert(r.mesh.vertices.size()==m.vertices.size()&&r.maxDisplacement==0&&r.generatedFaces==0);
@@ -20,5 +20,9 @@ int main(){
  std::atomic_bool stop{true};rejected=false;try{rf::cancellation::Scope scope(&stop);rf::planMeshCleanup(m);}catch(const rf::cancellation::Cancelled&){rejected=true;}assert(rejected);
  auto large=m;large.triangles.assign(50000,{0,1,2,0});auto lp=rf::planMeshCleanup(large);assert(lp.removedFaces.size()==49999&&lp.sourceFaceForResult.size()==1);
  auto copy=rf::applyMeshCleanup(large,lp);assert(copy.mesh.triangles.size()==1&&large.triangles.size()==50000);
+
+ auto twoSided=m;twoSided.triangles={{0,1,2,0},{2,1,0,1}};assert(rf::planMeshCleanup(twoSided).removedFaces.empty());
+ auto duplicateCoordinates=m;duplicateCoordinates.vertices.push_back(m.vertices[0]);duplicateCoordinates.vertices.push_back(m.vertices[1]);duplicateCoordinates.vertices.push_back(m.vertices[2]);duplicateCoordinates.triangles={{0,1,2,0},{7,8,9,1}};
+ assert((rf::planMeshCleanup(duplicateCoordinates).removedFaces==std::vector<std::size_t>{1}));
 
 }
