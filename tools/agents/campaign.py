@@ -72,6 +72,14 @@ def roster(text: str) -> list[dict]:
             owners[path] = row['agent']
     if len({r['branch'] for r in rows}) != 100:
         raise ValueError('Duplicate agent branches')
+    claims = [(r['agent'], p.rstrip('/'), p.endswith('/'))
+              for r in rows for p in r['existing'] + r['reserved']]
+    for i, (agent, path, directory) in enumerate(claims):
+        for other, target, target_directory in claims[i + 1:]:
+            if agent != other and (path == target or
+                    directory and target.startswith(path + '/') or
+                    target_directory and path.startswith(target + '/')):
+                raise ValueError(f'Overlapping source ownership: {agent}:{path} and {other}:{target}')
     return rows
 
 
@@ -217,11 +225,14 @@ def receipt_checks(text: str) -> list[str]:
         errors.append('Missing acceptance evidence')
         results = []
     for row in results:
-        if not isinstance(row, dict) or not row.get('criterion') or row.get('result') not in {
-                'PASS', 'FAIL', 'NOT_RUN', 'BLOCKED_EXTERNAL'}:
+        if (not isinstance(row, dict) or not isinstance(row.get('criterion'), str)
+                or not row['criterion'].strip() or not isinstance(row.get('result'), str)
+                or row['result'] not in {
+                'PASS', 'FAIL', 'NOT_RUN', 'BLOCKED_EXTERNAL'}):
             errors.append('Malformed acceptance criterion/status')
             continue
-        if row['result'] == 'PASS' and (not row.get('command') or not isinstance(row.get('source_sha'), str)
+        if row['result'] == 'PASS' and (not isinstance(row.get('command'), str)
+                or not row['command'].strip() or not isinstance(row.get('source_sha'), str)
                 or not re.fullmatch('[0-9a-f]{40}', row['source_sha'])):
             errors.append('PASS lacks command or immutable source identity')
     if receipt_state(text) == 'DONE':

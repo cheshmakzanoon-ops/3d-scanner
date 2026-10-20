@@ -2,7 +2,7 @@
   "schema": 1,
   "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
   "source_plan": "PRODUCTION_100_AGENT_EXECUTION_PLAN.md",
-  "source_plan_sha256": "da0c0efe7cd7bf63bd31612d8d00680130079f38226be4dd38e0d4882489161c",
+  "source_plan_sha256": "feba825cdb096ef80de59b1ce9ccfa4f0993a4ae4c99ef5aef67a5bafdfe1273",
   "authority": "Exclusive existing/reserved ownership is parsed from the recorded production plan; mechanical manifest and per-agent receipt/test/handoff exceptions are enforced by tools/agents/campaign.py. Agent100 only accepts unchanged blobs from recorded, scope-validated supplying ancestors.",
   "agents": [
     {
@@ -1216,6 +1216,7 @@
         "tools/device/failure_recovery/",
         "app/src/androidTest/java/com/realityforge/scanner/qa/RecoveryStageContractTest.kt",
         "app/src/androidTest/java/com/realityforge/scanner/qa/FaultDocumentProvider.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/FaultDocumentProvider.java",
         "tests/test_recovery_controller.py",
         "app/src/androidTest/AndroidManifest.xml"
       ]

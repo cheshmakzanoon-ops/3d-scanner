@@ -29,6 +29,13 @@ def test_missing_duplicate_and_unsafe_roster_fail():
             campaign.roster(changed)
 
 
+@pytest.mark.parametrize('claim', ['tools/agents/', 'tools/', 'tools/agents/campaign.py'])
+def test_reserved_and_existing_prefix_collisions_fail(claim):
+    text = (ROOT / campaign.PLAN).read_text().replace('`tools/device/offline_privacy/`', '`' + claim + '`')
+    with pytest.raises(ValueError, match='Overlapping source ownership'):
+        campaign.roster(text)
+
+
 def test_rename_cannot_hide_unowned_source(tmp_path):
     def run(*args):
         return subprocess.check_output(['git', '-C', str(tmp_path), *args], text=True).strip()
@@ -72,6 +79,18 @@ def test_done_needs_actual_source_bound_acceptance_and_no_contradictory_result()
         assert campaign.receipt_checks(json.dumps(record))
     record['acceptance_results'][0]['result'] = 'PASS'
     record['acceptance_results'][0].pop('source_sha')
+    assert campaign.receipt_checks(json.dumps(record))
+
+
+@pytest.mark.parametrize('command', [True, 1, [], {}, '', '   '])
+@pytest.mark.parametrize('field', ['command', 'criterion'])
+def test_pass_requires_real_command_and_criterion_strings(command, field):
+    import json
+    record = {'state': 'DONE', 'implementation_commits': ['a' * 40],
+              'remaining_work': [], 'external_blockers': [],
+              'acceptance_results': [{'criterion': 'actual run', 'result': 'PASS',
+                                      'command': 'actual-test-command', 'source_sha': 'a' * 40}]}
+    record['acceptance_results'][0][field] = command
     assert campaign.receipt_checks(json.dumps(record))
 
 
@@ -180,15 +199,15 @@ def test_done_receipt_only_followup_allowed_but_changed_runtime_is_stale(tmp_pat
         'DONE has untested source/input changes after evidence: runtime.py']
 
 
-@pytest.mark.parametrize('stage_change', [False, True])
-def test_real_merge_helper_rejects_postcheck_source_change(tmp_path, stage_change):
+@pytest.mark.parametrize('mutation', ['unchanged', 'unstaged', 'staged', 'untracked', 'preexisting'])
+def test_real_merge_helper_rejects_postcheck_source_change(tmp_path, mutation):
     import json
     import shutil
     import sys
     def run(*args):
         return subprocess.check_output(['git', '-C', str(tmp_path), *args], text=True).strip()
     run('init', '-q'); run('config', 'user.email', 'fixture@example.invalid'); run('config', 'user.name', 'Fixture')
-    for name in ['tools/agents/campaign.py', 'tools/agents/integrate.py', 'tools/source_manifest.py', campaign.PLAN]:
+    for name in ['.gitignore', 'tools/agents/campaign.py', 'tools/agents/integrate.py', 'tools/source_manifest.py', campaign.PLAN]:
         target = tmp_path / name; target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT / name, target)
     def commit(message):
@@ -200,18 +219,29 @@ def test_real_merge_helper_rejects_postcheck_source_change(tmp_path, stage_chang
     base = commit('campaign base')
     run('switch', '-qc', 'agents/089-runtime-offline-privacy')
     runtime = tmp_path / 'tools/device/offline_privacy/candidate.py'
-    runtime.parent.mkdir(parents=True); runtime.write_text('tested candidate')
+    runtime.parent.mkdir(parents=True); runtime.write_text('value = 42\n')
     delivery = commit('owned delivery')
     run('switch', '-qc', 'agents/100-integration-lead', base)
     registry = tmp_path / 'docs/agents/integration/campaign-base.json'; registry.parent.mkdir(parents=True)
     registry.write_text(json.dumps({'campaign_base': base})); original = commit('freeze base')
     command = "from pathlib import Path; Path('tools/device/offline_privacy/candidate.py').write_text('changed after check')"
-    if stage_change:
+    if mutation == 'staged':
         command += "; import subprocess; subprocess.run(['git','add','.'],check=True); subprocess.run(['python3','tools/source_manifest.py','generate','--source','index'],check=True); subprocess.run(['git','add','SOURCE_MANIFEST.sha256'],check=True)"
+    elif mutation == 'untracked':
+        command = "from pathlib import Path; import runpy; Path('extra.py').write_text('value = 42\\n'); assert runpy.run_path('extra.py')['value'] == 42"
+    elif mutation == 'preexisting':
+        (tmp_path / 'extra.py').write_text('value = 42\n')
+        command = "import runpy; assert runpy.run_path('extra.py')['value'] == 42"
+    elif mutation == 'unchanged':
+        command = "import runpy; assert runpy.run_path('tools/device/offline_privacy/candidate.py')['value'] == 42"
     import shlex
     test = subprocess.run([sys.executable, str(tmp_path / 'tools/agents/integrate.py'), '--agent', '089',
                            '--source-sha', delivery, '--base', base, '--check',
                            sys.executable + ' -c ' + shlex.quote(command)], cwd=tmp_path, text=True, capture_output=True)
+    if mutation == 'unchanged':
+        assert test.returncode == 0, test.stdout + test.stderr
+        assert run('rev-parse', 'HEAD') != original
+        return
     assert test.returncode != 0, test.stdout + test.stderr
     assert run('rev-parse', 'HEAD') == original
-    assert 'Verification' in test.stderr
+    assert ('untracked inputs' if mutation == 'preexisting' else 'Verification') in test.stderr

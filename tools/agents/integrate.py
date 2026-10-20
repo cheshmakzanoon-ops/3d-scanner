@@ -30,8 +30,9 @@ def main():
         p.error('Delivery does not descend from the recorded campaign base')
     if git(ROOT, 'branch', '--show-current') != 'agents/100-integration-lead':
         p.error('Run only in the isolated integration branch')
-    if git(ROOT, 'diff', '--name-only') or git(ROOT, 'diff', '--cached', '--name-only'):
-        p.error('Commit or resolve current integration work first; no automatic stash/reset')
+    if (git(ROOT, 'diff', '--name-only') or git(ROOT, 'diff', '--cached', '--name-only')
+            or git(ROOT, 'ls-files', '--others', '--exclude-standard')):
+        p.error('Commit or resolve current integration work, including untracked inputs, first; no automatic stash/reset')
     errors = ownership(ROOT, rows, agent, a.base, sha)
     if errors:
         print(json.dumps({'status': 'FAIL', 'unowned_paths': errors}, indent=2))
@@ -74,6 +75,9 @@ def main():
         return 1
     if git(ROOT, 'write-tree') != reviewed_tree:
         print('Verification changed the reviewed staged tree; rerun on the new candidate before commit.', file=sys.stderr)
+        return 1
+    if git(ROOT, 'ls-files', '--others', '--exclude-standard'):
+        print('Verification created untracked inputs absent from the reviewed tree; review and rerun before commit.', file=sys.stderr)
         return 1
     subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'index'], cwd=ROOT, check=True)
     subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'worktree'], cwd=ROOT, check=True)
