@@ -20,6 +20,9 @@ int main() {
     std::weak_ptr<State> stale;
     { auto state = std::make_shared<State>(); stale = state; Scope scope(state); state.reset(); check(!stale.expired()); }
     check(stale.expired());
+    std::weak_ptr<const std::atomic_bool> leasedFlag;
+    { auto owned=std::make_shared<std::atomic_bool>(false); leasedFlag=owned; rf::cancellation::Scope lease(owned); owned.reset(); check(!leasedFlag.expired()); rf::cancellation::checkpoint(); }
+    check(leasedFlag.expired());
     auto flag = std::make_shared<std::atomic_bool>(false);
     auto token = flag;
     auto state = std::make_shared<State>();
@@ -31,8 +34,9 @@ int main() {
         catch (const rf::cancellation::Cancelled&) { return true; }
         return false;
     });
-    started.get_future().wait(); token.reset(); flag->store(true); flag.reset();
+    started.get_future().wait(); token.reset(); const auto cancelledAt=std::chrono::steady_clock::now();flag->store(true); flag.reset();
     check(future.get());
+    std::cout << "observed host progress-loop cancellation latency seconds=" << std::chrono::duration<double>(std::chrono::steady_clock::now()-cancelledAt).count() << '\n';
     check(state->snapshot().completed < 10000000);
     // Independent simultaneous state does not inherit stopped operation.
     auto healthy = std::async(std::launch::async, [] { auto s=std::make_shared<State>(); Scope scope(s); begin(Stage::Bundle,0,0,2); advance(2); return s->snapshot().completed==2; });
