@@ -1,0 +1,79 @@
+name: Validate release candidate
+on:
+  workflow_dispatch:
+    inputs:
+      signing_mode:
+        description: Candidate signing identity; production requires external approved credentials
+        type: choice
+        options: [test, production]
+        default: test
+      run_device:
+        description: Run minified JNI/export/reopen regressions on API35 emulator
+        type: boolean
+        default: true
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    environment: release-candidate
+    timeout-minutes: 60
+    env:
+      RF_RELEASE_STORE_PASSWORD: ${{ secrets.RF_RELEASE_STORE_PASSWORD }}
+      RF_RELEASE_KEY_ALIAS: ${{ secrets.RF_RELEASE_KEY_ALIAS }}
+      RF_RELEASE_KEY_PASSWORD: ${{ secrets.RF_RELEASE_KEY_PASSWORD }}
+      RF_RELEASE_CERTIFICATE_SHA256: ${{ secrets.RF_RELEASE_CERTIFICATE_SHA256 }}
+      RF_KEYSTORE_BASE64: ${{ secrets.RF_RELEASE_KEYSTORE_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with: {distribution: temurin, java-version: '17'}
+      - uses: android-actions/setup-android@v4
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.13'}
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - name: Require owner-applied convention and external production identity
+        env:
+          SIGNING_MODE: ${{ inputs.signing_mode }}
+        run: |
+          python3 - <<'PY'
+          import base64,os,pathlib
+          source=pathlib.Path('app/build.gradle.kts').read_text()
+          if 'release-validation.gradle.kts' not in source:
+              raise SystemExit('Build integration required: apply 091 convention per docs/agents/requests/091-to-004.md')
+          if os.environ['SIGNING_MODE']=='production':
+              names=['RF_RELEASE_STORE_PASSWORD','RF_RELEASE_KEY_ALIAS','RF_RELEASE_KEY_PASSWORD','RF_RELEASE_CERTIFICATE_SHA256','RF_KEYSTORE_BASE64']
+              if any(not os.environ.get(n) for n in names):
+                  raise SystemExit('BLOCKED_EXTERNAL: approved production credentials/identity absent')
+              path=pathlib.Path(os.environ['RUNNER_TEMP'])/'candidate.keystore'
+              path.write_bytes(base64.b64decode(os.environ['RF_KEYSTORE_BASE64'],validate=True));path.chmod(0o600)
+              with open(os.environ['GITHUB_ENV'],'a') as f:f.write('RF_RELEASE_STORE_FILE='+str(path)+'\n')
+          PY
+      - run: gradle --no-daemon -PcandidateSigning=${{ inputs.signing_mode }} :app:assembleRelease :app:bundleRelease :app:assembleReleaseAndroidTest :app:lintRelease
+      - name: Audit APK, produce delivered splits and retain exact identities
+        env:
+          SIGNING_MODE: ${{ inputs.signing_mode }}
+        run: |
+          curl --fail --location https://github.com/google/bundletool/releases/download/1.18.2/bundletool-all-1.18.2.jar -o "$RUNNER_TEMP/bundletool.jar"
+          python3 tools/release/package_validation/candidate.py --mode "$SIGNING_MODE" --bundletool "$RUNNER_TEMP/bundletool.jar" --output reports/candidate
+      - uses: reactivecircus/android-emulator-runner@v2
+        if: inputs.run_device
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          script: gradle --no-daemon -PcandidateSigning=${{ inputs.signing_mode }} -Pandroid.testInstrumentationRunnerArguments.class=com.realityforge.scanner.qa.ReleaseNativeContractTest :app:connectedReleaseAndroidTest
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-${{ github.sha }}-${{ inputs.signing_mode }}
+          path: |
+            app/build/outputs/apk/release/
+            app/build/outputs/bundle/release/
+            app/build/outputs/mapping/release/
+            app/build/outputs/native-debug-symbols/release/
+            app/build/reports/
+            reports/candidate/
+      - name: Remove injected temporary signing files
+        if: always()
+        run: rm -f "$RUNNER_TEMP/candidate.keystore" "$RUNNER_TEMP/candidate-store.pass" "$RUNNER_TEMP/candidate-key.pass"
