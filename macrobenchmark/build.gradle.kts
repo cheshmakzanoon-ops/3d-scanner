@@ -27,3 +27,8 @@ dependencies {
     implementation("androidx.test.uiautomator:uiautomator:2.3.0")
     implementation("androidx.test.ext:junit:1.2.1")
 }
+// Constrain only the actual self-instrumenting benchmark driver configurations.
+val lockedBenchmarkConfigurations = setOf("benchmarkCompileClasspath", "benchmarkRuntimeClasspath")
+configurations.configureEach {
+    if (name in lockedBenchmarkConfigurations) resolutionStrategy.activateDependencyLocking()
+}

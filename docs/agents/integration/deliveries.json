@@ -612,6 +612,13 @@
       "branch": "agents/088-failure-recovery-instrumentation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "097",
+      "source_sha": "7a8d211ece836faa4859ffd10e737764c2216d12",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
