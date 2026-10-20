@@ -91,6 +91,12 @@ public final class GlbParserHostHarness {
         for(int i=0;i<100;i++){byte[] bad=valid.clone();int offset=random.nextInt(28);bad[offset]^=(byte)(1+random.nextInt(255));reject(bad);}
         boolean cancelled=false;try{PhotographicGlb.INSTANCE.decode(valid,()->true);}catch(java.util.concurrent.CancellationException expected){cancelled=true;}check(cancelled);
         File file=File.createTempFile("glb-corpus-",".glb");try{Files.write(file.toPath(),valid);check(PhotographicGlb.INSTANCE.read(file).getImageWidth()==2);}finally{file.delete();}
+        File atlas=File.createTempFile("png-corpus-",".png");
+        try {
+            Files.write(atlas.toPath(),image);check(GlbStructure.INSTANCE.validatePng(atlas,()->false).getWidth()==2);
+            Files.write(atlas.toPath(),png(true,false,0));
+            boolean failed=false;try{GlbStructure.INSTANCE.validatePng(atlas,()->false);}catch(Exception expected){failed=true;}check(failed);
+        }finally{atlas.delete();}
         for(int i=0;i<50;i++) {
             PhotographicAsset loaded=PhotographicGlb.INSTANCE.decode(valid);
             GlbSummary summary=GlbStructure.INSTANCE.validate(valid,4,()->false);

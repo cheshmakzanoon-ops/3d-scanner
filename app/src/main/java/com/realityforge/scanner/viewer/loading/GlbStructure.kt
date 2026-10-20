@@ -25,7 +25,28 @@ data class GlbSummary(
     val estimatedResidentBytes: Long,
 )
 
+data class PngSummary(val width: Int, val height: Int, val estimatedResidentBytes: Long)
+
 object GlbStructure {
+    /** Validates a bounded standalone atlas before export; never allocates a bitmap. */
+    fun validatePng(file: File, cancelled: () -> Boolean = { false }): PngSummary {
+        require(file.isFile && file.length() in 57L..20L * 1024 * 1024) { "Missing atlas or PNG file budget exceeded." }
+        val bytes = file.inputStream().use { input ->
+            val length = file.length()
+            require(length in 57L..20L * 1024 * 1024)
+            val data = ByteArray(length.toInt()); var at = 0
+            while (at < data.size) {
+                if (cancelled()) throw CancellationException("PNG validation cancelled.")
+                val count = input.read(data, at, minOf(65536, data.size - at))
+                require(count > 0) { "Truncated atlas." }; at += count
+            }
+            require(input.read() == -1) { "Atlas changed while loading." }; data
+        }
+        val (width, height) = PhotographicGlb.validatePng(bytes, cancelled)
+        val resident = bytes.size.toLong() * 2 + width.toLong() * height * 8
+        require(resident <= MAX_RESIDENT_BYTES)
+        return PngSummary(width, height, resident)
+    }
     private const val MAX_VERTICES = 2_000_000
     private const val MAX_INDICES = 12_000_000
     const val MAX_RESIDENT_BYTES = 192L * 1024 * 1024
