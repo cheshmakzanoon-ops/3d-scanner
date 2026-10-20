@@ -110,7 +110,7 @@ class SparsePipeline(
                 matching = "${matcher.settingsIdentity}|summary-graph-small-exhaustive-v1",
                 sparse = "stable-frontier-v2|typed-bundle-pixel-v1|profile=$executionProfile|unknown-lens-groups-fixed|focal-policy-prior5pct-bounds15pct|assumed-focal35=$assumedFocal35",
                 dense = "native-tiled-depth-v3|${DenseExecutionPolicy.depth(executionProfile)}|rectifier-alpha-v2|verified-selection-v1|profile=$executionProfile|planes-56|memory-tier=$memoryTier",
-                surface = "observed-open-mesh-v1|quality-gated",
+                surface = "${DenseExecutionPolicy.SURFACE_ENGINE}|quality-gated",
                 texture = "${DenseExecutionPolicy.ATLAS_ENGINE}|${DenseExecutionPolicy.texture(executionProfile)}|rectifier-alpha-v2|profile=$executionProfile|memory-tier=$memoryTier",
                 export = "diagnostic-sparse-and-dense-glb-ply-v1",
             ),
