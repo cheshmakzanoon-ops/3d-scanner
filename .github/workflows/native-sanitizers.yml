@@ -1,0 +1,28 @@
+name: Native numerical and sanitizer matrix
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [gcc-release, clang-release, gcc-sanitize, clang-sanitize]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build clang libclang-rt-dev
+      - run: python -m pip install -r tools/requirements.txt -r tools/requirements-real-benchmark.txt pytest
+      - name: Compile and execute current native implementation
+        run: python tools/qa/native_regression/run.py --configs '${{ matrix.config }}' --output '${{ runner.temp }}/native-${{ matrix.config }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-${{ matrix.config }}-${{ github.sha }}
+          path: ${{ runner.temp }}/native-${{ matrix.config }}
+          retention-days: 14
