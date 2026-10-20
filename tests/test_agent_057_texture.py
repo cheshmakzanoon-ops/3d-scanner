@@ -27,6 +27,49 @@ def test_c_abi_allocation_failure_does_not_escape(tmp_path):
     subprocess.run(['c++','-std=c++20','-I',str(root/'reconstruction/include'),str(root/'reconstruction/tests/agent_057_c_abi_failure.cpp'),'-L',str(library),'-Wl,-rpath,'+str(library),'-lrealityforge','-o',str(binary)],check=True)
     subprocess.run([str(binary)],check=True)
 
+def test_compact_camera_input_preserves_original_resampling_rays(monkeypatch, tmp_path):
+    import sys
+    import types
+    import pytest
+    root=Path(__file__).resolve().parents[1]
+    sys.path.insert(0,str(root/'tools'))
+    import benchmark_middlebury as calibration
+    import native_api
+    image=np.zeros((777,1001,3),np.uint8)
+    monkeypatch.setattr(calibration,'load_middlebury',lambda:(image,image,object()))
+    for key,value in {'FOCAL_PIXELS':713.7,'CX_LEFT':441.25,
+                      'CX_RIGHT':402.75,'CY':319.75}.items():
+        monkeypatch.setattr(calibration,key,value)
+    captured={}
+    class CameraCaptured(Exception):pass
+    class Engine:
+        def __init__(self):
+            self.library=types.SimpleNamespace(
+                rf_textured_surface_compact_json=types.SimpleNamespace(),
+                rf_textured_surface_json=types.SimpleNamespace(argtypes=[],restype=None))
+        def textured_surface(self,low,high,cameras,*args,**kwargs):
+            captured.update(low=low,high=high,cameras=cameras.copy())
+            raise CameraCaptured
+    monkeypatch.setattr(native_api,'NativeEngine',Engine)
+    with pytest.raises(CameraCaptured):
+        test_compact_real_photographs_and_independent_uv_projection(tmp_path)
+    _,height,width,_=captured['low'].shape
+    _,photo_height,photo_width,_=captured['high'].shape
+    assert (width,height)==(228,177) and (photo_width,photo_height)==(608,472)
+    for camera,original_cx in zip(captured['cameras'],(441.25,402.75)):
+        fx,fy,cx,cy=camera[12:16]
+        for u,v in ((0.,0.),(17.125,41.75),(227.,176.)):
+            # Source support is the midpoint between mapped destination pixel edges.
+            source_u=((u*1001/width-.5)+((u+1)*1001/width-.5))/2
+            source_v=((v*777/height-.5)+((v+1)*777/height-.5))/2
+            original_ray=((source_u-original_cx)/713.7,(source_v-319.75)/713.7)
+            np.testing.assert_allclose(((u-cx)/fx,(v-cy)/fy),original_ray,atol=1e-14,rtol=0)
+            # Direct original calibration must agree with native depth->photo scaling.
+            original_photo=np.array([original_ray[0]*713.7*photo_width/1001+(original_cx+.5)*photo_width/1001-.5,
+                                     original_ray[1]*713.7*photo_height/777+(319.75+.5)*photo_height/777-.5])
+            depth_to_photo=np.array([(u+.5)*photo_width/width-.5,(v+.5)*photo_height/height-.5])
+            np.testing.assert_allclose(original_photo,depth_to_photo,atol=1e-12,rtol=0)
+
 def test_compact_real_photographs_and_independent_uv_projection(tmp_path):
     import sys
     import json
@@ -47,7 +90,7 @@ def test_compact_real_photographs_and_independent_uv_projection(tmp_path):
     high=np.stack([rgba(im,photo_width,photo_height) for im in (left,right)])
     cameras=np.asarray([[1,0,0,0,1,0,0,0,1,-float(i),0,0,
         FOCAL_PIXELS*width/original_w,FOCAL_PIXELS*height/original_h,
-        cx*width/original_w,CY*height/original_h] for i,cx in enumerate((CX_LEFT,CX_RIGHT))],float)
+        (cx+.5)*width/original_w-.5,(CY+.5)*height/original_h-.5] for i,cx in enumerate((CX_LEFT,CX_RIGHT))],float)
     engine=NativeEngine()
     compact=engine.library.rf_textured_surface_compact_json
     compact.argtypes=engine.library.rf_textured_surface_json.argtypes
@@ -80,7 +123,7 @@ def test_compact_real_photographs_and_independent_uv_projection(tmp_path):
         return np.where(value<=.04045,value/12.92,((value+.055)/1.055)**2.4)
     photo_fx=FOCAL_PIXELS*photo_width/original_w
     photo_fy=FOCAL_PIXELS*photo_height/original_h
-    photo_cy=(CY*height/original_h+.5)*photo_height/height-.5
+    photo_cy=(CY+.5)*photo_height/original_h-.5
     gains=np.asarray(texture['cameraColorGains'])
     verified=0
     for face in np.linspace(0,len(positions)//3-1,100,dtype=int):
@@ -94,7 +137,7 @@ def test_compact_real_photographs_and_independent_uv_projection(tmp_path):
         world=bary@tri_xyz
         candidates=[]
         for camera,cx in enumerate((CX_LEFT,CX_RIGHT)):
-            photo_cx=(cx*width/original_w+.5)*photo_width/width-.5
+            photo_cx=(cx+.5)*photo_width/original_w-.5
             px=(world[0]-camera)/world[2]*photo_fx+photo_cx
             py=world[1]/world[2]*photo_fy+photo_cy
             ix,iy=int(np.floor(px)),int(np.floor(py))

@@ -24,8 +24,9 @@ def run(size:int=228,planes:int=64,glb:Path|None=None,ply:Path|None=None)->dict:
         rgb=cv2.resize(source,(ow,oh),interpolation=cv2.INTER_AREA)
         rgba=np.concatenate([rgb,np.full((oh,ow,1),255,np.uint8)],axis=-1)
         images.append(rgba)
+    # Match the pixel-centre transform of the area-resized photographs.
     cameras=np.asarray([[1,0,0,0,1,0,0,0,1,-float(i),0,0,
-            FOCAL_PIXELS*rx,FOCAL_PIXELS*ry,cx*rx,CY*ry]
+            FOCAL_PIXELS*rx,FOCAL_PIXELS*ry,(cx+.5)*rx-.5,(CY+.5)*ry-.5]
         for i,cx in enumerate((CX_LEFT,CX_RIGHT))],dtype=np.float64)
     native=NativeEngine().surface(np.asarray(images),cameras,6.,80.,planes,3,glb=glb,ply=ply)
     if 'meshError' in native:raise AssertionError('Real-photo surface gate rejected: '+native['meshError'])
