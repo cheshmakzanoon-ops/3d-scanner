@@ -100,3 +100,8 @@ def test_incomplete_zero_pass_failed_or_forged_status_events_fail(text):
 def test_different_names_cannot_reuse_current_and_mask_a_missing_test_index():
     text=transcript((0,0)).replace('current=2','current=1')
     with pytest.raises(ValueError,match='current indices'):m.instrumentation_counts(text)
+
+
+@pytest.mark.parametrize('text',[transcript((0,)).replace('INSTRUMENTATION_CODE: -1',''),transcript((0,)).replace('INSTRUMENTATION_CODE: -1','INSTRUMENTATION_CODE: 0'),transcript((0,)).replace('OK (1 tests)','INSTRUMENTATION_STATUS: stream=OK (1 tests)')])
+def test_missing_failed_or_embedded_completion_cannot_qualify(text):
+    with pytest.raises(ValueError):m.instrumentation_counts(text)

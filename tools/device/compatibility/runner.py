@@ -28,10 +28,11 @@ def select_serial(listing, requested=None):
 
 
 def test_count(output):
-    found = re.search(r'OK \((\d+) tests?\)', output)
-    if not found or int(found[1]) < 1 or any(x in output for x in ('FAILURES!!!', 'INSTRUMENTATION_FAILED', 'Process crashed', 'INSTRUMENTATION_ABORTED')):
+    summaries = re.findall(r'^OK \((\d+) tests?\)\s*$', output, re.MULTILINE)
+    completed = re.findall(r'^INSTRUMENTATION_CODE: (-?\d+)\s*$', output, re.MULTILINE)
+    if len(summaries) != 1 or completed != ['-1'] or int(summaries[0]) < 1 or any(x in output for x in ('FAILURES!!!', 'INSTRUMENTATION_FAILED', 'Process crashed', 'INSTRUMENTATION_ABORTED')):
         raise ValueError('Instrumentation failed or did not execute any tests')
-    return int(found[1])
+    return int(summaries[0])
 
 
 def instrumentation_counts(output):
