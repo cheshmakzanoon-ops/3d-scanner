@@ -10,7 +10,7 @@
       "numpy": "2.2.6",
       "opencv-python-headless": "4.12.0.88",
       "scikit-image": "0.25.2",
-      "pytest": "8.4.1",
+      "pytest": "9.0.3",
       "trimesh": "4.5.3",
       "scipy": "1.18.1",
       "Pillow": "13.0.0"
@@ -35,20 +35,20 @@
       "binarySha256": "0dfe9af0f3e67643ecf15327fa5e14e7315f61d1a81afdcafe76a71b1918e2b4"
     },
     "lockSha256": {
-      "qa-requirements.lock": "bd2e132b4916a50b5a755d4f4dcd0d7922c2a7ac7e487bab8bd9a82e876a3da1",
+      "qa-requirements.lock": "095f55cc9cc8ec1d6ab5e8ee5f08fef8da8cb336358728fe81d546cb5d060b48",
       "security-requirements.lock": "a4a0176a006636f295065f8420aca5ea2b418379b3a21fc096801e533d6c1295",
       "qa-tools.json": "86ba8965ac6d74561a1aaf125a32193099aad2d0fd63bca44545767f8a9d9001"
     },
-    "activation": "/workspace/campaign/evidence/095/ci-qa/activate.sh"
+    "activation": "/workspace/campaign/evidence/095/pytest-fix/ci-qa/activate.sh"
   },
   "functionalTests": {
     "result": "PASS",
-    "passed": 25,
+    "passed": 31,
     "command": "source ROOT/activate.sh; python -m pytest tests/test_export_interoperability.py tests/test_security_evidence.py",
-    "logSha256": "55a078de589bd4650d5f4e6b92c024e13d40c1905ce8c6d58f5e13c9fdf38c82",
+    "logSha256": "3006112bd262876f802ad5736bcac6fa7847023f3c9fbdf41f450195f2094e15",
     "sourceCommits": {
       "090": "50d224e7cfbcb3b5d17df006da723560fb38b962",
-      "096": "6e4cbee9d47beebf6978164f5a87b618aec08c56"
+      "096": "a9ab00942b90cad654b8ba75fdc3496a9fbc10f1"
     }
   },
   "limitations": [

@@ -72,3 +72,10 @@ by004 to their matching module paths; verification metadata includes these actua
 artifacts. ErrorProne2.26.1 is compile-only test metadata; real CLASS-retention annotation
 classes resolve testR8 without shipping JDK compiler model types. Official bundletool
 1.18.2 is an external Apache2.0 QA tool with pinned hash and preserved license text.
+
+
+Pytest is pinned to9.0.3 in both owned scientific/QA locks after actual pip-audit
+identified PYSEC-2026-1845 in8.4.1. The exact wheel hash is independently verified
+against PyPI9.0.3 metadata. Direct full-QA inputs are qa-requirements.in; all existing
+other distribution pins remain unchanged. Use the hashed lock for CI bootstrap, not
+the older004 input pending its source-owner update. App/runtime graph is unchanged.
