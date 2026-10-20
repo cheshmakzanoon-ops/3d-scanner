@@ -258,10 +258,12 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         }
     }
     progress::advance(sampleOrder.size());
-    const auto initialTopology=analyzeMeshTopology(mesh);
-    auto cleaned=applyMeshCleanup(mesh,planMeshCleanup(mesh,initialTopology));
-    mesh=std::move(cleaned.mesh);
-    mesh.topology.removedExactDefects=cleaned.plan.removedFaces.size();
+    {
+        const auto initialTopology=analyzeMeshTopology(mesh);
+        auto cleaned=applyMeshCleanup(mesh,planMeshCleanup(mesh,initialTopology));
+        mesh=std::move(cleaned.mesh);
+        mesh.topology.removedExactDefects=cleaned.plan.removedFaces.size();
+    } // release first diagnostic/copy before normal compaction and final report
     // Area-weighted normals from accepted geometry; no normal guesses in holes.
     for(auto& t:mesh.triangles){
         const auto n=cross(sub(mesh.vertices[t.b].xyz,mesh.vertices[t.a].xyz),
