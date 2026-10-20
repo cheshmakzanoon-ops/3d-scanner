@@ -14,8 +14,8 @@ struct Fixture {
     SurfaceAsset view()const{PointAsset p;p.positions=positions;p.representation=Representation::ObservedSurface;
         p.provenance={"synthetic-grid","",std::string(64,'a'),"analytic-v1"};return {p,indices};}
 };
-Fixture grid(double offset=0){Fixture f;for(int y=0;y<5;++y)for(int x=0;x<5;++x){f.positions.push_back({x+offset,double(y),0});f.uv.push_back({x/4.0,y/4.0});}
-    for(std::uint32_t y=0;y<4;++y)for(std::uint32_t x=0;x<4;++x){auto a=y*5+x;for(auto v:{a,a+1,a+5,a+1,a+6,a+5})f.indices.push_back(v);}
+Fixture grid(double offset=0,std::uint32_t edge=5){Fixture f;for(std::uint32_t y=0;y<edge;++y)for(std::uint32_t x=0;x<edge;++x){f.positions.push_back({x+offset,double(y),0});f.uv.push_back({double(x)/(edge-1),double(y)/(edge-1)});}
+    for(std::uint32_t y=0;y+1<edge;++y)for(std::uint32_t x=0;x+1<edge;++x){auto a=y*edge+x;for(auto v:{a,a+1,a+edge,a+1,a+edge+1,a+edge})f.indices.push_back(v);}
     return f;}
 template<class F>void fails(F fn){bool failed=false;try{fn();}catch(const Error&){failed=true;}assert(failed);}
 std::size_t components(const SurfaceAsset& a){std::vector<unsigned> groups(a.vertices.positions.size());for(unsigned i=0;i<groups.size();++i)groups[i]=i;
@@ -54,6 +54,17 @@ int main(int argc,char** argv){
 #endif
     r.targetTriangles=24;r.maximumUvDisplacement=.3;auto textured=simplifySurface(f.view(),r,f.uv);assert(textured.report.maximumUvDisplacement<=.3);assert(textured.geometry.uv.size()==textured.geometry.positions.size());
     r.maximumUvDisplacement=0;fails([&]{simplifySurface(f.view(),r,f.uv);});
+    // A one-cell-wide observed strip has only boundary vertices: refuse rather
+    // than erasing its thin structure to manufacture a requested triangle count.
+    auto strip=f;strip.indices.resize(24);r.targetTriangles=6;r.maximumDisplacement=10;
+    fails([&]{simplifySurface(strip.view(),r);});assert(strip.indices.size()==24);
+    // Distinct identities at the same interior position encode a chart seam.
+    auto seam=f;seam.positions.push_back(seam.positions[12]);seam.uv.push_back(seam.uv[12]);
+    for(auto& i:seam.indices)if(i==12){i=25;break;}
+    r.targetTriangles=30;r.maximumDisplacement=1.5;r.maximumUvDisplacement=.3;
+    auto seamed=simplifySurface(seam.view(),r,seam.uv);
+    unsigned seamVertices=0;for(auto p:seamed.geometry.positions)if(p.x==2&&p.y==2)++seamVertices;assert(seamVertices==2);
+    r.targetTriangles=24;r.maximumUvDisplacement=0;
     r.maximumDisplacement=.1;fails([&]{simplifySurface(f.view(),r);});
     r.maximumDisplacement=1.5;fails([&]{simplifySurface(f.view(),r,{},[]{return true;});});
     r.maximumWork=10;fails([&]{simplifySurface(f.view(),r);});r.maximumWork=20'000'000;
@@ -65,5 +76,12 @@ int main(int argc,char** argv){
 #ifdef RF_WITH_TOPOLOGY
     independentTopology(closed.geometry,1,0);
 #endif
+    // A meaningful 20,000-face reduction must fit a declared work budget;
+    // rescanning every face for every collapsed edge cannot pass this gate.
+    auto large=grid(0,101);LodRecipe bounded;bounded.targetTriangles=10000;
+    bounded.maximumDisplacement=3;bounded.maximumWork=2'000'000;
+    auto reduced=simplifySurface(large.view(),bounded);
+    assert(reduced.geometry.indices.size()==30000&&reduced.report.work<=bounded.maximumWork);
+    assert(reduced.report.maximumVertexDisplacement<=3);
     std::cout<<"agent065: deterministic open/closed/disconnected/UV/error/budget/cancellation checks passed\n";
 }

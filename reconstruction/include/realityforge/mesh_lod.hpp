@@ -28,7 +28,7 @@ struct LodReport {
     std::size_t inputTriangles{}, outputTriangles{}, collapsedEdges{}, lockedVertices{}, work{};
     double maximumVertexDisplacement{}, maximumUvDisplacement{};
     std::string parentAssetId, sourceSha256;
-    static constexpr const char* algorithmVersion = "rf-constrained-endpoint-lod-v1";
+    static constexpr const char* algorithmVersion = "rf-constrained-endpoint-lod-v2";
 };
 struct LodResult { LodGeometry geometry; LodReport report; };
 // Never modifies input. Refuses unmet targets, nonmanifold topology, degenerate

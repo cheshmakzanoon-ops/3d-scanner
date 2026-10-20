@@ -48,6 +48,7 @@ LodResult simplifySurface(const SurfaceAsset& input,const LodRecipe& recipe,std:
     report.inputTriangles=input.indices.size()/3;report.parentAssetId=g.provenance.parentId;report.sourceSha256=g.provenance.sourceSha256;
     std::vector<Face> faces;
     for(std::size_t i=0;i<input.indices.size();i+=3){
+        if(i%3072==0)checkCancelled(cancel);
         Face f{input.indices[i],input.indices[i+1],input.indices[i+2]};
         if(f[0]==f[1]||f[1]==f[2]||f[0]==f[2]||!(length(normal(f,g.positions))>0))throw Error("LOD degenerate source face");
         faces.push_back(f);
@@ -58,8 +59,9 @@ LodResult simplifySurface(const SurfaceAsset& input,const LodRecipe& recipe,std:
     // Multiple vertex identities at the same position encode chart/material or
     // sharp-normal discontinuities. Never weld or move those identities.
     std::map<std::tuple<double,double,double>,std::vector<std::uint32_t>> coincident;
-    for(std::uint32_t i=0;i<count;++i){auto p=g.positions[i];coincident[{p.x,p.y,p.z}].push_back(i);}
+    for(std::uint32_t i=0;i<count;++i){if(i%1024==0)checkCancelled(cancel);auto p=g.positions[i];coincident[{p.x,p.y,p.z}].push_back(i);}
     for(const auto& [p,ids]:coincident){(void)p;if(ids.size()>1)for(auto i:ids)locked[i]=true;}
+    coincident.clear();
     auto consume=[&](std::size_t work){if(work>recipe.maximumWork-report.work)throw Error("LOD work budget exhausted; master preserved");report.work+=work;checkCancelled(cancel);};
     std::set<Face> unique;
     for(auto f:faces)if(!unique.insert(key(f)).second)throw Error("LOD duplicate source face");
@@ -69,16 +71,43 @@ LodResult simplifySurface(const SurfaceAsset& input,const LodRecipe& recipe,std:
         if(incidence>2)throw Error("LOD refuses nonmanifold source edges");
         if(incidence==1)locked[e.first]=locked[e.second]=true;
     }
+    // Reject pinched/bow-tie vertex links as well as nonmanifold edges.
+    std::vector<std::vector<std::size_t>> initialIncident(count);
+    for(std::size_t i=0;i<faces.size();++i)for(auto v:faces[i])initialIncident[v].push_back(i);
+    consume(faces.size()*3);
+    for(std::uint32_t vertex=0;vertex<count;++vertex){
+        if(vertex%256==0)checkCancelled(cancel);
+        if(initialIncident[vertex].empty())continue;
+        std::map<std::uint32_t,std::vector<std::uint32_t>> ring;
+        for(auto i:initialIncident[vertex]){
+            std::array<std::uint32_t,2> other{};unsigned k=0;
+            for(auto v:faces[i])if(v!=vertex)other[k++]=v;
+            ring[other[0]].push_back(other[1]);ring[other[1]].push_back(other[0]);
+        }
+        unsigned ends=0;
+        for(const auto& [v,adjacent]:ring){(void)v;if(adjacent.size()>2)throw Error("LOD refuses nonmanifold vertex links");if(adjacent.size()==1)++ends;}
+        std::set<std::uint32_t> visited;std::vector<std::uint32_t> pending{ring.begin()->first};
+        while(!pending.empty()){
+            if(visited.size()%1024==0)checkCancelled(cancel);
+            auto v=pending.back();pending.pop_back();if(!visited.insert(v).second)continue;
+            for(auto next:ring.at(v))pending.push_back(next);
+        }
+        if(visited.size()!=ring.size()||(ends!=0&&ends!=2))throw Error("LOD refuses disconnected/nonmanifold vertex links");
+    }
+    initialEdges.clear();
+    std::vector<std::vector<std::size_t>>().swap(initialIncident);
     while(faces.size()>recipe.targetTriangles){
         consume(faces.size()*3);
         std::map<Edge,std::vector<std::uint32_t>> edges;
         std::vector<std::set<std::uint32_t>> neighbors(count);
-        for(auto f:faces)for(unsigned i=0;i<3;++i){
-            auto a=f[i],b=f[(i+1)%3],c=f[(i+2)%3];edges[edge(a,b)].push_back(c);neighbors[a].insert(b);neighbors[b].insert(a);
-        }
-        for(const auto& [e,opposite]:edges){
-            if(opposite.size()>2)throw Error("LOD refuses nonmanifold source edges");
-            if(opposite.size()==1)locked[e.first]=locked[e.second]=true;
+        std::vector<std::vector<std::size_t>> incident(count);
+        for(std::size_t index=0;index<faces.size();++index){
+            if(index%1024==0)checkCancelled(cancel);
+            auto f=faces[index];
+            for(unsigned i=0;i<3;++i){
+                auto a=f[i],b=f[(i+1)%3],c=f[(i+2)%3];
+                edges[edge(a,b)].push_back(c);neighbors[a].insert(b);neighbors[b].insert(a);incident[a].push_back(index);
+            }
         }
         struct Candidate { double cost;std::uint32_t keep,remove; };
         std::vector<Candidate> candidates;
@@ -87,37 +116,62 @@ LodResult simplifySurface(const SurfaceAsset& input,const LodRecipe& recipe,std:
             auto [a,b]=e;double cost=length(sub(g.positions[a],g.positions[b]));
             if(cost<=recipe.maximumDisplacement){candidates.push_back({cost,a,b});candidates.push_back({cost,b,a});}
         }
-        std::sort(candidates.begin(),candidates.end(),[](const auto& a,const auto& b){return std::tie(a.cost,a.keep,a.remove)<std::tie(b.cost,b.keep,b.remove);});
-        bool changed=false;
+        std::size_t comparisons=0;
+        std::sort(candidates.begin(),candidates.end(),[&](const auto& a,const auto& b){
+            if((++comparisons&4095U)==0)checkCancelled(cancel);
+            return std::tie(a.cost,a.keep,a.remove)<std::tie(b.cost,b.keep,b.remove);
+        });
+        std::vector<bool> touched(count,false),alive(faces.size(),true);
+        std::size_t aliveCount=faces.size();bool changed=false;
+        // Disjoint endpoint stars can be collapsed in one pass. Once any face in
+        // a vertex's star changes, defer that vertex to the next rebuilt pass.
         for(auto candidate:candidates){
             auto a=candidate.keep,b=candidate.remove;
-            consume(faces.size()+members[b].size());
+            if(touched[a]||touched[b])continue;
+            std::vector<std::size_t> affected;
+            std::set_union(incident[a].begin(),incident[a].end(),incident[b].begin(),incident[b].end(),std::back_inserter(affected));
+            consume(affected.size()+members[b].size());
             std::vector<std::uint32_t> intersection;
             std::set_intersection(neighbors[a].begin(),neighbors[a].end(),neighbors[b].begin(),neighbors[b].end(),std::back_inserter(intersection));
             auto opposite=edges.at(edge(a,b));std::sort(opposite.begin(),opposite.end());
-            // Link condition preserves manifold topology and connected components.
-            if(intersection!=opposite)continue;
+            if(intersection!=opposite)continue; // Manifold link condition.
             double deviation=report.maximumVertexDisplacement,uvDeviation=report.maximumUvDisplacement;
             for(auto original:members[b]){
                 deviation=std::max(deviation,length(sub(input.vertices.positions[original],g.positions[a])));
                 if(!uv.empty())uvDeviation=std::max(uvDeviation,std::hypot(uv[original].x-uv[a].x,uv[original].y-uv[a].y));
             }
             if(deviation>recipe.maximumDisplacement||uvDeviation>recipe.maximumUvDisplacement)continue;
-            std::vector<Face> next;next.reserve(faces.size());std::set<Face> nextKeys;bool valid=true;
-            for(auto f:faces){
-                auto before=normal(f,g.positions);
+            for(auto i:affected)unique.erase(key(faces[i]));
+            std::map<std::size_t,Face> replacements;std::set<Face> nextKeys;
+            std::vector<std::size_t> removed;bool valid=true;
+            for(auto i:affected){
+                auto f=faces[i];const auto before=normal(f,g.positions);
                 for(auto& v:f)if(v==b)v=a;
-                if(f[0]==f[1]||f[1]==f[2]||f[0]==f[2])continue;
+                if(f[0]==f[1]||f[1]==f[2]||f[0]==f[2]){removed.push_back(i);continue;}
                 auto after=normal(f,g.positions);double la=length(after),lb=length(before);
-                if(!(la>0)||dot(before,after)<recipe.minimumNormalCosine*la*lb||!nextKeys.insert(key(f)).second){valid=false;break;}
-                next.push_back(f);
+                if(!(la>0)||dot(before,after)<recipe.minimumNormalCosine*la*lb||unique.contains(key(f))||!nextKeys.insert(key(f)).second){valid=false;break;}
+                replacements.emplace(i,f);
             }
-            if(!valid||next.size()<recipe.targetTriangles||next.size()==faces.size())continue;
-            faces.swap(next);members[a].insert(members[a].end(),members[b].begin(),members[b].end());members[b].clear();
+            if(!valid||removed.empty()||aliveCount-removed.size()<recipe.targetTriangles){
+                for(auto i:affected)unique.insert(key(faces[i]));
+                continue;
+            }
+            for(auto i:removed)alive[i]=false;
+            aliveCount-=removed.size();
+            for(const auto& [i,f]:replacements)faces[i]=f;
+            unique.insert(nextKeys.begin(),nextKeys.end());
+            for(auto v:neighbors[a])touched[v]=true;
+            for(auto v:neighbors[b])touched[v]=true;
+            touched[a]=touched[b]=true;
+            members[a].insert(members[a].end(),members[b].begin(),members[b].end());members[b].clear();
             report.maximumVertexDisplacement=deviation;report.maximumUvDisplacement=uvDeviation;
-            ++report.collapsedEdges;changed=true;break;
+            ++report.collapsedEdges;changed=true;
+            if(aliveCount==recipe.targetTriangles)break;
         }
         if(!changed)throw Error("LOD target cannot be reached within boundary, seam, topology and error constraints");
+        std::vector<Face> compactFaces;compactFaces.reserve(aliveCount);
+        for(std::size_t i=0;i<faces.size();++i)if(alive[i])compactFaces.push_back(faces[i]);
+        faces.swap(compactFaces);
     }
     report.lockedVertices=std::count(locked.begin(),locked.end(),true);report.outputTriangles=faces.size();
     // Compact only vertices still referenced, preserving every surviving attribute.
