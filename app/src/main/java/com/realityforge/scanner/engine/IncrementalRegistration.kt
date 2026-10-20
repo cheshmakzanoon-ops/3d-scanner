@@ -196,7 +196,8 @@ internal object IncrementalRegistration {
                 for(camera in window){if(neighbors!=null && photo !in neighbors(camera.photo) && camera.photo !in neighbors(photo))continue
                     val links=pair(camera.photo,photo);maps[camera.photo]=links.first.indices.associate { links.first[it] to links.second[it] }}
                 val rows=candidateRows(landmarks.map {it.xyz},landmarks.map {it.features},maps,templates[photo])
-                if(rows.size/5<16){failures[photoIds[photo]]="Fewer than16 unambiguous two-view-supported landmarks";continue}
+                if(rows.size/5<16){val reason="Fewer than16 unambiguous two-view-supported landmarks";failures[photoIds[photo]]=reason
+                    attempts.add(RegistrationAttempt(photo,cameras.size,rows.size/5,false,reason));continue}
                 ranked.add(photo to rows);ranked.sortWith(compareByDescending<Pair<Int,DoubleArray>>{it.second.size}.thenBy {photoIds[it.first]});if(ranked.size>8)ranked.removeAt(ranked.lastIndex)
             }
             for ((step,candidate) in ranked.withIndex()) {

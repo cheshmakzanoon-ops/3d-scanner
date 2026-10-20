@@ -43,15 +43,24 @@ class IncrementalNativeRegistrationTest {
         val anchor0=RegisteredFrame(0,templates[0])
         val anchor1=RegisteredFrame(1,templates[1].copy(translation=doubleArrayOf(-.45,0.0,0.0)))
         val matchCalls=mutableSetOf<Pair<Int,Int>>()
-        val result=IncrementalRegistration.grow(templates,listOf(anchor0,anchor1),
-            { a,b ->
+        val matcher:suspend (Int,Int)->FeaturePairs = { a,b ->
                 matchCalls.add(a to b)
                 val destinations=ids[b].withIndex().associate { it.value to it.index }
                 val shared=ids[a].withIndex().mapNotNull { entry ->
                     destinations[entry.value]?.let { entry.index to it }
                 }
                 FeaturePairs(shared.map { it.first }.toIntArray(),shared.map { it.second }.toIntArray())
-            },NativeFrontierGeometry::triangulate,NativeFrontierGeometry::register)
+            }
+        var checkpoint:com.realityforge.scanner.engine.registration.RegistrationFrontier?=null
+        val photoIds=physicalOrder.map {"synthetic-physical-$it"}
+        val result=IncrementalRegistration.grow(templates,listOf(anchor0,anchor1),matcher,
+            NativeFrontierGeometry::triangulate,NativeFrontierGeometry::register,photoIds=photoIds,checkpoint={checkpoint=it})
+        val persisted=com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(requireNotNull(checkpoint).encode())
+        val resumed=IncrementalRegistration.grow(templates,listOf(anchor0,anchor1),matcher,
+            NativeFrontierGeometry::triangulate,NativeFrontierGeometry::register,photoIds=photoIds,resume=persisted)
+        assertEquals(result.cameras.map {it.photo},resumed.cameras.map {it.photo})
+        assertEquals(result.unregistered,resumed.unregistered)
+        for(i in result.cameras.indices){assertArrayEquals(result.cameras[i].view.translation,resumed.cameras[i].view.translation,0.0)}
         assertEquals("Only the deliberately disconnected camera should remain",listOf(5),result.unregistered)
         assertEquals(listOf(0,1,4,3,2),result.cameras.map { it.photo })
         assertTrue(result.attempts.any { it.photo==2 && !it.accepted })
