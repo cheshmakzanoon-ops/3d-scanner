@@ -34,7 +34,7 @@ inline Admission admit(std::size_t views,std::size_t pixels,std::size_t samples,
 inline bool voxelCoordinate(double coordinate,double voxel,long long& out){
  if(!std::isfinite(coordinate)||!std::isfinite(voxel)||voxel<=0)return false;
  const long double q=std::floor(static_cast<long double>(coordinate)/voxel);
- if(q<static_cast<long double>(std::numeric_limits<long long>::min())||q>static_cast<long double>(std::numeric_limits<long long>::max()))return false;
+ if(q<static_cast<long double>(std::numeric_limits<long long>::min())||q>=-static_cast<long double>(std::numeric_limits<long long>::min()))return false;
  out=static_cast<long long>(q);return true;
 }
 }

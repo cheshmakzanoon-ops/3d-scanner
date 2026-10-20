@@ -40,7 +40,7 @@ std::vector<rf::DenseView> fixture(int count=3,bool texture=true,bool occlude=fa
     return views;
 }
 int main(){
- long long voxel=0;assert(!rf::tiles::voxelCoordinate(1e300,.003,voxel));assert(!rf::tiles::voxelCoordinate(-1e300,.003,voxel));assert(rf::tiles::voxelCoordinate(-.5,.1,voxel)&&voxel==-5);
+ long long voxel=0;assert(!rf::tiles::voxelCoordinate(std::ldexp(1.,63),1,voxel));assert(!rf::tiles::voxelCoordinate(1e300,.003,voxel));assert(!rf::tiles::voxelCoordinate(-1e300,.003,voxel));assert(rf::tiles::voxelCoordinate(-.5,.1,voxel)&&voxel==-5);
  auto tiles=rf::tiles::plan(104,76,3,2,3,24);std::vector<int> visits(104*76);
  for(const auto& t:tiles){assert(t.haloX0<=t.x0&&t.haloY0<=t.y0&&t.haloX1>=t.x1&&t.haloY1>=t.y1);for(int y=t.y0;y<t.y1;y+=2)for(int x=t.x0;x<t.x1;x+=2)++visits[y*104+x];}
  for(int y=3;y<72;y+=2)for(int x=3;x<100;x+=2)assert(visits[y*104+x]==1);
