@@ -36,7 +36,7 @@ inline Aggregation aggregate(std::span<const Cost> costs,bool robust=false){
     std::array<double,7> values{};std::size_t n=0;
     for(const auto& c:costs)if(c.valid){if(!std::isfinite(c.value)||c.value<0||c.value>2)throw std::invalid_argument("Invalid cost");values[n++]=c.value;}
     if(!n)return {};
-    std::sort(values.begin(),values.begin()+n);
+    for(std::size_t i=1;i<n;++i){const double value=values[i];std::size_t j=i;while(j>0&&values[j-1]>value){values[j]=values[j-1];--j;}values[j]=value;}
     const double median=values[n/2];
     return {robust?median:values[0],n,values[n-1]-values[0],true};
 }
