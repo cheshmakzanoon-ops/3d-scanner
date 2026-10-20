@@ -111,3 +111,12 @@ mismatches and altered packaged index/text bytes; auditing the debug package aga
 the123-module release inventory is invalid. Normal004 build locking activates only
 the14 explicitly approved debug/release configurations; CI does not require an init
 script solely for activation once that source-owner integration is present.
+
+Agent100's final097 registration adds exactly three app target configurations to the
+bounded ordinary-build locking list: benchmarkRuntimeClasspath,
+benchmarkCompileClasspath and kspBenchmarkKotlinProcessorClasspath. Export the actual
+app target with `-PrfInventoryScope=benchmark :app:exportDependencyInventory` and
+verify its module/artifact set against the existing release inventory; the target
+inherits that graph and adds only benchmark source/fixtures. The self-instrumenting
+driver owns its separate two-configuration lock and approved QA benchmark inventory.
+Physical metrics are independent of compilation and remain unavailable here.
