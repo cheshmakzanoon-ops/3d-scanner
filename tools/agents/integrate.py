@@ -3,6 +3,7 @@
 import argparse
 import json
 from pathlib import Path
+import shlex
 import subprocess
 import sys
 
@@ -14,7 +15,7 @@ def main():
     p.add_argument('--agent', required=True)
     p.add_argument('--source-sha', required=True)
     p.add_argument('--base', required=True)
-    p.add_argument('--check', nargs='+', action='append', default=[])
+    p.add_argument('--check', action='append', default=[], help='Quoted command, parsed into argv without a shell')
     a = p.parse_args()
     rows = roster((ROOT / 'PRODUCTION_100_AGENT_EXECUTION_PLAN.md').read_text())
     agent = a.agent.zfill(3)
@@ -53,7 +54,10 @@ def main():
     subprocess.run(['git', 'add', 'SOURCE_MANIFEST.sha256'], cwd=ROOT, check=True)
     subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'index'], cwd=ROOT, check=True)
     subprocess.run(['git', 'diff', '--check', '--cached'], cwd=ROOT, check=True)
-    for command in a.check:
+    for text in a.check:
+        command = shlex.split(text)
+        if not command:
+            raise ValueError('Empty verification command')
         # No shell interpretation; keep supplied argv and subprocess exit status.
         completed = subprocess.run(command, cwd=ROOT)
         if completed.returncode:
