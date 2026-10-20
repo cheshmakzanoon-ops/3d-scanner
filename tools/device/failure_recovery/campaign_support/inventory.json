@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "role": "088",
+  "archived_at_utc": "2026-10-20T10:49:32.357541+00:00",
+  "reason": "User requested stop and commit all existing authored helper source",
+  "execution_after_stop": "NOT_RUN",
+  "qualification": "No new PASS or source/APK binding is inferred from source archival",
+  "helpers": [
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/diagnose-after-proxy-timeout.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/diagnose-after-proxy-timeout.py",
+      "sha256": "802b8a7eff81701479748d3c8c34216ace6f538a35d459a41edc9b59aac72f3b",
+      "bytes": 1690,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/diagnose-fresh5582-read-stall.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/diagnose-fresh5582-read-stall.py",
+      "sha256": "c18121a53e47655308ff50927b889a82c789bc388d9e02a84108a78b054d59da",
+      "bytes": 2706,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/diagnose-post-reboot-bootstrap.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/diagnose-post-reboot-bootstrap.py",
+      "sha256": "66c18e58ede9bf7db4ba0fcbe95a2d6398b4064b4700ac98318afa1c3d2d0009",
+      "bytes": 1979,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-final-recovery-on-5580.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-final-recovery-on-5580.py",
+      "sha256": "b599c326b933ee59b9cf5bf3ea3e525e5386a883adf259ebbd63d440a99dc7d4",
+      "bytes": 4174,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-own-java-provider-7f1bc03-on-5580.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-own-java-provider-7f1bc03-on-5580.py",
+      "sha256": "26b15228fda8b490a01f78f98f418229c45dcada9fd3eb5817efd686fcc5be3a",
+      "bytes": 5142,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-own-java-provider-adcfb49-on-5580.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-own-java-provider-adcfb49-on-5580.py",
+      "sha256": "29bfd96e3b99275d884ddf7bbf66c60ca83b26c9f6d720f8dce7f490e652d7c9",
+      "bytes": 5142,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-own-java-provider-on-5580.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-own-java-provider-on-5580.py",
+      "sha256": "e9d67b5e8943cc3d63bf10e27c1442f459e8ae57a029546d9d4a1ea9f21b0424",
+      "bytes": 5145,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-own-single-provider-parser-on-5580.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-own-single-provider-parser-on-5580.py",
+      "sha256": "02670e90d85087d37799756996d08749f34c764940dec0b6849be1bb8f387245",
+      "bytes": 3159,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-provider-after-reboot.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-provider-after-reboot.py",
+      "sha256": "e2162803cc5aba92311d5da56f50e4418a8d34200cc2ea54f8efbbc4e4a2b3a6",
+      "bytes": 6328,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-provider-anchor-fresh5584.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-provider-anchor-fresh5584.py",
+      "sha256": "a5c75780e9d2aee1ae763bcb6f878da3c89519eb41e85242995479af8dfba7fd",
+      "bytes": 6991,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/088/run-provider-fresh5582.py",
+      "archived_relative": "tools/device/failure_recovery/campaign_support/evidence/run-provider-fresh5582.py",
+      "sha256": "36cea29bd987a8c398e2fbab3b70a2781620867df50629e95b18c042dd873787",
+      "bytes": 6992,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    }
+  ],
+  "excluded": []
+}
