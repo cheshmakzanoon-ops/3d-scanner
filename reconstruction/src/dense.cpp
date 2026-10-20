@@ -200,8 +200,9 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         coarseMaps=std::move(coarseResult.maps);result.coarseDepthMaps=coarseMaps.size();
     }
     std::ostringstream settingsText;settingsText.imbue(std::locale::classic());settingsText<<std::hexfloat<<"tile-cpu-v1|"<<settings.nearDepth<<'|'<<settings.farDepth<<'|'<<settings.depthPlanes<<'|'<<step<<'|'<<r<<'|'<<settings.minimumNcc<<'|'<<settings.minUniqueness<<'|'<<settings.depthConsistencyFraction<<'|'<<settings.maxPoints<<'|'<<settings.executionVersion<<'|'<<settings.tileEdge<<'|'<<settings.workingSetBudgetBytes<<'|'<<settings.referenceMode<<'|'<<settings.discontinuityAwareConsistency<<'|'<<settings.localRefinementIterations<<'|'<<settings.robustSourceAggregation<<'|'<<(inputs?inputs->identitySha256:std::string("none"));
-    const auto solverIdentity=settingsText.str();
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
+    settingsText<<"|sources:";for(std::size_t ref=0;ref<result.sourceViews.size();++ref){settingsText<<ref<<':';for(auto source:result.sourceViews[ref])settingsText<<source<<',';settingsText<<';';}
+    const auto solverIdentity=settingsText.str();
     result.consistentPixelsPerView.assign(views.size(),0);
     result.maps.reserve(views.size());
     result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,MAX_DENSE_SAMPLES));
