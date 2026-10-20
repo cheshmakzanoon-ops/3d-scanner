@@ -591,6 +591,13 @@
       "branch": "agents/004-build-foundation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "c0b70cafcbe67839ba0d366721f1ef7d9ade387d",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
