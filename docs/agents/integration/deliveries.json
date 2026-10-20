@@ -626,6 +626,13 @@
       "branch": "agents/095-dependency-notices-sbom",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "097",
+      "source_sha": "86bafc3d570cf1bafaaf3940e2c11e1c970c294e",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

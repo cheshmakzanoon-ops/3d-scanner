@@ -1,4 +1,4 @@
-# UI performance protocol a097-ui-performance-v1
+# UI performance protocol a097-ui-performance-v2
 
 Freeze `tools/device/ui_performance/protocol.json` before accepting a measured result.
 Its initial qualification budgets are cold startup p95≤3000ms, warm startup p95≤1000ms,
@@ -29,7 +29,7 @@ After conventions are applied:
 ```
 gradle :app:assembleBenchmark :macrobenchmark:assembleBenchmark
 python tools/device/ui_performance/validate_target.py --target-apk app/build/outputs/apk/benchmark/app-benchmark.apk --benchmark-apk macrobenchmark/build/outputs/apk/benchmark/macrobenchmark-benchmark.apk --mapping app/build/outputs/mapping/benchmark/mapping.txt --output /tmp/benchmark-target.json
-python tools/device/ui_performance/run.py --serial DEVICE --apk app/build/outputs/apk/benchmark/app-benchmark.apk --ambient-c 22 --refresh-rate-hz 60 --output /tmp/ui-run
+python tools/device/ui_performance/run.py --serial DEVICE --apk app/build/outputs/apk/benchmark/app-benchmark.apk --benchmark-apk macrobenchmark/build/outputs/apk/benchmark/macrobenchmark-benchmark.apk --ambient-c 22 --refresh-rate-hz 60 --output /tmp/ui-run
 python tools/device/ui_performance/report.py PATH_TO_ACTUAL_ANDROIDX_BENCHMARK_JSON --context /tmp/ui-run/context.json --output /tmp/ui-report.json
 ```
 
@@ -42,6 +42,15 @@ post-run meminfo snapshot and marks required fixture peak/input counters unavail
 Use087 sampler and069 timing adapter for full qualification; current report therefore
 remains NOT_RUN until real bounded fixture-specific peak/input evidence is supplied.
 
+Version2 keeps every numeric budget unchanged and tightens candidate identity before
+any physical qualification exists. Start from a clean source checkout; archive generated
+Room schemas outside it after building. The runner binds the full source commit and
+both supplied target/driver APK hashes, verifies their actual installed package hashes,
+and repeats those checks after every Gradle invocation. A rebuilt or stale-installed
+candidate fails and records executionStatus=FAIL rather than describing it with the
+original hash. Raw-suite completion remains distinct from a measured budget pass.
+Profile comparisons also require the identical benchmark driver.
+
 Generate a proposed profile with
 `gradle :macrobenchmark:connectedBenchmarkAndroidTest
 -Pandroid.testInstrumentationRunnerArguments.class=com.realityforge.scanner.macrobenchmark.BaselineProfileGenerator`.
@@ -53,6 +62,6 @@ repeat paired campaigns and inspect trace distributions before owner acceptance.
 No baseline-prof.txt is retained without the required physical measurements. A measured
 no-benefit result is valid and must leave the optional optimization absent.
 
-Current machine has no KVM or connected handset. Physical startup/viewer qualification,
+Cloud software emulators support functional checks; no physical ARM64 handset is connected. Physical startup/viewer qualification,
 GPU/peak/input timing and baseline-profile comparison are BLOCKED_EXTERNAL/NOT_RUN.
 Compilation/fixture/report checks establish runnable harnesses only.

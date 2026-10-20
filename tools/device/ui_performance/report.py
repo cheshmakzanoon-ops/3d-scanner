@@ -9,8 +9,10 @@ def percentile(values,p):
 def evaluate(document,context,protocol):
  missing=[k for k in protocol['requiredContext'] if k not in context]
  if missing:raise ValueError('Missing context: '+', '.join(missing))
- for key in ('appSha256','modelManifestSha256','protocolSha256'):
+ for key in ('appSha256','benchmarkApkSha256','installedAppSha256','installedBenchmarkApkSha256','modelManifestSha256','protocolSha256'):
   if not isinstance(context[key],str) or not re.fullmatch('[0-9a-f]{64}',context[key]):raise ValueError('Invalid identity: '+key)
+ if not isinstance(context['sourceSha'],str) or not re.fullmatch('[0-9a-f]{40}',context['sourceSha']):raise ValueError('Exact source identity required')
+ if context['executionStatus']!='COMPLETE' or context['installedAppSha256']!=context['appSha256'] or context['installedBenchmarkApkSha256']!=context['benchmarkApkSha256']:raise ValueError('Benchmark source/installed candidate execution was not verified')
  if not isinstance(context['deviceFingerprint'],str) or not context['deviceFingerprint']:raise ValueError('Missing device fingerprint')
  if not isinstance(context['ambientC'],(int,float)) or not math.isfinite(context['ambientC']):raise ValueError('Invalid ambient temperature')
  if not isinstance(context['refreshRateHz'],(int,float)) or not math.isfinite(context['refreshRateHz']) or context['refreshRateHz']<=0:raise ValueError('Invalid refresh rate')
@@ -44,7 +46,7 @@ def evaluate(document,context,protocol):
              unavailableCounters=unavailable,status='FAIL' if failures else 'NOT_RUN' if unavailable else 'PASS')
 def compare(before,after):
  if before['status']!='PASS' or after['status']!='PASS':raise ValueError('Both measured qualification runs must pass')
- keys=['deviceFingerprint','modelManifestSha256','ambientC','refreshRateHz','protocolSha256']
+ keys=['deviceFingerprint','benchmarkApkSha256','modelManifestSha256','ambientC','refreshRateHz','protocolSha256']
  if any(before['context'][k]!=after['context'][k] for k in keys):raise ValueError('Noncomparable baseline-profile conditions')
  if before['context'].get('unprofiledAppSha256')!=after['context'].get('unprofiledAppSha256') or not before['context'].get('unprofiledAppSha256'):raise ValueError('Same unprofiled build identity required')
  improvements=[]
