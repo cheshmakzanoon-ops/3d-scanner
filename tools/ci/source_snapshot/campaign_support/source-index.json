@@ -1,0 +1,54 @@
+{
+  "approved_delivery_before_archive": "4f9bc76c42c96f571ba885975b23bd204f148ef3",
+  "development": "STOPPED_BY_USER",
+  "executed_after_stop": false,
+  "helpers": [
+    {
+      "archive_path": "tools/ci/source_snapshot/campaign_support/check_incoming_sources.py",
+      "byte_identical_archive": true,
+      "kind": "Existing authored historical audit helper",
+      "original_path": "/workspace/campaign/evidence/094/check_incoming_sources.py",
+      "sha256": "891028e45e42a8af7fa1970554abdee222cbaac94249cea9b2b14ef8a606a94b"
+    },
+    {
+      "archive_path": "tools/ci/source_snapshot/campaign_support/audit_remote_delivery.py",
+      "byte_identical_archive": true,
+      "kind": "Existing authored historical audit helper",
+      "original_path": "/workspace/campaign/evidence/094/audit_remote_delivery.py",
+      "sha256": "f27db0870340b07a4213d2ecbb1136c0df7a98d6e60d353e4f577ac6f91ccaaa"
+    },
+    {
+      "archive_path": "tools/ci/source_snapshot/campaign_support/audit-campaign-86df647.py",
+      "byte_identical_archive": true,
+      "kind": "Frozen100 campaign.py Gitblob dependency snapshot at86df647bcdba4b110ad36dfb6ce572adb4261462",
+      "original_path": "/workspace/campaign/evidence/094/audit-campaign-86df647.py",
+      "sha256": "98bc558a95c5502a17e1225f6eb3ff876d9e3edee09d24ae31b08d28705d53b9"
+    }
+  ],
+  "limitations": [
+    "Helpers retain their original absolute campaign paths, fixture mutations and exact source revisions; they are historical and never automatic CI/startup tasks.",
+    "The frozen100 parser snapshot preserves the audit dependency. It is not the current100 validator and does not overwrite that owner source.",
+    "Incoming unmerged source interfaces and old frozen86 evidence are not final combined-product/device/release qualification."
+  ],
+  "observed_mixed_remote": "bf3c6ea2b0d8043a8ddb882d487473733de7228a",
+  "publication": "Pure archive commit supplied to Agent100 for preserving publication; no force-push or replacement of mixed remote history.",
+  "reports": [
+    {
+      "archive_path": "tools/ci/source_snapshot/campaign_support/reports/incoming-source-checks.json",
+      "byte_identical_archive": true,
+      "kind": "Existing historical source-only report",
+      "original_path": "/workspace/campaign/evidence/094/incoming-source-checks.json",
+      "sha256": "2e4212a3505634e24f933e3cc75a611d7d90127d1c8758ec1c4e76a1d057e9db"
+    },
+    {
+      "archive_path": "tools/ci/source_snapshot/campaign_support/reports/live-remote-094-ownership-audit.json",
+      "byte_identical_archive": true,
+      "kind": "Existing historical source-only report",
+      "original_path": "/workspace/campaign/evidence/094/live-remote-094-ownership-audit.json",
+      "sha256": "acdb2ae7a547cae6c2a5f67e8d74ff8d0b558dab1e05f358e4005cc3bf2fd066"
+    }
+  ],
+  "schema": 1,
+  "scope": "Preserve authored helpers and their exact frozen dependency/report bytes; no code execution after STOP and no new acceptance claim.",
+  "status": "ARCHIVED_EXISTING_BYTES_ONLY"
+}
