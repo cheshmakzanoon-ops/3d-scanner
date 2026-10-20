@@ -108,6 +108,13 @@
       "branch": "agents/085-photographic-texture-quality",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "082",
+      "source_sha": "6cc3465926186f0db10e58e2d3e30db638cbe2fe",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
