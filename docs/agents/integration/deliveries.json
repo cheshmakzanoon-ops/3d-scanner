@@ -486,6 +486,13 @@
       "branch": "agents/081-host-numerical-sanitizers",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "082",
+      "source_sha": "cea97b60370bed60f3a9f2e23cc092201c262a7c",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
