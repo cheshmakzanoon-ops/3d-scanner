@@ -1,0 +1,518 @@
+{
+  "schema": 1,
+  "entries": [
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_dense_middlebury.py",
+      "line": 82,
+      "rule": "B101",
+      "source_sha256": "sha256:250076aa4894a7e89f716afdcae3706dd7b8bf16f6f0e4a023028fc99fed3765",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_dense_middlebury.py",
+      "line": 83,
+      "rule": "B101",
+      "source_sha256": "sha256:250076aa4894a7e89f716afdcae3706dd7b8bf16f6f0e4a023028fc99fed3765",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_dense_middlebury.py",
+      "line": 84,
+      "rule": "B101",
+      "source_sha256": "sha256:250076aa4894a7e89f716afdcae3706dd7b8bf16f6f0e4a023028fc99fed3765",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_dense_middlebury.py",
+      "line": 85,
+      "rule": "B101",
+      "source_sha256": "sha256:250076aa4894a7e89f716afdcae3706dd7b8bf16f6f0e4a023028fc99fed3765",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 93,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 94,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 156,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 157,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 158,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 159,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 160,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 161,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 162,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 163,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_middlebury.py",
+      "line": 164,
+      "rule": "B101",
+      "source_sha256": "sha256:89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_multiview_coverage.py",
+      "line": 64,
+      "rule": "B101",
+      "source_sha256": "sha256:08a0cdf31bb0e34a67dc35ce7f353d1e3fb1bf6a1a354d812beddd9e6897c4b0",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_multiview_coverage.py",
+      "line": 84,
+      "rule": "B101",
+      "source_sha256": "sha256:08a0cdf31bb0e34a67dc35ce7f353d1e3fb1bf6a1a354d812beddd9e6897c4b0",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_multiview_coverage.py",
+      "line": 85,
+      "rule": "B101",
+      "source_sha256": "sha256:08a0cdf31bb0e34a67dc35ce7f353d1e3fb1bf6a1a354d812beddd9e6897c4b0",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_multiview_coverage.py",
+      "line": 86,
+      "rule": "B101",
+      "source_sha256": "sha256:08a0cdf31bb0e34a67dc35ce7f353d1e3fb1bf6a1a354d812beddd9e6897c4b0",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_multiview_coverage.py",
+      "line": 87,
+      "rule": "B101",
+      "source_sha256": "sha256:08a0cdf31bb0e34a67dc35ce7f353d1e3fb1bf6a1a354d812beddd9e6897c4b0",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_multiview_coverage.py",
+      "line": 88,
+      "rule": "B101",
+      "source_sha256": "sha256:08a0cdf31bb0e34a67dc35ce7f353d1e3fb1bf6a1a354d812beddd9e6897c4b0",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_stereo_kernel.py",
+      "line": 41,
+      "rule": "B101",
+      "source_sha256": "sha256:e20d3b75b1dffc58372b3b888ea6bb835f1bd6787dc8872a0da38cd7e44d959b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 35,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 36,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 85,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 86,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 87,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 88,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 89,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_surface_middlebury.py",
+      "line": 90,
+      "rule": "B101",
+      "source_sha256": "sha256:cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 22,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 24,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 27,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 29,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 54,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 55,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 58,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 59,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 62,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 65,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 77,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 82,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 83,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 127,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 128,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 129,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 130,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 131,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 132,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/benchmark_texture_middlebury.py",
+      "line": 133,
+      "rule": "B101",
+      "source_sha256": "sha256:572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b",
+      "expires": "2026-11-20",
+      "justification": "Benchmark analytic assertions are test gates, not runtime input validation; run with normal Python (never -O)."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/check_apk.py",
+      "line": 10,
+      "rule": "B404",
+      "source_sha256": "sha256:a4da2e3baf3142d06a28e716f1e8f770ddef4e73d94e0719618c84edb1ca7bfe",
+      "expires": "2026-11-20",
+      "justification": "Operator-selected SDK/scanner executables use explicit argv with shell=False and bounded checked output; no source or photo text becomes a shell command."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/check_apk.py",
+      "line": 26,
+      "rule": "B603",
+      "source_sha256": "sha256:a4da2e3baf3142d06a28e716f1e8f770ddef4e73d94e0719618c84edb1ca7bfe",
+      "expires": "2026-11-20",
+      "justification": "Operator-selected SDK/scanner executables use explicit argv with shell=False and bounded checked output; no source or photo text becomes a shell command."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/check_apk.py",
+      "line": 28,
+      "rule": "B603",
+      "source_sha256": "sha256:a4da2e3baf3142d06a28e716f1e8f770ddef4e73d94e0719618c84edb1ca7bfe",
+      "expires": "2026-11-20",
+      "justification": "Operator-selected SDK/scanner executables use explicit argv with shell=False and bounded checked output; no source or photo text becomes a shell command."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/check_apk.py",
+      "line": 35,
+      "rule": "B603",
+      "source_sha256": "sha256:a4da2e3baf3142d06a28e716f1e8f770ddef4e73d94e0719618c84edb1ca7bfe",
+      "expires": "2026-11-20",
+      "justification": "Operator-selected SDK/scanner executables use explicit argv with shell=False and bounded checked output; no source or photo text becomes a shell command."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/security/scan.py",
+      "line": 10,
+      "rule": "B404",
+      "source_sha256": "sha256:7275be44c7f2835fcfddae8bd478e8301ec1f971d33e5b7480bf3733f50b01c9",
+      "expires": "2026-11-20",
+      "justification": "Operator-selected SDK/scanner executables use explicit argv with shell=False and bounded checked output; no source or photo text becomes a shell command."
+    },
+    {
+      "scanner": "bandit",
+      "path": "tools/security/scan.py",
+      "line": 17,
+      "rule": "B603",
+      "source_sha256": "sha256:7275be44c7f2835fcfddae8bd478e8301ec1f971d33e5b7480bf3733f50b01c9",
+      "expires": "2026-11-20",
+      "justification": "Operator-selected SDK/scanner executables use explicit argv with shell=False and bounded checked output; no source or photo text becomes a shell command."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "security/scan.py",
+      "line": 63,
+      "rule": "Secret Keyword",
+      "source_sha256": "sha256:7275be44c7f2835fcfddae8bd478e8301ec1f971d33e5b7480bf3733f50b01c9",
+      "expires": "2026-11-20",
+      "justification": "The assigned literal is a public PASS/FAIL/NOT_RUN status enum in the redacted report; no credential value or authentication material is present."
+    }
+  ]
+}
