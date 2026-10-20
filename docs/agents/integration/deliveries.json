@@ -38,6 +38,13 @@
       "branch": "agents/084-full-object-geometry-quality",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "083",
+      "source_sha": "eb95eb05d75a77d7236cd68bc32dacf4acb4825b",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
