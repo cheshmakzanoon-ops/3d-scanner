@@ -1,4 +1,6 @@
 #include "realityforge/multiview.hpp"
+#include "realityforge/cancellation.hpp"
+#include "realityforge/progress.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -65,6 +67,7 @@ double costPoint(Vec3 x,const Group& group,const std::vector<ViewPose>& poses,do
 bool refinePoint(Working& w,const std::vector<ViewPose>& poses,double threshold){
     bool improved=false;
     for(int round=0;round<8;++round){
+        cancellation::checkpoint();
         std::array<double,9> H{};std::array<double,3> g{};int valid=0;
         for(auto& o:w.group){
             auto& p=poses[o.camera];auto q=cameraPoint(p,w.xyz);if(q.z<=1e-8)continue;
@@ -159,9 +162,10 @@ MultiViewResult reconstructMultiView(std::span<const ViewPose> views,
        !std::isfinite(settings.maxReprojectionError)||settings.maxReprojectionError<1e-6||settings.maxReprojectionError>.05||
        !std::isfinite(settings.minParallaxDegrees)||settings.minParallaxDegrees<.1||settings.minParallaxDegrees>30||
        settings.iterations<0||settings.iterations>20)throw Error("Invalid multi-view settings or sizes");
+    cancellation::checkpoint();
     MultiViewResult out;out.cameras.assign(views.begin(),views.end());out.inputObservations=observations.size();
     for(auto& p:out.cameras){
-        if(!finite(p.translation))throw Error("Invalid camera translation");
+        if(!finite(p.translation)||magnitude(p.translation)>100000)throw Error("Invalid or unbounded camera translation");
         for(double d:p.rotation)if(!std::isfinite(d))throw Error("Invalid camera rotation");
         if(std::abs(determinant(p.rotation)-1)>0.02)throw Error("Camera rotation not proper");
         auto orth=multiply(p.rotation,transpose(p.rotation));
@@ -170,7 +174,9 @@ MultiViewResult reconstructMultiView(std::span<const ViewPose> views,
     if(magnitude(sub(cameraCenter(out.cameras[0]),cameraCenter(out.cameras[1])))<1e-6)
         throw Error("Cannot fix multi-view gauge with coincident anchors");
     std::map<std::size_t,Group> groups;
+    std::size_t checked=0;
     for(auto& o:observations){
+        if((checked++%256)==0)cancellation::checkpoint();
         if(o.camera>=views.size()||!std::isfinite(o.image.x)||!std::isfinite(o.image.y)||
            std::abs(o.image.x)>10||std::abs(o.image.y)>10||o.track>10000000)
             throw Error("Invalid multi-view observation");
@@ -182,8 +188,13 @@ MultiViewResult reconstructMultiView(std::span<const ViewPose> views,
     out.inputTracks=groups.size();
     std::vector<Working> working;working.reserve(groups.size());
     double gate=settings.maxReprojectionError;
+    // Sparse work-unit2 counts whole track groups in this native window.
+    progress::begin(progress::Stage::Sparse,0,2,groups.size());std::size_t completedTracks=0;
     for(auto& [id,group]:groups){
-        if(group.size()<2)continue;
+        cancellation::checkpoint();
+        const auto processTrack=[&](){
+        std::sort(group.begin(),group.end(),[](const auto& a,const auto& b){return a.camera<b.camera;});
+        if(group.size()<2)return;
         bool found=false;Vec3 best{};double bestParallax=0;std::size_t support=0;double bestCost=1e100;
         for(std::size_t i=0;i<group.size();++i)for(std::size_t j=i+1;j<group.size();++j){
             try{
@@ -195,35 +206,40 @@ MultiViewResult reconstructMultiView(std::span<const ViewPose> views,
                 if(!found||hits>support||(hits==support&&(sum<hits*bestCost-1e-12 || (std::abs(sum-hits*bestCost)<1e-12&&angle>bestParallax)))){
                     best=xyz;bestParallax=angle;support=hits;bestCost=sum/hits;found=true;
                 }
-            }catch(const Error&){}
+            }catch(const cancellation::Cancelled&){throw;}catch(const Error&){}
         }
-        if(!found)continue;
+        if(!found)return;
         // Drop individually unsupported observations before robust joint refinement.
         Group accepted;accepted.reserve(group.size());
         for(auto& o:group)if(error(out.cameras[o.camera],best,o.image)<gate*2)accepted.push_back(o);
-        if(accepted.size()<2)continue;
+        if(accepted.size()<2)return;
         working.push_back({best,id,accepted.front().color,std::move(accepted),bestParallax});
+        };
+        processTrack();progress::advance(++completedTracks);
     }
     if(working.empty())throw Error("No valid multi-view triangulations; check calibration, parallax and pose");
     out.rejectedTracks=out.inputTracks-working.size();
     std::map<std::size_t,std::vector<double>> initialErrors;
     for(auto& w:working)for(auto& o:w.group)initialErrors[w.id].push_back(error(out.cameras[o.camera],w.xyz,o.image));
     for(int iteration=0;iteration<settings.iterations;++iteration){
+        cancellation::checkpoint();
         bool changed=false;
         for(auto& w:working)changed=refinePoint(w,out.cameras,gate)||changed;
-        for(std::size_t c=2;c<out.cameras.size();++c)changed=refineCamera(c,out.cameras,working,gate)||changed;
+        if(settings.refineCameras)for(std::size_t c=2;c<out.cameras.size();++c)changed=refineCamera(c,out.cameras,working,gate)||changed;
         out.iterations=iteration+1;
         if(!changed)break;
     }
     for(auto& w:working){
-        std::vector<double> errors;double maxAngle=0;
+        std::vector<double> errors;double maxAngle=0,bestSine=0;
         for(std::size_t i=0;i<w.group.size();++i){
             errors.push_back(error(out.cameras[w.group[i].camera],w.xyz,w.group[i].image));
-            for(std::size_t j=i+1;j<w.group.size();++j)maxAngle=std::max(maxAngle,rayAngle(out.cameras[w.group[i].camera],out.cameras[w.group[j].camera],w.xyz));
+            for(std::size_t j=i+1;j<w.group.size();++j){const double angle=rayAngle(out.cameras[w.group[i].camera],out.cameras[w.group[j].camera],w.xyz);
+                maxAngle=std::max(maxAngle,angle);bestSine=std::max(bestSine,std::sin(angle*pi/180));}
         }
         if(*std::max_element(errors.begin(),errors.end())>gate*2||maxAngle<settings.minParallaxDegrees)continue;
         Point point{w.xyz,w.color,median(errors),maxAngle,w.id};
-        out.tracks.push_back({point,w.id,w.group.size()});
+        std::vector<std::size_t> support;support.reserve(w.group.size());for(auto& observation:w.group)support.push_back(observation.camera);
+        out.tracks.push_back({point,w.id,w.group.size(),1/std::max(bestSine,1e-12),std::move(support)});
     }
     out.rejectedTracks=out.inputTracks-out.tracks.size();
     if(out.tracks.empty())throw Error("No stable multi-view points after optimization");
@@ -234,6 +250,24 @@ MultiViewResult reconstructMultiView(std::span<const ViewPose> views,
         if(error(out.cameras[o.camera],point.point.xyz,o.image)<=gate*2)after.push_back(error(out.cameras[o.camera],point.point.xyz,o.image));}
     out.medianErrorAfter=median(after);
     if(!std::isfinite(out.medianErrorAfter))throw Error("Invalid refined geometry");
+    return out;
+}
+std::vector<MappedSparseTrackPoint> reconstructMultiViewWindow(
+    std::span<const ViewPose> cameras,std::span<const TrackObservation> observations,
+    const NativeWindowMapping& mapping,const MultiViewSettings& settings){
+    auto validIds=[](const std::vector<std::string>& ids){std::map<std::string,bool> seen;
+        for(auto& id:ids)if(id.empty()||id.size()>1024||!seen.emplace(id,true).second)return false;
+        return true;};
+    if(mapping.cameraIds.size()!=cameras.size()||mapping.trackIds.size()>30000||
+       !validIds(mapping.cameraIds)||!validIds(mapping.trackIds))throw Error("Invalid native local/global mapping");
+    for(auto& row:observations)if(row.track>=mapping.trackIds.size())throw Error("Track missing from window mapping");
+    // A point-only window result cannot silently discard refined camera poses.
+    // Keep all supplied global world poses fixed; joint pose updates belong to041.
+    auto windowSettings=settings;windowSettings.refineCameras=false;
+    auto result=reconstructMultiView(cameras,observations,windowSettings);std::vector<MappedSparseTrackPoint> out;out.reserve(result.tracks.size());
+    for(auto& point:result.tracks){MappedSparseTrackPoint mapped{point,mapping.trackIds[point.track],{}};
+        for(auto camera:point.supportingCameras){mapped.cameraIds.push_back(mapping.cameraIds[camera]);}
+        out.push_back(std::move(mapped));}
     return out;
 }
 std::string multiViewJson(const MultiViewResult& r){
@@ -250,11 +284,15 @@ std::string multiViewJson(const MultiViewResult& r){
     for(std::size_t i=0;i<r.tracks.size();++i){auto& p=r.tracks[i];if(i)o<<',';
         o<<'['<<p.point.xyz.x<<','<<p.point.xyz.y<<','<<p.point.xyz.z<<','<<int(p.point.color[0])<<','<<int(p.point.color[1])<<','<<int(p.point.color[2])<<','<<p.point.error<<','<<p.point.parallax<<','<<p.track<<']';
     }
+    o<<"],\"trackEvidence\":[";
+    for(std::size_t i=0;i<r.tracks.size();++i){if(i)o<<',';auto& p=r.tracks[i];o<<"{\"track\":"<<p.track<<",\"angularCondition\":"<<p.angularCondition<<",\"supportingCameras\":[";
+        for(std::size_t j=0;j<p.supportingCameras.size();++j){if(j)o<<',';o<<p.supportingCameras[j];}o<<"]}";}
     o<<"]}";return o.str();
 }
 } // namespace rf
 extern "C" char* rf_multiview_json(const double* cameras,std::size_t camera_count,
-    const double* observations,std::size_t observation_count,double threshold,int iterations){
+    const double* observations,std::size_t observation_count,double threshold,int iterations) noexcept {
+    try { // Allocation and error serialization belong to the C ABI boundary too.
     std::string response;
     try{
         if(!cameras||!observations||camera_count<2||camera_count>12||observation_count==0||observation_count>100000)
@@ -275,4 +313,5 @@ extern "C" char* rf_multiview_json(const double* cameras,std::size_t camera_coun
     }catch(const std::exception& e){response="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(static_cast<unsigned char>(c)>=32)response+=c;}response+="\"}";}
     auto* p=static_cast<char*>(std::malloc(response.size()+1));if(!p)return nullptr;
     std::memcpy(p,response.c_str(),response.size()+1);return p;
+    }catch(...){return nullptr;}
 }
