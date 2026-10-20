@@ -17,6 +17,12 @@ provider execution exposed missing Kotlin runtime classes in the separate test-A
 process. The Java implementation uses platform APIs without that dependency;
 this language migration does not transfer ownership of another component.
 
+Agent004 also owns the generated `app/gradle.lockfile` that applies095's approved
+resolution to the module. Its follow-up lands091's verified release convention,
+keeps debug instrumentation as the default and selects release instrumentation
+through the validated `realityForgeTestBuildType` property. Both actual variant
+graphs must be resolved and verified before accepting the combined module lock.
+
 ## Start here: “You are Agent X”
 
 If the user tells you **“You are Agent X; do what the repository tells you and do not stop until success”**, that is an instruction to execute this guide, not to write another plan.
@@ -733,6 +739,7 @@ The common working agreement and definition of success above apply to every role
 **Reserved new files/packages:**
 
 - `gradle/wrapper/gradle-wrapper.jar`
+- `app/gradle.lockfile`
 - `cmake/`
 - `build-logic/`
 

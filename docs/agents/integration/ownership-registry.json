@@ -2,7 +2,7 @@
   "schema": 1,
   "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
   "source_plan": "PRODUCTION_100_AGENT_EXECUTION_PLAN.md",
-  "source_plan_sha256": "feba825cdb096ef80de59b1ce9ccfa4f0993a4ae4c99ef5aef67a5bafdfe1273",
+  "source_plan_sha256": "48cb7f22c4633e0bca0e24b40c746ec12d7e2e5c75b62afdf6af5dc5bf15e8fa",
   "authority": "Exclusive existing/reserved ownership is parsed from the recorded production plan; mechanical manifest and per-agent receipt/test/handoff exceptions are enforced by tools/agents/campaign.py. Agent100 only accepts unchanged blobs from recorded, scope-validated supplying ancestors.",
   "agents": [
     {
@@ -72,6 +72,7 @@
       ],
       "reserved": [
         "gradle/wrapper/gradle-wrapper.jar",
+        "app/gradle.lockfile",
         "cmake/",
         "build-logic/"
       ]
