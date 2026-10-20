@@ -33,6 +33,13 @@ class ScreenInteractionTest {
         check(target?.performAction(AccessibilityNodeInfo.ACTION_CLICK)==true)
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
+    @Test fun checkerboardIsPackagedAndReadableEntirelyOffline() {
+        val context=InstrumentationRegistry.getInstrumentation().targetContext
+        val bytes=context.assets.open(CaptureGuide.BOARD_ASSET).use { it.readBytes() }
+        assertTrue(bytes.size in 1..100000)
+        assertTrue(bytes.toString(Charsets.UTF_8).contains("9×6 INTERIOR corners"))
+        assertFalse(bytes.toString(Charsets.UTF_8).contains("href="))
+    }
     @Test fun realControlsDispatchBoundActions() {
         val skipped=java.util.concurrent.atomic.AtomicInteger()
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
