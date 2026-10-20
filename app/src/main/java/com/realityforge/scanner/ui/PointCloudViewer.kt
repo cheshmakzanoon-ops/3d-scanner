@@ -1,6 +1,7 @@
 package com.realityforge.scanner.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.realityforge.scanner.R
@@ -25,7 +26,9 @@ private data class CloudPoint(val x: Float, val y: Float, val z: Float, val colo
 fun PointCloudViewer(result: JSONObject, modifier: Modifier = Modifier) {
     val points = remember(result) {
         val rows = result.getJSONArray("points")
-        val raw = (0 until rows.length()).map { i ->
+        // Bounded diagnostic sampling only; the source and exported cloud retain every point.
+        val stride=max(1,ceil(rows.length()/12000.0).toInt())
+        val raw = (0 until rows.length() step stride).map { i ->
             val row = rows.getJSONArray(i)
             CloudPoint(row.getDouble(0).toFloat(), -row.getDouble(1).toFloat(), -row.getDouble(2).toFloat(), Color(row.getInt(3), row.getInt(4), row.getInt(5)))
         }
@@ -65,6 +68,7 @@ fun PointCloudViewer(result: JSONObject, modifier: Modifier = Modifier) {
             if (x in 0f..size.width && y in 0f..size.height) drawCircle(point.color, 1.8f, Offset(x, y))
         }
     }
+    if(result.getJSONArray("points").length()>12000) Text(stringResource(R.string.a070_points_sampled))
     StudioControls(pose,{ pose=it })
     }
 }

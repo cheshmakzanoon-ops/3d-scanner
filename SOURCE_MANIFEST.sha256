@@ -42,7 +42,7 @@ f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/j
 679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0  app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5ba7c64c2d8805178a95842d1625891bb42b2f7dd3e568f05ba761cb122ae9a5  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
-3ba2fe071ff1cb3557e043858047bb3afae8dfb05696b08a622e585a0242d07b  app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt
+c5c37307562430fe0a397f7bc021b45d9c33ca34891743bfaed3fae1ba7c69d1  app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt
 8f9dcc1a82ce985f8b1a2bb2349412ce4e65d1fdc7e5cece33d8c46a6a0aaf2d  app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt
 03b084e4d8b13d88ebcbf8ce26b66683e7ff28b041c83a95eca531f7dc16c34c  app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt
 c31f756357543ecf0ca3797af128883e7d3ca796ace83bd34fbea54bdbf287c2  app/src/main/java/com/realityforge/scanner/ui/studio/StudioControls.kt
@@ -51,7 +51,7 @@ db9de8d755f8d03a78a552f3633c93e9b5d601b4c5141fc2f56fb92f8a90a0dc  app/src/main/j
 0b3b70109a65b594385ebd8f2ad215c9c61ed0416fd9e2edd468741ff70313fa  app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt
 08f163a106563eafb661cbb2d79dabf08d30368775bc7fdbcacb7aec1c9209bf  app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt
 194a1757f73992ba07cf4323c65338eb470a3e7a64948ab23ee874ce6a4f4a3a  app/src/main/res/drawable/ic_launcher.xml
-a2bc15a81229ad067c252b9321812e86de6868742943980f29c314affb574f71  app/src/main/res/values/agent_070.xml
+4a796147b2a54a16ddf7bd0f6f7b5da5935164b34b0a55e855bf2fb7f34bd4ca  app/src/main/res/values/agent_070.xml
 cba4c90dff6ab7ea9a42540ef83addb6542ba3185fac559483816f5feb65d829  app/src/main/res/values/strings.xml
 b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/res/values/styles.xml
 8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22  app/src/main/res/xml/data_extraction_rules.xml

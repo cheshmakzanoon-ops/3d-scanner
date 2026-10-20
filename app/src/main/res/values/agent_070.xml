@@ -30,6 +30,7 @@
     <string name="a070_open_failure">Cannot open this photographic model.</string>
     <string name="a070_photo_accessibility">Photographic 3D model. Use rotate, zoom and pan controls.</string>
     <string name="a070_canvas_sampled">Large mesh preview samples faces; the exported mesh retains all observed faces.</string>
+    <string name="a070_points_sampled">Large point preview samples points; the exported cloud retains every source point.</string>
     <string name="a070_edit_explanation">Edits create a separate recipe. Original photos and the master geometry are preserved. A preview or export changes only after the edit is applied by the model service.</string>
     <string name="a070_recipe_count">%1$d recorded edit operations</string>
     <string name="a070_undo">Undo</string>
