@@ -34,6 +34,49 @@ def test_count(output):
     return int(found[1])
 
 
+def instrumentation_counts(output):
+    """AndroidJUnitRunner1.6.2 raw statuses; -3 ignored, -4 failed assumption.
+
+    JUnit's OK summary excludes ignored tests but includes assumption failures.
+    Each ignored test still emits a start/terminal pair from InstrumentationResultPrinter.
+    """
+    summary = test_count(output)
+    fields, started, finished, declared = {}, set(), {}, set()
+    for line in output.splitlines():
+        if line.startswith('INSTRUMENTATION_STATUS: '):
+            key, separator, value = line[len('INSTRUMENTATION_STATUS: '):].partition('=')
+            if separator and key in ('class', 'test', 'current', 'numtests'):
+                fields[key] = value
+        elif line.startswith('INSTRUMENTATION_STATUS_CODE: '):
+            try:
+                code = int(line.split(': ', 1)[1])
+                current, total = int(fields['current']), int(fields['numtests'])
+                identity = (fields['class'], fields['test'], current)
+            except (ValueError, KeyError) as error:
+                raise ValueError('Incomplete raw instrumentation test event') from error
+            if not identity[0] or not identity[1] or not 1 <= current <= total:
+                raise ValueError('Invalid raw instrumentation identity/count')
+            declared.add(total)
+            if code == 1:
+                if identity in started: raise ValueError('Duplicate instrumentation start event')
+                started.add(identity)
+            elif code in (0, -1, -2, -3, -4):
+                if identity not in started or identity in finished: raise ValueError('Missing start or duplicate terminal event')
+                finished[identity] = code
+            else:
+                raise ValueError('Unexpected instrumentation status code')
+            fields = {}
+    if not finished or started != set(finished) or declared != {len(finished)}:
+        raise ValueError('Missing/incomplete raw instrumentation events')
+    ignored = sum(code == -3 for code in finished.values())
+    counts = {'tests': len(finished), 'passed': sum(code == 0 for code in finished.values()),
+              'skipped': sum(code in (-3, -4) for code in finished.values()),
+              'failed': sum(code in (-1, -2) for code in finished.values())}
+    if counts['failed'] or counts['passed'] < 1 or summary != counts['tests'] - ignored:
+        raise ValueError('Instrumentation summary disagrees with actual pass/skip/failure events')
+    return counts
+
+
 def command(args, timeout=900):
     result = subprocess.run(args, text=True, capture_output=True, timeout=timeout)
     if result.returncode:
@@ -79,7 +122,8 @@ def run(args, execute=command):
                 raise ValueError('Installed package hash differs from selected candidate')
         transcript = shell('am', 'instrument', '-w', '-r', 'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner')
         (output / 'instrumentation.txt').write_text(transcript + '\n')
-        receipt['tests'] = test_count(transcript)
+        receipt['counts'] = instrumentation_counts(transcript)
+        receipt['tests'] = receipt['counts']['tests']
         execute(adb + ['pull', SCREEN, str(screenshot)])
         receipt['screenshotSize'] = validate(screenshot)
         receipt['status'] = 'PASS'
