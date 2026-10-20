@@ -1,6 +1,6 @@
 """Real rectified stereo qualification; truth is evaluation-only, not solver input."""
 from pathlib import Path
-import ctypes,hashlib,json,sys,time
+import ctypes,hashlib,json,struct,subprocess,sys,time
 import cv2
 import numpy as np
 ROOT=Path(__file__).resolve().parents[1]
@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/'tools'))
 from native_api import NativeEngine
 from benchmark_middlebury import load_middlebury,FOCAL_PIXELS,CX_LEFT,CX_RIGHT,CY
 
-def test_refined_pyramid_real_stereo_retains_declared_accuracy_and_support():
+def test_refined_pyramid_real_stereo_retains_declared_accuracy_and_support(tmp_path):
     left,right,disparity=load_middlebury()
     h,w=left.shape[:2];outw=228;outh=round(h*outw/w)
     rgba=np.ascontiguousarray([np.concatenate([cv2.resize(image,(outw,outh),interpolation=cv2.INTER_AREA),np.full((outh,outw,1),255,np.uint8)],axis=-1) for image in (left,right)])
@@ -20,7 +20,7 @@ def test_refined_pyramid_real_stereo_retains_declared_accuracy_and_support():
     coarse_cameras[:,12]*=sx;coarse_cameras[:,13]*=sy
     coarse_cameras[:,14]=(coarse_cameras[:,14]+.5)*sx-.5
     coarse_cameras[:,15]=(coarse_cameras[:,15]+.5)*sy-.5
-    identity=hashlib.sha256(rgba.tobytes()+cameras.tobytes()+coarse.tobytes()+coarse_cameras.tobytes()+b'cpu-refined-v1|near6|far80|planes64|stride3|local6').hexdigest().encode()
+    identity=hashlib.sha256(rgba.tobytes()+cameras.tobytes()+coarse.tobytes()+coarse_cameras.tobytes()+b'cpu-refined-v2|near6|far80|planes64|stride3|local6|strict1').hexdigest().encode()
     engine=NativeEngine();start=time.monotonic();baseline=engine.dense(rgba,cameras,6,80,64,3);baseline_seconds=time.monotonic()-start
     call=engine.library.rf_dense_refined_json
     u8=ctypes.POINTER(ctypes.c_uint8);f64=ctypes.POINTER(ctypes.c_double)
@@ -42,11 +42,24 @@ def test_refined_pyramid_real_stereo_retains_declared_accuracy_and_support():
         depth=FOCAL_PIXELS/(truth[valid]+CX_RIGHT-CX_LEFT)
         relative=np.abs(points[valid,2]-depth)/depth
         return {'points':len(points),'truth_supported':int(valid.sum()),'disparity_p50':float(np.median(error)),'disparity_p90':float(np.percentile(error,90)),'relative_depth_p50':float(np.median(relative)),'relative_depth_p90':float(np.percentile(relative,90))}
-    old=evaluate(baseline);new=evaluate(refined)
-    report={'dataset':'Middlebury2014 Motorcycle, real rectified stereo','truth_used_by_solver':False,'source_calibration':'published benchmark intrinsics, arbitrary unit baseline; known poses','input_sha256':identity.decode(),'physical_device':False,'baseline':old,'refined':new,'baseline_seconds':baseline_seconds,'refined_seconds':refined_seconds,'coarse_depth_maps':refined['coarseDepthMaps'],'propagated_hypotheses':refined['propagatedHypotheses'],'admitted_working_set_bytes':refined['admittedWorkingSetBytes'],'declared_tradeoff':'retain >=90% truth-supported points; error p50 <=1.25*baseline+0.15px; existing strict absolute stereo gates retained; wall times observational under shared cloud CPU'}
+    # Driver accepts only real photos/calibration: no disparity/truth buffer exists.
+    fixture=tmp_path/'photographs.bin'
+    fixture.write_bytes(struct.pack('<5I',outw,outh,2,cw,ch)+cameras.tobytes()+rgba.tobytes()+coarse_cameras.tobytes()+coarse.tobytes())
+    executable=tmp_path/'real-profile'
+    subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Werror','-I'+str(ROOT/'reconstruction/include'),str(ROOT/'reconstruction/tests/agent_046_real_profile.cpp'),'-L'+str(ROOT/'build/host'),'-lrealityforge','-Wl,-rpath,'+str(ROOT/'build/host'),'-o',str(executable)],check=True)
+    def profile(name):
+        return json.loads(subprocess.check_output([str(executable),str(fixture),name,hashlib.sha256(fixture.read_bytes()).hexdigest()],timeout=120))
+    nonstrict=profile('refined');strict=profile('strict')
+    old=evaluate(baseline);new=evaluate(refined);legacy=evaluate(nonstrict);conservative=evaluate(strict)
+    report={'dataset':'Middlebury2014 Motorcycle, real rectified stereo','truth_used_by_solver':False,'source_calibration':'published benchmark intrinsics, arbitrary unit baseline; known poses','input_sha256':identity.decode(),'profile':'cpu-refined-v2|local6|strict1|robust0','physical_device':False,'baseline':old,'refined_without_strict':legacy,'strict_without_refinement':conservative,'refined':new,'baseline_seconds':baseline_seconds,'refined_seconds':refined_seconds,'coarse_depth_maps':refined['coarseDepthMaps'],'propagated_hypotheses':refined['propagatedHypotheses'],'admitted_working_set_bytes':refined['admittedWorkingSetBytes'],'declared_tradeoff':'Non-strict refinement retains >=90% truth-supported points and p50<=1.25*baseline+0.15px. Conservative strict profiles retain >=60% and >=1000 truth points; p50<=1.10*baseline+0.05px,p90<=0.95*baseline+0.10px. All profiles retain absolute stereo gates. Gates declared before strict admission; wall times observational under shared cloud CPU.'}
     output=ROOT/'build/agents/046-refined-middlebury.json';output.parent.mkdir(parents=True,exist_ok=True);output.write_text(json.dumps(report,indent=2)+'\n')
     assert refined['coarseDepthMaps']==2 and refined['propagatedHypotheses']>0
-    assert new['truth_supported']>=max(1000,.9*old['truth_supported'])
-    assert new['points']>=1500 and new['disparity_p50']<2 and new['disparity_p90']<10
-    assert new['relative_depth_p50']<.08 and new['relative_depth_p90']<.30
-    assert new['disparity_p50']<=1.25*old['disparity_p50']+.15
+    assert legacy['truth_supported']>=max(1000,.9*old['truth_supported'])
+    assert legacy['disparity_p50']<=1.25*old['disparity_p50']+.15
+    for metrics in (legacy,conservative,new):
+        assert metrics['points']>=1500 and metrics['disparity_p50']<2 and metrics['disparity_p90']<10
+        assert metrics['relative_depth_p50']<.08 and metrics['relative_depth_p90']<.30
+    for metrics in (conservative,new):
+        assert metrics['truth_supported']>=max(1000,.6*old['truth_supported'])
+        assert metrics['disparity_p50']<=1.10*old['disparity_p50']+.05
+        assert metrics['disparity_p90']<=.95*old['disparity_p90']+.10
