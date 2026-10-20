@@ -10,12 +10,8 @@ MARKER={'nonce':NONCE,'readyStage':'import','preparePid':123,'revision':3,'origi
 RESULT={'nonce':NONCE,'stage':'import','status':'PASS','preparePid':123,'verifyPid':456,'revision':3,'artifactKey':'actual-fixture-key'}
 
 def recovery_transcript(result=None, terminal=0):
-    class_name, test_name=m.CLASS.split('#')
-    def event(code):
-        return (f'INSTRUMENTATION_STATUS: class={class_name}\nINSTRUMENTATION_STATUS: test={test_name}\n'
-                f'INSTRUMENTATION_STATUS: current=1\nINSTRUMENTATION_STATUS: numtests=1\nINSTRUMENTATION_STATUS_CODE: {code}\n')
-    receipt='' if result is None else 'INSTRUMENTATION_RESULT: recoveryReceipt='+json.dumps(result)+'\n'
-    return event(1)+event(terminal)+receipt+'OK (1 test)\nINSTRUMENTATION_CODE: -1\n'
+    receipt = {} if result is None else {'recoveryReceipt': result}
+    return stdio_transcript(m.CLASS, receipt, terminal)
 
 
 @pytest.mark.parametrize('changes',[{'preparePid':0},{'preparePid':'123'},{'nonce':'wrong'},{'readyStage':'publication'},{'originals':[]}])
@@ -127,18 +123,24 @@ def stdio_rehash(request):
 
 
 def stdio_transcript(test, results=None, terminal=0):
+    """Listener format captured in the real API29 emulator JNI-boundary run.
+
+    This is a single-test synthetic protocol fixture, not device/UI acceptance.
+    """
     class_name, method = test.split('#')
     blocks = []
     for code in (1, terminal):
         blocks.append('\n'.join([
             'INSTRUMENTATION_STATUS: class=' + class_name,
-            'INSTRUMENTATION_STATUS: test=' + method,
             'INSTRUMENTATION_STATUS: current=1',
+            'INSTRUMENTATION_STATUS: id=AndroidJUnitRunner',
             'INSTRUMENTATION_STATUS: numtests=1',
+            'INSTRUMENTATION_STATUS: stream=' + ('\n' + class_name + ':' if code == 1 else '.'),
+            'INSTRUMENTATION_STATUS: test=' + method,
             'INSTRUMENTATION_STATUS_CODE: ' + str(code),
         ]))
     blocks.extend('INSTRUMENTATION_RESULT: ' + key + '=' + json.dumps(value) for key, value in (results or {}).items())
-    return '\n'.join(blocks) + '\nOK (1 test)\nINSTRUMENTATION_CODE: -1\n'
+    return '\n'.join(blocks) + '\nINSTRUMENTATION_RESULT: stream=\n\nTime: 0.125\n\nOK (1 test)\n\n\nINSTRUMENTATION_CODE: -1\n'
 
 
 class StdioFakeRunning:
@@ -479,3 +481,92 @@ def test_recovery_rejects_skips_wrong_identity_and_incomplete_completion(change)
 
 def test_recovery_requires_exact_one_actual_pass():
     assert m.validate_transcript(recovery_transcript()) == {'tests':1, 'passed':1, 'skipped':0, 'failed':0}
+
+
+@pytest.mark.parametrize('line_endings', ['\n', '\r\n'])
+def test_complete_real_listener_format_preserves_bound_rf088_metadata(line_endings):
+    selected = stdio.selector('process_kill_relaunch')
+    metadata = {'rf088Fixture': {'protocol': stdio.PROTOCOL, 'synthetic': True},
+                'rf088Verified': {'run_id': 'd' * 32, 'status': 'PASS'}}
+    transcript = stdio_transcript(selected, metadata).replace('\n', line_endings)
+    parsed = stdio.parse_instrumentation(transcript, 0, selected)
+    assert parsed['results'] == metadata
+    assert parsed['passed_count'] == 1 and parsed['skipped_count'] == 0
+    # Extra JSON result bundles can follow the JUnit stream as well as precede it.
+    moved = stdio_transcript(selected).replace(
+        'INSTRUMENTATION_CODE: -1',
+        'INSTRUMENTATION_RESULT: rf088Verified=' + json.dumps(metadata['rf088Verified'])
+        + '\nINSTRUMENTATION_CODE: -1')
+    assert stdio.parse_instrumentation(moved, 0, selected)['results'] == {
+        'rf088Verified': metadata['rf088Verified']}
+
+
+PROTOCOL_CORRUPTIONS = [
+    ('missing-runner-id', lambda s: s.replace('INSTRUMENTATION_STATUS: id=AndroidJUnitRunner\n', '')),
+    ('wrong-runner-id', lambda s: s.replace('id=AndroidJUnitRunner', 'id=OtherRunner')),
+    ('missing-start-stream', lambda s: s.replace('INSTRUMENTATION_STATUS: stream=\n', '', 1)),
+    ('missing-success-stream', lambda s: s.replace('INSTRUMENTATION_STATUS: stream=.\n', '')),
+    ('empty-success-stream', lambda s: s.replace('INSTRUMENTATION_STATUS: stream=.', 'INSTRUMENTATION_STATUS: stream=')),
+    ('unknown-status-prefix', lambda s: s.replace('INSTRUMENTATION_RESULT: stream=', 'INSTRUMENTATION_STATUS_UNKNOWN: fail\nINSTRUMENTATION_RESULT: stream=')),
+    ('unknown-status-field', lambda s: s.replace('INSTRUMENTATION_STATUS: id=', 'INSTRUMENTATION_STATUS: error=failed\nINSTRUMENTATION_STATUS: id=', 1)),
+    ('error-result-shortmsg', lambda s: s.replace('INSTRUMENTATION_RESULT: stream=', 'INSTRUMENTATION_RESULT: shortMsg=Some error\nINSTRUMENTATION_RESULT: stream=')),
+    ('unknown-result-field', lambda s: s.replace('INSTRUMENTATION_RESULT: stream=', 'INSTRUMENTATION_RESULT: unknown=value\nINSTRUMENTATION_RESULT: stream=')),
+    ('bare-ok-without-result-stream', lambda s: s.replace('INSTRUMENTATION_RESULT: stream=\n\nTime: 0.125\n\n', '')),
+    ('summary-without-time', lambda s: s.replace('Time: 0.125\n\n', '')),
+    ('invalid-time', lambda s: s.replace('Time: 0.125', 'Time: NaN')),
+    ('failure-text-in-summary', lambda s: s.replace('Time: 0.125', 'java.lang.AssertionError: broken\nTime: 0.125')),
+    ('duplicate-summary', lambda s: s.replace('OK (1 test)', 'OK (1 test)\nOK (1 test)')),
+    ('duplicate-result-stream', lambda s: s.replace('INSTRUMENTATION_RESULT: stream=', 'INSTRUMENTATION_RESULT: stream=\nINSTRUMENTATION_RESULT: stream=')),
+    ('partial-status-before-results', lambda s: s.replace('INSTRUMENTATION_RESULT: stream=', 'INSTRUMENTATION_STATUS: class=partial\nINSTRUMENTATION_RESULT: stream=')),
+    ('orphan-text-before-start', lambda s: 'Some error\n' + s),
+    ('trailing-orphan-text', lambda s: s + 'Some error\n'),
+    ('trailing-unknown-status', lambda s: s + 'INSTRUMENTATION_STATUS_UNKNOWN: fail\n'),
+    ('trailing-duplicate-completion', lambda s: s + 'INSTRUMENTATION_CODE: -1\n'),
+    ('trailing-test-event', lambda s: s + 'INSTRUMENTATION_STATUS_CODE: 0\n'),
+    ('incomplete-completion', lambda s: s.replace('INSTRUMENTATION_CODE: -1', '')),
+    ('wrong-completion', lambda s: s.replace('INSTRUMENTATION_CODE: -1', 'INSTRUMENTATION_CODE: 0')),
+    ('duplicate-terminal-event', lambda s: s.replace('INSTRUMENTATION_RESULT: stream=', 'INSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_RESULT: stream=')),
+    ('assumption-terminal', lambda s: s.replace('INSTRUMENTATION_STATUS_CODE: 0', 'INSTRUMENTATION_STATUS_CODE: -4')),
+    ('ignored-terminal', lambda s: s.replace('INSTRUMENTATION_STATUS_CODE: 0', 'INSTRUMENTATION_STATUS_CODE: -3')),
+    ('failed-terminal', lambda s: s.replace('INSTRUMENTATION_STATUS_CODE: 0', 'INSTRUMENTATION_STATUS_CODE: -2')),
+]
+
+
+@pytest.mark.parametrize('parser', ['stdio', 'dedicated'])
+@pytest.mark.parametrize('name,corrupt', PROTOCOL_CORRUPTIONS, ids=[item[0] for item in PROTOCOL_CORRUPTIONS])
+def test_both_recovery_entrypoints_reject_incomplete_or_ambiguous_runner_protocol(parser, name, corrupt):
+    selected = stdio.selector('process_kill_relaunch') if parser == 'stdio' else m.CLASS
+    output = corrupt(stdio_transcript(selected))
+    if parser == 'stdio':
+        with pytest.raises(stdio.EvidenceError): stdio.parse_instrumentation(output, 0, selected)
+    else:
+        with pytest.raises(ValueError): m.validate_transcript(output)
+
+
+def test_reported_missing_event_metadata_and_unknown_error_counterexample_fails():
+    selected = stdio.PACKAGE + '.qa.ReleaseNativeContractTest#installedCandidateIsMinifiedReleaseAndNativeExportsReopen'
+    class_name, method = selected.split('#')
+    events = ''.join(
+        f'INSTRUMENTATION_STATUS: class={class_name}\nINSTRUMENTATION_STATUS: current=1\n'
+        f'INSTRUMENTATION_STATUS: numtests=1\nINSTRUMENTATION_STATUS: test={method}\n'
+        f'INSTRUMENTATION_STATUS_CODE: {code}\n' for code in (1, 0))
+    output = events + ('INSTRUMENTATION_STATUS_UNKNOWN: fail\nINSTRUMENTATION_RESULT: shortMsg=Some error\n'
+                       'OK (1 test)\nINSTRUMENTATION_CODE: -1\n')
+    with pytest.raises(stdio.EvidenceError): stdio.parse_instrumentation(output, 0, selected)
+
+
+@pytest.mark.parametrize('result_line', [
+    'INSTRUMENTATION_RESULT: rf088Fixture={"x":1,"x":2}',
+    'INSTRUMENTATION_RESULT: rf088Fixture=[]',
+    'INSTRUMENTATION_RESULT: rf088Fixture={"x":NaN}',
+    'INSTRUMENTATION_RESULT: rf088Fixture={}\nINSTRUMENTATION_RESULT: rf088Fixture={}',
+])
+def test_rf088_result_extras_must_be_one_unambiguous_finite_json_object(result_line):
+    selected = stdio.selector('process_kill_relaunch')
+    output = stdio_transcript(selected).replace('INSTRUMENTATION_RESULT: stream=', result_line + '\nINSTRUMENTATION_RESULT: stream=')
+    with pytest.raises(stdio.EvidenceError): stdio.parse_instrumentation(output, 0, selected)
+
+
+def test_dedicated_receipt_uses_shared_duplicate_key_rejection():
+    output = recovery_transcript(RESULT).replace('"status": "PASS"', '"status": "PASS", "status": "FAIL"')
+    with pytest.raises(ValueError): m.validate_result(output, MARKER, NONCE, 'import')

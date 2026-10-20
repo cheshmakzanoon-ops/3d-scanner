@@ -1,7 +1,14 @@
 package com.realityforge.scanner.qa;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.MatrixCursor;
+import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -47,6 +54,9 @@ public final class FaultDocumentProvider extends DocumentsProvider {
     public static final int MAX_BYTES = 1024 * 1024;
     public static final int MAX_REQUESTS = 16;
     public static final int MAX_EVENTS = 256;
+    private static final String TARGET_PACKAGE = "com.realityforge.scanner";
+    private static final Uri GRANT_ROOT = Uri.parse("content://" + AUTHORITY);
+    private static final int ACCESS = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
     public static final List<String> MODES = java.util.Collections.unmodifiableList(Arrays.asList(
             "normal", "truncated", "slow", "revoked", "short-write", "enospc"));
     private static final Set<String> REQUEST_MODES = new HashSet<>(Arrays.asList(
@@ -55,6 +65,25 @@ public final class FaultDocumentProvider extends DocumentsProvider {
     private final HandlerThread thread = new HandlerThread("bounded-document-faults");
     private final Object lock = new Object();
     private final Map<String, Integer> handles = new HashMap<>();
+
+    /**
+     * Explicit shell-only bootstrap into the provider-owning test UID. Shell does
+     * not possess MANAGE_DOCUMENTS; a normal consumer instead receives a URI grant.
+     * The receiver is DUMP protected in the test manifest and cannot choose another
+     * package, authority, file path or permission. No component is in the main APK.
+     */
+    public static final class GrantReceiver extends BroadcastReceiver {
+        @Override public void onReceive(Context context, Intent intent) {
+            String operation = intent.getStringExtra("operation");
+            if ("grant".equals(operation)) {
+                context.grantUriPermission(TARGET_PACKAGE, GRANT_ROOT, ACCESS | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+            } else if ("revoke".equals(operation)) {
+                context.revokeUriPermission(TARGET_PACKAGE, GRANT_ROOT, ACCESS);
+            } else throw new IllegalArgumentException("Explicit grant/revoke operation required");
+            setResultCode(Activity.RESULT_OK);
+            setResultData("RF088_" + operation);
+        }
+    }
 
     @FunctionalInterface private interface Work<T> { T run() throws Exception; }
     private static void require(boolean condition, String message) {
@@ -166,8 +195,14 @@ public final class FaultDocumentProvider extends DocumentsProvider {
     /** Permission checked administrative API; no arbitrary file paths or reset-all operation. */
     @Override public Bundle call(String method, String arg, Bundle extras) {
         if (!method.startsWith("qa.")) return super.call(method, arg, extras);
-        java.util.Objects.requireNonNull(getContext()).enforceCallingOrSelfPermission(
-                "android.permission.MANAGE_DOCUMENTS", "Synthetic fault configuration requires MANAGE_DOCUMENTS");
+        Context context = java.util.Objects.requireNonNull(getContext());
+        // Configuration requires either the platform manager permission or the
+        // exact fixed consumer UID holding this test provider's explicit grant.
+        boolean manager = context.checkCallingOrSelfPermission("android.permission.MANAGE_DOCUMENTS") == PackageManager.PERMISSION_GRANTED;
+        boolean consumer = unchecked(() -> Binder.getCallingUid() == context.getPackageManager().getApplicationInfo(TARGET_PACKAGE, 0).uid)
+                && context.getPackageManager().checkSignatures(TARGET_PACKAGE, context.getPackageName()) == PackageManager.SIGNATURE_MATCH
+                && context.checkUriPermission(GRANT_ROOT, Binder.getCallingPid(), Binder.getCallingUid(), ACCESS) == PackageManager.PERMISSION_GRANTED;
+        if (!manager && !consumer) throw new SecurityException("Synthetic configuration requires explicit consumer URI grant");
         synchronized (lock) { return unchecked(() -> {
             Bundle result = new Bundle(); String id; JSONObject state;
             switch (method) {
