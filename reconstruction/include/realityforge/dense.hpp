@@ -36,6 +36,9 @@ struct DenseSettings {
     bool referenceMode = false; // untiled cached-luminance numerical reference
     bool discontinuityAwareConsistency = false; // qualified separately before default enable
     unsigned localRefinementIterations = 0; // opt-in measured quality path
+    unsigned normalRefinementIterations = 0; // <=3, <=6 observed plane hypotheses
+    bool normalConsistency = false; // independent calibrated neighborhoods
+    double normalMaxAngleDegrees = 35.;
     bool robustSourceAggregation = false;
 };
 struct DensePoint {
@@ -58,8 +61,8 @@ struct DenseRefinementInputs {
     std::string identitySha256; // canonical identity of exact admitted observations/levels
 };
 // A synchronous borrowed immutable lease around existing surface/texture entry
-// points. Explicit scope admits cpu-refined-v2: 6 local iterations plus strict
-// continuous reciprocal depth support. No scope means baseline behavior; nested
+// points. Explicit scope admits cpu-refined-v3:6 local iterations,3 normal-depth
+// iterations, strict depth and independent normal checks. No scope means baseline behavior; nested
 // null scope disables inheritance. Inputs stay immutable through synchronous call.
 class DenseRefinementScope final {
 public:
@@ -79,6 +82,9 @@ struct VerifiedDepthSample {
     std::uint8_t supportingViews{};
     std::uint8_t camera{};
     std::uint16_t x{}, y{};
+    Vec3 worldNormal{}; // unoriented; zero when no independent neighborhood evidence
+    float normalConfidence{};
+    std::uint8_t normalSupportingViews{};
 };
 struct DenseResult {
     std::vector<DenseDepthMap> maps;
@@ -93,6 +99,8 @@ struct DenseResult {
     std::size_t completedTiles{}, totalTiles{}, admittedWorkingSetBytes{};
     std::size_t resumedDepthTiles{},recomputedDepthTiles{},writtenDepthTiles{},rejectedDepthTiles{};
     std::size_t coarseDepthMaps{},propagatedHypotheses{},sparsePriorTiles{};
+    std::size_t normalHypothesesEvaluated{},normalRefinedPixels{};
+    std::size_t normalSupportPairs{},normalRejectedPairs{},normalUnknownPairs{};
 };
 // Never invents unobserved geometry. Patches assume locally fronto-parallel
 // surfaces and ZNCC; it rejects textureless/ambiguous/occluded observations.
@@ -111,7 +119,7 @@ extern "C" char* rf_dense_json(const std::uint8_t* rgba, int width, int height,
 // prior_rows:6doubles(cameraIndex,x,y,cameraZ,relativeUncertainty,visible0|1), <=20000.
 // Coarse buffers may all be absent (null,0,0,null); otherwise same camera count.
 // identity is a valid NUL-terminated64-lowerhex SHA256 of every admitted input.
-// Opt-in cpu-refined-v2 profile:6 local iterations, strict continuous consistency.
+// Opt-in cpu-refined-v3:6 local/3 normal-depth iterations, strict depth/normal checks.
 // Inputs are borrowed immutable for call duration; returned JSON is malloc/rf_free.
 extern "C" char* rf_dense_refined_json(const std::uint8_t* rgba,int width,int height,
     const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,

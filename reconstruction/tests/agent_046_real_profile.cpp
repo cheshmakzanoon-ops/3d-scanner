@@ -31,6 +31,7 @@ int main(int argc,char** argv){try{
     rf::DenseRefinementInputs refinement{{},coarse,argv[3]};
     const std::string mode=argv[2];if(mode!="strict"&&mode!="strict-refined"&&mode!="refined")throw std::runtime_error("Unknown profile");
     if(mode!="strict")settings.localRefinementIterations=6;
+    if(mode=="strict-refined"){settings.normalRefinementIterations=3;settings.normalConsistency=true;}
     if(mode=="refined")settings.discontinuityAwareConsistency=false;
     std::cout<<rf::denseJson(rf::reconstructDense(full,settings,mode!="strict"?&refinement:nullptr));
     return 0;
