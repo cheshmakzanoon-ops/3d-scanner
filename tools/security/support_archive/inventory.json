@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "role": "096",
+  "status": "HISTORICAL_SOURCE_ARCHIVE_ONLY",
+  "executed_after_user_stop": false,
+  "sources": [
+    {
+      "archive": "harden096.py",
+      "original_path": "/tmp/quality-review/harden096.py",
+      "sha256": "483cd3d9286af6bb7283c9949359cc6cc0a418f7470284a5de9f0acf3a8e535e",
+      "bytes": 4988
+    },
+    {
+      "archive": "triage096.py",
+      "original_path": "/tmp/quality-review/triage096.py",
+      "sha256": "ad8a9a8dc72fc2fa6f9b7991c4c6592e2c6007e1b1f4b42596f21a1967e2bded",
+      "bytes": 13839
+    },
+    {
+      "archive": "triage096-post86.py",
+      "original_path": "/tmp/quality-review/triage096-post86.py",
+      "sha256": "eddefa0dc8a20d53578a5284ec18a5e3560977b6e52440d03107d0293353a094",
+      "bytes": 14006
+    },
+    {
+      "archive": "triage096-final-inputs.py",
+      "original_path": "/tmp/quality-review/triage096-final-inputs.py",
+      "sha256": "36fe0754c66c32ff64a5d3948af96064703af40e13d0fd3e27bd39a1b21f57b0",
+      "bytes": 14727
+    }
+  ]
+}
