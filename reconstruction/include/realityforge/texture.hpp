@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace rf {
-inline constexpr const char* PHOTOGRAPHIC_ATLAS_ENGINE_VERSION="rf-atlas-v2-groups-zlib-radiometry2";
+inline constexpr const char* PHOTOGRAPHIC_ATLAS_ENGINE_VERSION="rf-atlas-v2-groups-zlib-radiometry3";
 // M09: camera-projection UV charts over real rectified photographs. An atlas
 // contains source camera images (not painted procedural colors). All geometry
 // remains open, incomplete, unscaled and backed by M08 depth evidence.

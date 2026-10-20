@@ -93,7 +93,7 @@ bool sampleLinear(const TextureSource& image,const Projected& uv,std::array<doub
     return true;
 }
 ExposureBalance measuredBalance(const SurfaceMesh& mesh,std::span<const DenseView> views,
-    std::span<const DenseDepthMap> maps,std::span<const TextureSource> photos,double tolerance) {
+    std::span<const DenseDepthMap> maps,std::span<const TextureSource> photos,const TextureSettings& settings) {
     std::vector<ExposureSample> samples;
     const auto stride=std::max<std::size_t>(1,(mesh.vertices.size()+1999)/2000);
     for (std::size_t a=0;a<photos.size();++a) for (std::size_t b=a+1;b<photos.size();++b) {
@@ -103,9 +103,15 @@ ExposureBalance measuredBalance(const SurfaceMesh& mesh,std::span<const DenseVie
             const auto& v=mesh.vertices[i];
             if (v.confidence<.10) continue;
             Projected pa{},pb{};
-            if (!project(photos[a],v.xyz,pa) || !project(photos[b],v.xyz,pb) ||
-                !depthAgreement(views[a],maps[a],photos[a],pa,tolerance,3) ||
-                !depthAgreement(views[b],maps[b],photos[b],pb,tolerance,3)) continue;
+            if (!project(photos[a],v.xyz,pa) || !project(photos[b],v.xyz,pb)) continue;
+            if(settings.compactCharts){
+                TextureProjection exactA{},exactB{};
+                if(!projectVisibleTexel(photos[a],views[a],maps[a],v.xyz,settings.depthTolerance,exactA,
+                                       settings.depthSampleStride,settings.depthSampleOrigin)||
+                   !projectVisibleTexel(photos[b],views[b],maps[b],v.xyz,settings.depthTolerance,exactB,
+                                       settings.depthSampleStride,settings.depthSampleOrigin))continue;
+            } else if(!depthAgreement(views[a],maps[a],photos[a],pa,settings.depthTolerance,3)||
+                      !depthAgreement(views[b],maps[b],photos[b],pb,settings.depthTolerance,3))continue;
             ExposureSample sample;sample.first=a;sample.second=b;
             if (!sampleLinear(photos[a],pa,sample.a) || !sampleLinear(photos[b],pb,sample.b)) continue;
             pair.push_back(sample);
@@ -280,7 +286,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
         throw Error("Invalid texture source-camera provenance");
     TexturedSurface result;
     result.exposure.gains.assign(sources.size(),{1,1,1});
-    if (s.balanceColors) result.exposure=measuredBalance(mesh,depthViews,depthMaps,sources,s.depthTolerance);
+    if (s.balanceColors) result.exposure=measuredBalance(mesh,depthViews,depthMaps,sources,s);
     if(s.compactCharts)return compactAtlas(mesh,depthViews,depthMaps,sources,s,result.exposure);
     result.inputTriangles=mesh.triangles.size();
     result.sourceTriangleCounts.assign(sources.size(),0);result.chartCount=sources.size();
