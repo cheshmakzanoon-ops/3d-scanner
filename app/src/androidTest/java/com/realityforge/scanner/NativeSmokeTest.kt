@@ -244,6 +244,30 @@ class NativeSmokeTest {
         try { NativeCore.reconstruct(DoubleArray(20*7){Double.NaN},.002);fail("Nonfinite geometry accepted") }
         catch(expected: IllegalArgumentException) { }
     }
+    @Test fun refinedDepthUsesActualCoarsePhotographsWithNoFabricatedPoints() {
+        val w=64;val h=64;val cw=32;val ch=32
+        fun rgba(width: Int,height: Int)=ByteArray(2*width*height*4){if(it%4==3)255.toByte() else 128.toByte()}
+        val full=rgba(w,h);val coarse=rgba(cw,ch)
+        fun cameras(width: Int,height: Int)=DoubleArray(32).also { rows ->
+            repeat(2){camera -> val base=camera*16;rows[base]=1.0;rows[base+4]=1.0;rows[base+8]=1.0
+                rows[base+9]=-camera*.5;rows[base+12]=84.0*width/w;rows[base+13]=84.0*height/h
+                rows[base+14]=(31.5+.5)*width/w-.5;rows[base+15]=(31.5+.5)*height/h-.5 }
+        }
+        val fullCameras=cameras(w,h);val coarseCameras=cameras(cw,ch)
+        val digest=java.security.MessageDigest.getInstance("SHA-256")
+        digest.update(full);digest.update(coarse)
+        (fullCameras+coarseCameras).forEach { value -> digest.update(java.nio.ByteBuffer.allocate(8).putDouble(value).array()) }
+        val identity=digest.digest().joinToString(""){"%02x".format(it.toInt() and 255)}
+        val token=NativeCore.beginReconstruction()
+        try {
+            val result=JSONObject(NativeCore.reconstructDenseRefinedCancellable(full,w,h,fullCameras,
+                3.0,7.0,24,3,doubleArrayOf(),coarse,cw,ch,coarseCameras,identity,token))
+            assertFalse(result.toString(),result.has("error"));assertEquals(2,result.getInt("coarseDepthMaps"))
+            assertEquals(0,result.getInt("pointCount")) // Uniform photographs must not create geometry.
+            assertEquals(result.getInt("totalTiles"),result.getInt("completedTiles"))
+            assertTrue(NativeCore.pollNativeProgress(token)[6]>0L)
+        } finally { assertTrue(NativeCore.finishReconstruction(token)) }
+    }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext

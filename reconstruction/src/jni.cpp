@@ -10,6 +10,7 @@
 #include "realityforge/jni_support.hpp"
 #include "realityforge/progress.hpp"
 #include <cmath>
+#include <algorithm>
 #include <array>
 #include <jni.h>
 #include <vector>
@@ -403,4 +404,47 @@ Java_com_realityforge_scanner_engine_NativeCore_pollNativeProgress(JNIEnv* env,j
         const std::array<jlong,7> values{1,static_cast<jlong>(snapshot.stage),checked(snapshot.reference),checked(snapshot.tile),checked(snapshot.completed),snapshot.total?checked(*snapshot.total):-1,checked(snapshot.sequence)};
         auto array=env->NewLongArray(7);if(array)env->SetLongArrayRegion(array,0,7,values.data());return array;
     });
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructDenseRefinedCancellable(
+    JNIEnv* env,jobject,jbyteArray rgba,jint width,jint height,jdoubleArray cameraRows,
+    jdouble near,jdouble far,jint planes,jint stride,jdoubleArray priorRows,
+    jbyteArray coarseRgba,jint coarseWidth,jint coarseHeight,jdoubleArray coarseCameraRows,
+    jstring inputIdentity,jlong token){
+    return rf::jni::boundary<jstring>(env,nullptr,[&]{return withOperation(env,token,[&]() -> jstring {
+        if(!rgba||!cameraRows||!priorRows||!coarseRgba||!coarseCameraRows||!inputIdentity||
+           width<32||height<32||width>640||height>640||static_cast<std::int64_t>(width)*height>320000)
+            throw std::invalid_argument("Invalid bounded refined dense buffers");
+        const auto count=env->GetArrayLength(cameraRows),priorSize=env->GetArrayLength(priorRows);
+        if(count<32||count>128||count%16||priorSize%6||priorSize>120000||
+           static_cast<std::int64_t>(width)*height*4*(count/16)!=env->GetArrayLength(rgba))
+            throw std::invalid_argument("Refined dense image/camera/prior shape mismatch");
+        const bool coarse=coarseWidth!=0||coarseHeight!=0;
+        const auto coarseBytes=env->GetArrayLength(coarseRgba),coarseCount=env->GetArrayLength(coarseCameraRows);
+        if(coarse){
+            if(coarseWidth<32||coarseHeight<32||coarseWidth>=width||coarseHeight>=height||
+               static_cast<std::int64_t>(coarseWidth)*coarseHeight>320000||coarseCount!=count||
+               static_cast<std::int64_t>(coarseWidth)*coarseHeight*4*(count/16)!=coarseBytes)
+                throw std::invalid_argument("Invalid admitted coarse pyramid buffers");
+        }else if(coarseBytes||coarseCount)throw std::invalid_argument("Absent coarse pyramid must use empty buffers and zero dimensions");
+        if(!coarse&&!priorSize)throw std::invalid_argument("Refined execution needs real priors or coarse photographs");
+        const auto identity=jString(env,inputIdentity);
+        if(identity.size()!=64||!std::all_of(identity.begin(),identity.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
+            throw std::invalid_argument("Refinement input identity must be canonical lowercase SHA256");
+        std::vector<double> cameras(static_cast<std::size_t>(count)),priors(static_cast<std::size_t>(priorSize)),coarseCameras(static_cast<std::size_t>(coarseCount));
+        rf::jni::doubles(env,cameraRows,0,count,cameras.data());
+        if(priorSize)rf::jni::doubles(env,priorRows,0,priorSize,priors.data());
+        if(coarseCount)rf::jni::doubles(env,coarseCameraRows,0,coarseCount,coarseCameras.data());
+        rf::cancellation::checkpoint();
+        std::vector<std::uint8_t> pixels(static_cast<std::size_t>(env->GetArrayLength(rgba))),coarsePixels(static_cast<std::size_t>(coarseBytes));
+        env->GetByteArrayRegion(rgba,0,env->GetArrayLength(rgba),reinterpret_cast<jbyte*>(pixels.data()));
+        if(env->ExceptionCheck())return nullptr;
+        if(coarseBytes)env->GetByteArrayRegion(coarseRgba,0,coarseBytes,reinterpret_cast<jbyte*>(coarsePixels.data()));
+        if(env->ExceptionCheck())return nullptr;
+        rf::cancellation::checkpoint();
+        return rf::jni::response(env,rf_dense_refined_json(pixels.data(),width,height,cameras.data(),static_cast<std::size_t>(count/16),
+            near,far,planes,stride,priorSize?priors.data():nullptr,static_cast<std::size_t>(priorSize/6),
+            coarse?coarsePixels.data():nullptr,coarseWidth,coarseHeight,coarse?coarseCameras.data():nullptr,identity.c_str()));
+    });});
 }

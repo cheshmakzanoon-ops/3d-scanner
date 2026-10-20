@@ -23,6 +23,11 @@ object NativeCore {
         photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
         near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
         meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String): String
+    /** Opt-in actual coarse/prior depth;009 canonical identity binds all immutable inputs. */
+    external fun reconstructDenseRefinedCancellable(rgba: ByteArray, width: Int, height: Int,
+        cameras: DoubleArray, near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        priorRows: DoubleArray, coarseRgba: ByteArray, coarseWidth: Int, coarseHeight: Int,
+        coarseCameras: DoubleArray, inputIdentity: String, token: Long): String
     /** A unique lease; cancel only the native worker that owns this token. */
     external fun beginReconstruction(): Long
     external fun cancelReconstruction(token: Long): Boolean
