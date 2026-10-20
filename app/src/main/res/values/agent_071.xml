@@ -42,4 +42,5 @@
     <string name="a071_calibration_loading">Reading lens calibration…</string>
     <string name="a071_calibration_invalid">Lens calibration could not be read. Recalibrate before using this optical profile.</string>
     <string name="a071_calibration_estimated">No lens calibration. Estimated optics do not establish physical scale.</string>
+    <string name="a071_no_active_job">No active processing job is recorded for this project. Review its photographs before starting a reconstruction.</string>
 </resources>

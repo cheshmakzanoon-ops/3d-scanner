@@ -49,7 +49,7 @@ import java.io.File
 /** Composition owns routes/picker envelopes. Domain owners still admit and execute operations. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScannerApp(model: ScannerViewModel) {
+fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFeatureServices()) {
     val context = LocalContext.current
     val messages=remember(context) {UserMessageResolver(context)}
     val locale=LocalConfiguration.current.locales[0]
@@ -134,7 +134,12 @@ fun ScannerApp(model: ScannerViewModel) {
             val typed=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}.getOrNull()}
             try {
                 if(accepted!=null && typed?.requestId==accepted.requestId && result.resultCode==Activity.RESULT_OK && uri!=null) {
-                    val valid=withContext(Dispatchers.IO) {runCatching {source.isCurrent(typed.artifact)}.getOrDefault(false)}
+                    val valid=withContext(Dispatchers.IO) {runCatching {
+                        if(!source.isCurrent(typed.artifact)) false else {
+                            source.validate(typed,model.repository.artifact(typed.artifact.projectId,typed.artifact.artifactKey,typed.option.id))
+                            source.isCurrent(typed.artifact)
+                        }
+                    }.getOrDefault(false)}
                     if(valid) model.completeArtifactExport(accepted.requestId,uri)
                     else {model.cancelPendingRequest(accepted.requestId);model.notice.value=staleText}
                 }
@@ -180,7 +185,12 @@ fun ScannerApp(model: ScannerViewModel) {
         val typed=ExportRequest(admitted.requestId,identity,option)
         pendingValue=PendingRequest(typed.requestId,PendingKind.EXPORT,identity.projectId,identity.revision,identity.artifactKey,option.id).encode()
         scope.launch {
-            runCatching {withContext(Dispatchers.IO) {exportStore.save(typed)}}
+            runCatching {withContext(Dispatchers.IO) {
+                check(source.isCurrent(identity))
+                source.validate(typed,model.repository.artifact(identity.projectId,identity.artifactKey,option.id))
+                check(source.isCurrent(identity))
+                exportStore.save(typed)
+            }}
                 .onSuccess {
                     if(PendingRequest.restore(pendingValue)?.requestId!=typed.requestId) {
                         withContext(Dispatchers.IO) {exportStore.clear(typed.requestId)};model.cancelPendingRequest(typed.requestId)
@@ -234,23 +244,31 @@ fun ScannerApp(model: ScannerViewModel) {
             val modifier=Modifier.fillMaxSize().padding(padding).testTag("a071-route-${route.destination.name.lowercase()}")
             val project=projects.find { it.id==route.projectId }
             when(route.destination) {
-                Destination.LIBRARY -> LibraryScreen(LibraryUiState(projects.map {p->LibraryProject.from(p).let {it.copy(message=messages.projectSummary(p.state,it.hasCurrentResult))}},busy=busy),onAction={action->when(action) {
+                Destination.LIBRARY -> {
+                    val hostAction:(LibraryAction)->Unit={action->when(action) {
                     is LibraryAction.Create -> model.create(action.name)
                     is LibraryAction.Open -> if(!busy) {model.select(action.projectId);navigate(AppRoute(Destination.REVIEW,action.projectId))}
                     is LibraryAction.Delete -> if(!busy) { model.select(action.projectId); deleteValue="${action.projectId}\n${action.revision}" }
                     else -> Unit // Unsupported commands are not offered by this baseline adapter.
-                }},modifier=modifier)
+                }}
+                    val service=features.library
+                    if(service!=null) {
+                        val presenter=remember(service,errorText) {LibraryPresenter(service) {errorText}}
+                        LibraryServiceScreen(presenter,hostAction,modifier)
+                    } else LibraryScreen(LibraryUiState(projects.map {p->LibraryProject.from(p).let {it.copy(message=messages.projectSummary(p.state,it.hasCurrentResult))}},busy=busy),hostAction,modifier)
+                }
                 Destination.ONBOARDING -> OnboardingScreen(onComplete=::leaveGuide,onSkip=::leaveGuide,modifier=modifier)
                 Destination.SETTINGS -> PreferencesRoute(busy,modifier,onHelp={navigate(AppRoute(Destination.ONBOARDING,selected))},read=preferences,onSaved={preferences=it})
                 else -> if(project == null || selected != project.id) { Box(modifier.padding(16.dp)) {Text(stringResource(R.string.a071_loading))} }
                 else when(route.destination) {
                     Destination.REVIEW -> {
-                        val evidence=preview?.optJSONObject("scanDiagnostics")
+                        val currentResult=preview?.takeIf {project.resultRevision==project.revision && project.resultKey==it.optString("artifactKey")}
+                        val evidence=currentResult?.optJSONObject("scanDiagnostics")
                         val lines=if(evidence==null) emptyList() else listOf(stringResource(R.string.a071_evidence_counts,
                             evidence.optInt("registeredCameraCount"),evidence.optInt("importedPhotoCount"),evidence.optInt("observedMeshTriangles")),stringResource(R.string.a071_evidence_limits))
                         val state=ProjectReviewUiState(project.id,project.revision,photos.map { ReviewPhoto.from(it,model.repository.photoFile(it)) },project.name,
-                            busy=busy,calibrationStatus=calibration,diagnostics=lines,canCurate=false,canInspectResult=preview!=null)
-                        ProjectReviewScreen(state,onAction={action->
+                            busy=busy,calibrationStatus=calibration,diagnostics=lines,canCurate=false,canInspectResult=currentResult!=null)
+                        val hostAction:(ReviewAction)->Unit={action->
                             if(ReviewAdmission.allowed(state,action) && model.selectedId.value==action.projectId && model.projects.value.find {it.id==action.projectId}?.revision==action.revision && action is ReviewAction.Command) when(action.command) {
                                 ReviewCommand.IMPORT -> beginImport()
                                 ReviewCommand.CAPTURE -> beginCamera()
@@ -261,21 +279,39 @@ fun ScannerApp(model: ScannerViewModel) {
                                 ReviewCommand.HELP -> navigate(AppRoute(Destination.ONBOARDING,selected))
                                 else -> Unit
                             }
-                        },modifier=modifier,fallbackFocal35mm=preferences.preferences.fallbackFocal35mm)
+                        }
+                        val curation=features.curation
+                        if(curation!=null) {
+                            val presenter=remember(curation,errorText,features.removePhotos,features.reconstructSelection) {
+                                PhotoCurationPresenter(curation,{errorText},{errorText},features.removePhotos,features.reconstructSelection!=null)
+                            }
+                            CurationReviewScreen(presenter,state,hostAction,onReconstruct={command,lease->features.reconstructSelection?.invoke(command,lease)},modifier=modifier,fallbackFocal35mm=preferences.preferences.fallbackFocal35mm)
+                        } else ProjectReviewScreen(state,hostAction,modifier,fallbackFocal35mm=preferences.preferences.fallbackFocal35mm)
                     }
                     Destination.PROCESSING -> {
-                        val phase=if(busy) JobPhase.RUNNING else when(project.state) {"INTERRUPTED"->JobPhase.INTERRUPTED;"FAILED"->JobPhase.FAILED;"SPARSE_READY"->JobPhase.COMPLETED;else->JobPhase.PAUSED}
+                        val hasRecord=(busy && scanner.activeOperation?.kind==OperationKind.RECONSTRUCT) || project.state in setOf("PROCESSING","INTERRUPTED","FAILED","SPARSE_READY")
+                        if(!hasRecord && features.jobStates==null) Column(modifier.padding(16.dp)) {
+                            Text(stringResource(R.string.a071_no_active_job))
+                            TextButton(onClick={navigate(AppRoute(Destination.REVIEW,project.id))}) {Text(stringResource(R.string.a071_back))}
+                        } else {
+                        val phase=if(busy) JobPhase.RUNNING else when(project.state) {"INTERRUPTED"->JobPhase.INTERRUPTED;"FAILED"->JobPhase.FAILED;"SPARSE_READY"->JobPhase.COMPLETED;else->JobPhase.INTERRUPTED}
                         val state=JobUiState(JobIdentity(project.id,project.revision,scanner.activeOperation?.jobId?.value ?: "project-${project.id}-${project.revision}"),phase,
                             stage=progress?.stage,completed=progress?.completed?.toLong(),total=progress?.total?.toLong(),
                             technicalDetails=project.message,hasPreviousResult=preview!=null,pauseSupported=true,resumeSupported=false)
-                        ProcessingScreen(state,onAction={action->if(action.identity==state.identity && state.can(action.command)) when(action.command) {
+                        val durableFlow=remember(features.jobStates,project.id,project.revision) {features.jobStates?.invoke(project.id,project.revision)}
+                        val durable=durableFlow?.collectAsState(initial=null)?.value
+                        val visible=durable?:state
+                        ProcessingScreen(visible,onAction={action->if(durable!=null && features.jobAction!=null) {
+                            scope.launch {features.jobAction.invoke(action)}
+                        } else if(action.identity==state.identity && state.can(action.command)) when(action.command) {
                             JobCommand.PAUSE -> if(model.scannerState.value.activeOperation?.jobId?.value==action.identity.jobId) model.pause()
                             JobCommand.RETRY -> if(model.selectedId.value==action.identity.projectId && model.projects.value.find {it.id==action.identity.projectId}?.revision==action.identity.revision) model.reconstruct(lastFocal)
                             JobCommand.OPEN_PREVIOUS -> navigate(AppRoute(Destination.STUDIO,project.id))
                             else -> Unit
                         }},modifier=modifier)
+                        }
                     }
-                    Destination.STUDIO -> StudioRoute(preview,model,modifier,onExport={navigate(AppRoute(Destination.EXPORT,project.id))})
+                    Destination.STUDIO -> StudioRoute(preview?.takeIf {project.resultRevision==project.revision && project.resultKey==it.optString("artifactKey")},model,modifier,onExport={navigate(AppRoute(Destination.EXPORT,project.id))})
                     Destination.EXPORT -> ExportRoute(project.id,source,modifier,busy || exportAdmission || pending!=null,onExport=::launchExport,onArchive={
                         currentRequest(PendingKind.CAPTURE_ARCHIVE)?.let { pendingValue=it.encode();exportPicker.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip").putExtra(Intent.EXTRA_TITLE,"realityforge-capture.zip")) }
                     })
