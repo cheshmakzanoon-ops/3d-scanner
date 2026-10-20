@@ -51,6 +51,8 @@ int main(int argc,char**argv) {
     writeObj(points,{pointFile});
     std::ostringstream empty;
     rejects([&]{describeObj(textured,{"../outside"});});
+    rejects([&]{describeObj(textured,{"cOn"});});
+    rejects([&]{describeObj(textured,{"LPT1"});});
     rejects([&]{writeObj(textured,{empty});});
     rejects([&]{writeObj(textured,{empty,&empty,&empty});});
     Limits tiny;tiny.maxOutputBytes=8;
@@ -59,6 +61,9 @@ int main(int argc,char**argv) {
     require(empty.str().empty(),"cancelled preflight cannot emit bytes");
     ShortBuffer shortBuffer;std::ostream shortStream(&shortBuffer);
     rejects([&]{writeObj(points,{shortStream});});
+    ShortBuffer shortTextureBuffer;std::ostream shortTexture(&shortTextureBuffer);
+    std::ostringstream stagedObj,stagedMtl;
+    rejects([&]{writeObj(textured,{stagedObj,&stagedMtl,&shortTexture});});
     BadFlush badBuffer;std::ostream badFlush(&badBuffer);
     rejects([&]{writeObj(points,{badFlush});});
     ObservingBuffer observedBuffer;std::ostream observed(&observedBuffer);

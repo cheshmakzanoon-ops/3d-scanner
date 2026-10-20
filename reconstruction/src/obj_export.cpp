@@ -22,6 +22,11 @@ void nameCheck(const std::string& name) {
     for (unsigned char c:name)
         if (!((c>='a'&&c<='z')||(c>='A'&&c<='Z')||(c>='0'&&c<='9')||c=='_'||c=='-'))
             throw Error("OBJ basename contains an unsafe path or character");
+    std::string upper=name;
+    for(char& c:upper)if(c>='a'&&c<='z')c=static_cast<char>(c-'a'+'A');
+    if(upper=="CON"||upper=="PRN"||upper=="AUX"||upper=="NUL"||
+        (upper.size()==4&&(upper.starts_with("COM")||upper.starts_with("LPT"))&&upper[3]>='1'&&upper[3]<='9'))
+        throw Error("OBJ basename is a reserved device filename");
 }
 std::string comment(std::string_view value) {
     // Hex encoding is lossless and cannot inject OBJ/MTL records or URI paths.
