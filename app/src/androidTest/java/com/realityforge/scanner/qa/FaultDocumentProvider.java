@@ -96,14 +96,15 @@ public final class FaultDocumentProvider extends DocumentsProvider {
         catch (Exception error) { throw new IllegalStateException(error); }
     }
     private <T> T document(Work<T> work) throws FileNotFoundException {
-        synchronized (lock) {
-            try { return work.run(); }
-            catch (FileNotFoundException error) { throw error; }
-            catch (RuntimeException error) { throw error; }
-            catch (Exception error) {
-                FileNotFoundException failure = new FileNotFoundException(error.toString());
-                failure.initCause(error); throw failure;
-            }
+        synchronized (lock) { return documentIo(work); }
+    }
+    private <T> T documentIo(Work<T> work) throws FileNotFoundException {
+        try { return work.run(); }
+        catch (FileNotFoundException error) { throw error; }
+        catch (RuntimeException error) { throw error; }
+        catch (Exception error) {
+            FileNotFoundException failure = new FileNotFoundException(error.toString());
+            failure.initCause(error); throw failure;
         }
     }
     private <T> T proxy(Work<T> work) throws ErrnoException {
@@ -340,7 +341,9 @@ public final class FaultDocumentProvider extends DocumentsProvider {
         });
     }
     @Override public ParcelFileDescriptor openDocument(String id, String mode, CancellationSignal signal) throws FileNotFoundException {
-        return document(() -> {
+        // Opening a FUSE descriptor can synchronously dispatch onGetSize. Do not
+        // hold the callback's state lock while waiting for the system open call.
+        return documentIo(() -> {
             if (signal != null) signal.throwIfCanceled(); Request request = parsedDocument(id);
             if (request != null) { require(!request.directory, "Cannot open request parent"); return openRequest(request.id, mode, signal); }
             if (id.equals("revoked")) throw new SecurityException("Synthetic permission revoked");
@@ -384,19 +387,22 @@ public final class FaultDocumentProvider extends DocumentsProvider {
     }
     private ParcelFileDescriptor openRequest(String id, String mode, CancellationSignal signal) throws Exception {
         require(Arrays.asList("r", "w", "wt").contains(mode), "Bounded fixtures support r/w/wt only");
-        JSONObject state = read(id); available(state); JSONObject config = state.getJSONObject("config"); boolean writing = !mode.equals("r");
-        if (state.getBoolean("revoked") || !writing && config.getString("mode").equals("revoke-readback") && state.getInt("writeOpens") > 0) {
-            event(id, state, "openPermissionDenied"); throw new SecurityException("Configured synthetic permission revoked");
+        boolean writing = !mode.equals("r");
+        synchronized (lock) {
+            JSONObject state = read(id); available(state); JSONObject config = state.getJSONObject("config");
+            if (state.getBoolean("revoked") || !writing && config.getString("mode").equals("revoke-readback") && state.getInt("writeOpens") > 0) {
+                event(id, state, "openPermissionDenied"); throw new SecurityException("Configured synthetic permission revoked");
+            }
+            if (!writing && !config.getString("verification").equals("readback")) {
+                event(id, state, "readbackUnsupported"); throw new FileNotFoundException("Synthetic destination has no readback capability");
+            }
+            require(handles.getOrDefault(id, 0) < 4, "Synthetic descriptor bound reached");
+            if (writing) {
+                try (RandomAccessFile file = new RandomAccessFile(payload(id), "rw")) { file.setLength(0); file.getFD().sync(); }
+                state.put("writeOpens", state.getInt("writeOpens") + 1);
+            } else state.put("readOpens", state.getInt("readOpens") + 1);
+            event(id, state, writing ? "openWrite" : "openRead"); handles.put(id, handles.getOrDefault(id, 0) + 1);
         }
-        if (!writing && !config.getString("verification").equals("readback")) {
-            event(id, state, "readbackUnsupported"); throw new FileNotFoundException("Synthetic destination has no readback capability");
-        }
-        require(handles.getOrDefault(id, 0) < 4, "Synthetic descriptor bound reached");
-        if (writing) {
-            try (RandomAccessFile file = new RandomAccessFile(payload(id), "rw")) { file.setLength(0); file.getFD().sync(); }
-            state.put("writeOpens", state.getInt("writeOpens") + 1);
-        } else state.put("readOpens", state.getInt("readOpens") + 1);
-        event(id, state, writing ? "openWrite" : "openRead"); handles.put(id, handles.getOrDefault(id, 0) + 1);
         try {
             return java.util.Objects.requireNonNull(getContext()).getSystemService(StorageManager.class).openProxyFileDescriptor(
                     writing ? ParcelFileDescriptor.MODE_WRITE_ONLY : ParcelFileDescriptor.MODE_READ_ONLY, new ProxyFileDescriptorCallback() {
@@ -444,6 +450,6 @@ public final class FaultDocumentProvider extends DocumentsProvider {
                             synchronized (lock) { unchecked(() -> { releaseHandle(id); event(id, read(id), "close"); return null; }); }
                         }
                     }, new Handler(thread.getLooper()));
-        } catch (Exception error) { releaseHandle(id); throw error; }
+        } catch (Exception error) { synchronized (lock) { releaseHandle(id); } throw error; }
     }
 }
