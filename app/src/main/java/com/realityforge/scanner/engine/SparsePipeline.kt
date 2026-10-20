@@ -3,6 +3,16 @@ package com.realityforge.scanner.engine
 import android.graphics.Color
 import com.realityforge.scanner.data.ProjectRepository
 import com.realityforge.scanner.data.ScanPhoto
+import com.realityforge.scanner.engine.pipeline.PipelineAdapterTrace
+import com.realityforge.scanner.engine.pipeline.PipelineCapacityPolicy
+import com.realityforge.scanner.engine.pipeline.PipelineCapacityProfile
+import com.realityforge.scanner.engine.pipeline.PipelineInputSnapshot
+import com.realityforge.scanner.engine.pipeline.PipelinePhotoInput
+import com.realityforge.scanner.engine.pipeline.PipelineStage
+import com.realityforge.scanner.engine.pipeline.PipelineStageIdentity
+import com.realityforge.scanner.engine.pipeline.PipelineStageOutcome
+import com.realityforge.scanner.engine.pipeline.PipelineStageSettings
+import com.realityforge.scanner.engine.pipeline.sha256Utf8
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -24,7 +34,6 @@ import java.io.DataOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.security.MessageDigest
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 
@@ -50,16 +59,45 @@ class SparsePipeline(private val repository: ProjectRepository) {
         require(assumedFocal35 in 10.0..200.0) { "Use a plausible 35 mm-equivalent focal length." }
         check(OpenCVLoader.initLocal()) { "OpenCV could not load on this device." }
         val project = requireNotNull(repository.dao.project(projectId))
-        val photos = repository.dao.photos(projectId).take(12)
+        val photos = repository.dao.photos(projectId)
         require(photos.size >= 2) { "Import at least two overlapping photographs." }
+        // Never silently discard photos. Larger product target profiles are routed through the
+        // same admission point and rejected explicitly until their combined resource/device gates pass.
+        val capacityProfile = PipelineCapacityPolicy.requireSupported(photos.size)
         val directory = repository.directory(projectId)
         val revision = project.revision
         activeProfile = LensCalibration.read(repository, projectId)
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
-        val calibrationFingerprint = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile"
-        val fingerprintInput = "m16-registration-frontier-1|${DenseWorkload.tier(Runtime.getRuntime().maxMemory())}|$calibrationFingerprint|opencv-4.12.0|sift-3500|ratio-.67|edge-1600|$assumedFocal35|" + photos.joinToString("|") { it.sha256 }
-        val fingerprint = MessageDigest.getInstance("SHA-256").digest(fingerprintInput.toByteArray()).joinToString("") { "%02x".format(it) }
+        val calibrationSource = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile-v1"
+        val memoryTier = DenseWorkload.tier(Runtime.getRuntime().maxMemory())
+        val pipelineSnapshot = PipelineInputSnapshot(
+            projectId = projectId,
+            revision = revision,
+            photos = photos.map { photo ->
+                PipelinePhotoInput(
+                    id = photo.id,
+                    contentSha256 = photo.sha256,
+                    width = photo.width,
+                    height = photo.height,
+                    byteCount = photo.bytes,
+                    focal35mm = photo.focal35mm,
+                )
+            },
+            calibrationIdentity = sha256Utf8(calibrationSource),
+            engineVersion = "m19-c2-adapter-1|m16-registration-frontier-1|m18-depth-checkpoint-1",
+            settings = PipelineStageSettings(
+                features = "opencv-4.12.0|sift-3500|edge-1600|cache-v1",
+                matching = "bf-l2|reciprocal-ratio-.67|gap-3|candidate-cap-24",
+                sparse = "incremental-frontier-v1|joint-ba-v1|assumed-focal35=$assumedFocal35",
+                dense = "native-reference-depth-v1|planes-56|memory-tier=$memoryTier",
+                surface = "observed-open-mesh-v1|quality-gated",
+                texture = "photographic-atlas-v1|memory-tier=$memoryTier",
+                export = "diagnostic-sparse-and-dense-glb-ply-v1",
+            ),
+        )
+        val pipelineTrace = PipelineAdapterTrace(pipelineSnapshot)
+        val fingerprint = pipelineSnapshot.identity(PipelineStage.SPARSE).digest
         val artifactKey = "sparse-m16-r$revision-${fingerprint.take(16)}"
         val cache = File(directory, "features").apply { mkdirs() }
         // At most 66 pairs for twelve photos; cache key IDs, never image pixels/descriptors.
@@ -80,6 +118,8 @@ class SparsePipeline(private val repository: ProjectRepository) {
             progress(Progress("Detecting SIFT features", index, photos.size))
             loadFrame(photo, cache).close()
         }
+        progress(Progress("Detecting SIFT features", photos.size, photos.size))
+        pipelineTrace.completed(PipelineStage.FEATURES, "features/")
         // Compare local neighbors for the initial pair; extra cameras are registered against its tracked points.
         val candidates = buildList {
             for (gap in 1..3) for (i in 0 until photos.size - gap) add(i to i + gap)
@@ -118,6 +158,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
         }
         progress(Progress("Verifying overlapping photo pairs", candidates.size, candidates.size))
         val output = best ?: error("No reliable sparse preview. Use a textured, non-flat object, more overlap, and sideways movement. $failures")
+        pipelineTrace.completed(PipelineStage.MATCHING, "$artifactKey.json#verifiedMatches")
         val selected = requireNotNull(anchorPair)
         val pairTracks = requireNotNull(anchorMatches)
         val cameraArray = JSONArray()
@@ -363,13 +404,19 @@ class SparsePipeline(private val repository: ProjectRepository) {
         catch (failure: Exception) {
             geometryWarning = "Multi-view geometry unavailable: ${failure.message ?: "invalid observations"}. Retained the M02 anchor point cloud."
         }
+        pipelineTrace.completed(PipelineStage.SPARSE, "$artifactKey.json#points")
         // M09: retain all accepted geometry if appearance reconstruction is unavailable.
         // Native CPU depth remains a fallback when conservative triangle meshing fails.
         try {
             coroutineContext.ensureActive()
             progress(Progress("Estimating stereo depth, meshing and projecting photographs", 0, 1))
-            val surface=DensePreview.reconstruct(repository,projectId,artifactKey,photos,cameraArray,
-                output.getJSONArray("points"),assumedFocal35,activeProfile,nativeToken) { stage, done, total -> progress(Progress(stage,done,total)) }
+            val typedSurface = DensePreview.reconstructTyped(
+                repository, projectId, artifactKey, photos, cameraArray,
+                output.getJSONArray("points"), assumedFocal35, activeProfile, nativeToken,
+                pipelineSnapshot,
+            ) { stage, done, total -> progress(Progress(stage, done, total)) }
+            typedSurface.outcomes.forEach(pipelineTrace::record)
+            val surface = typedSurface.payload
             coroutineContext.ensureActive()
             output.put("densePreview",surface.getJSONObject("dense"))
             output.put("denseStatus","ready")
@@ -393,8 +440,20 @@ class SparsePipeline(private val repository: ProjectRepository) {
             progress(Progress("Estimating stereo depth, meshing and projecting photographs", 1, 1))
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
         catch (failure: Exception) {
+            val denseFailure = failure.message ?: "Unreliable dense depth"
+            if (pipelineTrace.outcome(PipelineStage.DENSE) == null) {
+                pipelineTrace.unavailable(PipelineStage.DENSE, "DENSE_RECONSTRUCTION_FAILED", denseFailure)
+            }
+            if (pipelineTrace.outcome(PipelineStage.SURFACE) == null) {
+                pipelineTrace.unavailable(PipelineStage.SURFACE, "DENSE_PREREQUISITE_UNAVAILABLE",
+                    "Depth prerequisite failed; no supported triangles")
+            }
+            if (pipelineTrace.outcome(PipelineStage.TEXTURE) == null) {
+                pipelineTrace.unavailable(PipelineStage.TEXTURE, "SURFACE_PREREQUISITE_UNAVAILABLE",
+                    "Depth or mesh prerequisite unavailable")
+            }
             output.put("denseStatus","unavailable")
-                .put("denseFailure",failure.message ?: "Unreliable dense depth")
+                .put("denseFailure",denseFailure)
                 .put("meshStatus","unavailable")
                 .put("meshFailure","Depth prerequisite failed; no supported triangles")
                 .put("textureStatus","unavailable")
@@ -404,6 +463,7 @@ class SparsePipeline(private val repository: ProjectRepository) {
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size).put("pairsExamined", candidates.size)
             .put("engineVersion", "m16-registration-frontier-1").put("calibrationProfileApplied", activeProfile != null).put("failedPairs", failures)
             .put("warning", geometryWarning)
+            .put("pipeline", pipelineJson(pipelineSnapshot, capacityProfile, pipelineTrace))
         // Always preserve measured evidence and actionable failure reasons in
         // the same revision-bound JSON that the library reopens.
         output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))
@@ -444,6 +504,56 @@ class SparsePipeline(private val repository: ProjectRepository) {
             progress(Progress("Saving dense point-cloud exports",2,2))
         }
         output
+    }
+
+    private fun pipelineJson(
+        snapshot: PipelineInputSnapshot,
+        capacityProfile: PipelineCapacityProfile,
+        trace: PipelineAdapterTrace,
+    ): JSONObject {
+        val identities = JSONObject()
+        snapshot.identitiesThrough(PipelineStage.TEXTURE).forEach { identity ->
+            identities.put(identity.stage.name.lowercase(), JSONObject()
+                .put("schema", identity.schema)
+                .put("digest", identity.digest)
+                .put("parentDigest", identity.parentDigest ?: JSONObject.NULL)
+                .put("representation", identity.stage.representation.name))
+        }
+        val outcomes = JSONArray()
+        trace.outcomes.forEach { outcome ->
+            val row = JSONObject().put("stage", outcome.stage.name.lowercase())
+            when (outcome) {
+                is PipelineStageOutcome.Completed -> {
+                    val artifact = outcome.artifact
+                    row.put("state", "completed")
+                        .put("representation", artifact.representation.name)
+                        .put("artifact", JSONObject()
+                            .put("id", artifact.artifactId)
+                            .put("identity", artifact.identity.digest)
+                            .put("primaryLocation", artifact.primaryLocation)
+                            .put("companionLocations", JSONArray(artifact.companionLocations))
+                            .put("contentSha256", artifact.contentSha256 ?: JSONObject.NULL))
+                }
+                is PipelineStageOutcome.Unavailable -> {
+                    val failure = outcome.failure
+                    row.put("state", "unavailable")
+                        .put("failure", JSONObject()
+                            .put("code", failure.code)
+                            .put("message", failure.message)
+                            .put("recoverable", failure.recoverable))
+                }
+            }
+            outcomes.put(row)
+        }
+        return JSONObject()
+            .put("contract", "C2")
+            .put("schema", PipelineStageIdentity.SCHEMA)
+            .put("entryPoint", "SparsePipeline.run")
+            .put("profile", capacityProfile.name)
+            .put("photoCount", snapshot.photos.size)
+            .put("engineVersion", snapshot.engineVersion)
+            .put("stageIdentities", identities)
+            .put("stageOutcomes", outcomes)
     }
 
     private fun loadFrame(photo: ScanPhoto, cache: File): Frame {
