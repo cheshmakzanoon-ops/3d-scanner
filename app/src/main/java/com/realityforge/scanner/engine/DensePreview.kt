@@ -8,6 +8,7 @@ import com.realityforge.scanner.engine.pipeline.PipelineFailure
 import com.realityforge.scanner.engine.pipeline.PipelineInputSnapshot
 import com.realityforge.scanner.engine.pipeline.PipelineStage
 import com.realityforge.scanner.engine.pipeline.PipelineStageOutcome
+import com.realityforge.scanner.engine.pipeline.VerifiedSurfaceCheckpoint
 import com.realityforge.scanner.engine.pipeline.sha256Utf8
 import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
 import com.realityforge.scanner.processing.resources.ResourceCheckpointPause
@@ -20,6 +21,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.FileInputStream
 import java.security.MessageDigest
+import java.nio.file.Files
+import java.nio.file.LinkOption
 import kotlin.coroutines.coroutineContext
 import kotlin.math.*
 
@@ -51,7 +54,7 @@ internal object DensePreview {
         onProgress: suspend (String, Int, Int) -> Unit = { _, _, _ -> },
     ): JSONObject = reconstructInternal(
         repository, projectId, artifactKey, photos, cameras, sparsePoints,
-        fallbackFocal35, profile, nativeToken, null, ResourceWorkloadSelection.COMPACT, onProgress,
+        fallbackFocal35, profile, nativeToken, null, ResourceWorkloadSelection.COMPACT, null, onProgress,
     ).payload
 
     /** Typed C2 adapter used by SparsePipeline while dense providers are extracted incrementally. */
@@ -67,10 +70,11 @@ internal object DensePreview {
         nativeToken: Long,
         pipelineSnapshot: PipelineInputSnapshot,
         resourceSelection: ResourceWorkloadSelection = ResourceWorkloadSelection.COMPACT,
+        surfaceCheckpoint: VerifiedSurfaceCheckpoint? = null,
         onProgress: suspend (String, Int, Int) -> Unit = { _, _, _ -> },
     ): DensePreviewResult = reconstructInternal(
         repository, projectId, artifactKey, photos, cameras, sparsePoints,
-        fallbackFocal35, profile, nativeToken, pipelineSnapshot, resourceSelection, onProgress,
+        fallbackFocal35, profile, nativeToken, pipelineSnapshot, resourceSelection, surfaceCheckpoint, onProgress,
     )
 
     private suspend fun reconstructInternal(
@@ -85,10 +89,20 @@ internal object DensePreview {
         nativeToken: Long,
         pipelineSnapshot: PipelineInputSnapshot?,
         resourceSelection: ResourceWorkloadSelection,
+        surfaceCheckpoint: VerifiedSurfaceCheckpoint?,
         onProgress: suspend (String, Int, Int) -> Unit,
     ): DensePreviewResult {
         require(cameras.length() in 2..12 && sparsePoints.length() in 30..30000) {
             "Dense stereo requires two registered cameras and a usable sparse depth prior."
+        }
+        require(artifactKey.matches(Regex("sparse-m16-r[0-9]+-[0-9a-f]{16}"))) {
+            "Invalid reconstruction artifact key."
+        }
+        // The selector has verified the complete C8 dependency closure and exact current sparse
+        // frame. An unchanged appearance/export job needs no image decoding or native geometry.
+        if (surfaceCheckpoint?.completeTexture != null) {
+            return reuseCompleteResult(repository.directory(projectId), artifactKey, surfaceCheckpoint,
+                pipelineSnapshot, onProgress)
         }
         // Selection was persisted with the job before admission. Use it unchanged for every resumed allocation.
         val selected = DenseWorkload.selectCameraIndices(cameras.length(), resourceSelection.maximumViews)
@@ -149,6 +163,13 @@ internal object DensePreview {
         val plyPartial=File(folder,"${ply.name}.partial")
         val texturedPartial=File(folder,"${texturedGlb.name}.partial")
         val pngPartial=File(folder,"${atlasPng.name}.partial")
+        // This attempt may remove only paths it creates. A leftover path is recovery evidence,
+        // never proof that the current attempt owns it. C6 excludes competing project writers.
+        for (destination in listOf(glb, ply, texturedGlb, atlasPng, glbPartial, plyPartial, texturedPartial, pngPartial)) {
+            check(!Files.exists(destination.toPath(), LinkOption.NOFOLLOW_LINKS)) {
+                "A reconstruction output already exists; preserve it and retry project recovery."
+            }
+        }
         var publishedGlb=false
         // The atlas samples the *same originals* at higher resolution than the
         // adaptive CPU stereo geometry. This never synthesizes photographic detail.
@@ -168,11 +189,34 @@ internal object DensePreview {
             coroutineContext.ensureActive()
             onProgress("Solving multi-view depth and texture",0,1)
             val depthIdentity=DepthCheckpointIdentity.fingerprint(
-                pipelineSnapshot?.let { "sparse-m16-r${it.revision}-${it.identity(PipelineStage.SPARSE).digest.take(16)}" } ?: artifactKey,
+                pipelineSnapshot?.let { DepthCheckpointIdentity.contentGeometryKey(it.identity(PipelineStage.SPARSE).digest) } ?: artifactKey,
                 rectified,cameraRows,width,height,near,far,DEPTH_PLANES,workload.pixelStride,
                 resourceSelectionIdentity = resourceSelection.geometryIdentitySha256)
             val checkpointDirectory=DepthCheckpointIdentity.directory(folder,depthIdentity)
-            val result=if(photographic!=null) {
+            val reusable = surfaceCheckpoint?.takeIf { it.depthIdentity == depthIdentity &&
+                it.depthDirectory.canonicalFile == checkpointDirectory.canonicalFile }
+            val retextured = if (reusable != null && photographic != null) {
+                val (texturePixels, textureWidth, textureHeight) = photographic
+                val candidate = NativeResultJson.decode(NativeCore.textureAcceptedSurfaceCheckpointed(
+                    rectified, width, height, texturePixels, textureWidth, textureHeight, cameraRows,
+                    reusable.surfaceFile.path, texturedPartial.path, pngPartial.path, nativeToken,
+                    checkpointDirectory.path, depthIdentity))
+                // A corrupt or incompatible cache is recomputed through the normal solver. Native
+                // cancellation and resource exhaustion have already been propagated by the decoder.
+                candidate.takeUnless { it.optString("errorCode") == "CHECKPOINT_REJECTED" }
+            } else if (reusable != null) {
+                JSONObject(reusable.payload.toString()).apply {
+                    remove("texture")
+                    put("textureError", textureInputFailure ?: "Photographic sources are unavailable")
+                    put("geometryReused", true)
+                    put("surfaceCheckpointAvailable", true)
+                    put("surfaceCheckpointWritten", false)
+                    getJSONObject("dense").put("writtenDepthMaps", 0).put("resumedDepthMaps", 0)
+                        .put("depthCheckpointWritten", 0).put("depthCheckpointResumed", 0)
+                        .put("peakLuminanceBytes", 0)
+                }
+            } else null
+            val result=retextured ?: if(photographic!=null) {
                 val (texturePixels,textureWidth,textureHeight)=photographic
                 NativeResultJson.decode(NativeCore.reconstructTexturedSurfaceCheckpointed(
                     rectified,width,height,texturePixels,textureWidth,textureHeight,cameraRows,
@@ -187,6 +231,12 @@ internal object DensePreview {
             // C++ cancellation must not be treated as a nonfatal M08 mesh/texture
             // quality warning: no partial asset may be published after Pause.
             require(!result.has("error")) { result.optString("error","Depth or mesh solver failed") }
+            val geometryReused = result.optBoolean("geometryReused", false)
+            if (geometryReused) {
+                val accepted = requireNotNull(reusable)
+                copyVerified(accepted.meshGlb, glbPartial, accepted.meshGlbBytes, accepted.meshGlbSha256)
+                copyVerified(accepted.meshPly, plyPartial, accepted.meshPlyBytes, accepted.meshPlySha256)
+            }
             val output=result.getJSONObject("dense")
             require(output.getInt("pointCount")>=60 && output.getInt("consistentPixels")>=60) {
                 "Insufficient reciprocal-consistent depth; recapture a textured rigid object."
@@ -210,12 +260,16 @@ internal object DensePreview {
                 .put("nearDepthInAnchorUnits",near).put("farDepthInAnchorUnits",far)
                 .put("depthCheckpointSchema",18)
                 .put("depthCheckpointIdentity",depthIdentity)
+                .put("surfaceCheckpointAvailable", result.optBoolean("surfaceCheckpointAvailable", false))
+                .put("surfaceCheckpointWritten", result.optBoolean("surfaceCheckpointWritten", false))
+                .put("geometryReused", geometryReused)
                 .put("depthCheckpointResumed",output.optInt("resumedDepthMaps"))
                 .put("depthCheckpointWritten",output.optInt("writtenDepthMaps"))
                 .put("photographsRectified",true)
                 .put("calibrationProfileApplied",profile!=null)
                 .put("limitations","Bounded CPU stereo with optional actual photographic UV atlas. Open mesh, arbitrary scale, no global appearance or completeness guarantee")
             val composite=JSONObject().put("dense",output)
+                .put("geometryReused", geometryReused)
             val mesh=result.optJSONObject("mesh")
             if (mesh!=null && mesh.optInt("triangleCount")>=40 &&
                 mesh.optInt("vertexCount")>=30 &&
@@ -266,6 +320,73 @@ internal object DensePreview {
             pngPartial.delete()
             if (publishedGlb && !ply.isFile) glb.delete()
         }
+    }
+
+    private suspend fun reuseCompleteResult(
+        folder: File,
+        artifactKey: String,
+        accepted: VerifiedSurfaceCheckpoint,
+        snapshot: PipelineInputSnapshot?,
+        onProgress: suspend (String, Int, Int) -> Unit,
+    ): DensePreviewResult {
+        val texture = requireNotNull(accepted.completeTexture)
+        val glb = File(folder, "$artifactKey.mesh.glb")
+        val ply = File(folder, "$artifactKey.mesh.ply")
+        val textured = File(folder, "$artifactKey.textured.glb")
+        val atlas = File(folder, "$artifactKey.texture.png")
+        onProgress("Reusing verified geometry and photographic texture", 0, 4)
+        copyVerified(accepted.meshGlb, glb, accepted.meshGlbBytes, accepted.meshGlbSha256)
+        onProgress("Reusing verified geometry and photographic texture", 1, 4)
+        copyVerified(accepted.meshPly, ply, accepted.meshPlyBytes, accepted.meshPlySha256)
+        onProgress("Reusing verified geometry and photographic texture", 2, 4)
+        copyVerified(texture.texturedGlb, textured, texture.texturedGlbBytes, texture.texturedGlbSha256)
+        onProgress("Reusing verified geometry and photographic texture", 3, 4)
+        copyVerified(texture.atlasPng, atlas, texture.atlasPngBytes, texture.atlasPngSha256)
+        onProgress("Reusing verified geometry and photographic texture", 4, 4)
+        val payload = JSONObject(accepted.payload.toString()).put("geometryReused", true).put("textureReused", true)
+        payload.getJSONObject("dense").put("geometryReused", true)
+            .put("surfaceCheckpointAvailable", true).put("surfaceCheckpointWritten", false)
+            .put("depthCheckpointWritten", 0).put("depthCheckpointResumed", 0)
+            .put("writtenDepthMaps", 0).put("resumedDepthMaps", 0)
+            .put("peakLuminanceBytes", 0)
+        return DensePreviewResult(payload, snapshot?.let {
+            typedOutcomes(it, artifactKey, payload, glb, ply, textured, atlas)
+        }.orEmpty())
+    }
+
+    /** Copy only the exact C8-verified bytes. Existing accepted outputs are never replaced. */
+    private suspend fun copyVerified(source: File, destination: File, bytes: Long, sha256: String) {
+        require(bytes in 1..64L * 1024 * 1024 && sha256.matches(Regex("[0-9a-f]{64}")))
+        require(Files.isRegularFile(source.toPath(), LinkOption.NOFOLLOW_LINKS) && source.length() == bytes)
+        if (destination.exists() || Files.isSymbolicLink(destination.toPath())) {
+            require(Files.isRegularFile(destination.toPath(), LinkOption.NOFOLLOW_LINKS) && destination.length() == bytes &&
+                fileSha256(destination) == sha256) { "An existing artifact has different bytes; preserve it and retry recovery." }
+            // The destination may be the same immutable source under an unchanged artifact key.
+            coroutineContext.ensureActive()
+            require(fileSha256(source) == sha256) { "Accepted source changed before reuse." }
+            return
+        }
+        val temporary = File.createTempFile(".verified-reuse-", ".partial", destination.parentFile)
+        try {
+            val digest = MessageDigest.getInstance("SHA-256")
+            var observed = 0L
+            FileInputStream(source).use { input -> FileOutputStream(temporary).use { output ->
+                val buffer = ByteArray(64 * 1024)
+                while (true) {
+                    coroutineContext.ensureActive()
+                    val count = input.read(buffer)
+                    if (count < 0) break
+                    check(count > 0 && count.toLong() <= bytes - observed) { "Accepted source changed during reuse." }
+                    digest.update(buffer, 0, count); output.write(buffer, 0, count); observed += count
+                }
+                output.fd.sync()
+            } }
+            require(observed == bytes && digest.digest().joinToString("") { "%02x".format(it.toInt() and 255) } == sha256) {
+                "Accepted source hash changed during reuse."
+            }
+            coroutineContext.ensureActive()
+            check(!destination.exists() && temporary.renameTo(destination)) { "Cannot stage verified reused artifact." }
+        } finally { temporary.delete() }
     }
 
 

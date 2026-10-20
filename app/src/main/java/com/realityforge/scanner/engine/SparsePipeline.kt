@@ -24,6 +24,7 @@ import com.realityforge.scanner.engine.pipeline.PipelineStageIdentity
 import com.realityforge.scanner.engine.pipeline.PipelineStageOutcome
 import com.realityforge.scanner.engine.pipeline.PipelineStageSettings
 import com.realityforge.scanner.engine.pipeline.sha256Utf8
+import com.realityforge.scanner.engine.diagnostics.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -45,6 +46,8 @@ import java.io.DataOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.LinkOption
 import kotlin.coroutines.coroutineContext
 import kotlin.math.min
 
@@ -57,6 +60,28 @@ class SparsePipeline(
     private val checkpoints: PipelineCheckpointSink = PipelineCheckpointSink {},
 ) {
     data class Progress(val stage: String, val completed: Int, val total: Int)
+    internal var diagnosticRecorder: RuntimeDiagnosticRecorder? = null
+    internal var onDiagnosticProgress: suspend (StageProgress) -> Unit = {}
+    internal var activeDiagnosticStage: ScanStage = ScanStage.IMPORT
+        private set
+
+    private suspend fun measured(stage: ScanStage, completed: Int, total: Int?, unit: ProgressUnit,
+        reusedCheckpoint: Boolean = false) {
+        activeDiagnosticStage = stage
+        diagnosticRecorder?.progress(stage, completed.toLong(), total?.toLong(), unit, reusedCheckpoint)
+            ?.let { onDiagnosticProgress(it) }
+    }
+
+    private fun outcome(stage: ScanStage, accepted: Boolean, code: ScanFailureCode,
+        action: RecoveryAction, messageKey: String, unavailable: StageOutcome = StageOutcome.PARTIAL) {
+        activeDiagnosticStage = stage
+        val state = if (accepted) StageOutcome.SUCCEEDED else unavailable
+        diagnosticRecorder?.outcome(stage, state, if (accepted) null else ScanFailure(code, stage, state, action, messageKey))
+    }
+    private fun reject(stage: ScanStage, code: ScanFailureCode, action: RecoveryAction, messageKey: String): Nothing {
+        activeDiagnosticStage = stage
+        throw DiagnosticOperationException(ScanFailure(code, stage, StageOutcome.FAILED, action, messageKey))
+    }
     private data class PairMatches(val rows: DoubleArray, val firstKeys: IntArray, val secondKeys: IntArray) {
         val size: Int get() = firstKeys.size
         fun destinationBySource(): Map<Int, Int> = firstKeys.indices.associate { firstKeys[it] to secondKeys[it] }
@@ -73,68 +98,109 @@ class SparsePipeline(
                 ImageLoader.focalPixels(width, height, photo.focal35mm ?: fallbackFocal35))
 
     suspend fun run(projectId: String, assumedFocal35: Double, nativeToken: Long, progress: suspend (Progress) -> Unit): JSONObject = withContext(Dispatchers.Default) {
-        require(assumedFocal35 in 10.0..200.0) { "Use a plausible 35 mm-equivalent focal length." }
-        check(OpenCVLoader.initLocal()) { "OpenCV could not load on this device." }
+        if (assumedFocal35 !in 10.0..200.0) reject(ScanStage.CALIBRATION, ScanFailureCode.INPUT_UNSUPPORTED,
+            RecoveryAction.REVIEW_INPUTS, "scan.failure.focal_length_unsupported")
+        if (!OpenCVLoader.initLocal()) reject(ScanStage.FEATURE_EXTRACTION, ScanFailureCode.NATIVE_LIBRARY_UNAVAILABLE,
+            RecoveryAction.RETRY_JOB, "scan.failure.native_library_unavailable")
         Core.setNumThreads(resourceSelection.nativeThreads)
         val project = requireNotNull(repository.dao.project(projectId))
+        diagnosticRecorder?.scope?.let { scope ->
+            val bound = requireNotNull(artifactBinding)
+            require(scope.sourceRevision == project.revision && bound.jobId == scope.jobId &&
+                bound.attempt == scope.attempt.toLong()) { "Diagnostic scope differs from the executing pipeline." }
+        }
         val selected = repository.inputSnapshot(projectId)
         val indexed = repository.dao.photos(projectId).associateBy { it.id }
-        val photos = selected.photos.map { expected -> requireNotNull(indexed[expected.id]).also {
-            check(it.included && it.sha256 == expected.sha256) { "Curation changed during input verification." }
-        } }
+        val photos = selected.photos.map { expected ->
+            val photo = indexed[expected.id]
+            if (photo == null || !photo.included || photo.sha256 != expected.sha256)
+                reject(ScanStage.IMPORT, ScanFailureCode.INPUT_CHANGED, RecoveryAction.REVIEW_INPUTS, "scan.failure.input_changed")
+            photo
+        }
         artifactBinding?.let { check(it.projectId == projectId && it.projectRevision == project.revision) }
-        require(photos.size >= 2) { "Import at least two overlapping photographs." }
+        if (photos.size < 2) reject(ScanStage.IMPORT, ScanFailureCode.INSUFFICIENT_OVERLAP,
+            RecoveryAction.RECAPTURE_OVERLAP, "scan.failure.insufficient_photographs")
         // Never silently discard photos. Larger product target profiles are routed through the
         // same admission point and rejected explicitly until their combined resource/device gates pass.
         val capacityProfile = PipelineCapacityPolicy.requireSupported(photos.size)
-        for (photo in photos) {
+        measured(ScanStage.IMPORT, 0, photos.size, ProgressUnit.PHOTOS)
+        for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
             val original = repository.photoFile(photo)
-            check(original.isFile && original.length() == photo.bytes) { "Original photograph is missing or changed." }
+            if (!original.isFile || original.length() != photo.bytes)
+                reject(ScanStage.IMPORT, ScanFailureCode.INPUT_CORRUPT, RecoveryAction.REVIEW_INPUTS, "scan.failure.original_missing_or_changed")
             val actual = original.inputStream().use { input ->
                 val digest = java.security.MessageDigest.getInstance("SHA-256"); val buffer = ByteArray(65536)
-                while (true) { val count = input.read(buffer); if (count < 0) break; coroutineContext.ensureActive(); digest.update(buffer, 0, count) }
+                var consumed = 0L
+                while (true) {
+                    val count = input.read(buffer); if (count < 0) break
+                    coroutineContext.ensureActive()
+                    if (count.toLong() > photo.bytes - consumed)
+                        reject(ScanStage.IMPORT, ScanFailureCode.INPUT_CHANGED, RecoveryAction.REVIEW_INPUTS, "scan.failure.input_changed")
+                    consumed += count
+                    digest.update(buffer, 0, count)
+                }
+                if (consumed != photo.bytes)
+                    reject(ScanStage.IMPORT, ScanFailureCode.INPUT_CHANGED, RecoveryAction.REVIEW_INPUTS, "scan.failure.input_changed")
                 digest.digest().joinToString("") { "%02x".format(it.toInt() and 255) }
             }
-            check(actual == photo.sha256) { "Original photograph checksum changed; reconstruction was stopped." }
+            if (actual != photo.sha256)
+                reject(ScanStage.IMPORT, ScanFailureCode.INPUT_CORRUPT, RecoveryAction.REVIEW_INPUTS, "scan.failure.original_checksum_changed")
+            measured(ScanStage.IMPORT, index + 1, photos.size, ProgressUnit.PHOTOS)
         }
+        diagnosticRecorder?.outcome(ScanStage.IMPORT, StageOutcome.SUCCEEDED)
         val directory = repository.directory(projectId)
         val revision = project.revision
-        val calibrationRecord = LensCalibration.readRecord(repository, projectId)
+        activeDiagnosticStage = ScanStage.CALIBRATION
+        val calibrationRecord = try { LensCalibration.readRecord(repository, projectId) }
+        catch (invalid: Exception) {
+            if (invalid !is IllegalArgumentException && invalid !is org.json.JSONException) throw invalid
+            reject(ScanStage.CALIBRATION, ScanFailureCode.CALIBRATION_UNAVAILABLE,
+                RecoveryAction.RECALIBRATE, "scan.failure.calibration_profile_invalid")
+        }
         val calibrationCompatibility = JSONArray()
         calibrationRecord?.let { record ->
-            for (photo in photos) {
-                val metadata = photo.captureMetadataRecord?.let {
+            measured(ScanStage.CALIBRATION, 0, photos.size, ProgressUnit.PHOTOS)
+            for ((index, photo) in photos.withIndex()) {
+                val metadata = try { photo.captureMetadataRecord?.let {
                     com.realityforge.scanner.capture.metadata.CaptureMetadataCodec.decode(it.toByteArray(Charsets.UTF_8))
+                } } catch (invalid: Exception) {
+                    if (invalid !is IllegalArgumentException && invalid !is org.json.JSONException) throw invalid
+                    reject(ScanStage.CALIBRATION, ScanFailureCode.INPUT_CORRUPT,
+                        RecoveryAction.REVIEW_INPUTS, "scan.failure.optical_metadata_corrupt")
                 }
-                metadata?.let { check(photo.opticalIdentitySha256 == null ||
-                    photo.opticalIdentitySha256 == com.realityforge.scanner.capture.metadata.CaptureMetadataCodec.opticalIdentitySha256(it)) {
-                    "Stored optical identity does not match the capture metadata."
-                } }
+                if (metadata != null && photo.opticalIdentitySha256 != null &&
+                    photo.opticalIdentitySha256 != com.realityforge.scanner.capture.metadata.CaptureMetadataCodec.opticalIdentitySha256(metadata))
+                    reject(ScanStage.CALIBRATION, ScanFailureCode.INPUT_CORRUPT,
+                        RecoveryAction.REVIEW_INPUTS, "scan.failure.optical_metadata_corrupt")
                 val capture = metadata?.let {
                     com.realityforge.scanner.capture.calibration.CalibrationCaptureMetadataAdapter.forScan(it, photo.width, photo.height)
                 } ?: com.realityforge.scanner.capture.calibration.CalibrationCaptureMetadata(photo.width, photo.height,
                     com.realityforge.scanner.capture.calibration.CalibrationOpticalMetadata(focal35mm = photo.focal35mm))
                 val compatible = com.realityforge.scanner.capture.calibration.CalibrationProfileCompatibility.evaluate(record, capture)
-                require(compatible.status != com.realityforge.scanner.capture.calibration.CalibrationCompatibilityStatus.INCOMPATIBLE) {
-                    "Calibration is incompatible with photograph ${photo.id}: ${compatible.reasons.joinToString()}. Remove or replace the lens profile."
-                }
+                if (compatible.status == com.realityforge.scanner.capture.calibration.CalibrationCompatibilityStatus.INCOMPATIBLE)
+                    reject(ScanStage.CALIBRATION, ScanFailureCode.CALIBRATION_UNAVAILABLE,
+                        RecoveryAction.RECALIBRATE, "scan.failure.calibration_incompatible")
                 calibrationCompatibility.put(JSONObject().put("photoId", photo.id).put("status", compatible.status.name)
                     .put("reasons", JSONArray(compatible.reasons.map { it.name })))
+                measured(ScanStage.CALIBRATION, index + 1, photos.size, ProgressUnit.PHOTOS)
             }
         }
+        diagnosticRecorder?.outcome(ScanStage.CALIBRATION,
+            if (calibrationRecord == null) StageOutcome.NOT_RUN else StageOutcome.SUCCEEDED)
         activeProfile = calibrationRecord?.profile
         fallbackFocal35 = assumedFocal35
         val calibrationFile = LensCalibration.file(repository, projectId)
-        val calibrationSource = if (calibrationFile.isFile) calibrationFile.readText() else "pinhole-no-profile-v1"
         val pipelineSnapshot = com.realityforge.scanner.engine.pipeline.ProductionPipelineSnapshot.create(
-            selected, sha256Utf8(calibrationSource), assumedFocal35, resourceSelection)
+            selected, com.realityforge.scanner.engine.pipeline.ProductionPipelineSnapshot.calibrationSha256(calibrationFile),
+            assumedFocal35, resourceSelection)
         val pipelineTrace = PipelineAdapterTrace(pipelineSnapshot)
         val fingerprint = pipelineSnapshot.identity(PipelineStage.SPARSE).digest
         val artifactKey = "sparse-m16-r$revision-${sha256Utf8(fingerprint + "|" + java.util.UUID.randomUUID()).take(16)}"
         val artifacts = PipelineArtifactSession(directory, pipelineSnapshot,
             artifactBinding ?: com.realityforge.scanner.engine.artifacts.ArtifactBinding(projectId, revision,
                 "local-${java.util.UUID.randomUUID()}", 1), checkpoints)
+        activeDiagnosticStage = ScanStage.STORAGE
         artifacts.prepared()
         val alignmentCache = SparseAlignmentCache(directory)
         val cachedAlignment = alignmentCache.load(artifacts.plan)
@@ -145,12 +211,18 @@ class SparsePipeline(
             val saved = alignmentCache.save(artifacts.plan, cachedAlignment.geometry, cachedAlignment.checkpoint)
             artifacts.record(ArtifactStage.ALIGNMENT, saved, "positive-depth-reprojection-and-connected-tracks",
                 evidenceHash = cachedAlignment.checkpoint.acceptance.evidenceHash)
+            measured(ScanStage.FEATURE_EXTRACTION, photos.size, photos.size, ProgressUnit.PHOTOS, reusedCheckpoint = true)
+            diagnosticRecorder?.outcome(ScanStage.FEATURE_EXTRACTION, StageOutcome.SUCCEEDED)
+            // This counts one verified graph checkpoint, not freshly executed image pairs.
+            measured(ScanStage.MATCHING, 1, 1, ProgressUnit.STEPS, reusedCheckpoint = true)
+            diagnosticRecorder?.outcome(ScanStage.MATCHING, StageOutcome.SUCCEEDED)
             pipelineTrace.completed(PipelineStage.FEATURES, "features/")
             pipelineTrace.completed(PipelineStage.MATCHING,
                 requireNotNull(cachedAlignment.parents[ArtifactStage.MATCHES]).artifacts.first().relativePath)
             pipelineTrace.completed(PipelineStage.SPARSE, saved.first().file.name)
             cachedAlignment.geometry.put("alignmentReused", true)
         } else {
+        activeDiagnosticStage = ScanStage.FEATURE_EXTRACTION
         artifacts.starting(ArtifactStage.FEATURES)
         val cache = File(directory, "features").apply { check(isDirectory || mkdirs()) }
         check(!java.nio.file.Files.isSymbolicLink(cache.toPath())) { "Feature cache cannot be a symbolic link." }
@@ -173,16 +245,20 @@ class SparsePipeline(
         }
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
+            measured(ScanStage.FEATURE_EXTRACTION, index, photos.size, ProgressUnit.PHOTOS)
             progress(Progress("Detecting SIFT features", index, photos.size))
             loadFrame(photo, cache).close()
         }
         progress(Progress("Detecting SIFT features", photos.size, photos.size))
+        measured(ScanStage.FEATURE_EXTRACTION, photos.size, photos.size, ProgressUnit.PHOTOS)
         artifacts.record(ArtifactStage.FEATURES, photos.flatMap { photo ->
             val featureFile = File(cache, "${photo.sha256}-sift1600-v2.bin")
             listOf(PipelineStageFile(featureFile, RepresentationKind.FEATURE_SET),
                 PipelineStageFile(File(cache, "${featureFile.name}.sha256"), RepresentationKind.DIAGNOSTIC_REPORT, "text/plain"))
         }, "bounded-sift-layout-and-sha256")
         pipelineTrace.completed(PipelineStage.FEATURES, "features/")
+        diagnosticRecorder?.outcome(ScanStage.FEATURE_EXTRACTION, StageOutcome.SUCCEEDED)
+        activeDiagnosticStage = ScanStage.MATCHING
         artifacts.starting(ArtifactStage.MATCHES)
         // Compare local neighbors for the initial pair; extra cameras are registered against its tracked points.
         val candidates = buildList {
@@ -195,6 +271,7 @@ class SparsePipeline(
         val failures = JSONArray()
         for ((index, pair) in candidates.withIndex()) {
             coroutineContext.ensureActive()
+            measured(ScanStage.MATCHING, index, candidates.size, ProgressUnit.PAIRS)
             progress(Progress("Verifying overlapping photo pairs", index, candidates.size))
             val first = photos[pair.first]; val second = photos[pair.second]
             loadFrame(first, cache).use { a -> loadFrame(second, cache).use { b ->
@@ -222,10 +299,14 @@ class SparsePipeline(
             } }
         }
         progress(Progress("Verifying overlapping photo pairs", candidates.size, candidates.size))
+        measured(ScanStage.MATCHING, candidates.size, candidates.size, ProgressUnit.PAIRS)
         val matchFiles = matchCache.save(savedMatches.filterKeys { it in candidates })
         artifacts.record(ArtifactStage.MATCHES, matchFiles, "bounded-reciprocal-match-graph")
+        val output = best ?: reject(ScanStage.MATCHING, ScanFailureCode.INSUFFICIENT_OVERLAP,
+            RecoveryAction.RECAPTURE_OVERLAP, "scan.failure.insufficient_overlap")
+        diagnosticRecorder?.outcome(ScanStage.MATCHING, StageOutcome.SUCCEEDED)
+        activeDiagnosticStage = ScanStage.CAMERA_REGISTRATION
         artifacts.starting(ArtifactStage.ALIGNMENT)
-        val output = best ?: error("No reliable sparse preview. Use a textured, non-flat object, more overlap, and sideways movement. $failures")
         pipelineTrace.completed(PipelineStage.MATCHING, matchCache.file.name)
         val selected = requireNotNull(anchorPair)
         val pairTracks = requireNotNull(anchorMatches)
@@ -244,6 +325,7 @@ class SparsePipeline(
         val first = photos[selected.first]; val second = photos[selected.second]
         val anchorPoints = output.getJSONArray("points")
         val outstanding = photos.indices.filter { it != selected.first && it != selected.second }
+        measured(ScanStage.CAMERA_REGISTRATION, cameraArray.length(), photos.size, ProgressUnit.CAMERAS)
         // The features anchoring world XYZ are identified by matchIndex, not rounded coordinates.
         loadFrame(first, cache).use { a -> loadFrame(second, cache).use { b ->
             val fA = min(a.projection.fx, a.projection.fy)
@@ -280,6 +362,7 @@ class SparsePipeline(
                         else cameraArray.put(pose.put("photoId",third.id).put("kind","registered"))
                     }
                 }
+                measured(ScanStage.CAMERA_REGISTRATION, cameraArray.length(), photos.size, ProgressUnit.CAMERAS)
             }
         } }
         progress(Progress("Registering additional camera poses", outstanding.size, outstanding.size))
@@ -333,6 +416,8 @@ class SparsePipeline(
         }
         // M03: Build a shared observation graph across *registered* views, including points not seen
         // by both anchors. The native optimizer fixes the first two cameras to preserve gauge.
+        measured(ScanStage.CAMERA_REGISTRATION, cameraArray.length(), photos.size, ProgressUnit.CAMERAS)
+        measured(ScanStage.SPARSE_GEOMETRY, 0, 1, ProgressUnit.STEPS)
         var geometryWarning = "M03 sparse multi-view triangulation did not produce an acceptable result; retained the verified M02 anchor cloud. No dense mesh or textures."
         try {
             coroutineContext.ensureActive()
@@ -407,6 +492,7 @@ class SparsePipeline(
                         try {
                             coroutineContext.ensureActive()
                             progress(Progress("Joint camera and point bundle adjustment", 0, 1))
+                            measured(ScanStage.BUNDLE_ADJUSTMENT, 0, 1, ProgressUnit.STEPS)
                             val cameraRows = refined.getJSONArray("cameras")
                             val baCameras = DoubleArray(cameraRows.length() * 12) { i ->
                                 val pose = cameraRows.getJSONObject(i / 12)
@@ -453,6 +539,7 @@ class SparsePipeline(
                             output.put("bundleAdjustmentFailure", failure.message ?: "Joint BA failed")
                         }
                         progress(Progress("Joint camera and point bundle adjustment", 1, 1))
+                        measured(ScanStage.BUNDLE_ADJUSTMENT, 1, 1, ProgressUnit.STEPS)
                     } else {
                         output.put("bundleAdjustmentFailure", "Joint BA requires at least 3 registered cameras and 24 sparse points")
                     }
@@ -516,19 +603,36 @@ class SparsePipeline(
         output
         }
         val cameraArray = output.getJSONArray("cameras")
+        val alignmentReused = cachedAlignment != null
+        measured(ScanStage.CAMERA_REGISTRATION, cameraArray.length(), photos.size, ProgressUnit.CAMERAS, alignmentReused)
+        outcome(ScanStage.CAMERA_REGISTRATION, cameraArray.length() == photos.size,
+            ScanFailureCode.CAMERA_REGISTRATION_FAILED, RecoveryAction.RECAPTURE_OVERLAP, "scan.failure.camera_registration_failed")
+        measured(ScanStage.SPARSE_GEOMETRY, 1, 1, ProgressUnit.STEPS, alignmentReused)
+        outcome(ScanStage.SPARSE_GEOMETRY, output.has("multiViewStats"), ScanFailureCode.SPARSE_FALLBACK_RETAINED,
+            RecoveryAction.RECAPTURE_OVERLAP, "scan.failure.sparse_fallback_retained")
+        if (output.has("bundleAdjustment") || output.has("bundleAdjustmentFailure"))
+            outcome(ScanStage.BUNDLE_ADJUSTMENT, output.has("bundleAdjustment"), ScanFailureCode.SPARSE_REFINEMENT_UNAVAILABLE,
+                RecoveryAction.RECALIBRATE, "scan.failure.sparse_refinement_unavailable")
+        activeDiagnosticStage = ScanStage.DENSE_DEPTH
         artifacts.starting(ArtifactStage.DENSE_DEPTH)
         // M09: retain all accepted geometry if appearance reconstruction is unavailable.
         // Native CPU depth remains a fallback when conservative triangle meshing fails.
+        var geometryReused = false
+        var textureReused = false
         try {
             coroutineContext.ensureActive()
+            measured(ScanStage.DENSE_DEPTH, 0, 1, ProgressUnit.STEPS)
             progress(Progress("Estimating stereo depth, meshing and projecting photographs", 0, 1))
             val typedSurface = DensePreview.reconstructTyped(
                 repository, projectId, artifactKey, photos, cameraArray,
                 output.getJSONArray("points"), assumedFocal35, activeProfile, nativeToken,
                 pipelineSnapshot, resourceSelection = resourceSelection,
+                surfaceCheckpoint = com.realityforge.scanner.engine.pipeline.PipelineSurfaceCache(directory).load(artifacts.plan, output),
             ) { stage, done, total -> progress(Progress(stage, done, total)) }
             typedSurface.outcomes.forEach(pipelineTrace::record)
             val surface = typedSurface.payload
+            geometryReused = surface.optBoolean("geometryReused", false)
+            textureReused = surface.optBoolean("textureReused", false)
             coroutineContext.ensureActive()
             output.put("densePreview",surface.getJSONObject("dense"))
             output.put("denseStatus","ready")
@@ -572,8 +676,20 @@ class SparsePipeline(
                 .put("textureStatus","unavailable")
                 .put("textureFailure","Depth or mesh prerequisite unavailable")
         }
+        measured(ScanStage.DENSE_DEPTH, 1, 1, ProgressUnit.STEPS, geometryReused)
+        outcome(ScanStage.DENSE_DEPTH, output.optString("denseStatus") == "ready", ScanFailureCode.DENSE_DEPTH_UNAVAILABLE,
+            RecoveryAction.RECAPTURE_TEXTURE, "scan.failure.dense_depth_unavailable", StageOutcome.FAILED)
+        // These count one completed typed result evaluation, not inferred native work or coverage.
+        measured(ScanStage.SURFACE, 1, 1, ProgressUnit.STEPS, geometryReused)
+        outcome(ScanStage.SURFACE, output.optString("meshStatus") == "ready", ScanFailureCode.SURFACE_UNAVAILABLE,
+            RecoveryAction.RETRY_STAGE, "scan.failure.surface_unavailable",
+            if (output.optString("denseStatus") == "ready") StageOutcome.FAILED else StageOutcome.BLOCKED_BY_DEPENDENCY)
+        measured(ScanStage.TEXTURE, 1, 1, ProgressUnit.STEPS, textureReused)
+        outcome(ScanStage.TEXTURE, output.optString("textureStatus") == "ready", ScanFailureCode.TEXTURE_UNAVAILABLE,
+            RecoveryAction.RECAPTURE_TEXTURE, "scan.failure.texture_unavailable",
+            if (output.optString("meshStatus") == "ready") StageOutcome.FAILED else StageOutcome.BLOCKED_BY_DEPENDENCY)
         output.put("artifactKey", artifactKey).put("settingsFingerprint", fingerprint).put("revision", revision).put("photosExamined", photos.size)
-            .put("engineVersion", "m16-registration-frontier-1").put("calibrationProfileApplied", activeProfile != null)
+            .put("engineVersion", pipelineSnapshot.engineVersion).put("calibrationProfileApplied", activeProfile != null)
             .put("pipeline", pipelineJson(pipelineSnapshot, capacityProfile, pipelineTrace))
         // Always preserve measured evidence and actionable failure reasons in
         // the same revision-bound JSON that the library reopens.
@@ -581,10 +697,11 @@ class SparsePipeline(
         output.put("calibrationCompatibility", calibrationCompatibility)
         calibrationRecord?.let { output.put("calibrationProfileId", it.profileId)
             .put("calibrationRmsPixels", it.profile.reprojectionRmsPixels) }
-        output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))
         coroutineContext.ensureActive()
-        check(repository.dao.project(projectId)?.revision == revision) { "Photos changed; discard stale reconstruction." }
-        repository.writeAtomic(File(directory, "$artifactKey.json"), output.toString())
+        if (repository.dao.project(projectId)?.revision != revision)
+            reject(ScanStage.EXPORT, ScanFailureCode.REVISION_MISMATCH, RecoveryAction.REVIEW_INPUTS, "scan.failure.revision_mismatch")
+        val exportCount = if (output.has("densePreview")) 4 else 2
+        measured(ScanStage.EXPORT, 0, exportCount, ProgressUnit.ITEMS)
         progress(Progress("Saving diagnostic exports", 0, 2))
         val points = output.getJSONArray("points")
         val packed = DoubleArray(points.length() * 6) { i -> points.getJSONArray(i / 6).getDouble(i % 6) }
@@ -592,12 +709,14 @@ class SparsePipeline(
             coroutineContext.ensureActive()
             val target = File(directory, "$artifactKey.$extension")
             val temp = File(directory, "${target.name}.partial")
+            requireFreshOutput(target, temp)
             try {
                 NativeCore.exportPointCloud(packed, temp.path, extension == "glb", NativeCore.SPARSE_POINTS)
                 FileOutputStream(temp, true).use { it.fd.sync() }
                 check(temp.renameTo(target)) { "Could not publish $extension export." }
             } finally { temp.delete() }
             progress(Progress("Saving diagnostic exports", index + 1, 2))
+            measured(ScanStage.EXPORT, index + 1, exportCount, ProgressUnit.ITEMS)
         }
         // Export dense POINTS separately. Never alias the sparse file paths.
         if (output.has("densePreview")) {
@@ -610,21 +729,34 @@ class SparsePipeline(
                 progress(Progress("Saving dense point-cloud exports",index,2))
                 val target=File(directory,"$artifactKey.$extension")
                 val temporary=File(directory,"${target.name}.partial")
+                requireFreshOutput(target, temporary)
                 try {
                     NativeCore.exportPointCloud(densePacked,temporary.path,extension=="dense.glb",NativeCore.DENSE_POINTS)
                     FileOutputStream(temporary,true).use { it.fd.sync() }
                     check(temporary.renameTo(target)) { "Could not publish dense point-cloud export" }
                 } finally { temporary.delete() }
+                measured(ScanStage.EXPORT, index + 3, exportCount, ProgressUnit.ITEMS)
             }
             progress(Progress("Saving dense point-cloud exports",2,2))
         }
+        diagnosticRecorder?.outcome(ScanStage.EXPORT, StageOutcome.SUCCEEDED)
+        output.put("scanDiagnostics", ScanQualityReport.build(output, photos.size, diagnosticRecorder?.snapshot()))
+        repository.writeAtomic(File(directory, "$artifactKey.json"), output.toString())
         com.realityforge.scanner.engine.pipeline.PipelineDownstreamCheckpoints.record(artifacts, output, artifactKey)
         output
     }
 
+    private fun requireFreshOutput(target: File, temporary: File) {
+        check(!Files.exists(target.toPath(), LinkOption.NOFOLLOW_LINKS) &&
+            !Files.exists(temporary.toPath(), LinkOption.NOFOLLOW_LINKS)) {
+            "A point-cloud output already exists; preserve it and retry project recovery."
+        }
+    }
+
     private fun rethrowOperationalFailure(failure: Exception) {
         if (failure is com.realityforge.scanner.processing.resources.ResourceCheckpointPause ||
-            failure is com.realityforge.scanner.engine.nativebridge.NativeResourceExhaustedException) throw failure
+            failure is com.realityforge.scanner.engine.nativebridge.NativeResourceExhaustedException ||
+            failure is DiagnosticOperationException) throw failure
     }
 
     private fun pipelineJson(

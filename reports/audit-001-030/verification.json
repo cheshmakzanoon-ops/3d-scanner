@@ -1,0 +1,41 @@
+{
+  "audit_date_utc": "2026-10-20",
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "staged_tree_before_this_evidence_update": "ad9d95403094517a775b006f6e25cb0bdbe1582d",
+  "host": {
+    "result": "PASS",
+    "tests": 126,
+    "seconds": 28.92,
+    "command": "python3 -m pytest tests -q --junitxml=/tmp/scanner-audit-final-host.xml",
+    "evidence": "host-tests.xml"
+  },
+  "portable_jvm": {
+    "result": "PASS",
+    "tests": 44,
+    "compiler": "Kotlin 2.1.21",
+    "runner": "JUnit 4.13.2",
+    "scope": "Explicit source files and test classes in portable-jvm-provenance.json; no Android runtime substitution",
+    "evidence": "portable-jvm-tests.log"
+  },
+  "native": {
+    "result": "PASS",
+    "ctest_suites": 13,
+    "configuration": "Release with -Werror",
+    "evidence": "../audit-002/ctest.log"
+  },
+  "first_github_checkpoint": {
+    "sha": "04dcb7ccea69614e224f32a63c18066b37905530",
+    "run_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39372493714",
+    "native_result": "PASS",
+    "android_result": "FAIL",
+    "android_subgates": "Production debug/release Kotlin compiled and debug APK built; test-source compatibility errors subsequently fixed. This is not a final Android pass."
+  },
+  "final_android": {
+    "result": "NOT_RUN",
+    "reason": "Updated published candidate required after these fixes; full JVM/lint/APK/device gates remain open."
+  },
+  "physical_qualification": {
+    "result": "BLOCKED_EXTERNAL",
+    "reason": "Actual camera/vendor/API/OS process-death, ARM64 memory/thermal and release-signing prerequisites remain explicit in the agent receipts."
+  }
+}

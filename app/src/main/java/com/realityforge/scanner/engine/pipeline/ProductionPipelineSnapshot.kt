@@ -5,7 +5,20 @@ import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
 
 /** One production identity factory is shared by execution and independent restart validation. */
 object ProductionPipelineSnapshot {
-    const val ENGINE_COMPATIBILITY = "m19-c8-production-2|m16-registration-frontier-1|m18-depth-checkpoint-1"
+    const val ENGINE_COMPATIBILITY = ProductionEngineCompatibility.VALUE
+
+    /** The persisted job binds exact bounded profile bytes; absent and corrupt are distinct. */
+    fun calibrationSha256(file: java.io.File): String {
+        val path = file.toPath()
+        if (!java.nio.file.Files.exists(path, java.nio.file.LinkOption.NOFOLLOW_LINKS))
+            return sha256Utf8("pinhole-no-profile-v1")
+        require(java.nio.file.Files.isRegularFile(path, java.nio.file.LinkOption.NOFOLLOW_LINKS) &&
+            !java.nio.file.Files.isSymbolicLink(path)) { "The optical profile is not a regular owned file." }
+        require(file.length() in 30L..com.realityforge.scanner.capture.calibration.CalibrationProfileCodec.MAX_PROFILE_BYTES.toLong()) {
+            "The optical profile exceeds its bounded format."
+        }
+        return PipelineArtifactSession.hashFile(file).hex
+    }
 
     fun create(input: ProjectInputSnapshot, calibrationSha256: String, assumedFocal35: Double,
         resources: ResourceWorkloadSelection): PipelineInputSnapshot = PipelineInputSnapshot(

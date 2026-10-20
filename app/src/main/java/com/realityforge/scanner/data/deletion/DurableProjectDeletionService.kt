@@ -34,6 +34,30 @@ class DurableProjectDeletionService(
         finish(initial)
     }
 
+    /** Preserve the revision shown in the irreversible UI confirmation through durable staging. */
+    suspend fun deleteConfirmed(projectId: String, expectedRevision: Long) {
+        require(expectedRevision >= 0) { "The confirmed project revision is invalid." }
+        val scope = DeletionScope.Project(projectId)
+        val pending = persistence.pendingProject(projectId)
+        if (pending != null) {
+            require(pending.scope == scope && pending.expectedRevision == expectedRevision) {
+                "A different deletion is pending. Finish it before confirming this project removal again."
+            }
+            rawDao.project(projectId)?.let { current ->
+                require(current.revision == expectedRevision) { "Project changed after deletion was confirmed." }
+            }
+            finish(service.retry(pending.operationId))
+            return
+        }
+        val current = rawDao.project(projectId) ?: return // An already completed removal remains idempotent.
+        require(current.revision == expectedRevision) { "Project changed after deletion was confirmed." }
+        val now = System.currentTimeMillis()
+        // Room stages the fixed revision transactionally before the cleaner obtains its C6 lease.
+        // A mutation between this read and staging fails that transaction before any tombstone or unlink.
+        finish(service.confirmAndRun(DeletionIntent(UUID.randomUUID().toString(), scope,
+            expectedRevision, now).confirm(now)))
+    }
+
     suspend fun deletePhoto(projectId: String, photoId: String, expectedRevision: Long,
         expectedRemovalRequestId: String? = null, expectedOriginalSha256: String? = null) = withContext(Dispatchers.IO) {
         persistence.pendingProject(projectId)?.let { pending ->

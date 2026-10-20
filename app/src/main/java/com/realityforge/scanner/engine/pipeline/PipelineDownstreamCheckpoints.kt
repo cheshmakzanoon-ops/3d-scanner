@@ -53,6 +53,17 @@ object PipelineDownstreamCheckpoints {
             require(mesh.getInt("vertexCount") >= 30 && mesh.getInt("triangleCount") >= 40)
             meshFiles += artifact("mesh.glb", RepresentationKind.TRIANGLE_MESH, "model/gltf-binary")
             meshFiles += artifact("mesh.ply", RepresentationKind.TRIANGLE_MESH, "application/ply")
+            val dense = result.getJSONObject("densePreview")
+            val identity = dense.optString("depthCheckpointIdentity")
+            // The native solver must have independently accepted this complete binary. A
+            // filename left by a failed or interrupted writer does not establish geometry.
+            if (dense.optBoolean("surfaceCheckpointAvailable", false) && identity.matches(Regex("[0-9a-f]{64}"))) {
+                val fullMesh = File(root, ".depth-checkpoints-m18/$identity/surface-v1.rfmesh")
+                require(Files.isRegularFile(fullMesh.toPath(), LinkOption.NOFOLLOW_LINKS)) {
+                    "The accepted native surface checkpoint is missing."
+                }
+                meshFiles += PipelineStageFile(fullMesh, RepresentationKind.TRIANGLE_MESH)
+            }
         }
         session.starting(ArtifactStage.SURFACE)
         session.record(ArtifactStage.SURFACE, meshFiles, "observed-triangle-topology-and-strict-preview-v2", meshReady)

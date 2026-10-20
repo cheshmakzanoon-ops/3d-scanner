@@ -71,13 +71,14 @@ class ProviderImportDeviceTest {
             assertTrue(File(context.filesDir, "import-staging-v1").listFiles().orEmpty().isEmpty())
             assertFalse(repository.directory(project).listFiles().orEmpty().any { it.name.endsWith(".journal") })
             database.close()
-            Room.databaseBuilder(context, ScanDatabase::class.java, databaseName).build().use { reopened ->
+            val reopened = Room.databaseBuilder(context, ScanDatabase::class.java, databaseName).build()
+            try {
                 val recovered = ProjectRepository(context, reopened.dao(), database = reopened)
                 recovered.recoverStorage()
                 assertEquals(2L, reopened.dao().project(project)?.revision)
                 assertEquals(photos.map { it.sha256 }, reopened.dao().photos(project).map { sha(recovered.photoFile(it).inputStream()) })
                 assertTrue(reopened.dao().photos(otherProject).isEmpty())
-            }
+            } finally { reopened.close() }
         }
     }
 

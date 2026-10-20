@@ -26,7 +26,7 @@ class PipelineJobCheckpointValidator(private val repository: ProjectRepository) 
             require(snapshot.input.engineVersion == ReconstructionExecutionController.ENGINE_VERSION &&
                 snapshot.input.engineSha256 == sha256Utf8(ReconstructionExecutionController.ENGINE_VERSION))
             val calibration = LensCalibration.file(repository, input.projectId)
-            val calibrationHash = sha256Utf8(if (calibration.isFile) calibration.readText() else "pinhole-no-profile-v1")
+            val calibrationHash = ProductionPipelineSnapshot.calibrationSha256(calibration)
             require(calibrationHash == snapshot.input.calibrationSha256)
             val settings = JSONObject(snapshot.input.settingsJson)
             val resources = when (settings.getInt("schema")) {

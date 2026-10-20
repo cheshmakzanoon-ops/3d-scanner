@@ -153,6 +153,20 @@ class PipelineGraphTest {
         }
     }
 
+    @Test fun newRevisionRebindsVerifiedCheckpointWithoutRepeatingStageWork() = runBlocking {
+        val store = MemoryCheckpointStore()
+        val backend = CountingBackend()
+        val graph = PipelineGraph(store, backend.runners)
+        val base = snapshot()
+        graph.run(base)
+        val next = base.copy(revision = base.revision + 1)
+        val resumed = graph.run(next)
+        assertTrue(resumed.trace.all { it.action == PipelineTraceAction.REUSED })
+        assertTrue(resumed.artifacts.values.all { it.identity.sourceRevision == next.revision })
+        PipelineStage.entries.forEach { assertEquals(1, backend.counts[it]) }
+        assertEquals(PipelineStage.entries.size * 2, store.commits.size)
+    }
+
     @Test fun recoverableTextureFailureKeepsMeshAndNeverClaimsTexturedSuccess() = runBlocking {
         val store = MemoryCheckpointStore()
         val backend = CountingBackend { request ->

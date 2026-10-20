@@ -27,7 +27,8 @@ data class ScanDisplayModel(
 )
 
 sealed interface ReopenResult {
-    data class Ready(val model: ScanDisplayModel) : ReopenResult
+    /** The set identifier comes from a verified publication manifest, never from preview JSON. */
+    data class Ready(val model: ScanDisplayModel, val publicationSetId: String? = null) : ReopenResult
     data class Invalid(val code: String, val detail: String,
         val recovery: List<String> = listOf("previous_result", "rerun_from_originals")) : ReopenResult
     data object Missing : ReopenResult

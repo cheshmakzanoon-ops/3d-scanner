@@ -47,8 +47,8 @@ class GlobalCacheInventoryServiceTest {
             assertNull(result.projects[2].measuredBytes)
             assertNull(result.projects[3].reclaimableBytes)
             assertNull(result.projects[4].measuredBytes)
-            assertEquals("original", Files.readString(base.resolve("measured/original.image")))
-            assertEquals("cache", Files.readString(base.resolve("measured/feature.bin")))
+            assertEquals("original", base.resolve("measured/original.image").toFile().readText(Charsets.UTF_8))
+            assertEquals("cache", base.resolve("measured/feature.bin").toFile().readText(Charsets.UTF_8))
         }
     }
 
@@ -89,7 +89,7 @@ class GlobalCacheInventoryServiceTest {
             assertEquals(1, calls)
             assertEquals(1, requireNotNull(progress).measuredProjectCount)
             assertEquals(ProjectStorageMeasurement.PENDING, requireNotNull(progress).projects[1].measurement)
-            assertEquals("original", Files.readString(base.resolve("first/original.image")))
+            assertEquals("original", base.resolve("first/original.image").toFile().readText(Charsets.UTF_8))
             assertFalse(Files.exists(base.resolve("unopened")))
         }
     }

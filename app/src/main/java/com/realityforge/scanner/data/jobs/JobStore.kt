@@ -108,7 +108,7 @@ interface JobStore {
     suspend fun fail(lease: JobLease, failureCode: String, nowEpochMillis: Long): JobSnapshot
     suspend fun blockExternal(lease: JobLease, blockerCode: String, nowEpochMillis: Long): JobSnapshot
 
-    suspend fun pause(jobId: JobId, nowEpochMillis: Long): JobCommandResult
+    suspend fun pause(jobId: JobId, nowEpochMillis: Long, reasonCode: String? = null): JobCommandResult
     suspend fun resume(jobId: JobId, nowEpochMillis: Long): JobCommandResult
     suspend fun retry(jobId: JobId, nowEpochMillis: Long): JobCommandResult
     suspend fun cancel(jobId: JobId, nowEpochMillis: Long): JobCommandResult

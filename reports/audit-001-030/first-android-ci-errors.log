@@ -1,0 +1,20 @@
+Source checkpoint: 04dcb7ccea69614e224f32a63c18066b37905530
+Run: https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39372493714
+Job: 118463257307
+These are actual earlier-checkpoint diagnostics, fixed in subsequent audit commits. They are not final-candidate results.
+
+2026-10-20T05:33:26.2995554Z > Task :app:compileDebugKotlin
+2026-10-20T05:34:34.3981449Z > Task :app:compileReleaseKotlin
+2026-10-20T05:34:43.1010778Z > Task :app:compileDebugKotlin
+2026-10-20T05:34:49.8000329Z > Task :app:compileReleaseKotlin
+2026-10-20T05:35:02.5009798Z > Task :app:assembleDebug
+2026-10-20T05:35:08.0011309Z e: file:///home/runner/work/3d-scanner/3d-scanner/app/src/androidTest/java/com/realityforge/scanner/agents/a011/ProviderImportDeviceTest.kt:74:91 Cannot infer type for this parameter. Specify it explicitly.
+2026-10-20T05:35:08.0041081Z e: file:///home/runner/work/3d-scanner/3d-scanner/app/src/androidTest/java/com/realityforge/scanner/agents/a011/ProviderImportDeviceTest.kt:74:91 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+2026-10-20T05:35:08.0042789Z > Task :app:compileDebugAndroidTestKotlin FAILED
+2026-10-20T05:35:08.0201116Z e: file:///home/runner/work/3d-scanner/3d-scanner/app/src/androidTest/java/com/realityforge/scanner/agents/a019/RoomProjectLibraryDeviceTest.kt:53:83 Cannot infer type for this parameter. Specify it explicitly.
+2026-10-20T05:35:08.0261502Z e: file:///home/runner/work/3d-scanner/3d-scanner/app/src/androidTest/java/com/realityforge/scanner/agents/a019/RoomProjectLibraryDeviceTest.kt:53:83 Unresolved reference. None of the following candidates is applicable because of a receiver type mismatch:
+2026-10-20T05:35:09.6990791Z e: file:///home/runner/work/3d-scanner/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/GlobalCacheInventoryServiceTest.kt:50:44 Unresolved reference 'readString'.
+2026-10-20T05:35:09.7020623Z e: file:///home/runner/work/3d-scanner/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/GlobalCacheInventoryServiceTest.kt:51:41 Unresolved reference 'readString'.
+2026-10-20T05:35:09.7030319Z e: file:///home/runner/work/3d-scanner/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/GlobalCacheInventoryServiceTest.kt:92:44 Unresolved reference 'readString'.
+2026-10-20T05:35:09.7079178Z > Task :app:compileDebugUnitTestKotlin FAILED
+2026-10-20T05:36:40.8013243Z BUILD FAILED in 4m 48s

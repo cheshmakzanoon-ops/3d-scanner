@@ -1,5 +1,6 @@
 #include "realityforge/c_abi_support.hpp"
 #include "realityforge/texture.hpp"
+#include "realityforge/surface_checkpoint.hpp"
 #include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <array>
@@ -517,6 +518,10 @@ extern "C" char* rf_textured_surface_json(
             if(mesh_glb_path&&*mesh_glb_path)rf::writeSurfaceGlb(mesh,mesh_glb_path);
             if(mesh_ply_path&&*mesh_ply_path)rf::writeSurfacePly(mesh,mesh_ply_path);
             response+=",\"mesh\":"+rf::surfaceJson(mesh);
+            bool checkpointWritten=false;
+            const bool checkpointAvailable=rf::surface_checkpoint::store(views,dense,mesh,s,&checkpointWritten);
+            response+=",\"surfaceCheckpointAvailable\":"+std::string(checkpointAvailable?"true":"false")+
+                ",\"surfaceCheckpointWritten\":"+std::string(checkpointWritten?"true":"false");
             try{
                 auto baked=rf::bakePhotographicAtlas(mesh,views,dense.maps,sources);
                 if(textured_glb_path&&*textured_glb_path)rf::writeTexturedGlb(mesh,baked,textured_glb_path);

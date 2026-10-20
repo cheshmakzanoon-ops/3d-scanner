@@ -7,6 +7,7 @@
 #include "realityforge/texture.hpp"
 #include "realityforge/cancellation.hpp"
 #include "realityforge/depth_checkpoint.hpp"
+#include "realityforge/surface_checkpoint.hpp"
 #include "realityforge/jni_support.hpp"
 #include <cmath>
 #include <array>
@@ -401,6 +402,62 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceCheckp
 } catch (...) {
     rf::jni::raise(env,"java/lang/IllegalStateException","RF_UNKNOWN_NATIVE_FAILURE"); return nullptr;
 }
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_textureAcceptedSurfaceCheckpointed(
+    JNIEnv* env,jobject,jbyteArray depthRgba,jint width,jint height,
+    jbyteArray photoRgba,jint photoWidth,jint photoHeight,jdoubleArray cameraRows,
+    jstring meshCheckpointPath,jstring texturedGlbPath,jstring atlasPngPath,
+    jlong token,jstring checkpointDirectory,jstring checkpointIdentity) try {
+    const auto operation=operationFor(env,token);if(!operation)return nullptr;
+    rf::cancellation::Scope cancellation(operation.get());rf::cancellation::checkpoint();
+    if(!depthRgba||!photoRgba||!cameraRows||!meshCheckpointPath||!texturedGlbPath||!atlasPngPath||
+        !checkpointDirectory||!checkpointIdentity||width<32||height<32||width>640||height>640||
+        static_cast<long long>(width)*height>320000||photoWidth<32||photoHeight<32||photoWidth>1024||photoHeight>1024||
+        static_cast<long long>(photoWidth)*photoHeight>1048576) {
+        illegal(env,"Invalid bounded texture-only checkpoint input");return nullptr;
+    }
+    const auto count=env->GetArrayLength(cameraRows);
+    if(count<32||count>128||count%16!=0||
+        static_cast<long long>(width)*height*4*(count/16)!=env->GetArrayLength(depthRgba)||
+        static_cast<long long>(photoWidth)*photoHeight*4*(count/16)!=env->GetArrayLength(photoRgba)) {
+        illegal(env,"Texture-only buffers do not match camera count");return nullptr;
+    }
+    const auto mesh=rf::jni::string(env,meshCheckpointPath),glb=rf::jni::string(env,texturedGlbPath);
+    const auto png=rf::jni::string(env,atlasPngPath),directory=rf::jni::string(env,checkpointDirectory);
+    const auto identity=rf::jni::string(env,checkpointIdentity);
+    if(mesh.size()>1200||glb.size()>1200||png.size()>1200||directory.size()>1000||identity.size()!=64) {
+        illegal(env,"Texture-only checkpoint path exceeds bounds");return nullptr;
+    }
+    std::vector<double> cameras(static_cast<std::size_t>(count));
+    env->GetDoubleArrayRegion(cameraRows,0,count,cameras.data());if(env->ExceptionCheck())return nullptr;
+    for(const auto value:cameras)if(!std::isfinite(value)){illegal(env,"Non-finite texture-only camera geometry");return nullptr;}
+    rf::cancellation::checkpoint();
+    std::vector<std::uint8_t> depth(static_cast<std::size_t>(env->GetArrayLength(depthRgba)));
+    env->GetByteArrayRegion(depthRgba,0,env->GetArrayLength(depthRgba),reinterpret_cast<jbyte*>(depth.data()));
+    if(env->ExceptionCheck())return nullptr;
+    rf::cancellation::checkpoint();
+    std::vector<std::uint8_t> photographs(static_cast<std::size_t>(env->GetArrayLength(photoRgba)));
+    env->GetByteArrayRegion(photoRgba,0,env->GetArrayLength(photoRgba),reinterpret_cast<jbyte*>(photographs.data()));
+    if(env->ExceptionCheck())return nullptr;
+    rf::cancellation::checkpoint();
+    const auto release=[](char* value){rf_free(value);};
+    std::unique_ptr<char,decltype(release)> json(rf_texture_accepted_surface_json(depth.data(),width,height,
+        photographs.data(),photoWidth,photoHeight,cameras.data(),static_cast<std::size_t>(count/16),
+        mesh.c_str(),glb.c_str(),png.c_str(),directory.c_str(),identity.c_str()),release);
+    if(!json){rf::jni::raise(env,"java/lang/OutOfMemoryError","RF_RESOURCE_EXHAUSTED");return nullptr;}
+    return env->NewStringUTF(json.get());
+} catch(const rf::cancellation::Cancelled&) {
+    return env->NewStringUTF("{\"errorCode\":\"CANCELLED\",\"error\":\"Native operation cancelled\"}");
+} catch(const std::bad_alloc&) {
+    rf::jni::raise(env,"java/lang/OutOfMemoryError","RF_RESOURCE_EXHAUSTED");return nullptr;
+} catch(const std::invalid_argument&) {
+    rf::jni::raise(env,"java/lang/IllegalArgumentException","RF_INVALID_INPUT");return nullptr;
+} catch(const std::exception&) {
+    rf::jni::raise(env,"java/lang/IllegalStateException","RF_NATIVE_FAILURE");return nullptr;
+} catch(...) {
+    rf::jni::raise(env,"java/lang/IllegalStateException","RF_UNKNOWN_NATIVE_FAILURE");return nullptr;
+}
+
 extern "C" JNIEXPORT jdoubleArray JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_quality(JNIEnv* env,jobject,jbyteArray gray,jint width,jint height) try {
     if(!gray||width<3||height<3||width>8192||height>8192||static_cast<long long>(width)*height>16777216||static_cast<long long>(width)*height!=env->GetArrayLength(gray)){illegal(env,"Invalid image dimensions");return nullptr;}

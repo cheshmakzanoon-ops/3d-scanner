@@ -6,6 +6,10 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.security.MessageDigest
 import kotlin.random.Random
+import com.realityforge.scanner.engine.pipeline.PipelineInputSnapshot
+import com.realityforge.scanner.engine.pipeline.PipelinePhotoInput
+import com.realityforge.scanner.engine.pipeline.PipelineStage
+import com.realityforge.scanner.engine.pipeline.PipelineStageSettings
 
 class DepthCheckpointIdentityTest {
     private fun pixels() = ByteArray(2 * 64 * 48 * 4) { index -> (index * 11).toByte() }
@@ -94,6 +98,23 @@ class DepthCheckpointIdentityTest {
         for (invalid in listOf("", "A".repeat(64), "1".repeat(63), "../resource")) {
             assertThrows(IllegalArgumentException::class.java) { selected(invalid) }
         }
+    }
+
+    @Test fun restoredOwnershipRevisionAndAppearanceEditsReuseOnlyIdenticalGeometry() {
+        val source = PipelineInputSnapshot("depth-content-project", 7, listOf(
+            PipelinePhotoInput("a", "a".repeat(64), 4032, 3024, 1000, 26.0, "c".repeat(64)),
+            PipelinePhotoInput("b", "b".repeat(64), 4032, 3024, 1000, 26.0, "d".repeat(64))),
+            "e".repeat(64), "checkpoint-test-v1",
+            PipelineStageSettings("f1", "m1", "s1", "d1", "surface1", "texture1", "export1"))
+        fun contentId(input: PipelineInputSnapshot): String = id(
+            key = DepthCheckpointIdentity.contentGeometryKey(input.identity(PipelineStage.SPARSE).digest))
+        val accepted = contentId(source)
+        assertEquals(accepted, contentId(source.copy(revision = 9)))
+        assertEquals(accepted, contentId(source.copy(settings = source.settings.copy(texture = "texture2"))))
+        assertNotEquals(accepted, contentId(source.copy(calibrationIdentity = "f".repeat(64))))
+        assertNotEquals(accepted, contentId(source.copy(photos = source.photos.reversed())))
+        assertNotEquals(accepted, id(key = "sparse-m16-r7-${source.identity(PipelineStage.SPARSE).digest.take(16)}"))
+        assertThrows(IllegalArgumentException::class.java) { DepthCheckpointIdentity.contentGeometryKey("../cache") }
     }
 
     @Test fun resolvingCheckpointPreservesOtherIdentitiesAndUnprovenPartialWriters() {

@@ -1,5 +1,6 @@
 #include "realityforge/c_abi_support.hpp"
 #include "realityforge/surface.hpp"
+#include "realityforge/surface_checkpoint.hpp"
 #include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <array>
@@ -331,6 +332,10 @@ extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
             if(glb_path&&*glb_path)rf::writeSurfaceGlb(mesh,glb_path);
             if(ply_path&&*ply_path)rf::writeSurfacePly(mesh,ply_path);
             response+=",\"mesh\":"+rf::surfaceJson(mesh);
+            bool checkpointWritten=false;
+            const bool checkpointAvailable=rf::surface_checkpoint::store(views,dense,mesh,settings,&checkpointWritten);
+            response+=",\"surfaceCheckpointAvailable\":"+std::string(checkpointAvailable?"true":"false")+
+                ",\"surfaceCheckpointWritten\":"+std::string(checkpointWritten?"true":"false");
         }catch(const rf::cancellation::Cancelled&){throw;}
         catch(const std::bad_alloc&){throw;}
     catch(const std::exception& e){

@@ -38,8 +38,10 @@ class ProjectPublicationService(
     override fun previous(projectId: String): PublicationReadResult = gateway(projectId).previous(projectId)
     override fun committed(projectId: String, setId: String): PublicationReadResult = gateway(projectId).committed(projectId, setId)
 
+    fun reconcileProject(projectId: String): PublicationRecoveryReport = gateway(projectId).reconcile()
+
     override fun reconcile(): PublicationRecoveryReport {
-        val reports = execution.projectIds().map { gateway(it).reconcile() }
+        val reports = execution.projectIds().map { reconcileProject(it) }
         return PublicationRecoveryReport(reports.sumOf { it.completed }, reports.sumOf { it.aborted },
             reports.sumOf { it.stale }, reports.sumOf { it.unchanged }, reports.sumOf { it.corruptJournals },
             reports.flatMap { it.details }.take(256))

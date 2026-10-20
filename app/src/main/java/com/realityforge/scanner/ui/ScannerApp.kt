@@ -30,9 +30,15 @@ import com.realityforge.scanner.ScannerViewModel
 import com.realityforge.scanner.BuildConfig
 import com.realityforge.scanner.capture.session.CaptureSessionIdentity
 import com.realityforge.scanner.domain.OperationKind
+import com.realityforge.scanner.domain.ProjectRevision
 import com.realityforge.scanner.application.ProjectCommandAdapter
 import com.realityforge.scanner.data.curation.*
 import com.realityforge.scanner.data.library.*
+import com.realityforge.scanner.data.reopening.PreparedPreviewGeometry
+import com.realityforge.scanner.data.reopening.ReopenResult
+import com.realityforge.scanner.data.reopening.ScanRepresentation
+import com.realityforge.scanner.data.reopening.preparePreviewGeometry
+import com.realityforge.scanner.data.publication.PublicationReadResult
 import com.realityforge.scanner.processing.resources.ResourceAwareCaptureBudgetProvider
 import com.realityforge.scanner.ui.storage.StorageRoute
 import com.realityforge.scanner.ui.storage.GlobalStorageScreen
@@ -41,6 +47,8 @@ import com.realityforge.scanner.imaging.DecodeRequest
 import kotlinx.coroutines.CancellationException
 import com.realityforge.scanner.data.ScanPhoto
 import com.realityforge.scanner.engine.ImageLoader
+import com.realityforge.scanner.engine.diagnostics.ScanStage
+import com.realityforge.scanner.engine.diagnostics.ProgressUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -49,12 +57,52 @@ import java.util.Locale
 import java.io.File
 import java.util.UUID
 
+private data class BoundPreparedPreview(
+    val projectId: String,
+    val inputRevision: Long,
+    val observedResultKey: String?,
+    val observedResultRevision: Long?,
+    val geometry: PreparedPreviewGeometry,
+    val photographicModel: File?,
+)
+
+private data class BoundLibraryCommand(val kind: String, val source: ProjectRevision)
+
 private val palette = darkColorScheme(
     primary = Color(0xFF73D8C7), onPrimary = Color(0xFF002F29),
     secondary = Color(0xFFC6BEA6), background = Color(0xFF101A23),
     surface = Color(0xFF17252F), surfaceVariant = Color(0xFF233641),
     onSurface = Color(0xFFE6ECEF), onBackground = Color(0xFFE6ECEF),
 )
+
+private fun ScanStage.displayLabel(): String = when (this) {
+    ScanStage.IMPORT -> "Importing photographs"
+    ScanStage.CALIBRATION -> "Checking lens calibration"
+    ScanStage.FEATURE_EXTRACTION -> "Finding image features"
+    ScanStage.MATCHING -> "Matching photographs"
+    ScanStage.CAMERA_REGISTRATION -> "Registering cameras"
+    ScanStage.SPARSE_GEOMETRY -> "Reconstructing sparse points"
+    ScanStage.BUNDLE_ADJUSTMENT -> "Refining cameras and points"
+    ScanStage.DENSE_DEPTH -> "Reconstructing depth"
+    ScanStage.SURFACE -> "Preparing observed surfaces"
+    ScanStage.TEXTURE -> "Preparing photographic texture"
+    ScanStage.EXPORT -> "Writing result files"
+    ScanStage.STORAGE -> "Checking storage"
+    ScanStage.REPORT -> "Preparing scan diagnostics"
+    ScanStage.UNKNOWN -> "Processing"
+}
+
+private fun ProgressUnit.displayLabel(): String = when (this) {
+    ProgressUnit.ITEMS -> "items"
+    ProgressUnit.PHOTOS -> "photos"
+    ProgressUnit.PAIRS -> "pairs"
+    ProgressUnit.CAMERAS -> "cameras"
+    ProgressUnit.TRACKS -> "tracks"
+    ProgressUnit.PIXELS -> "pixels"
+    ProgressUnit.TRIANGLES -> "triangles"
+    ProgressUnit.BYTES -> "bytes"
+    ProgressUnit.STEPS -> "steps"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +115,6 @@ fun ScannerApp(model: ScannerViewModel) {
     val focusedProject by model.selectedProject.collectAsStateWithLifecycle()
     val photos by model.photos.collectAsStateWithLifecycle()
     val busy by model.busy.collectAsStateWithLifecycle()
-    val progress by model.progress.collectAsStateWithLifecycle()
     val notice by model.notice.collectAsStateWithLifecycle()
     val preview by model.preview.collectAsStateWithLifecycle()
     val calibrationStatus by model.calibrationStatus.collectAsStateWithLifecycle()
@@ -81,7 +128,72 @@ fun ScannerApp(model: ScannerViewModel) {
         }
     }
     val canMutate = !busy && appState.pendingRequests.isEmpty() && pendingArchiveRestoreId == null
+    val canModifyInputs = canMutate && focusedProject?.state !in setOf("RECOVERY_REQUIRED", "DELETING", "DELETING_PHOTO")
+    var viewPrevious by rememberSaveable(selected) { mutableStateOf(false) }
+    var preparedPreview by remember { mutableStateOf<BoundPreparedPreview?>(null) }
+    var previewReadMessage by remember(selected, viewPrevious) { mutableStateOf<String?>(null) }
+    val displayedPreview = preparedPreview?.takeIf {
+        it.projectId == selected && it.inputRevision == focusedProject?.revision &&
+            focusedProject?.state !in setOf("DELETING", "DELETING_PHOTO") &&
+            it.observedResultKey == focusedProject?.resultKey &&
+            it.observedResultRevision == focusedProject?.resultRevision &&
+            it.geometry.previousResult == viewPrevious &&
+            (viewPrevious || (it.geometry.revision == focusedProject?.revision &&
+                it.geometry.artifactKey == focusedProject?.resultKey))
+    }
+    LaunchedEffect(selected, focusedProject?.revision, focusedProject?.resultRevision,
+        focusedProject?.resultKey, focusedProject?.state, viewPrevious, preview?.optString("artifactKey")) {
+        preparedPreview = null
+        previewReadMessage = null
+        val source = focusedProject?.takeIf { it.id == selected } ?: return@LaunchedEffect
+        if (source.state in setOf("DELETING", "DELETING_PHOTO")) {
+            previewReadMessage = "Finish the pending deletion before opening a saved result."
+            return@LaunchedEffect
+        }
+        val previous = viewPrevious
+        try {
+            model.compositionRoot.execution.awaitRecovery()
+            val loaded = withContext(Dispatchers.IO) {
+                when (val reopened = model.repository.reopen(source.id, previous)) {
+                    is ReopenResult.Ready -> {
+                        val geometry = preparePreviewGeometry(reopened.model)
+                        val setId = reopened.publicationSetId
+                        val photographic = if (ScanRepresentation.PHOTOGRAPHIC_MESH !in geometry.capabilities) null
+                        else if (setId == null) model.repository.artifact(source.id, geometry.artifactKey, "textured.glb")
+                        else {
+                            when (val published = model.compositionRoot.publications.committed(source.id, setId)) {
+                                is PublicationReadResult.Verified -> {
+                                    check(published.value.manifest.setId == setId &&
+                                        published.value.manifest.identity.projectRevision == geometry.revision) {
+                                        "The completed result does not match the reopened geometry."
+                                    }
+                                    published.value.artifact("textured-glb")
+                                }
+                                is PublicationReadResult.Invalid -> error(published.reason)
+                                PublicationReadResult.None -> error("The exact completed result is no longer available.")
+                            }
+                        }
+                        BoundPreparedPreview(source.id, source.revision, source.resultKey, source.resultRevision,
+                            geometry, photographic) to null
+                    }
+                    is ReopenResult.Invalid -> null to "Saved result cannot be opened: ${reopened.detail}"
+                    ReopenResult.Changed -> null to "The project changed while opening this result. Select the current result again."
+                    ReopenResult.Missing -> null to if (previous) "No previous completed result is available."
+                        else "No completed result is available for the current input revision."
+                }
+            }
+            val current = model.selectedProject.value
+            if (model.selectedId.value == source.id && current != null && current.revision == source.revision &&
+                current.resultKey == source.resultKey && current.resultRevision == source.resultRevision &&
+                current.state == source.state) {
+                preparedPreview = loaded.first
+                previewReadMessage = loaded.second
+            }
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (failure: Exception) { previewReadMessage = failure.message ?: "Cannot open saved result." }
+    }
     val durableJob by model.compositionRoot.execution.current.collectAsStateWithLifecycle()
+    val diagnosticProgress by model.compositionRoot.execution.diagnosticProgress.collectAsStateWithLifecycle()
     val storageFailure by model.compositionRoot.storageBudget.failure.collectAsStateWithLifecycle()
     var storageProject by rememberSaveable { mutableStateOf<String?>(null) }
     var globalStorage by rememberSaveable { mutableStateOf(false) }
@@ -95,7 +207,7 @@ fun ScannerApp(model: ScannerViewModel) {
     var libraryPage by remember { mutableStateOf<List<ProjectSummary>>(emptyList()) }
     var curationState by remember(selected) { mutableStateOf<PhotoCurationState?>(null) }
     var curationUndo by remember(selected) { mutableStateOf<CurationUndoToken?>(null) }
-    var libraryCommand by rememberSaveable { mutableStateOf<String?>(null) }
+    var libraryCommand by remember { mutableStateOf<BoundLibraryCommand?>(null) }
     var libraryName by rememberSaveable { mutableStateOf("") }
     LaunchedEffect(projects, selected, durableJob, librarySearch, libraryState, libraryOrder, libraryOffset) {
         try {
@@ -123,9 +235,10 @@ fun ScannerApp(model: ScannerViewModel) {
     }
     val restoreArchive = rememberCaptureArchivePicker(model)
     var photographicFile by remember { mutableStateOf<File?>(null) }
-    LaunchedEffect(selected, busy, preview?.optString("artifactKey")) { photographicFile = null }
+    LaunchedEffect(selected, busy, focusedProject?.revision, focusedProject?.resultKey,
+        focusedProject?.resultRevision, focusedProject?.state, viewPrevious) { photographicFile = null }
     var newProject by rememberSaveable { mutableStateOf(false) }
-    var deleteDialog by rememberSaveable { mutableStateOf(false) }
+    var deleteSource by remember { mutableStateOf<ProjectRevision?>(null) }
     var name by rememberSaveable { mutableStateOf("") }
     var focal by rememberSaveable { mutableStateOf("26") }
     val snackbars = remember { SnackbarHostState() }
@@ -253,15 +366,37 @@ fun ScannerApp(model: ScannerViewModel) {
                         Text(project?.name ?: "Scan", style = MaterialTheme.typography.headlineMedium)
                         Text("${curationState?.selectedPhotoSet?.photos?.size ?: photos.count { it.included }} selected / ${photos.size} photographs · originals preserved", color = MaterialTheme.colorScheme.secondary)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            TextButton(enabled = canMutate, onClick = { libraryName = project?.name.orEmpty(); libraryCommand = "rename" }) { Text("Rename") }
-                            TextButton(enabled = canMutate, onClick = { libraryName = "${project?.name.orEmpty()} copy"; libraryCommand = "duplicate" }) { Text("Duplicate") }
+                            TextButton(enabled = canModifyInputs, onClick = {
+                                project?.takeIf { it.id == selected }?.let {
+                                    libraryName = it.name
+                                    libraryCommand = BoundLibraryCommand("rename", ProjectRevision(it.id, it.revision))
+                                }
+                            }) { Text("Rename") }
+                            TextButton(enabled = canModifyInputs, onClick = {
+                                project?.takeIf { it.id == selected }?.let {
+                                    libraryName = "${it.name} copy"
+                                    libraryCommand = BoundLibraryCommand("duplicate", ProjectRevision(it.id, it.revision))
+                                }
+                            }) { Text("Duplicate") }
                             TextButton(enabled = canMutate, onClick = { storageProject = selected }) { Text("Storage") }
                         }
                     }
+                    if (project?.state == "RECOVERY_REQUIRED") item {
+                        Card { Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Project recovery is required", style = MaterialTheme.typography.titleMedium)
+                            Text("An interrupted local change needs recovery. Verified completed results can still be viewed; input changes and processing are paused for this project.")
+                            OutlinedButton(enabled = canMutate, onClick = {
+                                model.projectCommand { source ->
+                                    if (model.repository.recoverProjectStorage(source.projectId)) "Project recovery completed."
+                                    else "Recovery could not finish. The saved originals and completed results have been preserved."
+                                }
+                            }) { Text("Retry project recovery") }
+                        } }
+                    }
                     item {
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Button(enabled = canMutate, onClick = { picker() }, modifier = Modifier.weight(1f)) { Text("Import photos") }
-                            OutlinedButton(enabled = canMutate, onClick = { model.beginCaptureRequest() }, modifier = Modifier.weight(1f)) { Text("Use camera") }
+                            Button(enabled = canModifyInputs, onClick = { picker() }, modifier = Modifier.weight(1f)) { Text("Import photos") }
+                            OutlinedButton(enabled = canModifyInputs, onClick = { model.beginCaptureRequest() }, modifier = Modifier.weight(1f)) { Text("Use camera") }
                         }
                     }
                     item {
@@ -270,11 +405,11 @@ fun ScannerApp(model: ScannerViewModel) {
                                 Text("Offline lens calibration", style = MaterialTheme.typography.titleMedium)
                                 Text(calibrationStatus, style = MaterialTheme.typography.bodyMedium)
                                 Text("Print the 10×7-square board (9×6 INNER corners). Photograph it 10–40 times using the SAME camera, zoom, aspect and orientation as your object photos; vary angle, distance and board position.")
-                                Button(enabled = canMutate, onClick = {
+                                Button(enabled = canModifyInputs, onClick = {
                                     checkerboardPicker()
                                 }, modifier = Modifier.fillMaxWidth()) { Text("Calibrate this lens") }
                                 if (calibrationStatus.startsWith("Calibrated:")) {
-                                    OutlinedButton(enabled = canMutate, onClick = { model.clearLensCalibration() }) { Text("Remove calibration") }
+                                    OutlinedButton(enabled = canModifyInputs, onClick = { model.clearLensCalibration() }) { Text("Remove calibration") }
                                 }
                                 Text("Calibration improves geometry but does not provide absolute physical scale. Mismatched crops/lenses are rejected.", style = MaterialTheme.typography.bodySmall)
                             }
@@ -288,10 +423,10 @@ fun ScannerApp(model: ScannerViewModel) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Text("Photographic reconstruction", style = MaterialTheme.typography.titleMedium)
                                 Text("Examines up to 12 photographs. Up to eight registered views contribute to adaptive depth and optional photographic mesh output—not a finished mesh guarantee.")
-                                OutlinedTextField(value = focal, onValueChange = { focal = it.take(6) }, enabled = canMutate,
+                                OutlinedTextField(value = focal, onValueChange = { focal = it.take(6) }, enabled = canModifyInputs,
                                     label = { Text("Fallback 35 mm-equivalent focal length") }, suffix = { Text("mm") },
                                     supportingText = { Text("Used only when EXIF lacks a value. 26 mm is an explicit assumption, not measured calibration.") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                                Button(enabled = canMutate && (curationState?.selectedPhotoSet?.photos?.size ?: 0) >= 2 && (focal.toDoubleOrNull()?.let { it in 10.0..200.0 } == true),
+                                Button(enabled = canModifyInputs && (curationState?.selectedPhotoSet?.photos?.size ?: 0) >= 2 && (focal.toDoubleOrNull()?.let { it in 10.0..200.0 } == true),
                                     onClick = {
                                         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
                                                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -302,21 +437,52 @@ fun ScannerApp(model: ScannerViewModel) {
                                 if (busy && durableJob?.input?.projectId == selected && durableJob?.state in setOf(
                                         com.realityforge.scanner.data.jobs.ReconstructionJobState.RUNNING,
                                         com.realityforge.scanner.data.jobs.ReconstructionJobState.QUEUED)) {
-                                    val p = progress
-                                    Text(p?.let { "${it.stage}: ${it.completed}/${it.total}" } ?: "Preparing…")
-                                    if (p != null && p.total > 0) LinearProgressIndicator(progress = { p.completed.toFloat() / p.total }, modifier = Modifier.fillMaxWidth())
+                                    val job = durableJob
+                                    val p = diagnosticProgress?.takeIf { measured ->
+                                        job != null && measured.scope.jobId == job.jobId.value &&
+                                            measured.scope.attempt.toLong() == job.attempt &&
+                                            measured.scope.sourceRevision == job.input.projectRevision &&
+                                            job.input.projectRevision == project?.revision
+                                    }
+                                    Text(p?.let {
+                                        val count = it.total?.let { total -> "${it.completed}/$total" } ?: "${it.completed}"
+                                        "${it.stage.displayLabel()}: $count ${it.unit.displayLabel()}"
+                                    } ?: "Preparing reconstruction…")
+                                    val fraction = p?.stageFractionOrNull()?.toFloat()
+                                    if (fraction != null) LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth())
                                     else LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                                    if (p?.reusedCheckpoint == true) Text("Using a verified saved result for this stage.",
+                                        style = MaterialTheme.typography.bodySmall)
                                     OutlinedButton(onClick = { model.pause() }) { Text("Stop at safe boundary") }
                                     Text("Stopping preserves completed per-camera depth checkpoints. Relaunching a scan with unchanged inputs can reuse them; unfinished exports are discarded.", style = MaterialTheme.typography.bodySmall)
                                 }
                                 if (durableJob?.input?.projectId == selected && durableJob?.state == com.realityforge.scanner.data.jobs.ReconstructionJobState.PAUSED) {
                                     Text("Processing is paused. Completed checkpoints are saved.")
-                                    OutlinedButton(enabled = canMutate, onClick = { model.resumeProcessing() }) { Text("Resume saved job") }
+                                    OutlinedButton(enabled = canModifyInputs, onClick = { model.resumeProcessing() }) { Text("Resume saved job") }
                                 }
                             }
                         }
                     }
-                    val result = preview
+                    if (project?.resultRevision != null) item {
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedButton(enabled = canMutate && viewPrevious, onClick = { viewPrevious = false }) { Text("Current result") }
+                            OutlinedButton(enabled = canMutate && !viewPrevious, onClick = { viewPrevious = true }) { Text("Previous completed result") }
+                        }
+                    }
+                    previewReadMessage?.let { message -> item { Text(message, style = MaterialTheme.typography.bodyMedium) } }
+                    if (project?.resultRevision != null && displayedPreview == null && previewReadMessage == null) item {
+                        Text("Validating saved result and preparing the viewer…")
+                        LinearProgressIndicator(Modifier.fillMaxWidth())
+                    }
+                    val preparedGeometry = displayedPreview?.geometry
+                    if (viewPrevious && preparedGeometry != null) item {
+                        PreviousResultCard(preparedGeometry, project?.revision ?: preparedGeometry.revision,
+                            photographicAvailable = displayedPreview?.photographicModel != null,
+                            onPhotographic = { photographicFile = displayedPreview?.photographicModel })
+                    }
+                    val result = preview?.takeIf { saved -> !viewPrevious && preparedGeometry != null &&
+                        saved.optString("artifactKey") == preparedGeometry.artifactKey &&
+                        saved.optLong("revision", -1) == preparedGeometry.revision }
                     if (result != null) {
                         val diagnostics=result.optJSONObject("scanDiagnostics")
                         if (diagnostics != null) {
@@ -356,8 +522,10 @@ fun ScannerApp(model: ScannerViewModel) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                     Text("${result.optInt("pointCount")} reconstructed points", style = MaterialTheme.typography.titleLarge)
                                     Text("${result.optInt("registeredCameras", 2)} registered cameras · arbitrary scale · drag to orbit, pinch to zoom", style = MaterialTheme.typography.labelMedium)
-                                    PointCloudViewer(result, Modifier.fillMaxWidth().height(310.dp))
-                                    Text("Median parallax: ${"%.2f".format(result.optDouble("medianParallaxDegrees"))}°", color = MaterialTheme.colorScheme.primary)
+                                    preparedGeometry?.sparse?.let { PointCloudViewer(it, Modifier.fillMaxWidth().height(310.dp)) }
+                                    val parallax = result.optDouble("medianParallaxDegrees").takeIf { it.isFinite() }
+                                    Text(parallax?.let { "Median parallax: ${"%.2f".format(it)}°" }
+                                        ?: "Median parallax measurement unavailable", color = MaterialTheme.colorScheme.primary)
                                     Text("Camera and point positions are jointly refined. Dense depth can produce an open mesh from verified neighboring samples when coverage permits.", style = MaterialTheme.typography.bodySmall)
                                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         OutlinedButton(enabled = canMutate, onClick = { exportGlb("realityforge-sparse.glb") }) { Text("Export GLB") }
@@ -370,13 +538,14 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     if (result != null) {
                         val dense = result.optJSONObject("densePreview")
-                        if (dense != null) {
+                        val denseGeometry = preparedGeometry?.dense
+                        if (dense != null && denseGeometry != null) {
                             item {
                                 Card {
                                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                         Text("${dense.optInt("pointCount")} dense stereo points",style=MaterialTheme.typography.titleLarge)
                                         Text("Rectified ${dense.optInt("sourcePhotos")} camera views · inverse-depth plane sweep · reciprocal camera-z consistency",style=MaterialTheme.typography.labelMedium)
-                                        PointCloudViewer(dense,Modifier.fillMaxWidth().height(310.dp))
+                                        PointCloudViewer(denseGeometry,Modifier.fillMaxWidth().height(310.dp))
                                         Text("Depth grid: ${dense.optInt("rectifiedWidth")} × ${dense.optInt("rectifiedHeight")} · stride ${dense.optInt("pixelStride")} · ${dense.optInt("excludedRegisteredCameraCount")} registered views not selected",style=MaterialTheme.typography.bodySmall)
                                         Text("Points and open meshes remain separate. Texture exports are available only when photo visibility checks pass; scale is arbitrary.",style=MaterialTheme.typography.bodySmall)
                                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -392,7 +561,8 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     if (result != null) {
                         val mesh = result.optJSONObject("meshPreview")
-                        if(mesh != null) {
+                        val meshGeometry = preparedGeometry?.mesh
+                        if(mesh != null && meshGeometry != null) {
                             item {
                                 var wireframe by rememberSaveable { mutableStateOf(false) }
                                 Card {
@@ -401,7 +571,7 @@ fun ScannerApp(model: ScannerViewModel) {
                                             style=MaterialTheme.typography.titleLarge)
                                         Text("Real indexed mesh, vertex colors, open surfaces and arbitrary scale. Missing areas stay open.",
                                             style=MaterialTheme.typography.bodySmall)
-                                        SurfaceMeshViewer(mesh,Modifier.fillMaxWidth().height(320.dp),wireframe)
+                                        SurfaceMeshViewer(meshGeometry,Modifier.fillMaxWidth().height(320.dp),wireframe)
                                         Row(verticalAlignment=Alignment.CenterVertically) {
                                             Switch(checked=wireframe,onCheckedChange={wireframe=it})
                                             Spacer(Modifier.width(12.dp))
@@ -423,13 +593,8 @@ fun ScannerApp(model: ScannerViewModel) {
                                                 style=MaterialTheme.typography.bodySmall)
                                             Text("Exposure-balanced camera UV charts. Inspect the actual embedded photographic atlas separately from the vertex-color diagnostic above.",
                                                 style=MaterialTheme.typography.bodySmall)
-                                            Button(enabled = canMutate, onClick = {
-                                                val id = selected
-                                                if (id != null) {
-                                                    runCatching { model.repository.artifact(id, result.getString("artifactKey"), "textured.glb") }
-                                                        .onSuccess { photographicFile = it }
-                                                        .onFailure { model.notice.value = it.message }
-                                                }
+                                            Button(enabled = canMutate && displayedPreview?.photographicModel != null, onClick = {
+                                                photographicFile = displayedPreview?.photographicModel
                                             }, modifier = Modifier.fillMaxWidth()) { Text("Inspect photo-textured model") }
                                             Row(horizontalArrangement=Arrangement.spacedBy(12.dp)) {
                                                 Button(enabled = canMutate,onClick = { exportTexturedGlb("realityforge-photo-textured.glb") },modifier=Modifier.weight(1f)) { Text("Textured GLB") }
@@ -447,7 +612,7 @@ fun ScannerApp(model: ScannerViewModel) {
                             style=MaterialTheme.typography.bodySmall) }
                     }
                     item {
-                        OutlinedButton(enabled = canMutate && photos.size >= 3,
+                        OutlinedButton(enabled = canModifyInputs && photos.size >= 3,
                             onClick = { exportCapture("realityforge-capture.zip") },
                             modifier = Modifier.fillMaxWidth()) {
                             Text("Export original photos + calibration for benchmark")
@@ -457,14 +622,14 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     item { Text("Photographs", style = MaterialTheme.typography.titleLarge) }
                     curationUndo?.let { token -> item {
-                        OutlinedButton(enabled = canMutate && curationState?.revision == token.afterRevision,
+                        OutlinedButton(enabled = canModifyInputs && curationState?.revision == token.afterRevision,
                             onClick = { curate { state -> PhotoCurationCommand.Undo(state.projectId, state.revision, UUID.randomUUID().toString(), token) } }) {
                             Text("Undo last photo selection change")
                         }
                     } }
                     items(photos, key = { it.id }) { photo ->
                         val curated = curationState?.photos?.find { it.id == photo.id }
-                        PhotoRow(photo, model, canMutate && curated != null,
+                        PhotoRow(photo, model, canModifyInputs && curated != null,
                             curated?.state == CuratedPhotoState.INCLUDED,
                             onToggle = { include -> curate { state ->
                                 if (include) PhotoCurationCommand.Include(state.projectId, state.revision, UUID.randomUUID().toString(), photo.id)
@@ -477,14 +642,22 @@ fun ScannerApp(model: ScannerViewModel) {
                                 val target = (index + direction).coerceIn(0, ids.lastIndex)
                                 java.util.Collections.swap(ids, index, target)
                                 PhotoCurationCommand.Reorder(state.projectId, state.revision, UUID.randomUUID().toString(), ids)
-                            } })
+                            } }, removalAction = {
+                                if (project != null) PermanentPhotoRemovalButton(model, commands, photo,
+                                    ProjectRevision(project.id, project.revision), canModifyInputs ||
+                                        (canMutate && project.state == "DELETING_PHOTO"))
+                            })
                     }
                     item { InfoCard("Next engineering gate", "Validate the adaptive eight-view workload on physical devices. Larger complete objects still need stronger camera registration, resumable depth processing and topology repair.") }
-                    item { TextButton(enabled = canMutate, onClick = { deleteDialog = true }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
+                    item { TextButton(enabled = canMutate, onClick = {
+                        project?.takeIf { it.id == selected }?.let { deleteSource = ProjectRevision(it.id, it.revision) }
+                    }) { Text("Delete this local project", color = MaterialTheme.colorScheme.error) } }
                 }
             }
         }
-        photographicFile?.let { file -> PhotographicModelViewer(file) { photographicFile = null } }
+        photographicFile?.takeIf { it == displayedPreview?.photographicModel }?.let { file ->
+            PhotographicModelViewer(file) { photographicFile = null }
+        }
         if (newProject) AlertDialog(
             onDismissRequest = { newProject = false }, title = { Text("New scan") },
             text = { OutlinedTextField(name, { name = it.take(80) }, label = { Text("Project name") }, singleLine = true) },
@@ -493,33 +666,34 @@ fun ScannerApp(model: ScannerViewModel) {
         )
         libraryCommand?.let { command -> AlertDialog(
             onDismissRequest = { libraryCommand = null },
-            title = { Text(if (command == "rename") "Rename project" else "Create independent copy") },
+            title = { Text(if (command.kind == "rename") "Rename project" else "Create independent copy") },
             text = { Column {
                 OutlinedTextField(libraryName, { libraryName = it.take(160) }, label = { Text("Project name") }, singleLine = true)
-                if (command == "duplicate") Text("Copies original photos and selection into a separate project. Reconstruct the copy to create its own result.")
+                if (command.kind == "duplicate") Text("Copies original photos and selection into a separate project. Reconstruct the copy to create its own result.")
             } },
-            confirmButton = { TextButton(enabled = canMutate && runCatching { LibrarySelection.validatedName(libraryName) }.isSuccess,
+            confirmButton = { TextButton(enabled = canModifyInputs && runCatching { LibrarySelection.validatedName(libraryName) }.isSuccess,
                 onClick = {
                     val requestedName = libraryName
                     libraryCommand = null
                     model.projectCommand { source ->
+                        check(source == command.source) { "The project changed. Open this confirmation again." }
                         try {
-                            if (command == "rename") commands.rename(source, requestedName)
+                            if (command.kind == "rename") commands.rename(source, requestedName)
                             else commands.duplicate(source, requestedName) { copied, total ->
                                 model.progress.value = com.realityforge.scanner.engine.SparsePipeline.Progress("Copying original photos",
                                     if (total == 0L) 0 else (copied * 100 / total).toInt().coerceIn(0, 100), 100)
                             }
                         } finally { model.progress.value = null }
                     }
-                }) { Text(if (command == "rename") "Rename" else "Duplicate") } },
+                }) { Text(if (command.kind == "rename") "Rename" else "Duplicate") } },
             dismissButton = { TextButton(onClick = { libraryCommand = null }) { Text("Cancel") } },
         ) }
-        if (deleteDialog) AlertDialog(
-            onDismissRequest = { deleteDialog = false }, title = { Text("Delete project and local originals?") },
+        deleteSource?.let { confirmed -> AlertDialog(
+            onDismissRequest = { deleteSource = null }, title = { Text("Delete project and local originals?") },
             text = { Text("This removes the app's copies of your photos, caches and results. Photos outside this app are not deleted. This cannot be undone.") },
-            confirmButton = { TextButton(onClick = { deleteDialog = false; model.deleteSelected() }) { Text("Delete") } },
-            dismissButton = { TextButton(onClick = { deleteDialog = false }) { Text("Cancel") } },
-        )
+            confirmButton = { TextButton(enabled = canMutate, onClick = { deleteSource = null; model.deleteSelected(confirmed) }) { Text("Delete") } },
+            dismissButton = { TextButton(onClick = { deleteSource = null }) { Text("Cancel") } },
+        ) }
     }
 }
 
@@ -615,8 +789,31 @@ private fun InfoCard(title: String, message: String) {
 }
 
 @Composable
+private fun PreviousResultCard(geometry: PreparedPreviewGeometry, inputRevision: Long,
+    photographicAvailable: Boolean, onPhotographic: () -> Unit) {
+    Card {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Previous completed result · read-only", style = MaterialTheme.typography.titleLarge)
+            Text("Result revision ${geometry.revision}; current input revision $inputRevision. Return to Current result to export a result for the current inputs.")
+            Text("${geometry.sparse.pointCount} sparse points", style = MaterialTheme.typography.titleMedium)
+            PointCloudViewer(geometry.sparse, Modifier.fillMaxWidth().height(280.dp))
+            geometry.dense?.let { dense ->
+                Text("${dense.pointCount} dense stereo points", style = MaterialTheme.typography.titleMedium)
+                PointCloudViewer(dense, Modifier.fillMaxWidth().height(280.dp))
+            }
+            geometry.mesh?.let { mesh ->
+                Text("${mesh.sourceTriangleCount} observed triangles", style = MaterialTheme.typography.titleMedium)
+                SurfaceMeshViewer(mesh, Modifier.fillMaxWidth().height(300.dp))
+            }
+            if (photographicAvailable) OutlinedButton(onClick = onPhotographic) { Text("Inspect previous photographic model") }
+            geometry.unavailableReasons.values.take(3).forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
+        }
+    }
+}
+
+@Composable
 private fun PhotoRow(photo: ScanPhoto, model: ScannerViewModel, enabled: Boolean, included: Boolean,
-    onToggle: (Boolean) -> Unit, onMove: (Int) -> Unit) {
+    onToggle: (Boolean) -> Unit, onMove: (Int) -> Unit, removalAction: @Composable () -> Unit) {
     val bitmap by produceState<Bitmap?>(null, photo.id) {
         val owned = try {
             ImageLoader.decode(DecodeRequest(file = model.repository.photoFile(photo), maxEdge = 192))
@@ -647,5 +844,6 @@ private fun PhotoRow(photo: ScanPhoto, model: ScannerViewModel, enabled: Boolean
           TextButton(enabled = enabled, onClick = { onMove(-1) }) { Text("Earlier") }
           TextButton(enabled = enabled, onClick = { onMove(1) }) { Text("Later") }
       }
+      removalAction()
     }
 }

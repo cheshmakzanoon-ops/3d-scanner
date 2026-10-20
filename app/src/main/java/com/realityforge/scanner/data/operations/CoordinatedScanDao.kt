@@ -88,7 +88,11 @@ class CoordinatedScanDao(
             kind = ProjectOperationKind.LEGACY_PROCESS_STATE,
             expectedRevision = revision,
             stable = true,
-        ) { delegate.state(id, revision, state, message) }
+            allowRecoveryMetadata = true,
+        ) {
+            if (delegate.project(id)?.state == ProjectRecoveryAdmission.STATE) 0
+            else delegate.state(id, revision, state, message)
+        }
 
     override suspend fun complete(id: String, revision: Long, resultKey: String, message: String): Int =
         withMutation(
@@ -114,6 +118,7 @@ class CoordinatedScanDao(
         kind: ProjectOperationKind,
         expectedRevision: Long? = null,
         stable: Boolean,
+        allowRecoveryMetadata: Boolean = false,
         block: suspend () -> T,
     ): T {
         requireCanonicalUuid(projectId, "project identifier")
@@ -127,6 +132,7 @@ class CoordinatedScanDao(
             if (acquired.revision != expected) {
                 throw StaleProjectRevisionException(projectId, expected, acquired.revision)
             }
+            if (!allowRecoveryMetadata) ProjectRecoveryAdmission.requireAllowed(acquired.state, kind)
             val result = block()
             if (stable) {
                 val after = delegate.project(projectId) ?: throw ProjectMissingException(projectId)

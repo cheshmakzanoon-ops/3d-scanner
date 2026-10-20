@@ -8,8 +8,10 @@ import com.realityforge.scanner.data.jobs.JobTransitionRejectedException
 import com.realityforge.scanner.data.jobs.ReconstructionJobState
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.first
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -17,6 +19,38 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class DurableJobStoreStateDeviceTest : DurableJobStoreDeviceSupport() {
+    @Test
+    fun measuredPauseReasonSurvivesRestartAndIdempotentUserPause() = runBlocking {
+        val databaseName = "agent-007-pause-reason-${UUID.randomUUID()}.db"
+        context.deleteDatabase(databaseName)
+        var pausedId: JobId? = null
+        try {
+            val firstDb = Room.databaseBuilder(context, IsolatedJobStoreDatabase::class.java, databaseName).build()
+            try {
+                val first = store(firstDb, "pause-reason")
+                val queued = first.enqueue(input("resource-paused-project"), 10)
+                pausedId = queued.jobId
+                first.acquireNext("resource-worker", 11, 1000)
+                val paused = first.pause(queued.jobId, 12, "RESOURCE_PAUSED").snapshot
+                assertEquals(ReconstructionJobState.PAUSED, paused.state)
+                assertEquals("RESOURCE_PAUSED", paused.outcomeCode)
+                assertNull(paused.lease)
+                assertEquals("RESOURCE_PAUSED", first.observeHistory(queued.jobId).first().last().code)
+            } finally { firstDb.close() }
+
+            val secondDb = Room.databaseBuilder(context, IsolatedJobStoreDatabase::class.java, databaseName).build()
+            try {
+                val second = store(secondDb, "pause-reason-reopened")
+                val jobId = requireNotNull(pausedId)
+                assertEquals("RESOURCE_PAUSED", requireNotNull(second.snapshot(jobId)).outcomeCode)
+                assertEquals("RESOURCE_PAUSED", second.pause(jobId, 13).snapshot.outcomeCode)
+                assertNull(second.resume(jobId, 14).snapshot.outcomeCode)
+                assertNull(second.pause(jobId, 15).snapshot.outcomeCode)
+                assertEquals("PAUSED_BY_USER", second.observeHistory(jobId).first().last().code)
+            } finally { secondDb.close() }
+        } finally { context.deleteDatabase(databaseName) }
+    }
+
     @Test
     fun terminalAndPausedStatesSurviveDatabaseRestartWithDistinctMeanings() = runBlocking {
         val databaseName = "agent-007-states-${UUID.randomUUID()}.db"

@@ -83,9 +83,11 @@ internal data class DiagnosticEvent(
         require(sequence >= 0)
         progress?.let {
             require(it.scope == scope && it.stage == stage) { "Event progress identity does not match." }
+            require(it.sequence == sequence) { "Event progress sequence does not match." }
         }
         failure?.let {
             require(it.stage == stage) { "Event failure stage does not match." }
+            require(it.outcome == outcome) { "Event failure outcome does not match." }
             require(outcome != StageOutcome.SUCCEEDED) { "A successful event cannot carry a failure." }
         }
     }

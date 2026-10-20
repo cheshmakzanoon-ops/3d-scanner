@@ -50,6 +50,7 @@ Scope::Scope(std::string directory,std::string sha256Identity):
     active=this;
 }
 Scope::~Scope() noexcept {active=previous_;}
+const Scope* current() noexcept {return active;}
 
 bool load(std::size_t index,DenseDepthMap& map){
     if(!active)return false;
