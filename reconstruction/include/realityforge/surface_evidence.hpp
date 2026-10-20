@@ -7,6 +7,7 @@
 #include <limits>
 #include <span>
 #include <set>
+#include <optional>
 #include <vector>
 
 namespace rf {
@@ -14,6 +15,8 @@ enum class NormalValidity { Supported, SparseSupport, Discontinuity, IllConditio
 struct NormalObservation { Vec3 position{}, cameraCenter{}; std::uint64_t observationId{}; };
 struct GeometryUncertainty {
     double planeResidual{}, conditioning{}, estimatedPositionSigma{};
+    double maximumParallaxRadians{};
+    std::optional<double> triangulationSigma;
     bool calibrated{}; // false means geometric/noise heuristic, never measured physical error
 };
 struct ObservedNormal {
@@ -41,7 +44,7 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     using namespace surface_evidence_detail;
     cancellation::checkpoint();
     if(observations.size()>s.maxObservations || s.maxObservations>100000 || s.maxNeighbors>256 ||
-       s.minimumNeighbors<3 || s.minimumNeighbors>s.maxNeighbors || !finite(query) ||
+       s.minimumNeighbors<3 || s.minimumNeighbors>s.maxNeighbors || !finite(query) || length(query)>1e50 ||
        !std::isfinite(s.radius)||s.radius<=0||s.radius>1e50||s.radius<1e-50 || !std::isfinite(s.observationSigma)||s.observationSigma<0 ||
        !std::isfinite(s.maximumResidualRatio)||s.maximumResidualRatio<=0 ||s.maximumResidualRatio>=1 ||
        !std::isfinite(s.minimumConditioning)||s.minimumConditioning<=0||s.minimumConditioning>=1)
@@ -82,6 +85,17 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     out.uncertainty.planeResidual=std::sqrt(small);
     out.uncertainty.estimatedPositionSigma=std::sqrt(small+s.observationSigma*s.observationSigma)/std::sqrt(static_cast<double>(nearby.size()));
     out.uncertainty.calibrated=s.calibratedNoise;
+    double maximumSine=0;
+    for(std::size_t i=0;i<nearby.size();++i){
+        cancellation::checkpoint();
+        const auto a=sub(observations[nearby[i].second].cameraCenter,query);const double la=length(a);
+        if(la<=0)continue;
+        for(std::size_t j=i+1;j<nearby.size();++j){const auto b=sub(observations[nearby[j].second].cameraCenter,query);const double lb=length(b);if(lb<=0)continue;
+            const double cosine=std::clamp(dot(a,b)/(la*lb),-1.,1.);const double angle=std::acos(cosine);out.uncertainty.maximumParallaxRadians=std::max(out.uncertainty.maximumParallaxRadians,angle);
+            maximumSine=std::max(maximumSine,std::sqrt(std::max(0.,1-cosine*cosine)));
+        }
+    }
+    if(maximumSine>1e-6)out.uncertainty.triangulationSigma=s.observationSigma/maximumSine;
     if(!std::isfinite(small)||!std::isfinite(mid)||!std::isfinite(large)||!std::isfinite(out.uncertainty.estimatedPositionSigma))throw Error("Unrepresentable surface evidence covariance");
     if(large<=0||mid<=0||out.uncertainty.conditioning<s.minimumConditioning||small/mid>s.maximumResidualRatio){out.validity=NormalValidity::IllConditioned;return out;}
     out.direction={eigen[0][ids[0]],eigen[1][ids[0]],eigen[2][ids[0]]};

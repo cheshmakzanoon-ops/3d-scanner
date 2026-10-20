@@ -9,6 +9,8 @@ int main(){
     auto noisy=plane;for(std::size_t i=0;i<noisy.size();++i)noisy[i].position.z+=(static_cast<int>(i%3)-1)*.01;
     auto q=rf::estimateObservedNormal(noisy,{0,0,2});check(q.validity==rf::NormalValidity::Supported&&q.uncertainty.planeResidual>n.uncertainty.planeResidual);
     std::vector<rf::NormalObservation> line;for(int i=0;i<9;++i)line.push_back({{i*.01,0,2},{0,0,0},line.size()});check(rf::estimateObservedNormal(line,{0,0,2}).validity==rf::NormalValidity::IllConditioned);
+    auto diverse=plane;for(std::size_t i=0;i<diverse.size();++i)diverse[i].cameraCenter.x=i%2?1:-1;
+    const auto parallax=rf::estimateObservedNormal(diverse,{0,0,2});check(parallax.uncertainty.maximumParallaxRadians>.5&&parallax.uncertainty.triangulationSigma.has_value()&&!n.uncertainty.triangulationSigma.has_value());
     auto opposite=plane;for(auto& o:opposite)o.cameraCenter.z=4;check(rf::estimateObservedNormal(opposite,{0,0,2}).direction.z>.999999);
     rf::DenseView view;view.width=view.height=9;view.fx=view.fy=100;view.cx=view.cy=4;view.pose.rotation=rf::identity();
     rf::DenseDepthMap map;map.width=map.height=9;map.depth.assign(81,2);map.confidence.assign(81,1);
