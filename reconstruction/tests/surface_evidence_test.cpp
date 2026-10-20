@@ -15,6 +15,10 @@ int main(){
     check(rf::estimateDepthNeighborhoodNormal(view,map,4,4,1).validity==rf::NormalValidity::Supported);
     map.depth[3*9+3]=3;check(rf::estimateDepthNeighborhoodNormal(view,map,4,4,1).validity==rf::NormalValidity::Discontinuity);
     check(rf::estimateDepthNeighborhoodNormal(view,map,0,0,1).validity==rf::NormalValidity::SparseSupport);
+    auto duplicate=plane;duplicate[1].observationId=duplicate[0].observationId;bool dup=false;try{(void)rf::estimateObservedNormal(duplicate,{0,0,2});}catch(const rf::Error&){dup=true;}check(dup);
+    auto huge=plane;huge[0].position.x=1e200;bool overflow=false;try{(void)rf::estimateObservedNormal(huge,{0,0,2});}catch(const rf::Error&){overflow=true;}check(overflow);
+    check(rf::estimateDepthNeighborhoodNormal(view,map,2147483647,4,1).validity==rf::NormalValidity::SparseSupport);
+    view.pose.rotation[0]=2;bool pose=false;try{(void)rf::estimateDepthNeighborhoodNormal(view,map,4,4,1);}catch(const rf::Error&){pose=true;}check(pose);
     plane[0].position.z=INFINITY;bool rejected=false;try{(void)rf::estimateObservedNormal(plane,{0,0,2});}catch(const rf::Error&){rejected=true;}check(rejected);
     std::cout<<"analytic normals, noise ordering, degenerate support, facing and discontinuity cases passed\n";
 }

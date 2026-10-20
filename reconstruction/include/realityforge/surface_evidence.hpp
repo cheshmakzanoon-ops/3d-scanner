@@ -6,6 +6,7 @@
 #include <cmath>
 #include <limits>
 #include <span>
+#include <set>
 #include <vector>
 
 namespace rf {
@@ -41,15 +42,16 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     cancellation::checkpoint();
     if(observations.size()>s.maxObservations || s.maxObservations>100000 || s.maxNeighbors>256 ||
        s.minimumNeighbors<3 || s.minimumNeighbors>s.maxNeighbors || !finite(query) ||
-       !std::isfinite(s.radius)||s.radius<=0 || !std::isfinite(s.observationSigma)||s.observationSigma<0 ||
+       !std::isfinite(s.radius)||s.radius<=0||s.radius>1e50||s.radius<1e-50 || !std::isfinite(s.observationSigma)||s.observationSigma<0 ||
        !std::isfinite(s.maximumResidualRatio)||s.maximumResidualRatio<=0 ||s.maximumResidualRatio>=1 ||
        !std::isfinite(s.minimumConditioning)||s.minimumConditioning<=0||s.minimumConditioning>=1)
         throw Error("Invalid surface evidence settings/input bounds");
     std::vector<std::pair<double,std::size_t>> nearby;
+    std::set<std::uint64_t> identities;
     for(std::size_t i=0;i<observations.size();++i) {
         if((i&31u)==0)cancellation::checkpoint();
         const auto& o=observations[i];
-        if(!finite(o.position)||!finite(o.cameraCenter))throw Error("Non-finite normal observation");
+        if(!finite(o.position)||!finite(o.cameraCenter)||length(o.position)>1e50||length(o.cameraCenter)>1e50||!identities.insert(o.observationId).second)throw Error("Invalid normal observation or duplicate identity");
         const double d=length(sub(o.position,query));
         if(d<=s.radius)nearby.emplace_back(d,i);
     }
@@ -80,6 +82,7 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     out.uncertainty.planeResidual=std::sqrt(small);
     out.uncertainty.estimatedPositionSigma=std::sqrt(small+s.observationSigma*s.observationSigma)/std::sqrt(static_cast<double>(nearby.size()));
     out.uncertainty.calibrated=s.calibratedNoise;
+    if(!std::isfinite(small)||!std::isfinite(mid)||!std::isfinite(large)||!std::isfinite(out.uncertainty.estimatedPositionSigma))throw Error("Unrepresentable surface evidence covariance");
     if(large<=0||mid<=0||out.uncertainty.conditioning<s.minimumConditioning||small/mid>s.maximumResidualRatio){out.validity=NormalValidity::IllConditioned;return out;}
     out.direction={eigen[0][ids[0]],eigen[1][ids[0]],eigen[2][ids[0]]};
     const auto camera=sub(observations[nearby.front().second].cameraCenter,query);
@@ -92,12 +95,17 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
 // window rejects any missing or discontinuous neighbor rather than bridge a gap.
 inline ObservedNormal estimateDepthNeighborhoodNormal(const DenseView& view,const DenseDepthMap& map,
                                                        int x,int y,int step,double maxRelativeJump=.08) {
-    if(step<1||step>64||view.width!=map.width||view.height!=map.height||map.width<1||map.height<1||
-       map.depth.size()!=static_cast<std::size_t>(map.width)*map.height||!std::isfinite(view.fx)||!std::isfinite(view.fy)||view.fx<=0||view.fy<=0||
+    if(step<1||step>64||view.width!=map.width||view.height!=map.height||map.width<1||map.height<1||map.width>100000||map.height>100000||
+       map.depth.size()!=static_cast<std::size_t>(map.width)*map.height||!std::isfinite(view.fx)||!std::isfinite(view.fy)||!std::isfinite(view.cx)||!std::isfinite(view.cy)||view.fx<=0||view.fy<=0||
        !std::isfinite(maxRelativeJump)||maxRelativeJump<=0||maxRelativeJump>.5)
         throw Error("Invalid depth normal geometry");
     ObservedNormal unknown;
-    if(x<step||y<step||x+step>=map.width||y+step>=map.height)return unknown;
+    for(auto r:view.pose.rotation)if(!std::isfinite(r))throw Error("Non-finite normal pose");
+    if(!surface_evidence_detail::finite(view.pose.translation))throw Error("Non-finite normal translation");
+    const auto orth=multiply(view.pose.rotation,transpose(view.pose.rotation));
+    for(int i=0;i<9;++i)if(std::abs(orth[i]-(i%4==0?1.:0.))>1e-5)throw Error("Normal pose is not orthonormal");
+    if(std::abs(determinant(view.pose.rotation)-1)>1e-5)throw Error("Normal pose has invalid orientation");
+    if(x<step||y<step||x>=map.width-step||y>=map.height-step)return unknown;
     const double z=map.depth[static_cast<std::size_t>(y)*map.width+x];
     if(!std::isfinite(z)||z<=0)return unknown;
     const auto inverse=transpose(view.pose.rotation);
