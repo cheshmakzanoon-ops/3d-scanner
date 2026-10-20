@@ -59,8 +59,22 @@ class PyramidStore(private val directory: File, private val maxBytes: Long) {
         } catch (_: IOException) { false } finally { temp.delete() }
     }
     private fun evict(needed: Long, retained: String) {
-        val files = directory.listFiles { f -> f.name.matches(Regex("[0-9a-f]{64}\\.rfp")) && f.name != "$retained.rfp" }?.sortedBy { it.lastModified() } ?: emptyList()
-        var bytes = files.sumOf { it.length() }
+        val files = ArrayList<File>()
+        var inspected = 0
+        Files.newDirectoryStream(directory.toPath()).use { entries ->
+            for (entry in entries) {
+                if (++inspected > 8192) throw IOException("Pyramid directory entry budget exceeded")
+                val file = entry.toFile()
+                if (file.name.matches(Regex("[0-9a-f]{64}\\.rfp")) && file.name != "$retained.rfp") {
+                    if (files.size >= 4096) throw IOException("Pyramid cache record budget exceeded")
+                    if (file.length() > maxBytes) { if (!file.delete()) throw IOException("Oversized cache cannot be evicted") }
+                    else files.add(file)
+                }
+            }
+        }
+        files.sortBy { it.lastModified() }
+        var bytes = 0L
+        for (file in files) { val length=file.length(); bytes = if (bytes > maxBytes-length) maxBytes+1 else bytes+length }
         for (file in files) { if (bytes + needed <= maxBytes) break; val length = file.length(); if (file.delete()) bytes -= length }
         if (bytes + needed > maxBytes) throw IOException("Pyramid cache budget unavailable")
     }

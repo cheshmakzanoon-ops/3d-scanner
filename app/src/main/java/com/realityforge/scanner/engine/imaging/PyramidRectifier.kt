@@ -15,6 +15,7 @@ object PyramidRectifier {
         require(sourceWidth in 2..8192 && sourceHeight in 2..8192 && source.size.toLong() == sourceWidth.toLong() * sourceHeight)
         require(width in 1..8192 && height in 1..8192 && width.toLong() * height <= PyramidLevel.MAX_PIXELS)
         require(tileRows in 1..256)
+        require(rawToUpright.sourceWidth == sourceWidth && rawToUpright.sourceHeight == sourceHeight) { "EXIF transform source domain mismatch" }
         for (start in 0 until height step tileRows) {
             if (cancelled()) throw CancellationException("Pyramid rectification cancelled")
             val count = minOf(tileRows, height - start)

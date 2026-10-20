@@ -42,8 +42,8 @@ f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/j
 679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0  app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt
 bbc3407224b95b966d3ef23d0e2111b6c062bd4248b90ed4b4b137d334aa83ee  app/src/main/java/com/realityforge/scanner/engine/geometry/PixelTransform.kt
 a39d4733e0b0a46e5d268db343321a85b229d8042f54254bf3a1e821d7d07a5b  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidLevel.kt
-7c27fca746f4187fa66e39e1b0cb17eade456b333aeec7b08b6b2f043df57274  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidRectifier.kt
-0973cae490be7660fbd8e6195741f0fa1f5b97aea1b039532329c67ed92d9b83  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidStore.kt
+41f0681b62ae0120b1ee02de42e31309a7818cfa884c3e5360299eb1c2f1be0a  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidRectifier.kt
+10fcbfd5bec9a4abf0b3372c2094406328c71e78a402c5ccf77ae080bebca42a  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidStore.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
 f24cd4e037d24f73509924449b8dd55c699c006512262fc2f66e2ea63f4fbb0f  app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt
