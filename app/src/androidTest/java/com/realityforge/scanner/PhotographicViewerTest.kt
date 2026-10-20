@@ -179,7 +179,10 @@ class PhotographicViewerTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { activity ->
                 activity.setContent {
-                    val surface=remember { FilamentStudioView(activity,bytes,onFailure={ failure.set(it) }).also(current::set) }
+                    val surface=remember { FilamentStudioView(activity,bytes,onFailure={ failure.set(it) }).also {
+                        // The view receives restored controls before its Surface/backend exists.
+                        it.orbit(35f,10f); it.magnify(1.2f); current.set(it)
+                    } }
                     DisposableEffect(surface) { onDispose { surface.dispose() } }
                     AndroidView(factory={ surface })
                 }
@@ -199,6 +202,12 @@ class PhotographicViewerTest {
                 fail("Filament did not submit a fixture frame; inspect actual driver support")
             }
             awaitFrame(0)
+            var restoredPose=FloatArray(0)
+            inst.runOnMainSync { restoredPose=current.get()!!.cameraViewMatrix() }
+            var beforeReset=0L
+            inst.runOnMainSync { beforeReset=current.get()!!.renderStatistics.submittedFrames; current.get()!!.reset() }
+            awaitFrame(beforeReset)
+            inst.runOnMainSync { assertFalse(restoredPose.contentEquals(current.get()!!.cameraViewMatrix())) }
             inst.runOnMainSync { current.get()!!.pauseRendering() }
             val paused=frames(); Thread.sleep(150); assertEquals(paused,frames())
             inst.runOnMainSync { current.get()!!.resumeRendering() }

@@ -20,7 +20,13 @@ class FilamentStudioView(
     private var resumed = true
     private var scheduled = false
     private var closed = false
+    private var pendingYaw = 0f
+    private var pendingPitch = 0f
+    private var pendingZoom = 1f
+    private var pendingPanX = 0f
+    private var pendingPanY = 0f
     val renderStatistics: RenderStatistics get() = backend?.statistics ?: RenderStatistics()
+    internal fun cameraViewMatrix(): FloatArray = checkNotNull(backend).cameraViewMatrix()
 
     init {
         require(localGlb.size <= PhotographicGlb.MAX_FILE_BYTES)
@@ -33,6 +39,8 @@ class FilamentStudioView(
             val current = backend ?: FilamentBackend.create(budget).also {
                 backend = it; it.load(localGlb,mode)
             }
+            current.reset(); current.orbit(pendingYaw,pendingPitch)
+            current.magnify(pendingZoom); current.pan(pendingPanX,pendingPanY)
             current.attach(holder.surface,width.coerceAtLeast(1),height.coerceAtLeast(1))
             schedule()
         } catch (failure: Exception) { failed(failure.message ?: "Filament could not load this model.") }
@@ -71,9 +79,25 @@ class FilamentStudioView(
         try { backend?.draw(frameTimeNanos); schedule() }
         catch (failure: Exception) { failed(failure.message ?: "Filament frame failed.") }
     }
-    override fun orbit(horizontalDegrees: Float, verticalDegrees: Float) { backend?.orbit(horizontalDegrees,verticalDegrees) }
-    override fun pan(horizontal: Float, vertical: Float) { backend?.pan(horizontal,vertical) }
-    override fun magnify(factor: Float) { backend?.magnify(factor) }
-    override fun reset() { backend?.reset() }
+    override fun orbit(horizontalDegrees: Float, verticalDegrees: Float) {
+        require(horizontalDegrees.isFinite() && verticalDegrees.isFinite())
+        pendingYaw=(pendingYaw+horizontalDegrees)%360f
+        pendingPitch=(pendingPitch+verticalDegrees).coerceIn(-89f,89f)
+        backend?.orbit(horizontalDegrees,verticalDegrees)
+    }
+    override fun pan(horizontal: Float, vertical: Float) {
+        require(horizontal.isFinite() && vertical.isFinite())
+        pendingPanX=(pendingPanX+horizontal).coerceIn(-2f,2f)
+        pendingPanY=(pendingPanY+vertical).coerceIn(-2f,2f)
+        backend?.pan(horizontal,vertical)
+    }
+    override fun magnify(factor: Float) {
+        require(factor.isFinite() && factor>0)
+        pendingZoom=(pendingZoom*factor).coerceIn(.35f,5f); backend?.magnify(factor)
+    }
+    override fun reset() {
+        pendingYaw=0f; pendingPitch=0f; pendingZoom=1f; pendingPanX=0f; pendingPanY=0f
+        backend?.reset()
+    }
     override fun onDetachedFromWindow() { dispose(); super.onDetachedFromWindow() }
 }

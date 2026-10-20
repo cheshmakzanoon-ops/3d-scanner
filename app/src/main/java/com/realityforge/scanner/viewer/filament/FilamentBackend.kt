@@ -183,6 +183,9 @@ class FilamentBackend private constructor(private val budget: RenderBudget) : Re
         statistics = statistics.copy(submittedFrames=statistics.submittedFrames+1)
         return true
     }
+    internal fun cameraViewMatrix(): FloatArray {
+        checkOwner(); return camera!!.getViewMatrix(FloatArray(16))
+    }
 
     private fun unload() {
         model?.let { scene!!.removeEntities(it.entities); loader!!.destroyAsset(it) }
