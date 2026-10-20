@@ -3,10 +3,16 @@ package com.realityforge.scanner.engine.dense
 /** Verified sparse support is candidate overlap; this never reports dense completeness. */
 object DenseViewSelection {
     class Camera(val photoId:String, centre:List<Double>, tracks:Set<String>, val sharpness:Double, val textureAvailable:Boolean=true) {
+        init { require(photoId.isNotBlank() && photoId.length<=256 && centre.size==3 && tracks.size<=20_000) }
         val centre:List<Double> = java.util.Collections.unmodifiableList(ArrayList(centre))
         val tracks:Set<String> = java.util.Collections.unmodifiableSet(HashSet(tracks))
     }
     class Plan(referencePhotoIds:List<String>, sourcePhotoIds:Map<String,List<String>>, exclusions:Map<String,String>, val uniqueSparseTracks:Int) {
+        init {
+            require(referencePhotoIds.size<=8 && referencePhotoIds.distinct().size==referencePhotoIds.size && exclusions.size<=250 && uniqueSparseTracks in 0..500_000)
+            require(sourcePhotoIds.keys==referencePhotoIds.toSet())
+            require(sourcePhotoIds.all { (ref,sources) -> sources.size<=3 && sources.distinct().size==sources.size && sources.all { it!=ref && it in referencePhotoIds } })
+        }
         val referencePhotoIds:List<String> = java.util.Collections.unmodifiableList(ArrayList(referencePhotoIds))
         val sourcePhotoIds:Map<String,List<String>> = java.util.Collections.unmodifiableMap(sourcePhotoIds.mapValues { java.util.Collections.unmodifiableList(ArrayList(it.value)) })
         val exclusions:Map<String,String> = java.util.Collections.unmodifiableMap(HashMap(exclusions))

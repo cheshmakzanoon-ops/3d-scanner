@@ -87,6 +87,12 @@ inline DenseEvidenceSelection selectDenseEvidence(std::span<const DenseCameraEvi
     std::size_t referenceCap=8,std::size_t sourceCap=3,std::size_t minCommonTracks=8) {
     if(input.size()>250||referenceCap<2||referenceCap>8||sourceCap<1||sourceCap>3||minCommonTracks<2)
         throw Error("Invalid dense evidence selection budget");
+    // Reject input budgets before copying caller-owned feature arrays.
+    std::size_t inputTracks=0;
+    for(const auto& c:input){
+        if(c.photoId.empty()||c.photoId.size()>256||c.verifiedTracks.size()>20000||inputTracks>500000-c.verifiedTracks.size())throw Error("Dense evidence input budget exceeded");
+        inputTracks+=c.verifiedTracks.size();
+    }
     std::vector<DenseCameraEvidence> cameras(input.begin(),input.end());
     std::sort(cameras.begin(),cameras.end(),[](const auto& a,const auto& b){return a.photoId<b.photoId;});
     std::size_t trackBudget=0;
