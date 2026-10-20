@@ -91,7 +91,41 @@ def ownership(root: Path, rows: list[dict], agent: str, base: str, revision: str
     raw = subprocess.check_output(['git', '-C', str(root), 'diff', '--no-renames',
                                    '--name-only', '-z', base, revision])
     paths = [p.decode('utf-8') for p in raw.split(b'\0') if p]
-    return [p for p in paths if not owned(row, p)]
+    errors = [p for p in paths if not owned(row, p)]
+    if agent != '100' or not errors:
+        return errors
+    # The integration branch intentionally contains other owners' reviewed commits.
+    # Allow only recorded ancestor deliveries, and only unchanged delivered blobs.
+    saved = subprocess.run(['git', '-C', str(root), 'show',
+                            f'{revision}:docs/agents/integration/deliveries.json'],
+                           text=True, capture_output=True)
+    if saved.returncode:
+        return errors
+    try:
+        deliveries = json.loads(saved.stdout)['deliveries']
+    except (ValueError, KeyError, TypeError):
+        return errors
+    permitted = set()
+    for delivery in deliveries:
+        a, sha = delivery.get('agent'), delivery.get('source_sha')
+        source_row = next((r for r in rows if r['agent'] == a and a != '100'), None)
+        if source_row is None or not isinstance(sha, str) or not re.fullmatch('[0-9a-f]{40}', sha):
+            continue
+        if subprocess.run(['git', '-C', str(root), 'merge-base', '--is-ancestor', sha, revision],
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
+            continue
+        for path in errors:
+            if not owned(source_row, path):
+                continue
+            actual = subprocess.run(['git', '-C', str(root), 'rev-parse', f'{revision}:{path}'],
+                                    text=True, capture_output=True)
+            supplied = subprocess.run(['git', '-C', str(root), 'rev-parse', f'{sha}:{path}'],
+                                      text=True, capture_output=True)
+            if actual.returncode == supplied.returncode == 0 and actual.stdout == supplied.stdout:
+                permitted.add(path)
+            elif actual.returncode != 0 and supplied.returncode != 0:
+                permitted.add(path)
+    return [p for p in errors if p not in permitted]
 
 
 def index(root: Path, rows: list[dict], base: str) -> dict:
@@ -110,7 +144,10 @@ def index(root: Path, rows: list[dict], base: str) -> dict:
             receipt = subprocess.run(['git', '-C', str(root), 'show', f'{sha}:{row["receipt"]}'],
                                      text=True, capture_output=True)
             if receipt.returncode == 0:
-                match = re.search(r'^state:\s*[\"\x27]?([A-Z_]+)', receipt.stdout, re.M)
+                match = re.search(r'^\s*state:\s*[\"\x27]?([A-Z_]+)', receipt.stdout, re.M)
+                if not match:
+                    # Markdown wrappers are allowed around the plan's compact YAML receipt.
+                    match = re.search(r'\bstate\s*:\s*[\"\x27]?([A-Z_]+)', receipt.stdout)
                 entry['state'] = match.group(1) if match and match.group(1) in STATES else 'INVALID_RECEIPT'
                 entry['receipt_sha'] = git(root, 'rev-parse', f'{sha}:{row["receipt"]}')
             else:

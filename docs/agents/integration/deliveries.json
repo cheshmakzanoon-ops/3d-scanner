@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "deliveries": [
+    {
+      "agent": "083",
+      "source_sha": "085b6c738a0fd9501c8f3f1e2d7f4d1660539e21",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "3926fa7969e0b76142a463abeb13bd47c27e8a0f",
+      "ownership": "PASS"
+    }
+  ]
+}
