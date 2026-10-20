@@ -1,5 +1,6 @@
 #include "realityforge/dense.hpp"
 #include "realityforge/depth_checkpoint.hpp"
+#include "realityforge/depth_cache_manifest.hpp"
 #include "realityforge/stereo_warp.hpp"
 #include "realityforge/dense_selection.hpp"
 #include "realityforge/cancellation.hpp"
@@ -115,7 +116,7 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
        s.patchRadius<1||s.patchRadius>3||!std::isfinite(s.minimumNcc)||s.minimumNcc<0||s.minimumNcc>1||
        !std::isfinite(s.minUniqueness)||!std::isfinite(s.depthConsistencyFraction)||
        s.minUniqueness<.005||s.minUniqueness>.5||s.depthConsistencyFraction<.005||s.depthConsistencyFraction>.25||
-       s.maxPoints<10||s.maxPoints>50000||s.executionVersion!=1||s.tileEdge<8||s.tileEdge>640||s.localRefinementIterations>12)throw Error("Invalid bounded CPU MVS configuration");
+       s.maxPoints<10||s.maxPoints>50000||s.executionVersion!=1||s.tileEdge<16||s.tileEdge>640||s.localRefinementIterations>12)throw Error("Invalid bounded CPU MVS configuration");
     int w=views.front().width,h=views.front().height;
     if(w<32||h<32||w>640||h>640||static_cast<std::int64_t>(w)*h>320000)throw Error("Dense MVS image exceeds CPU reference limits");
     const int start=s.patchRadius+1;
@@ -140,12 +141,29 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
 }
 }
 
-DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& settings){
+DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& settings,const DenseRefinementInputs* inputs){
     cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
     auto admitted=tiles::admit(views.size(),static_cast<std::size_t>(views[0].width)*views[0].height,MAX_DENSE_SAMPLES,settings.maxPoints,settings.depthPlanes,settings.workingSetBudgetBytes,settings.referenceMode);
     result.admittedWorkingSetBytes=admitted.totalBytes;
+    if(inputs){
+        if(!depth_cache::validIdentity(inputs->identitySha256)||inputs->sparsePriors.size()>20000||(!inputs->coarseViews.empty()&&inputs->coarseViews.size()!=views.size()))throw Error("Invalid immutable dense refinement inputs");
+        std::size_t extra=inputs->sparsePriors.size()*96+views.size()*8192u*sizeof(std::vector<refinement::SparsePrior>);
+        for(const auto& prior:inputs->sparsePriors){
+            if(prior.camera>=views.size()||!std::isfinite(prior.x)||!std::isfinite(prior.y)||prior.x<0||prior.y<0||prior.x>=views[prior.camera].width||prior.y>=views[prior.camera].height||!std::isfinite(prior.cameraZ)||prior.cameraZ<=0||prior.cameraZ>100000||!std::isfinite(prior.relativeUncertainty)||prior.relativeUncertainty<0||prior.relativeUncertainty>.25)throw Error("Invalid measured sparse depth prior");
+        }
+        if(!inputs->coarseViews.empty()){
+            validate(inputs->coarseViews,settings);
+            for(std::size_t i=0;i<views.size();++i){const auto& a=views[i];const auto& b=inputs->coarseViews[i];
+                const double sx=double(b.width)/a.width,sy=double(b.height)/a.height;
+                if(b.width>=a.width||b.height>=a.height||b.pose.rotation!=a.pose.rotation||b.pose.translation.x!=a.pose.translation.x||b.pose.translation.y!=a.pose.translation.y||b.pose.translation.z!=a.pose.translation.z||std::abs(b.fx-a.fx*sx)>1e-8||std::abs(b.fy-a.fy*sy)>1e-8||std::abs(b.cx-((a.cx+.5)*sx-.5))>1e-8||std::abs(b.cy-((a.cy+.5)*sy-.5))>1e-8)throw Error("Coarse photo geometry/half-pixel transform mismatch");
+            }
+            extra+=tiles::admit(views.size(),static_cast<std::size_t>(inputs->coarseViews[0].width)*inputs->coarseViews[0].height,MAX_DENSE_SAMPLES,settings.maxPoints,settings.depthPlanes,settings.workingSetBudgetBytes,true).totalBytes;
+        }
+        if(extra>settings.workingSetBudgetBytes-result.admittedWorkingSetBytes)throw Error("Optional refinement input working-set budget exceeded");
+        result.admittedWorkingSetBytes+=extra;
+    }
     const int w=views.front().width,h=views.front().height,r=settings.patchRadius,step=settings.pixelStride;
     // Inverse camera-z sampling allocates more candidates to nearby surfaces.
     std::vector<double> planes(settings.depthPlanes);
@@ -155,7 +173,28 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     }
     const std::size_t n=static_cast<std::size_t>(w)*h;
     const auto tilePlan=tiles::plan(w,h,r+1,step,r+1,settings.referenceMode?640:settings.tileEdge);
+    if(tilePlan.size()>4096)throw Error("Depth tile count exceeds durable manifest admission");
     result.totalTiles=tilePlan.size()*views.size();
+    std::vector<std::vector<refinement::SparsePrior>> priorBuckets;
+    if(inputs&&!inputs->sparsePriors.empty()){
+        priorBuckets.resize(tilePlan.size()*views.size());
+        const auto& first=tilePlan.front();std::size_t columns=0;for(const auto& tile:tilePlan)if(tile.y0==first.y0)++columns;
+        for(const auto& p:inputs->sparsePriors){
+            if(!p.visible||p.x<first.x0||p.y<first.y0)continue;
+            const auto tx=static_cast<std::size_t>((p.x-first.x0)/(first.x1-first.x0)),ty=static_cast<std::size_t>((p.y-first.y0)/(first.y1-first.y0)),index=ty*columns+tx;
+            if(tx>=columns||index>=tilePlan.size())continue;
+            const auto& tile=tilePlan[index];
+            if(p.x>=tile.x0&&p.x<tile.x1&&p.y>=tile.y0&&p.y<tile.y1)priorBuckets[p.camera*tilePlan.size()+index].push_back({p.cameraZ,p.relativeUncertainty,p.visible});
+        }
+    }
+    std::vector<DenseDepthMap> coarseMaps;
+    if(inputs&&!inputs->coarseViews.empty()){
+        auto coarseSettings=settings;coarseSettings.localRefinementIterations=0;coarseSettings.referenceMode=true;coarseSettings.maxPoints=10;
+        auto coarseResult=reconstructDense(inputs->coarseViews,coarseSettings,nullptr);
+        coarseMaps=std::move(coarseResult.maps);result.coarseDepthMaps=coarseMaps.size();
+    }
+    std::ostringstream settingsText;settingsText.imbue(std::locale::classic());settingsText<<std::hexfloat<<"tile-cpu-v1|"<<settings.nearDepth<<'|'<<settings.farDepth<<'|'<<settings.depthPlanes<<'|'<<step<<'|'<<r<<'|'<<settings.minimumNcc<<'|'<<settings.minUniqueness<<'|'<<settings.depthConsistencyFraction<<'|'<<settings.maxPoints<<'|'<<settings.executionVersion<<'|'<<settings.tileEdge<<'|'<<settings.workingSetBudgetBytes<<'|'<<settings.referenceMode<<'|'<<settings.discontinuityAwareConsistency<<'|'<<settings.localRefinementIterations<<'|'<<settings.robustSourceAggregation<<'|'<<(inputs?inputs->identitySha256:std::string("none"));
+    const auto solverIdentity=settingsText.str();
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
     result.consistentPixelsPerView.assign(views.size(),0);
     result.maps.reserve(views.size());
@@ -168,7 +207,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         const auto& sources=result.sourceViews[ref];
         // Existing Kotlin identity predates optional refinement/aggregation.
         // Never reuse a legacy checkpoint with altered photometric semantics.
-        const bool checkpointCompatible=settings.localRefinementIterations==0&&!settings.robustSourceAggregation;
+        const bool checkpointCompatible=!inputs&&settings.localRefinementIterations==0&&!settings.robustSourceAggregation;
         if(checkpointCompatible&&depth_checkpoint::load(ref,map)){
             for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
                 ++result.sampledPixels;
@@ -192,7 +231,19 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(settings.referenceMode?(1+sources.size())*n*sizeof(float):0));
         // One scratch cost vector per reference, not an allocation per pixel.
         std::vector<double> costs(settings.depthPlanes,2.);
-        for(const auto& tile:tilePlan){
+        for(std::size_t tileIndex=0;tileIndex<tilePlan.size();++tileIndex){
+         const auto& tile=tilePlan[tileIndex];
+         depth_checkpoint::TileKey tileKey{static_cast<std::uint32_t>(ref),static_cast<std::uint32_t>(tileIndex),static_cast<std::uint32_t>(w),static_cast<std::uint32_t>(h),static_cast<std::uint32_t>(tile.x0),static_cast<std::uint32_t>(tile.y0),static_cast<std::uint32_t>(tile.x1-tile.x0),static_cast<std::uint32_t>(tile.y1-tile.y0),static_cast<std::uint32_t>(step),settings.executionVersion,solverIdentity};
+         DenseDepthMap retainedTile;
+         if(!settings.referenceMode&&depth_checkpoint::loadTile(tileKey,retainedTile)){
+            for(int y=tile.y0;y<tile.y1;++y)for(int x=tile.x0;x<tile.x1;++x){const auto dst=static_cast<std::size_t>(y)*w+x,src=static_cast<std::size_t>(y-tile.y0)*retainedTile.width+x-tile.x0;map.depth[dst]=retainedTile.depth[src];map.confidence[dst]=retainedTile.confidence[src];}
+            for(int y=tile.y0;y<tile.y1;y+=step)for(int x=tile.x0;x<tile.x1;x+=step){++result.sampledPixels;if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;}
+            ++result.resumedDepthTiles;++result.completedTiles;continue;
+         }
+         ++result.recomputedDepthTiles;
+         auto range=refinement::DepthPrior{settings.nearDepth,settings.farDepth,0,true};
+         if(!priorBuckets.empty()){range=refinement::interval(priorBuckets[ref*tilePlan.size()+tileIndex],settings.nearDepth,settings.farDepth);if(!range.conservativeFallback)++result.sparsePriorTiles;}
+         for(int k=0;k<settings.depthPlanes;++k){double t=double(k)/(settings.depthPlanes-1);planes[k]=1./((1-t)/range.nearDepth+t/range.farDepth);}
          const std::size_t tileSamples=static_cast<std::size_t>((tile.x1-tile.x0+step-1)/step)*((tile.y1-tile.y0+step-1)/step);
          progress::begin(progress::Stage::Depth,ref,result.completedTiles,tileSamples);
          std::size_t tileWork=0;
@@ -229,6 +280,16 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                 });
                 if(refined.valid&&refined.cost<=costs[best])inverse=1./refined.depth;
             }
+            if(!coarseMaps.empty()){
+                const auto& coarse=coarseMaps[ref];const double sx=double(coarse.width)/w,sy=double(coarse.height)/h;
+                const double proposal=refinement::propagate(coarse,(x+.5)*sx-.5,(y+.5)*sy-.5,settings.depthConsistencyFraction,step,r+1);
+                if(proposal>=settings.nearDepth&&proposal<=settings.farDepth){
+                    std::array<matching::Cost,7> proposedCosts{};
+                    for(std::size_t src=0;src<sources.size();++src){const double corr=ncc(grayscale[src],warps[src],x,y,proposal,reference,r);if(corr>-.999)proposedCosts[src]={1.-corr,static_cast<std::size_t>((2*r+1)*(2*r+1)),true};}
+                    const auto proposed=matching::aggregate(std::span<const matching::Cost>(proposedCosts).first(sources.size()),settings.robustSourceAggregation);
+                    if(proposed.valid&&proposed.cost<=costs[best]){inverse=1./proposal;++result.propagatedHypotheses;}
+                }
+            }
             if(inverse<=0)continue;
             auto idx=static_cast<std::size_t>(y)*w+x;
             map.depth[idx]=static_cast<float>(1./inverse);
@@ -237,6 +298,11 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             ++result.photometricPixels;
           }
         }
+         if(!settings.referenceMode){
+            DenseDepthMap completed;completed.width=tile.x1-tile.x0;completed.height=tile.y1-tile.y0;completed.depth.resize(static_cast<std::size_t>(completed.width)*completed.height);completed.confidence.resize(completed.depth.size());
+            for(int y=tile.y0;y<tile.y1;++y)for(int x=tile.x0;x<tile.x1;++x){const auto src=static_cast<std::size_t>(y)*w+x,dst=static_cast<std::size_t>(y-tile.y0)*completed.width+x-tile.x0;completed.depth[dst]=map.depth[src];completed.confidence[dst]=map.confidence[src];}
+            progress::begin(progress::Stage::Checkpoint,ref,tileIndex,1);if(depth_checkpoint::storeTile(tileKey,completed)){++result.writtenDepthTiles;progress::advance(1);}
+         }
          ++result.completedTiles;
         }
         // Publish the completed reference atomically before processing the next.
@@ -344,6 +410,8 @@ std::string denseJson(const DenseResult& result){
     for(std::size_t i=0;i<result.consistentPixelsPerView.size();++i){if(i)out<<',';out<<result.consistentPixelsPerView[i];}
     out<<"],\"resumedDepthMaps\":"<<result.resumedDepthMaps
        <<",\"writtenDepthMaps\":"<<result.writtenDepthMaps
+       <<",\"resumedDepthTiles\":"<<result.resumedDepthTiles<<",\"recomputedDepthTiles\":"<<result.recomputedDepthTiles<<",\"writtenDepthTiles\":"<<result.writtenDepthTiles
+       <<",\"coarseDepthMaps\":"<<result.coarseDepthMaps<<",\"propagatedHypotheses\":"<<result.propagatedHypotheses<<",\"sparsePriorTiles\":"<<result.sparsePriorTiles
        <<",\"completedTiles\":"<<result.completedTiles<<",\"totalTiles\":"<<result.totalTiles
        <<",\"admittedWorkingSetBytes\":"<<result.admittedWorkingSetBytes
        <<",\"peakLuminanceBytes\":"<<result.peakLuminanceBytes
@@ -386,4 +454,32 @@ extern "C" char* rf_dense_json(const std::uint8_t* rgba,int width,int height,
     if(out)std::memcpy(out,failure,sizeof(failure));
     return out;
  }
+}
+
+extern "C" char* rf_dense_refined_json(const std::uint8_t* rgba,int width,int height,
+ const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,
+ int planes,int stride,const double* prior_rows,std::size_t prior_count,
+ const std::uint8_t* coarse_rgba,int coarse_width,int coarse_height,
+ const double* coarse_camera_rows,const char* identity) noexcept {
+ try {
+  const auto readViews=[&](const std::uint8_t* pixels,int w,int h,const double* rows){
+   if(!pixels||!rows||camera_count<2||camera_count>rf::MAX_DENSE_VIEWS||w<32||h<32||w>640||h>640||static_cast<std::int64_t>(w)*h>320000)throw rf::Error("Invalid refined dense image/camera buffers");
+   std::vector<rf::DenseView> out;out.reserve(camera_count);const auto bytes=static_cast<std::size_t>(w)*h*4;
+   for(std::size_t i=0;i<camera_count;++i){rf::DenseView v;v.width=w;v.height=h;for(int k=0;k<9;++k)v.pose.rotation[k]=rows[i*16+k];v.pose.translation={rows[i*16+9],rows[i*16+10],rows[i*16+11]};v.fx=rows[i*16+12];v.fy=rows[i*16+13];v.cx=rows[i*16+14];v.cy=rows[i*16+15];v.rgba.assign(pixels+i*bytes,pixels+(i+1)*bytes);out.push_back(std::move(v));}return out;
+  };
+  if(!identity||prior_count>20000||(prior_count&&!prior_rows))throw rf::Error("Invalid refined prior buffers/identity");
+  std::size_t identitySize=0;while(identitySize<=64&&identity[identitySize])++identitySize;
+  if(identitySize!=64)throw rf::Error("Refinement identity must be a64-character SHA256");
+  auto views=readViews(rgba,width,height,camera_rows);std::vector<rf::DenseView> coarse;
+  if(coarse_rgba||coarse_camera_rows||coarse_width||coarse_height)coarse=readViews(coarse_rgba,coarse_width,coarse_height,coarse_camera_rows);
+  if(!prior_count&&coarse.empty())throw rf::Error("Refined execution requires actual admitted priors or coarse photographs");
+  std::vector<rf::DenseSparseDepthPrior> priors;priors.reserve(prior_count);
+  for(std::size_t i=0;i<prior_count;++i){const auto* row=prior_rows+i*6;for(int k=0;k<6;++k)if(!std::isfinite(row[k]))throw rf::Error("Nonfinite sparse prior row");if(row[0]<0||row[0]>=camera_count||row[0]!=std::floor(row[0])||(row[5]!=0&&row[5]!=1))throw rf::Error("Invalid sparse prior camera/visibility");priors.push_back({static_cast<std::uint32_t>(row[0]),row[1],row[2],row[3],row[4],row[5]==1});}
+  rf::DenseRefinementInputs inputs{priors,coarse,std::string(identity,identitySize)};
+  rf::DenseSettings settings;settings.nearDepth=near_depth;settings.farDepth=far_depth;settings.depthPlanes=planes;settings.pixelStride=stride;settings.localRefinementIterations=6;
+  auto response=rf::denseJson(rf::reconstructDense(views,settings,&inputs));auto* out=static_cast<char*>(std::malloc(response.size()+1));if(out)std::memcpy(out,response.c_str(),response.size()+1);return out;
+ }catch(const std::exception& e){
+  try{std::string response="{\"error\":\"";for(const unsigned char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(c>=32)response+=static_cast<char>(c);}response+="\"}";auto* out=static_cast<char*>(std::malloc(response.size()+1));if(out)std::memcpy(out,response.c_str(),response.size()+1);return out;}catch(...){}
+ }catch(...){}
+ constexpr char failure[]=R"({"error":"refined dense native failure"})";auto* out=static_cast<char*>(std::malloc(sizeof(failure)));if(out)std::memcpy(out,failure,sizeof(failure));return out;
 }
