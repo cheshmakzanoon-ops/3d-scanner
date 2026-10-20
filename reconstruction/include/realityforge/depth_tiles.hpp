@@ -24,7 +24,7 @@ inline Admission admit(std::size_t views,std::size_t pixels,std::size_t samples,
  // Caller-owned RGBA still counts. Include retained maps, provenance, sort
  // pointers, voxel hash conservative overhead, serialized checkpoint payload,
  // costs and vector capacities. No defaults are raised on synthetic evidence.
- Admission a;a.inputBytes=views*pixels*4;a.mapBytes=views*pixels*8;
+ Admission a;a.inputBytes=views*pixels*8;a.mapBytes=views*pixels*8;
  a.sampleBytes=samples*96+pointBudget*96;
  a.scratchBytes=pixels*16+planes*16+(referenceMode?4*pixels*sizeof(float):0)+64*1024;
  a.totalBytes=a.inputBytes+a.mapBytes+a.sampleBytes+a.scratchBytes;

@@ -70,7 +70,7 @@ Patch referencePatch(const GrayView& v,int x,int y,int radius){
 // are prepared once per pair; the hot loop never reconstructs world points.
 double ncc(const GrayView& neighbor,const detail::StereoWarp& warp,
     int x,int y,double z,const Patch& patch,int radius){
-    int n=0;double srcSum=0,srcSumSq=0,cross=0;
+    int n=0;std::array<double,49> sourcePatch{};
     const auto base=warp.homogeneous(x,y,1./z);
     for(int dy=-radius;dy<=radius;++dy)for(int dx=-radius;dx<=radius;++dx){
         const Vec3 q{base.x+warp.h[0]*dx+warp.h[1]*dy,
@@ -79,15 +79,12 @@ double ncc(const GrayView& neighbor,const detail::StereoWarp& warp,
         if(q.z*z<=1e-5||!finite(q))return -2;
         auto intensity=sample(neighbor,q.x/q.z,q.y/q.z);
         if(!intensity.valid)return -2;
-        srcSum+=intensity.gray;srcSumSq+=intensity.gray*intensity.gray;
-        cross+=(patch.pixels[n]-patch.mean)*intensity.gray;
-        ++n;
+        sourcePatch[n++]=intensity.gray;
     }
-    double mean=srcSum/n,var=srcSumSq/n-mean*mean;
-    if(var<18.||patch.var<18.)return -2;
-    double correlation=(cross/n)/std::sqrt(patch.var*var);
-    return std::clamp(correlation,-1.,1.);
+    const auto cost=matching::zncc(std::span<const double>(patch.pixels).first(n),std::span<const double>(sourcePatch).first(n));
+    return cost.valid?1.-cost.value:-2.;
 }
+
 float relativeDifference(double a,double b){return static_cast<float>(std::abs(a-b)/std::max(a,b));}
 // Nearest *sampled* depth neighbor in the sparse grid, with a small reprojection budget.
 float neighborDepth(const DenseDepthMap& depth,double x,double y,int step,int radius){
