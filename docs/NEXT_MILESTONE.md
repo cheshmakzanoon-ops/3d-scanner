@@ -1,4 +1,22 @@
-# Next gate after M12 — complete-session reliability and measured scan quality
+# Next integrated-candidate gates after M19
+
+Current source is0.19.0-m19. The campaign implements081–100 evidence and assurance
+on isolated numbered branches;100 integrates tested dependencies. Existing001–080
+remote deliveries require review, runtime wiring and actual candidate verification.
+Do not raise limits or claim a feature from a contract/document alone.
+
+Required next evidence: immutable candidate source/APK/AAB hashes, actual native
+and Android compile/lint/JVM/instrumentation, installed offline end-to-end journey,
+authorized physical object/reference captures, whole-visible-surface geometry and
+held-out texture quality, ARM64 memory/thermal/power, target-tool exported assets,
+security/license inventory and signing/packaging qualification. Unavailable external
+inputs remain BLOCKED_EXTERNAL; unexecuted checks remain NOT_RUN.
+
+The existing source supports operation-scoped dense cancellation and per-reference
+depth reuse, not durable every-stage background/session resumption. Unknown surfaces
+stay unknown, scale stays arbitrary without measurement, and open patches stay open.
+
+## Historical next gate after M12 — complete-session reliability and measured scan quality
 
 M10 corrected face normals and glTF UV orientation and reduced exposure mismatch.
 M11 adds bounded local photographic GLB inspection and real shader/lifecycle tests.
