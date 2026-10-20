@@ -198,13 +198,17 @@ class NativeSmokeTest {
             assertTrue(first>0L&&second>first)
             assertTrue(NativeCore.cancelReconstruction(first))
             assertFalse(NativeCore.cancelReconstruction(-1))
-            val stopped=JSONObject(NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
-                3.0,7.0,24,3,glb.path,ply.path,first))
-            assertEquals("Reconstruction cancelled",stopped.getString("error"))
-            val stoppedTexture=JSONObject(NativeCore.reconstructTexturedSurfaceCancellable(
-                rgba,w,h,rgba,w,h,camera,3.0,7.0,24,3,
-                glb.path,ply.path,photo.path,png.path,first))
-            assertEquals("Reconstruction cancelled",stoppedTexture.getString("error"))
+            try {
+                NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
+                    3.0,7.0,24,3,glb.path,ply.path,first)
+                fail("Cancelled surface operation returned ordinary JSON")
+            } catch(expected: java.util.concurrent.CancellationException) { }
+            try {
+                NativeCore.reconstructTexturedSurfaceCancellable(
+                    rgba,w,h,rgba,w,h,camera,3.0,7.0,24,3,
+                    glb.path,ply.path,photo.path,png.path,first)
+                fail("Cancelled texture operation returned ordinary JSON")
+            } catch(expected: java.util.concurrent.CancellationException) { }
             assertFalse(glb.exists()||ply.exists()||photo.exists()||png.exists())
             val healthy=JSONObject(NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
                 3.0,7.0,24,3,glb.path,ply.path,second))
@@ -221,6 +225,24 @@ class NativeSmokeTest {
                 3.0,7.0,24,3,glb.path,ply.path,first)
             fail("Finished lease was accepted")
         }catch(expected: IllegalArgumentException){ }
+    }
+    @Test fun sparseOperationLeasesExposeVersionedProgressAndTypedCancellation() {
+        repeat(24) {
+            val token=NativeCore.beginReconstruction()
+            try {
+                val state=NativeCore.pollNativeProgress(token)
+                assertEquals(7,state.size);assertEquals(1L,state[0]);assertEquals(-1L,state[5])
+                assertTrue(NativeCore.cancelReconstruction(token))
+                try {
+                    NativeCore.reconstructCancellable(DoubleArray(20*7),.002,token)
+                    fail("Cancelled sparse operation returned ordinary JSON")
+                } catch(expected: java.util.concurrent.CancellationException) { }
+            } finally { assertTrue(NativeCore.finishReconstruction(token)) }
+            try { NativeCore.pollNativeProgress(token);fail("Finished progress handle accepted") }
+            catch(expected: IllegalArgumentException) { }
+        }
+        try { NativeCore.reconstruct(DoubleArray(20*7){Double.NaN},.002);fail("Nonfinite geometry accepted") }
+        catch(expected: IllegalArgumentException) { }
     }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {
