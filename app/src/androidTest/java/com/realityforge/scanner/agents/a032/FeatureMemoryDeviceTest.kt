@@ -30,8 +30,8 @@ class FeatureMemoryDeviceTest {
         assertTrue(OpenCVLoader.initLocal())
         val instrumentation=InstrumentationRegistry.getInstrumentation()
         val arguments=InstrumentationRegistry.getArguments()
-        val iterations=arguments.getString("a032_iterations")?.toIntOrNull()?:2
-        val budget=arguments.getString("a032_rss_delta_budget_bytes")?.toLongOrNull()?:96L*1024*1024
+        val iterations=arguments.getString("a032_iterations")?.let{requireNotNull(it.toIntOrNull()){"Malformed iteration argument"}}?:2
+        val budget=arguments.getString("a032_rss_delta_budget_bytes")?.let{requireNotNull(it.toLongOrNull()){"Malformed budget argument"}}?:96L*1024*1024
         require(iterations in 1..20 && budget in 8L*1024*1024..1024L*1024*1024)
         val supplied=arguments.getString("a032_photo_path")
         val source=if(supplied!=null)File(supplied) else File.createTempFile("a032-benchmark-",".jpg",instrumentation.targetContext.cacheDir).also{file->
@@ -82,7 +82,7 @@ class FeatureMemoryDeviceTest {
                     if(inNative.get()){requested.set(System.nanoTime());cancel.set(true)}
                 }
             },"a032-cancel-request").apply{isDaemon=true;start()}
-            val cancellation=JSONObject().put("kind","cancel-after-native-entry")
+            val cancellation=JSONObject().put("kind","cancel-during-observed-native-interval")
             var cancelled=false
             try {
                 extractor.extractObserved("benchmark",hash,source,"upright-bitmap-1600-v2",projection,{cancel.get()}){event->
