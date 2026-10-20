@@ -36,6 +36,14 @@ def elf_alignment(data):
         if alignment<16384 or alignment & (alignment-1) or (offset-vaddr)%16384:
             raise ValueError('Native library lacks 16 KB segment alignment')
     if not loads: raise ValueError('ELF has no LOAD segments')
+def backup_resource_name(manifest, resource_dump):
+ root=ET.fromstring(manifest);application=root.find('application')
+ reference=application.get(A+'dataExtractionRules','') if application is not None else ''
+ entries=re.findall(r'resource (0x[0-9a-fA-F]+) xml/([A-Za-z0-9_]+)',resource_dump)
+ matches=[name for identity,name in entries if reference in ('@ref/'+identity,'@'+identity,'@xml/'+name)]
+ if len(matches)!=1:raise ValueError('Cannot resolve manifest data extraction resource')
+ return matches[0]
+
 def backup_policy(xml):
  root=ET.fromstring(xml)
  if root.tag!='data-extraction-rules':raise ValueError('Invalid data extraction root')
@@ -87,7 +95,11 @@ def validate(apk,sdk,*,release=False,abis=('arm64-v8a','x86_64'),mode='test',cer
     def run(args): return subprocess.check_output([str(x) for x in args],text=True,stderr=subprocess.PIPE)
     manifest=run([sdk/'cmdline-tools/latest/bin/apkanalyzer','manifest','print',apk])
     result=manifest_policy(manifest,release)
-    backup_policy(run([sdk/'cmdline-tools/latest/bin/apkanalyzer','resources','xml','--file','res/xml/data_extraction_rules.xml',apk]))
+    resources=run([bt/'aapt2','dump','resources',apk])
+    backup_name=backup_resource_name(manifest,resources)
+    backup_path=run([sdk/'cmdline-tools/latest/bin/apkanalyzer','resources','value','--config','default','--type','xml','--name',backup_name,apk]).strip()
+    if not backup_path.startswith('res/') or '..' in backup_path.split('/'):raise ValueError('Unsafe compiled backup resource path')
+    backup_policy(run([sdk/'cmdline-tools/latest/bin/apkanalyzer','resources','xml','--file',backup_path,apk]))
     libraries=archive_policy(apk,abis,release,required_notices)
     run([bt/'zipalign','-c','-P','16','-v','4',apk])
     signer=signature_policy(run([bt/'apksigner','verify','--verbose','--print-certs',apk]),mode,certificate)
