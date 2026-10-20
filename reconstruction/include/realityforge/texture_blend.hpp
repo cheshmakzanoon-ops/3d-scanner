@@ -83,6 +83,7 @@ inline ChartBlendResult blendChartTile(const ChartBlendTile& input,const BlendSe
        input.width<=2*input.halo||input.height<=2*input.halo||
        input.texels.size()!=static_cast<std::size_t>(input.width)*input.height||input.texels.size()>settings.maxTilePixels)
         throw Error("Invalid multiscale blend tile");
+    for(const auto& texel:input.texels)(void)blendVerifiedTexel(texel.chart,texel.samples,settings);
     ChartBlendResult result;result.width=input.width-2*input.halo;result.height=input.height-2*input.halo;
     result.texels.reserve(static_cast<std::size_t>(result.width)*result.height);
     auto sample=[&](int x,int y,std::size_t source,std::size_t chart)->const VerifiedTexelSample* {
@@ -98,7 +99,7 @@ inline ChartBlendResult blendChartTile(const ChartBlendTile& input,const BlendSe
             // Validate all center fields before smoothing; no NaN can be hidden.
             (void)blendVerifiedTexel(center.chart,center.samples,settings);
             auto adjusted=center.samples;
-            double maximum=0;for(const auto& p:center.samples)maximum=std::max(maximum,p.weight);
+            double maximum=0;for(const auto& p:center.samples)if(p.visible&&p.chart==center.chart)maximum=std::max(maximum,p.weight);
             for(std::size_t i=0;i<adjusted.size();++i){
                 const auto& p=center.samples[i];if(!p.visible||p.chart!=center.chart||p.weight<=0)continue;
                 double sum=p.weight/maximum,weights=1;
