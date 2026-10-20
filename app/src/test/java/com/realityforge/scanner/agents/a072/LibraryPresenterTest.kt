@@ -41,7 +41,7 @@ class LibraryPresenterTest {
     }
     @Test fun duplicateCopiesVerifiedIndependentOriginalsThroughRealService()=runBlocking {
         val id=UUID.randomUUID().toString();val dir=Files.createTempDirectory("library-duplicate").toFile();val data=byteArrayOf(1,2,3,4)
-        val original=File(dir,"$id/originals/source.image");original.parentFile.mkdirs();original.writeBytes(data)
+        val original=File(dir,"$id/originals/source.image");checkNotNull(original.parentFile).mkdirs();original.writeBytes(data)
         val hash=MessageDigest.getInstance("SHA-256").digest(data).joinToString("") { "%02x".format(it) }
         val photo=ScanPhoto("p",id,"source.image",hash,4,20,20,null,0.0,0.0,0.0,0)
         val port=TestLibraryPort(mutableMapOf(id to ScanProject(id,"source",0,revision=2)),mutableMapOf(id to listOf(photo)))

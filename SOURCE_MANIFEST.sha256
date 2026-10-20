@@ -57,7 +57,7 @@ cba4c90dff6ab7ea9a42540ef83addb6542ba3185fac559483816f5feb65d829  app/src/main/r
 b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/res/values/styles.xml
 8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22  app/src/main/res/xml/data_extraction_rules.xml
 3824769adf7a6d91d0c99a0447727c043308fae00d93c1a6f66c77a98b7f0cfe  app/src/test/java/com/realityforge/scanner/CalibrationTest.kt
-a607732f0dcf9605e909ccd88943b84579950bc6461092e50b446f275de475c0  app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt
+2675cccdb7a58bd903ae073939e5ed40433222b47a5115f354a6f62d5b69f3ce  app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt
 55fb45116ab64753b563fa12e74234a40518a6330b118e905d0107da2889e889  app/src/test/java/com/realityforge/scanner/agents/a072/LibraryQueryTest.kt
 0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37  app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt
 05854244689335c9f17f5d26c8a4b28f960dd20c8fe1bcc526450d48b229aba4  app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt
