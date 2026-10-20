@@ -40,6 +40,7 @@ import com.realityforge.scanner.ui.navigation.*
 import com.realityforge.scanner.ui.onboarding.OnboardingScreen
 import com.realityforge.scanner.ui.photoreview.*
 import com.realityforge.scanner.ui.processing.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
@@ -72,6 +73,13 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
     val route = AppRoute.restore(routeValue)
     var pendingValue by rememberSaveable { mutableStateOf<String?>(null) }
     val pending = PendingRequest.restore(pendingValue)
+    var pendingEpoch by rememberSaveable { mutableLongStateOf(0L) }
+    var launchEpoch by rememberSaveable { mutableLongStateOf(0L) }
+    var callbackSlotsValue by rememberSaveable { mutableStateOf(PickerCallbackSlots.empty().encode()) }
+    fun setPending(request:PendingRequest?) { pendingEpoch++;pendingValue=request?.encode() }
+    fun setSlots(slots:PickerCallbackSlots) { launchEpoch++;callbackSlotsValue=slots.encode() }
+    fun clearPending(request:PendingRequest) { if(PendingRequest.restore(pendingValue)==request) setPending(null) }
+
     var deleteValue by rememberSaveable { mutableStateOf<String?>(null) }
     var lastFocal by rememberSaveable { mutableDoubleStateOf(26.0) }
     val snackbars = remember { SnackbarHostState() }
@@ -89,17 +97,24 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
     var invalidExport by remember {mutableStateOf(false)}
     var exportAdmission by remember {mutableStateOf(false)}
     LaunchedEffect(exportStore) {
+        val snapshot=ExportRestoreSnapshot(pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue))
         val restore=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}}
-        invalidExport=restore.isFailure
+        if(PickerCallbackBinding.epochsMatch(snapshot,pendingEpoch,launchEpoch)) invalidExport=restore.isFailure
         val restored=restore.getOrNull()
-        if(restored!=null && pendingValue==null) pendingValue=PendingRequest(restored.requestId,PendingKind.EXPORT,restored.artifact.projectId,restored.artifact.revision,restored.artifact.artifactKey,restored.option.id).encode()
+        if(restored!=null && PickerCallbackBinding.mayRestore(snapshot,pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue),exportAdmission)) {
+            val request=PendingRequest(restored.requestId,PendingKind.EXPORT,restored.artifact.projectId,restored.artifact.revision,restored.artifact.artifactKey,restored.option.id)
+            if(PickerCallbackSlots.restore(callbackSlotsValue).permitsRestore(request)) setPending(request)
+        }
     }
     val staleText = stringResource(R.string.a071_pending_stale)
     val pendingText = stringResource(R.string.a071_picker_busy)
+    val drainingText = stringResource(R.string.a071_picker_draining)
+    val unconfirmedText = stringResource(R.string.a071_export_unconfirmed)
     val errorText = stringResource(R.string.a071_error)
     fun navigate(next: AppRoute) { routeValue = next.encode() }
     fun currentRequest(kind: PendingKind, extension: String? = null): PendingRequest? {
         if (PendingRequest.restore(pendingValue) != null || model.busy.value || exportAdmission) { model.notice.value = pendingText; return null }
+        if(!PickerCallbackSlots.restore(callbackSlotsValue).canLaunch(kind)) {model.notice.value=drainingText;return null}
         val project = model.projects.value.find { it.id == model.selectedId.value } ?: return null
         val requestId=when(kind) {
             PendingKind.IMPORT->model.beginImportRequest()
@@ -111,46 +126,80 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
         return PendingRequest(requestId,kind,project.id,project.revision,
             if (kind == PendingKind.EXPORT) project.resultKey else null, extension)
     }
-    fun consume(kind: PendingKind): PendingRequest? {
-        val request = PendingRequest.restore(pendingValue)
-        pendingValue = null
-        return request?.takeIf {it.kind==kind && !model.busy.value}
-            .also {if(it==null && request!=null) {model.cancelPendingRequest(request.requestId);model.notice.value=staleText}}
+    fun cancelRequest(request:PendingRequest) {
+        clearPending(request)
+        setSlots(PickerCallbackSlots.restore(callbackSlotsValue).cancel(request.requestId))
+        model.cancelPendingRequest(request.requestId)
+    }
+    fun consume(slot:PickerCallbackSlot):PendingRequest? {
+        val current=PendingRequest.restore(pendingValue)
+        val consumed=PickerCallbackBinding.consume(slot,current,model.busy.value)
+        if(consumed.pendingAfter!=current) setPending(consumed.pendingAfter)
+        consumed.cancelRequestId?.let {model.cancelPendingRequest(it)}
+        if(consumed.accepted==null && !slot.cancelled) model.notice.value=staleText
+        return consumed.accepted
+    }
+    fun takeCallback(kind:PendingKind):PickerCallbackSlot? {
+        val (slot,remaining)=PickerCallbackSlots.restore(callbackSlotsValue).take(kind)
+        setSlots(remaining)
+        return slot
+    }
+    fun launchPicker(request:PendingRequest,launch:()->Unit):Boolean = try {
+        setSlots(PickerCallbackSlots.restore(callbackSlotsValue).launched(request))
+        launch();true
+    } catch(_:Exception) {
+        // A synchronous launch failure has no outstanding Android result to drain.
+        setSlots(PickerCallbackSlots.restore(callbackSlotsValue).launchFailed(request.requestId))
+        clearPending(request);model.cancelPendingRequest(request.requestId);model.notice.value=errorText
+        false
+    }
+    suspend fun clearStored(requestId:String):Boolean = withContext(NonCancellable+Dispatchers.IO) {
+        runCatching {exportStore.clear(requestId)}.isSuccess
     }
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        consume(PendingKind.IMPORT)?.let {model.completeImport(it.requestId,uris)}
+        takeCallback(PendingKind.IMPORT)?.let {slot->consume(slot)?.let {model.completeImport(it.requestId,uris)}}
     }
     val calibrationPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        consume(PendingKind.CALIBRATE)?.let {model.completeCalibration(it.requestId,uris)}
+        takeCallback(PendingKind.CALIBRATE)?.let {slot->consume(slot)?.let {model.completeCalibration(it.requestId,uris)}}
     }
     val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val request = PendingRequest.restore(pendingValue)
-        val kind = request?.kind ?: return@rememberLauncherForActivityResult
-        val accepted = consume(kind)
-        val uri = result.data?.data
-        if(kind==PendingKind.EXPORT) {
-          exportAdmission=true
-          scope.launch {
-            val typed=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}.getOrNull()}
-            try {
-                if(accepted!=null && typed?.requestId==accepted.requestId && result.resultCode==Activity.RESULT_OK && uri!=null) {
-                    val valid=withContext(Dispatchers.IO) {runCatching {
-                        if(!source.isCurrent(typed.artifact)) false else {
-                            source.validate(typed,model.repository.artifact(typed.artifact.projectId,typed.artifact.artifactKey,typed.option.id))
-                            source.isCurrent(typed.artifact)
-                        }
-                    }.getOrDefault(false)}
-                    if(valid) model.completeArtifactExport(accepted.requestId,uri)
-                    else {model.cancelPendingRequest(accepted.requestId);model.notice.value=staleText}
+        val slot=takeCallback(PendingKind.EXPORT) ?: return@rememberLauncherForActivityResult
+        val request=slot.request
+        val accepted=consume(slot)
+        val uri=result.data?.data
+        if(request.kind==PendingKind.EXPORT) {
+            exportAdmission=true
+            scope.launch {
+                var typed:ExportRequest?=null
+                try {
+                    val restored=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}}
+                    typed=restored.getOrNull()
+                    if(restored.isFailure) invalidExport=true
+                    if(accepted!=null && PickerCallbackBinding.matchesStoredExport(request,typed) && result.resultCode==Activity.RESULT_OK && uri!=null) {
+                        val fixed=requireNotNull(typed)
+                        val valid=withContext(Dispatchers.IO) {runCatching {
+                            if(!source.isCurrent(fixed.artifact)) false else {
+                                source.validate(fixed,model.repository.artifact(fixed.artifact.projectId,fixed.artifact.artifactKey,fixed.option.id))
+                                source.isCurrent(fixed.artifact)
+                            }
+                        }.getOrDefault(false)}
+                        if(valid) model.completeArtifactExport(request.requestId,uri)
+                        else model.notice.value=unconfirmedText
+                    } else if(result.resultCode==Activity.RESULT_OK && uri!=null) model.notice.value=unconfirmedText
+                } catch(cancelled:CancellationException) {
+                    model.notice.value=unconfirmedText
+                    throw cancelled
+                } finally {
+                    // C1 removes an admitted request before transfer. This cancels only an unclaimed
+                    // original, including mismatched records; it never cancels another/new request.
+                    model.cancelPendingRequest(request.requestId)
+                    if(PickerCallbackBinding.matchesStoredExport(request,typed) && !clearStored(request.requestId)) model.notice.value=unconfirmedText
+                    exportAdmission=false
                 }
-            } finally {
-                if(result.resultCode!=Activity.RESULT_OK || uri==null || typed==null) model.cancelPendingRequest(request.requestId)
-                if(typed!=null && typed.requestId==request.requestId) withContext(NonCancellable+Dispatchers.IO) {runCatching {exportStore.clear(typed.requestId)}}
-                exportAdmission=false
             }
-          }
-        } else if(accepted!=null && result.resultCode==Activity.RESULT_OK && uri!=null && kind==PendingKind.CAPTURE_ARCHIVE) model.completeCaptureBundleExport(accepted.requestId,uri)
-        else if(accepted!=null) model.cancelPendingRequest(accepted.requestId)
+        } else if(request.kind==PendingKind.CAPTURE_ARCHIVE && accepted!=null && result.resultCode==Activity.RESULT_OK && uri!=null)
+            model.completeCaptureBundleExport(request.requestId,uri)
+        else model.cancelPendingRequest(request.requestId)
     }
     LaunchedEffect(notice) {notice?.let {
         val event=model.scannerState.value.message
@@ -171,34 +220,38 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
         if(route.destination==Destination.CAPTURE && (pending?.kind!=PendingKind.CAMERA || pending.projectId!=route.projectId)) navigate(route.back())
     }
     BackHandler(route.destination != Destination.LIBRARY) {
-        if (route.destination == Destination.CAPTURE) {pending?.let {model.cancelPendingRequest(it.requestId)};pendingValue = null}
+        if (route.destination == Destination.CAPTURE) pending?.let(::cancelRequest)
         val back = route.back()
         navigate(back)
         if (back.destination == Destination.LIBRARY && !busy) model.select(null)
     }
-    fun beginImport() { currentRequest(PendingKind.IMPORT)?.let { pendingValue=it.encode(); runCatching {importPicker.launch(imageTypes)}.onFailure {PendingRequest.restore(pendingValue)?.let {r->model.cancelPendingRequest(r.requestId)};pendingValue=null;model.notice.value=errorText} } }
-    fun beginCamera() { currentRequest(PendingKind.CAMERA)?.let { pendingValue=it.encode(); navigate(AppRoute(Destination.CAPTURE,it.projectId)) } }
-    fun beginCalibration() { currentRequest(PendingKind.CALIBRATE)?.let { pendingValue=it.encode(); runCatching {calibrationPicker.launch(imageTypes)}.onFailure {PendingRequest.restore(pendingValue)?.let {r->model.cancelPendingRequest(r.requestId)};pendingValue=null;model.notice.value=errorText} } }
+    fun beginImport() { currentRequest(PendingKind.IMPORT)?.let {request->setPending(request);launchPicker(request) {importPicker.launch(imageTypes)}} }
+    fun beginCamera() { currentRequest(PendingKind.CAMERA)?.let {setPending(it);navigate(AppRoute(Destination.CAPTURE,it.projectId))} }
+    fun beginCalibration() { currentRequest(PendingKind.CALIBRATE)?.let {request->setPending(request);launchPicker(request) {calibrationPicker.launch(imageTypes)}} }
     fun launchExport(identity:ArtifactIdentity,option:ExportOption) {
         val admitted=currentRequest(PendingKind.EXPORT,option.id) ?: return
         if(admitted.projectId!=identity.projectId || admitted.revision!=identity.revision || admitted.artifactKey!=identity.artifactKey) {model.cancelPendingRequest(admitted.requestId);model.notice.value=staleText;return}
         val typed=ExportRequest(admitted.requestId,identity,option)
-        pendingValue=PendingRequest(typed.requestId,PendingKind.EXPORT,identity.projectId,identity.revision,identity.artifactKey,option.id).encode()
+        setPending(admitted)
         scope.launch {
             runCatching {withContext(Dispatchers.IO) {
                 check(source.isCurrent(identity))
                 source.validate(typed,model.repository.artifact(identity.projectId,identity.artifactKey,option.id))
                 check(source.isCurrent(identity))
                 exportStore.save(typed)
-            }}
-                .onSuccess {
-                    if(PendingRequest.restore(pendingValue)?.requestId!=typed.requestId) {
-                        withContext(Dispatchers.IO) {exportStore.clear(typed.requestId)};model.cancelPendingRequest(typed.requestId)
-                    } else runCatching {exportPicker.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
-                        .setType(option.format.mime).putExtra(Intent.EXTRA_TITLE,"realityforge-${option.representation.name.lowercase()}.${option.format.extension}"))}
-                        .onFailure {model.cancelPendingRequest(typed.requestId);pendingValue=null;withContext(NonCancellable+Dispatchers.IO) {runCatching {exportStore.clear(typed.requestId)}};model.notice.value=errorText}
+            }}.onSuccess {
+                if(PendingRequest.restore(pendingValue)!=admitted) {
+                    clearStored(typed.requestId);model.cancelPendingRequest(typed.requestId)
+                } else if(!launchPicker(admitted) {exportPicker.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+                    .setType(option.format.mime).putExtra(Intent.EXTRA_TITLE,"realityforge-${option.representation.name.lowercase()}.${option.format.extension}"))}) {
+                    if(!clearStored(typed.requestId)) model.notice.value=unconfirmedText
                 }
-                .onFailure {model.cancelPendingRequest(typed.requestId);pendingValue=null;invalidExport=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}.isFailure};model.notice.value=staleText}
+            }.onFailure {
+                model.cancelPendingRequest(typed.requestId);clearPending(admitted)
+                clearStored(typed.requestId) // Only the exact privately staged intent may be removed.
+                invalidExport=withContext(NonCancellable+Dispatchers.IO) {runCatching {exportStore.restore()}.isFailure}
+                model.notice.value=staleText
+            }
         }
     }
     fun leaveGuide() {
@@ -212,10 +265,13 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
     AppTheme(darkTheme=dark) {
         Box(Modifier.semantics { testTagsAsResourceId=true }) {
         if (route.destination == Destination.CAPTURE && route.projectId == selected && pending?.kind == PendingKind.CAMERA) {
-            CameraScreen(onClose = {pending?.let {model.cancelPendingRequest(it.requestId)};pendingValue=null; navigate(route.back()) }, onPhoto = { file ->
-                val accepted = consume(PendingKind.CAMERA)
-                navigate(route.back())
-                if (accepted != null) model.completeCapture(accepted.requestId,file) else file.delete()
+            val captureRequest=requireNotNull(pending)
+            CameraScreen(onClose = {
+                if(PendingRequest.restore(pendingValue)==captureRequest) {cancelRequest(captureRequest);navigate(route.back())}
+                else model.cancelPendingRequest(captureRequest.requestId)
+            }, onPhoto = { file ->
+                val accepted=consume(PickerCallbackSlot(captureRequest))
+                if(accepted!=null) {navigate(route.back());model.completeCapture(accepted.requestId,file)} else file.delete()
             })
         } else Scaffold(
             topBar = { TopAppBar(title={Text(stringResource(routeTitle(route.destination)),Modifier.focusRequester(routeFocus).focusable().semantics {heading()})},
@@ -230,13 +286,13 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
                     }
                 }) },
             snackbarHost={SnackbarHost(snackbars)},
-            bottomBar={if(pending!=null && pending.kind!=PendingKind.CAMERA) Surface(tonalElevation=3.dp) {
+            bottomBar={if((pending!=null && pending.kind!=PendingKind.CAMERA) || PickerCallbackSlots.restore(callbackSlotsValue).awaitingCancelledResult) Surface(tonalElevation=3.dp) {
                 Column(Modifier.fillMaxWidth().padding(12.dp)) {
-                    Text(stringResource(R.string.a071_pending_waiting))
-                    TextButton(onClick={
-                        val cancelled=PendingRequest.restore(pendingValue);pendingValue=null
-                        cancelled?.let {model.cancelPendingRequest(it.requestId)}
-                        if(cancelled?.kind==PendingKind.EXPORT) scope.launch {withContext(Dispatchers.IO) {runCatching {exportStore.clear(cancelled.requestId)}}}
+                    Text(if(pending!=null) stringResource(R.string.a071_pending_waiting) else drainingText)
+                    if(pending!=null) TextButton(onClick={
+                        val cancelled=PendingRequest.restore(pendingValue)
+                        cancelled?.let(::cancelRequest)
+                        if(cancelled?.kind==PendingKind.EXPORT) scope.launch {if(!clearStored(cancelled.requestId)) model.notice.value=unconfirmedText}
                     },modifier=Modifier.testTag("a071-cancel-pending")) {Text(stringResource(R.string.a071_cancel_pending))}
                 }
             }},
@@ -334,7 +390,7 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
                     }
                     Destination.STUDIO -> StudioRoute(preview?.takeIf {project.resultRevision==project.revision && project.resultKey==it.optString("artifactKey")},model,modifier,onExport={navigate(AppRoute(Destination.EXPORT,project.id))})
                     Destination.EXPORT -> ExportRoute(project.id,source,modifier,busy || exportAdmission || pending!=null,onExport=::launchExport,onArchive={
-                        currentRequest(PendingKind.CAPTURE_ARCHIVE)?.let { pendingValue=it.encode();exportPicker.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip").putExtra(Intent.EXTRA_TITLE,"realityforge-capture.zip")) }
+                        currentRequest(PendingKind.CAPTURE_ARCHIVE)?.let {request->setPending(request);launchPicker(request) {exportPicker.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip").putExtra(Intent.EXTRA_TITLE,"realityforge-capture.zip"))}}
                     })
                     else -> Unit
                 }
@@ -342,7 +398,9 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
         }
         if(invalidExport) AlertDialog(onDismissRequest={},title={Text(stringResource(R.string.a071_pending_recovery_title))},
             text={Text(stringResource(R.string.a071_pending_recovery_body))},confirmButton={TextButton(onClick={scope.launch {
-                runCatching {withContext(Dispatchers.IO) {exportStore.quarantineInvalid()}}.onSuccess {model.scannerState.value.pendingRequests.filter {it.kind==OperationKind.EXPORT_ARTIFACT}.forEach {model.cancelPendingRequest(it.requestId.value)};pendingValue=null;invalidExport=false}.onFailure {model.notice.value=staleText}
+                runCatching {withContext(Dispatchers.IO) {exportStore.quarantineInvalid()}}.onSuccess {model.scannerState.value.pendingRequests.filter {it.kind==OperationKind.EXPORT_ARTIFACT}.forEach {request->
+                    setSlots(PickerCallbackSlots.restore(callbackSlotsValue).cancel(request.requestId.value));model.cancelPendingRequest(request.requestId.value)
+                };PendingRequest.restore(pendingValue)?.takeIf {it.kind==PendingKind.EXPORT}?.let(::cancelRequest);invalidExport=false}.onFailure {model.notice.value=staleText}
             }}) {Text(stringResource(R.string.a071_pending_recover))}},dismissButton={TextButton(onClick={invalidExport=false}) {Text(stringResource(R.string.a071_cancel))}})
         deleteValue?.split('\n')?.takeIf { it.size==2 }?.let { request ->
             AlertDialog(onDismissRequest={deleteValue=null},title={Text(stringResource(R.string.a071_delete_title))},
