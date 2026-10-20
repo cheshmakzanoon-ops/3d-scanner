@@ -17,6 +17,7 @@ class PyramidLevel(
         require(originalToLevel.width == width && originalToLevel.height == height)
         require(pixels.size == width * height && validity.size == pixels.size)
         require(validity.all { it == 0.toByte() || it == 1.toByte() })
+        require(validity.indices.all { validity[it] == 0.toByte() || (pixels[it] ushr 24) == 255 }) { "Valid level pixels must be opaque" }
         data = pixels.copyOf(); mask = validity.copyOf()
     }
     @Synchronized fun pixels(): IntArray = checkNotNull(data) { "Level closed" }.copyOf()
