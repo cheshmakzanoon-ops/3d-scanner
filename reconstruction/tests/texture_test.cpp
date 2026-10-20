@@ -118,5 +118,16 @@ int main(){
         auto d=rf::reconstructDense(plain);
         check(d.verifiedSamples.empty(),"textureless scene produced depth");
     });
+    test("compact charts bake actual verified pixels and retain unsupported geometry",[&]{
+        rf::TextureSettings settings;settings.compactCharts=true;settings.depthSampleStride=3;settings.depthSampleOrigin=3;
+        auto baked=rf::bakePhotographicAtlas(mesh,images,dense.maps,photo,settings);
+        check(baked.compactCharts&&baked.supportedTexels>0,"compact path did not bake photographic support");
+        check(baked.indices.size()==mesh.triangles.size()*3,"compact path hid unsupported geometry");
+        check(baked.atlasWidth<=2048&&baked.atlasHeight<=2048,"2K budget exceeded");
+        check(baked.texelsPerUnit>0&&baked.atlasUtilization>0&&baked.atlasUtilization<=1,"missing measured density");
+        auto repeat=rf::bakePhotographicAtlas(mesh,images,dense.maps,photo,settings);
+        check(repeat.atlasRgba==baked.atlasRgba&&repeat.indices==baked.indices,"nondeterministic compact bake");
+        std::cout<<"compact atlas "<<baked.atlasWidth<<'x'<<baked.atlasHeight<<" support="<<baked.supportedTexels<<" unknown="<<baked.unsupportedTexels<<" utilization="<<baked.atlasUtilization<<" density="<<baked.texelsPerUnit<<'\n';
+    });
     std::cout<<done<<" texture cases passed\n";
 }
