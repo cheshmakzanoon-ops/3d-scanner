@@ -25,6 +25,20 @@ class FeatureExtractorTest {
             assertArrayEquals(a.coordinates(),b.coordinates(),0f)
             a.withDescriptors { first-> b.withDescriptors { second->assertEquals(0.0,org.opencv.core.Core.norm(first,second),0.0) } }
             assertEquals(a.settingsIdentity,b.settingsIdentity)
+            val bitmap=ImageLoader.upright(source)
+            val rgba=org.opencv.core.Mat();val gray=org.opencv.core.Mat()
+            val keys=org.opencv.core.MatOfKeyPoint();val descriptors=org.opencv.core.Mat();val mask=org.opencv.core.Mat()
+            val sift=org.opencv.features2d.SIFT.create(3500)
+            try {
+                org.opencv.android.Utils.bitmapToMat(bitmap,rgba)
+                org.opencv.imgproc.Imgproc.cvtColor(rgba,gray,org.opencv.imgproc.Imgproc.COLOR_RGBA2GRAY)
+                sift.detectAndCompute(gray,mask,keys,descriptors)
+                val reference=keys.toArray();assertEquals(minOf(reference.size,3500),a.count)
+                val coordinates=a.coordinates()
+                for(i in 0 until a.count){assertEquals(reference[i].pt.x.toFloat(),coordinates[2*i],0f);assertEquals(reference[i].pt.y.toFloat(),coordinates[2*i+1],0f)}
+                val bounded=descriptors.rowRange(0,a.count)
+                try{a.withDescriptors{assertEquals(0.0,org.opencv.core.Core.norm(it,bounded),0.0)}}finally{bounded.release()}
+            }finally{sift.clear();rgba.release();gray.release();keys.release();descriptors.release();mask.release();bitmap.recycle()}
         }finally{a.close();b.close();source.delete()}
         assertThrows(IllegalStateException::class.java){a.withDescriptors{it.rows()}}
     }

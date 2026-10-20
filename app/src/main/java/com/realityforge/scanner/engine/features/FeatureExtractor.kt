@@ -34,14 +34,22 @@ class FeatureExtractor(val settings: ExtractorSettings=ExtractorSettings()) {
         require(photoId.isNotBlank() && contentSha256.matches(Regex("[a-f0-9]{64}")))
         val identity=settings.identity(decoderIdentity)
         checkCancelled()
-        val bitmap=ImageLoader.upright(file,settings.analysisEdge)
-        val rgba=Mat(); val gray=Mat(); val keys=MatOfKeyPoint(); val desc=Mat(); val mask=Mat()
+        // Allocate the bounded ownership ledger before acquiring any native/image resource.
+        val resources=ArrayList<Mat>(5)
+        var bitmap:android.graphics.Bitmap?=null
         var retained:Mat?=null
         var sift:SIFT?=null
         try {
+            val decoded=ImageLoader.upright(file,settings.analysisEdge)
+            bitmap=decoded
+            val rgba=Mat().also{resources.add(it)}
+            val gray=Mat().also{resources.add(it)}
+            val keys=MatOfKeyPoint().also{resources.add(it)}
+            val desc=Mat().also{resources.add(it)}
+            val mask=Mat().also{resources.add(it)}
             checkCancelled()
-            val lens=projection(bitmap.width,bitmap.height)
-            Utils.bitmapToMat(bitmap,rgba)
+            val lens=projection(decoded.width,decoded.height)
+            Utils.bitmapToMat(decoded,rgba)
             Imgproc.cvtColor(rgba,gray,Imgproc.COLOR_RGBA2GRAY)
             // Explicitly release color conversion before the expensive descriptor kernel.
             rgba.release()
@@ -53,16 +61,18 @@ class FeatureExtractor(val settings: ExtractorSettings=ExtractorSettings()) {
             for(i in 0 until count){
                 if(i%128==0)checkCancelled()
                 val p=all[i].pt; xy[2*i]=p.x.toFloat();xy[2*i+1]=p.y.toFloat()
-                colors[i]=bitmap.getPixel(p.x.toInt().coerceIn(0,bitmap.width-1),p.y.toInt().coerceIn(0,bitmap.height-1))
+                colors[i]=decoded.getPixel(p.x.toInt().coerceIn(0,decoded.width-1),p.y.toInt().coerceIn(0,decoded.height-1))
             }
             val owned=if(count==0)Mat() else desc.rowRange(0,count).useClone()
             retained=owned
             checkCancelled()
-            val frame=FeatureFrame(photoId,contentSha256,decoderIdentity,identity,bitmap.width,bitmap.height,xy,colors,owned,lens)
+            val frame=FeatureFrame(photoId,contentSha256,decoderIdentity,identity,decoded.width,decoded.height,xy,colors,owned,lens)
             retained=null
             return frame
         } finally {
-            retained?.release(); sift?.clear(); rgba.release();gray.release();keys.release();desc.release();mask.release();bitmap.recycle()
+            retained?.release(); sift?.clear()
+            for(i in resources.lastIndex downTo 0)resources[i].release()
+            bitmap?.recycle()
         }
     }
     private fun Mat.useClone():Mat=try{clone()}finally{release()}
