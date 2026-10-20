@@ -1,6 +1,56 @@
-# M02 architecture and representations
+# Current M19 architecture
 
-## Current execution path
+This section describes the campaign-base source, version0.19.0-m19. Historical
+M01–M07 descriptions below are retained as dated design records and do not define
+current capability. Future agent modules are capabilities only after Agent100
+integrates their dependencies and runtime call sites and verifies the candidate.
+
+Picker/CameraX original bytes → private immutable originals/Room revision →
+1600px upright analysis → OpenCV SIFT/reciprocal matching → incremental registered
+world-to-camera poses and multiview tracks → fixed-intrinsic Schur bundle
+adjustment → optional calibrated CPU depth → reciprocal consistency/fusion →
+observed open indexed triangles → photographic atlas → GLES3 inspection/export.
+Sparse registration is bounded to12 photos, depth to8 registered views and100,000
+samples; compact/standard depth edge256/384. Atlas source edges512/640/768 depend
+on profile/view count and total atlas pixels are bounded to4,500,000. See actual
+`DenseWorkload.kt`; these are admission bounds, not phone performance evidence.
+
+Representations stay distinct: sparse_points, dense_points, observed open triangle
+surface and photographic triangle surface. GLB uses right-handed y-up `(x,-y,-z)`
+from internal x-right/y-down/z-forward coordinates; PLY baseline keeps internal
+axes. Scale is arbitrary unless a validated measurement supplies provenance.
+Hole-free, manifold, seamless, metric or complete-object properties are not implied.
+Current native GLB/PLY/PNG/JSON/original-photo outputs exist; proposed OBJ/STL and
+canonical exporters need their actual integrated owner call paths and receipts.
+
+M17 operation handles share isolated atomic cancellation flags across CPU
+depth/mesh/photographic JNI calls. Sparse work still checks at Kotlin stage
+boundaries. M18 checksum/CRC/input-bound per-reference depth checkpoints reuse only
+accepted complete maps; mesh and texture publication is recomputed/validated.
+This is not complete-session or every-stage durable background resumption.
+Activity onStop still pauses the foreground coroutine in this baseline. M19
+revision-bound diagnostics report actual registration, sampled/consistent depth,
+triangle and photographic support counts without a whole-object quality score.
+
+Originals, feature caches, depth checkpoints, result files and Room publication
+have separate identities/lifetimes. Result export/reopen checks project revision;
+partial files must never become current. DB/filesystem crash-boundary hardening,
+durable job/service execution, large-scene scheduling and physical performance
+remain owner integration/qualification work. Baseline JNI allocation/exception
+containment needs081/082/003 verification; older statements of universal exception
+safety below are historical interface intent, not proof of every current entry.
+
+Current command and evidence authority: [BUILDING](BUILDING.md),
+[status](MILESTONE_STATUS.md), [next gates](NEXT_MILESTONE.md) and
+[execution plan](../PRODUCTION_100_AGENT_EXECUTION_PLAN.md).
+
+---
+
+## Historical M01–M07 architecture record
+
+### M02 architecture and representations
+
+### Historical M02 execution path
 
 Document picker or CameraX JPEG → private byte-preserving photo import → Room revision →
 upright analysis bitmap → native OpenCV SIFT → reciprocal L2 ratio matching → JNI →
@@ -101,7 +151,7 @@ correction remain constraints. Extra poses do not increase point density, and th
 global BA, newly triangulated three-view points, loop closure or dense surface.
 
 
-## M06 architectural addendum (current sparse optimizer)
+## Historical M06 architectural addendum
 
 Older descriptions above are historical M01/M02 stages. Current M06 pipeline
 adds the M03 conflict-aware multiview feature graph, M04 optional

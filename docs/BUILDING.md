@@ -1,129 +1,136 @@
-# Build and run
+# Build, verify and recover the current source
 
-## Environment and verified build history
+The source baseline is M19, version0.19.0-m19. Historical build limitations in M02
+are retained in milestone records; they do not describe current tool availability.
+The audited commit `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42` passed
+[Actions38488820626](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/38488820626)
+(native, Android and API35 emulator jobs). Later agent/candidate checks require
+new exact-source receipts. A successful emulator does not measure physical capture.
 
-CMake, GCC, Clang, Java/JDK 21 and Python/OpenCV were available. The native core and host
-regressions were compiled and executed. The Android SDK, NDK, Gradle and emulator were not
-installed. External download attempts failed at host/DNS resolution. M02 compiled successfully on GitHub Actions, including Android lint, unit tests
-and APK structure checks. Device runtime remains a separate validation gate. A build failure at dependency download does
-not prove Android source compilation is correct; compiler/integration fixes may still be needed.
+## Prerequisites and local setup
 
-## Android prerequisites
-
-Use Android Studio with a JDK capable of running Gradle 8.13 (JDK 17 is the CI default),
-SDK Platform 36, Build Tools 36.0.0, NDK 28.2.13676358 and CMake 3.22.1. The versions are
-pinned for a reproducible initial build rather than claimed to be the newest available.
-
-```text
-sdkmanager "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
-```
-
-Review/accept the SDK license prompts on the build machine. Android Studio can populate
-`local.properties` with the local SDK path; do not commit that file. The previous standalone
-Gradle 9.x setup is not used by this project: its wrapper selects Gradle 8.13.
-
-### Wrapper bootstrap
-
-The official Gradle wrapper JAR is not in this source package because its binary could not
-be materialized in the workspace. The small `gradlew` / `gradlew.bat` launchers first run
-`tools/bootstrap-wrapper.sh` or `.ps1` only when the JAR is absent. They retrieve the official
-Gradle 8.13 wrapper from Gradle's repository and compare it with the checksum published by
-Gradle. They also install the distribution checksum in the wrapper properties.
-
-The bootstrap requires internet, curl plus sha256sum/shasum on macOS/Linux, or PowerShell
-on Windows. The Bash launcher passed syntax checks; the PowerShell script was not executed.
-Network/bootstrap success is not claimed. As an alternative, an installed Gradle 8.13 can
-run `gradle :app:assembleDebug` directly, or generate an official wrapper itself.
-
-### Build commands
-
-macOS/Linux:
+Use Python3.12, C++20 GCC/Clang, CMake3.22+, Ninja, JDK17, Gradle8.13, Android
+SDK/API36, BuildTools36.0.0, NDK28.2.13676358 and Android CMake3.22.1. Runtime
+scanning stays offline; first-time build dependencies need network access.
 
 ```bash
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r tools/requirements-real-benchmark.txt
+sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
 ```
 
-Windows:
-
-```powershell
-.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
-```
-
-Expected output **after a successful build**:
-`app/build/outputs/apk/debug/app-debug.apk`.
-That path is not an existing APK in this package.
-
-Then, with an authorized Android device connected:
+Accept required SDK licenses through the official SDK tool. Set `ANDROID_HOME`
+(or private ignored `local.properties`) to that SDK. Do not commit local SDK paths,
+credentials, original photographs or generated APK/build/cache directories.
+On the campaign cloud machine, use the prepared environment instead of reinstalling:
 
 ```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-./gradlew :app:connectedDebugAndroidTest
+source /workspace/.setup/3d-scanner/env.sh
 ```
 
-The source targets arm64-v8a and x86_64, Android 10/API 29 and later. Camera permission is
-optional. Start with a local project and import 2–12 overlapping photographs. Select the
-fallback 35 mm-equivalent focal length only when actual EXIF data is unavailable. This
-fallback is an assumption, not a calibrated camera. Press **Build sparse 3D preview**.
+The wrapper launcher bootstraps its missing JAR/checksum from official sources.
+Bootstrap changes tracked wrapper properties; for the campaign use the installed
+Gradle8.13 path below and preserve the staged source tree. Never disable TLS,
+signature/checksum validation or use a different Gradle version to bypass a failure.
 
-M02 keeps processing in the visible app and cancels on leaving it. Finished feature caches
-can be reused. It does not implement the long-running foreground-service architecture
-planned for dense reconstruction. No RAW or ARCore capture mode is shipped yet.
+## Host build and functional checks
 
-## Validate the actual APK
-
-```bash
-python3 tools/check_apk.py app/build/outputs/apk/debug/app-debug.apk --sdk "$ANDROID_HOME"
-```
-
-This checks merged INTERNET permission, 16 KB ZIP alignment and LOAD-segment alignment of
-all native libraries, including third-party binaries. Source linker flags alone are not
-proof that the final package supports every required page size. CI fails these checks when
-an incompatible dependency is found; such a dependency must be upgraded or rebuilt.
-
-## Host native tests
-
-```bash
-cmake -S . -B build/host -DCMAKE_BUILD_TYPE=Release
-cmake --build build/host --parallel 2
-ctest --test-dir build/host --output-on-failure
-python3 -m pip install -r tools/requirements.txt
-python3 -m pytest tests -q
-```
-
-For Windows multi-configuration builds, use `--config Release`; the Python bridge searches
-`build/host/Release` as well. MSVC compilation has not been tested here. On Linux/macOS,
-C++ sanitizer checks are available with `-DRF_SANITIZE=ON`.
-
-## CI
-
-`.github/workflows/verify.yml` supplies native tests, Android debug/test APK compilation,
-JVM tests, lint, native alignment/privacy checks, and opt-in emulator instrumentation.
-It contains no repository-specific identifiers or credentials. It has not been executed.
-Uploading it to a repository and running it is a separate action; none was taken here.
-
-## M02 additional-camera pose test
-
-```bash
-python3 tools/three_view.py
-```
-
-It uses three local, explicitly synthetic photos and the shared native C++ implementation
-for stereo initialization plus calibrated third-view PnP. This does not generate a mesh.
-The on-device Android SIFT/pose adapter still requires camera and emulator tests.
-
-
-## M06 joint sparse optimizer (current)
-
-To run the calibrated three-image fixture and joint Schur solver on a host:
+Run from the repository root. One compile worker is the campaign resource limit.
 
 ```bash
 cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror
-cmake --build build/host --parallel 3
+cmake --build build/host --parallel 1
 ctest --test-dir build/host --output-on-failure
-python3 -m pytest tests -q
-python3 tools/bundle_three_view.py
+python -m pytest tests -q
+python tools/bundle_three_view.py
+python tools/benchmark_multiview_coverage.py --gate --output reports/m14-eight-view-coverage.json
+python tools/benchmark_middlebury.py --gate --output reports/m05-middlebury-real.json
+python tools/benchmark_dense_middlebury.py --gate --output reports/m07-middlebury-dense.json
+python tools/benchmark_surface_middlebury.py --gate --output reports/m08-middlebury-surface.json
+python tools/benchmark_texture_middlebury.py --gate --output reports/m10-middlebury-texture.json
 ```
 
-Android GitHub Actions builds the debug and instrumentation APKs, checks
-permissions/ELF alignment and executes API-35 emulator tests. Emulator success
-cannot verify physical smartphone camera, performance or dense reconstruction.
+Host library: `build/host/librealityforge.so` on Linux (platform suffix elsewhere).
+Benchmark reports are under `reports/`; read actual per-scene results and exit
+codes. The Middlebury pair is real rectified stereo with disparity truth, not a
+physical360-degree unknown-pose object session. Synthetic fixtures stay synthetic.
+Use `-DRF_SANITIZE=ON` in a separate build directory for host ASan/UBSan; do not mix
+sanitizer and Release caches. Windows multi-config builds need `--config Release`.
+
+## Android compilation and package checks
+
+```bash
+gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+python tools/check_apk.py app/build/outputs/apk/debug/app-debug.apk --sdk "$ANDROID_HOME" --report reports/apk-validation.json
+```
+
+On the campaign machine serialize the real Gradle invocation with the shared lock
+and proxy-aware external helper (run from your own assigned checkout):
+
+```bash
+flock /workspace/campaign/android.lock python /workspace/campaign/gradle.py :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+```
+
+After successful execution, APKs are
+`app/build/outputs/apk/debug/app-debug.apk` and
+`app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk`.
+JVM XML reports are `app/build/test-results/testDebugUnitTest/`; lint HTML is
+`app/build/reports/lint-results-debug.html`. The package checker inspects actual
+merged privacy permissions, native16KiB ZIP/LOAD alignment and packaged libraries.
+Source flags alone do not establish package compatibility.
+
+## Installed instrumentation and recovery
+
+Requires authorized API29+ hardware or a functioning emulator/ADB. The cloud
+campaign has no `/dev/kvm` or connected handset: installed tests remain NOT_RUN
+there. Camera, lens/EXIF, thermals, power and whole-object evidence need physical ARM64.
+
+```bash
+adb devices -l
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+bash tools/run-device-tests.sh
+```
+
+The existing runner above selects `adb -e` and is emulator-specific. With one
+authorized physical handset, set its exact serial and invoke the built test APK:
+
+```bash
+adb -s "$RF_DEVICE_SERIAL" shell am instrument -w -r com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Retain the complete instrumentation output and verify its executed test count;
+use Agent092's candidate-aware device harness once integrated for structured
+physical receipts. The emulator runner retains its screenshot under
+`reports/device/` and Gradle device results under
+`app/build/outputs/androidTest-results/connected/`. A zero-test, skipped or missing
+XML run never proves device behavior. Build success is a separate gate.
+
+For a manual recovery check: export important originals to a private chosen
+destination first; import2–12 overlapping authorized photos into a new test project;
+calibrate the same lens when available; start reconstruction; pause/kill/reopen;
+verify accepted unchanged-input depth checkpoints are reused and final geometry/
+texture is rebuilt; change an input and verify stale results/checkpoints are rejected.
+Inspect/export/reopen the completed result and compare original file hashes.
+M17 supports cooperative CPU depth/mesh/texture cancellation; sparse JNI checks
+occur between stages. M18 does not resume every stage or guarantee power-loss durability.
+Capture bundles require3–250 originals, but reconstruction still uses at most12.
+Never uninstall/clear real app data for a test without preserving user projects.
+
+## Candidate release and parallel integration
+
+The default release build currently has R8 disabled and no production signing
+qualification; `assembleRelease` is not store acceptance. Agent091 owns actual
+APK/AAB/R8/signing validation; Agent099 owns exact-candidate physical journeys and
+independent gate aggregation. Signing keys are supplied securely, never committed.
+No store upload/public release is authorized by these development commands.
+
+Follow [AGENTS](../AGENTS.md) and the shared ownership/manifest protocol in the
+[execution plan](../PRODUCTION_100_AGENT_EXECUTION_PLAN.md). Work only on your
+assigned numbered branch/worktree. Stage owned changes first and regenerate the
+entire `SOURCE_MANIFEST.sha256` from staged Git blobs. Agent094 owns generator
+policy;100 resolves semantic integration then regenerates the mechanical manifest.
+Receipts under `docs/agents/status/` bind source/artifact SHA, command, environment,
+dataset and actual PASS/FAIL/NOT_RUN/BLOCKED_EXTERNAL gates. Do not claim remote
+provider branches are integrated until their runtime paths and dependencies pass.
