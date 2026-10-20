@@ -1,0 +1,14 @@
+{
+  "scope": "Existing historical receipt helper preserved at user-requested development stop; no new validation is claimed",
+  "files": [
+    {
+      "source_path": "/workspace/campaign/evidence/081/finalize_frozen86_receipts.py",
+      "archive_path": "tools/qa/native_regression/campaign_support/finalize_frozen86_receipts.py",
+      "sha256": "37aa54ffa58ecc1a85a9c05e03f31458e2b913c75097ffe9f56a0ae43e72536d"
+    }
+  ],
+  "development_stopped": true,
+  "pending": [
+    "Final combined-source rerun and fresh-candidate benchmark remain unexecuted"
+  ]
+}
