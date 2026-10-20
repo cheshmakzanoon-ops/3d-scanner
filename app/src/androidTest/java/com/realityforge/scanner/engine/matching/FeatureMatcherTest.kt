@@ -14,12 +14,30 @@ import java.security.MessageDigest
 import java.util.concurrent.CancellationException
 
 class FeatureMatcherTest {
+    @Test fun repeatedInvalidAndEmptyDescriptorInputsAreExplicit() {
+        assertTrue(OpenCVLoader.initLocal())
+        val projection=LensProjection.estimated(32,32,32.0)
+        fun frame(id:String,values:FloatArray,count:Int):com.realityforge.scanner.engine.features.FeatureFrame {
+            val mat=if(count==0)org.opencv.core.Mat() else org.opencv.core.Mat(count,128,org.opencv.core.CvType.CV_32F).apply{put(0,0,values)}
+            return com.realityforge.scanner.engine.features.FeatureFrame(id,"0".repeat(64),"test-only","test-only",32,32,FloatArray(count*2){1f},IntArray(count),mat,projection)
+        }
+        val a=frame("a",FloatArray(4*128),4);val b=frame("b",FloatArray(4*128),4)
+        val bad=frame("b",FloatArray(4*128){Float.NaN},4);val empty=frame("b",FloatArray(0),0)
+        try {
+            val matcher=FeatureMatcher();val candidate=PairCandidate("a","b",1.0,"test-only")
+            assertEquals(0,matcher.match(a,b,candidate).count)
+            assertEquals(0,matcher.match(a,empty,candidate).count)
+            assertThrows(IllegalArgumentException::class.java){matcher.match(a,bad,candidate)}
+            assertTrue(matcher.verify(matcher.match(a,b,candidate),.001) is GeometricVerification.Rejected)
+        }finally{a.close();b.close();bad.close();empty.close()}
+    }
+
     @Test fun boundedMatcherExactlyMatchesWholePairReferenceOnSyntheticPhotographs() {
         assertTrue(OpenCVLoader.initLocal())
         val instrument=InstrumentationRegistry.getInstrumentation()
         val files=(1..2).map{i->File(instrument.targetContext.cacheDir,"a035-$i.jpg").also{f->instrument.context.assets.open("relief/view-0$i.jpg").use{input->f.outputStream().use{input.copyTo(it)}}}}
         val extractor=FeatureExtractor()
-        val frames=files.mapIndexed{i,f->extractor.extract("photo-$i",MessageDigest.getInstance("SHA-256").digest(f.readBytes()).joinToString(""){"%02x".format(it)},f,"synthetic-fixture-v1",{w,h->LensProjection.estimated(w,h,1000.0)})}
+        val frames=files.mapIndexed{i,f->extractor.extract("photo-$i",MessageDigest.getInstance("SHA-256").digest(f.readBytes()).joinToString(""){"%02x".format(it)},f,"synthetic-fixture-v1",{w,h->LensProjection.estimated(w,h,760.0)})}
         try {
             val matcher=FeatureMatcher(blockSize=17)
             val pair=PairCandidate("photo-0","photo-1",.9,"synthetic-test-only")
@@ -35,6 +53,11 @@ class FeatureMatcherTest {
             assertTrue(matches.count>20)
             assertEquals(expected,matches.matches.map{it.firstKey to it.secondKey})
             assertEquals(matches.count,matches.matches.map{it.firstKey}.distinct().size)
+            val verified=matcher.verify(matches,1.5/760.0)
+            assertTrue("Actual native initializer must accept the synthetic calibrated pair",verified is GeometricVerification.Accepted)
+            val accepted=(verified as GeometricVerification.Accepted).matches
+            assertTrue(accepted.correspondences().size>=20)
+            assertTrue(accepted.sourceMatchIndices().all{it in matches.matches.indices})
             assertThrows(CancellationException::class.java){matcher.match(frames[0],frames[1],pair){true}}
         }finally{frames.forEach{it.close()};files.forEach{it.delete()}}
     }
