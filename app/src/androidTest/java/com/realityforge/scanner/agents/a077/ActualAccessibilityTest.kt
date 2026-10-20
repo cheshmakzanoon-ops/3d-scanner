@@ -135,22 +135,55 @@ class ActualAccessibilityTest {
         while (SystemClock.elapsedRealtime() < end) { if (predicate()) return; SystemClock.sleep(100) }
         failWithDiagnostics("Expected actual accessibility control did not become available within ${timeout}ms")
     }
-    private fun clickLabel(vararg labels: String) {
-        var node: AccessibilityNodeInfo? = null
-        await { node = find { n -> labels.any { n.text?.toString() == it || n.contentDescription?.toString() == it } }; node != null }
-        var target = requireNotNull(node)
+
+    /** Feature resources are optional in a standalone 077 checkout, present in the joined app. */
+    private fun labels(resourceName: String, vararg standaloneLabels: String): List<String> {
+        val context = instrumentation.targetContext
+        val id = context.resources.getIdentifier(resourceName, "string", context.packageName)
+        return if (id != 0) listOf(context.getString(id)) else standaloneLabels.toList()
+    }
+
+    private fun named(node: AccessibilityNodeInfo, labels: List<String>): Boolean =
+        node.isVisibleToUser && labels.any {
+            node.text?.toString() == it || node.contentDescription?.toString() == it
+        }
+
+    private fun guideSkip(node: AccessibilityNodeInfo, labels: List<String>): Boolean {
+        if (!node.isVisibleToUser) return false
+        val id = node.viewIdResourceName
+        return id == "a075-skip" || id?.endsWith("/a075-skip") == true || named(node, labels)
+    }
+
+    private fun clickNode(node: AccessibilityNodeInfo) {
+        var target = node
         while (!target.isClickable && target.parent != null) target = target.parent
         assertTrue("Control lacks accessibility click action", target.isEnabled && target.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+    }
+
+    private fun clickLabel(vararg labels: String) {
+        var node: AccessibilityNodeInfo? = null
+        await { node = find { named(it, labels.toList()) }; node != null }
+        clickNode(requireNotNull(node))
+    }
+
+    private fun reachLibrary() {
+        val skipLabels = labels("a075_skip", "Skip")
+        val createLabels = labels("a072_create", "Create local project")
+        var skip: AccessibilityNodeInfo? = null
+        await {
+            skip = find { guideSkip(it, skipLabels) }
+            skip != null || find { named(it, createLabels) } != null
+        }
+        skip?.let(::clickNode)
+        await { find { named(it, createLabels) } != null }
     }
     @Test fun realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject() {
         val name = "Accessibility ${UUID.randomUUID()}"
         val app = instrumentation.targetContext.applicationContext as RealityForgeApplication
         try {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-                // An integrated first-run guide may be skipped through its real visible control.
-                await { find { it.text?.toString() in setOf("Skip", "Create local project") } != null }
-                if (find { it.text?.toString() == "Skip" } != null) clickLabel("Skip")
-                clickLabel("Create local project")
+                reachLibrary()
+                clickLabel(*labels("a072_create", "Create local project").toTypedArray())
                 var field: AccessibilityNodeInfo? = null
                 await { field = find { it.isEditable }; field != null }
                 val input = requireNotNull(field)
@@ -158,7 +191,7 @@ class ActualAccessibilityTest {
                 assertTrue("Project-name field must expose a label or hint", labels.isNotBlank())
                 val args = Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, name) }
                 assertTrue(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args))
-                clickLabel("Create", "Save")
+                clickLabel(*labels("a072_save", "Create", "Save").toTypedArray())
                 await { find { it.text?.toString()?.contains(name) == true } != null }
                 scenario.recreate()
                 await { find { it.text?.toString()?.contains(name) == true } != null }
@@ -180,10 +213,10 @@ class ActualAccessibilityTest {
     }
     @Test fun visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics() {
         ActivityScenario.launch(MainActivity::class.java).use {
-            await { find { it.text?.toString() in setOf("Skip", "Create local project") } != null }
-                if (find { it.text?.toString() == "Skip" } != null) clickLabel("Skip")
+            reachLibrary()
+            val createLabels = labels("a072_create", "Create local project")
             var control: AccessibilityNodeInfo? = null
-            await { control = find { n -> n.text?.toString() == "Create local project" }; control != null }
+            await { control = find { named(it, createLabels) }; control != null }
             var node = requireNotNull(control)
             while (!node.isClickable && node.parent != null) node = node.parent
             val bounds = Rect(); node.getBoundsInScreen(bounds)
