@@ -15,4 +15,21 @@ int main(){
  std::vector<rf::TexelSources> texels{{4,samples},{9,{}}};auto tile=rf::blendVerifiedTile(texels);
  assert(tile[0].rgba==r.rgba&&tile[1].rgba[3]==0);
  for(int i=0;i<100;++i){double color=i%2?.25:.35;std::vector<rf::VerifiedTexelSample> p{{0,0,{color,color,color},{1,1,1},1,true},{1,0,{color,color,color},{1,1,1},1,true}};auto t=rf::blendVerifiedTexel(0,p);assert(std::abs(t.rgba[0]/255.-rf::linearToSrgb(color))<.005);}
+ samples={{0,4,{.2,.3,.4},{1,1,1},std::numeric_limits<double>::max(),true},{1,4,{.22,.32,.42},{1,1,1},std::numeric_limits<double>::max(),true}};
+ r=rf::blendVerifiedTexel(4,samples);assert(r.acceptedSources==2&&r.rgba[3]==255);
+ samples[1].weight=std::numeric_limits<double>::denorm_min();r=rf::blendVerifiedTexel(4,samples);assert(r.rgba[3]==255);
+ samples[1].weight=std::numeric_limits<double>::quiet_NaN();bool rejected=false;try{rf::blendVerifiedTexel(4,samples);}catch(const rf::Error&){rejected=true;}assert(rejected);
+ rf::ChartBlendTile image;image.width=12;image.height=10;image.halo=2;
+ for(int y=0;y<image.height;++y)for(int x=0;x<image.width;++x){
+  const double color=x%2?.2:.3;image.texels.push_back({7,{{0,7,{color,color,color},{1,1,1},x<6?1.:.2,true},{1,7,{color+.01,color+.01,color+.01},{1,1,1},x<6?.2:1.,true}}});
+ }
+ auto full=rf::blendChartTile(image);assert(full.width==8&&full.height==6);
+ rf::ChartBlendTile part;part.width=8;part.height=10;part.halo=2;
+ for(int y=0;y<10;++y)for(int x=0;x<8;++x)part.texels.push_back(image.texels[y*12+x]);
+ auto left=rf::blendChartTile(part);
+ for(int y=0;y<6;++y)for(int x=0;x<4;++x)assert(left.texels[y*4+x].rgba==full.texels[y*8+x].rgba);
+ image.texels[5*12+5].samples.clear();auto hole=rf::blendChartTile(image);assert(hole.texels[3*8+3].rgba[3]==0);
+ struct P{double u,v;};struct C{std::size_t sourceFace;std::array<P,3> uv;};struct L{std::vector<C> charts;};
+ L layout{{{0,{{P{0,0},P{1,0},P{0,1}}}}}};auto mapped=rf::mapLodTexel(layout,{0,{.2,.3,.5}});assert(mapped[0]==.3&&mapped[1]==.5);
+
 }
