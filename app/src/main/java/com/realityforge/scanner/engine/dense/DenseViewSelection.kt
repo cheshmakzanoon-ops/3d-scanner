@@ -19,6 +19,40 @@ object DenseViewSelection {
         override fun equals(other:Any?) = other is Plan && referencePhotoIds==other.referencePhotoIds && sourcePhotoIds==other.sourcePhotoIds && exclusions==other.exclusions && uniqueSparseTracks==other.uniqueSparseTracks
         override fun hashCode() = listOf(referencePhotoIds,sourcePhotoIds,exclusions,uniqueSparseTracks).hashCode()
     }
+    /** Adapter from036 immutable native-window rows and actual040/041 retained support.
+     * Native output supplies acceptedSupportByTrack; descriptor summaries are never valid input here.
+     */
+    fun fromVerifiedNativeTracks(photoIds:List<String>, worldToCamera:List<DoubleArray>, sourceTrackIds:List<String>,
+                                 verifiedRows:DoubleArray, acceptedSupportByTrack:Map<Int,Set<Int>>,
+                                 measuredSharpness:List<Double>, textureAvailable:List<Boolean>):List<Camera> {
+        require(photoIds.size in 2..250 && photoIds.distinct().size==photoIds.size)
+        require(worldToCamera.size==photoIds.size && measuredSharpness.size==photoIds.size && textureAvailable.size==photoIds.size)
+        require(sourceTrackIds.size<=15_000 && sourceTrackIds.distinct().size==sourceTrackIds.size && sourceTrackIds.all { it.matches(Regex("[0-9a-f]{64}")) })
+        require(verifiedRows.size%7==0 && verifiedRows.size/7<=100_000 && verifiedRows.all(Double::isFinite))
+        require(acceptedSupportByTrack.size<=sourceTrackIds.size)
+        val graphSupport=HashMap<Int,MutableSet<Int>>()
+        for(i in verifiedRows.indices step 7){val t=verifiedRows[i];val c=verifiedRows[i+1]
+            require(t%1.0==0.0 && t>=0 && t<sourceTrackIds.size && c%1.0==0.0 && c>=0 && c<photoIds.size)
+            require(kotlin.math.abs(verifiedRows[i+2])<=10 && kotlin.math.abs(verifiedRows[i+3])<=10 && (4..6).all { verifiedRows[i+it] in 0.0..255.0 })
+            require(graphSupport.getOrPut(t.toInt()){HashSet()}.add(c.toInt())) { "Duplicate source camera observation" }
+        }
+        val tracks=List(photoIds.size){HashSet<String>()}
+        for((track,support) in acceptedSupportByTrack){
+            require(track in sourceTrackIds.indices && support.size>=2 && support.all {it in photoIds.indices})
+            require(graphSupport[track]?.containsAll(support)==true) { "Native support is not in the verified observation snapshot" }
+            for(camera in support)tracks[camera].add(sourceTrackIds[track])
+        }
+        require(measuredSharpness.all {it.isFinite() && it>=0})
+        val maximum=measuredSharpness.maxOrNull() ?: 0.0
+        return photoIds.indices.map { index ->
+            val pose=worldToCamera[index];require(pose.size==12 && pose.all(Double::isFinite))
+            val determinant=pose[0]*(pose[4]*pose[8]-pose[5]*pose[7])-pose[1]*(pose[3]*pose[8]-pose[5]*pose[6])+pose[2]*(pose[3]*pose[7]-pose[4]*pose[6])
+            require(kotlin.math.abs(determinant-1.0)<.02)
+            for(a in 0..2)for(b in 0..2)require(kotlin.math.abs((0..2).sumOf { pose[a*3+it]*pose[b*3+it] }-(if(a==b)1.0 else 0.0))<.025)
+            val centre=(0..2).map { k -> -(0..2).sumOf { row -> pose[row*3+k]*pose[9+row] } }
+            Camera(photoIds[index],centre,tracks[index],if(maximum>0)measuredSharpness[index]/maximum else 0.0,textureAvailable[index])
+        }
+    }
     fun select(cameras:List<Camera>, referenceCap:Int=8, sourceCap:Int=3, minimumCommonTracks:Int=8, cancelled:()->Boolean={false}):Plan {
         require(cameras.size<=250 && referenceCap in 2..8 && sourceCap in 1..3 && minimumCommonTracks>=2)
         require(cameras.map{it.photoId}.distinct().size==cameras.size)
