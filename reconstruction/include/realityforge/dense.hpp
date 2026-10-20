@@ -30,6 +30,13 @@ struct DenseSettings {
     double minUniqueness = 0.025;
     double depthConsistencyFraction = 0.055;
     std::size_t maxPoints = 20000;
+    unsigned executionVersion = 1;
+    int tileEdge = 64;
+    std::size_t workingSetBudgetBytes = 64u*1024u*1024u;
+    bool referenceMode = false; // untiled cached-luminance numerical reference
+    bool discontinuityAwareConsistency = false; // qualified separately before default enable
+    unsigned localRefinementIterations = 0; // opt-in measured quality path
+    bool robustSourceAggregation = false;
 };
 struct DensePoint {
     Vec3 xyz{};
@@ -62,6 +69,7 @@ struct DenseResult {
     std::vector<std::size_t> consistentPixelsPerView;
     std::size_t peakLuminanceBytes{}, pointBudget{};
     std::size_t resumedDepthMaps{}, writtenDepthMaps{};
+    std::size_t completedTiles{}, totalTiles{}, admittedWorkingSetBytes{};
 };
 // Never invents unobserved geometry. Patches assume locally fronto-parallel
 // surfaces and ZNCC; it rejects textureless/ambiguous/occluded observations.
@@ -74,4 +82,4 @@ std::string denseJson(const DenseResult& result);
 // malloc-owned JSON, release with rf_free.
 extern "C" char* rf_dense_json(const std::uint8_t* rgba, int width, int height,
     const double* camera_rows, std::size_t camera_count,
-    double near_depth, double far_depth, int depth_planes, int pixel_stride);
+    double near_depth, double far_depth, int depth_planes, int pixel_stride) noexcept;

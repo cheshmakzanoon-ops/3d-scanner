@@ -3,6 +3,10 @@
 #include "realityforge/stereo_warp.hpp"
 #include "realityforge/dense_selection.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/depth_tiles.hpp"
+#include "realityforge/matching_cost.hpp"
+#include "realityforge/depth_refinement.hpp"
+#include "realityforge/depth_consistency.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -33,7 +37,7 @@ Vec3 center(const DenseView& v){return scale(multiply(transpose(v.pose.rotation)
 struct GrayView {
     const DenseView& image;
     std::vector<float> pixels;
-    explicit GrayView(const DenseView& v):image(v),pixels(v.rgba.size()/4) {
+    explicit GrayView(const DenseView& v,bool cache):image(v),pixels(cache?v.rgba.size()/4:0) {
         for(std::size_t i=0;i<pixels.size();++i) {
             if((i & 4095u)==0) cancellation::checkpoint();
             pixels[i]=(77.f*v.rgba[i*4]+150.f*v.rgba[i*4+1]+29.f*v.rgba[i*4+2])/256.f;
@@ -49,8 +53,8 @@ Bilinear sample(const GrayView& cached,double x,double y){
     const std::size_t p=static_cast<std::size_t>(iy)*image.width+ix;
     const std::array<std::size_t,4> pos{p,p+1,p+image.width,p+image.width+1};
     for(auto i:pos)if(image.rgba[i*4+3]!=255)return {};
-    return {cached.pixels[pos[0]]*(1-fx)*(1-fy)+cached.pixels[pos[1]]*fx*(1-fy)+
-            cached.pixels[pos[2]]*(1-fx)*fy+cached.pixels[pos[3]]*fx*fy,true};
+    auto value=[&](std::size_t i){return cached.pixels.empty()?(77.f*image.rgba[i*4]+150.f*image.rgba[i*4+1]+29.f*image.rgba[i*4+2])/256.f:cached.pixels[i];};
+    return {value(pos[0])*(1-fx)*(1-fy)+value(pos[1])*fx*(1-fy)+value(pos[2])*(1-fx)*fy+value(pos[3])*fx*fy,true};
 }
 struct Patch {double mean{},var{};std::array<double,49> pixels{};};
 Patch referencePatch(const GrayView& v,int x,int y,int radius){
@@ -86,6 +90,7 @@ double ncc(const GrayView& neighbor,const detail::StereoWarp& warp,
 float relativeDifference(double a,double b){return static_cast<float>(std::abs(a-b)/std::max(a,b));}
 // Nearest *sampled* depth neighbor in the sparse grid, with a small reprojection budget.
 float neighborDepth(const DenseDepthMap& depth,double x,double y,int step,int radius){
+    if(!std::isfinite(x)||!std::isfinite(y)||x<0||y<0||x>=depth.width||y>=depth.height)return 0;
     int ix=static_cast<int>(std::round((x-radius)/step))*step+radius;
     int iy=static_cast<int>(std::round((y-radius)/step))*step+radius;
     if(ix<0||iy<0||ix>=depth.width||iy>=depth.height||
@@ -112,7 +117,7 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
        s.patchRadius<1||s.patchRadius>3||!std::isfinite(s.minimumNcc)||s.minimumNcc<0||s.minimumNcc>1||
        !std::isfinite(s.minUniqueness)||!std::isfinite(s.depthConsistencyFraction)||
        s.minUniqueness<.005||s.minUniqueness>.5||s.depthConsistencyFraction<.005||s.depthConsistencyFraction>.25||
-       s.maxPoints<10||s.maxPoints>50000)throw Error("Invalid bounded CPU MVS configuration");
+       s.maxPoints<10||s.maxPoints>50000||s.executionVersion!=1||s.tileEdge<8||s.tileEdge>640||s.localRefinementIterations>12)throw Error("Invalid bounded CPU MVS configuration");
     int w=views.front().width,h=views.front().height;
     if(w<32||h<32||w>640||h>640||static_cast<std::int64_t>(w)*h>320000)throw Error("Dense MVS image exceeds CPU reference limits");
     const int start=s.patchRadius+1;
@@ -141,6 +146,8 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
+    auto admitted=tiles::admit(views.size(),static_cast<std::size_t>(views[0].width)*views[0].height,MAX_DENSE_SAMPLES,settings.maxPoints,settings.depthPlanes,settings.workingSetBudgetBytes,settings.referenceMode);
+    result.admittedWorkingSetBytes=admitted.totalBytes;
     const int w=views.front().width,h=views.front().height,r=settings.patchRadius,step=settings.pixelStride;
     // Inverse camera-z sampling allocates more candidates to nearby surfaces.
     std::vector<double> planes(settings.depthPlanes);
@@ -149,6 +156,8 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         planes[k]=1./((1-t)/settings.nearDepth+t/settings.farDepth);
     }
     const std::size_t n=static_cast<std::size_t>(w)*h;
+    const auto tilePlan=tiles::plan(w,h,r+1,step,r+1,settings.referenceMode?640:settings.tileEdge);
+    result.totalTiles=tilePlan.size()*views.size();
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
     result.consistentPixelsPerView.assign(views.size(),0);
     result.maps.reserve(views.size());
@@ -164,51 +173,55 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                 ++result.sampledPixels;
                 if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;
             }
-            result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(1+sources.size())*n*sizeof(float));
+            result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(settings.referenceMode?(1+sources.size())*n*sizeof(float):0));
             result.maps.push_back(std::move(map));
             ++result.resumedDepthMaps;
+            result.completedTiles+=tilePlan.size();
             continue;
         }
-        const GrayView image(views[ref]);
+        const GrayView image(views[ref],settings.referenceMode);
         std::vector<GrayView> grayscale;grayscale.reserve(sources.size());
         std::vector<detail::StereoWarp> warps;warps.reserve(sources.size());
         for (auto source:sources) {
-            grayscale.emplace_back(views[source]);
+            grayscale.emplace_back(views[source],settings.referenceMode);
             warps.push_back(detail::StereoWarp::between(views[ref],views[source]));
         }
-        result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(1+sources.size())*n*sizeof(float));
+        result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(settings.referenceMode?(1+sources.size())*n*sizeof(float):0));
         // One scratch cost vector per reference, not an allocation per pixel.
         std::vector<double> costs(settings.depthPlanes,2.);
-        for(int y=r+1;y<h-r-2;y+=step){
+        for(const auto& tile:tilePlan){
+         cancellation::checkpoint();
+         for(int y=tile.y0;y<tile.y1;y+=step){
           cancellation::checkpoint();
-          for(int x=r+1;x<w-r-2;x+=step){
+          for(int x=tile.x0;x<tile.x1;x+=step){
             ++result.sampledPixels;
             auto reference=referencePatch(image,x,y,r);
             if(reference.var<18.)continue; // no reliable photometric texture
             std::fill(costs.begin(),costs.end(),2.);
             for(int k=0;k<settings.depthPlanes;++k){
                 // A candidate must be supported by another photo, not a single-image guess.
-                double best=2.;
+                std::array<matching::Cost,7> sourceCosts{};
                 for(std::size_t src=0;src<sources.size();++src){
                     double corr=ncc(grayscale[src],warps[src],x,y,planes[k],reference,r);
-                    if(corr>-.999)best=std::min(best,1.-corr);
+                    if(corr>-.999)sourceCosts[src]={1.-corr,static_cast<std::size_t>((2*r+1)*(2*r+1)),true};
                 }
-                costs[k]=best;
+                costs[k]=matching::aggregate(std::span<const matching::Cost>(sourceCosts).first(sources.size()),settings.robustSourceAggregation).cost;
             }
-            int best=0;for(int k=1;k<settings.depthPlanes;++k)if(costs[k]<costs[best])best=k;
+            const auto distinct=matching::distinctMinimum(costs);
+            const int best=static_cast<int>(distinct.best);
             if(best<2||best>=settings.depthPlanes-2||costs[best]>1-settings.minimumNcc)continue;
             double runnerUp=2.;
             for(int k=0;k<settings.depthPlanes;++k)if(std::abs(k-best)>3)runnerUp=std::min(runnerUp,costs[k]);
             double margin=runnerUp-costs[best];
             if(margin<settings.minUniqueness)continue;
-            double inverse=1./planes[best];
-            // Interpolate the peak in inverse depth using neighboring plane-sweep costs.
-            const double a=costs[best-1],b=costs[best],c=costs[best+1];
-            double denom=a-2*b+c;
-            if(denom>1e-8){
-                double offset=std::clamp(.5*(a-c)/denom,-.75,.75);
-                double invStep=1./planes[1]-1./planes[0];
-                inverse+=invStep*offset;
+            double inverse=refinement::parabolicInverseDepth(costs,planes,static_cast<std::size_t>(best));
+            if(settings.localRefinementIterations){
+                auto refined=refinement::local(planes[best-1],1./inverse,planes[best+1],settings.localRefinementIterations,[&](double depth){
+                    cancellation::checkpoint();double bestCost=2.;
+                    for(std::size_t src=0;src<sources.size();++src){double corr=ncc(grayscale[src],warps[src],x,y,depth,reference,r);if(corr>-.999)bestCost=std::min(bestCost,1.-corr);}
+                    return bestCost;
+                });
+                if(refined.valid&&refined.cost<=costs[best])inverse=1./refined.depth;
             }
             if(inverse<=0)continue;
             auto idx=static_cast<std::size_t>(y)*w+x;
@@ -217,6 +230,8 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                 std::clamp((1.-costs[best])/.9,0.,1.));
             ++result.photometricPixels;
           }
+        }
+         ++result.completedTiles;
         }
         // Publish the completed reference atomically before processing the next.
         // A cancelled or killed process can reuse previous references, never a
@@ -244,11 +259,12 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                 auto q=cameraPoint(views[src],world);if(q.z<=.01||!finite(q))continue;
                 double sx=views[src].fx*q.x/q.z+views[src].cx;
                 double sy=views[src].fy*q.y/q.z+views[src].cy;
-                float d=neighborDepth(result.maps[src],sx,sy,step,r+1);
+                const auto continuous=settings.discontinuityAwareConsistency?consistency::sampleDepth(result.maps[src],sx,sy,step,r+1,settings.depthConsistencyFraction):consistency::Sample{};
+                float d=settings.discontinuityAwareConsistency?(continuous.classification==consistency::Visibility::Supported?static_cast<float>(continuous.depth):0):neighborDepth(result.maps[src],sx,sy,step,r+1);
                 if(d<=0||relativeDifference(q.z,d)>settings.depthConsistencyFraction)continue;
                 // Reverse reprojection rejects nearest-grid mistakes at depth discontinuities.
-                auto back=fromDepth(views[src],std::round((sx-(r+1))/step)*step+(r+1),
-                                    std::round((sy-(r+1))/step)*step+(r+1),d);
+                auto back=fromDepth(views[src],settings.discontinuityAwareConsistency?sx:std::round((sx-(r+1))/step)*step+(r+1),
+                                    settings.discontinuityAwareConsistency?sy:std::round((sy-(r+1))/step)*step+(r+1),d);
                 auto refCamera=cameraPoint(camera,back);
                 if(refCamera.z<=0||!finite(refCamera))continue;
                 double px=camera.fx*refCamera.x/refCamera.z+camera.cx;
@@ -267,16 +283,30 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                 result.verifiedSamples.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},
                     confidence,static_cast<std::uint8_t>(confirmations+1),static_cast<std::uint8_t>(ref),
                     static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y)});
-            if(result.points.size()>=settings.maxPoints)continue;
-            Voxel key{static_cast<long long>(std::floor(world.x/voxel)),
-                      static_cast<long long>(std::floor(world.y/voxel)),
-                      static_cast<long long>(std::floor(world.z/voxel))};
-            if(!occupied.insert(key).second)continue;
-            result.points.push_back({world,{camera.rgba[i],camera.rgba[i+1],camera.rgba[i+2]},static_cast<float>(confidence),
-                                     static_cast<std::uint8_t>(confirmations+1)});
-            scores.push_back(confidence);
+
           }
         }
+    }
+    // Select representatives AFTER all views were verified. Stronger evidence
+    // wins a voxel; deterministic geometry/color ties remove camera-order bias.
+    std::vector<const VerifiedDepthSample*> candidates;
+    candidates.reserve(result.verifiedSamples.size());
+    for(const auto& sample:result.verifiedSamples)candidates.push_back(&sample);
+    std::sort(candidates.begin(),candidates.end(),[](auto a,auto b){
+        if(a->confidence!=b->confidence)return a->confidence>b->confidence;
+        if(a->supportingViews!=b->supportingViews)return a->supportingViews>b->supportingViews;
+        if(a->xyz.x!=b->xyz.x)return a->xyz.x<b->xyz.x;
+        if(a->xyz.y!=b->xyz.y)return a->xyz.y<b->xyz.y;
+        if(a->xyz.z!=b->xyz.z)return a->xyz.z<b->xyz.z;
+        return a->color<b->color;
+    });
+    for(const auto* sample:candidates){
+        cancellation::checkpoint();if(result.points.size()>=settings.maxPoints)break;
+        Voxel key;
+        if(!tiles::voxelCoordinate(sample->xyz.x,voxel,key.x)||!tiles::voxelCoordinate(sample->xyz.y,voxel,key.y)||!tiles::voxelCoordinate(sample->xyz.z,voxel,key.z))continue;
+        if(!occupied.insert(key).second)continue;
+        result.points.push_back({sample->xyz,sample->color,sample->confidence,sample->supportingViews});
+        scores.push_back(sample->confidence);
     }
     cancellation::checkpoint();
     result.medianConfidence=median(scores);
@@ -304,6 +334,8 @@ std::string denseJson(const DenseResult& result){
     for(std::size_t i=0;i<result.consistentPixelsPerView.size();++i){if(i)out<<',';out<<result.consistentPixelsPerView[i];}
     out<<"],\"resumedDepthMaps\":"<<result.resumedDepthMaps
        <<",\"writtenDepthMaps\":"<<result.writtenDepthMaps
+       <<",\"completedTiles\":"<<result.completedTiles<<",\"totalTiles\":"<<result.totalTiles
+       <<",\"admittedWorkingSetBytes\":"<<result.admittedWorkingSetBytes
        <<",\"peakLuminanceBytes\":"<<result.peakLuminanceBytes
        <<",\"verifiedSampleCount\":"<<result.verifiedSamples.size()
        <<",\"pointExportLimitReached\":"<<(result.points.size()>=result.pointBudget?"true":"false")<<'}';
@@ -312,7 +344,8 @@ std::string denseJson(const DenseResult& result){
 } // namespace rf
 
 extern "C" char* rf_dense_json(const std::uint8_t* rgba,int width,int height,
-    const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,int planes,int stride){
+    const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,int planes,int stride) noexcept {
+ try {
     std::string response;
     try{
         if(!rgba||!camera_rows||camera_count<2||camera_count>rf::MAX_DENSE_VIEWS||width<32||height<32||width>640||height>640||
@@ -337,4 +370,10 @@ extern "C" char* rf_dense_json(const std::uint8_t* rgba,int width,int height,
     }
     auto* out=static_cast<char*>(std::malloc(response.size()+1));if(!out)return nullptr;
     std::memcpy(out,response.c_str(),response.size()+1);return out;
+ } catch(...) {
+    constexpr char failure[]=R"({"error":"dense native failure"})";
+    auto* out=static_cast<char*>(std::malloc(sizeof(failure)));
+    if(out)std::memcpy(out,failure,sizeof(failure));
+    return out;
+ }
 }
