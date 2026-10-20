@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "role": "090",
+  "status": "HISTORICAL_SOURCE_ARCHIVE_ONLY",
+  "executed_after_user_stop": false,
+  "sources": [
+    {
+      "archive": "incoming_exact_evaluate.py",
+      "original_path": "/workspace/campaign/evidence/090/incoming-exact/evaluate.py",
+      "sha256": "5b02ee434270d32cd39e91eea363f72c2b66bbca86288a1d988b109d40fd405c",
+      "bytes": 3625
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+from pathlib import Path
+import hashlib,json,struct,subprocess,xml.etree.ElementTree as ET
+from tools.qa.export_interoperability.validate import validate,glb_document
+root=Path('/workspace/campaign/evidence/090/incoming-exact');fixtures=Path('/workspace/campaign/evidence/090/incoming-native-fixtures')
+refs=json.loads((root/'source-identities.json').read_text())
+cases=[('062',next(p for p in fixtures.rglob('asymmetric.obj') if p.parent.name=='different-directory'),{'triangles':2,'textured_triangles':2,'bounds':[[0,-3,-4],[2,0,0]],'texture_samples':[{'point':[0,0,0],'rgb':[255,0,0]},{'point':[2,0,0],'rgb':[0,255,0]},{'point':[0,-3,0],'rgb':[0,0,255]},{'point':[0,0,-4],'rgb':[255,255,255]}]}),('063',next(fixtures.rglob('asymmetric.stl')),{'triangles':2,'bounds':[[0,-30,-40],[20,0,0]]}),('064',next(fixtures.rglob('surface.ply')),{'triangles':1,'bounds':[[0,-4,-3],[3,0,-1]]}),('066',next(fixtures.rglob('metric-edit.glb')),{'triangles':2,'textured_triangles':0,'bounds':[[0,-.4,0],[2.4,0,0]]}),('066',next(fixtures.rglob('reflected-edit.glb')),{'triangles':2,'textured_triangles':0,'bounds':[[-12,-2,0],[0,0,0]]}),('066',root/'edited-checker.glb',{'triangles':1,'textured_triangles':1,'bounds':[[-.4,-.4,0],[0,0,0]],'texture_samples':[{'point':[0,0,0],'rgb':[255,0,0]},{'point':[-.4,0,0],'rgb':[0,255,0]},{'point':[0,-.4,0],'rgb':[0,0,255]}]})]
+reports=[]
+for agent,path,expected in cases:
+ report=validate(path,expected,target_tool=True);report.update(provider=agent,provider_source_sha=refs[agent]);reports.append(report);print(agent,path.name,report['status'],report.get('error',''),flush=True)
+path=root/'edited-checker.glb';blob=path.read_bytes();document=glb_document(path);json_size=struct.unpack_from('<I',blob,12)[0];view=document['bufferViews'][document['images'][0]['bufferView']];encoded=blob[28+json_size+view.get('byteOffset',0):28+json_size+view.get('byteOffset',0)+view['byteLength']];original=Path('benchmarks/export_fixtures/checker.png').read_bytes()
+assert encoded==original and document['extras']['units']=='meters' and document['extras']['parentId']=='analytic-master' and document['extras']['assetId']==''
+xml=ET.parse('/workspace/campaign/evidence/090/incoming-native.xml');tests=len(xml.findall('.//testcase'))
+request_rows=[]
+for agent in ('062','063','064','066'):
+ relative='docs/agents/requests/'+agent+'-to-090.md';data=subprocess.check_output(['git','show',refs[agent]+':'+relative]);request_rows.append({'from_agent':agent,'source_sha':refs[agent],'path':relative,'sha256':hashlib.sha256(data).hexdigest(),'disposition':'FAIL_RECORDED_INPUT_NORMALS' if agent=='064' else 'PASS_LIMITED_SYNTHETIC_INTEROPERABILITY'})
+sidecar=json.loads(Path(str(path)+'.provenance.json').read_text())
+report={'schema':1,'data_kind':'synthetic_analytic_native_fixtures','sources':refs,'incoming_requests':request_rows,'native_tests':tests,'native_status':'PASS','assets':reports,'edited_checker':{'source_fixture_sha256':hashlib.sha256(Path('benchmarks/export_fixtures/edited_checker_066.cpp').read_bytes()).hexdigest(),'original_png_sha256':hashlib.sha256(original).hexdigest(),'encoded_png_sha256':hashlib.sha256(encoded).hexdigest(),'png_bytes_preserved':True,'baked_meters_bounds_verified':[[-.4,-.4,0],[0,0,0]],'native_provenance_sidecar':sidecar,'descendant_identity':'PENDING_OWNER_009'},'physical_gate':'BLOCKED_EXTERNAL','overall':'FAIL' if any(r['status']!='PASS' for r in reports) else 'PASS'}
+(root/'incoming-handoff-results.json').write_text(json.dumps(report,indent=2)+'\n');print('REPORT',report['overall'],'native_tests',tests,'PNG_SHA256',report['edited_checker']['original_png_sha256'])
