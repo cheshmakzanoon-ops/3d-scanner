@@ -1,5 +1,6 @@
 #include "realityforge/pnp.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/progress.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -216,6 +217,9 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
     std::mt19937 random(seed);std::uniform_int_distribution<std::size_t> pick(0,observations.size()-1);
     CameraPose best;best.inputCount=observations.size();
     const std::size_t minValid=std::max<std::size_t>(16,static_cast<std::size_t>(std::ceil(.28*observations.size())));
+    // Sparse work-unit1 counts tested PnP hypotheses; adaptive termination
+    // means remaining work is unknown, never a fabricated whole-scan percentage.
+    progress::begin(progress::Stage::Sparse,0,1);
     for(int iter=0;iter<450;++iter){
         cancellation::checkpoint();
         std::vector<std::size_t> sample;sample.reserve(8);
@@ -225,6 +229,7 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
             auto hits=inliers(pose,observations,threshold);
             if(hits.size()>best.inliers.size()) {best=std::move(pose);best.inliers=std::move(hits);}
         }catch(const cancellation::Cancelled&){throw;}catch(const Error&){}
+        progress::advance(static_cast<std::uint64_t>(iter+1));
         if(iter>=60 && best.inliers.size()>=observations.size()*.93)break;
     }
     if(best.inliers.size()<minValid)throw Error("Third-camera registration failed: insufficient consistent 2D-3D tracks");

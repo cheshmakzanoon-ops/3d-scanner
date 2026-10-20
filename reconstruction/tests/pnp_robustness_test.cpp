@@ -3,6 +3,7 @@
 #endif
 #include "realityforge/pnp.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/progress.hpp"
 #include <cassert>
 #include <cmath>
 #include <atomic>
@@ -19,6 +20,7 @@ void operator delete(void* p,std::size_t) noexcept {std::free(p);}
 rf::Mat3 rotation(double x,double y,double z){rf::Mat3 a{1,0,0,0,std::cos(x),-std::sin(x),0,std::sin(x),std::cos(x)};
  rf::Mat3 b{std::cos(y),0,std::sin(y),0,1,0,-std::sin(y),0,std::cos(y)},c{std::cos(z),-std::sin(z),0,std::sin(z),std::cos(z),0,0,0,1};return rf::multiply(c,rf::multiply(b,a));}
 int main(){
+ auto state=std::make_shared<rf::progress::State>();rf::progress::Scope reporting(state);
  for(double scale:{.01,1.,100.})for(bool plane:{false,true}){
   std::vector<rf::Observation> rows;
   for(int i=0;i<100;++i){rf::Vec3 p{scale*((i%10)-4.5)*.13,scale*((i/10)-4.5)*.11,scale*(plane?4.:3.5+(i%7)*.17)};
@@ -45,6 +47,7 @@ int main(){
  {std::vector<rf::Observation> many;for(int i=0;i<5000;++i){rf::Vec3 p{std::sin(i)*.8,std::cos(i*.7)*.7,3.+(i%10)*.2};many.push_back({p,{(p.x-.2)/p.z,p.y/p.z}});}
   std::atomic_bool runningStop{false};rf::cancellation::Scope runningScope(&runningStop);std::thread stopper([&]{std::this_thread::sleep_for(std::chrono::milliseconds(1));runningStop=true;});
   bool interrupted=false;try{rf::registerCamera(many,.001);}catch(const rf::cancellation::Cancelled&){interrupted=true;}stopper.join();assert(interrupted);}
+ auto snapshot=state->snapshot();assert(snapshot.stage==rf::progress::Stage::Sparse&&snapshot.tile==1&&snapshot.completed>0&&!snapshot.total);
  std::vector<rf::Observation> rows(20,{{0,0,4},{0,0}});
  bool rejected=false;try{rf::registerCamera(rows);}catch(const rf::Error&){rejected=true;}assert(rejected);
  std::atomic_bool stop{true};rf::cancellation::Scope scope(&stop);
