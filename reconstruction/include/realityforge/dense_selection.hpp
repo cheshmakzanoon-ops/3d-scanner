@@ -9,6 +9,40 @@
 #include <tuple>
 
 namespace rf::detail {
+struct DenseApprovedSourcePlan {
+    std::vector<std::vector<std::size_t>> adjacency;
+    std::vector<ViewPose> poses;
+};
+inline thread_local const DenseApprovedSourcePlan* activeDenseSourcePlan = nullptr;
+/** One operation's copied immutable adjacency; coarse/fine may change pixels/intrinsics but not camera order or world poses. */
+class DenseSourcePlanScope final {
+public:
+    DenseSourcePlanScope(std::span<const std::vector<std::size_t>> plan,std::span<const double> cameras16)
+        : snapshot_(checked(plan,cameras16)), previous_(activeDenseSourcePlan) { activeDenseSourcePlan=&snapshot_; }
+    ~DenseSourcePlanScope() noexcept { activeDenseSourcePlan=previous_; }
+    DenseSourcePlanScope(const DenseSourcePlanScope&)=delete;
+    DenseSourcePlanScope& operator=(const DenseSourcePlanScope&)=delete;
+private:
+    DenseApprovedSourcePlan snapshot_;
+    const DenseApprovedSourcePlan* previous_;
+    static DenseApprovedSourcePlan checked(std::span<const std::vector<std::size_t>> plan,std::span<const double> cameras) {
+        if(plan.size()<2||plan.size()>8||cameras.size()!=plan.size()*16)throw Error("Invalid approved dense source plan shape");
+        for(const auto& row:plan){if(row.empty()||row.size()>3)throw Error("Invalid approved source degree");}
+        DenseApprovedSourcePlan result;result.adjacency.assign(plan.begin(),plan.end());
+        for(std::size_t ref=0;ref<plan.size();++ref){
+            std::set<std::size_t> seen;
+            for(auto src:plan[ref])if(src>=plan.size()||src==ref||!seen.insert(src).second)throw Error("Invalid approved source identity");
+            ViewPose pose;for(std::size_t k=0;k<12;++k)if(!std::isfinite(cameras[16*ref+k]))throw Error("Nonfinite approved source pose");
+            std::copy_n(cameras.begin()+static_cast<std::ptrdiff_t>(16*ref),9,pose.rotation.begin());
+            pose.translation={cameras[16*ref+9],cameras[16*ref+10],cameras[16*ref+11]};
+            if(std::abs(determinant(pose.rotation)-1.)>.02)throw Error("Invalid approved source rotation");
+            const auto orth=multiply(pose.rotation,transpose(pose.rotation));
+            for(int k=0;k<9;++k)if(std::abs(orth[k]-(k%4==0?1.:0.))>.025)throw Error("Invalid approved source rotation");
+            result.poses.push_back(pose);
+        }
+        return result;
+    }
+};
 // Bounded CPU view plan: keep old <=4-view behavior exactly. For larger sets,
 // select at most three useful source frusta. This is a scheduling heuristic,
 // never evidence of actual overlap: ZNCC and reciprocal depth gates still decide.
@@ -17,6 +51,18 @@ inline std::vector<std::vector<std::size_t>> denseSourcePlan(
     if (views.size()<2 || views.size()>MAX_DENSE_VIEWS || !std::isfinite(nearDepth) ||
         !std::isfinite(farDepth) || nearDepth<=0 || farDepth<=nearDepth)
         throw Error("Invalid dense source plan");
+    if(activeDenseSourcePlan){
+        const auto& approved=*activeDenseSourcePlan;
+        if(approved.poses.size()!=views.size())throw Error("Approved source plan camera count changed");
+        for(std::size_t i=0;i<views.size();++i){const auto& a=approved.poses[i];const auto& b=views[i].pose;
+            for(std::size_t k=0;k<9;++k)if(a.rotation[k]!=b.rotation[k])throw Error("Approved source plan camera order or rotation changed");
+            if(a.translation.x!=b.translation.x||a.translation.y!=b.translation.y||a.translation.z!=b.translation.z)throw Error("Approved source plan camera order or translation changed");
+            for(auto src:approved.adjacency[i]){const auto ac=multiply(transpose(b.rotation),b.translation),bc=multiply(transpose(views[src].pose.rotation),views[src].pose.translation);
+                const double baseline=std::hypot(ac.x-bc.x,ac.y-bc.y,ac.z-bc.z);
+                if(!std::isfinite(baseline)||baseline<=1e-12)throw Error("Approved source cameras are coincident");}
+        }
+        return approved.adjacency;
+    }
     std::vector<std::vector<std::size_t>> plan(views.size());
     const double mid=2./(1./nearDepth+1./farDepth);
     for (std::size_t ref=0;ref<views.size();++ref) {
@@ -87,6 +133,12 @@ inline DenseEvidenceSelection selectDenseEvidence(std::span<const DenseCameraEvi
     std::size_t referenceCap=8,std::size_t sourceCap=3,std::size_t minCommonTracks=8) {
     if(input.size()>250||referenceCap<2||referenceCap>8||sourceCap<1||sourceCap>3||minCommonTracks<2)
         throw Error("Invalid dense evidence selection budget");
+    // Reject input budgets before copying caller-owned feature arrays.
+    std::size_t inputTracks=0;
+    for(const auto& c:input){
+        if(c.photoId.empty()||c.photoId.size()>256||c.verifiedTracks.size()>20000||inputTracks>500000-c.verifiedTracks.size())throw Error("Dense evidence input budget exceeded");
+        inputTracks+=c.verifiedTracks.size();
+    }
     std::vector<DenseCameraEvidence> cameras(input.begin(),input.end());
     std::sort(cameras.begin(),cameras.end(),[](const auto& a,const auto& b){return a.photoId<b.photoId;});
     std::size_t trackBudget=0;
