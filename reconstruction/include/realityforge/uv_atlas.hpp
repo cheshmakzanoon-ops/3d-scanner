@@ -21,7 +21,7 @@ struct UVAtlasLayout {
 // component and sharp boundary. Pixel centers and upper-left V follow glTF.
 inline UVAtlasLayout layoutSurfaceCharts(const SurfaceMesh& mesh,const UVAtlasSettings& s={}) {
     if((s.edge!=2048&&s.edge!=4096)||s.padding<2||s.padding>16||s.maxFaces>80000||
-       mesh.triangles.size()>s.maxFaces||!std::isfinite(s.requestedTexelsPerUnit)||s.requestedTexelsPerUnit<=0||s.requestedTexelsPerUnit>100000)
+       mesh.triangles.empty()||mesh.triangles.size()>s.maxFaces||!std::isfinite(s.requestedTexelsPerUnit)||s.requestedTexelsPerUnit<=0||s.requestedTexelsPerUnit>100000)
         throw Error("Invalid UV chart budget");
     UVAtlasLayout r;r.width=r.height=s.edge;r.charts.reserve(mesh.triangles.size());
     for(std::size_t face=0;face<mesh.triangles.size();++face){
