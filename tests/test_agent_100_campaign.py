@@ -88,3 +88,33 @@ next_action: integrate
 '''
     assert campaign.receipt_checks(text) == []
     assert campaign.receipt_checks(text.replace('result: PASS', 'result: FAIL'))
+
+
+def test_integration_ledger_cannot_launder_an_unowned_ancestor_change(tmp_path):
+    import json
+    def run(*args):
+        return subprocess.check_output(['git', '-C', str(tmp_path), *args], text=True).strip()
+    run('init', '-q'); run('config', 'user.email', 'fixture@example.invalid'); run('config', 'user.name', 'Fixture')
+    (tmp_path / 'owned.txt').write_text('original')
+    (tmp_path / 'foreign.txt').write_text('preserve')
+    run('add', '.'); run('commit', '-qm', 'base'); base = run('rev-parse', 'HEAD')
+    (tmp_path / 'owned.txt').write_text('delivery')
+    (tmp_path / 'foreign.txt').write_text('unowned mutation')
+    run('add', '.'); run('commit', '-qm', 'mixed delivery'); mixed = run('rev-parse', 'HEAD')
+    folder = tmp_path / 'docs/agents/integration'; folder.mkdir(parents=True)
+    (folder / 'deliveries.json').write_text(json.dumps({'deliveries': [{'agent': '089', 'source_sha': mixed}]}))
+    run('add', '.'); run('commit', '-qm', 'integration index')
+    rows = [{'agent': '089', 'receipt': 'docs/agents/status/089.md', 'existing': ['owned.txt'], 'reserved': []},
+            {'agent': '100', 'receipt': 'docs/agents/status/100.md', 'existing': [], 'reserved': ['docs/agents/integration/']}]
+    assert campaign.ownership(tmp_path, rows, '100', base, 'HEAD') == ['foreign.txt', 'owned.txt']
+
+
+def test_frozen_base_rejects_missing_or_invalid_registry(tmp_path):
+    import json
+    folder = tmp_path / 'docs/agents/integration'; folder.mkdir(parents=True)
+    path = folder / 'campaign-base.json'
+    path.write_text(json.dumps({'campaign_base': 'c' * 40}))
+    assert campaign.frozen_base(tmp_path) == 'c' * 40
+    path.write_text(json.dumps({'campaign_base': 'HEAD'}))
+    with pytest.raises(ValueError):
+        campaign.frozen_base(tmp_path)

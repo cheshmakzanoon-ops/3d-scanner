@@ -19,6 +19,17 @@ def git(root: Path, *args: str) -> str:
     return subprocess.check_output(['git', '-C', str(root), *args], text=True).strip()
 
 
+def frozen_base(root: Path) -> str:
+    path = root / 'docs/agents/integration/campaign-base.json'
+    if path.is_file():
+        base = json.loads(path.read_text()).get('campaign_base')
+    else:
+        base = git(root, 'log', '--diff-filter=A', '-1', '--format=%H', 'origin/main', '--', PLAN)
+    if not isinstance(base, str) or not re.fullmatch('[0-9a-f]{40}', base):
+        raise ValueError('Cannot establish the frozen campaign base')
+    return base
+
+
 def roster(text: str) -> list[dict]:
     sections = re.split(r'^## Agent (\d{3})\s*$', text, flags=re.M)
     if len(sections) != 201:
@@ -110,6 +121,10 @@ def ownership(root: Path, rows: list[dict], agent: str, base: str, revision: str
         a, sha = delivery.get('agent'), delivery.get('source_sha')
         source_row = next((r for r in rows if r['agent'] == a and a != '100'), None)
         if source_row is None or not isinstance(sha, str) or not re.fullmatch('[0-9a-f]{40}', sha):
+            continue
+        # Matching an arbitrary ancestor blob is insufficient: its supplying commit
+        # must itself respect that source owner's exclusive scope.
+        if ownership(root, rows, a, base, sha):
             continue
         if subprocess.run(['git', '-C', str(root), 'merge-base', '--is-ancestor', sha, revision],
                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode:
@@ -240,6 +255,8 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     try:
         rows = roster((args.root / PLAN).read_text())
+        if args.command != 'plan' and args.base != frozen_base(args.root):
+            raise ValueError('Comparison base differs from the frozen campaign base')
         if args.command == 'plan':
             print(json.dumps({'schema': 1, 'agents': rows}, indent=2))
         elif args.command == 'ownership':

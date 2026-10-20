@@ -7,7 +7,7 @@ import shlex
 import subprocess
 import sys
 
-from campaign import ROOT, git, ownership, roster
+from campaign import ROOT, frozen_base, git, ownership, roster
 
 
 def main():
@@ -18,12 +18,16 @@ def main():
     p.add_argument('--check', action='append', default=[], help='Quoted command, parsed into argv without a shell')
     a = p.parse_args()
     rows = roster((ROOT / 'PRODUCTION_100_AGENT_EXECUTION_PLAN.md').read_text())
+    if a.base != frozen_base(ROOT):
+        p.error('Base must equal the frozen campaign base, not an arbitrary comparison commit')
     agent = a.agent.zfill(3)
     if agent == '100' or not any(r['agent'] == agent for r in rows):
         p.error('Select the supplying semantic owner, not100')
     sha = git(ROOT, 'rev-parse', '--verify', a.source_sha + '^{commit}')
     if sha != a.source_sha:
         p.error('Use the full immutable commit SHA')
+    if subprocess.run(['git', 'merge-base', '--is-ancestor', a.base, sha], cwd=ROOT).returncode:
+        p.error('Delivery does not descend from the recorded campaign base')
     if git(ROOT, 'branch', '--show-current') != 'agents/100-integration-lead':
         p.error('Run only in the isolated integration branch')
     if git(ROOT, 'diff', '--name-only') or git(ROOT, 'diff', '--cached', '--name-only'):
