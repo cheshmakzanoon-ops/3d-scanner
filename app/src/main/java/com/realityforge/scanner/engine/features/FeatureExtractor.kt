@@ -25,10 +25,28 @@ data class ExtractorSettings(val maxFeatures: Int=3500,val analysisEdge: Int=160
 /** Exactly the baseline SIFT settings; one admitted decoded image per extractor.
  * Cancellation before/after noninterruptible detectAndCompute never publishes a frame.
  */
+enum class NativeFeatureCallEvent { STARTED, FINISHED }
+
 class FeatureExtractor(val settings: ExtractorSettings=ExtractorSettings()) {
     @Synchronized fun extract(
         photoId:String,contentSha256:String,file:File,decoderIdentity:String,
         projection:(Int,Int)->LensProjection,cancelled:()->Boolean={false},
+    ): FeatureFrame = extractInternal(photoId,contentSha256,file,decoderIdentity,projection,cancelled,null)
+
+    /** Observability only: callbacks bracket the actual noninterruptible OpenCV kernel.
+     * Cancellation requested inside this interval is observed after return and resource cleanup.
+     * Existing extract() argument/trailing-lambda semantics remain unchanged.
+     */
+    @Synchronized fun extractObserved(
+        photoId:String,contentSha256:String,file:File,decoderIdentity:String,
+        projection:(Int,Int)->LensProjection,cancelled:()->Boolean,
+        observe:(NativeFeatureCallEvent)->Unit,
+    ): FeatureFrame = extractInternal(photoId,contentSha256,file,decoderIdentity,projection,cancelled,observe)
+
+    private fun extractInternal(
+        photoId:String,contentSha256:String,file:File,decoderIdentity:String,
+        projection:(Int,Int)->LensProjection,cancelled:()->Boolean,
+        observe:((NativeFeatureCallEvent)->Unit)?,
     ): FeatureFrame {
         fun checkCancelled(){if(cancelled())throw CancellationException("Feature extraction cancelled")}
         require(photoId.isNotBlank() && contentSha256.matches(Regex("[a-f0-9]{64}")))
@@ -54,7 +72,9 @@ class FeatureExtractor(val settings: ExtractorSettings=ExtractorSettings()) {
             // Explicitly release color conversion before the expensive descriptor kernel.
             rgba.release()
             sift=SIFT.create(settings.maxFeatures)
-            sift.detectAndCompute(gray,mask,keys,desc)
+            observe?.invoke(NativeFeatureCallEvent.STARTED)
+            try { sift.detectAndCompute(gray,mask,keys,desc) }
+            finally { observe?.invoke(NativeFeatureCallEvent.FINISHED) }
             checkCancelled()
             val all=keys.toArray(); val count=minOf(all.size,settings.maxFeatures)
             val xy=FloatArray(count*2); val colors=IntArray(count)
