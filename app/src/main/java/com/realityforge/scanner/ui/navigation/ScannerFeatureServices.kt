@@ -19,4 +19,5 @@ data class ScannerFeatureServices(
     val reconstructSelection:((ReviewAction.Command,ReconstructionSelectionLease)->Unit)?=null,
     val jobStates:((projectId:String,revision:Long)->Flow<JobUiState?>)?=null,
     val jobAction:(suspend(JobAction)->Boolean)?=null,
+    val canonicalExport:CanonicalExportServices?=null,
 )
