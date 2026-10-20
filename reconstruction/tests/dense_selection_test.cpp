@@ -96,5 +96,20 @@ int main(){
         require(r.medianLogErrorAfter<r.medianLogErrorBefore,"Exposure regression");
         rejects([&]{rf::balanceExposure(9,input);});
     });
+    test("verified-track selection is permutation invariant and rejects disconnected scenes",[]{
+        std::vector<rf::detail::DenseCameraEvidence> evidence;
+        for(int c=0;c<12;++c){rf::detail::DenseCameraEvidence e;e.photoId="photo-"+std::to_string(c);e.centre={c*.1,0,0};e.sharpness=.7;
+            for(std::size_t t=0;t<40;++t){e.verifiedTracks.push_back(t+(c/4)*20);}
+            evidence.push_back(e);}
+        const auto a=rf::detail::selectDenseEvidence(evidence,8,3);
+        std::reverse(evidence.begin(),evidence.end());const auto b=rf::detail::selectDenseEvidence(evidence,8,3);
+        require(a.references==b.references&&a.sources==b.sources,"Permutation changed stable selection");
+        require(a.references.size()==8&&a.uniqueSparseTracks==80,"Set cover lost observed tracks");
+        for(const auto& sources:a.sources)require(sources.size()<=3&&!sources.empty(),"Source cap violated");
+        evidence[0].photoId="unconnected";evidence[0].verifiedTracks={1000,1001};
+        const auto c=rf::detail::selectDenseEvidence(evidence);bool excluded=false;
+        for(const auto& x:c.excluded)if(x.first=="unconnected")excluded=x.second=="insufficient_verified_overlap_or_baseline";
+        require(excluded,"Disconnected camera not diagnosed");
+    });
     std::cout<<count<<" bounded multi-camera cases passed\n";
 }
