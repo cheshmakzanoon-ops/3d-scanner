@@ -19,7 +19,7 @@ def test_binary_stl_independent_import_and_rejections(tmp_path):
         "g++", "-std=c++20", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-O2",
         "-I" + str(ROOT / "reconstruction/include"), "-I" + str(canonical / "reconstruction/include"),
         str(ROOT / "reconstruction/src/stl_export.cpp"), str(canonical / "reconstruction/src/asset_model.cpp"),
-        str(ROOT / "reconstruction/tests/agent_063_stl_test.cpp"), "-o", str(executable),
+        str(ROOT / "reconstruction/tests/agent_063_stl_test.cpp"), "-lz", "-o", str(executable),
     ], check=True)
     output = tmp_path / "asymmetric.stl"
     subprocess.run([str(executable), str(output)], check=True)
