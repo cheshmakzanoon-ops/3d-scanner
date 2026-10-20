@@ -62,6 +62,8 @@ def main():
         parser.error('timeout must be 1..3600 seconds per command')
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
+    if (output / 'evidence.json').exists():
+        parser.error('Use a fresh output directory; existing receipts must remain immutable')
     evidence = dict(schema='realityforge.native-regression.v1', started_utc=datetime.now(timezone.utc).isoformat(),
                     source_sha=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                     dirty_tree=bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)),
@@ -86,7 +88,9 @@ def main():
         env.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
                    ASAN_OPTIONS='halt_on_error=1:detect_leaks=1', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
                    PYTHONMALLOC='malloc')
+        record['resource_limits'] = dict(command_timeout_seconds=args.timeout, log_bytes=32 * 1024**2, compile_jobs=1, numeric_seed_count=5)
         sanitize = name.endswith('sanitize')
+        record['sanitizer_options'] = dict(ASAN_OPTIONS=env['ASAN_OPTIONS'], UBSAN_OPTIONS=env['UBSAN_OPTIONS']) if sanitize else None
         steps = [('configure', ['cmake', '-S', ROOT, '-B', build, '-G', 'Ninja',
                   '-DCMAKE_BUILD_TYPE=' + ('Debug' if sanitize else 'Release'),
                   '-DCMAKE_CXX_COMPILER=' + compiler, '-DCMAKE_CXX_FLAGS=-Werror',
@@ -108,7 +112,14 @@ def main():
                 if not Path(runtime).is_file():
                     record['commands'].append(dict(result='NOT_RUN', reason='Host ASan runtime missing: ' + runtime))
                 else:
-                    env['LD_PRELOAD'] = runtime
+                    # CPython does not link libstdc++ at startup. Load it with
+                    # ASan so its __cxa_throw interceptor resolves before ctypes
+                    # introduces the first C++ library. This changes no checks.
+                    standard_cxx = subprocess.check_output([compiler, '-print-file-name=libstdc++.so'], text=True).strip()
+                    if not Path(standard_cxx).is_file():
+                        raise RuntimeError('Host C++ runtime missing: ' + standard_cxx)
+                    env['LD_PRELOAD'] = runtime + ':' + standard_cxx
+                    record['python_preloads'] = [dict(path=p, sha256=sha(p)) for p in (runtime, standard_cxx)]
             python_steps = [('numerical', [sys.executable, ROOT / 'tools/qa/native_regression/numerical.py', '--output', folder / 'numerical.json']),
                             ('pytest', [sys.executable, '-m', 'pytest', 'tests', '-q', '--junitxml=' + str(folder / 'pytest.xml')]),
                             ('bundle-three-view', [sys.executable, 'tools/bundle_three_view.py'])]

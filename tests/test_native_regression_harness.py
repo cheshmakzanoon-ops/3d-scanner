@@ -17,7 +17,7 @@ def scene():
 
 
 def test_failing_subprocess_preserves_exit_and_diagnostics(tmp_path):
-    result = command([sys.executable, '-c', "import sys; print('repro-seed=81'); sys.exit(17)"], tmp_path, tmp_path, 'failure')
+    result = command([sys.executable, '-c', "import os; os.write(1, b'repro-seed=81\\n'); os._exit(17)"], tmp_path, tmp_path, 'failure')
     assert result['exit_code'] == 17 and result['result'] == 'FAIL'
     assert 'repro-seed=81' in Path(result['log']).read_text()
     assert len(result['log_sha256']) == 64

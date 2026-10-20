@@ -22,8 +22,11 @@ limit and one native build job; BLAS/OpenMP threads are limited to one. Timeouts
 kill the entire process group. ASan shadow memory prevents meaningful virtual
 address limits; CTest and process deadlines bound this trusted regression suite.
 ASan/UBSan halt on errors, and leak detection stays enabled. Sanitized Python uses
-its host ASan runtime preload and PYTHONMALLOC=malloc; CTest remains independent.
-No leak suppressions or sanitizer retry-to-pass policy is installed.
+its host ASan and libstdc++ runtime preloads and PYTHONMALLOC=malloc; CTest remains independent.
+No leak suppressions or sanitizer retry-to-pass policy is installed. CPython/NumPy
+process-exit leak reports remain failures and require a separately retained minimal
+third-party reproduction; the runner never turns them into passing receipts.
+Use a fresh evidence directory for each invocation; old receipts are immutable.
 
 `evidence.json` uses `realityforge.native-regression.v1`: source SHA and dirty flag,
 UTC time, compiler version/executable hash, binary hashes, exact argv/cwd,
