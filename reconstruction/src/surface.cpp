@@ -95,7 +95,8 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
        s.minimumConfidence<0||s.minimumConfidence>1||
        !std::isfinite(s.maximumRelativeDepthJump)||s.maximumRelativeDepthJump<=0||s.maximumRelativeDepthJump>.25||
        !std::isfinite(s.maximumEdgePixelFactor)||s.maximumEdgePixelFactor<1.0||s.maximumEdgePixelFactor>8||
-       s.maxVertices<10||s.maxVertices>40000||s.maxTriangles<10||s.maxTriangles>80000)
+       s.maxVertices<10||s.maxVertices>40000||s.maxTriangles<10||s.maxTriangles>80000||
+       s.maxVoxelOccupancy<1||s.maxVoxelOccupancy>512||s.maxFusionCandidates<1||s.maxFusionCandidates>4096)
         throw Error("Invalid surface settings or camera counts");
     const auto width=views.front().width,height=views.front().height;
     if(width<32||height<32||width>640||height>640||static_cast<std::size_t>(width)*height>320000)throw Error("Unsupported surface dimensions");
@@ -120,6 +121,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     SurfaceMesh mesh;mesh.inputSamples=dense.verifiedSamples.size();
     if(dense.verifiedSamples.empty())return mesh;
     std::vector<float> sampleSpacings;sampleSpacings.reserve(dense.verifiedSamples.size());
+    std::unordered_set<std::size_t> sourcePixels;
     for(auto& p:dense.verifiedSamples){
         if(p.camera>=views.size())throw Error("Invalid dense sample camera index");
         const auto& v=views[p.camera];const auto c=cameraPoint(v,p.xyz);
@@ -127,6 +129,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
            p.confidence<0||p.confidence>1)throw Error("Invalid verified sample geometry");
         if(p.x>=width||p.y>=height||p.supportingViews<2||p.supportingViews>views.size())throw Error("Unverified surface sample");
         const auto pixel=static_cast<std::size_t>(p.y)*width+p.x;
+        if(!sourcePixels.insert(static_cast<std::size_t>(p.camera)*pixels+pixel).second)throw Error("Repeated source pixel identity in surface observations");
         const double z=dense.maps[p.camera].depth[pixel];
         if(z<=0||std::abs(c.z-z)/z>.001||std::abs(v.fx*c.x/c.z+v.cx-p.x)>.25||std::abs(v.fy*c.y/c.z+v.cy-p.y)>.25)throw Error("Verified sample does not match source pixel/depth");
         sampleSpacings.push_back(static_cast<float>(c.z*s.pixelStride/std::min(v.fx,v.fy)));
@@ -154,11 +157,12 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         const std::size_t pixel=static_cast<std::size_t>(sample.y)*width+sample.x;
         if(imageVertices[sample.camera][pixel]>=0)continue;
         const auto key=voxel(sample.xyz,cellSize);
-        std::int64_t best=-1;double minDist=fusionRadius;
+        std::int64_t best=-1;double minDist=fusionRadius;std::size_t candidateVisits=0;
         for(int dz=-1;dz<=1;++dz)for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
             auto it=buckets.find({key.x+dx,key.y+dy,key.z+dz});
             if(it==buckets.end())continue;
             for(auto index:it->second){
+                if(++candidateVisits>s.maxFusionCandidates)throw Error("Surface fusion spatial candidate budget exceeded");
                 const auto& a=accum[index];
                 if(a.viewMask & (1u<<sample.camera))continue;
                 if(!normalSupported||!a.supportedNormal||!surface_fusion::compatibleNormal(a.weightedNormal,observedNormal.direction))continue;
@@ -184,6 +188,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         } else {
             if(accum.size()>=s.maxVertices)continue;
             assigned=static_cast<std::uint32_t>(accum.size());
+            if(buckets[key].size()>=s.maxVoxelOccupancy)throw Error("Surface voxel occupancy budget exceeded");
             Accum a;a.weightedPosition=mul(sample.xyz,w);a.weight=w;
             a.supportedNormal=normalSupported;if(normalSupported)a.weightedNormal=mul(observedNormal.direction,w);
             for(int k=0;k<3;++k)a.weightedColor[k]=w*sample.color[k];

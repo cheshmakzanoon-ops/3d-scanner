@@ -17,6 +17,7 @@ struct SurfaceSettings {
     std::size_t maxVertices = 40000;
     std::size_t maxTriangles = 80000;
     int pixelStride = 3;
+    std::size_t maxVoxelOccupancy = 64, maxFusionCandidates = 512;
 };
 struct SurfaceVertex {
     Vec3 xyz{};

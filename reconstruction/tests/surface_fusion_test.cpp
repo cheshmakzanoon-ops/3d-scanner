@@ -23,6 +23,7 @@ std::pair<std::vector<rf::DenseView>,rf::DenseResult> plane(bool opposite){
 int main(){
     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
     auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");
+    auto duplicate=dense;duplicate.verifiedSamples.push_back(duplicate.verifiedSamples.front());bool duplicateRejected=false;try{(void)rf::fuseDepthSurfaces(views,duplicate);}catch(const rf::Error&){duplicateRejected=true;}check(duplicateRejected,"duplicate source identity accepted");
     auto reversed=dense;std::reverse(reversed.verifiedSamples.begin(),reversed.verifiedSamples.end());const auto reordered=rf::fuseDepthSurfaces(views,reversed);check(rf::surfaceJson(mesh)==rf::surfaceJson(reordered),"sample order changed fused geometry");
     auto [thinViews,thinDense]=plane(true);const auto thin=rf::fuseDepthSurfaces(thinViews,thinDense);check(thin.fusedObservations==0,"opposite thin sides were merged");check(thin.triangles.size()>100,"thin observations disappeared");
     bool malformed=false;thinViews[0].pose.rotation[0]=2;try{(void)rf::fuseDepthSurfaces(thinViews,thinDense);}catch(const rf::Error&){malformed=true;}check(malformed,"improper source pose accepted");
