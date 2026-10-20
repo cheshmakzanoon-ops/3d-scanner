@@ -62,6 +62,139 @@ class RecoveryStageContractTest {
         } finally { instrumentation.uiAutomation.dropShellPermissionIdentity(); repository.delete(id) }
     }
 
+    /** Shared provider contract only:026 still owns real DestinationTransferService outcome assertions. */
+    @Test fun configuredDestinationBytesFaultsAndCleanupAreObservable() {
+        val resolver = instrumentation.targetContext.contentResolver
+        val authority = Uri.parse("content://${FaultDocumentProvider.AUTHORITY}")
+        val requests = mutableListOf<String>()
+        fun configure(mode: String = "normal", verification: String = "readback", limit: Int = FaultDocumentProvider.MAX_BYTES,
+                      deleteFails: Boolean = false, preExisting: Boolean = false, created: Boolean = true): Pair<String, Uri> {
+            val id = java.util.UUID.randomUUID().toString().replace("-", "")
+            val config = JSONObject().put("schema", 1).put("synthetic", true).put("requestId", id)
+                .put("mode", mode).put("verification", verification).put("limitBytes", limit)
+                .put("deleteFails", deleteFails).put("preExisting", preExisting).put("created", created)
+            val result = requireNotNull(resolver.call(authority, "qa.configure", null, android.os.Bundle().apply { putString("config", config.toString()) }))
+            requests += id
+            return id to DocumentsContract.buildDocumentUri(FaultDocumentProvider.AUTHORITY, requireNotNull(result.getString("documentId")))
+        }
+        fun snapshot(id: String) = JSONObject(requireNotNull(resolver.call(authority, "qa.snapshot", id, null)?.getString("json")))
+        fun write(uri: Uri, bytes: ByteArray) { requireNotNull(resolver.openOutputStream(uri, "wt")).use { it.write(bytes) } }
+        fun read(uri: Uri) = requireNotNull(resolver.openInputStream(uri)).use { it.readBytes() }
+        fun size(uri: Uri): Long? = requireNotNull(resolver.query(uri, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)).use {
+            check(it.moveToFirst()); if (it.isNull(0)) null else it.getLong(0)
+        }
+        val bytes = ByteArray(256) { ((it * 17) and 255).toByte() }
+        instrumentation.uiAutomation.adoptShellPermissionIdentity("android.permission.MANAGE_DOCUMENTS")
+        try {
+            val (normal, normalUri) = configure()
+            write(normalUri, bytes)
+            assertArrayEquals(bytes, read(normalUri)); assertEquals(bytes.size.toLong(), size(normalUri))
+            val stored = snapshot(normal)
+            assertEquals(256, stored.getInt("storedBytes")); assertEquals(0, stored.getInt("deleteCalls"))
+            assertTrue(stored.getJSONArray("events").toString().contains("openRead"))
+            // A second call/client reopens durable state and exact retained bytes, without reconfiguration.
+            assertEquals(stored.getString("storedSha256"), snapshot(normal).getString("storedSha256"))
+
+            val (truncated, truncatedUri) = configure("silent-truncate", limit = 17)
+            write(truncatedUri, bytes) // Deliberately succeeds at write/close while retaining fewer bytes.
+            assertArrayEquals(bytes.copyOf(17), read(truncatedUri))
+            assertEquals(256, snapshot(truncated).getInt("acceptedBytes")); assertEquals(17, snapshot(truncated).getInt("storedBytes"))
+            assertTrue(DocumentsContract.deleteDocument(resolver, truncatedUri))
+            assertEquals(1, snapshot(truncated).getInt("deleteCalls")); assertTrue(snapshot(truncated).getBoolean("deleted"))
+
+            for (mode in listOf("enospc", "edquot")) {
+                val (id, uri) = configure(mode, limit = 33)
+                val failure = runCatching { write(uri, bytes) }.exceptionOrNull()
+                assertNotNull("Configured quota was accepted", failure)
+                val errno = if (mode == "enospc") android.system.OsConstants.ENOSPC else android.system.OsConstants.EDQUOT
+                assertTrue(generateSequence(requireNotNull(failure)) { it.cause }.any { it is android.system.ErrnoException && it.errno == errno })
+                assertEquals(33, snapshot(id).getInt("storedBytes"))
+                assertArrayEquals(bytes.copyOf(33), read(uri))
+            }
+            for (verification in listOf("size-only", "none")) {
+                val (_, uri) = configure(verification = verification)
+                write(uri, bytes)
+                assertEquals(if (verification == "size-only") 256L else null, size(uri))
+                assertTrue(runCatching { read(uri) }.exceptionOrNull() is java.io.FileNotFoundException)
+            }
+            val (undeletable, undeletableUri) = configure(deleteFails = true)
+            write(undeletableUri, bytes)
+            assertTrue(runCatching { DocumentsContract.deleteDocument(resolver, undeletableUri) }.isFailure)
+            assertArrayEquals(bytes, read(undeletableUri)); assertEquals(1, snapshot(undeletable).getInt("deleteCalls"))
+            assertFalse(snapshot(undeletable).getBoolean("deleted"))
+            val (existing, existingUri) = configure(preExisting = true)
+            write(existingUri, bytes)
+            assertEquals(0, snapshot(existing).getInt("deleteCalls")) // Actual026 ownership policy is a separate consumer test.
+            assertArrayEquals(bytes, read(existingUri))
+            val (created, _) = configure(created = false)
+            val parent = DocumentsContract.buildDocumentUri(FaultDocumentProvider.AUTHORITY, "request-root/$created")
+            val createdUri = requireNotNull(DocumentsContract.createDocument(resolver, parent, "application/octet-stream", "synthetic.bin"))
+            write(createdUri, bytes); assertArrayEquals(bytes, read(createdUri))
+        } finally {
+            // Release callbacks can finish asynchronously after close; never clear active descriptors.
+            try {
+                val failed = mutableListOf<String>()
+                for (id in requests) {
+                    var removed = false
+                    repeat(40) {
+                        if (!removed) removed = runCatching { resolver.call(authority, "qa.reset", id, null)?.getBoolean("removed") == true }.getOrDefault(false)
+                        if (!removed) Thread.sleep(25)
+                    }
+                    if (!removed) failed += id
+                }
+                assertTrue("Synthetic request cleanup failed: $failed", failed.isEmpty())
+            } finally { instrumentation.uiAutomation.dropShellPermissionIdentity() }
+        }
+    }
+
+    @Test fun configuredPermissionFaultsAreDistinctFromMissingAndBounded() {
+        val resolver = instrumentation.targetContext.contentResolver
+        val authority = Uri.parse("content://${FaultDocumentProvider.AUTHORITY}")
+        val ids = mutableListOf<String>()
+        fun configure(mode: String): Pair<String, Uri> {
+            val id = java.util.UUID.randomUUID().toString().replace("-", "")
+            val config = JSONObject().put("schema", 1).put("synthetic", true).put("requestId", id).put("mode", mode)
+            requireNotNull(resolver.call(authority, "qa.configure", null, android.os.Bundle().apply { putString("config", config.toString()) }))
+            ids += id
+            return id to DocumentsContract.buildDocumentUri(FaultDocumentProvider.AUTHORITY, "request/$id")
+        }
+        instrumentation.uiAutomation.adoptShellPermissionIdentity("android.permission.MANAGE_DOCUMENTS")
+        try {
+            val (_, denied) = configure("revoked")
+            assertTrue(runCatching { resolver.openOutputStream(denied, "wt") }.exceptionOrNull() is SecurityException)
+            val (_, missing) = configure("missing")
+            assertTrue(runCatching { resolver.openOutputStream(missing, "wt") }.exceptionOrNull() is java.io.FileNotFoundException)
+            assertTrue(runCatching { resolver.query(missing, null, null, null, null) }.exceptionOrNull() is java.io.FileNotFoundException)
+            val (id, readbackDenied) = configure("revoke-readback")
+            requireNotNull(resolver.openOutputStream(readbackDenied, "wt")).use { it.write(byteArrayOf(1, 2, 3)) }
+            assertTrue(runCatching { resolver.openInputStream(readbackDenied) }.exceptionOrNull() is SecurityException)
+            val state = JSONObject(requireNotNull(resolver.call(authority, "qa.snapshot", id, null)?.getString("json")))
+            assertEquals(3, state.getInt("storedBytes")); assertTrue(state.getJSONArray("events").toString().contains("openPermissionDenied"))
+            val (_, revocable) = configure("normal")
+            val request = DocumentsContract.getDocumentId(revocable).removePrefix("request/")
+            resolver.call(authority, "qa.revoke", request, null)
+            assertTrue(runCatching { resolver.openOutputStream(revocable, "wt") }.exceptionOrNull() is SecurityException)
+            val oversized = JSONObject().put("schema", 1).put("synthetic", true).put("requestId", "bad_limit")
+                .put("limitBytes", FaultDocumentProvider.MAX_BYTES + 1)
+            assertTrue(runCatching { resolver.call(authority, "qa.configure", null, android.os.Bundle().apply { putString("config", oversized.toString()) }) }.isFailure)
+            val unsafe = JSONObject().put("schema", 1).put("synthetic", true).put("requestId", "../unsafe")
+            assertTrue(runCatching { resolver.call(authority, "qa.configure", null, android.os.Bundle().apply { putString("config", unsafe.toString()) }) }.isFailure)
+        } finally {
+            try {
+                val failed = mutableListOf<String>()
+                for (id in ids) {
+                    var removed = false
+                    repeat(40) {
+                        if (!removed) removed = runCatching { resolver.call(authority, "qa.reset", id, null)?.getBoolean("removed") == true }.getOrDefault(false)
+                        if (!removed) Thread.sleep(25)
+                    }
+                    if (!removed) failed += id
+                }
+                assertTrue("Synthetic request cleanup failed: $failed", failed.isEmpty())
+            } finally { instrumentation.uiAutomation.dropShellPermissionIdentity() }
+        }
+    }
+
     /** External controller alone enables this multi-invocation contract. No in-process kill simulation. */
     @Test fun externalProcessBoundary() = runBlocking {
         val args = InstrumentationRegistry.getArguments()
