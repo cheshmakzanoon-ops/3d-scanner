@@ -5,12 +5,21 @@
     "app/build.gradle.kts": "ed3649d365213d19f872a459e23cbb26c92d22a48317d97a2772eb74df3cfaee",
     "build.gradle.kts": "dd74fbdff2f6186f7ad526f54a07aeea8f010e6a9dc7d887948378393cf2e879",
     "settings.gradle.kts": "62c711aefc8c3b5f3acf66d70bf2279e964222c1536e2db755a3255ffe78795c",
-    "gradle/verification-metadata.xml": "794b55053d55ff16152c2fdab694282f1dde240a06ef568ec5d70f3297b413d3",
-    "gradle/dependency-locks/app.lockfile": "3b5ecf95accb960d78c578a96929b0b43b6159596470109cc4768317ae543655",
+    "gradle/verification-metadata.xml": "989946291acb27b7d6a191b1ea5880272213b4866a0613726e5ff5732ef01652",
+    "gradle/dependency-locks/app.lockfile": "b27b4b02a696d5ca23c411f8c09fa346a6d6ff5357368b914954ee172833e297",
     "tools/requirements.lock": "7e906b6903ec44e1ae1c77eb534f6d101ab70e161b06d4ff497f16aa0e2e8c6f"
   },
   "runtimeModules": 123,
   "distinctResolvedModules": 155,
   "nativeRedistributables": 10,
-  "noticeFiles": 92
+  "noticeFiles": 92,
+  "qaValidation": {
+    "scientificAndTrimeshPackages": 15,
+    "securityPackages": 31,
+    "nodeVersion": "24.19.0",
+    "khronosVersion": "2.0.0-dev.3.10",
+    "blenderVersion": "4.3.2",
+    "functionalTestsPassed": 25,
+    "installationReceiptSha256": "047cfd4a41f8f374c00cc4265b698d80ebd8543b80b5b93f833a245f1567ce79"
+  }
 }

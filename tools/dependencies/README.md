@@ -32,3 +32,43 @@ Host setup is CPython3.12 Linuxx86_64. Use `pip install --require-hashes -r
 tools/requirements.lock`; the 14-wheel resolution was installed from an empty venv
 and `pip check` plus dependency gate regressions exercised there. This platform lock
 must be regenerated and reviewed for another Python/platform, never silently relaxed.
+
+## Full host QA used by093 CI
+
+```
+python tools/dependencies/install_qa.py --root "$RUNNER_TEMP/rf-qa" --github-env "$GITHUB_ENV" --github-path "$GITHUB_PATH"
+```
+
+The root must be outside the checkout. Following CI steps receive an isolated Python
+with all15 pinned/hashed scientific+pytest+Trimesh packages, verified Node24.19.0,
+Blender4.3.2 on PATH, RF_GLTF_VALIDATOR (exact Khronos2.0.0-dev.3.10), and
+RF_SECURITY_PYTHON/SCANNER_PYTHON pointing to a separate31-package hashed scanner venv.
+`ROOT/installation.json` records actual versions, tool/archive hashes and lock hashes;
+`ROOT/activate.sh` supports local shells. No source file, original base pin, app runtime
+classpath or system Python is changed. Optional --qa-wheelhouse and
+--security-wheelhouse enable fully hash-verified offline Python installation.
+
+Node's committed archive SHA256 comes from its official SHASUMS manifest; Khronos's
+exact archive SHA512 comes from the resolved npm integrity record. Blender reuses an
+already-installed exact4.3.2 executable and records its binary hash, or downloads the
+official portable4.3.2 archive and verifies its exact filename entry against Blender's
+authoritative release SHA256 manifest before extraction. --require-portable-blender
+forces that path. Tar extraction uses Python's safe data filter and cached corrupted
+artifacts fail closed. There is no verification bypass.
+
+An empty fresh setup of both Python environments plus verified Node/Khronos and the
+existing system Blender4.3.2 passed the real090 interoperability and096 scanner suites:
+**25 tests passed in8.08s**. The cloud proxy denies download.blender.org, so the fresh
+portable Blender download branch could not run here; current functional evidence uses
+the recorded installed system binary, not an invented portable archive hash. CI needs
+HTTPS access to download.blender.org, nodejs.org, registry.npmjs.org, pypi.org and
+files.pythonhosted.org. Publisher-checksum matching, corruption rejection and archive
+escape rejection have independent regression tests.
+
+Benchmark-only46-module dependency evidence lives in evidence/benchmark. Test compile/
+runtime graphs live in evidence/tests. They are distinct from shipped123-module app
+inventory. The generated macrobenchmark.lockfile and complete app.lockfile are copied
+by004 to their matching module paths; verification metadata includes these actual QA
+artifacts. ErrorProne2.26.1 is compile-only test metadata; real CLASS-retention annotation
+classes resolve testR8 without shipping JDK compiler model types. Official bundletool
+1.18.2 is an external Apache2.0 QA tool with pinned hash and preserved license text.

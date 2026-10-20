@@ -3,24 +3,30 @@ import groovy.json.JsonOutput
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 allprojects { project ->
     project.configurations.configureEach { configuration ->
-        if (configuration.name in ['releaseRuntimeClasspath','releaseCompileClasspath','kspReleaseKotlinProcessorClasspath']) {
+        if (configuration.name in ['releaseRuntimeClasspath','releaseCompileClasspath','kspReleaseKotlinProcessorClasspath','releaseAndroidTestRuntimeClasspath','releaseAndroidTestCompileClasspath','releaseUnitTestRuntimeClasspath','releaseUnitTestCompileClasspath','benchmarkRuntimeClasspath','benchmarkCompileClasspath']) {
             configuration.resolutionStrategy.activateDependencyLocking()
         }
     }
     project.afterEvaluate {
-        if (project.path == ':app') {
+        if (project.path in [':app', ':macrobenchmark']) {
             project.tasks.register('exportDependencyInventory') {
                 doLast {
                     def inventory = []
-                    ['releaseRuntimeClasspath','releaseCompileClasspath','kspReleaseKotlinProcessorClasspath'].each { name ->
+                    def names = project.path != ':app' ? ['benchmarkRuntimeClasspath','benchmarkCompileClasspath'] :
+                        (project.findProperty('rfInventoryScope') == 'tests' ?
+                         ['releaseAndroidTestRuntimeClasspath','releaseAndroidTestCompileClasspath','releaseUnitTestRuntimeClasspath','releaseUnitTestCompileClasspath'] :
+                         ['releaseRuntimeClasspath','releaseCompileClasspath','kspReleaseKotlinProcessorClasspath'])
+                    names.each { name ->
                         def configuration=project.configurations.findByName(name)
                         if (configuration != null && configuration.canBeResolved) {
                             def modules=configuration.incoming.resolutionResult.allComponents.collect { c ->
                                 c.id instanceof ModuleComponentIdentifier ? c.id.group+':'+c.id.module+':'+c.id.version : null
                             }.findAll { it != null }.sort()
-                            def artifacts=configuration.resolvedConfiguration.resolvedArtifacts.collect { artifact ->
-                                def id=artifact.moduleVersion.id
-                                [coordinate: id.group+':'+id.name+':'+id.version, name:artifact.file.name,
+                            def artifacts=configuration.incoming.artifactView { view ->
+                                view.componentFilter { id -> id instanceof ModuleComponentIdentifier }
+                            }.artifacts.artifacts.collect { artifact ->
+                                def id=artifact.id.componentIdentifier
+                                [coordinate: id.group+':'+id.module+':'+id.version, name:artifact.file.name,
                                  path:artifact.file.absolutePath, sha256:java.security.MessageDigest.getInstance('SHA-256').digest(artifact.file.bytes).encodeHex().toString()]
                             }.sort { a,b -> a.coordinate <=> b.coordinate ?: a.name <=> b.name }
                             inventory << [configuration:name,modules:modules,artifacts:artifacts]
