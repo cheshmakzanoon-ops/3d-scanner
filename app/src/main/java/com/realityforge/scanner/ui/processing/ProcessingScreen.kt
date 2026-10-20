@@ -20,6 +20,7 @@ fun ProcessingScreen(state: JobUiState, onAction: suspend (JobAction)->Boolean, 
     val gate = remember(state.identity) { JobActionGate() }
     var actionPending by remember(state.identity) { mutableStateOf(false) }
     var actionRejected by remember(state.identity) { mutableStateOf(false) }
+    val latestState by rememberUpdatedState(state)
     val dispatch by rememberUpdatedState(onAction)
     val scope = rememberCoroutineScope()
     Column(modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement=Arrangement.spacedBy(12.dp)) {
@@ -42,7 +43,7 @@ fun ProcessingScreen(state: JobUiState, onAction: suspend (JobAction)->Boolean, 
             OutlinedButton(enabled=!actionPending,onClick={
                 val action=JobAction(state.identity,command)
                 // Admit on the UI thread before launching: two rapid clicks cannot both dispatch.
-                if(gate.admit(state,action)) {
+                if(gate.admit(latestState,action)) {
                     actionPending=true; actionRejected=false
                     scope.launch {
                         var accepted=false
@@ -61,7 +62,7 @@ fun ProcessingScreen(state: JobUiState, onAction: suspend (JobAction)->Boolean, 
                 Text(stringResource(when(command) { JobCommand.PAUSE->R.string.a074_pause; JobCommand.RESUME->R.string.a074_resume; JobCommand.RETRY->R.string.a074_retry; JobCommand.CANCEL->R.string.a074_cancel; JobCommand.OPEN_PREVIOUS->R.string.a074_previous; JobCommand.NOTIFICATION_SETTINGS->R.string.a074_notifications }))
             }
         }
-        if(actionRejected) Text(stringResource(R.string.a074_failed),color=MaterialTheme.colorScheme.error)
+        if(actionRejected) Text(stringResource(R.string.a074_action_unconfirmed),color=MaterialTheme.colorScheme.error)
         Text(stringResource(R.string.a074_preserved),style=MaterialTheme.typography.bodySmall)
         if(state.technicalDetails!=null || state.settingsIdentity!=null) {
             TextButton(onClick={details=!details}) { Text(stringResource(R.string.a074_details)) }
