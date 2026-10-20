@@ -4,6 +4,7 @@
 #include "realityforge/dense_selection.hpp"
 #include "realityforge/cancellation.hpp"
 #include "realityforge/depth_tiles.hpp"
+#include "realityforge/progress.hpp"
 #include "realityforge/matching_cost.hpp"
 #include "realityforge/depth_refinement.hpp"
 #include "realityforge/depth_consistency.hpp"
@@ -168,13 +169,18 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         // Reuse only fully validated, input-identity-bound depth maps. Camera-z
         // consistency, meshing and UV projection still run afresh on every scan.
         const auto& sources=result.sourceViews[ref];
-        if(depth_checkpoint::load(ref,map)){
+        // Existing Kotlin identity predates optional refinement/aggregation.
+        // Never reuse a legacy checkpoint with altered photometric semantics.
+        const bool checkpointCompatible=settings.localRefinementIterations==0&&!settings.robustSourceAggregation;
+        if(checkpointCompatible&&depth_checkpoint::load(ref,map)){
             for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
                 ++result.sampledPixels;
                 if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;
             }
             result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(settings.referenceMode?(1+sources.size())*n*sizeof(float):0));
             result.maps.push_back(std::move(map));
+            progress::begin(progress::Stage::Depth,ref,0,tilePlan.size());
+            progress::advance(tilePlan.size());
             ++result.resumedDepthMaps;
             result.completedTiles+=tilePlan.size();
             continue;
@@ -190,11 +196,14 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         // One scratch cost vector per reference, not an allocation per pixel.
         std::vector<double> costs(settings.depthPlanes,2.);
         for(const auto& tile:tilePlan){
+         const std::size_t tileSamples=static_cast<std::size_t>((tile.x1-tile.x0+step-1)/step)*((tile.y1-tile.y0+step-1)/step);
+         progress::begin(progress::Stage::Depth,ref,result.completedTiles,tileSamples);
+         std::size_t tileWork=0;
          cancellation::checkpoint();
          for(int y=tile.y0;y<tile.y1;y+=step){
           cancellation::checkpoint();
           for(int x=tile.x0;x<tile.x1;x+=step){
-            ++result.sampledPixels;
+            ++result.sampledPixels;progress::advance(++tileWork);
             auto reference=referencePatch(image,x,y,r);
             if(reference.var<18.)continue; // no reliable photometric texture
             std::fill(costs.begin(),costs.end(),2.);
@@ -236,7 +245,8 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         // Publish the completed reference atomically before processing the next.
         // A cancelled or killed process can reuse previous references, never a
         // half-solved reference or an unverified mesh.
-        if(depth_checkpoint::store(ref,map))++result.writtenDepthMaps;
+        progress::begin(progress::Stage::Checkpoint,ref,0,1);
+        if(checkpointCompatible&&depth_checkpoint::store(ref,map)){++result.writtenDepthMaps;progress::advance(1);}
         result.maps.push_back(std::move(map));
     }
     // Reciprocal camera-z depth checks: don't infer an object surface from NCC alone.
@@ -246,9 +256,12 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     for(std::size_t ref=0;ref<views.size();++ref){
         cancellation::checkpoint();
         const auto& camera=views[ref];const auto& map=result.maps[ref];
+        progress::begin(progress::Stage::Consistency,ref,0);
+        std::size_t checkedPixels=0;
         for(int y=r+1;y<h-r-2;y+=step){
           cancellation::checkpoint();
           for(int x=r+1;x<w-r-2;x+=step){
+            progress::advance(++checkedPixels);
             std::size_t idx=static_cast<std::size_t>(y)*w+x;
             float depth=map.depth[idx];if(depth<=0)continue;
             auto world=fromDepth(camera,x,y,depth);
