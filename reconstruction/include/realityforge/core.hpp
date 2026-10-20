@@ -20,12 +20,14 @@ struct Settings {
     std::uint32_t seed = 20261009;
     std::size_t minInliers = 20;
 };
+enum class PointRepresentation { SparsePoints, DensePoints };
 struct Result {
     Mat3 rotation{};
     Vec3 translation{}; // unit baseline, NOT meters
     std::vector<Point> points;
     std::size_t inputMatches{}, epipolarInliers{};
     double medianError{}, medianParallax{};
+    PointRepresentation representation{PointRepresentation::SparsePoints};
 };
 struct Quality {
     double mean{}, standardDeviation{}, laplacianVariance{}, darkFraction{}, brightFraction{};
