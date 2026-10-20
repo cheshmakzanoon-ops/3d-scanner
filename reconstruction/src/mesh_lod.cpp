@@ -47,11 +47,13 @@ LodResult simplifySurface(const SurfaceAsset& input,const LodRecipe& recipe,std:
     g.provenance.algorithmVersion=LodReport::algorithmVersion;
     report.inputTriangles=input.indices.size()/3;report.parentAssetId=g.provenance.parentId;report.sourceSha256=g.provenance.sourceSha256;
     std::vector<Face> faces;
+    std::vector<std::uint32_t> faceSources;
     for(std::size_t i=0;i<input.indices.size();i+=3){
         if(i%3072==0)checkCancelled(cancel);
         Face f{input.indices[i],input.indices[i+1],input.indices[i+2]};
         if(f[0]==f[1]||f[1]==f[2]||f[0]==f[2]||!(length(normal(f,g.positions))>0))throw Error("LOD degenerate source face");
         faces.push_back(f);
+        faceSources.push_back(static_cast<std::uint32_t>(i/3));
     }
     std::vector<std::vector<std::uint32_t>> members(count);
     for(std::uint32_t i=0;i<count;++i)members[i].push_back(i);
@@ -170,16 +172,21 @@ LodResult simplifySurface(const SurfaceAsset& input,const LodRecipe& recipe,std:
         }
         if(!changed)throw Error("LOD target cannot be reached within boundary, seam, topology and error constraints");
         std::vector<Face> compactFaces;compactFaces.reserve(aliveCount);
-        for(std::size_t i=0;i<faces.size();++i)if(alive[i])compactFaces.push_back(faces[i]);
+        std::vector<std::uint32_t> compactSources;compactSources.reserve(aliveCount);
+        for(std::size_t i=0;i<faces.size();++i)if(alive[i]){compactFaces.push_back(faces[i]);compactSources.push_back(faceSources[i]);}
         faces.swap(compactFaces);
+        faceSources.swap(compactSources);
     }
     report.lockedVertices=std::count(locked.begin(),locked.end(),true);report.outputTriangles=faces.size();
     // Compact only vertices still referenced, preserving every surviving attribute.
     std::vector<std::uint32_t> remap(count,std::numeric_limits<std::uint32_t>::max());
     LodGeometry compact;compact.units=g.units;compact.representation=g.representation;compact.provenance=g.provenance;
-    for(auto f:faces)for(auto v:f){
+    for(std::size_t face=0;face<faces.size();++face){
+      compact.parentTriangleIndices.push_back(faceSources[face]);
+      for(auto v:faces[face]){
         if(remap[v]==std::numeric_limits<std::uint32_t>::max()){
             remap[v]=static_cast<std::uint32_t>(compact.positions.size());compact.positions.push_back(g.positions[v]);
+            compact.parentVertexIndices.push_back(v);
             if(!g.normals.empty())compact.normals.push_back(g.normals[v]);
             if(!g.colors.empty())compact.colors.push_back(g.colors[v]);
             if(!g.confidence.empty())compact.confidence.push_back(g.confidence[v]);
@@ -187,6 +194,7 @@ LodResult simplifySurface(const SurfaceAsset& input,const LodRecipe& recipe,std:
             if(!g.uv.empty())compact.uv.push_back(g.uv[v]);
         }
         compact.indices.push_back(remap[v]);
+      }
     }
     checkCancelled(cancel);g=std::move(compact);validate(g.surface(),limits,cancel);return result;
 }

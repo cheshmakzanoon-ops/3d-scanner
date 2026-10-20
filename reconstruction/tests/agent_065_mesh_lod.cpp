@@ -45,6 +45,10 @@ int main(int argc,char** argv){
     auto same=simplifySurface(f.view(),r);assert(lod.geometry.indices==same.geometry.indices);assert(f.indices==triangles);
     for(std::size_t i=0;i<originals.size();++i)assert(f.positions[i].x==originals[i].x&&f.positions[i].y==originals[i].y);
     assert(lod.geometry.provenance.parentId=="synthetic-grid");assert(lod.geometry.provenance.assetId.empty());
+    assert(lod.geometry.parentTriangleIndices.size()==24);
+    assert(lod.geometry.parentVertexIndices.size()==lod.geometry.positions.size());
+    for(std::size_t i=0;i<lod.geometry.positions.size();++i){auto p=lod.geometry.positions[i],q=f.positions[lod.geometry.parentVertexIndices[i]];assert(p.x==q.x&&p.y==q.y&&p.z==q.z);}
+    for(auto i:lod.geometry.parentTriangleIndices)assert(i<32);
     auto g=grid(10);auto disconnected=f;disconnected.positions.insert(disconnected.positions.end(),g.positions.begin(),g.positions.end());
     for(auto i:g.indices)disconnected.indices.push_back(i+25);
     r.targetTriangles=48;
