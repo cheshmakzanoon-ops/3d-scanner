@@ -1,0 +1,50 @@
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+index 4e27a99..1e6a278 100644
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -1,3 +1,4 @@
++import org.gradle.kotlin.dsl.withGroovyBuilder
+ plugins {
+     id("com.android.application")
+     id("org.jetbrains.kotlin.android")
+@@ -64,3 +65,30 @@ dependencies {
+     androidTestImplementation("androidx.room:room-testing:2.7.1")
+     debugImplementation("androidx.compose.ui:ui-tooling")
+ }
++
++
++// Inline convention from gradle/macrobenchmark-validation.gradle.kts (AGP lint applied-script UAST workaround)
++// :app convention; root settings must include(":macrobenchmark"). No additional plugin classloader.
++fun Any.benchmarkDsl(name: String): Any = withGroovyBuilder { getProperty(name) } ?: error("Missing Android DSL property $name")
++fun Any.setBenchmarkDsl(name: String, value: Any?) { withGroovyBuilder { setProperty(name, value) } }
++val performanceAndroid = extensions.getByName("android")
++@Suppress("UNCHECKED_CAST")
++val performanceTypes = performanceAndroid.benchmarkDsl("buildTypes") as NamedDomainObjectContainer<Any>
++@Suppress("UNCHECKED_CAST")
++val performanceSigning = performanceAndroid.benchmarkDsl("signingConfigs") as NamedDomainObjectContainer<Any>
++performanceTypes.maybeCreate("benchmark").apply {
++    withGroovyBuilder { "initWith"(performanceTypes.getByName("release")) }
++    setBenchmarkDsl("debuggable", false)
++    setBenchmarkDsl("minifyEnabled", true)
++    setBenchmarkDsl("shrinkResources", true)
++    setBenchmarkDsl("signingConfig", performanceSigning.getByName("debug"))
++    @Suppress("UNCHECKED_CAST")
++    (benchmarkDsl("matchingFallbacks") as MutableList<String>).add("release")
++}
++@Suppress("UNCHECKED_CAST")
++val performanceSources = performanceAndroid.benchmarkDsl("sourceSets") as NamedDomainObjectContainer<Any>
++performanceSources.getByName("benchmark").apply {
++    benchmarkDsl("manifest").withGroovyBuilder { "srcFile"(rootProject.file("macrobenchmark/target/AndroidManifest.xml")) }
++    benchmarkDsl("java").withGroovyBuilder { "srcDir"(rootProject.file("macrobenchmark/target/java")) }
++    benchmarkDsl("assets").withGroovyBuilder { "srcDir"(rootProject.file("macrobenchmark/target/assets")) }
++}
+diff --git a/settings.gradle.kts b/settings.gradle.kts
+index 86f3172..4675347 100644
+--- a/settings.gradle.kts
++++ b/settings.gradle.kts
+@@ -5,3 +5,5 @@ dependencyResolutionManagement {
+ }
+ rootProject.name = "RealityForge"
+ include(":app")
++
++include(":macrobenchmark")

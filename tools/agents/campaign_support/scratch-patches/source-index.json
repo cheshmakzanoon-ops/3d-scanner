@@ -1,0 +1,56 @@
+{
+  "scope": "User-requested stop checkpoint of existing scratch variants; generated negative-test fixtures, caches, binaries and untracked build outputs excluded",
+  "records": [
+    {
+      "source_checkout": "/workspace/campaign/build004-followup",
+      "source_sha": "99eb293423560e8bcd9bacbc8e82cb33fc7634bf",
+      "archive_path": "build004-followup.patch.json",
+      "sha256": "9640bcf408b7107cbfe275361c996590602e72845490877713a4dd8b4269de13",
+      "scope": "Historical scratch delta; not accepted runtime implementation",
+      "encoding": "JSON content field contains exact original UTF-8 patch",
+      "archive_file_sha256": "0aee16f939556b568157a475801100f8e1f238593409434eac722d7ab6d9a71c"
+    },
+    {
+      "source_checkout": "/workspace/campaign/test057-adapter-check",
+      "source_sha": "52758dc7f51dcbc1eb9b76cd7e6f1c19da45bf1f",
+      "archive_path": "test057-adapter-check.patch",
+      "sha256": "5374cf9bf8d93ba3718d20d845184ffa415d02178fdd60a82aa2ec9481b87132",
+      "scope": "Historical scratch delta; not accepted runtime implementation"
+    },
+    {
+      "source_checkout": "/workspace/campaign/test091",
+      "source_sha": "58c12383e490f7c8673419b7bb8221a34ca4f989",
+      "archive_path": "test091-committed-wiring.patch",
+      "sha256": "66e97638dfd3b2a68eb20eb90acf6691dbfdcfbb0c9f37ac7729bb26bb202c23",
+      "scope": "Historical committed temporary wiring; not substituted for pure owner publication"
+    },
+    {
+      "source_checkout": "/workspace/campaign/test097",
+      "source_sha": "9dd138967d0353f36c37cff56d8a2473ba23d376",
+      "archive_path": "test097-committed-wiring.patch",
+      "sha256": "6900e062bbd3b32c953cb336a4a4895001cc97e9b9bf0003c24b9c5a575d244f",
+      "scope": "Historical committed temporary wiring; not substituted for pure owner publication"
+    },
+    {
+      "source_checkout": "/workspace/campaign/test100-release",
+      "source_sha": "0a4d910dce4f527d0cf4e1e98b96a33bd9a55ab4",
+      "archive_path": "test100-release-committed-wiring.patch",
+      "sha256": "e7375b87a9ec74d41a619c3fbb055eafe98293c12d8cbcf037e8ec8c3b570823",
+      "scope": "Historical committed temporary wiring; not substituted for pure owner publication"
+    },
+    {
+      "source_checkout": "/workspace/campaign/test004-followup",
+      "source_sha": "6fce8dd9d905ab16d5a9da17295f3094f19d20e8",
+      "archive_path": "test004-followup-committed-wiring.patch",
+      "sha256": "33d1184d20208399d767ae3f27c70d57a86e621bed62bed4607f26f6aeeb1ca1",
+      "scope": "Historical committed temporary wiring; not substituted for pure owner publication"
+    },
+    {
+      "source_checkout": "/workspace/campaign/test004-benchmark",
+      "source_sha": "30e0e503986a3fa109eb92086142210a97773ea2",
+      "archive_path": "test004-benchmark-committed-wiring.patch",
+      "sha256": "ed4a1ae11f2d69f353c38c10e73c33e507e581c652ee18b322e5b077de121bf3",
+      "scope": "Historical committed temporary wiring; not substituted for pure owner publication"
+    }
+  ]
+}
