@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "phase": "normal-benchmark-debug-build",
+  "recorded_at": "2026-10-20T10:42:29.949122+00:00",
+  "source_sha": "30e0e503986a3fa109eb92086142210a97773ea2",
+  "command": [
+    "flock",
+    "/workspace/campaign/android.lock",
+    "python",
+    "/workspace/campaign/gradle.py",
+    "--dependency-verification",
+    "strict",
+    ":app:assembleBenchmark",
+    ":macrobenchmark:assembleBenchmark",
+    ":app:assembleDebug",
+    ":app:assembleDebugAndroidTest",
+    ":app:testDebugUnitTest",
+    ":app:lintDebug"
+  ],
+  "returncode": 0,
+  "seconds": 321.374,
+  "log": "/workspace/campaign/evidence/004/benchmark-followup/normal-benchmark-debug-build.log",
+  "log_sha256": "f8cdb62bf7e3c3234e8d725b1ebe5f3a324b82917da58179ff906ce9278dab86",
+  "before": {
+    "app/build.gradle.kts": "27972085ad0c10b446b64e104b87bb00b869d991cef362df4fe3405f90b8ee71",
+    "settings.gradle.kts": "ce144a838b3eaf747490c3abbe63143739ac8aff2bd5546a15994b0bc8c558fb",
+    "app/gradle.lockfile": "ac7c8e61aed68c6925ab3b1028280ae101ac4425b56af958de616d8cc9fc6729",
+    "macrobenchmark/build.gradle.kts": "b0c9a8be209cab574e614b653d5e78e1c2cdbbbd9e2f88689b29ce80e10227fe",
+    "macrobenchmark/gradle.lockfile": "23a7a081dfee70c8bf2532a531fb62feaedf93cc9b71176dd74b1b0fd7a595dd",
+    "tools/dependencies/export.gradle": "5cc7c7a2c2b556860b2895b785cdb95f5ec304f488a28d5f072032a6c8bb0195",
+    "gradle/verification-metadata.xml": "989946291acb27b7d6a191b1ea5880272213b4866a0613726e5ff5732ef01652"
+  },
+  "after": {
+    "app/build.gradle.kts": "27972085ad0c10b446b64e104b87bb00b869d991cef362df4fe3405f90b8ee71",
+    "settings.gradle.kts": "ce144a838b3eaf747490c3abbe63143739ac8aff2bd5546a15994b0bc8c558fb",
+    "app/gradle.lockfile": "ac7c8e61aed68c6925ab3b1028280ae101ac4425b56af958de616d8cc9fc6729",
+    "macrobenchmark/build.gradle.kts": "b0c9a8be209cab574e614b653d5e78e1c2cdbbbd9e2f88689b29ce80e10227fe",
+    "macrobenchmark/gradle.lockfile": "23a7a081dfee70c8bf2532a531fb62feaedf93cc9b71176dd74b1b0fd7a595dd",
+    "tools/dependencies/export.gradle": "5cc7c7a2c2b556860b2895b785cdb95f5ec304f488a28d5f072032a6c8bb0195",
+    "gradle/verification-metadata.xml": "989946291acb27b7d6a191b1ea5880272213b4866a0613726e5ff5732ef01652"
+  }
+}

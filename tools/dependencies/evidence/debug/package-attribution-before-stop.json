@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "variant": "debug",
+  "artifact": "app-debug.apk",
+  "artifactSha256": "a5df0a8c2a706a3099e134a583003ab2d36d6bc72df3abc3a02faf6f8e781c8b",
+  "runtimeModules": 129,
+  "nativeLibraries": [
+    "lib/arm64-v8a/libandroidx.graphics.path.so",
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libimage_processing_util_jni.so",
+    "lib/arm64-v8a/libopencv_java4.so",
+    "lib/arm64-v8a/librealityforge.so",
+    "lib/arm64-v8a/libsurface_util_jni.so",
+    "lib/x86_64/libandroidx.graphics.path.so",
+    "lib/x86_64/libc++_shared.so",
+    "lib/x86_64/libimage_processing_util_jni.so",
+    "lib/x86_64/libopencv_java4.so",
+    "lib/x86_64/librealityforge.so",
+    "lib/x86_64/libsurface_util_jni.so"
+  ],
+  "noticeFiles": 95,
+  "status": "PASS"
+}
