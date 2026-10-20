@@ -109,8 +109,7 @@ def android_files(candidate):
     return app, test, report
 
 
-@pytest.fixture
-def bundle(candidate):
+def build_bundle(candidate):
     _, _, execution, bundles = candidate
     marker = start(candidate, 'native')
     ci.collect(marker, bundles / 'native', native=native(candidate))
@@ -123,6 +122,11 @@ def bundle(candidate):
     write(record.with_name('instrumentation.txt'), instrumentation())
     ci.collect(marker, bundles / 'device', artifact_patterns=[str(app), str(test)], screenshot=png(execution / 'device' / 'photographic-viewer.png'), device=record)
     return candidate
+
+
+@pytest.fixture
+def bundle(candidate):
+    return build_bundle(candidate)
 
 
 def verify(candidate):
@@ -308,3 +312,22 @@ def test_debug_scope_enforces_actual_required_and_excluded_selectors(bundle, mut
     value = ci.load(path);value["suite"] = suite_record(repo);dump(path, value)
     with pytest.raises(ci.EvidenceError):
         ci.device_record(path, path.with_name("instrumentation.txt"), [execution / "android/app-debug.apk", execution / "android/app-debug-androidTest.apk"], manifest_path)
+
+
+def test_additional_source_declared_specialist_is_preserved_as_not_run(candidate):
+    repo, _, execution, bundles = candidate
+    path = repo / ci.SUITE_PATH
+    manifest = ci.load(path)
+    manifest["scopes"]["debug"]["excludedGates"].append(dict(
+        gate="dedicated_candidate_journey", selector="synthetic.ReleaseJourneyTest",
+        reason="synthetic dedicated candidate controller emits its own evidence protocol"))
+    dump(path, manifest)
+    subprocess.run(["git", "-C", str(repo), "add", ci.SUITE_PATH], check=True)
+    subprocess.run(["git", "-C", str(repo), "commit", "-qm", "additional source-declared specialist scope"], check=True)
+    commit = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+    updated = build_bundle((repo, commit, execution, bundles))
+    result = verify(updated)
+    assert result["status"] == "PASS"
+    assert result["release_qualification"] == "NOT_RUN"
+    gates = {row["gate"]: row["status"] for row in result["required_specialist_gates"]}
+    assert gates == {gate: "NOT_RUN" for gate in ci.DEBUG_SPECIALIST_GATES | {"dedicated_candidate_journey"}}

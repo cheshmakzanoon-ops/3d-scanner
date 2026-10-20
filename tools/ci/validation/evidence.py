@@ -204,8 +204,10 @@ def device_record(record, transcript, apks, suite_manifest):
     scope = manifest.get("scopes", {}).get("debug", {})
     excluded = scope.get("excludedGates", [])
     required_selectors = scope.get("requiredPassedSelectors", [])
-    if len(excluded) != len(DEBUG_SPECIALIST_GATES) or {row.get("gate") for row in excluded} != DEBUG_SPECIALIST_GATES or not required_selectors:
-        raise EvidenceError("Debug scope must retain all required specialist gates")
+    gates = [row.get("gate") for row in excluded]
+    valid_rows = all(set(row) == {"gate", "selector", "reason"} and all(isinstance(row[key], str) and row[key].strip() for key in row) for row in excluded)
+    if not valid_rows or len(set(gates)) != len(gates) or not DEBUG_SPECIALIST_GATES <= set(gates) or not required_selectors:
+        raise EvidenceError("Debug scope must retain baseline specialists and unique source-declared exclusions")
     expected_suite = dict(schema=1, scope="debug", manifestSha256=sha(suite_manifest),
                           notClass=[row["selector"] for row in excluded],
                           requiredPassedSelectors=required_selectors,

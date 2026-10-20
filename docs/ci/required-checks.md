@@ -57,7 +57,8 @@ performed by this workflow.
   match between build and installed-candidate evidence. PRs run this gate too.
   The generic debug run excludes required physical capture, externally controlled
   recovery, physical resource profiling, externally verified offline radios and
-  minified-release contracts. Every excluded gate remains `NOT_RUN`, with its
+  minified-release contracts, plus any source-declared dedicated candidate journey
+  or other specialist protocol. Every excluded gate remains `NOT_RUN`, with its
   selector and reason, and needs its owner's separate qualification. A generic
   compatibility or 16KB runtime pass never qualifies those specialist gates.
 - Agent094 validates the exact tracked source manifest before source gates;
@@ -88,7 +89,8 @@ The collector binds Agent092's `suites.json` manifest to the exact candidate Git
 blob and seals it with the device record. The verifier requires debug scope,
 matching manifest hash/selectors, actual required selector passes and absence of
 excluded selector events, including skipped events. Missing or overstated scope
-records fail validation.
+records fail validation. Source-declared additional exclusions remain visible as
+`NOT_RUN`; the generic verifier never assumes that the baseline list is exhaustive.
 JUnit OK summaries exclude ignored tests but include assumptions, so their total
 is never relabeled as passes. API35/emulator-5554/x86_64 identity is checked.
 The collector preserves partial skips separately from passes. It never turns
@@ -107,7 +109,7 @@ independent attestation against an attacker who controls the workflow itself.
 
 `candidate-evidence.json` is schema `realityforge.ci-evidence.v1`, includes source
 SHA/run identity, per-gate tests and evidence kind, and explicitly retains
-`physical_device: NOT_RUN`, `release_qualification: NOT_RUN`, and all five
+`physical_device: NOT_RUN`, `release_qualification: NOT_RUN`, and all source-declared
 `required_specialist_gates` rows with `status: NOT_RUN`. The same complete suite
 record remains under the device gate. A top-level CI `status: PASS` covers only
 the declared host/build/debug-compatibility checks; independent099 must require
