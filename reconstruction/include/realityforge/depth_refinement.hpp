@@ -55,10 +55,12 @@ inline double parabolicInverseDepth(std::span<const double> costs,std::span<cons
 }
 // Coarse validity is propagated only through a fully observed continuous cell.
 // Depth discontinuities and missing pixels remain unknown, not interpolated fill.
-inline float propagate(const DenseDepthMap& coarse,double x,double y,double maximumRelativeSpread=.05){
- if(coarse.width<2||coarse.height<2||coarse.depth.size()!=static_cast<std::size_t>(coarse.width)*coarse.height||!std::isfinite(x)||!std::isfinite(y)||x<0||y<0||x>=coarse.width-1||y>=coarse.height-1)return 0;
- int ix=static_cast<int>(x),iy=static_cast<int>(y);double lo=1e300,hi=0,z=0,fx=x-ix,fy=y-iy;
- for(int dy=0;dy<2;++dy)for(int dx=0;dx<2;++dx){double d=coarse.depth[(iy+dy)*coarse.width+ix+dx];if(!std::isfinite(d)||d<=0)return 0;lo=std::min(lo,d);hi=std::max(hi,d);z+=d*(dx?fx:1-fx)*(dy?fy:1-fy);}
+inline float propagate(const DenseDepthMap& coarse,double x,double y,double maximumRelativeSpread=.05,int stride=1,int origin=0){
+ if(coarse.width<2||coarse.height<2||stride<1||stride>8||origin<0||coarse.depth.size()!=static_cast<std::size_t>(coarse.width)*coarse.height||!std::isfinite(x)||!std::isfinite(y)||x<origin||y<origin||x>=coarse.width-1||y>=coarse.height-1||!std::isfinite(maximumRelativeSpread)||maximumRelativeSpread<0||maximumRelativeSpread>1)return 0;
+ int ix=origin+static_cast<int>(std::floor((x-origin)/stride))*stride,iy=origin+static_cast<int>(std::floor((y-origin)/stride))*stride;
+ if(ix+stride>=coarse.width||iy+stride>=coarse.height)return 0;
+ double lo=1e300,hi=0,z=0,fx=(x-ix)/stride,fy=(y-iy)/stride;
+ for(int dy=0;dy<2;++dy)for(int dx=0;dx<2;++dx){double d=coarse.depth[(iy+dy*stride)*coarse.width+ix+dx*stride];if(!std::isfinite(d)||d<=0)return 0;lo=std::min(lo,d);hi=std::max(hi,d);z+=d*(dx?fx:1-fx)*(dy?fy:1-fy);}
  return (hi-lo)/hi<=maximumRelativeSpread?static_cast<float>(z):0;
 }
 }
