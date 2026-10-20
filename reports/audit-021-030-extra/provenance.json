@@ -1,0 +1,2863 @@
+{
+  "schema": 1,
+  "status": "JUNIT_PASSED",
+  "prepared_at_utc": "2026-10-20T06:22:08.386117+00:00",
+  "source_commit": "54ae92a822693b439452cf53852bc4c30150002a",
+  "source_tree": "f5eca2f49687ad460aac44c9d4c31d450a2f0c73",
+  "source_repository": "/workspace/scratch/16a420565b0d/3d-scanner",
+  "runner_sha256": "8316d713c665d06930abb88b2569f9c6fda50c2bad7e5350bf84d0933fbfdb19",
+  "selection_sha256": "60a59a2efee9157db92f2a577e71dfee50816146be2a00f41a21592a894ee398",
+  "production_source_count": 31,
+  "test_source_count": 17,
+  "fixture_source_count": 1,
+  "declared_test_methods": 96,
+  "test_classes": [
+    "com.realityforge.scanner.agents.a021.StorageBudgetTest",
+    "com.realityforge.scanner.agents.a022.DeletionServiceTest",
+    "com.realityforge.scanner.agents.a022.PrivateFileCleanerTest",
+    "com.realityforge.scanner.agents.a022.DeletionStateReducerTest",
+    "com.realityforge.scanner.agents.a023.ArtifactPublicationProtocolTest",
+    "com.realityforge.scanner.agents.a026.DestinationTransferServiceTest",
+    "com.realityforge.scanner.agents.a027.CalibrationProfileCodecTest",
+    "com.realityforge.scanner.agents.a027.CalibrationSetEvaluatorTest",
+    "com.realityforge.scanner.agents.a027.TransactionalProfileStoreTest",
+    "com.realityforge.scanner.agents.a027.CalibrationCaptureMetadataAdapterTest",
+    "com.realityforge.scanner.agents.a029.ProcessingNotificationMapperTest",
+    "com.realityforge.scanner.agents.a029.JobNotificationActionAuthorizerTest",
+    "com.realityforge.scanner.agents.a029.NotificationUpdateGateTest",
+    "com.realityforge.scanner.agents.a029.NotificationPermissionPolicyTest",
+    "com.realityforge.scanner.agents.a029.ProcessingServiceDrainTest",
+    "com.realityforge.scanner.agents.a030.ResourcePolicyTest",
+    "com.realityforge.scanner.agents.a030.ResourceWorkloadSelectionTest"
+  ],
+  "source_policy": "Complete unmodified files from the exact Git commit; no Android/Room/OpenCV or test-API substitutions.",
+  "test_scope": "Existing portable unit/protocol tests only; not Android instrumentation, Room integration, JNI or physical-device qualification.",
+  "compiler_heap_mib": 512,
+  "runtime_heap_mib": 512,
+  "java_executable": "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+  "java_release": "IMPLEMENTOR=\"Ubuntu\"\nJAVA_RUNTIME_VERSION=\"17.0.20+8-1-24.04-Ubuntu\"\nJAVA_VERSION=\"17.0.20\"\nJAVA_VERSION_DATE=\"2026-07-21\"\nLIBC=\"gnu\"\nMODULES=\"java.base java.compiler java.datatransfer java.xml java.prefs java.desktop java.instrument java.logging java.management java.security.sasl java.naming java.rmi java.management.rmi java.net.http java.scripting java.security.jgss java.transaction.xa java.sql java.sql.rowset java.xml.crypto java.se java.smartcardio jdk.accessibility jdk.internal.jvmstat jdk.attach jdk.charsets jdk.compiler jdk.crypto.ec jdk.crypto.cryptoki jdk.dynalink jdk.internal.ed jdk.editpad jdk.hotspot.agent jdk.httpserver jdk.incubator.foreign jdk.incubator.vector jdk.internal.le jdk.internal.opt jdk.internal.vm.ci jdk.internal.vm.compiler jdk.internal.vm.compiler.management jdk.jartool jdk.javadoc jdk.jcmd jdk.management jdk.management.agent jdk.jconsole jdk.jdeps jdk.jdwp.agent jdk.jdi jdk.jfr jdk.jlink jdk.jpackage jdk.jshell jdk.jsobject jdk.jstatd jdk.localedata jdk.management.jfr jdk.naming.dns jdk.naming.rmi jdk.net jdk.nio.mapmode jdk.random jdk.sctp jdk.security.auth jdk.security.jgss jdk.unsupported jdk.unsupported.desktop jdk.xml.dom jdk.zipfs\"\nOS_ARCH=\"x86_64\"\nOS_NAME=\"Linux\"\nSOURCE=\"\"\n",
+  "host": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "toolchain": [
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/2.1.21/kotlin-compiler-embeddable-2.1.21.jar",
+      "file": "kotlin-compiler-embeddable-2.1.21.jar",
+      "bytes": 56958642,
+      "sha256": "67a2e3673765f097725608cc7c843b0d8fdd94bd9af41327211361614aa57d49",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-compiler-embeddable-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar",
+      "file": "kotlin-stdlib-2.1.21.jar",
+      "bytes": 1724058,
+      "sha256": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-script-runtime:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-script-runtime/2.1.21/kotlin-script-runtime-2.1.21.jar",
+      "file": "kotlin-script-runtime-2.1.21.jar",
+      "bytes": 43365,
+      "sha256": "d8221f445854f30ac92c248d543609e0ecb5d85bb5ba34c043684b013cb5b897",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-script-runtime-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-reflect:1.6.10",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/1.6.10/kotlin-reflect-1.6.10.jar",
+      "file": "kotlin-reflect-1.6.10.jar",
+      "bytes": 3038560,
+      "sha256": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-reflect-1.6.10.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-daemon-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-embeddable/2.1.21/kotlin-daemon-embeddable-2.1.21.jar",
+      "file": "kotlin-daemon-embeddable-2.1.21.jar",
+      "bytes": 345429,
+      "sha256": "9401effd82de8606df3289308a275cc1d3573768665ca5edd09dc319c71715f4",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-daemon-embeddable-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.intellij.deps:trove4j:1.0.20200330",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+      "file": "trove4j-1.0.20200330.jar",
+      "bytes": 572985,
+      "sha256": "c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d",
+      "verified_path": "/dev/shm/scanner-jvm-checks/trove4j-1.0.20200330.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.0/kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "bytes": 1548360,
+      "sha256": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.8.0.jar"
+    },
+    {
+      "coordinate": "org.jetbrains:annotations:13.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+      "file": "annotations-13.0.jar",
+      "bytes": 17536,
+      "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478",
+      "verified_path": "/dev/shm/scanner-jvm-checks/annotations-13.0.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.10.2/kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "bytes": 1479317,
+      "sha256": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar"
+    },
+    {
+      "coordinate": "org.json:json:20250517",
+      "url": "https://repo.maven.apache.org/maven2/org/json/json/20250517/json-20250517.jar",
+      "file": "json-20250517.jar",
+      "bytes": 82710,
+      "sha256": "3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796",
+      "verified_path": "/dev/shm/scanner-jvm-checks/json-20250517.jar"
+    },
+    {
+      "coordinate": "junit:junit:4.13.2",
+      "url": "https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar",
+      "file": "junit-4.13.2.jar",
+      "bytes": 384581,
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3",
+      "verified_path": "/dev/shm/scanner-jvm-checks/junit-4.13.2.jar"
+    },
+    {
+      "coordinate": "org.hamcrest:hamcrest-core:1.3",
+      "url": "https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+      "file": "hamcrest-core-1.3.jar",
+      "bytes": 45024,
+      "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
+      "verified_path": "/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+      "bytes": 4547,
+      "sha256": "66f922e28b358fc2b24b3e01146d50d081c07fdadedda3b417214e162913fa87",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionModels.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionModels.kt",
+      "bytes": 14002,
+      "sha256": "5302533627952276c84937c91c6b6e7a651840aa17dc6cec5beb138a949a1872",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionStateReducer.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionStateReducer.kt",
+      "bytes": 5380,
+      "sha256": "eb0f0b211e52b2d7c2346a9722347c7b435a8cc9ecb17e9c9151b4d26db09a0d",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/OwnedPathResolver.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/OwnedPathResolver.kt",
+      "bytes": 4008,
+      "sha256": "c74dff8d12515dcc4da7d9c36464986c0c29d9c342b0e966888a65e6f3ccb10e",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/PrivateFileCleaner.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/PrivateFileCleaner.kt",
+      "bytes": 19858,
+      "sha256": "474686a6172ab8b10b58da4119fa27049510f6d4846a854aea65190f855de1ec",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionService.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionService.kt",
+      "bytes": 9279,
+      "sha256": "921888c790d2585cb3209e17d3062d58b2d8337e6e97812c226ecab936457751",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator.kt",
+      "bytes": 28128,
+      "sha256": "3f559b5df036ddd842d5db0cd6eb2268e25d901f003de686b663d03df7530d10",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationAdapters.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationAdapters.kt",
+      "bytes": 2522,
+      "sha256": "1f7c38ab59568724fe2a28fd6a85e4e5f31b52d2a4e76f8367e8ead10f87b0ae",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationCodec.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationCodec.kt",
+      "bytes": 11277,
+      "sha256": "eb5c9cb7d5f9fc4a9e5ac77acfb15740fede5e18631332f3c5f789fd5f3c4a78",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationModels.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationModels.kt",
+      "bytes": 12633,
+      "sha256": "d528514fee98ed2a18bb8082f218f944b17d3989bc51d4abff85213d4aaf84af",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationStorage.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationStorage.kt",
+      "bytes": 20196,
+      "sha256": "f4c9a5a3301c42466d7f71e00de56ffe40b9845190296042d1b2310ae20e5fdc",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt",
+      "bytes": 21875,
+      "sha256": "3e239a181cdc2e79a0a83b7694b591db2c86f05cbff6011b97f478ab8abd0082",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/safexport/SafExportContracts.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/SafExportContracts.kt",
+      "bytes": 5002,
+      "sha256": "61a0f4f1d77161deccf3da6b81c50042a2c606a185a8ab415a19cfe375d87bca",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/safexport/SafTransferPorts.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/SafTransferPorts.kt",
+      "bytes": 4821,
+      "sha256": "df88fa1083d93222e3a733c3ea87a449233aa6e76d9680670afa9699e41c795d",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+      "bytes": 5162,
+      "sha256": "98149f2827efb2382e9adea7b6f444a94ff0f090270f93b54e413c8e0036dbd3",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+      "bytes": 17745,
+      "sha256": "f2170cb12a2ce1704f2419ff5042735296191b1e7288b343267a4ce2c76c833f",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt",
+      "bytes": 28747,
+      "sha256": "5d98a382741c5827ab2334f5d377e03aa1a84b5d70e2e3654f546dfa65e73358",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt",
+      "bytes": 24716,
+      "sha256": "d466a4e522f1a62e9a29ad26073b466df2feb669b7e0b658738247c5847bab17",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.kt",
+      "bytes": 2061,
+      "sha256": "b790ce5680cb837b49337e1946769d6fcae68d0ec229f1ff6e46f4565c157728",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt",
+      "bytes": 6652,
+      "sha256": "b1452cdb2a6abf3ebe42176c88bba1a95a55d5d5cd458dc84fce6424b6ff2625",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/JobNotificationActions.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/JobNotificationActions.kt",
+      "bytes": 2148,
+      "sha256": "a76effd4b34c8b8c7893d0390e81a2f5adb8ddb411d20c549c3adffdf5a79af2",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationPermissionPolicy.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationPermissionPolicy.kt",
+      "bytes": 4026,
+      "sha256": "9b80fdce87c6c1461a564d56a7880690537433d8c8153661fcb36aee2042bdc4",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationUpdateGate.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationUpdateGate.kt",
+      "bytes": 2729,
+      "sha256": "1d1084f2f9351e0674a0ba3d3ed267a3c74744128eed5064e48bebc841f3a8fd",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper.kt",
+      "bytes": 6967,
+      "sha256": "d016bed819cd6361400a908d6d0f487d2ad58df9e68a153538024390521891c2",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationModel.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationModel.kt",
+      "bytes": 8317,
+      "sha256": "0d8297cc2846c335de17b0a854e14e45293cc153056213f448d3c121a1d50939",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/work/execution/ProcessingServiceDrain.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/work/execution/ProcessingServiceDrain.kt",
+      "bytes": 1143,
+      "sha256": "050619b41bd9b54637f32ea2cfd73cab769f5bd75a4bcc8616d7aa372b3193bc",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+      "bytes": 6413,
+      "sha256": "2f7f7b4541dae86cf9746c215e1cc72bc9d5b3ec4590f143769cd4c3a01074cf",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+      "bytes": 5044,
+      "sha256": "19ffc746d6de83fc050c5c737f1e78a9f25f41ae0529dd24d2597873abb24262",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+      "bytes": 4399,
+      "sha256": "af0b2d317be89f83d1a54e604af94f17a816490760cefcdf7984c0b66e5d720b",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+      "bytes": 1915,
+      "sha256": "0fb69aa21f7d04bf58470d0c5be64453457e727eb18504725087873b8f699ccd",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+      "bytes": 12425,
+      "sha256": "7982d4fc756003ed94945340c13e3755906283a203c2f8ab4e96287947d6c06b",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a021/StorageBudgetTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a021/StorageBudgetTest.kt",
+      "bytes": 1480,
+      "sha256": "1c51b6f2fec854d6a85bf29b2c94371f4caa94918c10aca303913b7b12a87300",
+      "declared_test_methods": 3
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionServiceTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionServiceTest.kt",
+      "bytes": 12506,
+      "sha256": "bc411fa37a61685260336dcceaf6019d26b30fb9ae154cf151be556c2c877ff5",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/PrivateFileCleanerTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/PrivateFileCleanerTest.kt",
+      "bytes": 7073,
+      "sha256": "1427bef9a0413b6eca1564c6109d12111c4c0af1428e40d7c9bdad4f08dabf96",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionStateReducerTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionStateReducerTest.kt",
+      "bytes": 3749,
+      "sha256": "09fc3324dffe1f8b45aa9fe8fd0063d489265413b29bb2ba4717d31f87d4d376",
+      "declared_test_methods": 2
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest.kt",
+      "bytes": 23392,
+      "sha256": "1c0bc87429b3e21f9a87e1bcb123c1554f7620ce660e4c397075509d50e153b5",
+      "declared_test_methods": 10
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.kt",
+      "bytes": 22078,
+      "sha256": "b1190a7bbde77390d634f430abc6e10fbfa20ca9edcb9c0113ef83ab4a85dbb2",
+      "declared_test_methods": 15
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.kt",
+      "bytes": 6641,
+      "sha256": "660032f04b88d657368e2ac63084951193d3108a65a2933077ec376594e316eb",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.kt",
+      "bytes": 5481,
+      "sha256": "2a92b15648cc6dcda89c49ec97b1db46b8883b5ec36ff9302c03d8c086f9e801",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.kt",
+      "bytes": 4658,
+      "sha256": "b0244ab828aaf79f427808edcd0684d2938c732dd4110e7d3f331eebfd08ab97",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationCaptureMetadataAdapterTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationCaptureMetadataAdapterTest.kt",
+      "bytes": 2200,
+      "sha256": "30ee63c6d4fb6b6a6b6864737a03975ac78047c1c52a3218307189e605c315bd",
+      "declared_test_methods": 2
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest.kt",
+      "bytes": 6990,
+      "sha256": "42195bbaad9bf55c7e54eacc6aeb7f83a0ed89c050a276d11773a91e1a0da694",
+      "declared_test_methods": 7
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/JobNotificationActionAuthorizerTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/JobNotificationActionAuthorizerTest.kt",
+      "bytes": 4087,
+      "sha256": "47fa6b914c1cab8dfe8fc839ea00b53972f0cbf6d3dc5c43718a1e8926374c68",
+      "declared_test_methods": 6
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/NotificationUpdateGateTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/NotificationUpdateGateTest.kt",
+      "bytes": 3158,
+      "sha256": "f7ff5e3d07e3e0fa6bdf2531e583562a6df12a25c848759e7133001d97361199",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/NotificationPermissionPolicyTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/NotificationPermissionPolicyTest.kt",
+      "bytes": 3866,
+      "sha256": "0ed29923d3f1076fadfd8c486ad0af77749297a9990e530e2feaf1596acc9c18",
+      "declared_test_methods": 7
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingServiceDrainTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingServiceDrainTest.kt",
+      "bytes": 2153,
+      "sha256": "9711f65ec1b6a17dacda98d5c7081c5c8c29646b583fdcee1d148aef54c01093",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a030/ResourcePolicyTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a030/ResourcePolicyTest.kt",
+      "bytes": 4515,
+      "sha256": "e88b0ef5f1fadfaad46caf164903397ee913a2d97a0206ef24b6a3c6e0a2be50",
+      "declared_test_methods": 8
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest.kt",
+      "bytes": 6598,
+      "sha256": "3046432d2ad154b75dac1eb4cb7c6a41b91f4e12a7701d3a53f70557b0e4539e",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionTestSupport.kt",
+      "role": "test_fixture",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionTestSupport.kt",
+      "bytes": 4775,
+      "sha256": "216fe5354e609561da24d362b37db3956d02d45e59d56081f4cc9dd4489b8364",
+      "declared_test_methods": 0
+    }
+  ],
+  "run_directory": "/dev/shm/scanner-jvm-021-030-extra/run-1792477329103460107",
+  "started_at_utc": "2026-10-20T06:22:09.104741+00:00",
+  "compiler_command": [
+    "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+    "-Xms32m",
+    "-Xmx512m",
+    "-Djava.io.tmpdir=/dev/shm/scanner-jvm-021-030-extra/run-1792477329103460107/tmp",
+    "-cp",
+    "/dev/shm/scanner-jvm-checks/kotlin-compiler-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-script-runtime-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-reflect-1.6.10.jar:/dev/shm/scanner-jvm-checks/kotlin-daemon-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/trove4j-1.0.20200330.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.8.0.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+    "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+    "-no-stdlib",
+    "-no-reflect",
+    "-jvm-target",
+    "17",
+    "-classpath",
+    "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+    "-d",
+    "/dev/shm/scanner-jvm-021-030-extra/run-1792477329103460107/classes",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionModels.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionStateReducer.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/OwnedPathResolver.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/PrivateFileCleaner.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionService.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationAdapters.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationCodec.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationModels.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationStorage.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/SafExportContracts.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/SafTransferPorts.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/JobNotificationActions.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationPermissionPolicy.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationUpdateGate.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationModel.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/work/execution/ProcessingServiceDrain.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a021/StorageBudgetTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionServiceTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/PrivateFileCleanerTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionStateReducerTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationCaptureMetadataAdapterTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/JobNotificationActionAuthorizerTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/NotificationUpdateGateTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/NotificationPermissionPolicyTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingServiceDrainTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a030/ResourcePolicyTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest.kt",
+    "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionTestSupport.kt"
+  ],
+  "runtime_command": [
+    "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+    "-Xms32m",
+    "-Xmx512m",
+    "-Djava.io.tmpdir=/dev/shm/scanner-jvm-021-030-extra/run-1792477329103460107/tmp",
+    "-cp",
+    "/dev/shm/scanner-jvm-021-030-extra/run-1792477329103460107/classes:/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+    "org.junit.runner.JUnitCore",
+    "com.realityforge.scanner.agents.a021.StorageBudgetTest",
+    "com.realityforge.scanner.agents.a022.DeletionServiceTest",
+    "com.realityforge.scanner.agents.a022.PrivateFileCleanerTest",
+    "com.realityforge.scanner.agents.a022.DeletionStateReducerTest",
+    "com.realityforge.scanner.agents.a023.ArtifactPublicationProtocolTest",
+    "com.realityforge.scanner.agents.a026.DestinationTransferServiceTest",
+    "com.realityforge.scanner.agents.a027.CalibrationProfileCodecTest",
+    "com.realityforge.scanner.agents.a027.CalibrationSetEvaluatorTest",
+    "com.realityforge.scanner.agents.a027.TransactionalProfileStoreTest",
+    "com.realityforge.scanner.agents.a027.CalibrationCaptureMetadataAdapterTest",
+    "com.realityforge.scanner.agents.a029.ProcessingNotificationMapperTest",
+    "com.realityforge.scanner.agents.a029.JobNotificationActionAuthorizerTest",
+    "com.realityforge.scanner.agents.a029.NotificationUpdateGateTest",
+    "com.realityforge.scanner.agents.a029.NotificationPermissionPolicyTest",
+    "com.realityforge.scanner.agents.a029.ProcessingServiceDrainTest",
+    "com.realityforge.scanner.agents.a030.ResourcePolicyTest",
+    "com.realityforge.scanner.agents.a030.ResourceWorkloadSelectionTest"
+  ],
+  "compiler_exit_code": 0,
+  "compiler_seconds": 100.26651941999444,
+  "compile_log_sha256": "b3debc191309eb2d8a36a0412504fc8ab0137aa6bc9f5bd5fa7e83310094b274",
+  "compiled_artifacts": {
+    "sha256": "67443bb1ac995fd930f518d6f39f9e5499a620e362dc815778147a4c85cfabbf",
+    "files": [
+      {
+        "path": "META-INF/main.kotlin_module",
+        "bytes": 505,
+        "sha256": "1ce0a2f230b3a026820a7a669d1102fabe0f36035e782355c34ae8ec7e05f296"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a021/StorageBudgetTest.class",
+        "bytes": 4707,
+        "sha256": "71713133a28eb7cba7a7fd1b6ef126b656cb385ac209ec1b1a99cd6e613b472e"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionServiceTest$CrashBoundary$WhenMappings.class",
+        "bytes": 1294,
+        "sha256": "853289caf76a625d89d335336bd121ce6f2cb0db051fe4ca0501bcdb36001494"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionServiceTest$CrashBoundary.class",
+        "bytes": 7501,
+        "sha256": "51bd508d80649bf0ee563b381c72c9125fe93abd064947ab6e525a7df644a190"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionServiceTest$activeWorkKeepsAVisibleWaitingTombstoneAndRetryDrainsItLater$1.class",
+        "bytes": 12011,
+        "sha256": "cc0460ff950f29709493f4c960fd4e7006ca84b74feb2aaf2da1d0121b3d6299"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionServiceTest$cleanupFailureNeverFinalizesAndARealRetryCanSucceed$1.class",
+        "bytes": 10553,
+        "sha256": "ad4b4bb18adf637c6185dac7f52678655241b89fde548c422e8bdecb4470ef24"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionServiceTest$confirmationCreatesTheTombstoneBeforeBoundedCleanupAndCompletion$1.class",
+        "bytes": 13640,
+        "sha256": "53d1700ab25e8bffbf78a0d2a7f552fcb26565fc2298552f59ee42d1fbbae421"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionServiceTest$everyDatabaseFileBoundaryRecoversDeterministicallyAfterSimulatedProcessDeath$1.class",
+        "bytes": 13420,
+        "sha256": "d73feb004ce0d883d47d8dadd328218bc79be0d9209a6988042429fd32233a8b"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionServiceTest.class",
+        "bytes": 2203,
+        "sha256": "f034a06b99bf5ba5420e65ed482fd79ed4fcf21ca1964df0432969796d0d709c"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/DeletionStateReducerTest.class",
+        "bytes": 6628,
+        "sha256": "e3836fa06d37e276bac4151b3b5019da8c5d711d2fb645a82b4be8c316ee786c"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/FakeDeletionLeases.class",
+        "bytes": 4954,
+        "sha256": "8f420a3268ede08499a7cc1775ec1affc0037357d93ae8d114e6558f148bbd97"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/FakeDeletionPersistence$loadRecoverable$$inlined$compareBy$1.class",
+        "bytes": 2298,
+        "sha256": "f8ecb6fc473435f41db58268a20b039f4fa6d486d727596bddcc2904811c33cf"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/FakeDeletionPersistence$loadRecoverable$$inlined$thenBy$1.class",
+        "bytes": 2451,
+        "sha256": "20f99a19e868ac520e39baa6098e9571e11b5143da517759ebb091ba0d37a2e7"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/FakeDeletionPersistence.class",
+        "bytes": 16141,
+        "sha256": "2d01bb61ec2355d0663ae48b4e13e84e92c04b52916ac8269b14ed946cd0ea0b"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/PrivateFileCleanerTest.class",
+        "bytes": 12118,
+        "sha256": "83b88acf6ef527bdbbc01ecdc7746a4398e8f525c0b24f4ba4f624d959c718d2"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a022/SimulatedProcessDeath.class",
+        "bytes": 924,
+        "sha256": "0156f560391a6d0f8c79d57e6858ba5fa8b00a93c3c9d1b5b72dfb149307f864"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest$Companion.class",
+        "bytes": 3559,
+        "sha256": "9f010d1062f53848c7460f89c14151542a1837c7098f907efbd14968a23f4f16"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest$FakeMetadata$WhenMappings.class",
+        "bytes": 1082,
+        "sha256": "e95dadc954a4d9c413f48806773426a922bcae6caa90e50b575d448851975591"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest$FakeMetadata.class",
+        "bytes": 11623,
+        "sha256": "d61398bd9da336b9598a9a581cb792538725b1cec105e3703f9cab8a55d49f45"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest$changedRevisionAfterPromotionMakesSetStaleAndPreservesBaseline$1$coordinator$1.class",
+        "bytes": 1576,
+        "sha256": "d168ab6e7a850a6f0a60cfccf00cf416a6ce04e4ce828358a7a4c44c9743ddd1"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest$everyCrashBoundaryRecoversWithoutReplacingCurrentWithPartialData$1$coordinator$1.class",
+        "bytes": 1781,
+        "sha256": "ec4601830b35d23f1279458194b7752fe08191d08ef8fb3cd70a2ba0498a7c81"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest$unavailableMetadataLookupRetainsPromotedSetForLaterRecovery$1$coordinator$1.class",
+        "bytes": 1567,
+        "sha256": "866e7c43308d52770739bfd8d3c0ce0f27a21010a3d537bf67a20eecbd632be6"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest.class",
+        "bytes": 34686,
+        "sha256": "b0f5165350f6f2ba4d95623823863efe4528f701f5ed86f8c850e365b893f2b7"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$Companion.class",
+        "bytes": 2784,
+        "sha256": "2b68e00d58fef00e6c51dfb89fe68ba303a3961d5df72ac7fb3eee0987c42b4d"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$FakeDocumentStore$prepare$2$openOutput$delegate$1$WhenMappings.class",
+        "bytes": 1434,
+        "sha256": "b8579ed5cc029d419c29f1ef0d03c0f3879d15ed65165446acbda38fbc76475c"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$FakeDocumentStore$prepare$2$openOutput$delegate$1.class",
+        "bytes": 3679,
+        "sha256": "9c88689f84c0bb51318b786f0ff6755be8733711694ff30efcde1dc18941ff42"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$FakeDocumentStore$prepare$2$openReadback$1.class",
+        "bytes": 2544,
+        "sha256": "1da3013ca4b522791e9cba83a12f1ad0424c836ff4a3b9fc575e74342f79ddd1"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$FakeDocumentStore$prepare$2.class",
+        "bytes": 7912,
+        "sha256": "6676c69093a382ed9cd8a992f685df4c8a889163473601e4926d26ec1b901d54"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$FakeDocumentStore.class",
+        "bytes": 4175,
+        "sha256": "3e2b831557f5e926a9d7676ce8c339dd526f3766589f0a584a4f20bbb05c8e59"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$FakeSourceAccess.class",
+        "bytes": 4379,
+        "sha256": "da32c2c6fb9d3217c01de96d84f762608464cd8b78f072f413957c6c7c0c4bd9"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$Fixture$Companion.class",
+        "bytes": 1413,
+        "sha256": "072f3d4712dbee4a4897c02f15075eec275acb328ba3236a5009cbc617e2ae5c"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$Fixture.class",
+        "bytes": 7788,
+        "sha256": "82c347e17c5fb4c89d519863559c09c1fb6c241082eb9d1b991e1f7e3599efd1"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$StoreMode.class",
+        "bytes": 2669,
+        "sha256": "c9433201e621498863fadee9d641c0683e685b7faad6cb1d3d59d05e0c8771ca"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$diskFullAndRequestedCancellationNeverReportSuccess$1$cancelledOutcome$1.class",
+        "bytes": 1335,
+        "sha256": "18bcc4c58eaabc6efe620512f817db036fac126aeaa34630a9582976f43f47df"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$diskFullAndRequestedCancellationNeverReportSuccess$1.class",
+        "bytes": 7425,
+        "sha256": "3ed5a09636c0164a647bde18a364f65ad963e408c3ee35a2dff6c8f1c2516753"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$endlessDestinationIsRejectedAfterTheExpectedLength$1.class",
+        "bytes": 6545,
+        "sha256": "0242dd003c25d9d08718e7fce15597ed4ef56bf8a35297936d97962e81777161"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$exactReadBackHashProducesVerifiedSuccess$1.class",
+        "bytes": 6645,
+        "sha256": "7eabb98ca8352be32c47b6216fa98b4f5f41095fdfd70314071c65bd69d2f9b2"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$finalSourceVerificationRejectsRevisionChangeDuringCommit$1.class",
+        "bytes": 8127,
+        "sha256": "ef9fc926dc6d520a7847033b5ca3783c3d0dc72fafa6481f5a05559bb828e7fd"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$pickerCallbackCannotSwitchSourceProjectOrRevision$1.class",
+        "bytes": 9028,
+        "sha256": "d6b8e389c5d43d29f0c6ba22ffe7855b9b2219725bb5f4371e3a97f6388c1fef"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$preExistingDocumentIsNeverDeletedWhenTransferFails$1.class",
+        "bytes": 6452,
+        "sha256": "5ce071a0408b22fb14ae8de1f666f9ac7c81051e229cae7c9d492068f1acfc77"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$providerCannotClaimUnsupportedTemporaryAtomicTransfer$1.class",
+        "bytes": 6846,
+        "sha256": "71120d578057ea817992151b2d507cc083eabe8067cf910611b67469ec28a5f5"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$providerWithoutExactEvidenceReturnsExplicitUnverifiedCompletion$1.class",
+        "bytes": 6827,
+        "sha256": "b01d4440fa8deba30864ae78649c7fce8394db936420d0a6242b36d7f2a5aa88"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$requestedCancellationDuringReadBackCleansOwnedDestination$1$outcome$1.class",
+        "bytes": 1339,
+        "sha256": "3b6661b0fb64176139acc970a4eed79b2c2c3a499c4a9508590eb8a649a18982"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$requestedCancellationDuringReadBackCleansOwnedDestination$1.class",
+        "bytes": 6937,
+        "sha256": "e0979de1cd7cbc844609b569f105aaee39c0c8e3b69e873d77dcc51c2ae0c549"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$revokedPermissionAndUnavailableDestinationHaveTypedOutcomes$1.class",
+        "bytes": 6324,
+        "sha256": "52bf322e9c3893946b63a4c8ed20c7e80f41be1ffb1b5e896738b4f3ccfea8b8"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$shortWriteIsDetectedAndOnlyOwnedNewDocumentIsDeleted$1.class",
+        "bytes": 6641,
+        "sha256": "cf5752daecfebace25bf1ed372f57cf41807cf4fd3084892ed7ae5c546ee1eb2"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$sourceGrowthNeverWritesPastTheVerifiedByteCount$1.class",
+        "bytes": 7410,
+        "sha256": "f84a0840c7c3084000a65b53d645ae292facc6309085ad1bb2a19ae6a02654c1"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$sourceRevisionChangeAfterCopyCleansOwnedDestination$1.class",
+        "bytes": 7948,
+        "sha256": "69ab5f3950d46b3a0ab7171c502dab5f89016f827895ec0fc1faca8c208a5618"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$stalledReadbackIsBoundedAndLeavesNoOwnedPartial$1.class",
+        "bytes": 6506,
+        "sha256": "f7fd2560b55792f24b99c03463477abd7fdc81a2a35d9bf54a0cbd3707db900a"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$stalledSourceIsBoundedAndCannotReportSuccess$1$1$1.class",
+        "bytes": 1778,
+        "sha256": "267aa26182258cff8e1d9c1abb659f1bda2ad896d76a5498395350f9a9207fe9"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest$stalledSourceIsBoundedAndCannotReportSuccess$1.class",
+        "bytes": 7665,
+        "sha256": "7d8a070129ce7cef8e02053334f9d217f8bbec4292bf0566149f7931ea2446c2"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.class",
+        "bytes": 6254,
+        "sha256": "b42794e6e2bf5acaf0ccb9303fe8c4bad5792e744ec1a9a364bd74f1b9ef7157"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/CalibrationCaptureMetadataAdapterTest.class",
+        "bytes": 5383,
+        "sha256": "900c7b602a336d797f7043ecfc30dd869061679ee43378546d71703d7b9313db"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest$Companion.class",
+        "bytes": 1554,
+        "sha256": "cdd9a4dba090ec2685854efbba653c894cfe75cc9b759b4bfd2924d6cedae811"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.class",
+        "bytes": 14409,
+        "sha256": "715ec5e4cb014bd8c22f809e4074c724496d4961fb4666418fe830f2031627fd"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest$Companion.class",
+        "bytes": 1302,
+        "sha256": "8f341c08eb066f5070a7d6d2d411058582e5b37d1f35768c39bef72e6e002a74"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.class",
+        "bytes": 16511,
+        "sha256": "d6372a7c43de6d2bf6ee5a848ece800369729f58e8054f10c61ef253354b3a4b"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$Companion.class",
+        "bytes": 1562,
+        "sha256": "06fff7e99b9c9b475f0c7b9f79be9779398b408ab8cdd76a0674f18a23f84f7f"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$cancellationAfterStagingAlwaysAborts$1$job$1.class",
+        "bytes": 4439,
+        "sha256": "e69505e30db524e631f393aadde11ef8891582a0d0ed8321af3aa085efbfc7ff"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$cancellationAfterStagingAlwaysAborts$1$store$1$1$commit$1.class",
+        "bytes": 2355,
+        "sha256": "9affcdfb62e936116583a92c2f9004aec650038128b8b9eef00178409dce68bb"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$cancellationAfterStagingAlwaysAborts$1$store$1$1.class",
+        "bytes": 3684,
+        "sha256": "3c5f841e3503acfd15546138bcb29f35cba305d7a117b08d4f0a0c47f0a367eb"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$cancellationAfterStagingAlwaysAborts$1$store$1.class",
+        "bytes": 2171,
+        "sha256": "dfcb1f7f11abc7b0b1ccd0a8f3013b3b5780754ffb8b3248dd433c80cd86d760"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$cancellationAfterStagingAlwaysAborts$1.class",
+        "bytes": 6295,
+        "sha256": "22911d91f888ab2c59abb1d087c50d2e42b0775c29a385f02b8884be16acae11"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$removalUsesSameRevisionBoundPublicationProtocol$1$store$1$1.class",
+        "bytes": 2240,
+        "sha256": "e5996f29e6252a966dd8914d5f40f5c7e609c36220b08a9f5b3d7d70d3395073"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$removalUsesSameRevisionBoundPublicationProtocol$1$store$1.class",
+        "bytes": 2202,
+        "sha256": "01ffaf84b215087d57387e7fd3cba459c843d4cf51e3b9a6383a111f3895786a"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$removalUsesSameRevisionBoundPublicationProtocol$1.class",
+        "bytes": 5300,
+        "sha256": "fd820983761f8db4018697a5ce89f14a0638f41ed604803eb71cff7380f3c845"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$saveStagesCanonicalBytesAndAcceptsOnlyMatchingCommitIdentity$1$store$1$1.class",
+        "bytes": 2626,
+        "sha256": "fc542528704745e9cc207a4fb967ae7b8d90b1010f4a5e13ed9fcc6e4fe5331f"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$saveStagesCanonicalBytesAndAcceptsOnlyMatchingCommitIdentity$1$store$1.class",
+        "bytes": 2599,
+        "sha256": "ebe135b965e3f8c9c5812abd27ee1fc4322d722a8beae6c13ac3d616d1e6f0ee"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$saveStagesCanonicalBytesAndAcceptsOnlyMatchingCommitIdentity$1.class",
+        "bytes": 6880,
+        "sha256": "8431ee041b877096d79952a2c4ca56a0e970802a522b4c46eb5fe0a8a090b2b1"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$staleRevisionIsReturnedWithoutFalseSuccess$1$store$1$1.class",
+        "bytes": 2328,
+        "sha256": "069997315023bbbfefa563b77c63ed572f03437806ad24ec20b8ca14bcb7c2aa"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$staleRevisionIsReturnedWithoutFalseSuccess$1$store$1.class",
+        "bytes": 1745,
+        "sha256": "e08ff8cdf3380d0e38b0503123b1a08fec94bab22ddbf4fc1a1f5616d62bf0df"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest$staleRevisionIsReturnedWithoutFalseSuccess$1.class",
+        "bytes": 5415,
+        "sha256": "5092b418de1bc9d5086b5be97be6a6630fd73c13e623aaa4600bd13cce345b20"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.class",
+        "bytes": 3660,
+        "sha256": "8dca0769629f04995866221175e9344ef4a723a61439c75d5dffb3058fdd00fd"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a029/JobNotificationActionAuthorizerTest.class",
+        "bytes": 8223,
+        "sha256": "d4af3335bd97b5a9a47e5b641d609f259b11c267afd7219731842d18b5f4e74d"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a029/NotificationPermissionPolicyTest.class",
+        "bytes": 6212,
+        "sha256": "edfdf74d8ef799c97cd48f088e0f12cf7485f204f8aba9354131740fe9411103"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a029/NotificationUpdateGateTest.class",
+        "bytes": 5715,
+        "sha256": "db8b49324c26b4bddeb63eac48232da9d7c7146c52d86806236645e4cdd6e40c"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest$TestText$WhenMappings.class",
+        "bytes": 1386,
+        "sha256": "15d8cb742110047a8f40ae0d2a89a3e4958fcf7e8d401f2dd4e4500bd9502f7e"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest$TestText.class",
+        "bytes": 4939,
+        "sha256": "37d4edcf3fcdc64abcda63f1f60be40616a4c4fb20a44282eff15abaf211cc7f"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest.class",
+        "bytes": 13825,
+        "sha256": "853d35b9f3af8a26cc2e2b4a0a58a7306f05f8b9e93f7c17d61353dd9e8926ea"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a029/ProcessingServiceDrainTest.class",
+        "bytes": 2485,
+        "sha256": "d4ca67fb8a0d0181104966aed0205d384408275f7d49c61fcb3ecff23d7d94e9"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a030/ResourcePolicyTest.class",
+        "bytes": 7985,
+        "sha256": "389ecdf988cfb4987799a2c500fe4b6a109088b44d95507a5fd82554d6ea2f7d"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest$Companion.class",
+        "bytes": 939,
+        "sha256": "6dbe2d56e77e29496d095aa3fab37d3029a5821fedf7d1fd9488d50c5c4421b8"
+      },
+      {
+        "path": "com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest.class",
+        "bytes": 11132,
+        "sha256": "fa554a56765049bc0e8c3f7d2e102baf08735467fb5572391e40a1d0cb444d2a"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadata.class",
+        "bytes": 4001,
+        "sha256": "2b73a862fb10ff7fb00f777165e45000e894dd18265b8593484fe70f6bb1d04b"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.class",
+        "bytes": 7507,
+        "sha256": "d32778461e10a4f8552853f2049408c12cdb3e39e256ce319636b219409ce51f"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationCompatibilityReason.class",
+        "bytes": 3057,
+        "sha256": "b804a6fac58109d6531ff5c6e3cccd360e4305b93ad9ad91fae86b0754331070"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationCompatibilityResult.class",
+        "bytes": 4848,
+        "sha256": "ab9126fc4b861e4715a15b2fbb8c6cc57de1b413326a9b088f3fcacba60af1b8"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationCompatibilityStatus.class",
+        "bytes": 2208,
+        "sha256": "b5c50e5dd3b199b5b014dd63b97310b2a1ac117f6bfef515a75992e32072b33b"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationContractsKt.class",
+        "bytes": 3583,
+        "sha256": "7a4e5014a1ea0b716c32b916874139e7d6ef38f4e1bc1c07ec2c431074445a4c"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationCoverageEvidence.class",
+        "bytes": 5901,
+        "sha256": "8b658f64e841f490844863f72c326ea1083cc282bc30e6436157c9b2d7ec3b2e"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationEvidenceSource$Companion.class",
+        "bytes": 3186,
+        "sha256": "9606e7b2f26d02b331686d3c2fc207b0246d7bc694a797968149ca6cfcce1c1e"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationEvidenceSource.class",
+        "bytes": 3012,
+        "sha256": "8bb043a718b9277a2ba05b6be9f75d2894e28c3ea313721a67058c47784ddaf0"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationFailureCode.class",
+        "bytes": 2471,
+        "sha256": "57d5a0aac2b22449296c1dc10ef0660f10d11ab9b7bd2ddfe4d1318040c310b8"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationInputIdentity.class",
+        "bytes": 6404,
+        "sha256": "64cfdce6319ba458a8abffaaff00991e5f843266be9bb07cb2812bdf79a970dc"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationOperationKey.class",
+        "bytes": 6067,
+        "sha256": "1ae50b28f411881337b086b0ebab536c62eb2d3d857d15884857daf317eb3763"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationOpticalMetadata$Companion.class",
+        "bytes": 3549,
+        "sha256": "bfb10592735bcf5d3c18e3fb89859cbad78720f370869b483685b1af28090d9a"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationOpticalMetadata.class",
+        "bytes": 10491,
+        "sha256": "f5c0947092e8b98e7d3f4feab2512f3d4814ee7d2d3e18da64b7da684d590345"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileCodec$canonicalIdentityPayload$lambda$27$$inlined$sortedBy$1.class",
+        "bytes": 2460,
+        "sha256": "cb50ff5b5d40abfcadc77737373f4681597618ebb06e3419aaf9e37787efccf6"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileCodec$decodeV2$$inlined$sortedBy$1.class",
+        "bytes": 2383,
+        "sha256": "f732c8c32d1600a85c840f286d4aec14a910132dc41b46a5ca2aa7d2b80fbad4"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileCodec$fromSession$$inlined$sortedBy$1.class",
+        "bytes": 2513,
+        "sha256": "c5792823227e6d3df985c81d37776fab3b799f21118c76d8b5bde7b868ed5a38"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileCodec$fromSession$$inlined$sortedBy$2.class",
+        "bytes": 2510,
+        "sha256": "430e7abca15689577979e2ea297d835f6d393a310cc7895c43c395786d682753"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileCodec$payload$$inlined$sortedBy$1.class",
+        "bytes": 2373,
+        "sha256": "2f2661c7ed0cb2fb535d9cc03cc8d704f25762d3895c9cc3066c9700f387ab33"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.class",
+        "bytes": 45470,
+        "sha256": "c055e89d37dc97ae798ddcba84fc3bf1ded912d3f44b47c1837178aa84927e2b"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileCompatibility.class",
+        "bytes": 7674,
+        "sha256": "daebacfd4be618e8eccd69fb7f42ef2e81e5c897e241eba7bfd62c21f52b7cfb"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileMutationKind.class",
+        "bytes": 2086,
+        "sha256": "0ff399563e1d0ccfe24ed1496f5a459aae0228a17669bbc0298b67388739a67a"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileProvenance.class",
+        "bytes": 7724,
+        "sha256": "5fdb273d269ad4a1ebe813a98b4f9227425768f7ef7aad8ecf3383eb48e5b2dd"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfilePublication.class",
+        "bytes": 1080,
+        "sha256": "61e0b017d26f8b3319db344afb814862da720a817b33506928d4065f23d01973"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfilePublicationPort.class",
+        "bytes": 1210,
+        "sha256": "cb285331f1e8e17add8da20c389448ee205b02a450ba872c9f89973c893f5644"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileRecord$Companion.class",
+        "bytes": 968,
+        "sha256": "c04693e7d302d40afb5973f0eb88666136759d57ea8a007190058c3c5edcfafd"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileRecord.class",
+        "bytes": 9672,
+        "sha256": "0bb86a96490d9b884f43360196744142582920615743d0c3ebf804b759c761d1"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileStoreResult$Rejected.class",
+        "bytes": 4887,
+        "sha256": "0940efdbf2df744a4dc10e2c2c94d23068df932c803afbf9a776ceab1cea4848"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileStoreResult$Removed.class",
+        "bytes": 2713,
+        "sha256": "31aadd30ba63e970d3185022c2cb34d82b5abf913f116cfa7f1f314e5eadc935"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileStoreResult$Saved.class",
+        "bytes": 3607,
+        "sha256": "e0b538d48700d046cb3e10a4451d5f806c4823039890d4680030a79455514d8c"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileStoreResult$Stale.class",
+        "bytes": 3490,
+        "sha256": "f9a9ec77c47759c31d2654f83f30ca5a2dd1b1de7695d7ed4174bfe42e0e5fcc"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProfileStoreResult.class",
+        "bytes": 1300,
+        "sha256": "9391c57827b9fb3b7e7aec88eb985fad8e8be831791d08d32918467430c3709b"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationProgressPhase.class",
+        "bytes": 2376,
+        "sha256": "3d8f7cc6ed0bd1b39e11de23cc4b30c2e93648e39e755e3bd040535efdc8aa43"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationPublicationRequest$WhenMappings.class",
+        "bytes": 982,
+        "sha256": "0885a59775f484b9058e91980521d1ed3cb5e12671ea30febe5626dec1870f54"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationPublicationRequest.class",
+        "bytes": 5847,
+        "sha256": "a5b9d04547da29b70100a4470048a69aa4e373709ff13ab724514662a7439aeb"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSessionFailure.class",
+        "bytes": 4899,
+        "sha256": "844491e29d240da74e4e380981b5ad7fb5dd854772bc9323b173e045cb33b448"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSessionProgress.class",
+        "bytes": 5521,
+        "sha256": "b6e2cc804c80d240a4725b4aa55d2fab3e8ee22b1a2f224083a1b507018e47fa"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSessionResult$Rejected.class",
+        "bytes": 5568,
+        "sha256": "a044c4e1eb6833db30a81da7918096aade1390ee0970082ec96e4c57d550fba6"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSessionResult$Success.class",
+        "bytes": 3199,
+        "sha256": "20c8c3ac88d1e686fe42416729c9149c98b646a3b61cbcc62c954a6eaccc5732"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSessionResult.class",
+        "bytes": 876,
+        "sha256": "4ba411d974a82b5a2a1a7df3b9de4f271034ebcec3b036f77407ca4b58c2d8c7"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluation.class",
+        "bytes": 9642,
+        "sha256": "168a061d8ef12facb7e5d50e078c7cd4694d94d0a25af3546d094bda11eddf20"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$evaluate$$inlined$compareByDescending$1.class",
+        "bytes": 2297,
+        "sha256": "3103ff7000ebb992ce41636f497425268285da72ad02b879731e5d242b0a3ee8"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$evaluate$$inlined$groupingBy$1.class",
+        "bytes": 3483,
+        "sha256": "550d5cdb5c7b5e50af3d552a4981a79e32439fad3b9ca2bdd39e3be857e06e13"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$evaluate$$inlined$sortedBy$1.class",
+        "bytes": 2379,
+        "sha256": "52727b0a6a49e0b04946790d569157ce2df1e2f4bd20115dad81fad196773bcd"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$evaluate$$inlined$sortedBy$2.class",
+        "bytes": 2381,
+        "sha256": "35caacc1a445841e2f8bba568b40eb47cc866b21c7ce284551d22df44c380799"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$evaluate$$inlined$thenBy$1.class",
+        "bytes": 2498,
+        "sha256": "0159f06acaf4025313862b48b28e5e653b09c466ec229d7923a25941bbc50ec5"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$evaluate$$inlined$thenBy$2.class",
+        "bytes": 2499,
+        "sha256": "c3d41d1cf05c55c6044546e31072cd9fc5504f75480831a37804c15240191189"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$rejectNonDominantIdentity$$inlined$compareByDescending$1.class",
+        "bytes": 2425,
+        "sha256": "2e1e15dd3e19df8815f71b61929de1a7021dfe57ede56ff7ddceb7085b1bbd0b"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$rejectNonDominantIdentity$$inlined$groupingBy$1.class",
+        "bytes": 2722,
+        "sha256": "1a82338795dbce2a0ca5fa632c1f5282eed1592b4d519aa0e94b6d54bca6bb64"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$rejectNonDominantIdentity$$inlined$thenBy$1.class",
+        "bytes": 2576,
+        "sha256": "66e3a3a83a7c55a4c3f98df0a1a343d4e6e46acfc5902551c33e37163e29c32d"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$rejectOutsideNumericCluster$$inlined$compareBy$1.class",
+        "bytes": 2352,
+        "sha256": "e9da072ef02222e52523de35e4bfad1c87bc1189a3637281264cf46f31a409ab"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator$rejectOutsideNumericCluster$$inlined$thenBy$1.class",
+        "bytes": 2754,
+        "sha256": "c9a2fee7856372126257b12ee102d46a4b7fe2487803c650f4bc03b9d3311db8"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationSetEvaluator.class",
+        "bytes": 31253,
+        "sha256": "b5ec643fa525ce4a879df691a9e0b32f1b5e4f4e0ca88039d137db8577044395"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationViewEvidence.class",
+        "bytes": 10163,
+        "sha256": "11e9d6821bf373281d3bcc110e932f8b275430524e2c811ba1d4c723de38615b"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationViewMeasurement.class",
+        "bytes": 12973,
+        "sha256": "b1e68eef788a024a0bc4524abf73f643673573603d46251c74de0e2a303ab9d2"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationViewRejection.class",
+        "bytes": 5008,
+        "sha256": "08c2a6322240672374da100c3e6ccce19924607ce158b2f0eaedc532bf72fde9"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/CalibrationViewRejectionCode.class",
+        "bytes": 3158,
+        "sha256": "904a38c831b1631b0e09268b5c29b4fc65791e8f5f12d0b7af423707088ab8c2"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/ProfileStore.class",
+        "bytes": 1811,
+        "sha256": "91e804f30518b61e3a5363f7ebca482c299b8e0436b37b307a6d61400ae2db64"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/TransactionalProfileStore$execute$1.class",
+        "bytes": 2344,
+        "sha256": "c3e888479d19b8ed52d6b9d3ee744d0249a20f90fe5d83bec965bc7a234d3fc5"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/TransactionalProfileStore$execute$2.class",
+        "bytes": 3621,
+        "sha256": "f8178cf3787dea270cdaa193ed33434fdb8ae7b099728632343c8185c9d1a4ac"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/TransactionalProfileStore$execute$3.class",
+        "bytes": 3621,
+        "sha256": "3ce517446472b6d754da9d04ee5c41942be98acb708acde43c772008fd864748"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/calibration/TransactionalProfileStore.class",
+        "bytes": 10816,
+        "sha256": "64b2e2db6a19dc8c76c48064995cb47309b01174333bf063422a9d663d6a65c0"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadata$2.class",
+        "bytes": 2611,
+        "sha256": "ae4f96d6376174b3bc28a975eb3c68d7c5256ad1f7a752afa774b721740e1ab4"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadata$5$1.class",
+        "bytes": 2615,
+        "sha256": "701fb0d8b1c48d71441d22765d2b8d09f5c682972fd6500a63b859cc9718ec3f"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadata$Companion.class",
+        "bytes": 7975,
+        "sha256": "636daad03df7525d56bf3efdf89e255a1bd7b3a9cb859b986cff6084388159e2"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadata.class",
+        "bytes": 25902,
+        "sha256": "94cb50c0f117c17b9cb680c88381cfa2975959d6f96c742c587295ad2fe4f20f"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataIssue.class",
+        "bytes": 2368,
+        "sha256": "3d458ec84c2e76783856811968264e581f43baa05c8e736c09f4e1dd07d6731d"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$WhenMappings.class",
+        "bytes": 1422,
+        "sha256": "c785e3ced9c9c92d211d6ca50d1062da90341b6efa1acb3fea9e259d5f42b701"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$merge$cameraMake$1.class",
+        "bytes": 2013,
+        "sha256": "ff119fa58f97b4f2800baf339f1729b80ae2923f035e6cef40b8c2d4a52a7a77"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$merge$cameraModel$1.class",
+        "bytes": 2015,
+        "sha256": "9b32eea53fbf7ef09231bb45491b232e751ea6dd86d3f192e721aecb42a2baf4"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$merge$captureDeviceId$1.class",
+        "bytes": 1876,
+        "sha256": "a9752665690df20f01d2421bcc39b85e13b69251133a6c6bc57928b983df4f22"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$merge$lensMake$1.class",
+        "bytes": 2009,
+        "sha256": "93ecbb0e8fd6f3e660fea4bfa42126c570f440e7082715b57a848d25d32a962c"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$merge$lensModel$1.class",
+        "bytes": 2011,
+        "sha256": "1339a4c46f7a2957c32bd72b1bdf9a97c2458d797682cdad13ac6fea919bacd9"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$merge$logicalCameraId$1.class",
+        "bytes": 1876,
+        "sha256": "1db8ce263108911014349bbfc5d6d12fcd64745ce20147ff7f1703d1f71ee5e4"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger$merge$physicalCameraId$1.class",
+        "bytes": 1878,
+        "sha256": "731fef374240f0d5671b8817b69f8f49d5f12edfff41443e7ae1878890b5a97a"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureMetadataMerger.class",
+        "bytes": 26265,
+        "sha256": "83751e948284b16b7a26ae34980639a37559eeca58b179770bd3eb03c106ec63"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/CaptureSource.class",
+        "bytes": 2114,
+        "sha256": "f79a35b55510e2fa9fb011bcc45b51d8d8fa488afd18273d5792d0172156e57f"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/EvidenceObservation.class",
+        "bytes": 3706,
+        "sha256": "9eab517b733530613fac392d25f04a93b2a1d46e45e6a5f36d9d528f0ddab2e7"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/EvidenceOrigin.class",
+        "bytes": 2592,
+        "sha256": "a3adb8b8a8803213b43bc7768f194d4e2b613ea4bf2997e1bc5f46939809251b"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/EvidenceStatus.class",
+        "bytes": 2079,
+        "sha256": "9e36de72ea336e791ef47d4fffc3452e49db2074a383c25e9df681b482729c48"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/FieldEvidence$Companion.class",
+        "bytes": 9366,
+        "sha256": "1b21d61939b0f3627eed64952dc73b773222883736bf2d692848c8e1fc92f24d"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/FieldEvidence$WhenMappings.class",
+        "bytes": 993,
+        "sha256": "25a7856dcec371bae6eac6dced7f5cb98f40ad2e264118bbbec5546e01006bd8"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/FieldEvidence.class",
+        "bytes": 11274,
+        "sha256": "5c1addd32af6e54fc23d5641de509772228999a5abc87ebcbed87dfa339b72b8"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/ImageOrientation$Companion.class",
+        "bytes": 2632,
+        "sha256": "ef8889d170fcdd3a038f816bb0305a85e4425d0ea19a369e82b8ad3814101ae3"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/ImageOrientation.class",
+        "bytes": 3483,
+        "sha256": "1f51461cc12b9fbbec9028bd6259078fdd160dc9c579fe2bc883eba60441dd56"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/PixelSize.class",
+        "bytes": 4157,
+        "sha256": "127f1795ce846d0360830384405125c18c07babd9390e54392f0d3f12da8eee8"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/SensorCrop.class",
+        "bytes": 5712,
+        "sha256": "cbc7e15db52e333522e2836faadd11a4759729422fc6891a1315333b04d3b191"
+      },
+      {
+        "path": "com/realityforge/scanner/capture/metadata/SensorSizeMm.class",
+        "bytes": 3063,
+        "sha256": "027c2853f16a719a17d818591576f39b0cc706b7d4e4ee90d6befcb50ae36dac"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/CleanupBudget.class",
+        "bytes": 4174,
+        "sha256": "bd55c294b69ca5da066f6a63b061382a2db76d5bec664c1414142f89f6981276"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/CleanupDelta.class",
+        "bytes": 4947,
+        "sha256": "b3a6e2de35541fddfe104b6d3bbbc153add974fb1d04c10e2fdb5667cac70eab"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/CleanupOutcome$Complete.class",
+        "bytes": 2967,
+        "sha256": "8d9dafb75c3bc37e3bce84eb0b9fb1a6cf442d4973fd61603a1ff1a6f02340d9"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/CleanupOutcome$MoreWork.class",
+        "bytes": 2967,
+        "sha256": "f9bdecb076a00a97d3102b47eef74439f6eed343665da26f6102b593cd8a72e8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/CleanupOutcome$RetryableFailure.class",
+        "bytes": 3853,
+        "sha256": "5b4598e2fc2a959bcfc9f0bedfa9e003e6e0481f5d2e981e99ae916d96857bde"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/CleanupOutcome.class",
+        "bytes": 1235,
+        "sha256": "fb1f33b431e0ebfd6886e19bd2fb09f83b1e34aed7302729d912246bbd596f8d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/ConfirmedDeletionRequest$Companion.class",
+        "bytes": 940,
+        "sha256": "587e33fd1b091412d0d5624f4e3dcb93d4c5911639a27dcbeccc12857860ca2d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/ConfirmedDeletionRequest.class",
+        "bytes": 7994,
+        "sha256": "d299a59e3ebc4f92af5a00f7b6ce8f0fdef21562d671f15d7ff3ca9acf975fb8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionBlocker.class",
+        "bytes": 2322,
+        "sha256": "40b9cdd1447fefbbb69b72b92103c7424295d35810b9c5a46df79fd7f126dad2"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionClock.class",
+        "bytes": 435,
+        "sha256": "d389318a0f74846b0d8b7692fe1d7eabfedaa9d8695d02d4d7ee70959bad12ef"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionFailure.class",
+        "bytes": 4108,
+        "sha256": "935b21614fb01fe33704c3d3109722a92e3c633d73446b99a25580987e53ff71"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionFailureCode.class",
+        "bytes": 2426,
+        "sha256": "33f379b5ff472a247a47ba6b37bb54abbdfe71e98855a11fbc9cf4e5499fdf0c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionIntent.class",
+        "bytes": 7331,
+        "sha256": "fd94cc31f1123c2a4243cf1465f0a9e5a1298422d7e69a2ee70395496418a0f7"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionLeaseCoordinator.class",
+        "bytes": 1483,
+        "sha256": "66728ecf11e268df6ac5774d6036e9e47b6f72bd9f7404bf7aa65fd7b97e312d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionLeaseResult$Acquired.class",
+        "bytes": 3030,
+        "sha256": "25e1565d0b856f6e2ba8b6d57308fc07c91e525c962a55825534741b6bd8750f"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionLeaseResult$Blocked.class",
+        "bytes": 3494,
+        "sha256": "b60fadd829ef2c248d81634cd0ab0521aebcbc2b31a464264c412d18bc5d2c8d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionLeaseResult.class",
+        "bytes": 804,
+        "sha256": "6f8d6deb36f4522b74d8dc23d076a3716ef0e60e6a1319b256d5362a89da9315"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionModelsKt.class",
+        "bytes": 7016,
+        "sha256": "50a702a89ba997e8bde7d98a6deb9837891ab778f4c6d0739f732408131dc00d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionPersistence.class",
+        "bytes": 2652,
+        "sha256": "1955b26a924cfc046b04d9cfacd25806d9620df0f967da7daa592f7ea6b5b1a1"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionPhase.class",
+        "bytes": 2367,
+        "sha256": "59d96aa0b17ffd1b75e2e706350062c5188776c4e18a265ce3932a7257cae44d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionRunResult$Completed.class",
+        "bytes": 3021,
+        "sha256": "8c9b87aa1997663c4cd1fd9886514ca53b4367052aedfd1941bf1c49e544c8c3"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionRunResult$ConcurrentUpdate.class",
+        "bytes": 3009,
+        "sha256": "d631ce0bcd9291c8d6c7154e633f23ab587ca20743779acf3cb1a9997f46900c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionRunResult$Missing.class",
+        "bytes": 3011,
+        "sha256": "e1e5acf71ae59f6ff1df8deda3044d7de7b5f4343cd88921ab0ef8a9ecac15de"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionRunResult$MoreWork.class",
+        "bytes": 3014,
+        "sha256": "6a36ecd3a30ad4e9b243f176acfdbb35541a73167f3e3769ca5bd2eb9baa8f4a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionRunResult$RetryableFailure.class",
+        "bytes": 3070,
+        "sha256": "f5b4edf9199706993f0a575ae719c8a00e611bf5c9a9b4de14009b581bc6af12"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionRunResult$Waiting.class",
+        "bytes": 3007,
+        "sha256": "bc87e23f6313257b42d0902f5733c6dce4ba2760151b50c01d1a0ca531837510"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionRunResult.class",
+        "bytes": 1813,
+        "sha256": "8f49c26b95bb3df59e9f96d68b81e154318e62676ca9e90e7a36f0844bea46d4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionScope$Photo.class",
+        "bytes": 3322,
+        "sha256": "21cba26af47a01e587a8a85fa1c2a230a9678f913a35d68640207d4c445a33e4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionScope$Project.class",
+        "bytes": 2865,
+        "sha256": "2c49f125c8f8df4266b1b8442f577f186b329470271f35b6b3be35b07a3bce17"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionScope.class",
+        "bytes": 938,
+        "sha256": "363d25f4e22e14ea262b11a40e1730530b55769dc8926c055cbd863c1407836a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$WhenMappings.class",
+        "bytes": 1226,
+        "sha256": "faae5552987ca7770a950be8213a88ccf6f85e841926a2f2950bab0751b590ac"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$classifyLatest$1.class",
+        "bytes": 2016,
+        "sha256": "7e0f56604882f61eba00bd667dd6f0e47f5a75db1ae16b2e882c0b7048d02d89"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$clean$1.class",
+        "bytes": 2039,
+        "sha256": "003afaf16aaf690c8c5c6242a6974504f81ccfb420fa2a742dfb44e12065031a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$clean$2.class",
+        "bytes": 5926,
+        "sha256": "e79e3bb1f3e980a85d41904103ef8d44eb44052f86c837636ce4246fc24e6ac4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$confirmAndRun$1.class",
+        "bytes": 1968,
+        "sha256": "b67c183c40ba14d7cef34e7d5577ff7c04be2d1c797b97d9cf209a16a57c6081"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$finishDatabase$1.class",
+        "bytes": 2129,
+        "sha256": "569ffd79211b5f4c124c7b6f7aef7bb9051672b471b9341d3c509d5e933bd088"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$recoverPending$1.class",
+        "bytes": 2000,
+        "sha256": "e095eb5dfc458b4748d680a18b0785357c69062dc23eee1146d5c4a8a5b7efc9"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$retry$1.class",
+        "bytes": 1917,
+        "sha256": "a26e3da4cd6d6ad609210cb8824c22e5eda9fee4d6ae26c90db8599e479dc8cf"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService$runCleanupAttempt$1.class",
+        "bytes": 2676,
+        "sha256": "5af106d7e56b378cdc6ce44366f1fdd75e19a72907ed8a3dbe1a2271a28424e4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionService.class",
+        "bytes": 29176,
+        "sha256": "d662d19c2d9a7b9a3fbe3bdf7ce01971b0ddcc461e7186f72f1bf15591263853"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionStateReducer$WhenMappings.class",
+        "bytes": 1241,
+        "sha256": "0d0f0d375708a92f2b1c402545348c5fd83c8160b03af2af6e52a9a8403fff98"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionStateReducer.class",
+        "bytes": 8008,
+        "sha256": "44070674c84eab4371c9035d8f893fe85470aa53a35a7a8a254788463d3654e8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionTransition$CleaningFiles.class",
+        "bytes": 2454,
+        "sha256": "e473ae7e95d57227d5828f4a82f9bef7853ce2baa3f1d84fe6a8904c5a767fc5"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionTransition$CleanupProgress.class",
+        "bytes": 3845,
+        "sha256": "8bc38e26718821f90a2761c0b79578ffccb58c5c972ca0ac31d3f93952a38a86"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionTransition$FinalizingDatabase.class",
+        "bytes": 2489,
+        "sha256": "460dfdf2ea78b82706aa457329b8b8bfd951804c5210ca5bb2e372a809a86705"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionTransition$RetryableFailure.class",
+        "bytes": 4276,
+        "sha256": "f8bf0d4988911768cc44114cecde7a58adcd838111d6d09857441be1a5b873af"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionTransition$WaitingForActivity.class",
+        "bytes": 4010,
+        "sha256": "917f8908e643cbad7e73c0d925399e980303b64363e236eae2a2fcd2ce2cd5bf"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/DeletionTransition.class",
+        "bytes": 1539,
+        "sha256": "5aec878bd7b50f389e1625dd4a74f3c684570d353101fba65454ae6e128e0796"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/OwnedDeletionTarget$ProjectRelativeNode.class",
+        "bytes": 3525,
+        "sha256": "6c0e1b99237b7c5a9bd5d1e4bbb3000069eccdeb527c37e1aef43c5b27e31278"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/OwnedDeletionTarget$ProjectTree.class",
+        "bytes": 2935,
+        "sha256": "325115dc9285b53c056a82e7722a1a43486f19571aa775cc2b78419028d68253"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/OwnedDeletionTarget.class",
+        "bytes": 1028,
+        "sha256": "922c9328866703e29cc366a83e59af78c2fab2e3ce90ff5436507f067653a94b"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/OwnedPathResolver.class",
+        "bytes": 6411,
+        "sha256": "ef19e2f0d0eaef92acf064f33804c72d8d985b7ce0c7699a0310bacd7b4e714c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/OwnedPathViolation.class",
+        "bytes": 1573,
+        "sha256": "389d1f55060f4b5433cf3004bb4e8146f55405eb9a616979fbedbe1149437d8c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PendingDeletion$Companion.class",
+        "bytes": 947,
+        "sha256": "7d4682d81f2030a03cf664ece9a0a3d51ffc4d6c858e5f6e4ff55a9342fcaee1"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PendingDeletion.class",
+        "bytes": 19299,
+        "sha256": "9e9d57efda879cd8bb894820b442165a187f63eb9ca3ebbe1298225222c222aa"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$TargetPresence.class",
+        "bytes": 2242,
+        "sha256": "1692bc148cabbf2c26aa208bd647ef0eb58c4518a1c876f23bfde8d4ef34c024"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$WalkState$Companion.class",
+        "bytes": 1032,
+        "sha256": "d93c41be5f97fde2647a3aebb066b21a58ea242931c0dd5c4bfa757d43927ec8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$WalkState.class",
+        "bytes": 8554,
+        "sha256": "342ff863d23aef3d9c5186243dc595e9401a393680ad2b44ca2d755fd4ba876f"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$WhenMappings.class",
+        "bytes": 1020,
+        "sha256": "7785a1c0eb9461704ca4eeef58d094dcb813e0b08caa596dcd37f62bcc8a9ebc"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$cleanTree$1.class",
+        "bytes": 5280,
+        "sha256": "197b34c337edd1713437e9dc85fca857307f5fd83cee7029afe5793b3de87805"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$normalizeTargets$$inlined$compareBy$1.class",
+        "bytes": 2213,
+        "sha256": "005e0c076cedb81d9710517e735a9084b617149c1daabd14e2bded716259f335"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$normalizeTargets$$inlined$thenBy$1.class",
+        "bytes": 2589,
+        "sha256": "6268d68818c976e05f4a47e5d552bdab5c1f7480308643234fd2c28d0241f20f"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner$normalizeTargets$$inlined$thenBy$2.class",
+        "bytes": 2670,
+        "sha256": "dec6434d4115e13ef158e15cd4cb0a4c0cc9eec03821b3b8a89eb83cf564ddec"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/PrivateFileCleaner.class",
+        "bytes": 19012,
+        "sha256": "f6123c52e397493c8f916a99722099a526c5f73c4738ecb1cd989015ffbf0e7e"
+      },
+      {
+        "path": "com/realityforge/scanner/data/deletion/ResolvedDeletionTarget.class",
+        "bytes": 4817,
+        "sha256": "1f9aa2529597424521e066c9324515dd0726f33a921df8493689b3750270c468"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactDeclaration.class",
+        "bytes": 5281,
+        "sha256": "23e6296bd55ef5f3e1c8037ae52baa136e1f475bbbbc53d8a112b92704e7813d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactManifestEntry$WhenMappings.class",
+        "bytes": 917,
+        "sha256": "77939ce30a51d2e88a51f25fd549a40f5044efcc6e9eab8dc7ca95a8bf4d3296"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactManifestEntry.class",
+        "bytes": 6455,
+        "sha256": "11b51965fde04390b5901e160ca7232d7a6e73705cc82660d78f32c92c72dbca"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactPresence.class",
+        "bytes": 1979,
+        "sha256": "5f8161cc9e1ed61ffbf3b654a6b86874868622adf4afe4e06195d2ebe1465f6e"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator$1.class",
+        "bytes": 1559,
+        "sha256": "c4b4d2e7733b0692d103fdd0c2d2f8bc3b494906d01f1b04dc7f969d99d7c1c4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator$Companion.class",
+        "bytes": 1382,
+        "sha256": "71a63d5cb8f4abb5b481bc88befb017b1f07cc0885dbb14acc3e03377bd4d851"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator$WhenMappings.class",
+        "bytes": 1388,
+        "sha256": "99e196e67c5fc14ac6b6b88708d78d7d0f2b727fa6676d968f9204d4d551fce1"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator.class",
+        "bytes": 44282,
+        "sha256": "576320333750a76afbce233a106cb444e67c4e6be718038c99644ed7375159bd"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactPublicationSession.class",
+        "bytes": 8708,
+        "sha256": "39112afcb4be9e3fe3c4ab6e7f720d04d61a2e004b3c6383a44ee09b8ca6b13e"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactPublicationSessionFactory.class",
+        "bytes": 1396,
+        "sha256": "c30b65275013bc75911dc9cde7c41a4d011b8b0e4a36c178518d47667fc2a6c2"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ArtifactSetManifest.class",
+        "bytes": 9826,
+        "sha256": "6f49f26946202f12671db84dec985d87e7215dd9cefb5aaac5f48b5c56f10756"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/DefaultPublicationGateway$Companion.class",
+        "bytes": 1016,
+        "sha256": "eb28e018eba3fc141385515016da19f5a71ed0bbdddf0ed5dc497b3f61d9ad33"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/DefaultPublicationGateway.class",
+        "bytes": 7236,
+        "sha256": "b7d949ec94ce2401dbd962ba5a2c34ae0c46162f152c9cdcbe515addcf1cc110"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/DurableOperationState.class",
+        "bytes": 2200,
+        "sha256": "2b2e14a8f9f0ce506be0edd0c8eeefa78d9696ac7d00f3875cff98caf4f86fba"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/ProjectPublicationSnapshot.class",
+        "bytes": 8616,
+        "sha256": "972a7a7eccc2f6c769519e8aee8d4aed1e2f67a5fdf488f38278f989dbb5ba56"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationBoundary.class",
+        "bytes": 2307,
+        "sha256": "27428293bf1342aaca8397d062560465ce38e8f29b186f417c1a77ff9423663c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationCodec.class",
+        "bytes": 21961,
+        "sha256": "4a7c53581e8191c175136007a63d35cee0a834cdf455f3858c85d8aa085b724f"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationCommitRequest.class",
+        "bytes": 4809,
+        "sha256": "2f83d50ca9be9029efc8bb048c019bae9b000aacf9d72c85899fb366d1a35a34"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationCommitResult$AlreadyCommitted.class",
+        "bytes": 3631,
+        "sha256": "6e1a8d27ed4be94b5ceb8cba1a5e26ec9b53400d2636579c0b8a37f999aa8cdd"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationCommitResult$Committed.class",
+        "bytes": 4985,
+        "sha256": "35a572b06c0d6cda11833b978b8f2af6c1615ed485b62fa03a36da315d97d8ab"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationCommitResult$Rejected.class",
+        "bytes": 3083,
+        "sha256": "b75f0e5ff686713d519818c6969d7f304238cfac40a1798097b60e3bfdaebb7a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationCommitResult.class",
+        "bytes": 1415,
+        "sha256": "1d9deb02d4c86473f9c2d5f552c83d111af2661010a9b99fbe5500eb7fa8187f"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationDurability.class",
+        "bytes": 3730,
+        "sha256": "8b9925c4d9fc24ba75a504a1797bdc1c17b0915e489ecf9be8fa57d2c4aa79c3"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationException.class",
+        "bytes": 1253,
+        "sha256": "f14cbfb738845bb499b3572d2381ed5c37b3cc2ffa086e3cfa1f5a27ffe88427"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationFaultInjector$Companion.class",
+        "bytes": 1862,
+        "sha256": "b2ec781612947274dac0f8d2b9a4f9e780855731f5df91b8db8c84744c7f430e"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationFaultInjector.class",
+        "bytes": 1064,
+        "sha256": "9c4ad4c6cb41fbf8c7c6ffe71522fe6fc0984e8c89af5ef3c00d20839119f4e5"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationIdentity.class",
+        "bytes": 8120,
+        "sha256": "01224ad11fea950758118b84441c3423ff3ef49a22f1d8da6414c1bc47abee4a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationJournal.class",
+        "bytes": 11297,
+        "sha256": "968237b5f6749e87cead88d66887a93e82fc745f39b85fc99e6c11de1321921e"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationJournalState.class",
+        "bytes": 2598,
+        "sha256": "60771d963779dbd97be967aafc901cdd22c5dd92aaef6dd39be004a6531498f0"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationMetadataPort$DefaultImpls.class",
+        "bytes": 3470,
+        "sha256": "a52a0bd3a3ab44996e72aec1ec962fd46ddf979ba51b6f4f4c63bd55dc1dc77d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationMetadataPort.class",
+        "bytes": 1607,
+        "sha256": "d407d89c1003c09da1c0d411170f65d5b9fd48e3bbab775ab6632cc1f2615baf"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationModelsKt.class",
+        "bytes": 5808,
+        "sha256": "ef9f5306419ff42e15cc135655db828fdf4aebf16966ca287f72feb15675a27b"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationPlan.class",
+        "bytes": 7778,
+        "sha256": "afe71c46a9175db10ad2ce3949a60b7d9c0ae55c60f0dfec97acf5f83c05c037"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationPointer.class",
+        "bytes": 8584,
+        "sha256": "c636d357c849874911ca59a13cf9ef93f716a75faac9c1c9c947ee168dbc25a8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationPurpose.class",
+        "bytes": 2005,
+        "sha256": "6099c90e9e6e1f042cbfddde91a4885c185ababb4cdd83701a3dbeb3d629b4ec"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationReadResult$Invalid.class",
+        "bytes": 2776,
+        "sha256": "0b4c79a2c51a1ecef8cdf0615a2c549fcb319546dce6ba911cb136016cd1eb2d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationReadResult$None.class",
+        "bytes": 1463,
+        "sha256": "8ebe86c95f2c847dde428bc6b6b8661ad9a931e0aa6a5a8d6f8685993d2fa404"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationReadResult$Verified.class",
+        "bytes": 3125,
+        "sha256": "e0f4f90b3079f060ac43345ff72508b4a4e58062d81af4b8487d2a11445bfc93"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationReadResult.class",
+        "bytes": 1357,
+        "sha256": "1435c3f97f7b6e3a5e2e43cbd6f40be53a3c787abdd3886523cec553b6408386"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationRecoveryReport.class",
+        "bytes": 4594,
+        "sha256": "c290911f6ccf99aa064dea2d2be6d257a02375c1581796e7dfcde30be35a37c8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationRejectedException.class",
+        "bytes": 1812,
+        "sha256": "c05f23eb602c824454e019e89d6925be66737662e48898596f7b26b2f4583ee4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationRejection.class",
+        "bytes": 2543,
+        "sha256": "31bcbedc593d73e8a53f96787dda7b9cff120015f11c4ab9a838f1b4c623d043"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage$Companion.class",
+        "bytes": 1255,
+        "sha256": "7a992125d42528ccfce1f905d6f687b51cb475718c4569be45f0d26a9a5ade7d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage$WhenMappings.class",
+        "bytes": 912,
+        "sha256": "c15000d4c760ee40ac32c064e1f6fc35275e797705e6b33fec81773ee1f91a13"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage$deleteOwnedTree$2.class",
+        "bytes": 4458,
+        "sha256": "21ea507938174f3bcd096c141d8badcfdb7b978653842bf7bb364b11054085a6"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage$listJournalFiles$$inlined$sortedBy$1.class",
+        "bytes": 2492,
+        "sha256": "c5e815d5abaec3026c82753f2984a1951e1160a04ad47e0c49259b8df3e966cd"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage$listJournalFiles$1.class",
+        "bytes": 4534,
+        "sha256": "e7838888740aaa9ea9a7a090f5323090175a094eb6f9804c4b1aa9d56397c9b1"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage$syncTreeDirectories$1.class",
+        "bytes": 3051,
+        "sha256": "c24d7dc14bdcaf697d4e702288084d9d0381391adef24083e41549a592cc2262"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage$verifyArtifactSet$4.class",
+        "bytes": 4787,
+        "sha256": "db31fe9fbf37fa3c09ad8b74c5384ea8378fd1205f2091aa1a7f7c029d91e866"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/PublicationStorage.class",
+        "bytes": 32432,
+        "sha256": "68699c5de6192671682f15c16e96e9f5a1fa068b0c415cf4bbe15a1f271f8d52"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/SimulatedProcessDeath.class",
+        "bytes": 1663,
+        "sha256": "b5e7a6268805eeebc4089203f2a458d1abe0dbd094375251009801e164173506"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/VerifiedArtifactSet.class",
+        "bytes": 6685,
+        "sha256": "1821d4d75f64f19d2b464cf1dd08c93318a82c2e3198845e3d98970c1912593c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/VerifiedArtifactSetRepository.class",
+        "bytes": 1248,
+        "sha256": "e2165165c45e11eb8c2e3ff6d371d70433a46789943cf2200615526e18e439a8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/publication/VerifiedManifestFiles.class",
+        "bytes": 3457,
+        "sha256": "3e2e4412dd593e3ed753b8836ebda4f285096dafb5b03d0cfdef3d28d7339b81"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/BoundDestinationRequest.class",
+        "bytes": 6689,
+        "sha256": "9fdb7eddcd6939b1a7562398f854c7167052987820ce75ff1019821ee8dc38c2"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/CleanupDisposition.class",
+        "bytes": 2284,
+        "sha256": "ccc0dee74b572d5be9ef3f237712e676fc96f099e11dfded47d7fd71b8bd3d2e"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/CleanupResult.class",
+        "bytes": 3590,
+        "sha256": "d7b435d0e5f4e49029035b0b6d50c79a9a9368a2b95cf79883088d2591f1696b"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/CompletionEvidence.class",
+        "bytes": 2066,
+        "sha256": "d55ab6048b860b480a338f4858828a7f1e0aa8aca53b6b058c62ecbcf3003232"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationAccessException.class",
+        "bytes": 1208,
+        "sha256": "9629c9d3e9499740dea6caf0375784b82494fd72a688c90b7b016cf6f5943527"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationBindingFailure.class",
+        "bytes": 2124,
+        "sha256": "97ba377ae943b4a64614a2bff90570197552a9f4b0b10d5307d637f354cc7ec3"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationBindingResult$Bound.class",
+        "bytes": 3109,
+        "sha256": "3a836f98d2d0e3a19704eaa1babb3dd5530acee23a1b21a5bbaa2a48a864f061"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationBindingResult$Rejected.class",
+        "bytes": 3669,
+        "sha256": "801414f57cd236024852f16531b92117f243b3264e11aa2dfa59c3af11f289a5"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationBindingResult.class",
+        "bytes": 838,
+        "sha256": "118021d18267bf16acc43e7013432c49e00cecb30deb15db0353de1667231c62"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationCapabilities$Companion.class",
+        "bytes": 1274,
+        "sha256": "d7ede3b05bc7281539268590424bbfe00b7a05d4300e3ed71a0da17d05cded05"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationCapabilities.class",
+        "bytes": 4273,
+        "sha256": "7f14c98d603a225217d9c38d2b5999e8b68892df41b21aada19f917310458a25"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationCommitResult$Committed.class",
+        "bytes": 3626,
+        "sha256": "c4d64a5aa20f87f6a5223559f739bea50b5b41cb0ddc4ecf8e80f3e1d3009d6a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationCommitResult$Failed.class",
+        "bytes": 2745,
+        "sha256": "bc84c9a9a4f0f835f5ff49f431a30328f94c69bc86a3099d01b8ee7592a7dab6"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationCommitResult.class",
+        "bytes": 836,
+        "sha256": "7b409a22f8dfd25dbc16df800844fdb29c6a0331a6eabfcf17ebd880b893a65d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationDocumentStore.class",
+        "bytes": 1121,
+        "sha256": "1ec83c419741aab4cb992039ef38c99e8021f99cbb15f93823839e7f210c4256"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationOwnership.class",
+        "bytes": 2006,
+        "sha256": "406ba0dcfc567898f790e5fa9fa52831c8e68f18a451e9ba5a44ad4af5b34f0c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationPermissionException.class",
+        "bytes": 1308,
+        "sha256": "42237a54e8c10ed7f50628ae5e4d8917f7b786cc19010bfd6329c324ba66fe4c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationSelectionCallback.class",
+        "bytes": 4810,
+        "sha256": "06d47c9857964c6d930f252b91bb76399be7c7783de9982ac4cbc246f046ea7d"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationSelectionMode.class",
+        "bytes": 2053,
+        "sha256": "07e9b015369cfd55b0ab1a36970b6454b3a048cd4454ed8626b005ef8dfc19c3"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationSelectionRequest.class",
+        "bytes": 6722,
+        "sha256": "709fad9c9f0e56226fb280c91efa5e5b403c9ce495bea86ea46be0f2e813cfe4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationStorageFullException.class",
+        "bytes": 1310,
+        "sha256": "8198ee99440d719d869b1242d922b7990c2289489e1df4a1839564046da9ceec"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$Companion.class",
+        "bytes": 1078,
+        "sha256": "abcfe603adf9ee6130f51d6d82996aa23b2130ab7e2b306232462f23f24404a4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$DestinationInspection$Match.class",
+        "bytes": 3295,
+        "sha256": "4eefe797b65518fa0786a0746fda793e427bc72322e2e07ba13301ce7103e5ae"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$DestinationInspection$Mismatch.class",
+        "bytes": 3463,
+        "sha256": "10d76d73752da2961807996124e96adca29859ed2ead8e8b1449bf6c0117cc75"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$DestinationInspection.class",
+        "bytes": 1376,
+        "sha256": "3fec0df57a2198f8f37532cbb5ce64cceea7937a3ebe18a4db8972e67dfaf94b"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$RequestedTransferCancellation.class",
+        "bytes": 846,
+        "sha256": "587e46b9b1714d75c45231e494012819dce0961de62cda87ad980120f84a6703"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$WhenMappings.class",
+        "bytes": 1609,
+        "sha256": "bfad74eb82ea94256524d09f710a292461c18ffaa2ed600e7f913baf8c589bd8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$cleanup$2.class",
+        "bytes": 5024,
+        "sha256": "c35c8676bfd0b8bfc60679b5f8ff1e30b30c6405329e5510040a8435d83749fb"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$hashStream$1.class",
+        "bytes": 2516,
+        "sha256": "2b51921d51672b395f0b5a18bdb6e5d5cd61af1af1bc39f31a09f32f94b9127a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$inspectDestination$1.class",
+        "bytes": 2661,
+        "sha256": "2554d7f78d4b1180fffee77197d5ed436dcf96ebf9e792defd2978b0b1b416a1"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService$transfer$1.class",
+        "bytes": 3934,
+        "sha256": "429c7cfc7c781feda6f21badcfec3b3b0cde366dd7aaf97cf9d445916eb76c48"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationTransferService.class",
+        "bytes": 49351,
+        "sha256": "d0e879ed19f9049256bcd966199260a0a7f0302b9aa60c6c198f2bda1893163c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationUnavailableException.class",
+        "bytes": 1310,
+        "sha256": "77eb1478f84e12007cdd243c4b7b6c22404314aab725a9142be9e4d216fa6015"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/DestinationWriteException.class",
+        "bytes": 1298,
+        "sha256": "3f7c3459263b38e0846f7818a54b5b7c69ed99341c2a14c94529f8a9ce6c54f0"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/ExportSourceIdentity.class",
+        "bytes": 5204,
+        "sha256": "9ac42259e95a8fd89edb3942045324b40c45e037294365e2054125f60603a0cc"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/PreparedDestination.class",
+        "bytes": 2194,
+        "sha256": "d33e147d4721aefc2b4c66419f4496da200d7f3517a9e694e4bfcadd9f5453a6"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/ProviderAtomicity.class",
+        "bytes": 2060,
+        "sha256": "911695406d726c812b1132ce40bb15bdff7636af843f2a2d82e27366207d0225"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SafExportContractsKt$WhenMappings.class",
+        "bytes": 961,
+        "sha256": "3f80fffc8bd2a9c2660d15b9637297f0a442625c588714fe38df9979795e84ec"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SafExportContractsKt.class",
+        "bytes": 4328,
+        "sha256": "5cd8622497ae4ba2a8867cc52aa613199c1ab64643694bf19f9d5ec658963bcf"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceAccessException.class",
+        "bytes": 1198,
+        "sha256": "8ec755483c4cdd5a0ac865c8c4721c85a0df51d8279c6ec34c99507d192e6548"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceChangedException.class",
+        "bytes": 1282,
+        "sha256": "54838bdb4f1857d3378dcd62bb4ce71f2444e2245426673d3cfacce419a455b9"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceUnavailableException.class",
+        "bytes": 1290,
+        "sha256": "f780f57f31590b8038213ef067c5e8282e493a1cf96278f4a79571adb8975183"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceVerification$Changed.class",
+        "bytes": 3628,
+        "sha256": "85f9998cb3f7f6d080740638588cf9887f3132c87cdb772f794d46ab2a922594"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceVerification$Invalid.class",
+        "bytes": 2717,
+        "sha256": "f10b649a6e6a4001c255cc19097c682c58c8b0b037b7a901c3c936007a93d097"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceVerification$Missing.class",
+        "bytes": 2717,
+        "sha256": "6ddda81c7ed6af4a123eefbdbf11c7c59e8315ed96a9eec0e58b7696e49a57d5"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceVerification$Verified.class",
+        "bytes": 3992,
+        "sha256": "1b6719796fcdf744244d714d7869830ceeb5742941f4aa06b2d0d960bbf8a02c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/SourceVerification.class",
+        "bytes": 1156,
+        "sha256": "6c456252b10364b031e27e1cf2d2bbb9edead392e443e8cd262ad29084543aef"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferCancellation$Companion.class",
+        "bytes": 1577,
+        "sha256": "3f60cff97e67b48c600b13681bdaa60d62c3a24d89b527e754176254554f1f60"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferCancellation.class",
+        "bytes": 844,
+        "sha256": "9945f25b98d1cc9a1cefcb5d570556c7f69b8c8e8cdad82ad6729ac85efd9b37"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferFailureKind.class",
+        "bytes": 2535,
+        "sha256": "91199448577154c0675fbbf47ad6a4128569f72250b24b0c81f25d41bd79bfeb"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferOutcome$Cancelled.class",
+        "bytes": 4820,
+        "sha256": "72861b12600daabac26bcdcb5ce0e5c3c9fd653fde75896a0e3493722f63aa48"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferOutcome$CompletedUnverified.class",
+        "bytes": 4783,
+        "sha256": "51f8f01e55b6050730c5130df4fd839b950a7b576342654361fc8f2852131fd1"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferOutcome$Failure.class",
+        "bytes": 6079,
+        "sha256": "2d0f2106442414defdb63ea6bbcf7a00689940f575f8fa5fa2fd91191c9edd89"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferOutcome$VerifiedSuccess.class",
+        "bytes": 3058,
+        "sha256": "f74763560ad8c93ca16b110dfd3f8610a459921f3511641800895711484937c3"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferOutcome.class",
+        "bytes": 1189,
+        "sha256": "2584eaecc65f12091b276e8de3ed0d64e2d3333ffd6a364350db6ebeabd3e8b3"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferProgress.class",
+        "bytes": 3284,
+        "sha256": "43b168f4cd47f2bfb493245f60c92beaaff5fb69686b64bd8d15c60d7977414f"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferReceipt.class",
+        "bytes": 6857,
+        "sha256": "2bc7609d7956c9af6d649af2b3c2ff461e152533df9fdf509d0089b3b28133a4"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/TransferRecoveryAction.class",
+        "bytes": 2394,
+        "sha256": "206ad9e21c329785ae80aae1769fd27743a180f4a07594c23aed31a204fd68b6"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/VerifiedExportSource.class",
+        "bytes": 6496,
+        "sha256": "8c1728965f308c17fea1b33303db9e71ef2b849fe8af7b14b8ede5da03ce8ed8"
+      },
+      {
+        "path": "com/realityforge/scanner/data/safexport/VerifiedExportSourceAccess.class",
+        "bytes": 1368,
+        "sha256": "497ce96bce545c937264d1b4b78612e3e80c6080b7d61c390f430e29309940a2"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/FileSpaceProbe.class",
+        "bytes": 2197,
+        "sha256": "b61b9e56ba69c515e0c10caa3107404b720b27e2328ca2f61228e58957e39b9b"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/InsufficientStorageException.class",
+        "bytes": 2044,
+        "sha256": "2f973161f8d12ef2f3eaab391b6597e39dace1223c1fbf9ea9dd1fea0be80bc7"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/ReservationToken.class",
+        "bytes": 3813,
+        "sha256": "cc0c4f955acefdfc8a443bd28d328e381aa4df3a33a777586abbc7e0be90885c"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/SpaceDecision.class",
+        "bytes": 6047,
+        "sha256": "f42b98b9342c2d760b3c1c1bb8049173e04560ad3e08397822b91650a63b9711"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/SpaceProbe.class",
+        "bytes": 547,
+        "sha256": "0ee8590043e76acb0c8051b897c39aa8286c4ad140d971fb8c3bd53cb15761ed"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/StorageAccounting.class",
+        "bytes": 4369,
+        "sha256": "35c926a060dca6cdf08e37d77fc2a9624ff7f1a9c527200a242cff0451201616"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/StorageEstimate$Companion.class",
+        "bytes": 2639,
+        "sha256": "a633d5036bb0e4dae550094fa33b831146b393f9ad25e54cea9752186043420a"
+      },
+      {
+        "path": "com/realityforge/scanner/data/storagebudget/StorageEstimate.class",
+        "bytes": 8457,
+        "sha256": "61082a442f4953295b916a221379c02417fcee3078f8a79a5ff84951ef8f15bd"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/DenseWorkload$Companion.class",
+        "bytes": 11210,
+        "sha256": "18705ecd9217fbcadfeffd4dbd83169be2fdd6244ffab885ad91938e986e71dd"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/DenseWorkload.class",
+        "bytes": 7598,
+        "sha256": "7bc5daef9aa2676d6e021cb74a57ebef65d0d45dec16b29e62e4080c525e1919"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/LensProfile.class",
+        "bytes": 11287,
+        "sha256": "cc9267cc03d82f850b25e059adefd7201920e09c4311f66caa1e15b11cac75c6"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/LensProjection$Companion.class",
+        "bytes": 1339,
+        "sha256": "419238f9e6e45d3ab14e5a2a4f41fdf48a1aaf98ff987ca8c3205a5d55187bb7"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/LensProjection.class",
+        "bytes": 10056,
+        "sha256": "85a3ef6c324b55c9e2ed1f703b062d1fcc00b700224e5c042e0adf151b0c8959"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineAdmission$Supported.class",
+        "bytes": 3445,
+        "sha256": "1a33a7f47fb39ac994040b3d62f9da7788c4746d0248f3e6941eac4f9976fa2b"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineAdmission$Unsupported.class",
+        "bytes": 4023,
+        "sha256": "6c6e395c007fa60414497d6082c549e5777a01f9f8eece29fd20aa046c048134"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineAdmission.class",
+        "bytes": 1198,
+        "sha256": "a94050db4cde839506ae503ef08c22fc5758f3b60678c6110ac72aefd68ab419"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineArtifactReference$Companion.class",
+        "bytes": 3985,
+        "sha256": "ee3f76c253e6ca9836521661452100659af0ad3042465dafd1050356e986d232"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineArtifactReference.class",
+        "bytes": 10242,
+        "sha256": "132460b617b606e924289964439d3fa5a1a3a087cfccc1fefecb0c053837a829"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineCapacityPolicy.class",
+        "bytes": 4070,
+        "sha256": "34ee855c95566f62d86e24c75eafcb4e8baad370689026de5d25676da1a65463"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineCapacityProfile.class",
+        "bytes": 3030,
+        "sha256": "6ce07ecd3c2816baf9628330b6df4847dd6f7b8e53fb6dd92771e25601552641"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineContractKt.class",
+        "bytes": 2626,
+        "sha256": "a0104682b13265f3d73058777bf9d40a31d4b8b26147c4537e15d9d34bd21d87"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineFailure.class",
+        "bytes": 5245,
+        "sha256": "bcc18e594a669cd35039c06d9f6f19507c9b62b0f67dd24f977fcf45f71c8820"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineInputSnapshot$WhenMappings.class",
+        "bytes": 1091,
+        "sha256": "1898468a7c4c603f9d16b0bd0bde597043513b8bde6e9aa08e1dc6285c547e96"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineInputSnapshot.class",
+        "bytes": 13292,
+        "sha256": "82e5bc7555975853698fd2238dcbf99ef193fbb8adfc9807eb8ab9d6f5cdf49c"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelinePhotoInput$Companion.class",
+        "bytes": 1150,
+        "sha256": "4976a43d857f530a82e8d9b8a5427b33fc126af56df1e22ec14dc478f2eee9aa"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelinePhotoInput.class",
+        "bytes": 8553,
+        "sha256": "ec964a94b0612db081206cd46b35a11e77ffb2450427a7f3126d640cb1347f27"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineRepresentation.class",
+        "bytes": 2299,
+        "sha256": "0fb44146637bc9cb03658867998ab51e52c4021289caa26878238af044d285c6"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStage$Companion.class",
+        "bytes": 1997,
+        "sha256": "583c0708b609ab6b118d10feb0eddfcf31e038600c3bd323202d17f3ede7959a"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStage.class",
+        "bytes": 4059,
+        "sha256": "de44b432776c024663f362fedd2e96730ffb85fe29588d9c97eb938178499ccf"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStageIdentity$Companion.class",
+        "bytes": 980,
+        "sha256": "f99e055891ef4f7ea3b6acbbb5db6e313884aae04ac7b51367d4adba903a0bcd"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStageIdentity.class",
+        "bytes": 7543,
+        "sha256": "d8593bd402feddc2986e04ade40f6048c3c82e97f6f68ae15750d10e49e0e1d9"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStageOutcome$Completed.class",
+        "bytes": 3618,
+        "sha256": "22ab37a4ec75b0113855b5530aee17ca751edbb94efadd3e76f1fdea97ef7aed"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStageOutcome$Unavailable.class",
+        "bytes": 3395,
+        "sha256": "6c3379f016a57ba18ab7541630baa49efe45088e2a6697b2202da4618067f1f6"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStageOutcome.class",
+        "bytes": 1107,
+        "sha256": "d219745f49e18b6c56ce26827af9c2bd15bcbc586422c26042e8a80d8e5a520b"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStageSettings$WhenMappings.class",
+        "bytes": 1091,
+        "sha256": "3194ca0a4685218dc8c82f8c2b9809758dc4c824ac42d4c61e3fe778a25e47b9"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/PipelineStageSettings.class",
+        "bytes": 7922,
+        "sha256": "4d6b5a946aff73fe6d4bcf99212ac960b7e0f2c6153986f31cf5aed701330287"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/StableDigest.class",
+        "bytes": 2516,
+        "sha256": "e9745d65391a1088bd79dba937c5f0756fb1ef10e2205c18a8a58d376f88f786"
+      },
+      {
+        "path": "com/realityforge/scanner/engine/pipeline/UnsupportedPipelineProfileException.class",
+        "bytes": 1607,
+        "sha256": "92d1c68ac47a12f600e617e2842e23e43984f831d3ad73a648d47730acd0ff83"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionAuthorization$Allowed.class",
+        "bytes": 3255,
+        "sha256": "c1e118509cc1dd75262b9162bc1bff9e75ff979466f6356f76f1b93ef404e044"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionAuthorization$Rejected.class",
+        "bytes": 3156,
+        "sha256": "b86d4d7963b611e107cde772e7945a0a556cb4dd39ed6a6e52e97ecacb8ed9d6"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionAuthorization.class",
+        "bytes": 896,
+        "sha256": "f20bb040f1f67ea9af7e83239b7a03bb923099b8a737d46cfee37f9eeb70fd73"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionAvailability$Companion$WhenMappings.class",
+        "bytes": 1290,
+        "sha256": "8a2a02d0f34b981e14fe85ee3c63e9bf17f3fc09ec3377aa4512335762c909b2"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionAvailability$Companion.class",
+        "bytes": 2259,
+        "sha256": "841a0f22ba806f7103a2eaa40175e5c9944138bbcccde4cb82a32b6abfe51394"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionAvailability$WhenMappings.class",
+        "bytes": 1082,
+        "sha256": "5010db6c2ca42fc2d88b5b6ff0256f660f60bee7ef64d8d0ce96727c85c78863"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionAvailability.class",
+        "bytes": 4590,
+        "sha256": "9a641dbefe44d44fa99023a7403c382dd481ef6b3a59240fe697f62c0391aa56"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobActionRejection.class",
+        "bytes": 2222,
+        "sha256": "a2017d6268e550e0500cea971540583d898ce3c505b170b9176273ba29046959"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobNotificationAction.class",
+        "bytes": 3974,
+        "sha256": "8517fada25bbac0a077502a15d6ca2c2f443c8bdc325efa6202bce793f80c0a4"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobNotificationActionAuthorizer.class",
+        "bytes": 3634,
+        "sha256": "5601ddfb9a6f58d05a22a99a6e6f2339b8ba0286d182cb489ea4650202cdc5c9"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobNotificationActionPolicy$WhenMappings.class",
+        "bytes": 1089,
+        "sha256": "45177ec43a81798b3c9ffb9504e7c7bf8a2bf5e600a8d5ccd6c91e9bb4007492"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobNotificationActionPolicy.class",
+        "bytes": 2135,
+        "sha256": "eef8a95b64f43af549463ce7834e6ea41ad87f6e08bd5987a16f82e5f61b610f"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobNotificationActionType$Companion.class",
+        "bytes": 3064,
+        "sha256": "9d14cc836c2839b208420c6805dd4523d3d95255ad2f78ae91d08cce26718bd7"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobNotificationActionType.class",
+        "bytes": 2898,
+        "sha256": "813a73a97539792c83303d89d9eb8bf04b22ef0e2dafbc1175055ee10252a673"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/JobNotificationStatus.class",
+        "bytes": 2493,
+        "sha256": "ed24ef2e4bd63000d56708fc9c75f9733eb49afaaab617a34d908bb473c9e4d1"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationChannelKind.class",
+        "bytes": 2435,
+        "sha256": "7b418374c7d35f0deff34d085d8a124be8a8de5ead544b2db9e6be96ce74dc51"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationPermissionDecision.class",
+        "bytes": 5284,
+        "sha256": "bd21321c1bad57678a895c4ca062bd7a0db78aa9b8f9313c2a5fbd41bb03e9bc"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationPermissionFacts.class",
+        "bytes": 5141,
+        "sha256": "df556eb5368988680f638c2d2ffa96570b99502456633331337e0005289dbe52"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationPermissionPolicy.class",
+        "bytes": 3374,
+        "sha256": "d9a9aff305610c4c0bfc56c39ded6ff81a9cab7d4b1dac887f422e1d49dfcacd"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationPermissionState.class",
+        "bytes": 2520,
+        "sha256": "cc851c18b791ca126bbb6ff35960e4e8f98cf398e2f5c899e516167ee56c4469"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationProgressBar$Determinate.class",
+        "bytes": 3865,
+        "sha256": "6ef6cc3eb05e6b72708f3f810b9c64e6cbe77521c1607781e47fc89ccfe4adfa"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationProgressBar$Indeterminate.class",
+        "bytes": 1506,
+        "sha256": "21146098c79a090d1d02c565ef9659194a53de1b911db2f6aa07077ef0de4cad"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationProgressBar$None.class",
+        "bytes": 1479,
+        "sha256": "1b39bc97556548d1cb264608e1f7d7c73a6983be9cb8c48113bcd4e291f222e3"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationProgressBar.class",
+        "bytes": 1130,
+        "sha256": "a3061c6904e6c20edd1a990983a26bb1a5d400c9f9bfa08325cf02ec3a5c01d1"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationUpdateDecision.class",
+        "bytes": 2179,
+        "sha256": "ddb000aba4661f72eea3ead31c086bddd1aebe5b9c8d3a6178ab4ef6d5af0f26"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationUpdateGate$ImmediateSignature.class",
+        "bytes": 5076,
+        "sha256": "86cd2823e5c9fc924a978526841002704dee9c0af3f957433fb06f7a50ad163a"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationUpdateGate$PublishedState.class",
+        "bytes": 4625,
+        "sha256": "97cca53d46ba42fa5e3fd83ecff2464ffaf1d565a7a9bc3bf8a45429f3ce0648"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/NotificationUpdateGate.class",
+        "bytes": 6897,
+        "sha256": "94e09a16f0ce11314beafa2447238301c7c4e53981a567dbd997233ff6646bd4"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/PersistedProcessingJob.class",
+        "bytes": 10527,
+        "sha256": "34701c9ffd15b9f70ac83245580b83f5078057f02a2b9a8a14016b6e5abe9d2d"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingJobIdentity$Companion.class",
+        "bytes": 3945,
+        "sha256": "9f40bfa15644d7596eaf49f57be687879f4e5de2f3a6dc7064182b9cda516cbc"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingJobIdentity.class",
+        "bytes": 8664,
+        "sha256": "a4e41ed4449e6a5ff0a6646c6cc00409fe8157b748c89a423dca106259574285"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper$WhenMappings.class",
+        "bytes": 1188,
+        "sha256": "5913c3ab4284dedde4804edc90e3e938f160afecb43fba9bce084c81df4ba3a9"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper.class",
+        "bytes": 9722,
+        "sha256": "bb54a2a0aab76ff9545e98e3044d66f332d8f16f7103d2c93cc266bc788b5177"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationModelKt.class",
+        "bytes": 3098,
+        "sha256": "d3ef741483e85e9296e87ef62d7ce5083e04acbca24c8d14ac7e3d7326c4e610"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationPresentation$Remove.class",
+        "bytes": 3727,
+        "sha256": "82400f1c67b446ce8c1d6f2b5d9e9b0a3df49d600d605a2cfa95d95df7405b84"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationPresentation$Show.class",
+        "bytes": 3333,
+        "sha256": "0f89dc5825605e2c93141d3a8dcb5027ff3fa714c8371184a9705baf27270288"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationPresentation.class",
+        "bytes": 958,
+        "sha256": "df88e51a7cab41d9fb4202bec2fefba40c2a1a33abb8e611abff0abff66dcad8"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationSpec.class",
+        "bytes": 12143,
+        "sha256": "1b16d0f42cc55819e4bcc6e1ac13e8416372c6e87eb903d82ce590318ada35f6"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingNotificationText.class",
+        "bytes": 1938,
+        "sha256": "0de323176105c806d075d4563b80d84046e4ae0759da73adb0e22a27306f2279"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/ProcessingStage.class",
+        "bytes": 2862,
+        "sha256": "1e7fdf401d03a9ce233ea88622c8e9f54f1c3c31fbca203b99ead583b0d67225"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/StageProgress$Known.class",
+        "bytes": 3723,
+        "sha256": "809a94533a1e932e44e97c46042bf81625c2aba3a262df1df2334997df15a1dc"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/StageProgress$Unknown.class",
+        "bytes": 1448,
+        "sha256": "485f57f4b3e6dbaaaf919872be6538558ae4798e45e453318c3c774d7201b755"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/notifications/StageProgress.class",
+        "bytes": 838,
+        "sha256": "fbb40a1e08d6c96ad927e4e85d4852255e2276891a7bd4f437ac0c4d81ede89e"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/AcceptedSurfaceCheckpointBudget.class",
+        "bytes": 971,
+        "sha256": "83f2df666fd4b379632fedc757133790bdadef12fb0b8ac89ac74ec7b6d39930"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/DenseResourcePlanKt.class",
+        "bytes": 1746,
+        "sha256": "aa34082da9037397cf8b8bdeadf213e363f070e96e14631be67fead01a0164e2"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/DeviceResourceSnapshot.class",
+        "bytes": 7664,
+        "sha256": "11d4a64263aa535fe1738976c69f82d7dbf73aa69c9764cb4d04d20dbaadd093"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/ResourceAction.class",
+        "bytes": 1995,
+        "sha256": "837fa1adc867f7ed56400651e1d297ffcc519ad9a6d84b8b987bd019c6fee05d"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/ResourcePolicy.class",
+        "bytes": 6709,
+        "sha256": "a4b324b5ec449957967de7ce07ee1c4ec6d21877af5d80f3098108d6eed33fdb"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/ResourcePolicyDecision.class",
+        "bytes": 6139,
+        "sha256": "7dfb8a91d3885026a977cbc4eaeba73d019dda37b9783e189b8eef824a3dcbd1"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/ResourceStageIdentity.class",
+        "bytes": 4935,
+        "sha256": "de93b0dfb7d2e3cad34b3e60e251e7b85e9c7a1b1c35daee859d2a6d26cc2c7a"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/ResourceWorkloadScheduler.class",
+        "bytes": 2461,
+        "sha256": "d3594ec6bbf02222c962967d696011b049c8d95b9da402d4fe8483d7baf2782a"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/ResourceWorkloadSelection$Companion.class",
+        "bytes": 4300,
+        "sha256": "4c8a3cf0928c03a59e09058c81fa460b0677bcaba2314ff545bc74f8083273bd"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.class",
+        "bytes": 7697,
+        "sha256": "bce89f446f56aed34115665071df52dd373d01ebc26e70fe67e35456fab80cb5"
+      },
+      {
+        "path": "com/realityforge/scanner/processing/resources/WorkloadPlan.class",
+        "bytes": 5202,
+        "sha256": "19de40b71f449a6b3b163393b07681b55567245fddcc664ee4c79cb652e61b6c"
+      },
+      {
+        "path": "com/realityforge/scanner/work/execution/ProcessingServiceDrain.class",
+        "bytes": 2153,
+        "sha256": "07d357e4603b523b6e98a8f893bf5c04c553fea3bca6bc2a2301811eeea8a63b"
+      }
+    ]
+  },
+  "junit_exit_code": 0,
+  "junit_seconds": 7.553779207002663,
+  "junit_reported_successful_run_count": 96,
+  "junit_log_sha256": "db1c8faf225e54adfeb987cebe6ea57f471da8356f09e643bb5030934dc72875",
+  "finished_at_utc": "2026-10-20T06:23:57.604474+00:00",
+  "captured_log_sha256": {
+    "compile.log": "f88552a9e37e6f191beda7fe3eb6c1e92388faf84af3c0b73c5e4d95c0543587",
+    "junit.log": "a1ecd359dcbfaf88946bef4e10535ffa0a71ff631593bb0f54b9512bf64b9f13"
+  },
+  "stored_log_normalization": "Trailing line whitespace and blank final lines normalized; diagnostic and result content unchanged; original captured hashes retained.",
+  "published_code_candidate": "aad8e1d5754491d8f0e6a0aca96a9f1f02f53ba6"
+}

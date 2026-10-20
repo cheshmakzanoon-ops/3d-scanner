@@ -1,0 +1,378 @@
+{
+  "scope": "Supplementary real pure-JVM tests; no Android/Room substitutions, no Gradle/device result.",
+  "repository_head": "54ae92a822693b439452cf53852bc4c30150002a",
+  "toolchain": [
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/2.1.21/kotlin-compiler-embeddable-2.1.21.jar",
+      "file": "kotlin-compiler-embeddable-2.1.21.jar",
+      "bytes": 56958642,
+      "sha256": "67a2e3673765f097725608cc7c843b0d8fdd94bd9af41327211361614aa57d49"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar",
+      "file": "kotlin-stdlib-2.1.21.jar",
+      "bytes": 1724058,
+      "sha256": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-script-runtime:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-script-runtime/2.1.21/kotlin-script-runtime-2.1.21.jar",
+      "file": "kotlin-script-runtime-2.1.21.jar",
+      "bytes": 43365,
+      "sha256": "d8221f445854f30ac92c248d543609e0ecb5d85bb5ba34c043684b013cb5b897"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-reflect:1.6.10",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/1.6.10/kotlin-reflect-1.6.10.jar",
+      "file": "kotlin-reflect-1.6.10.jar",
+      "bytes": 3038560,
+      "sha256": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-daemon-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-embeddable/2.1.21/kotlin-daemon-embeddable-2.1.21.jar",
+      "file": "kotlin-daemon-embeddable-2.1.21.jar",
+      "bytes": 345429,
+      "sha256": "9401effd82de8606df3289308a275cc1d3573768665ca5edd09dc319c71715f4"
+    },
+    {
+      "coordinate": "org.jetbrains.intellij.deps:trove4j:1.0.20200330",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+      "file": "trove4j-1.0.20200330.jar",
+      "bytes": 572985,
+      "sha256": "c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.0/kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "bytes": 1548360,
+      "sha256": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.10.2/kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "bytes": 1479317,
+      "sha256": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd"
+    },
+    {
+      "coordinate": "org.jetbrains:annotations:13.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+      "file": "annotations-13.0.jar",
+      "bytes": 17536,
+      "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478"
+    },
+    {
+      "coordinate": "org.json:json:20250517",
+      "url": "https://repo.maven.apache.org/maven2/org/json/json/20250517/json-20250517.jar",
+      "file": "json-20250517.jar",
+      "bytes": 82710,
+      "sha256": "3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796"
+    },
+    {
+      "coordinate": "junit:junit:4.13.2",
+      "url": "https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar",
+      "file": "junit-4.13.2.jar",
+      "bytes": 384581,
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3"
+    },
+    {
+      "coordinate": "org.hamcrest:hamcrest-core:1.3",
+      "url": "https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+      "file": "hamcrest-core-1.3.jar",
+      "bytes": 45024,
+      "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/application/OperationCoordinator.kt",
+      "sha256": "ab7e2046c99f4008e2376681ec5f64673beee90d96c970d3c6cfdca16cdf6e17"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/domain/OperationContext.kt",
+      "sha256": "749897e3292d29f3a8eb3330440a394d3818b24a03ff64e105d32232939ee2cd"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/jobs/JobContracts.kt",
+      "sha256": "53a35da40c2546b953d52b671fea2adc55a92e5df641048c26185ed854b97932"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/jobs/JobStore.kt",
+      "sha256": "2e12d30985598d1c86ea00d376693eff55f8217d6c695b44f70b553360554660"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/jobs/JobStateMachine.kt",
+      "sha256": "f4e79f953ce05c7d0efcf28fe6eef3481200560de55c3c2ab6bc07228075be73"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+      "sha256": "7982d4fc756003ed94945340c13e3755906283a203c2f8ab4e96287947d6c06b"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineGraph.kt",
+      "sha256": "7c493bf2bd9903cc3bdeba8f32b6077bd05ac99558f907668af43164f29b9649"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+      "sha256": "98149f2827efb2382e9adea7b6f444a94ff0f090270f93b54e413c8e0036dbd3"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt",
+      "sha256": "72ffb3645c932c2c6c5eabd8995a53f41fac7d2e8efc6dae9d7615562df25024"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt",
+      "sha256": "e57287cc195b4eb3663fe5fdbf79e1031e3743fdc9c08d47b57095a2075701dd"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+      "sha256": "2f7f7b4541dae86cf9746c215e1cc72bc9d5b3ec4590f143769cd4c3a01074cf"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt",
+      "sha256": "36b41ba1ae564def9e551d36d67d1afdddcc3ac55ea921a42ff3867e9ee77aed"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/diagnostics/DiagnosticTypes.kt",
+      "sha256": "098b1bec240ad6999190f7f6797e241cce2d5f557f2a03343285cf031a6781e0"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/diagnostics/ScanEvidence.kt",
+      "sha256": "e0124624da2cdb42834a511e5f2dfaca1191b47287d79c5c76985b4b4513a77f"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+      "sha256": "66f922e28b358fc2b24b3e01146d50d081c07fdadedda3b417214e162913fa87"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+      "sha256": "19ffc746d6de83fc050c5c737f1e78a9f25f41ae0529dd24d2597873abb24262"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+      "sha256": "af0b2d317be89f83d1a54e604af94f17a816490760cefcdf7984c0b66e5d720b"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+      "sha256": "0fb69aa21f7d04bf58470d0c5be64453457e727eb18504725087873b8f699ccd"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpoint.kt",
+      "sha256": "8c9399238a3e3b157ac9912496663548ceec2523ee68e8e9b319271b5ed4418a"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointCodec.kt",
+      "sha256": "4d21971b428abee530fee58e5b8295ad28a43fd5be543c74d0582a600f8daa53"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointComparator.kt",
+      "sha256": "a5e235d0b20c0c0bd5b2e95c7191f55c2ffe72bb9bbea91c842a33205f3854a5"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointValidator.kt",
+      "sha256": "565237be88e66de4ed4b5f165cf389571960c94b4a53adc3034cce035de7fbf9"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactContracts.kt",
+      "sha256": "b784cfa6f07c35cfcd8612e3df3f5af61c3fa9680cdd3943bfb0cc0287685404"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactIdentityPolicy.kt",
+      "sha256": "9f37f36ded3dedfbd39bd5df749aff6927c5797c39a32e9d2782667023ad1cb4"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactIntegrity.kt",
+      "sha256": "ca62e5c2674ab4bb0db6642eaa7987f2807746579825d324215f5a7654b44871"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/BinaryCodec.kt",
+      "sha256": "7608fa4e7d40a1cff38e36add7fb801775b5ae3ec4949f32bd1584933ebaed56"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/InputSnapshotCodec.kt",
+      "sha256": "7482a036284e48368b550f8c155874c757219cb14cd1ff3fa783722bb8fbe6ef"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/StageContracts.kt",
+      "sha256": "653c9e9cadf05383545b7cef212e38c9009bc9dcee07753b45d1f32acd8466f7"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/artifacts/StageManifestCodec.kt",
+      "sha256": "fe2aae7775cb1b685ea3c8def2422df954dfd4a77c115e4d0863ad3630f16f88"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a009/ArtifactProvenanceFixtures.kt",
+      "sha256": "da89823103f344bf656b6ffaefd598ab5dd15f0d00d79f62528a0765019ddb15"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a001/OperationCoordinatorTest.kt",
+      "sha256": "2a046bbf04680bc029d2c352e9faae968e7a4e1d13e0f75e238a4620f9b23e89"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a002/PipelineGraphTest.kt",
+      "sha256": "7312e819b14ef71a2372659cfd4c1393cc66fabe2d0ce20c2d12974a7dde7dcf"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a007/DurableJobContractsTest.kt",
+      "sha256": "62e05f5638d53f1d09b8c690fedd6e18a4ed1bbbf1d279bfe3d6a091c82e8bf2"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a009/AlignmentCheckpointContractTest.kt",
+      "sha256": "1ea441eb5805a828cc2ed64cf76cb1da6c0181107fe3c66e46da4ccdc1e7336c"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a009/ArtifactIdentityPolicyTest.kt",
+      "sha256": "3034f7ef07e868cd0b4b9f887c47302d9ad880c7e41e2f3a2d2306315cd5157b"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a009/StageManifestCodecTest.kt",
+      "sha256": "7ae6cce0e6a274d85d991737916c9110b45c5bb8f978b7862937171c7450ccda"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt",
+      "sha256": "2092701a82e733704fa219424c84bc7a11bc6e183f479131d9b1d0a5b79d4be3"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt",
+      "sha256": "1f3b5993478073348f05b5e1db6eec27e26c305fd9845287437373a13f84a4a7"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt",
+      "sha256": "3fd043571a35cd199bd8b038a676f6b1d83608bcd5794613ab9e6d0184815894"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt",
+      "sha256": "0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/engine/ScanQualityEvidenceTest.kt",
+      "sha256": "3b7f5ab073697174da4debd2d6223fa3beb0654acf5ea2e87ee7cfa5c5cc1378"
+    }
+  ],
+  "compiler_command": [
+    "java",
+    "-Xmx512m",
+    "-Djava.io.tmpdir=/dev/shm/scanner-jvm-001-010-extra/tmp",
+    "-cp",
+    "/dev/shm/scanner-jvm-checks/annotations-13.0.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/kotlin-compiler-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-daemon-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-reflect-1.6.10.jar:/dev/shm/scanner-jvm-checks/kotlin-script-runtime-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.8.0.jar:/dev/shm/scanner-jvm-checks/trove4j-1.0.20200330.jar",
+    "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+    "-no-stdlib",
+    "-no-reflect",
+    "-jvm-target",
+    "17",
+    "-classpath",
+    "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+    "-d",
+    "/dev/shm/scanner-jvm-001-010-extra/classes",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/application/OperationCoordinator.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/domain/OperationContext.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/jobs/JobContracts.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/jobs/JobStore.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/jobs/JobStateMachine.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineGraph.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/diagnostics/DiagnosticTypes.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/diagnostics/ScanEvidence.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpoint.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointCodec.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointComparator.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointValidator.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactContracts.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactIdentityPolicy.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactIntegrity.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/BinaryCodec.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/InputSnapshotCodec.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/StageContracts.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/artifacts/StageManifestCodec.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a009/ArtifactProvenanceFixtures.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a001/OperationCoordinatorTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a002/PipelineGraphTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a007/DurableJobContractsTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a009/AlignmentCheckpointContractTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a009/ArtifactIdentityPolicyTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a009/StageManifestCodecTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/engine/ScanQualityEvidenceTest.kt"
+  ],
+  "junit_command": [
+    "java",
+    "-Xmx512m",
+    "-Djava.io.tmpdir=/dev/shm/scanner-jvm-001-010-extra/tmp",
+    "-cp",
+    "/dev/shm/scanner-jvm-001-010-extra/classes:/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+    "org.junit.runner.JUnitCore",
+    "com.realityforge.scanner.agents.a001.OperationCoordinatorTest",
+    "com.realityforge.scanner.agents.a002.PipelineGraphTest",
+    "com.realityforge.scanner.agents.a007.DurableJobContractsTest",
+    "com.realityforge.scanner.agents.a009.AlignmentCheckpointContractTest",
+    "com.realityforge.scanner.agents.a009.ArtifactIdentityPolicyTest",
+    "com.realityforge.scanner.agents.a009.StageManifestCodecTest",
+    "com.realityforge.scanner.engine.LensGeometryTest",
+    "com.realityforge.scanner.engine.IncrementalRegistrationTest",
+    "com.realityforge.scanner.engine.MultiViewTracksTest",
+    "com.realityforge.scanner.engine.DenseWorkloadTest",
+    "com.realityforge.scanner.engine.ScanQualityEvidenceTest"
+  ],
+  "test_classes": [
+    "com.realityforge.scanner.agents.a001.OperationCoordinatorTest",
+    "com.realityforge.scanner.agents.a002.PipelineGraphTest",
+    "com.realityforge.scanner.agents.a007.DurableJobContractsTest",
+    "com.realityforge.scanner.agents.a009.AlignmentCheckpointContractTest",
+    "com.realityforge.scanner.agents.a009.ArtifactIdentityPolicyTest",
+    "com.realityforge.scanner.agents.a009.StageManifestCodecTest",
+    "com.realityforge.scanner.engine.LensGeometryTest",
+    "com.realityforge.scanner.engine.IncrementalRegistrationTest",
+    "com.realityforge.scanner.engine.MultiViewTracksTest",
+    "com.realityforge.scanner.engine.DenseWorkloadTest",
+    "com.realityforge.scanner.engine.ScanQualityEvidenceTest"
+  ],
+  "selected_test_method_counts": {
+    "agents/a001/OperationCoordinatorTest.kt": 7,
+    "agents/a002/PipelineGraphTest.kt": 14,
+    "agents/a007/DurableJobContractsTest.kt": 8,
+    "agents/a009/AlignmentCheckpointContractTest.kt": 4,
+    "agents/a009/ArtifactIdentityPolicyTest.kt": 2,
+    "agents/a009/StageManifestCodecTest.kt": 3,
+    "engine/LensGeometryTest.kt": 5,
+    "engine/IncrementalRegistrationTest.kt": 8,
+    "engine/MultiViewTracksTest.kt": 3,
+    "engine/DenseWorkloadTest.kt": 8,
+    "engine/ScanQualityEvidenceTest.kt": 5
+  },
+  "prior_test_classes_explicitly_excluded": [
+    "com.realityforge.scanner.agents.a010.DiagnosticsContractTest",
+    "com.realityforge.scanner.agents.a010.RuntimeDiagnosticRecorderTest",
+    "com.realityforge.scanner.agents.a010.RuntimeDiagnosticReportTest",
+    "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+    "com.realityforge.scanner.agents.a024.PreviewSchemaValidatorTest",
+    "com.realityforge.scanner.agents.a024.PreparedPreviewGeometryTest",
+    "com.realityforge.scanner.agents.a024.PreviewUiSummaryTest"
+  ],
+  "other_exclusions": {
+    "agents/a006/ProjectLeaseCoordinatorTest.kt": "Real ProjectPathPolicy references ScanPhoto in the Room database entity file.",
+    "agents/a006/ProjectPathPolicyTest.kt": "Direct ScanPhoto dependency on the Room database entity file.",
+    "agents/a009/ProductionCheckpointFilesTest.kt": "Real PipelineJobCheckpointValidator references ProjectRepository and Android LensCalibration.",
+    "CalibrationTest.kt": "Real ImageLoader and LensCalibration require Android/OpenCV."
+  },
+  "compile_exit": 0,
+  "compile_seconds": 110.462,
+  "junit_exit": 0,
+  "junit_seconds": 4.547,
+  "source_files_unchanged_during_run": true
+}

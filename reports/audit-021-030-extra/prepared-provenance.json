@@ -1,0 +1,535 @@
+{
+  "schema": 1,
+  "status": "PREPARED_NOT_RUN",
+  "prepared_at_utc": "2026-10-20T06:22:08.386117+00:00",
+  "source_commit": "54ae92a822693b439452cf53852bc4c30150002a",
+  "source_tree": "f5eca2f49687ad460aac44c9d4c31d450a2f0c73",
+  "source_repository": "/workspace/scratch/16a420565b0d/3d-scanner",
+  "runner_sha256": "8316d713c665d06930abb88b2569f9c6fda50c2bad7e5350bf84d0933fbfdb19",
+  "selection_sha256": "60a59a2efee9157db92f2a577e71dfee50816146be2a00f41a21592a894ee398",
+  "production_source_count": 31,
+  "test_source_count": 17,
+  "fixture_source_count": 1,
+  "declared_test_methods": 96,
+  "test_classes": [
+    "com.realityforge.scanner.agents.a021.StorageBudgetTest",
+    "com.realityforge.scanner.agents.a022.DeletionServiceTest",
+    "com.realityforge.scanner.agents.a022.PrivateFileCleanerTest",
+    "com.realityforge.scanner.agents.a022.DeletionStateReducerTest",
+    "com.realityforge.scanner.agents.a023.ArtifactPublicationProtocolTest",
+    "com.realityforge.scanner.agents.a026.DestinationTransferServiceTest",
+    "com.realityforge.scanner.agents.a027.CalibrationProfileCodecTest",
+    "com.realityforge.scanner.agents.a027.CalibrationSetEvaluatorTest",
+    "com.realityforge.scanner.agents.a027.TransactionalProfileStoreTest",
+    "com.realityforge.scanner.agents.a027.CalibrationCaptureMetadataAdapterTest",
+    "com.realityforge.scanner.agents.a029.ProcessingNotificationMapperTest",
+    "com.realityforge.scanner.agents.a029.JobNotificationActionAuthorizerTest",
+    "com.realityforge.scanner.agents.a029.NotificationUpdateGateTest",
+    "com.realityforge.scanner.agents.a029.NotificationPermissionPolicyTest",
+    "com.realityforge.scanner.agents.a029.ProcessingServiceDrainTest",
+    "com.realityforge.scanner.agents.a030.ResourcePolicyTest",
+    "com.realityforge.scanner.agents.a030.ResourceWorkloadSelectionTest"
+  ],
+  "source_policy": "Complete unmodified files from the exact Git commit; no Android/Room/OpenCV or test-API substitutions.",
+  "test_scope": "Existing portable unit/protocol tests only; not Android instrumentation, Room integration, JNI or physical-device qualification.",
+  "compiler_heap_mib": 512,
+  "runtime_heap_mib": 512,
+  "java_executable": "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+  "java_release": "IMPLEMENTOR=\"Ubuntu\"\nJAVA_RUNTIME_VERSION=\"17.0.20+8-1-24.04-Ubuntu\"\nJAVA_VERSION=\"17.0.20\"\nJAVA_VERSION_DATE=\"2026-07-21\"\nLIBC=\"gnu\"\nMODULES=\"java.base java.compiler java.datatransfer java.xml java.prefs java.desktop java.instrument java.logging java.management java.security.sasl java.naming java.rmi java.management.rmi java.net.http java.scripting java.security.jgss java.transaction.xa java.sql java.sql.rowset java.xml.crypto java.se java.smartcardio jdk.accessibility jdk.internal.jvmstat jdk.attach jdk.charsets jdk.compiler jdk.crypto.ec jdk.crypto.cryptoki jdk.dynalink jdk.internal.ed jdk.editpad jdk.hotspot.agent jdk.httpserver jdk.incubator.foreign jdk.incubator.vector jdk.internal.le jdk.internal.opt jdk.internal.vm.ci jdk.internal.vm.compiler jdk.internal.vm.compiler.management jdk.jartool jdk.javadoc jdk.jcmd jdk.management jdk.management.agent jdk.jconsole jdk.jdeps jdk.jdwp.agent jdk.jdi jdk.jfr jdk.jlink jdk.jpackage jdk.jshell jdk.jsobject jdk.jstatd jdk.localedata jdk.management.jfr jdk.naming.dns jdk.naming.rmi jdk.net jdk.nio.mapmode jdk.random jdk.sctp jdk.security.auth jdk.security.jgss jdk.unsupported jdk.unsupported.desktop jdk.xml.dom jdk.zipfs\"\nOS_ARCH=\"x86_64\"\nOS_NAME=\"Linux\"\nSOURCE=\"\"\n",
+  "host": {
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]"
+  },
+  "toolchain": [
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/2.1.21/kotlin-compiler-embeddable-2.1.21.jar",
+      "file": "kotlin-compiler-embeddable-2.1.21.jar",
+      "bytes": 56958642,
+      "sha256": "67a2e3673765f097725608cc7c843b0d8fdd94bd9af41327211361614aa57d49",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-compiler-embeddable-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar",
+      "file": "kotlin-stdlib-2.1.21.jar",
+      "bytes": 1724058,
+      "sha256": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-script-runtime:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-script-runtime/2.1.21/kotlin-script-runtime-2.1.21.jar",
+      "file": "kotlin-script-runtime-2.1.21.jar",
+      "bytes": 43365,
+      "sha256": "d8221f445854f30ac92c248d543609e0ecb5d85bb5ba34c043684b013cb5b897",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-script-runtime-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-reflect:1.6.10",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/1.6.10/kotlin-reflect-1.6.10.jar",
+      "file": "kotlin-reflect-1.6.10.jar",
+      "bytes": 3038560,
+      "sha256": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-reflect-1.6.10.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-daemon-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-embeddable/2.1.21/kotlin-daemon-embeddable-2.1.21.jar",
+      "file": "kotlin-daemon-embeddable-2.1.21.jar",
+      "bytes": 345429,
+      "sha256": "9401effd82de8606df3289308a275cc1d3573768665ca5edd09dc319c71715f4",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlin-daemon-embeddable-2.1.21.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.intellij.deps:trove4j:1.0.20200330",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+      "file": "trove4j-1.0.20200330.jar",
+      "bytes": 572985,
+      "sha256": "c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d",
+      "verified_path": "/dev/shm/scanner-jvm-checks/trove4j-1.0.20200330.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.0/kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "bytes": 1548360,
+      "sha256": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.8.0.jar"
+    },
+    {
+      "coordinate": "org.jetbrains:annotations:13.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+      "file": "annotations-13.0.jar",
+      "bytes": 17536,
+      "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478",
+      "verified_path": "/dev/shm/scanner-jvm-checks/annotations-13.0.jar"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.10.2/kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "bytes": 1479317,
+      "sha256": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd",
+      "verified_path": "/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar"
+    },
+    {
+      "coordinate": "org.json:json:20250517",
+      "url": "https://repo.maven.apache.org/maven2/org/json/json/20250517/json-20250517.jar",
+      "file": "json-20250517.jar",
+      "bytes": 82710,
+      "sha256": "3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796",
+      "verified_path": "/dev/shm/scanner-jvm-checks/json-20250517.jar"
+    },
+    {
+      "coordinate": "junit:junit:4.13.2",
+      "url": "https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar",
+      "file": "junit-4.13.2.jar",
+      "bytes": 384581,
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3",
+      "verified_path": "/dev/shm/scanner-jvm-checks/junit-4.13.2.jar"
+    },
+    {
+      "coordinate": "org.hamcrest:hamcrest-core:1.3",
+      "url": "https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+      "file": "hamcrest-core-1.3.jar",
+      "bytes": 45024,
+      "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
+      "verified_path": "/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+      "bytes": 4547,
+      "sha256": "66f922e28b358fc2b24b3e01146d50d081c07fdadedda3b417214e162913fa87",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionModels.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionModels.kt",
+      "bytes": 14002,
+      "sha256": "5302533627952276c84937c91c6b6e7a651840aa17dc6cec5beb138a949a1872",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionStateReducer.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionStateReducer.kt",
+      "bytes": 5380,
+      "sha256": "eb0f0b211e52b2d7c2346a9722347c7b435a8cc9ecb17e9c9151b4d26db09a0d",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/OwnedPathResolver.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/OwnedPathResolver.kt",
+      "bytes": 4008,
+      "sha256": "c74dff8d12515dcc4da7d9c36464986c0c29d9c342b0e966888a65e6f3ccb10e",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/PrivateFileCleaner.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/PrivateFileCleaner.kt",
+      "bytes": 19858,
+      "sha256": "474686a6172ab8b10b58da4119fa27049510f6d4846a854aea65190f855de1ec",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/deletion/DeletionService.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/deletion/DeletionService.kt",
+      "bytes": 9279,
+      "sha256": "921888c790d2585cb3209e17d3062d58b2d8337e6e97812c226ecab936457751",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/ArtifactPublicationCoordinator.kt",
+      "bytes": 28128,
+      "sha256": "3f559b5df036ddd842d5db0cd6eb2268e25d901f003de686b663d03df7530d10",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationAdapters.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationAdapters.kt",
+      "bytes": 2522,
+      "sha256": "1f7c38ab59568724fe2a28fd6a85e4e5f31b52d2a4e76f8367e8ead10f87b0ae",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationCodec.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationCodec.kt",
+      "bytes": 11277,
+      "sha256": "eb5c9cb7d5f9fc4a9e5ac77acfb15740fede5e18631332f3c5f789fd5f3c4a78",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationModels.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationModels.kt",
+      "bytes": 12633,
+      "sha256": "d528514fee98ed2a18bb8082f218f944b17d3989bc51d4abff85213d4aaf84af",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/publication/PublicationStorage.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/publication/PublicationStorage.kt",
+      "bytes": 20196,
+      "sha256": "f4c9a5a3301c42466d7f71e00de56ffe40b9845190296042d1b2310ae20e5fdc",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt",
+      "bytes": 21875,
+      "sha256": "3e239a181cdc2e79a0a83b7694b591db2c86f05cbff6011b97f478ab8abd0082",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/safexport/SafExportContracts.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/SafExportContracts.kt",
+      "bytes": 5002,
+      "sha256": "61a0f4f1d77161deccf3da6b81c50042a2c606a185a8ab415a19cfe375d87bca",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/safexport/SafTransferPorts.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/data/safexport/SafTransferPorts.kt",
+      "bytes": 4821,
+      "sha256": "df88fa1083d93222e3a733c3ea87a449233aa6e76d9680670afa9699e41c795d",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+      "bytes": 5162,
+      "sha256": "98149f2827efb2382e9adea7b6f444a94ff0f090270f93b54e413c8e0036dbd3",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+      "bytes": 17745,
+      "sha256": "f2170cb12a2ce1704f2419ff5042735296191b1e7288b343267a4ce2c76c833f",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationContracts.kt",
+      "bytes": 28747,
+      "sha256": "5d98a382741c5827ab2334f5d377e03aa1a84b5d70e2e3654f546dfa65e73358",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationProfileCodec.kt",
+      "bytes": 24716,
+      "sha256": "d466a4e522f1a62e9a29ad26073b466df2feb669b7e0b658738247c5847bab17",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.kt",
+      "bytes": 2061,
+      "sha256": "b790ce5680cb837b49337e1946769d6fcae68d0ec229f1ff6e46f4565c157728",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/capture/calibration/ProfileStore.kt",
+      "bytes": 6652,
+      "sha256": "b1452cdb2a6abf3ebe42176c88bba1a95a55d5d5cd458dc84fce6424b6ff2625",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/JobNotificationActions.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/JobNotificationActions.kt",
+      "bytes": 2148,
+      "sha256": "a76effd4b34c8b8c7893d0390e81a2f5adb8ddb411d20c549c3adffdf5a79af2",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationPermissionPolicy.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationPermissionPolicy.kt",
+      "bytes": 4026,
+      "sha256": "9b80fdce87c6c1461a564d56a7880690537433d8c8153661fcb36aee2042bdc4",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationUpdateGate.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/NotificationUpdateGate.kt",
+      "bytes": 2729,
+      "sha256": "1d1084f2f9351e0674a0ba3d3ed267a3c74744128eed5064e48bebc841f3a8fd",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationMapper.kt",
+      "bytes": 6967,
+      "sha256": "d016bed819cd6361400a908d6d0f487d2ad58df9e68a153538024390521891c2",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationModel.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/notifications/ProcessingNotificationModel.kt",
+      "bytes": 8317,
+      "sha256": "0d8297cc2846c335de17b0a854e14e45293cc153056213f448d3c121a1d50939",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/work/execution/ProcessingServiceDrain.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/work/execution/ProcessingServiceDrain.kt",
+      "bytes": 1143,
+      "sha256": "050619b41bd9b54637f32ea2cfd73cab769f5bd75a4bcc8616d7aa372b3193bc",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt",
+      "bytes": 6413,
+      "sha256": "2f7f7b4541dae86cf9746c215e1cc72bc9d5b3ec4590f143769cd4c3a01074cf",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+      "bytes": 5044,
+      "sha256": "19ffc746d6de83fc050c5c737f1e78a9f25f41ae0529dd24d2597873abb24262",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/ResourceWorkloadSelection.kt",
+      "bytes": 4399,
+      "sha256": "af0b2d317be89f83d1a54e604af94f17a816490760cefcdf7984c0b66e5d720b",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/processing/resources/DenseResourcePlan.kt",
+      "bytes": 1915,
+      "sha256": "0fb69aa21f7d04bf58470d0c5be64453457e727eb18504725087873b8f699ccd",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+      "role": "production",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+      "bytes": 12425,
+      "sha256": "7982d4fc756003ed94945340c13e3755906283a203c2f8ab4e96287947d6c06b",
+      "declared_test_methods": 0
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a021/StorageBudgetTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a021/StorageBudgetTest.kt",
+      "bytes": 1480,
+      "sha256": "1c51b6f2fec854d6a85bf29b2c94371f4caa94918c10aca303913b7b12a87300",
+      "declared_test_methods": 3
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionServiceTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionServiceTest.kt",
+      "bytes": 12506,
+      "sha256": "bc411fa37a61685260336dcceaf6019d26b30fb9ae154cf151be556c2c877ff5",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/PrivateFileCleanerTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/PrivateFileCleanerTest.kt",
+      "bytes": 7073,
+      "sha256": "1427bef9a0413b6eca1564c6109d12111c4c0af1428e40d7c9bdad4f08dabf96",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionStateReducerTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionStateReducerTest.kt",
+      "bytes": 3749,
+      "sha256": "09fc3324dffe1f8b45aa9fe8fd0063d489265413b29bb2ba4717d31f87d4d376",
+      "declared_test_methods": 2
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a023/ArtifactPublicationProtocolTest.kt",
+      "bytes": 23392,
+      "sha256": "1c0bc87429b3e21f9a87e1bcb123c1554f7620ce660e4c397075509d50e153b5",
+      "declared_test_methods": 10
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.kt",
+      "bytes": 22078,
+      "sha256": "b1190a7bbde77390d634f430abc6e10fbfa20ca9edcb9c0113ef83ab4a85dbb2",
+      "declared_test_methods": 15
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationProfileCodecTest.kt",
+      "bytes": 6641,
+      "sha256": "660032f04b88d657368e2ac63084951193d3108a65a2933077ec376594e316eb",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationSetEvaluatorTest.kt",
+      "bytes": 5481,
+      "sha256": "2a92b15648cc6dcda89c49ec97b1db46b8883b5ec36ff9302c03d8c086f9e801",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/TransactionalProfileStoreTest.kt",
+      "bytes": 4658,
+      "sha256": "b0244ab828aaf79f427808edcd0684d2938c732dd4110e7d3f331eebfd08ab97",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationCaptureMetadataAdapterTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a027/CalibrationCaptureMetadataAdapterTest.kt",
+      "bytes": 2200,
+      "sha256": "30ee63c6d4fb6b6a6b6864737a03975ac78047c1c52a3218307189e605c315bd",
+      "declared_test_methods": 2
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingNotificationMapperTest.kt",
+      "bytes": 6990,
+      "sha256": "42195bbaad9bf55c7e54eacc6aeb7f83a0ed89c050a276d11773a91e1a0da694",
+      "declared_test_methods": 7
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/JobNotificationActionAuthorizerTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/JobNotificationActionAuthorizerTest.kt",
+      "bytes": 4087,
+      "sha256": "47fa6b914c1cab8dfe8fc839ea00b53972f0cbf6d3dc5c43718a1e8926374c68",
+      "declared_test_methods": 6
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/NotificationUpdateGateTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/NotificationUpdateGateTest.kt",
+      "bytes": 3158,
+      "sha256": "f7ff5e3d07e3e0fa6bdf2531e583562a6df12a25c848759e7133001d97361199",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/NotificationPermissionPolicyTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/NotificationPermissionPolicyTest.kt",
+      "bytes": 3866,
+      "sha256": "0ed29923d3f1076fadfd8c486ad0af77749297a9990e530e2feaf1596acc9c18",
+      "declared_test_methods": 7
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingServiceDrainTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a029/ProcessingServiceDrainTest.kt",
+      "bytes": 2153,
+      "sha256": "9711f65ec1b6a17dacda98d5c7081c5c8c29646b583fdcee1d148aef54c01093",
+      "declared_test_methods": 4
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a030/ResourcePolicyTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a030/ResourcePolicyTest.kt",
+      "bytes": 4515,
+      "sha256": "e88b0ef5f1fadfaad46caf164903397ee913a2d97a0206ef24b6a3c6e0a2be50",
+      "declared_test_methods": 8
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest.kt",
+      "role": "test",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a030/ResourceWorkloadSelectionTest.kt",
+      "bytes": 6598,
+      "sha256": "3046432d2ad154b75dac1eb4cb7c6a41b91f4e12a7701d3a53f70557b0e4539e",
+      "declared_test_methods": 5
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a022/DeletionTestSupport.kt",
+      "role": "test_fixture",
+      "snapshot": "/dev/shm/scanner-jvm-021-030-extra/sources/app/src/test/java/com/realityforge/scanner/agents/a022/DeletionTestSupport.kt",
+      "bytes": 4775,
+      "sha256": "216fe5354e609561da24d362b37db3956d02d45e59d56081f4cc9dd4489b8364",
+      "declared_test_methods": 0
+    }
+  ]
+}

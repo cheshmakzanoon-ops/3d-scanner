@@ -1,0 +1,6 @@
+app/src/main/java/com/realityforge/scanner/capture/guidance/SavedPhotoGuidanceSession.kt:56:57: error: unresolved reference 'OpenCvSavedPhotoGuidance'.
+    private val extractor: SavedPhotoFeatureExtractor = OpenCvSavedPhotoGuidance,
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^
+app/src/main/java/com/realityforge/scanner/capture/guidance/SavedPhotoGuidanceSession.kt:57:51: error: unresolved reference 'OpenCvSavedPhotoGuidance'.
+    private val matcher: SavedPhotoPairProvider = OpenCvSavedPhotoGuidance,
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^
