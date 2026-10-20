@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "artifact": "app-release.apk",
+  "artifactSha256": "f866cc3c74e384471dbd3ddcb6d754770028159c51934899d5d2026403fec646",
+  "runtimeModules": 123,
+  "nativeLibraries": [
+    "lib/arm64-v8a/libandroidx.graphics.path.so",
+    "lib/arm64-v8a/libc++_shared.so",
+    "lib/arm64-v8a/libimage_processing_util_jni.so",
+    "lib/arm64-v8a/libopencv_java4.so",
+    "lib/arm64-v8a/librealityforge.so",
+    "lib/arm64-v8a/libsurface_util_jni.so",
+    "lib/x86_64/libandroidx.graphics.path.so",
+    "lib/x86_64/libc++_shared.so",
+    "lib/x86_64/libimage_processing_util_jni.so",
+    "lib/x86_64/libopencv_java4.so",
+    "lib/x86_64/librealityforge.so",
+    "lib/x86_64/libsurface_util_jni.so"
+  ],
+  "noticeFiles": 92,
+  "status": "PASS"
+}

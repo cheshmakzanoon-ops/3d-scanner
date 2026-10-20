@@ -1,0 +1,32 @@
+[
+  {
+    "coordinate": "androidx.benchmark:benchmark-common:1.3.4",
+    "source": "META-INF/androidx/benchmark/benchmark-common/LICENSE.txt",
+    "path": "androidx.benchmark_benchmark-common_1.3.4__META-INF_androidx_benchmark_benchmark-common_LICENSE.txt",
+    "sha256": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
+  },
+  {
+    "coordinate": "androidx.benchmark:benchmark-macro-junit4:1.3.4",
+    "source": "META-INF/androidx/benchmark/benchmark-macro-junit4/LICENSE.txt",
+    "path": "androidx.benchmark_benchmark-macro-junit4_1.3.4__META-INF_androidx_benchmark_benchmark-macro-junit4_LICENSE.txt",
+    "sha256": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
+  },
+  {
+    "coordinate": "androidx.benchmark:benchmark-macro:1.3.4",
+    "source": "META-INF/androidx/benchmark/benchmark-macro/LICENSE.txt",
+    "path": "androidx.benchmark_benchmark-macro_1.3.4__META-INF_androidx_benchmark_benchmark-macro_LICENSE.txt",
+    "sha256": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0"
+  },
+  {
+    "coordinate": "junit:junit:4.13.2",
+    "source": "LICENSE-junit.txt",
+    "path": "junit_junit_4.13.2__LICENSE-junit.txt",
+    "sha256": "9648bb2891b9813970bddb68d4be8a5e6ec8280d0180a53dfb29236b579c55bb"
+  },
+  {
+    "coordinate": "org.hamcrest:hamcrest-core:1.3",
+    "source": "LICENSE.txt",
+    "path": "org.hamcrest_hamcrest-core_1.3__LICENSE.txt",
+    "sha256": "1cde867cab5c8e842929da5391cef98b4017314822270e934e8e2eef3767c666"
+  }
+]

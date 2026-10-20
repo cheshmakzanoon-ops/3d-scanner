@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "qa_only": true,
+  "trimesh": {
+    "version": "4.5.3",
+    "publisher_metadata": "https://pypi.org/pypi/trimesh/4.5.3/json",
+    "wheel_candidates": [
+      {
+        "filename": "trimesh-4.5.3-py3-none-any.whl",
+        "url": "https://files.pythonhosted.org/packages/28/d0/8852c9f296b5d979a48d764117ff27a96115d74cb6f8ba083744867415a5/trimesh-4.5.3-py3-none-any.whl",
+        "sha256": "c56ccbf7e2783eadcc1eec191273fcb08801c74a03f2a08c8a5dcc3d55b031e3"
+      }
+    ],
+    "tested_install": "python -m pip install --no-deps --target /workspace/campaign/090-deps/trimesh trimesh==4.5.3",
+    "activation": {
+      "PYTHONPATH": "/workspace/campaign/090-deps/trimesh"
+    },
+    "note": "Scientific numpy2.2.6/scipy/Pillow supplied by existing project Python3.12 environment; use095 hashed scientific lock, not the accidental unused090-deps/python directory."
+  },
+  "khronos": {
+    "version": "2.0.0-dev.3.10",
+    "url": "https://registry.npmjs.org/gltf-validator/-/gltf-validator-2.0.0-dev.3.10.tgz",
+    "npm_integrity_sha512": "sha512-odJ4k0tRkGXiDGn78yDBg+fBbAIvBnXxh3RwAta0emSxGtyagFE8B4xELB1oYe3S5RD8Ci3uZAsZaascH2LAEQ==",
+    "activation": {
+      "RF_GLTF_VALIDATOR": "/workspace/campaign/090-deps/npm/node_modules/gltf-validator"
+    },
+    "dependencies": []
+  },
+  "blender": {
+    "version": "4.3.2",
+    "dpkg_version": "4.3.2+dfsg-2",
+    "tested_executable": "/usr/bin/blender",
+    "installed_executable_sha256": "0dfe9af0f3e67643ecf15327fa5e14e7315f61d1a81afdcafe76a71b1918e2b4",
+    "source": "Existing Debian system package, not downloaded by090",
+    "portable_archive_sha256": null,
+    "blocker": "No authoritative portable publisher checksum was obtained; installed executable hash is not archive verification."
+  },
+  "security": {
+    "top_level_pins": {
+      "bandit": "1.8.6",
+      "detect-secrets": "1.5.0",
+      "pip-audit": "2.9.0"
+    },
+    "full_tested_lock": "/workspace/agent-workspaces/096/tools/security/requirements-lock.txt",
+    "full_tested_lock_sha256": "1fa41c7ada31424a88448017d9296dd65106b5ee3858bd4635ea9f24b2c2081f",
+    "activation": {
+      "RF_SECURITY_PYTHON": "/workspace/campaign/096-venv/bin/python"
+    },
+    "notes": [
+      "Separate scanner venv with all31 distributions pinned;095 adds package hashes.",
+      "detect-secrets scan uses --no-verify so scanned strings are never sent to a verification endpoint.",
+      "pip-audit uses PyPI vulnerability service and writable temporary cache; intentional requests2.19.1 must produce findings."
+    ]
+  }
+}

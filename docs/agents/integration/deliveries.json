@@ -234,6 +234,13 @@
       "branch": "agents/091-release-package-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "1a741bc7ffc6618b0a001ffbe217ef65c16c0db4",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

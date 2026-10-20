@@ -63,3 +63,20 @@ def test_committed_runtime_graph_and_complete_notice_texts():
  for name,sha in index['files'].items():assert inv.digest((assets/name).read_bytes())==sha
  assert 'END OF TERMS AND CONDITIONS' in (assets/'Apache-2.0.txt').read_text()
  assert all(x['identical'] for x in json.loads((ROOT/'tools/dependencies/evidence/opencv-sdk-provenance.json').read_text())['records'] if 'identical' in x)
+
+installer_spec=importlib.util.spec_from_file_location('install_qa',ROOT/'tools/dependencies/install_qa.py');installer=importlib.util.module_from_spec(installer_spec);installer_spec.loader.exec_module(installer)
+def test_installer_rejects_corrupted_cached_artifact(tmp_path):
+ p=tmp_path/'artifact';p.write_bytes(b'altered bytes')
+ with pytest.raises(ValueError,match='Checksum mismatch'):installer.verify(p,'0'*64)
+def test_publisher_checksum_binds_exact_portable_artifact():
+ name='blender-4.3.2-linux-x64.tar.xz';sha='a'*64
+ assert installer.publisher_checksum(sha+'  '+name+'\n',name)==sha
+ with pytest.raises(ValueError):installer.publisher_checksum(sha+'  malicious-other.tar.xz',name)
+ with pytest.raises(ValueError):installer.publisher_checksum((sha+'  '+name+'\n')*2,name)
+def test_installer_rejects_archive_path_escape(tmp_path):
+ import tarfile,io
+ p=tmp_path/'escape.tar';payload=b'synthetic hostile archive fixture'
+ with tarfile.open(p,'w') as tar:
+  entry=tarfile.TarInfo('../outside');entry.size=len(payload);tar.addfile(entry,io.BytesIO(payload))
+ with pytest.raises(tarfile.FilterError):installer.extract(p,tmp_path/'safe')
+ assert not (tmp_path/'outside').exists()

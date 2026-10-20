@@ -40,7 +40,7 @@ def build_id(data):
 def native_inventory(resolution):
  records={}
  for conf in resolution['configurations']:
-  if conf['configuration']!='releaseRuntimeClasspath':continue
+  if conf['configuration'] not in ('releaseRuntimeClasspath','benchmarkRuntimeClasspath','releaseAndroidTestRuntimeClasspath'):continue
   for artifact in conf['artifacts']:
    path=Path(artifact['path'])
    if not zipfile.is_zipfile(path):continue
@@ -55,7 +55,7 @@ def native_inventory(resolution):
 def artifacts_export(resolution,cache):
  modules={};artifacts={}
  for configuration in resolution['configurations']:
-  scope='android-runtime' if configuration['configuration']=='releaseRuntimeClasspath' else 'android-compile' if configuration['configuration']=='releaseCompileClasspath' else 'build-processor'
+  scope='android-runtime' if configuration['configuration']=='releaseRuntimeClasspath' else 'android-compile' if configuration['configuration']=='releaseCompileClasspath' else 'qa-benchmark' if configuration['configuration'].startswith('benchmark') else 'qa-instrumentation' if configuration['configuration'].startswith('releaseAndroidTest') else 'qa-jvm' if configuration['configuration'].startswith('releaseUnitTest') else 'build-processor'
   for c in configuration['modules']:
    entry=modules.setdefault(c,{'coordinate':c,'scopes':[]})
    if scope not in entry['scopes']:entry['scopes'].append(scope)
@@ -94,7 +94,7 @@ def extract_notices(resolution,output):
  # Preserve all upstream license/notice resources even when packaging strips META-INF.
  records=[]
  for conf in resolution['configurations']:
-  if conf['configuration']!='releaseRuntimeClasspath':continue
+  if conf['configuration'] not in ('releaseRuntimeClasspath','benchmarkRuntimeClasspath','releaseAndroidTestRuntimeClasspath','releaseUnitTestRuntimeClasspath'):continue
   for a in conf['artifacts']:
    path=Path(a['path'])
    if not zipfile.is_zipfile(path):continue
@@ -143,7 +143,7 @@ def main():
  a=p.parse_args()
  if a.command=='generate':
   resolution=json.loads(a.resolution.read_text());modules=artifacts_export(resolution,a.cache);a.output.mkdir(parents=True,exist_ok=True);a.notices.mkdir(parents=True,exist_ok=True)
-  inventory=dict(schemaVersion=1,nativeRedistributables=native_inventory(resolution),source='Gradle resolved release runtime/compile and KSP processor configurations',modules=modules)
+  inventory=dict(schemaVersion=1,nativeRedistributables=native_inventory(resolution),source='Gradle resolved configurations: '+', '.join(c['configuration'] for c in resolution['configurations']),modules=modules)
   (a.output/'inventory.json').write_text(json.dumps(inventory,indent=2)+'\n');(a.output/'sbom.cdx.json').write_text(json.dumps(sbom(inventory),indent=2)+'\n')
   extracted=extract_notices(resolution,a.notices);(a.output/'extracted-notices.json').write_text(json.dumps(extracted,indent=2)+'\n')
  elif a.command=='verify':verify_resolution(json.loads(a.resolution.read_text()),json.loads(a.inventory.read_text()));print('Approved resolved graph and artifact bytes verified')
