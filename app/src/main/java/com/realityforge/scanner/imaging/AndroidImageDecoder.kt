@@ -190,15 +190,24 @@ object AndroidImageDecoder {
     }
 
     private fun readOrientation(file: File): OrientationRead = try {
-        val attribute = ExifInterface(file).getAttribute(ExifInterface.TAG_ORIENTATION)
-        if (attribute == null) {
+        val exif = ExifInterface(file)
+        val attribute = exif.getAttribute(ExifInterface.TAG_ORIENTATION)
+        val range = exif.getAttributeRange(ExifInterface.TAG_ORIENTATION)
+        // AndroidX1.4.1 inserts undefined0 for an absent orientation. That
+        // compatibility value has no physical byte offset; hasAttribute also
+        // sees it. A freshly parsed stored0 has a real range and is malformed.
+        // Valid derived HEIF rotations may also lack a range, so retain1..8.
+        val value = attribute?.trim()?.toIntOrNull()
+        val synthesizedAbsent = value == ExifInterface.ORIENTATION_UNDEFINED &&
+            (range == null || range[0] < 0)
+        if ((attribute == null && range == null) || synthesizedAbsent) {
             OrientationRead(
                 ExifOrientation.NORMAL,
                 OrientationEvidence.ABSENT,
                 setOf(ImageDecodeWarning.EXIF_ORIENTATION_ABSENT),
             )
         } else {
-            val orientation = attribute.trim().toIntOrNull()?.let(ExifOrientation::fromExifValue)
+            val orientation = value?.let(ExifOrientation::fromExifValue)
             if (orientation == null) {
                 OrientationRead(
                     ExifOrientation.NORMAL,
