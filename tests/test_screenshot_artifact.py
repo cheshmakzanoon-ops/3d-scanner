@@ -31,3 +31,10 @@ def test_valid_png_is_checked(tmp_path):
 def test_adb_errors_and_corrupt_images_are_rejected(tmp_path,data):
     f=tmp_path/"invalid.png";f.write_bytes(data)
     with pytest.raises(ValueError):mod.validate(f)
+
+
+def test_png_chunk_checksums_do_not_replace_pixel_decode(tmp_path):
+    data = (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR",struct.pack(">IIBBBBB",128,128,8,2,0,0,0))
+            + chunk(b"IDAT",b"not compressed pixels") + chunk(b"IEND",b""))
+    f=tmp_path/"fake-pixels.png";f.write_bytes(data)
+    with pytest.raises(ValueError):mod.validate(f)
