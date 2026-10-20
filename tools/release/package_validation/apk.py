@@ -36,6 +36,17 @@ def elf_alignment(data):
         if alignment<16384 or alignment & (alignment-1) or (offset-vaddr)%16384:
             raise ValueError('Native library lacks 16 KB segment alignment')
     if not loads: raise ValueError('ELF has no LOAD segments')
+def backup_policy(xml):
+ root=ET.fromstring(xml)
+ if root.tag!='data-extraction-rules':raise ValueError('Invalid data extraction root')
+ for section in ('cloud-backup','device-transfer'):
+  rule=root.find(section)
+  if rule is None or rule.findall('include'):raise ValueError('Unsafe backup rule '+section)
+  excluded={(e.get('domain'),e.get('path')) for e in rule.findall('exclude')}
+  required={(domain,'.') for domain in ('root','file','database','sharedpref','external')}
+  if not required<=excluded:raise ValueError('Incomplete backup exclusions '+section)
+ return True
+
 def archive_policy(path, abis=('arm64-v8a','x86_64'), release=False, required_notices=False):
     checked=[]; expected=set(abis)
     with zipfile.ZipFile(path) as z:
@@ -52,12 +63,19 @@ def archive_policy(path, abis=('arm64-v8a','x86_64'), release=False, required_no
             present={Path(n).name for n in native if n.split('/')[1]==abi}
             if present!=LIBRARIES: raise ValueError(f'Native inventory mismatch for {abi}: {sorted(present)}')
         for n in sorted(native):
-            elf_alignment(z.read(n));checked.append({'path':n,'sha256':hashlib.sha256(z.read(n)).hexdigest()})
+            data=z.read(n);elf_alignment(data)
+            expected_machine={'arm64-v8a':183,'x86_64':62}[n.split('/')[1]]
+            if struct.unpack_from('<H',data,18)[0]!=expected_machine:raise ValueError('ELF machine differs from ABI directory')
+            checked.append({'path':n,'sha256':hashlib.sha256(z.read(n)).hexdigest()})
         if required_notices and not any(n.startswith('assets/third-party-notices/') for n in names):
             raise ValueError('Required third-party notices absent')
     return checked
 def signature_policy(output, mode, certificate=None):
     if not re.search(r'Verified using v[234][^:]*:\s*true',output): raise ValueError('No verified modern APK signature')
+    names=re.findall(r'Signer #\d+ certificate DN:\s*(.+)',output)
+    if not names:raise ValueError('Missing signer certificate identity')
+    if mode=='test' and any('CN=Android Debug' not in name for name in names):raise ValueError('Test mode requires the Android debug signing identity')
+    if mode=='production' and any('CN=Android Debug' in name for name in names):raise ValueError('Debug signer cannot be production')
     certs=re.findall(r'Signer #\d+ certificate SHA-256 digest:\s*([0-9a-fA-F]{64})',output)
     if not certs: raise ValueError('Missing signer certificate digest')
     if mode=='production' and not certificate: raise ValueError('Production requires expected certificate SHA256')
@@ -69,9 +87,10 @@ def validate(apk,sdk,*,release=False,abis=('arm64-v8a','x86_64'),mode='test',cer
     def run(args): return subprocess.check_output([str(x) for x in args],text=True,stderr=subprocess.PIPE)
     manifest=run([sdk/'cmdline-tools/latest/bin/apkanalyzer','manifest','print',apk])
     result=manifest_policy(manifest,release)
+    backup_policy(run([sdk/'cmdline-tools/latest/bin/apkanalyzer','resources','xml','--file','res/xml/data_extraction_rules.xml',apk]))
     libraries=archive_policy(apk,abis,release,required_notices)
     run([bt/'zipalign','-c','-P','16','-v','4',apk])
     signer=signature_policy(run([bt/'apksigner','verify','--verbose','--print-certs',apk]),mode,certificate)
     return dict(result, schemaVersion=1, artifact=apk.name,sha256=sha256(apk),size=apk.stat().st_size,
                 signingMode=mode,signerCertificateSha256=signer,releaseFlagsChecked=release,
-                zipAlignment16k=True,elfLibrariesChecked=libraries)
+                zipAlignment16k=True,backupExclusionsChecked=True,elfLibrariesChecked=libraries)
