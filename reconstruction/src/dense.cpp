@@ -23,6 +23,7 @@
 
 namespace rf {
 namespace {
+thread_local const DenseRefinementInputs* currentRefinementInputs=nullptr;
 Vec3 add(Vec3 a,Vec3 b){return {a.x+b.x,a.y+b.y,a.z+b.z};}
 Vec3 sub(Vec3 a,Vec3 b){return {a.x-b.x,a.y-b.y,a.z-b.z};}
 Vec3 scale(Vec3 a,double s){return {a.x*s,a.y*s,a.z*s};}
@@ -141,14 +142,18 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
 }
 }
 
-DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& settings,const DenseRefinementInputs* inputs){
+DenseRefinementScope::DenseRefinementScope(const DenseRefinementInputs* inputs) noexcept:previous_(currentRefinementInputs){currentRefinementInputs=inputs;}
+DenseRefinementScope::~DenseRefinementScope() noexcept{currentRefinementInputs=previous_;}
+DenseResult reconstructDense(std::span<const DenseView> views,const DenseSettings& requestedSettings,const DenseRefinementInputs* inputs){
+    auto settings=requestedSettings;
+    if(!inputs&&currentRefinementInputs){inputs=currentRefinementInputs;settings.localRefinementIterations=6;}
     cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
     auto admitted=tiles::admit(views.size(),static_cast<std::size_t>(views[0].width)*views[0].height,MAX_DENSE_SAMPLES,settings.maxPoints,settings.depthPlanes,settings.workingSetBudgetBytes,settings.referenceMode);
     result.admittedWorkingSetBytes=admitted.totalBytes;
     if(inputs){
-        if(!depth_cache::validIdentity(inputs->identitySha256)||inputs->sparsePriors.size()>20000||(!inputs->coarseViews.empty()&&inputs->coarseViews.size()!=views.size()))throw Error("Invalid immutable dense refinement inputs");
+        if((inputs->sparsePriors.empty()&&inputs->coarseViews.empty())||!depth_cache::validIdentity(inputs->identitySha256)||inputs->sparsePriors.size()>20000||(!inputs->coarseViews.empty()&&inputs->coarseViews.size()!=views.size()))throw Error("Invalid immutable dense refinement inputs");
         std::size_t extra=inputs->sparsePriors.size()*96+views.size()*8192u*sizeof(std::vector<refinement::SparsePrior>);
         for(const auto& prior:inputs->sparsePriors){
             if(prior.camera>=views.size()||!std::isfinite(prior.x)||!std::isfinite(prior.y)||prior.x<0||prior.y<0||prior.x>=views[prior.camera].width||prior.y>=views[prior.camera].height||!std::isfinite(prior.cameraZ)||prior.cameraZ<=0||prior.cameraZ>100000||!std::isfinite(prior.relativeUncertainty)||prior.relativeUncertainty<0||prior.relativeUncertainty>.25)throw Error("Invalid measured sparse depth prior");
@@ -190,6 +195,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     std::vector<DenseDepthMap> coarseMaps;
     if(inputs&&!inputs->coarseViews.empty()){
         auto coarseSettings=settings;coarseSettings.localRefinementIterations=0;coarseSettings.referenceMode=true;coarseSettings.maxPoints=10;
+        DenseRefinementScope noRecursiveInheritance(nullptr);
         auto coarseResult=reconstructDense(inputs->coarseViews,coarseSettings,nullptr);
         coarseMaps=std::move(coarseResult.maps);result.coarseDepthMaps=coarseMaps.size();
     }
