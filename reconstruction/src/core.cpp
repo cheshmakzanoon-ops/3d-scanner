@@ -135,7 +135,7 @@ Result reconstruct(std::span<const Match> matches,const Settings& s) {
     if(matches.size()>20000)throw Error("Too many matches for bounded preview");
     if(!std::isfinite(s.threshold)||s.threshold<=0||s.threshold>0.05||s.iterations<1||s.iterations>100000||
        matches.size()*static_cast<std::size_t>(s.iterations)>50000000||!std::isfinite(s.minParallaxDegrees)||s.minParallaxDegrees<=0||s.minParallaxDegrees>30||s.minInliers<8)
-        throw InitializationError(InitializationFailure::InvalidInput,"Invalid or excessive reconstruction budget");
+        throw InitializationError(InitializationFailure::InvalidInput,"Invalid reconstruction settings or excessive work budget");
     for(auto& m:matches)for(double x:{m.a.x,m.a.y,m.b.x,m.b.y})if(!std::isfinite(x)||std::abs(x)>100)throw Error("Invalid normalized image coordinates");
     cancellation::checkpoint();
     // Reject collinear image support before sampling. A count alone is not rank.
