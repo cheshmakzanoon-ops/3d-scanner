@@ -1,4 +1,5 @@
 #include "realityforge/pnp.hpp"
+#include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -52,6 +53,39 @@ template<int N> Eigensystem<N> jacobi(std::array<double,N*N> a){
     return out;
 }
 
+// A plane supplies a homography rather than a full-rank 3D DLT system. The
+// metric, calibrated decomposition preserves a proper SO(3) pose and tests both
+// signs against positive depth. Collinear/ambiguous layouts remain unsupported.
+CameraPose planar(std::span<const Observation> points,const std::vector<std::size_t>& ids,Vec3 center,
+                  const Eigensystem<3>& covariance){
+    Vec3 a{covariance.vectors[2],covariance.vectors[5],covariance.vectors[8]};
+    Vec3 b{covariance.vectors[1],covariance.vectors[4],covariance.vectors[7]};
+    Vec3 c=cross(a,b);std::array<double,81> normal{};
+    double spread=std::sqrt(std::max(covariance.values[2]/ids.size(),1e-30));
+    for(auto i:ids){auto w=sub(points[i].world,center);double x=dot(w,a)/spread,y=dot(w,b)/spread;
+        double u=points[i].image.x,v=points[i].image.y;
+        std::array<double,9> r{-x,-y,-1,0,0,0,u*x,u*y,u};
+        std::array<double,9> t{0,0,0,-x,-y,-1,v*x,v*y,v};
+        for(int k=0;k<9;++k)for(int j=0;j<9;++j)normal[k*9+j]+=r[k]*r[j]+t[k]*t[j];
+    }
+    auto e=jacobi<9>(normal);
+    if(e.values[1]<1e-11*std::max(e.values[8],1e-30))throw Error("Ambiguous planar PnP geometry");
+    Vec3 h1{e.vectors[0],e.vectors[27],e.vectors[54]},h2{e.vectors[9],e.vectors[36],e.vectors[63]},h3{e.vectors[18],e.vectors[45],e.vectors[72]};
+    double k=(norm(h1)+norm(h2))/(2*spread);
+    if(k<1e-14)throw Error("Ill-conditioned planar pose");
+    CameraPose best;std::size_t positive=0;
+    Mat3 basis{a.x,b.x,c.x,a.y,b.y,c.y,a.z,b.z,c.z};
+    for(double sign:{1.,-1.}){
+        auto u=normalized(mul(h1,sign));auto v=normalized(sub(mul(h2,sign),mul(u,dot(u,mul(h2,sign)))));auto n=cross(u,v);
+        Mat3 local{u.x,v.x,n.x,u.y,v.y,n.y,u.z,v.z,n.z};auto r=multiply(local,transpose(basis));
+        Vec3 t=sub(mul(h3,sign/k),multiply(r,center));std::size_t good=0;
+        for(auto i:ids)if(add(multiply(r,points[i].world),t).z>1e-8)++good;
+        if(good>positive){positive=good;best={r,t,{},points.size(),0};}
+    }
+    if(positive*10<ids.size()*9)throw Error("Planar pose has ambiguous cheirality");
+    return best;
+}
+
 // Solve calibrated PnP with normalized 2D and 3D DLT, then project to SO(3).
 CameraPose dlt(std::span<const Observation> points,const std::vector<std::size_t>& ids){
     if(ids.size()<8)throw Error("PnP needs 8 nondegenerate points");
@@ -61,6 +95,11 @@ CameraPose dlt(std::span<const Observation> points,const std::vector<std::size_t
     double spread3=0,spread2=0;
     for(auto i:ids){spread3+=norm(sub(points[i].world,center));spread2+=std::hypot(points[i].image.x-uv.x,points[i].image.y-uv.y);}
     spread3/=n;spread2/=n;
+    std::array<double,9> covariance{};
+    for(auto i:ids){auto w=sub(points[i].world,center);double v[3]{w.x,w.y,w.z};for(int j=0;j<3;++j)for(int k=0;k<3;++k)covariance[j*3+k]+=v[j]*v[k];}
+    auto shape=jacobi<3>(covariance);
+    if(shape.values[1]<1e-10*std::max(shape.values[2],1e-30))throw Error("Collinear PnP geometry");
+    if(shape.values[0]<1e-8*shape.values[2])return planar(points,ids,center,shape);
     if(spread3<1e-8||spread2<1e-6)throw Error("Insufficient pose spread");
     double s3=std::sqrt(3.)/spread3,s2=std::sqrt(2.)/spread2;
     std::array<double,144> normal{};
@@ -119,7 +158,16 @@ bool solve6(double a[6][7], double x[6]){
     return true;
 }
 void refine(CameraPose& pose, std::span<const Observation> points,const std::vector<std::size_t>& ids,double threshold){
+    auto objective=[&](const CameraPose& p){
+        double cost=0;
+        for(auto i:ids){auto q=add(multiply(p.rotation,points[i].world),p.translation);
+            if(q.z<=1e-8||!std::isfinite(q.z))return std::numeric_limits<double>::infinity();
+            double e=std::hypot(q.x/q.z-points[i].image.x,q.y/q.z-points[i].image.y);
+            cost+=e<=threshold?.5*e*e:threshold*(e-.5*threshold);
+        }return cost;
+    };
     for(int iter=0;iter<25;++iter){
+        cancellation::checkpoint();
         double m[6][7]{};int valid=0;
         for(auto i:ids){
             const auto &o=points[i];Vec3 q=add(multiply(pose.rotation,o.world),pose.translation);
@@ -138,10 +186,16 @@ void refine(CameraPose& pose, std::span<const Observation> points,const std::vec
         double delta[6]{};if(!solve6(m,delta))throw Error("Ill-conditioned pose refinement");
         double length=0;for(double v:delta)length+=v*v;length=std::sqrt(length);
         if(length>0.2){for(auto& v:delta)v*=0.2/length;}
-        auto d=exponential({delta[0],delta[1],delta[2]});
-        pose.rotation=multiply(d,pose.rotation);
-        pose.translation=add(multiply(d,pose.translation),{delta[3],delta[4],delta[5]});
-        if(length<1e-9)break;
+        const double old=objective(pose);
+        bool accepted=false;
+        for(double factor:{1.,.5,.25,.125,.0625}){
+            auto d=exponential({factor*delta[0],factor*delta[1],factor*delta[2]});
+            auto candidate=pose;
+            candidate.rotation=multiply(d,pose.rotation);
+            candidate.translation=add(multiply(d,pose.translation),{factor*delta[3],factor*delta[4],factor*delta[5]});
+            if(objective(candidate)<old){pose=std::move(candidate);accepted=true;break;}
+        }
+        if(!accepted||length<1e-9)break;
     }
 }
 double reprojection(const CameraPose& pose, const Observation& o){
@@ -163,13 +217,14 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
     CameraPose best;best.inputCount=observations.size();
     const std::size_t minValid=std::max<std::size_t>(16,static_cast<std::size_t>(std::ceil(.28*observations.size())));
     for(int iter=0;iter<450;++iter){
+        cancellation::checkpoint();
         std::vector<std::size_t> sample;sample.reserve(8);
         while(sample.size()<8){auto i=pick(random);if(std::find(sample.begin(),sample.end(),i)==sample.end())sample.push_back(i);}
         try {
             auto pose=dlt(observations,sample);
             auto hits=inliers(pose,observations,threshold);
             if(hits.size()>best.inliers.size()) {best=std::move(pose);best.inliers=std::move(hits);}
-        }catch(const Error&){}
+        }catch(const cancellation::Cancelled&){throw;}catch(const Error&){}
         if(iter>=60 && best.inliers.size()>=observations.size()*.93)break;
     }
     if(best.inliers.size()<minValid)throw Error("Third-camera registration failed: insufficient consistent 2D-3D tracks");
@@ -181,7 +236,7 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
             auto newInliers=inliers(candidate,observations,threshold);
             if(newInliers.size()<minValid||newInliers.size()+3<best.inliers.size())break;
             best=std::move(candidate);best.inliers=std::move(newInliers);
-        }catch(const Error&){break;}
+        }catch(const cancellation::Cancelled&){throw;}catch(const Error&){break;}
     }
     // Final refit on the stable consensus, no unverified extra points introduced.
     refine(best,observations,best.inliers,threshold);
@@ -202,7 +257,8 @@ std::string cameraJson(const CameraPose& p){
     o<<"]}";return o.str();
 }
 } // namespace rf
-extern "C" char* rf_register_camera_json(const double* data,std::size_t count,double threshold){
+extern "C" char* rf_register_camera_json(const double* data,std::size_t count,double threshold) noexcept {
+    try { // Includes error serialization: allocation failures must never escape the C ABI.
     std::string text;
     try{
         if(!data||count<16||count>5000)throw rf::Error("Invalid camera input buffer");
@@ -212,4 +268,5 @@ extern "C" char* rf_register_camera_json(const double* data,std::size_t count,do
     }catch(const std::exception& e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='\"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"}";}
     auto* out=static_cast<char*>(std::malloc(text.size()+1));if(!out)return nullptr;
     std::memcpy(out,text.c_str(),text.size()+1);return out;
+    } catch (...) { return nullptr; }
 }
