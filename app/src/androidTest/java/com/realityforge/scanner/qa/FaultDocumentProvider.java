@@ -65,6 +65,8 @@ public final class FaultDocumentProvider extends DocumentsProvider {
     private final HandlerThread thread = new HandlerThread("bounded-document-faults");
     private final Object lock = new Object();
     private final Map<String, Integer> handles = new HashMap<>();
+    private StorageManager storageManager;
+    private ParcelFileDescriptor bridgeAnchor;
 
     /**
      * Explicit shell-only bootstrap into the provider-owning test UID. Shell does
@@ -190,8 +192,25 @@ public final class FaultDocumentProvider extends DocumentsProvider {
         Object value = config.opt(key); if (value == null) return defaultValue;
         require(value instanceof Boolean, key + " must be a boolean"); return (Boolean) value;
     }
-    @Override public boolean onCreate() { thread.start(); return true; }
-    @Override public void shutdown() { thread.quitSafely(); super.shutdown(); }
+    @Override public boolean onCreate() {
+        thread.start();
+        storageManager = java.util.Objects.requireNonNull(getContext()).getSystemService(StorageManager.class);
+        // Android10 tears down AppFuse when its final descriptor closes. Keep
+        // exactly one empty, unexposed descriptor so client close/open sequences
+        // do not race bridge destruction/recreation. Anchor callbacks never lock.
+        bridgeAnchor = unchecked(() -> storageManager.openProxyFileDescriptor(ParcelFileDescriptor.MODE_READ_ONLY,
+                new ProxyFileDescriptorCallback() {
+                    @Override public long onGetSize() { return 0; }
+                    @Override public int onRead(long offset, int size, byte[] data) { return 0; }
+                    @Override public void onRelease() { }
+                }, new Handler(thread.getLooper())));
+        return true;
+    }
+    @Override public void shutdown() {
+        try {
+            if (bridgeAnchor != null) unchecked(() -> { bridgeAnchor.close(); bridgeAnchor = null; return null; });
+        } finally { thread.quitSafely(); super.shutdown(); }
+    }
 
     /** Permission checked administrative API; no arbitrary file paths or reset-all operation. */
     @Override public Bundle call(String method, String arg, Bundle extras) {
@@ -350,7 +369,7 @@ public final class FaultDocumentProvider extends DocumentsProvider {
             if (!MODES.contains(id)) throw new FileNotFoundException("Unknown synthetic destination");
             if (mode.contains("w")) {
                 require(id.equals("enospc") || id.equals("short-write"), "Read-only synthetic fixture");
-                return java.util.Objects.requireNonNull(getContext()).getSystemService(StorageManager.class).openProxyFileDescriptor(
+                return storageManager.openProxyFileDescriptor(
                         ParcelFileDescriptor.MODE_WRITE_ONLY, new ProxyFileDescriptorCallback() {
                             private long written;
                             @Override public long onGetSize() { return written; }
@@ -404,7 +423,7 @@ public final class FaultDocumentProvider extends DocumentsProvider {
             event(id, state, writing ? "openWrite" : "openRead"); handles.put(id, handles.getOrDefault(id, 0) + 1);
         }
         try {
-            return java.util.Objects.requireNonNull(getContext()).getSystemService(StorageManager.class).openProxyFileDescriptor(
+            return storageManager.openProxyFileDescriptor(
                     writing ? ParcelFileDescriptor.MODE_WRITE_ONLY : ParcelFileDescriptor.MODE_READ_ONLY, new ProxyFileDescriptorCallback() {
                         @Override public long onGetSize() throws ErrnoException { return proxy(() -> payload(id).length()); }
                         @Override public int onWrite(long offset, int size, byte[] data) throws ErrnoException {

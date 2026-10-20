@@ -605,6 +605,13 @@
       "branch": "agents/081-host-numerical-sanitizers",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "e1ccd5d77872107d078db04488526b00d7f9cf3b",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
