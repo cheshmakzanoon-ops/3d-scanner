@@ -27,14 +27,17 @@ def adapt(gate, raw, candidate, environment, recorded_at, command, evidence_sha2
         if gate == 'geometry':
             topo = metrics.get('topology', {})
             observed = {'registration_fraction': metrics.get('cameras', {}).get('registration_fraction', -1), 'accuracy_p95': metrics.get('accuracy_p95', -1), 'completeness_fraction': metrics.get('completeness_fraction', -1), 'duplicate_triangles': topo.get('duplicate_triangles', -1), 'nonmanifold_edges': topo.get('nonmanifold_edges', -1), 'self_intersection_pairs': topo.get('self_intersection_pairs', -1)}
-            if topo.get('self_intersections_status') != 'CHECKED' and status == 'PASS':
+            if topo.get('self_intersections_status') != 'PASS_CHECK_EXECUTED' and status == 'PASS':
                 status, blockers = 'NOT_RUN', blockers + ['self-intersection assessment not executed']
         else:
             held = scene.get('held_out', [])
-            checked = scene.get('held_out_status') == 'CHECKED' and held and all(h.get('status') == 'PASS' and h.get('metrics', {}).get('eligible_reference_pixels', 0) > 0 for h in held)
-            observed = {'supported_face_fraction_original': metrics.get('supported_face_fraction_original', -1), 'held_out_support_fraction': min((h.get('metrics', {}).get('held_out_support_fraction', -1) for h in held), default=-1), 'held_out_linear_rgb_rmse': max((h.get('metrics', {}).get('linear_rgb_rmse', -1) for h in held), default=-1), 'seam_linear_rgb_abs_p95': metrics.get('seam_linear_rgb_abs_p95', -1), 'uv_overlap_pairs': metrics.get('uv_overlap_pairs', -1), 'opaque_unknown_pixels': 1 if scene.get('asset', {}).get('opaque_material_with_transparent_texels', True) else 0, 'anisotropy_p95': metrics.get('distortion_anisotropy_p95', -1)}
+            checked = scene.get('held_out_status') == 'CHECKED' and held and all(h.get('metrics', {}).get('eligible_reference_pixels', 0) > 0 and h.get('metrics', {}).get('compared_pixels', 0) > 0 for h in held)
+            seam = 0 if metrics.get('potential_seam_edges') == 0 else metrics.get('seam_linear_rgb_abs_p95', -1)
+            observed = {'supported_face_fraction_original': metrics.get('supported_face_fraction_original', -1), 'held_out_support_fraction': min((h.get('metrics', {}).get('held_out_support_fraction', -1) for h in held), default=-1), 'held_out_linear_rgb_rmse': max((h.get('metrics', {}).get('linear_rgb_rmse', -1) for h in held), default=-1), 'seam_linear_rgb_abs_p95': seam, 'uv_overlap_pairs': metrics.get('uv_overlap_pairs', -1), 'opaque_unknown_pixels': metrics.get('alpha', {}).get('opaque_unknown_pixels', -1), 'anisotropy_p95': metrics.get('distortion_anisotropy_p95', -1)}
             if not checked and status == 'PASS':
                 status, blockers = 'NOT_RUN', blockers + ['independent held-out photographic comparison not executed']
+            if 'alpha' not in metrics and status == 'PASS':
+                status, blockers = 'NOT_RUN', blockers + ['independent atlas support/unknown-alpha assessment not executed']
         data = {'id': scene['id'], 'kind': 'physical' if selected else 'synthetic', 'sha256': scene.get('manifest_sha256', '0'*64), 'reference_sha256': selected['reference_sha256'] if selected else '0'*64}
         if gate == 'geometry' and selected and scene.get('reference_sha256') != selected['reference_sha256']:
             status, blockers = 'FAIL', blockers + ['independent reference geometry hash mismatch']

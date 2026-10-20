@@ -11,6 +11,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.release.qualification.aggregate import qualify, POLICY_PATH, validate_record, load_json
+from tools.release.qualification.aggregate import check_acceptance
 from tools.release.qualification.branches import index
 from tools.release.qualification.journey import parse_instrumentation, validate_bundle
 from tools.release.qualification.quality_adapter import adapt
@@ -190,3 +191,23 @@ def test_quality_adapter_never_promotes_limited_uv_or_synthetic_physical():
     assert adapt('geometry', raw, candidate, environment, '2026-10-20T01:00:00Z', 'actual command', '7'*64)[0]['status'] == 'BLOCKED_EXTERNAL'
     raw['physical_gate'] = 'PASS'
     assert adapt('geometry', raw, candidate, environment, '2026-10-20T01:00:00Z', 'actual command', '7'*64)[0]['status'] == 'NOT_RUN'
+
+
+def test_quality_adapter_consumes_actual084_085_contract_fields():
+    candidate, records = fixtures()
+    environment = next(r for r in records if r['gate'] == 'geometry')['environment']
+    scene = {'id':candidate['scenes'][0]['id'], 'candidate_source_sha':candidate['source_sha'], 'manifest_sha256':candidate['scenes'][0]['sha256'], 'reference_sha256':candidate['scenes'][0]['reference_sha256'], 'status':'PASS', 'metrics': {'accuracy_p95':.001,'completeness_fraction':.99,'cameras':{'registration_fraction':1.0},'topology':{'duplicate_triangles':0,'nonmanifold_edges':0,'self_intersection_pairs':0,'self_intersections_status':'PASS_CHECK_EXECUTED'}}}
+    raw = {'source_sha':'8'*40,'protocol_sha256':'6'*64,'physical_gate':'PASS','scenes':[scene]}
+    record = adapt('geometry',raw,candidate,environment,'2026-10-20T01:00:00Z','actual command','7'*64)[0]
+    assert record['status'] == 'PASS'
+    validate_record(record)
+    check_acceptance(record)
+    scene['metrics'] = {'supported_face_fraction_original':.99,'potential_seam_edges':0,'uv_overlap_pairs':0,'distortion_anisotropy_p95':1,'alpha':{'opaque_unknown_pixels':0}}
+    scene['held_out_status'] = 'CHECKED'
+    scene['held_out'] = [{'metrics':{'eligible_reference_pixels':100,'compared_pixels':99,'held_out_support_fraction':.99,'linear_rgb_rmse':.001}}]
+    record = adapt('texture',raw,candidate,environment,'2026-10-20T01:00:00Z','actual command','7'*64)[0]
+    assert record['status'] == 'PASS'
+    validate_record(record)
+    check_acceptance(record)
+    del scene['metrics']['alpha']
+    assert adapt('texture',raw,candidate,environment,'2026-10-20T01:00:00Z','actual command','7'*64)[0]['status'] == 'NOT_RUN'
