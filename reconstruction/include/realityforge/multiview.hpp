@@ -19,6 +19,7 @@ struct MultiViewSettings {
     double maxReprojectionError = 0.003;
     double minParallaxDegrees = 0.8;
     int iterations = 8; // bounded robust alternating sparse point/pose optimization
+    bool refineCameras = true; // window adapters may keep externally registered world poses fixed
 };
 struct SparseTrackPoint {
     Point point;

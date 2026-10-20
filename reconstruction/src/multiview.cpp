@@ -225,7 +225,7 @@ MultiViewResult reconstructMultiView(std::span<const ViewPose> views,
         cancellation::checkpoint();
         bool changed=false;
         for(auto& w:working)changed=refinePoint(w,out.cameras,gate)||changed;
-        for(std::size_t c=2;c<out.cameras.size();++c)changed=refineCamera(c,out.cameras,working,gate)||changed;
+        if(settings.refineCameras)for(std::size_t c=2;c<out.cameras.size();++c)changed=refineCamera(c,out.cameras,working,gate)||changed;
         out.iterations=iteration+1;
         if(!changed)break;
     }
@@ -261,7 +261,10 @@ std::vector<MappedSparseTrackPoint> reconstructMultiViewWindow(
     if(mapping.cameraIds.size()!=cameras.size()||mapping.trackIds.size()>30000||
        !validIds(mapping.cameraIds)||!validIds(mapping.trackIds))throw Error("Invalid native local/global mapping");
     for(auto& row:observations)if(row.track>=mapping.trackIds.size())throw Error("Track missing from window mapping");
-    auto result=reconstructMultiView(cameras,observations,settings);std::vector<MappedSparseTrackPoint> out;out.reserve(result.tracks.size());
+    // A point-only window result cannot silently discard refined camera poses.
+    // Keep all supplied global world poses fixed; joint pose updates belong to041.
+    auto windowSettings=settings;windowSettings.refineCameras=false;
+    auto result=reconstructMultiView(cameras,observations,windowSettings);std::vector<MappedSparseTrackPoint> out;out.reserve(result.tracks.size());
     for(auto& point:result.tracks){MappedSparseTrackPoint mapped{point,mapping.trackIds[point.track],{}};
         for(auto camera:point.supportingCameras){mapped.cameraIds.push_back(mapping.cameraIds[camera]);}
         out.push_back(std::move(mapped));}
