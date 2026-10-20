@@ -33,7 +33,8 @@ def main():
     low=np.ascontiguousarray([rgba(im,width,height) for im in (left,right)],dtype=np.uint8)
     high=np.ascontiguousarray([rgba(im,photo_width,photo_height) for im in (left,right)],dtype=np.uint8)
     rx,ry=width/original_w,height/original_h
-    cameras=np.ascontiguousarray([[1,0,0,0,1,0,0,0,1,-float(i),0,0,FOCAL_PIXELS*rx,FOCAL_PIXELS*ry,cx*rx,CY*ry] for i,cx in enumerate((CX_LEFT,CX_RIGHT))],dtype=np.float64)
+    # Preserve original pinhole rays at the centres of area-resized pixels.
+    cameras=np.ascontiguousarray([[1,0,0,0,1,0,0,0,1,-float(i),0,0,FOCAL_PIXELS*rx,FOCAL_PIXELS*ry,(cx+.5)*rx-.5,(CY+.5)*ry-.5] for i,cx in enumerate((CX_LEFT,CX_RIGHT))],dtype=np.float64)
     paths=[out/name for name in ('original.glb','original.ply','compact.glb','compact.png')]
     for path in paths:
         if path.exists():path.unlink()
