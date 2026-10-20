@@ -458,7 +458,10 @@ std::string bundleJson(const BundleResult& r){
     for(std::size_t i=0;i<r.cameras.size();++i){
         if(i)out<<',';
         const auto& c=r.cameras[i];
-        out<<"{\"fixed\":"<<(i<(r.gauge==BundleGauge::PoseAndBaseline?1U:2U)?"true":"false")<<",\"rotation\":[";
+        out<<"{\"fixed\":"<<(i<(r.gauge==BundleGauge::PoseAndBaseline?1U:2U)?"true":"false")
+           <<",\"observationCount\":"<<(i<r.cameraObservationCounts.size()?r.cameraObservationCounts[i]:0)<<",\"medianResidualNormalized\":";
+        if(i<r.cameraObservationCounts.size()&&r.cameraObservationCounts[i]&&i<r.medianCameraResiduals.size())out<<r.medianCameraResiduals[i];else out<<"null";
+        out<<",\"rotation\":[";
         for(int j=0;j<9;++j){if(j)out<<',';out<<c.rotation[j];}
         out<<"],\"translation\":["<<c.translation.x<<','<<c.translation.y<<','<<c.translation.z<<"]}";
     }
