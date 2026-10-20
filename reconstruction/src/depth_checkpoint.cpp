@@ -86,7 +86,7 @@ bool load(std::size_t index,DenseDepthMap& map){
 #if defined(__unix__) || defined(__ANDROID__)
     struct ReadLease {int fd{-1};~ReadLease(){if(fd>=0)::close(fd);}} lease;
     lease.fd=::open(active->directory().c_str(),O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
-    if(lease.fd<0||!lockDirectory(lease.fd,LOCK_SH)){if(status)*status=TileLoadStatus::Unavailable;return false;}
+    if(lease.fd<0||!lockDirectory(lease.fd,LOCK_SH))return false;
 #ifdef RF_CHECKPOINT_TEST_HOOKS
     rf_depth_checkpoint_test_stage(3);
 #endif
