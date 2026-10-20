@@ -33,6 +33,7 @@ inline Sample sampleDepth(const DenseDepthMap& map,double x,double y,int step,in
 struct Verification { Visibility classification{Visibility::Unknown}; double relativeError{},reprojectionError{}; };
 inline Verification verify(const Sample& sample,double predictedDepth,double reprojectionError,double relativeTolerance,double pixelTolerance){
     if(sample.classification!=Visibility::Supported)return {sample.classification};
+    if(!std::isfinite(sample.depth)||sample.depth<=0||!std::isfinite(sample.confidence)||sample.confidence<0||sample.confidence>1)return {};
     if(!std::isfinite(predictedDepth)||predictedDepth<=0||!std::isfinite(reprojectionError)||reprojectionError<0||
        !std::isfinite(relativeTolerance)||relativeTolerance<=0||!std::isfinite(pixelTolerance)||pixelTolerance<=0)return {};
     const double error=std::abs(predictedDepth-sample.depth)/std::max(predictedDepth,sample.depth);
