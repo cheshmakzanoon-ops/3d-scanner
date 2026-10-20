@@ -16,18 +16,21 @@ data class LibraryProject(val id: String, val name: String, val createdAt: Long,
 }
 data class LibraryUiState(val projects: List<LibraryProject>, val loading: Boolean = false,
     val error: String? = null, val busy: Boolean = false, val canRename: Boolean = false,
-    val canDuplicate: Boolean = false, val canRestoreArchive: Boolean = false)
+    val canDuplicate: Boolean = false, val canRestoreArchive: Boolean = false, val canLoadMore:Boolean=false,
+    val copyingBytes:Long?=null,val totalCopyBytes:Long?=null)
 sealed interface LibraryAction {
     data class Create(val name: String) : LibraryAction
     data class Open(val projectId: String) : LibraryAction
     data class Rename(val projectId: String, val revision: Long, val name: String) : LibraryAction
-    data class Duplicate(val projectId: String, val revision: Long) : LibraryAction
+    data class Duplicate(val projectId: String, val revision: Long, val name:String?=null) : LibraryAction
     data class Delete(val projectId: String, val revision: Long) : LibraryAction
     data object RestoreArchive : LibraryAction
     data object Retry : LibraryAction
+    data object LoadMore : LibraryAction
 }
 object LibraryQuery {
-    fun validName(value: String): Boolean = value.trim().isNotEmpty() && value.length <= 80 && value.none { it.isISOControl() }
+    fun validName(value: String): Boolean = value.trim().isNotEmpty() && value.codePointCount(0,value.length) <= 80 && value.none { it.isISOControl() }
+    fun capName(value:String):String = value.substring(0,value.offsetByCodePoints(0,minOf(81,value.codePointCount(0,value.length))))
     fun apply(projects: List<LibraryProject>, query: String, sort: LibrarySort, filter: LibraryFilter): List<LibraryProject> {
         val normalized = query.trim().take(200).lowercase(Locale.ROOT)
         val filtered = projects.filter { project ->

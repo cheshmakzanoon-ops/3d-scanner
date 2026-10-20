@@ -1,4 +1,5 @@
 <resources>
+<string name="a072_load_more">Load more projects</string><string name="a072_copy_progress">Copying originals: %1$d of %2$d bytes</string>
     <string name="a072_library">Projects</string><string name="a072_search">Search projects</string>
     <string name="a072_create">Create local project</string><string name="a072_restore">Restore capture archive</string>
     <string name="a072_empty">No matching projects. Create a project or change the search.</string>

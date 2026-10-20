@@ -21,6 +21,7 @@ class LibraryQueryTest {
     }
     @Test fun boundedNamesRejectEmptyControlsAndOverlongInputs() {
         assertTrue(LibraryQuery.validName("  shoes "))
+        assertTrue(LibraryQuery.validName("📷".repeat(80))); assertFalse(LibraryQuery.validName("📷".repeat(81)))
         assertFalse(LibraryQuery.validName("  ")); assertFalse(LibraryQuery.validName("a\nb")); assertFalse(LibraryQuery.validName("a".repeat(81)))
     }
     @Test fun tenThousandRowsHaveStableBoundedLazyListKeys() {
