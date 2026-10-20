@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "generationSourceSha": "5dd4c847455bb7a5bccd2f7cc4ab7db25d4aa2ef",
+  "sourceEvidence": "/workspace/campaign/evidence/004/benchmark-followup",
+  "sourceEvidenceSha256": {
+    "app-generated-lock.json": "2ce7f361eaa0a45553b757ffc876debd016985125cf3d319297e82f908c46b69",
+    "build-wiring-provenance.json": "bf71db3f91173d414199cf3cb757950360cbef8130431764831b6eee4d000573",
+    "generate-driver-lock.json": "7a96be6da96893e848335a93d2a867d5e4280ea3bdcd360c8188857134950793",
+    "benchmark-app-resolved.json": "fa509645001716c0408d9936e98098b88d087b0146f45b473c0eb99f13e945e3",
+    "benchmark-driver-resolved.json": "2964e7f2eb29042f3d8f2f773577094f0f3a7ec1780d0bd1bdcbc073dd4c96c5",
+    "app.gradle.lockfile": "ac7c8e61aed68c6925ab3b1028280ae101ac4425b56af958de616d8cc9fc6729",
+    "macrobenchmark.gradle.lockfile": "23a7a081dfee70c8bf2532a531fb62feaedf93cc9b71176dd74b1b0fd7a595dd",
+    "verify-app-inventory.log": "cab24cdd34f171d02b4437a56bf01c55aeb50683889af2bacc54011fdf25a800",
+    "verify-driver-inventory.log": "cab24cdd34f171d02b4437a56bf01c55aeb50683889af2bacc54011fdf25a800"
+  },
+  "configurations": {
+    "benchmarkCompileClasspath": 97,
+    "benchmarkRuntimeClasspath": 123,
+    "debugAndroidTestCompileClasspath": 114,
+    "debugAndroidTestRuntimeClasspath": 44,
+    "debugCompileClasspath": 101,
+    "debugRuntimeClasspath": 129,
+    "debugUnitTestCompileClasspath": 103,
+    "debugUnitTestRuntimeClasspath": 131,
+    "kspBenchmarkKotlinProcessorClasspath": 38,
+    "kspDebugKotlinProcessorClasspath": 38,
+    "kspReleaseKotlinProcessorClasspath": 38,
+    "releaseAndroidTestCompileClasspath": 110,
+    "releaseAndroidTestRuntimeClasspath": 44,
+    "releaseCompileClasspath": 97,
+    "releaseRuntimeClasspath": 123,
+    "releaseUnitTestCompileClasspath": 99,
+    "releaseUnitTestRuntimeClasspath": 125
+  },
+  "all14PriorStatesPreserved": true,
+  "benchmarkTargetMatchesApprovedReleaseGraph": true,
+  "appApprovedInventorySha256": "70abe20c7545ac96334871b68a2d49879a397c4df6e41230d26277b7d0f7d7d1",
+  "driverApprovedInventorySha256": "24f1314ab80fa65b6e5e93d924351761c762f291afdac639e2202a4b465528a5",
+  "newRuntimeCoordinates": [],
+  "note": "Actual benchmark app module/artifact set verifies against complete existing release inventory/SBOM/notices; self-instrumenting driver verifies against separate QA benchmark inventory. Numeric physical performance acceptance remains NOT_RUN."
+}
