@@ -64,37 +64,3 @@ dependencies {
     androidTestImplementation("androidx.room:room-testing:2.7.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
-
-// Agent 004 one-time transport: CI obtains the official tagged wrapper, verifies the
-// published SHA-256, and exposes it only as a build report artifact. The final branch
-// removes this task after committing the verified wrapper into source.
-val agent004OfficialWrapper = layout.buildDirectory.file("reports/agent004/gradle-wrapper.jar")
-val materializeAgent004OfficialWrapper = tasks.register("materializeAgent004OfficialWrapper") {
-    outputs.file(agent004OfficialWrapper)
-    doLast {
-        val expected = "81a82aaea5abcc8ff68b3dfcb58b3c3c429378efd98e7433460610fecd7ae45f"
-        val target = agent004OfficialWrapper.get().asFile
-        target.parentFile.mkdirs()
-        val connection = java.net.URI(
-            "https://raw.githubusercontent.com/gradle/gradle/v8.13.0/gradle/wrapper/gradle-wrapper.jar"
-        ).toURL().openConnection().apply {
-            connectTimeout = 30_000
-            readTimeout = 60_000
-        }
-        connection.getInputStream().use { input ->
-            target.outputStream().use { output -> input.copyTo(output) }
-        }
-        val actual = java.security.MessageDigest.getInstance("SHA-256")
-            .digest(target.readBytes())
-            .joinToString("") { byte -> "%02x".format(byte) }
-        check(actual == expected) {
-            "Official Gradle wrapper checksum mismatch: expected=$expected actual=$actual"
-        }
-        target.resolveSibling("gradle-wrapper.sha256.txt").writeText("$actual  gradle-wrapper.jar\n")
-    }
-}
-tasks.configureEach {
-    if (name == "preBuild") {
-        dependsOn(materializeAgent004OfficialWrapper)
-    }
-}
