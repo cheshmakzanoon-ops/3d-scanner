@@ -23,9 +23,8 @@ def main():
     engine=NativeEngine(args.native_library)
     try:call=engine.library.rf_textured_surface_compact_json
     except AttributeError:
-        report['native_execution_status']='FAIL' if errors else 'PASS'
-    if report.get('independent_uv_failures'):report['status']='FAIL'
-    (out/'compact-receipt.json').write_text(json.dumps({'status':'NOT_RUN','reason':'candidate lacks057 compact C ABI','candidate_source_sha':args.candidate_source_sha},indent=2)+'\n');return 2
+        (out/'compact-receipt.json').write_text(json.dumps({'status':'NOT_RUN','reason':'candidate lacks057 compact C ABI','candidate_source_sha':args.candidate_source_sha},indent=2)+'\n')
+        return 2
     call.argtypes=engine.library.rf_textured_surface_json.argtypes;call.restype=ctypes.c_void_p
     import cv2
     left,right,_=load_middlebury();original_h,original_w=left.shape[:2]

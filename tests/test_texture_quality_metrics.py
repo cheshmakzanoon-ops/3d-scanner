@@ -153,3 +153,14 @@ def test_hostile_actual_glb_metadata(tmp_path,defect):
     js=json.dumps(data).encode();js+=b' '*((-len(js))%4)
     path.write_bytes(struct.pack('<III',0x46546c67,2,28+len(js)+len(binary))+struct.pack('<II',len(js),0x4e4f534a)+js+struct.pack('<II',len(binary),0x004e4942)+binary)
     with pytest.raises(ValueError):load(path)
+
+
+def test_compact_adapter_missing_abi_records_not_run(tmp_path,monkeypatch):
+    import json,sys,types
+    from tools.qa.texture_quality.compact import main
+    class MissingCompactEngine:
+        def __init__(self,*args):self.library=object()
+    monkeypatch.setitem(sys.modules,'native_api',types.SimpleNamespace(NativeEngine=MissingCompactEngine))
+    monkeypatch.setattr(sys,'argv',['compact','--native-library','absent.so','--candidate-source-sha','a'*40,'--output-dir',str(tmp_path)])
+    assert main()==2
+    assert json.loads((tmp_path/'compact-receipt.json').read_text())['status']=='NOT_RUN'
