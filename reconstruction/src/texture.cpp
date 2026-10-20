@@ -1,6 +1,10 @@
 #include "realityforge/texture.hpp"
 #include "realityforge/cancellation.hpp"
 #include "realityforge/texture_png.hpp"
+#include "realityforge/texture_visibility.hpp"
+#include "realityforge/uv_atlas.hpp"
+#include "realityforge/texture_blend.hpp"
+#include "realityforge/progress.hpp"
 #include <filesystem>
 #include <algorithm>
 #include <array>
@@ -137,6 +141,94 @@ void checkMesh(const SurfaceMesh& mesh){
 }
 }
 
+namespace {
+TexturedSurface compactAtlas(const SurfaceMesh& mesh,std::span<const DenseView> views,
+    std::span<const DenseDepthMap> maps,std::span<const TextureSource> photos,
+    const TextureSettings& settings,const ExposureBalance& exposure){
+    if(settings.atlasEdge!=2048)throw Error("4K atlas profile requires independent resource qualification");
+    UVAtlasSettings chartSettings;chartSettings.edge=settings.atlasEdge;chartSettings.padding=settings.gutter;
+    chartSettings.requestedTexelsPerUnit=settings.chartTexelsPerUnit;
+    std::vector<double> photoDensities;photoDensities.reserve(mesh.triangles.size());
+    for(const auto& t:mesh.triangles){
+        const std::array<Vec3,3> points{mesh.vertices[t.a].xyz,mesh.vertices[t.b].xyz,mesh.vertices[t.c].xyz};
+        const double worldDoubleArea=norm(cross(sub(points[1],points[0]),sub(points[2],points[0])));double best=0;
+        for(const auto& photo:photos){std::array<Projected,3> uv{};bool valid=true;for(int i=0;i<3;++i)valid=valid&&project(photo,points[i],uv[i]);
+            if(valid){const double imageDoubleArea=std::abs((uv[1].u-uv[0].u)*(uv[2].v-uv[0].v)-(uv[1].v-uv[0].v)*(uv[2].u-uv[0].u));best=std::max(best,std::sqrt(imageDoubleArea/worldDoubleArea));}}
+        if(std::isfinite(best)&&best>0)photoDensities.push_back(best);
+    }
+    // Do not label upsampled photographs as new detail. Density is capped by
+    // independently projected source pixel area in the same arbitrary frame.
+    if(!photoDensities.empty()){auto middle=photoDensities.begin()+photoDensities.size()/2;std::nth_element(photoDensities.begin(),middle,photoDensities.end());chartSettings.requestedTexelsPerUnit=std::min(chartSettings.requestedTexelsPerUnit,*middle);}
+
+    const auto layout=layoutSurfaceCharts(mesh,chartSettings);
+    TexturedSurface result;result.compactCharts=true;result.inputTriangles=mesh.triangles.size();result.exposure=exposure;
+    result.sourceTriangleCounts.assign(photos.size(),0);result.texelsPerUnit=layout.texelsPerUnit;
+    int usedWidth=1,usedHeight=1;
+    for(const auto& c:layout.charts){usedWidth=std::max(usedWidth,c.x+c.width);usedHeight=std::max(usedHeight,c.y+c.height);}
+    result.atlasWidth=usedWidth;result.atlasHeight=usedHeight;
+    if(static_cast<std::size_t>(usedWidth)*usedHeight>4500000)throw Error("Compact atlas exceeds active budget");
+    result.atlasRgba.assign(static_cast<std::size_t>(usedWidth)*usedHeight*4,0);
+    progress::begin(progress::Stage::Texture,0,0,layout.charts.size());
+    for(const auto& chart:layout.charts){
+        cancellation::checkpoint();const auto face=chart.sourceFace;const auto& tri=mesh.triangles[face];
+        const std::array<std::uint32_t,3> ids{tri.a,tri.b,tri.c};
+        const std::array<Vec3,3> xyz{mesh.vertices[tri.a].xyz,mesh.vertices[tri.b].xyz,mesh.vertices[tri.c].xyz};
+        const auto normalRaw=cross(sub(xyz[1],xyz[0]),sub(xyz[2],xyz[0]));const auto normal=times(normalRaw,1./norm(normalRaw));
+        const auto a=chart.local[0],b=chart.local[1],c=chart.local[2];
+        const double determinant=(b.u-a.u)*(c.v-a.v)-(b.v-a.v)*(c.u-a.u);
+        std::size_t faceTexels=0;std::vector<std::size_t> sourceCounts(photos.size(),0);
+        auto gather=[&](int x,int y){
+            x=std::clamp(x,0,chart.width-1);y=std::clamp(y,0,chart.height-1);
+            const double localX=(x-chart.padding)/layout.texelsPerUnit,localY=(y-chart.padding)/layout.texelsPerUnit;
+            double w1=((localX-a.u)*(c.v-a.v)-(localY-a.v)*(c.u-a.u))/determinant;
+            double w2=((b.u-a.u)*(localY-a.v)-(b.v-a.v)*(localX-a.u))/determinant;
+            double w0=1-w1-w2;w0=std::max(0.,w0);w1=std::max(0.,w1);w2=std::max(0.,w2);
+            const double sum=w0+w1+w2;w0/=sum;w1/=sum;w2/=sum;
+            const Vec3 world=add(add(times(xyz[0],w0),times(xyz[1],w1)),times(xyz[2],w2));
+            TexelSources texel;texel.chart=face;texel.samples.reserve(photos.size());
+            for(std::size_t cam=0;cam<photos.size();++cam){
+                const auto ray=sub(cameraCenter(photos[cam].pose),world);const double distance=norm(ray);
+                const double facing=distance>1e-12?dot(normal,times(ray,1./distance)):0;if(facing<settings.minimumFacing)continue;
+                TextureProjection projection;if(!projectVisibleTexel(photos[cam],views[cam],maps[cam],world,settings.depthTolerance,projection,settings.depthSampleStride,settings.depthSampleOrigin))continue;
+                std::array<double,3> color{};if(!sampleLinear(photos[cam],{projection.u,projection.v,projection.z},color))continue;
+                texel.samples.push_back({cam,face,color,exposure.gains[cam],facing*facing,true});
+            }
+            return texel;
+        };
+        for(int tileY=0;tileY<chart.height;tileY+=124)for(int tileX=0;tileX<chart.width;tileX+=124){
+            cancellation::checkpoint();const int tileWidth=std::min(124,chart.width-tileX),tileHeight=std::min(124,chart.height-tileY);
+            ChartBlendTile tile;tile.width=tileWidth+4;tile.height=tileHeight+4;tile.halo=2;tile.texels.reserve(static_cast<std::size_t>(tile.width)*tile.height);
+            for(int y=-2;y<tileHeight+2;++y)for(int x=-2;x<tileWidth+2;++x)tile.texels.push_back(gather(tileX+x,tileY+y));
+            const auto baked=blendChartTile(tile);
+            for(int y=0;y<tileHeight;++y)for(int x=0;x<tileWidth;++x){
+                const auto& pixel=baked.texels[static_cast<std::size_t>(y)*tileWidth+x];
+                const int atlasX=chart.x+tileX+x,atlasY=chart.y+tileY+y;
+                const auto offset=(static_cast<std::size_t>(atlasY)*usedWidth+atlasX)*4;
+                std::copy(pixel.rgba.begin(),pixel.rgba.end(),result.atlasRgba.begin()+static_cast<std::ptrdiff_t>(offset));
+                const double localX=(tileX+x-chart.padding)/layout.texelsPerUnit,localY=(tileY+y-chart.padding)/layout.texelsPerUnit;
+                const double w1=((localX-a.u)*(c.v-a.v)-(localY-a.v)*(c.u-a.u))/determinant;
+                const double w2=((b.u-a.u)*(localY-a.v)-(b.v-a.v)*(localX-a.u))/determinant;
+                if(w1>=0&&w2>=0&&w1+w2<=1){
+                    if(pixel.rgba[3]){++result.supportedTexels;++faceTexels;if(pixel.acceptedSources>1)++result.blendedTexels;result.meanBlendResidual+=pixel.weightedColorResidual;
+                        for(std::size_t cam=0;cam<photos.size();++cam)if(pixel.sourceMask&(std::uint64_t{1}<<cam))++sourceCounts[cam];}
+                    else ++result.unsupportedTexels;
+                }
+            }
+        }
+        if(!faceTexels)++result.skippedTriangles;else ++result.sourceTriangleCounts[std::max_element(sourceCounts.begin(),sourceCounts.end())-sourceCounts.begin()];
+        if(result.vertices.size()+3>settings.maxUvVertices)throw Error("Compact UV vertex budget exceeded");
+        for(int k=0;k<3;++k){result.indices.push_back(static_cast<std::uint32_t>(result.vertices.size()));result.vertices.push_back({ids[k],static_cast<float>(chart.uv[k].u*layout.width/usedWidth),static_cast<float>(chart.uv[k].v*layout.height/usedHeight)});}
+        progress::advance(face+1);
+    }
+    result.faceCoverage=static_cast<double>(result.inputTriangles-result.skippedTriangles)/result.inputTriangles;
+    result.atlasUtilization=static_cast<double>(result.supportedTexels)/(static_cast<double>(usedWidth)*usedHeight);
+    if(result.supportedTexels)result.meanBlendResidual/=result.supportedTexels;
+    // Unsupported faces remain in geometry, with transparent unknown texels.
+    if(!result.supportedTexels)throw Error("No supported photographic texels");
+    return result;
+}
+}
+
 TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     std::span<const DenseView> depthViews,std::span<const DenseDepthMap> depthMaps,
     std::span<const TextureSource> sources,const TextureSettings& s){
@@ -173,6 +265,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     TexturedSurface result;
     result.exposure.gains.assign(sources.size(),{1,1,1});
     if (s.balanceColors) result.exposure=measuredBalance(mesh,depthViews,depthMaps,sources,s.depthTolerance);
+    if(s.compactCharts)return compactAtlas(mesh,depthViews,depthMaps,sources,s,result.exposure);
     result.inputTriangles=mesh.triangles.size();
     result.sourceTriangleCounts.assign(sources.size(),0);
     const int columns=sources.size()<=4?2:3;
@@ -338,7 +431,11 @@ std::string texturedSurfaceJson(const TexturedSurface& t){
     std::ostringstream o;o.imbue(std::locale::classic());o<<std::setprecision(10);
     o<<"{\"schema\":10,\"representation\":\"camera_ranked_photographic_atlas\",\"textured\":true,\"watertight\":false,\"scale\":\"arbitrary\","
      <<"\"atlasWidth\":"<<t.atlasWidth<<",\"atlasHeight\":"<<t.atlasHeight
-     <<",\"atlasFormat\":\"image/png\",\"uvVertexCount\":"<<t.vertices.size()
+     <<",\"atlasFormat\":\"image/png\",\"compactCharts\":"<<(t.compactCharts?"true":"false")
+     <<",\"supportedTexels\":"<<t.supportedTexels<<",\"unsupportedTexels\":"<<t.unsupportedTexels
+     <<",\"blendedTexels\":"<<t.blendedTexels<<",\"texelsPerArbitraryUnit\":"<<t.texelsPerUnit
+     <<",\"atlasUtilization\":"<<t.atlasUtilization<<",\"meanBlendResidual\":"<<t.meanBlendResidual
+     <<",\"uvVertexCount\":"<<t.vertices.size()
      <<",\"triangleCount\":"<<t.indices.size()/3<<",\"inputTriangles\":"<<t.inputTriangles
      <<",\"skippedTriangles\":"<<t.skippedTriangles
      <<",\"viewSwitchEdges\":"<<t.viewSwitchEdges

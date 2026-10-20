@@ -12,12 +12,15 @@ using PngSink=std::function<void(std::span<const std::uint8_t>)>;
 namespace png_detail {
 inline void big(std::vector<std::uint8_t>& v,std::uint32_t x){for(int i=3;i>=0;--i)v.push_back(static_cast<std::uint8_t>(x>>(i*8)));}
 inline void chunk(const PngSink& sink,const char* name,std::span<const std::uint8_t> bytes){
-    std::vector<std::uint8_t> out;out.reserve(bytes.size()+12);big(out,static_cast<std::uint32_t>(bytes.size()));
-    for(int i=0;i<4;++i){out.push_back(static_cast<std::uint8_t>(name[i]));}
-    out.insert(out.end(),bytes.begin(),bytes.end());
+    if(bytes.size()>65540)throw Error("PNG streaming chunk budget exceeded");
+    std::vector<std::uint8_t> out(bytes.size()+12);
+    const auto length=static_cast<std::uint32_t>(bytes.size());
+    for(int i=0;i<4;++i){out[i]=static_cast<std::uint8_t>(length>>(24-8*i));out[4+i]=static_cast<std::uint8_t>(name[i]);}
+    for(std::size_t i=0;i<bytes.size();++i)out[8+i]=bytes[i];
     std::uint32_t crc=0xffffffffu;
-    for(std::size_t p=4;p<out.size();++p){crc^=out[p];for(int k=0;k<8;++k)crc=(crc>>1)^(crc&1?0xedb88320u:0u);}
-    big(out,~crc);sink(out);
+    for(std::size_t p=4;p<out.size()-4;++p){crc^=out[p];for(int k=0;k<8;++k)crc=(crc>>1)^(crc&1?0xedb88320u:0u);}
+    crc=~crc;for(int i=0;i<4;++i)out[out.size()-4+i]=static_cast<std::uint8_t>(crc>>(24-8*i));
+    sink(out);
 }
 }
 // RFC1950/1951 stored blocks preserve the existing dependency-free lossless

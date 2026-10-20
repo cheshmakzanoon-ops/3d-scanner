@@ -17,6 +17,10 @@ struct TextureSettings {
     double depthTolerance = 0.075;    // Reject visibility contradictions
     std::size_t maxUvVertices = 240000;
     bool balanceColors = true;
+    bool compactCharts = false; // opt-in until device/profile qualification; baseline remains available
+    int depthSampleStride = 1, depthSampleOrigin = 0; // declared sparse depth grid
+    int atlasEdge = 2048; // 2K CPU admission; 4K requires an explicitly qualified budget
+    double chartTexelsPerUnit = 128.; // arbitrary world units; measured density is returned
     double seamPenalty = .18; // local label smoothing over manifold, similarly oriented faces
 };
 struct TextureSource {
@@ -39,6 +43,9 @@ struct TexturedSurface {
     double faceCoverage{},medianFacing{};
     std::size_t viewSwitchEdgesBefore{}, reassignedFaces{};
     ExposureBalance exposure;
+    std::size_t supportedTexels{},unsupportedTexels{},blendedTexels{};
+    double texelsPerUnit{},atlasUtilization{},meanBlendResidual{};
+    bool compactCharts{};
 };
 TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     std::span<const DenseView> depthViews,std::span<const DenseDepthMap> depthMaps,

@@ -16,3 +16,9 @@ def test_streaming_png_independent_decode_and_failures(tmp_path):
 def test_actual_occlusion_masks_and_missing_depth(tmp_path):
     root=Path(__file__).resolve().parents[1];binary=tmp_path/'visibility'
     compile_case(root,'texture_visibility_test',binary);subprocess.run([str(binary)],check=True)
+
+def test_c_abi_allocation_failure_does_not_escape(tmp_path):
+    root=Path(__file__).resolve().parents[1];binary=tmp_path/'abi'
+    library=root/'build/host'
+    subprocess.run(['c++','-std=c++20','-I',str(root/'reconstruction/include'),str(root/'reconstruction/tests/agent_057_c_abi_failure.cpp'),'-L',str(library),'-Wl,-rpath,'+str(library),'-lrealityforge','-o',str(binary)],check=True)
+    subprocess.run([str(binary)],check=True)

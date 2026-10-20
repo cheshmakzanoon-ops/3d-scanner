@@ -1,5 +1,6 @@
 #pragma once
 #include "realityforge/texture.hpp"
+#include "realityforge/depth_consistency.hpp"
 #include <cmath>
 namespace rf {
 struct TextureProjection {double u{},v{},z{};};
@@ -7,7 +8,7 @@ struct TextureProjection {double u{},v{},z{};};
 // interpolation pixels. Missing depth and foreground occluders are never filled
 // by searching farther neighboring pixels for a convenient matching depth.
 inline bool projectVisibleTexel(const TextureSource& photo,const DenseView& view,
-    const DenseDepthMap& map,Vec3 world,double tolerance,TextureProjection& out){
+    const DenseDepthMap& map,Vec3 world,double tolerance,TextureProjection& out,int depthStep=1,int depthOrigin=0){
     if(photo.width<2||photo.height<2||view.width<1||view.height<1||map.width!=view.width||map.height!=view.height||
        map.depth.size()!=static_cast<std::size_t>(view.width)*view.height||
        photo.rgba.size()!=static_cast<std::size_t>(photo.width)*photo.height*4||!std::isfinite(tolerance)||tolerance<0||tolerance>.2)
@@ -18,9 +19,8 @@ inline bool projectVisibleTexel(const TextureSource& photo,const DenseView& view
     if(!std::isfinite(out.u)||!std::isfinite(out.v)||out.u<0||out.v<0||out.u>=photo.width-1||out.v>=photo.height-1)return false;
     const int x=static_cast<int>(std::floor(out.u)),y=static_cast<int>(std::floor(out.v));
     for(int j=0;j<2;++j)for(int i=0;i<2;++i)if(photo.rgba[(static_cast<std::size_t>(y+j)*photo.width+x+i)*4+3]<250)return false;
-    const int dx=static_cast<int>(std::lround((out.u+.5)*view.width/photo.width-.5)),dy=static_cast<int>(std::lround((out.v+.5)*view.height/photo.height-.5));
-    if(dx<0||dy<0||dx>=view.width||dy>=view.height)return false;
-    const auto d=map.depth[static_cast<std::size_t>(dy)*view.width+dx];
-    return std::isfinite(d)&&d>0&&std::abs(d-out.z)/std::max(static_cast<double>(d),out.z)<=tolerance;
+    const double dx=(out.u+.5)*view.width/photo.width-.5,dy=(out.v+.5)*view.height/photo.height-.5;
+    const auto sample=consistency::sampleDepth(map,dx,dy,depthStep,depthOrigin,.055);
+    return sample.confidence>=.12&&consistency::verify(sample,out.z,0.,tolerance,.75).classification==consistency::Visibility::Supported;
 }
 }
