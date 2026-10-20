@@ -20,6 +20,28 @@ class FeatureCacheTest {
         assertThrows(IllegalArgumentException::class.java){CachedFeatures(identity,100,80,floatArrayOf(100f,1f),intArrayOf(1),FloatArray(128))}
         assertThrows(IllegalArgumentException::class.java){CachedFeatures(identity,100,80,floatArrayOf(1f,1f),intArrayOf(1),FloatArray(128){Float.NaN})}
     }
+    @Test fun validChecksumCannotAdmitMalformedGeometryOrDescriptorPayload() {
+        val bytes=FeatureCacheFormat.encode(record())
+        val offset=44+listOf(identity.originalSha256,identity.decoderTransform,identity.extractorSettings,identity.openCvVersion).sumOf{4+it.toByteArray(Charsets.UTF_8).size}+16
+        java.nio.ByteBuffer.wrap(bytes).putFloat(offset,100f)
+        java.security.MessageDigest.getInstance("SHA-256").digest(bytes.copyOfRange(44,bytes.size)).copyInto(bytes,12)
+        assertThrows(IllegalArgumentException::class.java){FeatureCacheFormat.decode(bytes,identity)}
+    }
+    @Test fun crossInstanceWritersAndUnavailableStorageRemainSafeMisses() {
+        val root=Files.createTempDirectory("features-instances").toFile()
+        try {
+            val bytes=FeatureCacheFormat.encode(record()).size.toLong()+10
+            val first=FeatureCache(root,bytes);val second=FeatureCache(root,bytes)
+            val next=identity.copy(originalSha256="c".repeat(64))
+            val failure=java.util.concurrent.atomic.AtomicReference<Throwable?>()
+            val threads=listOf(Thread{try{repeat(20){first.store(record());first.load(identity)}}catch(t:Throwable){failure.set(t)}},Thread{try{repeat(20){second.store(record(next));second.load(next)}}catch(t:Throwable){failure.set(t)}})
+            threads.forEach{it.start()};threads.forEach{it.join()};failure.get()?.let{throw it}
+            assertTrue(root.listFiles()!!.filter{it.name.endsWith(".rffc")}.sumOf{it.length()}<=bytes)
+            val nonDirectory=File(root,"unavailable").apply{writeText("original")}
+            assertFalse(FeatureCache(nonDirectory,10000).store(record()))
+            assertEquals("original",nonDirectory.readText())
+        }finally{root.deleteRecursively()}
+    }
     @Test fun byteEvictionPreservesUnownedOriginalAndBudgetFailureIsMiss() {
         val root=Files.createTempDirectory("features-test").toFile()
         try {
