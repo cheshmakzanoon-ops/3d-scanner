@@ -11,7 +11,11 @@ internal data class SourceObservation(val photo: String, val keypoint: Int) : Co
     private val stableIdentity: String by lazy { digest("observation-v1\u0000$photo\u0000$keypoint".toByteArray(Charsets.UTF_8)) }
     fun identity(): String = stableIdentity
 }
-internal fun digest(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+internal fun digest(bytes: ByteArray): String {
+    val hash=MessageDigest.getInstance("SHA-256").digest(bytes);val alphabet="0123456789abcdef";val out=CharArray(hash.size*2)
+    for(i in hash.indices){val value=hash[i].toInt() and 255;out[i*2]=alphabet[value ushr 4];out[i*2+1]=alphabet[value and 15]}
+    return String(out)
+}
 internal class StableTrack(val id: String, sourceObservations: List<SourceObservation>) {
     val observations: List<SourceObservation> = Collections.unmodifiableList(sourceObservations.toList())
     override fun equals(other: Any?) = other is StableTrack && id==other.id && observations==other.observations
