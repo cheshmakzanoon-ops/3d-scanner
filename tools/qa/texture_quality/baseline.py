@@ -19,11 +19,13 @@ def main():
     environment=os.environ.copy();environment['RF_NATIVE_LIBRARY']=str(args.native_library.resolve())
     run=subprocess.run(command,cwd=root,env=environment,capture_output=True,text=True)
     (args.output_dir/'middlebury.log').write_text(run.stdout+run.stderr)
-    report={'source_sha':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'command':command,'exit_code':run.returncode,
-            'engine_sha256':hashlib.sha256(args.native_library.read_bytes()).hexdigest(),'status':'PASS' if run.returncode==0 and report_file.is_file() else 'FAIL','held_out_status':'NOT_RUN','physical_gate':'BLOCKED_EXTERNAL'}
+    legacy_status='PASS' if run.returncode==0 and report_file.is_file() else 'FAIL'
+    report={'source_sha':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'command':command,
+            'legacy_exit_code':run.returncode,'legacy_baseline_status':legacy_status,
+            'engine_sha256':hashlib.sha256(args.native_library.read_bytes()).hexdigest(),'held_out_status':'NOT_RUN','physical_gate':'BLOCKED_EXTERNAL'}
     if report_file.is_file():
         report['baseline_report_sha256']=hashlib.sha256(report_file.read_bytes()).hexdigest()
-    if report['status']=='PASS':
+    if legacy_status=='PASS':
         glb=root/'build/host/middlebury-photographic-texture.glb';png=root/'build/host/middlebury-photographic-atlas.png'
         v,f,uv,tex,asset=load(glb,png)
         report.update(independent_metrics=uv_metrics(v,f,uv,tex),asset=asset,candidate_sha256=hashlib.sha256(glb.read_bytes()).hexdigest(),atlas_sha256=hashlib.sha256(png.read_bytes()).hexdigest())
@@ -37,7 +39,9 @@ def main():
         elif value>config[key+'_max']:failed.append(key)
     report['independent_uv_gate']='FAIL' if failed else 'PASS_LIMITED_UV'
     report['independent_uv_failures']=failed
-    (args.output_dir/'baseline-receipt.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2));return int(report['status']!='PASS')
+    report['status']='PASS' if legacy_status=='PASS' and not failed else 'FAIL'
+    report['exit_code']=int(report['status']!='PASS')
+    (args.output_dir/'baseline-receipt.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2));return report['exit_code']
 
 
 if __name__=='__main__':raise SystemExit(main())
