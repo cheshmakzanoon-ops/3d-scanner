@@ -16,8 +16,8 @@ import java.util.concurrent.CancellationException
 data class ExtractorSettings(val maxFeatures: Int=3500,val analysisEdge: Int=1600) {
     init { require(maxFeatures in 32..20000 && analysisEdge in 32..4096) }
     fun identity(decoderIdentity: String): String {
-        require(decoderIdentity.isNotBlank())
-        val value="rf-sift-v2\n$maxFeatures\n$analysisEdge\n${Core.VERSION}\n${decoderIdentity.length}:$decoderIdentity"
+        val decoderBytes=validatedFeatureText(decoderIdentity,4096)
+        val value="rf-sift-v2\n$maxFeatures\n$analysisEdge\n${Core.VERSION}\n${decoderBytes.size}:$decoderIdentity"
         return MessageDigest.getInstance("SHA-256").digest(value.toByteArray(Charsets.UTF_8)).joinToString(""){"%02x".format(it)}
     }
 }
@@ -49,7 +49,8 @@ class FeatureExtractor(val settings: ExtractorSettings=ExtractorSettings()) {
         observe:((NativeFeatureCallEvent)->Unit)?,
     ): FeatureFrame {
         fun checkCancelled(){if(cancelled())throw CancellationException("Feature extraction cancelled")}
-        require(photoId.isNotBlank() && contentSha256.matches(Regex("[a-f0-9]{64}")))
+        validatedFeatureText(photoId,512)
+        require(contentSha256.matches(Regex("[a-f0-9]{64}")))
         val identity=settings.identity(decoderIdentity)
         checkCancelled()
         // Allocate the bounded ownership ledger before acquiring any native/image resource.
