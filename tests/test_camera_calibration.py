@@ -36,3 +36,22 @@ def test_opencv_brown_conrady_undistortion_roundtrip():
     pixels = cv2.projectPoints(points, np.zeros(3), np.zeros(3), K, D)[0].reshape(-1,2)
     undistorted = cv2.undistortPoints(pixels.reshape(-1,1,2), K, D, None, None).reshape(-1,2)
     assert np.max(np.abs(undistorted-points[:,:2])) < 1e-6
+
+
+def test_half_pixel_resize_agrees_with_opencv_projection_at_unequal_scales():
+    # Independent analytic projection: transformed pixels and transformed K must agree.
+    K = np.array([[1410., 0, 804.], [0, 1398., 603.], [0, 0, 1.]])
+    D = np.array([-.23, .09, .0017, -.0021, -.02])
+    points = np.array([[x, y, 1.] for x in np.linspace(-.4, .4, 9)
+                       for y in np.linspace(-.3, .3, 7)])
+    sx, sy = 803/1600, 602/1200
+    small = K.copy()
+    small[0, 0] *= sx; small[1, 1] *= sy
+    small[0, 2] = (K[0, 2]+.5)*sx-.5
+    small[1, 2] = (K[1, 2]+.5)*sy-.5
+    projected = cv2.projectPoints(points, np.zeros(3), np.zeros(3), K, D)[0].reshape(-1, 2)
+    resized = (projected+.5)*[sx, sy]-.5
+    direct = cv2.projectPoints(points, np.zeros(3), np.zeros(3), small, D)[0].reshape(-1, 2)
+    assert np.max(np.abs(resized-direct)) < 1e-10
+    old = projected*[sx, sy]
+    assert np.min(np.abs(old-resized)) > .24  # reproduces the baseline half-pixel discrepancy
