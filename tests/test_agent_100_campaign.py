@@ -118,3 +118,60 @@ def test_frozen_base_rejects_missing_or_invalid_registry(tmp_path):
     path.write_text(json.dumps({'campaign_base': 'HEAD'}))
     with pytest.raises(ValueError):
         campaign.frozen_base(tmp_path)
+
+
+def test_done_receipt_only_followup_allowed_but_changed_runtime_is_stale(tmp_path):
+    import json
+    def run(*args):
+        return subprocess.check_output(['git', '-C', str(tmp_path), *args], text=True).strip()
+    run('init', '-q'); run('config', 'user.email', 'fixture@example.invalid'); run('config', 'user.name', 'Fixture')
+    (tmp_path / 'runtime.py').write_text('print("tested")')
+    run('add', '.'); run('commit', '-qm', 'tested source'); tested = run('rev-parse', 'HEAD')
+    record = {'state': 'DONE', 'implementation_commits': [tested], 'remaining_work': [], 'external_blockers': [],
+              'acceptance_results': [{'criterion': 'actual gate', 'result': 'PASS', 'command': 'python runtime.py', 'source_sha': tested}]}
+    text = json.dumps(record)
+    folder = tmp_path / 'docs/agents/status'; folder.mkdir(parents=True)
+    (folder / '089.md').write_text(text)
+    run('add', '.'); run('commit', '-qm', 'receipt only')
+    assert campaign.receipt_freshness(tmp_path, text, '089', 'HEAD') == []
+    (tmp_path / 'runtime.py').write_text('raise RuntimeError("untested")')
+    run('add', '.'); run('commit', '-qm', 'untested change')
+    assert campaign.receipt_freshness(tmp_path, text, '089', 'HEAD') == [
+        'DONE has untested source/input changes after evidence: runtime.py']
+
+
+@pytest.mark.parametrize('stage_change', [False, True])
+def test_real_merge_helper_rejects_postcheck_source_change(tmp_path, stage_change):
+    import json
+    import shutil
+    import sys
+    def run(*args):
+        return subprocess.check_output(['git', '-C', str(tmp_path), *args], text=True).strip()
+    run('init', '-q'); run('config', 'user.email', 'fixture@example.invalid'); run('config', 'user.name', 'Fixture')
+    for name in ['tools/agents/campaign.py', 'tools/agents/integrate.py', 'tools/source_manifest.py', campaign.PLAN]:
+        target = tmp_path / name; target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / name, target)
+    def commit(message):
+        run('add', '.')
+        subprocess.run([sys.executable, str(tmp_path / 'tools/source_manifest.py'), 'generate', '--source', 'index'],
+                       cwd=tmp_path, check=True, capture_output=True)
+        run('add', 'SOURCE_MANIFEST.sha256'); run('commit', '-qm', message)
+        return run('rev-parse', 'HEAD')
+    base = commit('campaign base')
+    run('switch', '-qc', 'agents/089-runtime-offline-privacy')
+    runtime = tmp_path / 'tools/device/offline_privacy/candidate.py'
+    runtime.parent.mkdir(parents=True); runtime.write_text('tested candidate')
+    delivery = commit('owned delivery')
+    run('switch', '-qc', 'agents/100-integration-lead', base)
+    registry = tmp_path / 'docs/agents/integration/campaign-base.json'; registry.parent.mkdir(parents=True)
+    registry.write_text(json.dumps({'campaign_base': base})); original = commit('freeze base')
+    command = "from pathlib import Path; Path('tools/device/offline_privacy/candidate.py').write_text('changed after check')"
+    if stage_change:
+        command += "; import subprocess; subprocess.run(['git','add','.'],check=True); subprocess.run(['python3','tools/source_manifest.py','generate','--source','index'],check=True); subprocess.run(['git','add','SOURCE_MANIFEST.sha256'],check=True)"
+    import shlex
+    test = subprocess.run([sys.executable, str(tmp_path / 'tools/agents/integrate.py'), '--agent', '089',
+                           '--source-sha', delivery, '--base', base, '--check',
+                           sys.executable + ' -c ' + shlex.quote(command)], cwd=tmp_path, text=True, capture_output=True)
+    assert test.returncode != 0, test.stdout + test.stderr
+    assert run('rev-parse', 'HEAD') == original
+    assert 'Verification' in test.stderr

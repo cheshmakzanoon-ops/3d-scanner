@@ -58,6 +58,7 @@ def main():
     subprocess.run(['git', 'add', 'SOURCE_MANIFEST.sha256'], cwd=ROOT, check=True)
     subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'index'], cwd=ROOT, check=True)
     subprocess.run(['git', 'diff', '--check', '--cached'], cwd=ROOT, check=True)
+    reviewed_tree = git(ROOT, 'write-tree')
     for text in a.check:
         command = shlex.split(text)
         if not command:
@@ -70,6 +71,9 @@ def main():
     # Checks may be auto-fixing. Never commit a different staged tree from the one tested.
     if git(ROOT, 'diff', '--name-only'):
         print('Verification modified tracked source after staging; review, regenerate and rerun before commit.', file=sys.stderr)
+        return 1
+    if git(ROOT, 'write-tree') != reviewed_tree:
+        print('Verification changed the reviewed staged tree; rerun on the new candidate before commit.', file=sys.stderr)
         return 1
     subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'index'], cwd=ROOT, check=True)
     subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'worktree'], cwd=ROOT, check=True)

@@ -156,7 +156,7 @@ def receipt_state(text: str) -> str:
     return value if isinstance(value, str) and value in STATES else 'INVALID_RECEIPT'
 
 
-def receipt_checks(text: str) -> list[str]:
+def receipt_record(text: str) -> dict:
     """Read the documented JSON or compact YAML subset; unknown evidence fails closed."""
     try:
         record = json.loads(text)
@@ -180,6 +180,11 @@ def receipt_checks(text: str) -> list[str]:
                   'acceptance_results': results,
                   'remaining_work': [] if block('remaining_work').strip() == '[]' else ['open'],
                   'external_blockers': [] if block('external_blockers').strip() == '[]' else ['open']}
+    return record
+
+
+def receipt_checks(text: str) -> list[str]:
+    record = receipt_record(text)
     errors = []
     implementations = record.get('implementation_commits')
     if not isinstance(implementations, list) or not implementations or any(
@@ -205,6 +210,34 @@ def receipt_checks(text: str) -> list[str]:
     return errors
 
 
+def receipt_freshness(root: Path, text: str, agent: str, delivery: str) -> list[str]:
+    if receipt_state(text) != 'DONE':
+        return []
+    errors = []
+    sources = {r.get('source_sha') for r in receipt_record(text).get('acceptance_results', [])
+               if isinstance(r, dict) and r.get('result') == 'PASS'}
+    for source in sources:
+        if not isinstance(source, str) or not re.fullmatch('[0-9a-f]{40}', source):
+            continue  # Typed receipt check reports the missing/invalid identity.
+        exists = subprocess.run(['git', '-C', str(root), 'cat-file', '-e', source + '^{commit}'],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+        ancestor = exists and subprocess.run(['git', '-C', str(root), 'merge-base', '--is-ancestor', source, delivery],
+                                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+        if not ancestor:
+            errors.append('DONE test source is missing or not a delivery ancestor: ' + source)
+            continue
+        raw = subprocess.check_output(['git', '-C', str(root), 'diff', '--name-only', '-z', source, delivery])
+        for path in (p.decode() for p in raw.split(b'\0') if p):
+            allowed = path in {'SOURCE_MANIFEST.sha256', f'docs/agents/status/{agent}.md'}
+            allowed |= bool(re.fullmatch(rf'docs/agents/requests/{agent}-to-\d{{3}}\.md', path))
+            if agent == '100':
+                allowed |= path in {f'docs/agents/integration/{name}.json' for name in
+                                    ('deliveries', 'candidate-qualification', 'validation', 'branch-index')}
+            if not allowed:
+                errors.append('DONE has untested source/input changes after evidence: ' + path)
+    return sorted(set(errors))
+
+
 def index(root: Path, rows: list[dict], base: str) -> dict:
     deliveries = []
     requests = []
@@ -223,6 +256,7 @@ def index(root: Path, rows: list[dict], base: str) -> dict:
             if receipt.returncode == 0:
                 entry['state'] = receipt_state(receipt.stdout)
                 entry['receipt_errors'] = receipt_checks(receipt.stdout)
+                entry['receipt_errors'] += receipt_freshness(root, receipt.stdout, row['agent'], sha)
                 if entry['state'] == 'DONE' and entry['receipt_errors']:
                     entry['state'] = 'INVALID_RECEIPT'
                 entry['receipt_sha'] = git(root, 'rev-parse', f'{sha}:{row["receipt"]}')
