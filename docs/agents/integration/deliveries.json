@@ -521,6 +521,13 @@
       "branch": "agents/085-photographic-texture-quality",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "057",
+      "source_sha": "49f42ab82a92651f46d92ea329192a9226e23129",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
