@@ -6,11 +6,13 @@ import android.opengl.GLSurfaceView
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.semantics
@@ -144,7 +146,14 @@ private fun PhotoGlSurface(
         if (!owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) surface.pauseRendering()
         onDispose { owner.lifecycle.removeObserver(observer); surface.close() }
     }
-    AndroidView(factory={ surface.view },modifier=modifier.studioSemantics(label,pose,onPoseChange))
+    key(surface) {
+        val gestures=if(surface is PhotoGlView) Modifier else Modifier.pointerInput(surface) {
+            detectTransformGestures { _,pan,zoom,_ ->
+                poseCallback(currentPose.orbit(pan.x*.35f,pan.y*.35f).magnify(zoom))
+            }
+        }
+        AndroidView(factory={ surface.view },modifier=modifier.then(gestures).studioSemantics(label,pose,onPoseChange))
+    }
 }
 
 internal class PhotoGlView(context: Context, asset: PhotographicAsset, fail: (String) -> Unit) : GLSurfaceView(context), StudioRenderSurface {
