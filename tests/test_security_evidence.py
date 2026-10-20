@@ -91,13 +91,13 @@ def test_source_mutation_during_scan_never_passes(tmp_path, monkeypatch):
     import importlib
     module = importlib.import_module('tools.security.scan')
     source=tmp_path/'safe.py';source.write_text('answer = 3\n')
-    requirements=tmp_path/'requirements.txt';requirements.write_text('')
+    requirements=tmp_path/'requirements.txt';requirements.write_text('requests==2.19.1\n')
     def runner(argv, **kwargs):
         if '-c' in argv:return module.PINS
         if 'bandit' in argv:return {'results': []}
         if 'detect_secrets' in argv:return {'results': {}}
         source.write_text('answer = 4\n')
-        return {'dependencies': []}
+        return {'dependencies': [{'name':'requests','version':'2.19.1','vulns':[]}]}
     monkeypatch.setattr(module,'run_json',runner)
     report=module.scan(tmp_path,Path(sys.executable),requirements)
     assert report['status']=='NOT_RUN'
@@ -143,3 +143,94 @@ def test_new_secret_does_not_inherit_checksum_file_review(tmp_path, scanner):
     assert not report['suppressed']
     assert report['finding_counts']['raw']==report['finding_counts']['active']>0
     assert secret not in json.dumps(report)
+
+
+def test_real_audit_includes_vulnerable_nested_requirements(tmp_path, scanner):
+    source = tmp_path / 'source'
+    source.mkdir()
+    (source/'safe.py').write_text('answer = 3\n')
+    included = tmp_path/'included.txt'
+    included.write_text('requests==2.19.1\n')
+    requirements = tmp_path/'requirements.txt'
+    requirements.write_text('-r included.txt\n')
+    report = scan(source, scanner, requirements)
+    assert report['status'] == 'FAIL', report
+    assert report['checks']['dependencies'] == 'FAIL'
+    assert report['requirements_packages_count'] == 1
+    assert len(report['requirements_files_sha256']) == 2
+    assert any(f.get('package') == 'requests' for f in report['findings'])
+
+
+@pytest.mark.parametrize('text', ['', '-r requirements.txt\n', '-r ../outside.txt\n', '--index-url https://example.invalid\n', 'requests>=2\n'])
+def test_incomplete_or_escaping_dependency_input_never_passes(tmp_path, text):
+    source = tmp_path/'source'
+    source.mkdir()
+    requirements = source/'requirements.txt'
+    requirements.write_text(text)
+    report = scan(source, tmp_path/'absent', requirements)
+    assert report['status'] == 'NOT_RUN' and report['checks'] == {}
+
+
+def test_audit_omission_and_included_input_mutation_never_pass(tmp_path, monkeypatch):
+    import importlib
+    module = importlib.import_module('tools.security.scan')
+    source=tmp_path/'source';source.mkdir()
+    included=tmp_path/'included.txt';included.write_text('requests==2.19.1\n')
+    requirements=tmp_path/'requirements.txt';requirements.write_text('-r included.txt\n')
+    def runner(argv, **kwargs):
+        if '-c' in argv:return module.PINS
+        if 'bandit' in argv:return {'results': []}
+        if 'detect_secrets' in argv:return {'results': {}}
+        return {'dependencies': []}
+    monkeypatch.setattr(module,'run_json',runner)
+    report=module.scan(source,Path(sys.executable),requirements)
+    assert report['status']=='NOT_RUN' and report['checks']['dependencies']=='NOT_RUN'
+    def mutate(argv, **kwargs):
+        if 'pip_audit' in argv:
+            included.write_text('requests==2.19.2\n')
+            return {'dependencies':[{'name':'requests','version':'2.19.1','vulns':[]}]}
+        return runner(argv,**kwargs)
+    monkeypatch.setattr(module,'run_json',mutate)
+    assert module.scan(source,Path(sys.executable),requirements)['status']=='NOT_RUN'
+
+
+@pytest.mark.parametrize('rows', [[], [('requests','2.19.1')],
+    [('requests','2.19.2'),('urllib3','1.23')],
+    [('requests','2.19.1'),('urllib3','1.23'),('urllib3','1.23')]])
+def test_partial_changed_or_duplicate_dependency_coverage_rejected(tmp_path, monkeypatch, rows):
+    import importlib
+    module = importlib.import_module('tools.security.scan')
+    source=tmp_path/'source';source.mkdir()
+    requirements=tmp_path/'requirements.txt'
+    requirements.write_text('requests==2.19.1\nurllib3==1.23\n')
+    def runner(argv, **kwargs):
+        if '-c' in argv:return module.PINS
+        if 'bandit' in argv:return {'results': []}
+        if 'detect_secrets' in argv:return {'results': {}}
+        return {'dependencies':[{'name':name,'version':version,'vulns':[]} for name,version in rows]}
+    monkeypatch.setattr(module,'run_json',runner)
+    report=module.scan(source,Path(sys.executable),requirements)
+    assert report['status']=='NOT_RUN' and report['checks']['dependencies']=='NOT_RUN'
+
+
+def test_requirements_directory_symlink_rejected(tmp_path):
+    source=tmp_path/'source';source.mkdir()
+    actual=tmp_path/'actual';actual.mkdir()
+    (actual/'child.txt').write_text('requests==2.19.1\n')
+    (tmp_path/'alias').symlink_to(actual,target_is_directory=True)
+    requirements=tmp_path/'requirements.txt';requirements.write_text('-r alias/child.txt\n')
+    report=scan(source,tmp_path/'absent',requirements)
+    assert report['status']=='NOT_RUN' and report['checks']=={}
+
+
+def test_oversized_requirements_never_uses_unbounded_read(tmp_path, monkeypatch):
+    source=tmp_path/'source';source.mkdir()
+    requirements=tmp_path/'requirements.txt'
+    with requirements.open('wb') as stream:stream.truncate(4*1024*1024+1)
+    read=Path.read_bytes
+    def guarded(path):
+        assert path != requirements, 'requirements must use bounded closure reads'
+        return read(path)
+    monkeypatch.setattr(Path,'read_bytes',guarded)
+    report=scan(source,tmp_path/'absent',requirements)
+    assert report['status']=='NOT_RUN' and report['checks']=={}

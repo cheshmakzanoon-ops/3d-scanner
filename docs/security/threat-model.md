@@ -30,10 +30,13 @@ unsupported input rather than guessed safe. Original archive bytes are never mod
 
 ```bash
 python -m venv /tmp/rf-security
-/tmp/rf-security/bin/pip install -r tools/security/requirements-lock.txt
+python -m pip install --require-hashes -r tools/requirements.lock
+/tmp/rf-security/bin/pip install --require-hashes -r tools/dependencies/security-requirements.lock
 export RF_SECURITY_PYTHON=/tmp/rf-security/bin/python
 pytest -q tests/test_capture_audit.py tests/test_security_evidence.py
-python tools/security/scan.py tools --scanner-python "$RF_SECURITY_PYTHON" --requirements tools/requirements-real-benchmark.txt --suppressions tools/security/suppressions-v1.json --output /tmp/security-redacted.json
+for lock in tools/requirements.lock tools/dependencies/qa-requirements.lock tools/dependencies/security-requirements.lock; do
+  python tools/security/scan.py tools --source-sha EXACT_CLEAN_SOURCE_SHA --scanner-python "$RF_SECURITY_PYTHON" --requirements "$lock" --suppressions tools/security/suppressions-v1.json --output "/tmp/security-$(basename "$lock").json"
+done
 ```
 
 Bandit1.8.6, detect-secrets1.5.0 and pip-audit2.9.0 pins plus transitive pins are
@@ -126,3 +129,23 @@ Audit the security-tool lock separately as well. Each report names its exact
 requirements hash; one selected requirements scan is not an audit of other Python
 locks, the Android dependency graph or native redistributables. JVM/native and
 physical installed-candidate security gates remain separately required.
+
+
+The updated workflow installs hash-verified095 resolved host/security locks and
+independently audits the resolved ordinary, QA and security graphs. These files
+are a required095 integration contract; an isolated096 checkout does not invent
+copies. The old004 `tools/requirements*.txt` declarations still include vulnerable
+pytest8.4.1 at the reviewed snapshot. Their separate actual FAIL evidence is
+retained and request096-to-004 requires an owner pin update. Switching the active
+workflow to a fixed resolved lock does not declare those legacy inputs fixed.
+The095 QA/resolved lock upgrade itself must pass the actual advisory audit and
+fresh environment tests before final candidate acceptance.
+
+
+Requirement includes are not delegated to pip-audit's --disable-pip parser: it
+silently omits nested `-r` inputs in2.9.0. The wrapper flattens at most64 bounded
+local files/4MiB, permits only exact pins and optional SHA256 hashes, rejects
+cycles/duplicate pins/ranges/options/escaping includes, binds every closure file,
+and checks the returned audited package/version set exactly. An omitted package
+or changed included file returns NOT_RUN. The retained pre-fix nested-input PASS
+is an intentional counterexample; it must never qualify a candidate.
