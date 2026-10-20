@@ -240,6 +240,7 @@ object PhotographicGlb {
             require(length <= png.size && at + 12L + length <= png.size)
             val n = length.toInt()
             val type = String(png, at + 4, 4, Charsets.US_ASCII)
+            require(type.all { it in 'A'..'Z' || it in 'a'..'z' } && (png[at+6].toInt() and 32) == 0) { "Invalid PNG chunk type." }
             val crc = CRC32().apply { update(png, at + 4, n + 4) }.value
             require(crc == (b.getInt(at + 8 + n).toLong() and 0xffffffffL)) { "Corrupt PNG checksum." }
             if (at == 8) {

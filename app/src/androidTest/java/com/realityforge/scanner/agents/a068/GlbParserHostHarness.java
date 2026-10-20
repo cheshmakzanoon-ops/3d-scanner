@@ -87,6 +87,9 @@ public final class GlbParserHostHarness {
         }) reject(pack(text.replace(replacement[0],replacement[1]),binary));
         byte[] nan=binary.clone();ByteBuffer.wrap(nan).order(ByteOrder.LITTLE_ENDIAN).putFloat(0,Float.NaN);reject(pack(text,nan));
         for(byte[] badPng:new byte[][]{png(true,false,0),png(false,true,0),png(false,false,5)})reject(pack(json(badPng.length),binary(badPng)));
+        ByteArrayOutputStream invalidChunk=new ByteArrayOutputStream();
+        invalidChunk.write(image,0,33);invalidChunk.write(chunk("test",new byte[0]));invalidChunk.write(image,33,image.length-33);
+        byte[] reserved=invalidChunk.toByteArray();reject(pack(json(reserved.length),binary(reserved)));
         Random random=new Random(68068);
         for(int i=0;i<100;i++){byte[] bad=valid.clone();int offset=random.nextInt(28);bad[offset]^=(byte)(1+random.nextInt(255));reject(bad);}
         boolean cancelled=false;try{PhotographicGlb.INSTANCE.decode(valid,()->true);}catch(java.util.concurrent.CancellationException expected){cancelled=true;}check(cancelled);
