@@ -6,7 +6,7 @@ import java.io.File
 import java.util.UUID
 
 /** Adapter for existing completed M19 files. Dense legacy writers are excluded until 037/003 fixes their sparse metadata. */
-class RepositoryExportSource(private val repository: ProjectRepository, private val geometryValidator: ((File, Int) -> Unit)? = null) : ExportSource {
+class RepositoryExportSource(private val repository: ProjectRepository, private val geometryValidator: ((File, Int) -> Unit)? = null, private val imageValidator: ((File) -> Unit)? = null) : ExportSource {
     override suspend fun isCurrent(identity: ArtifactIdentity): Boolean {
         val p = repository.dao.project(identity.projectId) ?: return false
         if (p.revision != identity.revision || p.resultRevision != identity.revision || p.resultKey != identity.artifactKey) return false
@@ -39,7 +39,7 @@ class RepositoryExportSource(private val repository: ProjectRepository, private 
         }
         if ((metadata.optJSONObject("texturePreview")?.optInt("triangleCount") ?: 0) > 0) {
             add("textured.glb", ExportFormat.GLB, AssetRepresentation.PHOTOGRAPHIC_SURFACE, true)
-            add("texture.png", ExportFormat.PNG, AssetRepresentation.PHOTOGRAPHIC_ATLAS, true)
+            if (imageValidator != null) add("texture.png", ExportFormat.PNG, AssetRepresentation.PHOTOGRAPHIC_ATLAS, true)
         }
         return choices.takeIf { isCurrent(identity) } ?: emptyList()
     }
@@ -56,10 +56,7 @@ class RepositoryExportSource(private val repository: ProjectRepository, private 
         require(file.length() == request.option.bytes)
         when (request.option.id) {
             "textured.glb" -> PhotographicGlb.read(file)
-            "texture.png" -> file.inputStream().use { input ->
-                val magic = ByteArray(8); require(input.read(magic) == 8)
-                require(magic.contentEquals(byteArrayOf(-119,80,78,71,13,10,26,10)))
-            }
+            "texture.png" -> requireNotNull(imageValidator) { "VALIDATOR_UNAVAILABLE" }(file)
             "json" -> require(ExportCoordinator.digest(file) == request.artifact.sha256)
             "glb", "mesh.glb" -> requireNotNull(geometryValidator) { "VALIDATOR_UNAVAILABLE" }(file, if (request.option.id == "glb") 0 else 4)
             "ply", "mesh.ply" -> LegacyPlyValidation.validate(file, request.option.id == "mesh.ply")
