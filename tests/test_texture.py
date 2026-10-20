@@ -93,10 +93,10 @@ def test_actual_uv_geometry_corresponds_to_photo_projection(tmp_path):
         local_x=atlas_x-(camera*(tex_w+6)+3)
         local_y=atlas_y-3
         # Published rectified intrinsics and unit baseline; pixel-centre scale
-        # from the lower-res reconstruction grid (same as native M09 C ABI).
+        # directly from the original image calibration, independent of depth size.
         c=FOCAL_PIXELS*tex_w/w
-        cx=([CX_LEFT,CX_RIGHT][camera]*228/w+.5)*tex_w/228-.5
-        cy=(CY*round(h*228/w)/h+.5)*tex_h/round(h*228/w)-.5
+        cx=([CX_LEFT,CX_RIGHT][camera]+.5)*tex_w/w-.5
+        cy=(CY+.5)*tex_h/h-.5
         expected_x=(p[0]-camera)/p[2]*c+cx
         expected_y=p[1]/p[2]*(FOCAL_PIXELS*tex_h/h)+cy
         assert abs(local_x-expected_x)<0.05
