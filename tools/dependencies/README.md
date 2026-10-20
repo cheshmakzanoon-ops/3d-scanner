@@ -79,3 +79,13 @@ identified PYSEC-2026-1845 in8.4.1. The exact wheel hash is independently verifi
 against PyPI9.0.3 metadata. Direct full-QA inputs are qa-requirements.in; all existing
 other distribution pins remain unchanged. Use the hashed lock for CI bootstrap, not
 the older004 input pending its source-owner update. App/runtime graph is unchanged.
+
+Direct004 integration preserves debug instrumentation by default. Keep
+`-I tools/dependencies/export.gradle --dependency-verification strict` on ordinary
+build invocations so the committed combined module lock enforces both variants.
+The exporter activates only the listed main/KSP/unit/instrumentation configurations
+when AGP actually creates them. Export debug main with `-PrfInventoryScope=debug`
+and debug tests with `-PrfInventoryScope=debug-tests`; export release tests with
+`-PrfInventoryScope=tests -PrealityForgeTestBuildType=release`. Requested absent
+configurations or unknown scopes fail rather than yielding a partial approved graph.
+Debug supplemental SBOM scopes remain QA-only and do not enlarge shipping notices.

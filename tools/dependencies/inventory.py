@@ -52,10 +52,21 @@ def native_inventory(resolution):
       records[key]=dict(path=key,coordinate=artifact['coordinate'],sourceEntry=name,sha256=digest(data),gnuBuildId=build_id(data))
  return [records[k] for k in sorted(records)]
 
+def configuration_scope(name):
+ if name=='releaseRuntimeClasspath':return 'android-runtime'
+ if name=='releaseCompileClasspath':return 'android-compile'
+ if name=='debugRuntimeClasspath':return 'qa-debug-runtime'
+ if name=='debugCompileClasspath':return 'qa-debug-compile'
+ if name.startswith('benchmark') and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-benchmark'
+ if name.startswith(('releaseAndroidTest','debugAndroidTest')) and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-instrumentation'
+ if name.startswith(('releaseUnitTest','debugUnitTest')) and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-jvm'
+ if name in ('kspReleaseKotlinProcessorClasspath','kspDebugKotlinProcessorClasspath'):return 'build-processor'
+ raise ValueError('Unsupported resolved dependency configuration: '+name)
+
 def artifacts_export(resolution,cache):
  modules={};artifacts={}
  for configuration in resolution['configurations']:
-  scope='android-runtime' if configuration['configuration']=='releaseRuntimeClasspath' else 'android-compile' if configuration['configuration']=='releaseCompileClasspath' else 'qa-benchmark' if configuration['configuration'].startswith('benchmark') else 'qa-instrumentation' if configuration['configuration'].startswith('releaseAndroidTest') else 'qa-jvm' if configuration['configuration'].startswith('releaseUnitTest') else 'build-processor'
+  scope=configuration_scope(configuration['configuration'])
   for c in configuration['modules']:
    entry=modules.setdefault(c,{'coordinate':c,'scopes':[]})
    if scope not in entry['scopes']:entry['scopes'].append(scope)
