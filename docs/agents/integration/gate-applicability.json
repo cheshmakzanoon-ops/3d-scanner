@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "frozen_at": "2026-10-20T08:59:07.038719+00:00",
+  "source_before_freeze": "2140e604079e06134b0070b7cb6c097b87d5fdad",
+  "policy_path": "tools/release/qualification/policy-v1.json",
+  "policy_sha256": "7c7d1ebe5a41d5db90b65d2ab78f76b5f3fc2c1d5355f43322e90f36afe861d4",
+  "gates": [
+    {
+      "id": "feature_wiring",
+      "agent": "100",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "native",
+      "agent": "081",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "android_build",
+      "agent": "091",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "instrumentation",
+      "agent": "092",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "capture",
+      "agent": "086",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "geometry",
+      "agent": "084",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "texture",
+      "agent": "085",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "resources",
+      "agent": "087",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "journey",
+      "agent": "099",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "offline",
+      "agent": "089",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "recovery",
+      "agent": "088",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "accessibility",
+      "agent": "093",
+      "physical": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "interoperability",
+      "agent": "090",
+      "per_scene": true,
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "security",
+      "agent": "096",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "dependencies",
+      "agent": "095",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "release_package",
+      "agent": "091",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "signing",
+      "agent": "091",
+      "applicability": "REQUIRED"
+    },
+    {
+      "id": "external_beta",
+      "agent": "099",
+      "physical": true,
+      "per_scene": true,
+      "per_device": true,
+      "applicability": "REQUIRED"
+    }
+  ],
+  "optional_paths": [
+    {
+      "agent": "052",
+      "capability": "Vulkan acceleration",
+      "enabled": false,
+      "result": "NOT_RUN",
+      "reason": "No driver/parity/resource evidence in this request; optional acceleration stays disabled. CPU fallback and all required photos-only capabilities still require their declared evidence."
+    }
+  ],
+  "waivers": [],
+  "physical_matrix": {
+    "minimum_authorized_scene_reference_bundles": 2,
+    "minimum_physical_arm64_devices": 1,
+    "status": "BLOCKED_EXTERNAL",
+    "reason": "No attached physical handset or authorized calibrated physical reference corpus is available."
+  },
+  "interpretation": "All eighteen initial-release-v1 gates remain required. Synthetic/emulator/scoped compatibility results cannot certify full physical qualification. No result may alter this applicability after measurement."
+}

@@ -248,7 +248,7 @@ def receipt_freshness(root: Path, text: str, agent: str, delivery: str) -> list[
         if not ancestor:
             errors.append('DONE test source is missing or not a delivery ancestor: ' + source)
             continue
-        raw = subprocess.check_output(['git', '-C', str(root), 'diff', '--name-only', '-z', source, delivery])
+        raw = subprocess.check_output(['git', '-C', str(root), 'diff', '--no-renames', '--name-only', '-z', source, delivery])
         for path in (p.decode() for p in raw.split(b'\0') if p):
             allowed = path in {'SOURCE_MANIFEST.sha256', f'docs/agents/status/{agent}.md'}
             allowed |= bool(re.fullmatch(rf'docs/agents/requests/{agent}-to-\d{{3}}\.md', path))

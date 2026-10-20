@@ -147,7 +147,8 @@ def test_frozen_base_rejects_missing_or_invalid_registry(tmp_path):
         campaign.frozen_base(tmp_path)
 
 
-def test_done_receipt_only_followup_allowed_but_changed_runtime_is_stale(tmp_path):
+@pytest.mark.parametrize('mutation', ['edit', 'rename_to_receipt'])
+def test_done_receipt_only_followup_allowed_but_changed_runtime_is_stale(tmp_path, mutation):
     import json
     def run(*args):
         return subprocess.check_output(['git', '-C', str(tmp_path), *args], text=True).strip()
@@ -161,7 +162,12 @@ def test_done_receipt_only_followup_allowed_but_changed_runtime_is_stale(tmp_pat
     (folder / '089.md').write_text(text)
     run('add', '.'); run('commit', '-qm', 'receipt only')
     assert campaign.receipt_freshness(tmp_path, text, '089', 'HEAD') == []
-    (tmp_path / 'runtime.py').write_text('raise RuntimeError("untested")')
+    if mutation == 'edit':
+        (tmp_path / 'runtime.py').write_text('raise RuntimeError("untested")')
+    else:
+        destination = tmp_path / 'docs/agents/requests/089-to-095.md'
+        destination.parent.mkdir(parents=True)
+        run('mv', 'runtime.py', str(destination))
     run('add', '.'); run('commit', '-qm', 'untested change')
     assert campaign.receipt_freshness(tmp_path, text, '089', 'HEAD') == [
         'DONE has untested source/input changes after evidence: runtime.py']
