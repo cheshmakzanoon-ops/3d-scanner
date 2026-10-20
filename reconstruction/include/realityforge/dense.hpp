@@ -57,6 +57,17 @@ struct DenseRefinementInputs {
     std::span<const DenseView> coarseViews; // actual lower-level rectified photos, same camera order
     std::string identitySha256; // canonical identity of exact admitted observations/levels
 };
+// A synchronous borrowed immutable lease around existing surface/texture entry
+// points. No scope means baseline behavior; nested null scope disables inheritance.
+class DenseRefinementScope final {
+public:
+    explicit DenseRefinementScope(const DenseRefinementInputs* inputs) noexcept;
+    ~DenseRefinementScope() noexcept;
+    DenseRefinementScope(const DenseRefinementScope&)=delete;
+    DenseRefinementScope& operator=(const DenseRefinementScope&)=delete;
+private:
+    const DenseRefinementInputs* previous_{};
+};
 // A pixel supported by reciprocal camera-z depth checks (not merely ZNCC).
 // Preserves its source pixel so M08 can triangulate only observed neighbor cells.
 struct VerifiedDepthSample {
