@@ -1,0 +1,29 @@
+{
+  "scope": "Existing earlier release validation helper versions preserved alongside final prepared versions; historical exact86 overlay provenance; no execution after stop",
+  "files": [
+    {
+      "source_path": "/workspace/campaign/evidence/100/release-final/prepare-test100-release.py",
+      "archive_path": "tools/release/package_validation/campaign_support/history-frozen86/prepare-test100-release.py",
+      "sha256": "b7d71c5ac70bb23b0c99a9c1bbf1e3520c8019c239c2ebaf8d4d2b5acda912d8",
+      "bytes": 3511
+    },
+    {
+      "source_path": "/workspace/campaign/evidence/100/release-final/run-test100-release.sh",
+      "archive_path": "tools/release/package_validation/campaign_support/history-frozen86/run-test100-release.sh",
+      "sha256": "5123a5c2edd9f71830ed18be3bce37c7cfc1f707b311c9474ddf72136d0c14b2",
+      "bytes": 2321
+    },
+    {
+      "source_path": "/workspace/campaign/evidence/100/release-final/summarize-test100-release.py",
+      "archive_path": "tools/release/package_validation/campaign_support/history-frozen86/summarize-test100-release.py",
+      "sha256": "a52621cefc1ddaec74f8b3b42d3f35421602a6502305358ffd419c310ec90b4c",
+      "bytes": 3029
+    },
+    {
+      "source_path": "/workspace/campaign/evidence/100/release-final/verify-test100-release-signers.py",
+      "archive_path": "tools/release/package_validation/campaign_support/history-frozen86/verify-test100-release-signers.py",
+      "sha256": "fa1c6ad6c57d248704d9ac4884b0d27e00be48a00d7442f6737ab94d034d58e7",
+      "bytes": 1459
+    }
+  ]
+}
