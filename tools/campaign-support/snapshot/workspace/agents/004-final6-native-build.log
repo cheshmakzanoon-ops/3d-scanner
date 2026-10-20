@@ -1,0 +1,78 @@
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /workspace/agents/004/build/host
+[  4%] Built target rf_checkpoint_process_tests
+[  5%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+[  6%] Linking CXX shared library librealityforge.so
+[ 30%] Built target realityforge
+[ 31%] Linking CXX executable rf_multiview_tests
+[ 32%] Linking CXX executable rf_native_tests
+[ 33%] Built target rf_multiview_tests
+[ 34%] Built target rf_native_tests
+[ 35%] Linking CXX executable rf_bundle_tests
+[ 36%] Linking CXX executable rf_dense_tests
+[ 37%] Built target rf_bundle_tests
+[ 38%] Built target rf_dense_tests
+[ 39%] Linking CXX executable rf_surface_tests
+[ 40%] Linking CXX executable rf_texture_tests
+[ 41%] Built target rf_texture_tests
+[ 42%] Built target rf_surface_tests
+[ 43%] Linking CXX executable rf_photometric_tests
+[ 44%] Linking CXX executable rf_stereo_warp_tests
+[ 45%] Built target rf_stereo_warp_tests
+[ 46%] Built target rf_photometric_tests
+[ 47%] Linking CXX executable rf_dense_selection_tests
+[ 48%] Linking CXX executable rf_cancellation_tests
+[ 49%] Built target rf_dense_selection_tests
+[ 50%] Built target rf_cancellation_tests
+[ 51%] Linking CXX executable rf_bundle_problem_bridge_tests
+[ 52%] Linking CXX executable rf_depth_checkpoint_tests
+[ 53%] Built target rf_bundle_problem_bridge_tests
+[ 54%] Linking CXX executable rf_initializer_degeneracy_tests
+[ 54%] Built target rf_initializer_degeneracy_tests
+[ 56%] Linking CXX executable rf_pnp_robustness_tests
+[ 56%] Built target rf_depth_checkpoint_tests
+[ 57%] Linking CXX executable rf_triangulation_conditioning_tests
+[ 58%] Built target rf_pnp_robustness_tests
+[ 59%] Linking CXX executable rf_intrinsics_tests
+[ 60%] Built target rf_triangulation_conditioning_tests
+[ 61%] Linking CXX executable rf_loop_closure_tests
+[ 62%] Built target rf_intrinsics_tests
+[ 63%] Linking CXX executable rf_depth_tiles_tests
+[ 64%] Built target rf_loop_closure_tests
+[ 65%] Building CXX object CMakeFiles/rf_robust_local_objective_tests.dir/reconstruction/tests/agent_046_robust_local.cpp.o
+[ 66%] Built target rf_depth_tiles_tests
+[ 67%] Linking CXX executable rf_depth_refinement_tests
+[ 68%] Built target rf_depth_refinement_tests
+[ 69%] Linking CXX executable rf_matching_cost_tests
+[ 70%] Built target rf_matching_cost_tests
+[ 71%] Linking CXX executable rf_depth_consistency_tests
+[ 72%] Built target rf_depth_consistency_tests
+[ 73%] Linking CXX executable rf_depth_cache_manifest_tests
+[ 74%] Built target rf_depth_cache_manifest_tests
+[ 75%] Linking CXX executable rf_progress_tests
+[ 76%] Built target rf_progress_tests
+[ 77%] Linking CXX executable rf_surface_fusion_tests
+[ 78%] Built target rf_surface_fusion_tests
+[ 79%] Linking CXX executable rf_surface_evidence_tests
+[ 80%] Built target rf_surface_evidence_tests
+[ 81%] Linking CXX executable rf_mesh_topology_tests
+[ 82%] Built target rf_mesh_topology_tests
+[ 83%] Linking CXX executable rf_robust_local_objective_tests
+[ 84%] Linking CXX executable rf_mesh_cleanup_tests
+[ 85%] Built target rf_mesh_cleanup_tests
+[ 85%] Built target rf_robust_local_objective_tests
+[ 86%] Linking CXX executable rf_texture_visibility_tests
+[ 87%] Linking CXX executable rf_uv_atlas_tests
+[ 88%] Built target rf_texture_visibility_tests
+[ 89%] Linking CXX executable rf_texture_blend_tests
+[ 90%] Built target rf_uv_atlas_tests
+[ 91%] Built target rf_texture_blend_tests
+[ 92%] Linking CXX executable rf_photometric_adversarial_tests
+[ 93%] Linking CXX executable rf_texture_c_abi_failure_tests
+[ 94%] Built target rf_texture_c_abi_failure_tests
+[ 95%] Linking CXX executable rf_texture_png_tests
+[ 96%] Built target rf_texture_png_tests
+[ 97%] Linking CXX executable rf_tile_process_tests
+[ 99%] Built target rf_tile_process_tests
+[100%] Built target rf_photometric_adversarial_tests

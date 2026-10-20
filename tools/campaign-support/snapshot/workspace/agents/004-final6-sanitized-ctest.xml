@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="(empty)"
+	tests="36"
+	failures="0"
+	disabled="0"
+	skipped="0"
+	hostname=""
+	time="255"
+	timestamp="2026-10-20T10:06:38"
+	>
+	<testcase name="native_core" classname="native_core" time="1.17782" status="run">
+		<properties/>
+		<system-out>PASS identity
+PASS transpose multiplication
+PASS triangulation known point
+PASS behind-camera rejection
+PASS quality uniform
+PASS quality texture
+PASS quality bad buffer
+PASS quality padded stride
+PASS clean two-view recovery
+PASS noisy outlier robust recovery
+PASS deterministic result
+PASS too few matches
+PASS nan rejection
+PASS invalid threshold
+PASS constant-feature rejection
+PASS empty GLB rejected
+PASS M02 calibrated third-camera PnP
+PASS M02 invalid PnP rejected
+PASS M02 C ABI invalid camera buffer
+PASS C ABI invalid input
+
+20 passed; 0 failed
+</system-out>
+	</testcase>
+	<testcase name="native_multiview" classname="native_multiview" time="0.246866" status="run">
+		<properties/>
+		<system-out>third tx -1.79165 target -1.8 before 0.00218151 after 0.000199384 count 320
+PASS triple-view new points + gauge and noise reduction
+PASS intermittent feature mismatches do not create false geometry
+PASS no invented geometry from pure rotation
+PASS invalid duplicate camera track rejected
+PASS nonintegral ABI indexes and invalid color rejected
+5 multiview native cases passed
+</system-out>
+	</testcase>
+	<testcase name="native_bundle_adjustment" classname="native_bundle_adjustment" time="0.824251" status="run">
+		<properties/>
+		<system-out>M06 initial median 0.0079147 final 0.000178617 initial robust cost 0.0488893 final 1.98827e-05
+PASS global Schur LM reduces reprojection error and improves independently noisy poses
+PASS outlying feature matches are excluded from coupled BA
+PASS already perfect geometry is not made worse
+PASS singular gauge and conflicting observations rejected
+PASS NaN, unreasonable camera and wrong settings rejected
+PASS C interface rejects nonintegral track indices
+PASS minimal gauge releases second anchor while preserving baseline and first pose
+PASS camera Jacobian agrees with independent finite differences
+PASS large graph and budget rejection are explicit before allocations
+PASS intrinsic groups recover known Brown calibration and preserve withheld projections
+PASS versioned pixel bundle consumes fixed intrinsic groups without changing calibration
+PASS verified circular revisit corrects withheld geometry without publishing failed loops
+PASS 30-camera bounded exact window remains valid and larger global graphs reject ex...
+[This part of the test output was removed since it exceeds the threshold of 1024 bytes.]
+</system-out>
+	</testcase>
+	<testcase name="native_dense_mvs" classname="native_dense_mvs" time="17.2313" status="run">
+		<properties/>
+		<system-out>found 4669 candidate=4689 reciprocal=4676 confidence=0.992543
+median depth=4.96855 ground truth 5
+PASS plane sweep derives dense geometry from overlapping rendered images
+PASS uniform image contains no invented surface
+PASS occluded view does not corrupt nonoccluded geometry
+PASS coincident camera centers explicitly rejected
+PASS invalid or mismatched buffers rejected
+PASS C ABI invalid input returns explicit JSON error
+PASS deterministic input produces stable point cloud
+7 CPU dense MVS cases passed
+</system-out>
+	</testcase>
+	<testcase name="native_surface_mesh" classname="native_surface_mesh" time="28.9713" status="run">
+		<properties/>
+		<system-out>confirmed=4676 vertices=3955 faces=8557 fused=712
+PASS confirmed depth samples produce genuine indexed triangles
+PASS textureless inputs produce zero triangle faces
+PASS occluded input retains only confirmed geometry
+PASS depth-step barrier prevents triangles across measured discontinuity
+PASS reject malformed source depth maps and unverified samples
+PASS invalid C ABI produces JSON error
+PASS deterministic fusion
+7 surface meshing cases passed
+</system-out>
+	</testcase>
+	<testcase name="native_texture_atlas" classname="native_texture_atlas" time="48.1954" status="run">
+		<properties/>
+		<system-out>triangles=3631 coverage=1 atlas=428x316
+PASS photo atlas creates indexed UV mesh
+PASS masked images are rejected as texture choices
+PASS camera mismatch is rejected
+PASS occlusion mask does not invent textures
+PASS atlas deterministic
+PASS invalid C ABI safe JSON error
+PASS untextured stereo produces no faked UV mesh
+compact atlas 2048x282 support=72874 unknown=3 utilization=0.126181 density=46.2729
+PASS compact charts bake actual verified pixels and retain unsupported geometry
+PASS PNG write failure and cancellation preserve previous publication
+PASS compact exposure samples require exact co-visible depth support
+10 texture cases passed
+</system-out>
+	</testcase>
+	<testcase name="native_photometric" classname="native_photometric" time="0.237351" status="run">
+		<properties/>
+		<system-out>PASS linear-sRGB byte roundtrip
+PASS robust RGB exposure recovery with outliers
+PASS disconnected and under-supported views stay identity
+PASS gain limits and invalid samples
+PASS fronto-parallel mesh retains every visible triangle
+PASS glTF UV origin matches asymmetric top-down pixels
+seam edges 82 -&gt; 68
+PASS view coherence reduces seams without dropping faces
+PASS mask and backface exclusions survive smoothing
+8 photometric/UV regression cases passed
+</system-out>
+	</testcase>
+	<testcase name="native_stereo_warp" classname="native_stereo_warp" time="0.134244" status="run">
+		<properties/>
+		<system-out>PASS 10000 independent camera projections, identity and NaN gates; max pixel error 4.91127e-11
+</system-out>
+	</testcase>
+	<testcase name="native_dense_selection" classname="native_dense_selection" time="17.5008" status="run">
+		<properties/>
+		<system-out>PASS approved adjacency is copied and drives the real solver, including empty rows
+PASS invalid approved adjacency rejects before changing the current scope
+PASS eight-view source lists are bounded, distinct and deterministic
+PASS a disjoint eighth camera has no supported source frusta
+PASS opposing cameras cannot be mistaken for nearby source views
+PASS small batches retain all original pair candidates
+PASS oversized and nonfinite source plans rejected
+PASS eight uniform inputs cannot invent depth and only cache four luminance planes
+PASS eight rendered buffers fuse and texture without losing source seven
+PASS exposure solve spans eight cameras without a four-camera fixed-array overflow
+PASS verified-track selection is permutation invariant and rejects disconnected scenes
+11 bounded multi-camera cases passed
+</system-out>
+	</testcase>
+	<testcase name="native_cancellation" classname="native_cancellation" time="0.087424" status="run">
+		<properties/>
+		<system-out>PASS cancelled operation fails before allocating per-view image buffers
+PASS nested scopes restore caller's previous cancellation state
+PASS native C ABI reports cancellation without a partial JSON result
+PASS operation cancellation is isolated per thread and registry owner
+PASS long-running dense scan observes cancellation while computing
+5 cancellation regressions passed
+</system-out>
+	</testcase>
+	<testcase name="native_depth_checkpoint" classname="native_depth_checkpoint" time="1.28444" status="run">
+		<properties/>
+		<system-out>PASS complete reference map is saved with a strict content checksum
+PASS identity change never reuses stale geometry
+PASS wrong-size, truncated and corrupted files are cache misses
+PASS completed depth maps replay exactly without repeating photometric search
+PASS cancelled operations cannot replace accepted reference checkpoints
+PASS byte admission and orphan cleanup preserve accepted work and originals
+PASS invalid directory or non-SHA identities are rejected
+7 depth checkpoint cases passed
+</system-out>
+	</testcase>
+	<testcase name="rf_bundle_problem_bridge_tests" classname="rf_bundle_problem_bridge_tests" time="0.359552" status="run">
+		<properties/>
+		<system-out>typed BundleProblem parser, actual PnP/solver, fixed model, evidence, subset mapping, invalid identity and cancellation passed
+</system-out>
+	</testcase>
+	<testcase name="rf_initializer_degeneracy_tests" classname="rf_initializer_degeneracy_tests" time="0.0591865" status="run">
+		<properties/>
+		<system-out>initializer independent scene, rotation, collinearity, work budget, cancellation and ABI passed
+</system-out>
+	</testcase>
+	<testcase name="rf_pnp_robustness_tests" classname="rf_pnp_robustness_tests" time="0.680996" status="run">
+		<properties/>
+		<system-out>pnp robustness: six scale/planarity/outlier fixtures, cancellation and C ABI passed
+</system-out>
+	</testcase>
+	<testcase name="rf_triangulation_conditioning_tests" classname="rf_triangulation_conditioning_tests" time="0.0791328" status="run">
+		<properties/>
+		<system-out>triangulation: independent scales, outlier support/provenance, conditioning and cancellation passed
+</system-out>
+	</testcase>
+	<testcase name="rf_intrinsics_tests" classname="rf_intrinsics_tests" time="0.0384936" status="run">
+		<properties/>
+		<system-out>intrinsic finite differences, ray inversion and prior admission passed
+</system-out>
+	</testcase>
+	<testcase name="rf_loop_closure_tests" classname="rf_loop_closure_tests" time="0.213765" status="run">
+		<properties/>
+		<system-out>verified loop resection, false-loop rejection, stable identity and cancellation passed
+</system-out>
+	</testcase>
+	<testcase name="rf_depth_tiles_tests" classname="rf_depth_tiles_tests" time="99.6853" status="run">
+		<properties/>
+		<system-out>synthetic shape=1 baseline=1850 refined=1770 median=0.00427365 p90=0.0152688 observed-normal-winners=11
+synthetic shape=2 baseline=1773 refined=1677 median=0.00461816 p90=0.0162922 observed-normal-winners=4
+tiled/reference float-bit equality, halo coverage, camera-order point equality, byte admission, voxel bounds and C ABI rejection passed
+</system-out>
+	</testcase>
+	<testcase name="rf_robust_local_objective_tests" classname="rf_robust_local_objective_tests" time="18.1093" status="run">
+		<properties/>
+		<system-out>compared=437 worsened=0 improved=374 maximumMedianCostIncrease=0
+</system-out>
+	</testcase>
+	<testcase name="rf_depth_refinement_tests" classname="rf_depth_refinement_tests" time="0.0699053" status="run">
+		<properties/>
+		<system-out>multi-layer priors, bounded local depth/normal hypotheses, curved tangent and invalid/discontinuous sampled-grid checks passed
+</system-out>
+	</testcase>
+	<testcase name="rf_matching_cost_tests" classname="rf_matching_cost_tests" time="0.0338529" status="run">
+		<properties/>
+		<system-out>matching cost analytic, exposure, mask, saturation and ambiguity checks passed
+</system-out>
+	</testcase>
+	<testcase name="rf_depth_consistency_tests" classname="rf_depth_consistency_tests" time="0.428224" status="run">
+		<properties/>
+		<system-out>continuous interpolation, thin-edge unknown, occlusion and reverse projection checks passed
+</system-out>
+	</testcase>
+	<testcase name="rf_depth_cache_manifest_tests" classname="rf_depth_cache_manifest_tests" time="0.106077" status="run">
+		<properties/>
+		<system-out>strict cache identity, duplicate manifests, byte budget and original preservation checks passed
+</system-out>
+	</testcase>
+	<testcase name="rf_progress_tests" classname="rf_progress_tests" time="0.103431" status="run">
+		<properties/>
+		<system-out>observed host progress-loop cancellation latency seconds=0.000679492
+scoped progress lifetime, bounds, nested and concurrent cases passed
+</system-out>
+	</testcase>
+	<testcase name="rf_surface_fusion_tests" classname="rf_surface_fusion_tests" time="1.5609" status="run">
+		<properties/>
+		<system-out>checked voxels, supported/hostile fusion, provenance, permutation, opposing sheets and C ABI passed
+</system-out>
+	</testcase>
+	<testcase name="rf_surface_evidence_tests" classname="rf_surface_evidence_tests" time="0.117942" status="run">
+		<properties/>
+		<system-out>analytic normals, bounded reliability PCA, effective support, transforms, cancellation and discontinuity cases passed
+</system-out>
+	</testcase>
+	<testcase name="rf_mesh_topology_tests" classname="rf_mesh_topology_tests" time="2.0997" status="run">
+		<properties/>
+		<system-out>20000-face mesh bounded candidates=2000001 elapsedSeconds=1.84935
+open surface, exact defects, intersections, scale and budget cases passed
+</system-out>
+	</testcase>
+	<testcase name="rf_mesh_cleanup_tests" classname="rf_mesh_cleanup_tests" time="0.213765" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="rf_texture_visibility_tests" classname="rf_texture_visibility_tests" time="0.0557373" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="rf_uv_atlas_tests" classname="rf_uv_atlas_tests" time="11.0044" status="run">
+		<properties/>
+		<system-out>2048 profile faces=30000 groups=657 perFaceDensity=4.24264 wholePhotoUsefulPixels=1.04858e+06 compactUsefulPixels=1.76333e+06 density=10.8423 rectangleUtilization=0.920613 surfaceUtilization=0.420411 layoutBytes=5040000 seconds=2.5988
+4096 profile faces=80000 groups=1884 perFaceDensity=7.07107 wholePhotoUsefulPixels=4.1943e+06 compactUsefulPixels=7.41125e+06 density=13.6118 rectangleUtilization=0.947772 surfaceUtilization=0.441745 layoutBytes=13440000 seconds=8.02742
+</system-out>
+	</testcase>
+	<testcase name="rf_texture_blend_tests" classname="rf_texture_blend_tests" time="0.0473601" status="run">
+		<properties/>
+		<system-out>independent constant-surface seam before=0.0107818 after=0.00359389
+</system-out>
+	</testcase>
+	<testcase name="rf_photometric_adversarial_tests" classname="rf_photometric_adversarial_tests" time="0.0335436" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="rf_texture_c_abi_failure_tests" classname="rf_texture_c_abi_failure_tests" time="0.0359113" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="rf_texture_png_tests" classname="rf_texture_png_tests" time="0.0445066" status="run">
+		<properties/>
+		<system-out></system-out>
+	</testcase>
+	<testcase name="rf_tile_process_tests" classname="rf_tile_process_tests" time="4.06153" status="run">
+		<properties/>
+		<system-out>actual dense SIGKILL skips older completed tile, recomputes interrupted tile and reproduces clean maps
+</system-out>
+	</testcase>
+	<testcase name="rf_checkpoint_process_tests" classname="rf_checkpoint_process_tests" time="0.0847115" status="run">
+		<properties/>
+		<system-out>SIGKILL at temporary-create and fsync boundaries; ENOSPC; exact relaunch; independent-process budget and reader leases passed
+</system-out>
+	</testcase>
+</testsuite>

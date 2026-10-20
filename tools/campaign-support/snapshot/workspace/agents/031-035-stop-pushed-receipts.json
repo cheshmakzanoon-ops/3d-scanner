@@ -1,0 +1,57 @@
+[
+  {
+    "agent": "031",
+    "branch": "agents/031-lens-coordinate-geometry",
+    "head": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+    "changed_paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/031.md"
+    ],
+    "remote_verified": true,
+    "production_unchanged": true
+  },
+  {
+    "agent": "032",
+    "branch": "agents/032-feature-extraction",
+    "head": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+    "changed_paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/032.md"
+    ],
+    "remote_verified": true,
+    "production_unchanged": true
+  },
+  {
+    "agent": "033",
+    "branch": "agents/033-feature-cache-integrity",
+    "head": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+    "changed_paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/033.md"
+    ],
+    "remote_verified": true,
+    "production_unchanged": true
+  },
+  {
+    "agent": "034",
+    "branch": "agents/034-overlap-candidate-graph",
+    "head": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+    "changed_paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/034.md"
+    ],
+    "remote_verified": true,
+    "production_unchanged": true
+  },
+  {
+    "agent": "035",
+    "branch": "agents/035-verified-feature-matching",
+    "head": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+    "changed_paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/035.md"
+    ],
+    "remote_verified": true,
+    "production_unchanged": true
+  }
+]

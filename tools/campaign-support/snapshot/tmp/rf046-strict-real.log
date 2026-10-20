@@ -1,0 +1,54 @@
+{
+  "dataset": "Middlebury2014 Motorcycle",
+  "truth_used_by_solver": false,
+  "physical_device": false,
+  "baseline": {
+    "points": 4248,
+    "truth_supported": 3899,
+    "disparity_p50": 0.501367370119965,
+    "disparity_p90": 3.0430995789578548,
+    "relative_depth_p50": 0.007412614771597319,
+    "relative_depth_p90": 0.04765888286617931
+  },
+  "declared_gates": "truth support >=max(1000,0.60*baseline); points>=1500; disparity p50<=1.10*baseline+0.05,p90<=0.95*baseline+0.10; absolute p50<2,p90<10; depth median<0.08,p90<0.30",
+  "strict": {
+    "metrics": {
+      "points": 3496,
+      "truth_supported": 3237,
+      "disparity_p50": 0.46624341897461363,
+      "disparity_p90": 1.9208180197634914,
+      "relative_depth_p50": 0.006679266898488393,
+      "relative_depth_p90": 0.031859439559717026
+    },
+    "gates": {
+      "retention": true,
+      "points": true,
+      "p50": true,
+      "p90": true,
+      "absolute": true
+    },
+    "qualified": true,
+    "coarseDepthMaps": 0,
+    "propagatedHypotheses": 0
+  },
+  "strict-refined": {
+    "metrics": {
+      "points": 3538,
+      "truth_supported": 3281,
+      "disparity_p50": 0.4351253891516791,
+      "disparity_p90": 1.9033103003264245,
+      "relative_depth_p50": 0.006456302350202898,
+      "relative_depth_p90": 0.030073756720187694
+    },
+    "gates": {
+      "retention": true,
+      "points": true,
+      "p50": true,
+      "p90": true,
+      "absolute": true
+    },
+    "qualified": true,
+    "coarseDepthMaps": 2,
+    "propagatedHypotheses": 1262
+  }
+}

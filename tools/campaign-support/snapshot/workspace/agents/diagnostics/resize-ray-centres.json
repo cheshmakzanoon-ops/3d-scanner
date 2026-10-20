@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "sourceDimensions": [
+    1001,
+    777
+  ],
+  "targetDimensions": [
+    317,
+    241
+  ],
+  "scales": [
+    0.3166833166833167,
+    0.31016731016731014
+  ],
+  "sourceIntrinsics": [
+    713.7,
+    817.4,
+    441.25,
+    319.75
+  ],
+  "correctResizedIntrinsics": [
+    226.01688311688312,
+    253.5307593307593,
+    139.39485514485514,
+    98.83108108108107
+  ],
+  "maximumNormalizedRayError": 5.551115123125783e-17,
+  "oldDirectScaleNormalizedRayError": 0.0015116496473480678,
+  "oldTruthSamplingBiasOriginalPixels": [
+    1.0788643533123028,
+    1.112033195020747
+  ],
+  "actualOpenCvAreaFixture": {
+    "sourceDimensions": [
+      84,
+      39
+    ],
+    "targetDimensions": [
+      21,
+      13
+    ],
+    "maximumCorrectPixelError": 0.0,
+    "minimumOldOriginPixelError": 6.0
+  }
+}

@@ -1,0 +1,14 @@
+M06 initial median 0.0079147 final 0.000178617 initial robust cost 0.0488893 final 1.98827e-05
+PASS global Schur LM reduces reprojection error and improves independently noisy poses
+PASS outlying feature matches are excluded from coupled BA
+PASS already perfect geometry is not made worse
+PASS singular gauge and conflicting observations rejected
+PASS NaN, unreasonable camera and wrong settings rejected
+PASS C interface rejects nonintegral track indices
+PASS minimal gauge releases second anchor while preserving baseline and first pose
+PASS camera Jacobian agrees with independent finite differences
+PASS large graph and budget rejection are explicit before allocations
+PASS intrinsic groups recover known Brown calibration and preserve withheld projections
+PASS versioned pixel bundle consumes fixed intrinsic groups without changing calibration
+PASS verified circular revisit corrects withheld geometry without publishing failed loops
+12 bundle adjustment cases passed

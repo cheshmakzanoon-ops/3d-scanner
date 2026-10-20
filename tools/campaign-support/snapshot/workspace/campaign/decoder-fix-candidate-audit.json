@@ -1,0 +1,168 @@
+{
+  "source_sha": "2723c9940069b8fd58e0cd045466a05de225ff01",
+  "source_tree_sha": "5ab7a29a5f052b8d3ac761057e190411db9a1413",
+  "prior_runtime_source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "all30_latest_heads_ancestors": true,
+  "deliveries": [
+    {
+      "agent": "031",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "sha": "2bfadf8c0461620684aa458a3fdc9c223c73e5e9"
+    },
+    {
+      "agent": "032",
+      "branch": "agents/032-feature-extraction",
+      "sha": "004f948e7b36a387e9a2bac1753153991f5248d5"
+    },
+    {
+      "agent": "033",
+      "branch": "agents/033-feature-cache-integrity",
+      "sha": "bd5d4441910e2e7a9cefc56bff60d0c927805903"
+    },
+    {
+      "agent": "034",
+      "branch": "agents/034-overlap-candidate-graph",
+      "sha": "e428228c03c1b95ce79e32bae2cd0f5120026ca5"
+    },
+    {
+      "agent": "035",
+      "branch": "agents/035-verified-feature-matching",
+      "sha": "347ce72e3e027be3e6350742f6e2099e13d1b826"
+    },
+    {
+      "agent": "036",
+      "branch": "agents/036-stable-feature-tracks",
+      "sha": "47c20cb0d249b7be89777c3e81a38fc73e40a12e"
+    },
+    {
+      "agent": "037",
+      "branch": "agents/037-two-view-initializer",
+      "sha": "06775ece8c3799c5e0fce51939e2da9f92f26d91"
+    },
+    {
+      "agent": "038",
+      "branch": "agents/038-robust-camera-resection",
+      "sha": "56c699cd57304f61c67afa129a2d578b4dc8f7f6"
+    },
+    {
+      "agent": "039",
+      "branch": "agents/039-incremental-registration",
+      "sha": "bc8479fb1e4e843577fbfb9fffa1febb1e47ea33"
+    },
+    {
+      "agent": "040",
+      "branch": "agents/040-multiview-triangulation",
+      "sha": "f20c7d2c6e3ec4e0f05d01032d65c51cb9a494f5"
+    },
+    {
+      "agent": "041",
+      "branch": "agents/041-bundle-adjustment",
+      "sha": "99f41c7efb298f5ef2973ea6ae32657eb3d940b4"
+    },
+    {
+      "agent": "042",
+      "branch": "agents/042-intrinsic-refinement",
+      "sha": "c3b1ee4a60bd9e83b5a16cb29446efc4f54dcb1f"
+    },
+    {
+      "agent": "043",
+      "branch": "agents/043-loop-closure-drift",
+      "sha": "437014623f3b601d2e3bef5c243dd68b094c0559"
+    },
+    {
+      "agent": "044",
+      "branch": "agents/044-dense-view-selection",
+      "sha": "1da65a698443dc214be716ed89e8715c50a6fcbe"
+    },
+    {
+      "agent": "045",
+      "branch": "agents/045-image-pyramids-rectification",
+      "sha": "1b75ae698bc0a97908cf9498e42af05190491eba"
+    },
+    {
+      "agent": "046",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "sha": "f249bb488ea2874d2dcb19d3015588ac8276e373"
+    },
+    {
+      "agent": "047",
+      "branch": "agents/047-depth-refinement",
+      "sha": "92b87ad4c8a0ade67ff2a5459447079f99cf417a"
+    },
+    {
+      "agent": "048",
+      "branch": "agents/048-photometric-matching-costs",
+      "sha": "3111f70d2dcddb1253010df6c3bc0d3c7a71c426"
+    },
+    {
+      "agent": "049",
+      "branch": "agents/049-depth-confidence-occlusion",
+      "sha": "1929ef774f3b1f64bfcc9c11d048bcf7221dcdab"
+    },
+    {
+      "agent": "050",
+      "branch": "agents/050-depth-checkpoint-durability",
+      "sha": "e320e84509679a836fb8710fb74051fa07a5f332"
+    },
+    {
+      "agent": "051",
+      "branch": "agents/051-native-cancellation-progress",
+      "sha": "ae58a96aed55753357616e8dc1428dcc33839796"
+    },
+    {
+      "agent": "052",
+      "branch": "agents/052-vulkan-depth-backend",
+      "sha": "a9601837be0df65ba6fe987a9e5ea85082f79711"
+    },
+    {
+      "agent": "053",
+      "branch": "agents/053-surface-fusion-meshing",
+      "sha": "5ef93abd39b46778ec57c51677c2ba5c6efdcb9f"
+    },
+    {
+      "agent": "054",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "sha": "596cd5fefa264fc7338dc782ac6e1252a477576e"
+    },
+    {
+      "agent": "055",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "sha": "2c659b78b597f63988cb65e9cce9d44fc475bac3"
+    },
+    {
+      "agent": "056",
+      "branch": "agents/056-conservative-mesh-cleanup",
+      "sha": "6c81b62cef7b121b82494a83b7647f399a0d1c3c"
+    },
+    {
+      "agent": "057",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "sha": "53842684c326c26fbed5b8724ff630ca507ca188"
+    },
+    {
+      "agent": "058",
+      "branch": "agents/058-uv-charts-packing",
+      "sha": "9a12be7ab5c818d6da53bcb2780ab69065107731"
+    },
+    {
+      "agent": "059",
+      "branch": "agents/059-texture-seam-blending",
+      "sha": "5a69702ac9c824e5d2420a202c57182e2e40ee0d"
+    },
+    {
+      "agent": "060",
+      "branch": "agents/060-photometric-color-consistency",
+      "sha": "c01ae6d27d0e43b9c84540205829280d7b69343c"
+    }
+  ],
+  "manifest_entries": 594,
+  "manifest_exact": true,
+  "only_production_file_changed": [
+    "app/src/main/java/com/realityforge/scanner/imaging/AndroidImageDecoder.kt"
+  ],
+  "native_build_configuration_and_code_byte_identical": true,
+  "decoder_pixels_policy_ownership_budgets_unchanged": true,
+  "classification_change": "AndroidX synthesized undefined0 with absent/negative physical range is ABSENT; physically stored0 is MALFORMED; all valid1..8 preserved",
+  "updated_instrumentation": "independent bounded raw JPEG APP1/TIFF oracle for absent, stored0 and8valid orientations",
+  "dirty": ""
+}

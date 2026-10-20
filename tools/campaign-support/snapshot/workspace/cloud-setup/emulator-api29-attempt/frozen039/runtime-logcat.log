@@ -1,0 +1,7 @@
+--------- beginning of main
+--------- beginning of system
+10-20 08:51:41.524  3903  3932 I TestRunner: run started: 1 tests
+10-20 08:51:41.592  3903  3932 I TestRunner: started: growsAcrossThreeVisibilityGroupsAndRetriesEarlierCandidates(com.realityforge.scanner.IncrementalNativeRegistrationTest)
+10-20 08:52:40.818  3903  3932 I System.out: M16 analytical visibility-chain: cameras=5, disconnected=1, maxTranslationError=1.3186600000825166E-6; not a physical scan
+10-20 08:52:40.871  3903  3932 I TestRunner: finished: growsAcrossThreeVisibilityGroupsAndRetriesEarlierCandidates(com.realityforge.scanner.IncrementalNativeRegistrationTest)
+10-20 08:52:41.012  3903  3932 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored

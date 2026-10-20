@@ -1,0 +1,681 @@
+Start testing: Oct 20 10:04 UTC
+----------------------------------------------------------
+1/36 Testing: native_core
+1/36 Test: native_core
+Command: "/workspace/agents/004/build/host/rf_native_tests"
+Directory: /workspace/agents/004/build/host
+"native_core" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+PASS identity
+PASS transpose multiplication
+PASS triangulation known point
+PASS behind-camera rejection
+PASS quality uniform
+PASS quality texture
+PASS quality bad buffer
+PASS quality padded stride
+PASS clean two-view recovery
+PASS noisy outlier robust recovery
+PASS deterministic result
+PASS too few matches
+PASS nan rejection
+PASS invalid threshold
+PASS constant-feature rejection
+PASS empty GLB rejected
+PASS M02 calibrated third-camera PnP
+PASS M02 invalid PnP rejected
+PASS M02 C ABI invalid camera buffer
+PASS C ABI invalid input
+
+20 passed; 0 failed
+<end of output>
+Test time =   0.25 sec
+----------------------------------------------------------
+Test Passed.
+"native_core" end time: Oct 20 10:04 UTC
+"native_core" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/36 Testing: native_multiview
+2/36 Test: native_multiview
+Command: "/workspace/agents/004/build/host/rf_multiview_tests"
+Directory: /workspace/agents/004/build/host
+"native_multiview" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+third tx -1.79165 target -1.8 before 0.00218151 after 0.000199384 count 320
+PASS triple-view new points + gauge and noise reduction
+PASS intermittent feature mismatches do not create false geometry
+PASS no invented geometry from pure rotation
+PASS invalid duplicate camera track rejected
+PASS nonintegral ABI indexes and invalid color rejected
+5 multiview native cases passed
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"native_multiview" end time: Oct 20 10:04 UTC
+"native_multiview" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/36 Testing: native_bundle_adjustment
+3/36 Test: native_bundle_adjustment
+Command: "/workspace/agents/004/build/host/rf_bundle_tests"
+Directory: /workspace/agents/004/build/host
+"native_bundle_adjustment" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+M06 initial median 0.0079147 final 0.000178617 initial robust cost 0.0488893 final 1.98827e-05
+PASS global Schur LM reduces reprojection error and improves independently noisy poses
+PASS outlying feature matches are excluded from coupled BA
+PASS already perfect geometry is not made worse
+PASS singular gauge and conflicting observations rejected
+PASS NaN, unreasonable camera and wrong settings rejected
+PASS C interface rejects nonintegral track indices
+PASS minimal gauge releases second anchor while preserving baseline and first pose
+PASS camera Jacobian agrees with independent finite differences
+PASS large graph and budget rejection are explicit before allocations
+PASS intrinsic groups recover known Brown calibration and preserve withheld projections
+PASS versioned pixel bundle consumes fixed intrinsic groups without changing calibration
+PASS verified circular revisit corrects withheld geometry without publishing failed loops
+PASS 30-camera bounded exact window remains valid and larger global graphs reject explicitly
+13 bundle adjustment cases passed
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"native_bundle_adjustment" end time: Oct 20 10:04 UTC
+"native_bundle_adjustment" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/36 Testing: native_dense_mvs
+4/36 Test: native_dense_mvs
+Command: "/workspace/agents/004/build/host/rf_dense_tests"
+Directory: /workspace/agents/004/build/host
+"native_dense_mvs" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+found 4669 candidate=4689 reciprocal=4676 confidence=0.992543
+median depth=4.96855 ground truth 5
+PASS plane sweep derives dense geometry from overlapping rendered images
+PASS uniform image contains no invented surface
+PASS occluded view does not corrupt nonoccluded geometry
+PASS coincident camera centers explicitly rejected
+PASS invalid or mismatched buffers rejected
+PASS C ABI invalid input returns explicit JSON error
+PASS deterministic input produces stable point cloud
+7 CPU dense MVS cases passed
+<end of output>
+Test time =   1.76 sec
+----------------------------------------------------------
+Test Passed.
+"native_dense_mvs" end time: Oct 20 10:04 UTC
+"native_dense_mvs" time elapsed: 00:00:01
+----------------------------------------------------------
+
+5/36 Testing: native_surface_mesh
+5/36 Test: native_surface_mesh
+Command: "/workspace/agents/004/build/host/rf_surface_tests"
+Directory: /workspace/agents/004/build/host
+"native_surface_mesh" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+confirmed=4676 vertices=3955 faces=8557 fused=712
+PASS confirmed depth samples produce genuine indexed triangles
+PASS textureless inputs produce zero triangle faces
+PASS occluded input retains only confirmed geometry
+PASS depth-step barrier prevents triangles across measured discontinuity
+PASS reject malformed source depth maps and unverified samples
+PASS invalid C ABI produces JSON error
+PASS deterministic fusion
+7 surface meshing cases passed
+<end of output>
+Test time =   3.98 sec
+----------------------------------------------------------
+Test Passed.
+"native_surface_mesh" end time: Oct 20 10:04 UTC
+"native_surface_mesh" time elapsed: 00:00:03
+----------------------------------------------------------
+
+6/36 Testing: native_texture_atlas
+6/36 Test: native_texture_atlas
+Command: "/workspace/agents/004/build/host/rf_texture_tests"
+Directory: /workspace/agents/004/build/host
+"native_texture_atlas" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+triangles=3631 coverage=1 atlas=428x316
+PASS photo atlas creates indexed UV mesh
+PASS masked images are rejected as texture choices
+PASS camera mismatch is rejected
+PASS occlusion mask does not invent textures
+PASS atlas deterministic
+PASS invalid C ABI safe JSON error
+PASS untextured stereo produces no faked UV mesh
+compact atlas 2048x282 support=72874 unknown=3 utilization=0.126181 density=46.2729
+PASS compact charts bake actual verified pixels and retain unsupported geometry
+PASS PNG write failure and cancellation preserve previous publication
+PASS compact exposure samples require exact co-visible depth support
+10 texture cases passed
+<end of output>
+Test time =   8.25 sec
+----------------------------------------------------------
+Test Passed.
+"native_texture_atlas" end time: Oct 20 10:04 UTC
+"native_texture_atlas" time elapsed: 00:00:08
+----------------------------------------------------------
+
+7/36 Testing: native_photometric
+7/36 Test: native_photometric
+Command: "/workspace/agents/004/build/host/rf_photometric_tests"
+Directory: /workspace/agents/004/build/host
+"native_photometric" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+PASS linear-sRGB byte roundtrip
+PASS robust RGB exposure recovery with outliers
+PASS disconnected and under-supported views stay identity
+PASS gain limits and invalid samples
+PASS fronto-parallel mesh retains every visible triangle
+PASS glTF UV origin matches asymmetric top-down pixels
+seam edges 82 -> 68
+PASS view coherence reduces seams without dropping faces
+PASS mask and backface exclusions survive smoothing
+8 photometric/UV regression cases passed
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"native_photometric" end time: Oct 20 10:04 UTC
+"native_photometric" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/36 Testing: native_stereo_warp
+8/36 Test: native_stereo_warp
+Command: "/workspace/agents/004/build/host/rf_stereo_warp_tests"
+Directory: /workspace/agents/004/build/host
+"native_stereo_warp" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+PASS 10000 independent camera projections, identity and NaN gates; max pixel error 4.91127e-11
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"native_stereo_warp" end time: Oct 20 10:04 UTC
+"native_stereo_warp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/36 Testing: native_dense_selection
+9/36 Test: native_dense_selection
+Command: "/workspace/agents/004/build/host/rf_dense_selection_tests"
+Directory: /workspace/agents/004/build/host
+"native_dense_selection" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+PASS approved adjacency is copied and drives the real solver, including empty rows
+PASS invalid approved adjacency rejects before changing the current scope
+PASS eight-view source lists are bounded, distinct and deterministic
+PASS a disjoint eighth camera has no supported source frusta
+PASS opposing cameras cannot be mistaken for nearby source views
+PASS small batches retain all original pair candidates
+PASS oversized and nonfinite source plans rejected
+PASS eight uniform inputs cannot invent depth and only cache four luminance planes
+PASS eight rendered buffers fuse and texture without losing source seven
+PASS exposure solve spans eight cameras without a four-camera fixed-array overflow
+PASS verified-track selection is permutation invariant and rejects disconnected scenes
+11 bounded multi-camera cases passed
+<end of output>
+Test time =   0.86 sec
+----------------------------------------------------------
+Test Passed.
+"native_dense_selection" end time: Oct 20 10:04 UTC
+"native_dense_selection" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/36 Testing: native_cancellation
+10/36 Test: native_cancellation
+Command: "/workspace/agents/004/build/host/rf_cancellation_tests"
+Directory: /workspace/agents/004/build/host
+"native_cancellation" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+PASS cancelled operation fails before allocating per-view image buffers
+PASS nested scopes restore caller's previous cancellation state
+PASS native C ABI reports cancellation without a partial JSON result
+PASS operation cancellation is isolated per thread and registry owner
+PASS long-running dense scan observes cancellation while computing
+5 cancellation regressions passed
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"native_cancellation" end time: Oct 20 10:04 UTC
+"native_cancellation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/36 Testing: native_depth_checkpoint
+11/36 Test: native_depth_checkpoint
+Command: "/workspace/agents/004/build/host/rf_depth_checkpoint_tests"
+Directory: /workspace/agents/004/build/host
+"native_depth_checkpoint" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+PASS complete reference map is saved with a strict content checksum
+PASS identity change never reuses stale geometry
+PASS wrong-size, truncated and corrupted files are cache misses
+PASS completed depth maps replay exactly without repeating photometric search
+PASS cancelled operations cannot replace accepted reference checkpoints
+PASS byte admission and orphan cleanup preserve accepted work and originals
+PASS invalid directory or non-SHA identities are rejected
+7 depth checkpoint cases passed
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"native_depth_checkpoint" end time: Oct 20 10:04 UTC
+"native_depth_checkpoint" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/36 Testing: rf_bundle_problem_bridge_tests
+12/36 Test: rf_bundle_problem_bridge_tests
+Command: "/workspace/agents/004/build/host/rf_bundle_problem_bridge_tests"
+Directory: /workspace/agents/004/build/host
+"rf_bundle_problem_bridge_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+typed BundleProblem parser, actual PnP/solver, fixed model, evidence, subset mapping, invalid identity and cancellation passed
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"rf_bundle_problem_bridge_tests" end time: Oct 20 10:04 UTC
+"rf_bundle_problem_bridge_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/36 Testing: rf_initializer_degeneracy_tests
+13/36 Test: rf_initializer_degeneracy_tests
+Command: "/workspace/agents/004/build/host/rf_initializer_degeneracy_tests"
+Directory: /workspace/agents/004/build/host
+"rf_initializer_degeneracy_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+initializer independent scene, rotation, collinearity, work budget, cancellation and ABI passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_initializer_degeneracy_tests" end time: Oct 20 10:04 UTC
+"rf_initializer_degeneracy_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/36 Testing: rf_pnp_robustness_tests
+14/36 Test: rf_pnp_robustness_tests
+Command: "/workspace/agents/004/build/host/rf_pnp_robustness_tests"
+Directory: /workspace/agents/004/build/host
+"rf_pnp_robustness_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+pnp robustness: six scale/planarity/outlier fixtures, cancellation and C ABI passed
+<end of output>
+Test time =   0.54 sec
+----------------------------------------------------------
+Test Passed.
+"rf_pnp_robustness_tests" end time: Oct 20 10:04 UTC
+"rf_pnp_robustness_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/36 Testing: rf_triangulation_conditioning_tests
+15/36 Test: rf_triangulation_conditioning_tests
+Command: "/workspace/agents/004/build/host/rf_triangulation_conditioning_tests"
+Directory: /workspace/agents/004/build/host
+"rf_triangulation_conditioning_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+triangulation: independent scales, outlier support/provenance, conditioning and cancellation passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_triangulation_conditioning_tests" end time: Oct 20 10:04 UTC
+"rf_triangulation_conditioning_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/36 Testing: rf_intrinsics_tests
+16/36 Test: rf_intrinsics_tests
+Command: "/workspace/agents/004/build/host/rf_intrinsics_tests"
+Directory: /workspace/agents/004/build/host
+"rf_intrinsics_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+intrinsic finite differences, ray inversion and prior admission passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_intrinsics_tests" end time: Oct 20 10:04 UTC
+"rf_intrinsics_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/36 Testing: rf_loop_closure_tests
+17/36 Test: rf_loop_closure_tests
+Command: "/workspace/agents/004/build/host/rf_loop_closure_tests"
+Directory: /workspace/agents/004/build/host
+"rf_loop_closure_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+verified loop resection, false-loop rejection, stable identity and cancellation passed
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"rf_loop_closure_tests" end time: Oct 20 10:04 UTC
+"rf_loop_closure_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/36 Testing: rf_depth_tiles_tests
+18/36 Test: rf_depth_tiles_tests
+Command: "/workspace/agents/004/build/host/rf_depth_tiles_tests"
+Directory: /workspace/agents/004/build/host
+"rf_depth_tiles_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+synthetic shape=1 baseline=1850 refined=1770 median=0.00427365 p90=0.0152688 observed-normal-winners=11
+synthetic shape=2 baseline=1773 refined=1677 median=0.00461816 p90=0.0162922 observed-normal-winners=4
+tiled/reference float-bit equality, halo coverage, camera-order point equality, byte admission, voxel bounds and C ABI rejection passed
+<end of output>
+Test time =   5.52 sec
+----------------------------------------------------------
+Test Passed.
+"rf_depth_tiles_tests" end time: Oct 20 10:04 UTC
+"rf_depth_tiles_tests" time elapsed: 00:00:05
+----------------------------------------------------------
+
+19/36 Testing: rf_robust_local_objective_tests
+19/36 Test: rf_robust_local_objective_tests
+Command: "/workspace/agents/004/build/host/rf_robust_local_objective_tests"
+Directory: /workspace/agents/004/build/host
+"rf_robust_local_objective_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+compared=437 worsened=0 improved=374 maximumMedianCostIncrease=0
+<end of output>
+Test time =   1.15 sec
+----------------------------------------------------------
+Test Passed.
+"rf_robust_local_objective_tests" end time: Oct 20 10:04 UTC
+"rf_robust_local_objective_tests" time elapsed: 00:00:01
+----------------------------------------------------------
+
+20/36 Testing: rf_depth_refinement_tests
+20/36 Test: rf_depth_refinement_tests
+Command: "/workspace/agents/004/build/host/rf_depth_refinement_tests"
+Directory: /workspace/agents/004/build/host
+"rf_depth_refinement_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+multi-layer priors, bounded local depth/normal hypotheses, curved tangent and invalid/discontinuous sampled-grid checks passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_depth_refinement_tests" end time: Oct 20 10:04 UTC
+"rf_depth_refinement_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/36 Testing: rf_matching_cost_tests
+21/36 Test: rf_matching_cost_tests
+Command: "/workspace/agents/004/build/host/rf_matching_cost_tests"
+Directory: /workspace/agents/004/build/host
+"rf_matching_cost_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+matching cost analytic, exposure, mask, saturation and ambiguity checks passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"rf_matching_cost_tests" end time: Oct 20 10:04 UTC
+"rf_matching_cost_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/36 Testing: rf_depth_consistency_tests
+22/36 Test: rf_depth_consistency_tests
+Command: "/workspace/agents/004/build/host/rf_depth_consistency_tests"
+Directory: /workspace/agents/004/build/host
+"rf_depth_consistency_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+continuous interpolation, thin-edge unknown, occlusion and reverse projection checks passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"rf_depth_consistency_tests" end time: Oct 20 10:04 UTC
+"rf_depth_consistency_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/36 Testing: rf_depth_cache_manifest_tests
+23/36 Test: rf_depth_cache_manifest_tests
+Command: "/workspace/agents/004/build/host/rf_depth_cache_manifest_tests"
+Directory: /workspace/agents/004/build/host
+"rf_depth_cache_manifest_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+strict cache identity, duplicate manifests, byte budget and original preservation checks passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_depth_cache_manifest_tests" end time: Oct 20 10:04 UTC
+"rf_depth_cache_manifest_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/36 Testing: rf_progress_tests
+24/36 Test: rf_progress_tests
+Command: "/workspace/agents/004/build/host/rf_progress_tests"
+Directory: /workspace/agents/004/build/host
+"rf_progress_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+observed host progress-loop cancellation latency seconds=0.000472561
+scoped progress lifetime, bounds, nested and concurrent cases passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_progress_tests" end time: Oct 20 10:04 UTC
+"rf_progress_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/36 Testing: rf_surface_fusion_tests
+25/36 Test: rf_surface_fusion_tests
+Command: "/workspace/agents/004/build/host/rf_surface_fusion_tests"
+Directory: /workspace/agents/004/build/host
+"rf_surface_fusion_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+checked voxels, supported/hostile fusion, provenance, permutation, opposing sheets and C ABI passed
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"rf_surface_fusion_tests" end time: Oct 20 10:04 UTC
+"rf_surface_fusion_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/36 Testing: rf_surface_evidence_tests
+26/36 Test: rf_surface_evidence_tests
+Command: "/workspace/agents/004/build/host/rf_surface_evidence_tests"
+Directory: /workspace/agents/004/build/host
+"rf_surface_evidence_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+analytic normals, bounded reliability PCA, effective support, transforms, cancellation and discontinuity cases passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_surface_evidence_tests" end time: Oct 20 10:04 UTC
+"rf_surface_evidence_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/36 Testing: rf_mesh_topology_tests
+27/36 Test: rf_mesh_topology_tests
+Command: "/workspace/agents/004/build/host/rf_mesh_topology_tests"
+Directory: /workspace/agents/004/build/host
+"rf_mesh_topology_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+20000-face mesh bounded candidates=2000001 elapsedSeconds=0.0996311
+open surface, exact defects, intersections, scale and budget cases passed
+<end of output>
+Test time =   0.11 sec
+----------------------------------------------------------
+Test Passed.
+"rf_mesh_topology_tests" end time: Oct 20 10:04 UTC
+"rf_mesh_topology_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/36 Testing: rf_mesh_cleanup_tests
+28/36 Test: rf_mesh_cleanup_tests
+Command: "/workspace/agents/004/build/host/rf_mesh_cleanup_tests"
+Directory: /workspace/agents/004/build/host
+"rf_mesh_cleanup_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_mesh_cleanup_tests" end time: Oct 20 10:04 UTC
+"rf_mesh_cleanup_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/36 Testing: rf_texture_visibility_tests
+29/36 Test: rf_texture_visibility_tests
+Command: "/workspace/agents/004/build/host/rf_texture_visibility_tests"
+Directory: /workspace/agents/004/build/host
+"rf_texture_visibility_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"rf_texture_visibility_tests" end time: Oct 20 10:04 UTC
+"rf_texture_visibility_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/36 Testing: rf_uv_atlas_tests
+30/36 Test: rf_uv_atlas_tests
+Command: "/workspace/agents/004/build/host/rf_uv_atlas_tests"
+Directory: /workspace/agents/004/build/host
+"rf_uv_atlas_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+2048 profile faces=30000 groups=657 perFaceDensity=4.24264 wholePhotoUsefulPixels=1.04858e+06 compactUsefulPixels=1.76333e+06 density=10.8423 rectangleUtilization=0.920613 surfaceUtilization=0.420411 layoutBytes=5040000 seconds=0.38814
+4096 profile faces=80000 groups=1884 perFaceDensity=7.07107 wholePhotoUsefulPixels=4.1943e+06 compactUsefulPixels=7.41125e+06 density=13.6118 rectangleUtilization=0.947772 surfaceUtilization=0.441745 layoutBytes=13440000 seconds=0.976916
+<end of output>
+Test time =   1.42 sec
+----------------------------------------------------------
+Test Passed.
+"rf_uv_atlas_tests" end time: Oct 20 10:04 UTC
+"rf_uv_atlas_tests" time elapsed: 00:00:01
+----------------------------------------------------------
+
+31/36 Testing: rf_texture_blend_tests
+31/36 Test: rf_texture_blend_tests
+Command: "/workspace/agents/004/build/host/rf_texture_blend_tests"
+Directory: /workspace/agents/004/build/host
+"rf_texture_blend_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+independent constant-surface seam before=0.0107818 after=0.00359389
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"rf_texture_blend_tests" end time: Oct 20 10:04 UTC
+"rf_texture_blend_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/36 Testing: rf_photometric_adversarial_tests
+32/36 Test: rf_photometric_adversarial_tests
+Command: "/workspace/agents/004/build/host/rf_photometric_adversarial_tests"
+Directory: /workspace/agents/004/build/host
+"rf_photometric_adversarial_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"rf_photometric_adversarial_tests" end time: Oct 20 10:04 UTC
+"rf_photometric_adversarial_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/36 Testing: rf_texture_c_abi_failure_tests
+33/36 Test: rf_texture_c_abi_failure_tests
+Command: "/workspace/agents/004/build/host/rf_texture_c_abi_failure_tests"
+Directory: /workspace/agents/004/build/host
+"rf_texture_c_abi_failure_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"rf_texture_c_abi_failure_tests" end time: Oct 20 10:04 UTC
+"rf_texture_c_abi_failure_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/36 Testing: rf_texture_png_tests
+34/36 Test: rf_texture_png_tests
+Command: "/workspace/agents/004/build/host/rf_texture_png_tests" "/workspace/agents/004/build/host/agent057.png" "/workspace/agents/004/build/host/agent057-reference.png"
+Directory: /workspace/agents/004/build/host
+"rf_texture_png_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"rf_texture_png_tests" end time: Oct 20 10:04 UTC
+"rf_texture_png_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/36 Testing: rf_tile_process_tests
+35/36 Test: rf_tile_process_tests
+Command: "/workspace/agents/004/build/host/rf_tile_process_tests"
+Directory: /workspace/agents/004/build/host
+"rf_tile_process_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+actual dense SIGKILL skips older completed tile, recomputes interrupted tile and reproduces clean maps
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"rf_tile_process_tests" end time: Oct 20 10:04 UTC
+"rf_tile_process_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/36 Testing: rf_checkpoint_process_tests
+36/36 Test: rf_checkpoint_process_tests
+Command: "/workspace/agents/004/build/host/rf_checkpoint_process_tests"
+Directory: /workspace/agents/004/build/host
+"rf_checkpoint_process_tests" start time: Oct 20 10:04 UTC
+Output:
+----------------------------------------------------------
+SIGKILL at temporary-create and fsync boundaries; ENOSPC; exact relaunch; independent-process budget and reader leases passed
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"rf_checkpoint_process_tests" end time: Oct 20 10:04 UTC
+"rf_checkpoint_process_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 20 10:04 UTC

@@ -1,0 +1,37 @@
+{
+  "schema": 8,
+  "dataset": "Middlebury 2014 Motorcycle (real rectified stereo)",
+  "realPhotographs": true,
+  "cameraCount": 2,
+  "sourceImageDimensions": [
+    741,
+    500
+  ],
+  "downsampledDimensions": [
+    228,
+    154
+  ],
+  "calibration": "published rectified intrinsics, arbitrary unit baseline",
+  "groundTruthUsedForOptimization": false,
+  "verifiedDepthSamples": 4271,
+  "acceptedSurfaceSamples": 4269,
+  "fusedObservations": 50,
+  "meshVertexCount": 3365,
+  "meshTriangleCount": 4040,
+  "densePointCount": 4249,
+  "groundTruthMatchedMeshVertices": 3100,
+  "disparityAbsoluteErrorPxP50": 0.4341155249231363,
+  "disparityAbsoluteErrorPxP90": 1.9906311549182514,
+  "depthRelativeErrorP50": 0.006255986632570271,
+  "depthRelativeErrorP90": 0.03060362467361262,
+  "maximumFaceRelativeDepthJump": 0.030829839416508728,
+  "meshWatertight": false,
+  "photographicUvTextures": false,
+  "limitations": [
+    "Two real calibrated stereo photos only; no 360 object scan",
+    "Open camera-visible surfaces, no filled holes or unobserved backside",
+    "Vertex colors are sampled; no photographic UV texture atlas",
+    "Baseline scale arbitrary; cannot claim dimensions in millimeters",
+    "Ground truth covers only independently evaluated vertices"
+  ]
+}

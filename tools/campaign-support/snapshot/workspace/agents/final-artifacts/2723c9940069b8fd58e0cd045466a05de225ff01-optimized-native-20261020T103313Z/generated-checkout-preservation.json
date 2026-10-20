@@ -1,0 +1,10 @@
+{
+  "build_process_exited": true,
+  "generated_files": [
+    {
+      "path": "generated-checkout/app-schemas/com.realityforge.scanner.data.ScanDatabase/1.json",
+      "bytes": 5673,
+      "sha256": "f57ec5992d1a7c21e4aa6d49f6a9e9b778179cfd06dba5673dcb09505bbe535a"
+    }
+  ]
+}

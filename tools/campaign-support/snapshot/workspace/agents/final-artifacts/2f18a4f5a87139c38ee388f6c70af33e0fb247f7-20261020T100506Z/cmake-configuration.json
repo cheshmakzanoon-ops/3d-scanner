@@ -1,0 +1,20 @@
+[
+  {
+    "abi": "arm64-v8a",
+    "cache_sha256": "ad5aab7e0d8fbaaebe5bb15787d29b27146d6f806f1f62692a9713b1f992aaf9",
+    "flags": [
+      "CMAKE_JOB_POOLS:UNINITIALIZED=rf_android_compile=2",
+      "CMAKE_JOB_POOL_COMPILE:UNINITIALIZED=rf_android_compile",
+      "RF_REQUIRE_CAMPAIGN_031_060:BOOL=ON"
+    ]
+  },
+  {
+    "abi": "x86_64",
+    "cache_sha256": "896b18369a6191838f3680f23ef1ed2290155b55c7ef980fa34be3a7846d0309",
+    "flags": [
+      "CMAKE_JOB_POOLS:UNINITIALIZED=rf_android_compile=2",
+      "CMAKE_JOB_POOL_COMPILE:UNINITIALIZED=rf_android_compile",
+      "RF_REQUIRE_CAMPAIGN_031_060:BOOL=ON"
+    ]
+  }
+]

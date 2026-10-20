@@ -1,0 +1,136 @@
+{
+  "agent": "033",
+  "role": "Feature cache integrity and eviction",
+  "branch": "agents/033-feature-cache-integrity",
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "implementation_commits": [
+    "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a"
+  ],
+  "state": "READY_FOR_INTEGRATION",
+  "interfaces_published": [
+    "docs/agents/contracts/033.md"
+  ],
+  "integration_requests": [
+    "docs/agents/requests/033-to-002.md",
+    "docs/agents/requests/033-to-009.md",
+    "docs/agents/requests/033-to-020.md",
+    "docs/agents/requests/033-to-032.md"
+  ],
+  "acceptance_results": [
+    {
+      "criterion": "Reject truncation/trailing/stale/finite-bit-corrupt records; bounded reads, inter-instance/process locks, atomic publication, eviction and original canaries",
+      "result": "PASS",
+      "command": "python /workspace/agents/kotlin_tests.py /workspace/agents/033 app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt,app/src/main/java/com/realityforge/scanner/engine/features/FeatureCacheFormat.kt,app/src/test/java/com/realityforge/scanner/engine/features/FeatureCacheTest.kt com.realityforge.scanner.engine.features.FeatureCacheTest",
+      "source_sha": "ac72611e2313ddfd9140799d9143e83f2367abe2",
+      "evidence": "/workspace/agents/033-jvm-unicode.log",
+      "details": "9 passed against actual JVM filesystem. Current9ee7a9e adds Android-private-filesystem runtime fixture without changing this cache implementation."
+    },
+    {
+      "criterion": "Actual Android private-filesystem cache hit/corrupt-miss/recompute, independent-instance eviction and preserved original hash",
+      "result": "NOT_RUN",
+      "command": "adb shell am instrument -w -e class com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner",
+      "source_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+      "details": "Executable fixture is implemented; full production cache failure/recompute also exercised by owner002 integration fixture when final APK is available. Actual ENOSPC/kill-process qualification is not inferred from JVM unavailable-storage tests."
+    },
+    {
+      "criterion": "Frozen all-provider actual Android app/test APK build, JVM suite, lint and packaged native integrity",
+      "result": "PASS",
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "validation_checkout_sha": "f49c66a87d47aa90ff79d7f0d6bcc106d495721e",
+      "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+      "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-bounded.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+      "evidence": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-receipt.json",
+      "jvm_tests": {
+        "tests": 124,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "artifacts": {
+        "app-debug.apk": {
+          "sha256": "d46ed92e7fa5ad6375c18087df82c99fce1c70cf361b6e7a488d98465d45c8a6",
+          "bytes": 125623570
+        },
+        "app-debug-androidTest.apk": {
+          "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+          "bytes": 2533147
+        }
+      },
+      "lint_issue_counts": {
+        "Warning": 8
+      },
+      "details": "Official pinned wrapper PASS8m43s,89tasks28executed61up-to-date; strict campaign source gate ON with per-ABI compile pool2; actual12 ELF libraries/ZIP16KB alignment and noINTERNET passed. Full per-class XML, lint reports and CMake/Ninja evidence retained. Post-build tracked tree/index clean and exact reviewed tree equality verified. This is build evidence; device/runtime and independent quality gates are separate."
+    },
+    {
+      "criterion": "Actual final-source focused/integrated Android runtime",
+      "result": "NOT_RUN",
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "details": "Pending immutable036 runtime report; pre-fixccdef checkpoint execution is separate and must name its own source/APK hashes. Do not infer pass from compilation or from an active device process."
+    },
+    {
+      "criterion": "Same frozen-source optimized-native DEBUG APK for software-emulator execution",
+      "result": "PASS",
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+      "validation_checkout_sha": "f49c66a87d47aa90ff79d7f0d6bcc106d495721e",
+      "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-optimized-native.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+      "evidence": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json",
+      "artifacts": {
+        "app-debug.apk": {
+          "sha256": "0f2564d6b7845a0d930c232b200f0812e3323bcc4bdce9fe849f4c3c6f29760e",
+          "bytes": 120144866
+        },
+        "app-debug-androidTest.apk": {
+          "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+          "bytes": 2533147
+        }
+      },
+      "build_configuration": {
+        "type": "DEBUG",
+        "native_flags": "-g -O2",
+        "native_NDEBUG": false,
+        "native_fast_math": false,
+        "actual_ninja_evidence": "native-optimization-verification.json",
+        "compiled_target": "realityforge",
+        "prebuilt_dependencies": "Unchanged; APK entry payload comparison verified."
+      },
+      "lint_issue_counts": {
+        "Error": 0,
+        "Warning": 8
+      },
+      "jvm_tests": {
+        "tests": 124,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "jvm_tests_scope": "Existing124 exact-source JVM results reused UP-TO-DATE; no claim that JVM tests executed again during this native-only rebuild.",
+      "details": "Parent-authorized external build configuration only; official-wrapper PASS2m44s. All27 own C++ objects perABI have actual last-O2, -g, noNDEBUG/noFastMath and executed Ninja records. Strict campaign source gate and pool2 enabled. Privacy/noINTERNET plus12 ELF16KB/ZIP alignment pass. APK payload comparison proves only two realityforge libraries differ from O0; application code/resources/prebuilt dependencies and testAPK unchanged. This is build evidence; actual runtime outcome remains separate. Timings are optimized DEBUG software-emulator evidence when executed, not default-O0 or physical-device performance."
+    }
+  ],
+  "remaining_work": [
+    "Complete actual focused/integrated Android runtime on the approved immutable APKs; append exact036 evidence with failures and scope."
+  ],
+  "external_blockers": [],
+  "next_action": "Await exact036 focused/full-pipeline runtime outcomes on the approved source/APK pair, preserve checkpoint versus final provenance, and update state only against actual role acceptance. Real/physical profile gates remain unrun where listed.",
+  "delivery": {
+    "code_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+    "branch_compare_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/compare/main...agents/033-feature-cache-integrity",
+    "pull_request_api": "GitHub API Forbidden in this environment; native Git push works. No token requested."
+  },
+  "owned_paths_changed": [
+    "app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt",
+    "app/src/main/java/com/realityforge/scanner/engine/features/FeatureCacheFormat.kt",
+    "app/src/test/java/com/realityforge/scanner/engine/features/FeatureCacheTest.kt",
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a033/FeatureCacheDeviceTest.kt",
+    "docs/agents/contracts/033.md",
+    "docs/agents/status/033.md",
+    "docs/agents/requests/033-to-002.md",
+    "docs/agents/requests/033-to-009.md",
+    "docs/agents/requests/033-to-020.md",
+    "docs/agents/requests/033-to-032.md"
+  ],
+  "mechanical_files_regenerated": [
+    "SOURCE_MANIFEST.sha256"
+  ]
+}

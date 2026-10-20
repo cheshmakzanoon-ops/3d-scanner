@@ -1,0 +1,9 @@
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Duser.home=/workspace/.android-user -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -XX:ActiveProcessorCount=2
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Duser.home=/workspace/.android-user -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -XX:ActiveProcessorCount=2
+JUnit version 4.13.2
+........
+Time: 0.077
+
+OK (8 tests)
+
+Actual Android source dependency compilation passed: 9 Kotlin files

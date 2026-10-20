@@ -1,0 +1,69 @@
+{
+  "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+  "source_tree_sha": "aab411b7f089f4527fd1935474fc155ce3fa096c",
+  "native_library": "/workspace/agents/004/build/host/librealityforge.so",
+  "native_library_sha256": "e8b0c9a00fcc16263f5cce2f47d823b3b38297df4c4ae85cdaf2f7006df7cfab",
+  "native_build_reused_without_rebuild": true,
+  "command": "python3 -m pytest -q --junitxml=/workspace/campaign/final-pytest.xml",
+  "environment_limits": {
+    "JAVA_TOOL_OPTIONS_appended": "-XX:ActiveProcessorCount=2",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "2",
+    "OPENCV_FOR_THREADS_NUM": "2"
+  },
+  "finished_utc": "2026-10-20T09:21:16.727629+00:00",
+  "exit_code": 1,
+  "counts": {
+    "tests": 168,
+    "passed": 167,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha_after": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+  "tracked_changes_after": "",
+  "native_library_sha256_after": "e8b0c9a00fcc16263f5cce2f47d823b3b38297df4c4ae85cdaf2f7006df7cfab",
+  "frozen_source_unchanged": true,
+  "native_library_unchanged": true,
+  "results": {
+    "xml": "/workspace/campaign/final-pytest.xml",
+    "xml_sha256": "3b3bafdb6317eb3e1ddf2f41b8094506ff183bc80b11012f3e83cd611661bb16",
+    "log": "/workspace/campaign/final-pytest.log",
+    "log_sha256": "1f6691817d86e5e1a83306074c620f517201f535564690b68cd5e6b590631fd2"
+  },
+  "failing_tests": [
+    {
+      "class": "tests.test_surface",
+      "name": "test_real_photographs_generate_indexed_open_surfaces",
+      "failures": [
+        "assert 44 > 50"
+      ],
+      "errors": []
+    }
+  ],
+  "duration_seconds": 188.683,
+  "source_manifest_archive_tests": [
+    "test_staged_content_add_delete_rename_and_unstaged_isolation",
+    "test_exact_revision_ignores_dirty_worktree",
+    "test_manifest_corruption_is_rejected[omitted]",
+    "test_manifest_corruption_is_rejected[stale]",
+    "test_manifest_corruption_is_rejected[duplicate]",
+    "test_manifest_corruption_is_rejected[hash]",
+    "test_manifest_corruption_is_rejected[self]",
+    "test_manifest_corruption_is_rejected[format]",
+    "test_manifest_corruption_is_rejected[path]",
+    "test_manifest_corruption_is_rejected[newline]",
+    "test_new_tracked_file_cannot_hide_outside_manifest",
+    "test_unresolved_semantic_conflict_cannot_be_generated",
+    "test_unsupported_git_entries_fail_closed[symlink]",
+    "test_unsupported_git_entries_fail_closed[newline]",
+    "test_unsupported_git_entries_fail_closed[backslash]",
+    "test_worktree_symlink_cannot_impersonate_tracked_regular_file",
+    "test_archive_exact_git_tree_reproducible_and_normalized",
+    "test_archive_tampering_and_wrong_revision_fail[archive]",
+    "test_archive_tampering_and_wrong_revision_fail[record]",
+    "test_archive_tampering_and_wrong_revision_fail[revision]",
+    "test_archive_refuses_commit_with_stale_manifest",
+    "test_intent_to_add_cannot_manifest_an_uncommittable_index"
+  ]
+}

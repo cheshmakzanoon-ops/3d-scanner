@@ -1,0 +1,20 @@
+{
+  "pid": 46011,
+  "avd": "campaign-api35",
+  "port": 5554,
+  "signal": "SIGSTOP",
+  "paused_at_utc": "2026-10-20T08:40:43Z",
+  "must_resume_with": "SIGCONT after API29 runtime attempt",
+  "restoration": {
+    "pid": 46011,
+    "verified_executable": "/workspace/android-sdk/emulator/qemu/linux-x86_64/qemu-system-x86_64-headless",
+    "verified_avd": "campaign-api35",
+    "verified_port": 5554,
+    "cmdline_sha256": "ef704a6bedbc9441b4f28103b34f45657d73a000cfa37290f6c96c754ed4a220",
+    "before_state": "T",
+    "signal": "SIGCONT",
+    "utc": "2026-10-20T10:45:29.490662+00:00",
+    "reason": "Restore parent-authorized API35 pause lease after user stopped all owned runtime work",
+    "after_state": "S"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+  "qualification": "PRE_FIX_CHECKPOINT",
+  "serial": "emulator-5556",
+  "pid": 4255,
+  "cmdline": "com.realityforge.scanner|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||",
+  "verified_app_uid": 10116,
+  "signal": "SIGQUIT",
+  "utc": "2026-10-20T10:13:38.736924+00:00",
+  "purpose": "One standard Java stack dump after20minutes without new frontier artifacts; no root/ptrace or token changes",
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "stack_read": {
+    "classification": "PERMISSION_DENIED",
+    "artifact": "sigquit-trace-read-denied.log",
+    "note": "Ordinary shell could list generated trace_00 but cannot read it. No root/ptrace or further signal/read attempt."
+  }
+}

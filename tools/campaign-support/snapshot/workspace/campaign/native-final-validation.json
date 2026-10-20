@@ -1,0 +1,25 @@
+{
+  "source_sha": "4dc17f63cca780bdaa711cc81195c6ef50f83587",
+  "host_library_sha256": "e8b0c9a00fcc16263f5cce2f47d823b3b38297df4c4ae85cdaf2f7006df7cfab",
+  "release": {
+    "tests": 35,
+    "failures": 0,
+    "seconds": 9.98
+  },
+  "sanitizers": {
+    "tests": 35,
+    "failures": 0,
+    "seconds": 135.36,
+    "checks": [
+      "address",
+      "undefined",
+      "float-cast-overflow"
+    ],
+    "ASAN_OPTIONS": "detect_leaks=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  },
+  "logs": {
+    "/workspace/agents/004-radiometry3-native-ctest.log": "6257066e1f2c8bdd91277ce01f5e43ab7a2ac119bd217c305fbbc6198d2b681d",
+    "/workspace/agents/004-radiometry3-sanitized-ctest.log": "5fa3e0357e81765596f19e91d621142458e23e4888e6d89dc2b1afc9b690f4a3"
+  }
+}

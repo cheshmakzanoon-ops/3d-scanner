@@ -1,0 +1,56 @@
+[1/28] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+[2/28] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o
+[3/28] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o
+[4/28] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o
+[5/28] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o
+[6/28] Building CXX object CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o
+[7/28] Linking CXX shared library librealityforge.so
+[8/28] Linking CXX executable rf_native_tests
+[9/28] Building CXX object CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o
+[10/28] Linking CXX executable rf_bundle_tests
+[11/28] Building CXX object CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o
+[12/28] Linking CXX executable rf_multiview_tests
+[13/28] Building CXX object CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o
+[14/28] Linking CXX executable rf_dense_tests
+[15/28] Building CXX object CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o
+[16/28] Linking CXX executable rf_surface_tests
+[17/28] Building CXX object CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o
+[18/28] Linking CXX executable rf_photometric_tests
+[19/28] Building CXX object CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o
+[20/28] Linking CXX executable rf_texture_tests
+[21/28] Building CXX object CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o
+[22/28] Linking CXX executable rf_stereo_warp_tests
+[23/28] Building CXX object CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o
+[24/28] Linking CXX executable rf_dense_selection_tests
+[25/28] Building CXX object CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o
+[26/28] Linking CXX executable rf_cancellation_tests
+[27/28] Building CXX object CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o
+[28/28] Linking CXX executable rf_depth_checkpoint_tests
+Internal ctest changing into directory: /workspace/agents/046/build/host
+Test project /workspace/agents/046/build/host
+      Start  1: native_core
+ 1/11 Test  #1: native_core ......................   Passed    0.31 sec
+      Start  2: native_multiview
+ 2/11 Test  #2: native_multiview .................   Passed    0.11 sec
+      Start  3: native_bundle_adjustment
+ 3/11 Test  #3: native_bundle_adjustment .........   Passed    0.09 sec
+      Start  4: native_dense_mvs
+ 4/11 Test  #4: native_dense_mvs .................   Passed    5.05 sec
+      Start  5: native_surface_mesh
+ 5/11 Test  #5: native_surface_mesh ..............   Passed    7.57 sec
+      Start  6: native_texture_atlas
+ 6/11 Test  #6: native_texture_atlas .............   Passed    2.11 sec
+      Start  7: native_photometric
+ 7/11 Test  #7: native_photometric ...............   Passed    0.18 sec
+      Start  8: native_stereo_warp
+ 8/11 Test  #8: native_stereo_warp ...............   Passed    0.13 sec
+      Start  9: native_dense_selection
+ 9/11 Test  #9: native_dense_selection ...........   Passed    6.00 sec
+      Start 10: native_cancellation
+10/11 Test #10: native_cancellation ..............   Passed    0.11 sec
+      Start 11: native_depth_checkpoint
+11/11 Test #11: native_depth_checkpoint ..........   Passed    0.97 sec
+
+100% tests passed, 0 tests failed out of 11
+
+Total Test time (real) =  22.68 sec

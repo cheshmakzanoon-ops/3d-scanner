@@ -1,0 +1,124 @@
+-- The CXX compiler identification is GNU 14.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (2.3s)
+-- Generating done (0.2s)
+-- Build files have been written to: /workspace/agents/046/build/host
+[1/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o
+[2/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o
+[3/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o
+[4/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o
+[5/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+FAILED: CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o 
+/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/agents/046/reconstruction/include -Werror -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o -MF CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o.d -o CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o -c /workspace/agents/046/reconstruction/src/dense.cpp
+In file included from /usr/include/c++/14/bits/stl_algobase.h:71,
+                 from /usr/include/c++/14/array:43,
+                 from /workspace/agents/046/reconstruction/include/realityforge/core.hpp:2,
+                 from /workspace/agents/046/reconstruction/include/realityforge/multiview.hpp:2,
+                 from /workspace/agents/046/reconstruction/include/realityforge/dense.hpp:2,
+                 from /workspace/agents/046/reconstruction/src/dense.cpp:1:
+In member function ‘constexpr bool __gnu_cxx::__ops::_Iter_less_iter::operator()(_Iterator1, _Iterator2) const [with _Iterator1 = double*; _Iterator2 = double*]’,
+    inlined from ‘constexpr void std::__move_median_to_first(_Iterator, _Iterator, _Iterator, _Iterator, _Compare) [with _Iterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:88:17,
+    inlined from ‘constexpr _RandomAccessIterator std::__unguarded_partition_pivot(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1855:34,
+    inlined from ‘constexpr void std::__introsort_loop(_RandomAccessIterator, _RandomAccessIterator, _Size, _Compare) [with _RandomAccessIterator = double*; _Size = long int; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1889:38,
+    inlined from ‘constexpr void std::__sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1905:25,
+    inlined from ‘constexpr void std::sort(_RAIter, _RAIter) [with _RAIter = double*]’ at /usr/include/c++/14/bits/stl_algo.h:4772:18,
+    inlined from ‘rf::matching::Aggregation rf::matching::aggregate(std::span<const Cost>, bool)’ at /workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:39:14,
+    inlined from ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’ at /workspace/agents/046/reconstruction/src/dense.cpp:208:45:
+/usr/include/c++/14/bits/predefined_ops.h:45:23: error: array subscript [8, 576460752303423487] is outside array bounds of ‘std::array<double, 7> [1]’ [-Werror=array-bounds=]
+   45 |       { return *__it1 < *__it2; }
+      |                ~~~~~~~^~~~~~~~
+In file included from /workspace/agents/046/reconstruction/src/dense.cpp:7:
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp: In function ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’:
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:36:26: note: at offset [64, 4611686018427387896] into object ‘values’ of size 56
+   36 |     std::array<double,7> values{};std::size_t n=0;
+      |                          ^~~~~~
+In file included from /usr/include/c++/14/bits/stl_pair.h:61,
+                 from /usr/include/c++/14/bits/stl_algobase.h:64:
+In function ‘constexpr std::_Require<std::__not_<std::__is_tuple_like<_Tp> >, std::is_move_constructible<_Tp>, std::is_move_assignable<_Tp> > std::swap(_Tp&, _Tp&) [with _Tp = double]’,
+    inlined from ‘constexpr void std::iter_swap(_ForwardIterator1, _ForwardIterator2) [with _ForwardIterator1 = double*; _ForwardIterator2 = double*]’ at /usr/include/c++/14/bits/stl_algobase.h:185:11,
+    inlined from ‘constexpr void std::__move_median_to_first(_Iterator, _Iterator, _Iterator, _Iterator, _Compare) [with _Iterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:102:16,
+    inlined from ‘constexpr _RandomAccessIterator std::__unguarded_partition_pivot(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1855:34,
+    inlined from ‘constexpr void std::__introsort_loop(_RandomAccessIterator, _RandomAccessIterator, _Size, _Compare) [with _RandomAccessIterator = double*; _Size = long int; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1889:38,
+    inlined from ‘constexpr void std::__sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1905:25,
+    inlined from ‘constexpr void std::sort(_RAIter, _RAIter) [with _RAIter = double*]’ at /usr/include/c++/14/bits/stl_algo.h:4772:18,
+    inlined from ‘rf::matching::Aggregation rf::matching::aggregate(std::span<const Cost>, bool)’ at /workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:39:14,
+    inlined from ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’ at /workspace/agents/046/reconstruction/src/dense.cpp:208:45:
+/usr/include/c++/14/bits/move.h:236:11: error: array subscript [8, 576460752303423487] is outside array bounds of ‘std::array<double, 7> [1]’ [-Werror=array-bounds=]
+  236 |       __b = _GLIBCXX_MOVE(__tmp);
+      |           ^
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp: In function ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’:
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:36:26: note: at offset [64, 4611686018427387896] into object ‘values’ of size 56
+   36 |     std::array<double,7> values{};std::size_t n=0;
+      |                          ^~~~~~
+In function ‘constexpr std::_Require<std::__not_<std::__is_tuple_like<_Tp> >, std::is_move_constructible<_Tp>, std::is_move_assignable<_Tp> > std::swap(_Tp&, _Tp&) [with _Tp = double]’,
+    inlined from ‘constexpr void std::iter_swap(_ForwardIterator1, _ForwardIterator2) [with _ForwardIterator1 = double*; _ForwardIterator2 = double*]’ at /usr/include/c++/14/bits/stl_algobase.h:185:11,
+    inlined from ‘constexpr void std::__move_median_to_first(_Iterator, _Iterator, _Iterator, _Iterator, _Compare) [with _Iterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:91:20,
+    inlined from ‘constexpr _RandomAccessIterator std::__unguarded_partition_pivot(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1855:34,
+    inlined from ‘constexpr void std::__introsort_loop(_RandomAccessIterator, _RandomAccessIterator, _Size, _Compare) [with _RandomAccessIterator = double*; _Size = long int; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1889:38,
+    inlined from ‘constexpr void std::__sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1905:25,
+    inlined from ‘constexpr void std::sort(_RAIter, _RAIter) [with _RAIter = double*]’ at /usr/include/c++/14/bits/stl_algo.h:4772:18,
+    inlined from ‘rf::matching::Aggregation rf::matching::aggregate(std::span<const Cost>, bool)’ at /workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:39:14,
+    inlined from ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’ at /workspace/agents/046/reconstruction/src/dense.cpp:208:45:
+/usr/include/c++/14/bits/move.h:236:11: error: array subscript [8, 576460752303423487] is outside array bounds of ‘std::array<double, 7> [1]’ [-Werror=array-bounds=]
+  236 |       __b = _GLIBCXX_MOVE(__tmp);
+      |           ^
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp: In function ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’:
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:36:26: note: at offset [64, 4611686018427387896] into object ‘values’ of size 56
+   36 |     std::array<double,7> values{};std::size_t n=0;
+      |                          ^~~~~~
+In file included from /usr/include/c++/14/bits/stl_algo.h:61,
+                 from /usr/include/c++/14/algorithm:61,
+                 from /workspace/agents/046/reconstruction/include/realityforge/dense_selection.hpp:4,
+                 from /workspace/agents/046/reconstruction/src/dense.cpp:4:
+In function ‘constexpr void std::__adjust_heap(_RandomAccessIterator, _Distance, _Distance, _Tp, _Compare) [with _RandomAccessIterator = double*; _Distance = long int; _Tp = double; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’,
+    inlined from ‘constexpr void std::__make_heap(_RandomAccessIterator, _RandomAccessIterator, _Compare&) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_heap.h:356:22,
+    inlined from ‘constexpr void std::__heap_select(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1593:23,
+    inlined from ‘constexpr void std::__partial_sort(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1868:25,
+    inlined from ‘constexpr void std::__introsort_loop(_RandomAccessIterator, _RandomAccessIterator, _Size, _Compare) [with _RandomAccessIterator = double*; _Size = long int; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1884:27,
+    inlined from ‘constexpr void std::__sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1905:25,
+    inlined from ‘constexpr void std::sort(_RAIter, _RAIter) [with _RAIter = double*]’ at /usr/include/c++/14/bits/stl_algo.h:4772:18,
+    inlined from ‘rf::matching::Aggregation rf::matching::aggregate(std::span<const Cost>, bool)’ at /workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:39:14,
+    inlined from ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’ at /workspace/agents/046/reconstruction/src/dense.cpp:208:45:
+/usr/include/c++/14/bits/stl_heap.h:241:36: error: array subscript [15, 1152921504606846973] is outside array bounds of ‘std::array<double, 7> [1]’ [-Werror=array-bounds=]
+  241 |           *(__first + __holeIndex) = _GLIBCXX_MOVE(*(__first
+      |                                    ^
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp: In function ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’:
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:36:26: note: at offset [120, 9223372036854775784] into object ‘values’ of size 56
+   36 |     std::array<double,7> values{};std::size_t n=0;
+      |                          ^~~~~~
+In function ‘constexpr void std::__adjust_heap(_RandomAccessIterator, _Distance, _Distance, _Tp, _Compare) [with _RandomAccessIterator = double*; _Distance = long int; _Tp = double; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’,
+    inlined from ‘constexpr void std::__make_heap(_RandomAccessIterator, _RandomAccessIterator, _Compare&) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_heap.h:356:22,
+    inlined from ‘constexpr void std::__heap_select(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1593:23,
+    inlined from ‘constexpr void std::__partial_sort(_RandomAccessIterator, _RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1868:25,
+    inlined from ‘constexpr void std::__introsort_loop(_RandomAccessIterator, _RandomAccessIterator, _Size, _Compare) [with _RandomAccessIterator = double*; _Size = long int; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1884:27,
+    inlined from ‘constexpr void std::__sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1905:25,
+    inlined from ‘constexpr void std::sort(_RAIter, _RAIter) [with _RAIter = double*]’ at /usr/include/c++/14/bits/stl_algo.h:4772:18,
+    inlined from ‘rf::matching::Aggregation rf::matching::aggregate(std::span<const Cost>, bool)’ at /workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:39:14,
+    inlined from ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’ at /workspace/agents/046/reconstruction/src/dense.cpp:208:45:
+/usr/include/c++/14/bits/stl_heap.h:241:36: error: array subscript 7 is outside array bounds of ‘std::array<double, 7> [1]’ [-Werror=array-bounds=]
+  241 |           *(__first + __holeIndex) = _GLIBCXX_MOVE(*(__first
+      |                                    ^
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp: In function ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’:
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:36:26: note: at offset 56 into object ‘values’ of size 56
+   36 |     std::array<double,7> values{};std::size_t n=0;
+      |                          ^~~~~~
+In function ‘constexpr void std::__final_insertion_sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’,
+    inlined from ‘constexpr void std::__final_insertion_sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1812:5,
+    inlined from ‘constexpr void std::__sort(_RandomAccessIterator, _RandomAccessIterator, _Compare) [with _RandomAccessIterator = double*; _Compare = __gnu_cxx::__ops::_Iter_less_iter]’ at /usr/include/c++/14/bits/stl_algo.h:1908:31,
+    inlined from ‘constexpr void std::sort(_RAIter, _RAIter) [with _RAIter = double*]’ at /usr/include/c++/14/bits/stl_algo.h:4772:18,
+    inlined from ‘rf::matching::Aggregation rf::matching::aggregate(std::span<const Cost>, bool)’ at /workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:39:14,
+    inlined from ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’ at /workspace/agents/046/reconstruction/src/dense.cpp:208:45:
+/usr/include/c++/14/bits/stl_algo.h:1817:32: error: array subscript 16 is outside array bounds of ‘std::array<double, 7> [1]’ [-Werror=array-bounds=]
+ 1817 |           std::__insertion_sort(__first, __first + int(_S_threshold), __comp);
+      |           ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp: In function ‘rf::DenseResult rf::reconstructDense(std::span<const DenseView>, const DenseSettings&)’:
+/workspace/agents/046/reconstruction/include/realityforge/matching_cost.hpp:36:26: note: at offset 128 into object ‘values’ of size 56
+   36 |     std::array<double,7> values{};std::size_t n=0;
+      |                          ^~~~~~
+cc1plus: all warnings being treated as errors
+[6/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o
+ninja: build stopped: subcommand failed.

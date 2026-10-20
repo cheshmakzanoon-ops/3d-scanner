@@ -1,0 +1,41 @@
+[
+  {
+    "mode": 0,
+    "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-0",
+    "before": "/tmp/rf046-objective-parity-cix5jkv4/before-0.bin",
+    "before_counters": "mode=0 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+    "after_counters": "mode=0 tiles=60 resumedTiles=0 resumedMaps=4 recomputedTiles=0",
+    "map_confidence_bytes_identical": true,
+    "geometry_support_json_identical": true,
+    "before_maps_sha256": "c717c4b1e7a7ac28f7459fc19a925149e2ae1f5981e04e9bd30be964c4536bbc",
+    "after_maps_sha256": "c717c4b1e7a7ac28f7459fc19a925149e2ae1f5981e04e9bd30be964c4536bbc",
+    "fresh_recomputed_all_bytes_identical": true,
+    "fresh_recomputed_counters": "mode=0 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+    "fresh_full_capture_sha256": "c7ad17c2c4babe8cbc75159aa3d12b560e0fc3d626bbc721b802ab8e09024f86"
+  },
+  {
+    "mode": 1,
+    "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-1",
+    "before": "/tmp/rf046-objective-parity-cix5jkv4/before-1.bin",
+    "before_counters": "mode=1 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+    "after_counters": "mode=1 tiles=60 resumedTiles=60 resumedMaps=0 recomputedTiles=0",
+    "map_confidence_bytes_identical": true,
+    "geometry_support_json_identical": true,
+    "before_maps_sha256": "744086409b1154eb196fe5f0acb1cdf774be0141d674cb212696f7a63191684d",
+    "after_maps_sha256": "744086409b1154eb196fe5f0acb1cdf774be0141d674cb212696f7a63191684d",
+    "fresh_recomputed_all_bytes_identical": true,
+    "fresh_recomputed_counters": "mode=1 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+    "fresh_full_capture_sha256": "4d2e4c34f0ee7f493502cbd478be87c23b76501365efd8aad96d81e3759c7101"
+  },
+  {
+    "mode": 2,
+    "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-2",
+    "before": "/tmp/rf046-objective-parity-cix5jkv4/before-2.bin",
+    "before_counters": "mode=2 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+    "after_counters": "mode=2 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+    "map_confidence_bytes_identical": false,
+    "geometry_support_json_identical": false,
+    "before_maps_sha256": "6f402da125905943b9765288cfcf0d7b7920bff852453f80cc3291ce961c5a52",
+    "after_maps_sha256": "e19e8f1db199b925beebdc587b241218f216b7313e4079edaecd60c639a98fee"
+  }
+]

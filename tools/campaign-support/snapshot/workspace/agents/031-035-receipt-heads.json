@@ -1,0 +1,32 @@
+{
+  "031": {
+    "branch": "agents/031-lens-coordinate-geometry",
+    "head": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+    "code_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a"
+  },
+  "032": {
+    "branch": "agents/032-feature-extraction",
+    "head": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+    "code_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+    "reviewed_decoder_dependency": "73da7ac2c11f1a4e5fbde8277efdaeb7d5f17897",
+    "reviewed_geometry_dependency": "2bfadf8c0461620684aa458a3fdc9c223c73e5e9"
+  },
+  "033": {
+    "branch": "agents/033-feature-cache-integrity",
+    "head": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+    "code_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a"
+  },
+  "034": {
+    "branch": "agents/034-overlap-candidate-graph",
+    "head": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+    "code_sha": "df86f792757b43b8bd308233912f9d47288f8589"
+  },
+  "035": {
+    "branch": "agents/035-verified-feature-matching",
+    "head": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+    "code_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+    "reviewed_decoder_dependency": "73da7ac2c11f1a4e5fbde8277efdaeb7d5f17897",
+    "reviewed_feature_dependency": "004f948e7b36a387e9a2bac1753153991f5248d5",
+    "reviewed_geometry_dependency": "2bfadf8c0461620684aa458a3fdc9c223c73e5e9"
+  }
+}

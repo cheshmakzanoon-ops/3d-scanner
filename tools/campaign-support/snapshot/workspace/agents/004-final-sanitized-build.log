@@ -1,0 +1,136 @@
+[  1%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o
+[  2%] Building CXX object CMakeFiles/rf_checkpoint_process_tests.dir/reconstruction/tests/agent_050_process_recovery.cpp.o
+[  3%] Building CXX object CMakeFiles/rf_checkpoint_process_tests.dir/reconstruction/src/depth_checkpoint.cpp.o
+[  4%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o
+[  5%] Building CXX object CMakeFiles/rf_checkpoint_process_tests.dir/reconstruction/src/cancellation.cpp.o
+[  6%] Linking CXX executable rf_checkpoint_process_tests
+[  6%] Built target rf_checkpoint_process_tests
+[  7%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o
+[  8%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o
+[  9%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+[ 10%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o
+[ 11%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o
+[ 12%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o
+[ 13%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o
+[ 14%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o
+[ 15%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/intrinsics.cpp.o
+[ 16%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/loop_closure.cpp.o
+[ 17%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_tiles.cpp.o
+[ 18%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_refinement.cpp.o
+[ 19%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/matching_cost.cpp.o
+[ 20%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_consistency.cpp.o
+[ 21%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_cache_manifest.cpp.o
+[ 22%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/progress.cpp.o
+[ 23%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface_fusion.cpp.o
+[ 24%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface_evidence.cpp.o
+[ 25%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/mesh_topology.cpp.o
+[ 26%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/mesh_cleanup.cpp.o
+[ 27%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture_visibility.cpp.o
+[ 28%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture_png.cpp.o
+[ 29%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/uv_atlas.cpp.o
+[ 30%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture_blend.cpp.o
+[ 31%] Linking CXX shared library librealityforge.so
+[ 31%] Built target realityforge
+[ 32%] Building CXX object CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o
+[ 33%] Building CXX object CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o
+[ 34%] Linking CXX executable rf_multiview_tests
+[ 34%] Built target rf_multiview_tests
+[ 35%] Building CXX object CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o
+[ 36%] Linking CXX executable rf_native_tests
+[ 36%] Built target rf_native_tests
+[ 37%] Building CXX object CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o
+[ 38%] Linking CXX executable rf_dense_tests
+[ 38%] Built target rf_dense_tests
+[ 39%] Building CXX object CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o
+[ 40%] Linking CXX executable rf_surface_tests
+[ 40%] Built target rf_surface_tests
+[ 41%] Building CXX object CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o
+[ 42%] Linking CXX executable rf_bundle_tests
+[ 42%] Built target rf_bundle_tests
+[ 43%] Building CXX object CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o
+[ 44%] Linking CXX executable rf_texture_tests
+[ 44%] Built target rf_texture_tests
+[ 45%] Building CXX object CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o
+[ 46%] Linking CXX executable rf_stereo_warp_tests
+[ 46%] Built target rf_stereo_warp_tests
+[ 47%] Building CXX object CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o
+[ 48%] Linking CXX executable rf_photometric_tests
+[ 48%] Built target rf_photometric_tests
+[ 49%] Building CXX object CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o
+[ 50%] Linking CXX executable rf_cancellation_tests
+[ 50%] Built target rf_cancellation_tests
+[ 51%] Building CXX object CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o
+[ 52%] Linking CXX executable rf_dense_selection_tests
+[ 52%] Built target rf_dense_selection_tests
+[ 53%] Building CXX object CMakeFiles/rf_bundle_problem_bridge_tests.dir/reconstruction/tests/agents/003_bundle_problem_bridge_test.cpp.o
+[ 54%] Linking CXX executable rf_depth_checkpoint_tests
+[ 54%] Built target rf_depth_checkpoint_tests
+[ 55%] Building CXX object CMakeFiles/rf_initializer_degeneracy_tests.dir/reconstruction/tests/initializer_degeneracy_test.cpp.o
+[ 56%] Linking CXX executable rf_initializer_degeneracy_tests
+[ 56%] Built target rf_initializer_degeneracy_tests
+[ 57%] Building CXX object CMakeFiles/rf_pnp_robustness_tests.dir/reconstruction/tests/pnp_robustness_test.cpp.o
+[ 58%] Linking CXX executable rf_pnp_robustness_tests
+[ 58%] Built target rf_pnp_robustness_tests
+[ 59%] Building CXX object CMakeFiles/rf_triangulation_conditioning_tests.dir/reconstruction/tests/triangulation_conditioning_test.cpp.o
+[ 60%] Linking CXX executable rf_triangulation_conditioning_tests
+[ 60%] Built target rf_triangulation_conditioning_tests
+[ 61%] Building CXX object CMakeFiles/rf_intrinsics_tests.dir/reconstruction/tests/intrinsics_test.cpp.o
+[ 62%] Linking CXX executable rf_bundle_problem_bridge_tests
+[ 62%] Built target rf_bundle_problem_bridge_tests
+[ 63%] Building CXX object CMakeFiles/rf_loop_closure_tests.dir/reconstruction/tests/loop_closure_test.cpp.o
+[ 64%] Linking CXX executable rf_intrinsics_tests
+[ 64%] Built target rf_intrinsics_tests
+[ 65%] Building CXX object CMakeFiles/rf_depth_tiles_tests.dir/reconstruction/tests/depth_tiles_test.cpp.o
+[ 66%] Linking CXX executable rf_loop_closure_tests
+[ 66%] Built target rf_loop_closure_tests
+[ 67%] Building CXX object CMakeFiles/rf_depth_refinement_tests.dir/reconstruction/tests/depth_refinement_test.cpp.o
+[ 68%] Linking CXX executable rf_depth_refinement_tests
+[ 68%] Built target rf_depth_refinement_tests
+[ 69%] Building CXX object CMakeFiles/rf_matching_cost_tests.dir/reconstruction/tests/matching_cost_test.cpp.o
+[ 70%] Linking CXX executable rf_matching_cost_tests
+[ 70%] Built target rf_matching_cost_tests
+[ 71%] Building CXX object CMakeFiles/rf_depth_consistency_tests.dir/reconstruction/tests/depth_consistency_test.cpp.o
+[ 72%] Linking CXX executable rf_depth_tiles_tests
+[ 72%] Built target rf_depth_tiles_tests
+[ 73%] Building CXX object CMakeFiles/rf_depth_cache_manifest_tests.dir/reconstruction/tests/depth_cache_manifest_test.cpp.o
+[ 74%] Linking CXX executable rf_depth_consistency_tests
+[ 74%] Built target rf_depth_consistency_tests
+[ 75%] Building CXX object CMakeFiles/rf_progress_tests.dir/reconstruction/tests/progress_test.cpp.o
+[ 76%] Linking CXX executable rf_depth_cache_manifest_tests
+[ 76%] Built target rf_depth_cache_manifest_tests
+[ 77%] Building CXX object CMakeFiles/rf_surface_fusion_tests.dir/reconstruction/tests/surface_fusion_test.cpp.o
+[ 78%] Linking CXX executable rf_progress_tests
+[ 78%] Built target rf_progress_tests
+[ 79%] Building CXX object CMakeFiles/rf_surface_evidence_tests.dir/reconstruction/tests/surface_evidence_test.cpp.o
+[ 80%] Linking CXX executable rf_surface_fusion_tests
+[ 80%] Built target rf_surface_fusion_tests
+[ 81%] Building CXX object CMakeFiles/rf_mesh_topology_tests.dir/reconstruction/tests/mesh_topology_test.cpp.o
+[ 82%] Linking CXX executable rf_surface_evidence_tests
+[ 82%] Built target rf_surface_evidence_tests
+[ 83%] Building CXX object CMakeFiles/rf_mesh_cleanup_tests.dir/reconstruction/tests/mesh_cleanup_test.cpp.o
+[ 84%] Linking CXX executable rf_mesh_cleanup_tests
+[ 84%] Built target rf_mesh_cleanup_tests
+[ 85%] Building CXX object CMakeFiles/rf_texture_visibility_tests.dir/reconstruction/tests/texture_visibility_test.cpp.o
+[ 86%] Linking CXX executable rf_texture_visibility_tests
+[ 86%] Built target rf_texture_visibility_tests
+[ 87%] Building CXX object CMakeFiles/rf_uv_atlas_tests.dir/reconstruction/tests/uv_atlas_test.cpp.o
+[ 88%] Linking CXX executable rf_mesh_topology_tests
+[ 88%] Built target rf_mesh_topology_tests
+[ 89%] Building CXX object CMakeFiles/rf_texture_blend_tests.dir/reconstruction/tests/texture_blend_test.cpp.o
+[ 90%] Linking CXX executable rf_texture_blend_tests
+[ 90%] Built target rf_texture_blend_tests
+[ 91%] Building CXX object CMakeFiles/rf_photometric_adversarial_tests.dir/reconstruction/tests/photometric_adversarial_test.cpp.o
+[ 92%] Linking CXX executable rf_photometric_adversarial_tests
+[ 92%] Built target rf_photometric_adversarial_tests
+[ 93%] Building CXX object CMakeFiles/rf_texture_c_abi_failure_tests.dir/reconstruction/tests/agent_057_c_abi_failure.cpp.o
+[ 94%] Linking CXX executable rf_texture_c_abi_failure_tests
+[ 94%] Built target rf_texture_c_abi_failure_tests
+[ 95%] Building CXX object CMakeFiles/rf_texture_png_tests.dir/reconstruction/tests/texture_png_test.cpp.o
+[ 96%] Linking CXX executable rf_texture_png_tests
+[ 96%] Built target rf_texture_png_tests
+[ 97%] Building CXX object CMakeFiles/rf_tile_process_tests.dir/reconstruction/tests/agent_046_tile_process.cpp.o
+[ 98%] Linking CXX executable rf_uv_atlas_tests
+[ 98%] Built target rf_uv_atlas_tests
+[ 99%] Building CXX object CMakeFiles/rf_tile_process_tests.dir/reconstruction/src/depth_checkpoint.cpp.o
+[100%] Linking CXX executable rf_tile_process_tests
+[100%] Built target rf_tile_process_tests

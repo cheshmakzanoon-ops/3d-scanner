@@ -1,0 +1,14 @@
+{
+  "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+  "source_tree_sha": "aab411b7f089f4527fd1935474fc155ce3fa096c",
+  "native_library": "/workspace/agents/004/build/host/librealityforge.so",
+  "native_library_sha256": "e8b0c9a00fcc16263f5cce2f47d823b3b38297df4c4ae85cdaf2f7006df7cfab",
+  "native_build_reused_without_rebuild": true,
+  "command": "python3 -m pytest -q --junitxml=/workspace/campaign/final-pytest.xml",
+  "environment_limits": {
+    "JAVA_TOOL_OPTIONS_appended": "-XX:ActiveProcessorCount=2",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "2",
+    "OPENCV_FOR_THREADS_NUM": "2"
+  }
+}

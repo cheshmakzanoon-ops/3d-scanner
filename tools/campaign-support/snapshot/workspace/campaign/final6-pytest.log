@@ -1,0 +1,20 @@
+........................................................................ [ 33%]
+........................................................................ [ 67%]
+.........................................F..........................     [100%]
+=================================== FAILURES ===================================
+_____________ test_real_photographs_generate_indexed_open_surfaces _____________
+
+    def test_real_photographs_generate_indexed_open_surfaces():
+        result=run_real()
+        assert result['realPhotographs']
+        assert not result['groundTruthUsedForOptimization']
+        assert result['meshTriangleCount']>1000
+        assert result['meshVertexCount']>400
+>       assert result['fusedObservations']>50
+E       assert 50 > 50
+
+tests/test_surface.py:42: AssertionError
+---------- generated xml file: /workspace/campaign/final6-pytest.xml -----------
+=========================== short test summary info ============================
+FAILED tests/test_surface.py::test_real_photographs_generate_indexed_open_surfaces
+1 failed, 211 passed in 224.71s (0:03:44)

@@ -1,0 +1,43 @@
+{
+  "source_sha": "2723c9940069b8fd58e0cd045466a05de225ff01",
+  "validation_checkout_sha": "bd1fcdbe8c2f2251e759f94b2a6e60ac7c6a8b57",
+  "source_tree_sha": "5ab7a29a5f052b8d3ac761057e190411db9a1413",
+  "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-optimized-native.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+  "jvm_tests": {
+    "tests": 124,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "app-debug.apk": {
+      "sha256": "440b81e6325d5984794e8e20f656c1021898e01528ba77048e1da772365ce0aa",
+      "bytes": 120144866
+    },
+    "app-debug-androidTest.apk": {
+      "sha256": "40ca5b1fcf4b940615de208dc55b4171dff8bb469fdd211ab3c35a85b325b778",
+      "bytes": 2533147
+    }
+  },
+  "cmake_pool_init_sha256": "cdb872e0a46af58e3020d2605bc8280253fe39604b0aef1c8ffa4a97f0223138",
+  "build_configuration": {
+    "type": "DEBUG",
+    "native_flags": "-g -O2",
+    "native_NDEBUG": false,
+    "native_fast_math": false,
+    "actual_ninja_evidence": "native-optimization-verification.json",
+    "compiled_target": "realityforge",
+    "native_rebuild": "All native object/link Ninja execution logs unchanged from prior2f18 optimized build; all12 packaged .so payloads byte-identical."
+  },
+  "jvm_task_outcome": "EXECUTED",
+  "performance_classification": "Optimized native debug build for software-CPU emulation; observations are not default-O0 debug timings or physical-device maxima.",
+  "device_execution": "NOT_RUN by this build; coordinated separately on immutable APK hashes",
+  "native_payload_evidence": "native-payload-identity.json",
+  "lint_issue_counts": {
+    "Error": 0,
+    "Warning": 8
+  },
+  "qualification_scope": "INTERMEDIATE_BUILD_CHECKPOINT_ONLY",
+  "remaining_defects": "Independent review found parser-rejected malformed TIFF orientation can still look absent; conservative physical-presence fallback is in progress on owned012. Separate049 support-provenance integration pending. No runtime qualification inferred.",
+  "generated_checkout_preservation": "generated-checkout-preservation.json"
+}

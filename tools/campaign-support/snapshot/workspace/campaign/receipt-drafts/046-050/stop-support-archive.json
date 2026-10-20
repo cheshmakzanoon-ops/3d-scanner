@@ -1,0 +1,10 @@
+{
+  "save_only_support_archive": "/workspace/campaign/receipt-drafts/046-050/stop-support.tar.gz",
+  "bytes": 2775601,
+  "sha256": "0f899aae22d842978dcff721a7af52a18ad91e5d2ea119b1229e9bd71f77e4e4",
+  "files": 419,
+  "source_archive_claim": false,
+  "new_tests_or_implementation": false,
+  "inventory": "/workspace/campaign/receipt-drafts/046-050/stop-outside-git-inventory.json",
+  "notes": "Preserves authored outside-Git designs/receipts, read-only audit records, historical diagnostics and numerical/cache-parity captures. It does not replace frozen094 canonical source archives."
+}

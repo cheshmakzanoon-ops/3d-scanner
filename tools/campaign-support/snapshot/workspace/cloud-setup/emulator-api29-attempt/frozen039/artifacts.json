@@ -1,0 +1,14 @@
+{
+  "source_sha": "f3a08c34027bfee439b117c21ca679d6684602fb",
+  "device": "API29 default x86_64 software emulator-5556",
+  "apks": [
+    {
+      "path": "/workspace/agents/039/app/build/outputs/apk/debug/app-debug.apk",
+      "sha256": "9455fa2bcd06506ecde6dac91730bad13e15395331a84ebe83086487fe83628d"
+    },
+    {
+      "path": "/workspace/agents/039/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "sha256": "3a663f5eab861810a63594deedeebc5f06e8b2e62bfaae79f5ab592f9c0428fa"
+    }
+  ]
+}

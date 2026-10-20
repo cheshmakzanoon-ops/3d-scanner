@@ -1,0 +1,69 @@
+[
+  {
+    "classification": "INTERRUPTED_FOR_FINAL_OPTIMIZED_NATIVE_RUNTIME",
+    "qualification": "PRE_FIX_CHECKPOINT",
+    "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+    "target_source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "batch": "pipeline",
+    "original_timeout_seconds": 2700,
+    "utc": "2026-10-20T10:25:04.286016+00:00",
+    "seconds": 1963.29,
+    "driver_pid": 203638,
+    "verified_driver_argv": [
+      "python",
+      "-u",
+      "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/run_frozen.py",
+      "--qualification",
+      "PRE_FIX_CHECKPOINT",
+      "--source",
+      "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+      "--app",
+      "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/app-debug.apk",
+      "--app-sha256",
+      "d3b7267fb1ed970e198103f7650a8d85bd5e4f31c0f7c718c11a34924359a920",
+      "--test",
+      "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/app-debug-androidTest.apk",
+      "--test-sha256",
+      "ce7678773b5864541e75af694bccf10a637a39ca8e8260ca707fa6381419a654",
+      "--output",
+      "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z"
+    ],
+    "verified_app_pid": 4255,
+    "verified_app_uid": 10116,
+    "verified_app_cmdline": "com.realityforge.scanner",
+    "verified_serial": "emulator-5556",
+    "verified_adb_children": [
+      [
+        204784,
+        [
+          "adb",
+          "-s",
+          "emulator-5556",
+          "shell",
+          "am",
+          "instrument",
+          "-w",
+          "-r",
+          "-e",
+          "a032_source_sha",
+          "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+          "-e",
+          "a035_source_sha",
+          "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+          "-e",
+          "class",
+          "com.realityforge.scanner.agents.a002.PipelineServicesDeviceTest",
+          "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+        ]
+      ]
+    ],
+    "tests_run": null,
+    "passed_statuses": 0,
+    "failed_statuses": 0,
+    "skipped_statuses": 0,
+    "reason": "Parent authorized deliberate transition from preserved O0 checkpoint to verified final-source optimized DEBUG native APK; no assertion or timeout before stop.",
+    "force_stop_exit": 0,
+    "log": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline.log",
+    "log_sha256": "7710d23bc0ffb4cb6f0a0bfe010c8cbe72bc8d77663ea7ebd55296db27cc1cb2"
+  }
+]

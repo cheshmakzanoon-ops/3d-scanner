@@ -1,0 +1,43 @@
+{
+  "source_sha": "6c386d38141cdb979ed0223f53c16962f8cd438a",
+  "combined_code_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "native_and_cmake_exact_tree_equality": true,
+  "host_library": "/workspace/campaign/evidence/final-2f18a4f/librealityforge.so",
+  "host_library_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "logs": {
+    "/workspace/agents/004-final6-native-build.log": "1102de092e638f0db3b48c2725d22fd15ce2119afc46f69ef7cc6bd6ff5bcac2",
+    "/workspace/agents/004-final6-native-ctest.log": "1e69846aa1207dd163673440bcdf8dcbcf532537ed4855e626ec95c11ed2113c",
+    "/workspace/agents/004-final6-native-ctest.xml": "b33619a051ff7f878c24b5b16682c1e8abead87c71e0e5536204488bc7d44dab",
+    "/workspace/agents/004-final6-sanitized-build.log": "d580bf2b3511efaaf0fe6b07522c630f44c68db77b61647c6b04d2bc6662553a",
+    "/workspace/agents/004-final6-sanitized-ctest.log": "6b9937e3a09832c4ffe0bf91cdc9893b2ce40de6439a5785b2f73fd0dd6ad999",
+    "/workspace/agents/004-final6-sanitized-ctest.xml": "627524478f59e935146757865af4f16100b753b0abd8030df303d01b3e37e986"
+  },
+  "native": {
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "result": "PASS",
+    "junit_xml": "/workspace/agents/004-final6-native-ctest.xml",
+    "ctest_junit_reported_seconds": "24",
+    "seconds": 24.66
+  },
+  "sanitized": {
+    "tests": 36,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "result": "PASS",
+    "junit_xml": "/workspace/agents/004-final6-sanitized-ctest.xml",
+    "checks": [
+      "address",
+      "undefined",
+      "float-cast-overflow"
+    ],
+    "ASAN_OPTIONS": "detect_leaks=1",
+    "UBSAN_OPTIONS": "halt_on_error=1",
+    "non_pie_test_executables": true,
+    "ctest_junit_reported_seconds": "255",
+    "seconds": 255.24
+  }
+}

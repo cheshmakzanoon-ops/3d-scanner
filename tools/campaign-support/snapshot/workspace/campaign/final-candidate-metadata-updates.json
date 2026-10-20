@@ -1,0 +1,43 @@
+[
+  {
+    "agent": "033",
+    "old": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+    "sha": "bd5d4441910e2e7a9cefc56bff60d0c927805903",
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/requests/033-to-002.md",
+      "docs/agents/requests/033-to-009.md",
+      "docs/agents/requests/033-to-020.md",
+      "docs/agents/requests/033-to-032.md",
+      "docs/agents/status/033.md"
+    ]
+  },
+  {
+    "agent": "034",
+    "old": "df86f792757b43b8bd308233912f9d47288f8589",
+    "sha": "e428228c03c1b95ce79e32bae2cd0f5120026ca5",
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/requests/034-to-002.md",
+      "docs/agents/requests/034-to-035.md",
+      "docs/agents/requests/034-to-039.md",
+      "docs/agents/requests/034-to-043.md",
+      "docs/agents/status/034.md"
+    ]
+  },
+  {
+    "agent": "035",
+    "old": "4407355dc29917cffc1a4a855b83a655583d3455",
+    "sha": "f8e839910c9d1d6d84388531e18e152b69c8235e",
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/requests/035-to-002.md",
+      "docs/agents/requests/035-to-003.md",
+      "docs/agents/requests/035-to-009.md",
+      "docs/agents/requests/035-to-032.md",
+      "docs/agents/requests/035-to-036.md",
+      "docs/agents/requests/035-to-037.md",
+      "docs/agents/status/035.md"
+    ]
+  }
+]

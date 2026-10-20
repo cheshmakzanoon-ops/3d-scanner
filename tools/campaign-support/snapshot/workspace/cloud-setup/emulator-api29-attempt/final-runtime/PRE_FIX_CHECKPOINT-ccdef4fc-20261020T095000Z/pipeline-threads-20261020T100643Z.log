@@ -1,0 +1,26 @@
+Threads: 21 total,   2 running,  19 sleeping,   0 stopped,   0 zombie
+  Mem:      1.9G total,      1.6G used,      263M free,       15M buffers
+ Swap:      1.4G total,       27M used,      1.4G free,      680M cached
+200%cpu   4%user   0%nice  73%sys 121%idle   0%iow   0%irq   2%sirq   0%host
+  TID USER         PR  NI VIRT  RES  SHR S[%CPU] %MEM     TIME+ THREAD          PROCESS
+ 4285 u0_a116      20   0 4.9G 211M 151M R 14.3  10.5   3:55.88 DefaultDispatch com.realityforge.scanner
+ 4278 u0_a116      20   0 4.9G 211M 151M R 12.9  10.5   1:50.47 DefaultDispatch com.realityforge.scanner
+ 4322 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.09 DefaultDispatch com.realityforge.scanner
+ 4283 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.25 arch_disk_io_3  com.realityforge.scanner
+ 4282 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.13 arch_disk_io_2  com.realityforge.scanner
+ 4281 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.20 arch_disk_io_1  com.realityforge.scanner
+ 4279 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:01.04 arch_disk_io_0  com.realityforge.scanner
+ 4275 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.01 Instrumentation com.realityforge.scanner
+ 4274 u0_a116      12  -8 4.9G 211M 151M S  0.0  10.5   0:06.70 roidJUnitRunner com.realityforge.scanner
+ 4273 u0_a116      29   9 4.9G 211M 151M S  0.0  10.5   0:00.56 Profile Saver   com.realityforge.scanner
+ 4272 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.01 Binder:4255_3   com.realityforge.scanner
+ 4271 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.11 Binder:4255_2   com.realityforge.scanner
+ 4270 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.01 Binder:4255_1   com.realityforge.scanner
+ 4269 u0_a116      24   4 4.9G 211M 151M S  0.0  10.5   0:00.00 FinalizerWatchd com.realityforge.scanner
+ 4268 u0_a116      24   4 4.9G 211M 151M S  0.0  10.5   0:00.41 FinalizerDaemon com.realityforge.scanner
+ 4267 u0_a116      24   4 4.9G 211M 151M S  0.0  10.5   0:00.09 ReferenceQueueD com.realityforge.scanner
+ 4266 u0_a116      24   4 4.9G 211M 151M S  0.0  10.5   0:01.49 HeapTaskDaemon  com.realityforge.scanner
+ 4265 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.01 ADB-JDWP Connec com.realityforge.scanner
+ 4264 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:00.00 Signal Catcher  com.realityforge.scanner
+ 4261 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:04.94 Jit thread pool com.realityforge.scanner
+ 4255 u0_a116      20   0 4.9G 211M 151M S  0.0  10.5   0:13.51 tyforge.scanner com.realityforge.scanner

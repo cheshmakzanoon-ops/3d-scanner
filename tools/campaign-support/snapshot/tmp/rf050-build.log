@@ -1,0 +1,70 @@
+-- The CXX compiler identification is GNU 14.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (1.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /workspace/agents/050/build/host
+[1/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o
+[2/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o
+[3/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o
+[4/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o
+[5/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+[6/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o
+[7/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o
+[8/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o
+[9/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o
+[10/33] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o
+[11/33] Building CXX object CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o
+[12/33] Linking CXX shared library librealityforge.so
+[13/33] Linking CXX executable rf_native_tests
+[14/33] Building CXX object CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o
+[15/33] Linking CXX executable rf_multiview_tests
+[16/33] Building CXX object CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o
+[17/33] Linking CXX executable rf_bundle_tests
+[18/33] Building CXX object CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o
+[19/33] Linking CXX executable rf_dense_tests
+[20/33] Building CXX object CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o
+[21/33] Linking CXX executable rf_surface_tests
+[22/33] Building CXX object CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o
+[23/33] Linking CXX executable rf_texture_tests
+[24/33] Building CXX object CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o
+[25/33] Linking CXX executable rf_photometric_tests
+[26/33] Building CXX object CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o
+[27/33] Linking CXX executable rf_stereo_warp_tests
+[28/33] Building CXX object CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o
+[29/33] Linking CXX executable rf_dense_selection_tests
+[30/33] Building CXX object CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o
+[31/33] Linking CXX executable rf_cancellation_tests
+[32/33] Building CXX object CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o
+[33/33] Linking CXX executable rf_depth_checkpoint_tests
+Internal ctest changing into directory: /workspace/agents/050/build/host
+Test project /workspace/agents/050/build/host
+      Start  1: native_core
+ 1/11 Test  #1: native_core ......................   Passed    0.22 sec
+      Start  2: native_multiview
+ 2/11 Test  #2: native_multiview .................   Passed    0.08 sec
+      Start  3: native_bundle_adjustment
+ 3/11 Test  #3: native_bundle_adjustment .........   Passed    0.07 sec
+      Start  4: native_dense_mvs
+ 4/11 Test  #4: native_dense_mvs .................   Passed    4.58 sec
+      Start  5: native_surface_mesh
+ 5/11 Test  #5: native_surface_mesh ..............   Passed    5.18 sec
+      Start  6: native_texture_atlas
+ 6/11 Test  #6: native_texture_atlas .............   Passed    1.18 sec
+      Start  7: native_photometric
+ 7/11 Test  #7: native_photometric ...............   Passed    0.12 sec
+      Start  8: native_stereo_warp
+ 8/11 Test  #8: native_stereo_warp ...............   Passed    0.09 sec
+      Start  9: native_dense_selection
+ 9/11 Test  #9: native_dense_selection ...........   Passed    2.89 sec
+      Start 10: native_cancellation
+10/11 Test #10: native_cancellation ..............   Passed    0.10 sec
+      Start 11: native_depth_checkpoint
+11/11 Test #11: native_depth_checkpoint ..........   Passed    0.38 sec
+
+100% tests passed, 0 tests failed out of 11
+
+Total Test time (real) =  14.89 sec

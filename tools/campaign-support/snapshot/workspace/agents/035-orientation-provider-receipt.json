@@ -1,0 +1,9 @@
+{
+  "agent": "035",
+  "head": "347ce72e3e027be3e6350742f6e2099e13d1b826",
+  "merge_sha": "9c6526ccb2759f73a083df6065d5d2fd0d1bdd4f",
+  "branch": "agents/035-verified-feature-matching",
+  "reviewed_provider": "004f948e7b36a387e9a2bac1753153991f5248d5",
+  "owned_production_unchanged": true,
+  "remote_verified": true
+}

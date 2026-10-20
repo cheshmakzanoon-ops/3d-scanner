@@ -1,0 +1,186 @@
+{
+  "draft_only": false,
+  "publication_authorized": "Owned receipt/design preservation only; no implementation/tests",
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "native_source_sha": "6c386d38141cdb979ed0223f53c16962f8cd438a",
+  "native_library": "/workspace/campaign/evidence/final-2f18a4f/librealityforge-host.so",
+  "native_library_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "immutable_sources": true,
+  "release36": {
+    "result": "PASS",
+    "elapsed_seconds": 24.66,
+    "log": "/workspace/campaign/receipt-drafts/046-050/release36-lasttest.log",
+    "log_sha256": "e3a9a36bcb52aebfaaf2f9cc595995a49ebb98d9ff2647313d3d7466694b5e1f",
+    "independently_counted_passed_tests": 36
+  },
+  "awaiting_evidence": {
+    "sanitizers": "Root36 ASAN/UBSAN/float-cast-overflow run in progress; no result assumed",
+    "python": "/workspace/campaign/final6-pytest.log and final6-pytest.xml; session27843 in progress",
+    "android": "031 warm official-wrapper validation artifact timestamp100506Z; no result assumed",
+    "android_runtime_lifecycle": "Separate actual emulator/device evidence required; build/unit/lint/package gates do not prove process death or physical storage behavior"
+  },
+  "known_shared_failure": {
+    "criterion": "tests/test_surface.py realMiddlebury fusedObservations>50",
+    "observed": 50,
+    "complete_v6_graph_max_matching": 50,
+    "status": "FAIL",
+    "threshold_unchanged": true,
+    "code_and_test_tuning": false
+  },
+  "deliveries": [
+    {
+      "agent": "046",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "unchanged_published_head": "f249bb488ea2874d2dcb19d3015588ac8276e373",
+      "source_receipt": "/workspace/agents/046/docs/agents/status/046.md",
+      "draft": "/workspace/campaign/receipt-drafts/046-050/046.md",
+      "saved_published_head": "49a6d5888906e057b7361a0ae8785a0799f970b3"
+    },
+    {
+      "agent": "047",
+      "branch": "agents/047-depth-refinement",
+      "unchanged_published_head": "92b87ad4c8a0ade67ff2a5459447079f99cf417a",
+      "source_receipt": "/workspace/agents/047/docs/agents/status/047.md",
+      "draft": "/workspace/campaign/receipt-drafts/046-050/047.md",
+      "saved_published_head": "f98fb1a8e63746285006b78837103358e07776d1"
+    },
+    {
+      "agent": "048",
+      "branch": "agents/048-photometric-matching-costs",
+      "unchanged_published_head": "3111f70d2dcddb1253010df6c3bc0d3c7a71c426",
+      "source_receipt": "/workspace/agents/048/docs/agents/status/048.md",
+      "draft": "/workspace/campaign/receipt-drafts/046-050/048.md",
+      "saved_published_head": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d"
+    },
+    {
+      "agent": "049",
+      "branch": "agents/049-depth-confidence-occlusion",
+      "unchanged_published_head": "1929ef774f3b1f64bfcc9c11d048bcf7221dcdab",
+      "source_receipt": "/workspace/agents/049/docs/agents/status/049.md",
+      "draft": "/workspace/campaign/receipt-drafts/046-050/049.md",
+      "saved_published_head": "a7044f40b06e8c8a2448a40bc18a79574bcb44be"
+    },
+    {
+      "agent": "050",
+      "branch": "agents/050-depth-checkpoint-durability",
+      "unchanged_published_head": "e320e84509679a836fb8710fb74051fa07a5f332",
+      "source_receipt": "/workspace/agents/050/docs/agents/status/050.md",
+      "draft": "/workspace/campaign/receipt-drafts/046-050/050.md",
+      "saved_published_head": "88629b9780641ccc8c47826c34676cb25141302f"
+    }
+  ],
+  "save_only_user_stop": true,
+  "native_results": {
+    "source_sha": "6c386d38141cdb979ed0223f53c16962f8cd438a",
+    "combined_code_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "native_and_cmake_exact_tree_equality": true,
+    "host_library": "/workspace/campaign/evidence/final-2f18a4f/librealityforge.so",
+    "host_library_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+    "logs": {
+      "/workspace/agents/004-final6-native-build.log": "1102de092e638f0db3b48c2725d22fd15ce2119afc46f69ef7cc6bd6ff5bcac2",
+      "/workspace/agents/004-final6-native-ctest.log": "1e69846aa1207dd163673440bcdf8dcbcf532537ed4855e626ec95c11ed2113c",
+      "/workspace/agents/004-final6-native-ctest.xml": "b33619a051ff7f878c24b5b16682c1e8abead87c71e0e5536204488bc7d44dab",
+      "/workspace/agents/004-final6-sanitized-build.log": "d580bf2b3511efaaf0fe6b07522c630f44c68db77b61647c6b04d2bc6662553a",
+      "/workspace/agents/004-final6-sanitized-ctest.log": "6b9937e3a09832c4ffe0bf91cdc9893b2ce40de6439a5785b2f73fd0dd6ad999",
+      "/workspace/agents/004-final6-sanitized-ctest.xml": "627524478f59e935146757865af4f16100b753b0abd8030df303d01b3e37e986"
+    },
+    "native": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "PASS",
+      "junit_xml": "/workspace/agents/004-final6-native-ctest.xml",
+      "ctest_junit_reported_seconds": "24",
+      "seconds": 24.66
+    },
+    "sanitized": {
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "result": "PASS",
+      "junit_xml": "/workspace/agents/004-final6-sanitized-ctest.xml",
+      "checks": [
+        "address",
+        "undefined",
+        "float-cast-overflow"
+      ],
+      "ASAN_OPTIONS": "detect_leaks=1",
+      "UBSAN_OPTIONS": "halt_on_error=1",
+      "non_pie_test_executables": true,
+      "ctest_junit_reported_seconds": "255",
+      "seconds": 255.24
+    }
+  },
+  "python_results": {
+    "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+    "native_source_sha": "6c386d38141cdb979ed0223f53c16962f8cd438a",
+    "native_library": "/workspace/campaign/evidence/final-2f18a4f/librealityforge.so",
+    "native_library_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+    "source_and_library_held_immutable": true,
+    "command": [
+      "/workspace/.venvs/3d-scanner/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--junitxml=/workspace/campaign/final6-pytest.xml"
+    ],
+    "results": {
+      "tests": 212,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "seconds": 224.703,
+    "exit_code": 1,
+    "source_sha_after": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "native_library_sha256_after": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74"
+  },
+  "source_proof": {
+    "archive_bytes_identical": true,
+    "archive_sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08",
+    "archive_size_bytes": 1735414,
+    "canonical_verification": [
+      "PASS",
+      "PASS"
+    ],
+    "exact_manifest_verification": "PASS",
+    "files": {
+      "source1.json": {
+        "bytes": 479,
+        "sha256": "88a02c08d6d4aaa10afde2e61b50e6902171c6521be0aad7d80152ad251815ad"
+      },
+      "source1.tar.gz": {
+        "bytes": 1735414,
+        "sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08"
+      },
+      "source2.json": {
+        "bytes": 479,
+        "sha256": "88a02c08d6d4aaa10afde2e61b50e6902171c6521be0aad7d80152ad251815ad"
+      },
+      "source2.tar.gz": {
+        "bytes": 1735414,
+        "sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08"
+      }
+    },
+    "head_unchanged_before_after": true,
+    "manifest_entries": 591,
+    "manifest_sha256": "0a0362e2bebd9a056dd696ba997da1b43b1de852036b88a084384ecffd86e7e0",
+    "record_bytes_identical": true,
+    "runtime_qualification": "Not asserted by source archives; unchanged >50 fusion-count acceptance conflict and final runtime gates remain separately recorded",
+    "schema": 1,
+    "source_commit": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "source_tree": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+    "tracked_file_count": 592,
+    "tracked_tree_clean_before_after": true
+  },
+  "unfinished_provenance_design": [
+    "/workspace/campaign/receipt-drafts/046-050/049-provenance-WIP.md",
+    "/workspace/campaign/receipt-drafts/046-050/046-provenance-WIP.md"
+  ],
+  "stop_complete": true,
+  "source_implementation_changes": false,
+  "tests_after_stop": false
+}

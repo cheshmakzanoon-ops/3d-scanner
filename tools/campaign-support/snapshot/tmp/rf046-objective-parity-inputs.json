@@ -1,0 +1,20 @@
+[
+  {
+    "mode": 0,
+    "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-0",
+    "before": "/tmp/rf046-objective-parity-cix5jkv4/before-0.bin",
+    "before_counters": "mode=0 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60"
+  },
+  {
+    "mode": 1,
+    "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-1",
+    "before": "/tmp/rf046-objective-parity-cix5jkv4/before-1.bin",
+    "before_counters": "mode=1 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60"
+  },
+  {
+    "mode": 2,
+    "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-2",
+    "before": "/tmp/rf046-objective-parity-cix5jkv4/before-2.bin",
+    "before_counters": "mode=2 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60"
+  }
+]

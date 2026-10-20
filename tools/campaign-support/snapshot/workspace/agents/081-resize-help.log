@@ -1,0 +1,12 @@
+usage: benchmark_stereo_kernel.py [-h] --baseline BASELINE [--current CURRENT]
+                                  [--output OUTPUT]
+
+Compare M13 with a separately built pre-M13 library on identical real images.
+No timing threshold in CI: host speed is not a phone performance guarantee.
+Both binaries must be built Release with the same compiler and options.
+
+options:
+  -h, --help           show this help message and exit
+  --baseline BASELINE
+  --current CURRENT
+  --output OUTPUT

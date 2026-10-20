@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "properties": {
+    "ro.build.version.sdk": "29",
+    "ro.build.version.release": "10",
+    "ro.product.cpu.abi": "x86_64",
+    "ro.build.fingerprint": "Android/sdk_phone_x86_64/generic_x86_64:10/QSR1.210820.001/7663313:userdebug/test-keys",
+    "ro.kernel.qemu": "1",
+    "ro.product.model": "Android SDK built for x86_64"
+  },
+  "physical_device_claim": false
+}

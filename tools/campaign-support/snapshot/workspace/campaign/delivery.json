@@ -1,0 +1,302 @@
+[
+  {
+    "agent": "031",
+    "branch": "agents/031-lens-coordinate-geometry",
+    "remote_sha": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+    "local_sha": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+    "checkout_branch": "validation/031-035-20261020",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "IN_PROGRESS"
+  },
+  {
+    "agent": "032",
+    "branch": "agents/032-feature-extraction",
+    "remote_sha": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+    "local_sha": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+    "checkout_branch": "agents/032-feature-extraction",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "IN_PROGRESS"
+  },
+  {
+    "agent": "033",
+    "branch": "agents/033-feature-cache-integrity",
+    "remote_sha": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+    "local_sha": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+    "checkout_branch": "agents/033-feature-cache-integrity",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "IN_PROGRESS"
+  },
+  {
+    "agent": "034",
+    "branch": "agents/034-overlap-candidate-graph",
+    "remote_sha": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+    "local_sha": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+    "checkout_branch": "agents/034-overlap-candidate-graph",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "IN_PROGRESS"
+  },
+  {
+    "agent": "035",
+    "branch": "agents/035-verified-feature-matching",
+    "remote_sha": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+    "local_sha": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+    "checkout_branch": "agents/035-verified-feature-matching",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "IN_PROGRESS"
+  },
+  {
+    "agent": "036",
+    "branch": "agents/036-stable-feature-tracks",
+    "remote_sha": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+    "local_sha": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+    "checkout_branch": "agents/036-stable-feature-tracks",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "READY_FOR_INTEGRATION"
+  },
+  {
+    "agent": "037",
+    "branch": "agents/037-two-view-initializer",
+    "remote_sha": "43109f39235676cb1581ecaf92ae69a7915f939a",
+    "local_sha": "43109f39235676cb1581ecaf92ae69a7915f939a",
+    "checkout_branch": "agents/037-two-view-initializer",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "READY_FOR_INTEGRATION"
+  },
+  {
+    "agent": "038",
+    "branch": "agents/038-robust-camera-resection",
+    "remote_sha": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+    "local_sha": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+    "checkout_branch": "agents/038-robust-camera-resection",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "READY_FOR_INTEGRATION"
+  },
+  {
+    "agent": "039",
+    "branch": "agents/039-incremental-registration",
+    "remote_sha": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+    "local_sha": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+    "checkout_branch": "agents/039-incremental-registration",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "READY_FOR_INTEGRATION"
+  },
+  {
+    "agent": "040",
+    "branch": "agents/040-multiview-triangulation",
+    "remote_sha": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+    "local_sha": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+    "checkout_branch": "agents/040-multiview-triangulation",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "READY_FOR_INTEGRATION"
+  },
+  {
+    "agent": "041",
+    "branch": "agents/041-bundle-adjustment",
+    "remote_sha": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+    "local_sha": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+    "checkout_branch": "agents/041-bundle-adjustment",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "042",
+    "branch": "agents/042-intrinsic-refinement",
+    "remote_sha": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+    "local_sha": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+    "checkout_branch": "agents/042-intrinsic-refinement",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "043",
+    "branch": "agents/043-loop-closure-drift",
+    "remote_sha": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+    "local_sha": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+    "checkout_branch": "agents/043-loop-closure-drift",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "044",
+    "branch": "agents/044-dense-view-selection",
+    "remote_sha": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+    "local_sha": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+    "checkout_branch": "agents/044-dense-view-selection",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "045",
+    "branch": "agents/045-image-pyramids-rectification",
+    "remote_sha": "c1086842b8e821182aff4c234840b4fb5ef76874",
+    "local_sha": "c1086842b8e821182aff4c234840b4fb5ef76874",
+    "checkout_branch": "agents/045-image-pyramids-rectification",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "046",
+    "branch": "agents/046-tiled-cpu-depth-core",
+    "remote_sha": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+    "local_sha": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+    "checkout_branch": "agents/046-tiled-cpu-depth-core",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "047",
+    "branch": "agents/047-depth-refinement",
+    "remote_sha": "f98fb1a8e63746285006b78837103358e07776d1",
+    "local_sha": "f98fb1a8e63746285006b78837103358e07776d1",
+    "checkout_branch": "agents/047-depth-refinement",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "048",
+    "branch": "agents/048-photometric-matching-costs",
+    "remote_sha": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+    "local_sha": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+    "checkout_branch": "agents/048-photometric-matching-costs",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "049",
+    "branch": "agents/049-depth-confidence-occlusion",
+    "remote_sha": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+    "local_sha": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+    "checkout_branch": "agents/049-depth-confidence-occlusion",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "050",
+    "branch": "agents/050-depth-checkpoint-durability",
+    "remote_sha": "88629b9780641ccc8c47826c34676cb25141302f",
+    "local_sha": "88629b9780641ccc8c47826c34676cb25141302f",
+    "checkout_branch": "agents/050-depth-checkpoint-durability",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "051",
+    "branch": "agents/051-native-cancellation-progress",
+    "remote_sha": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+    "local_sha": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+    "checkout_branch": "agents/051-native-cancellation-progress",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "052",
+    "branch": "agents/052-vulkan-depth-backend",
+    "remote_sha": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+    "local_sha": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+    "checkout_branch": "agents/052-vulkan-depth-backend",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "OPTIONAL_DISABLED"
+  },
+  {
+    "agent": "053",
+    "branch": "agents/053-surface-fusion-meshing",
+    "remote_sha": "71a05791a62ea648d993625a33f342e8cabbfb63",
+    "local_sha": "71a05791a62ea648d993625a33f342e8cabbfb63",
+    "checkout_branch": "agents/053-surface-fusion-meshing",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "WORKING"
+  },
+  {
+    "agent": "054",
+    "branch": "agents/054-normals-geometric-uncertainty",
+    "remote_sha": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+    "local_sha": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+    "checkout_branch": "agents/054-normals-geometric-uncertainty",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "READY_FOR_INTEGRATION"
+  },
+  {
+    "agent": "055",
+    "branch": "agents/055-mesh-topology-diagnostics",
+    "remote_sha": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+    "local_sha": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+    "checkout_branch": "agents/055-mesh-topology-diagnostics",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "056",
+    "branch": "agents/056-conservative-mesh-cleanup",
+    "remote_sha": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+    "local_sha": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+    "checkout_branch": "agents/056-conservative-mesh-cleanup",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "057",
+    "branch": "agents/057-photographic-atlas-pipeline",
+    "remote_sha": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+    "local_sha": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+    "checkout_branch": "agents/057-photographic-atlas-pipeline",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "058",
+    "branch": "agents/058-uv-charts-packing",
+    "remote_sha": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+    "local_sha": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+    "checkout_branch": "agents/058-uv-charts-packing",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "059",
+    "branch": "agents/059-texture-seam-blending",
+    "remote_sha": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+    "local_sha": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+    "checkout_branch": "agents/059-texture-seam-blending",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  },
+  {
+    "agent": "060",
+    "branch": "agents/060-photometric-color-consistency",
+    "remote_sha": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+    "local_sha": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+    "checkout_branch": "agents/060-photometric-color-consistency",
+    "remote_matches_local": true,
+    "changes": [],
+    "state": "INTEGRATED_PENDING_VERIFICATION"
+  }
+]

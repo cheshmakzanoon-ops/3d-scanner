@@ -1,0 +1,76 @@
+Internal ctest changing into directory: /workspace/agents/004/build/sanitized
+Test project /workspace/agents/004/build/sanitized
+      Start  1: native_core
+ 1/35 Test  #1: native_core ...........................   Passed    0.31 sec
+      Start  2: native_multiview
+ 2/35 Test  #2: native_multiview ......................   Passed    0.18 sec
+      Start  3: native_bundle_adjustment
+ 3/35 Test  #3: native_bundle_adjustment ..............   Passed    0.35 sec
+      Start  4: native_dense_mvs
+ 4/35 Test  #4: native_dense_mvs ......................   Passed    7.07 sec
+      Start  5: native_surface_mesh
+ 5/35 Test  #5: native_surface_mesh ...................   Passed   12.86 sec
+      Start  6: native_texture_atlas
+ 6/35 Test  #6: native_texture_atlas ..................   Passed   20.75 sec
+      Start  7: native_photometric
+ 7/35 Test  #7: native_photometric ....................   Passed    0.10 sec
+      Start  8: native_stereo_warp
+ 8/35 Test  #8: native_stereo_warp ....................   Passed    0.16 sec
+      Start  9: native_dense_selection
+ 9/35 Test  #9: native_dense_selection ................   Passed   11.61 sec
+      Start 10: native_cancellation
+10/35 Test #10: native_cancellation ...................   Passed    0.06 sec
+      Start 11: native_depth_checkpoint
+11/35 Test #11: native_depth_checkpoint ...............   Passed    1.34 sec
+      Start 12: rf_bundle_problem_bridge_tests
+12/35 Test #12: rf_bundle_problem_bridge_tests ........   Passed    0.43 sec
+      Start 13: rf_initializer_degeneracy_tests
+13/35 Test #13: rf_initializer_degeneracy_tests .......   Passed    0.07 sec
+      Start 14: rf_pnp_robustness_tests
+14/35 Test #14: rf_pnp_robustness_tests ...............   Passed    0.79 sec
+      Start 15: rf_triangulation_conditioning_tests
+15/35 Test #15: rf_triangulation_conditioning_tests ...   Passed    0.07 sec
+      Start 16: rf_intrinsics_tests
+16/35 Test #16: rf_intrinsics_tests ...................   Passed    0.04 sec
+      Start 17: rf_loop_closure_tests
+17/35 Test #17: rf_loop_closure_tests .................   Passed    0.12 sec
+      Start 18: rf_depth_tiles_tests
+18/35 Test #18: rf_depth_tiles_tests ..................   Passed   43.54 sec
+      Start 19: rf_depth_refinement_tests
+19/35 Test #19: rf_depth_refinement_tests .............   Passed    0.05 sec
+      Start 20: rf_matching_cost_tests
+20/35 Test #20: rf_matching_cost_tests ................   Passed    0.04 sec
+      Start 21: rf_depth_consistency_tests
+21/35 Test #21: rf_depth_consistency_tests ............   Passed    0.02 sec
+      Start 22: rf_depth_cache_manifest_tests
+22/35 Test #22: rf_depth_cache_manifest_tests .........   Passed    0.03 sec
+      Start 23: rf_progress_tests
+23/35 Test #23: rf_progress_tests .....................   Passed    0.03 sec
+      Start 24: rf_surface_fusion_tests
+24/35 Test #24: rf_surface_fusion_tests ...............   Passed    0.14 sec
+      Start 25: rf_surface_evidence_tests
+25/35 Test #25: rf_surface_evidence_tests .............   Passed    0.03 sec
+      Start 26: rf_mesh_topology_tests
+26/35 Test #26: rf_mesh_topology_tests ................   Passed    0.67 sec
+      Start 27: rf_mesh_cleanup_tests
+27/35 Test #27: rf_mesh_cleanup_tests .................   Passed    0.10 sec
+      Start 28: rf_texture_visibility_tests
+28/35 Test #28: rf_texture_visibility_tests ...........   Passed    0.02 sec
+      Start 29: rf_uv_atlas_tests
+29/35 Test #29: rf_uv_atlas_tests .....................   Passed    7.20 sec
+      Start 30: rf_texture_blend_tests
+30/35 Test #30: rf_texture_blend_tests ................   Passed    0.04 sec
+      Start 31: rf_photometric_adversarial_tests
+31/35 Test #31: rf_photometric_adversarial_tests ......   Passed    0.03 sec
+      Start 32: rf_texture_c_abi_failure_tests
+32/35 Test #32: rf_texture_c_abi_failure_tests ........   Passed    0.03 sec
+      Start 33: rf_texture_png_tests
+33/35 Test #33: rf_texture_png_tests ..................   Passed    0.04 sec
+      Start 34: rf_tile_process_tests
+34/35 Test #34: rf_tile_process_tests .................   Passed    1.66 sec
+      Start 35: rf_checkpoint_process_tests
+35/35 Test #35: rf_checkpoint_process_tests ...........   Passed    0.06 sec
+
+100% tests passed, 0 tests failed out of 35
+
+Total Test time (real) = 110.05 sec

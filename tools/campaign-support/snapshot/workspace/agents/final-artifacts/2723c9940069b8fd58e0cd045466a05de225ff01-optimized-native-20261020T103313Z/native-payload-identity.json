@@ -1,0 +1,69 @@
+{
+  "baseline_source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "baseline_apk_sha256": "0f2564d6b7845a0d930c232b200f0812e3323bcc4bdce9fe849f4c3c6f29760e",
+  "source_sha": "2723c9940069b8fd58e0cd045466a05de225ff01",
+  "apk_sha256": "440b81e6325d5984794e8e20f656c1021898e01528ba77048e1da772365ce0aa",
+  "classification": "All12 native APK entry payloads, including both optimized realityforge ABIs, are byte-identical to the prior reviewed optimized build.",
+  "native_libraries": {
+    "lib/arm64-v8a/libandroidx.graphics.path.so": {
+      "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+      "bytes": 10096,
+      "payload_identical": true
+    },
+    "lib/arm64-v8a/libc++_shared.so": {
+      "sha256": "4397241b4bd20a8e579bfb41d21107857e12985f6a01ca0c2a5f83380d1270b4",
+      "bytes": 1292904,
+      "payload_identical": true
+    },
+    "lib/arm64-v8a/libimage_processing_util_jni.so": {
+      "sha256": "3e0071afcdc7e321f839e196d266014182f18d0988e4455acc9857a085b2184e",
+      "bytes": 29008,
+      "payload_identical": true
+    },
+    "lib/arm64-v8a/libopencv_java4.so": {
+      "sha256": "144bbc9ad0b0bac4ba58f7d53198aead64379e5314f68200968c703d2c1c14ab",
+      "bytes": 23465088,
+      "payload_identical": true
+    },
+    "lib/arm64-v8a/librealityforge.so": {
+      "sha256": "e8b2e51a572c9588f2aebbab55e02d19bb9b8f6a9f7960a2a191cb88eb15664c",
+      "bytes": 1713800,
+      "payload_identical": true
+    },
+    "lib/arm64-v8a/libsurface_util_jni.so": {
+      "sha256": "ee3f0d56f81cc0a301db32dc4fd51274c3216733b4c40172768e38bc5049a265",
+      "bytes": 4832,
+      "payload_identical": true
+    },
+    "lib/x86_64/libandroidx.graphics.path.so": {
+      "sha256": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+      "bytes": 10760,
+      "payload_identical": true
+    },
+    "lib/x86_64/libc++_shared.so": {
+      "sha256": "db9609240e60ca18b816a5e95a6bbc784e799261efbd5b30c8e2e03b540b3fa8",
+      "bytes": 1252080,
+      "payload_identical": true
+    },
+    "lib/x86_64/libimage_processing_util_jni.so": {
+      "sha256": "676e3e280c10dcb9b71ef5bb727552610dc73c7ec85af54c7c898f82785c33d7",
+      "bytes": 48104,
+      "payload_identical": true
+    },
+    "lib/x86_64/libopencv_java4.so": {
+      "sha256": "373e5a25a92bf6a683fecf4d9c73adaf478c04efad10171d865dcf78b242709a",
+      "bytes": 55830920,
+      "payload_identical": true
+    },
+    "lib/x86_64/librealityforge.so": {
+      "sha256": "9fc15151ed4915a82adb7df20cd22b42c2103046a441cfa34a3b278b40d8d72b",
+      "bytes": 1830392,
+      "payload_identical": true
+    },
+    "lib/x86_64/libsurface_util_jni.so": {
+      "sha256": "cd425e10a365fb3695e53f1e46227d44d89f14854da4f1258ef079c80c752339",
+      "bytes": 4928,
+      "payload_identical": true
+    }
+  }
+}

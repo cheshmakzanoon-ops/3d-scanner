@@ -1,0 +1,138 @@
+{
+  "agent": "034",
+  "role": "Scalable overlap candidate graph",
+  "branch": "agents/034-overlap-candidate-graph",
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "implementation_commits": [
+    "df86f792757b43b8bd308233912f9d47288f8589"
+  ],
+  "state": "READY_FOR_INTEGRATION",
+  "interfaces_published": [
+    "docs/agents/contracts/034.md"
+  ],
+  "integration_requests": [
+    "docs/agents/requests/034-to-002.md",
+    "docs/agents/requests/034-to-035.md",
+    "docs/agents/requests/034-to-039.md",
+    "docs/agents/requests/034-to-043.md"
+  ],
+  "acceptance_results": [
+    {
+      "criterion": "Deterministic bounded graph edges/components/identities, duplicate and empty evidence, immutable results and30/80/250 synthetic profiling",
+      "result": "PASS",
+      "command": "python /workspace/agents/kotlin_tests.py /workspace/agents/034 app/src/main/java/com/realityforge/scanner/engine/matching/OverlapGraph.kt,app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt,app/src/test/java/com/realityforge/scanner/engine/matching/OverlapGraphTest.kt com.realityforge.scanner.engine.matching.OverlapGraphTest",
+      "source_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+      "evidence": "/workspace/agents/034-jvm-final.log",
+      "details": "6 passed. Synthetic30:78edges/870comparisons/219.401ms;80:185/370/163.011ms;250:1114/4028/397.373ms. Contended-host timings are not device maxima or real recall evidence."
+    },
+    {
+      "criterion": "Equal-accuracy candidate recall/compute tradeoff versus exhaustive geometrically verified matching per authorized real collection",
+      "result": "NOT_RUN",
+      "command": "Use034 graph candidates with035 exact matcher/native verification on frozen authorized30/80/250 manifests; require>=0.90 retained verified-pair recall before larger-profile admission",
+      "source_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+      "details": "Threshold declared before measurement. <=12-photo compatibility uses exhaustive bounded summary retrieval; larger product profiles remain unqualified/disabled. Candidate scores never report measured coverage."
+    },
+    {
+      "criterion": "Frozen all-provider actual Android app/test APK build, JVM suite, lint and packaged native integrity",
+      "result": "PASS",
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "validation_checkout_sha": "f49c66a87d47aa90ff79d7f0d6bcc106d495721e",
+      "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+      "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-bounded.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+      "evidence": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-receipt.json",
+      "jvm_tests": {
+        "tests": 124,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "artifacts": {
+        "app-debug.apk": {
+          "sha256": "d46ed92e7fa5ad6375c18087df82c99fce1c70cf361b6e7a488d98465d45c8a6",
+          "bytes": 125623570
+        },
+        "app-debug-androidTest.apk": {
+          "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+          "bytes": 2533147
+        }
+      },
+      "lint_issue_counts": {
+        "Warning": 8
+      },
+      "details": "Official pinned wrapper PASS8m43s,89tasks28executed61up-to-date; strict campaign source gate ON with per-ABI compile pool2; actual12 ELF libraries/ZIP16KB alignment and noINTERNET passed. Full per-class XML, lint reports and CMake/Ninja evidence retained. Post-build tracked tree/index clean and exact reviewed tree equality verified. This is build evidence; device/runtime and independent quality gates are separate."
+    },
+    {
+      "criterion": "Actual final-source focused/integrated Android runtime",
+      "result": "NOT_RUN",
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "details": "Pending immutable036 runtime report; pre-fixccdef checkpoint execution is separate and must name its own source/APK hashes. Do not infer pass from compilation or from an active device process."
+    },
+    {
+      "criterion": "Same frozen-source optimized-native DEBUG APK for software-emulator execution",
+      "result": "PASS",
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+      "validation_checkout_sha": "f49c66a87d47aa90ff79d7f0d6bcc106d495721e",
+      "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-optimized-native.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+      "evidence": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json",
+      "artifacts": {
+        "app-debug.apk": {
+          "sha256": "0f2564d6b7845a0d930c232b200f0812e3323bcc4bdce9fe849f4c3c6f29760e",
+          "bytes": 120144866
+        },
+        "app-debug-androidTest.apk": {
+          "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+          "bytes": 2533147
+        }
+      },
+      "build_configuration": {
+        "type": "DEBUG",
+        "native_flags": "-g -O2",
+        "native_NDEBUG": false,
+        "native_fast_math": false,
+        "actual_ninja_evidence": "native-optimization-verification.json",
+        "compiled_target": "realityforge",
+        "prebuilt_dependencies": "Unchanged; APK entry payload comparison verified."
+      },
+      "lint_issue_counts": {
+        "Error": 0,
+        "Warning": 8
+      },
+      "jvm_tests": {
+        "tests": 124,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "jvm_tests_scope": "Existing124 exact-source JVM results reused UP-TO-DATE; no claim that JVM tests executed again during this native-only rebuild.",
+      "details": "Parent-authorized external build configuration only; official-wrapper PASS2m44s. All27 own C++ objects perABI have actual last-O2, -g, noNDEBUG/noFastMath and executed Ninja records. Strict campaign source gate and pool2 enabled. Privacy/noINTERNET plus12 ELF16KB/ZIP alignment pass. APK payload comparison proves only two realityforge libraries differ from O0; application code/resources/prebuilt dependencies and testAPK unchanged. This is build evidence; actual runtime outcome remains separate. Timings are optimized DEBUG software-emulator evidence when executed, not default-O0 or physical-device performance."
+    }
+  ],
+  "remaining_work": [
+    "Complete actual focused/integrated Android runtime on the approved immutable APKs; append exact036 evidence with failures and scope.",
+    "Complete role-specific equal-accuracy/recall and observed memory/resource qualification on authorized real collections and identified physical devices before raising admitted defaults."
+  ],
+  "external_blockers": [
+    "No authorized expanded real360-degree collection with independent truth or supported physical ARM64 device is supplied in this session; synthetic/emulator results cannot substitute for those measurements."
+  ],
+  "next_action": "Await exact036 focused/full-pipeline runtime outcomes on the approved source/APK pair, preserve checkpoint versus final provenance, and update state only against actual role acceptance. Real/physical profile gates remain unrun where listed.",
+  "delivery": {
+    "code_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+    "branch_compare_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/compare/main...agents/034-overlap-candidate-graph",
+    "pull_request_api": "GitHub API Forbidden in this environment; native Git push works. No token requested."
+  },
+  "owned_paths_changed": [
+    "app/src/main/java/com/realityforge/scanner/engine/matching/OverlapGraph.kt",
+    "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt",
+    "app/src/test/java/com/realityforge/scanner/engine/matching/OverlapGraphTest.kt",
+    "docs/agents/contracts/034.md",
+    "docs/agents/status/034.md",
+    "docs/agents/requests/034-to-002.md",
+    "docs/agents/requests/034-to-035.md",
+    "docs/agents/requests/034-to-039.md",
+    "docs/agents/requests/034-to-043.md"
+  ],
+  "mechanical_files_regenerated": [
+    "SOURCE_MANIFEST.sha256"
+  ]
+}

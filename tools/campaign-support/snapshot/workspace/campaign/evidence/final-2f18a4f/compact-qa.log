@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "native_errors": [],
+  "candidate_source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "engine_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "data_kind": "real_rectified_stereo_partial",
+  "input_sha256": {
+    "left": "ca829467c1d4f427da9c4862ba43829da6ac90afe1f75735e95dba9e3fd9620b",
+    "right": "ae44d83f55e66623c7985499fd2f1685a56023e442e66eca89b3457dd46b17af"
+  },
+  "settings": {
+    "depth_width": 228,
+    "photo_width": 608,
+    "near": 6.0,
+    "far": 80.0,
+    "planes": 64,
+    "stride": 3,
+    "profile": "057 compact2K CPU"
+  },
+  "held_out_status": "NOT_RUN",
+  "physical_gate": "BLOCKED_EXTERNAL",
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "settings_sha256": "315f6db062399d85c332b2b1996136a986e2754c35df7e0394eca0e1def3d999",
+  "protocol_sha256": "c60505a6b456e8e36895f62364083ab6d37ad58d8388fe67ca6180ace7660701",
+  "independent_metrics": {
+    "uv_out_of_bounds_vertices": 0,
+    "degenerate_uv_faces": 0,
+    "degenerate_geometry_faces": 0,
+    "uv_overlap_pairs": 0,
+    "uv_overlap_area_sum": 0.0,
+    "overlap_examples": [],
+    "overlap_status": "CHECKED",
+    "chart_count": 2895,
+    "distortion_anisotropy_p95": 1.0142419626923624,
+    "texel_density_p50": 50.39730889978047,
+    "density_units": "texels_per_declared_world_unit",
+    "supported_faces": 3963,
+    "candidate_faces": 4040,
+    "original_faces": 4040,
+    "supported_face_fraction_original": 0.9809405940594059,
+    "retained_geometry_fraction": 1.0,
+    "supported_area_fraction_candidate": 0.9799169044169983,
+    "potential_seam_edges": 3586,
+    "unknown_seam_edges": 59,
+    "seam_linear_rgb_abs_p95": 0.048496412319642856,
+    "support_sampling": "seven fixed interior probes per face; not proof every texel supported"
+  },
+  "geometry_retention": {
+    "matched_source_faces": 4040,
+    "original_faces": 4040,
+    "retained_original_face_fraction": 1.0,
+    "matching": "coordinate triangles rounded to six decimals, same declared frame"
+  },
+  "asset": {
+    "embedded_png_sha256": "8943f8259e505e7b5b4a3b26f4c589a6416a71777f4ab1fa72d967bfc215b645",
+    "alpha_mode": "MASK",
+    "opaque_material_with_transparent_texels": false
+  },
+  "artifact_sha256": {
+    "original.glb": "a7d34a01eadffcedce9b7b3774abeac1159747d77d071c43492e1c3fa6d508ea",
+    "original.ply": "3563e05e6b005210969b1ff54f0c8becdf276c2274ee517d8f89d6a7e8ec743c",
+    "compact.glb": "2423f540b971b838173e60d4717f90551ab90c18bf84e42c60f7e4d760e361c2",
+    "compact.png": "8943f8259e505e7b5b4a3b26f4c589a6416a71777f4ab1fa72d967bfc215b645"
+  },
+  "independent_uv_gate": "PASS_LIMITED_UV",
+  "independent_uv_failures": [],
+  "native_execution_status": "PASS"
+}

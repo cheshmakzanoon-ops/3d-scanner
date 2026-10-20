@@ -1,0 +1,77 @@
+{
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "qualification": "FINAL_CANDIDATE",
+  "device": "emulator-5556",
+  "apk_artifacts": [
+    {
+      "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/app-debug.apk",
+      "sha256": "0f2564d6b7845a0d930c232b200f0812e3323bcc4bdce9fe849f4c3c6f29760e"
+    },
+    {
+      "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/app-debug-androidTest.apk",
+      "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8"
+    }
+  ],
+  "utc": "2026-10-20T10:25:24.061866+00:00",
+  "batches": [
+    [
+      "platform",
+      900,
+      [
+        "com.realityforge.scanner.agents.a031.PixelProjectionDeviceTest",
+        "com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest",
+        "com.realityforge.scanner.engine.imaging.PyramidRectifierTest",
+        "com.realityforge.scanner.agents.a012.ImageOwnershipHandoffInstrumentedTest",
+        "com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest"
+      ]
+    ],
+    [
+      "bridge_geometry",
+      1800,
+      [
+        "com.realityforge.scanner.agents.a003.BundleProblemBridgeTest",
+        "com.realityforge.scanner.NativeSmokeTest#sparseOperationLeasesExposeVersionedProgressAndTypedCancellation",
+        "com.realityforge.scanner.NativeSmokeTest#nativeCancellationTokensAreIsolatedAndRejectStaleHandles",
+        "com.realityforge.scanner.NativeSmokeTest#refinedDepthUsesActualCoarsePhotographsWithNoFabricatedPoints",
+        "com.realityforge.scanner.NativeSmokeTest#rectifiedCpuDenseStereoReconstructsActualPixelsThroughJni",
+        "com.realityforge.scanner.DepthCheckpointDeviceTest",
+        "com.realityforge.scanner.agents.a037.InitializerNativeTest",
+        "com.realityforge.scanner.agents.a038.PnpPlanarNativeTest",
+        "com.realityforge.scanner.agents.a040.SparseSupportNativeTest",
+        "com.realityforge.scanner.IncrementalNativeRegistrationTest"
+      ]
+    ],
+    [
+      "pipeline",
+      2700,
+      [
+        "com.realityforge.scanner.agents.a002.PipelineServicesDeviceTest"
+      ]
+    ],
+    [
+      "resources",
+      1800,
+      [
+        "com.realityforge.scanner.agents.a032.FeatureMemoryDeviceTest",
+        "com.realityforge.scanner.agents.a035.MatchingEvidenceDeviceTest",
+        "com.realityforge.scanner.engine.features.FeatureExtractorTest",
+        "com.realityforge.scanner.engine.matching.FeatureMatcherTest"
+      ]
+    ]
+  ],
+  "build_receipt": {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json",
+    "sha256": "b2869326174a1b37e6cfedc682598e282a6b23dde7823662e48c61d4138d92ae",
+    "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-optimized-native.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+    "build_configuration": {
+      "type": "DEBUG",
+      "native_flags": "-g -O2",
+      "native_NDEBUG": false,
+      "native_fast_math": false,
+      "actual_ninja_evidence": "native-optimization-verification.json",
+      "compiled_target": "realityforge",
+      "prebuilt_dependencies": "Unchanged; APK entry payload comparison verified."
+    },
+    "performance_classification": "Optimized native debug build for software-CPU emulation; observations are not default-O0 debug timings or physical-device maxima."
+  }
+}

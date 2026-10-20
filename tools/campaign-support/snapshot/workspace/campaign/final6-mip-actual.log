@@ -1,0 +1,102 @@
+actual frozen bake 46x15 supported=294 unknown=12
+{
+  "qualifiedMaxLOD": 1,
+  "enabledProductionMipLevels": 0,
+  "filterDefinitions": [
+    "recursive normalized-area box",
+    "recursive2x2 drop odd last row/column"
+  ],
+  "sampling": "bilinear at each level, trilinear between adjacent qualified levels; CLAMP_TO_EDGE",
+  "layoutDimensions": {
+    "2048": [
+      [
+        0,
+        0,
+        23,
+        15
+      ],
+      [
+        23,
+        0,
+        23,
+        15
+      ]
+    ],
+    "4096": [
+      [
+        0,
+        0,
+        23,
+        15
+      ],
+      [
+        23,
+        0,
+        23,
+        15
+      ]
+    ]
+  },
+  "actualCrop": [
+    46,
+    15
+  ],
+  "nativeLibrarySha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "consumerSourceSha": "69c803f0b9f97789cf21231da71062e34b5c60e8",
+  "providerSourceSha": "69c803f0b9f97789cf21231da71062e34b5c60e8",
+  "observed": {
+    "area": {
+      "levels": {
+        "0": {
+          "maximumForeignChartWeight": 0.0,
+          "minimumFilteredAlpha": 0.0
+        },
+        "0.37": {
+          "maximumForeignChartWeight": 1.3877787807814457e-17,
+          "minimumFilteredAlpha": 0.031449982781560415
+        },
+        "1": {
+          "maximumForeignChartWeight": 1.1102230246251565e-16,
+          "minimumFilteredAlpha": 0.08499995346367706
+        },
+        "1.63": {
+          "maximumForeignChartWeight": 0.0513587582296563,
+          "minimumFilteredAlpha": 0.44959745547885244
+        },
+        "2": {
+          "maximumForeignChartWeight": 0.0815218384597719,
+          "minimumFilteredAlpha": 0.6637261471385587
+        }
+      },
+      "interiorHoleBaseAlpha": 0.0,
+      "interiorHoleMip1Alpha": 0.6083333333333334
+    },
+    "drop": {
+      "levels": {
+        "0": {
+          "maximumForeignChartWeight": 0.0,
+          "minimumFilteredAlpha": 0.0
+        },
+        "0.37": {
+          "maximumForeignChartWeight": 0.0,
+          "minimumFilteredAlpha": 0.031449986312912515
+        },
+        "1": {
+          "maximumForeignChartWeight": 2.7755575615628914e-17,
+          "minimumFilteredAlpha": 0.0849999630078716
+        },
+        "1.63": {
+          "maximumForeignChartWeight": 0.07703813776373869,
+          "minimumFilteredAlpha": 0.4585488889964682
+        },
+        "2": {
+          "maximumForeignChartWeight": 0.12228275835514069,
+          "minimumFilteredAlpha": 0.6779347661643741
+        }
+      },
+      "interiorHoleBaseAlpha": 0.0,
+      "interiorHoleMip1Alpha": 0.6666666666666667
+    }
+  },
+  "scope": "synthetic HOST cross-chart color exclusion; finite mask footprints average alpha, no physical/driver/mipmap-enabling claim"
+}

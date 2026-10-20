@@ -1,0 +1,10 @@
+PASS eight-view source lists are bounded, distinct and deterministic
+PASS a disjoint eighth camera has no supported source frusta
+PASS opposing cameras cannot be mistaken for nearby source views
+PASS small batches retain all original pair candidates
+PASS oversized and nonfinite source plans rejected
+PASS eight uniform inputs cannot invent depth and only cache four luminance planes
+PASS eight rendered buffers fuse and texture without losing source seven
+PASS exposure solve spans eight cameras without a four-camera fixed-array overflow
+PASS verified-track selection is permutation invariant and rejects disconnected scenes
+9 bounded multi-camera cases passed

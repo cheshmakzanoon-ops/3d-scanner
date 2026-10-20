@@ -1,0 +1,317 @@
+{
+  "saved_utc": "2026-10-20T10:52:11.889325+00:00",
+  "branches": [
+    {
+      "branch": "agents/002-pipeline-orchestration",
+      "ref": "refs/heads/agents/002-pipeline-orchestration",
+      "commit": "eec0ca42673e4ae2d655ce2031703478d661de99",
+      "checkout": "/workspace/agents/002",
+      "remote_head": "eec0ca42673e4ae2d655ce2031703478d661de99",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/003-jni-boundary",
+      "ref": "refs/heads/agents/003-jni-boundary",
+      "commit": "e4a762baea07fd1dfa6606e7c340f49aed1be425",
+      "checkout": "/workspace/agents/003",
+      "remote_head": "e4a762baea07fd1dfa6606e7c340f49aed1be425",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/004-build-foundation",
+      "ref": "refs/heads/agents/004-build-foundation",
+      "commit": "77eaa69b31333da243816296dc9fbdd0823b1088",
+      "checkout": "/workspace/agents/004-delivery",
+      "remote_head": "c58556f1e7ff4ce1317b29a3d10ab92ea2c6a607",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/009-artifact-provenance",
+      "ref": "refs/heads/agents/009-artifact-provenance",
+      "commit": "c77bc8046907012ebc034cc530991ad6c6c4e3fa",
+      "checkout": "/workspace/agents/009",
+      "remote_head": "c77bc8046907012ebc034cc530991ad6c6c4e3fa",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/012-image-decoding-lifetimes",
+      "ref": "refs/heads/agents/012-image-decoding-lifetimes",
+      "commit": "7843eb76b285a12ee7d149cf4112d502b603ff97",
+      "checkout": "/workspace/agents/012",
+      "remote_head": "7843eb76b285a12ee7d149cf4112d502b603ff97",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/031-lens-coordinate-geometry",
+      "ref": "refs/heads/agents/031-lens-coordinate-geometry",
+      "commit": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+      "checkout": "/workspace/agents/031-delivery",
+      "remote_head": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/032-feature-extraction",
+      "ref": "refs/heads/agents/032-feature-extraction",
+      "commit": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+      "checkout": "/workspace/agents/032",
+      "remote_head": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/033-feature-cache-integrity",
+      "ref": "refs/heads/agents/033-feature-cache-integrity",
+      "commit": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+      "checkout": "/workspace/agents/033",
+      "remote_head": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/034-overlap-candidate-graph",
+      "ref": "refs/heads/agents/034-overlap-candidate-graph",
+      "commit": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+      "checkout": "/workspace/agents/034",
+      "remote_head": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/035-verified-feature-matching",
+      "ref": "refs/heads/agents/035-verified-feature-matching",
+      "commit": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+      "checkout": "/workspace/agents/035",
+      "remote_head": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/036-stable-feature-tracks",
+      "ref": "refs/heads/agents/036-stable-feature-tracks",
+      "commit": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+      "checkout": "/workspace/agents/036",
+      "remote_head": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/037-two-view-initializer",
+      "ref": "refs/heads/agents/037-two-view-initializer",
+      "commit": "43109f39235676cb1581ecaf92ae69a7915f939a",
+      "checkout": "/workspace/agents/037",
+      "remote_head": "43109f39235676cb1581ecaf92ae69a7915f939a",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/038-robust-camera-resection",
+      "ref": "refs/heads/agents/038-robust-camera-resection",
+      "commit": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+      "checkout": "/workspace/agents/038",
+      "remote_head": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/039-incremental-registration",
+      "ref": "refs/heads/agents/039-incremental-registration",
+      "commit": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+      "checkout": "/workspace/agents/039",
+      "remote_head": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/040-multiview-triangulation",
+      "ref": "refs/heads/agents/040-multiview-triangulation",
+      "commit": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+      "checkout": "/workspace/agents/040",
+      "remote_head": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/041-bundle-adjustment",
+      "ref": "refs/heads/agents/041-bundle-adjustment",
+      "commit": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+      "checkout": "/workspace/agents/041",
+      "remote_head": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/042-intrinsic-refinement",
+      "ref": "refs/heads/agents/042-intrinsic-refinement",
+      "commit": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+      "checkout": "/workspace/agents/042",
+      "remote_head": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/043-loop-closure-drift",
+      "ref": "refs/heads/agents/043-loop-closure-drift",
+      "commit": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+      "checkout": "/workspace/agents/043",
+      "remote_head": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/044-dense-view-selection",
+      "ref": "refs/heads/agents/044-dense-view-selection",
+      "commit": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+      "checkout": "/workspace/agents/044",
+      "remote_head": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/045-image-pyramids-rectification",
+      "ref": "refs/heads/agents/045-image-pyramids-rectification",
+      "commit": "c1086842b8e821182aff4c234840b4fb5ef76874",
+      "checkout": "/workspace/agents/045",
+      "remote_head": "c1086842b8e821182aff4c234840b4fb5ef76874",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "ref": "refs/heads/agents/046-tiled-cpu-depth-core",
+      "commit": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+      "checkout": "/workspace/agents/046",
+      "remote_head": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/047-depth-refinement",
+      "ref": "refs/heads/agents/047-depth-refinement",
+      "commit": "f98fb1a8e63746285006b78837103358e07776d1",
+      "checkout": "/workspace/agents/047",
+      "remote_head": "f98fb1a8e63746285006b78837103358e07776d1",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/048-photometric-matching-costs",
+      "ref": "refs/heads/agents/048-photometric-matching-costs",
+      "commit": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+      "checkout": "/workspace/agents/048",
+      "remote_head": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/049-depth-confidence-occlusion",
+      "ref": "refs/heads/agents/049-depth-confidence-occlusion",
+      "commit": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+      "checkout": "/workspace/agents/049",
+      "remote_head": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/050-depth-checkpoint-durability",
+      "ref": "refs/heads/agents/050-depth-checkpoint-durability",
+      "commit": "88629b9780641ccc8c47826c34676cb25141302f",
+      "checkout": "/workspace/agents/050",
+      "remote_head": "88629b9780641ccc8c47826c34676cb25141302f",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/051-native-cancellation-progress",
+      "ref": "refs/heads/agents/051-native-cancellation-progress",
+      "commit": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+      "checkout": "/workspace/agents/051",
+      "remote_head": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/052-vulkan-depth-backend",
+      "ref": "refs/heads/agents/052-vulkan-depth-backend",
+      "commit": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+      "checkout": "/workspace/agents/052",
+      "remote_head": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/053-surface-fusion-meshing",
+      "ref": "refs/heads/agents/053-surface-fusion-meshing",
+      "commit": "71a05791a62ea648d993625a33f342e8cabbfb63",
+      "checkout": "/workspace/agents/053",
+      "remote_head": "71a05791a62ea648d993625a33f342e8cabbfb63",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "ref": "refs/heads/agents/054-normals-geometric-uncertainty",
+      "commit": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+      "checkout": "/workspace/agents/054",
+      "remote_head": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "ref": "refs/heads/agents/055-mesh-topology-diagnostics",
+      "commit": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+      "checkout": "/workspace/agents/055",
+      "remote_head": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/056-conservative-mesh-cleanup",
+      "ref": "refs/heads/agents/056-conservative-mesh-cleanup",
+      "commit": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+      "checkout": "/workspace/agents/056",
+      "remote_head": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "ref": "refs/heads/agents/057-photographic-atlas-pipeline",
+      "commit": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+      "checkout": "/workspace/agents/057",
+      "remote_head": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/058-uv-charts-packing",
+      "ref": "refs/heads/agents/058-uv-charts-packing",
+      "commit": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+      "checkout": "/workspace/agents/058",
+      "remote_head": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/059-texture-seam-blending",
+      "ref": "refs/heads/agents/059-texture-seam-blending",
+      "commit": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+      "checkout": "/workspace/agents/059",
+      "remote_head": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/060-photometric-color-consistency",
+      "ref": "refs/heads/agents/060-photometric-color-consistency",
+      "commit": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+      "checkout": "/workspace/agents/060",
+      "remote_head": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/081-host-numerical-sanitizers",
+      "ref": "refs/heads/agents/081-host-numerical-sanitizers",
+      "commit": "2dcbe5bbf30d09805204996b68a30e3a3b759166",
+      "checkout": "/workspace/agents/081",
+      "remote_head": "7d377264d24f251f6237d138747c60b3435bc910",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/084-full-object-geometry-quality",
+      "ref": "refs/heads/agents/084-full-object-geometry-quality",
+      "commit": "a6751721f063db8daee08b72f19cd3f5cc8f2f14",
+      "checkout": "/workspace/agents/084",
+      "remote_head": "a6751721f063db8daee08b72f19cd3f5cc8f2f14",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/085-photographic-texture-quality",
+      "ref": "refs/heads/agents/085-photographic-texture-quality",
+      "commit": "f9428313a649b673232e97ecfaba5e55bd172cf3",
+      "checkout": "/workspace/agents/085",
+      "remote_head": "0aba07179bd505bc880dc2ba76061d7abcc94ffb",
+      "remote_contains_saved_commit": true
+    },
+    {
+      "branch": "agents/094-source-provenance-reproducibility",
+      "ref": "refs/heads/agents/094-source-provenance-reproducibility",
+      "commit": "bf3c6ea2b0d8043a8ddb882d487473733de7228a",
+      "checkout": "/workspace/agents/094",
+      "remote_head": "bf3c6ea2b0d8043a8ddb882d487473733de7228a",
+      "remote_contains_saved_commit": true
+    }
+  ]
+}

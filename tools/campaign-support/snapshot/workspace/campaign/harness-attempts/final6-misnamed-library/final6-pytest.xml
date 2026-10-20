@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="6" time="69.611" timestamp="2026-10-20T10:05:34.151241+00:00" hostname="2f02eacaa5bb"><testcase classname="tests.test_agent_003_bundle_problem" name="test_actual_typed_bundle_problem" time="9.946"><failure message="subprocess.CalledProcessError: Command '['c++', '-std=c++20', '-O1', '-DNDEBUG', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I/workspace/campaign/final-candidate/reconstruction/include', '/workspace/campaign/final-candidate/reconstruction/tests/agents/003_bundle_problem_bridge_test.cpp', '/workspace/campaign/final-candidate/reconstruction/src/cancellation.cpp', '-L/workspace/campaign/evidence/final-2f18a4f', '-Wl,-rpath,/workspace/campaign/evidence/final-2f18a4f', '-lrealityforge', '-o', '/tmp/pytest-of-agent/pytest-127/test_actual_typed_bundle_probl0/typed-bundle']' returned non-zero exit status 1.">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-127/test_actual_typed_bundle_probl0')
+
+    def test_actual_typed_bundle_problem(tmp_path):
+        root = Path(__file__).resolve().parents[1]
+        native = Path(os.environ.get("RF_NATIVE_LIBRARY", root / "build/host/librealityforge.so"))
+        assert native.is_file(), "Build the actual host realityforge library first"
+        executable = tmp_path / "typed-bundle"
+&gt;       subprocess.run([
+            "c++", "-std=c++20", "-O1", "-DNDEBUG", "-Wall", "-Wextra", "-Wpedantic", "-Werror",
+            "-I" + str(root / "reconstruction/include"),
+            str(root / "reconstruction/tests/agents/003_bundle_problem_bridge_test.cpp"),
+            str(root / "reconstruction/src/cancellation.cpp"),
+            "-L" + str(native.parent), "-Wl,-rpath," + str(native.parent), "-lrealityforge", "-o", str(executable),
+        ], check=True, timeout=120)
+
+tests/test_agent_003_bundle_problem.py:12: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = 120, check = True
+popenargs = (['c++', '-std=c++20', '-O1', '-DNDEBUG', '-Wall', '-Wextra', ...],)
+kwargs = {}
+process = &lt;Popen: returncode: 1 args: ['c++', '-std=c++20', '-O1', '-DNDEBUG', '-Wall'...&gt;
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output &amp; stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+&gt;               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['c++', '-std=c++20', '-O1', '-DNDEBUG', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I/workspace/campaign/final-candidate/reconstruction/include', '/workspace/campaign/final-candidate/reconstruction/tests/agents/003_bundle_problem_bridge_test.cpp', '/workspace/campaign/final-candidate/reconstruction/src/cancellation.cpp', '-L/workspace/campaign/evidence/final-2f18a4f', '-Wl,-rpath,/workspace/campaign/evidence/final-2f18a4f', '-lrealityforge', '-o', '/tmp/pytest-of-agent/pytest-127/test_actual_typed_bundle_probl0/typed-bundle']' returned non-zero exit status 1.
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py:571: CalledProcessError</failure></testcase><testcase classname="tests.test_agent_003_jni_boundary" name="test_actual_jvm_native_boundary" time="16.218"><failure message="subprocess.CalledProcessError: Command '['g++', '-std=c++20', '-fPIC', '-shared', '-pthread', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I/workspace/campaign/final-candidate/reconstruction/include', '-I/workspace/toolchains/jdk-17.0.17+10/include', '-I/workspace/toolchains/jdk-17.0.17+10/include/linux', '/workspace/campaign/final-candidate/reconstruction/src/jni.cpp', '-L/workspace/campaign/evidence/final-2f18a4f', '-Wl,-rpath,/workspace/campaign/evidence/final-2f18a4f', '-lrealityforge', '-o', '/tmp/pytest-of-agent/pytest-127/test_actual_jvm_native_boundar0/libagent003_jni.so']' returned non-zero exit status 1.">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-127/test_actual_jvm_native_boundar0')
+
+    def test_actual_jvm_native_boundary(tmp_path):
+        root=Path(__file__).resolve().parents[1]
+        javac=shutil.which('javac')
+        if not javac: pytest.skip('JDK compiler unavailable; actual JVM JNI gate NOT_RUN')
+        jdk=Path(javac).resolve().parents[1]
+        includes=['-I'+str(root/'reconstruction/include'),'-I'+str(jdk/'include'),'-I'+str(jdk/'include/linux')]
+        native=Path(os.environ.get('RF_NATIVE_LIBRARY',root/'build/host/librealityforge.so'))
+        assert native.is_file(), 'Build actual native library before JNI validation'
+        probe=tmp_path/'guard-probe'
+        subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Wpedantic','-Werror',*includes,str(root/'reconstruction/tests/agent_003_jni_boundary_test.cpp'),'-o',str(probe)],check=True)
+        subprocess.run([str(probe)],check=True,timeout=20)
+        library=tmp_path/'libagent003_jni.so'
+&gt;       subprocess.run(['g++','-std=c++20','-fPIC','-shared','-pthread','-Wall','-Wextra','-Wpedantic','-Werror',*includes,str(root/'reconstruction/src/jni.cpp'),'-L'+str(native.parent),'-Wl,-rpath,'+str(native.parent),'-lrealityforge','-o',str(library)],check=True)
+
+tests/test_agent_003_jni_boundary.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['g++', '-std=c++20', '-fPIC', '-shared', '-pthread', '-Wall', ...],)
+kwargs = {}
+process = &lt;Popen: returncode: 1 args: ['g++', '-std=c++20', '-fPIC', '-shared', '-pthr...&gt;
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output &amp; stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+&gt;               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['g++', '-std=c++20', '-fPIC', '-shared', '-pthread', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I/workspace/campaign/final-candidate/reconstruction/include', '-I/workspace/toolchains/jdk-17.0.17+10/include', '-I/workspace/toolchains/jdk-17.0.17+10/include/linux', '/workspace/campaign/final-candidate/reconstruction/src/jni.cpp', '-L/workspace/campaign/evidence/final-2f18a4f', '-Wl,-rpath,/workspace/campaign/evidence/final-2f18a4f', '-lrealityforge', '-o', '/tmp/pytest-of-agent/pytest-127/test_actual_jvm_native_boundar0/libagent003_jni.so']' returned non-zero exit status 1.
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py:571: CalledProcessError</failure></testcase><testcase classname="tests.test_agent_037_native" name="test_agent_037_native_regression" time="7.697" /><testcase classname="tests.test_agent_038_native" name="test_agent_038_native_regression" time="11.027" /><testcase classname="tests.test_agent_040_native" name="test_agent_040_native_regression" time="10.766" /><testcase classname="tests.test_agent_046_native" name="test_robust_local_refinement_preserves_median_source_objective" time="5.877" /><testcase time="0.005" /></testsuite></testsuites>

@@ -1,0 +1,98 @@
+inline bool unitNormal(Vec3 n,Vec3& result){
+    if(!std::isfinite(n.x)||!std::isfinite(n.y)||!std::isfinite(n.z))return false;
+    const double scale=std::max({std::abs(n.x),std::abs(n.y),std::abs(n.z)});
+    if(scale==0)return false;
+    n={n.x/scale,n.y/scale,n.z/scale};
+    const double length=std::hypot(n.x,n.y,n.z);
+    result={n.x/length,n.y/length,n.z/length};return true;
+}
+inline bool compatibleNormal(Vec3 a,Vec3 b){
+    Vec3 first{},second{};
+    return unitNormal(a,first)&&unitNormal(b,second)&&
+        first.x*second.x+first.y*second.y+first.z*second.z>=.8660254037844386;
+}
+namespace metric_detail {
+inline Vec3 subtract(Vec3 a,Vec3 b){return {a.x-b.x,a.y-b.y,a.z-b.z};}
+inline double dot(Vec3 a,Vec3 b){return a.x*b.x+a.y*b.y+a.z*b.z;}
+inline double length(Vec3 p){return std::hypot(p.x,p.y,p.z);}
+inline bool finite(Vec3 p){return std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z);}
+inline Vec3 cameraPoint(const DenseView& view,Vec3 p){const auto q=multiply(view.pose.rotation,p);return {q.x+view.pose.translation.x,q.y+view.pose.translation.y,q.z+view.pose.translation.z};}
+inline std::optional<Mat3> inverseRotation(const Mat3& m){
+    for(auto x:m)if(!std::isfinite(x))return {};
+    const double d=determinant(m);if(!std::isfinite(d)||std::abs(d-1)>.025)return {};
+    const auto orth=multiply(m,transpose(m));
+    for(int i=0;i<9;++i)if(std::abs(orth[i]-(i%4==0?1.:0.))>.025)return {};
+    // A true inverse, including admitted small rotation roundoff; a transpose
+    // alone would not give an exact enclosure for every accepted matrix.
+    Mat3 inverse{m[4]*m[8]-m[5]*m[7],m[2]*m[7]-m[1]*m[8],m[1]*m[5]-m[2]*m[4],
+                 m[5]*m[6]-m[3]*m[8],m[0]*m[8]-m[2]*m[6],m[2]*m[3]-m[0]*m[5],
+                 m[3]*m[7]-m[4]*m[6],m[1]*m[6]-m[0]*m[7],m[0]*m[4]-m[1]*m[3]};
+    for(auto& x:inverse){x/=d;if(!std::isfinite(x))return {};}
+    return inverse;
+}
+inline double pixelError(const DenseView& view,const VerifiedDepthSample& anchor,Vec3 point,int stride){
+    if(stride<2||stride>8||!finite(point)||!std::isfinite(view.fx)||!std::isfinite(view.fy)||view.fx<=0||view.fy<=0||!std::isfinite(view.cx)||!std::isfinite(view.cy))return INFINITY;
+    const auto p=cameraPoint(view,point);if(!finite(p)||p.z<=0)return INFINITY;
+    const double x=view.fx*p.x/p.z+view.cx,y=view.fy*p.y/p.z+view.cy;
+    if(!std::isfinite(x)||!std::isfinite(y))return INFINITY;
+    return std::hypot(x-anchor.x,y-anchor.y)/(.60*stride);
+}
+}
+// Enclose the ORIGINAL observed pixel's square frustum intersected with the
+// supported world-normal slab. All eight finite positive intersections must
+// exist with the same sign; a horizon-crossing window is unsupported.
+inline std::optional<double> planePixelEnclosingRadius(const DenseView& view,const VerifiedDepthSample& anchor,Vec3 normal,double frontRadius,int stride){
+    using namespace metric_detail;
+    Vec3 n{};
+    if(stride<2||stride>8||!unitNormal(normal,n)||!finite(anchor.xyz)||!std::isfinite(frontRadius)||frontRadius<.0001||frontRadius>600||
+       anchor.x>=view.width||anchor.y>=view.height||!std::isfinite(view.fx)||!std::isfinite(view.fy)||view.fx<=0||view.fy<=0||!std::isfinite(view.cx)||!std::isfinite(view.cy))return {};
+    const auto inverse=inverseRotation(view.pose.rotation);if(!inverse)return {};
+    const auto p=cameraPoint(view,anchor.xyz);if(!finite(p)||p.z<=0)return {};
+    const auto cameraNormal=multiply(transpose(*inverse),n);
+    const double plane=dot(cameraNormal,p);
+    if(!std::isfinite(plane)||std::abs(plane)<=frontRadius)return {};
+    double bound=0,largestCorner=0;
+    const double pixelRadius=.60*stride;
+    for(int dx:{-1,1})for(int dy:{-1,1}){
+        const Vec3 ray{(anchor.x+dx*pixelRadius-view.cx)/view.fx,(anchor.y+dy*pixelRadius-view.cy)/view.fy,1};
+        const double denominator=dot(cameraNormal,ray);
+        if(!finite(ray)||!std::isfinite(denominator)||denominator==0||(denominator>0)!=(plane>0))return {};
+        for(int side:{-1,1}){
+            const double numerator=plane+side*frontRadius;
+            if(!std::isfinite(numerator)||numerator==0||(numerator>0)!=(plane>0))return {};
+            const double t=numerator/denominator;
+            if(!std::isfinite(t)||t<=0)return {};
+            const Vec3 corner{t*ray.x,t*ray.y,t};if(!finite(corner))return {};
+            const auto delta=multiply(*inverse,subtract(corner,p));
+            const double distance=length(delta);if(!finite(delta)||!std::isfinite(distance))return {};
+            bound=std::max(bound,distance);largestCorner=std::max(largestCorner,length(corner));
+        }
+    }
+    double inverseNorm=0;for(auto x:*inverse)inverseNorm+=x*x;
+    // Outward rounding only broadens lookup; it never relaxes the metric.
+    const double rounding=128*std::numeric_limits<double>::epsilon()*(1+length(p)+largestCorner)*std::max(1.,std::sqrt(inverseNorm));
+    if(!std::isfinite(rounding)||!std::isfinite(bound+rounding))return {};
+    return std::clamp(std::nextafter(bound+rounding,INFINITY),.0001,600.);
+}
+inline bool originalPairMetric(const DenseView& firstView,const VerifiedDepthSample& first,Vec3 firstNormal,double firstRadius,double firstBound,
+                               const DenseView& secondView,const VerifiedDepthSample& second,Vec3 secondNormal,double secondRadius,double secondBound,int stride){
+    using namespace metric_detail;
+    Vec3 a{},b{};
+    if(!unitNormal(firstNormal,a)||!unitNormal(secondNormal,b)||!compatibleNormal(a,b)||
+       !std::isfinite(firstRadius)||!std::isfinite(secondRadius)||firstRadius<.0001||secondRadius<.0001||firstRadius>600||secondRadius>600||
+       !std::isfinite(firstBound)||!std::isfinite(secondBound)||firstBound<.0001||secondBound<.0001||firstBound>600||secondBound>600)return false;
+    const auto delta=subtract(second.xyz,first.xyz);
+    if(!finite(delta)||length(delta)>std::min({firstBound,secondBound,600.}))return false;
+    const double normalGap=std::max(std::abs(dot(a,delta)),std::abs(dot(b,delta)))/std::min(firstRadius,secondRadius);
+    const double firstPixel=pixelError(firstView,first,second.xyz,stride),secondPixel=pixelError(secondView,second,first.xyz,stride);
+    if(!std::isfinite(normalGap)||!std::isfinite(firstPixel)||!std::isfinite(secondPixel)||normalGap>1||firstPixel>1||secondPixel>1)return false;
+    return normalGap*normalGap+firstPixel*firstPixel<=1&&normalGap*normalGap+secondPixel*secondPixel<=1;
+}
+inline bool originalAnchorMetric(const DenseView& view,const VerifiedDepthSample& anchor,Vec3 normal,double frontRadius,double bound,Vec3 point,int stride){
+    using namespace metric_detail;
+    Vec3 n{};if(!unitNormal(normal,n)||!std::isfinite(frontRadius)||frontRadius<.0001||frontRadius>600||!std::isfinite(bound)||bound<.0001||bound>600)return false;
+    const auto delta=subtract(point,anchor.xyz);
+    if(!finite(delta)||length(delta)>std::min(bound,600.))return false;
+    const double gap=std::abs(dot(n,delta))/frontRadius,pixel=pixelError(view,anchor,point,stride);
+    return std::isfinite(gap)&&std::isfinite(pixel)&&gap<=1&&pixel<=1&&gap*gap+pixel*pixel<=1;
+}

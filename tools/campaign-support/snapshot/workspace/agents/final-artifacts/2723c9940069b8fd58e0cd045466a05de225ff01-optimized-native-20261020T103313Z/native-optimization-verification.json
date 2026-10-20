@@ -1,0 +1,1848 @@
+{
+  "verifier_sha256": "c902d308700227e79e1061fcd3cab9806b818b62c7924ca97abc1148f42a8d6e",
+  "configuration": "Debug",
+  "source_sha": "2723c9940069b8fd58e0cd045466a05de225ff01",
+  "init_sha256": "cdb872e0a46af58e3020d2605bc8280253fe39604b0aef1c8ffa4a97f0223138",
+  "checks": "Actual CMake cache and all realityforge C++ Ninja object compile flags",
+  "scope": "Locally compiled realityforge target; prebuilt OpenCV and libc++ payloads retain their prior build configuration.",
+  "abis": {
+    "arm64-v8a": {
+      "configuration_path": "/workspace/agents/031/app/.cxx/Debug/4s3n15ze/arm64-v8a",
+      "object_count": 27,
+      "files": {
+        "CMakeCache.txt": {
+          "sha256": "f9b877effcb5015f0dc0c04f94eb8c0cc58ab6a887a74909e6769440f5c4e9c4",
+          "bytes": 16291
+        },
+        "build.ninja": {
+          "sha256": "3087bbb43b5e571716b09864ab749291065c18f407f596daf521c6b533cc69ce",
+          "bytes": 49026
+        },
+        ".ninja_log": {
+          "sha256": "b2484dab58c1b18fd9a9df2d9d298194726d0e7b68dc9509b5497b7ec86c070c",
+          "bytes": 3225
+        },
+        "compile_commands.json": {
+          "sha256": "af86d64a12e0416eaed76529140240362ec799038f4600388df4a48f49de8378",
+          "bytes": 22628
+        }
+      },
+      "objects": [
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/intrinsics.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/loop_closure.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_tiles.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_refinement.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/matching_cost.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_consistency.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_cache_manifest.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/progress.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/surface_fusion.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/surface_evidence.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/mesh_topology.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/mesh_cleanup.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture_visibility.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture_png.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/uv_atlas.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture_blend.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/jni.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        }
+      ],
+      "all_objects_compiled": true,
+      "last_optimization_O2": true,
+      "NDEBUG": false,
+      "fast_math": false
+    },
+    "x86_64": {
+      "configuration_path": "/workspace/agents/031/app/.cxx/Debug/4s3n15ze/x86_64",
+      "object_count": 27,
+      "files": {
+        "CMakeCache.txt": {
+          "sha256": "39141ec1250b8b545aca16bc48e28d6841201eb9fb2f56cc6cb9c5148e359a11",
+          "bytes": 16268
+        },
+        "build.ninja": {
+          "sha256": "edb24ff5d6a292278c10c931caf1228f37de890376a8bd5a275bac7073f8df27",
+          "bytes": 48907
+        },
+        ".ninja_log": {
+          "sha256": "b56102a7de015696cd5a70e0520d5db09985d5f6cb0339ba4d95975e92632ac9",
+          "bytes": 3219
+        },
+        "compile_commands.json": {
+          "sha256": "826cc97d25ec3b519aa52c3007c71068c1ae4c37846b30329d069e723e96e91a",
+          "bytes": 22520
+        }
+      },
+      "objects": [
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/intrinsics.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/loop_closure.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_tiles.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_refinement.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/matching_cost.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_consistency.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/depth_cache_manifest.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/progress.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/surface_fusion.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/surface_evidence.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/mesh_topology.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/mesh_cleanup.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture_visibility.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture_png.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/uv_atlas.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/texture_blend.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        },
+        {
+          "object": "CMakeFiles/realityforge.dir/reconstruction/src/jni.cpp.o",
+          "flags": [
+            "-g",
+            "-DANDROID",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-funwind-tables",
+            "-fstack-protector-strong",
+            "-no-canonical-prefixes",
+            "-D_FORTIFY_SOURCE=2",
+            "-Wformat",
+            "-Werror=format-security",
+            "-std=c++20",
+            "-fno-limit-debug-info",
+            "-g",
+            "-O2",
+            "-fPIC",
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-std=c++20"
+          ],
+          "defines": [
+            "-Drealityforge_EXPORTS"
+          ],
+          "optimization_flags_in_order": [
+            "-O2"
+          ],
+          "last_optimization": "-O2",
+          "NDEBUG": false,
+          "fast_math": false
+        }
+      ],
+      "all_objects_compiled": true,
+      "last_optimization_O2": true,
+      "NDEBUG": false,
+      "fast_math": false
+    }
+  }
+}

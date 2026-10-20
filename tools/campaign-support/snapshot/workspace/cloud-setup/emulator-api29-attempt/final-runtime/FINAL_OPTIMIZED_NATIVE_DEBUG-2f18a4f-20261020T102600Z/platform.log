@@ -1,0 +1,177 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a031.PixelProjectionDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a031.PixelProjectionDeviceTest:
+INSTRUMENTATION_STATUS: test=brownConradyProjectionAgreesWithAndroidOpenCvAtAsymmetricResolutions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a031.PixelProjectionDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=brownConradyProjectionAgreesWithAndroidOpenCvAtAsymmetricResolutions
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a031.PixelProjectionDeviceTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=androidBitmapResizeSamplesTheSamePixelCentres
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a031.PixelProjectionDeviceTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=androidBitmapResizeSamplesTheSamePixelCentres
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest:
+INSTRUMENTATION_STATUS: test=privateAndroidCacheHitsCorruptionRecomputesAndEvictionPreservesUnownedFiles
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=privateAndroidCacheHitsCorruptionRecomputesAndEvictionPreservesUnownedFiles
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.engine.imaging.PyramidRectifierTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.engine.imaging.PyramidRectifierTest:
+INSTRUMENTATION_STATUS: test=asymmetricGradientUsesExactPixelCentresAndInvalidBorderMask
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.engine.imaging.PyramidRectifierTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=asymmetricGradientUsesExactPixelCentresAndInvalidBorderMask
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageOwnershipHandoffInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a012.ImageOwnershipHandoffInstrumentedTest:
+INSTRUMENTATION_STATUS: test=successfulCallerResumeTransfersOwnershipUntilCallerCloses
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageOwnershipHandoffInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=successfulCallerResumeTransfersOwnershipUntilCallerCloses
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageOwnershipHandoffInstrumentedTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancellationAfterIoCompletesBeforeCallerResumeRecyclesActualBitmap
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageOwnershipHandoffInstrumentedTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancellationAfterIoCompletesBeforeCallerResumeRecyclesActualBitmap
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest:
+INSTRUMENTATION_STATUS: test=jpegPngAndWebpDecodeToSrgbArgbWithExplicitAlphaAnalysis
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=jpegPngAndWebpDecodeToSrgbArgbWithExplicitAlphaAnalysis
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=allEightExifOrientationsProduceGoldenPixelsAndPreserveOriginalBytes
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=allEightExifOrientationsProduceGoldenPixelsAndPreserveOriginalBytes
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=corruptUnsupportedAndEncodedLimitFailuresAreTyped
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<ABSENT> but was:<MALFORMED>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest.corruptUnsupportedAndEncodedLimitFailuresAreTyped(ImageDecodingInstrumentedTest.kt:160)
+
+INSTRUMENTATION_STATUS: stream=
+Error in corruptUnsupportedAndEncodedLimitFailuresAreTyped(com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest):
+java.lang.AssertionError: expected:<ABSENT> but was:<MALFORMED>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest.corruptUnsupportedAndEncodedLimitFailuresAreTyped(ImageDecodingInstrumentedTest.kt:160)
+
+INSTRUMENTATION_STATUS: test=corruptUnsupportedAndEncodedLimitFailuresAreTyped
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=largeDecodeAndRepeatedOwnershipStayInsideDeclaredBudget
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=10
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=largeDecodeAndRepeatedOwnershipStayInsideDeclaredBudget
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 19.498
+There was 1 failure:
+1) corruptUnsupportedAndEncodedLimitFailuresAreTyped(com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest)
+java.lang.AssertionError: expected:<ABSENT> but was:<MALFORMED>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a012.ImageDecodingInstrumentedTest.corruptUnsupportedAndEncodedLimitFailuresAreTyped(ImageDecodingInstrumentedTest.kt:160)
+
+FAILURES!!!
+Tests run: 10,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

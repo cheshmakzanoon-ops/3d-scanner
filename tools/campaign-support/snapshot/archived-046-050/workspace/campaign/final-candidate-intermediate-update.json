@@ -1,0 +1,25 @@
+{
+  "status": "INTERMEDIATE_NOT_QUALIFIED",
+  "merges": [
+    {
+      "agent": "032",
+      "source": "a6c18904d53cd8783b98eb44fa20e201dd3c392b",
+      "local_result": "7a14b772f8a25850d43c3ef18716dca704d99ecf"
+    },
+    {
+      "agent": "035",
+      "source": "98ecccc92d428e11c71decca8cd6e0324764d101",
+      "local_result": "6f145d9e35087f6959697a84fe441cbab65ba3f8"
+    },
+    {
+      "agent": "046",
+      "source": "dad97e350997fba8104b9d8d26225bb2550dcab8",
+      "local_result": "a16241105e30851323354c96eaa7d58680235d51"
+    },
+    {
+      "agent": "053",
+      "source": "01228f58fb7fd64a192c63d493f56bd1ce24181b",
+      "local_result": "d0beb3db5b0f24e06ea03fa7d5d92d4931141b98"
+    }
+  ]
+}

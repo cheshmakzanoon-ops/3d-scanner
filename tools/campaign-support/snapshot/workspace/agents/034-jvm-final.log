@@ -1,0 +1,9 @@
+JUnit version 4.13.2
+..SYNTHETIC retrieval photos=30 edges=78 comparisons=870 exhaustiveDirected=870 elapsedMs=219.40136
+SYNTHETIC retrieval photos=80 edges=185 comparisons=370 exhaustiveDirected=6320 elapsedMs=163.010911
+SYNTHETIC retrieval photos=250 edges=1114 comparisons=4028 exhaustiveDirected=62250 elapsedMs=397.372543
+....
+Time: 2.06
+
+OK (6 tests)
+

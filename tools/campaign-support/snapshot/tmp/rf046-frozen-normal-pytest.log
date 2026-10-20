@@ -1,0 +1,12 @@
+synthetic shape=1 baseline=1850 refined=1770 median=0.00427365 p90=0.0152688 observed-normal-winners=11
+synthetic shape=2 baseline=1773 refined=1677 median=0.00461816 p90=0.0162922 observed-normal-winners=4
+tiled/reference float-bit equality, halo coverage, camera-order point equality, byte admission, voxel bounds and C ABI rejection passed
+.actual dense SIGKILL skips older completed tile, recomputes interrupted tile and reproduces clean maps
+..multi-layer priors, bounded local depth/normal hypotheses, curved tangent and invalid/discontinuous sampled-grid checks passed
+.matching cost analytic, exposure, mask, saturation and ambiguity checks passed
+.continuous interpolation, thin-edge unknown, occlusion and reverse projection checks passed
+.strict cache identity, duplicate manifests, byte budget and original preservation checks passed
+.SIGKILL at temporary-create and fsync boundaries; ENOSPC; exact relaunch; independent-process budget and reader leases passed
+.scoped progress lifetime, bounds, nested and concurrent cases passed
+......................................................................................................................
+126 passed in 49.51s

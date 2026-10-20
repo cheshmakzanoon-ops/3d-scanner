@@ -1,0 +1,9 @@
+{
+  "phase": "instrumentation",
+  "source_sha": "f3a08c34027bfee439b117c21ca679d6684602fb",
+  "utc": "2026-10-20T08:52:43.410744+00:00",
+  "exit": 0,
+  "elapsed_seconds": 121.04,
+  "passed": true,
+  "output": "INSTRUMENTATION_STATUS: class=com.realityforge.scanner.IncrementalNativeRegistrationTest\nINSTRUMENTATION_STATUS: current=1\nINSTRUMENTATION_STATUS: id=AndroidJUnitRunner\nINSTRUMENTATION_STATUS: numtests=1\nINSTRUMENTATION_STATUS: stream=\ncom.realityforge.scanner.IncrementalNativeRegistrationTest:\nINSTRUMENTATION_STATUS: test=growsAcrossThreeVisibilityGroupsAndRetriesEarlierCandidates\nINSTRUMENTATION_STATUS_CODE: 1\nINSTRUMENTATION_STATUS: class=com.realityforge.scanner.IncrementalNativeRegistrationTest\nINSTRUMENTATION_STATUS: current=1\nINSTRUMENTATION_STATUS: id=AndroidJUnitRunner\nINSTRUMENTATION_STATUS: numtests=1\nINSTRUMENTATION_STATUS: stream=.\nINSTRUMENTATION_STATUS: test=growsAcrossThreeVisibilityGroupsAndRetriesEarlierCandidates\nINSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_RESULT: stream=\n\nTime: 59.485\n\nOK (1 test)\n\n\nINSTRUMENTATION_CODE: -1"
+}

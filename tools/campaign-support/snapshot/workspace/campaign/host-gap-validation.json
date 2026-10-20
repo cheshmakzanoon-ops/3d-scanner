@@ -1,0 +1,37 @@
+{
+  "test_docs_source_sha": "69c803f0b9f97789cf21231da71062e34b5c60e8",
+  "runtime_source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/contracts/058.md",
+    "docs/agents/contracts/059.md",
+    "docs/agents/status/058.md",
+    "docs/agents/status/059.md",
+    "reconstruction/tests/agent_058_mip_bake_fixture.cpp",
+    "reconstruction/tests/agent_058_mip_layout_fixture.cpp",
+    "reconstruction/tests/texture_blend_test.cpp",
+    "tests/test_agent_058_mips.py"
+  ],
+  "runtime_and_build_configuration_unchanged": true,
+  "pytest": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "pytest_seconds": 15.45,
+  "actual_baker_receipt": "/workspace/campaign/evidence/final-2f18a4f/mip-actual-final/receipt.json",
+  "actual_baker_qualified_max_lod": 1,
+  "enabled_production_mip_levels": 0,
+  "library_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "updated059_ctest": {
+    "release": "PASS1/1",
+    "sanitizers": "PASS1/1,0.49s",
+    "source_sha": "e0c48dcf8bc5bc8d5f62b5d234395ca21a9d63d8"
+  },
+  "logs": {
+    "/workspace/campaign/final6-host-gap.xml": "843fa120cea477ff5830991810a4d316eb7f7c19c64285305ba0a935e90f203f",
+    "/workspace/campaign/final6-host-gap.log": "5b38fd7eed6b55c7fc15f9f12adf9fa36e2626352a808af7b9b415d093839657",
+    "/workspace/campaign/final6-mip-actual.log": "d79387f63518f2dfb5a3fdc346f514133c82ec36b022c6831a52d3c8c78a4821"
+  }
+}

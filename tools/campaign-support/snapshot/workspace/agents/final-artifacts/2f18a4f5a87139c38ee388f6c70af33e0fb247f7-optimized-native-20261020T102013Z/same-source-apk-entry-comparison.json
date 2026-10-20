@@ -1,0 +1,30 @@
+{
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "baseline_directory": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z",
+  "optimized_directory": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z",
+  "artifacts": {
+    "app-debug.apk": {
+      "entry_count_before": 524,
+      "entry_count_after": 524,
+      "changed_entry_payloads": [
+        {
+          "entry": "lib/arm64-v8a/librealityforge.so",
+          "before_sha256": "63011b5b7c34ecf688e193d57676533f13583c194a5109173c90830a22631931",
+          "after_sha256": "e8b2e51a572c9588f2aebbab55e02d19bb9b8f6a9f7960a2a191cb88eb15664c"
+        },
+        {
+          "entry": "lib/x86_64/librealityforge.so",
+          "before_sha256": "55896872e8f17b6f5c21c9d047bb49c9bc469526806cd90666f87a1ffc711ff2",
+          "after_sha256": "9fc15151ed4915a82adb7df20cd22b42c2103046a441cfa34a3b278b40d8d72b"
+        }
+      ],
+      "unchanged_application_code_resources_and_prebuilt_dependency_payloads": true
+    },
+    "app-debug-androidTest.apk": {
+      "entry_count_before": 24,
+      "entry_count_after": 24,
+      "changed_entry_payloads": [],
+      "unchanged_application_code_resources_and_prebuilt_dependency_payloads": true
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "classification": "INTERRUPTED_HARNESS_CONFIGURATION_ERROR",
+  "reason": "Immutable library was copied under librealityforge-host.so; library-linked fixtures require the standard -lrealityforge filename. Added identical-byte hardlink librealityforge.so and restarted unchanged full suite.",
+  "source_changed": false,
+  "library_bytes_changed": false,
+  "preserved_exit_code": 2
+}

@@ -1,0 +1,14 @@
+// Runtime build configuration only; repository source and dependency declarations stay unchanged.
+// AGP invokes Ninja directly, so a CMake compile pool bounds jobs within each ABI task.
+gradle.beforeProject { project ->
+    project.pluginManager.withPlugin('com.android.application') {
+        project.extensions.getByName('androidComponents').finalizeDsl { androidDsl ->
+            androidDsl.defaultConfig.externalNativeBuild.cmake.arguments.addAll([
+                '-DRF_REQUIRE_CAMPAIGN_031_060=ON',
+                '-DCMAKE_JOB_POOLS=rf_android_compile=2',
+                '-DCMAKE_JOB_POOL_COMPILE=rf_android_compile',
+                '-DCMAKE_CXX_FLAGS_DEBUG=-g -O2'
+            ])
+        }
+    }
+}

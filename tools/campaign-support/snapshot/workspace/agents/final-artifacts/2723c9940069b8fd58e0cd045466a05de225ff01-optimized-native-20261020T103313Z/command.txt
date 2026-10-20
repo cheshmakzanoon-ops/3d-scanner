@@ -1,0 +1,1 @@
+./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-optimized-native.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\ -XX:ActiveProcessorCount=2\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug 

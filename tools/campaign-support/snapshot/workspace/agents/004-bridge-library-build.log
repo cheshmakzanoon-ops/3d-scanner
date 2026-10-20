@@ -1,0 +1,25 @@
+[  3%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o
+[  7%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o
+[ 11%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o
+[ 14%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+[ 18%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o
+[ 22%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_consistency.cpp.o
+[ 25%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/depth_refinement.cpp.o
+[ 29%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/intrinsics.cpp.o
+[ 33%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/loop_closure.cpp.o
+[ 37%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/mesh_cleanup.cpp.o
+[ 40%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/mesh_topology.cpp.o
+[ 44%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o
+[ 48%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o
+[ 51%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o
+[ 55%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/progress.cpp.o
+[ 59%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o
+[ 62%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface_evidence.cpp.o
+[ 66%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/surface_fusion.cpp.o
+[ 70%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o
+[ 74%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture_blend.cpp.o
+[ 77%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture_png.cpp.o
+[ 81%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/texture_visibility.cpp.o
+[ 85%] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/uv_atlas.cpp.o
+[ 88%] Linking CXX shared library librealityforge.so
+[100%] Built target realityforge

@@ -1,0 +1,47 @@
+{
+  "saved_utc": "2026-10-20T10:48:42.854990+00:00",
+  "snapshots": [
+    {
+      "source_ref": "refs/heads/validation/004-campaign-registration-20261020",
+      "commit": "e0c48dcf8bc5bc8d5f62b5d234395ca21a9d63d8",
+      "branch": "archive/20261020-user-stop-validation-004",
+      "purpose": "Preserve local checkpoint at user-requested stop; not qualified release or main merge",
+      "remote_verified": true
+    },
+    {
+      "source_ref": "refs/heads/validation/031-035-20261020",
+      "commit": "bd1fcdbe8c2f2251e759f94b2a6e60ac7c6a8b57",
+      "branch": "archive/20261020-user-stop-validation-031-035",
+      "purpose": "Preserve local checkpoint at user-requested stop; not qualified release or main merge",
+      "remote_verified": true
+    },
+    {
+      "source_ref": "807398fdacfbabf00e9d23c3266464f619d379b2",
+      "commit": "807398fdacfbabf00e9d23c3266464f619d379b2",
+      "branch": "archive/20261020-user-stop-validation-041-045",
+      "purpose": "Preserve local checkpoint at user-requested stop; not qualified release or main merge",
+      "remote_verified": true
+    },
+    {
+      "source_ref": "1ea301c8a6c183661b9d4c54519c23114e1d1d5d",
+      "commit": "1ea301c8a6c183661b9d4c54519c23114e1d1d5d",
+      "branch": "archive/20261020-user-stop-integration",
+      "purpose": "Preserve local checkpoint at user-requested stop; not qualified release or main merge",
+      "remote_verified": true
+    },
+    {
+      "source_ref": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "commit": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "branch": "archive/20261020-user-stop-final-native",
+      "purpose": "Preserve local checkpoint at user-requested stop; not qualified release or main merge",
+      "remote_verified": true
+    },
+    {
+      "source_ref": "2723c9940069b8fd58e0cd045466a05de225ff01",
+      "commit": "2723c9940069b8fd58e0cd045466a05de225ff01",
+      "branch": "archive/20261020-user-stop-decoder-checkpoint",
+      "purpose": "Preserve local checkpoint at user-requested stop; not qualified release or main merge",
+      "remote_verified": true
+    }
+  ]
+}

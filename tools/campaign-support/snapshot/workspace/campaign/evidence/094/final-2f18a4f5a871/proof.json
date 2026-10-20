@@ -1,0 +1,38 @@
+{
+  "archive_bytes_identical": true,
+  "archive_sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08",
+  "archive_size_bytes": 1735414,
+  "canonical_verification": [
+    "PASS",
+    "PASS"
+  ],
+  "exact_manifest_verification": "PASS",
+  "files": {
+    "source1.json": {
+      "bytes": 479,
+      "sha256": "88a02c08d6d4aaa10afde2e61b50e6902171c6521be0aad7d80152ad251815ad"
+    },
+    "source1.tar.gz": {
+      "bytes": 1735414,
+      "sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08"
+    },
+    "source2.json": {
+      "bytes": 479,
+      "sha256": "88a02c08d6d4aaa10afde2e61b50e6902171c6521be0aad7d80152ad251815ad"
+    },
+    "source2.tar.gz": {
+      "bytes": 1735414,
+      "sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08"
+    }
+  },
+  "head_unchanged_before_after": true,
+  "manifest_entries": 591,
+  "manifest_sha256": "0a0362e2bebd9a056dd696ba997da1b43b1de852036b88a084384ecffd86e7e0",
+  "record_bytes_identical": true,
+  "runtime_qualification": "Not asserted by source archives; unchanged >50 fusion-count acceptance conflict and final runtime gates remain separately recorded",
+  "schema": 1,
+  "source_commit": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "source_tree": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+  "tracked_file_count": 592,
+  "tracked_tree_clean_before_after": true
+}

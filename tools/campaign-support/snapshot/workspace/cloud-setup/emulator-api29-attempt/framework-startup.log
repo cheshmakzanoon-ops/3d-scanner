@@ -1,0 +1,11 @@
+--------- beginning of main
+--------- beginning of system
+10-20 08:45:25.526  1951  2386 W ActivityManager: Slow operation: 257ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 08:45:35.098  1951  2395 W ActivityManager: Slow operation: 1313ms so far, now at getContentProviderImpl: after updateLruProcess
+10-20 08:45:35.099  1951  2395 W ActivityManager: Slow operation: 1387ms so far, now at getContentProviderImpl: before updateOomAdj
+10-20 08:45:35.813  1951  2395 W ActivityManager: Slow operation: 2092ms so far, now at getContentProviderImpl: after updateOomAdj
+10-20 08:45:35.817  1951  2395 W ActivityManager: Slow operation: 2105ms so far, now at getContentProviderImpl: done!
+10-20 08:45:37.598  1951  1984 W ActivityManager: Timeout executing service: ServiceRecord{bd9d9d3 u0 com.android.phone/com.android.internal.telephony.CellularNetworkService}
+10-20 08:45:41.297  1951  1984 I ActivityManager: dumpStackTraces pids=null nativepids=null
+10-20 08:45:41.781  1951  1984 I ActivityManager: Dumping to /data/anr/anr_2026-10-20-08-45-41-503
+10-20 08:45:41.828  1951  1984 I ActivityManager: Collecting stacks for pid 2440

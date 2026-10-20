@@ -1,0 +1,13 @@
+[1/2] Building CXX object CMakeFiles/agent054_confidence.dir/workspace/agents/054/reconstruction/tests/surface_evidence_test.cpp.o
+[2/2] Linking CXX executable agent054_confidence
+Internal ctest changing into directory: /workspace/campaign/agent054-confidence-host/release
+Test project /workspace/campaign/agent054-confidence-host/release
+    Start 1: agent054_confidence
+1/1 Test #1: agent054_confidence ..............   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.01 sec
+.                                                                        [100%]
+-- generated xml file: /workspace/campaign/agent054-confidence-focused-v4.xml --
+1 passed in 9.22s

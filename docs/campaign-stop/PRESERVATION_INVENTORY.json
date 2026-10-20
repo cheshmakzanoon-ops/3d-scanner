@@ -1,0 +1,3384 @@
+{
+  "purpose": "User-requested save-only stop; no application development or test execution",
+  "files": [
+    {
+      "original_path": "/workspace/cloud-setup/activate.sh",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/activate.sh",
+      "bytes": 986,
+      "sha256": "21d11fa915905bc79ab79e378349a6b543bd92e3ee76ae1f6291bd6eff4b19dd"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/install.sh",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/install.sh",
+      "bytes": 3023,
+      "sha256": "b92972f23d4962f0bda634b3717b3665bd5bdf24262dec2eb2a703024f42f335"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/python-installed.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/python-installed.txt",
+      "bytes": 273,
+      "sha256": "f17599b03361301ad235f945ac3e0a69f99c9790141d3c5ed461f41fde2c515a"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/regenerate-agent-manifest.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/regenerate-agent-manifest.py",
+      "bytes": 697,
+      "sha256": "32289001bc27c81d81f6c8c4293606cc1df9cfb4c700503b8e632db3b23b38a7"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/reproduce.sh",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/reproduce.sh",
+      "bytes": 4136,
+      "sha256": "2cc957b1bc19da5385fdff9be5d459ae641f9f3905e76ee16140e4fb7c8218bf"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/README.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/README.md",
+      "bytes": 2142,
+      "sha256": "87b2513d774f937ca6fbd6b350ea13850da74029e39ec7405d32fbe97eaf9dbe"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/api35-pause-lease.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/api35-pause-lease.json",
+      "bytes": 717,
+      "sha256": "253a426977ccc9b4c2045ebbb1be381936101dcaf06a6059eea4f35bdeb3624c"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/api35-restoration.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/api35-restoration.json",
+      "bytes": 488,
+      "sha256": "623f8673a83726b2a8ad86cb53930f7ba56c3f566189de45c206f2a86b905110"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/avdmanager.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/avdmanager.log",
+      "bytes": 300,
+      "sha256": "c43c8c7627f24cca6510eec16afe44ef8921814f94bfb35f487c8df012a7a34b"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/emulator.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/emulator.log",
+      "bytes": 130051,
+      "sha256": "cbf23c4ba1b2b5f5b80932a207301464608fbc22a117998423c29015f7d96a19"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/framework-startup.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/framework-startup.log",
+      "bytes": 1173,
+      "sha256": "db789cf716a2f6772f1e086577fb073fb7211fd9a4e4ba5e3230c073bf2750aa"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/sdkmanager.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/sdkmanager.log",
+      "bytes": 214,
+      "sha256": "ad17baa36caad39d215e659ede17abd123c32e228bafb931e6d5800c7122d969"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/feature-apk-input-equality-ccdef-to-2f18.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/feature-apk-input-equality-ccdef-to-2f18.json",
+      "bytes": 1891,
+      "sha256": "f22020591476a0fa6dd036e9bf8ba38b2d76ce3f5600c69a2c51a5c67a3795a7"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/feature-source-equality-ccdef-to-2f18.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/feature-source-equality-ccdef-to-2f18.json",
+      "bytes": 8272,
+      "sha256": "f6f5111d106f80fad67bf8fdf348314c58b6f31d2340cd89854e2b43e8de0a8d"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/owned-036-040-user-stop-heads.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/owned-036-040-user-stop-heads.json",
+      "bytes": 1214,
+      "sha256": "f3d662d6f2fffcc08809484d09ac86fa4a5ed6e1cfc729864010a4a8f30df423"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/run_frozen.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/run_frozen.py",
+      "bytes": 9738,
+      "sha256": "5a96450d2fa9716d6539fb51b3cf48eaf60329e32a5ef40ac43e9d0dd6ca1cab"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/run_installed_extra.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/run_installed_extra.py",
+      "bytes": 3020,
+      "sha256": "05328ffec8cc2f6292dcb61943b6c022bd064bb636031f6bd477279fa0b86d93"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/artifacts.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/artifacts.json",
+      "bytes": 2291,
+      "sha256": "610522b78492f49411bdd35d65e408eb6fa1bf95ac5c6904a56a496be7f1e827"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/device-environment.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/device-environment.json",
+      "bytes": 381,
+      "sha256": "39a5da993fec93969c23551f6913991fcc8a2004ee18147560cd6a231abee72a"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/feature-file-metadata-20261020T102219Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/feature-file-metadata-20261020T102219Z.log",
+      "bytes": 447,
+      "sha256": "9982588a3e8ab42414efa882f49245529fa7e24d62e5eccd8ec11ce50612192d"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/install-0.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/install-0.log",
+      "bytes": 203,
+      "sha256": "e5caa2f28c4218bda0586791a0210fb0cb319702d3351232cf54ce01ca71ef0c"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/install-1.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/install-1.log",
+      "bytes": 214,
+      "sha256": "d2ee2648fa7df06a0100e8556fe332d6927b938b706a796f340abdf968d37949"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/intentional-force-stop.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/intentional-force-stop.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/intentional-interruption.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/intentional-interruption.json",
+      "bytes": 2457,
+      "sha256": "fc6b7536ae6ef450608c21415d4e080bd623b96022b6a2dac7ce81ed44ae800e"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-20261020T100215Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-20261020T100215Z.log",
+      "bytes": 661,
+      "sha256": "2989784b475a968252c7c169bb8f65e6ebc77969720c369a945e71bba3eb3256"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-20261020T100548Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-20261020T100548Z.log",
+      "bytes": 661,
+      "sha256": "2989784b475a968252c7c169bb8f65e6ebc77969720c369a945e71bba3eb3256"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-20261020T101303Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-20261020T101303Z.log",
+      "bytes": 661,
+      "sha256": "2989784b475a968252c7c169bb8f65e6ebc77969720c369a945e71bba3eb3256"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-live.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-files-live.log",
+      "bytes": 590,
+      "sha256": "9ee574982eb5f52b20891b6aef000227cfda22bc9ca6e73fff0ce8cf036a3a4f"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-threads-20261020T100643Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-threads-20261020T100643Z.log",
+      "bytes": 2587,
+      "sha256": "ab9e97ff93bc8ddae5ff4896424d52372131341eb981dd31aed0881070f74410"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-threads-20261020T102219Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline-threads-20261020T102219Z.log",
+      "bytes": 2587,
+      "sha256": "a2bd7d8459cfed2f3ecd73a49c7fbde1e298bbf2406317deae0e926e824242dc"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline.json",
+      "bytes": 2457,
+      "sha256": "fc6b7536ae6ef450608c21415d4e080bd623b96022b6a2dac7ce81ed44ae800e"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline.log",
+      "bytes": 524,
+      "sha256": "7710d23bc0ffb4cb6f0a0bfe010c8cbe72bc8d77663ea7ebd55296db27cc1cb2"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/post-sigquit-app-logcat.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/post-sigquit-app-logcat.log",
+      "bytes": 23261,
+      "sha256": "1a78daf4c164bd6a302612cab60423ebc34ffacf1f3c25d2a9bc2af1ac623f50"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/post-sigquit-logcat.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/post-sigquit-logcat.log",
+      "bytes": 329527,
+      "sha256": "94245353a59c5b68150483f0d86e05d82ccd884ff632f62cd39f319692e9c967"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/readiness-activity.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/readiness-activity.log",
+      "bytes": 24,
+      "sha256": "31ace82959c4828f90008df4ae03b5261dd868182b482f43d7bb83b3a4d87233"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/readiness-boot.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/readiness-boot.log",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/readiness-package.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/readiness-package.log",
+      "bytes": 23,
+      "sha256": "5598fd9db814b7d972569280c6e31130f002df86c6b9ea983e023754f63843d1"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/sigquit-anr-list.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/sigquit-anr-list.log",
+      "bytes": 572,
+      "sha256": "ed5f0bf41c02d7f038302a7026b55e1de899f751d31b1e7ca213f128c2d47cfe"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/sigquit-trace-read-denied.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/sigquit-trace-read-denied.log",
+      "bytes": 43,
+      "sha256": "afdf3bd633e45b8309ea092f04d09e57b0f999dbbdff6959a8f27850a3826e78"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/single-sigquit.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/single-sigquit.json",
+      "bytes": 771,
+      "sha256": "91d68a60ae4565846d1b479102c13a888891b197723f55fb383c6b1d3d800b11"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/summary.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/summary.json",
+      "bytes": 2595,
+      "sha256": "f7a824e9ba0e1e300e89eac94fe659cd5595eeb995420b4ea02e565e888f2b94"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/artifacts.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/artifacts.json",
+      "bytes": 3666,
+      "sha256": "543f68787e95f4295acbe56405beaaa876404139935a503aea8c2cf32f3b0991"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry-logcat.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry-logcat.log",
+      "bytes": 345445,
+      "sha256": "593c10714c721ddcf400f97ce1a69036929add57db102c836328eba6d9c22621"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+      "bytes": 542,
+      "sha256": "93c9895363b5f3e4444b95f2e82b455cd9944885615f8d44cd80c9e5ac7c679d"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.log",
+      "bytes": 8116,
+      "sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/device-environment.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/device-environment.json",
+      "bytes": 381,
+      "sha256": "39a5da993fec93969c23551f6913991fcc8a2004ee18147560cd6a231abee72a"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/install-0.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/install-0.log",
+      "bytes": 220,
+      "sha256": "a040f569af9120032492562bc005ab7e297f171762502aea833b1c2a12b49aee"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/install-1.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/install-1.log",
+      "bytes": 231,
+      "sha256": "79d9d71310e5d8983d24451d24b3819a9bdc351d4fa293f8d821ea296d067b21"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline-files-20261020T103719Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline-files-20261020T103719Z.log",
+      "bytes": 1431,
+      "sha256": "7552577ca60c6285f3eef6b9f27bd17ef27e0dfd123b8f0271d82f367d0e10f2"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline-project-20261020T104028Z.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline-project-20261020T104028Z.log",
+      "bytes": 572,
+      "sha256": "4b7e08fb98635165b60cee749516a2ffd67a80a54934d5e762577ea602e51c50"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline.json",
+      "bytes": 2540,
+      "sha256": "e3af01b9f9c3a02369d35e6f50a8a41013c311061c18a6370c1c16b2811c18a1"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline.log",
+      "bytes": 524,
+      "sha256": "7710d23bc0ffb4cb6f0a0bfe010c8cbe72bc8d77663ea7ebd55296db27cc1cb2"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform-logcat.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform-logcat.log",
+      "bytes": 346017,
+      "sha256": "f161f143e42cf8b8df956ebf0e73832c11e5c1bdb8c72b697a376121cb134a06"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.json",
+      "bytes": 536,
+      "sha256": "41dbf4e289e74d8762f79a2256e1fc8627538add880ba5ccfe66c1f1dcc053f1"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.log",
+      "bytes": 9318,
+      "sha256": "6535aa59a4320ccd03f4708df5417c204f69e66e227954fde50289f72e3d63d7"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/readiness-activity.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/readiness-activity.log",
+      "bytes": 24,
+      "sha256": "31ace82959c4828f90008df4ae03b5261dd868182b482f43d7bb83b3a4d87233"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/readiness-boot.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/readiness-boot.log",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/readiness-package.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/readiness-package.log",
+      "bytes": 23,
+      "sha256": "5598fd9db814b7d972569280c6e31130f002df86c6b9ea983e023754f63843d1"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/stop-verification.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/stop-verification.json",
+      "bytes": 543,
+      "sha256": "26c5f41e8577403287686c483315fa73c1f12cd5aa5acd82d954b896efeeb7bc"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/summary.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/summary.json",
+      "bytes": 4000,
+      "sha256": "fdd9e59d948faa9164a0f9c15360d419f85c4ac4db8262c9519cd8ed423b4533"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/user-force-stop.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/user-force-stop.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/user-interruption.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/user-interruption.json",
+      "bytes": 2540,
+      "sha256": "e3af01b9f9c3a02369d35e6f50a8a41013c311061c18a6370c1c16b2811c18a1"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/artifacts.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/frozen039/artifacts.json",
+      "bytes": 516,
+      "sha256": "a73a154d9fd844e370bc9a63d464f277095b199fa65d1134ad58e812994be0b2"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/install-0.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/frozen039/install-0.log",
+      "bytes": 161,
+      "sha256": "8410b1f4eb677050f055767fc4164761c143396ae3f36c65d40f5998dec2fdfc"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/install-1.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/frozen039/install-1.log",
+      "bytes": 184,
+      "sha256": "167ee500652575e6a973d977581e1e1fbd45776e3a3e336c8f1d953f1e8e8709"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/instrumentation.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/frozen039/instrumentation.log",
+      "bytes": 859,
+      "sha256": "e80064794ee9cc458dc65d1dafdea18013e941e162937a43a4a4183f12f62cd4"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/package-install-progress.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/frozen039/package-install-progress.log",
+      "bytes": 58,
+      "sha256": "6a6feb5580359b5cc047c3f88d833aa5695d2007418fa9655e2778ff5a9d712b"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/result.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/frozen039/result.json",
+      "bytes": 1094,
+      "sha256": "9f130cb2acfabe8d972d98a8c63112f8a1e1eeb13b18036650bc759e0746b1cf"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/runtime-logcat.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/frozen039/runtime-logcat.log",
+      "bytes": 729,
+      "sha256": "a916e8f2c287ed511e1d6b799fbc8abadf79cb24872d51a7c32bd0b2ad450bde"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/emu-launch-params.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/emu-launch-params.txt",
+      "bytes": 288,
+      "sha256": "a69c0bb0e4603d27af6805a7ac6665b52a14fc89c8ec331a8be6c45275056542"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/qemu-version.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/qemu-version.txt",
+      "bytes": 1,
+      "sha256": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "original_path": "/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/read-snapshot.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/read-snapshot.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/campaign/002-kotlin-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/002-kotlin-validation.json",
+      "bytes": 551,
+      "sha256": "c4215f1120d60071fd4929d96acc05c8c8dbace1aedb2fb1aa1a9bc368b36c73"
+    },
+    {
+      "original_path": "/workspace/campaign/058-independent-filter-footprint.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/058-independent-filter-footprint.json",
+      "bytes": 7323,
+      "sha256": "305451d67847144d920066f0238a284cba7da0fa630da4bc22790a91986ecfd2"
+    },
+    {
+      "original_path": "/workspace/campaign/058-independent-filter-footprint.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/058-independent-filter-footprint.md",
+      "bytes": 5278,
+      "sha256": "cd8c5759e5c9b49ad0105b12ce3a0dbd600bf2f53c460bbccf6b5585d18f9923"
+    },
+    {
+      "original_path": "/workspace/campaign/CMake-campaign-registration.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/CMake-campaign-registration.txt",
+      "bytes": 9597,
+      "sha256": "3819dd8da3c474211d98576e9a3c9ab756fb10339ae4fb986b4d2609b0270f91"
+    },
+    {
+      "original_path": "/workspace/campaign/DELIVERY.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/DELIVERY.md",
+      "bytes": 14634,
+      "sha256": "2855f573b2ffcfb96e0cfa73cf8c1641969aab48e5ae2380b0049552e79179bc"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-cmake-release-final.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-cmake-release-final.log",
+      "bytes": 765,
+      "sha256": "1702b0ac7cb8f6cc48036d3693e7dccb9b7d1eec7e64881a7583950d76d2d2ed"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-cmake-release-v4.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-cmake-release-v4.log",
+      "bytes": 701,
+      "sha256": "281628319a67910d717e97fe84fbce91c573f80441fc14afde77d54f86374595"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-cmake-release.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-cmake-release.log",
+      "bytes": 1156,
+      "sha256": "7c2fd7eea9eba842d65d12b1483d8f69608b5e59974ba61ba30e7cb66194b9d1"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-ctest-release-final.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-ctest-release-final.xml",
+      "bytes": 510,
+      "sha256": "55ce78db30d07d9c902751bc44222671928d9efa28fae4bfaaee79590397a75d"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-ctest-release-v4.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-ctest-release-v4.xml",
+      "bytes": 466,
+      "sha256": "d457968329b89258392aafe783ce66711b17977c29cc069c9630aa4956fe5342"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-ctest-release.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-ctest-release.xml",
+      "bytes": 466,
+      "sha256": "9736de15ce14be5d69f3c7bbca6016c5a6c8bfbce7a8c7fe1417efc85605590e"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-focused-v2.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-focused-v2.xml",
+      "bytes": 5376,
+      "sha256": "7e8925d693567ab4a8f25d4d04f7d92da6135f6d13d658f30fe6aea2a71447d0"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-focused-v3.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-focused-v3.xml",
+      "bytes": 361,
+      "sha256": "1c58b85623ebf4ce64e077af56e637dfc98a12495b2361e4dad58c7820d457aa"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-focused-v4.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-focused-v4.xml",
+      "bytes": 361,
+      "sha256": "ad25303f9e0450d6d832e25fc853c459b2a5bc686f6c52f929539e01cc1521e2"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-focused.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-focused.xml",
+      "bytes": 5374,
+      "sha256": "1cead0884e67a8af88551bd326ff9f594dd33cbf8daac5c96ea1ce39a50d8a20"
+    },
+    {
+      "original_path": "/workspace/campaign/agents041-045-final-receipt-draft.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agents041-045-final-receipt-draft.json",
+      "bytes": 25468,
+      "sha256": "0102e581432f8dec54aec1437e3cc5acc20089d034a5f617534692eeb2876ffc"
+    },
+    {
+      "original_path": "/workspace/campaign/agents041-045-save-only-push-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agents041-045-save-only-push-receipt.json",
+      "bytes": 2307,
+      "sha256": "b4a801782b92c99216b183a3cd1e367697d5fa5bb004cd1522610db78f937e93"
+    },
+    {
+      "original_path": "/workspace/campaign/all-authored-delivery-branches.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/all-authored-delivery-branches.json",
+      "bytes": 13342,
+      "sha256": "465a241ddeb57891d489b85d7d0bec03e5b6cc3244adbe7f0ac53a2202bfc08a"
+    },
+    {
+      "original_path": "/workspace/campaign/audit-deliveries.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/audit-deliveries.py",
+      "bytes": 1947,
+      "sha256": "2015464ff26280351135c089834d179d3a2b760f1ace9b1ee405dde484ee518a"
+    },
+    {
+      "original_path": "/workspace/campaign/build-area-source-candidates.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/build-area-source-candidates.json",
+      "bytes": 6534,
+      "sha256": "91c8d9becf7c3a0261be5aa24e0f706261614e6dca49d94ce234b457140e057b"
+    },
+    {
+      "original_path": "/workspace/campaign/current-delivery-audit.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/current-delivery-audit.log",
+      "bytes": 1534,
+      "sha256": "ab164b386fd201db4d623f585c366289078f48e812ed598b62890849ca47f29d"
+    },
+    {
+      "original_path": "/workspace/campaign/decoder-fix-candidate-audit.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/decoder-fix-candidate-audit.json",
+      "bytes": 5208,
+      "sha256": "8587ca11e73cd4b2ecb2568a58ad213da2ab08d856a90177c1296c987290d505"
+    },
+    {
+      "original_path": "/workspace/campaign/decoder-fix-source-contracts.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/decoder-fix-source-contracts.log",
+      "bytes": 180,
+      "sha256": "8822243dd1d82ed10e46ab49b184e251edac7e215223f71b30740595c7790380"
+    },
+    {
+      "original_path": "/workspace/campaign/decoder-fix-source-contracts.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/decoder-fix-source-contracts.xml",
+      "bytes": 6546,
+      "sha256": "f4e24203b249927d513f314fe60ee81d59bc4cbb88eea0fc65c22aba929388e8"
+    },
+    {
+      "original_path": "/workspace/campaign/delivery.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/delivery.json",
+      "bytes": 10545,
+      "sha256": "3d5dd4b4dfc90071e5e204068eb964c6a282e04a22105593b7b4c1df32a2b422"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-audit.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-audit.json",
+      "bytes": 5528,
+      "sha256": "9c255a623d7e37a5e710b0890140f480abfcaa7e896c4759a99c8209c66713a6"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-inputs-next.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-inputs-next.json",
+      "bytes": 7054,
+      "sha256": "c6afd3e1cc22d4302de1d3df8a7b3c07fe0a56c60b0c923b64880d3177f4b13e"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-inputs.json",
+      "bytes": 4424,
+      "sha256": "269f766f475c74e75865f23d5bac3769aee1bb0149887e2bff005fe07716b00f"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-intermediate-update.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-intermediate-update.json",
+      "bytes": 703,
+      "sha256": "eb05d9542eeaa0ef9504e59d0c861abf75b7761db6bd0dfe63ecc46a1613330b"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-merge.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-merge.log",
+      "bytes": 7260,
+      "sha256": "91336d6d5632faf6a099f0b39a4ee7cf0a5c6cdd59ad998a7e0b90e2c39607b1"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-metadata-updates.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-metadata-updates.json",
+      "bytes": 1297,
+      "sha256": "e3bf1e6c51b29e8f3354144ab965f89f620c70b9b791fe5180e7901950b97df2"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-narrow-receivers.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-narrow-receivers.json",
+      "bytes": 776,
+      "sha256": "013851213baccde103d47fb150be77736c594c338aefb6f7a03fb552560d9386"
+    },
+    {
+      "original_path": "/workspace/campaign/final-candidate-v6-audit.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-candidate-v6-audit.json",
+      "bytes": 6961,
+      "sha256": "6bcad25f985936b15e263a6a7ba4d74cebda512d25c1f8480d9efe242947f8fe"
+    },
+    {
+      "original_path": "/workspace/campaign/final-pytest-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-pytest-inputs.json",
+      "bytes": 620,
+      "sha256": "3415762cca929d96f3c847cca6e931df5109418d0dfb9ebf038e418f65b559eb"
+    },
+    {
+      "original_path": "/workspace/campaign/final-pytest-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-pytest-receipt.json",
+      "bytes": 2918,
+      "sha256": "d488813a75d7a3f4fd1f2e108994744b2cef589f38ad14da0cea2ac410536356"
+    },
+    {
+      "original_path": "/workspace/campaign/final-pytest.exit",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-pytest.exit",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "original_path": "/workspace/campaign/final-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-pytest.log",
+      "bytes": 1085,
+      "sha256": "1f6691817d86e5e1a83306074c620f517201f535564690b68cd5e6b590631fd2"
+    },
+    {
+      "original_path": "/workspace/campaign/final-pytest.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final-pytest.xml",
+      "bytes": 23265,
+      "sha256": "3b3bafdb6317eb3e1ddf2f41b8094506ff183bc80b11012f3e83cd611661bb16"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-host-gap.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-host-gap.log",
+      "bytes": 180,
+      "sha256": "5b38fd7eed6b55c7fc15f9f12adf9fa36e2626352a808af7b9b415d093839657"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-host-gap.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-host-gap.xml",
+      "bytes": 725,
+      "sha256": "843fa120cea477ff5830991810a4d316eb7f7c19c64285305ba0a935e90f203f"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-mip-actual.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-mip-actual.log",
+      "bytes": 2666,
+      "sha256": "d79387f63518f2dfb5a3fdc346f514133c82ec36b022c6831a52d3c8c78a4821"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-pytest-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-pytest-inputs.json",
+      "bytes": 576,
+      "sha256": "78530e991c6616649a9e9a0f80cf032619d3b1481da6a104d46ab6ef075bd676"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-pytest-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-pytest-receipt.json",
+      "bytes": 874,
+      "sha256": "c332e835f9dd25fcc7ee14535a8c8a84cb00c91feaf9f5087592ecf2ccc6406e"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-pytest.exit",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-pytest.exit",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-pytest.log",
+      "bytes": 1085,
+      "sha256": "c2e63e8da5196f8c97707d942dc9b2c6b7a102af8d2800671bc0f5044a9a23aa"
+    },
+    {
+      "original_path": "/workspace/campaign/final6-pytest.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/final6-pytest.xml",
+      "bytes": 28880,
+      "sha256": "4f56007236b22ac685943652b7b72a88f8808c1a360141e5ab56b21dd584a5a8"
+    },
+    {
+      "original_path": "/workspace/campaign/finalize-sparse-adapter.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/finalize-sparse-adapter.py",
+      "bytes": 2966,
+      "sha256": "91e72bf60c5413b88a6a473f7a9c0456bb713e0c32d444aee7ea604bc03a3f07"
+    },
+    {
+      "original_path": "/workspace/campaign/freeze-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/freeze-inputs.json",
+      "bytes": 3178,
+      "sha256": "5bd8ccacdac1c3f12fd59a0f8c1df41d16fb256a042408fee2582890beba49dd"
+    },
+    {
+      "original_path": "/workspace/campaign/gradle-8.13-bin.sha256",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/gradle-8.13-bin.sha256",
+      "bytes": 64,
+      "sha256": "55412ec721e07b8a122b725685b8159f6a24cd2a3445ce04ae031c8031261d09"
+    },
+    {
+      "original_path": "/workspace/campaign/host-gap-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/host-gap-validation.json",
+      "bytes": 1490,
+      "sha256": "219bdccbd3f4288e183e7414ef5f8d2103eadf829479da06512cdd5865832dcb"
+    },
+    {
+      "original_path": "/workspace/campaign/independent-manifest-audit-before-20261020T1045.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/independent-manifest-audit-before-20261020T1045.json",
+      "bytes": 34483,
+      "sha256": "a357720a9d79ac8951daee776e8a1fa47171fbe96167ac43c5c51c12f8b181b0"
+    },
+    {
+      "original_path": "/workspace/campaign/independent-manifest-audit-before-user-stop.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/independent-manifest-audit-before-user-stop.json",
+      "bytes": 34484,
+      "sha256": "68fbd66ae2eb0d35d621219ac741503246c8af9dcf9d3d7e97a4dc3966337185"
+    },
+    {
+      "original_path": "/workspace/campaign/independent-manifest-audit.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/independent-manifest-audit.json",
+      "bytes": 34484,
+      "sha256": "cfc228dc4b3647654c71d1ad423cd9ee7b948aaa57d814e9d6ab61d617c1a0be"
+    },
+    {
+      "original_path": "/workspace/campaign/local-snapshot-push-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/local-snapshot-push-receipt.json",
+      "bytes": 2100,
+      "sha256": "150e8519e81a3a6f125bfdddef55e313cc7e177f25b6e8389a9adbfa2e71145f"
+    },
+    {
+      "original_path": "/workspace/campaign/merge-reviewed.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/merge-reviewed.py",
+      "bytes": 1561,
+      "sha256": "3d2ca837315fd24ed812e08b43d42e23e4a90fc637db8b561f54880e1ac24ee5"
+    },
+    {
+      "original_path": "/workspace/campaign/native-final-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/native-final-validation.json",
+      "bytes": 749,
+      "sha256": "9f1725f884b583ee976f96e63045958515ebb529498a64239b2bb3a0e2d9b32e"
+    },
+    {
+      "original_path": "/workspace/campaign/native-final6-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/native-final6-validation.json",
+      "bytes": 1798,
+      "sha256": "75ad31f50df4396bf4315fe9ddca1952f247ce7fa881363600538a668090c0bf"
+    },
+    {
+      "original_path": "/workspace/campaign/normal-confidence-proof.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/normal-confidence-proof.json",
+      "bytes": 10922,
+      "sha256": "fba4c65366ce7dc0e6b08a00efe504ea054cbedcabdc0e408f37ccbc5fb3aefd"
+    },
+    {
+      "original_path": "/workspace/campaign/normal-confidence-proof.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/normal-confidence-proof.py",
+      "bytes": 8875,
+      "sha256": "d94bff893ca1bd477319715ac7d5cae11018fbd6999992f98815ab4fefa03ea6"
+    },
+    {
+      "original_path": "/workspace/campaign/outside-authored-candidate-inventory.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/outside-authored-candidate-inventory.json",
+      "bytes": 22357,
+      "sha256": "72d512e25db23fd446e5501c7f3fc626b32a55a1059ae69971fe2ff65ef2ef19"
+    },
+    {
+      "original_path": "/workspace/campaign/preserve-campaign-support.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/preserve-campaign-support.py",
+      "bytes": 5229,
+      "sha256": "b251dfc5dbee86a856211a0591fbdd43cd603f00d3cc3d6af34f4a9489632b64"
+    },
+    {
+      "original_path": "/workspace/campaign/register-native-targets.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/register-native-targets.py",
+      "bytes": 5702,
+      "sha256": "bb17bca5eba8632949871ddd940c37ef6f31db3e39d4a5bdfee9783f35bbfdba"
+    },
+    {
+      "original_path": "/workspace/campaign/run-final6-host.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/run-final6-host.py",
+      "bytes": 2111,
+      "sha256": "4e9cd66afcdabfe70dee517753b17134a6c675877683082e48e3ae7d242af2ac"
+    },
+    {
+      "original_path": "/workspace/campaign/user-stop-worktree-inventory.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/user-stop-worktree-inventory.json",
+      "bytes": 5752,
+      "sha256": "f48ce0fa2b3d6cf2563c66766210d9afd344a6d416f75ef3d8459a8d56c1eb17"
+    },
+    {
+      "original_path": "/workspace/campaign/validation-index-before-final6.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/validation-index-before-final6.json",
+      "bytes": 3198,
+      "sha256": "2bc283f93152a43d972cc5612b6b9aa5f99170c536e360d94dbdd78912c129eb"
+    },
+    {
+      "original_path": "/workspace/campaign/validation-index.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/validation-index.json",
+      "bytes": 7154,
+      "sha256": "39e99dd1ef593cb386bf9d0e924c0c41fdc2a4b28599ae85326e2985339b2886"
+    },
+    {
+      "original_path": "/workspace/campaign/wire-advanced-sparse.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/wire-advanced-sparse.py",
+      "bytes": 7948,
+      "sha256": "6445fb0854c78b69dfa3095a6b4e81845faa7d17c75831afa672f9f88bd7f970"
+    },
+    {
+      "original_path": "/workspace/campaign/wire-features-for-validation.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/wire-features-for-validation.py",
+      "bytes": 7724,
+      "sha256": "7b3aae1ab3790a6647eab0353194154a72f34c154c5e697c28f24ce9d1ce7cbf"
+    },
+    {
+      "original_path": "/workspace/campaign/wire-sparse-final.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/wire-sparse-final.py",
+      "bytes": 9513,
+      "sha256": "58690fb2d74532c3e7c66846086d39293b4603b93779b955d901c517509af0ab"
+    },
+    {
+      "original_path": "/workspace/campaign/write-delivery.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/write-delivery.py",
+      "bytes": 4754,
+      "sha256": "f65b95f41ce9f2b673ede028f6c350df042ccb1d4119636b44fa1c3a4e55e458"
+    },
+    {
+      "original_path": "/workspace/campaign/zlib-link-test.cpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/zlib-link-test.cpp",
+      "bytes": 704,
+      "sha256": "c75028581cddc60d158ee66c9e32f47be0ed9e0338d9f5e509a842ed4dde6ebd"
+    },
+    {
+      "original_path": "/workspace/campaign/generated-room-schemas-002-20261020T0932/com.realityforge.scanner.data.ScanDatabase/1.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/generated-room-schemas-002-20261020T0932/com.realityforge.scanner.data.ScanDatabase/1.json",
+      "bytes": 5673,
+      "sha256": "f57ec5992d1a7c21e4aa6d49f6a9e9b778179cfd06dba5673dcb09505bbe535a"
+    },
+    {
+      "original_path": "/workspace/campaign/harness-attempts/final6-misnamed-library/classification.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/harness-attempts/final6-misnamed-library/classification.json",
+      "bytes": 385,
+      "sha256": "6254dc3229569f98c75d20c93ab6c778c726d5aac0a42f42d0d7f1e3a234fd1b"
+    },
+    {
+      "original_path": "/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest-inputs.json",
+      "bytes": 510,
+      "sha256": "0b700cfa0e4b96532c09cbb22845ffb1752b0aea3142b00b438af74d36aec3ad"
+    },
+    {
+      "original_path": "/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest-receipt.json",
+      "bytes": 805,
+      "sha256": "3525a9c421a04aed086176729e0ea2e99802deb4608f72a5ddccb7361acdeade"
+    },
+    {
+      "original_path": "/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest.exit",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest.exit",
+      "bytes": 2,
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+    },
+    {
+      "original_path": "/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest.log",
+      "bytes": 12866,
+      "sha256": "cdcc08116225ed180b66f1482d92602720655240529f1d2e077f9dda730776c0"
+    },
+    {
+      "original_path": "/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest.xml",
+      "bytes": 13705,
+      "sha256": "0649bcef8edf620a4a3f60180e06e6fe3c84bc0140dfb9fe9c75da64b3f6678e"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-independent-review/baseline.hpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-independent-review/baseline.hpp",
+      "bytes": 10531,
+      "sha256": "ea49513514872a9030958ada2871ced6d7276bc5c2cee4d09518600de140ee41"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-independent-review/result.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-independent-review/result.json",
+      "bytes": 95,
+      "sha256": "cdb7183e951dc84ad561cc810f7307fe772171f2e10f5c0d64e87700d0631088"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-independent-review/review-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-independent-review/review-receipt.json",
+      "bytes": 1563,
+      "sha256": "5a7ea72590d52c666e2410697f87e9bf16539088e80b2dc1f5e89bdb3d593bb0"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-independent-review/review.cpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-independent-review/review.cpp",
+      "bytes": 2732,
+      "sha256": "1feaa2765d0f0e79af1074e32d475fc4acdd1e4fb13f1f295e1b4c544077f656"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/051-055-stop-save-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/051-055-stop-save-receipt.json",
+      "bytes": 2678,
+      "sha256": "c549b47b15c1e2879e62a75ab6730877b9dfd8cd8c597fbff4f4e4c5de3c8299"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph-replay.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph-replay.log",
+      "bytes": 431,
+      "sha256": "85274afc7945881bc51d97a1be41d07573e1b9ddca5d551dcc55dcc8a21935b2"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph.log",
+      "bytes": 253,
+      "sha256": "815c4182b679ef5f1e26712ac981f9ffaf02edfe352e38ef1c082579fa4d4f31"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-correct-calibration.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-correct-calibration.json",
+      "bytes": 1261,
+      "sha256": "0f6b57a694b32e2c411b0542fd9cdf1d6172c47a23dac2b717c6d8747cde5073"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-correct-calibration.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-correct-calibration.log",
+      "bytes": 1261,
+      "sha256": "67444c1d8c781957a49a14621a49f68a27142599dd508b2e871a6edd8419866c"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-final-receipt-draft.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-final-receipt-draft.md",
+      "bytes": 3248,
+      "sha256": "0a47c539c26dea689ef5c71cf6abc30f31511893113dc87c2856861ba568e928"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/receiving-final-contracts.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/receiving-final-contracts.log",
+      "bytes": 186,
+      "sha256": "e9d1d8b48a223de6516cd6a71e34b9dbfcb86c0392271a4e383e0c4e7fb27b2f"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/receiving-final-contracts.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/receiving-final-contracts.xml",
+      "bytes": 6546,
+      "sha256": "62ca4d1bc59fbd597937da10f96fec083255c3fc1432ac6f3149fbe728ee8682"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/receiving-premerge.patch",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/receiving-premerge.patch",
+      "bytes": 15484,
+      "sha256": "492e8d3c6bbed336d41fa39311cbb3b07e1c7718b8e737d5f5e5a388f7a6edae"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/README.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/README.md",
+      "bytes": 779,
+      "sha256": "2973f38275a30b311858ebb03cbb396f79f5259704ada35018bade0efda7c453"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/create1.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/create1.log",
+      "bytes": 479,
+      "sha256": "a5750e11db81f8090b89a49d2d3d66197c21a228ec965e7467cdb606830eaa1c"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/create2.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/create2.log",
+      "bytes": 479,
+      "sha256": "a5750e11db81f8090b89a49d2d3d66197c21a228ec965e7467cdb606830eaa1c"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/manifest-verification.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/manifest-verification.log",
+      "bytes": 87,
+      "sha256": "1c97e0a137493f324d5684995ca3bb05c62b8aa5777d65361b193708b4485a3b"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/proof.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/proof.json",
+      "bytes": 3001,
+      "sha256": "7c909c11179b04aa9344751404bd461f799d67174f96adc5c8d427978f931077"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/source1.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/source1.json",
+      "bytes": 479,
+      "sha256": "973accf809431a2bb7b912b4a5b7608c4dceed5ac0a07fa6594b340a9c18b8b4"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/source2.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/source2.json",
+      "bytes": 479,
+      "sha256": "973accf809431a2bb7b912b4a5b7608c4dceed5ac0a07fa6594b340a9c18b8b4"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/verify1.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/verify1.log",
+      "bytes": 479,
+      "sha256": "a5750e11db81f8090b89a49d2d3d66197c21a228ec965e7467cdb606830eaa1c"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2723c9940069/verify2.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2723c9940069/verify2.log",
+      "bytes": 479,
+      "sha256": "a5750e11db81f8090b89a49d2d3d66197c21a228ec965e7467cdb606830eaa1c"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/README.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2f18a4f5a871/README.md",
+      "bytes": 2234,
+      "sha256": "2553bc917c18a7379d45877da8022a52fe0c32ee26def3e1d0abce6a172d791d"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/proof.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2f18a4f5a871/proof.json",
+      "bytes": 1376,
+      "sha256": "4f92d7db02ecd19fa2ec140bcaf1d71c7524e3f6a62df4fc6d549ffc730e8f46"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/source1.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2f18a4f5a871/source1.json",
+      "bytes": 479,
+      "sha256": "88a02c08d6d4aaa10afde2e61b50e6902171c6521be0aad7d80152ad251815ad"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/source2.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-2f18a4f5a871/source2.json",
+      "bytes": 479,
+      "sha256": "88a02c08d6d4aaa10afde2e61b50e6902171c6521be0aad7d80152ad251815ad"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-ccdef4fc3d3f/source1.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-ccdef4fc3d3f/source1.json",
+      "bytes": 479,
+      "sha256": "34aec72fd96ff366f51868bc285102709fec8d0dc451ba4cbb0bd5ea2e7ec022"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/094/final-ccdef4fc3d3f/source2.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/094/final-ccdef4fc3d3f/source2.json",
+      "bytes": 479,
+      "sha256": "34aec72fd96ff366f51868bc285102709fec8d0dc451ba4cbb0bd5ea2e7ec022"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/compact-qa.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/compact-qa.log",
+      "bytes": 2735,
+      "sha256": "73d625de96802434f4837991758e3d0694e9f9a9f16b12c9e30fcbc49f708147"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/surface-acceptance-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/surface-acceptance-receipt.json",
+      "bytes": 2040,
+      "sha256": "73beb7cc2550c16f1d444e686946c99b60638703da2f729502ca469b931587f4"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/surface-metrics.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/surface-metrics.json",
+      "bytes": 1261,
+      "sha256": "0f6b57a694b32e2c411b0542fd9cdf1d6172c47a23dac2b717c6d8747cde5073"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/surface-metrics.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/surface-metrics.log",
+      "bytes": 1261,
+      "sha256": "67444c1d8c781957a49a14621a49f68a27142599dd508b2e871a6edd8419866c"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/compact-qa/compact-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/compact-qa/compact-receipt.json",
+      "bytes": 2735,
+      "sha256": "73d625de96802434f4837991758e3d0694e9f9a9f16b12c9e30fcbc49f708147"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/compact-qa/native-result.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/compact-qa/native-result.json",
+      "bytes": 1585212,
+      "sha256": "452522104e8f4d04b3d35fed150bf97850fce19e01abf4753f73866a2b0e1a62"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/mip-actual-final/actual.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/mip-actual-final/actual.json",
+      "bytes": 663,
+      "sha256": "e76cb5dc2b9fda3d4849f11be7827584053d8c5cc429cc74167e2d80db8a68bf"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/final-2f18a4f/mip-actual-final/receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/final-2f18a4f/mip-actual-final/receipt.json",
+      "bytes": 2616,
+      "sha256": "7dcc1dcc8dfd0378e0a8fcb747cb9a4c6bf4178e6f2bdcf4944b017fbbd1a6a9"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph/README.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph/README.md",
+      "bytes": 2115,
+      "sha256": "d57774cd23b8fe5ae3d061f485003d29fd1094267e2c73beff23aae72738a710"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph/corrected-evaluation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph/corrected-evaluation.json",
+      "bytes": 1261,
+      "sha256": "0f6b57a694b32e2c411b0542fd9cdf1d6172c47a23dac2b717c6d8747cde5073"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph/graph.cpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph/graph.cpp",
+      "bytes": 6325,
+      "sha256": "fcd54c84c5e74271f22e2d5d9537b2362cf64533fe57eb76c8b8fd77e04e1eba"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph/native-source-manifest.sha256",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph/native-source-manifest.sha256",
+      "bytes": 27362,
+      "sha256": "919e4f46de1995b9a34bbf075cd59e7d89d1efe87f58f017803cd81a0121c0be"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph/receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph/receipt.json",
+      "bytes": 4959,
+      "sha256": "dc5044dc024e9392cb1a961c957882e3e37f49d7e5f9d983c40f0d4b1d411e1d"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph/reproduce.sh",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph/reproduce.sh",
+      "bytes": 632,
+      "sha256": "93049cf06b33bc1a56da83ba8677cbd2bfdf9d831c7af504ce9cb84d7d024938"
+    },
+    {
+      "original_path": "/workspace/campaign/evidence/053-v6-complete-graph/result.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/evidence/053-v6-complete-graph/result.log",
+      "bytes": 253,
+      "sha256": "815c4182b679ef5f1e26712ac981f9ffaf02edfe352e38ef1c082579fa4d4f31"
+    },
+    {
+      "original_path": "/workspace/campaign/generated-room-schemas-041-045-user-stop/com.realityforge.scanner.data.ScanDatabase/1.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/generated-room-schemas-041-045-user-stop/com.realityforge.scanner.data.ScanDatabase/1.json",
+      "bytes": 5673,
+      "sha256": "f57ec5992d1a7c21e4aa6d49f6a9e9b778179cfd06dba5673dcb09505bbe535a"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/046-provenance-WIP.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/046-provenance-WIP.md",
+      "bytes": 1131,
+      "sha256": "1899a0fdaeb5f56011f46fcce84fcd3f4f6d8ebfc1cff516f12b4ca195077df0"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/046.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/046.md",
+      "bytes": 11391,
+      "sha256": "740b177dd66d394a8142d055beb3f542404b49f500e98efe223b7c21bddf8498"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/047.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/047.md",
+      "bytes": 12623,
+      "sha256": "c1159146d8cd6e106b8921aae925dac35314836c3ad0b615cdc6b2e99e31d0ca"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/048.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/048.md",
+      "bytes": 10303,
+      "sha256": "2f89a1802c8a95bb453a8f4167733f0f99c9847a5eb86780f942fe1b828a5e88"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/049-provenance-WIP.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/049-provenance-WIP.md",
+      "bytes": 4257,
+      "sha256": "4e524905358dbb65a05b86601bcb15e5b0e0152b8a93b38cc5e690c25f2f8356"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/049.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/049.md",
+      "bytes": 11760,
+      "sha256": "2274731a32d6fff38bb35a02a61d0f2bf7f619ef68bfd9ba4c66bf565195d30d"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/050.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/050.md",
+      "bytes": 11611,
+      "sha256": "d9a76c713a5c2730f6206c3d35dc8571edf8cce7815241452a0c77214d68b6f6"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/draft-index.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/draft-index.json",
+      "bytes": 8071,
+      "sha256": "322649fce6a57f6ed128a1f6396501ec6a73255e9097207e29380ca5e726cd80"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/release36-lasttest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/release36-lasttest.log",
+      "bytes": 29605,
+      "sha256": "e3a9a36bcb52aebfaaf2f9cc595995a49ebb98d9ff2647313d3d7466694b5e1f"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/stop-outside-git-inventory.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/stop-outside-git-inventory.json",
+      "bytes": 78151,
+      "sha256": "741be2e52d04a7169ccb2e254b7c43d355ff62daea9cb85cf6f8c02a8dcc17a4"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/stop-published-heads.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/stop-published-heads.json",
+      "bytes": 2670,
+      "sha256": "b04f86a666ea31795f81c658ac08a99562b41da6cfa763c7c777035254477654"
+    },
+    {
+      "original_path": "/workspace/campaign/receipt-drafts/046-050/stop-support-archive.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/receipt-drafts/046-050/stop-support-archive.json",
+      "bytes": 587,
+      "sha256": "bfb2f84f76bb518c0b5e688130cb4d1e9ff13334753b2661e0c00a50594f8510"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/CMakeLists.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/CMakeLists.txt",
+      "bytes": 1021,
+      "sha256": "5e6bf9b424a650e5e35b4ace1e57cbb215e0dd54987a57b6f38e9a3aaf7b5a52"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/release/CMakeCache.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/release/CMakeCache.txt",
+      "bytes": 13254,
+      "sha256": "be3311e4bac729181ff9e6bc0a84b8f409f703b12de1e73f30078b04c1e1873b"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/release/CMakeFiles/CMakeConfigureLog.yaml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/release/CMakeFiles/CMakeConfigureLog.yaml",
+      "bytes": 30743,
+      "sha256": "573897b0fe88ee061bf949427ccc615d770c1077aaa58dde4d667c4b92599f17"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/release/CMakeFiles/TargetDirectories.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/release/CMakeFiles/TargetDirectories.txt",
+      "bytes": 322,
+      "sha256": "2e552282078f266a66a6ac4d7fea4dacc2542ce84963fa6055fe8de501779e0c"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/release/CMakeFiles/3.31.6/CompilerIdCXX/CMakeCXXCompilerId.cpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/release/CMakeFiles/3.31.6/CompilerIdCXX/CMakeCXXCompilerId.cpp",
+      "bytes": 28457,
+      "sha256": "911d6deb85661272b2ddc7a8e26810febd726944c61e1d9495e6a1abb11d9eff"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/release/Testing/Temporary/CTestCostData.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/release/Testing/Temporary/CTestCostData.txt",
+      "bytes": 37,
+      "sha256": "e70c526c9fa9a093e8647563df0105cd5b045d05f02fbc4d2c2ecd00f0fc987e"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/release/Testing/Temporary/LastTest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/release/Testing/Temporary/LastTest.log",
+      "bytes": 833,
+      "sha256": "f8e31b3b6cc1575d629157b56199b66f755c29dcf31552f59bf6ac42b0a51286"
+    },
+    {
+      "original_path": "/workspace/campaign/agent054-confidence-host/release/Testing/Temporary/LastTestsFailed.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/campaign/agent054-confidence-host/release/Testing/Temporary/LastTestsFailed.log",
+      "bytes": 22,
+      "sha256": "d53b75af472408a80ddf13b9709d63991c368efa459fe2397fa1db5aaed9172f"
+    },
+    {
+      "original_path": "/workspace/agents/002-adapter-kotlin-check.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/002-adapter-kotlin-check.log",
+      "bytes": 2414,
+      "sha256": "0bf2a7626bfcab58eb704af2743ab58bd5f67e3617137d6c65c8181b9cc02ef8"
+    },
+    {
+      "original_path": "/workspace/agents/002-final-kotlin-check.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/002-final-kotlin-check.log",
+      "bytes": 3853,
+      "sha256": "6be5b25b9535c240538e7ff0716c92fc41701630efaea00f5437557f9854d0ea"
+    },
+    {
+      "original_path": "/workspace/agents/004-bridge-library-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-bridge-library-build.log",
+      "bytes": 2208,
+      "sha256": "9e95b36a581fa7e8394b91d29bfa3b0db2faca85dcb3482691f4fdea68258b74"
+    },
+    {
+      "original_path": "/workspace/agents/004-clean-build-script.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-clean-build-script.log",
+      "bytes": 957,
+      "sha256": "e79b715d1a34490a6a6a721c6de02c15786a574d1a165963eec19cba5abe3866"
+    },
+    {
+      "original_path": "/workspace/agents/004-cmake-config.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-cmake-config.log",
+      "bytes": 554,
+      "sha256": "392c7c806f8aa0ef26ceecde375be8c16b2c5cdda5e8f54cde2034df6a422844"
+    },
+    {
+      "original_path": "/workspace/agents/004-combined-config.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-combined-config.log",
+      "bytes": 123,
+      "sha256": "3b8508e7a786b18827083ac7b688c8030fa5e6a443af57f8dc70861c4bc0aae3"
+    },
+    {
+      "original_path": "/workspace/agents/004-final-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final-native-build.log",
+      "bytes": 8833,
+      "sha256": "c23ce3119c5d4ad21c7396fdc7262a8cabd84cf329dcc5dfa3f4ccf6f5f32cd3"
+    },
+    {
+      "original_path": "/workspace/agents/004-final-native-config.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final-native-config.log",
+      "bytes": 123,
+      "sha256": "9e1475e8e95f67e490f2a24373bc8b015263ef719ffafd4bf1150af88b908972"
+    },
+    {
+      "original_path": "/workspace/agents/004-final-native-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final-native-ctest.log",
+      "bytes": 4282,
+      "sha256": "c57e50d405baed8167732148442ae12b95c68b0272f98faa82576bc4c00c4438"
+    },
+    {
+      "original_path": "/workspace/agents/004-final-sanitized-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final-sanitized-build.log",
+      "bytes": 10167,
+      "sha256": "dababf2b3b95a4f80d9599c091ded936780cc9f59aa611c97574bfb9be579940"
+    },
+    {
+      "original_path": "/workspace/agents/004-final-sanitized-config.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final-sanitized-config.log",
+      "bytes": 460,
+      "sha256": "0fee5ea985a2d300aa558ff26fab7662553d46aec8f141fa5db36dad175cee2e"
+    },
+    {
+      "original_path": "/workspace/agents/004-final-sanitized-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final-sanitized-ctest.log",
+      "bytes": 4292,
+      "sha256": "92f840be2738ffa8d8ae14164c408c56b3a7f1d5d59259add4930ac9b71a979c"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-native-build.log",
+      "bytes": 3873,
+      "sha256": "1102de092e638f0db3b48c2725d22fd15ce2119afc46f69ef7cc6bd6ff5bcac2"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-native-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-native-ctest.log",
+      "bytes": 4407,
+      "sha256": "1e69846aa1207dd163673440bcdf8dcbcf532537ed4855e626ec95c11ed2113c"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-native-ctest.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-native-ctest.xml",
+      "bytes": 14676,
+      "sha256": "b33619a051ff7f878c24b5b16682c1e8abead87c71e0e5536204488bc7d44dab"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-resume-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-resume-native-build.log",
+      "bytes": 240,
+      "sha256": "206f5da294d159922fcbde70429f6008847f7a66c82e87740d3b5af3161f9540"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-resume-native-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-resume-native-ctest.log",
+      "bytes": 307,
+      "sha256": "768c627e9ccae0a9a3508f5b6e77ed8d1ca83bf2c558c4a87be979282db71ba5"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-resume-sanitized-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-resume-sanitized-build.log",
+      "bytes": 240,
+      "sha256": "206f5da294d159922fcbde70429f6008847f7a66c82e87740d3b5af3161f9540"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-resume-sanitized-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-resume-sanitized-ctest.log",
+      "bytes": 317,
+      "sha256": "0bdc799e979e04398cde79a829d007de4aa029ae435ad944042cf651fb09517f"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-sanitized-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-sanitized-build.log",
+      "bytes": 4388,
+      "sha256": "d580bf2b3511efaaf0fe6b07522c630f44c68db77b61647c6b04d2bc6662553a"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-sanitized-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-sanitized-ctest.log",
+      "bytes": 4417,
+      "sha256": "6b9937e3a09832c4ffe0bf91cdc9893b2ce40de6439a5785b2f73fd0dd6ad999"
+    },
+    {
+      "original_path": "/workspace/agents/004-final6-sanitized-ctest.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-final6-sanitized-ctest.xml",
+      "bytes": 14648,
+      "sha256": "627524478f59e935146757865af4f16100b753b0abd8030df303d01b3e37e986"
+    },
+    {
+      "original_path": "/workspace/agents/004-fusion3-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-fusion3-native-build.log",
+      "bytes": 3936,
+      "sha256": "fda1e8cef16d4862205e12e15dff64d6072bfe7ab0389d70ead3cc88462a7a5e"
+    },
+    {
+      "original_path": "/workspace/agents/004-fusion3-native-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-fusion3-native-ctest.log",
+      "bytes": 4282,
+      "sha256": "fdef6256009e7d401aebbf80e5aa8a776afa3f7010b35120759b2bd14aead213"
+    },
+    {
+      "original_path": "/workspace/agents/004-fusion6-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-fusion6-native-build.log",
+      "bytes": 3936,
+      "sha256": "0dacac3df85e27d321164d4620d69e63110a6a2d556bb5fe3b47ecc21e3e126e"
+    },
+    {
+      "original_path": "/workspace/agents/004-fusion6-native-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-fusion6-native-ctest.log",
+      "bytes": 4282,
+      "sha256": "8bc3e725f7d2c867439292d9dd934eb576b431c176846ad6d58a24aad179357b"
+    },
+    {
+      "original_path": "/workspace/agents/004-native-registration-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-native-registration-build.log",
+      "bytes": 9917,
+      "sha256": "0044ba4e6ff3b01e3a57772a680d1886127414dfe330d51c23d09ce58fb24d89"
+    },
+    {
+      "original_path": "/workspace/agents/004-native-registration-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-native-registration-ctest.log",
+      "bytes": 4158,
+      "sha256": "4446a99d6d3eae8240c806c7fd787e4066775b91c9b778c034bea0bf26db0a13"
+    },
+    {
+      "original_path": "/workspace/agents/004-native-registration-final-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-native-registration-final-ctest.log",
+      "bytes": 4158,
+      "sha256": "a8064072be5cf02a26bd7da05531c2bd7956b3b7db8dd6925f6cd6405c5481d3"
+    },
+    {
+      "original_path": "/workspace/agents/004-official-wrapper-version.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-official-wrapper-version.log",
+      "bytes": 983,
+      "sha256": "829d7574e83c59c33be3b42496d3907eeaf68b386adcc2c9f79fbd9b1f66e118"
+    },
+    {
+      "original_path": "/workspace/agents/004-radiometry3-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-radiometry3-native-build.log",
+      "bytes": 4409,
+      "sha256": "17a036126eb42736557a06b8bbea1438480c6add52e1704f46a6a8bd512f4ee0"
+    },
+    {
+      "original_path": "/workspace/agents/004-radiometry3-native-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-radiometry3-native-ctest.log",
+      "bytes": 4282,
+      "sha256": "6257066e1f2c8bdd91277ce01f5e43ab7a2ac119bd217c305fbbc6198d2b681d"
+    },
+    {
+      "original_path": "/workspace/agents/004-radiometry3-sanitized-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-radiometry3-sanitized-build.log",
+      "bytes": 4286,
+      "sha256": "fd65d0ac98a0e4f7471529559fe5a9c201ba6496882687bb7da009a65840f840"
+    },
+    {
+      "original_path": "/workspace/agents/004-radiometry3-sanitized-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-radiometry3-sanitized-ctest.log",
+      "bytes": 4292,
+      "sha256": "5fa3e0357e81765596f19e91d621142458e23e4888e6d89dc2b1afc9b690f4a3"
+    },
+    {
+      "original_path": "/workspace/agents/004-required-negative.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-required-negative.log",
+      "bytes": 494,
+      "sha256": "d550363a6251ce2f866b38cc2626bf86183e7ed9cd5062a8d761cbcf59b9934f"
+    },
+    {
+      "original_path": "/workspace/agents/004-robust-registration-config.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-robust-registration-config.log",
+      "bytes": 483,
+      "sha256": "9cc45ce85219399ea4e3f7601105ce1ac2caa85bdf32c0cf551ae3f34a76f17b"
+    },
+    {
+      "original_path": "/workspace/agents/004-standalone-config.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/004-standalone-config.log",
+      "bytes": 464,
+      "sha256": "6e06e7ffe21ec8e05cf82d3e35da312688fea4d4dfa2c6db81f0e0bc05985965"
+    },
+    {
+      "original_path": "/workspace/agents/012-orientation-evidence-source.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/012-orientation-evidence-source.log",
+      "bytes": 605,
+      "sha256": "7919bbd33a0de60e2c76b3d0a58938f5fabfb2f2249f064f86b2ebd2af69d075"
+    },
+    {
+      "original_path": "/workspace/agents/012-orientation-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/012-orientation-manifest.log",
+      "bytes": 98,
+      "sha256": "5b19689a97d618d5cdfce632de67285a8efa3c57100a80350a5bb7ca9e05ae34"
+    },
+    {
+      "original_path": "/workspace/agents/012-owner-handoff-source.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/012-owner-handoff-source.log",
+      "bytes": 605,
+      "sha256": "5f5a64925b0b099fcbe496563f1d1b155047e77ab71bc70a0b6d78bf74170f82"
+    },
+    {
+      "original_path": "/workspace/agents/012-physical-presence-source.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/012-physical-presence-source.log",
+      "bytes": 614,
+      "sha256": "16840f3cc5f44de5ec840616d8b37879a7ab1a482a7a1ca8556641c6394491d9"
+    },
+    {
+      "original_path": "/workspace/agents/031-035-apk-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-035-apk-validation.json",
+      "bytes": 630,
+      "sha256": "3c71619ba20fdaae49521a4780083c43313c2c5e8b1fc856a8ac71ea6647b488"
+    },
+    {
+      "original_path": "/workspace/agents/031-035-apk-validation.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-035-apk-validation.log",
+      "bytes": 843,
+      "sha256": "33a93c13672c1935fb63a4cc55f304f0f7b540493869ff2d6bfdb9dbc3a9e033"
+    },
+    {
+      "original_path": "/workspace/agents/031-035-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-035-build.log",
+      "bytes": 5619,
+      "sha256": "42a203ac49eeadae9f7ec6d5113087255e47e8524e0e1b50bb453e00e44e1634"
+    },
+    {
+      "original_path": "/workspace/agents/031-035-receipt-heads.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-035-receipt-heads.json",
+      "bytes": 1313,
+      "sha256": "c71a95896dcf48a86832d80d246b401278f36e95efda8260c57e3504cf6c7d2c"
+    },
+    {
+      "original_path": "/workspace/agents/031-035-stop-pushed-receipts.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-035-stop-pushed-receipts.json",
+      "bytes": 1476,
+      "sha256": "0b309277e38e3c966d890540510d74407140848dbcfb5cd847f84a5ecc19dd66"
+    },
+    {
+      "original_path": "/workspace/agents/031-035-stop-save-report.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-035-stop-save-report.json",
+      "bytes": 10431,
+      "sha256": "8527a9aa22844cdc721daf48fd50b0e3740c80ddc84a21fbf7b75c6b6f9d8c9b"
+    },
+    {
+      "original_path": "/workspace/agents/031-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-build.log",
+      "bytes": 6533,
+      "sha256": "6d5f1ff82cbadc568adef362de1591f5e64f8da6e64594ec2ad8f631a4816aa1"
+    },
+    {
+      "original_path": "/workspace/agents/031-delivery-delivery-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-delivery-delivery-manifest.log",
+      "bytes": 98,
+      "sha256": "e596cce97643441f2f2c7ef01ee068b6705ce1e028a07a32ba3bd3b3d35d7353"
+    },
+    {
+      "original_path": "/workspace/agents/031-jvm.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-jvm.log",
+      "bytes": 61,
+      "sha256": "093eabb8cdc4ba1e18e39f76e9487f4fa52688dc0ef3d349abfcd48e75b22e7e"
+    },
+    {
+      "original_path": "/workspace/agents/031-kotlin-threads.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-kotlin-threads.log",
+      "bytes": 19685,
+      "sha256": "3ec1569de8622be9ab5e09dd96361f97d53165f3740ee8f6f97c590ec2d134fd"
+    },
+    {
+      "original_path": "/workspace/agents/031-python.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/031-python.log",
+      "bytes": 98,
+      "sha256": "37411979c9f0a73b078e0e77d287c45bc320809beb9247ab6df25e0242dfa757"
+    },
+    {
+      "original_path": "/workspace/agents/032-delivery-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/032-delivery-manifest.log",
+      "bytes": 98,
+      "sha256": "35d86279d96ed65491ba8ff0748e1c8e7891711531404dc5d4b9cd6ae33de3ec"
+    },
+    {
+      "original_path": "/workspace/agents/032-geometry-closure-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/032-geometry-closure-manifest.log",
+      "bytes": 98,
+      "sha256": "3605abb09038ce24e90d81df8f7c0d87bb6f647a5e016bf461d8a8fcb408f6e9"
+    },
+    {
+      "original_path": "/workspace/agents/032-orientation-provider-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/032-orientation-provider-receipt.json",
+      "bytes": 311,
+      "sha256": "9bbaed94b6c638b0af050e80b677add26285bae1cde67a372855c0a415ea3099"
+    },
+    {
+      "original_path": "/workspace/agents/032-source-compile.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/032-source-compile.log",
+      "bytes": 68,
+      "sha256": "66cd9cb7b526d9182ef4ded5e67ea6537429c24ec8a41383ab7699426262675f"
+    },
+    {
+      "original_path": "/workspace/agents/032-source-final.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/032-source-final.log",
+      "bytes": 119,
+      "sha256": "fbe4dfdf0b522a7b481ee7caf7bbbdd793ab8e15f5edcbb0c0411979439bc4c0"
+    },
+    {
+      "original_path": "/workspace/agents/033-delivery-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/033-delivery-manifest.log",
+      "bytes": 98,
+      "sha256": "3605abb09038ce24e90d81df8f7c0d87bb6f647a5e016bf461d8a8fcb408f6e9"
+    },
+    {
+      "original_path": "/workspace/agents/033-jvm-final.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/033-jvm-final.log",
+      "bytes": 54,
+      "sha256": "179e974731211e6d277b0b3fb167fb3dc436a6dac5ca799135c8de440c569925"
+    },
+    {
+      "original_path": "/workspace/agents/033-jvm-locked.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/033-jvm-locked.log",
+      "bytes": 57,
+      "sha256": "52414a294d874c2c4fb69f0304d308ae4a87d53221edf1bbb55897afbafcb0cf"
+    },
+    {
+      "original_path": "/workspace/agents/033-jvm-unicode.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/033-jvm-unicode.log",
+      "bytes": 58,
+      "sha256": "5f83993a6eb1bf8989cec80ad55a266734e2bae0002b4aad1308215b65ad435d"
+    },
+    {
+      "original_path": "/workspace/agents/033-jvm.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/033-jvm.log",
+      "bytes": 53,
+      "sha256": "07cc4bec5f7a439e4b2721b83aa727c75787281fc6fac5cb8c07c556b293fd57"
+    },
+    {
+      "original_path": "/workspace/agents/034-delivery-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/034-delivery-manifest.log",
+      "bytes": 98,
+      "sha256": "f4c77b58e2280613a49ba18da1c4a02d440e862c49a6c8fe5daaf277333ff99d"
+    },
+    {
+      "original_path": "/workspace/agents/034-jvm-final.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/034-jvm-final.log",
+      "bytes": 358,
+      "sha256": "d7f700d681a68712d55c79df85d2af52cea4c9681c7d0e6ab71daad9ab58aa29"
+    },
+    {
+      "original_path": "/workspace/agents/034-jvm.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/034-jvm.log",
+      "bytes": 53,
+      "sha256": "2b4e699092c5d646aa996baba4a4ff2be1d1d76a41288a747aa35ab67d40c256"
+    },
+    {
+      "original_path": "/workspace/agents/035-delivery-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/035-delivery-manifest.log",
+      "bytes": 98,
+      "sha256": "f4c77b58e2280613a49ba18da1c4a02d440e862c49a6c8fe5daaf277333ff99d"
+    },
+    {
+      "original_path": "/workspace/agents/035-geometry-closure-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/035-geometry-closure-manifest.log",
+      "bytes": 98,
+      "sha256": "3605abb09038ce24e90d81df8f7c0d87bb6f647a5e016bf461d8a8fcb408f6e9"
+    },
+    {
+      "original_path": "/workspace/agents/035-harness-source.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/035-harness-source.log",
+      "bytes": 282,
+      "sha256": "8a282b4c2c1c1fd8ebb1bc8fc789c897ed30bd5786db0dd00db63a2a126dc0f3"
+    },
+    {
+      "original_path": "/workspace/agents/035-orientation-provider-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/035-orientation-provider-receipt.json",
+      "bytes": 318,
+      "sha256": "58896bfdef02bb9124b3a2b9524612cd35f6b65e138475a99f22b92f6b002b0e"
+    },
+    {
+      "original_path": "/workspace/agents/035-source-compile.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/035-source-compile.log",
+      "bytes": 68,
+      "sha256": "11964397d24dd5d5ec8d1400626aa78326c22a881fddb11116166afd0204b5ba"
+    },
+    {
+      "original_path": "/workspace/agents/035-wide-ray.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/035-wide-ray.log",
+      "bytes": 49,
+      "sha256": "4c957cfb69543c7298563fa92bb5cf1ff016efe7e0b1e64a75485695ceb4a28a"
+    },
+    {
+      "original_path": "/workspace/agents/041-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/041-build.log",
+      "bytes": 2727,
+      "sha256": "48d31d664bfd6bd4d9e5c419d6fd07e79bce548b2e696d3b917392bfdf8c8073"
+    },
+    {
+      "original_path": "/workspace/agents/041-final-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/041-final-native-build.log",
+      "bytes": 809,
+      "sha256": "a35f826c7730d81e23c8f8efca168e8f1821e4d51f8db7275a2ea9a194f7d712"
+    },
+    {
+      "original_path": "/workspace/agents/041-final-native-tests.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/041-final-native-tests.log",
+      "bytes": 1386,
+      "sha256": "f9359c1e8f03f57365e115eabc54f4dcba2ba1a14ec4e7f5547e2dcc6a52d310"
+    },
+    {
+      "original_path": "/workspace/agents/041-final-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/041-final-pytest.log",
+      "bytes": 181,
+      "sha256": "002393d8fe6f3ac04cbb4c4e44c411e63f06f96229bf8e9e36a231f2496a4bc3"
+    },
+    {
+      "original_path": "/workspace/agents/041-finite-native-build.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/041-finite-native-build.log",
+      "bytes": 809,
+      "sha256": "bd53e8afe6dac6629c9555e49a9e6f678ea16e3f118fdb4df0d273822efd6c05"
+    },
+    {
+      "original_path": "/workspace/agents/041-finite-native-tests.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/041-finite-native-tests.log",
+      "bytes": 1386,
+      "sha256": "e4d9151ff56b88e9a0bbc945dfef4f7c73ea4a6d5838ff3ae67e122b922dd55a"
+    },
+    {
+      "original_path": "/workspace/agents/041-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/041-focused.log",
+      "bytes": 974,
+      "sha256": "3ca42c36e4ab7d094146c4aa543420bc567a40bddc2a34df37bc2b5919a238d0"
+    },
+    {
+      "original_path": "/workspace/agents/044-selection.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/044-selection.log",
+      "bytes": 663,
+      "sha256": "c7e57acaee945a4cc58a23cc427290ff77dbf87584ad24b90c358ed644c1d221"
+    },
+    {
+      "original_path": "/workspace/agents/047-plane-asan.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/047-plane-asan.log",
+      "bytes": 127,
+      "sha256": "0c413a58776d0b4bfdf52d6cf271c74ee113becb7a5370351c2f30df7cb03651"
+    },
+    {
+      "original_path": "/workspace/agents/047-plane-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/047-plane-pytest.log",
+      "bytes": 98,
+      "sha256": "43557565734a08c43e5a3973973179f5bf3692ffb6987e822d48d508730995f8"
+    },
+    {
+      "original_path": "/workspace/agents/081-resize-help.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/081-resize-help.log",
+      "bytes": 483,
+      "sha256": "faac55ec7854ac35c9b6099ac4c7fbdf884e77fe4673b257d8db67b743a11770"
+    },
+    {
+      "original_path": "/workspace/agents/081-resize-manifest.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/081-resize-manifest.log",
+      "bytes": 98,
+      "sha256": "f69b41b567fe2583118441e8e8390afa756eecb8625fa01f5e10bcff2c1cef10"
+    },
+    {
+      "original_path": "/workspace/agents/081-resize-old-formula-negative.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/081-resize-old-formula-negative.log",
+      "bytes": 3753,
+      "sha256": "e5f55d0df65d076cbdf87dbad3c6a603c6fc5695bc1fd93f9428c81cfb6fff2f"
+    },
+    {
+      "original_path": "/workspace/agents/081-resize-tests.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/081-resize-tests.log",
+      "bytes": 99,
+      "sha256": "61a619fd85a0f3165dd12b10588eae058290533e1a817f12504f21e2bc269970"
+    },
+    {
+      "original_path": "/workspace/agents/094-manifest-tool.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/094-manifest-tool.log",
+      "bytes": 99,
+      "sha256": "19e88b73bde96dbfc2954348306ae699e634f3129288c1f43f106df83125f325"
+    },
+    {
+      "original_path": "/workspace/agents/android-bounded.init.gradle",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/android-bounded.init.gradle",
+      "bytes": 661,
+      "sha256": "9eaf237e5282d3f5da9dcb330fbbaed683c19ac1c1d8bf17627efce751ae2fb9"
+    },
+    {
+      "original_path": "/workspace/agents/android-optimized-native.init.gradle",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/android-optimized-native.init.gradle",
+      "bytes": 711,
+      "sha256": "cdb872e0a46af58e3020d2605bc8280253fe39604b0aef1c8ffa4a97f0223138"
+    },
+    {
+      "original_path": "/workspace/agents/android-pool-init-validation.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/android-pool-init-validation.log",
+      "bytes": 957,
+      "sha256": "a9b54c055a7a4841e6ab976f4fbb0f2a7b6d39b4fe78f2b37cedf956877c08e7"
+    },
+    {
+      "original_path": "/workspace/agents/compare-native-build-artifacts.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/compare-native-build-artifacts.py",
+      "bytes": 2179,
+      "sha256": "c92e3cc22b4b91578e0112171c3463ebbbb02b3e4a71a71fe8f0168ae1254793"
+    },
+    {
+      "original_path": "/workspace/agents/compile_android_sources.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/compile_android_sources.py",
+      "bytes": 2212,
+      "sha256": "cacf421b453d0a7175c1e032300eace0c8b689bbc1dbfbb9698927c9b18f80a1"
+    },
+    {
+      "original_path": "/workspace/agents/compile_android_sources_with_runner.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/compile_android_sources_with_runner.py",
+      "bytes": 2485,
+      "sha256": "6c8002324a80df4926f91a1b8fb823b75765cf7ab6c4fddc47994fe5cd2dad7c"
+    },
+    {
+      "original_path": "/workspace/agents/emulator-crash-readonly.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/emulator-crash-readonly.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/workspace/agents/emulator-ps-readonly.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/emulator-ps-readonly.txt",
+      "bytes": 8192,
+      "sha256": "45fe39ffa2ce9e310fee4eb8fbc9b084188ccaa081c88209971c22fde02da392"
+    },
+    {
+      "original_path": "/workspace/agents/final-android-current-run.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-android-current-run.txt",
+      "bytes": 92,
+      "sha256": "28a110a94660f66a9ca929db1a7ace2975c2cdccb91962d90d1052769a166ddb"
+    },
+    {
+      "original_path": "/workspace/agents/kotlin_tests.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/kotlin_tests.py",
+      "bytes": 1405,
+      "sha256": "88efa737d6b4171cbb0906b03432af557a8cb2d286aee487fb8369914b397c63"
+    },
+    {
+      "original_path": "/workspace/agents/optimized-native-android-current-run.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/optimized-native-android-current-run.txt",
+      "bytes": 109,
+      "sha256": "b25583475fd6b8f8bccafa85c938960f3209ba200ea75f704794f462e716afbe"
+    },
+    {
+      "original_path": "/workspace/agents/receive-orientation-provider.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receive-orientation-provider.py",
+      "bytes": 4112,
+      "sha256": "bfe884de192f9b293500a812d33fac850a277ea2c460c3fe47e9ce346fef3574"
+    },
+    {
+      "original_path": "/workspace/agents/regen-manifest.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/regen-manifest.py",
+      "bytes": 655,
+      "sha256": "497199a3b161f2a7a5fab042fabb3e98d458d3c67ca585710984ff25ed049293"
+    },
+    {
+      "original_path": "/workspace/agents/regen_manifest.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/regen_manifest.py",
+      "bytes": 675,
+      "sha256": "80e01ad82a31c468119e3f87e110f3f4525e99f7ce6e41cd6ba2e222dd55c432"
+    },
+    {
+      "original_path": "/workspace/agents/run-final-android.sh",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/run-final-android.sh",
+      "bytes": 3637,
+      "sha256": "763efcd888d03e809b40dd366413dc10c2ba4a99487ec17b20c66cbd992ab503"
+    },
+    {
+      "original_path": "/workspace/agents/run-optimized-native-android.sh",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/run-optimized-native-android.sh",
+      "bytes": 4256,
+      "sha256": "e86339041c5a189bb5bd9ec1f764c9c93a327af8abcfad4d356f0ffcbed1c5de"
+    },
+    {
+      "original_path": "/workspace/agents/save-031-035-stop-receipts.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/save-031-035-stop-receipts.py",
+      "bytes": 9465,
+      "sha256": "02ed6badc9406a53e19750bec6488003c41a97c04da8a7f49e06698716718907"
+    },
+    {
+      "original_path": "/workspace/agents/validation-041-045-android.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/validation-041-045-android.log",
+      "bytes": 7086,
+      "sha256": "70930c1286463983c7b6e9201f5dc86d080dc8f060bd5d54d16781f48768589a"
+    },
+    {
+      "original_path": "/workspace/agents/validation-041-045-final-android.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/validation-041-045-final-android.log",
+      "bytes": 6431,
+      "sha256": "a437f8350e95b73b7fd6831e032c23660e2933753baea754277ff3e90e71a348"
+    },
+    {
+      "original_path": "/workspace/agents/validation-041-045-jstack.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/validation-041-045-jstack.log",
+      "bytes": 132909,
+      "sha256": "39bf9927837e85f5f1557e9064640705d34778ce58c3538ffe08f110b98f23d6"
+    },
+    {
+      "original_path": "/workspace/agents/verify-optimized-native.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/verify-optimized-native.py",
+      "bytes": 5508,
+      "sha256": "c902d308700227e79e1061fcd3cab9806b818b62c7924ca97abc1148f42a8d6e"
+    },
+    {
+      "original_path": "/workspace/agents/verify-unchanged-native-apk.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/verify-unchanged-native-apk.py",
+      "bytes": 1617,
+      "sha256": "1f472bf05428050a86401c2cdc44e60b945033b445a19f8991ed7d6444e8f6ff"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/081-old-principal-formula.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/081-old-principal-formula.py",
+      "bytes": 4190,
+      "sha256": "4b7bff026b509d789d0254bb354c0539923189ab1e6eb893883ded6581468ed1"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/081-receiving-status-append.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/081-receiving-status-append.md",
+      "bytes": 3113,
+      "sha256": "53c562d05804c3919ec7a3fc790469b15a8089d98f473ac8952bd1af3c5c0cb4"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/resize-ray-centres.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/resize-ray-centres.json",
+      "bytes": 811,
+      "sha256": "b6e806e4c3a1116dc55d05e381828f8336365406ea530ddbb3a03a73c33b09e9"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/resize-ray-centres.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/resize-ray-centres.py",
+      "bytes": 1928,
+      "sha256": "1058a3a2ff8d4932579690a3bf47ae0359919eae338ac3aa414efe01a146e7ed"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/tilted-fusion-analysis.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/tilted-fusion-analysis.md",
+      "bytes": 6642,
+      "sha256": "51090a15a928b9bda6fb84a0d37addbb133cf30175d097b7198c58a5673c67e8"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/tilted-fusion-counterexample.cpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/tilted-fusion-counterexample.cpp",
+      "bytes": 3965,
+      "sha256": "49105864761fb46f58d511ba09475b80b02f35f05ba917bac56c3f972fae6e74"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/tilted-fusion-counterexample.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/tilted-fusion-counterexample.json",
+      "bytes": 623,
+      "sha256": "c3148806daf559f3841a9758c9d8b842bf1b78af5fe6fef576435053b61355b7"
+    },
+    {
+      "original_path": "/workspace/agents/diagnostics/tilted-fusion-frustum-bound.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/diagnostics/tilted-fusion-frustum-bound.json",
+      "bytes": 2379,
+      "sha256": "cc8020d995cab72e281e22b2282698b8f28eb83d15484728b967cc62d1122221"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/apk-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/apk-validation.json",
+      "bytes": 630,
+      "sha256": "20195b6f8e615577da937668dff3c660e3cf9b5cb0a87aeb6e03f81e05af2213"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/apk-validation.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/apk-validation.log",
+      "bytes": 870,
+      "sha256": "ffb5b9e7960d2758bd23d2807dc8e2d8bd68858cb1716b96dbfef82550111592"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/command.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/command.txt",
+      "bytes": 322,
+      "sha256": "60882d06b29ffcdd3bfe1ccb4d5dde5e8baef660ba90a954d43cbc76a6884546"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/gradle.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/gradle.log",
+      "bytes": 5644,
+      "sha256": "56de27fc64e3d8b303ea386f7315c377c3613d10b2b83688a0c9d8035b144324"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/lint-results-debug.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/lint-results-debug.xml",
+      "bytes": 8843,
+      "sha256": "08ea2f5af9a70cb7d19b665431824de86d033e43e20e743df60e186b059aa5da"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/native-optimization-verification.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/native-optimization-verification.json",
+      "bytes": 51807,
+      "sha256": "725b0596372281ef4d843fc715ec63757c42351803f9de57a36c0f0dceb4b855"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/reviewed-source.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/reviewed-source.sha",
+      "bytes": 41,
+      "sha256": "951b94000627c36e3494a69a157c12b433fdb8d335662097cddd8eae86c532e5"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/same-source-apk-entry-comparison.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/same-source-apk-entry-comparison.json",
+      "bytes": 1311,
+      "sha256": "b8d00fb8bb8966a04e79bd66dcf3d0115e728c6657dbf41babcc7da5de2f4b5e"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/source-tree.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/source-tree.sha",
+      "bytes": 41,
+      "sha256": "28589b11872e75a67e62b480edd862c24eaa2df0a8a12005cdee6051677b3e78"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-checkout.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-checkout.sha",
+      "bytes": 41,
+      "sha256": "4e7da2d147e5a90ce292826f23a6da69697112c711a9634dae47b0e164ca5c84"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json",
+      "bytes": 2061,
+      "sha256": "b2869326174a1b37e6cfedc682598e282a6b23dde7823662e48c61d4138d92ae"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/CMakeCache-arm64-v8a.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/CMakeCache-arm64-v8a.txt",
+      "bytes": 16285,
+      "sha256": "a7f2bbc40ef7c79a1eca538ac76dba986b7958a1d57e7479450d2e7b03c82eca"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/CMakeCache-x86_64.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/CMakeCache-x86_64.txt",
+      "bytes": 16262,
+      "sha256": "465e9d06e172627852fe60c1980db7b793e1eb68491dd5c178abf6afbcf3586b"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/apk-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/apk-validation.json",
+      "bytes": 630,
+      "sha256": "20195b6f8e615577da937668dff3c660e3cf9b5cb0a87aeb6e03f81e05af2213"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/apk-validation.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/apk-validation.log",
+      "bytes": 870,
+      "sha256": "ffb5b9e7960d2758bd23d2807dc8e2d8bd68858cb1716b96dbfef82550111592"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/cmake-configuration.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/cmake-configuration.json",
+      "bytes": 622,
+      "sha256": "a38130b3d0dfb96bff6e324b7d42b69263ec6d567aa0cb0181a3007347c6020d"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/command.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/command.txt",
+      "bytes": 313,
+      "sha256": "ad6bc17b7e045c33182b14ba751d7dad33ca1d266009c94de1e324361965298b"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/gradle.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/gradle.log",
+      "bytes": 7246,
+      "sha256": "21c00fefc434c1d5483fb29d9d663039f4382489d37b7752ee582e3e9dedceb4"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/lint-results-debug.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/lint-results-debug.xml",
+      "bytes": 8843,
+      "sha256": "08ea2f5af9a70cb7d19b665431824de86d033e43e20e743df60e186b059aa5da"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/ninja-arm64-v8a.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/ninja-arm64-v8a.log",
+      "bytes": 3221,
+      "sha256": "c53c69de293506005a0d8adc01d7c5cf6daa4123ce121ca52cba4eb97b822171"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/ninja-x86_64.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/ninja-x86_64.log",
+      "bytes": 3217,
+      "sha256": "02b573af7019299a1f43713e774635183280db2808e356bb15461745dd3dc765"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/reviewed-source.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/reviewed-source.sha",
+      "bytes": 41,
+      "sha256": "5b5d2f8334d318d9fed5d464eec793461ebe73e140ddbc7b40aba1aa6772fadf"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/source-tree.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/source-tree.sha",
+      "bytes": 41,
+      "sha256": "947bffbceea80e219e01da648545db3e7ba4c63923785a14afd161bc5723dd44"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/validation-checkout.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/validation-checkout.sha",
+      "bytes": 41,
+      "sha256": "dd84d5c27042fd0f072414847f1c50c8cd523dcc9dc3ff83aeb212666555af7d"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/validation-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/validation-receipt.json",
+      "bytes": 1434,
+      "sha256": "761e2aa09f53f2892127d4f57ace8106c0bfe0280ffcde0af8c3cbb615f27396"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/apk-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/apk-validation.json",
+      "bytes": 630,
+      "sha256": "20195b6f8e615577da937668dff3c660e3cf9b5cb0a87aeb6e03f81e05af2213"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/apk-validation.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/apk-validation.log",
+      "bytes": 870,
+      "sha256": "ffb5b9e7960d2758bd23d2807dc8e2d8bd68858cb1716b96dbfef82550111592"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/command.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/command.txt",
+      "bytes": 322,
+      "sha256": "60882d06b29ffcdd3bfe1ccb4d5dde5e8baef660ba90a954d43cbc76a6884546"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/generated-checkout-preservation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/generated-checkout-preservation.json",
+      "bytes": 277,
+      "sha256": "68458d976c80b9fad677c97367a113fe3217e18d87254afcdbfab8c6e9bcec3d"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/gradle.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/gradle.log",
+      "bytes": 7208,
+      "sha256": "d22854a0513c65767f15525aee2216c5806d22c9a5c3cbfb1f3a724124bb1b90"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/lint-results-debug.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/lint-results-debug.xml",
+      "bytes": 8843,
+      "sha256": "08ea2f5af9a70cb7d19b665431824de86d033e43e20e743df60e186b059aa5da"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/native-optimization-verification.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/native-optimization-verification.json",
+      "bytes": 51807,
+      "sha256": "38b11fdb2255c55de929c9c5ae3eb68f09e1f7237ffcd30aa3fce16e79e92b63"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/native-payload-identity.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/native-payload-identity.json",
+      "bytes": 2783,
+      "sha256": "f11357c05a492e7d4a082b9f1cf4a2e1334a8a053a1102f94010dbd0f1bd3d26"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/reviewed-source.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/reviewed-source.sha",
+      "bytes": 41,
+      "sha256": "4bb1a332cca7acd5f14eb14114c7426c81b0e2d53bce489d29f7325c3bcd33ca"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/source-tree.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/source-tree.sha",
+      "bytes": 41,
+      "sha256": "1292c3ecea9a1c3cff5d5e98d2be28239f092c80c221e8b6039f71645ad76ccb"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/validation-checkout.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/validation-checkout.sha",
+      "bytes": 41,
+      "sha256": "ae8980b058fdf08c544202ba63ad448f26e21725790bc0043e4d40d3982c050d"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/validation-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/validation-receipt.json",
+      "bytes": 2273,
+      "sha256": "a0ea219ed2433c4f378529e2b07e500b246f092f95b43d45dd6b0bb94ab8fed7"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/generated-checkout/app-schemas/com.realityforge.scanner.data.ScanDatabase/1.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/generated-checkout/app-schemas/com.realityforge.scanner.data.ScanDatabase/1.json",
+      "bytes": 5673,
+      "sha256": "f57ec5992d1a7c21e4aa6d49f6a9e9b778179cfd06dba5673dcb09505bbe535a"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/CMakeCache-arm64-v8a.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/CMakeCache-arm64-v8a.txt",
+      "bytes": 16314,
+      "sha256": "ad5aab7e0d8fbaaebe5bb15787d29b27146d6f806f1f62692a9713b1f992aaf9"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/CMakeCache-x86_64.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/CMakeCache-x86_64.txt",
+      "bytes": 16291,
+      "sha256": "896b18369a6191838f3680f23ef1ed2290155b55c7ef980fa34be3a7846d0309"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/apk-validation.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/apk-validation.json",
+      "bytes": 630,
+      "sha256": "20195b6f8e615577da937668dff3c660e3cf9b5cb0a87aeb6e03f81e05af2213"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/apk-validation.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/apk-validation.log",
+      "bytes": 870,
+      "sha256": "ffb5b9e7960d2758bd23d2807dc8e2d8bd68858cb1716b96dbfef82550111592"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/cmake-configuration.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/cmake-configuration.json",
+      "bytes": 622,
+      "sha256": "da090da2559f63afa8f482b4752d790173b087b03c6611edc5bef076561452e7"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/command.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/command.txt",
+      "bytes": 313,
+      "sha256": "ad6bc17b7e045c33182b14ba751d7dad33ca1d266009c94de1e324361965298b"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/gradle.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/gradle.log",
+      "bytes": 7218,
+      "sha256": "a7fee6e65a788c66f1113a91a1658955c5cff4ead6a5b37633dba4cbefdd85cd"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/lint-results-debug.xml",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/lint-results-debug.xml",
+      "bytes": 8843,
+      "sha256": "08ea2f5af9a70cb7d19b665431824de86d033e43e20e743df60e186b059aa5da"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/ninja-arm64-v8a.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/ninja-arm64-v8a.log",
+      "bytes": 3800,
+      "sha256": "c12fe4f7c57d991ed0cb1d272988bb268689febbea087b97687a4bdbd190a031"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/ninja-x86_64.log",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/ninja-x86_64.log",
+      "bytes": 3795,
+      "sha256": "a019e7b4eec0b1f90153535f9fd0fdaaf30c366a9737c4a26866cb12a3da3091"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/reviewed-source.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/reviewed-source.sha",
+      "bytes": 41,
+      "sha256": "951b94000627c36e3494a69a157c12b433fdb8d335662097cddd8eae86c532e5"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/source-tree.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/source-tree.sha",
+      "bytes": 41,
+      "sha256": "28589b11872e75a67e62b480edd862c24eaa2df0a8a12005cdee6051677b3e78"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-checkout.sha",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-checkout.sha",
+      "bytes": 41,
+      "sha256": "4e7da2d147e5a90ce292826f23a6da69697112c711a9634dae47b0e164ca5c84"
+    },
+    {
+      "original_path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-receipt.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-receipt.json",
+      "bytes": 1480,
+      "sha256": "8c96fd28c3c959c0f0d4a65971eaeceb604706f1244c08bbbab5d9da446cbebe"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/all30-audit-invocation.md",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/all30-audit-invocation.md",
+      "bytes": 2055,
+      "sha256": "5a9e3274d86a2d6323680b9c36fd7d306eb306a9fe834eafb634f818cd94b75d"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/final-031-035-deltas.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/final-031-035-deltas.json",
+      "bytes": 6825,
+      "sha256": "58bd0daadb2e2ec6ffbd222efcda55fe826ebebd27ea13cab0808012a9a1f42e"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/update-031-035-receipts.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/update-031-035-receipts.py",
+      "bytes": 12348,
+      "sha256": "98defb4e8c5fb1e1761b23d5947b27f17f65251a82518456d8b7cd532e645599"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/final-status/031.draft.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/final-status/031.draft.json",
+      "bytes": 8883,
+      "sha256": "b5455d0de709d4add05fc2d78a6a477529e9c5945c0be058c96ec7190784a923"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/final-status/032.draft.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/final-status/032.draft.json",
+      "bytes": 14137,
+      "sha256": "c8beb2894704210e852ad9578589253a318fcefa6f008f6b2693070a4a1fff13"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/final-status/033.draft.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/final-status/033.draft.json",
+      "bytes": 8389,
+      "sha256": "95124af2312183491bfe14b6c5c74496b9fdbfa5f3c0289350234532e2f01c7f"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/final-status/034.draft.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/final-status/034.draft.json",
+      "bytes": 8675,
+      "sha256": "7a8272a6489bb885b087eaf37ac0444285057ee73050f166be65b5d900fa407e"
+    },
+    {
+      "original_path": "/workspace/agents/receipt-drafts/final-status/035.draft.json",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/receipt-drafts/final-status/035.draft.json",
+      "bytes": 14788,
+      "sha256": "48494f137f1b3832c4ede9ad47fa9d938cf894e69923b5a953568049ccf735b2"
+    },
+    {
+      "original_path": "/tmp/agent003-expand-probe.py",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent003-expand-probe.py",
+      "bytes": 5777,
+      "sha256": "e6be7aa9c3fbedf2a399f5cd75e615cab28eaf495126a07871040dd996f998a2"
+    },
+    {
+      "original_path": "/tmp/agent003-rewrite.py",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent003-rewrite.py",
+      "bytes": 7869,
+      "sha256": "a85d80906fd72620f9162a1a3a4fc414a59805c6a943af4292c36852e6c7f4e3"
+    },
+    {
+      "original_path": "/tmp/agent041-intrinsic-implementation.txt",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent041-intrinsic-implementation.txt",
+      "bytes": 7433,
+      "sha256": "f4297728403de5d722cca066b6a400be9dca7f31c0a3ae205f6f289d3553d56a"
+    },
+    {
+      "original_path": "/tmp/agent041-product-context.txt",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent041-product-context.txt",
+      "bytes": 20451,
+      "sha256": "6c3cb59be56d5f44273d2defc79fe2878a2360e207cdd7f66f57404c293dc9d9"
+    },
+    {
+      "original_path": "/tmp/agent053-frustum-wide.txt",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent053-frustum-wide.txt",
+      "bytes": 5044,
+      "sha256": "2ad3e0ddba6d23762909d3ac604a78930029e16905a3a5e8e92bfaee4069aa09"
+    },
+    {
+      "original_path": "/tmp/agent053-fusion-diagnostic-only.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent053-fusion-diagnostic-only.cpp",
+      "bytes": 30618,
+      "sha256": "72c5b9823a824e58f34af213c8294257c1d2e77b60e973848695805b8800a0c1"
+    },
+    {
+      "original_path": "/tmp/agent053-local-footprint-diagnosis.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent053-local-footprint-diagnosis.cpp",
+      "bytes": 1500,
+      "sha256": "1b55002765d465475dd385b4edfa98cdff978d5da9f4dccacf2ad965b665c4fa"
+    },
+    {
+      "original_path": "/tmp/agent053-pairs.csv",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent053-pairs.csv",
+      "bytes": 640,
+      "sha256": "237aa0f4b61743c0a2eaa0c1badd616921a8ca10edf60ac6533bd1f54b54932c"
+    },
+    {
+      "original_path": "/tmp/agent053-pixel-metric-functions.txt",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent053-pixel-metric-functions.txt",
+      "bytes": 7070,
+      "sha256": "9a60adf885fe46b917da8e00243d1be1beaef02afc02a3a06f5ac71ff709f5bc"
+    },
+    {
+      "original_path": "/tmp/agent053-prefusion-debug.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent053-prefusion-debug.cpp",
+      "bytes": 28425,
+      "sha256": "2ea4998e99970d83fc0c3ddd062eb8a5c39ddf36524f5ff797ca940ffbc73cc7"
+    },
+    {
+      "original_path": "/tmp/agent053-v6-complete-graph.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent053-v6-complete-graph.cpp",
+      "bytes": 6325,
+      "sha256": "fcd54c84c5e74271f22e2d5d9537b2362cf64533fe57eb76c8b8fd77e04e1eba"
+    },
+    {
+      "original_path": "/tmp/agent056-small.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent056-small.cpp",
+      "bytes": 305,
+      "sha256": "437bb9a4f4dc6219609138ad3aeb5d678e3b3fed0dc1b79f63c2e117dd665f9a"
+    },
+    {
+      "original_path": "/tmp/agent058-header-check.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent058-header-check.cpp",
+      "bytes": 37,
+      "sha256": "55b0b81387827168657c3a767e237e0893b5a11f5792de4921688aeef5964cf5"
+    },
+    {
+      "original_path": "/tmp/agent084-resize-before.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent084-resize-before.log",
+      "bytes": 6362,
+      "sha256": "caeac53ebb0762c6f2156b63e664abcd1b8122efdddab0bdb5a5630d5207bf4c"
+    },
+    {
+      "original_path": "/tmp/independent_campaign_manifest_audit.py",
+      "saved_path": "tools/campaign-support/snapshot/tmp/independent_campaign_manifest_audit.py",
+      "bytes": 9522,
+      "sha256": "c6c7392d864207f04f82269962091b78b3e3076a0967b03f45bce8530525fbcf"
+    },
+    {
+      "original_path": "/tmp/rf-final-candidate-resize-receivers.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf-final-candidate-resize-receivers.log",
+      "bytes": 98,
+      "sha256": "7ee80106f1abbaaa581ce1211400cf3331164e30080b64a31ac2be739c01369a"
+    },
+    {
+      "original_path": "/tmp/rf-final-receipts.py",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf-final-receipts.py",
+      "bytes": 9852,
+      "sha256": "e1fc9e0c4eab2acb47beb1ba0eb855c464a50c6d2e1a94e0c41899c5dd78b172"
+    },
+    {
+      "original_path": "/tmp/rf-update-group-docs.py",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf-update-group-docs.py",
+      "bytes": 4546,
+      "sha256": "ca497044fde188cf45bb012772125aa0e29d7ec567e581c209d5c36eb492e00f"
+    },
+    {
+      "original_path": "/tmp/rf004-surface-diagnosis.json",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf004-surface-diagnosis.json",
+      "bytes": 3223,
+      "sha256": "d7fe7bcdfbea6a2c17af320794b19ec1731d62882f38db3630bbae61dc33b8c6"
+    },
+    {
+      "original_path": "/tmp/rf046-build-final.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-build-final.log",
+      "bytes": 3613,
+      "sha256": "9947cef2cccc2968f1299f8c2b149a796501839214f742dc255c5176530f2202"
+    },
+    {
+      "original_path": "/tmp/rf046-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-build.log",
+      "bytes": 17457,
+      "sha256": "535f3f63652acb2f86b6e92ebb5e8c4ad5fb39122759aafb56b9b17832b18637"
+    },
+    {
+      "original_path": "/tmp/rf046-final-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-final-build.log",
+      "bytes": 1820,
+      "sha256": "bebf3ef599259e3c00ac5ca75c1ae2df4c9686cde451da1400f3b8f360038450"
+    },
+    {
+      "original_path": "/tmp/rf046-final-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-final-ctest.log",
+      "bytes": 1386,
+      "sha256": "58844f31c5a2c4ce9de5abfbc89f7c111e6e1c5351f6581502d58685e86e8b64"
+    },
+    {
+      "original_path": "/tmp/rf046-final-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-final-focused.log",
+      "bytes": 99,
+      "sha256": "cfa0ac222cdbd939cb4336f3951e7a84d0462528b02c3f2b28aa78dfc0df3b49"
+    },
+    {
+      "original_path": "/tmp/rf046-frozen-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-frozen-build.log",
+      "bytes": 3206,
+      "sha256": "9ed0da7ffca508355d7d00eda337733f3451b278d2e2a2259ae75e92213820f6"
+    },
+    {
+      "original_path": "/tmp/rf046-frozen-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-frozen-focused.log",
+      "bytes": 99,
+      "sha256": "2510202ad632e3652921f6288ffd0ee8ed67b8538d23ec8a6563a90091a5b502"
+    },
+    {
+      "original_path": "/tmp/rf046-frozen-normal-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-frozen-normal-build.log",
+      "bytes": 688,
+      "sha256": "37493fc1e65524f37b7eccaca660cb05a9285bcbf51787362a5d395ebfc8ff6e"
+    },
+    {
+      "original_path": "/tmp/rf046-frozen-normal-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-frozen-normal-ctest.log",
+      "bytes": 1386,
+      "sha256": "f71f52463442de5d71c369bcb808470038742c4d81fb48ac25c5edbf9910a4e6"
+    },
+    {
+      "original_path": "/tmp/rf046-frozen-normal-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-frozen-normal-focused.log",
+      "bytes": 99,
+      "sha256": "b2f1877c41423a95b863dfc15ad8356ae060b570a1b49ab1ef24420077cc40c6"
+    },
+    {
+      "original_path": "/tmp/rf046-frozen-normal-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-frozen-normal-pytest.log",
+      "bytes": 1183,
+      "sha256": "4dc4d95e91df2d5e4284fcb61b86d94157fbeca3bb3a2230a6097c26e95551d6"
+    },
+    {
+      "original_path": "/tmp/rf046-normal-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-normal-build.log",
+      "bytes": 1820,
+      "sha256": "bebf3ef599259e3c00ac5ca75c1ae2df4c9686cde451da1400f3b8f360038450"
+    },
+    {
+      "original_path": "/tmp/rf046-normal-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-normal-ctest.log",
+      "bytes": 1386,
+      "sha256": "11df4885941557982ab07ab067fb61618968029188fdd990e5f713306ff6afc8"
+    },
+    {
+      "original_path": "/tmp/rf046-normal-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-normal-focused.log",
+      "bytes": 99,
+      "sha256": "a66fc7070d67a3242b7852462bb3ab73ed0915084b5bf0719401472d2ab3aed3"
+    },
+    {
+      "original_path": "/tmp/rf046-objective-all-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-objective-all-focused.log",
+      "bytes": 99,
+      "sha256": "2f0c44c0a88b1e14ec03669ddcd8362a70a44c235ee3219f1c5b80438508f7cf"
+    },
+    {
+      "original_path": "/tmp/rf046-objective-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-objective-ctest.log",
+      "bytes": 1386,
+      "sha256": "d4ec4cd9a8c79c2cbc1bcbbeee48bb04d38c2d338c3a37378b1d14b1abbe80d9"
+    },
+    {
+      "original_path": "/tmp/rf046-objective-incremental-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-objective-incremental-build.log",
+      "bytes": 137,
+      "sha256": "ca8f834052082d90ecf7720a3e2c417e23363aab085f72e3864ca75b491f188e"
+    },
+    {
+      "original_path": "/tmp/rf046-objective-parity-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-objective-parity-inputs.json",
+      "bytes": 726,
+      "sha256": "32069d5c92fa287a8a940e400a293e9df0cec0358225f061996392ca6a6d252a"
+    },
+    {
+      "original_path": "/tmp/rf046-objective-parity-results.json",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-objective-parity-results.json",
+      "bytes": 2324,
+      "sha256": "ccff88daa857aa364dbe851a3fbfffcb637b713cd4df1db0f998e226fdc5266f"
+    },
+    {
+      "original_path": "/tmp/rf046-pre-normal-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-pre-normal-pytest.log",
+      "bytes": 181,
+      "sha256": "3cc2c0628b2b49c1d71d264091f0ba6de5f6517be52f7b11625d7d2d1aad21d1"
+    },
+    {
+      "original_path": "/tmp/rf046-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-pytest.log",
+      "bytes": 4,
+      "sha256": "dfa3476846ce31adf8b1496b34595fb3f5ca2adf22b6df8ca2264c718b985cd9"
+    },
+    {
+      "original_path": "/tmp/rf046-qualify-strict.py",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-qualify-strict.py",
+      "bytes": 3046,
+      "sha256": "af1a355d0771ebeb10762647ace3ed3cc668b7cb30071fe80db0067fd1eddb97"
+    },
+    {
+      "original_path": "/tmp/rf046-refined-real.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-refined-real.log",
+      "bytes": 98,
+      "sha256": "634204c9420446947f08fcf125ddc9d273fcbaf32409886cb8da1628dfe2e108"
+    },
+    {
+      "original_path": "/tmp/rf046-refined-syntax.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-refined-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "/tmp/rf046-resize-corrected-qualification.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-resize-corrected-qualification.log",
+      "bytes": 98,
+      "sha256": "b44f011eac8728be40c643fbb72202d9b1197229a5a3ea5600fd917f29edad81"
+    },
+    {
+      "original_path": "/tmp/rf046-robust-local-before.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-robust-local-before.log",
+      "bytes": 144,
+      "sha256": "dd0581c782dda796f1992ac3e79069a59bc1d3a96cafbc1358406be42c9a1866"
+    },
+    {
+      "original_path": "/tmp/rf046-robust-objective-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-robust-objective-focused.log",
+      "bytes": 87,
+      "sha256": "169baa5342283be762bc92c7378734f29c2bfc48b8d3ba4ff48c5300acd89260"
+    },
+    {
+      "original_path": "/tmp/rf046-scoped-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-scoped-build.log",
+      "bytes": 3206,
+      "sha256": "bffafc88dc027cf19cefddc565dd418cd6a5fb206ee10b1f3a73123f987a721e"
+    },
+    {
+      "original_path": "/tmp/rf046-scoped-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-scoped-focused.log",
+      "bytes": 98,
+      "sha256": "8cc20897072c89009395e0389e9d72abeec314cc89a1ee27708d6964eeb28a3a"
+    },
+    {
+      "original_path": "/tmp/rf046-sourceplan-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-sourceplan-build.log",
+      "bytes": 804,
+      "sha256": "ee1287319fa32616497ba238db352a724b09ed867ec5dd16f3b4dbb5f36eff82"
+    },
+    {
+      "original_path": "/tmp/rf046-strict-real.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf046-strict-real.log",
+      "bytes": 1530,
+      "sha256": "bb358d55cd792612572b24ca79234c07e11bc83d2c5d3fa1a2636cfbf562dae4"
+    },
+    {
+      "original_path": "/tmp/rf047-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf047-build.log",
+      "bytes": 4445,
+      "sha256": "fec22c3d7cb8fd459a3002766c1d72aee1ba8d6582f69f4c995d5eb2a5239c10"
+    },
+    {
+      "original_path": "/tmp/rf047-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf047-pytest.log",
+      "bytes": 192,
+      "sha256": "c0fc1e7af3bb60fdc23378fde4b26993aa4ce9b05038abce8e1effab8053f0fd"
+    },
+    {
+      "original_path": "/tmp/rf048-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf048-pytest.log",
+      "bytes": 192,
+      "sha256": "cfc1e25e6dcfd145133e87b76e51e1ab0fd3984e5f2f4124b9d9651ae5a0c281"
+    },
+    {
+      "original_path": "/tmp/rf049-normal-asan.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf049-normal-asan.log",
+      "bytes": 92,
+      "sha256": "2c35f281c843379f22277e9c459f3d686cb0d45b740f7348b3763143b63532ef"
+    },
+    {
+      "original_path": "/tmp/rf049-normal-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf049-normal-focused.log",
+      "bytes": 98,
+      "sha256": "89dd7a09c1d9e2b0d6ec7e49004a57b9aa6615e6df9704be2343c2912178a15f"
+    },
+    {
+      "original_path": "/tmp/rf049-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf049-pytest.log",
+      "bytes": 192,
+      "sha256": "47bd7faed8964b4ff75db5938c7e90a8f92596d6c0b8e779850e698754636183"
+    },
+    {
+      "original_path": "/tmp/rf050-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-build.log",
+      "bytes": 4445,
+      "sha256": "0d877a0ab8c5404eecefe6f5fcb94696bd17e43708240c8ae11f1d8c210d25ae"
+    },
+    {
+      "original_path": "/tmp/rf050-final-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-final-focused.log",
+      "bytes": 98,
+      "sha256": "34c437dab7cf1528517edfffff0baee56ef6571e8b4c3f504e5e69118ced8fa5"
+    },
+    {
+      "original_path": "/tmp/rf050-final-process.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-final-process.log",
+      "bytes": 99,
+      "sha256": "47a82c56b7a513043b9b64088301e973bb0f6260980b57b4268a6228390f5897"
+    },
+    {
+      "original_path": "/tmp/rf050-frozen-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-frozen-focused.log",
+      "bytes": 99,
+      "sha256": "aafa1fad2deb86a89aa9013c3cb20bacd9f992b42039c0a3437d061392d217b8"
+    },
+    {
+      "original_path": "/tmp/rf050-last-build.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-last-build.log",
+      "bytes": 2085,
+      "sha256": "e6e91fd4b941ff9da525e9218fec436dbcfaf8aad15b1e3b804898727e1711cd"
+    },
+    {
+      "original_path": "/tmp/rf050-last-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-last-pytest.log",
+      "bytes": 99,
+      "sha256": "999167426b0e5a582f1a0bc9fe0c70b0ecb086f11443cb9fc72011d6a96eecfa"
+    },
+    {
+      "original_path": "/tmp/rf050-process-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-process-pytest.log",
+      "bytes": 109,
+      "sha256": "a71631d3cb033f5741ed97e161ae8719d2053e83774e0172dcf293a71fcc9a9b"
+    },
+    {
+      "original_path": "/tmp/rf050-pytest-final.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-pytest-final.log",
+      "bytes": 1582,
+      "sha256": "be01a6621e106e4dbce2c79f4934d006953618789bb75a3a399076812a2174d4"
+    },
+    {
+      "original_path": "/tmp/rf050-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-pytest.log",
+      "bytes": 109467,
+      "sha256": "6260665c708690f914faaf2b6226490ae1ffe285d46bbb243e42fe5e1aa5ff61"
+    },
+    {
+      "original_path": "/tmp/rf050-rebuild.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-rebuild.log",
+      "bytes": 2203,
+      "sha256": "5e74ea4e6fd68b12c9a2a8db19042486077bb29cefa56572496a8435a1a39fd4"
+    },
+    {
+      "original_path": "/tmp/rf050-tile-asan.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-tile-asan.log",
+      "bytes": 126,
+      "sha256": "5a2b8d45412e0bde26739999a2da72fb60b929640f4dac73df31d475837caf63"
+    },
+    {
+      "original_path": "/tmp/rf050-tile-final.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-tile-final.log",
+      "bytes": 99,
+      "sha256": "8fe769fb70fdde4e79b5e4b1462616176071cfeb615304923f4183bb17094a2d"
+    },
+    {
+      "original_path": "/tmp/rf050-tile-initial.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-tile-initial.log",
+      "bytes": 99,
+      "sha256": "a7aa42727c3aeb9dccff66d9336ce93f0f9c7392e03a68dff59bc17bab004c87"
+    },
+    {
+      "original_path": "/tmp/rf050-tile-status-final.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf050-tile-status-final.log",
+      "bytes": 99,
+      "sha256": "264709e475168e9708630a40f47f8d1a2d6785f5556a2f50e4e0eb4ea0f9c82e"
+    },
+    {
+      "original_path": "/tmp/rf053-surface-diagnosis.json",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053-surface-diagnosis.json",
+      "bytes": 2754,
+      "sha256": "0e27c5fd7c6d18d2872ed2b2e395b7626ffd56e172f77a493c666c3da1f892ca"
+    },
+    {
+      "original_path": "/tmp/rf053_bound_rounding.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053_bound_rounding.cpp",
+      "bytes": 1268,
+      "sha256": "8fde3602855570d8fc7c1739920b7b2932b9fc1ef7bf47780a19fff6b70e4de2"
+    },
+    {
+      "original_path": "/tmp/rf053_calibrated_graph.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053_calibrated_graph.cpp",
+      "bytes": 8650,
+      "sha256": "dd9864367fe27715e9a7c55ed097abba644e1fa061d9a3c8842d9760ad9b8052"
+    },
+    {
+      "original_path": "/tmp/rf053_calibrated_graph.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053_calibrated_graph.log",
+      "bytes": 338,
+      "sha256": "90ec13a42898a94f34200b69bc8303c2f6d3df932b63125cce06e57bcd05843d"
+    },
+    {
+      "original_path": "/tmp/rf053_calibrated_graph_corrected_pixels.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053_calibrated_graph_corrected_pixels.log",
+      "bytes": 338,
+      "sha256": "c43ea8447a9e70424231d0d88c6accf6217ca65911af03b527c24cafe3d2df68"
+    },
+    {
+      "original_path": "/tmp/rf053_local_graph.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053_local_graph.cpp",
+      "bytes": 5792,
+      "sha256": "9c17471a0b762eea20b4ca326e26d9c522b89a91e493b39a00b566ecd37bfc3b"
+    },
+    {
+      "original_path": "/tmp/rf053_local_graph.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053_local_graph.log",
+      "bytes": 253,
+      "sha256": "de49bd23674ff89fce9ce2e34d26d61bc5ec5c8937457670af5532ca130da7f2"
+    },
+    {
+      "original_path": "/tmp/rf053_local_graph_classified.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf053_local_graph_classified.log",
+      "bytes": 415,
+      "sha256": "d36b8864114989394bd4ef38f96ea52f0507aeb008a70dbe3d0d28fb3dfe11bf"
+    },
+    {
+      "original_path": "/tmp/rf054_slanted_diagnosis.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf054_slanted_diagnosis.cpp",
+      "bytes": 2207,
+      "sha256": "2a66cebb624a9fe2911a0acbc844136a6f41264b1cdeda139e3f0c2fc58281aa"
+    },
+    {
+      "original_path": "/tmp/rf054_slanted_diagnosis.log",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf054_slanted_diagnosis.log",
+      "bytes": 254,
+      "sha256": "2ce4432eb86fc5c7a0ba195e84342603c8f8eef9de7978518bf2c55488fa18d5"
+    },
+    {
+      "original_path": "/tmp/rf_surface_diagnosis.py",
+      "saved_path": "tools/campaign-support/snapshot/tmp/rf_surface_diagnosis.py",
+      "bytes": 645,
+      "sha256": "b05853838c391b1bd05674b6a5aaf48ac9330a43ff9a3fcbd77b769955355618"
+    },
+    {
+      "original_path": "/tmp/agent058-mip-review/actual.json",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent058-mip-review/actual.json",
+      "bytes": 396,
+      "sha256": "2f10a245fabff2d472931e5da79446a4be0e951a58a987d8698c22ec4197d212"
+    },
+    {
+      "original_path": "/tmp/agent058-mip-review/actual_bake.cpp",
+      "saved_path": "tools/campaign-support/snapshot/tmp/agent058-mip-review/actual_bake.cpp",
+      "bytes": 2413,
+      "sha256": "5a00618f139289b0fd6f51728626d9ddfef168b0d1896fbeecf840d54858f900"
+    },
+    {
+      "original_path": "/workspace/agents/040/build/preserved/reconstruction/src/multiview.cpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/040/build/preserved/reconstruction/src/multiview.cpp",
+      "bytes": 17512,
+      "sha256": "8cd05957cc202761dcb96c248a56351708f270e43e18395864940c32a4c850af"
+    },
+    {
+      "original_path": "/workspace/agents/040/build/preserved/reconstruction/include/realityforge/multiview.hpp",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/040/build/preserved/reconstruction/include/realityforge/multiview.hpp",
+      "bytes": 2026,
+      "sha256": "d07f2f2db5147f0057ead03191e638949d1b3fa164bf9dc25ecc44f70bb41237"
+    },
+    {
+      "original_path": "/workspace/agents/009/build/agent009/run-focused.py",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/009/build/agent009/run-focused.py",
+      "bytes": 1487,
+      "sha256": "d89616a958cccf9e27236b1cf2eda6e3bd04d268e03e1411e2b78c66f3371c0f"
+    },
+    {
+      "original_path": "/workspace/agents/052/build/vulkan-harness/CMakeLists.txt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/052/build/vulkan-harness/CMakeLists.txt",
+      "bytes": 572,
+      "sha256": "56df79fbd192b2989e48dcd3588293131625f0457e059858041927a085e09dc1"
+    },
+    {
+      "original_path": "/workspace/agents/039/build/preserved-scoped/IncrementalRegistration.kt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/039/build/preserved-scoped/IncrementalRegistration.kt",
+      "bytes": 15708,
+      "sha256": "de92141712b4d419f35e4755e3397a4971af38a1299881413f32c1aaef059750"
+    },
+    {
+      "original_path": "/workspace/agents/039/build/preserved-scoped/NativeFrontierGeometry.kt",
+      "saved_path": "tools/campaign-support/snapshot/workspace/agents/039/build/preserved-scoped/NativeFrontierGeometry.kt",
+      "bytes": 4623,
+      "sha256": "f8adbe849057343ec9cd6e0250b4164577cc01e572388da6fbb85c3fc905704f"
+    },
+    {
+      "original_path": "tar:tmp/rf004-surface-diagnosis.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf004-surface-diagnosis.json",
+      "bytes": 3223,
+      "sha256": "d7fe7bcdfbea6a2c17af320794b19ec1731d62882f38db3630bbae61dc33b8c6"
+    },
+    {
+      "original_path": "tar:tmp/rf046-build-final.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-build-final.log",
+      "bytes": 3613,
+      "sha256": "9947cef2cccc2968f1299f8c2b149a796501839214f742dc255c5176530f2202"
+    },
+    {
+      "original_path": "tar:tmp/rf046-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-build.log",
+      "bytes": 17457,
+      "sha256": "535f3f63652acb2f86b6e92ebb5e8c4ad5fb39122759aafb56b9b17832b18637"
+    },
+    {
+      "original_path": "tar:tmp/rf046-final-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-final-build.log",
+      "bytes": 1820,
+      "sha256": "bebf3ef599259e3c00ac5ca75c1ae2df4c9686cde451da1400f3b8f360038450"
+    },
+    {
+      "original_path": "tar:tmp/rf046-final-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-final-ctest.log",
+      "bytes": 1386,
+      "sha256": "58844f31c5a2c4ce9de5abfbc89f7c111e6e1c5351f6581502d58685e86e8b64"
+    },
+    {
+      "original_path": "tar:tmp/rf046-final-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-final-focused.log",
+      "bytes": 99,
+      "sha256": "cfa0ac222cdbd939cb4336f3951e7a84d0462528b02c3f2b28aa78dfc0df3b49"
+    },
+    {
+      "original_path": "tar:tmp/rf046-frozen-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-frozen-build.log",
+      "bytes": 3206,
+      "sha256": "9ed0da7ffca508355d7d00eda337733f3451b278d2e2a2259ae75e92213820f6"
+    },
+    {
+      "original_path": "tar:tmp/rf046-frozen-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-frozen-focused.log",
+      "bytes": 99,
+      "sha256": "2510202ad632e3652921f6288ffd0ee8ed67b8538d23ec8a6563a90091a5b502"
+    },
+    {
+      "original_path": "tar:tmp/rf046-frozen-normal-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-frozen-normal-build.log",
+      "bytes": 688,
+      "sha256": "37493fc1e65524f37b7eccaca660cb05a9285bcbf51787362a5d395ebfc8ff6e"
+    },
+    {
+      "original_path": "tar:tmp/rf046-frozen-normal-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-frozen-normal-ctest.log",
+      "bytes": 1386,
+      "sha256": "f71f52463442de5d71c369bcb808470038742c4d81fb48ac25c5edbf9910a4e6"
+    },
+    {
+      "original_path": "tar:tmp/rf046-frozen-normal-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-frozen-normal-focused.log",
+      "bytes": 99,
+      "sha256": "b2f1877c41423a95b863dfc15ad8356ae060b570a1b49ab1ef24420077cc40c6"
+    },
+    {
+      "original_path": "tar:tmp/rf046-frozen-normal-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-frozen-normal-pytest.log",
+      "bytes": 1183,
+      "sha256": "4dc4d95e91df2d5e4284fcb61b86d94157fbeca3bb3a2230a6097c26e95551d6"
+    },
+    {
+      "original_path": "tar:tmp/rf046-normal-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-normal-build.log",
+      "bytes": 1820,
+      "sha256": "bebf3ef599259e3c00ac5ca75c1ae2df4c9686cde451da1400f3b8f360038450"
+    },
+    {
+      "original_path": "tar:tmp/rf046-normal-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-normal-ctest.log",
+      "bytes": 1386,
+      "sha256": "11df4885941557982ab07ab067fb61618968029188fdd990e5f713306ff6afc8"
+    },
+    {
+      "original_path": "tar:tmp/rf046-normal-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-normal-focused.log",
+      "bytes": 99,
+      "sha256": "a66fc7070d67a3242b7852462bb3ab73ed0915084b5bf0719401472d2ab3aed3"
+    },
+    {
+      "original_path": "tar:tmp/rf046-objective-all-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-objective-all-focused.log",
+      "bytes": 99,
+      "sha256": "2f0c44c0a88b1e14ec03669ddcd8362a70a44c235ee3219f1c5b80438508f7cf"
+    },
+    {
+      "original_path": "tar:tmp/rf046-objective-ctest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-objective-ctest.log",
+      "bytes": 1386,
+      "sha256": "d4ec4cd9a8c79c2cbc1bcbbeee48bb04d38c2d338c3a37378b1d14b1abbe80d9"
+    },
+    {
+      "original_path": "tar:tmp/rf046-objective-incremental-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-objective-incremental-build.log",
+      "bytes": 137,
+      "sha256": "ca8f834052082d90ecf7720a3e2c417e23363aab085f72e3864ca75b491f188e"
+    },
+    {
+      "original_path": "tar:tmp/rf046-objective-parity-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-objective-parity-inputs.json",
+      "bytes": 726,
+      "sha256": "32069d5c92fa287a8a940e400a293e9df0cec0358225f061996392ca6a6d252a"
+    },
+    {
+      "original_path": "tar:tmp/rf046-objective-parity-results.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-objective-parity-results.json",
+      "bytes": 2324,
+      "sha256": "ccff88daa857aa364dbe851a3fbfffcb637b713cd4df1db0f998e226fdc5266f"
+    },
+    {
+      "original_path": "tar:tmp/rf046-pre-normal-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-pre-normal-pytest.log",
+      "bytes": 181,
+      "sha256": "3cc2c0628b2b49c1d71d264091f0ba6de5f6517be52f7b11625d7d2d1aad21d1"
+    },
+    {
+      "original_path": "tar:tmp/rf046-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-pytest.log",
+      "bytes": 4,
+      "sha256": "dfa3476846ce31adf8b1496b34595fb3f5ca2adf22b6df8ca2264c718b985cd9"
+    },
+    {
+      "original_path": "tar:tmp/rf046-qualify-strict.py",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-qualify-strict.py",
+      "bytes": 3046,
+      "sha256": "af1a355d0771ebeb10762647ace3ed3cc668b7cb30071fe80db0067fd1eddb97"
+    },
+    {
+      "original_path": "tar:tmp/rf046-refined-real.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-refined-real.log",
+      "bytes": 98,
+      "sha256": "634204c9420446947f08fcf125ddc9d273fcbaf32409886cb8da1628dfe2e108"
+    },
+    {
+      "original_path": "tar:tmp/rf046-refined-syntax.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-refined-syntax.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original_path": "tar:tmp/rf046-resize-corrected-qualification.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-resize-corrected-qualification.log",
+      "bytes": 98,
+      "sha256": "b44f011eac8728be40c643fbb72202d9b1197229a5a3ea5600fd917f29edad81"
+    },
+    {
+      "original_path": "tar:tmp/rf046-robust-local-before.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-robust-local-before.log",
+      "bytes": 144,
+      "sha256": "dd0581c782dda796f1992ac3e79069a59bc1d3a96cafbc1358406be42c9a1866"
+    },
+    {
+      "original_path": "tar:tmp/rf046-robust-objective-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-robust-objective-focused.log",
+      "bytes": 87,
+      "sha256": "169baa5342283be762bc92c7378734f29c2bfc48b8d3ba4ff48c5300acd89260"
+    },
+    {
+      "original_path": "tar:tmp/rf046-scoped-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-scoped-build.log",
+      "bytes": 3206,
+      "sha256": "bffafc88dc027cf19cefddc565dd418cd6a5fb206ee10b1f3a73123f987a721e"
+    },
+    {
+      "original_path": "tar:tmp/rf046-scoped-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-scoped-focused.log",
+      "bytes": 98,
+      "sha256": "8cc20897072c89009395e0389e9d72abeec314cc89a1ee27708d6964eeb28a3a"
+    },
+    {
+      "original_path": "tar:tmp/rf046-sourceplan-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-sourceplan-build.log",
+      "bytes": 804,
+      "sha256": "ee1287319fa32616497ba238db352a724b09ed867ec5dd16f3b4dbb5f36eff82"
+    },
+    {
+      "original_path": "tar:tmp/rf046-strict-real.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf046-strict-real.log",
+      "bytes": 1530,
+      "sha256": "bb358d55cd792612572b24ca79234c07e11bc83d2c5d3fa1a2636cfbf562dae4"
+    },
+    {
+      "original_path": "tar:tmp/rf047-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf047-build.log",
+      "bytes": 4445,
+      "sha256": "fec22c3d7cb8fd459a3002766c1d72aee1ba8d6582f69f4c995d5eb2a5239c10"
+    },
+    {
+      "original_path": "tar:tmp/rf047-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf047-pytest.log",
+      "bytes": 192,
+      "sha256": "c0fc1e7af3bb60fdc23378fde4b26993aa4ce9b05038abce8e1effab8053f0fd"
+    },
+    {
+      "original_path": "tar:tmp/rf048-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf048-pytest.log",
+      "bytes": 192,
+      "sha256": "cfc1e25e6dcfd145133e87b76e51e1ab0fd3984e5f2f4124b9d9651ae5a0c281"
+    },
+    {
+      "original_path": "tar:tmp/rf049-normal-asan.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf049-normal-asan.log",
+      "bytes": 92,
+      "sha256": "2c35f281c843379f22277e9c459f3d686cb0d45b740f7348b3763143b63532ef"
+    },
+    {
+      "original_path": "tar:tmp/rf049-normal-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf049-normal-focused.log",
+      "bytes": 98,
+      "sha256": "89dd7a09c1d9e2b0d6ec7e49004a57b9aa6615e6df9704be2343c2912178a15f"
+    },
+    {
+      "original_path": "tar:tmp/rf049-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf049-pytest.log",
+      "bytes": 192,
+      "sha256": "47bd7faed8964b4ff75db5938c7e90a8f92596d6c0b8e779850e698754636183"
+    },
+    {
+      "original_path": "tar:tmp/rf050-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-build.log",
+      "bytes": 4445,
+      "sha256": "0d877a0ab8c5404eecefe6f5fcb94696bd17e43708240c8ae11f1d8c210d25ae"
+    },
+    {
+      "original_path": "tar:tmp/rf050-final-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-final-focused.log",
+      "bytes": 98,
+      "sha256": "34c437dab7cf1528517edfffff0baee56ef6571e8b4c3f504e5e69118ced8fa5"
+    },
+    {
+      "original_path": "tar:tmp/rf050-final-process.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-final-process.log",
+      "bytes": 99,
+      "sha256": "47a82c56b7a513043b9b64088301e973bb0f6260980b57b4268a6228390f5897"
+    },
+    {
+      "original_path": "tar:tmp/rf050-frozen-focused.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-frozen-focused.log",
+      "bytes": 99,
+      "sha256": "aafa1fad2deb86a89aa9013c3cb20bacd9f992b42039c0a3437d061392d217b8"
+    },
+    {
+      "original_path": "tar:tmp/rf050-last-build.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-last-build.log",
+      "bytes": 2085,
+      "sha256": "e6e91fd4b941ff9da525e9218fec436dbcfaf8aad15b1e3b804898727e1711cd"
+    },
+    {
+      "original_path": "tar:tmp/rf050-last-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-last-pytest.log",
+      "bytes": 99,
+      "sha256": "999167426b0e5a582f1a0bc9fe0c70b0ecb086f11443cb9fc72011d6a96eecfa"
+    },
+    {
+      "original_path": "tar:tmp/rf050-process-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-process-pytest.log",
+      "bytes": 109,
+      "sha256": "a71631d3cb033f5741ed97e161ae8719d2053e83774e0172dcf293a71fcc9a9b"
+    },
+    {
+      "original_path": "tar:tmp/rf050-pytest-final.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-pytest-final.log",
+      "bytes": 1582,
+      "sha256": "be01a6621e106e4dbce2c79f4934d006953618789bb75a3a399076812a2174d4"
+    },
+    {
+      "original_path": "tar:tmp/rf050-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-pytest.log",
+      "bytes": 109467,
+      "sha256": "6260665c708690f914faaf2b6226490ae1ffe285d46bbb243e42fe5e1aa5ff61"
+    },
+    {
+      "original_path": "tar:tmp/rf050-rebuild.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-rebuild.log",
+      "bytes": 2203,
+      "sha256": "5e74ea4e6fd68b12c9a2a8db19042486077bb29cefa56572496a8435a1a39fd4"
+    },
+    {
+      "original_path": "tar:tmp/rf050-tile-asan.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-tile-asan.log",
+      "bytes": 126,
+      "sha256": "5a2b8d45412e0bde26739999a2da72fb60b929640f4dac73df31d475837caf63"
+    },
+    {
+      "original_path": "tar:tmp/rf050-tile-final.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-tile-final.log",
+      "bytes": 99,
+      "sha256": "8fe769fb70fdde4e79b5e4b1462616176071cfeb615304923f4183bb17094a2d"
+    },
+    {
+      "original_path": "tar:tmp/rf050-tile-initial.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-tile-initial.log",
+      "bytes": 99,
+      "sha256": "a7aa42727c3aeb9dccff66d9336ce93f0f9c7392e03a68dff59bc17bab004c87"
+    },
+    {
+      "original_path": "tar:tmp/rf050-tile-status-final.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf050-tile-status-final.log",
+      "bytes": 99,
+      "sha256": "264709e475168e9708630a40f47f8d1a2d6785f5556a2f50e4e0eb4ea0f9c82e"
+    },
+    {
+      "original_path": "tar:tmp/rf053-surface-diagnosis.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053-surface-diagnosis.json",
+      "bytes": 2754,
+      "sha256": "0e27c5fd7c6d18d2872ed2b2e395b7626ffd56e172f77a493c666c3da1f892ca"
+    },
+    {
+      "original_path": "tar:tmp/rf053_bound_rounding.cpp",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053_bound_rounding.cpp",
+      "bytes": 1268,
+      "sha256": "8fde3602855570d8fc7c1739920b7b2932b9fc1ef7bf47780a19fff6b70e4de2"
+    },
+    {
+      "original_path": "tar:tmp/rf053_calibrated_graph.cpp",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053_calibrated_graph.cpp",
+      "bytes": 8650,
+      "sha256": "dd9864367fe27715e9a7c55ed097abba644e1fa061d9a3c8842d9760ad9b8052"
+    },
+    {
+      "original_path": "tar:tmp/rf053_calibrated_graph.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053_calibrated_graph.log",
+      "bytes": 338,
+      "sha256": "90ec13a42898a94f34200b69bc8303c2f6d3df932b63125cce06e57bcd05843d"
+    },
+    {
+      "original_path": "tar:tmp/rf053_calibrated_graph_corrected_pixels.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053_calibrated_graph_corrected_pixels.log",
+      "bytes": 338,
+      "sha256": "c43ea8447a9e70424231d0d88c6accf6217ca65911af03b527c24cafe3d2df68"
+    },
+    {
+      "original_path": "tar:tmp/rf053_local_graph.cpp",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053_local_graph.cpp",
+      "bytes": 5792,
+      "sha256": "9c17471a0b762eea20b4ca326e26d9c522b89a91e493b39a00b566ecd37bfc3b"
+    },
+    {
+      "original_path": "tar:tmp/rf053_local_graph.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053_local_graph.log",
+      "bytes": 253,
+      "sha256": "de49bd23674ff89fce9ce2e34d26d61bc5ec5c8937457670af5532ca130da7f2"
+    },
+    {
+      "original_path": "tar:tmp/rf053_local_graph_classified.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf053_local_graph_classified.log",
+      "bytes": 415,
+      "sha256": "d36b8864114989394bd4ef38f96ea52f0507aeb008a70dbe3d0d28fb3dfe11bf"
+    },
+    {
+      "original_path": "tar:tmp/rf054_slanted_diagnosis.cpp",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf054_slanted_diagnosis.cpp",
+      "bytes": 2207,
+      "sha256": "2a66cebb624a9fe2911a0acbc844136a6f41264b1cdeda139e3f0c2fc58281aa"
+    },
+    {
+      "original_path": "tar:tmp/rf054_slanted_diagnosis.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf054_slanted_diagnosis.log",
+      "bytes": 254,
+      "sha256": "2ce4432eb86fc5c7a0ba195e84342603c8f8eef9de7978518bf2c55488fa18d5"
+    },
+    {
+      "original_path": "tar:tmp/rf_surface_diagnosis.py",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/tmp/rf_surface_diagnosis.py",
+      "bytes": 645,
+      "sha256": "b05853838c391b1bd05674b6a5aaf48ac9330a43ff9a3fcbd77b769955355618"
+    },
+    {
+      "original_path": "tar:workspace/agents/046/build/agents/046-refined-middlebury.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/agents/046/build/agents/046-refined-middlebury.json",
+      "bytes": 2230,
+      "sha256": "a8349f1f1f73986c8d921f9679763ee254a73fd897141ecda4d819e3fee36bd1"
+    },
+    {
+      "original_path": "tar:workspace/agents/047-plane-asan.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/agents/047-plane-asan.log",
+      "bytes": 127,
+      "sha256": "0c413a58776d0b4bfdf52d6cf271c74ee113becb7a5370351c2f30df7cb03651"
+    },
+    {
+      "original_path": "tar:workspace/agents/047-plane-pytest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/agents/047-plane-pytest.log",
+      "bytes": 98,
+      "sha256": "43557565734a08c43e5a3973973179f5bf3692ffb6987e822d48d508730995f8"
+    },
+    {
+      "original_path": "tar:workspace/campaign/final-candidate-audit.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/final-candidate-audit.json",
+      "bytes": 5528,
+      "sha256": "9c255a623d7e37a5e710b0890140f480abfcaa7e896c4759a99c8209c66713a6"
+    },
+    {
+      "original_path": "tar:workspace/campaign/final-candidate-inputs-next.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/final-candidate-inputs-next.json",
+      "bytes": 7054,
+      "sha256": "c6afd3e1cc22d4302de1d3df8a7b3c07fe0a56c60b0c923b64880d3177f4b13e"
+    },
+    {
+      "original_path": "tar:workspace/campaign/final-candidate-inputs.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/final-candidate-inputs.json",
+      "bytes": 4424,
+      "sha256": "269f766f475c74e75865f23d5bac3769aee1bb0149887e2bff005fe07716b00f"
+    },
+    {
+      "original_path": "tar:workspace/campaign/final-candidate-intermediate-update.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/final-candidate-intermediate-update.json",
+      "bytes": 703,
+      "sha256": "eb05d9542eeaa0ef9504e59d0c861abf75b7761db6bd0dfe63ecc46a1613330b"
+    },
+    {
+      "original_path": "tar:workspace/campaign/final-candidate-merge.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/final-candidate-merge.log",
+      "bytes": 7260,
+      "sha256": "91336d6d5632faf6a099f0b39a4ee7cf0a5c6cdd59ad998a7e0b90e2c39607b1"
+    },
+    {
+      "original_path": "tar:workspace/campaign/final-candidate-narrow-receivers.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/final-candidate-narrow-receivers.json",
+      "bytes": 776,
+      "sha256": "013851213baccde103d47fb150be77736c594c338aefb6f7a03fb552560d9386"
+    },
+    {
+      "original_path": "tar:workspace/campaign/final-candidate-v6-audit.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/final-candidate-v6-audit.json",
+      "bytes": 6961,
+      "sha256": "6bcad25f985936b15e263a6a7ba4d74cebda512d25c1f8480d9efe242947f8fe"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/046-provenance-WIP.md",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/046-provenance-WIP.md",
+      "bytes": 1131,
+      "sha256": "1899a0fdaeb5f56011f46fcce84fcd3f4f6d8ebfc1cff516f12b4ca195077df0"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/046.md",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/046.md",
+      "bytes": 11391,
+      "sha256": "740b177dd66d394a8142d055beb3f542404b49f500e98efe223b7c21bddf8498"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/047.md",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/047.md",
+      "bytes": 12623,
+      "sha256": "c1159146d8cd6e106b8921aae925dac35314836c3ad0b615cdc6b2e99e31d0ca"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/048.md",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/048.md",
+      "bytes": 10303,
+      "sha256": "2f89a1802c8a95bb453a8f4167733f0f99c9847a5eb86780f942fe1b828a5e88"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/049-provenance-WIP.md",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/049-provenance-WIP.md",
+      "bytes": 4257,
+      "sha256": "4e524905358dbb65a05b86601bcb15e5b0e0152b8a93b38cc5e690c25f2f8356"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/049.md",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/049.md",
+      "bytes": 11760,
+      "sha256": "2274731a32d6fff38bb35a02a61d0f2bf7f619ef68bfd9ba4c66bf565195d30d"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/050.md",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/050.md",
+      "bytes": 11611,
+      "sha256": "d9a76c713a5c2730f6206c3d35dc8571edf8cce7815241452a0c77214d68b6f6"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/draft-index.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/draft-index.json",
+      "bytes": 8071,
+      "sha256": "322649fce6a57f6ed128a1f6396501ec6a73255e9097207e29380ca5e726cd80"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/release36-lasttest.log",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/release36-lasttest.log",
+      "bytes": 29605,
+      "sha256": "e3a9a36bcb52aebfaaf2f9cc595995a49ebb98d9ff2647313d3d7466694b5e1f"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/stop-outside-git-inventory.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/stop-outside-git-inventory.json",
+      "bytes": 78151,
+      "sha256": "741be2e52d04a7169ccb2e254b7c43d355ff62daea9cb85cf6f8c02a8dcc17a4"
+    },
+    {
+      "original_path": "tar:workspace/campaign/receipt-drafts/046-050/stop-published-heads.json",
+      "saved_path": "tools/campaign-support/snapshot/archived-046-050/workspace/campaign/receipt-drafts/046-050/stop-published-heads.json",
+      "bytes": 2670,
+      "sha256": "b04f86a666ea31795f81c658ac08a99562b41da6cfa763c7c777035254477654"
+    }
+  ],
+  "excluded": "Third-party toolchains/dependency caches, credentials, generated binaries/APKs/native libraries and reference-photo data; existing hashes/receipts preserved"
+}

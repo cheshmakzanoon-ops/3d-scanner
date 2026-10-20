@@ -1,0 +1,104 @@
+{
+  "scope": "Prepared outside checkouts only. Do not apply before approved final Android/runtime evidence.",
+  "current_heads": {
+    "031": {
+      "branch": "agents/031-lens-coordinate-geometry",
+      "head": "2bfadf8c0461620684aa458a3fdc9c223c73e5e9",
+      "code_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a"
+    },
+    "032": {
+      "branch": "agents/032-feature-extraction",
+      "head": "004f948e7b36a387e9a2bac1753153991f5248d5",
+      "code_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+      "reviewed_decoder_dependency": "73da7ac2c11f1a4e5fbde8277efdaeb7d5f17897",
+      "reviewed_geometry_dependency": "2bfadf8c0461620684aa458a3fdc9c223c73e5e9"
+    },
+    "033": {
+      "branch": "agents/033-feature-cache-integrity",
+      "head": "bd5d4441910e2e7a9cefc56bff60d0c927805903",
+      "code_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a"
+    },
+    "034": {
+      "branch": "agents/034-overlap-candidate-graph",
+      "head": "e428228c03c1b95ce79e32bae2cd0f5120026ca5",
+      "code_sha": "df86f792757b43b8bd308233912f9d47288f8589"
+    },
+    "035": {
+      "branch": "agents/035-verified-feature-matching",
+      "head": "347ce72e3e027be3e6350742f6e2099e13d1b826",
+      "code_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "reviewed_decoder_dependency": "73da7ac2c11f1a4e5fbde8277efdaeb7d5f17897",
+      "reviewed_feature_dependency": "004f948e7b36a387e9a2bac1753153991f5248d5",
+      "reviewed_geometry_dependency": "2bfadf8c0461620684aa458a3fdc9c223c73e5e9"
+    }
+  },
+  "warm_validation_head": "f49c66a87d47aa90ff79d7f0d6bcc106d495721e",
+  "pre_fix_checkpoint": {
+    "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+    "receipt": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/validation-receipt.json",
+    "scope": "124 JVM tests, app/test APK build, lint0errors8warnings,16KB12libraries,noINTERNET; pre-fix only, runtime still pending036 report",
+    "runtime": {
+      "result": "INTERRUPTED_FOR_FINAL_OPTIMIZED_NATIVE_RUNTIME",
+      "elapsed_seconds": 1963.29,
+      "details": "036 intentionally stopped C1 to transition to final optimized-native build; no PASS, timeout or assertion failure is inferred."
+    }
+  },
+  "final_build_evidence": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-receipt.json",
+  "final_runtime_evidence": {
+    "status": "INSTALLING",
+    "directory": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z",
+    "runner_session": 70296,
+    "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "build_configuration": "OPTIMIZED_NATIVE_DEBUG",
+    "lease_owner": "036"
+  },
+  "receipt_changes_after_evidence": [
+    "Append final actual build receipt with exact reviewed source/checkout/tree SHA, copied APK hashes/bytes, per-class JUnit XML totals, lint/APK/CMake evidence. Retain historical and pre-fix records with their actual source scope.",
+    "Split combined build and actual device criteria into separate entries; an assemble/lint pass must not label instrumentation passed.",
+    "Append exact036 device/API/ABI/build fingerprint/command/class outcomes and extracted032/035 JSON hashes. Record any checkpoint-only scope separately from rerun final paths.",
+    "Update actual002 receiver SHA and production service integration evidence only after full pipeline runtime outcome. Preserve real-collection/physical-resource qualification NOT_RUN and disabled larger defaults.",
+    "031: record half-pixel contract receiving fixes081/084/085/046/057 with immutable source/provider SHAs and analytic fixture. No original calibration constants or quality gates were changed.",
+    "032/035: retain normal-merged012/032 providers, owned source SHAs, and original API contracts. Do not relabel a combined candidate as a newly tested standalone branch.",
+    "033: preserve actual ENOSPC/process-kill NOT_RUN unless an actual scoped failure run occurs; ordinary IO host test is not equivalent.",
+    "034: retain >=0.90 real verified-pair recall criterion and30/80/250 real profiles NOT_RUN until measured; candidate summaries do not become geometric coverage.",
+    "Choose final state from actual role acceptance, not implementation presence. External physical/real-corpus gates remain explicit.",
+    "Regenerate manifests from staged final docs, commit/push each own branch normally, native remote-head verify, then rerun the all30 audit against fresh exact heads. Do not push local combined validation history."
+  ],
+  "runtime_roster": {
+    "031": [
+      "com.realityforge.scanner.agents.a031.PixelProjectionDeviceTest"
+    ],
+    "032": [
+      "com.realityforge.scanner.engine.features.FeatureExtractorTest",
+      "com.realityforge.scanner.agents.a032.FeatureMemoryDeviceTest"
+    ],
+    "033": [
+      "com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest"
+    ],
+    "034": [
+      "com.realityforge.scanner.agents.a002.PipelineServicesDeviceTest (actual graph consumer)"
+    ],
+    "035": [
+      "com.realityforge.scanner.engine.matching.FeatureMatcherTest",
+      "com.realityforge.scanner.agents.a035.MatchingEvidenceDeviceTest"
+    ]
+  },
+  "pending_standalone_dependency_integration": {
+    "supplier031_source": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a",
+    "affected_branches": [
+      "agents/032-feature-extraction",
+      "agents/035-verified-feature-matching"
+    ],
+    "finding": "Standalone032/035 originally retained baseline LensGeometry; required reviewed031 closure is now complete in the listed exact heads. Final combined already contained the corrected source; own extractor/matcher source bytes were preserved.",
+    "status": "COMPLETE: reviewed031 normally received in032, updated032 normally received in035; owned code bytes unchanged; remote verified"
+  },
+  "draft_status_files": "/workspace/agents/receipt-drafts/final-status/NNN.draft.json",
+  "draft_warning": "Outside-checkout drafts only; current actual runtime remains NOT_RUN and final state unchanged. Do not copy before root authorizes exact runtime receipt updates.",
+  "optimized_native_build": {
+    "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "artifact_directory": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z",
+    "status": "BUILD_PASS_RUNTIME_NOT_RUN",
+    "scope": "Externally configured DEBUG realityforge C++ -g -O2 only, normal math and assertions retained; prebuilt dependencies unchanged. Actual compiler/Ninja evidence and separate artifact hashes required. Not a physical-device/default-O0 timing claim.",
+    "receipt": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json"
+  }
+}

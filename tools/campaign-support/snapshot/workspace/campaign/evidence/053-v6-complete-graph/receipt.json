@@ -1,0 +1,187 @@
+{
+  "compiler": "g++ (Debian 14.2.0-19) 14.2.0",
+  "corrected_producer_source": "45179482aff2158a955e4d103e403fd4ab0fc309",
+  "dense_settings": {
+    "depthConsistencyFraction": 0.055,
+    "depthPlanes": 64,
+    "farDepth": 80.0,
+    "maxPoints": 20000,
+    "minUniqueness": 0.025,
+    "minimumNcc": 0.72,
+    "nearDepth": 6.0,
+    "patchRadius": 2,
+    "pixelStride": 3,
+    "refinement_scope": "none"
+  },
+  "files": {
+    "corrected-evaluation.json": {
+      "bytes": 1261,
+      "sha256": "0f6b57a694b32e2c411b0542fd9cdf1d6172c47a23dac2b717c6d8747cde5073"
+    },
+    "graph.cpp": {
+      "bytes": 6325,
+      "sha256": "fcd54c84c5e74271f22e2d5d9537b2362cf64533fe57eb76c8b8fd77e04e1eba"
+    },
+    "input.bin": {
+      "bytes": 351652,
+      "sha256": "91004e427f0979ee99ebb5c30de697f4387419bfbab556af3ad2a2a1fd43ca0b"
+    },
+    "librealityforge.so": {
+      "bytes": 568104,
+      "sha256": "ce143b602c1c6a92af4b16eb2dee0ee2ae287603dc48c2afef63cc93de41a052"
+    },
+    "native-source-manifest.sha256": {
+      "bytes": 27362,
+      "sha256": "919e4f46de1995b9a34bbf075cd59e7d89d1efe87f58f017803cd81a0121c0be"
+    },
+    "result.log": {
+      "bytes": 253,
+      "sha256": "815c4182b679ef5f1e26712ac981f9ffaf02edfe352e38ef1c082579fa4d4f31"
+    }
+  },
+  "geometry_rules": "Exact pinned v5 original-anchor shared-L2 pixel/normal predicate and prospective own-anchor centroid checks; reviewed v6 confidence-weighted normal provider; no metric or threshold changes",
+  "ground_truth_in_solver_inputs": false,
+  "input_format": {
+    "active_full_input_bytes": 281172,
+    "endianness": "little",
+    "full_camera_rows16": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        -0.0,
+        0.0,
+        0.0,
+        306.14707692307695,
+        306.453224,
+        95.40553846153846,
+        78.156116
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        -1.0,
+        0.0,
+        0.0,
+        306.14707692307695,
+        306.453224,
+        104.97046153846155,
+        78.156116
+      ]
+    ],
+    "full_rgba_sha256": [
+      "89b751916137bcc2274074054dbd28dc0d7810af9ea42cac731527c9ee281dc2",
+      "67bbf0c6253691960bc80f4018764273f0502cd201f6f53fceaf800d2c08a419"
+    ],
+    "full_shape": [
+      2,
+      154,
+      228,
+      4
+    ],
+    "header": "5 uint32: fullWidth,fullHeight,views,coarseWidth,coarseHeight",
+    "unused_coarse_rows16": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        -0.0,
+        0.0,
+        0.0,
+        153.07353846153848,
+        153.226612,
+        47.45276923076923,
+        38.828058
+      ],
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        -1.0,
+        0.0,
+        0.0,
+        153.07353846153848,
+        153.226612,
+        52.235230769230775,
+        38.828058
+      ]
+    ],
+    "unused_coarse_shape": [
+      2,
+      77,
+      114,
+      4
+    ],
+    "unused_tail": "coarse camera rows32 doubles followed by coarse RGBA; retained but NOT used by the plain reconstruction/graph",
+    "unused_tail_bytes": 70480
+  },
+  "native_build": "CMake Release, GCC14.2 C++20 -Werror -DNDEBUG; RF_SANITIZE=OFF",
+  "native_library_original_path": "/workspace/agents/053/build/host/librealityforge.so",
+  "native_source_commit": "5ef93abd39b46778ec57c51677c2ba5c6efdcb9f",
+  "normal_provider_commit": "596cd5fefa264fc7338dc782ac6e1252a477576e",
+  "purpose": "Exhaustive eligible original-observation graph; independent maximum bipartite matching versus actual production fusion",
+  "resize_provider_commit": "ad716dba0f5dfe6cca6577573c215ab79b8b93ff",
+  "result": {
+    "acceptance": "CONFLICT: exact eligible maximum equals50; the current production result reaches it",
+    "actual_fused_observations": 50,
+    "centroid_eligible_edges": 52,
+    "centroid_eligible_maximum_matching": 50,
+    "discontinuity": 2772,
+    "ill_conditioned": 1208,
+    "invalid": 0,
+    "invalid_bounds": 0,
+    "left": 131,
+    "mesh_triangles": 4040,
+    "mesh_vertices": 3365,
+    "pair_edges": 52,
+    "pair_maximum_matching": 50,
+    "right": 160,
+    "sparse": 0,
+    "supported_normals": 291,
+    "unchanged_count_assertion": "fusedObservations > 50",
+    "verified": 4271
+  },
+  "schema": 1,
+  "source_manifest_verification": {
+    "files": 261,
+    "result": "PASS",
+    "source": "5ef93abd39b46778ec57c51677c2ba5c6efdcb9f",
+    "tool": "reviewed094 tools/source_manifest.py"
+  },
+  "surface_settings": {
+    "fusionVersion": 6,
+    "maxFusionCandidates": 512,
+    "maxTriangles": 80000,
+    "maxVertices": 40000,
+    "maxVoxelOccupancy": 64,
+    "maximumEdgePixelFactor": 3.2,
+    "maximumRelativeDepthJump": 0.08,
+    "minimumConfidence_float32": 0.11999999731779099,
+    "pixelStride": 3
+  }
+}

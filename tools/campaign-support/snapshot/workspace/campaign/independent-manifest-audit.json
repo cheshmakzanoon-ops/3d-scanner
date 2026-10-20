@@ -1,0 +1,830 @@
+{
+  "schema": 1,
+  "started_utc": "2026-10-20T10:50:04.020627+00:00",
+  "finished_utc": "2026-10-20T10:50:05.221855+00:00",
+  "repository": "/workspace/3d-scanner",
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "plan_ref": "refs/heads/agents/031-lens-coordinate-geometry",
+  "plan_sha": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+  "protocol": "SHA-256 of every tracked regular blob sorted by path, excluding only SOURCE_MANIFEST.sha256; exact manifest bytes required",
+  "source": "Immutable local refs/heads roster commits; no checkout HEAD, worktree content, remote mutations or resets used",
+  "credential_scan_limit": "Explicit private-key/token markers and credential-like tracked paths; this bounded scan does not establish absence of every possible secret format",
+  "summary": {
+    "branches_checked": 30,
+    "passed": 30,
+    "failed": 0,
+    "refs_advanced_during_audit": []
+  },
+  "branches": [
+    {
+      "agent": "031",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "ref": "refs/heads/agents/031-lens-coordinate-geometry",
+      "sha": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+      "failures": [],
+      "tracked_files": 202,
+      "manifest_expected_entries": 201,
+      "expected_manifest_sha256": "85179260597af949a08aff9916b47b14433926ccbb2ff140a2dbcf7f9deb47b2",
+      "actual_manifest_sha256": "85179260597af949a08aff9916b47b14433926ccbb2ff140a2dbcf7f9deb47b2",
+      "manifest_match": true,
+      "manifest_blob": "e50c210b8e064dc3d2f7b7d81b60de99b4d4481c",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 13,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "032",
+      "branch": "agents/032-feature-extraction",
+      "ref": "refs/heads/agents/032-feature-extraction",
+      "sha": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+      "failures": [],
+      "tracked_files": 226,
+      "manifest_expected_entries": 225,
+      "expected_manifest_sha256": "186e5032e06ec627eb26f75eaa6819a6cb5368a48724fe6873c626ed8eb284c4",
+      "actual_manifest_sha256": "186e5032e06ec627eb26f75eaa6819a6cb5368a48724fe6873c626ed8eb284c4",
+      "manifest_match": true,
+      "manifest_blob": "a65d9dd546e1ae979352ed904c05054d5842aa62",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 38,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "033",
+      "branch": "agents/033-feature-cache-integrity",
+      "ref": "refs/heads/agents/033-feature-cache-integrity",
+      "sha": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+      "failures": [],
+      "tracked_files": 202,
+      "manifest_expected_entries": 201,
+      "expected_manifest_sha256": "4b016aa606b78b60060fb03e15311bbcaa29a53ec7fe26565b5f14c6811bfcf2",
+      "actual_manifest_sha256": "4b016aa606b78b60060fb03e15311bbcaa29a53ec7fe26565b5f14c6811bfcf2",
+      "manifest_match": true,
+      "manifest_blob": "e8ec8d26db3f0a1bbb5e683a53cee17c57286925",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 10,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "034",
+      "branch": "agents/034-overlap-candidate-graph",
+      "ref": "refs/heads/agents/034-overlap-candidate-graph",
+      "sha": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+      "failures": [],
+      "tracked_files": 201,
+      "manifest_expected_entries": 200,
+      "expected_manifest_sha256": "fc65365c89b7103cdd88483eb0d7a753ef4bdd563d04ab77361e257be807d026",
+      "actual_manifest_sha256": "fc65365c89b7103cdd88483eb0d7a753ef4bdd563d04ab77361e257be807d026",
+      "manifest_match": true,
+      "manifest_blob": "92aad72da7cfa79c069885e84cd23e3338ee4db3",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 9,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "035",
+      "branch": "agents/035-verified-feature-matching",
+      "ref": "refs/heads/agents/035-verified-feature-matching",
+      "sha": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+      "failures": [],
+      "tracked_files": 280,
+      "manifest_expected_entries": 279,
+      "expected_manifest_sha256": "d7670d64a64e5006b7ff569608384eb539063958d8944958f187a199b467feb1",
+      "actual_manifest_sha256": "d7670d64a64e5006b7ff569608384eb539063958d8944958f187a199b467feb1",
+      "manifest_match": true,
+      "manifest_blob": "15a7a182f3571451f889a44076eab125c179faa3",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 97,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "036",
+      "branch": "agents/036-stable-feature-tracks",
+      "ref": "refs/heads/agents/036-stable-feature-tracks",
+      "sha": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+      "failures": [],
+      "tracked_files": 198,
+      "manifest_expected_entries": 197,
+      "expected_manifest_sha256": "a27d998b9dc1ed5fec96187f0bf61e973c2fa854e6aed092261ee533287c9333",
+      "actual_manifest_sha256": "a27d998b9dc1ed5fec96187f0bf61e973c2fa854e6aed092261ee533287c9333",
+      "manifest_match": true,
+      "manifest_blob": "e9110a94ed15dd4878d7673add44cbca5e3bc83d",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 8,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "037",
+      "branch": "agents/037-two-view-initializer",
+      "ref": "refs/heads/agents/037-two-view-initializer",
+      "sha": "43109f39235676cb1581ecaf92ae69a7915f939a",
+      "failures": [],
+      "tracked_files": 218,
+      "manifest_expected_entries": 217,
+      "expected_manifest_sha256": "46417149a0b82807af9a2d8749f5d226ff34d6e4f2ac2653fc1dfc2f8ff4c527",
+      "actual_manifest_sha256": "46417149a0b82807af9a2d8749f5d226ff34d6e4f2ac2653fc1dfc2f8ff4c527",
+      "manifest_match": true,
+      "manifest_blob": "c2cb9b73f5255a54fd4dc085ab8eecacc662d9c1",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "43109f39235676cb1581ecaf92ae69a7915f939a",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 30,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "43109f39235676cb1581ecaf92ae69a7915f939a",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "038",
+      "branch": "agents/038-robust-camera-resection",
+      "ref": "refs/heads/agents/038-robust-camera-resection",
+      "sha": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+      "failures": [],
+      "tracked_files": 218,
+      "manifest_expected_entries": 217,
+      "expected_manifest_sha256": "0e8afb7ed7c2ab78d5b7b6116e5ac014dc7bb9a42fa9e2bd837ba2af08df2e05",
+      "actual_manifest_sha256": "0e8afb7ed7c2ab78d5b7b6116e5ac014dc7bb9a42fa9e2bd837ba2af08df2e05",
+      "manifest_match": true,
+      "manifest_blob": "28dbb72c1f7703ccf6038359d089641b809c8a23",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 31,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "039",
+      "branch": "agents/039-incremental-registration",
+      "ref": "refs/heads/agents/039-incremental-registration",
+      "sha": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+      "failures": [],
+      "tracked_files": 236,
+      "manifest_expected_entries": 235,
+      "expected_manifest_sha256": "4637b07ee66a081d9428f12b35ae7615044549f92a910f4142b3e13dc35ac27f",
+      "actual_manifest_sha256": "4637b07ee66a081d9428f12b35ae7615044549f92a910f4142b3e13dc35ac27f",
+      "manifest_match": true,
+      "manifest_blob": "a0903665e184ffb5785a839e3e6fcbb3ad3a554b",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 55,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "040",
+      "branch": "agents/040-multiview-triangulation",
+      "ref": "refs/heads/agents/040-multiview-triangulation",
+      "sha": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+      "failures": [],
+      "tracked_files": 218,
+      "manifest_expected_entries": 217,
+      "expected_manifest_sha256": "ffe10726618435c7a599eb55fad4f19e63f32a58e3ff56f86d745a38ca30ceaa",
+      "actual_manifest_sha256": "ffe10726618435c7a599eb55fad4f19e63f32a58e3ff56f86d745a38ca30ceaa",
+      "manifest_match": true,
+      "manifest_blob": "98e1eb777881fa4a61eb8e221aec5392257966a2",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 31,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "041",
+      "branch": "agents/041-bundle-adjustment",
+      "ref": "refs/heads/agents/041-bundle-adjustment",
+      "sha": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+      "failures": [],
+      "tracked_files": 211,
+      "manifest_expected_entries": 210,
+      "expected_manifest_sha256": "2a021b07b99a00aa537f91d663d395ef70682c195f45e20d9c6c676c158d526e",
+      "actual_manifest_sha256": "2a021b07b99a00aa537f91d663d395ef70682c195f45e20d9c6c676c158d526e",
+      "manifest_match": true,
+      "manifest_blob": "29ab0a46edb1fc7832163034e7eb54a177533efb",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 22,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "042",
+      "branch": "agents/042-intrinsic-refinement",
+      "ref": "refs/heads/agents/042-intrinsic-refinement",
+      "sha": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+      "failures": [],
+      "tracked_files": 198,
+      "manifest_expected_entries": 197,
+      "expected_manifest_sha256": "3bf2ca1b5f59e87d17b0fb2d1e4de1ed60e3916b1cba76645216122416010d6b",
+      "actual_manifest_sha256": "3bf2ca1b5f59e87d17b0fb2d1e4de1ed60e3916b1cba76645216122416010d6b",
+      "manifest_match": true,
+      "manifest_blob": "45589f868840b1f703dfb3c25234bff4eaf7e296",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 6,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "043",
+      "branch": "agents/043-loop-closure-drift",
+      "ref": "refs/heads/agents/043-loop-closure-drift",
+      "sha": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+      "failures": [],
+      "tracked_files": 201,
+      "manifest_expected_entries": 200,
+      "expected_manifest_sha256": "bf2cbd9bf70c1b3bda6c7e2bea8b8c64a4a5748270cf1b8a2f362281dce381b0",
+      "actual_manifest_sha256": "bf2cbd9bf70c1b3bda6c7e2bea8b8c64a4a5748270cf1b8a2f362281dce381b0",
+      "manifest_match": true,
+      "manifest_blob": "435f44829adbbdc3429e8e315ccea565457a3b5b",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 9,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "044",
+      "branch": "agents/044-dense-view-selection",
+      "ref": "refs/heads/agents/044-dense-view-selection",
+      "sha": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+      "failures": [],
+      "tracked_files": 198,
+      "manifest_expected_entries": 197,
+      "expected_manifest_sha256": "f9fd077223a0010543395a8da4ba5f41dd703e05dfdec50b7a62d4a36d5e68e7",
+      "actual_manifest_sha256": "f9fd077223a0010543395a8da4ba5f41dd703e05dfdec50b7a62d4a36d5e68e7",
+      "manifest_match": true,
+      "manifest_blob": "22b9226b2a208e5e43044375cc518525c1282da2",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 8,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "045",
+      "branch": "agents/045-image-pyramids-rectification",
+      "ref": "refs/heads/agents/045-image-pyramids-rectification",
+      "sha": "c1086842b8e821182aff4c234840b4fb5ef76874",
+      "failures": [],
+      "tracked_files": 209,
+      "manifest_expected_entries": 208,
+      "expected_manifest_sha256": "e0f8dcc97e50c6a76ac77e61d8b8b69d86ac58540c085c16d8776fc077bb12ca",
+      "actual_manifest_sha256": "e0f8dcc97e50c6a76ac77e61d8b8b69d86ac58540c085c16d8776fc077bb12ca",
+      "manifest_match": true,
+      "manifest_blob": "a8f35f49716fc4bef0318b49b63bd592593fba04",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "c1086842b8e821182aff4c234840b4fb5ef76874",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 20,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "c1086842b8e821182aff4c234840b4fb5ef76874",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "046",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "ref": "refs/heads/agents/046-tiled-cpu-depth-core",
+      "sha": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+      "failures": [],
+      "tracked_files": 262,
+      "manifest_expected_entries": 261,
+      "expected_manifest_sha256": "1e9b03fd27107d980a8292b11e05f2bb632b3de94ae7e68e19d06de7875774a3",
+      "actual_manifest_sha256": "1e9b03fd27107d980a8292b11e05f2bb632b3de94ae7e68e19d06de7875774a3",
+      "manifest_match": true,
+      "manifest_blob": "16cdb2101cbc384470209cca7b3a6d0261951a4b",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 79,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "047",
+      "branch": "agents/047-depth-refinement",
+      "ref": "refs/heads/agents/047-depth-refinement",
+      "sha": "f98fb1a8e63746285006b78837103358e07776d1",
+      "failures": [],
+      "tracked_files": 202,
+      "manifest_expected_entries": 201,
+      "expected_manifest_sha256": "b5cf48c77f3b7aad1eace67d308f10d0c16de0dbcac1ee7a3dcb911cc7b4107b",
+      "actual_manifest_sha256": "b5cf48c77f3b7aad1eace67d308f10d0c16de0dbcac1ee7a3dcb911cc7b4107b",
+      "manifest_match": true,
+      "manifest_blob": "c08ce465859c2a5a68e03eadbfd608a4beb01969",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "f98fb1a8e63746285006b78837103358e07776d1",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 10,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "f98fb1a8e63746285006b78837103358e07776d1",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "048",
+      "branch": "agents/048-photometric-matching-costs",
+      "ref": "refs/heads/agents/048-photometric-matching-costs",
+      "sha": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+      "failures": [],
+      "tracked_files": 200,
+      "manifest_expected_entries": 199,
+      "expected_manifest_sha256": "728dbad89ef830b3b5bc00321f628ceab2d0ab8c7471034bca37b3318fed23a5",
+      "actual_manifest_sha256": "728dbad89ef830b3b5bc00321f628ceab2d0ab8c7471034bca37b3318fed23a5",
+      "manifest_match": true,
+      "manifest_blob": "1d362d3e1723f9edff2758121a4b912ab4ef4eb5",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 8,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "049",
+      "branch": "agents/049-depth-confidence-occlusion",
+      "ref": "refs/heads/agents/049-depth-confidence-occlusion",
+      "sha": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+      "failures": [],
+      "tracked_files": 201,
+      "manifest_expected_entries": 200,
+      "expected_manifest_sha256": "dc313255e35ccd8d4c96628948ccdf587ae468a07358e9f29592ba159d8dda3f",
+      "actual_manifest_sha256": "dc313255e35ccd8d4c96628948ccdf587ae468a07358e9f29592ba159d8dda3f",
+      "manifest_match": true,
+      "manifest_blob": "ca2a46b0e4545b4e4a83f07301b709cca2b83c28",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 9,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "050",
+      "branch": "agents/050-depth-checkpoint-durability",
+      "ref": "refs/heads/agents/050-depth-checkpoint-durability",
+      "sha": "88629b9780641ccc8c47826c34676cb25141302f",
+      "failures": [],
+      "tracked_files": 201,
+      "manifest_expected_entries": 200,
+      "expected_manifest_sha256": "5a17755f0291be0fef9d586f230d8749b4258a4ec2af3fed6c2488fa47ec13c0",
+      "actual_manifest_sha256": "5a17755f0291be0fef9d586f230d8749b4258a4ec2af3fed6c2488fa47ec13c0",
+      "manifest_match": true,
+      "manifest_blob": "13549466a551b0994e584ec2bc13d0b2eb56635d",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "88629b9780641ccc8c47826c34676cb25141302f",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 12,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "88629b9780641ccc8c47826c34676cb25141302f",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "051",
+      "branch": "agents/051-native-cancellation-progress",
+      "ref": "refs/heads/agents/051-native-cancellation-progress",
+      "sha": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+      "failures": [],
+      "tracked_files": 210,
+      "manifest_expected_entries": 209,
+      "expected_manifest_sha256": "69ba2145b8c1e8e788cb5df43022c71ac2a933865a19cce3fa6425ffc58327ae",
+      "actual_manifest_sha256": "69ba2145b8c1e8e788cb5df43022c71ac2a933865a19cce3fa6425ffc58327ae",
+      "manifest_match": true,
+      "manifest_blob": "89a85a166cdd8d2424228764fa20262e173da6cd",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 20,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "052",
+      "branch": "agents/052-vulkan-depth-backend",
+      "ref": "refs/heads/agents/052-vulkan-depth-backend",
+      "sha": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+      "failures": [],
+      "tracked_files": 210,
+      "manifest_expected_entries": 209,
+      "expected_manifest_sha256": "40f9476a7eca744ad121659d9f9dc763f916840a3054154e9387972432ed9547",
+      "actual_manifest_sha256": "40f9476a7eca744ad121659d9f9dc763f916840a3054154e9387972432ed9547",
+      "manifest_match": true,
+      "manifest_blob": "08448e1439025346f624876a3b0aaea7b20ef37e",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 18,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "053",
+      "branch": "agents/053-surface-fusion-meshing",
+      "ref": "refs/heads/agents/053-surface-fusion-meshing",
+      "sha": "71a05791a62ea648d993625a33f342e8cabbfb63",
+      "failures": [],
+      "tracked_files": 262,
+      "manifest_expected_entries": 261,
+      "expected_manifest_sha256": "104c80c6ea28300a714c600bc2dc0a1db9cc8a70493ab39379d352defe01ba78",
+      "actual_manifest_sha256": "104c80c6ea28300a714c600bc2dc0a1db9cc8a70493ab39379d352defe01ba78",
+      "manifest_match": true,
+      "manifest_blob": "a274c8194ee07257f26467f9c857a73167c28ba6",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "71a05791a62ea648d993625a33f342e8cabbfb63",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 74,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "71a05791a62ea648d993625a33f342e8cabbfb63",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "054",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "ref": "refs/heads/agents/054-normals-geometric-uncertainty",
+      "sha": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+      "failures": [],
+      "tracked_files": 202,
+      "manifest_expected_entries": 201,
+      "expected_manifest_sha256": "8fefcf78ab9dfc54bb02d4d77d24b9602fe47a27961d4fb093f239118546acc4",
+      "actual_manifest_sha256": "8fefcf78ab9dfc54bb02d4d77d24b9602fe47a27961d4fb093f239118546acc4",
+      "manifest_match": true,
+      "manifest_blob": "9597c7ed287d7e20c4fbba22d2d0176feb8bfa44",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 10,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "055",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "ref": "refs/heads/agents/055-mesh-topology-diagnostics",
+      "sha": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+      "failures": [],
+      "tracked_files": 202,
+      "manifest_expected_entries": 201,
+      "expected_manifest_sha256": "12fb8a62043eb6fbbbc49fd880c668d1fee0fdf03edee6fa40c325330fbd80f8",
+      "actual_manifest_sha256": "12fb8a62043eb6fbbbc49fd880c668d1fee0fdf03edee6fa40c325330fbd80f8",
+      "manifest_match": true,
+      "manifest_blob": "2c13eb2a15de16cf65f7de0945f3bb3a8751df15",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 10,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "056",
+      "branch": "agents/056-conservative-mesh-cleanup",
+      "ref": "refs/heads/agents/056-conservative-mesh-cleanup",
+      "sha": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+      "failures": [],
+      "tracked_files": 199,
+      "manifest_expected_entries": 198,
+      "expected_manifest_sha256": "818a74f88b287a31dfb62f2000717e0724ce0cfbc89c1c88ea6431f3b9b15d7d",
+      "actual_manifest_sha256": "818a74f88b287a31dfb62f2000717e0724ce0cfbc89c1c88ea6431f3b9b15d7d",
+      "manifest_match": true,
+      "manifest_blob": "13a8830f5300a46c4f6e0edca73449a5132c82e3",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 7,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "057",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "ref": "refs/heads/agents/057-photographic-atlas-pipeline",
+      "sha": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+      "failures": [],
+      "tracked_files": 277,
+      "manifest_expected_entries": 276,
+      "expected_manifest_sha256": "d434041168d729b759925a6f02c96fcb7f29e0707fc2bf4da7bab6c85365f10d",
+      "actual_manifest_sha256": "d434041168d729b759925a6f02c96fcb7f29e0707fc2bf4da7bab6c85365f10d",
+      "manifest_match": true,
+      "manifest_blob": "47b5871ba827e3febbffd9344bdddae81e692aee",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 98,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "058",
+      "branch": "agents/058-uv-charts-packing",
+      "ref": "refs/heads/agents/058-uv-charts-packing",
+      "sha": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+      "failures": [],
+      "tracked_files": 202,
+      "manifest_expected_entries": 201,
+      "expected_manifest_sha256": "60936b0e16f802ed292ae7d2aa2b1c4fd64d61618c88d5b72f556a44d0e1e760",
+      "actual_manifest_sha256": "60936b0e16f802ed292ae7d2aa2b1c4fd64d61618c88d5b72f556a44d0e1e760",
+      "manifest_match": true,
+      "manifest_blob": "b55e103cf609d385791bf708ab25ad7e572367f0",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 10,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "059",
+      "branch": "agents/059-texture-seam-blending",
+      "ref": "refs/heads/agents/059-texture-seam-blending",
+      "sha": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+      "failures": [],
+      "tracked_files": 199,
+      "manifest_expected_entries": 198,
+      "expected_manifest_sha256": "df14a56b413b87acf0079bc67cd60d9dc6255320b1e64ac8ce7b1506f5cf1b02",
+      "actual_manifest_sha256": "df14a56b413b87acf0079bc67cd60d9dc6255320b1e64ac8ce7b1506f5cf1b02",
+      "manifest_match": true,
+      "manifest_blob": "fd4e8ee62e93bf95b8ef744c7c00c780b4b559ee",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 7,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+      "ref_advanced_during_audit": false
+    },
+    {
+      "agent": "060",
+      "branch": "agents/060-photometric-color-consistency",
+      "ref": "refs/heads/agents/060-photometric-color-consistency",
+      "sha": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+      "failures": [],
+      "tracked_files": 197,
+      "manifest_expected_entries": 196,
+      "expected_manifest_sha256": "990d8b282af48eb57c68d83963f2cb8534be85f329e3c365511a3b2fc9612179",
+      "actual_manifest_sha256": "990d8b282af48eb57c68d83963f2cb8534be85f329e3c365511a3b2fc9612179",
+      "manifest_match": true,
+      "manifest_blob": "b3155b5bc7e52c4e584147dfad874e5dfcd9ea14",
+      "diff_check": {
+        "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "sha": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+        "returncode": 0,
+        "passed": true
+      },
+      "changed_tracked_files_since_base": 7,
+      "credential_build_scan": {
+        "scope": "introduced_or_modified_tracked_blobs_since_campaign_base",
+        "findings": []
+      },
+      "passed": true,
+      "ref_sha_after_audit": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+      "ref_advanced_during_audit": false
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+  "native_source_sha": "6c386d38141cdb979ed0223f53c16962f8cd438a",
+  "native_library": "/workspace/campaign/evidence/final-2f18a4f/librealityforge-host.so",
+  "native_library_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "command": "python -m pytest -q --junitxml=/workspace/campaign/final6-pytest.xml",
+  "source_and_library_held_immutable": true,
+  "results": {
+    "tests": 6,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "seconds": 69.611,
+  "exit_code": 2,
+  "native_library_sha256_after": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "source_sha_after": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7"
+}

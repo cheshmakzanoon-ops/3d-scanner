@@ -1,0 +1,9 @@
+{
+  "agent": "032",
+  "head": "004f948e7b36a387e9a2bac1753153991f5248d5",
+  "merge_sha": "953ef5d904840e7e2ca8cca72a9831d7f0638ba7",
+  "branch": "agents/032-feature-extraction",
+  "reviewed_provider": "73da7ac2c11f1a4e5fbde8277efdaeb7d5f17897",
+  "owned_production_unchanged": true,
+  "remote_verified": true
+}

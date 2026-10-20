@@ -1,0 +1,480 @@
+{
+  "schema": 1,
+  "purpose": "Prepared receipt-only assessment; no branch/worktree/remote mutation",
+  "final_candidate_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "final_combined_gates": {
+    "native_ctest": {
+      "result": "PASS",
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_xml": "/workspace/agents/004-final6-native-ctest.xml",
+      "ctest_junit_reported_seconds": "24",
+      "seconds": 24.66,
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "evidence": "/workspace/campaign/native-final6-validation.json",
+      "evidence_sha256": "75ad31f50df4396bf4315fe9ddca1952f247ce7fa881363600538a668090c0bf"
+    },
+    "native_sanitizers": {
+      "result": "PASS",
+      "tests": 36,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_xml": "/workspace/agents/004-final6-sanitized-ctest.xml",
+      "checks": [
+        "address",
+        "undefined",
+        "float-cast-overflow"
+      ],
+      "ASAN_OPTIONS": "detect_leaks=1",
+      "UBSAN_OPTIONS": "halt_on_error=1",
+      "non_pie_test_executables": true,
+      "ctest_junit_reported_seconds": "255",
+      "seconds": 255.24,
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "evidence": "/workspace/campaign/native-final6-validation.json"
+    },
+    "complete_pytest": {
+      "result": "FAIL",
+      "tests": 212,
+      "passed": 211,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 224.703,
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "evidence": "/workspace/campaign/final6-pytest-receipt.json",
+      "evidence_sha256": "c332e835f9dd25fcc7ee14535a8c8a84cb00c91feaf9f5087592ecf2ccc6406e",
+      "log": "/workspace/campaign/final6-pytest.log",
+      "xml": "/workspace/campaign/final6-pytest.xml",
+      "failure": "tests/test_surface.py::test_real_photographs_generate_indexed_open_surfaces: actualfused50 does not satisfy unchanged>50; exhaustive valid graph maximum50. Gate not waived; global technical integration remains failed.",
+      "accuracy_limit": "This assertion stops the test before later accuracy assertions; no later assertion is claimed to have passed."
+    },
+    "literal_wrapper_build_jvm_lint": {
+      "result": "PASS_FOR_RECORDED_SOURCE",
+      "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+      "source_tree": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+      "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-optimized-native.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+      "jvm": {
+        "tests": 124,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "jvm_scope": "Existing124 exact-source JVM results reused UP-TO-DATE; no claim that JVM tests executed again during this native-only rebuild.",
+      "lint": {
+        "Error": 0,
+        "Warning": 8
+      },
+      "native_configuration": {
+        "type": "DEBUG",
+        "native_flags": "-g -O2",
+        "native_NDEBUG": false,
+        "native_fast_math": false,
+        "actual_ninja_evidence": "native-optimization-verification.json",
+        "compiled_target": "realityforge",
+        "prebuilt_dependencies": "Unchanged; APK entry payload comparison verified."
+      },
+      "artifact_receipt": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json",
+      "artifact_receipt_sha256": "b2869326174a1b37e6cfedc682598e282a6b23dde7823662e48c61d4138d92ae",
+      "artifacts": {
+        "app-debug.apk": {
+          "sha256": "0f2564d6b7845a0d930c232b200f0812e3323bcc4bdce9fe849f4c3c6f29760e",
+          "bytes": 120144866
+        },
+        "app-debug-androidTest.apk": {
+          "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+          "bytes": 2533147
+        }
+      },
+      "limitation": "This is exact2f18source; corrective012source/runtime and finalpipeline/resources still pending. OptimizedDEBUG.so timings are software-emulator observations, not physical qualification."
+    },
+    "installed_candidate_instrumentation": {
+      "result": "PARTIAL",
+      "bridge_geometry": {
+        "classification": "PASS",
+        "tests_run": 11,
+        "passed_statuses": 11,
+        "failed_statuses": 0,
+        "skipped_statuses": 0,
+        "phase": "test_result",
+        "qualification": "FINAL_CANDIDATE",
+        "batch": "bridge_geometry",
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "exit": 0,
+        "seconds": 242.65,
+        "log_sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1",
+        "log": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.log"
+      },
+      "bridge_receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+      "platform": {
+        "classification": "ASSERTION_FAIL",
+        "tests_run": 10,
+        "passed_statuses": 9,
+        "failed_statuses": 1,
+        "skipped_statuses": 0,
+        "phase": "test_result",
+        "qualification": "FINAL_CANDIDATE",
+        "batch": "platform",
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "exit": 0,
+        "seconds": 48.92,
+        "log_sha256": "6535aa59a4320ccd03f4708df5417c204f69e66e227954fde50289f72e3d63d7",
+        "log": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.log"
+      },
+      "platform_failure": "Original2f18platform had9PASS/1ASSERTION_FAIL in missing-EXIF-orientation classification;012correction/review/rerun pending. Do not claim platform allPASS.",
+      "pending": [
+        "Final corrected012platform runtime",
+        "PipelineServicesDeviceTest",
+        "Resource batches"
+      ],
+      "apk_artifact_receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/artifacts.json"
+    }
+  },
+  "failed_first_candidate_preserved": {
+    "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+    "pytest": "167passed/1failed/0skipped; surface fused44 did not meet unchanged>50 gate",
+    "log": "/workspace/campaign/final-pytest.log",
+    "xml": "/workspace/campaign/final-pytest.xml"
+  },
+  "receipt_publication_rule": "Wait for final runtime information before any branch changes. Cite exact frozen source/library/APK/JUnit results with failures preserved; no claim that global checks all passed. Close ordinary002/003/004 wiring using actual role results, retain only explicit unavailable external qualification in role remaining_work, and disclose global053technical failure separately. Metadata-only commits do not change tested source identity; mechanical staged manifest/diff-check/normal push/exact remote head required.",
+  "agents": {
+    "041": {
+      "branch": "agents/041-bundle-adjustment",
+      "conditional_final_state": "BLOCKED_EXTERNAL",
+      "ordinary_wiring": "Actual002 normalized snapshot ->031pixel model ->003typed BundleProblem ->041minimal PoseAndBaseline with042model blocks/043verified constraints; retained support/refinedIntrinsics returned to002;004registers tests. Finite objective guard and30-camera local budget remain enforced.",
+      "external_qualification": [
+        "Physical authorized30/80/250-photo windowed capture accuracy with independent reference geometry",
+        "Physical ARM64 peak process/native memory and sustained thermal/power qualification"
+      ],
+      "scope_limit": "Local bundle<=32 cameras, estimated64MiB working-set admission;80/250 global calls explicitly rejected, window scheduling remains039-owned.",
+      "source_branch_head": "99f41c7efb298f5ef2973ea6ae32657eb3d940b4",
+      "source_branch_tree": "c51b764d6d46d9448483d52d779299605469c655",
+      "owned_status_path": "docs/agents/status/041.md",
+      "changes_when_authorized": "Receipt-only status/contracts documentation as needed plus complete staged SOURCE_MANIFEST; no implementation edits.",
+      "current_final_gate_status": "USER_STOP_SAVE_ONLY: current facts saved to owned branch receipt; no new development/reviews/tests; exact pipeline/resource interruption classification pending036.",
+      "final_own_native_checks": [
+        {
+          "release": {
+            "name": "native_bundle_adjustment",
+            "classname": "native_bundle_adjustment",
+            "seconds": 0.0317324,
+            "result": "PASS"
+          },
+          "sanitizers": {
+            "name": "native_bundle_adjustment",
+            "classname": "native_bundle_adjustment",
+            "seconds": 0.824251,
+            "result": "PASS"
+          }
+        },
+        {
+          "release": {
+            "name": "rf_bundle_problem_bridge_tests",
+            "classname": "rf_bundle_problem_bridge_tests",
+            "seconds": 0.14701,
+            "result": "PASS"
+          },
+          "sanitizers": {
+            "name": "rf_bundle_problem_bridge_tests",
+            "classname": "rf_bundle_problem_bridge_tests",
+            "seconds": 0.359552,
+            "result": "PASS"
+          }
+        }
+      ],
+      "actual_production_host_jni": [
+        {
+          "name": "test_actual_typed_bundle_problem",
+          "classname": "tests.test_agent_003_bundle_problem",
+          "seconds": 11.948,
+          "result": "PASS"
+        },
+        {
+          "name": "test_actual_jvm_native_boundary",
+          "classname": "tests.test_agent_003_jni_boundary",
+          "seconds": 18.428,
+          "result": "PASS"
+        }
+      ],
+      "global_failure_disclosure": "The combined candidate full pytest remains FAIL211passed/1surfacecountfailure; passing role checks do not make the global gate pass. Surface fusion failure remains tracked to053; no threshold or test weakened.",
+      "actual_android_bridge_geometry": {
+        "result": "PASS",
+        "tests": 11,
+        "failed": 0,
+        "skipped": 0,
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "seconds_including_runner": 242.65,
+        "instrumentation_reported_seconds": 218.624,
+        "receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+        "log_sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1",
+        "execution": "API29x86_64 software emulator, optimizedDEBUG -g -O2 localrealityforge, NDEBUGoff/fastmathoff; no physicalARM64resource claim"
+      }
+    },
+    "042": {
+      "branch": "agents/042-intrinsic-refinement",
+      "conditional_final_state": "DONE",
+      "ordinary_wiring": "041actually consumes Brown residual/Jacobian/prior/observability model.003typed pixel/model bridge returns ordered11-parameter cameraIntrinsics;002validates/copies refined values and045producer consumes them.004registers actual intrinsic fixture.",
+      "external_qualification": [],
+      "scope_limit": "Measured calibration fixed; estimated focal refinement requires actual observability and explicit conservative policy priors/bounds. No distortion or physical-noise calibration is invented.",
+      "source_branch_head": "c3b1ee4a60bd9e83b5a16cb29446efc4f54dcb1f",
+      "source_branch_tree": "5b7a68a45aed3175813541daa7972ced047f7351",
+      "owned_status_path": "docs/agents/status/042.md",
+      "changes_when_authorized": "Receipt-only status/contracts documentation as needed plus complete staged SOURCE_MANIFEST; no implementation edits.",
+      "current_final_gate_status": "USER_STOP_SAVE_ONLY: current facts saved to owned branch receipt; no new development/reviews/tests; exact pipeline/resource interruption classification pending036.",
+      "final_own_native_checks": [
+        {
+          "release": {
+            "name": "rf_intrinsics_tests",
+            "classname": "rf_intrinsics_tests",
+            "seconds": 0.0130981,
+            "result": "PASS"
+          },
+          "sanitizers": {
+            "name": "rf_intrinsics_tests",
+            "classname": "rf_intrinsics_tests",
+            "seconds": 0.0384936,
+            "result": "PASS"
+          }
+        },
+        {
+          "release": {
+            "name": "rf_bundle_problem_bridge_tests",
+            "classname": "rf_bundle_problem_bridge_tests",
+            "seconds": 0.14701,
+            "result": "PASS"
+          },
+          "sanitizers": {
+            "name": "rf_bundle_problem_bridge_tests",
+            "classname": "rf_bundle_problem_bridge_tests",
+            "seconds": 0.359552,
+            "result": "PASS"
+          }
+        }
+      ],
+      "actual_production_host_jni": [
+        {
+          "name": "test_actual_typed_bundle_problem",
+          "classname": "tests.test_agent_003_bundle_problem",
+          "seconds": 11.948,
+          "result": "PASS"
+        },
+        {
+          "name": "test_actual_jvm_native_boundary",
+          "classname": "tests.test_agent_003_jni_boundary",
+          "seconds": 18.428,
+          "result": "PASS"
+        }
+      ],
+      "global_failure_disclosure": "The combined candidate full pytest remains FAIL211passed/1surfacecountfailure; passing role checks do not make the global gate pass. Surface fusion failure remains tracked to053; no threshold or test weakened.",
+      "own_criteria_assessment": "Analytic derivatives/inversion, constraints/observability, integrated recovery, current Release/sanitizer, actual typed JNI allPASS; DONE is valid for this mathematical role after receipt publication, while explicitly preserving the unrelated failed global surface gate.",
+      "actual_android_bridge_geometry": {
+        "result": "PASS",
+        "tests": 11,
+        "failed": 0,
+        "skipped": 0,
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "seconds_including_runner": 242.65,
+        "instrumentation_reported_seconds": 218.624,
+        "receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+        "log_sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1",
+        "execution": "API29x86_64 software emulator, optimizedDEBUG -g -O2 localrealityforge, NDEBUGoff/fastmathoff; no physicalARM64resource claim"
+      }
+    },
+    "043": {
+      "branch": "agents/043-loop-closure-drift",
+      "conditional_final_state": "BLOCKED_EXTERNAL",
+      "ordinary_wiring": "002stable fullSHA source IDs/retained observations feed003bounded actual nonadjacent supported-landmark proposals;043PnP geometrically verifies them before041can accept loop corrections. Actual metadata includes attempted/verified/accepted counts;039can consume verified revisit edges.",
+      "external_qualification": [
+        "Authorized unknown-pose physical360-degree capture/revisit reference geometry, including symmetric/repeated-texture failure cases"
+      ],
+      "scope_limit": "Full03664hex identities preserved; compact native indices require explicit checked immutable mappings; no descriptor-only loop acceptance.",
+      "source_branch_head": "437014623f3b601d2e3bef5c243dd68b094c0559",
+      "source_branch_tree": "b1831f779a225c257b0bb93dc66ace953f7a27cb",
+      "owned_status_path": "docs/agents/status/043.md",
+      "changes_when_authorized": "Receipt-only status/contracts documentation as needed plus complete staged SOURCE_MANIFEST; no implementation edits.",
+      "current_final_gate_status": "USER_STOP_SAVE_ONLY: current facts saved to owned branch receipt; no new development/reviews/tests; exact pipeline/resource interruption classification pending036.",
+      "final_own_native_checks": [
+        {
+          "release": {
+            "name": "rf_loop_closure_tests",
+            "classname": "rf_loop_closure_tests",
+            "seconds": 0.0179098,
+            "result": "PASS"
+          },
+          "sanitizers": {
+            "name": "rf_loop_closure_tests",
+            "classname": "rf_loop_closure_tests",
+            "seconds": 0.213765,
+            "result": "PASS"
+          }
+        },
+        {
+          "release": {
+            "name": "rf_bundle_problem_bridge_tests",
+            "classname": "rf_bundle_problem_bridge_tests",
+            "seconds": 0.14701,
+            "result": "PASS"
+          },
+          "sanitizers": {
+            "name": "rf_bundle_problem_bridge_tests",
+            "classname": "rf_bundle_problem_bridge_tests",
+            "seconds": 0.359552,
+            "result": "PASS"
+          }
+        }
+      ],
+      "actual_production_host_jni": [
+        {
+          "name": "test_actual_typed_bundle_problem",
+          "classname": "tests.test_agent_003_bundle_problem",
+          "seconds": 11.948,
+          "result": "PASS"
+        },
+        {
+          "name": "test_actual_jvm_native_boundary",
+          "classname": "tests.test_agent_003_jni_boundary",
+          "seconds": 18.428,
+          "result": "PASS"
+        }
+      ],
+      "global_failure_disclosure": "The combined candidate full pytest remains FAIL211passed/1surfacecountfailure; passing role checks do not make the global gate pass. Surface fusion failure remains tracked to053; no threshold or test weakened.",
+      "actual_android_bridge_geometry": {
+        "result": "PASS",
+        "tests": 11,
+        "failed": 0,
+        "skipped": 0,
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "seconds_including_runner": 242.65,
+        "instrumentation_reported_seconds": 218.624,
+        "receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+        "log_sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1",
+        "execution": "API29x86_64 software emulator, optimizedDEBUG -g -O2 localrealityforge, NDEBUGoff/fastmathoff; no physicalARM64resource claim"
+      }
+    },
+    "044": {
+      "branch": "agents/044-dense-view-selection",
+      "conditional_final_state": "BLOCKED_EXTERNAL",
+      "ordinary_wiring": "002derives verified-track selection from actual native accepted support and passes pure044plan;003validated source-adjacency scope drives046actual coarse/fine source planner. Executed source indices are separately emitted and cache identity includes resolved edges.004registers fixture.",
+      "external_qualification": [
+        "Authorized physical multi-view equal-budget coverage/error comparison against index/frustum baseline, including photo-order permutations",
+        "Physical enabled-profile memory/thermal qualification"
+      ],
+      "scope_limit": "No raised DenseWorkload caps: at most8admitted camera IDs and3distinct non-self sources per reference; zero-degree references remain explicit.",
+      "source_branch_head": "1da65a698443dc214be716ed89e8715c50a6fcbe",
+      "source_branch_tree": "df0798dda393fddc2bd6b2c99101d9ddf842ab2d",
+      "owned_status_path": "docs/agents/status/044.md",
+      "changes_when_authorized": "Receipt-only status/contracts documentation as needed plus complete staged SOURCE_MANIFEST; no implementation edits.",
+      "current_final_gate_status": "USER_STOP_SAVE_ONLY: current facts saved to owned branch receipt; no new development/reviews/tests; exact pipeline/resource interruption classification pending036.",
+      "final_own_native_checks": [
+        {
+          "release": {
+            "name": "native_dense_selection",
+            "classname": "native_dense_selection",
+            "seconds": 0.857607,
+            "result": "PASS"
+          },
+          "sanitizers": {
+            "name": "native_dense_selection",
+            "classname": "native_dense_selection",
+            "seconds": 17.5008,
+            "result": "PASS"
+          }
+        }
+      ],
+      "actual_production_host_jni": [
+        {
+          "name": "test_actual_typed_bundle_problem",
+          "classname": "tests.test_agent_003_bundle_problem",
+          "seconds": 11.948,
+          "result": "PASS"
+        },
+        {
+          "name": "test_actual_jvm_native_boundary",
+          "classname": "tests.test_agent_003_jni_boundary",
+          "seconds": 18.428,
+          "result": "PASS"
+        }
+      ],
+      "global_failure_disclosure": "The combined candidate full pytest remains FAIL211passed/1surfacecountfailure; passing role checks do not make the global gate pass. Surface fusion failure remains tracked to053; no threshold or test weakened.",
+      "actual_android_bridge_geometry": {
+        "result": "PASS",
+        "tests": 11,
+        "failed": 0,
+        "skipped": 0,
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "seconds_including_runner": 242.65,
+        "instrumentation_reported_seconds": 218.624,
+        "receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+        "log_sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1",
+        "execution": "API29x86_64 software emulator, optimizedDEBUG -g -O2 localrealityforge, NDEBUGoff/fastmathoff; no physicalARM64resource claim"
+      }
+    },
+    "045": {
+      "branch": "agents/045-image-pyramids-rectification",
+      "conditional_final_state": "BLOCKED_EXTERNAL",
+      "ordinary_wiring": "002DensePreview actual depth/photo/coarse adapters call owned lazy045upright rectification with exact031EXIF->resize transforms, actual refined intrinsics, originalSHA/lens provenance and private checksum-validated cache. Alpha-hole masks, cached/uncached equivalence and immutable callback ownership retained.",
+      "external_qualification": [
+        "Physical ARM64 Bitmap/native/process peak-memory, long-session/thermal and peak-disk measurements",
+        "Actual disk-exhaustion/power-loss durability qualification with preservation of originals/completed outputs"
+      ],
+      "scope_limit": "One current decoded bitmap, bounded selected levels/native buffers, unchanged resource admissions; alpha-invalid contributing texels never become opaque valid samples.",
+      "source_branch_head": "1b75ae698bc0a97908cf9498e42af05190491eba",
+      "source_branch_tree": "ee183fdccb840c57a049e7b28f8f8e3d9682de4a",
+      "owned_status_path": "docs/agents/status/045.md",
+      "changes_when_authorized": "Receipt-only status/contracts documentation as needed plus complete staged SOURCE_MANIFEST; no implementation edits.",
+      "current_final_gate_status": "USER_STOP_SAVE_ONLY: current facts saved to owned branch receipt; no new development/reviews/tests; exact pipeline/resource interruption classification pending036.",
+      "final_own_native_checks": [],
+      "actual_production_host_jni": [
+        {
+          "name": "test_actual_typed_bundle_problem",
+          "classname": "tests.test_agent_003_bundle_problem",
+          "seconds": 11.948,
+          "result": "PASS"
+        },
+        {
+          "name": "test_actual_jvm_native_boundary",
+          "classname": "tests.test_agent_003_jni_boundary",
+          "seconds": 18.428,
+          "result": "PASS"
+        }
+      ],
+      "global_failure_disclosure": "The combined candidate full pytest remains FAIL211passed/1surfacecountfailure; passing role checks do not make the global gate pass. Surface fusion failure remains tracked to053; no threshold or test weakened.",
+      "actual_android_bridge_geometry": {
+        "result": "PASS",
+        "tests": 11,
+        "failed": 0,
+        "skipped": 0,
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "seconds_including_runner": 242.65,
+        "instrumentation_reported_seconds": 218.624,
+        "receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+        "log_sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1",
+        "execution": "API29x86_64 software emulator, optimizedDEBUG -g -O2 localrealityforge, NDEBUGoff/fastmathoff; no physicalARM64resource claim"
+      },
+      "actual_android_owned_rectifier": {
+        "result": "PASS",
+        "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+        "class": "com.realityforge.scanner.engine.imaging.PyramidRectifierTest",
+        "test": "asymmetricGradientUsesExactPixelCentresAndInvalidBorderMask",
+        "log": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.log",
+        "parent_batch_result": "Platform9PASS/1unrelated012failure; this individualtest status0PASS verified"
+      }
+    }
+  },
+  "final_candidate_tree": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+  "final_native_source_sha": "6c386d38141cdb979ed0223f53c16962f8cd438a",
+  "final_native_library": {
+    "path": "/workspace/campaign/evidence/final-2f18a4f/librealityforge.so",
+    "sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74"
+  },
+  "save_only_stop": {
+    "development_stopped": true,
+    "reviews_stopped": true,
+    "tests_stopped": true,
+    "owned_receipt_publication_authorized": true,
+    "fully_done_claimed": false
+  }
+}

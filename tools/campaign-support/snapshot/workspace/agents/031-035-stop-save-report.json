@@ -1,0 +1,292 @@
+{
+  "saved_utc": "2026-10-20T10:49:54.384104+00:00",
+  "directive": "User stopped all development; save/push existing WIP and evidence only. No tests/builds after stop.",
+  "branches": [
+    {
+      "agent": "012",
+      "branch": "agents/012-image-decoding-lifetimes",
+      "head": "7843eb76b285a12ee7d149cf4112d502b603ff97",
+      "base": "73da7ac2c11f1a4e5fbde8277efdaeb7d5f17897",
+      "checkout": "/workspace/agents/012",
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "app/src/main/java/com/realityforge/scanner/imaging/AndroidImageDecoder.kt",
+        "app/src/main/java/com/realityforge/scanner/imaging/PhysicalOrientationPresence.kt",
+        "app/src/test/java/com/realityforge/scanner/agents/a012/PhysicalOrientationPresenceTest.kt",
+        "docs/agents/contracts/012-image-decoding.md",
+        "docs/agents/status/012.md"
+      ],
+      "status": "",
+      "untracked_authored_files": []
+    },
+    {
+      "agent": "031",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "head": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/031.md"
+      ],
+      "remote_verified": true,
+      "production_unchanged": true,
+      "checkout": "/workspace/agents/031-delivery",
+      "status": "",
+      "untracked_authored_files": []
+    },
+    {
+      "agent": "032",
+      "branch": "agents/032-feature-extraction",
+      "head": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/032.md"
+      ],
+      "remote_verified": true,
+      "production_unchanged": true,
+      "checkout": "/workspace/agents/032",
+      "status": "",
+      "untracked_authored_files": []
+    },
+    {
+      "agent": "033",
+      "branch": "agents/033-feature-cache-integrity",
+      "head": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/033.md"
+      ],
+      "remote_verified": true,
+      "production_unchanged": true,
+      "checkout": "/workspace/agents/033",
+      "status": "",
+      "untracked_authored_files": []
+    },
+    {
+      "agent": "034",
+      "branch": "agents/034-overlap-candidate-graph",
+      "head": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/034.md"
+      ],
+      "remote_verified": true,
+      "production_unchanged": true,
+      "checkout": "/workspace/agents/034",
+      "status": "",
+      "untracked_authored_files": []
+    },
+    {
+      "agent": "035",
+      "branch": "agents/035-verified-feature-matching",
+      "head": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/035.md"
+      ],
+      "remote_verified": true,
+      "production_unchanged": true,
+      "checkout": "/workspace/agents/035",
+      "status": "",
+      "untracked_authored_files": []
+    }
+  ],
+  "warm031": {
+    "head": "bd1fcdbe8c2f2251e759f94b2a6e60ac7c6a8b57",
+    "status": "",
+    "pushed_to_delivery": false,
+    "generated_data_preserved": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/generated-checkout"
+  },
+  "outside_checkout_sources_for_root_archive": [
+    {
+      "path": "/workspace/agents/android-bounded.init.gradle",
+      "bytes": 661,
+      "sha256": "9eaf237e5282d3f5da9dcb330fbbaed683c19ac1c1d8bf17627efce751ae2fb9"
+    },
+    {
+      "path": "/workspace/agents/android-optimized-native.init.gradle",
+      "bytes": 711,
+      "sha256": "cdb872e0a46af58e3020d2605bc8280253fe39604b0aef1c8ffa4a97f0223138"
+    },
+    {
+      "path": "/workspace/agents/compare-native-build-artifacts.py",
+      "bytes": 2179,
+      "sha256": "c92e3cc22b4b91578e0112171c3463ebbbb02b3e4a71a71fe8f0168ae1254793"
+    },
+    {
+      "path": "/workspace/agents/compile_android_sources.py",
+      "bytes": 2212,
+      "sha256": "cacf421b453d0a7175c1e032300eace0c8b689bbc1dbfbb9698927c9b18f80a1"
+    },
+    {
+      "path": "/workspace/agents/compile_android_sources_with_runner.py",
+      "bytes": 2485,
+      "sha256": "6c8002324a80df4926f91a1b8fb823b75765cf7ab6c4fddc47994fe5cd2dad7c"
+    },
+    {
+      "path": "/workspace/agents/kotlin_tests.py",
+      "bytes": 1405,
+      "sha256": "88efa737d6b4171cbb0906b03432af557a8cb2d286aee487fb8369914b397c63"
+    },
+    {
+      "path": "/workspace/agents/receive-orientation-provider.py",
+      "bytes": 4112,
+      "sha256": "bfe884de192f9b293500a812d33fac850a277ea2c460c3fe47e9ce346fef3574"
+    },
+    {
+      "path": "/workspace/agents/regen-manifest.py",
+      "bytes": 655,
+      "sha256": "497199a3b161f2a7a5fab042fabb3e98d458d3c67ca585710984ff25ed049293"
+    },
+    {
+      "path": "/workspace/agents/regen_manifest.py",
+      "bytes": 675,
+      "sha256": "80e01ad82a31c468119e3f87e110f3f4525e99f7ce6e41cd6ba2e222dd55c432"
+    },
+    {
+      "path": "/workspace/agents/run-final-android.sh",
+      "bytes": 3637,
+      "sha256": "763efcd888d03e809b40dd366413dc10c2ba4a99487ec17b20c66cbd992ab503"
+    },
+    {
+      "path": "/workspace/agents/run-optimized-native-android.sh",
+      "bytes": 4256,
+      "sha256": "e86339041c5a189bb5bd9ec1f764c9c93a327af8abcfad4d356f0ffcbed1c5de"
+    },
+    {
+      "path": "/workspace/agents/save-031-035-stop-receipts.py",
+      "bytes": 9465,
+      "sha256": "02ed6badc9406a53e19750bec6488003c41a97c04da8a7f49e06698716718907"
+    },
+    {
+      "path": "/workspace/agents/verify-optimized-native.py",
+      "bytes": 5508,
+      "sha256": "c902d308700227e79e1061fcd3cab9806b818b62c7924ca97abc1148f42a8d6e"
+    },
+    {
+      "path": "/workspace/agents/verify-unchanged-native-apk.py",
+      "bytes": 1617,
+      "sha256": "1f472bf05428050a86401c2cdc44e60b945033b445a19f8991ed7d6444e8f6ff"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/081-old-principal-formula.py",
+      "bytes": 4190,
+      "sha256": "4b7bff026b509d789d0254bb354c0539923189ab1e6eb893883ded6581468ed1"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/081-receiving-status-append.md",
+      "bytes": 3113,
+      "sha256": "53c562d05804c3919ec7a3fc790469b15a8089d98f473ac8952bd1af3c5c0cb4"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/resize-ray-centres.json",
+      "bytes": 811,
+      "sha256": "b6e806e4c3a1116dc55d05e381828f8336365406ea530ddbb3a03a73c33b09e9"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/resize-ray-centres.py",
+      "bytes": 1928,
+      "sha256": "1058a3a2ff8d4932579690a3bf47ae0359919eae338ac3aa414efe01a146e7ed"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/tilted-fusion-analysis.md",
+      "bytes": 6642,
+      "sha256": "51090a15a928b9bda6fb84a0d37addbb133cf30175d097b7198c58a5673c67e8"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/tilted-fusion-counterexample.cpp",
+      "bytes": 3965,
+      "sha256": "49105864761fb46f58d511ba09475b80b02f35f05ba917bac56c3f972fae6e74"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/tilted-fusion-counterexample.json",
+      "bytes": 623,
+      "sha256": "c3148806daf559f3841a9758c9d8b842bf1b78af5fe6fef576435053b61355b7"
+    },
+    {
+      "path": "/workspace/agents/diagnostics/tilted-fusion-frustum-bound.json",
+      "bytes": 2379,
+      "sha256": "cc8020d995cab72e281e22b2282698b8f28eb83d15484728b967cc62d1122221"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/all30-audit-invocation.md",
+      "bytes": 2055,
+      "sha256": "5a9e3274d86a2d6323680b9c36fd7d306eb306a9fe834eafb634f818cd94b75d"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/final-031-035-deltas.json",
+      "bytes": 6825,
+      "sha256": "58bd0daadb2e2ec6ffbd222efcda55fe826ebebd27ea13cab0808012a9a1f42e"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/final-status/031.draft.json",
+      "bytes": 8883,
+      "sha256": "b5455d0de709d4add05fc2d78a6a477529e9c5945c0be058c96ec7190784a923"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/final-status/032.draft.json",
+      "bytes": 14137,
+      "sha256": "c8beb2894704210e852ad9578589253a318fcefa6f008f6b2693070a4a1fff13"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/final-status/033.draft.json",
+      "bytes": 8389,
+      "sha256": "95124af2312183491bfe14b6c5c74496b9fdbfa5f3c0289350234532e2f01c7f"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/final-status/034.draft.json",
+      "bytes": 8675,
+      "sha256": "7a8272a6489bb885b087eaf37ac0444285057ee73050f166be65b5d900fa407e"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/final-status/035.draft.json",
+      "bytes": 14788,
+      "sha256": "48494f137f1b3832c4ede9ad47fa9d938cf894e69923b5a953568049ccf735b2"
+    },
+    {
+      "path": "/workspace/agents/receipt-drafts/update-031-035-receipts.py",
+      "bytes": 12348,
+      "sha256": "98defb4e8c5fb1e1761b23d5947b27f17f65251a82518456d8b7cd532e645599"
+    }
+  ],
+  "outside_evidence_directories": [
+    "/workspace/agents/final-artifacts",
+    "/workspace/agents/diagnostics",
+    "/workspace/agents/receipt-drafts",
+    "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z"
+  ],
+  "additional_downloaded_reference_inputs": [
+    "/workspace/agents/ExifInterface.java",
+    "/workspace/agents/exifinterface-1.4.1-sources.jar"
+  ],
+  "own_active_build_test_processes": [],
+  "shared_non_zombie_process_snapshot": [
+    {
+      "pid": 16353,
+      "ppid": 1,
+      "state": "Ssl",
+      "command": "adb"
+    },
+    {
+      "pid": 46011,
+      "ppid": 45982,
+      "state": "Sl",
+      "command": "qemu-system-x86"
+    },
+    {
+      "pid": 120997,
+      "ppid": 120992,
+      "state": "Sl",
+      "command": "qemu-system-x86"
+    }
+  ],
+  "unfinished": [
+    "012 actual Android wrong-type injection fixture not implemented; conservative scanner final immutable review/full build/runtime unfinished.",
+    "035 proposed full-intrinsics/per-match pixel-row harness changes not started.",
+    "Actual a002 pipeline interrupted by user after833.44s;032/035 resource batch not run.",
+    "Expanded real/physical qualification and existing surface count failure remain open."
+  ],
+  "previous_extra_deliveries": {
+    "047_source": "4fb5317c0b651edf8a227fab2281237f87403b11",
+    "081_receiving_head": "2dcbe5bbf30d09805204996b68a30e3a3b759166"
+  }
+}

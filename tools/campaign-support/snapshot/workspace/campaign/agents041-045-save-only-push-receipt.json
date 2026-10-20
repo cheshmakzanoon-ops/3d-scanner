@@ -1,0 +1,75 @@
+{
+  "save_only_user_stop": true,
+  "branches": [
+    {
+      "agent": "041",
+      "branch": "agents/041-bundle-adjustment",
+      "sha": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+      "remote_head": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+      "remote_verified": true,
+      "tracked_and_untracked_clean": true,
+      "paths": [
+        "docs/agents/status/041.md",
+        "SOURCE_MANIFEST.sha256"
+      ],
+      "tests_run_for_receipt": false,
+      "fully_done_claimed": false
+    },
+    {
+      "agent": "042",
+      "branch": "agents/042-intrinsic-refinement",
+      "sha": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+      "remote_head": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+      "remote_verified": true,
+      "tracked_and_untracked_clean": true,
+      "paths": [
+        "docs/agents/status/042.md",
+        "SOURCE_MANIFEST.sha256"
+      ],
+      "tests_run_for_receipt": false,
+      "fully_done_claimed": false
+    },
+    {
+      "agent": "043",
+      "branch": "agents/043-loop-closure-drift",
+      "sha": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+      "remote_head": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+      "remote_verified": true,
+      "tracked_and_untracked_clean": true,
+      "paths": [
+        "docs/agents/status/043.md",
+        "SOURCE_MANIFEST.sha256"
+      ],
+      "tests_run_for_receipt": false,
+      "fully_done_claimed": false
+    },
+    {
+      "agent": "044",
+      "branch": "agents/044-dense-view-selection",
+      "sha": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+      "remote_head": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+      "remote_verified": true,
+      "tracked_and_untracked_clean": true,
+      "paths": [
+        "docs/agents/status/044.md",
+        "SOURCE_MANIFEST.sha256"
+      ],
+      "tests_run_for_receipt": false,
+      "fully_done_claimed": false
+    },
+    {
+      "agent": "045",
+      "branch": "agents/045-image-pyramids-rectification",
+      "sha": "c1086842b8e821182aff4c234840b4fb5ef76874",
+      "remote_head": "c1086842b8e821182aff4c234840b4fb5ef76874",
+      "remote_verified": true,
+      "tracked_and_untracked_clean": true,
+      "paths": [
+        "docs/agents/status/045.md",
+        "SOURCE_MANIFEST.sha256"
+      ],
+      "tests_run_for_receipt": false,
+      "fully_done_claimed": false
+    }
+  ]
+}

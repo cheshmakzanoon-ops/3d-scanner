@@ -1,0 +1,8 @@
+{
+  "source_sha": "a330b663b74d9148645a40e4e71834364b83e466",
+  "result": "PASS",
+  "duration_seconds": 253,
+  "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-bounded.init.gradle -Dorg.gradle.jvmargs=-Xmx3g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:compileDebugKotlin :app:compileDebugAndroidTestKotlin",
+  "evidence": "/workspace/agents/002-final-kotlin-check.log",
+  "environment": "OpenJDK17 / Gradle8.13 / actual Android SDK36 / Kotlin2.1.21"
+}

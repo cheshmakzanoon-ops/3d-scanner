@@ -1,0 +1,15 @@
+{
+  "classification": "ASSERTION_FAIL",
+  "tests_run": 10,
+  "passed_statuses": 9,
+  "failed_statuses": 1,
+  "skipped_statuses": 0,
+  "phase": "test_result",
+  "qualification": "FINAL_CANDIDATE",
+  "batch": "platform",
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "exit": 0,
+  "seconds": 48.92,
+  "log_sha256": "6535aa59a4320ccd03f4708df5417c204f69e66e227954fde50289f72e3d63d7",
+  "log": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.log"
+}

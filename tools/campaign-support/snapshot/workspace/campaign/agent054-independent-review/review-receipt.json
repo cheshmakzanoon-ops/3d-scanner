@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "source_sha": "596cd5fefa264fc7338dc782ac6e1252a477576e",
+  "header_sha256": "8082ee701dcad38ee937125a582eadab6dc88638876714cb64d7ef456775f875",
+  "baseline_sha": "c22b52b5b4fdb3c657e79e65ff814ed6c1e9f37e",
+  "read_only_source_review": true,
+  "photographs_or_real_benchmark_used": false,
+  "metamorphic_checks": {
+    "uniform_parity_cases": 1200,
+    "random_reliability_cases": 400,
+    "parallel_layer_safety_cases": 100
+  },
+  "findings": [],
+  "checks": {
+    "uniform_geometry": "1200 exact bitwise direction/residual/conditioning/sigma/support-ID comparisons against separately compiled pre-change implementation",
+    "reliability": "400 deterministic random clouds, Kish checked against long-double independent sums; no physical-sigma claim",
+    "layers": "100 independently weighted parallel-layer cases never become Supported",
+    "resources": "extra raw fit clones only selected <=256 observations, max two fit frames, each <=32 Jacobi rotations; finite positive max normalization bounds W and squaredSum in [1,256]",
+    "invalid_input": "direct reliability finite(0,1], buffer shape checked before q indexing, all9 depth/jump checks before anyzero whole-window unknown, malformed q Error",
+    "cancellation": "entry and bounded observation scans/eigen/parallax loops; extra recursive fit retains same checks; no external output mutation",
+    "radius": "construction and filtering use identical distance arithmetic, outward nextafter; no validated neighbor lost to hypot/sqrt disagreement"
+  },
+  "tracked_tree_clean": true
+}

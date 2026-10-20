@@ -1,0 +1,239 @@
+[
+  {
+    "path": "/workspace/3d-scanner",
+    "head": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/002",
+    "head": "eec0ca42673e4ae2d655ce2031703478d661de99",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/003",
+    "head": "e4a762baea07fd1dfa6606e7c340f49aed1be425",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/004",
+    "head": "e0c48dcf8bc5bc8d5f62b5d234395ca21a9d63d8",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/004-delivery",
+    "head": "77eaa69b31333da243816296dc9fbdd0823b1088",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/009",
+    "head": "c77bc8046907012ebc034cc530991ad6c6c4e3fa",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/012",
+    "head": "7843eb76b285a12ee7d149cf4112d502b603ff97",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/031",
+    "head": "bd1fcdbe8c2f2251e759f94b2a6e60ac7c6a8b57",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/031-delivery",
+    "head": "9bcfc9959a012893ef6683fb4d90e92fab620c30",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/032",
+    "head": "612cca1702c87f39243381f3263cd2d2e6c4e571",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/033",
+    "head": "195185c2852b5dbdc9d1bde02c4fd9cd0bc7b277",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/034",
+    "head": "f4e91fa14ebdecc016da507b18a3512ecc821e89",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/035",
+    "head": "9c40ab9a19465f3e4fed55000e5db1317940d685",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/036",
+    "head": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/037",
+    "head": "43109f39235676cb1581ecaf92ae69a7915f939a",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/038",
+    "head": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/039",
+    "head": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/040",
+    "head": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/041",
+    "head": "9d13d7dd56fc468af3d98b4f6395f3aee9a40144",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/042",
+    "head": "128a4175e5b05d01d3f54c0a56f00566fae00f76",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/043",
+    "head": "c3e0d307d9e434bb6c0baefc29a77077a9eec560",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/044",
+    "head": "0c0547a3ee04227409caa9422c6c0a68ba674072",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/045",
+    "head": "c1086842b8e821182aff4c234840b4fb5ef76874",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/046",
+    "head": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/047",
+    "head": "f98fb1a8e63746285006b78837103358e07776d1",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/048",
+    "head": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/049",
+    "head": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/050",
+    "head": "88629b9780641ccc8c47826c34676cb25141302f",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/051",
+    "head": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/052",
+    "head": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/053",
+    "head": "71a05791a62ea648d993625a33f342e8cabbfb63",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/054",
+    "head": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/055",
+    "head": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/056",
+    "head": "e94b7424d2f1b437bc912a2d1f0dcb5f8267b159",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/057",
+    "head": "a8a7d4d665f10d8880fbf62a9f536f1182ab2f54",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/058",
+    "head": "858f2b36faf3b9d0d486ff0aa02c89d01b56cdf8",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/059",
+    "head": "68b1f05b3a51c0d4e04704520decf97151fcd76e",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/060",
+    "head": "9d6de1d41a9fa43b50d07334236b7ab335736c14",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/081",
+    "head": "2dcbe5bbf30d09805204996b68a30e3a3b759166",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/084",
+    "head": "a6751721f063db8daee08b72f19cd3f5cc8f2f14",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/085",
+    "head": "f9428313a649b673232e97ecfaba5e55bd172cf3",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/094",
+    "head": "bf3c6ea2b0d8043a8ddb882d487473733de7228a",
+    "changes": []
+  },
+  {
+    "path": "/workspace/agents/validation-041-045",
+    "head": "807398fdacfbabf00e9d23c3266464f619d379b2",
+    "changes": [
+      "?? app/schemas/"
+    ]
+  },
+  {
+    "path": "/workspace/campaign-support",
+    "head": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+    "changes": []
+  },
+  {
+    "path": "/workspace/campaign/delivery-candidate",
+    "head": "2723c9940069b8fd58e0cd045466a05de225ff01",
+    "changes": []
+  },
+  {
+    "path": "/workspace/campaign/final-candidate",
+    "head": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "changes": []
+  },
+  {
+    "path": "/workspace/campaign/integration",
+    "head": "1ea301c8a6c183661b9d4c54519c23114e1d1d5d",
+    "changes": []
+  }
+]

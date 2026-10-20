@@ -1,0 +1,310 @@
+# RealityForge — approved direction and implementation gates
+
+Version: 0.1 / 9 October 2026. The design below carries forward the agreed fully offline,
+high-fidelity Android photogrammetry plan. The current deliverable is an initial engineering
+milestone; a design target is not a completed or validated capability.
+
+## Product contract
+
+The finished app will capture or import multiple photographs of a rigid object, reconstruct
+its cameras, recover dense observed surfaces, build and texture a mesh, allow local
+inspection, and export useful 3D assets. Runtime capture, reconstruction, viewing and export
+must not depend on a server, account or network connection. A user may deliberately choose
+an external sharing destination. The app must not send scan data elsewhere on its own.
+
+The target is actual multi-view reconstruction, not a single-image generative model that
+invents missing geometry. Unknown or repaired regions must remain identifiable. Scale is
+arbitrary unless supported by a known measurement, calibration marker or validated metric
+sensor observations. Transparent, reflective, moving and unobserved surfaces cannot be
+advertised as reliably reconstructed from ordinary photos.
+
+The intended quality profiles accommodate approximately 30–250+ photos, with adaptive
+geometry resolution, normally 2K–4K texture atlases and optional larger outputs after device
+validation. Hundreds of thousands to millions of triangles are possible output targets,
+not evidence of quality in themselves. These limits remain benchmark-driven.
+
+## Architecture preserved
+
+- Native Android app: Kotlin, Jetpack Compose, CameraX / Camera2, Room and private files.
+- Portable C++20 reconstruction engine via NDK/JNI, with host and Android test entry points.
+- Native image features and geometric verification; Ceres/Eigen integration for production
+  sparse optimization after the initializer and calibration model have passed their gates.
+- Dense multi-view stereo using coarse-to-fine depth estimates, confidence, visibility and
+  geometric consistency. A CPU reference precedes Vulkan acceleration.
+- Confidence-weighted fusion, tested meshing, conservative cleanup, xatlas-style UV
+  unwrapping, source-view selection, color correction, seam control and photographic baking.
+- Filament for the production textured-model studio; the M01 point viewer is diagnostic only.
+- GLB, OBJ, PLY and STL as appropriate to the representation. Sparse POINTS are never
+  mislabeled as a triangle surface or an animation-ready asset.
+- Optional ARCore tracking/depth assistance must not become a prerequisite for photos-only
+  reconstruction. Installation/update requirements must be disclosed separately.
+
+## Full pipeline
+
+1. Copy and preserve originals; normalize metadata and construct analysis pyramids.
+2. Evaluate sharpness, exposure, overlap and capture diversity; avoid fabricated coverage.
+3. Detect descriptors, choose plausible image neighbors and verify geometric matches.
+4. Build consistent feature tracks; initialize a camera pair; register further cameras.
+5. Refine camera poses, suitable intrinsics and sparse points using robust bundle adjustment.
+6. Estimate per-view dense depth and normals, carrying uncertainty and visibility.
+7. Fuse mutually consistent measurements into a point/surface representation.
+8. Build and refine a mesh without concealing unobserved areas or closing real openings.
+9. Unwrap, select photographs, normalize color, reduce seams and bake textures.
+10. Produce LODs and exports, preserving the high-fidelity source model.
+
+## Twenty implementation phases
+
+| Phase | Scope | Evidence required to complete |
+|---|---|---|
+| 1 | Product specification | Versioned scope, privacy contract, supported cases, metrics and exclusions |
+| 2 | Reference datasets | Licensed real photo sets, ground-truth geometry, difficult cases and manifests |
+| 3 | Desktop reference | Known-good SfM/MVS comparison outputs and reproducible measurements |
+| 4 | Native core and Android bridge | Host tests, actual NDK builds, JNI runtime tests on arm64 and x86_64 |
+| 5 | Camera and import | Real-device JPEG/import validation, EXIF/rotation, private storage and interruption tests |
+| 6 | Feature extraction | Repeatable multiscale features, caching, retention and device resource measurements |
+| 7 | Matching and verification | Correct overlap graph, outlier rejection and degenerate-scene diagnostics |
+| 8 | Sparse SfM | Multi-camera registration, triangulation, track consistency and loop closure |
+| 9 | Bundle adjustment | Calibrated/refined intrinsics, stable gauge, robust optimization and convergence reports |
+| 10 | Dense MVS | Real depth maps with quality/performance comparisons to the CPU reference |
+| 11 | Dense fusion | Confidence-weighted point clouds/surface observations; thin-surface and occlusion tests |
+| 12 | Meshing | Correct winding, topology checks, preserved boundaries and conservative repair |
+| 13 | Photographic texturing | UVs, source scoring, visibility, color adjustment, seam tests and original-photo baking |
+| 14 | Optimization | Detail-preserving decimation, LODs, rebaking and measured error budgets |
+| 15 | Export | GLB/OBJ/PLY/STL imports in target tools with correct units and material references |
+| 16 | 3D studio | Filament lifecycle/resource tests, responsive model inspection, crop/orient/scale |
+| 17 | Guided capture | Useful blur/overlap/coverage feedback shown to improve real capture success |
+| 18 | Resource engineering | Peak RAM/storage, Vulkan compatibility, sustained thermals and safe scheduling |
+| 19 | Reliability | Airplane-mode end-to-end tests, process death, storage exhaustion, corrupt input and recovery |
+| 20 | Release | Verified APK/AAB, current distribution requirements, privacy documentation and external testing |
+
+## Initial delivery strategy
+
+The first executable slice proves image correspondences → native camera geometry → sparse
+3D output. It deliberately does not claim a completed dense scanner. Source work on the app
+shell and photo pipeline may proceed alongside the host engine; Android-related gates remain
+open until their code is actually compiled and executed. A synthetic fixture is useful for
+numerical regression but does not complete the real-dataset or high-quality-output gates.
+
+## Quality validation
+
+Evaluate geometric accuracy, completeness, camera registration, texture alignment, visible
+seams, export correctness and operational reliability independently. Preserve per-scene
+failures instead of hiding them in a favorable average. The future controlled-dataset
+aspirations include roughly 95% camera registration, strong observable-surface completeness
+and scale-aligned surface errors under approximately 1% of object bounding-box diagonal.
+These targets must be adjusted or qualified by measured scene/device performance.
+
+The benchmark corpus must include textured stone, shoes, figurines, wood, flat objects,
+thin components and deliberately adverse glossy/transparent/low-texture subjects. Difficult
+cases should fail honestly or request corrective capture rather than output deceptive
+plausible shapes. No fake model, canned success status or arbitrary percentage is acceptable.
+
+## Resource and persistence rules
+
+Never decode an entire photo collection at full resolution at once. Stream originals,
+store multiresolution caches, limit active neighbors, tile dense processing and spatially
+partition large fusion/meshing tasks. Adapt concurrency to measured device resources and
+thermal behavior. Preserve checkpoints at meaningful algorithm boundaries.
+
+Inputs, settings and engine/cache versions identify an output. Mutating an input invalidates
+downstream artifacts. Publish a completed result only after its associated artifacts are
+safely written and it still corresponds to the current project revision. Cancelling or
+killing a process must not publish a partial scan as complete. A change to export density
+should not rerun camera alignment.
+
+## UI and product rules
+
+Library → capture/import → photo review → measured processing stages → 3D studio → export.
+Retain originals and allow useful reruns. Show unsupported conditions and calibration
+assumptions. No mandatory account, forced photo upload, fake quality bar or hidden server
+fallback. A privacy-preserving default must include explicit consideration of OS backup
+and user-selected document-provider destinations.
+
+## Licensing and dependencies
+
+Audit direct/transitive libraries, native redistributables and model licenses before release.
+No OpenMVS/AGPL source is included in M01. Planned libraries are not automatically approved
+for distribution. Preserve notices and document versions. First-party source licensing is
+for the project owner to select; this package does not publish or relicense the project.
+# Current status — M12
+
+| Area | Actual state |
+|---|---|
+| App/capture | Kotlin/Compose/CameraX, local imports, calibration, private project storage |
+| Sparse geometry | Shared C++ SfM/PnP, multi-view tracks and joint Schur-complement bundle adjustment; fixed intrinsics |
+| Depth/surface | Bounded CPU stereo, reciprocal checks and open indexed triangle patches; not complete manifold reconstruction |
+| Photographic UV | Full XYZ cross product and glTF top-left origin repaired; all 3,530 existing triangles textured on one real stereo benchmark |
+| Appearance | Bounded, measured exposure gains and deterministic camera-label smoothing; not seamless blending |
+| Native validation | Seven CTest targets and 105 Python checks passed locally; M10 photometric GCC/Clang/sanitizer evidence retained |
+| Android validation | M11 full CI and 20 emulator tests passed; M12 new session tests require CI; no physical camera proof |
+| Preview | Bounded local photographic GLES3 viewer plus vertex-color diagnostics; new shader/file/lifecycle tests |
+| Resource limits | At most 12 sparse photos, three Android depth views at 256px edge, texture sources up to 768px |
+| Release status | Engineering prototype only; not consumer/store ready |
+
+The new fixes improve measured material projection without altering mesh geometry
+or relaxing visibility gates. 100% benchmark triangle coverage is not whole-object
+completeness. See M10_VALIDATION.md for actual numbers and test boundaries.
+
+Historical implementation/validation records are retained in M02–M09 documents.
+The full product contract remains PROJECT_PLAN.md; phases requiring physical
+handsets, complete-object ground truth and sustained resource measurements remain
+open. No synthetic or two-camera stereo test closes those gates.
+
+See M11_VIEWER.md for supported GLB subset, memory budgets and exact tests. No reconstruction quality ceiling or physical-device gate is changed by the viewer.
+
+M12 adds bounded revision-checked reopening, operation reservation around exports/deletion,
+cancellable copying and capture-revision checks. The full synthetic photograph-to-model
+session is exercised with the actual Android ViewModel/pipeline, not only native fixtures.
+See M12_SESSION_RELIABILITY.md; unchanged geometry limits and physical gates remain open.
+
+
+## M14 / M15 increments
+
+- M14 native/JNI: 2–8 calibrated views, up to three selected matching sources per
+  reference, explicit 100k sample budget, active luminance caching, eight-camera
+  exposure solve and bounded 3x3 photographic atlas. Known-camera synthetic plane
+  coverage increased 1.71x against the same fixed eligible surface grid; the
+  existing real stereo output is unchanged. Not a full object/phone benchmark.
+- M15 Android: activates up to eight views, adaptive 384/256 depth edge and stride,
+  compact/standard texture limits, one-image-at-a-time decode, cancellation checks
+  during rectification and visible sparse depth priors. New settings are versioned.
+- Kotlin and device assertions are commit-specific CI gates. Physical handset,
+  large-scene resumption, arbitrary 360-degree registration and final-quality
+  topology/textures remain outstanding. Neither milestone establishes perfection.
+
+## M15 recovery and M16 incremental registration
+
+M15's staged, checksum-verified eight-view Android adaptation was recovered and
+published after an interrupted session. M16 then adds first-party incremental
+registration over the current shared sparse frame, stable bounded track snapshots,
+candidate-identity conflict rejection, native pose validation, explicit remaining
+images and all-pairs final refinement. Eight JVM cases and a production-JNI
+synthetic visibility-chain regression accompany the source. These need the
+commit-specific Android CI result; no physical-device or full-object completion
+claim is made. See M15_ADAPTIVE_ANDROID.md and M16_INCREMENTAL_REGISTRATION.md.
+
+
+## M17 — CPU-native cancellation (operation scoped)
+
+- Added independent, nonrecycled JNI operation handles backed by atomics and
+  shared lifetime guards. The caller can signal an active native depth/mesh/
+  photographic-texture job from the Android main thread. Token registration is
+  limited to 16 concurrent operations to prevent unbounded resources.
+- Every native execution installs a thread-local scope; no process-global stop
+  flag and no cross-project interruption. Nested calls restore the earlier flag.
+- CPU loops periodically check for cancellation, including long image/atlas rows.
+  Cancellation propagates as a top-level error, never silently as an acceptable
+  mesh or UV-quality warning.
+- `ScannerViewModel.pause()` signals the native token *before* cancelling the
+  coroutine; activity/view-model teardown signals too. Kotlin checks the job
+  after JNI and deletes `.partial` exports in `finally`.
+- Added five native cancellation regressions and an Android instrumentation
+  case verifying token isolation, stale-handle rejection, and no output files
+  from pre-cancelled native runs.
+- This is **cooperative** cancellation: the maximum pause delay is bounded by
+  the next native checkpoint; sparse SfM operations still cancel at Kotlin
+  boundaries rather than mid-C++ iteration. No per-reference resume yet.
+
+## M18 — Native per-reference depth resumption
+
+- Calibrated rectified camera depth maps can be atomically cached and reused
+  when their SHA-256 input identity and binary CRC validate; invalid and
+  incomplete files are recomputed without discarding valid references.
+- M17 cancellation remains scoped, and the resulting point/surface/photographic
+  exports are freshly validated, not read directly from checkpoint files.
+- Host/JVM/Android regression gates are in `docs/M18_DEPTH_CHECKPOINTS.md`.
+- No physical-device 360-degree accuracy, watertightness, or power-loss
+  durability claim.
+
+## M19 — Persisted objective scan diagnostics
+
+- Counts registered cameras against the imported photo total. Reports optional
+  sparse parallax and normalized reprojection residuals without inventing
+  ground-truth measurements.
+- Distinguishes sampled depth pixels from reciprocal-consistent pixels;
+  reports observed mesh vertices/triangles and measured photographic face
+  support, never extrapolates to an unseen complete object.
+- Deterministic, testable recapture guidance in JSON and a dedicated Android
+  quality card. User exports the revision-bound JSON through the system picker.
+- Pure Kotlin heuristics have JVM tests, JSON adapter has Android instrumentation.
+- No change to native reconstruction acceptance gates, save revisions, or
+  capture privacy. Real physical object coverage/accuracy remains unmeasured.
+# Next gate after M12 — complete-session reliability and measured scan quality
+
+M10 corrected face normals and glTF UV orientation and reduced exposure mismatch.
+M11 adds bounded local photographic GLB inspection and real shader/lifecycle tests.
+M12 adds revision/operation safety and a complete synthetic Android session test.
+None of these results establishes physical full-scene scanning.
+
+1. Exercise a complete import → reconstruction → photographic inspection →
+   reopen/export session, with malformed profiles, process death, cancellation,
+   storage shortages and changed inputs. Preserve originals and never publish a
+   partly complete result. Add exact regressions for every observed defect.
+2. Collect authorized physical ARM64 capture bundles of at least two matte
+   textured objects, 12–40 photos, a same-lens checkerboard profile, independent
+   reference geometry and actual peak RAM/thermal/battery measurements.
+3. Remove the three-low-resolution-view bottleneck using benchmarked incremental
+   reconstruction, visibility/coverage selection, checkpointing and memory bounds.
+   Measure completeness, not only retained-point error on one stereo pair.
+4. Improve nonmanifold/overlapping triangle diagnostics, conservative cleanup,
+   compact atlas charts and blending. Do not invent unseen surfaces or silently
+   close genuine openings. Add mesh optimization/LODs and further export formats.
+5. Build the production model studio and release workflow only after the above
+   geometry, appearance and device evidence is available. The Filament studio,
+   store-ready AAB, signing, accessibility, localization and external beta gates
+   from PROJECT_PLAN.md remain open.
+
+No claim of perfection or release completeness follows from compiler success,
+synthetic rendering tests, or isolated rectified-stereo reconstruction results.
+
+
+## After M15: complete-object registration and device-scale execution
+
+M14/M15 replace the three-input depth bottleneck with up to eight reference views,
+three selected stereo sources per reference, and bounded adaptive Android decode.
+Next validate calibrated physical captures and actual phone resource consumption;
+expand registration beyond the anchor intersection; add restartable per-reference
+depth artifacts and cancellation before increasing view/resolution limits again.
+Do not substitute the synthetic plane coverage test for full object completeness.
+
+## After M16: native cancellation and restartable work
+
+Registration now grows beyond the original anchor intersection with fresh
+triangulation and two-view-supported PnP. The twelve-photo sparse cap remains.
+Next implement operation-scoped native cancellation without global interference,
+then restartable per-reference depth checkpoints with strict input/calibration/
+engine identities. Validate process interruption and unchanged completed exports.
+Physical complete-object captures, intrinsic/drift correction and high-detail
+multi-view benchmarking remain required; do not raise limits without measurements.
+
+
+## After M17 — M18: checkpointed per-reference depth work
+
+M17 now stops a running CPU depth/mesh/texture job cooperatively without affecting
+another operation in the same process. Next persist **per-reference** depth
+checkpoints with SHA-256 identity of photographs, calibration, registered poses,
+engine version, depth settings, and application revision. Create outputs through
+atomic temporary writes, refuse mismatched/residual caches and validate resume
+across actual Android process termination. Partial files must never be exposed
+as finished models. This is separate from any claim of real-world 360° quality.
+
+## After M18 — M19: physical capture truth and resumable full sessions
+
+M18 checkpoints only accepted per-reference photometric depth, never partial
+surface/texture outputs. Next collect same-lens calibrated images of actual
+textured objects on an ARM64 device; validate memory, temperature and object
+coverage against reference meshes. Then add on-device interruption/relaunch
+instrumentation, explicit checkpoint cache inspection/clearing, and better
+cross-view fusion to avoid redundant overlapping faces before raising the
+resolution. Do not claim release completeness from emulators or synthetic rigs.
+
+## After M19 — M20: physical-device benchmark and topology evidence
+
+M19 adds honest observed-evidence diagnostics rather than a misleading
+"90% complete" score. M20 should instrument ARM64 process RSS, CPU/thermal
+behavior, frame counts, power impact, and image/mat buffer lifetimes across
+real 12-photo and 8-depth-view projects. Collect repeatable, authorized,
+calibrated 360-degree sessions for at least two matte objects, compare with
+external reference geometry and report missing sides, disconnected patches and
+nonmanifold edges before increasing depth resolution or claiming completeness.
+The emulator and synthetic datasets cannot replace physical handset validation.

@@ -1,0 +1,85 @@
+{
+  "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+  "source_tree_sha256_manifest": "dd9b54f886252da1ca321661c8bf404256159c6db42cfafc87afd6c4712f3562",
+  "source_tree": "aab411b7f089f4527fd1935474fc155ce3fa096c",
+  "all_30_ancestors": true,
+  "manifest_files_verified": 563,
+  "native": {
+    "source_sha": "4dc17f63cca780bdaa711cc81195c6ef50f83587",
+    "host_library_sha256": "e8b0c9a00fcc16263f5cce2f47d823b3b38297df4c4ae85cdaf2f7006df7cfab",
+    "release": {
+      "tests": 35,
+      "failures": 0,
+      "seconds": 9.98
+    },
+    "sanitizers": {
+      "tests": 35,
+      "failures": 0,
+      "seconds": 135.36,
+      "checks": [
+        "address",
+        "undefined",
+        "float-cast-overflow"
+      ],
+      "ASAN_OPTIONS": "detect_leaks=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    },
+    "logs": {
+      "/workspace/agents/004-radiometry3-native-ctest.log": "6257066e1f2c8bdd91277ce01f5e43ab7a2ac119bd217c305fbbc6198d2b681d",
+      "/workspace/agents/004-radiometry3-sanitized-ctest.log": "5fa3e0357e81765596f19e91d621142458e23e4888e6d89dc2b1afc9b690f4a3"
+    }
+  },
+  "source_archive": {
+    "path": "/workspace/campaign/evidence/094/final-ccdef4fc3d3f/source1.tar.gz",
+    "sha256": "f6aa78e3adb14994765448db8503e53ec2f2bd1bc8d208dbc9ed7879f30ee987",
+    "bytes": 1671248,
+    "reproducible_two_archives": true
+  },
+  "android": {
+    "candidate": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+    "state": "PASS_PRE_FIX_CHECKPOINT",
+    "jvm_tests": 124,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "lint_errors": 0,
+    "lint_warnings": 8,
+    "apk_privacy_16kb": "PASS",
+    "device_install": "HELD_FOR_CORRECTED_SOURCE",
+    "receipt": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/validation-receipt.json"
+  },
+  "pytest": {
+    "candidate": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+    "state": "FAIL_UNDER_REPAIR",
+    "passed": 167,
+    "failed": 1,
+    "skipped": 0,
+    "failing_gate": "tests/test_surface.py::test_real_photographs_generate_indexed_open_surfaces: fusedObservations > 50",
+    "receipt": "/workspace/campaign/final-pytest-receipt.json"
+  },
+  "emulator": "PENDING_FROZEN_APK",
+  "repair_history": [
+    {
+      "provider": "054",
+      "sha": "c22b52b5b4fdb3c657e79e65ff814ed6c1e9f37e",
+      "change": "Retain actual validated slanted normal neighborhood; independent failing-before analytic regression."
+    },
+    {
+      "provider": "053",
+      "sha": "cbb1a118eb6055363272eb7984f4aa98b22bfa62",
+      "change": "Angular normalization independent of positive confidence weight; independent failing-before public-fusion regression."
+    },
+    {
+      "provider": "002",
+      "sha": "f8193ce3f299032b9d69817d069b2e9b3dde01a2",
+      "change": "Version surface producer policy, preserve depth cache identity."
+    }
+  ],
+  "repair_validation": {
+    "source": "bfc6a24cd5ef7736bf437d361adb7a34f8cfe307",
+    "native_tests": 35,
+    "failures": 0,
+    "real_surface_gate": "Still failing; no thresholds changed",
+    "ongoing": "Correct bounded local pixel-footprint fusion; independent near/far regression proved. Calibrated tilted surface metric under investigation."
+  }
+}

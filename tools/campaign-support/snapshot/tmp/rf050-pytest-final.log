@@ -1,0 +1,19 @@
+........................................................................ [ 61%]
+...........................F..................                           [100%]
+=================================== FAILURES ===================================
+______ test_m18_depth_resume_is_input_identified_atomic_and_native_scoped ______
+
+    def test_m18_depth_resume_is_input_identified_atomic_and_native_scoped():
+        native=(ROOT/"reconstruction/src/depth_checkpoint.cpp").read_text()
+        pipeline=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
+        identity=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt").read_text()
+        core=(ROOT/"reconstruction/src/dense.cpp").read_text()
+        assert 'SHA-256' in identity and 'digest.update(rgba)' in identity
+        assert 'digest.update("realityforge-m18-native-reference-depth-v1' in identity
+>       assert 'std::filesystem::rename(temporary,target,ec)' in native
+E       assert 'std::filesystem::rename(temporary,target,ec)' in '#include "realityforge/depth_checkpoint.hpp"\n#include "realityforge/dense.hpp"\n#include "realityforge/cancellation....se a non-durable write as an accepted checkpoint.\n    return false;\n#endif\n}\n} // namespace rf::depth_checkpoint\n'
+
+tests/test_project_contracts.py:222: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_project_contracts.py::test_m18_depth_resume_is_input_identified_atomic_and_native_scoped
+1 failed, 117 passed in 135.98s (0:02:15)

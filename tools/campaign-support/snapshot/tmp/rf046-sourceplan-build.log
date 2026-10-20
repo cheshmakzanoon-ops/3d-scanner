@@ -1,0 +1,14 @@
+[1/14] Building CXX object CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+[2/14] Linking CXX shared library librealityforge.so
+[3/14] Linking CXX executable rf_native_tests
+[4/14] Linking CXX executable rf_multiview_tests
+[5/14] Linking CXX executable rf_bundle_tests
+[6/14] Linking CXX executable rf_dense_tests
+[7/14] Linking CXX executable rf_surface_tests
+[8/14] Linking CXX executable rf_texture_tests
+[9/14] Linking CXX executable rf_photometric_tests
+[10/14] Linking CXX executable rf_stereo_warp_tests
+[11/14] Building CXX object CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o
+[12/14] Linking CXX executable rf_dense_selection_tests
+[13/14] Linking CXX executable rf_cancellation_tests
+[14/14] Linking CXX executable rf_depth_checkpoint_tests

@@ -1,0 +1,92 @@
+{
+  "archive_bytes_identical": true,
+  "archive_sha256": "b6ccfa21f3c96ef693f4bfdd4065cebb5d5bd1db374a3a2776cc23610bb7c905",
+  "archive_size_bytes": 1748327,
+  "canonical_verification": [
+    "PASS",
+    "PASS"
+  ],
+  "commands": [
+    [
+      "python",
+      "tools/source_manifest.py",
+      "verify",
+      "--source",
+      "2723c9940069b8fd58e0cd045466a05de225ff01"
+    ],
+    [
+      "python",
+      "tools/ci/source_snapshot/archive.py",
+      "create",
+      "--revision",
+      "2723c9940069b8fd58e0cd045466a05de225ff01",
+      "--output",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source1.tar.gz",
+      "--record",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source1.json"
+    ],
+    [
+      "python",
+      "tools/ci/source_snapshot/archive.py",
+      "create",
+      "--revision",
+      "2723c9940069b8fd58e0cd045466a05de225ff01",
+      "--output",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source2.tar.gz",
+      "--record",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source2.json"
+    ],
+    [
+      "python",
+      "tools/ci/source_snapshot/archive.py",
+      "verify",
+      "--revision",
+      "2723c9940069b8fd58e0cd045466a05de225ff01",
+      "--archive",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source1.tar.gz",
+      "--record",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source1.json"
+    ],
+    [
+      "python",
+      "tools/ci/source_snapshot/archive.py",
+      "verify",
+      "--revision",
+      "2723c9940069b8fd58e0cd045466a05de225ff01",
+      "--archive",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source2.tar.gz",
+      "--record",
+      "/workspace/campaign/evidence/094/final-2723c9940069/source2.json"
+    ]
+  ],
+  "exact_manifest_verification": "PASS",
+  "files": {
+    "source1.json": {
+      "bytes": 479,
+      "sha256": "973accf809431a2bb7b912b4a5b7608c4dceed5ac0a07fa6594b340a9c18b8b4"
+    },
+    "source1.tar.gz": {
+      "bytes": 1748327,
+      "sha256": "b6ccfa21f3c96ef693f4bfdd4065cebb5d5bd1db374a3a2776cc23610bb7c905"
+    },
+    "source2.json": {
+      "bytes": 479,
+      "sha256": "973accf809431a2bb7b912b4a5b7608c4dceed5ac0a07fa6594b340a9c18b8b4"
+    },
+    "source2.tar.gz": {
+      "bytes": 1748327,
+      "sha256": "b6ccfa21f3c96ef693f4bfdd4065cebb5d5bd1db374a3a2776cc23610bb7c905"
+    }
+  },
+  "head_unchanged_before_after": true,
+  "manifest_entries": 594,
+  "manifest_sha256": "a3dbc543a503ba5ec867c1b48cc10e03415a84517c9f40783f3adc9a641eb894",
+  "record_bytes_identical": true,
+  "runtime_qualification": "Not asserted by source archives; unchanged >50 fusion-count acceptance conflict and affected decoder runtime retest remain separately recorded",
+  "schema": 1,
+  "source_commit": "2723c9940069b8fd58e0cd045466a05de225ff01",
+  "source_tree": "5ab7a29a5f052b8d3ac761057e190411db9a1413",
+  "tracked_file_count": 595,
+  "tracked_tree_clean_before_after": true,
+  "working_directory": "/workspace/campaign/delivery-candidate"
+}

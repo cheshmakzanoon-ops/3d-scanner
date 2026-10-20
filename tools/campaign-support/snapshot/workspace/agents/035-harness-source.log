@@ -1,0 +1,2 @@
+Picked up JAVA_TOOL_OPTIONS: -Dhttps.proxyHost=proxy -Dhttps.proxyPort=8080 -Dhttp.proxyHost=proxy -Dhttp.proxyPort=8080 -Duser.home=/workspace/.android-user -Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts
+Actual Android source dependency compilation passed: 10 Kotlin files

@@ -1,0 +1,4 @@
+[ 92%] Built target realityforge
+[ 96%] Building CXX object CMakeFiles/rf_texture_blend_tests.dir/reconstruction/tests/texture_blend_test.cpp.o
+[100%] Linking CXX executable rf_texture_blend_tests
+[100%] Built target rf_texture_blend_tests

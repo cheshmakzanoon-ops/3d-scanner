@@ -1,0 +1,15 @@
+{
+  "classification": "PASS",
+  "tests_run": 11,
+  "passed_statuses": 11,
+  "failed_statuses": 0,
+  "skipped_statuses": 0,
+  "phase": "test_result",
+  "qualification": "FINAL_CANDIDATE",
+  "batch": "bridge_geometry",
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "exit": 0,
+  "seconds": 242.65,
+  "log_sha256": "baca93ab3c7e60b203321c18c0f89cd70168597037d2e0635e560a957d8427a1",
+  "log": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.log"
+}

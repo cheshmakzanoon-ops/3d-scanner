@@ -1,0 +1,29 @@
+{
+  "source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+  "validation_checkout_sha": "b4b9a318925773ec22066d5be723ee482462e10e",
+  "source_tree_sha": "aab411b7f089f4527fd1935474fc155ce3fa096c",
+  "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-bounded.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+  "jvm_tests": {
+    "tests": 124,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "app-debug.apk": {
+      "sha256": "d3b7267fb1ed970e198103f7650a8d85bd5e4f31c0f7c718c11a34924359a920",
+      "bytes": 125521554
+    },
+    "app-debug-androidTest.apk": {
+      "sha256": "ce7678773b5864541e75af694bccf10a637a39ca8e8260ca707fa6381419a654",
+      "bytes": 2470179
+    }
+  },
+  "cmake_pool_init_sha256": "9eaf237e5282d3f5da9dcb330fbbaed683c19ac1c1d8bf17627efce751ae2fb9",
+  "device_execution": "NOT_RUN by this build; coordinated separately on immutable APK hashes",
+  "qualification_scope": "PRE_FIX_CHECKPOINT: source ccdef4fc has separately observed Middlebury fusedObservations44 threshold regression; superseding owner053 fix requires rerun. No device install.",
+  "lint_issue_counts": {
+    "Warning": 8
+  },
+  "cmake_configuration_evidence": "cmake-configuration.json"
+}

@@ -1,0 +1,4 @@
+/workspace/campaign/agent054-confidence-host/release/CMakeFiles/agent054_confidence.dir
+/workspace/campaign/agent054-confidence-host/release/CMakeFiles/test.dir
+/workspace/campaign/agent054-confidence-host/release/CMakeFiles/edit_cache.dir
+/workspace/campaign/agent054-confidence-host/release/CMakeFiles/rebuild_cache.dir

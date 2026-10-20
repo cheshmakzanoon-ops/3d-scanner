@@ -1,0 +1,10 @@
+{
+  "archive_sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08",
+  "archive_size_bytes": 1735414,
+  "manifest_sha256": "0a0362e2bebd9a056dd696ba997da1b43b1de852036b88a084384ecffd86e7e0",
+  "policy": "git-regular-files-v1;sorted-paths;pax;uid=gid=mtime=0;gzip-mtime=0;level=9",
+  "schema_version": 1,
+  "source_commit": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "source_tree": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+  "tracked_file_count": 592
+}

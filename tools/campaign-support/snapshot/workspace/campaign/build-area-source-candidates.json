@@ -1,0 +1,246 @@
+[
+  {
+    "path": "/workspace/agents/004-delivery/build/final-foundation-config/cmake_install.cmake",
+    "bytes": 2152
+  },
+  {
+    "path": "/workspace/agents/004-delivery/build/final-foundation-config/CTestTestfile.cmake",
+    "bytes": 3669
+  },
+  {
+    "path": "/workspace/agents/004-delivery/build/host/cmake_install.cmake",
+    "bytes": 2121
+  },
+  {
+    "path": "/workspace/agents/004-delivery/build/host/CTestTestfile.cmake",
+    "bytes": 3441
+  },
+  {
+    "path": "/workspace/agents/040/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/040/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/040/build/preserved/reconstruction/src/multiview.cpp",
+    "bytes": 17512
+  },
+  {
+    "path": "/workspace/agents/040/build/preserved/reconstruction/include/realityforge/multiview.hpp",
+    "bytes": 2026
+  },
+  {
+    "path": "/workspace/agents/009/build/agent009/run-focused.py",
+    "bytes": 1487
+  },
+  {
+    "path": "/workspace/agents/059/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/059/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/052/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/052/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/052/build/vulkan-registered/cmake_install.cmake",
+    "bytes": 2311
+  },
+  {
+    "path": "/workspace/agents/052/build/vulkan-registered/vk/cmake_install.cmake",
+    "bytes": 1538
+  },
+  {
+    "path": "/workspace/agents/052/build/vulkan-harness/CMakeLists.txt",
+    "bytes": 572
+  },
+  {
+    "path": "/workspace/agents/004/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/004/build/host/CTestTestfile.cmake",
+    "bytes": 11597
+  },
+  {
+    "path": "/workspace/agents/004/build/zlib-android-arm64/cmake_install.cmake",
+    "bytes": 2193
+  },
+  {
+    "path": "/workspace/agents/004/build/sanitized/cmake_install.cmake",
+    "bytes": 2102
+  },
+  {
+    "path": "/workspace/agents/004/build/sanitized/CTestTestfile.cmake",
+    "bytes": 11792
+  },
+  {
+    "path": "/workspace/agents/004/build/zlib-host/cmake_install.cmake",
+    "bytes": 2104
+  },
+  {
+    "path": "/workspace/agents/004/build/zlib-host/CTestTestfile.cmake",
+    "bytes": 3186
+  },
+  {
+    "path": "/workspace/agents/041/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/041/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/037/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/037/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/056/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/056/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/038/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/038/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/002/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDao_Impl.kt",
+    "bytes": 18932
+  },
+  {
+    "path": "/workspace/agents/002/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDatabase_Impl.kt",
+    "bytes": 9553
+  },
+  {
+    "path": "/workspace/agents/046/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/046/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/031/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDao_Impl.kt",
+    "bytes": 18932
+  },
+  {
+    "path": "/workspace/agents/031/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDatabase_Impl.kt",
+    "bytes": 9553
+  },
+  {
+    "path": "/workspace/agents/047/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/047/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/060/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/060/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/050/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/050/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/058/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/058/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/054/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/054/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/053/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/053/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/055/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/055/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/051/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/051/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/validation-041-045/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDao_Impl.kt",
+    "bytes": 18932
+  },
+  {
+    "path": "/workspace/agents/validation-041-045/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDatabase_Impl.kt",
+    "bytes": 9553
+  },
+  {
+    "path": "/workspace/agents/057/build/host/cmake_install.cmake",
+    "bytes": 2094
+  },
+  {
+    "path": "/workspace/agents/057/build/host/CTestTestfile.cmake",
+    "bytes": 3126
+  },
+  {
+    "path": "/workspace/agents/039/build/preserved-scoped/IncrementalRegistration.kt",
+    "bytes": 15708
+  },
+  {
+    "path": "/workspace/agents/039/build/preserved-scoped/NativeFrontierGeometry.kt",
+    "bytes": 4623
+  },
+  {
+    "path": "/workspace/agents/039/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDao_Impl.kt",
+    "bytes": 18932
+  },
+  {
+    "path": "/workspace/agents/039/app/build/kspCaches/debug/backups/kotlin/com/realityforge/scanner/data/ScanDatabase_Impl.kt",
+    "bytes": 9553
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "agent": "036",
+    "branch": "agents/036-stable-feature-tracks",
+    "head": "798411e6b3fd63c4f1540bd3283497e23f9e02cf",
+    "worktree": "clean",
+    "manifest": "full staged-blob manifest regenerated in final receipt commits"
+  },
+  {
+    "agent": "037",
+    "branch": "agents/037-two-view-initializer",
+    "head": "43109f39235676cb1581ecaf92ae69a7915f939a",
+    "worktree": "clean",
+    "manifest": "full staged-blob manifest regenerated in final receipt commits"
+  },
+  {
+    "agent": "038",
+    "branch": "agents/038-robust-camera-resection",
+    "head": "6df3f7fa247db6d7219d87a84694edc2af3bb63f",
+    "worktree": "clean",
+    "manifest": "full staged-blob manifest regenerated in final receipt commits"
+  },
+  {
+    "agent": "039",
+    "branch": "agents/039-incremental-registration",
+    "head": "6fcb1597b6c1db7428077a4f291250455695b7bd",
+    "worktree": "clean",
+    "manifest": "full staged-blob manifest regenerated in final receipt commits"
+  },
+  {
+    "agent": "040",
+    "branch": "agents/040-multiview-triangulation",
+    "head": "c3796b535f3d5743fc0927ea4881ed94452e96bc",
+    "worktree": "clean",
+    "manifest": "full staged-blob manifest regenerated in final receipt commits"
+  }
+]

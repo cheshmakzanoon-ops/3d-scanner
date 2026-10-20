@@ -1,0 +1,10 @@
+README.md: OK
+corrected-evaluation.json: OK
+graph.cpp: OK
+input.bin: OK
+librealityforge.so: OK
+native-source-manifest.sha256: OK
+receipt.json: OK
+reproduce.sh: OK
+result.log: OK
+verified=4271 supported=291 sparse=0 discontinuity=2772 illconditioned=1208 invalid=0 usableLeft=131 usableRight=160 invalidBounds=0 pairEdges=52 pairMaximum=50 eligibleEdges=52 eligibleMaximum=50 actualFused=50 actualVertices=3365 actualTriangles=4040

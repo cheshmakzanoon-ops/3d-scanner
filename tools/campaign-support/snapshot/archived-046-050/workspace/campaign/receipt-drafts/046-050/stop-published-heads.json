@@ -1,0 +1,99 @@
+[
+  {
+    "agent": "046",
+    "branch": "agents/046-tiled-cpu-depth-core",
+    "before": "f249bb488ea2874d2dcb19d3015588ac8276e373",
+    "published": "49a6d5888906e057b7361a0ae8785a0799f970b3",
+    "remote_match": true,
+    "clean": true,
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/requests/046-to-049-provenance-WIP.md",
+      "docs/agents/status/046.md"
+    ],
+    "manifest_verification": {
+      "files": 261,
+      "source": "worktree",
+      "status": "PASS"
+    },
+    "implementation_test_changes": false,
+    "new_tests_run": false
+  },
+  {
+    "agent": "047",
+    "branch": "agents/047-depth-refinement",
+    "before": "92b87ad4c8a0ade67ff2a5459447079f99cf417a",
+    "published": "f98fb1a8e63746285006b78837103358e07776d1",
+    "remote_match": true,
+    "clean": true,
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/047.md"
+    ],
+    "manifest_verification": {
+      "files": 201,
+      "source": "worktree",
+      "status": "PASS"
+    },
+    "implementation_test_changes": false,
+    "new_tests_run": false
+  },
+  {
+    "agent": "048",
+    "branch": "agents/048-photometric-matching-costs",
+    "before": "3111f70d2dcddb1253010df6c3bc0d3c7a71c426",
+    "published": "049b6460fe4bd6eaaa0efd6dee3d4065558e173d",
+    "remote_match": true,
+    "clean": true,
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/048.md"
+    ],
+    "manifest_verification": {
+      "files": 199,
+      "source": "worktree",
+      "status": "PASS"
+    },
+    "implementation_test_changes": false,
+    "new_tests_run": false
+  },
+  {
+    "agent": "049",
+    "branch": "agents/049-depth-confidence-occlusion",
+    "before": "1929ef774f3b1f64bfcc9c11d048bcf7221dcdab",
+    "published": "a7044f40b06e8c8a2448a40bc18a79574bcb44be",
+    "remote_match": true,
+    "clean": true,
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/contracts/049-provenance-WIP.md",
+      "docs/agents/status/049.md"
+    ],
+    "manifest_verification": {
+      "files": 200,
+      "source": "worktree",
+      "status": "PASS"
+    },
+    "implementation_test_changes": false,
+    "new_tests_run": false
+  },
+  {
+    "agent": "050",
+    "branch": "agents/050-depth-checkpoint-durability",
+    "before": "e320e84509679a836fb8710fb74051fa07a5f332",
+    "published": "88629b9780641ccc8c47826c34676cb25141302f",
+    "remote_match": true,
+    "clean": true,
+    "paths": [
+      "SOURCE_MANIFEST.sha256",
+      "docs/agents/status/050.md"
+    ],
+    "manifest_verification": {
+      "files": 200,
+      "source": "worktree",
+      "status": "PASS"
+    },
+    "implementation_test_changes": false,
+    "new_tests_run": false
+  }
+]

@@ -1,0 +1,74 @@
+{
+  "record_type": "USER_STOP_SAVE_ONLY",
+  "deliveries": [
+    {
+      "agent": "051",
+      "branch": "agents/051-native-cancellation-progress",
+      "before": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "commit": "cfd17ae61114d694196a20d72c8a4b03f719a8b2",
+      "remote_verified": true,
+      "tracked_clean": true,
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/contracts/051.md",
+        "docs/agents/status/051.md"
+      ],
+      "tests": "NOT_RUN: user stop; documentation-only save, mechanical manifest and Git verification only"
+    },
+    {
+      "agent": "052",
+      "branch": "agents/052-vulkan-depth-backend",
+      "before": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "commit": "83edddc356d2ac28afb161c9395a9849fe60f76f",
+      "remote_verified": true,
+      "tracked_clean": true,
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/052.md"
+      ],
+      "tests": "NOT_RUN: user stop; documentation-only save, mechanical manifest and Git verification only"
+    },
+    {
+      "agent": "053",
+      "branch": "agents/053-surface-fusion-meshing",
+      "before": "5ef93abd39b46778ec57c51677c2ba5c6efdcb9f",
+      "commit": "71a05791a62ea648d993625a33f342e8cabbfb63",
+      "remote_verified": true,
+      "tracked_clean": true,
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/053.md"
+      ],
+      "tests": "NOT_RUN: user stop; documentation-only save, mechanical manifest and Git verification only"
+    },
+    {
+      "agent": "054",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "before": "596cd5fefa264fc7338dc782ac6e1252a477576e",
+      "commit": "62cca224ac70a8363bf2d535286167ab6a5b2762",
+      "remote_verified": true,
+      "tracked_clean": true,
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/054.md"
+      ],
+      "tests": "NOT_RUN: user stop; documentation-only save, mechanical manifest and Git verification only"
+    },
+    {
+      "agent": "055",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "before": "2c659b78b597f63988cb65e9cce9d44fc475bac3",
+      "commit": "400ba2ef4e1670cf7125045d88b4629edb390ddc",
+      "remote_verified": true,
+      "tracked_clean": true,
+      "changed_paths": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/055.md"
+      ],
+      "tests": "NOT_RUN: user stop; documentation-only save, mechanical manifest and Git verification only"
+    }
+  ],
+  "active_own_build_test_processes": [],
+  "timing_harness": "No source authored or run; unfinished plan saved in051 contract",
+  "production_changes": false
+}

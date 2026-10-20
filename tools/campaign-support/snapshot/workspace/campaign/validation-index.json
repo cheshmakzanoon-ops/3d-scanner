@@ -1,0 +1,166 @@
+{
+  "status": "DEVELOPMENT_STOPPED_ALL_AUTHORED_WORK_SAVED",
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+  "native_source_sha": "6c386d38141cdb979ed0223f53c16962f8cd438a",
+  "host_library_sha256": "b95bcb9a8705e4c2a83a9dcdd7463644a211d08c340cc9ac5566240b2eb26d74",
+  "release_ctest": {
+    "result": "PASS",
+    "tests": 36,
+    "failures": 0,
+    "seconds": 24.66,
+    "log": "/workspace/agents/004-final6-native-ctest.log"
+  },
+  "sanitizers": {
+    "result": "PASS",
+    "tests": 36,
+    "failures": 0,
+    "seconds": 255.24,
+    "receipt": "/workspace/campaign/native-final6-validation.json"
+  },
+  "full_pytest": {
+    "result": "FAIL",
+    "passed": 211,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 224.703,
+    "receipt": "/workspace/campaign/final6-pytest-receipt.json",
+    "failure": "Known unchanged surface-count assertion: actual50 > required50 is false"
+  },
+  "android": {
+    "result": "PASS",
+    "native_configuration": "standard debug unoptimized",
+    "receipt": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-receipt.json",
+    "seconds": 523,
+    "jvm_tests": {
+      "tests": 124,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "artifacts": {
+      "app-debug.apk": {
+        "sha256": "d46ed92e7fa5ad6375c18087df82c99fce1c70cf361b6e7a488d98465d45c8a6",
+        "bytes": 125623570
+      },
+      "app-debug-androidTest.apk": {
+        "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+        "bytes": 2533147
+      }
+    },
+    "lint_errors": 0,
+    "lint_warnings": 8,
+    "internet_permission": false,
+    "zip_alignment_16KB": true,
+    "ELF_libraries_checked": 12
+  },
+  "source_archive": {
+    "result": "PASS",
+    "directory": "/workspace/campaign/evidence/094/final-2f18a4f5a871",
+    "sha256": "25e660fe1024ec3da67962cb0751c5cc8b519bdbc82f8fa487b8427c71599b08",
+    "bytes": 1735414,
+    "independent_archives_identical": true
+  },
+  "known_unresolved_gate": {
+    "test": "tests/test_surface.py::test_real_photographs_generate_indexed_open_surfaces",
+    "required": "fusedObservations > 50",
+    "actual": 50,
+    "exhaustive_maximum_cardinality": 50,
+    "eligible_edges": 52,
+    "disposition": "FAIL preserved; no thresholds, metric definitions or conservative evidence rules weakened",
+    "proof": "/workspace/campaign/evidence/053-v6-complete-graph/receipt.json"
+  },
+  "runtime": {
+    "checkpoint_source_sha": "ccdef4fc3d3face5e98511a166572cc43b8078d3",
+    "checkpoint_classification": "INTERRUPTED_FOR_FINAL_OPTIMIZED_NATIVE_RUNTIME",
+    "checkpoint_seconds": 1963.29,
+    "checkpoint_pass_claim": false,
+    "final_source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+    "status": "STOPPED_BY_USER_REQUEST",
+    "final_app_sha256": "0f2564d6b7845a0d930c232b200f0812e3323bcc4bdce9fe849f4c3c6f29760e",
+    "final_test_apk_sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+    "native_flags": "-g -O2, assertions retained, no fast-math",
+    "final_output_directory": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z",
+    "physical_device_qualification": false,
+    "platform_original": {
+      "result": "FAIL",
+      "tests": 10,
+      "passed": 9,
+      "failures": 1,
+      "skipped": 0,
+      "receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.json",
+      "defect": "AndroidX synthesized EXIF orientation default misclassified as physical malformed tag; corrected classification and adversarial physical-presence fix in progress"
+    },
+    "bridge_geometry": {
+      "result": "PASS",
+      "tests": 11,
+      "passed": 11,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 242.65,
+      "receipt": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json"
+    },
+    "pipeline": {
+      "result": "INTERRUPTED_BY_USER_REQUEST",
+      "seconds": 833.44,
+      "pass_claim": false
+    },
+    "resources": "NOT_RUN_USER_REQUEST",
+    "api35_restore_receipt": "/workspace/cloud-setup/emulator-api29-attempt/api35-restoration.json"
+  },
+  "external_gates": "Physical ARM64 memory/thermal/GPU and authorized full-object independent-reference corpus unavailable; software emulator cannot qualify them",
+  "previous_checkpoint_index": "/workspace/campaign/validation-index-before-final6.json",
+  "additional_host_qualification": {
+    "058": "PASS: bounded mipfilter gutter isolation on full2K/4K and actual cropped NPOT atlas; pushed9a12be7",
+    "059": "PASS: 36 interrupted/reordered tile jobs match161460bytes vs clean and untiled; pushed5a69702",
+    "combined_receipt": "/workspace/campaign/host-gap-validation.json"
+  },
+  "independent_final_compact_uv": {
+    "receipt": "/workspace/campaign/evidence/final-2f18a4f/compact-qa/compact-receipt.json",
+    "result": "PASS_LIMITED_UV",
+    "original_and_retained_faces": 4040,
+    "supported_faces": 3963,
+    "uv_overlap_pairs": 0,
+    "anisotropy_p95": 1.0142419626923624,
+    "seam_error_p95": 0.048496412319642856
+  },
+  "all_surface_assertions_independent_evaluation": "/workspace/campaign/evidence/final-2f18a4f/surface-acceptance-receipt.json",
+  "updated_utc": "2026-10-20T10:50:59.412022+00:00",
+  "latest_delivery_audit": {
+    "result": "PASS",
+    "branches": 30,
+    "local_remote_match": true,
+    "manifest_and_diff_checks": true,
+    "ref_drift": false,
+    "receipt": "/workspace/campaign/independent-manifest-audit.json",
+    "scope": "Final user-stop receipt heads; 30/30 complete manifests and no drift"
+  },
+  "metadata_correction": {
+    "first_source": "2723c9940069b8fd58e0cd045466a05de225ff01",
+    "source_contract_tests": 50,
+    "source_contract_result": "PASS",
+    "archive_proof": "/workspace/campaign/evidence/094/final-2723c9940069/proof.json",
+    "second_fix": "UNFINISHED_WIP_SAVED_ON_012_7843eb76b285a12ee7d149cf4112d502b603ff97",
+    "pixel_transform_and_cache_policy_unchanged": true,
+    "first_android_build": {
+      "result": "PASS",
+      "receipt": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/validation-receipt.json",
+      "jvm_tests": 124,
+      "jvm_execution": "EXECUTED",
+      "device_execution": "NOT_RUN; superseding bounded metadata fix under review"
+    }
+  },
+  "additional_completion_work": {
+    "049": {
+      "status": "DESIGN_SAVED_NOT_IMPLEMENTED_USER_STOP",
+      "criterion": "Retain confirmed source observation IDs and bounded support sets",
+      "scope": "Add bounded DenseResult sidecar and actual interpolation contributors without changing depth decisions or numerical outputs"
+    },
+    "051": {
+      "status": "PLAN_SAVED_NOT_IMPLEMENTED_USER_STOP",
+      "criterion": "Per-kernel cancellation latency evidence",
+      "scope": "Real HOST PnP/dense/texture timing harness; physical handset qualification remains open"
+    }
+  }
+}

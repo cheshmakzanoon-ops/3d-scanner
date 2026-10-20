@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "method": "read-only exact integer ancestor intervals; all base integer boundary phases, independent from photographs/geometry benchmark",
+  "base_dimensions_checked": [
+    6,
+    4096
+  ],
+  "integer_boundary_samples_per_mip_model": 8390641,
+  "level1_worst_reach": {
+    "area": {
+      "left": 3,
+      "right": 3,
+      "witness": {
+        "dimension": 7,
+        "left": 3,
+        "right": 3
+      }
+    },
+    "drop_last": {
+      "left": 3,
+      "right": 2,
+      "witness": {
+        "dimension": 7,
+        "left": 3,
+        "right": 2
+      }
+    }
+  },
+  "conclusion": "Padding3 suffices for maxLOD1 rectangle isolation in both specified box models, including odd crops and arbitrary integer rectangle phase. Deeper levels require the actual dimension-dependent ancestor oracle. Triangle base coordinate extents are bounded by packed rectangle inset padding. Trilinear adds no support beyond its two participating levels.",
+  "alpha_limit": "No cross-chart label contribution does not imply alpha-zero holes persist after averaging; an alpha-zero sample remains zero only if every positive-weight base ancestor has zero alpha.",
+  "examples": [
+    {
+      "base_dimension": 15,
+      "level": 1,
+      "dimension": 7,
+      "exact_worst_integer_boundary_left": 3,
+      "exact_worst_integer_boundary_right": 3,
+      "conservative_bound": 3,
+      "expansion_bound": "6/7"
+    },
+    {
+      "base_dimension": 15,
+      "level": 2,
+      "dimension": 3,
+      "exact_worst_integer_boundary_left": 7,
+      "exact_worst_integer_boundary_right": 8,
+      "conservative_bound": 9,
+      "expansion_bound": "16/7"
+    },
+    {
+      "base_dimension": 15,
+      "level": 3,
+      "dimension": 1,
+      "exact_worst_integer_boundary_left": 14,
+      "exact_worst_integer_boundary_right": 14,
+      "conservative_bound": 24,
+      "expansion_bound": "16/7"
+    },
+    {
+      "base_dimension": 46,
+      "level": 1,
+      "dimension": 23,
+      "exact_worst_integer_boundary_left": 2,
+      "exact_worst_integer_boundary_right": 2,
+      "conservative_bound": 2,
+      "expansion_bound": "0"
+    },
+    {
+      "base_dimension": 46,
+      "level": 2,
+      "dimension": 11,
+      "exact_worst_integer_boundary_left": 7,
+      "exact_worst_integer_boundary_right": 7,
+      "conservative_bound": 7,
+      "expansion_bound": "20/11"
+    },
+    {
+      "base_dimension": 46,
+      "level": 3,
+      "dimension": 5,
+      "exact_worst_integer_boundary_left": 16,
+      "exact_worst_integer_boundary_right": 16,
+      "conservative_bound": 18,
+      "expansion_bound": "284/55"
+    },
+    {
+      "base_dimension": 63,
+      "level": 1,
+      "dimension": 31,
+      "exact_worst_integer_boundary_left": 3,
+      "exact_worst_integer_boundary_right": 3,
+      "conservative_bound": 3,
+      "expansion_bound": "30/31"
+    },
+    {
+      "base_dimension": 63,
+      "level": 2,
+      "dimension": 15,
+      "exact_worst_integer_boundary_left": 8,
+      "exact_worst_integer_boundary_right": 8,
+      "conservative_bound": 8,
+      "expansion_bound": "444/155"
+    },
+    {
+      "base_dimension": 63,
+      "level": 3,
+      "dimension": 7,
+      "exact_worst_integer_boundary_left": 17,
+      "exact_worst_integer_boundary_right": 18,
+      "conservative_bound": 19,
+      "expansion_bound": "1002/155"
+    },
+    {
+      "base_dimension": 127,
+      "level": 1,
+      "dimension": 63,
+      "exact_worst_integer_boundary_left": 3,
+      "exact_worst_integer_boundary_right": 3,
+      "conservative_bound": 3,
+      "expansion_bound": "62/63"
+    },
+    {
+      "base_dimension": 127,
+      "level": 2,
+      "dimension": 31,
+      "exact_worst_integer_boundary_left": 8,
+      "exact_worst_integer_boundary_right": 8,
+      "conservative_bound": 8,
+      "expansion_bound": "5732/1953"
+    },
+    {
+      "base_dimension": 127,
+      "level": 3,
+      "dimension": 15,
+      "exact_worst_integer_boundary_left": 18,
+      "exact_worst_integer_boundary_right": 18,
+      "conservative_bound": 18,
+      "expansion_bound": "65998/9765"
+    },
+    {
+      "base_dimension": 1023,
+      "level": 1,
+      "dimension": 511,
+      "exact_worst_integer_boundary_left": 3,
+      "exact_worst_integer_boundary_right": 3,
+      "conservative_bound": 3,
+      "expansion_bound": "510/511"
+    },
+    {
+      "base_dimension": 1023,
+      "level": 2,
+      "dimension": 255,
+      "exact_worst_integer_boundary_left": 8,
+      "exact_worst_integer_boundary_right": 8,
+      "conservative_bound": 8,
+      "expansion_bound": "129964/43435"
+    },
+    {
+      "base_dimension": 1023,
+      "level": 3,
+      "dimension": 127,
+      "exact_worst_integer_boundary_left": 18,
+      "exact_worst_integer_boundary_right": 18,
+      "conservative_bound": 18,
+      "expansion_bound": "38461054/5516245"
+    },
+    {
+      "base_dimension": 2048,
+      "level": 1,
+      "dimension": 1024,
+      "exact_worst_integer_boundary_left": 2,
+      "exact_worst_integer_boundary_right": 2,
+      "conservative_bound": 2,
+      "expansion_bound": "0"
+    },
+    {
+      "base_dimension": 2048,
+      "level": 2,
+      "dimension": 512,
+      "exact_worst_integer_boundary_left": 5,
+      "exact_worst_integer_boundary_right": 5,
+      "conservative_bound": 5,
+      "expansion_bound": "0"
+    },
+    {
+      "base_dimension": 2048,
+      "level": 3,
+      "dimension": 256,
+      "exact_worst_integer_boundary_left": 11,
+      "exact_worst_integer_boundary_right": 11,
+      "conservative_bound": 11,
+      "expansion_bound": "0"
+    },
+    {
+      "base_dimension": 4095,
+      "level": 1,
+      "dimension": 2047,
+      "exact_worst_integer_boundary_left": 3,
+      "exact_worst_integer_boundary_right": 3,
+      "conservative_bound": 3,
+      "expansion_bound": "2046/2047"
+    },
+    {
+      "base_dimension": 4095,
+      "level": 2,
+      "dimension": 1023,
+      "exact_worst_integer_boundary_left": 8,
+      "exact_worst_integer_boundary_right": 8,
+      "conservative_bound": 8,
+      "expansion_bound": "2092716/698027"
+    },
+    {
+      "base_dimension": 4095,
+      "level": 3,
+      "dimension": 511,
+      "exact_worst_integer_boundary_left": 18,
+      "exact_worst_integer_boundary_right": 18,
+      "conservative_bound": 18,
+      "expansion_bound": "356342418/50955971"
+    },
+    {
+      "base_dimension": 4096,
+      "level": 1,
+      "dimension": 2048,
+      "exact_worst_integer_boundary_left": 2,
+      "exact_worst_integer_boundary_right": 2,
+      "conservative_bound": 2,
+      "expansion_bound": "0"
+    },
+    {
+      "base_dimension": 4096,
+      "level": 2,
+      "dimension": 1024,
+      "exact_worst_integer_boundary_left": 5,
+      "exact_worst_integer_boundary_right": 5,
+      "conservative_bound": 5,
+      "expansion_bound": "0"
+    },
+    {
+      "base_dimension": 4096,
+      "level": 3,
+      "dimension": 512,
+      "exact_worst_integer_boundary_left": 11,
+      "exact_worst_integer_boundary_right": 11,
+      "conservative_bound": 11,
+      "expansion_bound": "0"
+    }
+  ],
+  "float32_serialized_integer_boundary_uv_check": {
+    "samples_per_model": 8390641,
+    "maximum_level1_reach": {
+      "area": 3,
+      "drop_last": 3
+    },
+    "result": "PASS; same <=3 bound after actualfloat32 normalizedUV serialization"
+  }
+}

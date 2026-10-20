@@ -1,0 +1,93 @@
+{
+  "library": "/workspace/agents/053/build/host/librealityforge.so",
+  "metrics": {
+    "schema": 8,
+    "dataset": "Middlebury 2014 Motorcycle (real rectified stereo)",
+    "realPhotographs": true,
+    "cameraCount": 2,
+    "sourceImageDimensions": [
+      741,
+      500
+    ],
+    "downsampledDimensions": [
+      228,
+      154
+    ],
+    "calibration": "published rectified intrinsics, arbitrary unit baseline",
+    "groundTruthUsedForOptimization": false,
+    "verifiedDepthSamples": 4271,
+    "acceptedSurfaceSamples": 4269,
+    "fusedObservations": 44,
+    "meshVertexCount": 3371,
+    "meshTriangleCount": 4047,
+    "densePointCount": 4248,
+    "groundTruthMatchedMeshVertices": 3125,
+    "disparityAbsoluteErrorPxP50": 0.45479428807024647,
+    "disparityAbsoluteErrorPxP90": 1.9768996179311071,
+    "depthRelativeErrorP50": 0.006575818352979711,
+    "depthRelativeErrorP90": 0.031563688386924874,
+    "maximumFaceRelativeDepthJump": 0.030829839416508728,
+    "meshWatertight": false,
+    "photographicUvTextures": false,
+    "limitations": [
+      "Two real calibrated stereo photos only; no 360 object scan",
+      "Open camera-visible surfaces, no filled holes or unobserved backside",
+      "Vertex colors are sampled; no photographic UV texture atlas",
+      "Baseline scale arbitrary; cannot claim dimensions in millimeters",
+      "Ground truth covers only independently evaluated vertices"
+    ]
+  },
+  "raw": {
+    "dense": {
+      "schema": 7,
+      "representation": "dense_points",
+      "technique": "bounded_cpu_plane_sweep_zncc",
+      "scale": "arbitrary",
+      "triangleCount": 0,
+      "textured": false,
+      "pointCount": 4248,
+      "sampledPixels": 7252,
+      "photometricPixels": 4976,
+      "consistentPixels": 4271,
+      "medianConfidence": 0.96867185831,
+      "sourceViewIndices": [
+        [
+          1
+        ],
+        [
+          0
+        ]
+      ],
+      "consistentPixelsPerView": [
+        2149,
+        2122
+      ],
+      "resumedDepthMaps": 0,
+      "writtenDepthMaps": 0,
+      "peakLuminanceBytes": 280896,
+      "verifiedSampleCount": 4271,
+      "pointExportLimitReached": false
+    },
+    "mesh": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 3371,
+      "triangleCount": 4047,
+      "inputSamples": 4271,
+      "acceptedSamples": 4269,
+      "fusedObservations": 44,
+      "rejectedCells": 4786,
+      "rejectedTriangles": 689,
+      "medianConfidence": 0.9881378412,
+      "fusionVersion": 2,
+      "boundaryEdges": 2579,
+      "nonmanifoldEdges": 17,
+      "intersections": 2059,
+      "topologyIncomplete": false
+    }
+  }
+}

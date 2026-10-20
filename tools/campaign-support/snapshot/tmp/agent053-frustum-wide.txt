@@ -1,0 +1,66 @@
+inline std::optional<double> planePixelEnclosingRadius(const DenseView& view,const VerifiedDepthSample& anchor,Vec3 normal,double frontRadius,int stride){
+    using namespace metric_detail;
+    Vec3 n{};
+    if(stride<2||stride>8||!unitNormal(normal,n)||!finite(anchor.xyz)||!std::isfinite(frontRadius)||frontRadius<.0001||frontRadius>600||
+       anchor.x>=view.width||anchor.y>=view.height||!std::isfinite(view.fx)||!std::isfinite(view.fy)||view.fx<=0||view.fy<=0||!std::isfinite(view.cx)||!std::isfinite(view.cy))return {};
+    if(!inverseRotation(view.pose.rotation))return {};
+    using Wide=long double;using WVec=std::array<Wide,3>;
+    const auto wdot=[](const WVec& a,const WVec& b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];};
+    const auto wlength=[](const WVec& p){return std::hypot(p[0],p[1],p[2]);};
+    const auto wfinite=[](const WVec& p){return std::isfinite(p[0])&&std::isfinite(p[1])&&std::isfinite(p[2]);};
+    std::array<Wide,9> m{};for(int i=0;i<9;++i)m[i]=view.pose.rotation[i];
+    const Wide determinant=m[0]*(m[4]*m[8]-m[5]*m[7])-m[1]*(m[3]*m[8]-m[5]*m[6])+m[2]*(m[3]*m[7]-m[4]*m[6]);
+    std::array<Wide,9> inverse{m[4]*m[8]-m[5]*m[7],m[2]*m[7]-m[1]*m[8],m[1]*m[5]-m[2]*m[4],
+        m[5]*m[6]-m[3]*m[8],m[0]*m[8]-m[2]*m[6],m[2]*m[3]-m[0]*m[5],
+        m[3]*m[7]-m[4]*m[6],m[1]*m[6]-m[0]*m[7],m[0]*m[4]-m[1]*m[3]};
+    for(auto& x:inverse)x/=determinant;
+    const WVec world{anchor.xyz.x,anchor.xyz.y,anchor.xyz.z},translation{view.pose.translation.x,view.pose.translation.y,view.pose.translation.z},normalWorld{n.x,n.y,n.z};
+    WVec p{},cameraNormal{},coordinateMagnitude{};
+    for(int i=0;i<3;++i){
+        p[i]=translation[i];coordinateMagnitude[i]=std::abs(translation[i]);
+        for(int j=0;j<3;++j){p[i]+=m[i*3+j]*world[j];coordinateMagnitude[i]+=std::abs(m[i*3+j]*world[j]);cameraNormal[i]+=inverse[j*3+i]*normalWorld[j];}
+    }
+    if(!wfinite(p)||p[2]<=0||!wfinite(cameraNormal))return {};
+    const Wide epsilon=std::numeric_limits<double>::epsilon(),precision=std::sqrt(epsilon),pixelRadius=.60L*stride;
+    // Bound cancellation in the double projection used by the acceptance
+    // metric. Numerically unresolved calibration remains unsupported.
+    const Wide zError=64*epsilon*coordinateMagnitude[2];
+    if(p[2]<=zError)return {};
+    for(int axis=0;axis<2;++axis){
+        const Wide focal=axis?view.fy:view.fx,principal=axis?view.cy:view.cx;
+        const Wide coordinateError=64*epsilon*coordinateMagnitude[axis];
+        const Wide error=focal*(coordinateError+std::abs(p[axis]/p[2])*zError)/(p[2]-zError)+64*epsilon*(1+std::abs(focal*p[axis]/p[2])+std::abs(principal));
+        if(!std::isfinite(error)||error>precision*pixelRadius)return {};
+    }
+    Wide maximumCondition=1;
+    const auto stableDot=[&](const WVec& a,const WVec& b)->std::optional<Wide>{
+        const Wide value=wdot(a,b),magnitude=std::abs(a[0]*b[0])+std::abs(a[1]*b[1])+std::abs(a[2]*b[2]);
+        if(!std::isfinite(value)||!std::isfinite(magnitude)||value==0||64*epsilon*magnitude>precision*std::abs(value))return {};
+        maximumCondition=std::max(maximumCondition,magnitude/std::abs(value));return value;
+    };
+    const auto planeValue=stableDot(cameraNormal,p);if(!planeValue)return {};
+    const Wide plane=*planeValue;if(std::abs(plane)<=frontRadius)return {};
+    Wide bound=0,largestCorner=0;
+    for(int dx:{-1,1})for(int dy:{-1,1}){
+        const WVec ray{(anchor.x+dx*pixelRadius-view.cx)/view.fx,(anchor.y+dy*pixelRadius-view.cy)/view.fy,1};
+        if(!wfinite(ray))return {};
+        const auto denominator=stableDot(cameraNormal,ray);
+        if(!denominator||(*denominator>0)!=(plane>0))return {};
+        for(int side:{-1,1}){
+            const Wide numerator=plane+side*static_cast<Wide>(frontRadius),magnitude=std::abs(plane)+frontRadius;
+            if(!std::isfinite(numerator)||numerator==0||(numerator>0)!=(plane>0)||64*epsilon*magnitude>precision*std::abs(numerator))return {};
+            maximumCondition=std::max(maximumCondition,magnitude/std::abs(numerator));
+            const Wide t=numerator/ *denominator;if(!std::isfinite(t)||t<=0)return {};
+            const WVec corner{t*ray[0],t*ray[1],t};if(!wfinite(corner))return {};
+            WVec delta{};for(int i=0;i<3;++i)for(int j=0;j<3;++j)delta[i]+=inverse[i*3+j]*(corner[j]-p[j]);
+            const Wide distance=wlength(delta);if(!wfinite(delta)||!std::isfinite(distance))return {};
+            bound=std::max(bound,distance);largestCorner=std::max(largestCorner,wlength(corner));
+        }
+    }
+    Wide inverseNorm=0;for(auto x:inverse)inverseNorm+=x*x;
+    // Operation-count and conditioning padding only broadens lookup. It does
+    // not alter any original-anchor pixel, normal, visibility or distance gate.
+    const Wide rounding=512*epsilon*(1+wlength(p)+largestCorner)*std::max(1.L,std::sqrt(inverseNorm))*(1+maximumCondition);
+    if(!std::isfinite(rounding)||!std::isfinite(bound+rounding))return {};
+    return std::clamp(std::nextafter(static_cast<double>(std::min(600.L,bound+rounding)),INFINITY),.0001,600.);
+}

@@ -1,0 +1,818 @@
+[
+  {
+    "path": "/workspace/cloud-setup/activate.sh",
+    "bytes": 986
+  },
+  {
+    "path": "/workspace/cloud-setup/install.sh",
+    "bytes": 3023
+  },
+  {
+    "path": "/workspace/cloud-setup/python-installed.txt",
+    "bytes": 273
+  },
+  {
+    "path": "/workspace/cloud-setup/reproduce.sh",
+    "bytes": 4136
+  },
+  {
+    "path": "/workspace/cloud-setup/regenerate-agent-manifest.py",
+    "bytes": 697
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/api35-pause-lease.json",
+    "bytes": 189
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/README.md",
+    "bytes": 2142
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/run_frozen.py",
+    "bytes": 9738
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/feature-apk-input-equality-ccdef-to-2f18.json",
+    "bytes": 1891
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/feature-source-equality-ccdef-to-2f18.json",
+    "bytes": 8272
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/run_installed_extra.py",
+    "bytes": 3020
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/device-environment.json",
+    "bytes": 381
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/single-sigquit.json",
+    "bytes": 771
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/pipeline.json",
+    "bytes": 2457
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/artifacts.json",
+    "bytes": 2291
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/summary.json",
+    "bytes": 2595
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/PRE_FIX_CHECKPOINT-ccdef4fc-20261020T095000Z/intentional-interruption.json",
+    "bytes": 2457
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/device-environment.json",
+    "bytes": 381
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/user-interruption.json",
+    "bytes": 2540
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/platform.json",
+    "bytes": 536
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/pipeline.json",
+    "bytes": 2540
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/bridge_geometry.json",
+    "bytes": 542
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/artifacts.json",
+    "bytes": 3666
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/final-runtime/FINAL_OPTIMIZED_NATIVE_DEBUG-2f18a4f-20261020T102600Z/summary.json",
+    "bytes": 4000
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/artifacts.json",
+    "bytes": 516
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/frozen039/result.json",
+    "bytes": 1094
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/emu-launch-params.txt",
+    "bytes": 288
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/qemu-version.txt",
+    "bytes": 1
+  },
+  {
+    "path": "/workspace/cloud-setup/emulator-api29-attempt/avd/campaign-api29-default.avd/read-snapshot.txt",
+    "bytes": 0
+  },
+  {
+    "path": "/workspace/campaign/058-independent-filter-footprint.json",
+    "bytes": 7323
+  },
+  {
+    "path": "/workspace/campaign/audit-deliveries.py",
+    "bytes": 1947
+  },
+  {
+    "path": "/workspace/campaign/merge-reviewed.py",
+    "bytes": 1561
+  },
+  {
+    "path": "/workspace/campaign/DELIVERY.md",
+    "bytes": 11477
+  },
+  {
+    "path": "/workspace/campaign/058-independent-filter-footprint.md",
+    "bytes": 5278
+  },
+  {
+    "path": "/workspace/campaign/final-candidate-inputs.json",
+    "bytes": 4424
+  },
+  {
+    "path": "/workspace/campaign/final-candidate-v6-audit.json",
+    "bytes": 6961
+  },
+  {
+    "path": "/workspace/campaign/normal-confidence-proof.json",
+    "bytes": 10922
+  },
+  {
+    "path": "/workspace/campaign/final-pytest-inputs.json",
+    "bytes": 620
+  },
+  {
+    "path": "/workspace/campaign/final6-pytest-inputs.json",
+    "bytes": 576
+  },
+  {
+    "path": "/workspace/campaign/002-kotlin-validation.json",
+    "bytes": 551
+  },
+  {
+    "path": "/workspace/campaign/final-pytest-receipt.json",
+    "bytes": 2918
+  },
+  {
+    "path": "/workspace/campaign/independent-manifest-audit-before-20261020T1045.json",
+    "bytes": 34483
+  },
+  {
+    "path": "/workspace/campaign/host-gap-validation.json",
+    "bytes": 1490
+  },
+  {
+    "path": "/workspace/campaign/CMake-campaign-registration.txt",
+    "bytes": 9597
+  },
+  {
+    "path": "/workspace/campaign/run-final6-host.py",
+    "bytes": 2111
+  },
+  {
+    "path": "/workspace/campaign/zlib-link-test.cpp",
+    "bytes": 704
+  },
+  {
+    "path": "/workspace/campaign/delivery.json",
+    "bytes": 10801
+  },
+  {
+    "path": "/workspace/campaign/register-native-targets.py",
+    "bytes": 5702
+  },
+  {
+    "path": "/workspace/campaign/final-candidate-intermediate-update.json",
+    "bytes": 703
+  },
+  {
+    "path": "/workspace/campaign/validation-index.json",
+    "bytes": 6955
+  },
+  {
+    "path": "/workspace/campaign/wire-sparse-final.py",
+    "bytes": 9513
+  },
+  {
+    "path": "/workspace/campaign/wire-advanced-sparse.py",
+    "bytes": 7948
+  },
+  {
+    "path": "/workspace/campaign/agents041-045-final-receipt-draft.json",
+    "bytes": 25630
+  },
+  {
+    "path": "/workspace/campaign/final-candidate-audit.json",
+    "bytes": 5528
+  },
+  {
+    "path": "/workspace/campaign/normal-confidence-proof.py",
+    "bytes": 8875
+  },
+  {
+    "path": "/workspace/campaign/decoder-fix-candidate-audit.json",
+    "bytes": 5208
+  },
+  {
+    "path": "/workspace/campaign/final-candidate-narrow-receivers.json",
+    "bytes": 776
+  },
+  {
+    "path": "/workspace/campaign/wire-features-for-validation.py",
+    "bytes": 7724
+  },
+  {
+    "path": "/workspace/campaign/final-candidate-metadata-updates.json",
+    "bytes": 1297
+  },
+  {
+    "path": "/workspace/campaign/final-candidate-inputs-next.json",
+    "bytes": 7054
+  },
+  {
+    "path": "/workspace/campaign/native-final6-validation.json",
+    "bytes": 1798
+  },
+  {
+    "path": "/workspace/campaign/final6-pytest-receipt.json",
+    "bytes": 874
+  },
+  {
+    "path": "/workspace/campaign/independent-manifest-audit.json",
+    "bytes": 34484
+  },
+  {
+    "path": "/workspace/campaign/write-delivery.py",
+    "bytes": 4965
+  },
+  {
+    "path": "/workspace/campaign/native-final-validation.json",
+    "bytes": 749
+  },
+  {
+    "path": "/workspace/campaign/freeze-inputs.json",
+    "bytes": 3178
+  },
+  {
+    "path": "/workspace/campaign/finalize-sparse-adapter.py",
+    "bytes": 2966
+  },
+  {
+    "path": "/workspace/campaign/validation-index-before-final6.json",
+    "bytes": 3198
+  },
+  {
+    "path": "/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest-inputs.json",
+    "bytes": 510
+  },
+  {
+    "path": "/workspace/campaign/harness-attempts/final6-misnamed-library/classification.json",
+    "bytes": 385
+  },
+  {
+    "path": "/workspace/campaign/harness-attempts/final6-misnamed-library/final6-pytest-receipt.json",
+    "bytes": 805
+  },
+  {
+    "path": "/workspace/campaign/agent054-independent-review/review-receipt.json",
+    "bytes": 1563
+  },
+  {
+    "path": "/workspace/campaign/agent054-independent-review/review.cpp",
+    "bytes": 2732
+  },
+  {
+    "path": "/workspace/campaign/agent054-independent-review/result.json",
+    "bytes": 95
+  },
+  {
+    "path": "/workspace/campaign/agent054-independent-review/baseline.hpp",
+    "bytes": 10531
+  },
+  {
+    "path": "/workspace/campaign/evidence/053-v6-final-receipt-draft.md",
+    "bytes": 3248
+  },
+  {
+    "path": "/workspace/campaign/evidence/053-v6-correct-calibration.json",
+    "bytes": 1261
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2723c9940069/proof.json",
+    "bytes": 3001
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2723c9940069/source1.json",
+    "bytes": 479
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2723c9940069/README.md",
+    "bytes": 779
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2723c9940069/source2.json",
+    "bytes": 479
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/proof.json",
+    "bytes": 1376
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/source1.json",
+    "bytes": 479
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/README.md",
+    "bytes": 2234
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-2f18a4f5a871/source2.json",
+    "bytes": 479
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-ccdef4fc3d3f/source1.json",
+    "bytes": 479
+  },
+  {
+    "path": "/workspace/campaign/evidence/094/final-ccdef4fc3d3f/source2.json",
+    "bytes": 479
+  },
+  {
+    "path": "/workspace/campaign/evidence/final-2f18a4f/surface-acceptance-receipt.json",
+    "bytes": 2040
+  },
+  {
+    "path": "/workspace/campaign/evidence/final-2f18a4f/surface-metrics.json",
+    "bytes": 1261
+  },
+  {
+    "path": "/workspace/campaign/evidence/final-2f18a4f/compact-qa/native-result.json",
+    "bytes": 1585212
+  },
+  {
+    "path": "/workspace/campaign/evidence/final-2f18a4f/compact-qa/compact-receipt.json",
+    "bytes": 2735
+  },
+  {
+    "path": "/workspace/campaign/evidence/final-2f18a4f/mip-actual-final/actual.json",
+    "bytes": 663
+  },
+  {
+    "path": "/workspace/campaign/evidence/final-2f18a4f/mip-actual-final/receipt.json",
+    "bytes": 2616
+  },
+  {
+    "path": "/workspace/campaign/evidence/053-v6-complete-graph/graph.cpp",
+    "bytes": 6325
+  },
+  {
+    "path": "/workspace/campaign/evidence/053-v6-complete-graph/receipt.json",
+    "bytes": 4959
+  },
+  {
+    "path": "/workspace/campaign/evidence/053-v6-complete-graph/corrected-evaluation.json",
+    "bytes": 1261
+  },
+  {
+    "path": "/workspace/campaign/evidence/053-v6-complete-graph/README.md",
+    "bytes": 2115
+  },
+  {
+    "path": "/workspace/campaign/evidence/053-v6-complete-graph/reproduce.sh",
+    "bytes": 632
+  },
+  {
+    "path": "/workspace/campaign/receipt-drafts/046-050/048.md",
+    "bytes": 7908
+  },
+  {
+    "path": "/workspace/campaign/receipt-drafts/046-050/046.md",
+    "bytes": 8460
+  },
+  {
+    "path": "/workspace/campaign/receipt-drafts/046-050/047.md",
+    "bytes": 10228
+  },
+  {
+    "path": "/workspace/campaign/receipt-drafts/046-050/049.md",
+    "bytes": 8829
+  },
+  {
+    "path": "/workspace/campaign/receipt-drafts/046-050/draft-index.json",
+    "bytes": 3014
+  },
+  {
+    "path": "/workspace/campaign/receipt-drafts/046-050/050.md",
+    "bytes": 9216
+  },
+  {
+    "path": "/workspace/campaign/agent054-confidence-host/CMakeLists.txt",
+    "bytes": 1021
+  },
+  {
+    "path": "/workspace/campaign/agent054-confidence-host/release/CMakeCache.txt",
+    "bytes": 13254
+  },
+  {
+    "path": "/workspace/campaign/agent054-confidence-host/release/CMakeFiles/TargetDirectories.txt",
+    "bytes": 322
+  },
+  {
+    "path": "/workspace/campaign/agent054-confidence-host/release/CMakeFiles/CMakeConfigureLog.yaml",
+    "bytes": 30743
+  },
+  {
+    "path": "/workspace/campaign/agent054-confidence-host/release/CMakeFiles/3.31.6/CompilerIdCXX/CMakeCXXCompilerId.cpp",
+    "bytes": 28457
+  },
+  {
+    "path": "/workspace/campaign/agent054-confidence-host/release/Testing/Temporary/CTestCostData.txt",
+    "bytes": 37
+  },
+  {
+    "path": "/workspace/agents/kotlin_tests.py",
+    "bytes": 1405
+  },
+  {
+    "path": "/workspace/agents/031-035-receipt-heads.json",
+    "bytes": 1313
+  },
+  {
+    "path": "/workspace/agents/run-optimized-native-android.sh",
+    "bytes": 4256
+  },
+  {
+    "path": "/workspace/agents/compare-native-build-artifacts.py",
+    "bytes": 2179
+  },
+  {
+    "path": "/workspace/agents/receive-orientation-provider.py",
+    "bytes": 4112
+  },
+  {
+    "path": "/workspace/agents/emulator-ps-readonly.txt",
+    "bytes": 8192
+  },
+  {
+    "path": "/workspace/agents/emulator-crash-readonly.txt",
+    "bytes": 0
+  },
+  {
+    "path": "/workspace/agents/run-final-android.sh",
+    "bytes": 3637
+  },
+  {
+    "path": "/workspace/agents/verify-optimized-native.py",
+    "bytes": 5508
+  },
+  {
+    "path": "/workspace/agents/optimized-native-android-current-run.txt",
+    "bytes": 109
+  },
+  {
+    "path": "/workspace/agents/compile_android_sources.py",
+    "bytes": 2212
+  },
+  {
+    "path": "/workspace/agents/regen_manifest.py",
+    "bytes": 675
+  },
+  {
+    "path": "/workspace/agents/android-bounded.init.gradle",
+    "bytes": 661
+  },
+  {
+    "path": "/workspace/agents/regen-manifest.py",
+    "bytes": 655
+  },
+  {
+    "path": "/workspace/agents/verify-unchanged-native-apk.py",
+    "bytes": 1617
+  },
+  {
+    "path": "/workspace/agents/031-035-apk-validation.json",
+    "bytes": 630
+  },
+  {
+    "path": "/workspace/agents/final-android-current-run.txt",
+    "bytes": 92
+  },
+  {
+    "path": "/workspace/agents/032-orientation-provider-receipt.json",
+    "bytes": 311
+  },
+  {
+    "path": "/workspace/agents/android-optimized-native.init.gradle",
+    "bytes": 711
+  },
+  {
+    "path": "/workspace/agents/035-orientation-provider-receipt.json",
+    "bytes": 318
+  },
+  {
+    "path": "/workspace/agents/compile_android_sources_with_runner.py",
+    "bytes": 2485
+  },
+  {
+    "path": "/workspace/agents/diagnostics/tilted-fusion-counterexample.cpp",
+    "bytes": 3965
+  },
+  {
+    "path": "/workspace/agents/diagnostics/tilted-fusion-analysis.md",
+    "bytes": 6642
+  },
+  {
+    "path": "/workspace/agents/diagnostics/tilted-fusion-frustum-bound.json",
+    "bytes": 2379
+  },
+  {
+    "path": "/workspace/agents/diagnostics/resize-ray-centres.py",
+    "bytes": 1928
+  },
+  {
+    "path": "/workspace/agents/diagnostics/081-receiving-status-append.md",
+    "bytes": 3113
+  },
+  {
+    "path": "/workspace/agents/diagnostics/081-old-principal-formula.py",
+    "bytes": 4190
+  },
+  {
+    "path": "/workspace/agents/diagnostics/tilted-fusion-counterexample.json",
+    "bytes": 623
+  },
+  {
+    "path": "/workspace/agents/diagnostics/resize-ray-centres.json",
+    "bytes": 811
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/command.txt",
+    "bytes": 322
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/validation-receipt.json",
+    "bytes": 2061
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/same-source-apk-entry-comparison.json",
+    "bytes": 1311
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/apk-validation.json",
+    "bytes": 630
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-optimized-native-20261020T102013Z/native-optimization-verification.json",
+    "bytes": 51807
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/command.txt",
+    "bytes": 313
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/CMakeCache-arm64-v8a.txt",
+    "bytes": 16285
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/CMakeCache-x86_64.txt",
+    "bytes": 16262
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/validation-receipt.json",
+    "bytes": 1434
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/cmake-configuration.json",
+    "bytes": 622
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/ccdef4fc3d3face5e98511a166572cc43b8078d3-20261020T091715Z/apk-validation.json",
+    "bytes": 630
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/command.txt",
+    "bytes": 322
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/native-payload-identity.json",
+    "bytes": 2783
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/validation-receipt.json",
+    "bytes": 2273
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/generated-checkout-preservation.json",
+    "bytes": 277
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/apk-validation.json",
+    "bytes": 630
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/native-optimization-verification.json",
+    "bytes": 51807
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2723c9940069b8fd58e0cd045466a05de225ff01-optimized-native-20261020T103313Z/generated-checkout/app-schemas/com.realityforge.scanner.data.ScanDatabase/1.json",
+    "bytes": 5673
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/command.txt",
+    "bytes": 313
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/CMakeCache-arm64-v8a.txt",
+    "bytes": 16314
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/CMakeCache-x86_64.txt",
+    "bytes": 16291
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/validation-receipt.json",
+    "bytes": 1480
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/cmake-configuration.json",
+    "bytes": 622
+  },
+  {
+    "path": "/workspace/agents/final-artifacts/2f18a4f5a87139c38ee388f6c70af33e0fb247f7-20261020T100506Z/apk-validation.json",
+    "bytes": 630
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/all30-audit-invocation.md",
+    "bytes": 2055
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/update-031-035-receipts.py",
+    "bytes": 12348
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/final-031-035-deltas.json",
+    "bytes": 6825
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/final-status/035.draft.json",
+    "bytes": 14788
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/final-status/033.draft.json",
+    "bytes": 8389
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/final-status/034.draft.json",
+    "bytes": 8675
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/final-status/031.draft.json",
+    "bytes": 8883
+  },
+  {
+    "path": "/workspace/agents/receipt-drafts/final-status/032.draft.json",
+    "bytes": 14137
+  },
+  {
+    "path": "/tmp/agent053-v6-complete-graph.cpp",
+    "bytes": 6325
+  },
+  {
+    "path": "/tmp/rf046-objective-parity-results.json",
+    "bytes": 2324
+  },
+  {
+    "path": "/tmp/rf046-objective-parity-inputs.json",
+    "bytes": 726
+  },
+  {
+    "path": "/tmp/agent053-frustum-wide.txt",
+    "bytes": 5044
+  },
+  {
+    "path": "/tmp/rf053_bound_rounding.cpp",
+    "bytes": 1268
+  },
+  {
+    "path": "/tmp/agent053-pixel-metric-functions.txt",
+    "bytes": 7070
+  },
+  {
+    "path": "/tmp/rf053_calibrated_graph.cpp",
+    "bytes": 8650
+  },
+  {
+    "path": "/tmp/rf053_local_graph.cpp",
+    "bytes": 5792
+  },
+  {
+    "path": "/tmp/agent053-local-footprint-diagnosis.cpp",
+    "bytes": 1500
+  },
+  {
+    "path": "/tmp/rf054_slanted_diagnosis.cpp",
+    "bytes": 2207
+  },
+  {
+    "path": "/tmp/agent053-fusion-diagnostic-only.cpp",
+    "bytes": 30618
+  },
+  {
+    "path": "/tmp/agent053-prefusion-debug.cpp",
+    "bytes": 28425
+  },
+  {
+    "path": "/tmp/rf004-surface-diagnosis.json",
+    "bytes": 3223
+  },
+  {
+    "path": "/tmp/rf053-surface-diagnosis.json",
+    "bytes": 2754
+  },
+  {
+    "path": "/tmp/rf_surface_diagnosis.py",
+    "bytes": 645
+  },
+  {
+    "path": "/tmp/independent_campaign_manifest_audit.py",
+    "bytes": 9522
+  },
+  {
+    "path": "/tmp/rf-final-receipts.py",
+    "bytes": 9852
+  },
+  {
+    "path": "/tmp/agent056-small.cpp",
+    "bytes": 305
+  },
+  {
+    "path": "/tmp/rf-update-group-docs.py",
+    "bytes": 4546
+  },
+  {
+    "path": "/tmp/rf046-qualify-strict.py",
+    "bytes": 3046
+  },
+  {
+    "path": "/tmp/agent003-expand-probe.py",
+    "bytes": 5777
+  },
+  {
+    "path": "/tmp/agent003-rewrite.py",
+    "bytes": 7869
+  },
+  {
+    "path": "/tmp/agent058-header-check.cpp",
+    "bytes": 37
+  },
+  {
+    "path": "/tmp/agent041-intrinsic-implementation.txt",
+    "bytes": 7433
+  },
+  {
+    "path": "/tmp/agent041-product-context.txt",
+    "bytes": 20451
+  },
+  {
+    "path": "/tmp/agent058-mip-review/actual.json",
+    "bytes": 396
+  },
+  {
+    "path": "/tmp/agent058-mip-review/actual_bake.cpp",
+    "bytes": 2413
+  },
+  {
+    "path": "/tmp/android-agent/netsimd/netsim_session_stats.json",
+    "bytes": 3181
+  },
+  {
+    "path": "/tmp/pytest-of-agent/pytest-135/test_archive_tampering_and_wro2/source.json",
+    "bytes": 473
+  },
+  {
+    "path": "/tmp/pytest-of-agent/pytest-135/test_archive_tampering_and_wro1/source.json",
+    "bytes": 454
+  },
+  {
+    "path": "/tmp/pytest-of-agent/pytest-135/test_archive_tampering_and_wro0/source.json",
+    "bytes": 473
+  },
+  {
+    "path": "/tmp/pytest-of-agent/pytest-135/test_archive_exact_git_tree_re0/source1.json",
+    "bytes": 473
+  },
+  {
+    "path": "/tmp/pytest-of-agent/pytest-135/test_archive_exact_git_tree_re0/source0.json",
+    "bytes": 473
+  }
+]

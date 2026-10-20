@@ -1,0 +1,21 @@
+{
+  "status": "INTERMEDIATE_NOT_QUALIFIED",
+  "receivers": [
+    {
+      "agent": "081",
+      "source_cherry_sha": "4bf3dbb688e110f7282634241d160ed932ff15b0",
+      "published_receipt_head": "2dcbe5bbf30d09805204996b68a30e3a3b759166",
+      "local_receiver_commit": "27939029d68961a31b234fe844153f01c8a95d24",
+      "kind": "NARROW_SOURCE_RECEIVER_NO_COHORT_MERGE",
+      "requires_delivery_ancestry": false
+    },
+    {
+      "agent": "084",
+      "source_cherry_sha": "ad716dba0f5dfe6cca6577573c215ab79b8b93ff",
+      "published_receipt_head": "a6751721f063db8daee08b72f19cd3f5cc8f2f14",
+      "local_receiver_commit": "c284bbcd5b63d0ec901bb61e1f234ab64d40c1ad",
+      "kind": "NARROW_SOURCE_RECEIVER_NO_COHORT_MERGE",
+      "requires_delivery_ancestry": false
+    }
+  ]
+}

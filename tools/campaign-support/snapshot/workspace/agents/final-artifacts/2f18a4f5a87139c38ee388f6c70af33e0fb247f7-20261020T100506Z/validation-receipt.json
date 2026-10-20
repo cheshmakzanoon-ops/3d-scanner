@@ -1,0 +1,30 @@
+{
+  "source_sha": "2f18a4f5a87139c38ee388f6c70af33e0fb247f7",
+  "validation_checkout_sha": "f49c66a87d47aa90ff79d7f0d6bcc106d495721e",
+  "source_tree_sha": "a581ef8c1f86da8775a024ac1269746adc8ddd91",
+  "command": "./gradlew --no-daemon --max-workers=2 --init-script /workspace/agents/android-bounded.init.gradle -Dorg.gradle.jvmargs=-Xmx3g\\ -XX:ActiveProcessorCount=2\\ -Dfile.encoding=UTF-8 -Pkotlin.compiler.execution.strategy=in-process :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+  "jvm_tests": {
+    "tests": 124,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "artifacts": {
+    "app-debug.apk": {
+      "sha256": "d46ed92e7fa5ad6375c18087df82c99fce1c70cf361b6e7a488d98465d45c8a6",
+      "bytes": 125623570
+    },
+    "app-debug-androidTest.apk": {
+      "sha256": "a31df39fdbf0a0b8ccb9e335413b2a35590db9a89d436a3fa3258a34dcb0d7e8",
+      "bytes": 2533147
+    }
+  },
+  "cmake_pool_init_sha256": "9eaf237e5282d3f5da9dcb330fbbaed683c19ac1c1d8bf17627efce751ae2fb9",
+  "device_execution": "NOT_RUN by this build; coordinated separately on immutable APK hashes",
+  "lint_issue_counts": {
+    "Warning": 8
+  },
+  "cmake_configuration_evidence": "cmake-configuration.json",
+  "build_elapsed": "8m43s",
+  "qualification_scope": "FINAL_FROZEN_CODE_ANDROID_BUILD_ONLY: actual device/runtime and independent geometry/quality gates are recorded separately; this build pass does not waive their failures or pending outcomes."
+}

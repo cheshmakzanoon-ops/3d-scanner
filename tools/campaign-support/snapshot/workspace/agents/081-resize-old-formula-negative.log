@@ -1,0 +1,63 @@
+FF.                                                                      [100%]
+=================================== FAILURES ===================================
+__________ test_asymmetric_resize_preserves_source_rays_and_baseline ___________
+
+    def test_asymmetric_resize_preserves_source_rays_and_baseline():
+        source_width, source_height = 1001, 777
+        width, height = 317, 241
+        sx, sy = width / source_width, height / source_height
+        cameras = resized_cameras(source_width, source_height, width, height)
+        assert cameras.shape == (2, 16)
+        for index, source_cx in enumerate((CX_LEFT, CX_RIGHT)):
+            row = cameras[index]
+            np.testing.assert_array_equal(row[:9], np.eye(3).ravel())
+            np.testing.assert_array_equal(row[9:12], [-index, 0, 0])
+            # Independently map destination centres to their original image area.
+            for u, v in ((0., 0.), (17.125, 41.75), (158., 120.), (316., 240.)):
+                source_u, source_v = (u + .5) / sx - .5, (v + .5) / sy - .5
+                expected = [(source_u - source_cx) / FOCAL_PIXELS,
+                            (source_v - CY) / FOCAL_PIXELS]
+                actual = [(u - row[14]) / row[12], (v - row[15]) / row[13]]
+>               np.testing.assert_allclose(actual, expected, rtol=0, atol=1e-14)
+E               AssertionError: 
+E               Not equal to tolerance rtol=0, atol=1e-14
+E               
+E               Mismatched elements: 2 / 2 (100%)
+E               Max absolute difference among violations: 0.00111765
+E               Max relative difference among violations: 0.00438214
+E                ACTUAL: array([-0.312764, -0.256163])
+E                DESIRED: array([-0.311679, -0.255046])
+
+tests/test_agent_081_resize_centres.py:30: AssertionError
+_________ test_actual_area_resampling_matches_calibrated_pixel_centres _________
+
+    def test_actual_area_resampling_matches_calibrated_pixel_centres():
+        # INTER_AREA integrates exactly 4x3 source pixels. The mean of this linear
+        # pixel field equals its value at that block's geometric centre.
+        y, x = np.mgrid[:39, :84]
+        source = (2 * x + 3 * y + 7).astype(np.float32)
+        resized = cv2.resize(source, (21, 13), interpolation=cv2.INTER_AREA)
+        row = resized_cameras(84, 39, 21, 13)[0]
+        v, u = np.mgrid[:13, :21]
+        source_u = FOCAL_PIXELS * (u - row[14]) / row[12] + CX_LEFT
+        source_v = FOCAL_PIXELS * (v - row[15]) / row[13] + CY
+>       np.testing.assert_allclose(resized, 2 * source_u + 3 * source_v + 7,
+                                   rtol=0, atol=1e-10)
+E       AssertionError: 
+E       Not equal to tolerance rtol=0, atol=1e-10
+E       
+E       Mismatched elements: 273 / 273 (100%)
+E       Max absolute difference among violations: 6.
+E       Max relative difference among violations: 0.85714286
+E        ACTUAL: array([[ 13.,  21.,  29.,  37.,  45.,  53.,  61.,  69.,  77.,  85.,  93.,
+E               101., 109., 117., 125., 133., 141., 149., 157., 165., 173.],
+E              [ 22.,  30.,  38.,  46.,  54.,  62.,  70.,  78.,  86.,  94., 102.,...
+E        DESIRED: array([[  7.,  15.,  23.,  31.,  39.,  47.,  55.,  63.,  71.,  79.,  87.,
+E                95., 103., 111., 119., 127., 135., 143., 151., 159., 167.],
+E              [ 16.,  24.,  32.,  40.,  48.,  56.,  64.,  72.,  80.,  88.,  96.,...
+
+tests/test_agent_081_resize_centres.py:43: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_agent_081_resize_centres.py::test_asymmetric_resize_preserves_source_rays_and_baseline
+FAILED tests/test_agent_081_resize_centres.py::test_actual_area_resampling_matches_calibrated_pixel_centres
+2 failed, 1 passed in 0.10s
