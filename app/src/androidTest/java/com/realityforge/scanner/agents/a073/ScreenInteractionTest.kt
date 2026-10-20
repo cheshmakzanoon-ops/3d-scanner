@@ -20,7 +20,8 @@ class ScreenInteractionTest {
         val end=System.currentTimeMillis()+5000
         while(System.currentTimeMillis()<end) {
             val root=instrumentation.uiAutomation.rootInActiveWindow
-            val found=root?.findAccessibilityNodeInfosByText(text)?.firstOrNull { it.text?.toString()==text }
+            val matches=root?.findAccessibilityNodeInfosByText(text).orEmpty()
+            val found=matches.firstOrNull { it.text?.toString()==text } ?: matches.firstOrNull { it.text?.contains(text)==true }
             if(found!=null) return found
             Thread.sleep(100)
         }
@@ -30,6 +31,7 @@ class ScreenInteractionTest {
         var target:AccessibilityNodeInfo?=node(text)
         while(target!=null && !target.isClickable) target=target.parent
         check(target?.performAction(AccessibilityNodeInfo.ACTION_CLICK)==true)
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
     @Test fun realControlsDispatchBoundActions() {
         val actions=java.util.concurrent.CopyOnWriteArrayList<ReviewAction>()

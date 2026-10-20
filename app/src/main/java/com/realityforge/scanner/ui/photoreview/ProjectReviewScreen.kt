@@ -69,10 +69,11 @@ fun ProjectReviewScreen(state:ProjectReviewUiState,onAction:(ReviewAction)->Unit
                     Text(stringResource(R.string.a073_exposure,photo.darkFraction?.let(percent::format)?:unknown,photo.brightFraction?.let(percent::format)?:unknown))
                     if(photo.calibrationCompatible!=true) Text(stringResource(if(photo.calibrationCompatible==false) R.string.a073_calibration_bad else R.string.a073_calibration_unknown))
                     if(state.canCurate) {
-                        Row(Modifier.fillMaxWidth().toggleable(value=photo.included,enabled=!state.busy,role=Role.Checkbox,onValueChange={included->onAction(ReviewAction.Include(state.projectId,state.revision,photo.id,included))})) { Checkbox(photo.included,null,enabled=!state.busy); Text(stringResource(R.string.a073_selected)) }
+                        Row(Modifier.fillMaxWidth().toggleable(value=photo.included,enabled=!state.busy && !photo.pendingRemoval,role=Role.Checkbox,onValueChange={included->onAction(ReviewAction.Include(state.projectId,state.revision,photo.id,included))})) { Checkbox(photo.included,null,enabled=!state.busy && !photo.pendingRemoval); Text(stringResource(R.string.a073_selected)) }
                         OutlinedButton(enabled=!state.busy && index>0,onClick={onAction(ReviewAction.Move(state.projectId,state.revision,photo.id,-1))}) { Text(stringResource(R.string.a073_up)) }
                         OutlinedButton(enabled=!state.busy && index<state.photos.lastIndex,onClick={onAction(ReviewAction.Move(state.projectId,state.revision,photo.id,1))}) { Text(stringResource(R.string.a073_down)) }
-                        TextButton(enabled=!state.busy,onClick={removeId=photo.id}) { Text(stringResource(R.string.a073_remove)) }
+                        if(state.canRemove && !photo.pendingRemoval) TextButton(enabled=!state.busy,onClick={removeId=photo.id}) { Text(stringResource(R.string.a073_remove)) }
+                        if(photo.pendingRemoval) { Text(stringResource(R.string.a073_pending));if(state.canRemove) TextButton(enabled=!state.busy,onClick={onAction(ReviewAction.Restore(state.projectId,state.revision,photo.id))}) { Text(stringResource(R.string.a073_restore)) } }
                     }
                 }
             }

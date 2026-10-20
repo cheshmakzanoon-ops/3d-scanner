@@ -1,4 +1,5 @@
 <resources>
+<string name="a073_pending">Removal pending; original deletion is not yet verified.</string><string name="a073_restore">Cancel pending removal</string>
 <string name="a073_pan_horizontal">Horizontal photo position</string><string name="a073_pan_vertical">Vertical photo position</string>
 <string name="a073_input_limit">This build supports at most %1$d selected photographs. Exclude excess inputs before processing.</string>
 <string name="a073_import">Import photographs</string><string name="a073_capture">Capture</string><string name="a073_start">Reconstruct selected photographs</string><string name="a073_calibrate">Calibrate lens</string><string name="a073_clear_calibration">Clear lens calibration</string><string name="a073_result">Inspect completed result</string><string name="a073_help">Capture help</string><string name="a073_undo">Undo curation</string>
