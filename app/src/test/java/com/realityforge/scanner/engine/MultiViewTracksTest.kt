@@ -42,4 +42,26 @@ class MultiViewTracksTest {
         assertFalse(graph.add(0,0,1,0))
         assertEquals(0,graph.matchedTrackCount())
     }
+
+    @Test fun insertionOrderAndCameraPermutationPreserveSourceIdentities() {
+        val views=listOf(frame(0.0),frame(-1.0),frame(-1.7))
+        val a=MultiViewTrackGraph(views);a.add(0,0,1,0);a.add(1,0,2,0)
+        val b=MultiViewTrackGraph(listOf(views[2],views[0],views[1]));b.add(2,0,0,0);b.add(1,0,2,0)
+        assertEquals(a.stableSnapshot(listOf("a","b","c")),b.stableSnapshot(listOf("c","a","b")))
+    }
+    @Test fun twoHundredFiftyViewsArePackedInCompleteBoundedTracks() {
+        val g=MultiViewTrackGraph(List(250){frame(-it*.02)})
+        for(i in 0 until 250 step 2)assertTrue(g.add(i,0,i+1,0))
+        val batches=g.nativeBatches(List(250){"photo-%03d".format(it)},maxCameras=12,maxObservations=12)
+        assertEquals(125,batches.sumOf {it.trackIds.size})
+        assertTrue(batches.all {it.photoIds.size<=12 && it.rows.size<=84})
+        assertEquals(125,batches.flatMap {it.trackIds}.distinct().size)
+    }
+    @Test fun rejectsNonRigidPoseAndNonFiniteFeatures() {
+        assertThrows(IllegalArgumentException::class.java){frame(0.0).copy(rotation=DoubleArray(9){1.0})}
+        assertThrows(IllegalArgumentException::class.java){frame(0.0).copy(xy=floatArrayOf(Float.NaN,0f,0f,0f,0f,0f))}
+    }
+    @Test fun zeroNativeBudgetCannotProduceFakeEmptySuccess(){val graph=MultiViewTrackGraph(listOf(frame(0.0),frame(-1.0)));graph.add(0,0,1,0)
+        assertThrows(IllegalArgumentException::class.java){graph.nativeBatches(listOf("a","b"),maxObservations=0)}
+    }
 }
