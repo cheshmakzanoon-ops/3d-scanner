@@ -31,7 +31,17 @@ class PendingExportStore(private val file: File) {
     fun restore(): ExportRequest? = synchronized(gate) {
         if (!file.exists()) return@synchronized null
         require(file.length() in 33..8192) { "INVALID_PENDING_REQUEST" }
-        val all = file.inputStream().use { it.readNBytes(8193) }
+        val all = file.inputStream().use { input ->
+            val bounded = ByteArray(8193)
+            var size = 0
+            while (size < bounded.size) {
+                val count = input.read(bounded, size, bounded.size - size)
+                if (count < 0) break
+                require(count > 0)
+                size += count
+            }
+            bounded.copyOf(size)
+        }
         require(all.size <= 8192)
         val bytes = all.copyOfRange(0, all.size - 32)
         require(MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(bytes), all.copyOfRange(all.size - 32, all.size)))

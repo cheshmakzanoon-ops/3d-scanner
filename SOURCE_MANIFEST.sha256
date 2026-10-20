@@ -42,7 +42,7 @@ f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/j
 a8341d24d68f93948e86333c58bf8cbf6035179be8698473268e6b48a6a13153  app/src/main/java/com/realityforge/scanner/export/ExportContract.kt
 bfc51069849f1b2f6d1cb35f858d23ae1212d5a63e5b6f6b27922c118b3c4c39  app/src/main/java/com/realityforge/scanner/export/ExportCoordinator.kt
 020c56538415595615f7ab1652985ef12a04eb429a1053b16926206eda4fe973  app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt
-e62824a421d18fe5f79f59047d8ce97403f8c35368deb783ac6ca4e150061e0c  app/src/main/java/com/realityforge/scanner/export/PendingExportStore.kt
+aa829f627e5138ac8481c9d3390f23464ffd39f0ceb1bd97a094c40fa114ad91  app/src/main/java/com/realityforge/scanner/export/PendingExportStore.kt
 f0aa52a61de8427f6765bb1843ecfa98b0416fd6180f99eadccdcf9b5fbad73c  app/src/main/java/com/realityforge/scanner/export/RepositoryExportSource.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
