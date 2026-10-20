@@ -148,6 +148,7 @@ TexturedSurface compactAtlas(const SurfaceMesh& mesh,std::span<const DenseView> 
     if(settings.atlasEdge!=2048)throw Error("4K atlas profile requires independent resource qualification");
     UVAtlasSettings chartSettings;chartSettings.edge=settings.atlasEdge;chartSettings.padding=settings.gutter;
     chartSettings.requestedTexelsPerUnit=settings.chartTexelsPerUnit;
+    chartSettings.maximumProjectionStretch=settings.maximumUvStretch;
     std::vector<double> photoDensities;photoDensities.reserve(mesh.triangles.size());
     for(const auto& t:mesh.triangles){
         const std::array<Vec3,3> points{mesh.vertices[t.a].xyz,mesh.vertices[t.b].xyz,mesh.vertices[t.c].xyz};
@@ -159,7 +160,7 @@ TexturedSurface compactAtlas(const SurfaceMesh& mesh,std::span<const DenseView> 
     if(!photoDensities.empty()){auto middle=photoDensities.begin()+photoDensities.size()/2;std::nth_element(photoDensities.begin(),middle,photoDensities.end());chartSettings.requestedTexelsPerUnit=std::min(chartSettings.requestedTexelsPerUnit,*middle);}
     const auto layout=layoutSurfaceCharts(mesh,chartSettings);
     TexturedSurface result;result.compactCharts=true;result.inputTriangles=mesh.triangles.size();result.exposure=exposure;
-    result.sourceTriangleCounts.assign(photos.size(),0);result.texelsPerUnit=layout.texelsPerUnit;result.chartCount=layout.groups.size();
+    result.sourceTriangleCounts.assign(photos.size(),0);result.texelsPerUnit=layout.texelsPerUnit;result.chartCount=layout.groups.size();result.maximumUvStretch=layout.maximumStretch;
     int usedWidth=1,usedHeight=1;
     for(const auto& g:layout.groups){usedWidth=std::max(usedWidth,g.x+g.width);usedHeight=std::max(usedHeight,g.y+g.height);}
     result.atlasWidth=usedWidth;result.atlasHeight=usedHeight;
@@ -446,7 +447,7 @@ std::string texturedSurfaceJson(const TexturedSurface& t){
     std::ostringstream o;o.imbue(std::locale::classic());o<<std::setprecision(10);
     o<<"{\"schema\":10,\"representation\":\""<<(t.compactCharts?"compact_visible_photographic_atlas":"camera_ranked_photographic_atlas")<<"\",\"textured\":true,\"watertight\":false,\"scale\":\"arbitrary\","
      <<"\"atlasWidth\":"<<t.atlasWidth<<",\"atlasHeight\":"<<t.atlasHeight
-     <<",\"atlasFormat\":\"image/png\",\"compactCharts\":"<<(t.compactCharts?"true":"false")
+     <<",\"atlasFormat\":\"image/png\",\"textureEngineVersion\":\""<<PHOTOGRAPHIC_ATLAS_ENGINE_VERSION<<"\",\"maximumUvStretch\":"<<t.maximumUvStretch<<",\"compactCharts\":"<<(t.compactCharts?"true":"false")
      <<",\"supportedTexels\":"<<t.supportedTexels<<",\"unsupportedTexels\":"<<t.unsupportedTexels
      <<",\"chartCount\":"<<t.chartCount<<",\"blendedTexels\":"<<t.blendedTexels<<",\"texelsPerArbitraryUnit\":"<<t.texelsPerUnit
      <<",\"atlasUtilization\":"<<t.atlasUtilization<<",\"meanBlendResidual\":"<<t.meanBlendResidual
@@ -463,6 +464,21 @@ std::string texturedSurfaceJson(const TexturedSurface& t){
      <<",\"uvOrigin\":\"upper_left\",\"faceCoverage\":"<<t.faceCoverage
      <<",\"medianFacing\":"<<t.medianFacing<<",\"cameraTriangleCounts\":[";
     for(std::size_t i=0;i<t.sourceTriangleCounts.size();++i){if(i)o<<',';o<<t.sourceTriangleCounts[i];}
+    o<<"],\"exposureCorrectionAccepted\":"<<(t.exposure.correctionAccepted?"true":"false")
+     <<",\"exposureHeldOutSamples\":"<<t.exposure.heldOutSamples<<",\"exposureHeldOutLogErrorBefore\":";
+    if(t.exposure.heldOutSamples)o<<t.exposure.heldOutLogErrorBefore;else o<<"null";
+    o<<",\"exposureHeldOutLogErrorAfter\":";
+    if(t.exposure.heldOutSamples)o<<t.exposure.heldOutLogErrorAfter;else o<<"null";
+    o<<",\"exposureChannelAccepted\":[";
+    for(int c=0;c<3;++c){if(c)o<<',';o<<(t.exposure.channelCorrectionAccepted[c]?"true":"false");}
+    o<<"],\"exposureHeldOutChannelLogErrorBefore\":";
+    if(t.exposure.heldOutSamples){o<<'[';for(int c=0;c<3;++c){if(c)o<<',';o<<t.exposure.heldOutChannelErrorBefore[c];}o<<']';}else o<<"null";
+    o<<",\"exposureHeldOutChannelLogErrorAfter\":";
+    if(t.exposure.heldOutSamples){o<<'[';for(int c=0;c<3;++c){if(c)o<<',';o<<t.exposure.heldOutChannelErrorAfter[c];}o<<']';}else o<<"null";
+    o<<",\"cameraColorSupported\":[";
+    for(std::size_t i=0;i<t.exposure.cameraSupported.size();++i){if(i)o<<',';o<<(t.exposure.cameraSupported[i]?"true":"false");}
+    o<<"],\"cameraColorSupportFraction\":[";
+    for(std::size_t i=0;i<t.exposure.cameraConfidence.size();++i){if(i)o<<',';o<<t.exposure.cameraConfidence[i];}
     o<<"],\"cameraColorGains\":[";
     for(std::size_t i=0;i<t.exposure.gains.size();++i){if(i)o<<',';
         const auto& g=t.exposure.gains[i];o<<'['<<g[0]<<','<<g[1]<<','<<g[2]<<']';}
@@ -531,13 +547,20 @@ void writeTexturedGlb(const SurfaceMesh& m,const TexturedSurface& t,const std::s
     auto js=json.str();while(js.size()%4)js.push_back(' ');
     const auto fileSize=12+8+js.size()+8+buffer.size();
     if(fileSize>std::numeric_limits<std::uint32_t>::max())throw Error("GLB exceeds 4GB");
-    std::ofstream out(path,std::ios::binary);if(!out)throw Error("Cannot create textured GLB");
+    if(path.empty())throw Error("Empty textured GLB output path");
+    const auto partial=path+".partial";
+    try {
+    std::ofstream out(partial,std::ios::binary);if(!out)throw Error("Cannot create textured GLB");
     auto writeU32=[&](std::uint32_t val){for(int k=0;k<4;++k)out.put(static_cast<char>((val>>(k*8))&255));};
     writeU32(0x46546c67);writeU32(2);writeU32(static_cast<std::uint32_t>(fileSize));
     writeU32(static_cast<std::uint32_t>(js.size()));writeU32(0x4e4f534a);out.write(js.data(),static_cast<std::streamsize>(js.size()));
     writeU32(static_cast<std::uint32_t>(buffer.size()));writeU32(0x004e4942);
     out.write(reinterpret_cast<const char*>(buffer.data()),static_cast<std::streamsize>(buffer.size()));
     out.flush();if(!out)throw Error("Textured GLB write failed");
+    out.close();if(!out)throw Error("Textured GLB close failed");
+    cancellation::checkpoint();std::filesystem::rename(partial,path);
+    }catch(...){std::error_code error;std::filesystem::remove(partial,error);throw;}
+
 }
 } // namespace rf
 
