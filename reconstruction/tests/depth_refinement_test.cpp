@@ -14,5 +14,6 @@ int main(){
  auto missing=local(3,5,7,8,[](double){return 2.;});assert(!missing.valid);
  rf::DenseDepthMap m{2,2,{5,5.02f,5.03f,5.05f},{1,1,1,1}};assert(propagate(m,.5,.5)>5);
  m.depth[3]=2;assert(propagate(m,.5,.5)==0);m.depth[3]=0;assert(propagate(m,.5,.5)==0);
+ rf::DenseDepthMap sparse{5,5,std::vector<float>(25,0),std::vector<float>(25,0)};for(int y=0;y<5;y+=2)for(int x=0;x<5;x+=2)sparse.depth[y*5+x]=5+.01f*x;assert(propagate(sparse,1,1,.05,2,0)>5);sparse.depth[2*5+2]=0;assert(propagate(sparse,1,1,.05,2,0)==0);
  std::cout<<"multi-layer priors, slanted local inverse-depth refinement and discontinuity-safe pyramid checks passed\n";
 }
