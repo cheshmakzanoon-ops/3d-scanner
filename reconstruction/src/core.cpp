@@ -106,6 +106,7 @@ std::vector<std::size_t> inliers(std::span<const Match> m,const Mat3& e,double t
     std::vector<std::size_t> out; for(std::size_t i=0;i<m.size();++i)if(sampson(e,m[i])<threshold*threshold)out.push_back(i);return out;
 }
 void validateResult(const Result& r) {
+    if(r.representation!=PointRepresentation::SparsePoints && r.representation!=PointRepresentation::DensePoints)throw Error("Unsupported point representation");
     if(r.points.empty())throw Error("No reconstructed points to export");
     if(r.points.size()>10000000)throw Error("Point count exceeds export limit");
     for(auto& p:r.points)if(!std::isfinite(p.xyz.x)||!std::isfinite(p.xyz.y)||!std::isfinite(p.xyz.z)||length(p.xyz)>1e20)throw Error("Non-finite export geometry");
@@ -193,6 +194,7 @@ Quality quality(std::span<const std::uint8_t> pixels,int width,int height,int st
     double count=static_cast<double>(width-2)*(height-2);return {sum/n,std::sqrt(std::max(0.0,sum2/n-(sum/n)*(sum/n))),std::max(0.0,lap2/count-(lap/count)*(lap/count)),dark/n,bright/n};
 }
 std::string resultJson(const Result& r) {
+    if(r.representation!=PointRepresentation::SparsePoints)throw Error("Dense points are not a two-view reconstruction result; use typed point export");
     std::ostringstream o;o.imbue(std::locale::classic());o<<std::setprecision(12);
     o<<"{\"schema\":1,\"representation\":\"sparse_points\",\"scale\":\"arbitrary\",\"registeredCameras\":2,\"inputMatches\":"<<r.inputMatches<<",\"inliers\":"<<r.epipolarInliers<<",\"pointCount\":"<<r.points.size()<<",\"medianErrorNormalized\":"<<r.medianError<<",\"medianParallaxDegrees\":"<<r.medianParallax<<",\"rotation\":[";
     for(std::size_t i=0;i<9;++i){if(i)o<<',';o<<r.rotation[i];}o<<"],\"translation\":["<<r.translation.x<<','<<r.translation.y<<','<<r.translation.z<<"],\"points\":[";
@@ -200,7 +202,8 @@ std::string resultJson(const Result& r) {
 }
 void writePly(const Result& r,const std::string& path) {
     validateResult(r);std::ofstream o(path);if(!o)throw Error("Cannot open PLY destination");o.imbue(std::locale::classic());o<<std::setprecision(9);
-    o<<"ply\nformat ascii 1.0\ncomment RealityForge sparse reconstruction; arbitrary scale; x-right y-down z-forward\nelement vertex "<<r.points.size()<<"\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
+    o<<"ply\nformat ascii 1.0\ncomment RealityForge "<<(r.representation==PointRepresentation::DensePoints?"observed dense points":"sparse reconstruction")
+     <<"; arbitrary scale; x-right y-down z-forward\ncomment representation "<<(r.representation==PointRepresentation::DensePoints?"dense_points":"sparse_points")<<"\nelement vertex "<<r.points.size()<<"\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
     for(auto&p:r.points)o<<p.xyz.x<<' '<<p.xyz.y<<' '<<p.xyz.z<<' '<<int(p.color[0])<<' '<<int(p.color[1])<<' '<<int(p.color[2])<<'\n';
     o.flush();if(!o)throw Error("PLY write failed; storage may be full");
 }
@@ -209,7 +212,10 @@ void writeGlb(const Result& r,const std::string& path) {
     for(auto&p:r.points){std::array<float,3>x{static_cast<float>(p.xyz.x),static_cast<float>(-p.xyz.y),static_cast<float>(-p.xyz.z)};for(int j=0;j<3;++j){lo[j]=std::min(lo[j],x[j]);hi[j]=std::max(hi[j],x[j]);}}
     auto n=static_cast<std::uint32_t>(r.points.size()),positionBytes=n*12,colorBytes=n*4,binBytes=positionBytes+colorBytes;
     std::ostringstream j;j.imbue(std::locale::classic());j<<std::setprecision(9);
-    j<<"{\"asset\":{\"version\":\"2.0\",\"generator\":\"RealityForge M01\"},\"extras\":{\"representation\":\"sparse_points\",\"scale\":\"arbitrary\",\"notSurfaceMesh\":true},\"scene\":0,\"scenes\":[{\"nodes\":[0]}],\"nodes\":[{\"mesh\":0,\"name\":\"Sparse diagnostic points\"}],\"meshes\":[{\"primitives\":[{\"attributes\":{\"POSITION\":0,\"COLOR_0\":1},\"mode\":0}]}],\"buffers\":[{\"byteLength\":"<<binBytes<<"}],\"bufferViews\":[{\"buffer\":0,\"byteOffset\":0,\"byteLength\":"<<positionBytes<<",\"target\":34962},{\"buffer\":0,\"byteOffset\":"<<positionBytes<<",\"byteLength\":"<<colorBytes<<",\"target\":34962}],\"accessors\":[{\"bufferView\":0,\"componentType\":5126,\"count\":"<<n<<",\"type\":\"VEC3\",\"min\":["<<lo[0]<<','<<lo[1]<<','<<lo[2]<<"],\"max\":["<<hi[0]<<','<<hi[1]<<','<<hi[2]<<"]},{\"bufferView\":1,\"componentType\":5121,\"normalized\":true,\"count\":"<<n<<",\"type\":\"VEC4\"}]}";
+    j<<"{\"asset\":{\"version\":\"2.0\",\"generator\":\"RealityForge point export\"},\"extras\":{\"representation\":\""
+     <<(r.representation==PointRepresentation::DensePoints?"dense_points":"sparse_points")
+     <<"\",\"scale\":\"arbitrary\",\"notSurfaceMesh\":true},\"scene\":0,\"scenes\":[{\"nodes\":[0]}],\"nodes\":[{\"mesh\":0,\"name\":\""
+     <<(r.representation==PointRepresentation::DensePoints?"Observed dense points":"Sparse diagnostic points")<<"\"}],\"meshes\":[{\"primitives\":[{\"attributes\":{\"POSITION\":0,\"COLOR_0\":1},\"mode\":0}]}],\"buffers\":[{\"byteLength\":"<<binBytes<<"}],\"bufferViews\":[{\"buffer\":0,\"byteOffset\":0,\"byteLength\":"<<positionBytes<<",\"target\":34962},{\"buffer\":0,\"byteOffset\":"<<positionBytes<<",\"byteLength\":"<<colorBytes<<",\"target\":34962}],\"accessors\":[{\"bufferView\":0,\"componentType\":5126,\"count\":"<<n<<",\"type\":\"VEC3\",\"min\":["<<lo[0]<<','<<lo[1]<<','<<lo[2]<<"],\"max\":["<<hi[0]<<','<<hi[1]<<','<<hi[2]<<"]},{\"bufferView\":1,\"componentType\":5121,\"normalized\":true,\"count\":"<<n<<",\"type\":\"VEC4\"}]}";
     std::string json=j.str();while(json.size()%4)json+=' ';std::ofstream out(path,std::ios::binary);if(!out)throw Error("Cannot open GLB destination");
     u32(out,0x46546C67);u32(out,2);u32(out,static_cast<std::uint32_t>(12+8+json.size()+8+binBytes));u32(out,static_cast<std::uint32_t>(json.size()));u32(out,0x4E4F534A);out.write(json.data(),static_cast<std::streamsize>(json.size()));u32(out,binBytes);u32(out,0x004E4942);
     for(auto&p:r.points){f32(out,static_cast<float>(p.xyz.x));f32(out,static_cast<float>(-p.xyz.y));f32(out,static_cast<float>(-p.xyz.z));}

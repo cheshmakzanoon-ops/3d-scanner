@@ -23,6 +23,11 @@ object NativeCore {
         photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
         near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
         meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String): String
+    /** Opt-in actual coarse/prior depth;009 canonical identity binds all immutable inputs. */
+    external fun reconstructDenseRefinedCancellable(rgba: ByteArray, width: Int, height: Int,
+        cameras: DoubleArray, near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        priorRows: DoubleArray, coarseRgba: ByteArray, coarseWidth: Int, coarseHeight: Int,
+        coarseCameras: DoubleArray, inputIdentity: String, token: Long): String
     /** A unique lease; cancel only the native worker that owns this token. */
     external fun beginReconstruction(): Long
     external fun cancelReconstruction(token: Long): Boolean
@@ -45,6 +50,21 @@ object NativeCore {
         near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
         meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
         token: Long, checkpointDirectory: String, checkpointIdentity: String): String
+    /** Explicit admitted 2K compact atlas, same checkpoint/cancellation ownership. */
+    external fun reconstructTexturedSurfaceCompactCheckpointed(depthRgba: ByteArray, width: Int, height: Int,
+        photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
+        near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
+        token: Long, checkpointDirectory: String, checkpointIdentity: String): String
+    /** One admitted refined depth pass continues to actual observed mesh/photo exports. */
+    external fun reconstructTexturedSurfaceRefinedCheckpointed(depthRgba: ByteArray, width: Int, height: Int,
+        photoRgba: ByteArray, photoWidth: Int, photoHeight: Int, cameras: DoubleArray,
+        near: Double, far: Double, depthPlanes: Int, pixelStride: Int,
+        meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
+        priorRows: DoubleArray, coarseRgba: ByteArray, coarseWidth: Int, coarseHeight: Int,
+        coarseCameras: DoubleArray, refinementIdentity: String, sourceAdjacency: IntArray, compactAtlas: Boolean,
+        token: Long, checkpointDirectory: String, checkpointIdentity: String): String
     external fun quality(gray: ByteArray, width: Int, height: Int): DoubleArray
+    external fun exportPointsTyped(rows: DoubleArray, destination: String, glb: Boolean, dense: Boolean)
     external fun exportPoints(rows: DoubleArray, destination: String, glb: Boolean)
 }
