@@ -50,9 +50,22 @@ def test_pnp_rejects_nonfinite(engine,bad):
     tracks,*_=synthetic();tracks[0,3]=bad
     with pytest.raises(ValueError,match='PnP coordinate'):engine.register_camera(tracks)
 
-def test_pnp_rejects_planar_geometry(engine):
-    tracks,*_=synthetic(planar=True)
-    with pytest.raises(ValueError):engine.register_camera(tracks)
+def test_pnp_planar_geometry_is_verified_or_explicitly_unsupported(engine):
+    # The legacy full-rank DLT explicitly rejects planes. A calibrated planar
+    # implementation may accept one only with independently checked rigid pose.
+    tracks, rotation, translation = synthetic(planar=True)
+    try:
+        result = engine.register_camera(tracks)
+    except ValueError as failure:
+        assert "consistent" in str(failure) or "geometry" in str(failure)
+        return
+    recovered = np.asarray(result['rotation']).reshape(3, 3)
+    np.testing.assert_allclose(recovered, rotation, atol=1e-5, rtol=0)
+    np.testing.assert_allclose(result['translation'], translation, atol=1e-5, rtol=0)
+    np.testing.assert_allclose(recovered @ recovered.T, np.eye(3), atol=1e-8, rtol=0)
+    assert np.linalg.det(recovered) > .999999
+    assert result['inlierCount'] == len(tracks)
+    assert result['medianErrorNormalized'] < 1e-8
 
 def test_pnp_rejects_bad_threshold(engine):
     tracks,*_=synthetic()
