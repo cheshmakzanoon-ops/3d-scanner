@@ -444,6 +444,13 @@
       "branch": "agents/096-security-hostile-input-assurance",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "083",
+      "source_sha": "72747f26f431f0ea1849b617d58e92e473a89702",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
