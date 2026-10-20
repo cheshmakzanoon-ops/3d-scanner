@@ -219,6 +219,19 @@ class ManifestExportSourceTest {
         rejects { source.materialize(request, link) {} }
         assertArrayEquals(validPly, original.readBytes())
     }
+    @Test fun hardLinkedPrivateTargetCannotTruncateAnAcceptedSource() = test {
+        val request = request(); val original = File(root, "misleading-dense-name.bin")
+        val linked = File(staging, "linked-target")
+        Files.createLink(linked.toPath(), original.toPath())
+        rejects { source.materialize(request, linked) {} }
+        assertArrayEquals(validPly, original.readBytes()); assertArrayEquals(validPly, linked.readBytes())
+    }
+    @Test fun preexistingNonemptyPrivateTargetIsNeverOverwrittenOrDeleted() = test {
+        val request = request(); val target = File(staging, "previous-export").apply { writeText("preserve previous bytes") }
+        rejects { source.materialize(request, target) {} }
+        assertEquals("preserve previous bytes", target.readText())
+        assertArrayEquals(validPly, File(root, "misleading-dense-name.bin").readBytes())
+    }
     @Test fun optionalBadArtifactIsNeverOffered() = test {
         val good = reference()
         val optional = reference("optional.ply", required = false)

@@ -114,6 +114,50 @@ class ExportCoordinatorTest {
         try { ExportPackage.write(mapOf("../escape" to source), File(root, "out.zip"), 4096); fail() } catch (_: IllegalArgumentException) {}
         assertEquals("immutable master", source.readText())
     }
+    @Test fun packageTargetCannotTruncateOrDeleteAnInput() = temporary { root ->
+        val source = File(root, "original.obj").apply { writeText("immutable master") }
+        try { ExportPackage.write(mapOf("scan.obj" to source), source, 4096); fail() } catch (_: IllegalArgumentException) {}
+        assertEquals("immutable master", source.readText())
+    }
+    @Test fun hardLinkedPackageTargetCannotChangeAnInput() = temporary { root ->
+        val source = File(root, "original.obj").apply { writeText("immutable master") }
+        val target = File(root, "linked.zip")
+        Files.createLink(target.toPath(), source.toPath())
+        try { ExportPackage.write(mapOf("scan.obj" to source), target, 4096); fail() } catch (_: IllegalArgumentException) {}
+        assertEquals("immutable master", source.readText()); assertEquals("immutable master", target.readText())
+    }
+    @Test fun existingPackageOutputAndSymlinkTargetsRemainUntouched() = temporary { root ->
+        val source = File(root, "source").apply { writeText("immutable master") }
+        val existing = File(root, "out.zip").apply { writeText("previous export") }
+        val linked = File(root, "link.zip")
+        Files.createSymbolicLink(linked.toPath(), source.toPath())
+        for (target in listOf(existing, linked)) {
+            try { ExportPackage.write(mapOf("scan.obj" to source), target, 4096); fail() } catch (_: IllegalArgumentException) {}
+        }
+        assertEquals("previous export", existing.readText()); assertEquals("immutable master", source.readText())
+        assertTrue(Files.isSymbolicLink(linked.toPath()))
+    }
+    @Test fun packageSourceSymlinkIsRejectedBeforeOutputCreation() = temporary { root ->
+        val source = File(root, "source").apply { writeText("immutable master") }
+        val linked = File(root, "link.obj"); Files.createSymbolicLink(linked.toPath(), source.toPath())
+        val target = File(root, "out.zip")
+        try { ExportPackage.write(mapOf("scan.obj" to linked), target, 4096); fail() } catch (_: IllegalArgumentException) {}
+        assertFalse(target.exists()); assertEquals("immutable master", source.readText())
+    }
+    @Test fun concurrentlyCreatedPackageTargetIsNeverDeleted() = temporary { root ->
+        val source = File(root, "source").apply { writeText("immutable master") }
+        val target = File(root, "out.zip")
+        try { ExportPackage.write(mapOf("scan.obj" to source), target, 4096) { target.writeText("another owner") }; fail() }
+        catch (_: java.nio.file.FileAlreadyExistsException) {}
+        assertEquals("another owner", target.readText()); assertEquals("immutable master", source.readText())
+    }
+    @Test fun cancelledPackageRemovesOnlyItsNewPrivateOutput() = temporary { root ->
+        val source = File(root, "source").apply { writeText("immutable master") }
+        val target = File(root, "out.zip"); var checkpoints = 0
+        try { ExportPackage.write(mapOf("scan.obj" to source), target, 4096) { if (++checkpoints == 3) throw ExportCancelled() }; fail() }
+        catch (_: ExportCancelled) {}
+        assertFalse(target.exists()); assertEquals("immutable master", source.readText())
+    }
     @Test fun legacyPlyRejectsNonfiniteVerticesAndInvalidFaceIndices() = temporary { root ->
         val file=File(root,"mesh.ply")
         val header="ply\nformat ascii 1.0\ncomment RealityForge observed open surface; arbitrary scale; no UV textures\nelement vertex 3\nproperty float x\nproperty float y\nproperty float z\nproperty float nx\nproperty float ny\nproperty float nz\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nelement face 1\nproperty list uchar int vertex_indices\nend_header\n"

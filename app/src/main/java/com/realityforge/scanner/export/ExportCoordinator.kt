@@ -3,8 +3,10 @@ package com.realityforge.scanner.export
 import java.io.File
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import java.io.FileOutputStream
 import java.security.MessageDigest
+import java.nio.file.Files
+import java.nio.file.LinkOption.NOFOLLOW_LINKS
+import java.nio.file.StandardOpenOption
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -95,23 +97,37 @@ internal fun ByteArray.hex(): String = joinToString("") { "%02x".format(it) }
 /** Offline OBJ/MTL/image file sets remain relocatable; inputs are never modified. */
 object ExportPackage {
     fun write(members: Map<String, File>, target: File, maxBytes: Long, checkpoint: () -> Unit = {}) {
-        require(maxBytes > 0 && members.size in 1..64)
+        val inputs = members.toMap()
+        require(maxBytes > 0 && inputs.size in 1..64)
         val reserved = setOf("CON", "PRN", "AUX", "NUL") + (1..9).flatMap { listOf("COM$it", "LPT$it") }
-        require(members.keys.all { name ->
+        require(inputs.keys.all { name ->
             name.matches(Regex("[A-Za-z0-9][A-Za-z0-9_.-]{0,119}")) && !name.endsWith('.') &&
                 name.substringBefore('.').uppercase(java.util.Locale.ROOT) !in reserved
         })
-        require(members.keys.map { it.lowercase(java.util.Locale.ROOT) }.distinct().size == members.size)
+        require(inputs.keys.map { it.lowercase(java.util.Locale.ROOT) }.distinct().size == inputs.size)
+        val outputPath = target.toPath().toAbsolutePath().normalize()
+        require(!Files.exists(outputPath, NOFOLLOW_LINKS)) { "PACKAGE_TARGET_EXISTS" }
+        require(Files.isDirectory(outputPath.parent, NOFOLLOW_LINKS) && outputPath.parent.toRealPath() == outputPath.parent) { "UNSAFE_PACKAGE_TARGET" }
+        var declaredBytes = 0L
+        val sourcePaths = inputs.mapValues { (_, source) ->
+            source.toPath().toAbsolutePath().normalize().also { path ->
+                require(Files.isRegularFile(path, NOFOLLOW_LINKS) && path.toRealPath() == path) { "UNSAFE_PACKAGE_SOURCE" }
+                val size = Files.size(path)
+                require(size <= maxBytes - declaredBytes) { "PACKAGE_LIMIT" }
+                declaredBytes += size
+            }
+        }
         var count = 0L
+        var ownedOutput = false
         try {
-            FileOutputStream(target).use { file ->
+            checkpoint()
+            Files.newOutputStream(outputPath, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW, NOFOLLOW_LINKS).also { ownedOutput = true }.use { file ->
                 ZipOutputStream(file).use { zip ->
                     val buffer = ByteArray(65536)
-                    for ((name, source) in members.toSortedMap()) {
+                    for ((name, source) in sourcePaths.toSortedMap()) {
                         checkpoint()
-                        require(source.isFile && source.canonicalFile != target.canonicalFile)
                         zip.putNextEntry(ZipEntry(name).apply { time = 0 })
-                        source.inputStream().use { input ->
+                        Files.newInputStream(source, NOFOLLOW_LINKS).use { input ->
                             while (true) {
                                 checkpoint(); val n = input.read(buffer); if (n < 0) break
                                 require(count <= maxBytes - n) { "PACKAGE_LIMIT" }; count += n
@@ -124,9 +140,9 @@ object ExportPackage {
             }
             require(target.length() <= maxBytes)
             ZipFile(target).use { zip ->
-                require(zip.size() == members.size)
+                require(zip.size() == inputs.size)
                 val buffer = ByteArray(65536)
-                for ((name, file) in members) {
+                for ((name, file) in inputs) {
                     val entry = requireNotNull(zip.getEntry(name))
                     require(entry.size == file.length())
                     val hash = MessageDigest.getInstance("SHA-256")
@@ -137,6 +153,6 @@ object ExportPackage {
                     require(crc.value == entry.crc && hash.digest().hex() == ExportCoordinator.digest(file, checkpoint))
                 }
             }
-        } catch (e: Exception) { target.delete(); throw e }
+        } catch (e: Exception) { if (ownedOutput) target.delete(); throw e }
     }
 }

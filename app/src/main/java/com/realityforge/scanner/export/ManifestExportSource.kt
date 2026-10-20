@@ -85,7 +85,7 @@ class ManifestExportSource(
             val destination = target.toPath().toAbsolutePath().normalize()
             require(!destination.startsWith(root)) { "UNSAFE_EXPORT_TARGET" }
             require(destination.parent.toRealPath() == destination.parent && !Files.isSymbolicLink(destination)) { "UNSAFE_EXPORT_TARGET" }
-            if (Files.exists(destination, NOFOLLOW_LINKS)) require(Files.isRegularFile(destination, NOFOLLOW_LINKS))
+            if (Files.exists(destination, NOFOLLOW_LINKS)) require(Files.isRegularFile(destination, NOFOLLOW_LINKS) && Files.size(destination) == 0L) { "EXPORT_TARGET_NOT_EMPTY" }
             val input = checkedFile(current.lease.projectRoot, reference)
             ownsTarget = true
             val hash = MessageDigest.getInstance("SHA-256")
