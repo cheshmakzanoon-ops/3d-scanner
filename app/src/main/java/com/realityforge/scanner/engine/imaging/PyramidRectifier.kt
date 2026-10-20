@@ -63,9 +63,15 @@ object PyramidRectifier {
     fun writeUprightRgba(source:IntArray,width:Int,height:Int,lens:LensProjection,
                          target:ByteArray,offset:Int,originalSha256:String,calibrationProvenance:String,
                          originalToLevel:PixelTransform,store:PyramidStore?=null,
+                         cancelled:()->Boolean={false}):CacheResult =
+        writeUprightRgba({ source },width,height,lens,target,offset,originalSha256,calibrationProvenance,originalToLevel,store,cancelled)
+    /** Lazy decoder adapter: a cache hit never evaluates sourceArgb. The producer releases its Bitmap before returning ARGB. */
+    fun writeUprightRgba(sourceArgb:()->IntArray,width:Int,height:Int,lens:LensProjection,
+                         target:ByteArray,offset:Int,originalSha256:String,calibrationProvenance:String,
+                         originalToLevel:PixelTransform,store:PyramidStore?=null,
                          cancelled:()->Boolean={false}):CacheResult {
         require(calibrationProvenance.isNotBlank() && calibrationProvenance.length<=1024)
-        require(width>0 && height>0 && width.toLong()*height<=PyramidLevel.MAX_PIXELS && source.size.toLong()==width.toLong()*height)
+        require(width in 2..8192 && height in 2..8192 && width.toLong()*height<=PyramidLevel.MAX_PIXELS)
         require(originalToLevel.width==width && originalToLevel.height==height)
         require(offset>=0 && offset.toLong()+width.toLong()*height*4<=target.size)
         val coefficients=listOf(lens.fx,lens.fy,lens.cx,lens.cy,lens.k1,lens.k2,lens.p1,lens.p2,lens.k3).joinToString(","){java.lang.Double.toHexString(it)}
@@ -81,6 +87,7 @@ object PyramidRectifier {
         store?.load(key,originalToLevel)?.use { cached ->
             pack(cached.pixels(),cached.validity(),0);return CacheResult(key,true,true)
         }
+        val source=sourceArgb();require(source.size.toLong()==width.toLong()*height) { "Decoded source dimensions changed" }
         val pixels=if(store!=null)IntArray(width*height) else null
         val mask=if(store!=null)ByteArray(width*height) else null
         tiles(source,width,height,PixelTransform.identity(width,height),lens,lens,width,height,cancelled=cancelled){tile->

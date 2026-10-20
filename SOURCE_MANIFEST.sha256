@@ -42,7 +42,7 @@ f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/j
 679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0  app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt
 bbc3407224b95b966d3ef23d0e2111b6c062bd4248b90ed4b4b137d334aa83ee  app/src/main/java/com/realityforge/scanner/engine/geometry/PixelTransform.kt
 6c5af69bec3c0c6f96b7e6f31393ae460debcdaf0a7f075e46fc37299fadabf2  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidLevel.kt
-0469cc285fa80c8ac2b81b0c25ca69c42336124d8acbe49d1e5c2467c608ffdf  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidRectifier.kt
+dbc8c1abf1ac8a93e0f71c6121de0018fa67c5c3bd2003e90f730000c222e799  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidRectifier.kt
 0fbc16bc0076c27e0cd237eb64e01b4cb39d78c92f9f757403c2e873574a2c6d  app/src/main/java/com/realityforge/scanner/engine/imaging/PyramidStore.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
@@ -56,7 +56,7 @@ cba4c90dff6ab7ea9a42540ef83addb6542ba3185fac559483816f5feb65d829  app/src/main/r
 b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/res/values/styles.xml
 8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22  app/src/main/res/xml/data_extraction_rules.xml
 3824769adf7a6d91d0c99a0447727c043308fae00d93c1a6f66c77a98b7f0cfe  app/src/test/java/com/realityforge/scanner/CalibrationTest.kt
-d4ed6143d59b920107e74794f4c84d6d5f0a419d71daa95cfcf3d828f82d33d1  app/src/test/java/com/realityforge/scanner/agents/a045/PyramidTest.kt
+26b347e3592bd0071bfc274876633d3d3401388752184d5c33786a891adff027  app/src/test/java/com/realityforge/scanner/agents/a045/PyramidTest.kt
 0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37  app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt
 05854244689335c9f17f5d26c8a4b28f960dd20c8fe1bcc526450d48b229aba4  app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt
 1f3b5993478073348f05b5e1db6eec27e26c305fd9845287437373a13f84a4a7  app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt
@@ -99,7 +99,7 @@ a8db3290c48c38089c359dcddde09cd003d373324c8149f415b42ed2d1d22ef2  docs/NEXT_MILE
 050784fe625a982067a8e58fa772e9313056bdc9640d34332a7e325115ec26ed  docs/PRIVACY.md
 ad71ed94e90adcc7857e96cd492df5c31f598656a6e9a0e3f6a42bc51cc3aaf5  docs/VALIDATION_REPORT.md
 1f6f729fc12b686f19e9391400c4452cf3fc7b5675d5f0010862b928f8fe8ba4  docs/agents/contracts/031.md
-2e51ddeb02f775c6b6afb6c32b354b57d530fb97dc9e54fd8badb372d3fcdc82  docs/agents/contracts/045.md
+96bbeafb8b00cd085b1968a410bb31d630aa4fe3427e527411f347d11a6d2fe9  docs/agents/contracts/045.md
 1343765f1fddf7721519d5ea36fc0eaee769ce0f7ab2c2fe7a76e4a44bd32da0  docs/agents/requests/031-to-002.md
 8197867cdbd70dc01e7ae738fe4f7f0815bc44fcd644e1ca2a61ae324f54d5cb  docs/agents/requests/031-to-009.md
 d9c7d302b6e3a55d0db52bdbeaa68f57d54a796c79c87deeb64089b83967345d  docs/agents/requests/031-to-027.md

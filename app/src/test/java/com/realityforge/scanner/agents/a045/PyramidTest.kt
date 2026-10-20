@@ -76,9 +76,10 @@ class PyramidTest {
         val source=IntArray(w*h){0xff6688aa.toInt()};source[2*w+2]=0x806688aa.toInt()
         val directory=Files.createTempDirectory("rf-pyramid-producer").toFile()
         try {val store=PyramidStore(directory,4096);val a=ByteArray(w*h*4);val b=ByteArray(a.size)
-            val first=PyramidRectifier.writeUprightRgba(source,w,h,lens,a,0,"e".repeat(64),"measured-lens-A",t,store)
-            val second=PyramidRectifier.writeUprightRgba(source,w,h,lens,b,0,"e".repeat(64),"measured-lens-A",t,store)
-            assertFalse(first.hit);assertTrue(first.stored);assertTrue(second.hit);assertArrayEquals(a,b)
+            var decodes=0
+            val first=PyramidRectifier.writeUprightRgba({decodes++;source},w,h,lens,a,0,"e".repeat(64),"measured-lens-A",t,store)
+            val second=PyramidRectifier.writeUprightRgba({decodes++;source},w,h,lens,b,0,"e".repeat(64),"measured-lens-A",t,store)
+            assertFalse(first.hit);assertTrue(first.stored);assertTrue(second.hit);assertArrayEquals(a,b);assertEquals(1,decodes)
             assertEquals(0,a[(2*w+2)*4+3].toInt())
         }finally{directory.deleteRecursively()}
     }
