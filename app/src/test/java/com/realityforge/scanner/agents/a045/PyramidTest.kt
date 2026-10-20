@@ -44,7 +44,7 @@ class PyramidTest {
         pixels[0]=12345;valid[0]=0;val copy=level.pixels();copy[1]=999
         assertEquals(0,level.pixels()[0]);assertEquals(1,level.pixels()[1]);assertEquals(1,level.validity()[0].toInt())
         val directory=Files.createTempDirectory("rf-pyramid-budget").toFile()
-        try {assertFalse(PyramidStore(directory,1024).store(level));assertTrue(directory.listFiles()!!.isEmpty())}
+        try {assertFalse(PyramidStore(directory,1024).store(level));assertTrue(directory.listFiles()!!.none { it.name.endsWith(".rfp") || it.name.endsWith(".partial") })}
         finally {level.close();directory.deleteRecursively()}
     }
     @Test fun cacheRejectsMismatchedTransformEvenWithSameTargetDimensions() {

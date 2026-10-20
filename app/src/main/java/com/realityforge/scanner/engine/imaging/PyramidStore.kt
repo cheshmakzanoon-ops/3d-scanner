@@ -36,9 +36,24 @@ class PyramidStore(private val directory: File, private val maxBytes: Long) {
             }
         } catch (_: IOException) { null } catch (_: IllegalArgumentException) { null }
     }
-    @Synchronized fun store(level: PyramidLevel): Boolean {
+    @Synchronized fun store(level: PyramidLevel): Boolean { return try {
+        FileOutputStream(File(directory, ".rfp.lock"), true).channel.use { channel ->
+            val lock = channel.tryLock() ?: return false
+            lock.use { storeLocked(level) }
+        }
+    } catch (_: IOException) { false } catch (_: java.nio.channels.OverlappingFileLockException) { false } }
+    private fun storeLocked(level: PyramidLevel): Boolean {
         val expected = level.width.toLong() * level.height * 5 + 192
         if (expected > maxBytes) return false
+        // The directory lock proves no other participating writer owns an incomplete level.
+        try { Files.newDirectoryStream(directory.toPath()).use { entries ->
+            var inspected=0
+            for (entry in entries) {
+                if (++inspected>8192) return false
+                val file=entry.toFile()
+                if (file.name.startsWith("pyramid-") && file.name.endsWith(".partial") && !file.delete()) return false
+            }
+        } } catch (_: IOException) { return false }
         val temp = try { File.createTempFile("pyramid-", ".partial", directory) } catch (_: IOException) { return false }
         return try {
             val payload = ByteArrayOutputStream(expected.toInt()).also { buffer ->
@@ -74,8 +89,11 @@ class PyramidStore(private val directory: File, private val maxBytes: Long) {
         }
         files.sortBy { it.lastModified() }
         var bytes = 0L
-        for (file in files) { val length=file.length(); bytes = if (bytes > maxBytes-length) maxBytes+1 else bytes+length }
-        for (file in files) { if (bytes + needed <= maxBytes) break; val length = file.length(); if (file.delete()) bytes -= length }
+        val lengths = files.associateWith { file ->
+            val length=file.length(); if (length>maxBytes) throw IOException("Cache record changed during admission"); length
+        }
+        for (length in lengths.values) bytes+=length // <=4096 records *2GB; cannot overflow Long
+        for (file in files) { if (bytes + needed <= maxBytes) break; val length = lengths.getValue(file); if (file.delete()) bytes -= length }
         if (bytes + needed > maxBytes) throw IOException("Pyramid cache budget unavailable")
     }
 }
