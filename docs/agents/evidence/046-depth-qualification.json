@@ -157,5 +157,78 @@
     "declared_tradeoff": "Non-strict refinement retains >=90% truth-supported points and p50<=1.25*baseline+0.15px. Conservative strict profiles retain >=60% and >=1000 truth points; p50<=1.10*baseline+0.05px,p90<=0.95*baseline+0.10px. All profiles retain absolute stereo gates. Gates declared before strict/normal admission; wall times observational under shared cloud CPU.",
     "calibration_caveat": "Historical fixture used cx*scale,cy*scale on its first OpenCV resize; superseded by pixel-center-preserving calibration below. Retained as historical execution evidence, not current calibrated qualification."
   },
-  "qualification_fixture_revision": "Pixel-center-preserving initial OpenCV resize; native depth source and all accuracy/retention thresholds unchanged."
+  "qualification_fixture_revision": "Pixel-center-preserving initial OpenCV resize; native depth source and all accuracy/retention thresholds unchanged.",
+  "optional_robust_local_objective_correction": {
+    "source_sha": "eb4a8df050a5b55a713ad7a2f353700a6a181e65",
+    "native_artifact_sha256": "27d7c639ddbdd0732aab2ef8d39f8c9100d6729f2be72e00bf3b7c03feb019c6",
+    "base_native_artifact_sha256": "95d2cd99cffdb8c66002ecabc62c82e69c5a0cd7e9c06e603096f6a360be80cf",
+    "provider_contract": "048 matching::aggregate: valid-source median when robust=true, best source when false; <=7 peers",
+    "fixture": "Four independently rendered calibrated pinhole photographs, three matching depth5 and one nearby photometric outlier; no solver truth/prior buffers",
+    "before": {
+      "actual_median_objective_comparisons": 437,
+      "worsened_pixels": 104,
+      "maximum_cost_increase": 0.00402232
+    },
+    "after": {
+      "actual_median_objective_comparisons": 437,
+      "worsened_pixels": 0,
+      "improved_pixels": 374,
+      "maximum_cost_increase": 0
+    },
+    "cache_identity": "Append |robust-local-objective-v2 only when robustSourceAggregation && localRefinementIterations>0. Every robust=false canonical byte remains unchanged.",
+    "cross_version_cache_and_uncached_parity": [
+      {
+        "mode": 0,
+        "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-0",
+        "before": "/tmp/rf046-objective-parity-cix5jkv4/before-0.bin",
+        "before_counters": "mode=0 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+        "after_counters": "mode=0 tiles=60 resumedTiles=0 resumedMaps=4 recomputedTiles=0",
+        "map_confidence_bytes_identical": true,
+        "geometry_support_json_identical": true,
+        "before_maps_sha256": "c717c4b1e7a7ac28f7459fc19a925149e2ae1f5981e04e9bd30be964c4536bbc",
+        "after_maps_sha256": "c717c4b1e7a7ac28f7459fc19a925149e2ae1f5981e04e9bd30be964c4536bbc",
+        "fresh_recomputed_all_bytes_identical": true,
+        "fresh_recomputed_counters": "mode=0 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+        "fresh_full_capture_sha256": "c7ad17c2c4babe8cbc75159aa3d12b560e0fc3d626bbc721b802ab8e09024f86"
+      },
+      {
+        "mode": 1,
+        "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-1",
+        "before": "/tmp/rf046-objective-parity-cix5jkv4/before-1.bin",
+        "before_counters": "mode=1 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+        "after_counters": "mode=1 tiles=60 resumedTiles=60 resumedMaps=0 recomputedTiles=0",
+        "map_confidence_bytes_identical": true,
+        "geometry_support_json_identical": true,
+        "before_maps_sha256": "744086409b1154eb196fe5f0acb1cdf774be0141d674cb212696f7a63191684d",
+        "after_maps_sha256": "744086409b1154eb196fe5f0acb1cdf774be0141d674cb212696f7a63191684d",
+        "fresh_recomputed_all_bytes_identical": true,
+        "fresh_recomputed_counters": "mode=1 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+        "fresh_full_capture_sha256": "4d2e4c34f0ee7f493502cbd478be87c23b76501365efd8aad96d81e3759c7101"
+      },
+      {
+        "mode": 2,
+        "cache": "/tmp/rf046-objective-parity-cix5jkv4/cache-2",
+        "before": "/tmp/rf046-objective-parity-cix5jkv4/before-2.bin",
+        "before_counters": "mode=2 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+        "after_counters": "mode=2 tiles=60 resumedTiles=0 resumedMaps=0 recomputedTiles=60",
+        "map_confidence_bytes_identical": false,
+        "geometry_support_json_identical": false,
+        "before_maps_sha256": "6f402da125905943b9765288cfcf0d7b7920bff852453f80cc3291ce961c5a52",
+        "after_maps_sha256": "e19e8f1db199b925beebdc587b241218f216b7313e4079edaecd60c639a98fee"
+      }
+    ],
+    "checks": [
+      {
+        "command": "ctest --test-dir build/host --output-on-failure",
+        "result": "11PASS3.58s",
+        "log_sha256": "d4ec4cd9a8c79c2cbc1bcbbeee48bb04d38c2d338c3a37378b1d14b1abbe80d9"
+      },
+      {
+        "command": "python -m pytest tests/test_agent_046_native.py tests/test_agent_046_refined_real.py -q",
+        "result": "5PASS24.57s",
+        "log_sha256": "2f0c44c0a88b1e14ec03669ddcd8362a70a44c235ee3219f1c5b80438508f7cf"
+      }
+    ],
+    "limitations": "Optional robust=true+local>0 C++ combination corrected; actual003 opt-in robust0/defaults and supported-phone qualification remain unchanged."
+  }
 }
