@@ -43,7 +43,7 @@ struct TexturedSurface {
     double faceCoverage{},medianFacing{};
     std::size_t viewSwitchEdgesBefore{}, reassignedFaces{};
     ExposureBalance exposure;
-    std::size_t supportedTexels{},unsupportedTexels{},blendedTexels{};
+    std::size_t supportedTexels{},unsupportedTexels{},blendedTexels{},chartCount{};
     double texelsPerUnit{},atlasUtilization{},meanBlendResidual{};
     bool compactCharts{};
 };
@@ -64,4 +64,12 @@ extern "C" char* rf_textured_surface_json(
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
     const char* mesh_glb_path,const char* mesh_ply_path,
-    const char* textured_glb_path,const char* texture_png_path);
+    const char* textured_glb_path,const char* texture_png_path) noexcept;
+
+// Explicit 2K CPU compact profile, with the same checked buffers and malloc/rf_free ownership.
+extern "C" char* rf_textured_surface_compact_json(const std::uint8_t* depth_rgba,int width,int height,
+    const std::uint8_t* texture_rgba,int texture_width,int texture_height,
+    const double* camera_rows,std::size_t camera_count,
+    double near_depth,double far_depth,int depth_planes,int pixel_stride,
+    const char* mesh_glb_path,const char* mesh_ply_path,
+    const char* textured_glb_path,const char* texture_png_path) noexcept;

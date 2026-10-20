@@ -156,74 +156,89 @@ TexturedSurface compactAtlas(const SurfaceMesh& mesh,std::span<const DenseView> 
             if(valid){const double imageDoubleArea=std::abs((uv[1].u-uv[0].u)*(uv[2].v-uv[0].v)-(uv[1].v-uv[0].v)*(uv[2].u-uv[0].u));best=std::max(best,std::sqrt(imageDoubleArea/worldDoubleArea));}}
         if(std::isfinite(best)&&best>0)photoDensities.push_back(best);
     }
-    // Do not label upsampled photographs as new detail. Density is capped by
-    // independently projected source pixel area in the same arbitrary frame.
     if(!photoDensities.empty()){auto middle=photoDensities.begin()+photoDensities.size()/2;std::nth_element(photoDensities.begin(),middle,photoDensities.end());chartSettings.requestedTexelsPerUnit=std::min(chartSettings.requestedTexelsPerUnit,*middle);}
-
     const auto layout=layoutSurfaceCharts(mesh,chartSettings);
     TexturedSurface result;result.compactCharts=true;result.inputTriangles=mesh.triangles.size();result.exposure=exposure;
-    result.sourceTriangleCounts.assign(photos.size(),0);result.texelsPerUnit=layout.texelsPerUnit;
+    result.sourceTriangleCounts.assign(photos.size(),0);result.texelsPerUnit=layout.texelsPerUnit;result.chartCount=layout.groups.size();
     int usedWidth=1,usedHeight=1;
-    for(const auto& c:layout.charts){usedWidth=std::max(usedWidth,c.x+c.width);usedHeight=std::max(usedHeight,c.y+c.height);}
+    for(const auto& g:layout.groups){usedWidth=std::max(usedWidth,g.x+g.width);usedHeight=std::max(usedHeight,g.y+g.height);}
     result.atlasWidth=usedWidth;result.atlasHeight=usedHeight;
     if(static_cast<std::size_t>(usedWidth)*usedHeight>4500000)throw Error("Compact atlas exceeds active budget");
     result.atlasRgba.assign(static_cast<std::size_t>(usedWidth)*usedHeight*4,0);
-    progress::begin(progress::Stage::Texture,0,0,layout.charts.size());
-    for(const auto& chart:layout.charts){
-        cancellation::checkpoint();const auto face=chart.sourceFace;const auto& tri=mesh.triangles[face];
-        const std::array<std::uint32_t,3> ids{tri.a,tri.b,tri.c};
-        const std::array<Vec3,3> xyz{mesh.vertices[tri.a].xyz,mesh.vertices[tri.b].xyz,mesh.vertices[tri.c].xyz};
-        const auto normalRaw=cross(sub(xyz[1],xyz[0]),sub(xyz[2],xyz[0]));const auto normal=times(normalRaw,1./norm(normalRaw));
-        const auto a=chart.local[0],b=chart.local[1],c=chart.local[2];
-        const double determinant=(b.u-a.u)*(c.v-a.v)-(b.v-a.v)*(c.u-a.u);
-        std::size_t faceTexels=0;std::vector<std::size_t> sourceCounts(photos.size(),0);
+    std::vector<std::size_t> faceTexels(mesh.triangles.size());
+    std::vector<std::array<std::size_t,MAX_DENSE_VIEWS>> faceSources(mesh.triangles.size());
+    struct Location {std::size_t face{};std::array<double,3> bary{};bool valid{},interior{};};
+    auto locate=[&](const UVChartGroup& group,double localX,double localY){
+        Location nearest;double best=INFINITY;
+        for(auto face:group.faces){
+            const auto& chart=layout.charts[face];const auto a=chart.local[0],b=chart.local[1],c=chart.local[2];
+            const double determinant=(b.u-a.u)*(c.v-a.v)-(b.v-a.v)*(c.u-a.u);
+            const double w1=((localX-a.u)*(c.v-a.v)-(localY-a.v)*(c.u-a.u))/determinant;
+            const double w2=((b.u-a.u)*(localY-a.v)-(b.v-a.v)*(localX-a.u))/determinant,w0=1-w1-w2;
+            if(w0>=-1e-10&&w1>=-1e-10&&w2>=-1e-10)return Location{face,{w0,w1,w2},true,true};
+            std::array<double,3> bary{std::max(0.,w0),std::max(0.,w1),std::max(0.,w2)};const double sum=bary[0]+bary[1]+bary[2];for(auto& w:bary)w/=sum;
+            const double px=bary[0]*a.u+bary[1]*b.u+bary[2]*c.u,py=bary[0]*a.v+bary[1]*b.v+bary[2]*c.v;
+            const double distance=std::hypot(px-localX,py-localY);
+            if(distance<best){best=distance;nearest={face,bary,true,false};}
+        }
+        if(best>(settings.gutter+.5)/layout.texelsPerUnit)nearest.valid=false;
+        return nearest;
+    };
+    progress::begin(progress::Stage::Texture,0,0,layout.groups.size());
+    for(std::size_t groupId=0;groupId<layout.groups.size();++groupId){
+        cancellation::checkpoint();const auto& group=layout.groups[groupId];
         auto gather=[&](int x,int y){
-            x=std::clamp(x,0,chart.width-1);y=std::clamp(y,0,chart.height-1);
-            const double localX=(x-chart.padding)/layout.texelsPerUnit,localY=(y-chart.padding)/layout.texelsPerUnit;
-            double w1=((localX-a.u)*(c.v-a.v)-(localY-a.v)*(c.u-a.u))/determinant;
-            double w2=((b.u-a.u)*(localY-a.v)-(b.v-a.v)*(localX-a.u))/determinant;
-            double w0=1-w1-w2;w0=std::max(0.,w0);w1=std::max(0.,w1);w2=std::max(0.,w2);
-            const double sum=w0+w1+w2;w0/=sum;w1/=sum;w2/=sum;
-            const Vec3 world=add(add(times(xyz[0],w0),times(xyz[1],w1)),times(xyz[2],w2));
-            TexelSources texel;texel.chart=face;texel.samples.reserve(photos.size());
+            const double localX=(x-settings.gutter)/layout.texelsPerUnit,localY=(y-settings.gutter)/layout.texelsPerUnit;
+            const auto location=locate(group,localX,localY);TexelSources texel;texel.chart=groupId;
+            if(!location.valid)return texel;
+            const auto& tri=mesh.triangles[location.face];const std::array<std::uint32_t,3> ids{tri.a,tri.b,tri.c};
+            Vec3 world{};for(int i=0;i<3;++i)world=add(world,times(mesh.vertices[ids[i]].xyz,location.bary[i]));
+            const auto raw=cross(sub(mesh.vertices[tri.b].xyz,mesh.vertices[tri.a].xyz),sub(mesh.vertices[tri.c].xyz,mesh.vertices[tri.a].xyz));const auto normal=times(raw,1./norm(raw));
+            texel.samples.reserve(photos.size());
             for(std::size_t cam=0;cam<photos.size();++cam){
                 const auto ray=sub(cameraCenter(photos[cam].pose),world);const double distance=norm(ray);
                 const double facing=distance>1e-12?dot(normal,times(ray,1./distance)):0;if(facing<settings.minimumFacing)continue;
                 TextureProjection projection;if(!projectVisibleTexel(photos[cam],views[cam],maps[cam],world,settings.depthTolerance,projection,settings.depthSampleStride,settings.depthSampleOrigin))continue;
                 std::array<double,3> color{};if(!sampleLinear(photos[cam],{projection.u,projection.v,projection.z},color))continue;
-                texel.samples.push_back({cam,face,color,exposure.gains[cam],facing*facing,true});
+                texel.samples.push_back({cam,groupId,color,exposure.gains[cam],facing*facing,true});
             }
             return texel;
         };
-        for(int tileY=0;tileY<chart.height;tileY+=124)for(int tileX=0;tileX<chart.width;tileX+=124){
-            cancellation::checkpoint();const int tileWidth=std::min(124,chart.width-tileX),tileHeight=std::min(124,chart.height-tileY);
+        for(int tileY=0;tileY<group.height;tileY+=124)for(int tileX=0;tileX<group.width;tileX+=124){
+            cancellation::checkpoint();const int tileWidth=std::min(124,group.width-tileX),tileHeight=std::min(124,group.height-tileY);
             ChartBlendTile tile;tile.width=tileWidth+4;tile.height=tileHeight+4;tile.halo=2;tile.texels.reserve(static_cast<std::size_t>(tile.width)*tile.height);
             for(int y=-2;y<tileHeight+2;++y)for(int x=-2;x<tileWidth+2;++x)tile.texels.push_back(gather(tileX+x,tileY+y));
             const auto baked=blendChartTile(tile);
             for(int y=0;y<tileHeight;++y)for(int x=0;x<tileWidth;++x){
-                const auto& pixel=baked.texels[static_cast<std::size_t>(y)*tileWidth+x];
-                const int atlasX=chart.x+tileX+x,atlasY=chart.y+tileY+y;
+                const auto& pixel=baked.texels[static_cast<std::size_t>(y)*tileWidth+x];const int atlasX=group.x+tileX+x,atlasY=group.y+tileY+y;
                 const auto offset=(static_cast<std::size_t>(atlasY)*usedWidth+atlasX)*4;
                 std::copy(pixel.rgba.begin(),pixel.rgba.end(),result.atlasRgba.begin()+static_cast<std::ptrdiff_t>(offset));
-                const double localX=(tileX+x-chart.padding)/layout.texelsPerUnit,localY=(tileY+y-chart.padding)/layout.texelsPerUnit;
-                const double w1=((localX-a.u)*(c.v-a.v)-(localY-a.v)*(c.u-a.u))/determinant;
-                const double w2=((b.u-a.u)*(localY-a.v)-(b.v-a.v)*(localX-a.u))/determinant;
-                if(w1>=0&&w2>=0&&w1+w2<=1){
-                    if(pixel.rgba[3]){++result.supportedTexels;++faceTexels;if(pixel.acceptedSources>1)++result.blendedTexels;result.meanBlendResidual+=pixel.weightedColorResidual;
-                        for(std::size_t cam=0;cam<photos.size();++cam)if(pixel.sourceMask&(std::uint64_t{1}<<cam))++sourceCounts[cam];}
+                const auto location=locate(group,(tileX+x-settings.gutter)/layout.texelsPerUnit,(tileY+y-settings.gutter)/layout.texelsPerUnit);
+                if(location.valid&&location.interior){
+                    if(pixel.rgba[3]){++result.supportedTexels;++faceTexels[location.face];if(pixel.acceptedSources>1)++result.blendedTexels;result.meanBlendResidual+=pixel.weightedColorResidual;
+                        for(std::size_t cam=0;cam<photos.size();++cam)if(pixel.sourceMask&(std::uint64_t{1}<<cam))++faceSources[location.face][cam];}
                     else ++result.unsupportedTexels;
                 }
             }
         }
-        if(!faceTexels)++result.skippedTriangles;else ++result.sourceTriangleCounts[std::max_element(sourceCounts.begin(),sourceCounts.end())-sourceCounts.begin()];
+        progress::advance(groupId+1);
+    }
+    std::vector<double> supportedFacing;
+    for(std::size_t face=0;face<mesh.triangles.size();++face){
+        if(!faceTexels[face])++result.skippedTriangles;else {
+            const auto camera=std::max_element(faceSources[face].begin(),faceSources[face].begin()+photos.size())-faceSources[face].begin();++result.sourceTriangleCounts[camera];
+            const auto& t=mesh.triangles[face];const auto a=mesh.vertices[t.a].xyz,b=mesh.vertices[t.b].xyz,c=mesh.vertices[t.c].xyz;
+            const auto n=cross(sub(b,a),sub(c,a)),ray=sub(cameraCenter(photos[camera].pose),times(add(add(a,b),c),1./3));
+            supportedFacing.push_back(dot(n,ray)/(norm(n)*norm(ray)));
+        }
+        const auto& chart=layout.charts[face];const auto& tri=mesh.triangles[face];const std::array<std::uint32_t,3> ids{tri.a,tri.b,tri.c};
         if(result.vertices.size()+3>settings.maxUvVertices)throw Error("Compact UV vertex budget exceeded");
         for(int k=0;k<3;++k){result.indices.push_back(static_cast<std::uint32_t>(result.vertices.size()));result.vertices.push_back({ids[k],static_cast<float>(chart.uv[k].u*layout.width/usedWidth),static_cast<float>(chart.uv[k].v*layout.height/usedHeight)});}
-        progress::advance(face+1);
     }
     result.faceCoverage=static_cast<double>(result.inputTriangles-result.skippedTriangles)/result.inputTriangles;
     result.atlasUtilization=static_cast<double>(result.supportedTexels)/(static_cast<double>(usedWidth)*usedHeight);
     if(result.supportedTexels)result.meanBlendResidual/=result.supportedTexels;
-    // Unsupported faces remain in geometry, with transparent unknown texels.
+    if(!supportedFacing.empty()){auto middle=supportedFacing.begin()+supportedFacing.size()/2;std::nth_element(supportedFacing.begin(),middle,supportedFacing.end());result.medianFacing=*middle;}
     if(!result.supportedTexels)throw Error("No supported photographic texels");
     return result;
 }
@@ -267,7 +282,7 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     if (s.balanceColors) result.exposure=measuredBalance(mesh,depthViews,depthMaps,sources,s.depthTolerance);
     if(s.compactCharts)return compactAtlas(mesh,depthViews,depthMaps,sources,s,result.exposure);
     result.inputTriangles=mesh.triangles.size();
-    result.sourceTriangleCounts.assign(sources.size(),0);
+    result.sourceTriangleCounts.assign(sources.size(),0);result.chartCount=sources.size();
     const int columns=sources.size()<=4?2:3;
     const int rows=static_cast<int>((sources.size()+columns-1)/columns);
     const int pitchX=w+2*s.gutter,pitchY=h+2*s.gutter;
@@ -429,18 +444,18 @@ TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
 }
 std::string texturedSurfaceJson(const TexturedSurface& t){
     std::ostringstream o;o.imbue(std::locale::classic());o<<std::setprecision(10);
-    o<<"{\"schema\":10,\"representation\":\"camera_ranked_photographic_atlas\",\"textured\":true,\"watertight\":false,\"scale\":\"arbitrary\","
+    o<<"{\"schema\":10,\"representation\":\""<<(t.compactCharts?"compact_visible_photographic_atlas":"camera_ranked_photographic_atlas")<<"\",\"textured\":true,\"watertight\":false,\"scale\":\"arbitrary\","
      <<"\"atlasWidth\":"<<t.atlasWidth<<",\"atlasHeight\":"<<t.atlasHeight
      <<",\"atlasFormat\":\"image/png\",\"compactCharts\":"<<(t.compactCharts?"true":"false")
      <<",\"supportedTexels\":"<<t.supportedTexels<<",\"unsupportedTexels\":"<<t.unsupportedTexels
-     <<",\"blendedTexels\":"<<t.blendedTexels<<",\"texelsPerArbitraryUnit\":"<<t.texelsPerUnit
+     <<",\"chartCount\":"<<t.chartCount<<",\"blendedTexels\":"<<t.blendedTexels<<",\"texelsPerArbitraryUnit\":"<<t.texelsPerUnit
      <<",\"atlasUtilization\":"<<t.atlasUtilization<<",\"meanBlendResidual\":"<<t.meanBlendResidual
      <<",\"uvVertexCount\":"<<t.vertices.size()
      <<",\"triangleCount\":"<<t.indices.size()/3<<",\"inputTriangles\":"<<t.inputTriangles
      <<",\"skippedTriangles\":"<<t.skippedTriangles
-     <<",\"viewSwitchEdges\":"<<t.viewSwitchEdges
-     <<",\"viewSwitchEdgesBefore\":"<<t.viewSwitchEdgesBefore
-     <<",\"reassignedFaces\":"<<t.reassignedFaces
+     <<",\"viewSwitchEdges\":"<<(t.compactCharts?"null":std::to_string(t.viewSwitchEdges))
+     <<",\"viewSwitchEdgesBefore\":"<<(t.compactCharts?"null":std::to_string(t.viewSwitchEdgesBefore))
+     <<",\"reassignedFaces\":"<<(t.compactCharts?"null":std::to_string(t.reassignedFaces))
      <<",\"exposurePairs\":"<<t.exposure.supportedPairs
      <<",\"exposureSamples\":"<<t.exposure.acceptedSamples
      <<",\"overlapMedianLogErrorBefore\":"<<t.exposure.medianLogErrorBefore
@@ -526,13 +541,13 @@ void writeTexturedGlb(const SurfaceMesh& m,const TexturedSurface& t,const std::s
 }
 } // namespace rf
 
-extern "C" char* rf_textured_surface_json(
+static char* texturedSurfaceResponse(
     const std::uint8_t* depth_rgba,int width,int height,
     const std::uint8_t* texture_rgba,int texture_width,int texture_height,
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
     const char* mesh_glb_path,const char* mesh_ply_path,
-    const char* textured_glb_path,const char* texture_png_path){
+    const char* textured_glb_path,const char* texture_png_path,bool compactCharts){
     try {
     std::string response;
     auto appendError=[&](std::string_view message){
@@ -573,7 +588,9 @@ extern "C" char* rf_textured_surface_json(
             if(mesh_ply_path&&*mesh_ply_path)rf::writeSurfacePly(mesh,mesh_ply_path);
             response+=",\"mesh\":"+rf::surfaceJson(mesh);
             try{
-                auto baked=rf::bakePhotographicAtlas(mesh,views,dense.maps,sources);
+                rf::TextureSettings textureSettings;textureSettings.compactCharts=compactCharts;
+                textureSettings.depthSampleStride=pixel_stride;textureSettings.depthSampleOrigin=ds.patchRadius+1;
+                auto baked=rf::bakePhotographicAtlas(mesh,views,dense.maps,sources,textureSettings);
                 if(textured_glb_path&&*textured_glb_path)rf::writeTexturedGlb(mesh,baked,textured_glb_path);
                 if(texture_png_path&&*texture_png_path)rf::writeTexturePng(baked,texture_png_path);
                 response+=",\"texture\":"+rf::texturedSurfaceJson(baked);
@@ -586,4 +603,22 @@ extern "C" char* rf_textured_surface_json(
     auto* ret=static_cast<char*>(std::malloc(response.size()+1));if(!ret)return nullptr;
     std::memcpy(ret,response.c_str(),response.size()+1);return ret;
     } catch(...) {return nullptr;}
+}
+
+extern "C" char* rf_textured_surface_json(const std::uint8_t* depth_rgba,int width,int height,
+    const std::uint8_t* texture_rgba,int texture_width,int texture_height,
+    const double* camera_rows,std::size_t camera_count,
+    double near_depth,double far_depth,int depth_planes,int pixel_stride,
+    const char* mesh_glb_path,const char* mesh_ply_path,
+    const char* textured_glb_path,const char* texture_png_path) noexcept {
+    return texturedSurfaceResponse(depth_rgba,width,height,texture_rgba,texture_width,texture_height,camera_rows,camera_count,near_depth,far_depth,depth_planes,pixel_stride,mesh_glb_path,mesh_ply_path,textured_glb_path,texture_png_path,false);
+}
+
+extern "C" char* rf_textured_surface_compact_json(const std::uint8_t* depth_rgba,int width,int height,
+    const std::uint8_t* texture_rgba,int texture_width,int texture_height,
+    const double* camera_rows,std::size_t camera_count,
+    double near_depth,double far_depth,int depth_planes,int pixel_stride,
+    const char* mesh_glb_path,const char* mesh_ply_path,
+    const char* textured_glb_path,const char* texture_png_path) noexcept {
+    return texturedSurfaceResponse(depth_rgba,width,height,texture_rgba,texture_width,texture_height,camera_rows,camera_count,near_depth,far_depth,depth_planes,pixel_stride,mesh_glb_path,mesh_ply_path,textured_glb_path,texture_png_path,true);
 }

@@ -7,6 +7,7 @@
 #include <functional>
 #include <span>
 #include <vector>
+#include <zlib.h>
 namespace rf {
 using PngSink=std::function<void(std::span<const std::uint8_t>)>;
 namespace png_detail {
@@ -26,7 +27,7 @@ inline void chunk(const PngSink& sink,const char* name,std::span<const std::uint
 // RFC1950/1951 stored blocks preserve the existing dependency-free lossless
 // format. At most one <=65535-byte deflate block plus one PNG chunk is retained;
 // there is no full-image filtered or zlib copy. Sink exceptions propagate.
-inline void encodeRgbaPng(int width,int height,std::span<const std::uint8_t> rgba,const PngSink& sink){
+inline void encodeRgbaPngStoredReference(int width,int height,std::span<const std::uint8_t> rgba,const PngSink& sink){
     if(width<1||height<1||width>4096||height>4096||rgba.size()!=static_cast<std::size_t>(width)*height*4||!sink)
         throw Error("Invalid bounded PNG input");
     cancellation::checkpoint();const std::array<std::uint8_t,8> magic{137,80,78,71,13,10,26,10};sink(magic);
@@ -44,4 +45,38 @@ inline void encodeRgbaPng(int width,int height,std::span<const std::uint8_t> rgb
     }
     std::vector<std::uint8_t> checksum;png_detail::big(checksum,(b<<16)|a);png_detail::chunk(sink,"IDAT",checksum);png_detail::chunk(sink,"IEND",{});
 }
+// Production encoder: platform/distro zlib, standard lossless PNG filters and
+// a bounded row plus 32KiB output chunk. No full filtered-image/zlib copy.
+inline void encodeRgbaPng(int width,int height,std::span<const std::uint8_t> rgba,const PngSink& sink){
+    if(width<1||height<1||width>4096||height>4096||rgba.size()!=static_cast<std::size_t>(width)*height*4||!sink)
+        throw Error("Invalid bounded PNG input");
+    struct Deflater {
+        z_stream stream{};
+        Deflater(){if(deflateInit(&stream,Z_DEFAULT_COMPRESSION)!=Z_OK)throw Error("PNG zlib initialization failed");}
+        ~Deflater(){deflateEnd(&stream);}
+        Deflater(const Deflater&)=delete;Deflater& operator=(const Deflater&)=delete;
+    } deflater;
+    cancellation::checkpoint();const std::array<std::uint8_t,8> magic{137,80,78,71,13,10,26,10};sink(magic);
+    std::vector<std::uint8_t> header;png_detail::big(header,width);png_detail::big(header,height);header.insert(header.end(),{8,6,0,0,0});png_detail::chunk(sink,"IHDR",header);
+    std::array<std::uint8_t,32768> output{};
+    auto pump=[&](int flush){
+        int status=Z_OK;
+        do {
+            cancellation::checkpoint();deflater.stream.next_out=output.data();deflater.stream.avail_out=output.size();
+            status=deflate(&deflater.stream,flush);
+            if(status==Z_BUF_ERROR&&flush==Z_NO_FLUSH&&deflater.stream.avail_in==0)return;
+            if(status!=Z_OK&&status!=Z_STREAM_END)throw Error("PNG compression failed");
+            const auto produced=output.size()-deflater.stream.avail_out;
+            if(produced)png_detail::chunk(sink,"IDAT",std::span<const std::uint8_t>(output).first(produced));
+        }while(deflater.stream.avail_in||deflater.stream.avail_out==0||(flush==Z_FINISH&&status!=Z_STREAM_END));
+    };
+    const std::size_t rowBytes=static_cast<std::size_t>(width)*4;
+    std::vector<std::uint8_t> row(rowBytes+1);row[0]=0;
+    for(int y=0;y<height;++y){
+        cancellation::checkpoint();std::copy_n(rgba.data()+static_cast<std::size_t>(y)*rowBytes,rowBytes,row.data()+1);
+        deflater.stream.next_in=row.data();deflater.stream.avail_in=static_cast<uInt>(row.size());pump(Z_NO_FLUSH);
+    }
+    deflater.stream.next_in=nullptr;deflater.stream.avail_in=0;pump(Z_FINISH);png_detail::chunk(sink,"IEND",{});
+}
+
 }
