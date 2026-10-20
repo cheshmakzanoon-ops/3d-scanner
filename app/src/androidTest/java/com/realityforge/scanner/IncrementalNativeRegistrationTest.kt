@@ -42,6 +42,9 @@ class IncrementalNativeRegistrationTest {
         }
         val anchor0=RegisteredFrame(0,templates[0])
         val anchor1=RegisteredFrame(1,templates[1].copy(translation=doubleArrayOf(-.45,0.0,0.0)))
+        val token=NativeCore.beginReconstruction()
+        try {
+        val geometry=NativeFrontierGeometry.forOperation(token)
         val matchCalls=mutableSetOf<Pair<Int,Int>>()
         val matcher:suspend (Int,Int)->FeaturePairs = { a,b ->
                 matchCalls.add(a to b)
@@ -54,10 +57,10 @@ class IncrementalNativeRegistrationTest {
         var checkpoint:com.realityforge.scanner.engine.registration.RegistrationFrontier?=null
         val photoIds=physicalOrder.map {"synthetic-physical-$it"}
         val result=IncrementalRegistration.grow(templates,listOf(anchor0,anchor1),matcher,
-            NativeFrontierGeometry::triangulate,NativeFrontierGeometry::register,photoIds=photoIds,checkpoint={checkpoint=it})
+            geometry.triangulate,geometry.register,photoIds=photoIds,checkpoint={checkpoint=it})
         val persisted=com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(requireNotNull(checkpoint).encode())
         val resumed=IncrementalRegistration.grow(templates,listOf(anchor0,anchor1),matcher,
-            NativeFrontierGeometry::triangulate,NativeFrontierGeometry::register,photoIds=photoIds,resume=persisted)
+            geometry.triangulate,geometry.register,photoIds=photoIds,resume=persisted)
         assertEquals(result.cameras.map {it.photo},resumed.cameras.map {it.photo})
         assertEquals(result.unregistered,resumed.unregistered)
         for(i in result.cameras.indices){assertArrayEquals(result.cameras[i].view.translation,resumed.cameras[i].view.translation,0.0)}
@@ -79,5 +82,6 @@ class IncrementalNativeRegistrationTest {
         }
         assertTrue(matchCalls.isNotEmpty())
         println("M16 analytical visibility-chain: cameras=${result.cameras.size}, disconnected=${result.unregistered.size}, maxTranslationError=$maxTranslationError; not a physical scan")
+        } finally { assertTrue(NativeCore.finishReconstruction(token)) }
     }
 }

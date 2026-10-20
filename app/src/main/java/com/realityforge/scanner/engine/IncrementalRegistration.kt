@@ -19,7 +19,8 @@ internal data class FeaturePairs(val first: IntArray, val second: IntArray) {
     fun reversed() = FeaturePairs(second, first)
 }
 internal data class RegisteredFrame(val photo: Int, val view: SparseView)
-internal data class FrontierPoint(val track: Int, val xyz: DoubleArray)
+internal data class FrontierPoint(val track: Int, val xyz: DoubleArray,
+    val supportingCameras: List<Int>? = null, val angularCondition: Double? = null)
 internal data class FrontierConditioning(val model:String,val worldPlanarityRatio:Double,val hypotheses:Int) {
     init { require(model in setOf("normalized_dlt","calibrated_plane_homography") && worldPlanarityRatio.isFinite() && worldPlanarityRatio in 0.0..1.0 && hypotheses in 1..450) }
 }
@@ -185,6 +186,7 @@ internal object IncrementalRegistration {
             val landmarks=points.mapNotNull { point ->
                 require(point.track in groups.indices && point.xyz.size==3 && point.xyz.all { it.isFinite() })
                 val supported=groups[point.track].filter { (local,key) ->
+                    if(point.supportingCameras!=null && local !in point.supportingCameras)return@filter false
                     val view=window[local].view
                     val uv=runCatching { view.normalized(key) }.getOrNull()
                     uv!=null && projectedError(view,point.xyz,uv)<=threshold*2
