@@ -61,7 +61,7 @@ Scope::~Scope() noexcept {active=previous_;}
 bool load(std::size_t index,DenseDepthMap& map){
     if(!active)return false;
     cancellation::checkpoint();
-    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
+    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32||map.width>640||map.height>640)return false;
     const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
     if(count>MAX_PIXELS||HEADER+count*8>active->byteBudget_)return false;
     const auto file=pathFor(*active,index);
@@ -96,7 +96,7 @@ bool load(std::size_t index,DenseDepthMap& map){
 bool store(std::size_t index,const DenseDepthMap& map){
     if(!active)return false;
     cancellation::checkpoint();
-    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
+    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32||map.width>640||map.height>640)return false;
     const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
     if(count>MAX_PIXELS||HEADER+count*8>active->byteBudget_||map.depth.size()!=count||map.confidence.size()!=count)return false;
     std::vector<std::uint8_t> bytes;
