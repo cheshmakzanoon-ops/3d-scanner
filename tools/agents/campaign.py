@@ -143,7 +143,16 @@ def ownership(root: Path, rows: list[dict], agent: str, base: str, revision: str
     return [p for p in errors if p not in permitted]
 
 
+def receipt_payload(text: str) -> str:
+    text = text.strip()
+    if text.startswith('---\n') and '\n---' in text[4:]:
+        return text[4:].split('\n---', 1)[0]
+    blocks = re.findall(r'^```json\s*\n(.*?)^```\s*$', text, re.M | re.S)
+    return blocks[0] if len(blocks) == 1 else text
+
+
 def receipt_state(text: str) -> str:
+    text = receipt_payload(text)
     try:
         mapping = json.loads(text)
     except json.JSONDecodeError:
@@ -158,6 +167,7 @@ def receipt_state(text: str) -> str:
 
 def receipt_record(text: str) -> dict:
     """Read the documented JSON or compact YAML subset; unknown evidence fails closed."""
+    text = receipt_payload(text)
     try:
         record = json.loads(text)
     except json.JSONDecodeError:
@@ -171,16 +181,28 @@ def receipt_record(text: str) -> dict:
             stop = re.search(r'^(?:[a-z_]+:|#)', tail, re.M)
             return match.group(1) + (tail[:stop.start()] if stop else tail)
         results = []
-        for piece in re.split(r'^\s+- criterion:', block('acceptance_results'), flags=re.M)[1:]:
-            row = {'criterion': piece.splitlines()[0].strip()}
-            for key, value in re.findall(r'^\s+([a-z_]+):\s*(.*)$', piece, re.M):
-                row[key] = value.strip().strip('"\x27')
-            results.append(row)
+        row = None
+        for line in block('acceptance_results').splitlines():
+            first = re.match(r'^\s+- ([a-z_]+):\s*(.*)$', line)
+            field = first or re.match(r'^\s+([a-z_]+):\s*(.*)$', line)
+            if first:
+                row = {}; results.append(row)
+            if field and row is not None:
+                row[field.group(1)] = field.group(2).strip().strip('"\x27')
         record = {'implementation_commits': re.findall(r'\b[0-9a-f]{40}\b', block('implementation_commits')),
                   'acceptance_results': results,
                   'remaining_work': [] if block('remaining_work').strip() == '[]' else ['open'],
                   'external_blockers': [] if block('external_blockers').strip() == '[]' else ['open']}
     return record
+
+
+def acceptance_rows(record: dict) -> list:
+    rows = record.get('acceptance_results')
+    if not isinstance(rows, list):
+        return []
+    defaults = {'command': record.get('command'),
+                'source_sha': record.get('source_sha', record.get('tested_source_sha'))}
+    return [dict(defaults, **row) if isinstance(row, dict) else row for row in rows]
 
 
 def receipt_checks(text: str) -> list[str]:
@@ -190,7 +212,7 @@ def receipt_checks(text: str) -> list[str]:
     if not isinstance(implementations, list) or not implementations or any(
             not isinstance(sha, str) or not re.fullmatch('[0-9a-f]{40}', sha) for sha in implementations):
         errors.append('Missing immutable implementation commits')
-    results = record.get('acceptance_results')
+    results = acceptance_rows(record)
     if not isinstance(results, list) or not results:
         errors.append('Missing acceptance evidence')
         results = []
@@ -214,7 +236,7 @@ def receipt_freshness(root: Path, text: str, agent: str, delivery: str) -> list[
     if receipt_state(text) != 'DONE':
         return []
     errors = []
-    sources = {r.get('source_sha') for r in receipt_record(text).get('acceptance_results', [])
+    sources = {r.get('source_sha') for r in acceptance_rows(receipt_record(text))
                if isinstance(r, dict) and r.get('result') == 'PASS'}
     for source in sources:
         if not isinstance(source, str) or not re.fullmatch('[0-9a-f]{40}', source):

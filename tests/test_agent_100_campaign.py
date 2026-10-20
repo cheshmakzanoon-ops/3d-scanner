@@ -75,6 +75,33 @@ def test_done_needs_actual_source_bound_acceptance_and_no_contradictory_result()
     assert campaign.receipt_checks(json.dumps(record))
 
 
+def test_frontmatter_first_field_order_and_single_json_envelope_are_supported():
+    import json
+    front = '''---
+agent: "098"
+state: DONE
+implementation_commits: ["''' + 'a' * 40 + '''"]
+acceptance_results:
+  - source_sha: "''' + 'a' * 40 + '''"
+    criterion: "runbook current"
+    result: PASS
+    command: "python checker.py"
+remaining_work: []
+external_blockers: []
+---
+# Narrative follows
+'''
+    assert campaign.receipt_state(front) == 'DONE'
+    assert campaign.receipt_checks(front) == []
+    mapping = {'state': 'READY_FOR_INTEGRATION', 'implementation_commits': ['b' * 40],
+               'command': 'python numerical-runner', 'tested_source_sha': 'b' * 40,
+               'acceptance_results': [{'criterion': 'native', 'result': 'PASS'},
+                                      {'criterion': 'Python lifetime', 'result': 'FAIL'}]}
+    fenced = '# Receipt\n\n```json\n' + json.dumps(mapping) + '\n```\n'
+    assert campaign.receipt_state(fenced) == 'READY_FOR_INTEGRATION'
+    assert campaign.receipt_checks(fenced) == []
+
+
 def test_compact_yaml_completion_requires_the_same_evidence():
     text = 'state: DONE\nimplementation_commits: [' + 'b' * 40 + ''']
 acceptance_results:
