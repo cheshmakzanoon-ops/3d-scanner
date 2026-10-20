@@ -55,15 +55,47 @@ class FeatureCache(private val directory:File,private val byteBudget:Long) {
         var temporary:File?=null
         return try {
             val root=root();val target=File(root,key(record.identity))
-            require(!Files.isSymbolicLink(target.toPath()))
-            temporary=File.createTempFile("feature-",".partial",root)
-            FileOutputStream(temporary).use{it.write(bytes);it.fd.sync()}
-            Files.move(temporary.toPath(),target.toPath(),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING)
-            evict(root,target)
-            true
+            withMutationLock(root) {
+                require(!Files.isSymbolicLink(target.toPath()))
+                temporary=File.createTempFile("feature-",".partial",root)
+                FileOutputStream(temporary).use{it.write(bytes);it.fd.sync()}
+                Files.move(requireNotNull(temporary).toPath(),target.toPath(),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING)
+                try { evict(root,target) } catch(failure:Exception) {
+                    // A failed cache transaction cannot keep a new over-budget publication.
+                    target.delete()
+                    throw failure
+                }
+                true
+            }
         }catch(_:Exception){false}finally{temporary?.delete()}
     }
-    @Synchronized fun invalidate(identity:FeatureCacheIdentity):Boolean = try {File(root(),key(identity)).delete()}catch(_:Exception){false}
+    @Synchronized fun invalidate(identity:FeatureCacheIdentity):Boolean = try {
+        val root=root();withMutationLock(root){File(root,key(identity)).delete()}
+    }catch(_:Exception){false}
+    private fun <T> withMutationLock(root:File,block:()->T):T {
+        val stripe=mutationStripes[(root.path.hashCode() and Int.MAX_VALUE)%mutationStripes.size]
+        if(!stripe.tryLock(500,java.util.concurrent.TimeUnit.MILLISECONDS))throw java.io.IOException("Feature cache writer busy")
+        try {
+            val path=File(root,".feature-cache.lock").toPath()
+            require(!Files.isSymbolicLink(path))
+            return java.nio.channels.FileChannel.open(path,java.nio.file.StandardOpenOption.CREATE,java.nio.file.StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS).use{channel->
+                var lease:java.nio.channels.FileLock?=null
+                for(attempt in 0 until 50){
+                    lease=try{channel.tryLock()}catch(_:java.nio.channels.OverlappingFileLockException){null}
+                    if(lease!=null)break
+                    Thread.sleep(10)
+                }
+                val acquired=lease?:throw java.io.IOException("Feature cache process writer busy")
+                acquired.use { block() }
+            }
+        }catch(interrupted:InterruptedException){Thread.currentThread().interrupt();throw interrupted}
+        finally{stripe.unlock()}
+    }
+    companion object {
+        // Bounded same-JVM coordination avoids OverlappingFileLockException across instances;
+        // the reserved NOFOLLOW file lease also serializes cooperating Android processes.
+        private val mutationStripes=Array(64){java.util.concurrent.locks.ReentrantLock()}
+    }
     private fun evict(root:File,retained:File) {
         val files=root.listFiles()?.filter{it.name.matches(Regex("[a-f0-9]{64}\\.rffc")) && Files.isRegularFile(it.toPath(),LinkOption.NOFOLLOW_LINKS)}?:emptyList()
         var bytes=files.sumOf{it.length()}

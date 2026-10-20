@@ -27,6 +27,26 @@ class FeatureCacheTest {
         java.security.MessageDigest.getInstance("SHA-256").digest(bytes.copyOfRange(44,bytes.size)).copyInto(bytes,12)
         assertThrows(IllegalArgumentException::class.java){FeatureCacheFormat.decode(bytes,identity)}
     }
+    @Test fun reservedFileLeasePreventsUncoordinatedPublicationAndInvalidation() {
+        val root=Files.createTempDirectory("features-lease").toFile()
+        try {
+            val cache=FeatureCache(root,1000000);assertTrue(cache.store(record()))
+            val next=identity.copy(originalSha256="c".repeat(64))
+            java.nio.channels.FileChannel.open(File(root,".feature-cache.lock").toPath(),java.nio.file.StandardOpenOption.WRITE).use{channel->
+                channel.lock().use {
+                    val stored=java.util.concurrent.atomic.AtomicReference<Boolean>()
+                    val invalidated=java.util.concurrent.atomic.AtomicReference<Boolean>()
+                    val writer=Thread{stored.set(FeatureCache(root,1000000).store(record(next)));invalidated.set(cache.invalidate(identity))}
+                    writer.start();writer.join(3000);assertFalse(writer.isAlive)
+                    assertEquals(false,stored.get());assertEquals(false,invalidated.get())
+                    assertTrue(cache.load(identity) is FeatureCacheRead.Hit)
+                    assertTrue(cache.load(next) is FeatureCacheRead.Miss)
+                }
+            }
+            assertTrue(cache.store(record(next)))
+            assertTrue(cache.invalidate(identity))
+        }finally{root.deleteRecursively()}
+    }
     @Test fun crossInstanceWritersAndUnavailableStorageRemainSafeMisses() {
         val root=Files.createTempDirectory("features-instances").toFile()
         try {
@@ -34,7 +54,7 @@ class FeatureCacheTest {
             val first=FeatureCache(root,bytes);val second=FeatureCache(root,bytes)
             val next=identity.copy(originalSha256="c".repeat(64))
             val failure=java.util.concurrent.atomic.AtomicReference<Throwable?>()
-            val threads=listOf(Thread{try{repeat(20){first.store(record());first.load(identity)}}catch(t:Throwable){failure.set(t)}},Thread{try{repeat(20){second.store(record(next));second.load(next)}}catch(t:Throwable){failure.set(t)}})
+            val threads=listOf(Thread{try{repeat(100){first.store(record());first.load(identity)}}catch(t:Throwable){failure.set(t)}},Thread{try{repeat(100){second.store(record(next));second.load(next)}}catch(t:Throwable){failure.set(t)}})
             threads.forEach{it.start()};threads.forEach{it.join()};failure.get()?.let{throw it}
             assertTrue(root.listFiles()!!.filter{it.name.endsWith(".rffc")}.sumOf{it.length()}<=bytes)
             val nonDirectory=File(root,"unavailable").apply{writeText("original")}
@@ -63,7 +83,7 @@ class FeatureCacheTest {
         val link=File(root.parentFile,root.name+"-link")
         try {
             val cache=FeatureCache(root,1000000);assertTrue(cache.store(record()))
-            val entry=root.listFiles()!!.single()
+            val entry=root.listFiles()!!.single{it.name.endsWith(".rffc")}
             java.io.RandomAccessFile(entry,"rw").use{it.setLength(4L*1024*1024*1024)}
             assertTrue(cache.load(identity) is FeatureCacheRead.Miss)
             Files.createSymbolicLink(link.toPath(),root.toPath())
