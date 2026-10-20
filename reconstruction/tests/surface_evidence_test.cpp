@@ -17,6 +17,24 @@ int main(){
     check(rf::estimateDepthNeighborhoodNormal(view,map,4,4,1).validity==rf::NormalValidity::Supported);
     map.depth[3*9+3]=3;check(rf::estimateDepthNeighborhoodNormal(view,map,4,4,1).validity==rf::NormalValidity::Discontinuity);
     check(rf::estimateDepthNeighborhoodNormal(view,map,0,0,1).validity==rf::NormalValidity::SparseSupport);
+    // A complete calibrated 75-degree plane has all nine valid depths within
+    // the unchanged eight-percent jump gate. Perspective distances exceed a
+    // frontoparallel pixel-footprint radius; those are still observed neighbors.
+    for(double scale:{.01,1.,100.}){
+        rf::DenseView tilted;tilted.width=tilted.height=64;tilted.fx=tilted.fy=200;tilted.cx=tilted.cy=30;tilted.pose.rotation=rf::identity();
+        rf::DenseDepthMap slanted;slanted.width=slanted.height=64;slanted.depth.assign(4096,0);slanted.confidence.assign(4096,1);
+        const double radians=75*3.14159265358979323846/180.;
+        for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
+            const double depth=5*scale/(1+std::tan(radians)*dx*3/tilted.fx);
+            if(std::abs(depth-5*scale)/(5*scale)>=.08)throw std::runtime_error("tilted fixture exceeded original jump gate");
+            slanted.depth[(30+dy*3)*64+30+dx*3]=static_cast<float>(depth);
+        }
+        const auto normal=rf::estimateDepthNeighborhoodNormal(tilted,slanted,30,30,3);
+        if(normal.validity!=rf::NormalValidity::Supported||normal.supportingObservationIds.size()!=9)throw std::runtime_error("validated slanted neighbors were truncated by a frontoparallel radius");
+        check(normal.uncertainty.conditioning>=.02&&normal.direction.x*-std::sin(radians)+normal.direction.z*-std::cos(radians)>.99999);
+        slanted.depth[27*64+27]=0;check(rf::estimateDepthNeighborhoodNormal(tilted,slanted,30,30,3).validity==rf::NormalValidity::Discontinuity);
+        slanted.depth[27*64+27]=static_cast<float>(6*scale);check(rf::estimateDepthNeighborhoodNormal(tilted,slanted,30,30,3).validity==rf::NormalValidity::Discontinuity);
+    }
     auto curved=plane;for(auto& p:curved)p.position.z+=.1*(p.position.x*p.position.x+p.position.y*p.position.y);auto curvature=rf::estimateObservedNormal(curved,{0,0,2});check(curvature.validity==rf::NormalValidity::Supported&&curvature.direction.z<-.999&&curvature.uncertainty.planeResidual>n.uncertainty.planeResidual);
     auto layers=plane;for(std::size_t i=0;i<layers.size();++i)layers[i].position.z+=i%2?.02:0;check(rf::estimateObservedNormal(layers,{0,0,2}).validity==rf::NormalValidity::Discontinuity);
     auto duplicate=plane;duplicate[1].observationId=duplicate[0].observationId;bool dup=false;try{(void)rf::estimateObservedNormal(duplicate,{0,0,2});}catch(const rf::Error&){dup=true;}check(dup);
