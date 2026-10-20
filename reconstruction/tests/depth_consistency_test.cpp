@@ -42,5 +42,7 @@ int main(){
  assert(!rf::consistency::estimateNormal(camera,sourceMap,1,1,2,1).valid);
  assert(rf::consistency::verifyNormals({},camera.pose,normal,camera.pose).classification==V::Unknown);
  auto invalid=camera;invalid.fx=0;assert(!rf::consistency::estimateNormal(invalid,sourceMap,25,25,2,1).valid);
+ auto enormous=normal;enormous.cameraNormal={1e300,1e300,1e300};assert(rf::consistency::verifyNormals(enormous,camera.pose,normal,camera.pose).classification==V::Unknown);
+ auto invalidPose=camera.pose;invalidPose.rotation[0]=2;assert(rf::consistency::verifyNormals(normal,invalidPose,normal,camera.pose).classification==V::Unknown);
  std::cout<<"continuous interpolation, thin-edge unknown, occlusion and reverse projection checks passed\n";
 }
