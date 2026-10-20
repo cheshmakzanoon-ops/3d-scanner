@@ -353,6 +353,13 @@
       "branch": "agents/093-parallel-branch-ci-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "4f9bc76c42c96f571ba885975b23bd204f148ef3",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
