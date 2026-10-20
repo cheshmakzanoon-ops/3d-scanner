@@ -96,16 +96,6 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
     val exportStore=remember(context) {PendingExportStore(File(context.filesDir,"ui-pending-export/request.v1"))}
     var invalidExport by remember {mutableStateOf(false)}
     var exportAdmission by remember {mutableStateOf(false)}
-    LaunchedEffect(exportStore) {
-        val snapshot=ExportRestoreSnapshot(pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue))
-        val restore=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}}
-        if(PickerCallbackBinding.epochsMatch(snapshot,pendingEpoch,launchEpoch)) invalidExport=restore.isFailure
-        val restored=restore.getOrNull()
-        if(restored!=null && PickerCallbackBinding.mayRestore(snapshot,pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue),exportAdmission)) {
-            val request=PendingRequest(restored.requestId,PendingKind.EXPORT,restored.artifact.projectId,restored.artifact.revision,restored.artifact.artifactKey,restored.option.id)
-            if(PickerCallbackSlots.restore(callbackSlotsValue).permitsRestore(request)) setPending(request)
-        }
-    }
     val staleText = stringResource(R.string.a071_pending_stale)
     val pendingText = stringResource(R.string.a071_picker_busy)
     val drainingText = stringResource(R.string.a071_picker_draining)
@@ -155,6 +145,24 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
     }
     suspend fun clearStored(requestId:String):Boolean = withContext(NonCancellable+Dispatchers.IO) {
         runCatching {exportStore.clear(requestId)}.isSuccess
+    }
+    LaunchedEffect(exportStore) {
+        val snapshot=ExportRestoreSnapshot(pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue))
+        val restore=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}}
+        if(PickerCallbackBinding.epochsMatch(snapshot,pendingEpoch,launchEpoch)) invalidExport=restore.isFailure
+        val restored=restore.getOrNull()
+        if(restored!=null && PickerCallbackBinding.epochsMatch(snapshot,pendingEpoch,launchEpoch)) {
+            val request=PendingRequest(restored.requestId,PendingKind.EXPORT,restored.artifact.projectId,restored.artifact.revision,restored.artifact.artifactKey,restored.option.id)
+            val slots=PickerCallbackSlots.restore(callbackSlotsValue)
+            val terminal=slots.terminalExport(request)
+            if(terminal!=null) {
+                // Death may precede callback-finally cleanup. Retire only the saved terminal origin;
+                // a mismatched durable request and any newer pending request remain untouched.
+                clearPending(terminal)
+                model.cancelPendingRequest(terminal.requestId)
+                if(!clearStored(terminal.requestId)) model.notice.value=unconfirmedText
+            } else if(PickerCallbackBinding.mayRestore(snapshot,pendingEpoch,launchEpoch,PendingRequest.restore(pendingValue),exportAdmission) && slots.permitsRestore(request)) setPending(request)
+        }
     }
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         takeCallback(PendingKind.IMPORT)?.let {slot->consume(slot)?.let {model.completeImport(it.requestId,uris)}}

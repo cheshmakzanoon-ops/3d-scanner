@@ -13,6 +13,12 @@ class PickerCallbackSlots private constructor(
 ) {
     val awaitingCancelledResult: Boolean get() = blocked || slots.values.any { it.cancelled }
     fun canLaunch(kind: PendingKind): Boolean = channel(kind)?.let { !blocked && it !in slots } ?: true
+    /** Only an exactly matching saved terminal origin may release a restored legacy C1 intent. */
+    fun terminalExport(request: PendingRequest): PendingRequest? = when {
+        blocked || request.kind != PendingKind.EXPORT -> null
+        consumedExport == request -> consumedExport
+        else -> slots[PickerChannel.EXPORT]?.takeIf { it.cancelled && it.request == request }?.request
+    }
     fun permitsRestore(request: PendingRequest): Boolean {
         if (blocked || consumedExport?.requestId == request.requestId) return false
         val channel = channel(request.kind) ?: return false

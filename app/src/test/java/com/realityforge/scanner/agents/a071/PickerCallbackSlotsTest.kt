@@ -197,6 +197,31 @@ class PickerCallbackSlotsTest {
         assertTrue(afterArchive.permitsRestore(b))
         assertFalse(afterArchive.launchFailed(b.requestId).permitsRestore(a))
     }
+    @Test fun restoredTerminalExportReleasesItsActualC1AdmissionAndPreservesOtherStoredRequests() = temporary {store,file->
+        for(cancelled in listOf(false,true)) {
+            val original=OperationCoordinator()
+            val bound=requireNotNull(original.bindArtifact(projectA,1,"asset-${projectA.revision}",projectA.revision,"json"))
+            val a=ui(bound);store.save(typed(a))
+            val launched=PickerCallbackSlots.empty().launched(a)
+            val terminalSlots=if(cancelled) launched.cancel(a.requestId) else launched.take(PendingKind.EXPORT).second
+            // Death occurs before cancellation/finally: the persisted001 codec still contains A.
+            val restored=OperationCoordinator().apply {restorePending(listOf(BoundExternalRequestCodec.decode(BoundExternalRequestCodec.encode(bound))))}
+            val slots=PickerCallbackSlots.restore(terminalSlots.encode())
+            assertEquals(a.requestId,restored.pendingRequests().single().requestId.value)
+            val disk=store.restore()!!
+            val recovered=PendingRequest(disk.requestId,PendingKind.EXPORT,disk.artifact.projectId,disk.artifact.revision,disk.artifact.artifactKey,disk.option.id)
+            val terminal=requireNotNull(slots.terminalExport(recovered))
+            restored.cancelPending(RequestId(terminal.requestId));store.clear(terminal.requestId)
+            assertNull(store.restore());assertTrue(restored.pendingRequests().isEmpty())
+            val b=artifact(restored,projectB) // Admission is released without replaying the consumed result.
+            store.save(typed(b));val bytes=file.readBytes()
+            assertNull(slots.terminalExport(b));assertArrayEquals(bytes,file.readBytes())
+            assertEquals(b.requestId,restored.pendingRequests().single().requestId.value)
+            for(changed in listOf(a.copy(projectId=projectB.projectId),a.copy(revision=a.revision+1),
+                a.copy(artifactKey="other"),a.copy(extension="glb"))) assertNull(slots.terminalExport(changed))
+            store.clear(b.requestId)
+        }
+    }
     @Test fun restoreRequiresAnUncancelledMatchingSlotOrNoLaunchYet() {
         val first=OperationCoordinator();val a=artifact(first)
         val other=OperationCoordinator();val b=artifact(other,projectB)
