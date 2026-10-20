@@ -1,0 +1,19 @@
+<resources>
+    <string name="rf_message_failed">The operation could not finish. Your original photographs are unchanged.</string>
+    <string name="rf_message_invalid_input">Check the selected photographs and settings, then try again.</string>
+    <string name="rf_message_storage_full">Free space on this device before trying again. Keep your original photographs.</string>
+    <string name="rf_message_interrupted">Processing was interrupted. Reopen this project to check available results and retry.</string>
+    <string name="rf_message_stale_result">The project changed. Reconstruct the current photographs before exporting this result.</string>
+    <string name="rf_message_unsupported_asset">This model uses unsupported data. Your saved model is unchanged.</string>
+    <string name="rf_message_no_calibration">Lens calibration is unavailable. Estimated optics do not establish physical scale.</string>
+    <plurals name="rf_photo_count">
+        <item quantity="one">%d photograph</item>
+        <item quantity="other">%d photographs</item>
+    </plurals>
+    <string name="rf_unknown_scale">Arbitrary scale</string>
+    <string name="rf_technical_details">Technical details</string>
+    <string name="rf_action_retry">Try again</string>
+    <string name="rf_action_cancel">Cancel</string>
+    <string name="rf_action_close">Close</string>
+    <string name="rf_action_back">Back</string>
+</resources>
