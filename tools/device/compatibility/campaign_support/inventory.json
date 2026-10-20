@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "role": "092",
+  "archived_at_utc": "2026-10-20T10:49:32.357541+00:00",
+  "reason": "User requested stop and commit all existing authored helper source",
+  "execution_after_stop": "NOT_RUN",
+  "qualification": "No new PASS or source/APK binding is inferred from source archival",
+  "helpers": [
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/emulator-5582/boot-software-emulator.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/emulator-5582/boot-software-emulator.py",
+      "sha256": "41bd6f20a2588c78cab4f85de230e41d93056cee37c34504d07834deedf5108d",
+      "bytes": 5357,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/emulator-5582/reboot-preserving.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/emulator-5582/reboot-preserving.py",
+      "sha256": "c2ce3602588661632f65666767ed6acf09d78874408fccafbb09ffbd623c0ec3",
+      "bytes": 4701,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/emulator-5584/boot-software-emulator.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/emulator-5584/boot-software-emulator.py",
+      "sha256": "312f7032e3b828ad78db6701eb0dc60ee8675e2d87cff30ffd60f955e0ed38d4",
+      "bytes": 5357,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/emulator-probe/boot-software-emulator.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/emulator-probe/boot-software-emulator.py",
+      "sha256": "f5df9d6b5b0ab5415512da09dc9ef4562f27bfe23fd8d90b1861926ca5217ed6",
+      "bytes": 4483,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/emulator-probe/install-isolated-sdk.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/emulator-probe/install-isolated-sdk.py",
+      "sha256": "89e25acc643a6a54dd7adfb5d588cd856236b3fdc0c42f482fa7a61b90f25be1",
+      "bytes": 1485,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/emulator-runtime/boot-software-emulator.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/emulator-runtime/boot-software-emulator.py",
+      "sha256": "58b5fcd476edf984a912ac33521644bdaac1220e00c63dda1d1c56d9ee5bd0e1",
+      "bytes": 4847,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/reboot-after-provider-watchdog.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/reboot-after-provider-watchdog.py",
+      "sha256": "2f4e60a1831e9061b8f2a8524d99acf28ef8e65afe56fff6a149b840d62f4dab",
+      "bytes": 2993,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/run-final-debug-on-5580.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/run-final-debug-on-5580.py",
+      "sha256": "9674c6b5fd8229f2decc7e5c83cd176875f445118954bf1306a9a8ebc2a92b1d",
+      "bytes": 4531,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/evidence/092/run-final-small-contracts-on-5580.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/evidence/run-final-small-contracts-on-5580.py",
+      "sha256": "97494145a46b6df0ff2ebbb53d2b0d66588e5fb2012050c029c12e8a384f63db",
+      "bytes": 6040,
+      "preservation": "Exact historical source bytes; no new execution or verification claim"
+    },
+    {
+      "source_absolute": "/workspace/campaign/finish_device_receipt.py",
+      "archived_relative": "tools/device/compatibility/campaign_support/coordinator/finish_device_receipt.py",
+      "sha256": "aaad55fa409f6b78cdf923fa3de27117a45189fd6f5d13514eb34a54c3021e75",
+      "bytes": 6039,
+      "preservation": "Exact historical prepared receipt generator; obsolete counts/provider paths are superseded by committed receipts; DO NOT RUN"
+    }
+  ],
+  "excluded": [
+    {
+      "source": "/workspace/campaign/evidence/092/emulator-probe-readonly/container-launch.py",
+      "reason": "Downloaded third-party AOSP container sample; read-only inspection only, not campaign-authored helper"
+    }
+  ]
+}
