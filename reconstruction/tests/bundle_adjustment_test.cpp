@@ -161,5 +161,59 @@ int main(){
         char* e=rf_bundle_adjust_json(nullptr,250,nullptr,16,nullptr,32,.003,2);
         require(e!=nullptr,"Invalid C request did not return error");rf_free(e);
     });
+    test("intrinsic groups recover known Brown calibration and preserve withheld projections",[]{
+        rf::IntrinsicModel truth;truth.width=1920;truth.height=1080;truth.lensCropIdentity="synthetic-diverse-camera";truth.parameters={1300,1260,950,530,-.09,.02,.001,-.001,.002};
+        auto initial=truth;initial.measured=false;initial.parameters[0]-=35;initial.parameters[1]+=30;initial.parameters[2]+=4;initial.parameters[3]-=3;initial.parameters[4]+=.025;
+        for(int k=0;k<5;++k)initial.refinable[k]=true;
+        rf::IntrinsicPrior prior;prior.centre=initial.parameters;prior.sigma={200,200,50,50,.5,.5,.05,.05,.5};prior.lower={500,500,0,0,-1,-1,-.1,-.1,-1};prior.upper={3000,3000,1920,1080,1,1,.1,.1,1};
+        std::vector<rf::IntrinsicMeasurement> observations;
+        for(int i=0;i<220;++i){const rf::Vec3 q{(i%19-9)*.22,(i%13-6)*.17,3.+(i%11)*.19};
+            observations.push_back({q,rf::projectIntrinsic(truth,{q.x/q.z,q.y/q.z}).pixel});}
+        const auto fit=rf::refineIntrinsicGroup(initial,prior,{6,observations.size(),.7,1.8},observations,20);
+        require(fit.acceptedSteps>0&&fit.normalizedCostAfter<fit.normalizedCostBefore*.01,"Intrinsic fit did not improve");
+        require(std::abs(fit.model.parameters[0]-truth.parameters[0])<.1,"Known focal length not recovered");
+        const auto a=rf::projectIntrinsic(truth,{.43,-.21}).pixel,b=rf::projectIntrinsic(fit.model,{.43,-.21}).pixel;
+        require(std::hypot(a.x-b.x,a.y-b.y)<.03,"Withheld projection overfit");
+        const auto weak=rf::refineIntrinsicGroup(initial,prior,{6,observations.size(),.7,1.01},observations);
+        require(weak.model.parameters==initial.parameters,"Planar low-information calibration moved");
+    });
+    test("versioned pixel bundle consumes fixed intrinsic groups without changing calibration",[]{
+        auto s=scene();rf::BundleProblem problem;problem.cameras=s.initial;problem.seeds=s.seeds;
+        rf::IntrinsicModel camera;camera.width=1920;camera.height=1080;camera.lensCropIdentity="measured-calibration";camera.parameters={1300,1270,950,530,0,0,0,0,0};
+        problem.intrinsicGroups.push_back({camera,{},{}});problem.cameraIntrinsicGroups.assign(s.initial.size(),0);
+        for(const auto& o:s.observations)problem.observations.push_back({o.track,o.camera,rf::projectIntrinsic(camera,o.image).pixel,o.color});
+        const auto result=rf::bundleAdjustProblem(problem,{.025,18});
+        require(result.intrinsics[0].parameters==camera.parameters,"Measured profile changed");
+        require(result.geometry.robustCostAfter<result.geometry.robustCostBefore,"Pixel bundle geometry did not improve");
+        problem.schema=999;rejects([&]{rf::bundleAdjustProblem(problem);});
+    });
+    test("verified circular revisit corrects withheld geometry without publishing failed loops",[]{
+        rf::BundleProblem p;rf::IntrinsicModel lens;lens.width=1200;lens.height=900;lens.lensCropIdentity="synthetic-circular-fixed";lens.parameters={900,910,599.5,449.5,0,0,0,0,0};
+        p.intrinsicGroups.push_back({lens,{},{}});std::vector<rf::ViewPose> truth;
+        for(int i=0;i<8;++i){const double angle=i*6.1/7,co=std::cos(angle),si=std::sin(angle);
+            truth.push_back({{-co,0,si,0,1,0,-si,0,-co},{0,0,4}});}
+        p.cameras=truth;p.cameras.back().translation.x+=.035;p.cameras.back().translation.y-=.022;p.cameraIntrinsicGroups.assign(8,0);
+        rf::LoopProposal proposal;proposal.sourcePhotoId="circle-start";proposal.revisitPhotoId="circle-revisit";proposal.componentId=proposal.revisitComponentId="object-A";proposal.revisitCamera=7;proposal.currentPose=p.cameras[7];
+        for(std::size_t i=0;i<100;++i){const rf::Vec3 xyz{(int(i%10)-4)*.11,(int(i/10)-4)*.12,(int(i%7)-3)*.07};p.seeds.push_back({i,xyz,{120,100,90}});
+            for(std::size_t c=0;c<8;++c){const auto ray=project(truth[c],xyz);p.observations.push_back({i,c,rf::projectIntrinsic(lens,ray).pixel,{120,100,90}});}
+            proposal.landmarks.push_back({i,xyz,project(truth[7],xyz),7});}
+        const auto verified=rf::verifyLoopClosure(proposal);require(verified.accepted,"Circular revisit verification failed");p.loops.push_back(verified.constraint);
+        rf::BundleSettings settings{.025,0};const auto out=rf::bundleAdjustProblem(p,settings);
+        require(out.acceptedLoopCorrections==1,"Verified improving closure not consumed");
+        const rf::Vec3 withheld{.125,-.17,.09};const auto expected=project(truth[7],withheld),before=project(p.cameras[7],withheld),after=project(out.geometry.cameras[7],withheld);
+        require(std::hypot(after.x-expected.x,after.y-expected.y)<std::hypot(before.x-expected.x,before.y-expected.y)*.01,"Withheld circular drift was not improved");
+        require(out.geometry.cameras[0].rotation==truth[0].rotation,"Loop altered world gauge");
+        p.loops[0].schema=999;rejects([&]{rf::bundleAdjustProblem(p,settings);});
+    });
+    test("30-camera bounded exact window remains valid and larger global graphs reject explicitly",[]{
+        std::vector<rf::ViewPose> cameras;std::vector<rf::BundleSeed> points;std::vector<rf::TrackObservation> rows;
+        for(int c=0;c<30;++c)cameras.push_back({rf::identity(),{-c*.1,0,0}});
+        for(std::size_t i=0;i<80;++i){const rf::Vec3 p{(int(i%10)-4)*.1,(int(i/10)-3)*.09,4.+i%7*.1};points.push_back({i,p,{100,120,140}});
+            for(std::size_t c=0;c<cameras.size();++c)rows.push_back({i,c,project(cameras[c],p),{100,120,140}});}
+        rf::BundleSettings cfg{.003,0};cfg.gauge=rf::BundleGauge::PoseAndBaseline;
+        const auto out=rf::bundleAdjust(cameras,points,rows,cfg);require(out.points.size()==80&&out.robustCostAfter<1e-20,"30-camera exact window failed");
+        require(out.estimatedWorkingBytes<cfg.maxWorkingBytes,"30-camera admission exceeded bound");
+        cameras.resize(250,cameras.back());rejects([&]{rf::bundleAdjust(cameras,points,rows,cfg);});
+    });
     std::cout<<passed<<" bundle adjustment cases passed\n";
 }

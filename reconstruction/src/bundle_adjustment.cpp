@@ -11,6 +11,7 @@
 #include <map>
 #include <numeric>
 #include <sstream>
+#include <set>
 #include <vector>
 
 namespace rf {
@@ -276,7 +277,7 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
     std::span<const BundleSeed> initialPoints,std::span<const TrackObservation> inputObservations,
     const BundleSettings& settings){
     if(!std::isfinite(settings.maxReprojectionError)||settings.maxReprojectionError<1e-6||settings.maxReprojectionError>.05||
-       settings.maxIterations<0||settings.maxIterations>25)throw Error("Invalid bundle adjustment settings");
+       settings.maxIterations<0||settings.maxIterations>25||(settings.gauge!=BundleGauge::TwoAnchors&&settings.gauge!=BundleGauge::PoseAndBaseline))throw Error("Invalid bundle adjustment settings");
     cancellation::checkpoint();
     verifyCameras(inputCameras);
     const std::size_t fixed=settings.gauge==BundleGauge::PoseAndBaseline?1:2;
@@ -349,6 +350,7 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
     }
     for(std::size_t c=0;c<out.cameras.size();++c){
         std::vector<double> errors;for(const auto& p:points)for(const auto& o:p.observations)if(o.camera==c)errors.push_back(residual(out.cameras[c],p.seed.xyz,o.image));
+        out.cameraObservationCounts.push_back(errors.size());
         out.medianCameraResiduals.push_back(errors.empty()?0.:median(errors));
     }
     if(out.points.size()<16)throw Error("Too few valid sparse points after joint BA");
@@ -359,9 +361,83 @@ std::array<double,12> bundleCameraJacobian(Vec3 q){
     const double u=q.x/q.z,v=q.y/q.z;
     return {-u*v,1+u*u,-v,1/q.z,0.,-u/q.z,-1-v*v,u*v,u,0.,1/q.z,-v/q.z};
 }
+IntrinsicRefinement refineIntrinsicGroup(const IntrinsicModel& model,const IntrinsicPrior& prior,
+    const IntrinsicEvidence& evidence,std::span<const IntrinsicMeasurement> rows,int iterations) {
+    validateIntrinsicModel(model);
+    if(rows.size()>100000||iterations<0||iterations>25)throw Error("Intrinsic refinement budget exceeded");
+    IntrinsicRefinement out;out.model=model;out.observability=intrinsicObservability(model,evidence);
+    const auto evaluate=[&](const IntrinsicModel& m){double value=1e-6*intrinsicPriorCost(m,prior);
+        for(const auto& o:rows){if(!finite(o.cameraPoint)||o.cameraPoint.z<=1e-8||!std::isfinite(o.pixel.x)||!std::isfinite(o.pixel.y))throw Error("Invalid intrinsic measurement");
+            const auto p=projectIntrinsic(m,{o.cameraPoint.x/o.cameraPoint.z,o.cameraPoint.y/o.cameraPoint.z}).pixel;
+            value+=huber(std::hypot((p.x-o.pixel.x)/model.parameters[0],(p.y-o.pixel.y)/model.parameters[1]),.003);
+        }return value;};
+    out.normalizedCostBefore=evaluate(model);out.normalizedCostAfter=out.normalizedCostBefore;
+    if(out.observability!=IntrinsicObservability::Observable)return out;
+    std::vector<std::size_t> active;for(std::size_t i=0;i<9;++i)if(model.refinable[i])active.push_back(i);
+    const auto n=active.size();
+    for(int iter=0;iter<iterations;++iter){cancellation::checkpoint();std::vector<double> h(n*n),g(n);
+        for(const auto& o:rows){cancellation::checkpoint();const auto p=projectIntrinsic(out.model,{o.cameraPoint.x/o.cameraPoint.z,o.cameraPoint.y/o.cameraPoint.z});
+            const double x=(p.pixel.x-o.pixel.x)/model.parameters[0],y=(p.pixel.y-o.pixel.y)/model.parameters[1],w=huberWeight(std::hypot(x,y),.003);
+            for(std::size_t i=0;i<n;++i){const auto a=active[i];const double jx=p.parameterJacobian[a]/model.parameters[0],jy=p.parameterJacobian[9+a]/model.parameters[1];
+                g[i]+=w*(jx*x+jy*y);
+                for(std::size_t j=0;j<n;++j){const auto b=active[j];h[i*n+j]+=w*(jx*p.parameterJacobian[b]/model.parameters[0]+jy*p.parameterJacobian[9+b]/model.parameters[1]);}}
+        }
+        for(std::size_t i=0;i<n;++i){const auto a=active[i];if(!std::isfinite(prior.sigma[a])||prior.sigma[a]<=0)throw Error("Invalid refinement prior");
+            const double weight=1e-6/(prior.sigma[a]*prior.sigma[a]);h[i*n+i]+=weight+1e-12;g[i]+=weight*(out.model.parameters[a]-prior.centre[a]);g[i]=-g[i];}
+        std::vector<double> delta;if(!solveLinear(h,g,delta,n))break;bool accepted=false;
+        for(double scale=1.;scale>=1./128;scale*=.5){std::array<double,9> update{};for(std::size_t i=0;i<n;++i)update[active[i]]=scale*delta[i];
+            const auto candidate=applyIntrinsicStep(out.model,prior,update,out.observability);const double cost=evaluate(candidate);
+            if(cost<out.normalizedCostAfter-1e-15){out.model=candidate;out.normalizedCostAfter=cost;++out.acceptedSteps;accepted=true;break;}}
+        if(!accepted)break;
+    }
+    return out;
+}
+BundleProblemResult bundleAdjustProblem(const BundleProblem& p,const BundleSettings& settings) {
+    if(p.schema!=1||p.seeds.empty()||p.seeds.size()>20000||p.intrinsicGroups.empty()||p.intrinsicGroups.size()>32||p.cameraIntrinsicGroups.size()!=p.cameras.size()||
+       p.observations.size()>100000||p.loops.size()>64)throw Error("Invalid versioned bundle problem");
+    verifyCameras(p.cameras);
+    for(const auto& group:p.intrinsicGroups)validateIntrinsicModel(group.model);
+    for(auto group:p.cameraIntrinsicGroups)if(group>=p.intrinsicGroups.size())throw Error("Invalid bundle intrinsic group mapping");
+    std::map<std::size_t,BundleSeed> seedMap;for(const auto& s:p.seeds)if(!seedMap.emplace(s.track,s).second)throw Error("Duplicate bundle point identity");
+    BundleProblemResult out;for(const auto& group:p.intrinsicGroups)out.intrinsics.push_back(group.model);
+    const auto normalized=[&](const auto& models){std::vector<TrackObservation> rows;rows.reserve(p.observations.size());
+        for(const auto& o:p.observations){if(o.camera>=p.cameras.size()||!seedMap.contains(o.track))throw Error("Invalid pixel observation identity");
+            rows.push_back({o.track,o.camera,unprojectIntrinsic(models[p.cameraIntrinsicGroups[o.camera]],o.pixel),o.color});}return rows;};
+    auto observations=normalized(out.intrinsics);out.geometry=bundleAdjust(p.cameras,p.seeds,observations,settings);
+    const auto pixelCost=[&](const BundleResult& geometry,const auto& models){auto points=seedMap;for(const auto& point:geometry.points)points[point.seed.track]=point.seed;
+        double cost=0.;for(const auto& o:p.observations){const auto q=cameraPoint(geometry.cameras[o.camera],points.at(o.track).xyz);if(!finite(q)||q.z<=1e-8)return std::numeric_limits<double>::infinity();
+            const auto& model=models[p.cameraIntrinsicGroups[o.camera]];const auto pixel=projectIntrinsic(model,{q.x/q.z,q.y/q.z}).pixel;
+            const auto& initial=p.intrinsicGroups[p.cameraIntrinsicGroups[o.camera]].model;
+            cost+=huber(std::hypot((pixel.x-o.pixel.x)/initial.parameters[0],(pixel.y-o.pixel.y)/initial.parameters[1]),settings.maxReprojectionError);}
+        return cost;};
+    double cost=pixelCost(out.geometry,out.intrinsics);
+    for(const auto& loop:p.loops){cancellation::checkpoint();
+        if(loop.schema!=1||loop.camera<2||loop.camera>=p.cameras.size()||loop.supportingTrackIds.size()<16||loop.inlierFraction<.65||loop.componentId.empty()||
+           loop.sourcePhotoId.empty()||loop.revisitPhotoId.empty()||!std::isfinite(loop.medianNormalizedError)||loop.medianNormalizedError>settings.maxReprojectionError)
+            throw Error("Invalid verified loop constraint");
+        std::set<std::size_t> seen;for(auto id:loop.supportingTrackIds)if(!seedMap.contains(id)||!seen.insert(id).second)throw Error("Unknown or duplicate loop track");
+        auto cameras=out.geometry.cameras;cameras[loop.camera]=loop.correctedPose;
+        std::vector<BundleSeed> seeds;for(const auto& point:out.geometry.points)seeds.push_back(point.seed);
+        auto candidate=bundleAdjust(cameras,seeds,observations,settings);const double value=pixelCost(candidate,out.intrinsics);
+        if(value<cost){cost=value;out.geometry=std::move(candidate);++out.acceptedLoopCorrections;}
+    }
+    for(std::size_t group=0;group<p.intrinsicGroups.size();++group){cancellation::checkpoint();
+        std::map<std::size_t,Vec3> points;for(const auto& point:out.geometry.points)points[point.seed.track]=point.seed.xyz;
+        std::vector<IntrinsicMeasurement> measurements;
+        for(const auto& o:p.observations)if(p.cameraIntrinsicGroups[o.camera]==group&&points.contains(o.track))measurements.push_back({cameraPoint(out.geometry.cameras[o.camera],points.at(o.track)),o.pixel});
+        const auto fit=refineIntrinsicGroup(out.intrinsics[group],p.intrinsicGroups[group].prior,p.intrinsicGroups[group].evidence,measurements);
+        if(!fit.acceptedSteps)continue;
+        auto models=out.intrinsics;models[group]=fit.model;auto revised=normalized(models);
+        std::vector<BundleSeed> seeds;for(const auto& point:out.geometry.points)seeds.push_back(point.seed);
+        auto candidate=bundleAdjust(out.geometry.cameras,seeds,revised,settings);const double value=pixelCost(candidate,models);
+        if(value<=cost){cost=value;out.geometry=std::move(candidate);out.intrinsics=std::move(models);observations=std::move(revised);++out.acceptedIntrinsicGroups;}
+    }
+    return out;
+}
+
 std::string bundleJson(const BundleResult& r){
     std::ostringstream out;out.imbue(std::locale::classic());out<<std::setprecision(14);
-    out<<"{\"schema\":6,\"representation\":\"sparse_points\",\"optimization\":\"coupled_huber_schur_lm\",\"scale\":\"arbitrary\",\"anchorCamerasFixed\":2"
+    out<<"{\"schema\":6,\"representation\":\"sparse_points\",\"optimization\":\"coupled_huber_schur_lm\",\"scale\":\"arbitrary\",\"anchorCamerasFixed\":"<<(r.gauge==BundleGauge::PoseAndBaseline?1:2)
        <<",\"gaugeMode\":\""<<(r.gauge==BundleGauge::PoseAndBaseline?"pose_and_baseline":"two_anchors")<<"\",\"estimatedWorkingBytes\":"<<r.estimatedWorkingBytes<<",\"termination\":\""<<r.termination<<"\""
        <<",\"registeredCameras\":"<<r.cameras.size()<<",\"pointCount\":"<<r.points.size()
        <<",\"inputPoints\":"<<r.inputPoints<<",\"inputObservations\":"<<r.inputObservations
