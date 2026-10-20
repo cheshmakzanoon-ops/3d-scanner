@@ -23,15 +23,19 @@ class FeatureMatcher(val ratio:Double=.67,val blockSize:Int=256) {
         if(first.count<2 || second.count<2)return TentativeMatches(first.photoId,second.photoId,emptyList(),settingsIdentity)
         return first.withDescriptors{a->second.withDescriptors{b->
             validate(a,first.count);validate(b,second.count)
-            val matcher=BFMatcher.create(Core.NORM_L2,false)
+            var matcher:BFMatcher?=null
             val reverse=IntArray(second.count){-1};val out=ArrayList<FeatureCorrespondence>()
             val colors=first.colors()
             fun eachAccepted(query:Mat,train:Mat,accept:(Int,Int)->Unit) {
                 for(start in 0 until query.rows() step blockSize) {
                     checkCancelled()
-                    val end=minOf(start+blockSize,query.rows());val part=query.rowRange(start,end);val rows=ArrayList<MatOfDMatch>()
+                    val end=minOf(start+blockSize,query.rows())
+                    val rows=ArrayList<MatOfDMatch>()
+                    var part:Mat?=null
                     try {
-                        matcher.knnMatch(part,train,rows,2);checkCancelled()
+                        val queryBlock=query.rowRange(start,end)
+                        part=queryBlock
+                        requireNotNull(matcher).knnMatch(queryBlock,train,rows,2);checkCancelled()
                         for(row in rows){
                             val pair=row.toArray()
                             if(pair.size<2)continue
@@ -39,10 +43,11 @@ class FeatureMatcher(val ratio:Double=.67,val blockSize:Int=256) {
                             require(x.queryIdx in 0 until end-start && x.trainIdx in 0 until train.rows())
                             if(x.distance.isFinite() && y.distance.isFinite() && x.distance>=0 && x.distance<ratio*y.distance)accept(start+x.queryIdx,x.trainIdx)
                         }
-                    }finally{rows.forEach{it.release()};part.release()}
+                    }finally{rows.forEach{it.release()};part?.release()}
                 }
             }
             try {
+                matcher=BFMatcher.create(Core.NORM_L2,false)
                 eachAccepted(b,a){j,i->reverse[j]=i}
                 eachAccepted(a,b){i,j->if(reverse[j]==i){
                     val ar=runCatching{first.normalized(i)}.getOrNull()
@@ -51,7 +56,7 @@ class FeatureMatcher(val ratio:Double=.67,val blockSize:Int=256) {
                 }}
                 checkCancelled()
                 TentativeMatches(first.photoId,second.photoId,out,settingsIdentity)
-            }finally{matcher.clear()}
+            }finally{matcher?.clear()}
         }}
     }
     fun verify(tentative:TentativeMatches,thresholdNormalized:Double,cancelled:()->Boolean={false}):GeometricVerification {
