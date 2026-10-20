@@ -34,6 +34,20 @@ class ScreenInteractionTest {
         check(target?.performAction(AccessibilityNodeInfo.ACTION_CLICK)==true)
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
+    @Test fun actualAndroidPreferencesSurviveActivityAndStoreRecreation() {
+        val context=InstrumentationRegistry.getInstrumentation().targetContext
+        val directory=java.io.File(context.filesDir,"a079-synthetic-"+java.util.UUID.randomUUID())
+        val expected=UserPreferences(35.5,DisplayTheme.DARK,1)
+        try {
+            PreferencesStore(directory).save(expected)
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                scenario.recreate()
+                val restored=PreferencesStore(directory).read()
+                assertNull(restored.issue)
+                assertEquals(expected,restored.preferences)
+            }
+        } finally { directory.deleteRecursively() }
+    }
     @Test fun realControlsDispatchBoundActions() {
         val actions=java.util.concurrent.CopyOnWriteArrayList<PreferencesAction>()
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
