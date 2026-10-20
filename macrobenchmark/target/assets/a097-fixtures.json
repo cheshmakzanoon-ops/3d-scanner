@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "fixtures": {
+    "small": {
+      "sha256": "6683eb3040c961d0304d5e824f2d45fb50872839e36fad576163ad020a185c31",
+      "bytes": 16608,
+      "vertices": 289,
+      "triangles": 512,
+      "atlasEdge": 64,
+      "synthetic": true
+    },
+    "large": {
+      "sha256": "26765ff071dc185c9d68c358f3a764361874bde3f25f3cacb7bf015a9cfe4ba4",
+      "bytes": 934752,
+      "vertices": 16641,
+      "triangles": 32768,
+      "atlasEdge": 1024,
+      "synthetic": true
+    }
+  }
+}
