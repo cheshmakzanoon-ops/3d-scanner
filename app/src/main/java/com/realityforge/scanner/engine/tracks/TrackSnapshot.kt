@@ -8,11 +8,12 @@ import java.util.Collections
 internal data class SourceObservation(val photo: String, val keypoint: Int) : Comparable<SourceObservation> {
     init { require(photo.isNotBlank() && '\u0000' !in photo && photo.toByteArray(Charsets.UTF_8).size <= 1024 && photo.toByteArray(Charsets.UTF_8).toString(Charsets.UTF_8)==photo && keypoint in 0..1_000_000) }
     override fun compareTo(other: SourceObservation) = compareValuesBy(this, other, { it.photo }, { it.keypoint })
-    fun identity(): String = digest("observation-v1\u0000$photo\u0000$keypoint".toByteArray(Charsets.UTF_8))
+    private val stableIdentity: String by lazy { digest("observation-v1\u0000$photo\u0000$keypoint".toByteArray(Charsets.UTF_8)) }
+    fun identity(): String = stableIdentity
 }
 internal fun digest(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
-internal class StableTrack(val id: String, observations: List<SourceObservation>) {
-    val observations: List<SourceObservation> = Collections.unmodifiableList(observations.toList())
+internal class StableTrack(val id: String, sourceObservations: List<SourceObservation>) {
+    val observations: List<SourceObservation> = Collections.unmodifiableList(sourceObservations.toList())
     override fun equals(other: Any?) = other is StableTrack && id==other.id && observations==other.observations
     override fun hashCode() = 31*id.hashCode()+observations.hashCode()
     init {
@@ -23,11 +24,11 @@ internal class StableTrack(val id: String, observations: List<SourceObservation>
 }
 /** Every source-observation identity aliases the current canonical track. A merge can
  * change the canonical minimum, but old published identities resolve without recycling. */
-internal class TrackSnapshot(tracks: List<StableTrack>) {
-    val tracks: List<StableTrack> = Collections.unmodifiableList(tracks.toList())
+internal class TrackSnapshot(sourceTracks: List<StableTrack>) {
+    val tracks: List<StableTrack> = Collections.unmodifiableList(sourceTracks.toList())
     override fun equals(other: Any?) = other is TrackSnapshot && tracks==other.tracks
     override fun hashCode() = tracks.hashCode()
-    private val aliases: Map<String,String> by lazy { this.tracks.flatMap { track -> track.observations.map { it.identity() to track.id } }.toMap() }
+    private val aliases: Map<String,String> by lazy { buildMap { for(track in tracks)for(observation in track.observations)put(observation.identity(),track.id) } }
     init { require(tracks.size <= 15000 && tracks.sumOf { it.observations.size } <= 1_000_000)
         require(tracks.sumOf { track -> track.observations.sumOf { it.photo.toByteArray(Charsets.UTF_8).size.toLong()+8 } } <= 60_000_000)
         require(tracks.map { it.id }.distinct().size == tracks.size)
@@ -62,14 +63,20 @@ internal class TrackSnapshot(tracks: List<StableTrack>) {
     }
 }
 /** Compact indices are valid only with these explicit local-to-global mappings. */
-internal class NativeTrackBatch(photoIds: List<String>, trackIds: List<String>, rows: DoubleArray) {
-    val photoIds: List<String> = Collections.unmodifiableList(photoIds.toList())
-    val trackIds: List<String> = Collections.unmodifiableList(trackIds.toList())
-    private val values = rows.copyOf()
+internal class NativeTrackBatch(sourcePhotoIds: List<String>, sourceTrackIds: List<String>, sourceRows: DoubleArray) {
+    val photoIds: List<String> = Collections.unmodifiableList(sourcePhotoIds.toList())
+    val trackIds: List<String> = Collections.unmodifiableList(sourceTrackIds.toList())
+    private val values = sourceRows.copyOf()
     val rows: DoubleArray get() = values.copyOf()
     init { require(photoIds.size in 2..12 && photoIds.distinct().size==photoIds.size && trackIds.size in 1..15000 && trackIds.distinct().size==trackIds.size)
-        require(rows.size%7==0 && rows.size/7 in 2..100000 && rows.all {it.isFinite()})
-        for(i in rows.indices step 7){require(rows[i]>=0 && rows[i]<trackIds.size && rows[i]%1.0==0.0)
-            require(rows[i+1]>=0 && rows[i+1]<photoIds.size && rows[i+1]%1.0==0.0)}
+        require(photoIds.all {it.isNotBlank() && it.toByteArray().size<=1024} && trackIds.all {it.matches(Regex("[0-9a-f]{64}"))})
+        require(values.size%7==0 && values.size/7 in 2..100000 && values.all {it.isFinite()})
+        val support=Array(trackIds.size){mutableSetOf<Int>()}
+        for(i in values.indices step 7){require(values[i]>=0 && values[i]<trackIds.size && values[i]%1.0==0.0)
+            require(values[i+1]>=0 && values[i+1]<photoIds.size && values[i+1]%1.0==0.0)
+            require(kotlin.math.abs(values[i+2])<=10 && kotlin.math.abs(values[i+3])<=10)
+            require((4..6).all {values[i+it] in 0.0..255.0})
+            require(support[values[i].toInt()].add(values[i+1].toInt())) }
+        require(support.all {it.size>=2})
     }
 }

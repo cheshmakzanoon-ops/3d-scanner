@@ -39,8 +39,8 @@ f249696a5581071d385d75491b75e911eff5163b984d6c6a1b411009e2293dec  app/src/main/j
 f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt
 8bf8038aae0a36e779ea3e59a56dd82c5a1c875e1fc1598a61af05b609291d56  app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt
 679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0  app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt
-feadd706778bd92b5ad0a48b9c0476ed6b6609db76960ebcc416b2b95cb49b9a  app/src/main/java/com/realityforge/scanner/engine/registration/RegistrationFrontier.kt
-83be55339d7c2a7fb28006cf3b3d946b4f722534dd1364cc3b4233e11c5beb22  app/src/main/java/com/realityforge/scanner/engine/tracks/TrackSnapshot.kt
+9542ef6751a5692168069cde8d157feb683dfa969b4eabd7e1b50323ca2cd5dc  app/src/main/java/com/realityforge/scanner/engine/registration/RegistrationFrontier.kt
+5b8364c690e998d3907e8d0fd864525be470932734225a164df3b559623a4274  app/src/main/java/com/realityforge/scanner/engine/tracks/TrackSnapshot.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
 f24cd4e037d24f73509924449b8dd55c699c006512262fc2f66e2ea63f4fbb0f  app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt

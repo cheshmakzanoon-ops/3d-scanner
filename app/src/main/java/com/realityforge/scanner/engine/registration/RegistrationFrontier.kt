@@ -6,9 +6,9 @@ import java.security.MessageDigest
 import java.util.Collections
 import kotlin.math.abs
 
-internal class FrontierCamera(val photoId:String,rotation:List<Double>,translation:List<Double>){
- val rotation:List<Double> = Collections.unmodifiableList(rotation.toList())
- val translation:List<Double> = Collections.unmodifiableList(translation.toList())
+internal class FrontierCamera(val photoId:String,sourceRotation:List<Double>,sourceTranslation:List<Double>){
+ val rotation:List<Double> = Collections.unmodifiableList(sourceRotation.toList())
+ val translation:List<Double> = Collections.unmodifiableList(sourceTranslation.toList())
  init {require(photoId.isNotBlank() && photoId.toByteArray().size<=1024 && rotation.size==9 && translation.size==3)
   require(rotation.all {it.isFinite()} && translation.all {it.isFinite()&&abs(it)<100000})
   for(a in 0..2)for(b in 0..2)require(abs((0..2).sumOf {rotation[a*3+it]*rotation[b*3+it]}-if(a==b)1.0 else 0.0)<.01)
@@ -16,23 +16,23 @@ internal class FrontierCamera(val photoId:String,rotation:List<Double>,translati
  }
 }
 /** A checksummed stage checkpoint, never a published completed reconstruction. */
-internal class RegistrationFrontier(val inputIdentity:String,photoIds:List<String>,cameras:List<FrontierCamera>,failureReasons:Map<String,String>, trackSnapshot:ByteArray=ByteArray(0)){
- val photoIds:List<String> = Collections.unmodifiableList(photoIds.toList())
- val cameras:List<FrontierCamera> = Collections.unmodifiableList(cameras.toList())
- val failureReasons:Map<String,String> = Collections.unmodifiableMap(failureReasons.toMap())
- private val sourceTracks=trackSnapshot.copyOf()
+internal class RegistrationFrontier(val inputIdentity:String,sourcePhotoIds:List<String>,sourceCameras:List<FrontierCamera>,sourceFailureReasons:Map<String,String>, sourceTrackSnapshot:ByteArray=ByteArray(0)){
+ val photoIds:List<String> = Collections.unmodifiableList(sourcePhotoIds.toList())
+ val cameras:List<FrontierCamera> = Collections.unmodifiableList(sourceCameras.toList())
+ val failureReasons:Map<String,String> = Collections.unmodifiableMap(sourceFailureReasons.toMap())
+ private val sourceTracks=sourceTrackSnapshot.copyOf()
  val trackSnapshot:ByteArray get()=sourceTracks.copyOf()
  init {require(inputIdentity.matches(Regex("[a-f0-9]{64}")))
   require(photoIds.size in 2..250 && photoIds.distinct().size==photoIds.size && photoIds.all {it.isNotBlank()&&it.toByteArray().size<=1024})
   require(cameras.size in 2..photoIds.size && cameras.map {it.photoId}.distinct().size==cameras.size && cameras.all {it.photoId in photoIds})
   require(failureReasons.size<=250 && failureReasons.all {it.key in photoIds&&it.value.toByteArray().size<=2048})
-  require(trackSnapshot.size<=12_000_000)
-  if(trackSnapshot.isNotEmpty()){val snapshot=TrackSnapshot.decode(trackSnapshot);require(snapshot.tracks.all {t->t.observations.all {o->o.photo in cameras.map {it.photoId}}})}
+  require(sourceTracks.size<=12_000_000)
+  if(sourceTracks.isNotEmpty()){val snapshot=TrackSnapshot.decode(sourceTracks);require(snapshot.tracks.all {t->t.observations.all {o->o.photo in cameras.map {it.photoId}}})}
  }
  fun encode():ByteArray{val bytes=ByteArrayOutputStream();DataOutputStream(bytes).use {o->
   o.writeInt(0x52465246);o.writeInt(2);o.writeUTF(inputIdentity);o.writeInt(photoIds.size);photoIds.forEach {o.writeUTF(it)}
   o.writeInt(cameras.size);for(c in cameras){o.writeUTF(c.photoId);c.rotation.forEach {o.writeDouble(it)};c.translation.forEach {o.writeDouble(it)}}
-  o.writeInt(failureReasons.size);for((id,reason) in failureReasons.toSortedMap()){o.writeUTF(id);o.writeUTF(reason)};o.writeInt(trackSnapshot.size);o.write(trackSnapshot) }
+  o.writeInt(failureReasons.size);for((id,reason) in failureReasons.toSortedMap()){o.writeUTF(id);o.writeUTF(reason)};o.writeInt(sourceTracks.size);o.write(sourceTracks) }
   val payload=bytes.toByteArray();return payload+MessageDigest.getInstance("SHA-256").digest(payload) }
  companion object {
   fun decode(bytes:ByteArray):RegistrationFrontier{require(bytes.size in 64..13_000_000);val payload=bytes.copyOfRange(0,bytes.size-32)
