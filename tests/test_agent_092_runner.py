@@ -60,6 +60,32 @@ def test_missing_screenshot_fails_and_cleanup_is_serial_bound(tmp_path):
     assert commands[-1][-3:] == ['rm', '-f', m.SCREEN]
 
 
+@pytest.mark.parametrize('partial',[b'INSTRUMENTATION_STATUS: class=synthetic.Slow\n', 'INSTRUMENTATION_STATUS: class=synthetic.Slow\n'])
+def test_timeout_preserves_partial_raw_output_without_counts_or_gate_promotion(tmp_path, partial):
+    import hashlib,json,subprocess
+    apk=tmp_path/'candidate.apk';apk.write_bytes(b'synthetic timeout fixture')
+    args=SimpleNamespace(output=tmp_path/'output',app_apk=apk,test_apk=apk,serial='fixture',expect_api=29,expect_abi='x86_64',expect_page_size=4096)
+    commands=[]
+    def execute(cmd):
+        commands.append(cmd)
+        if cmd==['adb','devices','-l']:return 'List of devices attached\nfixture device\n'
+        assert cmd[:3]==['adb','-s','fixture']
+        if 'instrument' in cmd:raise subprocess.TimeoutExpired(cmd,900,output=partial,stderr=b'bounded diagnostic\n')
+        key=' '.join(cmd[4:])
+        if key.startswith('pm path '):return 'package:/data/app/fixture.apk'
+        if key.startswith('sha256sum '):return hashlib.sha256(apk.read_bytes()).hexdigest()+' /data/app/fixture.apk'
+        return {'getprop ro.build.fingerprint':'synthetic timeout fixture','getprop ro.build.version.sdk':'29','getprop ro.product.cpu.abi':'x86_64','getconf PAGESIZE':'4096','getprop ro.kernel.qemu':'1'}.get(key,'')
+    assert m.run(args,execute)==1
+    assert (args.output/'instrumentation.txt').read_bytes()==(partial.encode() if isinstance(partial,str) else partial)
+    assert (args.output/'instrumentation.stderr.txt').read_bytes()==b'bounded diagnostic\n'
+    receipt=json.loads((args.output/'compatibility.json').read_text())
+    assert receipt['status']=='FAIL' and receipt['instrumentationTimedOut'] is True
+    assert 'counts' not in receipt and 'tests' not in receipt
+    assert receipt['runtime16kb']=='NOT_RUN' and receipt['suite']['fullQualification']=='NOT_RUN'
+    assert all(row['status']=='NOT_RUN' for row in receipt['suite']['excludedGates'])
+    assert commands[-1][-3:]==['rm','-f',m.SCREEN]
+
+
 def test_complete_candidate_run_records_actual_runtime16k_and_decoded_screenshot(tmp_path):
     import hashlib,json,struct,zlib
     apk=tmp_path/'candidate.apk';apk.write_bytes(b'synthetic APK input for controller testing')
