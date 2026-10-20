@@ -115,7 +115,7 @@ internal object IncrementalRegistration {
         require(pairBudget in 1..1000000)
         require(initial.map { it.photo }.toSet().size == initial.size &&
             initial.all { it.photo in templates.indices })
-        val digest=MessageDigest.getInstance("SHA-256")
+        val digest=MessageDigest.getInstance("SHA-256");digest.update("registration-frontier-v2".toByteArray())
         for(index in templates.indices.sortedBy {photoIds[it]}){
             digest.update(photoIds[index].toByteArray());digest.update(0.toByte());val view=templates[index]
             digest.update(ByteBuffer.allocate(20).putInt(view.width).putInt(view.height).putDouble(view.focalPixels).putInt(view.colors.size).array())
@@ -127,7 +127,8 @@ internal object IncrementalRegistration {
         val cameras=(resume?.cameras?.map { c -> val photo=photoIds.indexOf(c.photoId);RegisteredFrame(photo,templates[photo].copy(rotation=c.rotation.toDoubleArray(),translation=c.translation.toDoubleArray())) }?:initial).toMutableList()
         for(anchor in initial){val recovered=cameras.firstOrNull {it.photo==anchor.photo};require(recovered!=null && recovered.view.rotation.contentEquals(anchor.view.rotation) && recovered.view.translation.contentEquals(anchor.view.translation)) { "Resume changed anchor frame" }}
         val attempts=ArrayList<RegistrationAttempt>();val failures=(resume?.failureReasons?:emptyMap()).toMutableMap()
-        fun save(){checkpoint(RegistrationFrontier(identity,photoIds.toList(),cameras.map {FrontierCamera(photoIds[it.photo],it.view.rotation.toList(),it.view.translation.toList())},failures.toMap()))}
+        var sourceTracks=resume?.trackSnapshot?:ByteArray(0)
+        fun save(){checkpoint(RegistrationFrontier(identity,photoIds.toList(),cameras.map {FrontierCamera(photoIds[it.photo],it.view.rotation.toList(),it.view.translation.toList())},failures.toMap(),sourceTracks.copyOf()))}
         val cache=object:LinkedHashMap<Pair<Int,Int>,FeaturePairs>(512,.75f,true){override fun removeEldestEntry(eldest:MutableMap.MutableEntry<Pair<Int,Int>,FeaturePairs>)=size>512}
         var evaluations=0
         suspend fun pair(a:Int,b:Int):FeaturePairs{
@@ -152,6 +153,7 @@ internal object IncrementalRegistration {
                 val links=pair(window[a].photo,window[b].photo)
                 for (k in links.first.indices) graph.add(a,links.first[k],b,links.second[k])
             }
+            sourceTracks=graph.stableSnapshot(window.map {photoIds[it.photo]}).encode()
             val groups=graph.snapshot()
             val observations=graph.packedRows()
             if (groups.size<16) break

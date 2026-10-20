@@ -1,5 +1,6 @@
 package com.realityforge.scanner.engine.registration
 
+import com.realityforge.scanner.engine.tracks.TrackSnapshot
 import java.io.*
 import java.security.MessageDigest
 import kotlin.math.abs
@@ -12,22 +13,25 @@ internal data class FrontierCamera(val photoId:String,val rotation:List<Double>,
  }
 }
 /** A checksummed stage checkpoint, never a published completed reconstruction. */
-internal data class RegistrationFrontier(val inputIdentity:String,val photoIds:List<String>,val cameras:List<FrontierCamera>,val failureReasons:Map<String,String>){
+internal data class RegistrationFrontier(val inputIdentity:String,val photoIds:List<String>,val cameras:List<FrontierCamera>,val failureReasons:Map<String,String>, val trackSnapshot:ByteArray=ByteArray(0)){
  init {require(inputIdentity.matches(Regex("[a-f0-9]{64}")))
   require(photoIds.size in 2..250 && photoIds.distinct().size==photoIds.size && photoIds.all {it.isNotBlank()&&it.toByteArray().size<=1024})
   require(cameras.size in 2..photoIds.size && cameras.map {it.photoId}.distinct().size==cameras.size && cameras.all {it.photoId in photoIds})
-  require(failureReasons.size<=250 && failureReasons.all {it.key in photoIds&&it.value.toByteArray().size<=2048}) }
+  require(failureReasons.size<=250 && failureReasons.all {it.key in photoIds&&it.value.toByteArray().size<=2048})
+  require(trackSnapshot.size<=12_000_000)
+  if(trackSnapshot.isNotEmpty()){val snapshot=TrackSnapshot.decode(trackSnapshot);require(snapshot.tracks.all {t->t.observations.all {o->o.photo in cameras.map {it.photoId}}})}
+ }
  fun encode():ByteArray{val bytes=ByteArrayOutputStream();DataOutputStream(bytes).use {o->
-  o.writeInt(0x52465246);o.writeInt(1);o.writeUTF(inputIdentity);o.writeInt(photoIds.size);photoIds.forEach {o.writeUTF(it)}
+  o.writeInt(0x52465246);o.writeInt(2);o.writeUTF(inputIdentity);o.writeInt(photoIds.size);photoIds.forEach {o.writeUTF(it)}
   o.writeInt(cameras.size);for(c in cameras){o.writeUTF(c.photoId);c.rotation.forEach {o.writeDouble(it)};c.translation.forEach {o.writeDouble(it)}}
-  o.writeInt(failureReasons.size);for((id,reason) in failureReasons.toSortedMap()){o.writeUTF(id);o.writeUTF(reason)} }
+  o.writeInt(failureReasons.size);for((id,reason) in failureReasons.toSortedMap()){o.writeUTF(id);o.writeUTF(reason)};o.writeInt(trackSnapshot.size);o.write(trackSnapshot) }
   val payload=bytes.toByteArray();return payload+MessageDigest.getInstance("SHA-256").digest(payload) }
  companion object {
-  fun decode(bytes:ByteArray):RegistrationFrontier{require(bytes.size in 64..1_000_000);val payload=bytes.copyOfRange(0,bytes.size-32)
+  fun decode(bytes:ByteArray):RegistrationFrontier{require(bytes.size in 64..13_000_000);val payload=bytes.copyOfRange(0,bytes.size-32)
    require(MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(payload),bytes.copyOfRange(bytes.size-32,bytes.size)))
-   val i=DataInputStream(ByteArrayInputStream(payload));require(i.readInt()==0x52465246&&i.readInt()==1);val identity=i.readUTF();val n=i.readInt();require(n in 2..250)
+   val i=DataInputStream(ByteArrayInputStream(payload));require(i.readInt()==0x52465246&&i.readInt()==2);val identity=i.readUTF();val n=i.readInt();require(n in 2..250)
    val ids=List(n){i.readUTF()};val c=i.readInt();require(c in 2..n);val cameras=List(c){FrontierCamera(i.readUTF(),List(9){i.readDouble()},List(3){i.readDouble()})}
-   val f=i.readInt();require(f in 0..250);val failures=linkedMapOf<String,String>();repeat(f){val id=i.readUTF();require(id !in failures);failures[id]=i.readUTF()};require(i.available()==0)
-   return RegistrationFrontier(identity,ids,cameras,failures) }
+   val f=i.readInt();require(f in 0..250);val failures=linkedMapOf<String,String>();repeat(f){val id=i.readUTF();require(id !in failures);failures[id]=i.readUTF()};val size=i.readInt();require(size in 0..12_000_000 && size==i.available());val tracks=ByteArray(size);i.readFully(tracks);require(i.available()==0)
+   return RegistrationFrontier(identity,ids,cameras,failures,tracks) }
  }
 }
