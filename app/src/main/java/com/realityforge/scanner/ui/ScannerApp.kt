@@ -302,14 +302,34 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
                         val durableFlow=remember(features.jobStates,project.id,project.revision) {features.jobStates?.invoke(project.id,project.revision)}
                         val durable=durableFlow?.collectAsState(initial=null)?.value
                         val visible=durable?:state
-                        ProcessingScreen(visible,onAction={action->if(durable!=null && features.jobAction!=null) {
-                            scope.launch {features.jobAction.invoke(action)}
-                        } else if(action.identity==state.identity && state.can(action.command)) when(action.command) {
-                            JobCommand.PAUSE -> if(model.scannerState.value.activeOperation?.jobId?.value==action.identity.jobId) model.pause()
-                            JobCommand.RETRY -> if(!model.busy.value && model.selectedId.value==action.identity.projectId && model.projects.value.find {it.id==action.identity.projectId}?.revision==action.identity.revision) model.reconstruct(lastFocal)
-                            JobCommand.OPEN_PREVIOUS -> navigate(AppRoute(Destination.STUDIO,project.id))
-                            else -> Unit
-                        }},modifier=modifier)
+                        ProcessingScreen(visible,onAction={action->
+                            val currentProject=model.projects.value.find {it.id==action.identity.projectId}
+                            if(action.identity!=visible.identity || !visible.can(action.command) ||
+                                model.selectedId.value!=action.identity.projectId || currentProject?.revision!=action.identity.revision) false
+                            else if(durable!=null) features.jobAction?.invoke(action) ?: false
+                            else if(action.identity!=state.identity || !state.can(action.command)) false
+                            else when(action.command) {
+                                JobCommand.PAUSE -> {
+                                    val current=model.scannerState.value.activeOperation
+                                    val currentSource=current?.source
+                                    if(model.busy.value && current?.kind==OperationKind.RECONSTRUCT &&
+                                        current.jobId.value==action.identity.jobId && currentSource?.projectId==action.identity.projectId &&
+                                        currentSource.revision==action.identity.revision) {model.pause();true} else false
+                                }
+                                JobCommand.RETRY -> if(!model.busy.value && currentProject.state in setOf("FAILED","INTERRUPTED")) {
+                                    model.reconstruct(lastFocal)
+                                    model.busy.value // C1 leaves this false when reservation rejects the dispatch.
+                                } else false
+                                JobCommand.OPEN_PREVIOUS -> {
+                                    val currentPreview=model.preview.value
+                                    if(currentProject.resultRevision==currentProject.revision && currentProject.resultKey!=null &&
+                                        currentPreview?.optString("artifactKey")==currentProject.resultKey) {
+                                        navigate(AppRoute(Destination.STUDIO,action.identity.projectId));true
+                                    } else false
+                                }
+                                else -> false
+                            }
+                        },modifier=modifier)
                         }
                     }
                     Destination.STUDIO -> StudioRoute(preview?.takeIf {project.resultRevision==project.revision && project.resultKey==it.optString("artifactKey")},model,modifier,onExport={navigate(AppRoute(Destination.EXPORT,project.id))})
