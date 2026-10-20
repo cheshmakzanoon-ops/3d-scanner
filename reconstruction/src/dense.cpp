@@ -207,7 +207,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         const auto& sources=result.sourceViews[ref];
         // Existing Kotlin identity predates optional refinement/aggregation.
         // Never reuse a legacy checkpoint with altered photometric semantics.
-        const bool checkpointCompatible=!inputs&&settings.localRefinementIterations==0&&!settings.robustSourceAggregation;
+        const bool checkpointCompatible=!inputs&&!settings.referenceMode&&settings.localRefinementIterations==0&&!settings.robustSourceAggregation;
         if(checkpointCompatible&&depth_checkpoint::load(ref,map)){
             for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
                 ++result.sampledPixels;
@@ -234,18 +234,20 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         for(std::size_t tileIndex=0;tileIndex<tilePlan.size();++tileIndex){
          const auto& tile=tilePlan[tileIndex];
          depth_checkpoint::TileKey tileKey{static_cast<std::uint32_t>(ref),static_cast<std::uint32_t>(tileIndex),static_cast<std::uint32_t>(w),static_cast<std::uint32_t>(h),static_cast<std::uint32_t>(tile.x0),static_cast<std::uint32_t>(tile.y0),static_cast<std::uint32_t>(tile.x1-tile.x0),static_cast<std::uint32_t>(tile.y1-tile.y0),static_cast<std::uint32_t>(step),settings.executionVersion,solverIdentity};
-         DenseDepthMap retainedTile;
-         if(!settings.referenceMode&&depth_checkpoint::loadTile(tileKey,retainedTile)){
+         const std::size_t tileSamples=static_cast<std::size_t>((tile.x1-tile.x0+step-1)/step)*((tile.y1-tile.y0+step-1)/step);
+         DenseDepthMap retainedTile;depth_checkpoint::TileLoadStatus cacheStatus=depth_checkpoint::TileLoadStatus::Unavailable;
+         if(!settings.referenceMode&&depth_checkpoint::loadTile(tileKey,retainedTile,&cacheStatus)){
             for(int y=tile.y0;y<tile.y1;++y)for(int x=tile.x0;x<tile.x1;++x){const auto dst=static_cast<std::size_t>(y)*w+x,src=static_cast<std::size_t>(y-tile.y0)*retainedTile.width+x-tile.x0;map.depth[dst]=retainedTile.depth[src];map.confidence[dst]=retainedTile.confidence[src];}
             for(int y=tile.y0;y<tile.y1;y+=step)for(int x=tile.x0;x<tile.x1;x+=step){++result.sampledPixels;if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;}
+            progress::begin(progress::Stage::Depth,ref,tileIndex,tileSamples);progress::advance(tileSamples);
             ++result.resumedDepthTiles;++result.completedTiles;continue;
          }
+         if(cacheStatus==depth_checkpoint::TileLoadStatus::Rejected)++result.rejectedDepthTiles;
          ++result.recomputedDepthTiles;
          auto range=refinement::DepthPrior{settings.nearDepth,settings.farDepth,0,true};
          if(!priorBuckets.empty()){range=refinement::interval(priorBuckets[ref*tilePlan.size()+tileIndex],settings.nearDepth,settings.farDepth);if(!range.conservativeFallback)++result.sparsePriorTiles;}
          for(int k=0;k<settings.depthPlanes;++k){double t=double(k)/(settings.depthPlanes-1);planes[k]=1./((1-t)/range.nearDepth+t/range.farDepth);}
-         const std::size_t tileSamples=static_cast<std::size_t>((tile.x1-tile.x0+step-1)/step)*((tile.y1-tile.y0+step-1)/step);
-         progress::begin(progress::Stage::Depth,ref,result.completedTiles,tileSamples);
+         progress::begin(progress::Stage::Depth,ref,tileIndex,tileSamples);
          std::size_t tileWork=0;
          cancellation::checkpoint();
          for(int y=tile.y0;y<tile.y1;y+=step){
@@ -256,6 +258,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             if(reference.var<18.)continue; // no reliable photometric texture
             std::fill(costs.begin(),costs.end(),2.);
             for(int k=0;k<settings.depthPlanes;++k){
+                if((k&7)==0)cancellation::checkpoint();
                 // A candidate must be supported by another photo, not a single-image guess.
                 std::array<matching::Cost,7> sourceCosts{};
                 for(std::size_t src=0;src<sources.size();++src){
@@ -298,7 +301,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             ++result.photometricPixels;
           }
         }
-         if(!settings.referenceMode){
+         if(!settings.referenceMode&&depth_checkpoint::enabled()){
             DenseDepthMap completed;completed.width=tile.x1-tile.x0;completed.height=tile.y1-tile.y0;completed.depth.resize(static_cast<std::size_t>(completed.width)*completed.height);completed.confidence.resize(completed.depth.size());
             for(int y=tile.y0;y<tile.y1;++y)for(int x=tile.x0;x<tile.x1;++x){const auto src=static_cast<std::size_t>(y)*w+x,dst=static_cast<std::size_t>(y-tile.y0)*completed.width+x-tile.x0;completed.depth[dst]=map.depth[src];completed.confidence[dst]=map.confidence[src];}
             progress::begin(progress::Stage::Checkpoint,ref,tileIndex,1);if(depth_checkpoint::storeTile(tileKey,completed)){++result.writtenDepthTiles;progress::advance(1);}
@@ -411,6 +414,7 @@ std::string denseJson(const DenseResult& result){
     out<<"],\"resumedDepthMaps\":"<<result.resumedDepthMaps
        <<",\"writtenDepthMaps\":"<<result.writtenDepthMaps
        <<",\"resumedDepthTiles\":"<<result.resumedDepthTiles<<",\"recomputedDepthTiles\":"<<result.recomputedDepthTiles<<",\"writtenDepthTiles\":"<<result.writtenDepthTiles
+       <<",\"rejectedDepthTiles\":"<<result.rejectedDepthTiles
        <<",\"coarseDepthMaps\":"<<result.coarseDepthMaps<<",\"propagatedHypotheses\":"<<result.propagatedHypotheses<<",\"sparsePriorTiles\":"<<result.sparsePriorTiles
        <<",\"completedTiles\":"<<result.completedTiles<<",\"totalTiles\":"<<result.totalTiles
        <<",\"admittedWorkingSetBytes\":"<<result.admittedWorkingSetBytes
@@ -469,7 +473,7 @@ extern "C" char* rf_dense_refined_json(const std::uint8_t* rgba,int width,int he
   };
   if(!identity||prior_count>20000||(prior_count&&!prior_rows))throw rf::Error("Invalid refined prior buffers/identity");
   std::size_t identitySize=0;while(identitySize<=64&&identity[identitySize])++identitySize;
-  if(identitySize!=64)throw rf::Error("Refinement identity must be a64-character SHA256");
+  if(identitySize!=64)throw rf::Error("Refinement identity must be a 64-character SHA256");
   auto views=readViews(rgba,width,height,camera_rows);std::vector<rf::DenseView> coarse;
   if(coarse_rgba||coarse_camera_rows||coarse_width||coarse_height)coarse=readViews(coarse_rgba,coarse_width,coarse_height,coarse_camera_rows);
   if(!prior_count&&coarse.empty())throw rf::Error("Refined execution requires actual admitted priors or coarse photographs");
