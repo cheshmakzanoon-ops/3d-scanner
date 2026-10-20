@@ -25,7 +25,7 @@ class FeatureFrame internal constructor(
         require(decoderIdentity.isNotBlank() && settingsIdentity.isNotBlank())
         require(width>0 && height>0 && coordinates.size==count*2)
         require(coordinates.indices.all { i -> coordinates[i].isFinite() && coordinates[i]>=0 && coordinates[i] < if(i%2==0)width else height })
-        require(count==0 || (ownedDescriptors.type()==CvType.CV_32F && ownedDescriptors.rows()==count && ownedDescriptors.cols()==128))
+        require(if(count==0)ownedDescriptors.empty() else (ownedDescriptors.type()==CvType.CV_32F && ownedDescriptors.rows()==count && ownedDescriptors.cols()==128))
     }
     fun coordinates()=coordinates.copyOf()
     fun colors()=argb.copyOf()
