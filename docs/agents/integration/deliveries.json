@@ -276,6 +276,13 @@
       "branch": "agents/092-android-compatibility-matrix",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "099",
+      "source_sha": "392890f07b12947234b83fa8a4ebed281962ba24",
+      "branch": "agents/099-release-candidate-journey-qualification",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
