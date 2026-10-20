@@ -27,7 +27,7 @@ private:
     const DenseApprovedSourcePlan* previous_;
     static DenseApprovedSourcePlan checked(std::span<const std::vector<std::size_t>> plan,std::span<const double> cameras) {
         if(plan.size()<2||plan.size()>8||cameras.size()!=plan.size()*16)throw Error("Invalid approved dense source plan shape");
-        for(const auto& row:plan){if(row.empty()||row.size()>3)throw Error("Invalid approved source degree");}
+        for(const auto& row:plan){if(row.size()>3)throw Error("Invalid approved source degree");}
         DenseApprovedSourcePlan result;result.adjacency.assign(plan.begin(),plan.end());
         for(std::size_t ref=0;ref<plan.size();++ref){
             std::set<std::size_t> seen;
