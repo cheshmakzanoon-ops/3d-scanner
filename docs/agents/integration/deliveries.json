@@ -269,6 +269,13 @@
       "branch": "agents/093-parallel-branch-ci-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "fcd33714a5eed0fb16b5c0eaef5143d93090e2e5",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

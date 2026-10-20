@@ -117,7 +117,7 @@ def test_missing_failed_or_embedded_completion_cannot_qualify(text):
 
 def test_debug_suite_excludes_only_named_specialist_contracts_and_routes_release_separately():
     debug=m.suite_scope('debug');release=m.suite_scope('release')
-    assert {row['gate'] for row in debug['excludedGates']}=={'physical_capture','external_recovery','physical_resource_profile','offline_radios_journey','minified_release'}
+    assert {row['gate'] for row in debug['excludedGates']}=={'physical_capture','external_recovery','physical_resource_profile','offline_radios_journey','minified_release','dedicated_candidate_journey'}
     assert 'com.realityforge.scanner.qa.ReleaseNativeContractTest' in debug['notClass']
     assert 'com.realityforge.scanner.qa.ReleaseNativeContractTest' not in release['notClass']
     assert any(s.startswith('com.realityforge.scanner.qa.ReleaseNativeContractTest#') for s in release['requiredPassedSelectors'])
@@ -142,6 +142,8 @@ def test_required_baseline_and_new_compatibility_contract_must_really_pass():
     ('debug','com.realityforge.scanner.qa.PhysicalCaptureContractTest#savedPhysicalOriginalsDecodeWithSelectedCameraAndExactHashes',0),
     ('debug','com.realityforge.scanner.qa.ReleaseNativeContractTest#installedCandidateIsMinifiedReleaseAndNativeExportsReopen',0),
     ('release','com.realityforge.scanner.agents.a087.ResourceProbeContractTest#debugProbeRecordsActualSameProcessCounters',-4),
+    ('debug','com.realityforge.scanner.qa.ReleaseJourneyTest#dedicatedCandidateJourney',0),
+    ('release','com.realityforge.scanner.qa.ReleaseJourneyTest#dedicatedCandidateJourney',0),
 ])
 def test_excluded_gate_execution_or_skip_cannot_become_a_scope_pass(scope_name,selector,code):
     scope=m.suite_scope(scope_name);required=scope['requiredPassedSelectors']
@@ -154,4 +156,17 @@ def test_release_scope_requires_actual_minified_release_contract_and_keeps_physi
     with pytest.raises(ValueError,match='ReleaseNativeContractTest'):
         m.scoped_counts(transcript((0,0)),release)
     assert m.scoped_counts(transcript((0,)*len(required),required),release)['passed']==3
-    assert {row['gate']:row['status'] for row in release['excludedGates']}=={'physical_capture':'NOT_RUN','external_recovery':'NOT_RUN','physical_resource_profile':'NOT_RUN','offline_radios_journey':'NOT_RUN'}
+    assert {row['gate']:row['status'] for row in release['excludedGates']}=={'physical_capture':'NOT_RUN','external_recovery':'NOT_RUN','physical_resource_profile':'NOT_RUN','offline_radios_journey':'NOT_RUN','dedicated_candidate_journey':'NOT_RUN'}
+
+
+def test_dedicated_candidate_metadata_is_excluded_without_relaxing_junit_accounting():
+    for name in ('debug','release'):
+        scope=m.suite_scope(name)
+        row=next(row for row in scope['excludedGates'] if row['gate']=='dedicated_candidate_journey')
+        assert row['selector']=='com.realityforge.scanner.qa.ReleaseJourneyTest'
+        assert row['status']=='NOT_RUN' and 'source/APK/installed-package' in row['reason'] and 'physical-bundle' in row['reason']
+        assert row['selector'] in scope['notClass']
+    metadata='INSTRUMENTATION_STATUS: rf099_evidence={"source":"synthetic-parser-fixture"}\nINSTRUMENTATION_STATUS_CODE: 0\n'
+    text=metadata+transcript((0,0))
+    with pytest.raises(ValueError,match='Incomplete raw instrumentation'):m.instrumentation_counts(text)
+    with pytest.raises(ValueError,match='Incomplete raw instrumentation'):m.scoped_counts(text,m.suite_scope('debug'))

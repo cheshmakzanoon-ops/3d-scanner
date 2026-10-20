@@ -32,6 +32,11 @@
           "gate": "minified_release",
           "selector": "com.realityforge.scanner.qa.ReleaseNativeContractTest",
           "reason": "Requires the non-debuggable minified release app and matching release test APK; use release scope."
+        },
+        {
+          "gate": "dedicated_candidate_journey",
+          "selector": "com.realityforge.scanner.qa.ReleaseJourneyTest",
+          "reason": "Requires the Agent099 dedicated controller to verify candidate source/APK/installed-package and physical-bundle identities and its separate rf099_evidence metadata sequence."
         }
       ]
     },
@@ -62,6 +67,11 @@
           "gate": "offline_radios_journey",
           "selector": "com.realityforge.scanner.qa.OfflinePrivacyJourneyTest#explicitOfflineSyntheticImportReconstructionInspectionReopenExportJourney",
           "reason": "Requires Agent089 external controller to verify disabled radios before supplying offlinePrivacy=true."
+        },
+        {
+          "gate": "dedicated_candidate_journey",
+          "selector": "com.realityforge.scanner.qa.ReleaseJourneyTest",
+          "reason": "Requires the Agent099 dedicated controller to verify candidate source/APK/installed-package and physical-bundle identities and its separate rf099_evidence metadata sequence."
         }
       ]
     }
