@@ -1,5 +1,6 @@
 package com.realityforge.scanner.engine
 
+import com.realityforge.scanner.engine.tracks.*
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -16,7 +17,11 @@ internal data class SparseView(
 ) {
     init {
         require(width > 2 && height > 2 && focalPixels > 0 && focalPixels.isFinite())
-        require(xy.size == colors.size * 2 && rotation.size == 9 && translation.size == 3)
+        require(colors.size <= 1_000_000 && xy.size == colors.size * 2 && rotation.size == 9 && translation.size == 3)
+        require(xy.all { it.isFinite() } && rotation.all { it.isFinite() } && translation.all { it.isFinite() && abs(it)<1e9 })
+        for (a in 0..2) for (b in 0..2) require(abs((0..2).sumOf { rotation[a*3+it]*rotation[b*3+it] }-if(a==b)1.0 else 0.0)<.01)
+        val r=rotation
+        require(abs(r[0]*(r[4]*r[8]-r[5]*r[7])-r[1]*(r[3]*r[8]-r[5]*r[6])+r[2]*(r[3]*r[7]-r[4]*r[6])-1)<.01)
     }
     fun normalized(key: Int): Pair<Double, Double> =
         projection?.normalized(xy[2*key].toDouble(), xy[2*key+1].toDouble()) ?:
@@ -30,8 +35,17 @@ internal data class SparseView(
  * Camera observations use Brown-Conrady undistortion when a verified project profile exists.
  * Does not measure physical scale or generate dense/textured geometry.
  */
-internal class MultiViewTrackGraph(private val views: List<SparseView>) {
-    init { require(views.size in 2..12) }
+internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
+    private val views: List<SparseView>
+    init {
+        require(sourceViews.size in 2..250 && sourceViews.sumOf {it.colors.size.toLong()}<=1_000_000)
+        views=sourceViews.map { it.copy(xy=it.xy.copyOf(),colors=it.colors.copyOf(),rotation=it.rotation.copyOf(),translation=it.translation.copyOf()) }
+    }
+    enum class Rejection { INVALID_RAY, EPIPOLAR, SAME_PHOTO_CONFLICT, NODE_BUDGET }
+    private val rejections = mutableMapOf<Rejection,Int>()
+    @Synchronized
+    fun rejectionCounts(): Map<Rejection,Int> = rejections.toMap()
+    private fun reject(reason: Rejection): Boolean { ++rejectedEdges;rejections[reason]=(rejections[reason]?:0)+1;return false }
     private val parents = HashMap<Long, Long>()
     private val members = HashMap<Long, MutableMap<Int, Int>>()
     var acceptedEdges: Int = 0
@@ -81,10 +95,16 @@ internal class MultiViewTrackGraph(private val views: List<SparseView>) {
         val tolerance = 4.0 / minOf(p.focalPixels,q.focalPixels)
         return denominator > 1e-18 && (residual*residual/denominator) <= tolerance*tolerance
     }
+    @Synchronized
     fun add(cameraA: Int, keyA: Int, cameraB: Int, keyB: Int): Boolean {
         require(cameraA in views.indices && cameraB in views.indices && cameraA != cameraB)
         require(keyA in views[cameraA].colors.indices && keyB in views[cameraB].colors.indices)
-        if (!epipolarOK(cameraA,keyA,cameraB,keyB)) { ++rejectedEdges; return false }
+        for ((camera,key) in listOf(cameraA to keyA,cameraB to keyB)) {
+            val uv=runCatching { views[camera].normalized(key) }.getOrNull()
+            if(uv==null || !uv.first.isFinite() || !uv.second.isFinite() || abs(uv.first)>10 || abs(uv.second)>10) return reject(Rejection.INVALID_RAY)
+        }
+        if (!epipolarOK(cameraA,keyA,cameraB,keyB)) return reject(Rejection.EPIPOLAR)
+        if(parents.size+listOf(node(cameraA,keyA),node(cameraB,keyB)).count { it !in parents }>1_000_000) return reject(Rejection.NODE_BUDGET)
         val a = make(cameraA,keyA)
         val b = make(cameraB,keyB)
         var rootA = root(a)
@@ -92,7 +112,7 @@ internal class MultiViewTrackGraph(private val views: List<SparseView>) {
         if (rootA == rootB) { ++acceptedEdges; return true }
         var groupA = requireNotNull(members[rootA])
         var groupB = requireNotNull(members[rootB])
-        if (groupB.keys.any { it in groupA }) { ++rejectedEdges; return false }
+        if (groupB.keys.any { it in groupA }) return reject(Rejection.SAME_PHOTO_CONFLICT)
         if (groupA.size < groupB.size) {
             val tempRoot = rootA; rootA = rootB; rootB = tempRoot
             val tempGroup = groupA; groupA = groupB; groupB = tempGroup
@@ -103,9 +123,11 @@ internal class MultiViewTrackGraph(private val views: List<SparseView>) {
         ++acceptedEdges
         return true
     }
-    /** Stable track IDs shared by native rows and incremental landmark provenance.
+    /** Legacy compact native snapshot: indices are local to this exact snapshot.
+     * Persist stableSnapshot source identities instead of these array positions.
      * Take whole tracks only; never exceed the native 100,000-observation contract.
      */
+    @Synchronized
     fun snapshot(maxTracks: Int = 15000): List<Map<Int, Int>> {
         require(maxTracks in 1..15000)
         val ordered = members.values.filter { it.size >= 2 }
@@ -119,7 +141,9 @@ internal class MultiViewTrackGraph(private val views: List<SparseView>) {
         }
         return selected
     }
+    @Synchronized
     fun packedRows(maxTracks: Int = 15000): DoubleArray {
+        require(views.size<=12) { "Use bounded nativeBatches for larger graphs" }
         val groups = snapshot(maxTracks)
         val packed = ArrayList<Double>(groups.sumOf { it.size } * 7)
         for ((trackId,group) in groups.withIndex()) {
@@ -137,5 +161,40 @@ internal class MultiViewTrackGraph(private val views: List<SparseView>) {
         }
         return packed.toDoubleArray()
     }
+    /** Exact compatibility mapping for legacy packedRows: original camera order
+     * and the selected whole-track order, never the SHA-sorted durable order. */
+    @Synchronized
+    fun nativeSnapshot(photoIds: List<String>, maxTracks: Int=15000): NativeTrackBatch {
+        require(views.size<=12 && photoIds.size==views.size && photoIds.distinct().size==photoIds.size)
+        val groups=snapshot(maxTracks)
+        val ids=groups.map { group -> group.entries.minOf { SourceObservation(photoIds[it.key],it.value).identity() } }
+        return NativeTrackBatch(photoIds,ids,packedRows(maxTracks))
+    }
+    @Synchronized
+    fun stableSnapshot(photoIds: List<String>): TrackSnapshot {
+        require(photoIds.size==views.size && photoIds.distinct().size==photoIds.size)
+        val tracks=members.values.filter { it.size>=2 }.map { group ->
+            val observations=group.map { SourceObservation(photoIds[it.key],it.value) }.sorted()
+            StableTrack(observations.minOf { it.identity() },observations)
+        }.sortedBy { it.id }
+        return TrackSnapshot(tracks)
+    }
+    /** Whole-track windows only. A track longer than a native window is explicitly
+     * unsupported rather than silently chopped and relabeled as a full track. */
+    @Synchronized
+    fun nativeBatches(photoIds: List<String>, maxCameras: Int=12, maxObservations: Int=100000): List<NativeTrackBatch> {
+        require(maxCameras in 2..12 && maxObservations in 2..100000)
+        val snapshot=stableSnapshot(photoIds);val byPhoto=photoIds.withIndex().associate { it.value to it.index }
+        val result=mutableListOf<NativeTrackBatch>();var cameras=sortedSetOf<String>();var tracks=mutableListOf<StableTrack>();var count=0
+        fun flush(){if(tracks.isEmpty())return;val photos=cameras.toList();val rows=DoubleArray(count*7);var offset=0
+            for((id,track) in tracks.withIndex())for(o in track.observations){val v=views[byPhoto.getValue(o.photo)];val uv=v.normalized(o.keypoint);val color=v.colors[o.keypoint]
+                for(value in doubleArrayOf(id.toDouble(),photos.indexOf(o.photo).toDouble(),uv.first,uv.second,((color shr 16) and 255).toDouble(),((color shr 8) and 255).toDouble(),(color and 255).toDouble())) rows[offset++]=value }
+            result.add(NativeTrackBatch(photos,tracks.map { it.id },rows));cameras=sortedSetOf();tracks=mutableListOf();count=0 }
+        for(t in snapshot.tracks){require(t.observations.size<=maxCameras && t.observations.size<=maxObservations) { "Track exceeds native whole-track window; choose an explicit supported subgraph" }
+            if((cameras+t.observations.map { it.photo }).size>maxCameras || count+t.observations.size>maxObservations)flush()
+            cameras.addAll(t.observations.map { it.photo });tracks.add(t);count+=t.observations.size }
+        flush();return result
+    }
+    @Synchronized
     fun matchedTrackCount(): Int = members.values.count { it.size >= 2 }
 }
