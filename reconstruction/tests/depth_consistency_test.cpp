@@ -1,4 +1,7 @@
 #include "realityforge/depth_consistency.hpp"
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include <cassert>
 #include <iostream>
 int main(){
