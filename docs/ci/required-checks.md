@@ -28,6 +28,20 @@ performed by this workflow.
   Python, synthetic three-photo BA, eight-view coverage and real Middlebury
   stereo/dense/surface/photographic texture gate. Compiler parity must pass.
   A missing compiler, a missing report or a sanitizer failure fails the job.
+  After installing the baseline requirements, Agent095's QA-only installer runs
+  after the native start marker and before the matrix:
+  `python tools/dependencies/install_qa.py --root "$RUNNER_TEMP/rf-qa" --github-env "$GITHUB_ENV" --github-path "$GITHUB_PATH" --require-portable-blender`.
+  Its isolated, pinned scientific/pytest environment includes Trimesh4.5.3;
+  official Node24.19.0 and Khronos gltf-validator2.0.0-dev.3.10, Blender4.3.2 and
+  a separate pinned security-scanner environment satisfy the real090/096 tools.
+  `RF_GLTF_VALIDATOR`, `RF_SECURITY_PYTHON` and `SCANNER_PYTHON` plus PATH persist
+  to later steps through the GitHub environment/path files. Publisher/package
+  checksums stay enforced; installer failure prevents native tests from starting.
+  The required installation.json receipt, install/check logs and Blender publisher
+  checksum list are fresh, sealed and hashed with native artifacts, and retained
+  for diagnosis on failure. Installation writes only
+  under RUNNER_TEMP and user caches; Android/app/runtime dependency pins stay
+  under their existing owners.
 - Android preserves JDK17, Gradle8.13, platform36/build-tools36.0.0,
   NDK28.2.13676358, CMake3.22.1 from Agent004 build pins; it actually compiles both
   APKs, runs JVM tests/lint, checks merged INTERNET permission and 16KB ELF/ZIP
@@ -50,7 +64,7 @@ performed by this workflow.
   untracked build outputs are never source identity. Its own source-snapshot
   workflow retains source archive/tree/hash records separately.
 
-These consumers require the compatible 081/092/094 implementations integrated
+These consumers require the compatible 081/092/094/095 implementations integrated
 into the candidate. Their owners' branches are never merged into Agent093's
 exclusive delivery branch; Agent100 integrates the immutable deliveries.
 

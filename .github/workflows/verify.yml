@@ -26,10 +26,12 @@ jobs:
         run: |
           python tools/source_manifest.py verify --source HEAD
           python tools/ci/validation/evidence.py begin --gate native --source-sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID:$GITHUB_RUN_ATTEMPT" --output "$RUNNER_TEMP/rf-ci/native/start.json"
+      - name: Install pinned QA-only interchange and security tools
+        run: python tools/dependencies/install_qa.py --root "$RUNNER_TEMP/rf-qa" --github-env "$GITHUB_ENV" --github-path "$GITHUB_PATH" --require-portable-blender
       - name: Execute Agent 081 compiler, sanitizer, numerical and real-image gates
         run: python tools/qa/native_regression/run.py --output "$RUNNER_TEMP/rf-ci/native/runner"
       - name: Validate native completion and seal exact artifacts
-        run: python tools/ci/validation/evidence.py collect --start "$RUNNER_TEMP/rf-ci/native/start.json" --native-record "$RUNNER_TEMP/rf-ci/native/runner/evidence.json" --output "$RUNNER_TEMP/rf-ci/native/sealed"
+        run: python tools/ci/validation/evidence.py collect --start "$RUNNER_TEMP/rf-ci/native/start.json" --native-record "$RUNNER_TEMP/rf-ci/native/runner/evidence.json" --artifact "$RUNNER_TEMP/rf-qa/installation.json" --artifact "$RUNNER_TEMP/rf-qa/*-install.log" --artifact "$RUNNER_TEMP/rf-qa/*-check.log" --artifact "$RUNNER_TEMP/rf-qa/downloads/blender-publisher.sha256" --output "$RUNNER_TEMP/rf-ci/native/sealed"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -43,6 +45,9 @@ jobs:
           name: rf-native-failure-logs-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/rf-ci/native/start.json
+            ${{ runner.temp }}/rf-qa/installation.json
+            ${{ runner.temp }}/rf-qa/*.log
+            ${{ runner.temp }}/rf-qa/downloads/blender-publisher.sha256
             ${{ runner.temp }}/rf-ci/native/runner/evidence.json
             ${{ runner.temp }}/rf-ci/native/runner/**/*.log
           if-no-files-found: error
