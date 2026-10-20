@@ -185,6 +185,13 @@
       "branch": "agents/082-native-jni-parser-fuzzing",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "0e5d9415c168c46a21899450dcd82c84886095f8",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
