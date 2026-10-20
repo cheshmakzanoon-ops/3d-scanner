@@ -332,6 +332,13 @@
       "branch": "agents/086-physical-arm64-capture-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "164a1faab6c993c0da3d4dda77e238b3af5978b4",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
