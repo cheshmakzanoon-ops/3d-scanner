@@ -150,6 +150,13 @@
       "branch": "agents/093-parallel-branch-ci-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "087",
+      "source_sha": "3382536db6b58d1be7730076f893d80807085c77",
+      "branch": "agents/087-physical-resource-profiling",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
