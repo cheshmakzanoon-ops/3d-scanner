@@ -318,6 +318,13 @@
       "branch": "agents/084-full-object-geometry-quality",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "085",
+      "source_sha": "89f8b585618b7a977879cf772dd1531b37f2fd2b",
+      "branch": "agents/085-photographic-texture-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
