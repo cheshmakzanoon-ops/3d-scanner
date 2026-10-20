@@ -83,7 +83,7 @@ fcc56955f2a57cc59c3f3d025066aea6073c18cc29a51e5385729ee2c24908e9  app/src/test/j
 26b347e3592bd0071bfc274876633d3d3401388752184d5c33786a891adff027  app/src/test/java/com/realityforge/scanner/agents/a045/PyramidTest.kt
 0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37  app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt
 05854244689335c9f17f5d26c8a4b28f960dd20c8fe1bcc526450d48b229aba4  app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt
-2a59b6c7a2ee017112fc45e3e869b2ed6f88acc1948bdcec9b11088e443e814b  app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt
+4108a270aea4d69509bc949edea1e7169fb5368c20ba9e3b3e39b02db7b8fa1b  app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt
 cbf13521cbe2ef3592b324c99cff29d3bdb168deee69f20cca3e19656c0c1d1b  app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt
 ccde96ef0b6f5e74688ed376c3b4ba77ded4a25e0171f48cf4636c3aef86dad4  app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt
 3b7f5ab073697174da4debd2d6223fa3beb0654acf5ea2e87ee7cfa5c5cc1378  app/src/test/java/com/realityforge/scanner/engine/ScanQualityEvidenceTest.kt
@@ -202,7 +202,7 @@ f535424423191577976853af21e05ba32a3ab084a0ecd74f6dbdc8fb197cbf9b  docs/agents/re
 5f4d840b3b2bcbcd383b6cf7049ac86628b2451b87737f233104ba099df27968  docs/agents/requests/038-to-003.md
 b363a68945e58a13a4863431b92dd053f226f7594a70a9cc7485645113f6f2a3  docs/agents/requests/038-to-004.md
 f0cab070f9d2440625f2cb42fb5c67afd3d2a59f2a6029b5b5b2b5de9631d1c9  docs/agents/requests/038-to-039.md
-0fecc721ff5e47c4042ec99d1a0ea9ef906dade69c667f01b149f94f99743cb9  docs/agents/requests/039-to-002.md
+9f31b5077193e2d1eacccb024896dd70307eaaf537cb6f64a3fdec5b28762fc0  docs/agents/requests/039-to-002.md
 23323a982bd979b276f7954287687acdff0dbee83fa2a3cbed82d96925c278dc  docs/agents/requests/039-to-003.md
 cd3317a9ba40faa60010d3fdae84533d146f1afcf5bc37f96c43d889da33b8e1  docs/agents/requests/039-to-009.md
 279d2587591eb287a3903f9ced8e18730316ec50373c1e5b39cc1ce72ed00a36  docs/agents/requests/040-to-003.md
@@ -288,7 +288,7 @@ f7d51255e84f490508b1adf088a353d17bd77e506b5d61cf929ab167d96f0770  docs/agents/st
 26a16852b5331643c8665f1af24f13195d8a47dec7b76c55ebeabf54fc992315  docs/agents/status/036.md
 154ab2242cf94e5c7b8b6d1b8a4c3d1453739d0f07aaf9949daa7aa54bbb0479  docs/agents/status/037.md
 118b3fda958f66614c269a6a4e86b3a9ea3a821f434679e5304b21e7531987d0  docs/agents/status/038.md
-ee286a3591d23f7e6807d689ef4c7ebd8c9293b96e8d5eab46574cd603a86307  docs/agents/status/039.md
+72955c5dc70ee5953e49e91ea8041bd701c4348eb677630976fb124bb4ba9f62  docs/agents/status/039.md
 995997d07c5a08bdb35f67f9aab1c0ac352957309a51c8f67f39734335b6ed63  docs/agents/status/040.md
 eccf85f4dd4c59174a37ba48afb0dfdebfd496cb0c26b2c64630c444949b915c  docs/agents/status/041.md
 0e75f7b56a77f22238be8cf0e122345b8192ddb683ddc62ae5555d8632158dbd  docs/agents/status/042.md
