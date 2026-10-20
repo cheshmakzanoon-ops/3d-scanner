@@ -507,6 +507,13 @@
       "branch": "agents/084-full-object-geometry-quality",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "0c5720ba01fc0573ace139c93afd99f8c6204e3d",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
