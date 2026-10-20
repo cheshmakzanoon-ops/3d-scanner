@@ -80,6 +80,29 @@ int main(){
  rf::DenseRefinementInputs inputs{priors,coarse,std::string(64,'b')};
  auto refined=rf::reconstructDense(images,settings,&inputs);assert(refined.coarseDepthMaps==images.size()&&refined.sparsePriorTiles>0&&refined.propagatedHypotheses>0);
  auto invalidCoarse=coarse;invalidCoarse[0].cx+=.5;inputs.coarseViews=invalidCoarse;bool geometryRejected=false;try{(void)rf::reconstructDense(images,settings,&inputs);}catch(const rf::Error&){geometryRejected=true;}assert(geometryRejected);inputs.coarseViews=coarse;
+ // Observed normal proposals are cost-tested against photos; independent
+ // full-resolution neighborhoods supply normal support, never the proposal.
+ auto normalSettings=settings;normalSettings.localRefinementIterations=6;normalSettings.normalRefinementIterations=3;normalSettings.discontinuityAwareConsistency=true;normalSettings.normalConsistency=true;
+ rf::DenseRefinementInputs normalInputs{{},coarse,std::string(64,'c')};
+ auto normals=rf::reconstructDense(images,normalSettings,&normalInputs);
+ assert(normals.normalHypothesesEvaluated>0&&normals.normalSupportPairs>0);
+ assert(normals.normalHypothesesEvaluated<=normals.photometricPixels*6);
+ for(const auto& observed:normals.verifiedSamples){if(observed.normalSupportingViews){assert(observed.normalConfidence>0&&observed.normalConfidence<=1);assert(std::abs(std::hypot(observed.worldNormal.x,observed.worldNormal.y,observed.worldNormal.z)-1)<1e-6);}else assert(observed.normalConfidence==0);}
+ auto otherTiles=normalSettings;otherTiles.tileEdge=64;auto normalTiles=rf::reconstructDense(images,otherTiles,&normalInputs);
+ for(std::size_t i=0;i<normals.maps.size();++i)assert(normals.maps[i].depth==normalTiles.maps[i].depth&&normals.maps[i].confidence==normalTiles.maps[i].confidence);
+ assert(normals.normalSupportPairs==normalTiles.normalSupportPairs&&normals.normalRejectedPairs==normalTiles.normalRejectedPairs);
+ std::filesystem::create_directory(directory);
+ {rf::depth_checkpoint::Scope cache(directory.string(),std::string(64,'c'));
+  auto first=rf::reconstructDense(images,normalSettings,&normalInputs);auto resumed=rf::reconstructDense(images,normalSettings,&normalInputs);
+  assert(resumed.resumedDepthTiles==first.totalTiles&&resumed.recomputedDepthTiles==0&&resumed.normalHypothesesEvaluated==0);
+  assert(first.normalSupportPairs==resumed.normalSupportPairs&&first.normalRejectedPairs==resumed.normalRejectedPairs);
+  for(std::size_t i=0;i<first.maps.size();++i)assert(first.maps[i].depth==resumed.maps[i].depth&&first.maps[i].confidence==resumed.maps[i].confidence);
+ }
+ std::filesystem::remove_all(directory);
+ auto reversedImages=images,reversedCoarse=coarse;std::reverse(reversedImages.begin(),reversedImages.end());std::reverse(reversedCoarse.begin(),reversedCoarse.end());rf::DenseRefinementInputs permutedInputs{{},reversedCoarse,std::string(64,'d')};
+ auto permuted=rf::reconstructDense(reversedImages,normalSettings,&permutedInputs);
+ assert(normals.points.size()==permuted.points.size()&&normals.normalSupportPairs==permuted.normalSupportPairs);
+ for(std::size_t i=0;i<normals.points.size();++i)assert(normals.points[i].xyz.x==permuted.points[i].xyz.x&&normals.points[i].xyz.y==permuted.points[i].xyz.y&&normals.points[i].xyz.z==permuted.points[i].xyz.z);
  auto packCameras=[](const auto& cameras){std::vector<double> rows;for(const auto& camera:cameras){rows.insert(rows.end(),camera.pose.rotation.begin(),camera.pose.rotation.end());rows.insert(rows.end(),{camera.pose.translation.x,camera.pose.translation.y,camera.pose.translation.z,camera.fx,camera.fy,camera.cx,camera.cy});}return rows;};
  auto packPixels=[](const auto& cameras){std::vector<std::uint8_t> pixels;for(const auto& camera:cameras)pixels.insert(pixels.end(),camera.rgba.begin(),camera.rgba.end());return pixels;};
  const auto fullRows=packCameras(images),coarseRows=packCameras(coarse);const auto fullPixels=packPixels(images),coarsePixels=packPixels(coarse);
