@@ -95,3 +95,8 @@ def test_raw_android_statuses_keep_assumptions_and_ignored_separate_from_passes(
 ])
 def test_incomplete_zero_pass_failed_or_forged_status_events_fail(text):
     with pytest.raises(ValueError):m.instrumentation_counts(text)
+
+
+def test_different_names_cannot_reuse_current_and_mask_a_missing_test_index():
+    text=transcript((0,0)).replace('current=2','current=1')
+    with pytest.raises(ValueError,match='current indices'):m.instrumentation_counts(text)

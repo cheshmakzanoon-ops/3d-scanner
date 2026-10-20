@@ -68,6 +68,8 @@ def instrumentation_counts(output):
             fields = {}
     if not finished or started != set(finished) or declared != {len(finished)}:
         raise ValueError('Missing/incomplete raw instrumentation events')
+    if {identity[2] for identity in finished} != set(range(1, len(finished)+1)):
+        raise ValueError('Instrumentation current indices are incomplete or duplicated')
     ignored = sum(code == -3 for code in finished.values())
     counts = {'tests': len(finished), 'passed': sum(code == 0 for code in finished.values()),
               'skipped': sum(code in (-3, -4) for code in finished.values()),
