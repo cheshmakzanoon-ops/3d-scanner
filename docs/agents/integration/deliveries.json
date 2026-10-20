@@ -178,6 +178,13 @@
       "branch": "agents/091-release-package-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "082",
+      "source_sha": "496bb92396e341b8153736ff4cfccbc0281269d7",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
