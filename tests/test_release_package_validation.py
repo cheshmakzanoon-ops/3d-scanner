@@ -2,10 +2,10 @@ import importlib.util,struct,sys,zipfile
 from pathlib import Path
 import pytest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from release.package_validation.apk import manifest_policy,archive_policy,elf_alignment,signature_policy,LIBRARIES
+from release.package_validation.apk import manifest_policy,archive_policy,elf_alignment,signature_policy,backup_policy,LIBRARIES
 
-def elf(align=16384):
- d=bytearray(120);d[:6]=b'\x7fELF\x02\x01';struct.pack_into('<Q',d,32,64);struct.pack_into('<HH',d,54,56,1)
+def elf(align=16384,machine=183):
+ d=bytearray(120);d[:6]=b'\x7fELF\x02\x01';struct.pack_into('<H',d,18,machine);struct.pack_into('<Q',d,32,64);struct.pack_into('<HH',d,54,56,1)
  struct.pack_into('<I',d,64,1);struct.pack_into('<Q',d,112,align);return d
 
 def manifest(extra='',permissions=''):
@@ -14,7 +14,7 @@ def manifest(extra='',permissions=''):
 def package(path,abis=('arm64-v8a','x86_64'),bad=None):
  with zipfile.ZipFile(path,'w') as z:
   for abi in abis:
-   for lib in LIBRARIES:z.writestr(f'lib/{abi}/{lib}',elf(4096 if bad==lib else 16384))
+   for lib in LIBRARIES:z.writestr(f'lib/{abi}/{lib}',elf(4096 if bad==lib else 16384,183 if abi=='arm64-v8a' else 62))
  return path
 
 def test_manifest_identity():assert manifest_policy(manifest(),True)['versionCode']=='19'
@@ -44,14 +44,30 @@ def test_fixture_leak_rejected(tmp_path):
 def test_bad_elf(data):
  with pytest.raises(ValueError):elf_alignment(data)
 def test_signer_identity_and_mode():
- digest='a'*64;output='Verified using v2 scheme (APK Signature Scheme v2): true\nSigner #1 certificate SHA-256 digest: '+digest
+ digest='a'*64;output='Signer #1 certificate DN: CN=Android Debug, O=Android, C=US\nVerified using v2 scheme (APK Signature Scheme v2): true\nSigner #1 certificate SHA-256 digest: '+digest
  assert signature_policy(output,'test')==[digest]
  with pytest.raises(ValueError):signature_policy(output,'production')
  with pytest.raises(ValueError):signature_policy(output,'production','b'*64)
  with pytest.raises(ValueError):signature_policy(output.replace('true','false'),'test')
- assert signature_policy(output,'production',digest)==[digest]
+ assert signature_policy(output.replace('CN=Android Debug','CN=Approved Release'),'production',digest)==[digest]
 
 def test_baseline_relief_fixture_leak_rejected(tmp_path):
  p=package(tmp_path/'leak.apk')
  with zipfile.ZipFile(p,'a') as z:z.writestr('assets/relief/view-03.jpg','synthetic')
  with pytest.raises(ValueError):archive_policy(p,release=True)
+
+def test_wrong_elf_machine_rejected(tmp_path):
+ p=package(tmp_path/'machine.apk')
+ q=tmp_path/'bad-machine.apk'
+ with zipfile.ZipFile(p) as src,zipfile.ZipFile(q,'w') as z:
+  for n in src.namelist():z.writestr(n,elf(machine=62) if n=='lib/arm64-v8a/librealityforge.so' else src.read(n))
+ with pytest.raises(ValueError,match='machine'):archive_policy(q)
+def test_backup_rules_cover_all_domains():
+ xml=(Path(__file__).resolve().parents[1]/'app/src/main/res/xml/data_extraction_rules.xml').read_text()
+ assert backup_policy(xml)
+ with pytest.raises(ValueError):backup_policy(xml.replace('<exclude domain="database" path="." />',''))
+ with pytest.raises(ValueError):backup_policy(xml.replace('</cloud-backup>','<include domain="file" path="." /></cloud-backup>'))
+def test_production_refuses_debug_identity():
+ output='Signer #1 certificate DN: CN=Android Debug\nVerified using v2 scheme: true\nSigner #1 certificate SHA-256 digest: '+'a'*64
+ with pytest.raises(ValueError):signature_policy(output,'production','a'*64)
+ with pytest.raises(ValueError):signature_policy(output.replace('CN=Android Debug','CN=Unknown'),'test')

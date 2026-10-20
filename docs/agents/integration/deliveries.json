@@ -129,6 +129,13 @@
       "branch": "agents/092-android-compatibility-matrix",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "d9a9ba6231784cf53e044d039108934eeff55c32",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
