@@ -28,6 +28,7 @@ class CameraPermissionJourneyTest {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 val ui=UiJourneyDriver()
                 ui.startAtLibrary();ui.click("Create local project");ui.setText(name);ui.click("Create","Save");ui.awaitText(name)
+                val initiating=runBlocking {app.repository.dao.observeProjects().first().single {it.name==name}}
                 ui.scrollToClick("Use camera","Capture")
                 ui.click("Grant camera permission","Allow camera")
                 ui.click("Don’t allow","Don't allow","Deny")
@@ -40,11 +41,12 @@ class CameraPermissionJourneyTest {
                 ui.click("Grant camera permission","Allow camera")
                 ui.click("While using the app","While using this app","Only this time")
                 ui.await { ContextCompat.checkSelfPermission(app,Manifest.permission.CAMERA)==PackageManager.PERMISSION_GRANTED }
-                ui.screenshot("camera-regranted")
                 // Permissions do not invent a captured image or change selected project revision.
                 ui.click("Back");ui.awaitText(name)
+                ui.screenshot("camera-regranted-project")
                 runBlocking {
                     val project=app.repository.dao.observeProjects().first().single { it.name==name }
+                    assertEquals(initiating.id,project.id);assertEquals(initiating.revision,project.revision)
                     assertEquals(0L,project.revision);assertTrue(app.repository.dao.photos(project.id).isEmpty())
                 }
             }

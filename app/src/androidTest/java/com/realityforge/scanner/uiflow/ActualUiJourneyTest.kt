@@ -179,7 +179,8 @@ internal class UiJourneyDriver {
     fun await(timeout:Long=20000, check:()->Boolean) {
         val deadline=SystemClock.elapsedRealtime()+timeout
         while(SystemClock.elapsedRealtime()<deadline) { if(check()) return; SystemClock.sleep(150) }
-        screenshot("failure"); throw AssertionError("Actual UI condition exceeded ${timeout}ms; tree=${tree().take(6000)}")
+        if(InstrumentationRegistry.getArguments().getString("rfPhysicalCapture")!="true") screenshot("failure")
+        throw AssertionError("Actual UI condition exceeded ${timeout}ms; tree=${tree().take(6000)}")
     }
     private fun tree()=nodes(instrumentation.uiAutomation.rootInActiveWindow).joinToString("\n") { "${it.viewIdResourceName}: ${it.text} / ${it.contentDescription}" }
     private fun find(vararg labels:String,exact:Boolean=true)=nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull { n ->
@@ -192,6 +193,16 @@ internal class UiJourneyDriver {
         return n.isEnabled && n.performAction(AccessibilityNodeInfo.ACTION_CLICK)
     }
     fun click(vararg labels:String) { var n:AccessibilityNodeInfo?=null; await { n=find(*labels); n!=null }; check(clickNode(requireNotNull(n))) { "Control lacks enabled click action: ${labels.toList()}" } }
+    fun awaitEnabledClick(vararg labels:String, timeout:Long=20000) {
+        var control:AccessibilityNodeInfo?=null
+        await(timeout) {
+            var candidate=find(*labels)
+            while(candidate!=null && !candidate.isClickable && candidate.parent!=null) candidate=candidate.parent
+            control=candidate
+            candidate?.let { it.isClickable && it.isEnabled }==true
+        }
+        check(clickNode(requireNotNull(control))) { "Enabled control rejected click: ${labels.toList()}" }
+    }
     fun startAtLibrary() {
         await { find("Skip", "Create local project") != null }
         optionalClick("Skip")
@@ -205,6 +216,17 @@ internal class UiJourneyDriver {
         check(requireNotNull(field).performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,args))
     }
     fun back() { check(instrumentation.uiAutomation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)) }
+    fun awaitDocuments() = await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
+    /** Real HOME event and task relaunch; this is neither process death nor a lock event. */
+    fun homeAndReturn() {
+        check(instrumentation.uiAutomation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME))
+        val appContext=instrumentation.targetContext
+        await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.let { it!=appContext.packageName && !it.contains("documentsui") }==true }
+        val intent=requireNotNull(appContext.packageManager.getLaunchIntentForPackage(appContext.packageName))
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        appContext.startActivity(intent)
+        await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()==appContext.packageName }
+    }
     private fun scroll():Boolean = nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull { it.isScrollable }?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD) ?: false
     fun scrollToClick(vararg labels:String) {
         repeat(35) { if(optionalClick(*labels)) return; if(!scroll()) SystemClock.sleep(150); SystemClock.sleep(100) }

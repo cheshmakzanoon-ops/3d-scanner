@@ -68,6 +68,12 @@ if cmd[0]=='find':
  print('/data/local/tmp/'+pattern.replace('*','frame'));sys.exit(0)
 if cmd[0]=='stat':
  print(pathlib.Path(C['image']).stat().st_size);sys.exit(0)
+if cmd[:2]==['pm','revoke']:
+ if C['mode']=='permission-reset-failed':print('SecurityException: permission reset refused')
+ sys.exit(0)
+if cmd[:2]==['pm','clear-permission-flags']:
+ if C['mode']=='permission-flags-failed':print('Error: permission flag reset refused')
+ sys.exit(0)
 assert cmd[:2]==['am','instrument']
 test=cmd[cmd.index('class')+1]
 if C['mode']=='wrong-test':test='com.example.WrongTest#other'
@@ -81,6 +87,16 @@ for state in (1,code):
  print('INSTRUMENTATION_STATUS: numtests=1')
  print('INSTRUMENTATION_STATUS_CODE: '+str(state))
 print('INSTRUMENTATION_RESULT: stream=\\nOK (1 test)')
+if 'PhysicalCaptureJourneyTest#' in test and C['mode']!='physical-no-evidence':
+ def argument(key):return cmd[cmd.index(key)+1]
+ props={'ro.build.fingerprint':'vendor/real-device/release','ro.build.version.sdk':'35','ro.product.cpu.abi':'x86_64','ro.product.manufacturer':'Synthetic Test Double','ro.product.model':'Physical Test Double','ro.kernel.qemu':'0','ro.boot.qemu':''}
+ import hashlib
+ identity={'serial':'fixture-device','properties':props,'api':35,'emulator':False}
+ identity_hash=hashlib.sha256(json.dumps(identity,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+ evidence={'schema_version':1,'run_id':argument('rfEvidenceRunId'),'hardware_evidence_id':argument('rfHardwareEvidenceId'),'device_fingerprint':argument('rfExpectedDeviceFingerprint'),'device_identity_sha256':identity_hash,'project_id':'11111111-1111-4111-8111-111111111111','photo_id':'22222222-2222-4222-8222-222222222222','revision_before':0,'revision_after':1,'photo_sha256':'a'*64,'reopened_photo_sha256':'a'*64,'bytes':1024,'width':32,'height':32,'synthetic':False}
+ if C['mode']=='physical-stale-evidence':evidence['run_id']='0'*32
+ if C['mode']=='physical-changed-original':evidence['reopened_photo_sha256']='b'*64
+ print('INSTRUMENTATION_RESULT: rfPhysicalCaptureEvidence='+json.dumps(evidence))
 if C['mode']!='missing-terminal':print('INSTRUMENTATION_CODE: -1')
 sys.exit(1 if C['mode']=='adb-failed' else 0)
 """.replace("CONFIG", repr(json.dumps(config))))
@@ -183,12 +199,63 @@ def test_physical_entrypoint_requires_identified_hardware_and_capture_test(tmp_p
 
 
 def test_physical_adapter_accepts_explicit_operator_record_only_after_ui_execution(tmp_path, candidate):
-    completed, report, _ = run_cli(tmp_path, candidate, physical=True, extra=["--scenario", "physical_capture", "--physical-class", "com.example.PhysicalTest#capture", "--hardware-evidence-id", "synthetic-adapter-test-only"])
+    completed, report, _ = run_cli(tmp_path, candidate, physical=True, extra=["--scenario", "physical_capture", "--hardware-evidence-id", "synthetic-adapter-test-only", "--physical-scene-authorized"])
     assert completed.returncode == 0 and report["status"] == "PASS"
     physical = next(row for row in report["scenarios"] if row["scenario"] == "physical_capture")
     assert physical["hardware_evidence_id"] == "synthetic-adapter-test-only"
     assert physical["physical_device_operator_identified"]
     assert not physical["synthetic"]
+    assert physical["physical_capture"]["photo_sha256"] == physical["physical_capture"]["reopened_photo_sha256"]
+    assert physical["test_identities"] == [module.PHYSICAL_TEST]
+
+
+def test_camera_permission_flow_resets_outside_target_before_exact_instrumentation(tmp_path, candidate):
+    completed, report, _ = run_cli(tmp_path, candidate, extra=["--scenario", "permission_denial_regrant"])
+    assert completed.returncode == 0
+    row = next(row for row in report["scenarios"] if row["scenario"] == "permission_denial_regrant")
+    assert row["completed"] == 1 and len(row["external_permission_reset"]) == 2
+    commands = [" ".join(record["argv"]) for record in report["commands"]]
+    revoke = next(i for i, value in enumerate(commands) if "pm revoke" in value)
+    clear = next(i for i, value in enumerate(commands) if "clear-permission-flags" in value)
+    instrument = next(i for i, value in enumerate(commands) if "am instrument" in value)
+    assert revoke < clear < instrument
+    assert row["test_identities"] == [module.SCENARIOS["permission_denial_regrant"]["test"]]
+    assert all(Path(record["stdout"]).is_file() and Path(record["stderr"]).is_file() for record in row["external_permission_reset"])
+
+
+@pytest.mark.parametrize("mode,log", [("permission-reset-failed","permission-revoke.stdout.txt"),("permission-flags-failed","permission-clear-flags.stdout.txt")])
+def test_permission_reset_stdout_error_prevents_instrumentation_even_with_adb_exit_zero(tmp_path, candidate, mode, log):
+    completed, report, output = run_cli(tmp_path, candidate, mode, extra=["--scenario", "permission_denial_regrant"])
+    assert completed.returncode == 1 and report["status"] == "FAIL"
+    assert not any("am instrument" in " ".join(row["argv"]) for row in report["commands"])
+    assert "refused" in (output / "permission_denial_regrant" / log).read_text()
+
+
+@pytest.mark.parametrize("scenario", ["changed_inputs_and_repeated_actions", "background_return", "screen_lock_return"])
+def test_owned_input_and_background_scenarios_execute_actual_named_tests(tmp_path, candidate, scenario):
+    completed, report, _ = run_cli(tmp_path, candidate, extra=["--scenario", scenario])
+    assert completed.returncode == 0
+    row = next(row for row in report["scenarios"] if row["scenario"] == scenario)
+    assert row["test_identities"] == [module.SCENARIOS[scenario]["test"]] and row["completed"] == 1
+    assert next(row for row in report["scenarios"] if row["scenario"] == "background_job_recovery")["status"] == "NOT_RUN"
+
+
+@pytest.mark.parametrize("mode", ["physical-no-evidence", "physical-stale-evidence", "physical-changed-original"])
+def test_physical_success_requires_current_owned_capture_record_and_preserved_hash(tmp_path, candidate, mode):
+    completed, report, _ = run_cli(tmp_path, candidate, mode, physical=True, extra=["--scenario", "physical_capture", "--hardware-evidence-id", "synthetic-adapter-only", "--physical-scene-authorized"])
+    assert completed.returncode == 1 and report["status"] == "FAIL"
+
+
+def test_physical_scene_requires_explicit_operator_authorization(tmp_path, candidate):
+    completed, report, _ = run_cli(tmp_path, candidate, physical=True, extra=["--scenario", "physical_capture", "--hardware-evidence-id", "synthetic-adapter-only"])
+    assert completed.returncode == 2 and report["status"] == "BLOCKED_EXTERNAL"
+    assert not any("pm revoke" in " ".join(row["argv"]) or "am instrument" in " ".join(row["argv"]) for row in report["commands"])
+
+
+def test_arbitrary_successful_test_cannot_replace_owned_physical_capture_test(tmp_path, candidate):
+    completed, report, _ = run_cli(tmp_path, candidate, physical=True, extra=["--scenario", "physical_capture", "--hardware-evidence-id", "synthetic-adapter-only", "--physical-scene-authorized", "--physical-class", "com.example.OtherTest#success"])
+    assert completed.returncode == 1 and report["status"] == "FAIL"
+    assert not any("am instrument" in " ".join(row["argv"]) for row in report["commands"])
 
 
 def controller(tmp_path, mode):

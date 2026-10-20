@@ -36,6 +36,34 @@ The integrated test APK must contain the pinned 088 provider and test manifest;
 080 does not register a second provider. This row does not prove interrupted
 export or process-kill recovery.
 
+`permission_denial_regrant` runs the owned `CameraPermissionJourneyTest` directly.
+Before instrumentation starts, the host executes and records `pm revoke` and
+`pm clear-permission-flags ... user-set user-fixed`; reset failure prevents the
+test from starting. The test asserts initial denial and drives real system denial
+and regrant controls. Revocation never occurs inside the instrumented process.
+
+`changed_inputs_and_repeated_actions` drives actual DocumentsUI cancellation,
+keeps the same C1 request UUID/project/revision across Activity recreation while
+the picker remains foreground, consumes088's normal fixture, imports it again
+without duplicate publication, and imports a second explicitly synthetic input.
+All four requests must have distinct UUIDs; another test-created project stays
+untouched, original hashes stay exact, and revisions advance only for new input.
+`background_return` uses the real HOME accessibility action, observes the launcher,
+returns to the existing app task, recreates and reopens through visible controls,
+then checks the same project/revision/original hashes. These tests require actual
+001 C1 production state and088's test provider in the combined APK. They do not
+claim lock/unlock, process death, in-flight cancellation or late camera callbacks.
+
+`screen_lock_return` requires an awake, unlocked fixture with no secure keyguard.
+It issues the real `GLOBAL_ACTION_LOCK_SCREEN`, waits until KeyguardManager
+reports locked and PowerManager reports noninteractive, then invokes external
+shell `input keyevent 224` and `wm dismiss-keyguard` only after rechecking that
+the fixture is nonsecure. It must observe awake/unlocked before returning to the
+app and asserting the same UUID/revision/original hashes. A credential-protected
+fixture fails its precondition; no credential bypass is implemented. This is a
+UI-state lock/wake test. `background_job_recovery` remains the separate external
+008/088 gate for interrupted execution, job reconnect and process recovery.
+
 Exit codes are 0/PASS, 1/FAIL, 2/BLOCKED_EXTERNAL, 3/NOT_RUN. `adb` returning zero
 does not qualify a test: started/completed identities, counts, no skips, the
 JUnit summary, and `INSTRUMENTATION_CODE: -1` must all agree. Empty/stale runs,
@@ -81,10 +109,24 @@ or deliver an agreed adapter before its scenario can be recorded PASS.
 
 ## Physical camera entrypoint
 
-Select `--scenario physical_capture --physical-class package.Test#method
---hardware-evidence-id <operator-protocol-receipt>`. Emulator/QEMU/generic
-identities are refused. A real identified hardware protocol and actual UI capture
-test are mandatory; merely supplying an ID does not replace test execution.
+Select `--scenario physical_capture --hardware-evidence-id <operator-receipt>
+--physical-scene-authorized` after positioning an authorized nonprivate scene.
+The receipt is a 1–128 character identifier using letters/digits and `._:/-`.
+The owned default is
+`PhysicalCaptureJourneyTest#capturesWithRealCameraAndReopensTheSameOriginal`;
+an arbitrary replacement class cannot qualify this row. Emulator/QEMU/generic
+identities are refused. The host resets CAMERA before instrumentation and passes
+the exact run/operator/fingerprint/device identity plus explicit scene consent.
+The test itself rejects emulator identities, checks a back-facing camera, grants
+permission through the actual system dialog, taps the enabled `Take photograph`
+control, and waits for real CameraX publication into its test-created project.
+It checks the JPEG signature/dimensions/length and SHA256, then recreates/reopens
+and requires the same original and revision. The runner additionally validates the
+bounded `rfPhysicalCaptureEvidence` terminal result: exact run/device/operator,
+project/photo UUIDs, one revision increment and identical original/reopened hashes.
+Missing or stale metadata fails even if JUnit reports success. The JPEG is never
+exported; the success screenshot is captured only after returning to the library,
+and automatic failure screenshots are disabled for physical capture.
 Synthetic/emulator success never qualifies real capture, geometry quality,
 memory, thermal behavior or commercial readiness. Manual camera/operator and
 assistive-technology evidence remain separate required gates.

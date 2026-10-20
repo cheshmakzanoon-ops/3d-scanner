@@ -27,6 +27,7 @@ CLASS = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+(?:#[A-Z
 RUNNER = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*/[A-Za-z_][A-Za-z0-9_.]*\Z")
 PNG_NAME = re.compile(r"rf-ui-([0-9a-f]{32})-[a-z0-9-]+\.png\Z")
 BASE_CLASS = "com.realityforge.scanner.uiflow.ActualUiJourneyTest"
+PHYSICAL_TEST = "com.realityforge.scanner.uiflow.PhysicalCaptureJourneyTest#capturesWithRealCameraAndReopensTheSameOriginal"
 SCENARIOS = {
     "create_rotate_reopen_cancel": {
         "test": BASE_CLASS + "#createRotateReopenAndCancelDestructiveActionThroughVisibleControls",
@@ -40,10 +41,24 @@ SCENARIOS = {
         "test": BASE_CLASS + "#sharedFaultProviderImportUsesTheActualPickerAndPreservesOriginals",
         "kind": "instrumentation", "synthetic": True,
     },
-    "permission_denial_regrant": {"kind": "controller", "owner": "088/014"},
+    "permission_denial_regrant": {
+        "test": "com.realityforge.scanner.uiflow.CameraPermissionJourneyTest#deniedThenGrantedCameraFlowKeepsTheInitiatingProjectAndOriginals",
+        "kind": "instrumentation", "camera_permission_reset": True, "synthetic": True,
+    },
     "late_camera_callback": {"kind": "controller", "owner": "088/014/001"},
-    "changed_inputs_and_repeated_actions": {"kind": "controller", "owner": "088/018/001"},
-    "background_lock_reconnect": {"kind": "controller", "owner": "088/008"},
+    "changed_inputs_and_repeated_actions": {
+        "test": "com.realityforge.scanner.uiflow.InterruptionUiJourneyTest#pickerCancelRecreateRepeatedImportAndChangedInputStayBoundToTheInitiatingProject",
+        "kind": "instrumentation", "synthetic": True,
+    },
+    "background_return": {
+        "test": "com.realityforge.scanner.uiflow.InterruptionUiJourneyTest#homeReturnRecreationAndReopenPreserveTheProjectAndOriginals",
+        "kind": "instrumentation", "synthetic": True,
+    },
+    "screen_lock_return": {
+        "test": "com.realityforge.scanner.uiflow.InterruptionUiJourneyTest#nonsecureScreenLockWakeAndReturnPreserveTheProjectAndOriginals",
+        "kind": "instrumentation", "synthetic": True,
+    },
+    "background_job_recovery": {"kind": "controller", "owner": "088/008"},
     "process_kill_relaunch": {"kind": "controller", "owner": "088"},
     "picker_return_after_process_death": {"kind": "controller", "owner": "088/026/001"},
     "provider_short_write_recovery": {"kind": "controller", "owner": "088/026"},
@@ -278,18 +293,47 @@ def collect_screenshots(commands: Commands, directory: Path, run_id: str) -> lis
     return result
 
 
-def run_instrumented(commands: Commands, scenario: str, test: str, runner: str, directory: Path) -> dict[str, Any]:
+def reset_camera_permission(commands: Commands, directory: Path) -> list[dict[str, Any]]:
+    """Revocation can kill the target; execute before instrumentation, never inside it."""
+    records = []
+    for name, args in (
+        ("revoke", ["pm", "revoke", "com.realityforge.scanner", "android.permission.CAMERA"]),
+        ("clear-flags", ["pm", "clear-permission-flags", "com.realityforge.scanner", "android.permission.CAMERA", "user-set", "user-fixed"]),
+    ):
+        result = commands.shell(*args)
+        stdout, stderr = directory / f"permission-{name}.stdout.txt", directory / f"permission-{name}.stderr.txt"
+        stdout.write_text(result.stdout)
+        stderr.write_text(result.stderr)
+        records.append({"command": args, "returncode": result.returncode, "stdout": str(stdout), "stdout_sha256": digest(stdout), "stderr": str(stderr), "stderr_sha256": digest(stderr)})
+        if result.returncode or re.search(r"exception|error:|unknown command|failure", result.stdout + result.stderr, re.I):
+            raise EvidenceError(f"External camera permission {name} failed; instrumentation was not started")
+    return records
+
+
+def run_instrumented(commands: Commands, scenario: str, test: str, runner: str, directory: Path,
+                     camera_permission_reset: bool = False, arguments: dict[str, str] | None = None) -> dict[str, Any]:
     if not CLASS.fullmatch(test) or "#" not in test:
         raise EvidenceError("Scenario needs a specific safe test class#method")
     run_id = uuid.uuid4().hex
     directory.mkdir()
-    result = commands.shell("am", "instrument", "-w", "-r", "-e", "class", test, "-e", "rfEvidenceRunId", run_id, runner)
+    preconditions = []
+    if camera_permission_reset:
+        try:
+            preconditions = reset_camera_permission(commands, directory)
+        except EvidenceError as exc:
+            return {"scenario": scenario, "run_id": run_id, "status": "FAIL", "errors": [str(exc)], "completed": 0, "passed": 0, "failed": 0, "skipped": 0, "screenshots": []}
+    extra = []
+    for key, value in (arguments or {}).items():
+        if not re.fullmatch(r"rf[A-Za-z0-9]+", key) or not isinstance(value, str) or "\0" in value or len(value) > 2048:
+            raise EvidenceError("Invalid instrumentation evidence argument")
+        extra.extend(["-e", key, value])
+    result = commands.shell("am", "instrument", "-w", "-r", "-e", "class", test, "-e", "rfEvidenceRunId", run_id, *extra, runner)
     stdout = directory / "instrumentation.stdout.txt"
     stderr = directory / "instrumentation.stderr.txt"
     stdout.write_text(result.stdout)
     stderr.write_text(result.stderr)
     parsed = parse_instrumentation(result.stdout, result.returncode, test)
-    evidence = {"scenario": scenario, "run_id": run_id, **parsed, "stdout": str(stdout), "stdout_sha256": digest(stdout), "stderr": str(stderr), "screenshots": []}
+    evidence = {"scenario": scenario, "run_id": run_id, **parsed, "stdout": str(stdout), "stdout_sha256": digest(stdout), "stderr": str(stderr), "screenshots": [], "external_permission_reset": preconditions}
     try:
         evidence["screenshots"] = collect_screenshots(commands, directory / "screenshots", run_id)
         if not evidence["screenshots"]:
@@ -298,6 +342,37 @@ def run_instrumented(commands: Commands, scenario: str, test: str, runner: str, 
         evidence["status"] = "FAIL"
         evidence["errors"].append(str(exc))
     return evidence
+
+
+def physical_capture_evidence(stdout: str, run_id: str, hardware_id: str, device: dict[str, Any]) -> dict[str, Any]:
+    values = re.findall(r"^INSTRUMENTATION_RESULT: rfPhysicalCaptureEvidence=(.*)$", stdout, re.MULTILINE)
+    if len(values) != 1 or len(values[0]) > 16384:
+        raise EvidenceError("Physical capture lacks one bounded owned-test result record")
+    value = json.loads(values[0])
+    if not isinstance(value, dict) or value.get("schema_version") != 1 or value.get("synthetic") is not False:
+        raise EvidenceError("Physical capture result has invalid schema/provenance")
+    expected = {"run_id": run_id, "hardware_evidence_id": hardware_id,
+                "device_fingerprint": device["properties"]["ro.build.fingerprint"],
+                "device_identity_sha256": device["identity_sha256"]}
+    if any(value.get(key) != item for key, item in expected.items()):
+        raise EvidenceError("Physical capture result is stale or bound to another operator/device")
+    for key in ("project_id", "photo_id"):
+        try:
+            if str(uuid.UUID(value[key])) != value[key]:
+                raise ValueError()
+        except (KeyError, ValueError, TypeError, AttributeError) as exc:
+            raise EvidenceError("Physical capture lacks a canonical project/photo UUID") from exc
+    for key in ("revision_before", "revision_after", "bytes", "width", "height"):
+        if type(value.get(key)) is not int:
+            raise EvidenceError("Physical capture result has invalid numeric fields")
+    if (value["revision_before"] < 0 or value["revision_after"] != value["revision_before"] + 1
+            or not 0 < value["bytes"] <= 150 * 1024 * 1024 or not 0 < value["width"] <= 200000
+            or not 0 < value["height"] <= 200000 or value["width"] * value["height"] > 4_000_000_000):
+        raise EvidenceError("Physical capture revision/size/dimensions are invalid")
+    photo_hash = value.get("photo_sha256")
+    if not isinstance(photo_hash, str) or not SHA.fullmatch(photo_hash) or value.get("reopened_photo_sha256") != photo_hash:
+        raise EvidenceError("Physical original hash was not preserved after reopen")
+    return value
 
 
 def validate_hash_map(value: Any, label: str) -> dict[str, str]:
@@ -379,8 +454,9 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--scenario", action="append", choices=list(SCENARIOS))
     result.add_argument("--all-required", action="store_true")
     result.add_argument("--process-controller", type=Path)
-    result.add_argument("--physical-class", help="Real UI capture class#method, not a ViewModel-only test")
+    result.add_argument("--physical-class", default=PHYSICAL_TEST, help="Owned physical capture class#method; other tests cannot qualify this scenario")
     result.add_argument("--hardware-evidence-id", help="Operator's identified physical hardware/capture protocol receipt")
+    result.add_argument("--physical-scene-authorized", action="store_true", help="Operator confirms the camera faces an authorized nonprivate test scene")
     result.add_argument("--timeout", type=int, default=600)
     return result
 
@@ -414,7 +490,8 @@ def main(argv: list[str] | None = None) -> int:
                 continue
             directory = args.output / scenario
             if spec["kind"] == "instrumentation":
-                evidence = run_instrumented(commands, scenario, spec["test"], args.runner, directory)
+                evidence = run_instrumented(commands, scenario, spec["test"], args.runner, directory,
+                                            camera_permission_reset=spec.get("camera_permission_reset", False))
             elif spec["kind"] == "controller":
                 if args.process_controller:
                     evidence = run_controller(commands, args.process_controller.resolve(), scenario, report["candidate"], report["device"], directory)
@@ -422,14 +499,26 @@ def main(argv: list[str] | None = None) -> int:
                     evidence = {"scenario": scenario, "status": "NOT_RUN", "reason": "Agent 088 shared external process/provider controller is not integrated", "owner": spec["owner"]}
             elif report["device"]["emulator"]:
                 evidence = {"scenario": scenario, "status": "BLOCKED_EXTERNAL", "reason": "An emulator cannot qualify physical camera capture"}
-            elif not args.physical_class or not args.hardware_evidence_id or not args.hardware_evidence_id.strip():
-                evidence = {"scenario": scenario, "status": "BLOCKED_EXTERNAL", "reason": "Physical capture requires a real UI test and identified hardware protocol evidence"}
+            elif not args.hardware_evidence_id or not args.hardware_evidence_id.strip() or not args.physical_scene_authorized:
+                evidence = {"scenario": scenario, "status": "BLOCKED_EXTERNAL", "reason": "Physical capture requires identified operator evidence and an explicitly authorized nonprivate scene"}
             else:
-                if len(args.hardware_evidence_id) > 1024:
-                    raise EvidenceError("Hardware protocol evidence identity exceeds budget")
-                evidence = run_instrumented(commands, scenario, args.physical_class, args.runner, directory)
+                if args.physical_class != PHYSICAL_TEST:
+                    raise EvidenceError("Only the owned real-camera capture test can qualify physical_capture")
+                if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}", args.hardware_evidence_id):
+                    raise EvidenceError("Hardware protocol receipt must be a bounded safe identifier")
+                evidence = run_instrumented(commands, scenario, PHYSICAL_TEST, args.runner, directory,
+                    camera_permission_reset=True, arguments={"rfPhysicalCapture": "true", "rfPhysicalSceneAuthorized": "true",
+                    "rfHardwareEvidenceId": args.hardware_evidence_id,
+                    "rfExpectedDeviceFingerprint": report["device"]["properties"]["ro.build.fingerprint"],
+                    "rfDeviceIdentitySha256": report["device"]["identity_sha256"]})
                 evidence["hardware_evidence_id"] = args.hardware_evidence_id
                 evidence["physical_device_operator_identified"] = True
+                if evidence["status"] == "PASS":
+                    try:
+                        evidence["physical_capture"] = physical_capture_evidence(Path(evidence["stdout"]).read_text(), evidence["run_id"], args.hardware_evidence_id, report["device"])
+                    except (EvidenceError, ValueError) as exc:
+                        evidence["status"] = "FAIL"
+                        evidence["errors"].append(str(exc))
             if "synthetic" in spec:
                 evidence["synthetic"] = spec["synthetic"]
             report["scenarios"].append(evidence)
