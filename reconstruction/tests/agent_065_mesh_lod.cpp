@@ -1,4 +1,5 @@
 #include "realityforge/mesh_lod.hpp"
+#include "realityforge/glb_export.hpp"
 #include <cassert>
 #include <cmath>
 #include <iostream>
@@ -17,10 +18,11 @@ template<class F>void fails(F fn){bool failed=false;try{fn();}catch(const Error&
 std::size_t components(const SurfaceAsset& a){std::vector<unsigned> groups(a.vertices.positions.size());for(unsigned i=0;i<groups.size();++i)groups[i]=i;
     auto root=[&](unsigned x){while(groups[x]!=x)x=groups[x];return x;};for(std::size_t i=0;i<a.indices.size();i+=3)for(int k=1;k<3;++k)groups[root(a.indices[i+k])]=root(a.indices[i]);
     std::set<unsigned> ids;for(auto i:a.indices)ids.insert(root(i));return ids.size();}
-int main(){
+int main(int argc,char** argv){
     auto f=grid();const auto originals=f.positions;const auto triangles=f.indices;
     LodRecipe r;r.targetTriangles=24;r.maximumDisplacement=1.5;
     auto lod=simplifySurface(f.view(),r);assert(lod.geometry.indices.size()/3==24);assert(lod.report.collapsedEdges==4);
+    if(argc==2)writeGlbFile(lod.geometry.surface(),argv[1]);
     assert(lod.report.maximumVertexDisplacement<=1.5);assert(components(lod.geometry.surface())==1);
     for(auto p:originals)if(p.x==0||p.x==4||p.y==0||p.y==4){bool found=false;for(auto q:lod.geometry.positions)found|=q.x==p.x&&q.y==p.y&&q.z==p.z;assert(found);}
     auto same=simplifySurface(f.view(),r);assert(lod.geometry.indices==same.geometry.indices);assert(f.indices==triangles);
