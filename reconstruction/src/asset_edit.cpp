@@ -17,9 +17,11 @@ template<class T>void copy(std::vector<T>& to,std::span<const T> from){to.assign
 void compact(EditedGeometry& g){
     std::vector<std::uint32_t> map(g.positions.size(),std::numeric_limits<std::uint32_t>::max());
     EditedGeometry out;out.units=g.units;out.representation=g.representation;out.provenance=g.provenance;out.measurement=g.measurement;
+    out.parentTriangleIndices=g.parentTriangleIndices;
     for(auto i:g.indices){
         if(map[i]==std::numeric_limits<std::uint32_t>::max()){
             map[i]=static_cast<std::uint32_t>(out.positions.size());out.positions.push_back(g.positions[i]);
+            out.parentVertexIndices.push_back(g.parentVertexIndices[i]);
             if(!g.normals.empty())out.normals.push_back(g.normals[i]);
             if(!g.colors.empty())out.colors.push_back(g.colors[i]);
             if(!g.confidence.empty())out.confidence.push_back(g.confidence[i]);
@@ -47,6 +49,8 @@ EditedGeometry applyEdits(const SurfaceAsset& input,const EditRecipe& recipe,std
     EditedGeometry out;copy(out.positions,input.vertices.positions);copy(out.normals,input.vertices.normals);
     copy(out.colors,input.vertices.colors);copy(out.confidence,input.vertices.confidence);copy(out.supportingViews,input.vertices.supportingViews);
     copy(out.indices,input.indices);copy(out.uv,uv);out.units=input.vertices.units;out.representation=input.vertices.representation;
+    out.parentVertexIndices.resize(out.positions.size());std::iota(out.parentVertexIndices.begin(),out.parentVertexIndices.end(),0);
+    out.parentTriangleIndices.resize(out.indices.size()/3);std::iota(out.parentTriangleIndices.begin(),out.parentTriangleIndices.end(),0);
     out.provenance=input.vertices.provenance;out.provenance.parentId=recipe.parentAssetId;out.provenance.assetId.clear();out.provenance.algorithmVersion="rf-asset-edit-v1";
     for(const auto& op:recipe.operations){
         checkCancelled(cancel);
@@ -68,8 +72,9 @@ EditedGeometry applyEdits(const SurfaceAsset& input,const EditRecipe& recipe,std
                     throw Error("Invalid crop bounds");
                 auto inside=[&](std::uint32_t i){auto p=out.positions[i];return p.x>=edit.minimum.x&&p.x<=edit.maximum.x&&p.y>=edit.minimum.y&&p.y<=edit.maximum.y&&p.z>=edit.minimum.z&&p.z<=edit.maximum.z;};
                 std::vector<std::uint32_t> kept;
-                for(std::size_t i=0;i<out.indices.size();i+=3){if(i%3072==0)checkCancelled(cancel);if(inside(out.indices[i])&&inside(out.indices[i+1])&&inside(out.indices[i+2]))kept.insert(kept.end(),out.indices.begin()+i,out.indices.begin()+i+3);}
-                out.indices.swap(kept);compact(out);
+                std::vector<std::uint32_t> keptSources;
+                for(std::size_t i=0;i<out.indices.size();i+=3){if(i%3072==0)checkCancelled(cancel);if(inside(out.indices[i])&&inside(out.indices[i+1])&&inside(out.indices[i+2])){kept.insert(kept.end(),out.indices.begin()+i,out.indices.begin()+i+3);keptSources.push_back(out.parentTriangleIndices[i/3]);}}
+                out.indices.swap(kept);out.parentTriangleIndices.swap(keptSources);compact(out);
             }else if constexpr(std::is_same_v<T,ComponentEdit>){
                 if(edit.componentIds.empty()||edit.componentIds.size()>1024)throw Error("Invalid component selection");
                 std::vector<std::uint32_t> parent(out.positions.size());std::iota(parent.begin(),parent.end(),0);
@@ -81,8 +86,9 @@ EditedGeometry applyEdits(const SurfaceAsset& input,const EditRecipe& recipe,std
                 std::set<std::uint32_t> wanted(edit.componentIds.begin(),edit.componentIds.end());
                 if(*wanted.rbegin()>=ids.size())throw Error("Component selection refers to an unavailable component");
                 std::vector<std::uint32_t> kept;
-                for(std::size_t i=0;i<out.indices.size();i+=3)if(wanted.contains(ids.at(root(out.indices[i]))))kept.insert(kept.end(),out.indices.begin()+i,out.indices.begin()+i+3);
-                out.indices.swap(kept);compact(out);
+                std::vector<std::uint32_t> keptSources;
+                for(std::size_t i=0;i<out.indices.size();i+=3)if(wanted.contains(ids.at(root(out.indices[i])))){kept.insert(kept.end(),out.indices.begin()+i,out.indices.begin()+i+3);keptSources.push_back(out.parentTriangleIndices[i/3]);}
+                out.indices.swap(kept);out.parentTriangleIndices.swap(keptSources);compact(out);
             }else if constexpr(std::is_same_v<T,MetricReferenceEdit>){
                 const double distance=norm(sub(edit.end,edit.start));
                 if(!finite(edit.start)||!finite(edit.end)||!(distance>0)||!std::isfinite(distance)||

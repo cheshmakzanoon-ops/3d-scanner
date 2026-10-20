@@ -24,6 +24,10 @@ int main(int argc,char** argv){
     assert(reflected.normals[0].z==1);assert(reflected.uv[1].x==1);
     recipe.operations={CropEdit{{-1,-1,-1},{3,3,1}}};auto crop=applyEdits(source,recipe,uv);assert(crop.positions.size()==3&&crop.indices.size()==3);
     recipe.operations={ComponentEdit{{1}}};auto selected=applyEdits(source,recipe,uv);assert(selected.positions[0].x==10&&selected.indices.size()==3);
+    assert((selected.parentVertexIndices==std::vector<std::uint32_t>{3,4,5}));
+    assert((selected.parentTriangleIndices==std::vector<std::uint32_t>{1}));
+    assert((crop.parentVertexIndices==std::vector<std::uint32_t>{0,1,2}));
+    assert((crop.parentTriangleIndices==std::vector<std::uint32_t>{0}));
     recipe.operations={ComponentEdit{{2}}};fails([&]{applyEdits(source,recipe,uv);});
     recipe.operations={CropEdit{{100,100,100},{101,101,101}}};fails([&]{applyEdits(source,recipe,uv);});
     recipe.operations={MetricReferenceEdit{{0,0,0},{0,0,0},1,0,"bad"}};fails([&]{applyEdits(source,recipe);});

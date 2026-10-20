@@ -25,6 +25,7 @@ struct EditedGeometry {
     std::vector<std::array<std::uint8_t,3>> colors;
     std::vector<float> confidence;
     std::vector<std::uint32_t> supportingViews,indices;
+    std::vector<std::uint32_t> parentVertexIndices,parentTriangleIndices;
     std::vector<Vec2> uv;
     Units units=Units::Arbitrary;
     Representation representation=Representation::ObservedSurface;
