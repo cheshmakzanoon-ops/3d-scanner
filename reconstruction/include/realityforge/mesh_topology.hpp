@@ -137,9 +137,11 @@ inline MeshTopologyReport analyzeMeshTopology(const SurfaceMesh& mesh,const Mesh
     for(std::size_t i=0;i<boxes.size()&&!out.intersectionBudgetExceeded;++i){
         if((i&63u)==0){cancellation::checkpoint();}
         const auto& a=boxes[i];
-        for(std::size_t j=i+1;j<boxes.size()&&boxes[j].lo[0]<=a.hi[0]+epsilon;++j){const auto& b=boxes[j];if(b.lo[1]>a.hi[1]+epsilon||a.lo[1]>b.hi[1]+epsilon||b.lo[2]>a.hi[2]+epsilon||a.lo[2]>b.hi[2]+epsilon)continue;
-            const auto f=mesh.triangles[a.face],g=mesh.triangles[b.face];bool shared=false;for(auto u:{f.a,f.b,f.c})for(auto v:{g.a,g.b,g.c})if(u==v)shared=true;if(shared)continue;
+        for(std::size_t j=i+1;j<boxes.size()&&boxes[j].lo[0]<=a.hi[0]+epsilon;++j){const auto& b=boxes[j];
             if(out.intersectionCandidates++>=s.maxIntersectionCandidates){out.intersectionBudgetExceeded=true;break;}
+            if((out.intersectionCandidates&63u)==0)cancellation::checkpoint();
+            if(b.lo[1]>a.hi[1]+epsilon||a.lo[1]>b.hi[1]+epsilon||b.lo[2]>a.hi[2]+epsilon||a.lo[2]>b.hi[2]+epsilon)continue;
+            const auto f=mesh.triangles[a.face],g=mesh.triangles[b.face];
             const std::array<P,3> p{point(mesh.vertices[f.a].xyz),point(mesh.vertices[f.b].xyz),point(mesh.vertices[f.c].xyz)},q{point(mesh.vertices[g.a].xyz),point(mesh.vertices[g.b].xyz),point(mesh.vertices[g.c].xyz)};
             auto pair=std::minmax(a.face,b.face);const int result=intersect(p,q,epsilon);if(result==2)out.intersections.push_back(pair);else if(result==1)out.ambiguousPairs.push_back(pair);
         }
