@@ -1,4 +1,4 @@
-// :app convention; root settings must include(":macrobenchmark"). No additional plugin classloader.
+// Inline exact imports/body into :app; AGP8.11 lint crashes on applied Kotlin scripts; root settings must include(":macrobenchmark"). No additional plugin classloader.
 import org.gradle.kotlin.dsl.withGroovyBuilder
 fun Any.benchmarkDsl(name: String): Any = withGroovyBuilder { getProperty(name) } ?: error("Missing Android DSL property $name")
 fun Any.setBenchmarkDsl(name: String, value: Any?) { withGroovyBuilder { setProperty(name, value) } }

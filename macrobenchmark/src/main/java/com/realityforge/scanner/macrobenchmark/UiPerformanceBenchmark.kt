@@ -62,13 +62,25 @@ class UiPerformanceBenchmark {
         iterations = 10, startupMode = StartupMode.WARM, setupBlock = { pressHome() }) {
         startActivityAndWait()
     }
-    @Test fun libraryNavigation() = benchmark.measureRepeated(packageName, listOf(FrameTimingMetric()),
-        iterations = 10, setupBlock = { startActivityAndWait() }) {
+    private val disposableProject = "a097 synthetic benchmark disposable"
+    private fun libraryReady() {
+        ui.findObject(By.text("Library"))?.click()
         val create = checkNotNull(ui.wait(Until.findObject(By.text("Create local project")),10000))
-        create.click()
-        check(ui.wait(Until.hasObject(By.text("New scan")),5000))
-        checkNotNull(ui.findObject(By.text("Cancel"))).click()
-        check(ui.wait(Until.hasObject(By.text("Create local project")),5000))
+        if (!ui.hasObject(By.text(disposableProject))) {
+            create.click()
+            check(ui.wait(Until.hasObject(By.text("New scan")),5000))
+            checkNotNull(ui.wait(Until.findObject(By.clazz("android.widget.EditText")),5000)).text = disposableProject
+            checkNotNull(ui.findObject(By.text("Create"))).click()
+            checkNotNull(ui.wait(Until.findObject(By.text("Library")),10000)).click()
+        }
+        check(ui.wait(Until.hasObject(By.text(disposableProject)),10000))
+    }
+    @Test fun libraryNavigation() = benchmark.measureRepeated(packageName, listOf(FrameTimingMetric()),
+        iterations = 10, setupBlock = { startActivityAndWait(); libraryReady() }) {
+        checkNotNull(ui.findObject(By.text(disposableProject))).click()
+        check(ui.wait(Until.hasObject(By.text("Import photos")),10000))
+        checkNotNull(ui.findObject(By.text("Library"))).click()
+        check(ui.wait(Until.hasObject(By.text(disposableProject)),10000))
     }
     private fun reopen(fixture: String) = benchmark.measureRepeated(packageName,
         listOf(StartupTimingMetric(), FrameTimingMetric()), iterations = 10,

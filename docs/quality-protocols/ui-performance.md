@@ -10,7 +10,7 @@ NOT_RUN; trace integrity success is not budget success. Do not weaken budgets af
 seeing results; a revised version needs a documented owner decision and new run.
 
 The seven executable AndroidX macrobenchmarks cover actual MainActivity cold/warm
-launch, current library create/cancel navigation, actual production photographic viewer
+launch, actual library→disposable project→library navigation, actual production photographic viewer
 reopen/atlas upload for two bounded synthetic grids, orbit/pinch/reset and orientation/
 background/close/reopen lifecycle. The fixture host is exclusive to the benchmark
 variant and invokes production PhotographicModelViewer/PhotographicGlb/PhotoGlView;
