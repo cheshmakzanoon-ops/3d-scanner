@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "frozen_before_measurement": true,
+  "physical_matte_textured_360_objects_minimum": 2,
+  "photo_workloads": [12, 30, 100, 250],
+  "required_scenes": ["matte_textured", "thin", "flat", "glossy", "transparent", "low_texture", "moving"],
+  "development_and_held_out_separate": true,
+  "independent_reference_geometry_required": true,
+  "raw_capture_default": "private_local_only",
+  "quality_gate_from_input_validation": false
+}
