@@ -46,7 +46,7 @@ f24cd4e037d24f73509924449b8dd55c699c006512262fc2f66e2ea63f4fbb0f  app/src/main/j
 8f9dcc1a82ce985f8b1a2bb2349412ce4e65d1fdc7e5cece33d8c46a6a0aaf2d  app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt
 7d4a77829e519733477eab42e73d5a7bc5319da7c342220b6f6447eb14721d56  app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt
 52f41406e1703fdb9507bc9cc779a71fb8dfe19ea6789dfec927d339528c746f  app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt
-300e008cacea3057d5ffe60d247ec8695b26ef81cf88d44fb193643db4ddc3de  app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt
+b6147dd2f8d51d447908cd0a6a7fb1ccb855a02ecfb5c6f9304fc3e1a882a7b2  app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt
 bf55a6cca73aa745bbed789bab35d2122af6cbe423f47736ba0fee036c5d30e5  app/src/main/java/com/realityforge/scanner/ui/photoreview/ProjectReviewScreen.kt
 47769f6e862792b0d94cfa71258abcab2e3b28d3e4815590dc321987bd6745af  app/src/main/java/com/realityforge/scanner/ui/photoreview/ReviewState.kt
 0b3b70109a65b594385ebd8f2ad215c9c61ed0416fd9e2edd468741ff70313fa  app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt
@@ -57,7 +57,7 @@ cba4c90dff6ab7ea9a42540ef83addb6542ba3185fac559483816f5feb65d829  app/src/main/r
 b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/res/values/styles.xml
 8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22  app/src/main/res/xml/data_extraction_rules.xml
 3824769adf7a6d91d0c99a0447727c043308fae00d93c1a6f66c77a98b7f0cfe  app/src/test/java/com/realityforge/scanner/CalibrationTest.kt
-bdc073a68d5fda5679e2b63e43c293740cfd8937fdbfcfca5ab0d29b17d86ea6  app/src/test/java/com/realityforge/scanner/agents/a073/PhotoCurationPresenterTest.kt
+bc55526457858ca69f24557a147e24143463b8371f9a5e3df1a0d66d8c2005e9  app/src/test/java/com/realityforge/scanner/agents/a073/PhotoCurationPresenterTest.kt
 2c265f77174f534515c8547c2e70b8dc04ffadf11a4a4896517323decfc2a97d  app/src/test/java/com/realityforge/scanner/agents/a073/ReviewAdmissionTest.kt
 0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37  app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt
 05854244689335c9f17f5d26c8a4b28f960dd20c8fe1bcc526450d48b229aba4  app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt

@@ -38,6 +38,20 @@ class PhotoCurationPresenterTest {
         presenter.attach(metadata().copy(photos=metadata().photos.map {it.copy(sha256="c".repeat(64))}))
         assertNull(presenter.state.value.review);assertEquals("identity mismatch",presenter.state.value.failure)
     }
+    @Test fun roomEmissionAfterOurCommitRetainsUndoAndLaggingMetadataCannotRewind()=runBlocking {
+        val presenter=PhotoCurationPresenter(DefaultPhotoCurationService(store()),{"typed failure"},{"failure"})
+        presenter.attach(metadata());assertTrue(presenter.execute(ReviewAction.Include("project",3,"a",false)))
+        presenter.attach(metadata().copy(revision=4));assertTrue(presenter.state.value.review!!.canUndo)
+        presenter.attach(metadata());assertEquals(4L,presenter.state.value.review!!.revision)
+        assertTrue(presenter.execute(ReviewAction.Command("project",4,ReviewCommand.UNDO)))
+        assertEquals(2,presenter.state.value.review!!.selectedCount)
+    }
+    @Test fun externalNewerRevisionClearsTheOldUndoToken()=runBlocking {
+        val store=store();val presenter=PhotoCurationPresenter(DefaultPhotoCurationService(store),{"typed failure"},{"failure"})
+        presenter.attach(metadata());presenter.execute(ReviewAction.Include("project",3,"a",false))
+        store.snapshot=store.snapshot.copy(revision=CurationRevision(5,2))
+        presenter.attach(metadata().copy(revision=5));assertFalse(presenter.state.value.review!!.canUndo)
+    }
     @Test fun failedNavigationAttachDoesNotExposeThePreviousProject()=runBlocking {
         val presenter=PhotoCurationPresenter(DefaultPhotoCurationService(store()),{"typed failure"},{"unavailable"})
         presenter.attach(metadata());assertNotNull(presenter.state.value.review)

@@ -25,7 +25,20 @@ class PhotoCurationPresenter(private val service:PhotoCurationService,
     private var undo:CurationUndoToken?=null
     suspend fun attach(metadata:ProjectReviewUiState) {
         commands.lock()
-        try { base=metadata;current=null;undo=null;mutable.value=CurationReviewState();reload() }
+        try {
+            val previous=current
+            val sameOriginals=previous!=null && previous.projectId==metadata.projectId &&
+                previous.photos.map { it.id to it.sha256 }.toSet()==metadata.photos.map { it.id to it.sha256 }.toSet()
+            // A lagging Room emission after our commit must not rewind the displayed revision.
+            if(sameOriginals && metadata.revision<previous!!.revision.projectRevision) return
+            val preserveCandidate=sameOriginals && metadata.revision==previous!!.revision.projectRevision
+            base=metadata
+            if(!preserveCandidate) { current=null;undo=null;mutable.value=CurationReviewState() }
+            val committed=service.state(metadata.projectId)?:error("Curation project is unavailable")
+            // A same-revision refresh preserves immediate undo only for the exact committed state.
+            if(!preserveCandidate || committed.revision!=previous!!.revision || committed.photos!=previous.photos) undo=null
+            apply(committed)
+        }
         catch(cancelled:CancellationException) { throw cancelled }
         catch(error:Exception) { mutable.update { it.copy(failure=unexpectedFailure(error)) } }
         finally { commands.unlock() }
