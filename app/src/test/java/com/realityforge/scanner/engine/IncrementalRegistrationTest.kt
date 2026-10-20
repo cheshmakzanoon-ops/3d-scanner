@@ -133,4 +133,15 @@ class IncrementalRegistrationTest {
             for(camera in resumed.cameras)assertEquals(-camera.photo*.01,camera.view.translation[0],1e-5)
         }
     }
+
+    @Test fun frontierDefendsPoseIdentityAndObservationInputs(){
+        val rotation=mutableListOf(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0);val translation=mutableListOf(0.0,0.0,0.0)
+        val first=com.realityforge.scanner.engine.registration.FrontierCamera("a",rotation,translation)
+        val second=com.realityforge.scanner.engine.registration.FrontierCamera("b",rotation,listOf(-1.0,0.0,0.0));val ids=mutableListOf("a","b");val cameras=mutableListOf(first,second);val failures=mutableMapOf("a" to "measured reason")
+        val tracks=com.realityforge.scanner.engine.tracks.TrackSnapshot(emptyList()).encode()
+        val frontier=com.realityforge.scanner.engine.registration.RegistrationFrontier("a".repeat(64),ids,cameras,failures,tracks);val encoded=frontier.encode()
+        rotation[0]=0.0;translation[0]=500.0;ids.clear();cameras.clear();failures.clear();tracks[0]=0;frontier.trackSnapshot[0]=0
+        assertArrayEquals(encoded,frontier.encode());assertEquals(1.0,first.rotation[0],0.0);assertEquals(0.0,first.translation[0],0.0)
+        assertThrows(UnsupportedOperationException::class.java){(frontier.photoIds as MutableList).clear()}
+    }
 }

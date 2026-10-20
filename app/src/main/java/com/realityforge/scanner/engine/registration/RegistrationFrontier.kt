@@ -3,9 +3,12 @@ package com.realityforge.scanner.engine.registration
 import com.realityforge.scanner.engine.tracks.TrackSnapshot
 import java.io.*
 import java.security.MessageDigest
+import java.util.Collections
 import kotlin.math.abs
 
-internal data class FrontierCamera(val photoId:String,val rotation:List<Double>,val translation:List<Double>){
+internal class FrontierCamera(val photoId:String,rotation:List<Double>,translation:List<Double>){
+ val rotation:List<Double> = Collections.unmodifiableList(rotation.toList())
+ val translation:List<Double> = Collections.unmodifiableList(translation.toList())
  init {require(photoId.isNotBlank() && photoId.toByteArray().size<=1024 && rotation.size==9 && translation.size==3)
   require(rotation.all {it.isFinite()} && translation.all {it.isFinite()&&abs(it)<100000})
   for(a in 0..2)for(b in 0..2)require(abs((0..2).sumOf {rotation[a*3+it]*rotation[b*3+it]}-if(a==b)1.0 else 0.0)<.01)
@@ -13,7 +16,12 @@ internal data class FrontierCamera(val photoId:String,val rotation:List<Double>,
  }
 }
 /** A checksummed stage checkpoint, never a published completed reconstruction. */
-internal data class RegistrationFrontier(val inputIdentity:String,val photoIds:List<String>,val cameras:List<FrontierCamera>,val failureReasons:Map<String,String>, val trackSnapshot:ByteArray=ByteArray(0)){
+internal class RegistrationFrontier(val inputIdentity:String,photoIds:List<String>,cameras:List<FrontierCamera>,failureReasons:Map<String,String>, trackSnapshot:ByteArray=ByteArray(0)){
+ val photoIds:List<String> = Collections.unmodifiableList(photoIds.toList())
+ val cameras:List<FrontierCamera> = Collections.unmodifiableList(cameras.toList())
+ val failureReasons:Map<String,String> = Collections.unmodifiableMap(failureReasons.toMap())
+ private val sourceTracks=trackSnapshot.copyOf()
+ val trackSnapshot:ByteArray get()=sourceTracks.copyOf()
  init {require(inputIdentity.matches(Regex("[a-f0-9]{64}")))
   require(photoIds.size in 2..250 && photoIds.distinct().size==photoIds.size && photoIds.all {it.isNotBlank()&&it.toByteArray().size<=1024})
   require(cameras.size in 2..photoIds.size && cameras.map {it.photoId}.distinct().size==cameras.size && cameras.all {it.photoId in photoIds})
