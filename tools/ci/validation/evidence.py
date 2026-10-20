@@ -16,6 +16,8 @@ import xml.etree.ElementTree as ET
 
 SCHEMA = "realityforge.ci-evidence.v1"
 GATES = {"native": "host-synthetic-and-real-stereo", "android": "host-jvm", "device": "emulator-synthetic-session"}
+SUITE_PATH = "tools/device/compatibility/suites.json"
+DEBUG_SPECIALIST_GATES = {"physical_capture", "external_recovery", "physical_resource_profile", "offline_radios_journey", "minified_release"}
 NATIVE_REPORTS = {"numerical.json", "benchmark_multiview_coverage.json", "benchmark_middlebury.json", "benchmark_dense_middlebury.json", "benchmark_surface_middlebury.json", "benchmark_texture_middlebury.json"}
 NATIVE_CONFIGS = {"gcc-release", "clang-release", "gcc-sanitize", "clang-sanitize"}
 COMMANDS = {"configure", "build", "ctest", "numerical", "pytest", "bundle-three-view", "benchmark_multiview_coverage", "benchmark_middlebury", "benchmark_dense_middlebury", "benchmark_surface_middlebury", "benchmark_texture_middlebury"}
@@ -134,10 +136,12 @@ def native_record(path, expected, mapped=None):
     return files, xml
 
 
-def instrumentation_counts(text):
+def instrumentation_counts(text, outcomes=None):
     """Independently verify AndroidJUnitRunner raw completion and skip events."""
-    summary = re.search(r"OK \((\d+) tests?\)", text)
-    if not summary or any(value in text for value in ("FAILURES!!!", "INSTRUMENTATION_FAILED", "Process crashed", "INSTRUMENTATION_ABORTED")):
+    summaries = re.findall(r"^OK \((\d+) tests?\)\s*$", text, re.MULTILINE)
+    completed = re.findall(r"^INSTRUMENTATION_CODE: (-?\d+)\s*$", text, re.MULTILINE)
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    if len(summaries) != 1 or completed != ["-1"] or not lines or lines[-1] != "INSTRUMENTATION_CODE: -1" or any(value in text for value in ("FAILURES!!!", "INSTRUMENTATION_FAILED", "Process crashed", "INSTRUMENTATION_ABORTED")):
         raise EvidenceError("Device instrumentation failed/incomplete")
     fields, starts, ends, totals = {}, set(), {}, set()
     for line in text.splitlines():
@@ -174,15 +178,19 @@ def instrumentation_counts(text):
                   skipped=sum(code in (-3, -4) for code in ends.values()),
                   failed=sum(code in (-1, -2) for code in ends.values()))
     # JUnit's summary excludes @Ignore (-3), but includes assumptions (-4).
-    if result["failed"] or result["passed"] < 1 or int(summary[1]) != result["tests"] - sum(code == -3 for code in ends.values()):
+    if result["failed"] or result["passed"] < 1 or int(summaries[0]) != result["tests"] - sum(code == -3 for code in ends.values()):
         raise EvidenceError("Instrumentation summary/pass/skip counts disagree")
+    if outcomes is not None:
+        for key, code in ends.items():
+            outcomes.setdefault(f"{key[0]}#{key[1]}", []).append(code)
     return result
 
 
-def device_record(record, transcript, apks):
+def device_record(record, transcript, apks, suite_manifest):
     data = load(record)
     text = Path(transcript).read_text()
-    counts = instrumentation_counts(text)
+    outcomes = {}
+    counts = instrumentation_counts(text, outcomes)
     if data.get("schema") != 1 or data.get("status") != "PASS" or data.get("counts") != counts:
         raise EvidenceError("Device receipt differs from actual instrumentation outcomes")
     device = data.get("device", {})
@@ -190,7 +198,28 @@ def device_record(record, transcript, apks):
         raise EvidenceError("Expected actual x86_64 emulator identity")
     if data.get("tests") != counts["tests"] or {data.get("appSha256"), data.get("testSha256")} != {sha(path) for path in apks} or len(apks) != 2:
         raise EvidenceError("Device test count/candidate APK identity mismatch")
-    return counts
+    manifest = load(suite_manifest)
+    if manifest.get("schema") != "realityforge.android-suite-scopes.v1":
+        raise EvidenceError("Unknown Android suite manifest schema")
+    scope = manifest.get("scopes", {}).get("debug", {})
+    excluded = scope.get("excludedGates", [])
+    required_selectors = scope.get("requiredPassedSelectors", [])
+    if len(excluded) != len(DEBUG_SPECIALIST_GATES) or {row.get("gate") for row in excluded} != DEBUG_SPECIALIST_GATES or not required_selectors:
+        raise EvidenceError("Debug scope must retain all required specialist gates")
+    expected_suite = dict(schema=1, scope="debug", manifestSha256=sha(suite_manifest),
+                          notClass=[row["selector"] for row in excluded],
+                          requiredPassedSelectors=required_selectors,
+                          excludedGates=[{**row, "status": "NOT_RUN"} for row in excluded],
+                          fullQualification="NOT_RUN")
+    if data.get("suite") != expected_suite:
+        raise EvidenceError("Compatibility scope/excluded required gates differ from source manifest")
+    if any(not outcomes.get(selector) or any(code != 0 for code in outcomes[selector]) for selector in required_selectors):
+        raise EvidenceError("Required compatibility/session selectors did not actually pass")
+    for row in excluded:
+        selector = row["selector"]
+        if any(name == selector or ("#" not in selector and name.split("#", 1)[0] == selector) for name in outcomes):
+            raise EvidenceError("Excluded specialist selector executed inside generic compatibility scope")
+    return counts, expected_suite
 
 
 def collect(start_path, output, xml_patterns=(), artifact_patterns=(), native=None, screenshot=None, apk_report=None, device=None):
@@ -202,6 +231,7 @@ def collect(start_path, output, xml_patterns=(), artifact_patterns=(), native=No
     source(Path(start["root"]), start["source_sha"])
     files, xml = expanded(artifact_patterns), expanded(xml_patterns)
     gate = start["gate"]
+    suite_manifest = None
     if gate == "native":
         if native is None:
             raise EvidenceError("Native gate requires the 081 runner record")
@@ -224,8 +254,12 @@ def collect(start_path, output, xml_patterns=(), artifact_patterns=(), native=No
         if device is None:
             raise EvidenceError("Device compatibility record required")
         transcript = Path(device).with_name("instrumentation.txt")
-        device_counts = device_record(fresh(device, start["started_ns"]), fresh(transcript, start["started_ns"]), [path for path in files if path.suffix == ".apk"])
-        files += [Path(device), transcript, Path(screenshot)]
+        suite_manifest = Path(start["root"]) / SUITE_PATH
+        committed_manifest = subprocess.check_output(["git", "-C", start["root"], "show", f"{start['source_sha']}:{SUITE_PATH}"])
+        if suite_manifest.read_bytes() != committed_manifest:
+            raise EvidenceError("Suite manifest differs from exact candidate Git source")
+        device_counts, suite = device_record(fresh(device, start["started_ns"]), fresh(transcript, start["started_ns"]), [path for path in files if path.suffix == ".apk"], suite_manifest)
+        files += [Path(device), transcript, Path(screenshot), suite_manifest]
     if not xml and gate != "device":
         raise EvidenceError("No JUnit test results")
     counts = dict(tests=0, passed=0, failed=0, skipped=0)
@@ -243,14 +277,16 @@ def collect(start_path, output, xml_patterns=(), artifact_patterns=(), native=No
     for path in dict.fromkeys(files):
         # Device APKs originate in the Android job. Their exact same-run hashes
         # are compared across both gates; reports/screenshots must be fresh here.
-        path = fresh(path, 0 if gate == "device" and path.suffix == ".apk" else start["started_ns"])
+        path = fresh(path, 0 if gate == "device" and (path.suffix == ".apk" or path == suite_manifest) else start["started_ns"])
         digest = sha(path)
         relative = "files/" + digest + "-" + path.name
         target = output / relative
         shutil.copyfile(path, target)
-        role = "junit" if path in xml else "screenshot" if screenshot and path == Path(screenshot) else "apk-report" if apk_report and path == Path(apk_report) else "native-record" if native and path == Path(native) else "device-record" if device and path == Path(device) else "instrumentation" if device and path == Path(device).with_name("instrumentation.txt") else "artifact"
+        role = "junit" if path in xml else "screenshot" if screenshot and path == Path(screenshot) else "apk-report" if apk_report and path == Path(apk_report) else "native-record" if native and path == Path(native) else "device-record" if device and path == Path(device) else "instrumentation" if device and path == Path(device).with_name("instrumentation.txt") else "scope-manifest" if suite_manifest and path == suite_manifest else "artifact"
         artifacts.append(dict(path=relative, original_path=str(path), role=role, sha256=digest, size_bytes=target.stat().st_size))
     evidence = {**start, "status": "PASS", "completed_ns": time.time_ns(), "tests": counts, "artifacts": artifacts}
+    if gate == "device":
+        evidence["suite"] = suite
     (output / "evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n")
     return evidence
 
@@ -307,8 +343,11 @@ def verify_bundle(directory, expected, run_id, required=("native", "android", "d
             validate(roles["screenshot"][0])
             if len(roles.get("device-record", [])) != 1 or len(roles.get("instrumentation", [])) != 1:
                 raise EvidenceError("Device execution record/transcript missing")
-            if device_record(roles["device-record"][0], roles["instrumentation"][0], [path for path in mapped.values() if path.suffix == ".apk"]) != counts:
-                raise EvidenceError("Device summary does not match actual instrumentation")
+            if len(roles.get("scope-manifest", [])) != 1:
+                raise EvidenceError("Versioned compatibility scope manifest missing")
+            actual_counts, actual_suite = device_record(roles["device-record"][0], roles["instrumentation"][0], [path for path in mapped.values() if path.suffix == ".apk"], roles["scope-manifest"][0])
+            if actual_counts != counts or item.get("suite") != actual_suite:
+                raise EvidenceError("Device summary does not match actual instrumentation/scope")
         records[gate] = item
     if set(records) != set(required):
         raise EvidenceError(f"Required evidence missing: {sorted(set(required) - set(records))}")
@@ -317,8 +356,9 @@ def verify_bundle(directory, expected, run_id, required=("native", "android", "d
         if hashes("android") != hashes("device") or len(hashes("android")) != 2:
             raise EvidenceError("Installed APKs differ from the Android candidate build")
     return dict(schema=SCHEMA, status="PASS", source_sha=expected, run_id=run_id,
-                gates={key: {"status": value["status"], "kind": value["kind"], "tests": value["tests"]} for key, value in records.items()},
-                physical_device="NOT_RUN")
+                gates={key: {"status": value["status"], "kind": value["kind"], "tests": value["tests"], **({"suite": value["suite"]} if key == "device" else {})} for key, value in records.items()},
+                required_specialist_gates=records.get("device", {}).get("suite", {}).get("excludedGates", []),
+                release_qualification="NOT_RUN", physical_device="NOT_RUN")
 
 
 def main():
