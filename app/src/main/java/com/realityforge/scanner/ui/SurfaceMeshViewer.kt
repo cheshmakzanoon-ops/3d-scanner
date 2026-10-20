@@ -2,6 +2,14 @@ package com.realityforge.scanner.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
+import androidx.compose.material3.Switch
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.res.stringResource
 import com.realityforge.scanner.R
 import com.realityforge.scanner.ui.studio.*
@@ -54,7 +62,7 @@ fun SurfaceMeshViewer(mesh: JSONObject, modifier: Modifier = Modifier, wireframe
             val cx=x[count/2];val cy=y[count/2];val cz=z[count/2]
             val radius=(0 until count).map {
                 sqrt((coords[it*3]-cx).pow(2)+(coords[it*3+1]-cy).pow(2)+(coords[it*3+2]-cz).pow(2))
-            }.sorted()[(count*.95).toInt().coerceAtMost(count-1)].coerceAtLeast(.001f)
+            }.maxOrNull()!!.coerceAtLeast(.001f)
             for (i in 0 until count) {
                 coords[i*3]=(coords[i*3]-cx)/radius
                 coords[i*3+1]=(coords[i*3+1]-cy)/radius
@@ -65,9 +73,10 @@ fun SurfaceMeshViewer(mesh: JSONObject, modifier: Modifier = Modifier, wireframe
     }
     val identity=remember(mesh) { mesh.toString().hashCode().toString() }
     var pose by rememberStudioPose(identity)
+    var showNormals by rememberSaveable(identity) { mutableStateOf(false) }
     val label=stringResource(R.string.a070_surface)
     Column(modifier) {
-    Canvas(Modifier.weight(1f).fillMaxWidth().background(Color(0xFF0A1218))
+    Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().background(Color(0xFF0A1218))
         .studioSemantics(label,pose) { pose=it }
         .pointerInput(mesh) {
             detectTransformGestures { _,pan,magnify,_ -> pose=pose.orbit(pan.x*.45f,pan.y*.45f).magnify(magnify) }
@@ -122,9 +131,20 @@ fun SurfaceMeshViewer(mesh: JSONObject, modifier: Modifier = Modifier, wireframe
             }
             if(wireframe)drawPath(path,Color(0xFFBDE6D8),style=Stroke(width=1f))
             else drawPath(path,Color(red,green,blue))
+            if(showNormals) {
+                val centerX=size.width/2+((ax+bx+cx)/3-pose.panX)*scale
+                val centerY=size.height/2-((ay+by+cy2)/3-pose.panY)*scale
+                drawLine(Color.Cyan,Offset(centerX,centerY),
+                    Offset(centerX+nx/nlen*.08f*scale,centerY-ny/nlen*.08f*scale),strokeWidth=1.5f)
+            }
         }
     }
     if (geometry.faces.size/3>12000) Text(stringResource(R.string.a070_canvas_sampled))
+    Row(Modifier.fillMaxWidth().heightIn(min=48.dp).toggleable(value=showNormals,role=Role.Switch,onValueChange={showNormals=it}),
+        verticalAlignment=Alignment.CenterVertically) {
+        Switch(checked=showNormals,onCheckedChange=null)
+        Text(stringResource(R.string.a070_normals))
+    }
     StudioControls(pose,{ pose=it })
     }
 }

@@ -2,6 +2,7 @@ package com.realityforge.scanner.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.realityforge.scanner.R
@@ -37,7 +38,7 @@ fun PointCloudViewer(result: JSONObject, modifier: Modifier = Modifier) {
             val cy = raw.map { it.y }.sorted()[raw.size / 2]
             val cz = raw.map { it.z }.sorted()[raw.size / 2]
             val radii = raw.map { sqrt((it.x - cx).pow(2) + (it.y - cy).pow(2) + (it.z - cz).pow(2)) }.sorted()
-            val radius = radii[(radii.size * .95).toInt().coerceAtMost(radii.lastIndex)].coerceAtLeast(.001f)
+            val radius = radii.last().coerceAtLeast(.001f)
             raw.map { it.copy(x = (it.x - cx) / radius, y = (it.y - cy) / radius, z = (it.z - cz) / radius) }
         }
     }
@@ -45,7 +46,7 @@ fun PointCloudViewer(result: JSONObject, modifier: Modifier = Modifier) {
     var pose by rememberStudioPose(identity)
     val label = stringResource(if (result.optString("representation") == "dense_points") R.string.a070_dense_points else R.string.a070_sparse_points)
     Column(modifier) {
-    Canvas(Modifier.weight(1f).fillMaxWidth().background(Color(0xFF0A1218))
+    Canvas(Modifier.weight(1f).fillMaxWidth().clipToBounds().background(Color(0xFF0A1218))
         .studioSemantics(label,pose) { pose=it }
         .pointerInput(result) {
             detectTransformGestures { _, pan, gestureZoom, _ ->
