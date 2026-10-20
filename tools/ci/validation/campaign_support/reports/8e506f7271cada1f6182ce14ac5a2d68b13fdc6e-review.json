@@ -1,0 +1,281 @@
+{
+  "checks": [
+    {
+      "case": "nested includes flatten and bind every input",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "self cycle",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "parent escape",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "absolute include",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "network include",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "index option",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "find-links option",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "constraint option",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "editable option",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "unpinned range",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "direct URL",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "environment marker",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "unsupported hash option",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "dangling continuation",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "normalized duplicate pins",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "two-file cycle",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "repeated include",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "leaf-symlink",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "directory-symlink-inside",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "directory-symlink-outside",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "closure byte limit",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "closure file-count limit",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "scan enforces size before unbounded requirements read",
+      "detail": {
+        "status": "NOT_RUN",
+        "unbounded_read_attempts": 0
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "in-scope requirements enforce bounded pre-read",
+      "detail": {
+        "status": "NOT_RUN",
+        "unbounded_read_attempts": 0
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "source identity independently matches exact bytes",
+      "detail": null,
+      "result": "PASS"
+    },
+    {
+      "case": "empty selected pin set rejected",
+      "detail": {
+        "checks": {},
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "exact normalized returned pins",
+      "detail": {
+        "dependencies": "PASS",
+        "status": "PASS"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "empty returned coverage",
+      "detail": {
+        "dependencies": "NOT_RUN",
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "partial returned coverage",
+      "detail": {
+        "dependencies": "NOT_RUN",
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "wrong returned version",
+      "detail": {
+        "dependencies": "NOT_RUN",
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "extra returned dependency",
+      "detail": {
+        "dependencies": "NOT_RUN",
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "duplicate normalized returned dependency",
+      "detail": {
+        "dependencies": "NOT_RUN",
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "skipped returned dependency",
+      "detail": {
+        "dependencies": "NOT_RUN",
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "scanned source drift during audit",
+      "detail": {
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "included requirements drift during audit",
+      "detail": {
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "root requirements drift during audit",
+      "detail": {
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "scanner driver drift during audit",
+      "detail": {
+        "status": "NOT_RUN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "ordinary reviewed policy",
+      "detail": {
+        "policy_mutations": 0,
+        "raw": 1,
+        "status": "PASS",
+        "suppressed": 1
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "retargeted policy directory alias",
+      "detail": {
+        "policy_mutations": 0,
+        "raw": 0,
+        "status": "NOT_RUN",
+        "suppressed": 0
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "transient actually parsed policy",
+      "detail": {
+        "policy_mutations": 1,
+        "raw": 1,
+        "status": "FAIL",
+        "suppressed": 0
+      },
+      "result": "PASS"
+    },
+    {
+      "case": "actual pinned scanner finds vulnerable nested requests",
+      "detail": {
+        "checks": {
+          "dependencies": "FAIL",
+          "secrets": "PASS",
+          "static": "PASS"
+        },
+        "package_count": 1,
+        "status": "FAIL"
+      },
+      "result": "PASS"
+    }
+  ],
+  "real_scanner_python": "/workspace/campaign/evidence/095/ci-qa/security-python/bin/python",
+  "required_scanner_pins": {
+    "bandit": "1.8.6",
+    "detect-secrets": "1.5.0",
+    "pip-audit": "2.9.0"
+  },
+  "review": "independent read-only fixtures outside checkouts; synthetic scanner responses labeled separately from actual pinned scanner case",
+  "scanner_sha256": "2feef776675dd3a34f83c9dc72deacac5a72e7a97046380813687ad4af7896d4",
+  "schema": 1,
+  "source_sha": "8e506f7271cada1f6182ce14ac5a2d68b13fdc6e",
+  "status": "PASS"
+}

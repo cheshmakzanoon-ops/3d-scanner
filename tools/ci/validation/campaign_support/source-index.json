@@ -1,0 +1,28 @@
+{
+  "development": "STOPPED_BY_USER",
+  "executed_after_stop": false,
+  "helpers": [
+    {
+      "archive_path": "tools/ci/validation/campaign_support/review_published_scan.py",
+      "byte_identical_archive": true,
+      "original_path": "/workspace/campaign/evidence/093/096-review/review_published_scan.py",
+      "sha256": "95969547127508f4c525ec712daa45351560f4e0911eb32f79f9fa96ca821132"
+    }
+  ],
+  "limitations": [
+    "The helper retains original absolute campaign paths and exact reviewed source revisions. It is not an automatic startup/CI step.",
+    "Published096 scan.py copies remain Git source blobs; no duplicate product scanner copies are archived.",
+    "Existing PASS/FAIL/NOT_RUN outcomes remain historical and source-bound. Hosted/final candidate, generic42, physical and release qualification are not supplied by this archive."
+  ],
+  "reports": [
+    {
+      "archive_path": "tools/ci/validation/campaign_support/reports/8e506f7271cada1f6182ce14ac5a2d68b13fdc6e-review.json",
+      "byte_identical_archive": true,
+      "original_path": "/workspace/campaign/evidence/093/096-review/8e506f7271cada1f6182ce14ac5a2d68b13fdc6e-review.json",
+      "sha256": "40a797f43af69e3b3bc6e452bc3e58e38a19a677451c864b7c8417043f6e9924"
+    }
+  ],
+  "schema": 1,
+  "scope": "Historical source and reports archived at user STOP; no execution after STOP and no new acceptance claim.",
+  "status": "ARCHIVED_EXISTING_BYTES_ONLY"
+}
