@@ -22,7 +22,8 @@ inline CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const CleanupSettings
         if(!std::isfinite(d)) throw Error("Nonfinite cleanup geometry");
     for(const auto& v:mesh.vertices)if(!std::isfinite(v.confidence)||v.confidence<0||v.confidence>1)throw Error("Invalid cleanup confidence");
     CleanupPlan p;p.inputVertices=mesh.vertices.size();p.inputFaces=mesh.triangles.size();
-    std::set<std::array<std::uint32_t,3>> seen;
+    using FaceCoordinates=std::array<std::array<double,3>,3>;
+    std::set<FaceCoordinates> seen;
     for(std::size_t i=0;i<mesh.triangles.size();++i) {
         if((i&255u)==0)cancellation::checkpoint();
         const auto& t=mesh.triangles[i];
@@ -31,7 +32,10 @@ inline CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const CleanupSettings
         const Vec3 u{b.x-a.x,b.y-a.y,b.z-a.z},v{c.x-a.x,c.y-a.y,c.z-a.z};
         const Vec3 cross{u.y*v.z-u.z*v.y,u.z*v.x-u.x*v.z,u.x*v.y-u.y*v.x};
         for(double d:{u.x,u.y,u.z,v.x,v.y,v.z,cross.x,cross.y,cross.z})if(!std::isfinite(d))throw Error("Cleanup coordinate dynamic range exceeded");
-        std::array<std::uint32_t,3> key{t.a,t.b,t.c};std::sort(key.begin(),key.end());
+        FaceCoordinates key{{{{a.x,a.y,a.z}},{{b.x,b.y,b.z}},{{c.x,c.y,c.z}}}};
+        // Cyclic rotations preserve orientation. The opposite side of a thin
+        // two-sided sheet is not a duplicate and must remain observed geometry.
+        const auto first=std::min_element(key.begin(),key.end());std::rotate(key.begin(),first,key.end());
         const bool degenerate=t.a==t.b||t.a==t.c||t.b==t.c||(cross.x==0&&cross.y==0&&cross.z==0);
         if(degenerate||!seen.insert(key).second)p.removedFaces.push_back(i);else p.sourceFaceForResult.push_back(i);
     }
