@@ -1,8 +1,14 @@
 package com.realityforge.scanner.ui.photoreview
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -14,6 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
@@ -74,10 +81,26 @@ fun ProjectReviewScreen(state:ProjectReviewUiState,onAction:(ReviewAction)->Unit
     state.photo(inspectId.orEmpty())?.let { photo ->
         Dialog(onDismissRequest={inspectId=null}) {
             var zoom by rememberSaveable(photo.id) { mutableFloatStateOf(1f) }
-            Surface { Column(Modifier.fillMaxWidth().padding(12.dp)) {
+            var panX by rememberSaveable(photo.id) { mutableFloatStateOf(0f) }
+            var panY by rememberSaveable(photo.id) { mutableFloatStateOf(0f) }
+            Surface { Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(12.dp)) {
                 Text(photo.filename)
-                BoundedPhoto(photo.file,1600,photo.filename,Modifier.fillMaxWidth().height(300.dp).graphicsLayer { scaleX=zoom; scaleY=zoom; clip=true })
-                Text(stringResource(R.string.a073_zoom)); Slider(zoom,{zoom=it},valueRange=1f..4f)
+                Box(Modifier.fillMaxWidth().height(300.dp).clipToBounds().pointerInput(photo.id) {
+                    detectTransformGestures { _, drag, multiplier, _ ->
+                        zoom=(zoom*multiplier).coerceIn(1f,4f)
+                        if(zoom>1f) {
+                            panX=(panX+drag.x*2/(size.width*(zoom-1))).coerceIn(-1f,1f)
+                            panY=(panY+drag.y*2/(size.height*(zoom-1))).coerceIn(-1f,1f)
+                        } else { panX=0f; panY=0f }
+                    }
+                }) { BoundedPhoto(photo.file,1600,photo.filename,Modifier.fillMaxSize().graphicsLayer { scaleX=zoom; scaleY=zoom; translationX=panX*size.width*(zoom-1)/2; translationY=panY*size.height*(zoom-1)/2 }) }
+                val zoomLabel=stringResource(R.string.a073_zoom)
+                Text(zoomLabel); Slider(zoom,{zoom=it},valueRange=1f..4f,modifier=Modifier.semantics { contentDescription=zoomLabel })
+                if(zoom>1f) {
+                    val horizontal=stringResource(R.string.a073_pan_horizontal); val vertical=stringResource(R.string.a073_pan_vertical)
+                    Text(horizontal); Slider(panX,{panX=it},valueRange=-1f..1f,modifier=Modifier.semantics { contentDescription=horizontal })
+                    Text(vertical); Slider(panY,{panY=it},valueRange=-1f..1f,modifier=Modifier.semantics { contentDescription=vertical })
+                }
                 TextButton(onClick={inspectId=null}) { Text(stringResource(R.string.a073_close)) }
             } }
         }
