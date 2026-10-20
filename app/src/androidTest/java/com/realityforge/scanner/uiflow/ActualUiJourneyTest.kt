@@ -258,9 +258,33 @@ internal class UiJourneyDriver {
         check(clickNode(requireNotNull(control))) { "Enabled control rejected click: ${labels.toList()}" }
     }
     fun startAtLibrary() {
-        await { find("a075-skip","Skip guide","Skip", "Create local project") != null }
-        optionalClick("a075-skip","Skip guide","Skip")
-        awaitText("Create local project")
+        var guideScrolls=0
+        var skipped=false
+        val guideTitle=localizedString("a075_title","Photographs into observed 3D")
+        await(30000) {
+            val root=instrumentation.uiAutomation.rootInActiveWindow
+            if(root?.packageName?.toString()!=instrumentation.targetContext.packageName) false
+            else if(find("Create local project")!=null) true
+            else {
+                val skip=find("a075-skip","Skip guide","Skip")
+                if(skip!=null && !skipped) {check(clickNode(skip));skipped=true}
+                else if(!skipped) {
+                    val current=nodes(root)
+                    val route=current.firstOrNull {it.viewIdResourceName?.substringAfterLast('/')=="a071-route-onboarding"}
+                    val title=current.firstOrNull {it.text?.toString()==guideTitle || it.contentDescription?.toString()==guideTitle}
+                    // Scroll only the positively identified guide in the active app window.
+                    if(route!=null || title!=null) {
+                        check(guideScrolls<24) {"Known capture guide did not expose its Skip control after bounded scrolling"}
+                        var scroller=route?.let {nodes(it).firstOrNull {node->node.isScrollable}}
+                        var parent=title?.parent
+                        while(scroller==null && parent!=null) {if(parent.isScrollable) scroller=parent else parent=parent.parent}
+                        scroller?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                        guideScrolls++
+                    }
+                }
+                false
+            }
+        }
     }
     fun optionalClick(vararg labels:String):Boolean = find(*labels)?.let { clickNode(it) } ?: false
     fun setText(value:String,labelContains:String?=null) {
