@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""Serial-bound installed-APK instrumentation; no zero-test or alignment-only pass."""
+from __future__ import annotations
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / 'tools'))
+from check_screenshot import validate
+SCREEN = '/data/local/tmp/realityforge-m12-session.png'
+
+
+def select_serial(listing, requested=None):
+    rows = [line.split() for line in listing.splitlines()[1:] if line.strip()]
+    ready = [row[0] for row in rows if len(row) > 1 and row[1] == 'device']
+    if requested:
+        if requested not in ready:
+            raise ValueError('Requested serial is absent, offline or unauthorized')
+        return requested
+    if len(ready) != 1:
+        raise ValueError('Select --serial explicitly unless exactly one authorized device exists')
+    return ready[0]
+
+
+def test_count(output):
+    found = re.search(r'OK \((\d+) tests?\)', output)
+    if not found or int(found[1]) < 1 or any(x in output for x in ('FAILURES!!!', 'INSTRUMENTATION_FAILED', 'Process crashed', 'INSTRUMENTATION_ABORTED')):
+        raise ValueError('Instrumentation failed or did not execute any tests')
+    return int(found[1])
+
+
+def command(args, timeout=900):
+    result = subprocess.run(args, text=True, capture_output=True, timeout=timeout)
+    if result.returncode:
+        raise RuntimeError(f'{args[0]} failed ({result.returncode}): {result.stderr.strip()} {result.stdout[-2000:]}')
+    return result.stdout
+
+
+def run(args, execute=command):
+    output = args.output
+    output.mkdir(parents=True, exist_ok=True)
+    receipt = {'schema': 1, 'status': 'FAIL', 'runtime16kb': 'NOT_RUN', 'physicalCapture': 'NOT_RUN'}
+    selected = None
+    try:
+        for apk in (args.app_apk, args.test_apk):
+            if not apk.is_file():
+                raise ValueError('APK missing: ' + str(apk))
+        selected = select_serial(execute(['adb', 'devices', '-l']), args.serial)
+        adb = ['adb', '-s', selected]
+        def shell(*parts):
+            return execute(adb + ['shell', *parts]).strip()
+        identity = {'serial': selected, 'fingerprint': shell('getprop', 'ro.build.fingerprint'),
+                    'api': int(shell('getprop', 'ro.build.version.sdk')),
+                    'abi': shell('getprop', 'ro.product.cpu.abi'),
+                    'pageSize': int(shell('getconf', 'PAGESIZE')),
+                    'emulator': shell('getprop', 'ro.kernel.qemu') == '1'}
+        if identity['pageSize'] not in (4096, 16384):
+            raise ValueError('Unsupported measured page size')
+        for name, expected in [('api', args.expect_api), ('abi', args.expect_abi), ('pageSize', args.expect_page_size)]:
+            if expected is not None and identity[name] != expected:
+                raise ValueError(f'{name} differs from required matrix environment')
+        receipt.update(device=identity, appSha256=hashlib.sha256(args.app_apk.read_bytes()).hexdigest(),
+                       testSha256=hashlib.sha256(args.test_apk.read_bytes()).hexdigest())
+        shell('rm', '-f', SCREEN)
+        screenshot = output / 'photographic-viewer.png'
+        screenshot.unlink(missing_ok=True)
+        for apk in (args.app_apk, args.test_apk):
+            execute(adb + ['install', '-r', '-t', str(apk)])
+        for package, key in [('com.realityforge.scanner', 'appSha256'), ('com.realityforge.scanner.test', 'testSha256')]:
+            installed = shell('pm', 'path', package).splitlines()
+            if len(installed) != 1 or not installed[0].startswith('package:'):
+                raise ValueError('Expected single installed base APK; candidate splits require complete package identity')
+            if shell('sha256sum', installed[0][8:]).split()[0] != receipt[key]:
+                raise ValueError('Installed package hash differs from selected candidate')
+        transcript = shell('am', 'instrument', '-w', '-r', 'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner')
+        (output / 'instrumentation.txt').write_text(transcript + '\n')
+        receipt['tests'] = test_count(transcript)
+        execute(adb + ['pull', SCREEN, str(screenshot)])
+        receipt['screenshotSize'] = validate(screenshot)
+        receipt['status'] = 'PASS'
+        receipt['runtime16kb'] = 'PASS' if identity['pageSize'] == 16384 else 'NOT_RUN'
+    except Exception as error:
+        receipt['error'] = str(error)
+    finally:
+        if selected:
+            try:
+                execute(['adb', '-s', selected, 'shell', 'rm', '-f', SCREEN])
+            except Exception as error:
+                receipt['cleanupError'] = str(error)
+                receipt['status'] = 'FAIL'
+        (output / 'compatibility.json').write_text(json.dumps(receipt, indent=2) + '\n')
+    return 0 if receipt['status'] == 'PASS' else 1
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--serial')
+    parser.add_argument('--app-apk', type=Path, default=Path('app/build/outputs/apk/debug/app-debug.apk'))
+    parser.add_argument('--test-apk', type=Path, default=Path('app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
+    parser.add_argument('--output', type=Path, default=Path('reports/device'))
+    parser.add_argument('--expect-api', type=int)
+    parser.add_argument('--expect-abi', choices=['arm64-v8a', 'x86_64'])
+    parser.add_argument('--expect-page-size', type=int, choices=[4096, 16384])
+    raise SystemExit(run(parser.parse_args()))
+
+if __name__ == '__main__':
+    main()

@@ -80,6 +80,13 @@
       "branch": "agents/088-failure-recovery-instrumentation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "8191966e1081eb6c1540b2017393c76f8c1c852a",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
