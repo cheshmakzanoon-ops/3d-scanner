@@ -297,6 +297,13 @@
       "branch": "agents/098-current-documentation-runbook",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "ae45b3905bd00be05637676102fe777a19413e9c",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
