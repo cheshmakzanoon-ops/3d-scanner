@@ -48,7 +48,7 @@ class ActualUiJourneyTest {
                 ui.click(name)
                 ui.awaitText(name)
                 ui.back()
-                if (ui.hasLabel("Search projects")) ui.setText(name, "Search projects") else ui.click(name)
+                if (ui.hasLabel("Search projects")) ui.setSoleLabeledText(name,"a072_search","Search projects") else ui.click(name)
                 ui.scrollToClick("Delete this local project", "Delete project", "Delete")
                 ui.awaitText("originals", exact = false)
                 ui.click("Cancel")
@@ -86,6 +86,8 @@ class ActualUiJourneyTest {
             }
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 val ui = driver
+                lateinit var model:com.realityforge.scanner.ScannerViewModel
+                scenario.onActivity {model=androidx.lifecycle.ViewModelProvider(it)[com.realityforge.scanner.ScannerViewModel::class.java]}
                 ui.startAtLibrary()
                 ui.click("Create local project"); ui.setText(name); ui.click("Create", "Save"); ui.awaitText(name)
                 // Import three times to avoid relying on vendor-specific multiple-selection gestures.
@@ -105,19 +107,23 @@ class ActualUiJourneyTest {
                 ui.scrollToClick("Reconstruct selected photographs", "Reconstruct points + surface", "Reconstruct")
                 ui.await(240000) { runBlocking { app.repository.dao.project(project.id)?.let { it.resultRevision == it.revision && it.resultKey != null } == true } }
                 ui.screenshot("synthetic-reconstruction")
-                ui.optionalClick("Inspect completed result", "Inspect available results")
+                ui.scrollToClick("Open previous completed result", "Inspect completed result", "Inspect available results")
                 ui.scrollToClick("Inspect photo-textured model", "Open photographic viewer")
                 ui.awaitText("Photographic", exact = false)
                 ui.screenshot("synthetic-photographic-viewer")
                 ui.click("Zoom in")
                 ui.click("Orbit left", "Rotate left")
-                ui.click("Reset view", "Fit model", "Reset")
+                ui.click("Fit and reset", "Reset view", "Fit model", "Reset")
                 ui.click("Close")
-                ui.optionalClick("Export available results")
+                ui.scrollToClick("Export available results")
                 ui.scrollToClickPrefix(ui.exportOptionPrefix("a071_photographic", "Photographic surface", "GLB"), "Textured GLB", "Photographic surface · GLB")
                 val exportName = "rf-ui-export-$batch.glb"
                 exportedName = exportName
                 ui.documentsSave(exportName)
+                ui.awaitAppWindow()
+                ui.await(30000) {!model.busy.value && model.scannerState.value.pendingRequests.isEmpty()}
+                // Current071 keeps the export catalog open after picker completion; return through its real Back action.
+                ui.back()
                 ui.awaitText(name, timeout = 30000)
                 scenario.recreate()
                 ui.awaitText(name)
@@ -182,8 +188,57 @@ internal class UiJourneyDriver {
         throw AssertionError("Actual UI condition exceeded ${timeout}ms; tree=${tree().take(6000)}")
     }
     private fun tree()=nodes(instrumentation.uiAutomation.rootInActiveWindow).joinToString("\n") { "${it.viewIdResourceName}: ${it.text} / ${it.contentDescription}" }
-    private fun find(vararg labels:String,exact:Boolean=true)=nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull { n ->
-        labels.any { value -> listOf(n.text?.toString(),n.contentDescription?.toString(),n.viewIdResourceName).any { it!=null && if(exact) it==value else it.contains(value,true) } }
+    private fun selectorLabels(value:String):List<String> {
+        val resources=when(value) {
+            "Skip","Skip guide"->listOf("a075_skip")
+            "Create local project"->listOf("a072_create")
+            "Create","Save"->listOf("a072_save")
+            "Search projects"->listOf("a072_search")
+            "Import photographs","Import photos"->listOf("a073_import")
+            "Use camera","Capture"->listOf("a073_capture","a071_camera")
+            "Reconstruct selected photographs","Reconstruct points + surface","Reconstruct"->listOf("a073_start")
+            "Inspect completed result"->listOf("a073_result")
+            "Inspect available results","Open previous completed result"->listOf("a074_previous","a073_result")
+            "Inspect photo-textured model","Open photographic viewer"->listOf("a071_open_photographic")
+            "Photographic"->listOf("a070_photo")
+            "Zoom in"->listOf("a070_zoom_in")
+            "Orbit left","Rotate left"->listOf("a070_orbit_left")
+            "Fit and reset","Reset view","Fit model","Reset"->listOf("a070_fit")
+            "Close"->listOf("a070_close")
+            "Export available results"->listOf("a071_open_export")
+            "Delete this local project","Delete project","Delete"->listOf("a072_delete","a071_delete")
+            "originals"->listOf("a072_delete_body","a071_delete_body")
+            "Cancel"->listOf("a072_cancel","a071_cancel","a073_cancel")
+            "Back"->listOf("a071_back")
+            else->emptyList()
+        }
+        val tags=resources.mapNotNull {when(it) {
+            "a075_skip"->"a075-skip";"a072_create"->"a072-create";"a072_save"->"a072-save"
+            "a073_import"->"a073-import";"a073_capture"->"a073-camera";"a073_start"->"a073-reconstruct"
+            "a073_result"->"a073-result";"a071_open_photographic"->"a071-open-photographic"
+            "a071_open_export"->"a071-open-export";"a071_back"->"a071-back";else->null
+        }}
+        val systemIds=when(value) {
+            "Don’t allow","Don't allow","Deny"->listOf("permission_deny_button")
+            "While using the app","While using this app"->listOf("permission_allow_foreground_only_button")
+            "Only this time"->listOf("permission_allow_one_time_button")
+            "Allow"->listOf("permission_allow_button")
+            else->emptyList()
+        }
+        val translated=resources.mapNotNull {name->
+            val context=instrumentation.targetContext
+            val id=context.resources.getIdentifier(name,"string",context.packageName)
+            if(id==0) null else context.getString(id)
+        }
+        val fallback=when(value) {"Skip"->listOf("Skip guide");"Reset view","Fit model","Reset"->listOf("Fit and reset");else->emptyList()}
+        return listOf(value)+translated+tags+systemIds+fallback
+    }
+    private fun find(vararg labels:String,exact:Boolean=true):AccessibilityNodeInfo? {
+        val candidates=labels.flatMap(::selectorLabels).distinct()
+        return nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull { n -> n.isVisibleToUser &&
+            candidates.any { value -> n.viewIdResourceName?.substringAfterLast('/')==value ||
+                listOf(n.text?.toString(),n.contentDescription?.toString()).any {it!=null && if(exact) it==value else it.contains(value,true)} }
+        }
     }
     fun hasLabel(vararg labels:String):Boolean = find(*labels) != null
     fun awaitText(label:String,exact:Boolean=true,timeout:Long=20000) = await(timeout) { find(label,exact=exact)!=null }
@@ -203,14 +258,20 @@ internal class UiJourneyDriver {
         check(clickNode(requireNotNull(control))) { "Enabled control rejected click: ${labels.toList()}" }
     }
     fun startAtLibrary() {
-        await { find("Skip", "Create local project") != null }
-        optionalClick("Skip")
+        await { find("a075-skip","Skip guide","Skip", "Create local project") != null }
+        optionalClick("a075-skip","Skip guide","Skip")
         awaitText("Create local project")
     }
     fun optionalClick(vararg labels:String):Boolean = find(*labels)?.let { clickNode(it) } ?: false
     fun setText(value:String,labelContains:String?=null) {
         var field:AccessibilityNodeInfo?=null
-        await { field=nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull { it.isEditable && (labelContains==null || "${it.text} ${it.hintText} ${it.contentDescription}".contains(labelContains,true)) }; field!=null }
+        val labels=labelContains?.let(::selectorLabels).orEmpty()
+        await {
+            val editable=nodes(instrumentation.uiAutomation.rootInActiveWindow).filter {it.isEditable && it.isEnabled && it.isVisibleToUser}
+            field=if(labelContains==null) editable.firstOrNull {it.viewIdResourceName?.substringAfterLast('/')=="a072-name"} ?: editable.singleOrNull()
+                else editable.firstOrNull {field->labels.any {"${field.text} ${field.hintText} ${field.contentDescription}".contains(it,true)}}
+            field!=null
+        }
         val args=Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,value) }
         check(requireNotNull(field).performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,args))
     }
@@ -248,6 +309,7 @@ internal class UiJourneyDriver {
     }
     fun back() { check(instrumentation.uiAutomation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK)) }
     fun awaitDocuments() = await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
+    fun awaitAppWindow() = await {instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()==instrumentation.targetContext.packageName}
     /** Real HOME event and task relaunch; this is neither process death nor a lock event. */
     fun homeAndReturn() {
         check(instrumentation.uiAutomation.performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_HOME))
