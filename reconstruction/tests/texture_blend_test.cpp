@@ -3,6 +3,7 @@
 #endif
 #include "realityforge/texture_blend.hpp"
 #include <cassert>
+#include <iostream>
 int main(){
  std::vector<rf::VerifiedTexelSample> samples{{0,4,{.2,.3,.4},{1,1,1},1,true},{1,4,{.22,.32,.42},{1,1,1},1,true}};
  auto r=rf::blendVerifiedTexel(4,samples);assert(r.acceptedSources==2&&r.rgba[3]==255&&r.sourceMask==3);
@@ -31,5 +32,15 @@ int main(){
  image.texels[5*12+5].samples.clear();auto hole=rf::blendChartTile(image);assert(hole.texels[3*8+3].rgba[3]==0);
  struct P{double u,v;};struct C{std::size_t sourceFace;std::array<P,3> uv;};struct L{std::vector<C> charts;};
  L layout{{{0,{{P{0,0},P{1,0},P{0,1}}}}}};auto mapped=rf::mapLodTexel(layout,{0,{.2,.3,.5}});assert(mapped[0]==.3&&mapped[1]==.5);
+
+ auto constant=image;
+ for(auto& texel:constant.texels)if(!texel.samples.empty()){texel.samples[0].linear={.2,.2,.2};texel.samples[1].linear={.22,.22,.22};}
+ // Restore the deliberately removed central hole for the seam measurement.
+ constant.texels[5*12+5]=constant.texels[4*12+5];
+ const auto beforeLeft=rf::blendVerifiedTexel(7,constant.texels[5*12+5].samples),beforeRight=rf::blendVerifiedTexel(7,constant.texels[5*12+6].samples);
+ const auto smoothed=rf::blendChartTile(constant);
+ const double beforeSeam=std::abs(rf::srgbToLinear(beforeLeft.rgba[0]/255.)-rf::srgbToLinear(beforeRight.rgba[0]/255.));
+ const double afterSeam=std::abs(rf::srgbToLinear(smoothed.texels[3*8+3].rgba[0]/255.)-rf::srgbToLinear(smoothed.texels[3*8+4].rgba[0]/255.));
+ assert(afterSeam<beforeSeam*.8);std::cout<<"independent constant-surface seam before="<<beforeSeam<<" after="<<afterSeam<<'\n';
 
 }
