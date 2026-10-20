@@ -43,7 +43,7 @@ f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/j
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
 f24cd4e037d24f73509924449b8dd55c699c006512262fc2f66e2ea63f4fbb0f  app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt
-8d249758221c3db14935ffb9d461e46a8da6d4b81aa9f1089afb351e5264b3ac  app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt
+90ca234f2d671a0b96fb7e730b7f9569eda698c56374eb06f722f0af76093451  app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt
 7d4a77829e519733477eab42e73d5a7bc5319da7c342220b6f6447eb14721d56  app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt
 24614b2a2ab1a65bedfec1be2a9578df13a2eed6a44aec0c0c2f34a058270e90  app/src/main/java/com/realityforge/scanner/ui/navigation/NavigationState.kt
 08e0e27f56123a37c22d9ea7cb9405bc6c4063526b510a2978e64f331876a4d0  app/src/main/java/com/realityforge/scanner/ui/navigation/PreferencesRoute.kt

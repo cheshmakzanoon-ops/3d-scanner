@@ -28,6 +28,7 @@ import com.realityforge.scanner.BuildConfig
 import com.realityforge.scanner.R
 import com.realityforge.scanner.ScannerViewModel
 import com.realityforge.scanner.export.*
+import com.realityforge.scanner.viewer.loading.GlbStructure
 import com.realityforge.scanner.ui.designsystem.AppTheme
 import com.realityforge.scanner.ui.library.*
 import com.realityforge.scanner.ui.navigation.*
@@ -70,7 +71,7 @@ fun ScannerApp(model: ScannerViewModel) {
     }
     val routeFocus=remember {FocusRequester()}
     LaunchedEffect(routeValue,pendingValue) { if(pendingValue==null) runCatching {routeFocus.requestFocus()} }
-    val source = remember(model.repository) { RepositoryExportSource(model.repository) }
+    val source = remember(model.repository) { RepositoryExportSource(model.repository) {file,mode->GlbStructure.validate(file,mode);Unit} }
     val exportStore=remember(context) {PendingExportStore(File(context.filesDir,"ui-pending-export/request.v1"))}
     var invalidExport by remember {mutableStateOf(false)}
     var exportAdmission by remember {mutableStateOf(false)}
