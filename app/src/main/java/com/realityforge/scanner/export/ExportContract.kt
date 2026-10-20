@@ -23,9 +23,10 @@ data class ExportOptions(val editIdentity: String? = null, val lodIdentity: Stri
 
 /** Offered only by a serializer/validator which can actually produce this representation. */
 data class ExportOption(val id: String, val format: ExportFormat, val representation: AssetRepresentation,
-    val bytes: Long, val arbitraryScale: Boolean = true, val photographic: Boolean = false) {
+    val bytes: Long, val arbitraryScale: Boolean = true, val photographic: Boolean = false, val contentSha256: String? = null) {
     init {
         require(id.matches(Regex("[a-z0-9_.-]{1,80}")) && bytes > 0)
+        require(contentSha256 == null || contentSha256.matches(Regex("[a-f0-9]{64}")))
         require(!photographic || representation == AssetRepresentation.PHOTOGRAPHIC_SURFACE || representation == AssetRepresentation.PHOTOGRAPHIC_ATLAS)
         require(format != ExportFormat.STL || representation in setOf(AssetRepresentation.OBSERVED_SURFACE, AssetRepresentation.PHOTOGRAPHIC_SURFACE))
         require(format != ExportFormat.OBJ_PACKAGE || representation in setOf(AssetRepresentation.OBSERVED_SURFACE, AssetRepresentation.PHOTOGRAPHIC_SURFACE))

@@ -15,7 +15,7 @@ class ExportCoordinatorTest {
     private val project = UUID.randomUUID().toString()
     private val bytes = "{\"synthetic\":true,\"representation\":\"sparse_points\"}".toByteArray()
     private val identity = ArtifactIdentity(project, 4, "sparse-m10-r4-0123456789abcdef", "a".repeat(64))
-    private val option = ExportOption("json", ExportFormat.JSON, AssetRepresentation.DIAGNOSTICS, bytes.size.toLong())
+    private val option = ExportOption("json", ExportFormat.JSON, AssetRepresentation.DIAGNOSTICS, bytes.size.toLong(), contentSha256=java.security.MessageDigest.getInstance("SHA-256").digest(bytes).joinToString(""){"%02x".format(it)})
     private fun request() = ExportRequest(UUID.randomUUID().toString(), identity, option)
     private class Destination : ExportDestination {
         val bytes = ByteArrayOutputStream()
@@ -123,6 +123,39 @@ class ExportCoordinatorTest {
         for (bad in listOf(header+vertices+"3 0 1 3\n",header+vertices.replaceFirst("0 0 1","NaN 0 1")+"3 0 1 2\n",header+vertices+"3 0 0 2\n")) {
             file.writeText(bad)
             try { LegacyPlyValidation.validate(file,true); fail() } catch (_: IllegalArgumentException) {}
+        }
+    }
+    @Test fun aSameSizeArtifactMutationCannotReachTheDestination() = temporary { root -> runBlocking {
+        val source=object:ExportSource {
+            override suspend fun isCurrent(identity:ArtifactIdentity)=true
+            override suspend fun available(identity:ArtifactIdentity)=listOf(option)
+            override fun materialize(request:ExportRequest,target:File,checkpoint:()->Unit) {target.writeBytes(bytes.copyOf().apply {this[0]=91})}
+            override fun validate(request:ExportRequest,file:File) {}
+        }
+        val destination=Destination()
+        val result=ExportCoordinator(source,root).execute(request(),destination)
+        assertTrue(result is ExportOutcome.Failed);assertFalse(destination.opened)
+    } }
+    @Test fun legacyUnhashedPickerIsPreservedUntilExplicitReselection() = temporary { root ->
+        val file = File(root, "picker")
+        PendingExportStore(file).save(request())
+        val body = file.readBytes().dropLast(32).toByteArray()
+        java.nio.ByteBuffer.wrap(body).putInt(1)
+        file.writeBytes(body + java.security.MessageDigest.getInstance("SHA-256").digest(body))
+        val original = file.readBytes()
+        try { PendingExportStore(file).restore(); fail() } catch (error: IllegalArgumentException) {
+            assertEquals("PENDING_VERSION_UNSUPPORTED", error.message)
+        }
+        assertArrayEquals(original, file.readBytes())
+        val retained = requireNotNull(PendingExportStore(file).quarantineInvalid())
+        assertArrayEquals(original, retained.readBytes()); assertFalse(file.exists())
+    }
+    @Test fun packageNamesRemainPortableAfterRelocation() = temporary { root ->
+        val source = File(root, "source").apply { writeText("immutable") }
+        for (name in listOf("CON.png", "aux.mtl", "LPT1.obj", "com9", "scan.obj.")) {
+            val target = File(root, "out.zip")
+            try { ExportPackage.write(mapOf(name to source), target, 4096); fail(name) } catch (_: IllegalArgumentException) {}
+            assertFalse(target.exists()); assertEquals("immutable", source.readText())
         }
     }
     @Test fun pointCloudCannotBeOfferedAsStlAndUnknownScaleMustBeAcknowledged() {

@@ -38,6 +38,7 @@ class ExportCoordinator(private val source: ExportSource, private val stagingRoo
             require(staged.length() == request.option.bytes && staged.length() <= maxBytes) { "INVALID_SIZE" }
             source.validate(request, staged)
             val expected = digest(staged, checkpoint)
+            check(request.option.contentSha256 == null || expected == request.option.contentSha256) { "ARTIFACT_BYTES_CHANGED" }
             check(source.isCurrent(request.artifact)) { "STALE_ARTIFACT" }
             val actual = MessageDigest.getInstance("SHA-256")
             var total = 0L
@@ -95,7 +96,11 @@ internal fun ByteArray.hex(): String = joinToString("") { "%02x".format(it) }
 object ExportPackage {
     fun write(members: Map<String, File>, target: File, maxBytes: Long, checkpoint: () -> Unit = {}) {
         require(maxBytes > 0 && members.size in 1..64)
-        require(members.keys.all { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9_.-]{0,119}")) && it != "." && it != ".." })
+        val reserved = setOf("CON", "PRN", "AUX", "NUL") + (1..9).flatMap { listOf("COM$it", "LPT$it") }
+        require(members.keys.all { name ->
+            name.matches(Regex("[A-Za-z0-9][A-Za-z0-9_.-]{0,119}")) && !name.endsWith('.') &&
+                name.substringBefore('.').uppercase(java.util.Locale.ROOT) !in reserved
+        })
         require(members.keys.map { it.lowercase(java.util.Locale.ROOT) }.distinct().size == members.size)
         var count = 0L
         try {

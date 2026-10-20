@@ -26,7 +26,14 @@ class RepositoryExportSource(private val repository: ProjectRepository, private 
         val choices = mutableListOf<ExportOption>()
         fun add(id: String, format: ExportFormat, representation: AssetRepresentation, photographic: Boolean = false) {
             val file = repository.artifact(identity.projectId, identity.artifactKey, id)
-            if (file.isFile && file.length() > 0) choices += ExportOption(id, format, representation, file.length(), photographic = photographic)
+            if (file.isFile && file.length() > 0) {
+                val candidate = ExportOption(id, format, representation, file.length(), photographic = photographic)
+                try {
+                    validate(request(identity, candidate), file)
+                    choices += candidate.copy(contentSha256 = ExportCoordinator.digest(file))
+                } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { /* Invalid completed bytes are not an available export choice. */ }
+            }
         }
         add("json", ExportFormat.JSON, AssetRepresentation.DIAGNOSTICS)
         if (metadata.optInt("pointCount") > 0) {
@@ -62,6 +69,7 @@ class RepositoryExportSource(private val repository: ProjectRepository, private 
             "ply", "mesh.ply" -> LegacyPlyValidation.validate(file, request.option.id == "mesh.ply")
             else -> error("OPTION_UNAVAILABLE")
         }
+        request.option.contentSha256?.let { require(ExportCoordinator.digest(file) == it) { "ARTIFACT_BYTES_CHANGED" } }
     }
     companion object { fun request(identity: ArtifactIdentity, option: ExportOption) = ExportRequest(UUID.randomUUID().toString(), identity, option) }
 }
