@@ -154,7 +154,8 @@ bool store(std::size_t index,const DenseDepthMap& map){
         }
         if(::fsync(output.value)!=0){discard();return false;}
         cancellation::checkpoint();
-        if(::rename(temporary.c_str(),target.c_str())!=0){discard();return false;}
+        std::filesystem::rename(temporary,target,ec);
+        if(ec){discard();return false;}
         // Success means file AND rename metadata reached supported fsync calls.
         // Actual power-cut behavior still requires storage/device qualification.
         return ::fsync(directoryFd.value)==0;
