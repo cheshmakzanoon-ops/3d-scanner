@@ -75,8 +75,11 @@ class ScreenInteractionTest {
                         (it.text?.toString() == label || it.contentDescription?.toString() == label)
                 }
                 if (found != null) {
-                    var candidate = found
-                    while (!candidate.isClickable && candidate.parent != null && !tagged(candidate,fixture)) candidate = candidate.parent
+                    var candidate: AccessibilityNodeInfo = requireNotNull(found)
+                    while (!candidate.isClickable && !tagged(candidate,fixture)) {
+                        val next = candidate.parent ?: break
+                        candidate = next
+                    }
                     target = candidate.takeIf { it.isClickable && it.isEnabled && it.isVisibleToUser && Rect.intersects(viewport,bounds(it)) }
                 }
                 if (target == null && scrolls < 8 && SystemClock.elapsedRealtime() - lastScroll >= 750) {
