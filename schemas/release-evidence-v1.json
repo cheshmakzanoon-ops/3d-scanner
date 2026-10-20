@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:realityforge:release-evidence:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "agent", "gate", "source_sha", "artifact_sha256", "run_id", "recorded_at", "command", "environment", "dataset_identity", "status", "blockers", "metrics", "evidence_sha256"],
+  "properties": {
+    "schema": {"const": 1},
+    "agent": {"type": "string", "pattern": "^(00[1-9]|0[1-9][0-9]|100)$"},
+    "gate": {"type": "string", "minLength": 1},
+    "source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "tool_source_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "protocol_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "run_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "recorded_at": {"type": "string", "format": "date-time"},
+    "command": {"oneOf": [{"type": "string", "minLength": 1}, {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}]},
+    "environment": {"type": "object", "additionalProperties": false, "required": ["kind", "identity"], "properties": {"kind": {"enum": ["host", "emulator", "physical"]}, "identity": {"type": "string", "minLength": 1}, "device_id": {"type": "string"}, "emulator": {"type": "boolean"}, "abi": {"type": "string"}, "api": {"type": "integer", "minimum": 29}}},
+    "dataset_identity": {"type": "object", "additionalProperties": false, "required": ["id", "kind", "sha256"], "properties": {"id": {"type": "string", "minLength": 1}, "kind": {"enum": ["physical", "synthetic", "none"]}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "reference_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}},
+    "status": {"enum": ["PASS", "FAIL", "NOT_RUN", "BLOCKED_EXTERNAL"]},
+    "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "metrics": {"type": "object", "additionalProperties": {"type": "number"}, "required": ["executed_tests", "failed_tests", "skipped_tests", "disabled_tests"], "properties": {"executed_tests": {"type": "integer", "minimum": 0}, "failed_tests": {"type": "integer", "minimum": 0}, "skipped_tests": {"type": "integer", "minimum": 0}, "disabled_tests": {"type": "integer", "minimum": 0}}}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "PASS"}}}, "then": {"properties": {"blockers": {"maxItems": 0}, "metrics": {"properties": {"executed_tests": {"minimum": 1}, "failed_tests": {"const": 0}, "skipped_tests": {"const": 0}, "disabled_tests": {"const": 0}}}}}, "else": {"properties": {"blockers": {"minItems": 1}}}}
+  ]
+}
