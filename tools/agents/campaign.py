@@ -141,6 +141,55 @@ def receipt_state(text: str) -> str:
     return value if isinstance(value, str) and value in STATES else 'INVALID_RECEIPT'
 
 
+def receipt_checks(text: str) -> list[str]:
+    """Read the documented JSON or compact YAML subset; unknown evidence fails closed."""
+    try:
+        record = json.loads(text)
+    except json.JSONDecodeError:
+        record = None
+    if not isinstance(record, dict):
+        def block(key):
+            match = re.search(r'^' + re.escape(key) + r':(.*)$', text, re.M)
+            if not match:
+                return ''
+            tail = text[match.end():]
+            stop = re.search(r'^(?:[a-z_]+:|#)', tail, re.M)
+            return match.group(1) + (tail[:stop.start()] if stop else tail)
+        results = []
+        for piece in re.split(r'^\s+- criterion:', block('acceptance_results'), flags=re.M)[1:]:
+            row = {'criterion': piece.splitlines()[0].strip()}
+            for key, value in re.findall(r'^\s+([a-z_]+):\s*(.*)$', piece, re.M):
+                row[key] = value.strip().strip('"\x27')
+            results.append(row)
+        record = {'implementation_commits': re.findall(r'\b[0-9a-f]{40}\b', block('implementation_commits')),
+                  'acceptance_results': results,
+                  'remaining_work': [] if block('remaining_work').strip() == '[]' else ['open'],
+                  'external_blockers': [] if block('external_blockers').strip() == '[]' else ['open']}
+    errors = []
+    implementations = record.get('implementation_commits')
+    if not isinstance(implementations, list) or not implementations or any(
+            not isinstance(sha, str) or not re.fullmatch('[0-9a-f]{40}', sha) for sha in implementations):
+        errors.append('Missing immutable implementation commits')
+    results = record.get('acceptance_results')
+    if not isinstance(results, list) or not results:
+        errors.append('Missing acceptance evidence')
+        results = []
+    for row in results:
+        if not isinstance(row, dict) or not row.get('criterion') or row.get('result') not in {
+                'PASS', 'FAIL', 'NOT_RUN', 'BLOCKED_EXTERNAL'}:
+            errors.append('Malformed acceptance criterion/status')
+            continue
+        if row['result'] == 'PASS' and (not row.get('command') or not isinstance(row.get('source_sha'), str)
+                or not re.fullmatch('[0-9a-f]{40}', row['source_sha'])):
+            errors.append('PASS lacks command or immutable source identity')
+    if receipt_state(text) == 'DONE':
+        if any(not isinstance(r, dict) or r.get('result') != 'PASS' for r in results):
+            errors.append('DONE contradicts unpassed acceptance criteria')
+        if record.get('remaining_work') != [] or record.get('external_blockers') != []:
+            errors.append('DONE contradicts open work or external blockers')
+    return errors
+
+
 def index(root: Path, rows: list[dict], base: str) -> dict:
     deliveries = []
     requests = []
@@ -149,7 +198,7 @@ def index(root: Path, rows: list[dict], base: str) -> dict:
         exists = subprocess.run(['git', '-C', str(root), 'show-ref', '--verify', '--quiet', ref],
                                 stdout=subprocess.DEVNULL).returncode == 0
         entry = {'agent': row['agent'], 'branch': row['branch'], 'source_sha': None,
-                 'state': 'NOT_RUN', 'receipt_path': row['receipt'], 'ownership_errors': []}
+                 'state': 'NOT_RUN', 'receipt_path': row['receipt'], 'ownership_errors': [], 'receipt_errors': []}
         if exists:
             sha = git(root, 'rev-parse', f'{ref}^{{commit}}')
             entry['source_sha'] = sha
@@ -158,6 +207,9 @@ def index(root: Path, rows: list[dict], base: str) -> dict:
                                      text=True, capture_output=True)
             if receipt.returncode == 0:
                 entry['state'] = receipt_state(receipt.stdout)
+                entry['receipt_errors'] = receipt_checks(receipt.stdout)
+                if entry['state'] == 'DONE' and entry['receipt_errors']:
+                    entry['state'] = 'INVALID_RECEIPT'
                 entry['receipt_sha'] = git(root, 'rev-parse', f'{sha}:{row["receipt"]}')
             else:
                 entry['state'] = 'MISSING_RECEIPT'
@@ -168,7 +220,8 @@ def index(root: Path, rows: list[dict], base: str) -> dict:
                                      'branch': row['branch'], 'source_sha': sha, 'path': path})
         deliveries.append(entry)
     return {'schema': 1, 'campaign_base': base, 'deliveries': deliveries, 'requests': requests,
-            'campaign_complete': all(d['state'] == 'DONE' and not d['ownership_errors'] for d in deliveries)}
+            'campaign_complete': all(d['state'] == 'DONE' and not d['ownership_errors'] and not d['receipt_errors']
+                                     for d in deliveries)}
 
 
 def main(argv=None) -> int:

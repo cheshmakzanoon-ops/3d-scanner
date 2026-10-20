@@ -63,6 +63,13 @@ def main():
         if completed.returncode:
             print('Check failed; staged semantic result is retained for diagnosis.', file=sys.stderr)
             return completed.returncode
+    # Checks may be auto-fixing. Never commit a different staged tree from the one tested.
+    if git(ROOT, 'diff', '--name-only'):
+        print('Verification modified tracked source after staging; review, regenerate and rerun before commit.', file=sys.stderr)
+        return 1
+    subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'index'], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, 'tools/source_manifest.py', 'verify', '--source', 'worktree'], cwd=ROOT, check=True)
+    subprocess.run(['git', 'diff', '--check', '--cached'], cwd=ROOT, check=True)
     subprocess.run(['git', 'commit', '-m', f'merge(agent-100): integrate reviewed Agent{agent} delivery {sha[:12]}'],
                    cwd=ROOT, check=True)
     return 0

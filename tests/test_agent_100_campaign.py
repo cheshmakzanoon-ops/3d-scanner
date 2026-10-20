@@ -56,3 +56,35 @@ def test_receipt_mapping_and_allowed_states_cannot_infer_success():
     for text in ['State: IMPLEMENTED', 'All tests passed', '{"status":"PASS"}',
                  'state: IMPLEMENTED', 'narrative state: DONE', 'state: DONE_WITH_EXCEPTIONS']:
         assert campaign.receipt_state(text) == 'INVALID_RECEIPT'
+
+
+def test_done_needs_actual_source_bound_acceptance_and_no_contradictory_result():
+    import json
+    minimal = {'state': 'DONE'}
+    assert campaign.receipt_checks(json.dumps(minimal))
+    record = {'state': 'DONE', 'implementation_commits': ['a' * 40],
+              'remaining_work': [], 'external_blockers': [],
+              'acceptance_results': [{'criterion': 'real gate', 'result': 'PASS',
+                                      'command': 'existing-test-runner', 'source_sha': 'a' * 40}]}
+    assert campaign.receipt_checks(json.dumps(record)) == []
+    for status in ['FAIL', 'NOT_RUN', 'BLOCKED_EXTERNAL']:
+        record['acceptance_results'][0]['result'] = status
+        assert campaign.receipt_checks(json.dumps(record))
+    record['acceptance_results'][0]['result'] = 'PASS'
+    record['acceptance_results'][0].pop('source_sha')
+    assert campaign.receipt_checks(json.dumps(record))
+
+
+def test_compact_yaml_completion_requires_the_same_evidence():
+    text = 'state: DONE\nimplementation_commits: [' + 'b' * 40 + ''']
+acceptance_results:
+  - criterion: actual run
+    result: PASS
+    command: test-command
+    source_sha: ''' + 'b' * 40 + '''
+remaining_work: []
+external_blockers: []
+next_action: integrate
+'''
+    assert campaign.receipt_checks(text) == []
+    assert campaign.receipt_checks(text.replace('result: PASS', 'result: FAIL'))
