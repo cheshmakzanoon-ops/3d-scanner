@@ -213,6 +213,10 @@ def test_shared_controller_adapter_validates_identity_and_data_preservation(tmp_
     completed, report, _ = run_cli(tmp_path, candidate, extra=["--scenario", "process_kill_relaunch", "--process-controller", str(external)])
     assert report["status"] == ("PASS" if mode == "pass" else "FAIL")
     assert completed.returncode == (0 if mode == "pass" else 1)
+    if mode == "pass":
+        row = next(row for row in report["scenarios"] if row["scenario"] == "process_kill_relaunch")
+        assert row["synthetic"] is True
+        assert row["dataset_identity_sha256"] == "d" * 64
 
 
 def test_missing_owner088_dependency_is_explicit_unrun(tmp_path, candidate):

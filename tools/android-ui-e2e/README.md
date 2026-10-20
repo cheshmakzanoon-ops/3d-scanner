@@ -29,6 +29,13 @@ assignment matrix. Every row records `PASS`, `FAIL`, `NOT_RUN`, or
 covers the selected scenarios, while `assignment_status` includes every required
 row. A successful subset does not close the assignment.
 
+`--scenario shared_provider_import_fault` traverses DocumentsUI to consume
+owner 088's registered `Synthetic QA faults` provider, imports its normal JPEG,
+then rejects truncated/revoked inputs while retaining exact original hashes.
+The integrated test APK must contain the pinned 088 provider and test manifest;
+080 does not register a second provider. This row does not prove interrupted
+export or process-kill recovery.
+
 Exit codes are 0/PASS, 1/FAIL, 2/BLOCKED_EXTERNAL, 3/NOT_RUN. `adb` returning zero
 does not qualify a test: started/completed identities, counts, no skips, the
 JUnit summary, and `INSTRUMENTATION_CODE: -1` must all agree. Empty/stale runs,

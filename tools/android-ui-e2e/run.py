@@ -36,6 +36,10 @@ SCENARIOS = {
         "test": BASE_CLASS + "#syntheticPhotographsImportReconstructInspectExportAndReopenThroughUi",
         "kind": "instrumentation", "synthetic": True,
     },
+    "shared_provider_import_fault": {
+        "test": BASE_CLASS + "#sharedFaultProviderImportUsesTheActualPickerAndPreservesOriginals",
+        "kind": "instrumentation", "synthetic": True,
+    },
     "permission_denial_regrant": {"kind": "controller", "owner": "088/014"},
     "late_camera_callback": {"kind": "controller", "owner": "088/014/001"},
     "changed_inputs_and_repeated_actions": {"kind": "controller", "owner": "088/018/001"},
@@ -426,7 +430,8 @@ def main(argv: list[str] | None = None) -> int:
                 evidence = run_instrumented(commands, scenario, args.physical_class, args.runner, directory)
                 evidence["hardware_evidence_id"] = args.hardware_evidence_id
                 evidence["physical_device_operator_identified"] = True
-            evidence["synthetic"] = spec.get("synthetic")
+            if "synthetic" in spec:
+                evidence["synthetic"] = spec["synthetic"]
             report["scenarios"].append(evidence)
         report["status"] = aggregate([row["status"] for row in report["scenarios"] if row["scenario"] in selected])
         report["assignment_status"] = aggregate([row["status"] for row in report["scenarios"]])

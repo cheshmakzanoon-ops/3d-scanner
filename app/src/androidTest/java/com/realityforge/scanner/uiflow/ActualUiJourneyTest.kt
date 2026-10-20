@@ -133,6 +133,33 @@ class ActualUiJourneyTest {
             }
         } finally { media.forEach { runCatching { app.contentResolver.delete(it,null,null) } }; exportedName?.let { runCatching { driver.removeDownload(it) } }; cleanup(name) }
     }
+    @Test fun sharedFaultProviderImportUsesTheActualPickerAndPreservesOriginals() {
+        val name="Shared provider UI ${UUID.randomUUID()}"
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                val ui=driver
+                ui.startAtLibrary();ui.click("Create local project");ui.setText(name);ui.click("Create","Save");ui.awaitText(name)
+                lateinit var model:com.realityforge.scanner.ScannerViewModel
+                scenario.onActivity { model=androidx.lifecycle.ViewModelProvider(it)[com.realityforge.scanner.ScannerViewModel::class.java] }
+                ui.scrollToClick("Import photographs","Import photos");ui.sharedProviderSelect("normal.jpg")
+                ui.await(30000) { !model.busy.value && runBlocking {
+                    val project=app.repository.dao.observeProjects().first().singleOrNull { it.name==name }
+                    project!=null && app.repository.dao.photos(project.id).size==1
+                } }
+                val project=runBlocking { app.repository.dao.observeProjects().first().single {it.name==name} }
+                val before=runBlocking { app.repository.dao.photos(project.id).associate {it.id to sha(app.repository.photoFile(it))} }
+                val expected=instrumentation.context.assets.open("relief/view-01.jpg").use { sha(it.readBytes()) }
+                assertEquals(setOf(expected),before.values.toSet())
+                for(mode in listOf("truncated.jpg","revoked.jpg")) {
+                    val previousNotice=model.notice.value
+                    ui.scrollToClick("Import photographs","Import photos");ui.sharedProviderSelect(mode)
+                    ui.await(30000) { !model.busy.value && model.notice.value!=previousNotice }
+                    runBlocking { assertEquals(before,app.repository.dao.photos(project.id).associate {it.id to sha(app.repository.photoFile(it))}) }
+                }
+                ui.screenshot("shared-provider-original-preservation")
+            }
+        } finally { cleanup(name) }
+    }
     private fun cleanup(name: String) = runBlocking {
         app.repository.dao.observeProjects().first().filter { it.name == name }.forEach { app.repository.delete(it.id) }
     }
@@ -196,6 +223,14 @@ internal class UiJourneyDriver {
             scrollToClick(displayName)
         }
         optionalClick("Select", "Open")
+    }
+    fun sharedProviderSelect(displayName:String) {
+        require(displayName in setOf("normal.jpg","truncated.jpg","revoked.jpg"))
+        await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
+        optionalClick("Show roots","Open navigation drawer")
+        scrollToClick("Synthetic QA faults")
+        scrollToClick(displayName)
+        optionalClick("Select","Open")
     }
     fun documentsSave(displayName:String) {
         await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
