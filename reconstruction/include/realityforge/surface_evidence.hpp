@@ -12,12 +12,17 @@
 
 namespace rf {
 enum class NormalValidity { Supported, SparseSupport, Discontinuity, IllConditioned, Invalid };
-struct NormalObservation { Vec3 position{}, cameraCenter{}; std::uint64_t observationId{}; };
+struct NormalObservation {
+    Vec3 position{}, cameraCenter{};
+    std::uint64_t observationId{};
+    double weight{1}; // finite (0,1] reliability, not calibrated inverse variance
+};
 struct GeometryUncertainty {
     double planeResidual{}, conditioning{}, estimatedPositionSigma{};
     double maximumParallaxRadians{};
     std::optional<double> triangulationSigma;
     bool calibrated{}; // false means geometric/noise heuristic, never measured physical error
+    double effectiveSupport{}; // Kish (sum w)^2/sum(w^2), not an observation count
 };
 struct ObservedNormal {
     Vec3 direction{};
@@ -54,7 +59,9 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     for(std::size_t i=0;i<observations.size();++i) {
         if((i&31u)==0)cancellation::checkpoint();
         const auto& o=observations[i];
-        if(!finite(o.position)||!finite(o.cameraCenter)||length(o.position)>1e50||length(o.cameraCenter)>1e50||!identities.insert(o.observationId).second)throw Error("Invalid normal observation or duplicate identity");
+        if(!finite(o.position)||!finite(o.cameraCenter)||length(o.position)>1e50||length(o.cameraCenter)>1e50||
+           !std::isfinite(o.weight)||o.weight<=0||o.weight>1||!identities.insert(o.observationId).second)
+            throw Error("Invalid normal observation, reliability or duplicate identity");
         const double d=length(sub(o.position,query));
         if(d<=s.radius)nearby.emplace_back(d,i);
     }
@@ -64,10 +71,20 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     if(nearby.size()>s.maxNeighbors)nearby.resize(s.maxNeighbors);
     ObservedNormal out;
     if(nearby.size()<s.minimumNeighbors)return out;
+    // Max normalization preserves common-weight scaling, including tiny finite
+    // weights, without squaring the raw weights into underflow. No neighbor is
+    // discarded. Unit/uniform weights keep the previous arithmetic and fit.
+    double maximumWeight=0;
+    for(auto item:nearby)maximumWeight=std::max(maximumWeight,observations[item.second].weight);
+    double weightSum=0,squaredWeightSum=0;
+    bool uniformWeights=true;
+    for(auto item:nearby){const double w=observations[item.second].weight/maximumWeight;weightSum+=w;squaredWeightSum+=w*w;uniformWeights=uniformWeights&&w==1;}
+    out.uncertainty.effectiveSupport=std::min(static_cast<double>(nearby.size()),weightSum*weightSum/squaredWeightSum);
+    if(out.uncertainty.effectiveSupport<static_cast<double>(s.minimumNeighbors))return out;
     Vec3 center{};
-    for(auto item:nearby){const auto& p=observations[item.second].position;center.x+=p.x/nearby.size();center.y+=p.y/nearby.size();center.z+=p.z/nearby.size();}
+    for(auto item:nearby){const auto& o=observations[item.second];const auto& p=o.position;const double w=o.weight/maximumWeight;center.x+=p.x*w/weightSum;center.y+=p.y*w/weightSum;center.z+=p.z*w/weightSum;}
     double a[3][3]{}; double eigen[3][3]{{1,0,0},{0,1,0},{0,0,1}};
-    for(auto item:nearby){auto p=sub(observations[item.second].position,center);double x[]{p.x,p.y,p.z};for(int i=0;i<3;++i)for(int j=0;j<3;++j)a[i][j]+=x[i]*x[j]/nearby.size();}
+    for(auto item:nearby){const auto& o=observations[item.second];auto p=sub(o.position,center);const double w=o.weight/maximumWeight;double x[]{p.x,p.y,p.z};for(int i=0;i<3;++i)for(int j=0;j<3;++j)a[i][j]+=x[i]*x[j]*w/weightSum;}
     for(int iteration=0;iteration<32;++iteration){
         cancellation::checkpoint();
         int p=0,q=1;
@@ -83,8 +100,8 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     const double small=std::max(0.,a[ids[0]][ids[0]]),mid=std::max(0.,a[ids[1]][ids[1]]),large=std::max(0.,a[ids[2]][ids[2]]);
     out.uncertainty.conditioning=large>0?mid/large:0;
     out.uncertainty.planeResidual=std::sqrt(small);
-    out.uncertainty.estimatedPositionSigma=std::sqrt(small+s.observationSigma*s.observationSigma)/std::sqrt(static_cast<double>(nearby.size()));
-    out.uncertainty.calibrated=s.calibratedNoise;
+    out.uncertainty.estimatedPositionSigma=std::sqrt(small+s.observationSigma*s.observationSigma)/std::sqrt(out.uncertainty.effectiveSupport);
+    out.uncertainty.calibrated=s.calibratedNoise&&uniformWeights;
     double maximumSine=0;
     for(std::size_t i=0;i<nearby.size();++i){
         cancellation::checkpoint();
@@ -110,6 +127,15 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
            residuals[split-1]-residuals.front()<=2*s.observationSigma&&
            residuals.back()-residuals[split]<=2*s.observationSigma){out.validity=NormalValidity::Discontinuity;return out;}
     }
+    if(!uniformWeights){
+        // Reliability can tilt a fitted normal enough to hide two previously
+        // separated tight layers. Retain the original raw-support layer guard
+        // independently. One bounded unit-weight fit stops recursion here;
+        // an unweighted IllConditioned result alone does not veto reliability.
+        std::vector<NormalObservation> raw;raw.reserve(nearby.size());
+        for(auto item:nearby){raw.push_back(observations[item.second]);raw.back().weight=1;}
+        if(estimateObservedNormal(raw,query,s).validity==NormalValidity::Discontinuity){out.validity=NormalValidity::Discontinuity;return out;}
+    }
     out.validity=NormalValidity::Supported;
     for(auto item:nearby)out.supportingObservationIds.push_back(observations[item.second].observationId);
     return out;
@@ -118,8 +144,9 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
 // window rejects any missing or discontinuous neighbor rather than bridge a gap.
 inline ObservedNormal estimateDepthNeighborhoodNormal(const DenseView& view,const DenseDepthMap& map,
                                                        int x,int y,int step,double maxRelativeJump=.08) {
+    cancellation::checkpoint();
     if(step<1||step>64||view.width!=map.width||view.height!=map.height||map.width<1||map.height<1||map.width>100000||map.height>100000||
-       map.depth.size()!=static_cast<std::size_t>(map.width)*map.height||!std::isfinite(view.fx)||!std::isfinite(view.fy)||!std::isfinite(view.cx)||!std::isfinite(view.cy)||view.fx<=0||view.fy<=0||
+       map.depth.size()!=static_cast<std::size_t>(map.width)*map.height||map.confidence.size()!=map.depth.size()||!std::isfinite(view.fx)||!std::isfinite(view.fy)||!std::isfinite(view.cx)||!std::isfinite(view.cy)||view.fx<=0||view.fy<=0||
        !std::isfinite(maxRelativeJump)||maxRelativeJump<=0||maxRelativeJump>.5)
         throw Error("Invalid depth normal geometry");
     ObservedNormal unknown;
@@ -134,21 +161,37 @@ inline ObservedNormal estimateDepthNeighborhoodNormal(const DenseView& view,cons
     const auto inverse=transpose(view.pose.rotation);
     const auto camera=multiply(inverse,Vec3{-view.pose.translation.x,-view.pose.translation.y,-view.pose.translation.z});
     std::vector<NormalObservation> points;
+    points.reserve(9);
     Vec3 query{};
     for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
+        cancellation::checkpoint();
         const int u=x+dx*step,v=y+dy*step;const auto id=static_cast<std::size_t>(v)*map.width+u;
         const double depth=map.depth[id];
         if(!std::isfinite(depth)||depth<=0||std::abs(depth-z)/z>maxRelativeJump){unknown.validity=NormalValidity::Discontinuity;return unknown;}
         auto p=multiply(inverse,Vec3{(u-view.cx)*depth/view.fx-view.pose.translation.x,(v-view.cy)*depth/view.fy-view.pose.translation.y,depth-view.pose.translation.z});
         points.push_back({p,camera,id});if(dx==0&&dy==0)query=p;
     }
+    // Preserve all nine depth/jump checks before interpreting reliability.
+    // Zero denotes unavailable evidence for the whole window; malformed
+    // confidence is an input error. Neither case silently removes a neighbor.
+    bool unavailableConfidence=false;
+    for(auto& point:points){
+        const double confidence=map.confidence[point.observationId];
+        if(!std::isfinite(confidence)||confidence<0||confidence>1)throw Error("Invalid depth normal confidence");
+        unavailableConfidence=unavailableConfidence||confidence==0;
+        point.weight=confidence;
+    }
+    if(unavailableConfidence)return unknown;
     // All nine camera-grid neighbors have already passed the finite depth and
     // discontinuity gates. A frontoparallel footprint cannot bound their world
     // distances on a slanted surface; retain the actual validated neighborhood.
     SurfaceEvidenceSettings settings;settings.radius=1e-12;
-    for(const auto& point:points){const auto delta=surface_evidence_detail::sub(point.position,query);settings.radius=std::max(settings.radius,std::hypot(delta.x,delta.y,delta.z));}
+    // Use the same distance arithmetic as estimateObservedNormal: hypot and
+    // sqrt(dot) can differ by more than one ulp at a boundary, losing a sample.
+    for(const auto& point:points){const auto delta=surface_evidence_detail::sub(point.position,query);settings.radius=std::max(settings.radius,surface_evidence_detail::length(delta));}
     settings.radius=std::nextafter(settings.radius,std::numeric_limits<double>::infinity());
     settings.maxObservations=9;settings.maxNeighbors=9;
+    settings.calibratedNoise=false; // photometric reliability is not physical sigma
     return estimateObservedNormal(points,query,settings);
 }
 }
