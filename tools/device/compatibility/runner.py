@@ -71,6 +71,12 @@ def run(args, execute=command):
         screenshot.unlink(missing_ok=True)
         for apk in (args.app_apk, args.test_apk):
             execute(adb + ['install', '-r', '-t', str(apk)])
+        for package, key in [('com.realityforge.scanner', 'appSha256'), ('com.realityforge.scanner.test', 'testSha256')]:
+            installed = shell('pm', 'path', package).splitlines()
+            if len(installed) != 1 or not installed[0].startswith('package:'):
+                raise ValueError('Expected single installed base APK; candidate splits require complete package identity')
+            if shell('sha256sum', installed[0][8:]).split()[0] != receipt[key]:
+                raise ValueError('Installed package hash differs from selected candidate')
         transcript = shell('am', 'instrument', '-w', '-r', 'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner')
         (output / 'instrumentation.txt').write_text(transcript + '\n')
         receipt['tests'] = test_count(transcript)
