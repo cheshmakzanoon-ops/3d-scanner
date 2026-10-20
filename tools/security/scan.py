@@ -57,6 +57,60 @@ def finding_counts(raw, active, suppressed):
     return {'raw': len(raw), 'active': len(active), 'suppressed': len(suppressed),
             'raw_by_rule': counts(raw), 'active_by_rule': counts(active), 'suppressed_by_rule': counts(suppressed)}
 
+
+def requirements_closure(path):
+    """Flatten bounded local includes: pip-audit --disable-pip omits them."""
+    base = path.absolute().parent.resolve()
+    files, lines, packages, visiting = {}, [], {}, set()
+    def visit(candidate):
+        if any(parent.is_symlink() for parent in (candidate, *candidate.parents)):
+            raise ValueError('requirements symlink is unsupported')
+        candidate = source_path(base, candidate)
+        if candidate in visiting:
+            raise ValueError('requirements include cycle')
+        if candidate in files:
+            raise ValueError('repeated requirements include')
+        remaining = 4 * 1024 * 1024 - sum(len(row) for row in files.values())
+        if len(files) >= 64:
+            raise ValueError('requirements closure budget exceeded')
+        with candidate.open('rb') as stream:
+            data = stream.read(remaining + 1)
+        if len(data) > remaining:
+            raise ValueError('requirements closure budget exceeded')
+        files[candidate] = data
+        visiting.add(candidate)
+        pending = ''
+        for line in data.decode('utf-8').splitlines():
+            line = line.split('#', 1)[0].strip()
+            pending += line[:-1] + ' ' if line.endswith('\\') else line
+            if line.endswith('\\'):
+                continue
+            line, pending = pending.strip(), ''
+            if not line:
+                continue
+            include = re.fullmatch(r'(?:-r\s*|--requirement(?:\s+|=))(.+)', line)
+            if include:
+                name = Path(include[1])
+                if name.is_absolute():
+                    raise ValueError('absolute requirements include')
+                visit(candidate.parent / name)
+                continue
+            pin = re.fullmatch(r'([A-Za-z0-9][A-Za-z0-9._-]*)(?:\[[A-Za-z0-9,._-]+\])?==([A-Za-z0-9][A-Za-z0-9.!+_-]*)(?:\s+--hash=sha256:[0-9a-f]{64})*', line)
+            if not pin:
+                raise ValueError('requirements must contain explicit version pins')
+            name = re.sub('[-_.]+', '-', pin[1]).lower()
+            if name in packages:
+                raise ValueError('duplicate requirement pin')
+            packages[name] = pin[2]
+            lines.append(line)
+        if pending:
+            raise ValueError('incomplete requirement continuation')
+        visiting.remove(candidate)
+    visit(path.absolute())
+    if not packages:
+        raise ValueError('requirements contains no package pins')
+    return '\n'.join(lines) + '\n', {str(p): hashlib.sha256(data).hexdigest() for p, data in files.items()}, packages
+
 def apply_suppressions(report, root, path):
     entries = json.loads(path.read_text())
     if entries.get('schema') != 1 or not isinstance(entries.get('entries'), list):
@@ -88,7 +142,13 @@ def scan(root, python, requirements=None, suppressions=None, expected_source=Non
         report.update(original, scan_root=str(root))
         if expected_source is not None and (not re.fullmatch('[0-9a-f]{40}', expected_source) or original['source_sha'] != expected_source or original['source_dirty'] is not False):
             raise ValueError('candidate source differs or is dirty')
-        input_hashes = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest() for path in (requirements, suppressions) if path}
+        driver = Path(__file__).resolve()
+        report['scanner_source_sha256'] = hashlib.sha256(driver.read_bytes()).hexdigest()
+        input_hashes = {str(path.resolve()): hashlib.sha256(path.read_bytes()).hexdigest() for path in (suppressions, driver) if path}
+        if requirements:
+            flattened, closure_hashes, expected_packages = requirements_closure(requirements)
+            report['requirements_files_sha256'] = closure_hashes
+            report['requirements_packages_count'] = len(expected_packages)
         if suppressions:
             report['suppressions_sha256'] = hashlib.sha256(suppressions.read_bytes()).hexdigest()
         # Verify exact installed distributions through the selected isolated Python.
@@ -110,24 +170,35 @@ def scan(root, python, requirements=None, suppressions=None, expected_source=Non
         report['checks']['secrets'] = 'FAIL' if secret_count else 'PASS'
         report['checks']['dependencies'] = 'NOT_RUN'
         if requirements:
-            report['requirements_sha256'] = hashlib.sha256(requirements.read_bytes()).hexdigest()
+            report['requirements_sha256'] = closure_hashes[str(requirements.resolve())]
             # Pinned requirements only: --disable-pip prevents environment mutation.
             with tempfile.TemporaryDirectory(prefix='rf-audit-cache-') as cache:
-                dependencies = run_json([str(python), '-m', 'pip_audit', '--disable-pip', '--no-deps', '--cache-dir', cache, '--progress-spinner', 'off', '-r', str(requirements), '-f', 'json'])
+                audit_input = Path(cache) / 'resolved-input.txt'
+                audit_input.write_text(flattened)
+                dependencies = run_json([str(python), '-m', 'pip_audit', '--disable-pip', '--no-deps', '--cache-dir', cache, '--progress-spinner', 'off', '-r', str(audit_input), '-f', 'json'])
             count = 0
+            actual_packages = {}
             for dep in dependencies['dependencies']:
                 if 'skip_reason' in dep:
                     raise RuntimeError('dependency was not audited')
+                name = re.sub('[-_.]+', '-', dep['name']).lower()
+                if name in actual_packages:
+                    raise RuntimeError('dependency was audited more than once')
+                actual_packages[name] = dep['version']
                 for vuln in dep['vulns']:
                     count += 1
                     report['findings'].append({'scanner': 'pip-audit', 'package': dep['name'], 'version': dep['version'], 'rule': vuln['id'], 'fix_versions': vuln.get('fix_versions', [])})
+            if actual_packages != expected_packages:
+                raise RuntimeError('dependency audit omitted or changed selected pins')
             report['checks']['dependencies'] = 'FAIL' if count else 'PASS'
         report['raw_findings'] = [dict(f) for f in report['findings']]
         report['suppressed'] = []
         if suppressions:
             apply_suppressions(report, root, suppressions)
         report['finding_counts'] = finding_counts(report['raw_findings'], report['findings'], report['suppressed'])
-        if source_identity(root) != original or any(hashlib.sha256(Path(name).read_bytes()).hexdigest() != digest for name, digest in input_hashes.items()):
+        if (source_identity(root) != original
+                or any(hashlib.sha256(Path(name).read_bytes()).hexdigest() != digest for name, digest in input_hashes.items())
+                or (requirements and requirements_closure(requirements) != (flattened, closure_hashes, expected_packages))):
             raise ValueError('source or policy/requirements changed during scan')
         report['status'] = 'FAIL' if report['findings'] else 'PASS' if requirements else 'NOT_RUN'
     except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:

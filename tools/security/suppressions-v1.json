@@ -2195,30 +2195,10 @@
     {
       "scanner": "bandit",
       "path": "security/scan.py",
-      "line": 10,
-      "rule": "B404",
-      "severity": "LOW",
-      "source_sha256": "sha256:7275be44c7f2835fcfddae8bd478e8301ec1f971d33e5b7480bf3733f50b01c9",
-      "expires": "2026-11-20",
-      "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
-    },
-    {
-      "scanner": "bandit",
-      "path": "security/scan.py",
       "line": 12,
       "rule": "B404",
       "severity": "LOW",
-      "source_sha256": "sha256:e63cb57a72303e8b35f48a17de8869d6ca40b417ac5b4297ce2dbeb09e9b15c2",
-      "expires": "2026-11-20",
-      "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
-    },
-    {
-      "scanner": "bandit",
-      "path": "security/scan.py",
-      "line": 17,
-      "rule": "B603",
-      "severity": "LOW",
-      "source_sha256": "sha256:7275be44c7f2835fcfddae8bd478e8301ec1f971d33e5b7480bf3733f50b01c9",
+      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -2228,7 +2208,7 @@
       "line": 19,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:e63cb57a72303e8b35f48a17de8869d6ca40b417ac5b4297ce2dbeb09e9b15c2",
+      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -2238,7 +2218,7 @@
       "line": 45,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:e63cb57a72303e8b35f48a17de8869d6ca40b417ac5b4297ce2dbeb09e9b15c2",
+      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -2248,7 +2228,7 @@
       "line": 45,
       "rule": "B607",
       "severity": "LOW",
-      "source_sha256": "sha256:e63cb57a72303e8b35f48a17de8869d6ca40b417ac5b4297ce2dbeb09e9b15c2",
+      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -2258,7 +2238,7 @@
       "line": 48,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:e63cb57a72303e8b35f48a17de8869d6ca40b417ac5b4297ce2dbeb09e9b15c2",
+      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -2268,7 +2248,7 @@
       "line": 48,
       "rule": "B607",
       "severity": "LOW",
-      "source_sha256": "sha256:e63cb57a72303e8b35f48a17de8869d6ca40b417ac5b4297ce2dbeb09e9b15c2",
+      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
       "expires": "2026-11-20",
       "justification": "Pinned selected scanner Python/modules plus local Git source identity, explicit argv and redacted JSON; no scanned source/credential is executed. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -11539,18 +11519,9 @@
     {
       "scanner": "detect-secrets",
       "path": "security/scan.py",
-      "line": 63,
+      "line": 170,
       "rule": "Secret Keyword",
-      "source_sha256": "sha256:7275be44c7f2835fcfddae8bd478e8301ec1f971d33e5b7480bf3733f50b01c9",
-      "expires": "2026-11-20",
-      "justification": "Public PASS/FAIL status enum assigned to the secret-scanner result; the literal is report metadata, never a secret credential value."
-    },
-    {
-      "scanner": "detect-secrets",
-      "path": "security/scan.py",
-      "line": 110,
-      "rule": "Secret Keyword",
-      "source_sha256": "sha256:e63cb57a72303e8b35f48a17de8869d6ca40b417ac5b4297ce2dbeb09e9b15c2",
+      "source_sha256": "sha256:11bc6ff28c9b713ef760d17aba8f9066eb9afcfcf7a386896b34b5a07c391751",
       "expires": "2026-11-20",
       "justification": "Public PASS/FAIL status enum assigned to the secret-scanner result; the literal is report metadata, never a secret credential value."
     }
