@@ -1,10 +1,11 @@
 #include "realityforge/asset_edit.hpp"
+#include "realityforge/glb_export.hpp"
 #include <cassert>
 #include <cmath>
 #include <iostream>
 using namespace rf;using namespace rf::asset;
 template<class F>void fails(F f){bool failed=false;try{f();}catch(const Error&){failed=true;}assert(failed);}
-int main(){
+int main(int argc,char** argv){
     const std::vector<Vec3> positions={{0,0,0},{2,0,0},{0,2,0},{10,0,0},{12,0,0},{10,2,0}};
     const std::vector<Vec3> normals(6,Vec3{0,0,1});const std::vector<Vec2> uv={{0,0},{1,0},{0,1},{0,0},{1,0},{0,1}};
     const std::vector<std::uint32_t> indices={0,1,2,3,4,5};PointAsset points;points.representation=Representation::ObservedSurface;
@@ -14,6 +15,7 @@ int main(){
     auto unknown=measureDistance(original,{0,0,0},{2,0,0});assert(unknown.units==Units::Arbitrary);assert(!unknown.uncertainty);
     recipe.operations={MetricReferenceEdit{{0,0,0},{2,0,0},.4,.002,"synthetic known-distance test"}};
     auto metric=applyEdits(source,recipe,uv);assert(metric.units==Units::Meters);assert(std::abs(metric.positions[1].x-.4)<1e-12);
+    if(argc==2)writeGlbFile(metric.surface(),argv[1]);
     auto measured=measureDistance(metric,{0,0,0},{.4,0,0});assert(measured.units==Units::Meters);assert(std::abs(*measured.uncertainty-.002)<1e-12);
     assert(metric.measurement.metersPerOriginalUnit==.2);assert(metric.provenance.parentId=="original");assert(metric.provenance.assetId.empty());
     OrientationEdit reflection{{-1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}};
