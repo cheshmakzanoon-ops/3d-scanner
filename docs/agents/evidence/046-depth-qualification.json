@@ -6,6 +6,109 @@
     "dataset": "Middlebury2014 Motorcycle, real rectified stereo",
     "truth_used_by_solver": false,
     "source_calibration": "published benchmark intrinsics, arbitrary unit baseline; known poses",
+    "input_sha256": "d90c073ce92482dc92dc0a6ecf2d1a153259b397f109a4675c54231b5ecaa148",
+    "profile": "cpu-refined-v3|local6|strict1|normal3|normalConsistency1|angle35|robust0",
+    "physical_device": false,
+    "baseline": {
+      "points": 4249,
+      "truth_supported": 3875,
+      "disparity_p50": 0.4699236573499803,
+      "disparity_p90": 3.003377334685866,
+      "relative_depth_p50": 0.007014616473835685,
+      "relative_depth_p90": 0.04515349250890722
+    },
+    "refined_without_strict": {
+      "points": 4268,
+      "truth_supported": 3897,
+      "disparity_p50": 0.4469090844656236,
+      "disparity_p90": 2.642650084004792,
+      "relative_depth_p50": 0.0066793174613001376,
+      "relative_depth_p90": 0.04132991581852869
+    },
+    "strict_without_refinement": {
+      "points": 3492,
+      "truth_supported": 3205,
+      "disparity_p50": 0.4326619678553527,
+      "disparity_p90": 1.8600876414209688,
+      "relative_depth_p50": 0.006334120218379858,
+      "relative_depth_p90": 0.03046255027524186
+    },
+    "refined": {
+      "points": 3505,
+      "truth_supported": 3228,
+      "disparity_p50": 0.4251946546355647,
+      "disparity_p90": 1.841745368928089,
+      "relative_depth_p50": 0.006276566859411626,
+      "relative_depth_p90": 0.028246132564238757
+    },
+    "baseline_seconds": 0.37148647100002563,
+    "refined_seconds": 0.5096973330000765,
+    "coarse_depth_maps": 2,
+    "propagated_hypotheses": 1262,
+    "normal_hypotheses_evaluated": 5126,
+    "normal_refined_pixels": 22,
+    "normal_support_pairs": 421,
+    "normal_rejected_pairs": 28,
+    "normal_unknown_pairs": 3097,
+    "admitted_working_set_bytes": 32213504,
+    "declared_tradeoff": "Non-strict refinement retains >=90% truth-supported points and p50<=1.25*baseline+0.15px. Conservative strict profiles retain >=60% and >=1000 truth points; p50<=1.10*baseline+0.05px,p90<=0.95*baseline+0.10px. All profiles retain absolute stereo gates. Gates declared before strict/normal admission; wall times observational under shared cloud CPU.",
+    "pixel_center_mapping": "OpenCV resize: (pixel+.5)*scale-.5 on initial and coarse levels"
+  },
+  "synthetic_rendered_photographs": [
+    {
+      "shape": "tilted plane",
+      "baseline_points": 1850,
+      "refined_points": 1770,
+      "relative_surface_error_p50": 0.00427365,
+      "relative_surface_error_p90": 0.0152688,
+      "observed_normal_winners": 11
+    },
+    {
+      "shape": "curved surface",
+      "baseline_points": 1773,
+      "refined_points": 1677,
+      "relative_surface_error_p50": 0.00461816,
+      "relative_surface_error_p90": 0.0162922,
+      "observed_normal_winners": 4
+    }
+  ],
+  "checks": [
+    {
+      "command": "cmake --build build/host --parallel 1; ctest --test-dir build/host --output-on-failure",
+      "result": "PASS",
+      "details": "11/11 CTest",
+      "log_sha256": "f71f52463442de5d71c369bcb808470038742c4d81fb48ac25c5edbf9910a4e6"
+    },
+    {
+      "command": "python -m pytest tests/test_agent_046_native.py tests/test_agent_046_refined_real.py tests/test_agent_047_native.py tests/test_agent_049_native.py tests/test_agent_050_native.py -q",
+      "result": "PASS",
+      "details": "7 passed35.80s",
+      "log_sha256": "b2f1877c41423a95b863dfc15ad8356ae060b570a1b49ab1ef24420077cc40c6"
+    },
+    {
+      "command": "python -m pytest tests -q -s",
+      "result": "PASS",
+      "details": "126 passed49.51s",
+      "log_sha256": "4dc4d95e91df2d5e4284fcb61b86d94157fbeca3bb3a2230a6097c26e95551d6"
+    },
+    {
+      "command": "python -m pytest tests/test_agent_046_refined_real.py -q",
+      "result": "PASS",
+      "details": "2 passed3.54s; independent asymmetric calibrated-ray fixture followed by unchanged real-photo accuracy/retention gates; exact5be native artifact reused without rebuild",
+      "log_sha256": "b44f011eac8728be40c643fbb72202d9b1197229a5a3ea5600fd917f29edad81"
+    }
+  ],
+  "physical_device": false,
+  "limitations": [
+    "Known-pose two-camera Middlebury stereo is not whole-object unknown-pose qualification.",
+    "Truth is evaluator-only; synthetic rendered fixtures are explicitly synthetic.",
+    "Cloud wall times are observations, not supported-phone sustained-work/RSS measurements.",
+    "Physical Android/process-death/power-loss and root final combined sanitizer gates remain separately tracked."
+  ],
+  "historical_real_stereo_unadjusted_pixel_centers": {
+    "dataset": "Middlebury2014 Motorcycle, real rectified stereo",
+    "truth_used_by_solver": false,
+    "source_calibration": "published benchmark intrinsics, arbitrary unit baseline; known poses",
     "input_sha256": "d3e5e13702fa1e4639d0b3e31c54e15bcee8703f58599c6ef0ab26e84155a818",
     "profile": "cpu-refined-v3|local6|strict1|normal3|normalConsistency1|angle35|robust0",
     "physical_device": false,
@@ -51,51 +154,8 @@
     "normal_rejected_pairs": 28,
     "normal_unknown_pairs": 3097,
     "admitted_working_set_bytes": 32213504,
-    "declared_tradeoff": "Non-strict refinement retains >=90% truth-supported points and p50<=1.25*baseline+0.15px. Conservative strict profiles retain >=60% and >=1000 truth points; p50<=1.10*baseline+0.05px,p90<=0.95*baseline+0.10px. All profiles retain absolute stereo gates. Gates declared before strict/normal admission; wall times observational under shared cloud CPU."
+    "declared_tradeoff": "Non-strict refinement retains >=90% truth-supported points and p50<=1.25*baseline+0.15px. Conservative strict profiles retain >=60% and >=1000 truth points; p50<=1.10*baseline+0.05px,p90<=0.95*baseline+0.10px. All profiles retain absolute stereo gates. Gates declared before strict/normal admission; wall times observational under shared cloud CPU.",
+    "calibration_caveat": "Historical fixture used cx*scale,cy*scale on its first OpenCV resize; superseded by pixel-center-preserving calibration below. Retained as historical execution evidence, not current calibrated qualification."
   },
-  "synthetic_rendered_photographs": [
-    {
-      "shape": "tilted plane",
-      "baseline_points": 1850,
-      "refined_points": 1770,
-      "relative_surface_error_p50": 0.00427365,
-      "relative_surface_error_p90": 0.0152688,
-      "observed_normal_winners": 11
-    },
-    {
-      "shape": "curved surface",
-      "baseline_points": 1773,
-      "refined_points": 1677,
-      "relative_surface_error_p50": 0.00461816,
-      "relative_surface_error_p90": 0.0162922,
-      "observed_normal_winners": 4
-    }
-  ],
-  "checks": [
-    {
-      "command": "cmake --build build/host --parallel 1; ctest --test-dir build/host --output-on-failure",
-      "result": "PASS",
-      "details": "11/11 CTest",
-      "log_sha256": "f71f52463442de5d71c369bcb808470038742c4d81fb48ac25c5edbf9910a4e6"
-    },
-    {
-      "command": "python -m pytest tests/test_agent_046_native.py tests/test_agent_046_refined_real.py tests/test_agent_047_native.py tests/test_agent_049_native.py tests/test_agent_050_native.py -q",
-      "result": "PASS",
-      "details": "7 passed35.80s",
-      "log_sha256": "b2f1877c41423a95b863dfc15ad8356ae060b570a1b49ab1ef24420077cc40c6"
-    },
-    {
-      "command": "python -m pytest tests -q -s",
-      "result": "PASS",
-      "details": "126 passed49.51s",
-      "log_sha256": "4dc4d95e91df2d5e4284fcb61b86d94157fbeca3bb3a2230a6097c26e95551d6"
-    }
-  ],
-  "physical_device": false,
-  "limitations": [
-    "Known-pose two-camera Middlebury stereo is not whole-object unknown-pose qualification.",
-    "Truth is evaluator-only; synthetic rendered fixtures are explicitly synthetic.",
-    "Cloud wall times are observations, not supported-phone sustained-work/RSS measurements.",
-    "Physical Android/process-death/power-loss and root final combined sanitizer gates remain separately tracked."
-  ]
+  "qualification_fixture_revision": "Pixel-center-preserving initial OpenCV resize; native depth source and all accuracy/retention thresholds unchanged."
 }
