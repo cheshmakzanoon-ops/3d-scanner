@@ -76,6 +76,8 @@ class ImageDecodingInstrumentedTest {
                         }
                     }
                     assertEquals(orientation, owner.info.orientation)
+                    assertEquals(OrientationEvidence.PRESENT, owner.info.orientationEvidence)
+                    assertEquals(orientation.exifValue, rawJpegOrientation(file))
                 } finally {
                     owner.close()
                 }
@@ -156,6 +158,12 @@ class ImageDecodingInstrumentedTest {
                 AndroidImageDecoder.decodeBlocking(DecodeRequest(jpeg, maxEncodedBytes = jpeg.length() - 1))
             }
 
+            // Independently inspect JPEG/TIFF bytes: this fixture has no stored
+            // orientation, although AndroidX synthesizes getAttribute() == "0".
+            assertEquals(null, rawJpegOrientation(jpeg))
+            val absentExif = ExifInterface(jpeg)
+            assertEquals(ExifInterface.ORIENTATION_UNDEFINED.toString(), absentExif.getAttribute(ExifInterface.TAG_ORIENTATION))
+            assertTrue(checkNotNull(absentExif.getAttributeRange(ExifInterface.TAG_ORIENTATION))[0] < 0)
             AndroidImageDecoder.decodeBlocking(DecodeRequest(jpeg)).use { owner ->
                 assertEquals(OrientationEvidence.ABSENT, owner.info.orientationEvidence)
                 assertTrue(ImageDecodeWarning.EXIF_ORIENTATION_ABSENT in owner.info.warnings)
@@ -166,6 +174,8 @@ class ImageDecodingInstrumentedTest {
                 setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED.toString())
                 saveAttributes()
             }
+            assertEquals(ExifInterface.ORIENTATION_UNDEFINED, rawJpegOrientation(malformedExif))
+            assertTrue(checkNotNull(ExifInterface(malformedExif).getAttributeRange(ExifInterface.TAG_ORIENTATION))[0] >= 0)
             AndroidImageDecoder.decodeBlocking(DecodeRequest(malformedExif)).use { owner ->
                 assertEquals(ExifOrientation.NORMAL, owner.info.orientation)
                 assertEquals(OrientationEvidence.MALFORMED, owner.info.orientationEvidence)
@@ -216,6 +226,64 @@ class ImageDecodingInstrumentedTest {
         } finally {
             folder.deleteRecursively()
         }
+    }
+
+    /** Independent bounded JPEG APP1/TIFF inspection; never consults AndroidX attributes. */
+    private fun rawJpegOrientation(file: File): Int? {
+        check(file.length() in 4..1_048_576) { "Controlled JPEG fixture is unexpectedly large" }
+        val bytes = file.readBytes()
+        fun byte(offset: Int): Int = bytes[offset].toInt() and 0xff
+        fun ushort(offset: Int, little: Boolean): Int {
+            check(offset >= 0 && offset + 2 <= bytes.size)
+            return if (little) byte(offset) or (byte(offset + 1) shl 8)
+            else (byte(offset) shl 8) or byte(offset + 1)
+        }
+        fun uint(offset: Int, little: Boolean): Long {
+            check(offset >= 0 && offset + 4 <= bytes.size)
+            var value = 0L
+            for (index in 0..3) {
+                val shift = if (little) index * 8 else (3 - index) * 8
+                value = value or (byte(offset + index).toLong() shl shift)
+            }
+            return value
+        }
+        check(byte(0) == 0xff && byte(1) == 0xd8)
+        var offset = 2
+        while (offset + 4 <= bytes.size) {
+            check(byte(offset++) == 0xff)
+            while (byte(offset) == 0xff) offset++
+            val marker = byte(offset++)
+            if (marker == 0xda || marker == 0xd9) return null
+            val length = ushort(offset, false)
+            check(length >= 2 && offset + length <= bytes.size)
+            val start = offset + 2
+            if (marker == 0xe1 && length >= 16 &&
+                bytes.copyOfRange(start, start + 6).contentEquals(byteArrayOf(69, 120, 105, 102, 0, 0))) {
+                val tiff = start + 6
+                val little = byte(tiff) == 0x49
+                check((little && byte(tiff + 1) == 0x49) ||
+                    (!little && byte(tiff) == 0x4d && byte(tiff + 1) == 0x4d))
+                check(ushort(tiff + 2, little) == 42)
+                val ifdOffset = uint(tiff + 4, little)
+                check(ifdOffset <= length - 8L)
+                val directory = tiff + ifdOffset.toInt()
+                val count = ushort(directory, little)
+                check(directory + 2L + count * 12L <= offset + length)
+                for (index in 0 until count) {
+                    val entry = directory + 2 + index * 12
+                    if (ushort(entry, little) == 0x0112) {
+                        check(uint(entry + 4, little) == 1L)
+                        return when (ushort(entry + 2, little)) {
+                            3 -> ushort(entry + 8, little)
+                            4 -> uint(entry + 8, little).also { check(it <= Int.MAX_VALUE) }.toInt()
+                            else -> error("Unexpected raw orientation storage type")
+                        }
+                    }
+                }
+            }
+            offset += length
+        }
+        return null
     }
 
     private fun writeSixBlockImage(file: File, format: Bitmap.CompressFormat) {
