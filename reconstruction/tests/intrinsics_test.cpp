@@ -1,3 +1,6 @@
+#ifdef NDEBUG
+#undef NDEBUG
+#endif
 #include "realityforge/intrinsics.hpp"
 #include <cassert>
 #include <cmath>
