@@ -142,7 +142,13 @@ inline ObservedNormal estimateDepthNeighborhoodNormal(const DenseView& view,cons
         auto p=multiply(inverse,Vec3{(u-view.cx)*depth/view.fx-view.pose.translation.x,(v-view.cy)*depth/view.fy-view.pose.translation.y,depth-view.pose.translation.z});
         points.push_back({p,camera,id});if(dx==0&&dy==0)query=p;
     }
-    SurfaceEvidenceSettings settings;settings.radius=std::max(1e-12,z*step/std::min(view.fx,view.fy)*3);settings.maxObservations=9;settings.maxNeighbors=9;
+    // All nine camera-grid neighbors have already passed the finite depth and
+    // discontinuity gates. A frontoparallel footprint cannot bound their world
+    // distances on a slanted surface; retain the actual validated neighborhood.
+    SurfaceEvidenceSettings settings;settings.radius=1e-12;
+    for(const auto& point:points){const auto delta=surface_evidence_detail::sub(point.position,query);settings.radius=std::max(settings.radius,std::hypot(delta.x,delta.y,delta.z));}
+    settings.radius=std::nextafter(settings.radius,std::numeric_limits<double>::infinity());
+    settings.maxObservations=9;settings.maxNeighbors=9;
     return estimateObservedNormal(points,query,settings);
 }
 }
