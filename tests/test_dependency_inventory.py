@@ -31,6 +31,19 @@ def test_parent_pom_license_inheritance(tmp_path):
   path=tmp_path/'x'/name/'1'/'hash';path.mkdir(parents=True);(path/(name+'.pom')).write_text('<project xmlns="http://maven.apache.org/POM/4.0.0">'+text+'</project>')
  licenses,evidence=inv.pom_evidence('x:child:1',tmp_path);assert licenses[0]['name']=='Apache-2.0';assert len(evidence)==2
 
+def test_debug_resolution_retains_qa_scope_and_actual_hash_evidence(tmp_path):
+ r,_,_=resolution(tmp_path)
+ r['configurations'][0]['configuration']='debugRuntimeClasspath'
+ pom=tmp_path/'cache/org.example/lib/1/hash/lib.pom';pom.parent.mkdir(parents=True)
+ pom.write_text('<project xmlns="http://maven.apache.org/POM/4.0.0"><licenses><license><name>MIT</name><url>https://example.org/MIT</url></license></licenses></project>')
+ modules=inv.artifacts_export(r,tmp_path/'cache')
+ assert modules[0]['scopes']==['qa-debug-runtime']
+ assert inv.verify_resolution(r,{'modules':modules})
+ assert inv.sbom({'modules':modules})['components'][0]['scope']=='excluded'
+ r['configurations'][0]['configuration']='unreviewedRuntimeClasspath'
+ with pytest.raises(ValueError,match='Unsupported resolved'):
+  inv.artifacts_export(r,tmp_path/'cache')
+
 def package(tmp_path):
  assets=tmp_path/'assets';assets.mkdir();(assets/'NOTICE.txt').write_text('Actual full notice fixture; synthetic test only')
  index=dict(files={'NOTICE.txt':inv.digest((assets/'NOTICE.txt').read_bytes())},runtimeCoordinates=['x:runtime:1'],unresolved=[])
