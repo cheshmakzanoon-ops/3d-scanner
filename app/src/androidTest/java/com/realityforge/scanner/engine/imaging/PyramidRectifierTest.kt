@@ -14,7 +14,8 @@ class PyramidRectifierTest {
         val lens=LensProjection(30.0,29.0,3.1,2.2)
         var valid=0
         PyramidRectifier.tiles(input,8,6,PixelTransform.identity(8,6),lens,lens,8,6,2){tile ->
-            for(i in tile.pixels.indices)if(tile.validity[i].toInt()==1){assertEquals(input[tile.firstRow*8+i],tile.pixels[i]);valid++}
+            val pixels=tile.pixels;val mask=tile.validity
+            for(i in pixels.indices)if(mask[i].toInt()==1){assertEquals(input[tile.firstRow*8+i],pixels[i]);valid++}
         }
         assertTrue(valid>=30)
     }

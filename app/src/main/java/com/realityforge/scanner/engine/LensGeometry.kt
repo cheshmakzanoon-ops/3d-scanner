@@ -78,7 +78,7 @@ data class LensProjection(
             val slope = k1 + 2*k2*r2 + 3*k3*r2*r2
             val dx = x*radial + 2*p1*x*y + p2*(r2 + 2*x*x) - targetX
             val dy = y*radial + p1*(r2 + 2*y*y) + 2*p2*x*y - targetY
-            
+
             val a = radial + 2*x*x*slope + 2*p1*y + 6*p2*x
             val b = 2*x*y*slope + 2*p1*x + 2*p2*y
             val c = b

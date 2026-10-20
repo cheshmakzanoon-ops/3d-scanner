@@ -33,6 +33,14 @@ class PixelTransformTest {
             assertEquals(k[3],(q.second-p.second)/h,1e-5)
         }
     }
+    @Test fun compositionRejectsMismatchedDomainsAndOverflow() {
+        assertThrows(IllegalArgumentException::class.java) {
+            PixelTransform.identity(11,7).then(PixelTransform.resize(12,7,5,4))
+        }
+        val t=PixelTransform.resize(1,1,100,100)
+        assertThrows(IllegalArgumentException::class.java){t.map(Double.MAX_VALUE,0.0)}
+        assertThrows(IllegalArgumentException::class.java){t.intrinsics(Double.MAX_VALUE,100.0,0.0,0.0)}
+    }
     @Test fun invalidCropAndOrientationFail() {
         assertThrows(IllegalArgumentException::class.java){PixelTransform.exif(5,4,9)}
         assertThrows(IllegalArgumentException::class.java){PixelTransform.crop(5,4,4,0,2,1)}
