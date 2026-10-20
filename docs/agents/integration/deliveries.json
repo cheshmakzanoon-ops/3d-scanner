@@ -311,6 +311,13 @@
       "branch": "agents/082-native-jni-parser-fuzzing",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "084",
+      "source_sha": "82c219dfee132f19a70a3b235b64550ffe144129",
+      "branch": "agents/084-full-object-geometry-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
