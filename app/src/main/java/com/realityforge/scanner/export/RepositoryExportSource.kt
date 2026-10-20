@@ -6,7 +6,7 @@ import java.io.File
 import java.util.UUID
 
 /** Adapter for existing completed M19 files. Dense legacy writers are excluded until 037/003 fixes their sparse metadata. */
-class RepositoryExportSource(private val repository: ProjectRepository) : ExportSource {
+class RepositoryExportSource(private val repository: ProjectRepository, private val geometryValidator: ((File, Int) -> Unit)? = null) : ExportSource {
     override suspend fun isCurrent(identity: ArtifactIdentity): Boolean {
         val p = repository.dao.project(identity.projectId) ?: return false
         if (p.revision != identity.revision || p.resultRevision != identity.revision || p.resultKey != identity.artifactKey) return false
@@ -30,11 +30,11 @@ class RepositoryExportSource(private val repository: ProjectRepository) : Export
         }
         add("json", ExportFormat.JSON, AssetRepresentation.DIAGNOSTICS)
         if (metadata.optInt("pointCount") > 0) {
-            add("glb", ExportFormat.GLB, AssetRepresentation.SPARSE_POINTS)
+            if (geometryValidator != null) add("glb", ExportFormat.GLB, AssetRepresentation.SPARSE_POINTS)
             add("ply", ExportFormat.PLY, AssetRepresentation.SPARSE_POINTS)
         }
         if ((metadata.optJSONObject("meshPreview")?.optInt("triangleCount") ?: 0) > 0) {
-            add("mesh.glb", ExportFormat.GLB, AssetRepresentation.OBSERVED_SURFACE)
+            if (geometryValidator != null) add("mesh.glb", ExportFormat.GLB, AssetRepresentation.OBSERVED_SURFACE)
             add("mesh.ply", ExportFormat.PLY, AssetRepresentation.OBSERVED_SURFACE)
         }
         if ((metadata.optJSONObject("texturePreview")?.optInt("triangleCount") ?: 0) > 0) {
@@ -61,12 +61,8 @@ class RepositoryExportSource(private val repository: ProjectRepository) : Export
                 require(magic.contentEquals(byteArrayOf(-119,80,78,71,13,10,26,10)))
             }
             "json" -> require(ExportCoordinator.digest(file) == request.artifact.sha256)
-            "glb", "mesh.glb" -> file.inputStream().use { input ->
-                val header = ByteArray(12); require(input.read(header) == 12)
-                val b = java.nio.ByteBuffer.wrap(header).order(java.nio.ByteOrder.LITTLE_ENDIAN)
-                require(b.int == 0x46546c67 && b.int == 2 && b.int.toLong() == file.length())
-            }
-            "ply", "mesh.ply" -> file.inputStream().bufferedReader().use { require(it.readLine() == "ply") }
+            "glb", "mesh.glb" -> requireNotNull(geometryValidator) { "VALIDATOR_UNAVAILABLE" }(file, if (request.option.id == "glb") 0 else 4)
+            "ply", "mesh.ply" -> LegacyPlyValidation.validate(file, request.option.id == "mesh.ply")
             else -> error("OPTION_UNAVAILABLE")
         }
     }

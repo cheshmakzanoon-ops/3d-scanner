@@ -114,6 +114,17 @@ class ExportCoordinatorTest {
         try { ExportPackage.write(mapOf("../escape" to source), File(root, "out.zip"), 4096); fail() } catch (_: IllegalArgumentException) {}
         assertEquals("immutable master", source.readText())
     }
+    @Test fun legacyPlyRejectsNonfiniteVerticesAndInvalidFaceIndices() = temporary { root ->
+        val file=File(root,"mesh.ply")
+        val header="ply\nformat ascii 1.0\ncomment RealityForge observed open surface; arbitrary scale; no UV textures\nelement vertex 3\nproperty float x\nproperty float y\nproperty float z\nproperty float nx\nproperty float ny\nproperty float nz\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nelement face 1\nproperty list uchar int vertex_indices\nend_header\n"
+        val vertices="0 0 1 0 0 1 255 0 0\n1 0 1 0 0 1 0 255 0\n0 1 1 0 0 1 0 0 255\n"
+        file.writeText(header+vertices+"3 0 1 2\n")
+        LegacyPlyValidation.validate(file,true)
+        for (bad in listOf(header+vertices+"3 0 1 3\n",header+vertices.replaceFirst("0 0 1","NaN 0 1")+"3 0 1 2\n",header+vertices+"3 0 0 2\n")) {
+            file.writeText(bad)
+            try { LegacyPlyValidation.validate(file,true); fail() } catch (_: IllegalArgumentException) {}
+        }
+    }
     @Test fun pointCloudCannotBeOfferedAsStlAndUnknownScaleMustBeAcknowledged() {
         try { ExportOption("stl",ExportFormat.STL,AssetRepresentation.SPARSE_POINTS,84); fail() } catch (_: IllegalArgumentException) {}
         val stl = ExportOption("stl",ExportFormat.STL,AssetRepresentation.OBSERVED_SURFACE,84)
