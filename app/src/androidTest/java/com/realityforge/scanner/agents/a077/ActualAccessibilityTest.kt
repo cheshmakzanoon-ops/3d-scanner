@@ -154,25 +154,70 @@ class ActualAccessibilityTest {
         return id == "a075-skip" || id?.endsWith("/a075-skip") == true || named(node, labels)
     }
 
-    private fun clickNode(node: AccessibilityNodeInfo) {
+    private fun clickTarget(node: AccessibilityNodeInfo): AccessibilityNodeInfo {
         var target = node
         while (!target.isClickable && target.parent != null) target = target.parent
-        assertTrue("Control lacks accessibility click action", target.isEnabled && target.performAction(AccessibilityNodeInfo.ACTION_CLICK))
+        return target
+    }
+
+    private fun clickNode(node: AccessibilityNodeInfo) {
+        val target = clickTarget(node)
+        assertTrue("Control lacks accessibility click action", target.isClickable && target.isEnabled && target.performAction(AccessibilityNodeInfo.ACTION_CLICK))
     }
 
     private fun clickLabel(vararg labels: String) {
+        val expected = labels.toList()
         var node: AccessibilityNodeInfo? = null
-        await { node = find { named(it, labels.toList()) }; node != null }
+        await {
+            node = find { named(it, expected) && clickTarget(it).let { target -> target.isClickable && target.isEnabled } }
+            node != null
+        }
         clickNode(requireNotNull(node))
+    }
+
+    /** Never scroll an unknown route or the library to make its primary-action assertion pass. */
+    private fun guideScroller(current: List<AccessibilityNodeInfo>, titles: List<String>): AccessibilityNodeInfo? {
+        val appPackage = instrumentation.targetContext.packageName
+        fun forward(node: AccessibilityNodeInfo): Boolean = node.isVisibleToUser &&
+            node.packageName?.toString() == appPackage &&
+            node.actionList.any { it.id == AccessibilityNodeInfo.ACTION_SCROLL_FORWARD }
+        val route = current.firstOrNull {
+            val id = it.viewIdResourceName
+            it.isVisibleToUser && it.packageName?.toString() == appPackage &&
+                (id == "a071-route-onboarding" || id?.endsWith("/a071-route-onboarding") == true)
+        }
+        if (route != null) return nodes(route).firstOrNull(::forward)
+        var ancestor = current.firstOrNull {
+            it.packageName?.toString() == appPackage && named(it, titles)
+        }
+        repeat(12) {
+            val candidate = ancestor ?: return null
+            if (forward(candidate)) return candidate
+            ancestor = candidate.parent
+        }
+        return null
     }
 
     private fun reachLibrary() {
         val skipLabels = labels("a075_skip", "Skip")
         val createLabels = labels("a072_create", "Create local project")
+        val guideTitles = labels("a075_title")
+        var scrolls = 0
+        var lastScroll = 0L
         var skip: AccessibilityNodeInfo? = null
         await {
-            skip = find { guideSkip(it, skipLabels) }
-            skip != null || find { named(it, createLabels) } != null
+            val current = nodes(instrumentation.uiAutomation.rootInActiveWindow)
+            skip = current.firstOrNull { guideSkip(it, skipLabels) }
+            val ready = skip != null || current.any { named(it, createLabels) }
+            if (!ready && scrolls < 8 && SystemClock.elapsedRealtime() - lastScroll >= 750) {
+                guideScroller(current, guideTitles)?.let { guide ->
+                    scrolls++
+                    val accepted = guide.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD)
+                    lastScroll = SystemClock.elapsedRealtime()
+                    Log.i("A077Accessibility", "run=$runId guideScrollAttempt=$scrolls accepted=$accepted")
+                }
+            }
+            ready
         }
         skip?.let(::clickNode)
         await { find { named(it, createLabels) } != null }
@@ -184,8 +229,15 @@ class ActualAccessibilityTest {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 reachLibrary()
                 clickLabel(*labels("a072_create", "Create local project").toTypedArray())
+                val nameLabels = labels("a072_name")
                 var field: AccessibilityNodeInfo? = null
-                await { field = find { it.isEditable }; field != null }
+                await {
+                    field = find { node -> node.isVisibleToUser && node.isEditable &&
+                        (nameLabels.isEmpty() || nameLabels.any {
+                            node.contentDescription?.toString() == it || node.hintText?.toString() == it
+                        }) }
+                    field != null
+                }
                 val input = requireNotNull(field)
                 val labels = (input.text?.toString().orEmpty() + input.contentDescription?.toString().orEmpty() + input.hintText?.toString().orEmpty())
                 assertTrue("Project-name field must expose a label or hint", labels.isNotBlank())
