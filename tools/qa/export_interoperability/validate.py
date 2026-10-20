@@ -138,12 +138,16 @@ def read_independent(path):
         if visual is not None and visual.kind in ('vertex', 'face'):
             colors += len(points)
         if visual is not None and visual.kind == 'texture':
-            uv = np.asarray(visual.uv)
-            require(uv.shape == (len(points), 2) and np.isfinite(uv).all(), 'invalid UVs')
             material = visual.material
             image = getattr(material, 'baseColorTexture', None)
             if image is None:
                 image = getattr(material, 'image', None)
+            # Trimesh also uses TextureVisuals for a plain PBR material, without
+            # any texture or UV channel. That remains an untextured surface.
+            if image is None and visual.uv is None and path.suffix.lower() == '.glb':
+                continue
+            uv = np.asarray(visual.uv)
+            require(uv.shape == (len(points), 2) and np.isfinite(uv).all(), 'invalid UVs')
             require(image is not None, 'missing decoded texture')
             image = np.asarray(image.convert('RGB'))
             # Trimesh UV origin is bottom-left; decoded image origin is top-left.
