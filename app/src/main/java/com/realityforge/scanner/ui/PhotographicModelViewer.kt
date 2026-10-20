@@ -10,6 +10,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.semantics
+import com.realityforge.scanner.R
+import com.realityforge.scanner.ui.studio.*
+import com.realityforge.scanner.viewer.RenderControls
+import com.realityforge.scanner.viewer.StudioRenderSurface
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -19,6 +27,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.realityforge.scanner.viewer.PhotographicAsset
 import com.realityforge.scanner.viewer.PhotographicGlb
+import com.realityforge.scanner.viewer.loading.LoadedPhotographicModel
+import com.realityforge.scanner.viewer.loading.PhotographicModelLoader
 import com.realityforge.scanner.viewer.PhotographicRenderer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -27,39 +37,51 @@ import java.io.File
 
 /** Opens only a locally selected, current project artifact; never resolves an external URI. */
 @Composable
-fun PhotographicModelViewer(file: File, onClose: () -> Unit) {
-    var asset by remember(file.path) { mutableStateOf<PhotographicAsset?>(null) }
+fun PhotographicModelViewer(
+    file: File,
+    features: StudioFeatureActions = StudioFeatureActions(),
+    surfaceFactory: ((Context, LoadedPhotographicModel, (String) -> Unit) -> StudioRenderSurface)? = null,
+    onClose: () -> Unit,
+) {
+    var model by remember(file.path) { mutableStateOf<LoadedPhotographicModel?>(null) }
+    val asset=model?.asset
     var failure by remember(file.path) { mutableStateOf<String?>(null) }
     val context = LocalContext.current
+    val glUnavailable=stringResource(R.string.a070_gl_unavailable)
+    val openFailure=stringResource(R.string.a070_open_failure)
+    var pose by rememberStudioPose(file.canonicalPath)
     val supportsGl = remember(context) {
         (context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).deviceConfigurationInfo.reqGlEsVersion >= 0x30000
     }
     LaunchedEffect(file.path) {
         try {
-            check(supportsGl) { "OpenGL ES 3 is unavailable. The vertex-color preview and GLB export remain available." }
-            asset = withContext(Dispatchers.IO) { PhotographicGlb.read(file) }
+            check(supportsGl) { glUnavailable }
+            model = PhotographicModelLoader.load(file)
         } catch (cancelled: CancellationException) { throw cancelled }
-        catch (e: Exception) { failure = e.message ?: "Cannot open this photographic model." }
+        catch (e: Exception) { failure = e.message ?: openFailure }
     }
+    DisposableEffect(model) { val owned=model; onDispose { owned?.close() } }
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(Modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Photographic model", style = MaterialTheme.typography.titleLarge)
-                    TextButton(onClick = onClose) { Text("Close") }
+                    Text(stringResource(R.string.a070_photo), style = MaterialTheme.typography.titleLarge)
+                    TextButton(onClick = onClose) { Text(stringResource(R.string.a070_close)) }
                 }
-                Text("Unlit embedded photograph · drag to orbit · pinch to zoom. Missing surfaces remain open.", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.a070_instructions), style = MaterialTheme.typography.bodySmall)
                 val loaded = asset
                 val message = failure
                 if (message != null) {
-                    Text("Preview unavailable: $message", color = MaterialTheme.colorScheme.error)
-                    Text("Original photographs and exported geometry have not been changed.")
+                    Text(stringResource(R.string.a070_preview_failure,message), color = MaterialTheme.colorScheme.error,modifier=Modifier.semantics { liveRegion=LiveRegionMode.Polite })
+                    Text(stringResource(R.string.a070_unchanged))
                 } else if (loaded == null) {
                     LinearProgressIndicator(Modifier.fillMaxWidth())
-                    Text("Validating local geometry and embedded PNG…")
+                    Text(stringResource(R.string.a070_loading))
                 } else {
-                    PhotoGlSurface(loaded, Modifier.weight(1f).fillMaxWidth()) { failure = it }
-                    Text("${loaded.indices.size / 3} textured triangles · ${loaded.imageWidth} × ${loaded.imageHeight} atlas · arbitrary scale", style = MaterialTheme.typography.bodySmall)
+                    PhotoGlSurface(requireNotNull(model),pose,{pose=it},surfaceFactory,Modifier.weight(1f).fillMaxWidth()) { failure=it }
+                    StudioControls(pose,{ pose=it })
+                    StudioFeatureControls(features)
+                    Text(stringResource(R.string.a070_model_info,loaded.indices.size/3,loaded.imageWidth,loaded.imageHeight), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -67,53 +89,84 @@ fun PhotographicModelViewer(file: File, onClose: () -> Unit) {
 }
 
 @Composable
-private fun PhotoGlSurface(asset: PhotographicAsset, modifier: Modifier, onFailure: (String) -> Unit) {
-    val context = LocalContext.current
-    val owner = LocalLifecycleOwner.current
+private fun PhotoGlSurface(
+    model: LoadedPhotographicModel,
+    pose: StudioPose,
+    onPoseChange: (StudioPose)->Unit,
+    factory: ((Context,LoadedPhotographicModel,(String)->Unit)->StudioRenderSurface)?,
+    modifier: Modifier,
+    onFailure: (String) -> Unit,
+) {
+    val context=LocalContext.current
+    val asset=model.asset
+    val owner=LocalLifecycleOwner.current
     val callback by rememberUpdatedState(onFailure)
-    val surface = remember(asset, context) { PhotoGlView(context, asset) { callback(it) } }
-    DisposableEffect(surface, owner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> surface.onResume()
-                Lifecycle.Event.ON_PAUSE -> surface.onPause()
+    val poseCallback by rememberUpdatedState(onPoseChange)
+    val currentPose by rememberUpdatedState(pose)
+    val label=stringResource(R.string.a070_photo_accessibility)
+    val surface=remember(asset,context,factory) {
+        factory?.invoke(context,model) { callback(it) } ?: PhotoGlView(context,asset) { callback(it) }
+    }
+    SideEffect { (surface as? PhotoGlView)?.onInteract={ h,v,f -> poseCallback(currentPose.orbit(h,v).magnify(f)) } }
+    LaunchedEffect(surface,pose) {
+        if (surface is PhotoGlView) surface.applyPose(pose)
+        else {
+            val controls=surface.controls
+            controls.reset(); controls.orbit(pose.yaw,pose.pitch); controls.magnify(pose.zoom); controls.pan(pose.panX,pose.panY)
+        }
+    }
+    DisposableEffect(surface,owner) {
+        val observer=LifecycleEventObserver { _,event ->
+            when(event) {
+                Lifecycle.Event.ON_RESUME -> surface.resumeRendering()
+                Lifecycle.Event.ON_PAUSE -> surface.pauseRendering()
                 else -> Unit
             }
         }
         owner.lifecycle.addObserver(observer)
-        if (!owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) surface.onPause()
-        onDispose {
-            owner.lifecycle.removeObserver(observer)
-            // Non-preserved EGL context owns/releases all GPU resources on pause/detach.
-            surface.dispose()
-        }
+        if (!owner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) surface.pauseRendering()
+        onDispose { owner.lifecycle.removeObserver(observer); surface.close() }
     }
-    Column(modifier) {
-        AndroidView(factory = { surface }, modifier = Modifier.fillMaxWidth().weight(1f))
-        TextButton(onClick = { surface.resetView() }) { Text("Reset view") }
-    }
+    AndroidView(factory={ surface.view },modifier=modifier.studioSemantics(label,pose,onPoseChange))
 }
 
-internal class PhotoGlView(context: Context, asset: PhotographicAsset, fail: (String) -> Unit) : GLSurfaceView(context) {
+internal class PhotoGlView(context: Context, asset: PhotographicAsset, fail: (String) -> Unit) : GLSurfaceView(context), StudioRenderSurface {
+    override val view: android.view.View get()=this
+    override val controls: RenderControls = object: RenderControls {
+        override fun reset() { queueEvent { painter.reset() }; requestRender() }
+        override fun orbit(horizontalDegrees: Float,verticalDegrees: Float) { queueEvent { painter.orbit(horizontalDegrees,verticalDegrees) }; requestRender() }
+        override fun magnify(factor: Float) { queueEvent { painter.magnify(factor) }; requestRender() }
+        override fun pan(horizontal: Float,vertical: Float) { queueEvent { painter.pan(horizontal,vertical) }; requestRender() }
+    }
+    override fun resumeRendering() { if (!disposed) onResume() }
+    override fun pauseRendering() { if (!disposed) onPause() }
+    override fun close()=dispose()
     private var disposed = false
     internal val renderedFrames: Int get() = painter.framesDrawn
     internal val renderFailure: String? get() = painter.failure
     private val painter = PhotographicRenderer(asset) { message -> post { if (!disposed) fail(message) } }
+    internal var onInteract: ((Float,Float,Float)->Unit)? = null
     private var lastX = 0f
     private var lastY = 0f
     private val scale = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             val factor = detector.scaleFactor
-            queueEvent { painter.magnify(factor) }; requestRender(); return true
+            onInteract?.invoke(0f,0f,factor) ?: run { queueEvent { painter.magnify(factor) }; requestRender() }; return true
         }
     })
     init {
-        contentDescription = "Photographic 3D model. Drag to rotate and pinch to zoom."
+        contentDescription = context.getString(R.string.a070_photo_accessibility)
         setEGLContextClientVersion(3)
         setEGLConfigChooser(8, 8, 8, 8, 16, 0)
         preserveEGLContextOnPause = false
         setRenderer(painter)
         renderMode = RENDERMODE_WHEN_DIRTY
+    }
+    fun applyPose(pose: StudioPose) {
+        queueEvent {
+            painter.reset(); painter.orbit(pose.yaw,pose.pitch); painter.magnify(pose.zoom); painter.pan(pose.panX,pose.panY)
+        }
+        requestRender()
     }
     fun resetView() { queueEvent { painter.reset() }; requestRender() }
     fun dispose() {
@@ -132,7 +185,7 @@ internal class PhotoGlView(context: Context, asset: PhotographicAsset, fail: (St
             MotionEvent.ACTION_MOVE -> {
                 if (event.pointerCount == 1 && !scale.isInProgress) {
                     val dx = (event.x - lastX) * .35f; val dy = (event.y - lastY) * .35f
-                    queueEvent { painter.orbit(dx, dy) }; requestRender()
+                    onInteract?.invoke(dx,dy,1f) ?: run { queueEvent { painter.orbit(dx,dy) }; requestRender() }
                 }
                 lastX = event.x; lastY = event.y
             }

@@ -1,5 +1,10 @@
 package com.realityforge.scanner.ui
 
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
+import androidx.compose.ui.res.stringResource
+import com.realityforge.scanner.R
+import com.realityforge.scanner.ui.studio.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -58,18 +63,18 @@ fun SurfaceMeshViewer(mesh: JSONObject, modifier: Modifier = Modifier, wireframe
         }
         SurfaceDisplay(coords,colors,indices)
     }
-    var yaw by remember(mesh) { mutableFloatStateOf(0f) }
-    var pitch by remember(mesh) { mutableFloatStateOf(0f) }
-    var zoom by remember(mesh) { mutableFloatStateOf(1f) }
-    Canvas(modifier.background(Color(0xFF0A1218))
-        .semantics { contentDescription = "Observed triangle mesh with vertex colors; drag to orbit and pinch to zoom" }
+    val identity=remember(mesh) { mesh.toString().hashCode().toString() }
+    var pose by rememberStudioPose(identity)
+    val label=stringResource(R.string.a070_surface)
+    Column(modifier) {
+    Canvas(Modifier.weight(1f).fillMaxWidth().background(Color(0xFF0A1218))
+        .studioSemantics(label,pose) { pose=it }
         .pointerInput(mesh) {
-            detectTransformGestures { _,pan,magnify,_ ->
-                yaw += pan.x*.008f
-                pitch=(pitch+pan.y*.008f).coerceIn(-1.5f,1.5f)
-                zoom=(zoom*magnify).coerceIn(.3f,5f)
-            }
+            detectTransformGestures { _,pan,magnify,_ -> pose=pose.orbit(pan.x*.45f,pan.y*.45f).magnify(magnify) }
         }) {
+        val yaw=Math.toRadians(pose.yaw.toDouble()).toFloat()
+        val pitch=Math.toRadians(pose.pitch.toDouble()).toFloat()
+        val zoom=pose.zoom
         val count=geometry.xyz.size/3
         val positioned=FloatArray(geometry.xyz.size)
         val cy=cos(yaw);val sy=sin(yaw);val cp=cos(pitch);val sp=sin(pitch)
@@ -110,13 +115,16 @@ fun SurfaceMeshViewer(mesh: JSONObject, modifier: Modifier = Modifier, wireframe
             val green=(((rgb shr 8) and 255)*brightness).toInt().coerceIn(0,255)
             val blue=((rgb and 255)*brightness).toInt().coerceIn(0,255)
             val path=Path().apply {
-                moveTo(size.width/2+ax*scale,size.height/2-ay*scale)
-                lineTo(size.width/2+bx*scale,size.height/2-by*scale)
-                lineTo(size.width/2+cx*scale,size.height/2-cy2*scale)
+                moveTo(size.width/2+(ax-pose.panX)*scale,size.height/2-(ay-pose.panY)*scale)
+                lineTo(size.width/2+(bx-pose.panX)*scale,size.height/2-(by-pose.panY)*scale)
+                lineTo(size.width/2+(cx-pose.panX)*scale,size.height/2-(cy2-pose.panY)*scale)
                 close()
             }
             if(wireframe)drawPath(path,Color(0xFFBDE6D8),style=Stroke(width=1f))
             else drawPath(path,Color(red,green,blue))
         }
+    }
+    if (geometry.faces.size/3>12000) Text(stringResource(R.string.a070_canvas_sampled))
+    StudioControls(pose,{ pose=it })
     }
 }
