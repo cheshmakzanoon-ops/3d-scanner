@@ -14,6 +14,16 @@ The audited SHA `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42` passed
 counts are not physical handset or later-candidate evidence. Current receipts live
 under `docs/agents/status/`; each must identify its own source/artifact and actual gates.
 
+The 081–100 campaign adds executable native/fuzz/corpus/quality/device/export/
+packaging/security/dependency/qualification tooling. The integrated host suite
+requires095's pinned QA-only installation rather than the original scientific
+requirements alone; see [BUILDING](BUILDING.md#integrated-campaign-qa). Tooling
+delivery does not establish the unimplemented/unwired001–080 runtime paths or
+physical evidence. The final integration applicability keeps all18 required gates
+open until their own exact-candidate records pass. Current physical/reference/
+held-out/signing/beta prerequisites remain unavailable, and known failed assets or
+sanitizer checks must stay visible in their independent reports.
+
 ## Historical M12 snapshot
 
 | Area | Actual state |

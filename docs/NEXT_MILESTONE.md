@@ -12,6 +12,13 @@ held-out texture quality, ARM64 memory/thermal/power, target-tool exported asset
 security/license inventory and signing/packaging qualification. Unavailable external
 inputs remain BLOCKED_EXTERNAL; unexecuted checks remain NOT_RUN.
 
+Before accepting the merged QA results, activate the full pinned095 host toolchain
+from [BUILDING](BUILDING.md#integrated-campaign-qa), then inspect100's generated
+delivery index and committed `docs/agents/integration/gate-applicability.json`.
+All18 candidate gates remain required. An ordinary compatibility suite excludes
+specialist controllers explicitly and cannot close full instrumentation, capture,
+recovery, offline radios, physical profiles or release journey requirements.
+
 The existing source supports operation-scoped dense cancellation and per-reference
 depth reuse, not durable every-stage background/session resumption. Unknown surfaces
 stay unknown, scale stays arbitrary without measurement, and open patches stay open.
