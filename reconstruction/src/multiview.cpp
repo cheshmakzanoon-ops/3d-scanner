@@ -1,5 +1,6 @@
 #include "realityforge/multiview.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/progress.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -187,8 +188,10 @@ MultiViewResult reconstructMultiView(std::span<const ViewPose> views,
     out.inputTracks=groups.size();
     std::vector<Working> working;working.reserve(groups.size());
     double gate=settings.maxReprojectionError;
+    // Sparse work-unit2 counts whole track groups in this native window.
+    progress::begin(progress::Stage::Sparse,0,2,groups.size());std::size_t completedTracks=0;
     for(auto& [id,group]:groups){
-        cancellation::checkpoint();
+        progress::advance(++completedTracks);
         std::sort(group.begin(),group.end(),[](const auto& a,const auto& b){return a.camera<b.camera;});
         if(group.size()<2)continue;
         bool found=false;Vec3 best{};double bestParallax=0;std::size_t support=0;double bestCost=1e100;
@@ -256,7 +259,8 @@ std::vector<MappedSparseTrackPoint> reconstructMultiViewWindow(
     for(auto& row:observations)if(row.track>=mapping.trackIds.size())throw Error("Track missing from window mapping");
     auto result=reconstructMultiView(cameras,observations,settings);std::vector<MappedSparseTrackPoint> out;out.reserve(result.tracks.size());
     for(auto& point:result.tracks){MappedSparseTrackPoint mapped{point,mapping.trackIds[point.track],{}};
-        for(auto camera:point.supportingCameras)mapped.cameraIds.push_back(mapping.cameraIds[camera]);out.push_back(std::move(mapped));}
+        for(auto camera:point.supportingCameras){mapped.cameraIds.push_back(mapping.cameraIds[camera]);}
+        out.push_back(std::move(mapped));}
     return out;
 }
 std::string multiViewJson(const MultiViewResult& r){

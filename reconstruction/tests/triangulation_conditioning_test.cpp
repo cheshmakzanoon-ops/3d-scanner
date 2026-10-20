@@ -3,6 +3,7 @@
 #endif
 #include "realityforge/multiview.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/progress.hpp"
 #include <atomic>
 #include <cassert>
 #include <cmath>
@@ -15,6 +16,7 @@ void* operator new(std::size_t size){if(failAfter==0)throw std::bad_alloc();if(f
 void operator delete(void* p) noexcept {std::free(p);}
 void operator delete(void* p,std::size_t) noexcept {std::free(p);}
 int main(){
+ auto state=std::make_shared<rf::progress::State>();rf::progress::Scope reporting(state);
  for(int failure=0;failure<8;++failure){failAfter=failure;char* value=rf_multiview_json(nullptr,0,nullptr,0,.003,0);failAfter=-1;if(value)rf_free(value);}
  for(double scale:{.01,1.,100.}){
   std::vector<rf::ViewPose> poses;for(int i=0;i<5;++i)poses.push_back({rf::identity(),{-i*.3*scale,0,0}});
@@ -35,6 +37,7 @@ int main(){
    assert(std::abs(out[0].estimate.point.xyz.z-5)<1e-8);
   }
  }
+ auto measured=state->snapshot();assert(measured.stage==rf::progress::Stage::Sparse&&measured.tile==2&&measured.completed==measured.total);
  char* error=rf_multiview_json(nullptr,0,nullptr,0,.003,0);assert(error&&std::string(error).find("error")!=std::string::npos);rf_free(error);
  std::atomic_bool stop{true};rf::cancellation::Scope scope(&stop);std::vector<rf::ViewPose> cameras{{rf::identity(),{}},{rf::identity(),{-1,0,0}}};std::vector<rf::TrackObservation> rows{{1,0,{0,0},{}},{1,1,{-.2,0},{}}};
  bool cancelled=false;try{rf::reconstructMultiView(cameras,rows);}catch(const rf::cancellation::Cancelled&){cancelled=true;}assert(cancelled);
