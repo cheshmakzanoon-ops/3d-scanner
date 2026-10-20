@@ -42,6 +42,8 @@ f249696a5581071d385d75491b75e911eff5163b984d6c6a1b411009e2293dec  app/src/main/j
 f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt
 8bf8038aae0a36e779ea3e59a56dd82c5a1c875e1fc1598a61af05b609291d56  app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt
 d6b3fef5c66a1ff51b635e460c9e3aa9fadce86b8751eeff1dec5eb0326b0bd0  app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt
+010dbeef1ac8c6305581102768c8d7c1b17cb0e85f11f2e663487faf900abd10  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt
+9c26f8c7ac5f30e7690345598bc1f619f5efe0d3fc6507da358bdc9950f9e245  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCacheFormat.kt
 ec502d7aa43e0b3f7dcbd0239ead93e51162a33bdc1badf901eaebe4ed69d12a  app/src/main/java/com/realityforge/scanner/engine/features/FeatureExtractor.kt
 5f37f7c61148ea0b5c0947fe5a5d105051578bda7d4c7b8124445da815dab00a  app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt
 bbc3407224b95b966d3ef23d0e2111b6c062bd4248b90ed4b4b137d334aa83ee  app/src/main/java/com/realityforge/scanner/engine/geometry/PixelTransform.kt
@@ -71,6 +73,7 @@ b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/r
 cbf13521cbe2ef3592b324c99cff29d3bdb168deee69f20cca3e19656c0c1d1b  app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt
 3fd043571a35cd199bd8b038a676f6b1d83608bcd5794613ab9e6d0184815894  app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt
 3b7f5ab073697174da4debd2d6223fa3beb0654acf5ea2e87ee7cfa5c5cc1378  app/src/test/java/com/realityforge/scanner/engine/ScanQualityEvidenceTest.kt
+6268aa77d61f3ce20d2ff20022198b0a12a8556fdf43a23cde8e8f1ea6e8aebf  app/src/test/java/com/realityforge/scanner/engine/features/FeatureCacheTest.kt
 62b27dc80f036afee8c5b7829d39ffed9e147f0e092dd8cfedf0bd9ecffb0245  app/src/test/java/com/realityforge/scanner/engine/geometry/PixelTransformTest.kt
 a23a23888de0d962821a6d7ce3dad02b3a8fc471dc7365ec3529f35484341323  app/src/test/java/com/realityforge/scanner/engine/matching/OverlapGraphTest.kt
 284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593  benchmarks/fixtures/relief/calibration.json
@@ -110,6 +113,7 @@ ad71ed94e90adcc7857e96cd492df5c31f598656a6e9a0e3f6a42bc51cc3aaf5  docs/VALIDATIO
 dda4c3764da2fc39e568af859654fe2046bd1b9d7abf29a5446fd5ac05ebade2  docs/agents/contracts/002.md
 1f6f729fc12b686f19e9391400c4452cf3fc7b5675d5f0010862b928f8fe8ba4  docs/agents/contracts/031.md
 596ce6dc34706a10debc2470ff6134c0e2f601c14fc1e20b9a9f288ccafadb41  docs/agents/contracts/032.md
+c6378b941f62ce417549cabe067513d4c2c188b3f5af983638fe3bc386a631b4  docs/agents/contracts/033.md
 9155fb86973ac2bb2c48579b1e81156f967a8b1f17143e8eaf5381b0bbace0fd  docs/agents/contracts/034.md
 a79bd635733108f280c39958e0e1837b33cc777b512c02da48e65282541da9e8  docs/agents/contracts/035.md
 fdb37fad787cdcf5af85bb851dff9273e5a1534e8f05cddec39dce9d0d1dcf21  docs/agents/requests/002-to-009.md
@@ -124,6 +128,10 @@ fb8dccb1107c883453cec712800f53bf7c058d19d748281856b5d28664b33793  docs/agents/re
 c1bfddbb9e794a75516e512266c4e3e26a2ec60be51d2f92c6fc38b8a72583ec  docs/agents/requests/032-to-033.md
 0ee7402ee053fdc05138554cede39c64140686e7626d2e5afa34afa373016e45  docs/agents/requests/032-to-035.md
 18d8931707583f719e60772d99225a1c6c4084278504a1dbba1449585290f27a  docs/agents/requests/032-to-045.md
+1ec53bcc9ed1ff79c7b2c7dc099625ae23c0d6ad4db66b618e71ccf73bff4c9d  docs/agents/requests/033-to-002.md
+288934cec2fe462f955a4a58fa5366ec2af7177a4c681a2f4e8297558026b757  docs/agents/requests/033-to-009.md
+e56dd558f5e1d0aefac9082467a280f503152c29c575eab108c91cbc06a00bf9  docs/agents/requests/033-to-020.md
+4703bd5734145baf4fc5738edf5906760062cfa46a3400d8735481da20e15cb4  docs/agents/requests/033-to-032.md
 03692dbe9cadb2aa5ec82a7c637c8127653f33c93ff77ac2214fc574ae741cab  docs/agents/requests/034-to-002.md
 bce98070b5bee03b3a7d846d2802feb384d45106c6b4d91a649f6eae4e776426  docs/agents/requests/034-to-035.md
 d857d7667f9c43b20651c9dca92eddb046968c4777876c2404239508a126c6c8  docs/agents/requests/034-to-039.md
@@ -137,6 +145,7 @@ aa087e90601c36f1ed78d69233f2819b89157885926f7acc70b4bc4c65eef801  docs/agents/re
 622e3392f202bf227a9de2631f794159af3aed3cb51e0bbde6759c1d0e2107bf  docs/agents/status/002.md
 0547cd6b6c5f4a6332d2d4a4c26b0567fd3e1a2f17bf6f373746bccc3c94a2d6  docs/agents/status/031.md
 57ac43f49d6fd274550aad9cadcdf3e0c243253c4c8a92f9a8902e55a0793b0c  docs/agents/status/032.md
+f668352c194bf0bb107a68b39b56835eb329aa3c97e299432f0d56a914b0135f  docs/agents/status/033.md
 f7d51255e84f490508b1adf088a353d17bd77e506b5d61cf929ab167d96f0770  docs/agents/status/034.md
 03b2d1304502416c24273660ee08a185f431b6fe46052ae30ed584f25d7fa511  docs/agents/status/035.md
 13f63963a49857b3de2ce075b26c5630ca486ee0f9873c264294eadc9608f078  docs/checkerboard-9x6.svg
