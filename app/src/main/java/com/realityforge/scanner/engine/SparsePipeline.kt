@@ -746,6 +746,7 @@ class SparsePipeline(
                 }
                 progress(Progress("Saving dense point-cloud exports",2,2))
             }
+            coroutineContext.ensureActive()
             publicationComplete=true
             output
         } finally {
