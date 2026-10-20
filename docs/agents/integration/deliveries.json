@@ -493,6 +493,13 @@
       "branch": "agents/082-native-jni-parser-fuzzing",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "3133e455ef37463ce4ff03e7098d0f5331684535",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
