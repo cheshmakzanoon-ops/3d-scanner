@@ -67,7 +67,7 @@ dependencies {
 }
 
 // Consume095 approved module graph locks in ordinary Gradle builds, including CI.
-// Managed names match095 export.gradle at c2f775796913a35c65f22c6210641eaa95805432.
+// Managed names match095 export.gradle at 27c5adac94c963f487bf6bea59edaa96fda58650.
 val lockedAndroidConfigurations = setOf(
     "releaseRuntimeClasspath",
     "releaseCompileClasspath",
@@ -82,7 +82,10 @@ val lockedAndroidConfigurations = setOf(
     "debugAndroidTestRuntimeClasspath",
     "debugAndroidTestCompileClasspath",
     "debugUnitTestRuntimeClasspath",
-    "debugUnitTestCompileClasspath"
+    "debugUnitTestCompileClasspath",
+    "benchmarkRuntimeClasspath",
+    "benchmarkCompileClasspath",
+    "kspBenchmarkKotlinProcessorClasspath"
 )
 configurations.configureEach {
     if (name in lockedAndroidConfigurations) resolutionStrategy.activateDependencyLocking()
@@ -125,3 +128,29 @@ candidateAndroid.setDsl("testBuildType", candidateTestBuildType)
 
 // AndroidX test tracing retains these annotations; provide actual classes for test R8.
 dependencies { add("androidTestCompileOnly", "com.google.errorprone:error_prone_annotations:2.26.1") }
+
+// Inline convention from gradle/macrobenchmark-validation.gradle.kts (AGP lint applied-script UAST workaround)
+// Inline exact imports/body into :app; AGP8.11 lint crashes on applied Kotlin scripts; root settings must include(":macrobenchmark"). No additional plugin classloader.
+fun Any.benchmarkDsl(name: String): Any = withGroovyBuilder { getProperty(name) } ?: error("Missing Android DSL property $name")
+fun Any.setBenchmarkDsl(name: String, value: Any?) { withGroovyBuilder { setProperty(name, value) } }
+val performanceAndroid = extensions.getByName("android")
+@Suppress("UNCHECKED_CAST")
+val performanceTypes = performanceAndroid.benchmarkDsl("buildTypes") as NamedDomainObjectContainer<Any>
+@Suppress("UNCHECKED_CAST")
+val performanceSigning = performanceAndroid.benchmarkDsl("signingConfigs") as NamedDomainObjectContainer<Any>
+performanceTypes.maybeCreate("benchmark").apply {
+    withGroovyBuilder { "initWith"(performanceTypes.getByName("release")) }
+    setBenchmarkDsl("debuggable", false)
+    setBenchmarkDsl("minifyEnabled", true)
+    setBenchmarkDsl("shrinkResources", true)
+    setBenchmarkDsl("signingConfig", performanceSigning.getByName("debug"))
+    @Suppress("UNCHECKED_CAST")
+    (benchmarkDsl("matchingFallbacks") as MutableList<String>).add("release")
+}
+@Suppress("UNCHECKED_CAST")
+val performanceSources = performanceAndroid.benchmarkDsl("sourceSets") as NamedDomainObjectContainer<Any>
+performanceSources.getByName("benchmark").apply {
+    benchmarkDsl("manifest").withGroovyBuilder { "srcFile"(rootProject.file("macrobenchmark/target/AndroidManifest.xml")) }
+    benchmarkDsl("java").withGroovyBuilder { "srcDir"(rootProject.file("macrobenchmark/target/java")) }
+    benchmarkDsl("assets").withGroovyBuilder { "srcDir"(rootProject.file("macrobenchmark/target/assets")) }
+}

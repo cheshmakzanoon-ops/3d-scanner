@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "sealed_at": "2026-10-20T10:49:27.830960+00:00",
+  "stop_reason": "User instructed stop development, commit and publish existing work only",
+  "completed": [
+    "strict actual benchmark app+driver dependency exports",
+    "approved app+driver inventory verification",
+    "normal no-init172task benchmark+debug APK/JVM/lint build",
+    "35JVM tests0failures/errors/skips",
+    "actual benchmark target+driver package validation",
+    "debug attribution129runtime95noticefiles"
+  ],
+  "not_run": [
+    "normal release APK/instrumentation/JVM/lint build after benchmark wiring",
+    "ordinary benchmark lock-tampering rejection helper",
+    "physical ARM64 macrobenchmark execution"
+  ],
+  "owned_running_processes": [],
+  "support_sources": {
+    "build-logic/campaign_support/gradle.py": {
+      "original": "/workspace/campaign/gradle.py",
+      "sha256": "e31edf4087f4b70a8804f88ad83be5b42a71a15bfffa48ef088d775967125950",
+      "executed": "Used for completed real Gradle phases"
+    },
+    "build-logic/campaign_support/run_phase.py": {
+      "original": "/workspace/campaign/evidence/004/benchmark-followup/run_phase.py",
+      "sha256": "25ab15cc98ba249e40e5d0a4902a6c49f70544fc3183b83f406e85d9f716b7ee",
+      "executed": "Used for completed real Gradle phases"
+    },
+    "build-logic/campaign_support/check_normal_lock_rejection.py": {
+      "original": "/workspace/campaign/evidence/004/benchmark-followup/check_normal_lock_rejection.py",
+      "sha256": "147cfdc75d54d809525aac52e871af60f977824afe4b93b246fb9fa00d6582be",
+      "executed": "NOT_RUN"
+    }
+  }
+}
