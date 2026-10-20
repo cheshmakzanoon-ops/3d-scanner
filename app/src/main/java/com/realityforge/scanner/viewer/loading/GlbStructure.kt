@@ -104,7 +104,7 @@ object GlbStructure {
         }
         fun noExtensions(o: JSONObject) { require(!o.has("extensions")) { "Unsupported extensions." } }
         val asset = root.getJSONObject("asset"); noExtensions(asset)
-        require(asset.getString("version") == "2.0" && (!asset.has("minVersion") || asset.getString("minVersion") == "2.0"))
+        require(asset.get("version") is String && asset.getString("version") == "2.0" && (!asset.has("minVersion") || asset.get("minVersion") is String && asset.getString("minVersion") == "2.0"))
         for (key in listOf("animations", "skins", "cameras", "extensions")) require(!root.has(key)) { "Unsupported $key." }
         for (key in listOf("extensionsUsed", "extensionsRequired")) if (root.has(key)) {
             val extensions = root.getJSONArray(key)
@@ -116,7 +116,8 @@ object GlbStructure {
         val declared = integer(buffer, "byteLength", PhotographicGlb.MAX_FILE_BYTES)
         require(declared > 0 && declared <= binLength && binLength - declared <= 3)
         val scene = single(root, "scenes"); noExtensions(scene)
-        require(integer(root, "scene", 0, 0) == 0 && scene.getJSONArray("nodes").length() == 1 && scene.getJSONArray("nodes").getInt(0) == 0)
+        val sceneNodes = scene.getJSONArray("nodes")
+        require(integer(root, "scene", 0, 0) == 0 && sceneNodes.length() == 1 && sceneNodes.get(0) is Number && (sceneNodes.get(0) as Number).toDouble() == 0.0)
         val node = single(root, "nodes"); noExtensions(node)
         require(integer(node, "mesh", 0) == 0)
         for (key in listOf("matrix", "translation", "rotation", "scale", "children", "skin", "camera", "weights")) require(!node.has(key))
@@ -248,6 +249,7 @@ object GlbStructure {
         if (primitive.has("material")) {
             require(integer(primitive, "material", 0) == 0)
             val material = single(root, "materials")
+            if (material.has("doubleSided")) require(material.get("doubleSided") is Boolean)
             if (material.has("extensions")) {
                 val extensions = material.getJSONObject("extensions")
                 require(extensions.keys().asSequence().toSet() == setOf("KHR_materials_unlit") && extensions.getJSONObject("KHR_materials_unlit").length() == 0)

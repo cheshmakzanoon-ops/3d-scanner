@@ -76,6 +76,9 @@ public final class GlbParserHostHarness {
         check(Arrays.equals(asset.getIndices(),new int[]{0,1,2})&&Arrays.equals(valid,original));
         check(asset.getUv()[1]==0&&asset.getUv()[5]==1);
         for(String[] replacement:new String[][]{
+            {"\"version\":\"2.0\"","\"version\":2.0"},
+            {"\"nodes\":[0]","\"nodes\":[\"0\"]"},
+            {"\"doubleSided\":true","\"doubleSided\":\"true\""},
             {"\"version\":\"2.0\"","\"version\":\"2.0\",\"version\":\"2.0\""},
             {"\"byteOffset\":36","\"byteOffset\":0"},
             {"\"byteOffset\":36","\"byteOffset\":2147483647"},
