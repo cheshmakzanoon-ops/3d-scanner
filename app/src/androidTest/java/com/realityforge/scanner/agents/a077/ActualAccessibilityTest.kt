@@ -1,8 +1,12 @@
 package com.realityforge.scanner.agents.a077
 
+import android.app.KeyguardManager
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.SystemClock
+import android.util.Log
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,14 +16,112 @@ import com.realityforge.scanner.RealityForgeApplication
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
+import java.io.FileOutputStream
+import java.util.ArrayDeque
 import java.util.UUID
 
 /** Real application accessibility tree/action checks. Does not claim a human TalkBack review. */
 @RunWith(AndroidJUnit4::class)
 class ActualAccessibilityTest {
     private val instrumentation get() = InstrumentationRegistry.getInstrumentation()
+    private val runId = UUID.randomUUID().toString()
+
+    @Before fun fixtureIsInteractiveAndUnlocked() {
+        val context = instrumentation.targetContext
+        val interactive = context.getSystemService(PowerManager::class.java)?.isInteractive == true
+        val keyguard = context.getSystemService(KeyguardManager::class.java)
+        if (!interactive || keyguard == null || keyguard.isKeyguardLocked || keyguard.isDeviceLocked) {
+            failWithDiagnostics(
+                "Device fixture must be interactive and unlocked before running accessibility assertions. " +
+                    "Prepare a nonsecure fixture with adb shell input keyevent KEYCODE_WAKEUP and " +
+                    "adb shell wm dismiss-keyguard. A secure lock requires the fixture operator. " +
+                    "The test does not dismiss locks or system dialogs."
+            )
+        }
+    }
+
+    /** Structural diagnostics exclude node text, field values, descriptions and hints. */
+    private fun boundedTree(root: AccessibilityNodeInfo?): String {
+        if (root == null) return "<no active accessibility root>"
+        val pending = ArrayDeque<Pair<AccessibilityNodeInfo, Int>>()
+        pending.add(root to 0)
+        val tree = StringBuilder()
+        var visited = 0
+        var truncated = false
+        fun safe(value: CharSequence?): String = value?.toString()
+            ?.replace(Regex("[\\p{Cntrl}\\s]+"), " ")?.take(160) ?: "<none>"
+        while (pending.isNotEmpty() && visited < 256 && tree.length < 6000) {
+            val (node, depth) = pending.removeFirst()
+            visited++
+            val bounds = Rect()
+            node.getBoundsInScreen(bounds)
+            val line = "${" ".repeat(depth)}package=${safe(node.packageName)} " +
+                "class=${safe(node.className)} id=${safe(node.viewIdResourceName)} " +
+                "bounds=$bounds visible=${node.isVisibleToUser} enabled=${node.isEnabled} " +
+                "clickable=${node.isClickable} editable=${node.isEditable} " +
+                "focused=${node.isFocused} accessibilityFocused=${node.isAccessibilityFocused}\n"
+            tree.append(line.take(6000 - tree.length))
+            if (depth < 32) {
+                if (node.childCount > 32) truncated = true
+                for (index in 0 until minOf(node.childCount, 32)) {
+                    if (pending.size + visited >= 256) {
+                        truncated = true
+                        break
+                    }
+                    node.getChild(index)?.let { pending.add(it to depth + 1) }
+                }
+            } else if (node.childCount > 0) {
+                truncated = true
+            }
+        }
+        if (truncated || pending.isNotEmpty() || tree.length >= 6000) {
+            return tree.toString().take(5980) + "\n<tree truncated>"
+        }
+        return tree.toString()
+    }
+
+    /** Capture the real active window before ActivityScenario closes it on assertion failure. */
+    private fun failWithDiagnostics(reason: String): Nothing {
+        val automation = instrumentation.uiAutomation
+        val root = runCatching { automation.rootInActiveWindow }.getOrNull()
+        val activePackage = root?.packageName?.toString()
+            ?.replace(Regex("[\\p{Cntrl}\\s]+"), " ")?.take(160) ?: "<none>"
+        val tree = runCatching { boundedTree(root) }
+            .getOrElse { "<tree unavailable: ${it.javaClass.simpleName}>" }
+        val screenshot = runCatching {
+            val cache = instrumentation.targetContext.cacheDir.canonicalFile
+            val directory = File(cache, "a077")
+            check(directory.isDirectory || directory.mkdir()) { "Cannot create diagnostic cache directory" }
+            check(directory.canonicalFile.parentFile == cache) { "Diagnostic cache escaped test scope" }
+            val file = File(directory, "$runId.png")
+            check(file.canonicalFile.parentFile == directory.canonicalFile) { "Invalid diagnostic filename" }
+            val bitmap = checkNotNull(automation.takeScreenshot()) { "Screenshot unavailable" }
+            try {
+                try {
+                    FileOutputStream(file).use { output ->
+                        check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)) { "PNG compression failed" }
+                    }
+                } catch (failure: Exception) {
+                    file.delete()
+                    throw failure
+                }
+                file.absolutePath
+            } finally {
+                bitmap.recycle()
+            }
+        }.getOrElse { "<unavailable: ${it.javaClass.simpleName}>" }
+        val header = "$reason\nrun=$runId activePackage=$activePackage screenshot=$screenshot"
+        Log.e("A077Accessibility", header)
+        tree.chunked(2000).forEachIndexed { index, part ->
+            Log.e("A077Accessibility", "run=$runId tree[$index]=$part")
+        }
+        throw AssertionError("$header\nBounded active accessibility tree (no text/field values):\n$tree")
+    }
+
     private fun nodes(root: AccessibilityNodeInfo?): List<AccessibilityNodeInfo> {
         if (root == null) return emptyList()
         val all = mutableListOf(root)
@@ -31,7 +133,7 @@ class ActualAccessibilityTest {
     private fun await(timeout: Long = 20000, predicate: () -> Boolean) {
         val end = SystemClock.elapsedRealtime() + timeout
         while (SystemClock.elapsedRealtime() < end) { if (predicate()) return; SystemClock.sleep(100) }
-        fail("Expected actual accessibility control did not become available")
+        failWithDiagnostics("Expected actual accessibility control did not become available within ${timeout}ms")
     }
     private fun clickLabel(vararg labels: String) {
         var node: AccessibilityNodeInfo? = null
