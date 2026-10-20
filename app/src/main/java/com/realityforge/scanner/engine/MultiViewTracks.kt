@@ -121,7 +121,8 @@ internal class MultiViewTrackGraph(sourceViews: List<SparseView>) {
         ++acceptedEdges
         return true
     }
-    /** Stable track IDs shared by native rows and incremental landmark provenance.
+    /** Legacy compact native snapshot: indices are local to this exact snapshot.
+     * Persist stableSnapshot source identities instead of these array positions.
      * Take whole tracks only; never exceed the native 100,000-observation contract.
      */
     fun snapshot(maxTracks: Int = 15000): List<Map<Int, Int>> {
