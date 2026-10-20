@@ -1,0 +1,417 @@
+{
+  "checks": [
+    {
+      "check": "test_jni_names_match_declared_methods",
+      "kind": "published-source-contract",
+      "result": "PASS"
+    },
+    {
+      "check": "test_sparse_output_disclosed_in_ui",
+      "kind": "published-source-contract",
+      "result": "PASS"
+    },
+    {
+      "check": "test_capture_package_requires_explicit_destination_and_preserves_hashes",
+      "kind": "published-source-contract",
+      "result": "PASS"
+    },
+    {
+      "check": "test_m09_camera_projected_uvs_are_embedded_and_exportable",
+      "kind": "published-source-contract",
+      "result": "PASS"
+    },
+    {
+      "check": "test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl",
+      "kind": "published-source-contract",
+      "result": "PASS"
+    },
+    {
+      "check": "test_session_reopen_and_export_have_revision_and_operation_guards",
+      "kind": "published-source-contract",
+      "result": "PASS"
+    },
+    {
+      "check": "test_m19_persisted_scan_evidence_and_local_export",
+      "kind": "published-source-contract",
+      "result": "PASS"
+    },
+    {
+      "check": "JNI Kotlin/export mismatch",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "lease owner/active validation removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "lease session expiration removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "capture digest update removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "capture completion provider bypassed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "preview revision recheck removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "CPU model lease release removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "loader cancellation swallowed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "bounded loader growth check removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "external URI rejection removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "sparse/dense disclosure conflated",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "export checksum schema bypassed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "capture original privacy disclosure removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "scan completeness limit removed",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    },
+    {
+      "check": "calibration action disconnected",
+      "kind": "deliberate-source-corruption-rejected",
+      "result": "PASS"
+    }
+  ],
+  "contract_file_sha256": "c6dbe24491c000c7c932870b17f1f1855b1c61fcc17e99578f882a164bccdabd",
+  "contract_source_sha": "9188eaf7a332e4d8e8c2f15afaba901ce85f2459",
+  "inputs": {
+    "app/src/androidTest/java/com/realityforge/scanner/AdaptiveDensePipelineTest.kt": {
+      "sha256": "082801fc8e7db236db8df6c7c78b5c32ebb9a310e7e9ee8d54857377e77a1e4b",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/DatabaseContractTest.kt": {
+      "sha256": "d8b0e80549d3e22d61ca08c5c02c67406c7da2fe6c00bfe4b493b557fce3a9da",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/DepthCheckpointDeviceTest.kt": {
+      "sha256": "0e7536d335d2da2fa016462330c804eeae14d156d755ca8d37e48eb963a6eb89",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/IncrementalNativeRegistrationTest.kt": {
+      "sha256": "0a3b3cc54e639398da48a7095c35e13a266076daf9868b2203fb3369c661a257",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/MultiCameraNativeTest.kt": {
+      "sha256": "6c69271bfba1cedf5db744fa0e3befdd78e2c6250c63add4bf150f651263841c",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/NativeSmokeTest.kt": {
+      "sha256": "b1fcd2f9761e1dfbf955dc4bc872afeb45d76950eaba6b38fa0d24f9320bf3a3",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/OfflineCaptureBundleTest.kt": {
+      "sha256": "3be9b2fdd2fb1eb1af23675f9fb7cbf4d8a7f24b26158e3f810cb5923189ebcf",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/PhotographicViewerTest.kt": {
+      "sha256": "faf9b01188ec43bbdfc0d5d8c41e91b19cc414509f5cdb2ca9a6d770e4b1309f",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/ScanQualityReportDeviceTest.kt": {
+      "sha256": "b5ea61073b24529363194ee75a5a7cc9cb0a8e7dcb8dab1f30c5ebf1d6c37573",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/SessionReliabilityTest.kt": {
+      "sha256": "7383890d1a8296c9a26147e8a4906851210157ef316e6d82903e3df75ee2df48",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/MainActivity.kt": {
+      "sha256": "f59a600942b0c5066f1160475aea0ecdc729af227e0dae315a46abdb05d30051",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/RealityForgeApplication.kt": {
+      "sha256": "0d1ac6e11f9726e8008bc731d40523da1d4b078f2e1a2245ecc5ab94f95e1912",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt": {
+      "sha256": "c875f825f9bc7ef0fb565b310120a16b113811aa8f31b6733676dc1f20b10c6a",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/Database.kt": {
+      "sha256": "68df182dbacf8f4b6023fe24efe57b874ed4f343b4b13d4a91fcf22327d5b6eb",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/ProjectAccess.kt": {
+      "sha256": "4c0ba1505fd01c06fb095eff3e180f06cd8756aab02c29abe47c044f9234e6ca",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt": {
+      "sha256": "429a1e04bfc5d9418ba88d9a806982acb76c711fc2cb9b8c3c1ce307b5c6de2f",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/AtomicProjectFileWriterImpl.kt": {
+      "sha256": "507ea1fc1713663e3de89613bdf95661f86878f37540f261c0daba26b0be3dc1",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/CaptureArchiveServiceImpl.kt": {
+      "sha256": "b4c638975f0f4685e181da5d58b935ce69a2014f6556a75323a5f8511edefdb1",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/CoordinatedScanDao.kt": {
+      "sha256": "7b4b8d3b116597de65de8dc26ce3898b92df957d8ea84747eb0b154bc9e6af0f",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/PhotoImportServiceImpl.kt": {
+      "sha256": "0c2b445c888458e1c1bc6fa03d64d4663d103f37d22cbc37895dd668da452a36",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/PreviewReopeningServiceImpl.kt": {
+      "sha256": "957c1d422178e5933448adf71f40db18bc71345f919c69005f4ca07bfb267e76",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectCreationServiceImpl.kt": {
+      "sha256": "212e43ab345713a26ce6e0be078d9046fb4bd295e6d29c1fe06a3911fa1df657",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectDeletionServiceImpl.kt": {
+      "sha256": "f9d9aabd4bbb8b54b7731cdc86862ac95493eb91efb2c227fb36d5e7af38218e",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectLeaseCoordinator.kt": {
+      "sha256": "638cd47ee7ddfe55cb212ffa425b1569e0ab095830b38d6c703fe4a76737f160",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectLeaseStore.kt": {
+      "sha256": "5dd6323648f6c60882dfc4a0b0952a58853f1fa8e9db8d6330977ecce5015c91",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectOperation.kt": {
+      "sha256": "9d7870d4c2669630543ff4f0f191b7c790113ca897ed90f709434ddb03e8c2a6",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectPathPolicy.kt": {
+      "sha256": "9f3c5e8aae8e3d8961fa86f98b847ce9c09cf628ae16deaff91cff7a04ec946d",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectStorageServices.kt": {
+      "sha256": "14b362ebb93b4a6cd46e8f9f556e015619e80b111345b367187dddbd1fc21ed4",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt": {
+      "sha256": "06da4a881eedff1d9b83e393feccd943914d8f70b7ee23254410be53ce2041c8",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt": {
+      "sha256": "bf8683d8a1ddb0f4667a5fdffb6f2c21fb15fb218838eb58566999cd362c8b0e",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt": {
+      "sha256": "4a91d167a2b6ddca75ae4920ece42add490c99dc85a700d760cc9a103210b4cb",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/ImageLoader.kt": {
+      "sha256": "673bcd062832ff24805dde3bbad3da7434b3b21e6c949316138caae43fed1e48",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt": {
+      "sha256": "e57287cc195b4eb3663fe5fdbf79e1031e3743fdc9c08d47b57095a2075701dd",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt": {
+      "sha256": "773c1029cf26cd6799fb3ad3cc71e377caf19014a34d8e4c9a0e139d4d0d2461",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": {
+      "sha256": "98149f2827efb2382e9adea7b6f444a94ff0f090270f93b54e413c8e0036dbd3",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt": {
+      "sha256": "72ffb3645c932c2c6c5eabd8995a53f41fac7d2e8efc6dae9d7615562df25024",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt": {
+      "sha256": "1780f6251a3dfc31abea9b4d2b9d3e815cbf3f6b2bda2ccf36c3502e55ecf828",
+      "source_sha": "e4a762baea07fd1dfa6606e7c340f49aed1be425"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/NativeFrontierGeometry.kt": {
+      "sha256": "2d4c42f0a805c4c542b186637f0444ce0435b8990161a32fe9688f3e9ffe4c4f",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt": {
+      "sha256": "f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt": {
+      "sha256": "8bf8038aae0a36e779ea3e59a56dd82c5a1c875e1fc1598a61af05b609291d56",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt": {
+      "sha256": "679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/ExportContract.kt": {
+      "sha256": "a8341d24d68f93948e86333c58bf8cbf6035179be8698473268e6b48a6a13153",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/ExportCoordinator.kt": {
+      "sha256": "bfc51069849f1b2f6d1cb35f858d23ae1212d5a63e5b6f6b27922c118b3c4c39",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt": {
+      "sha256": "020c56538415595615f7ab1652985ef12a04eb429a1053b16926206eda4fe973",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/PendingExportStore.kt": {
+      "sha256": "aa829f627e5138ac8481c9d3390f23464ffd39f0ceb1bd97a094c40fa114ad91",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/RepositoryExportSource.kt": {
+      "sha256": "f0aa52a61de8427f6765bb1843ecfa98b0416fd6180f99eadccdcf9b5fbad73c",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt": {
+      "sha256": "e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt": {
+      "sha256": "0242f2c49a6d1e03965e74b2e2ff2b9a8c624f8e581119dcd49f784b67bbae16",
+      "source_sha": "5c683605423d2c4c743bac2420192364ee430b44"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt": {
+      "sha256": "f24cd4e037d24f73509924449b8dd55c699c006512262fc2f66e2ea63f4fbb0f",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": {
+      "sha256": "2730af16463adf063ea2641e42bbcea3f50ffede0a05a3d11090b089e0bf3408",
+      "source_sha": "f837a8ef7f7e08f2c5e021d8697d7370691742e4"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt": {
+      "sha256": "7d4a77829e519733477eab42e73d5a7bc5319da7c342220b6f6447eb14721d56",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/NavigationState.kt": {
+      "sha256": "149d06d636d3869514b0b70bc84d54e9ce540f0d82acd482d0918f1d6ca46ca4",
+      "source_sha": "f837a8ef7f7e08f2c5e021d8697d7370691742e4"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/PreferencesRoute.kt": {
+      "sha256": "08e0e27f56123a37c22d9ea7cb9405bc6c4063526b510a2978e64f331876a4d0",
+      "source_sha": "f837a8ef7f7e08f2c5e021d8697d7370691742e4"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/ResultRoutes.kt": {
+      "sha256": "78c14c656280d7a166d7a8883b85dd0c01ad838349d351c9ac1ebabe106ef164",
+      "source_sha": "f837a8ef7f7e08f2c5e021d8697d7370691742e4"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/ScannerFeatureServices.kt": {
+      "sha256": "6351aca30ef00c12ea1a97c971d2a8779b32c17881a66bcec08e2d30618c59b7",
+      "source_sha": "f837a8ef7f7e08f2c5e021d8697d7370691742e4"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt": {
+      "sha256": "608811ae63aad312a9cff7d497d6a3e76ad2cf8395dc50fef33a17a912f9fa25",
+      "source_sha": "0e85e76bdc38d0df80c627933a96a5d868c867fe"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt": {
+      "sha256": "08f163a106563eafb661cbb2d79dabf08d30368775bc7fdbcacb7aec1c9209bf",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/RenderBackend.kt": {
+      "sha256": "586f8bbb7f33ec92dce02d1df990ba321b479d9e558f69cb78cfc02a293a2262",
+      "source_sha": "c137e6996477f35735f169b10c8b92112c551007"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/loading/GlbStructure.kt": {
+      "sha256": "c64be6cb6695c83586368047dd4ea6d76973ff54953e3c70ad939c6c3634cd36",
+      "source_sha": "0e85e76bdc38d0df80c627933a96a5d868c867fe"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/loading/PhotographicModelLoader.kt": {
+      "sha256": "7c5d3ab28742813725058a620c111eb690b82efb887abf1094206236d13c9958",
+      "source_sha": "0e85e76bdc38d0df80c627933a96a5d868c867fe"
+    },
+    "app/src/main/res/values/agent_071.xml": {
+      "sha256": "e63089514de631575f3f9569089c418c242e8a3fa62081aa4c62e1fa65c15d14",
+      "source_sha": "f837a8ef7f7e08f2c5e021d8697d7370691742e4"
+    },
+    "app/src/main/res/values/strings.xml": {
+      "sha256": "cba4c90dff6ab7ea9a42540ef83addb6542ba3185fac559483816f5feb65d829",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "app/src/main/res/values/styles.xml": {
+      "sha256": "b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/bundle_adjustment.cpp": {
+      "sha256": "25aa3da43650bb91c3d06a41a903b133ab93c1d0a4d36235e04e80c07f513a09",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/cancellation.cpp": {
+      "sha256": "aab4ca7df233bf0d5815f70a6faff813165da18b5327b232291f33ed9ec06eec",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/core.cpp": {
+      "sha256": "874ec245480c10d07d5a8e8104875d76791de2cf68d995282ccd9e2267abff68",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/dense.cpp": {
+      "sha256": "1b19520229176100f858c22e394a4d7ecdad4a1f456a35e05ce049bf8f6c4bc0",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/depth_checkpoint.cpp": {
+      "sha256": "c38e9043b1ef3e33416fe7a84cad8240c1c1eb82d90b6c85089bd77949c68580",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/jni.cpp": {
+      "sha256": "58d3a2da8074f7470108448afef2f513368682dd6168df45d71722b9f5aade9f",
+      "source_sha": "e4a762baea07fd1dfa6606e7c340f49aed1be425"
+    },
+    "reconstruction/src/multiview.cpp": {
+      "sha256": "532d369f05f399fa4f68f186a09845b63a4292ccf0ccb80ae91749ef999380da",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/photometric.cpp": {
+      "sha256": "96c08bfe35ed3cf21cea227ae918a35ccdcb20ddb74b38b4dbd5940b4104e25a",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/pnp.cpp": {
+      "sha256": "cc7c1096d1d8d26c784d13844125924f2263bb8d96c45fdedd87866765091593",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/surface.cpp": {
+      "sha256": "f6cd55c85a585ccdcc32b3e19f09ebc1e7a8b9684a1b36b93392f19422efaf4a",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    },
+    "reconstruction/src/texture.cpp": {
+      "sha256": "827848120afdc5b1d7ba1aae68c7bdd232fe557e20da949eb60b515cf2ee1ce1",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706"
+    }
+  },
+  "schema": 1,
+  "scope": "source-only projected immutable owner blobs; modules unmerged; no product/runtime acceptance",
+  "status": "PASS"
+}
