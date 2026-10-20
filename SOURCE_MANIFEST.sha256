@@ -39,7 +39,7 @@ f249696a5581071d385d75491b75e911eff5163b984d6c6a1b411009e2293dec  app/src/main/j
 f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87  app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt
 8bf8038aae0a36e779ea3e59a56dd82c5a1c875e1fc1598a61af05b609291d56  app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt
 679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0  app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt
-22a18d05ffe58c15ae73c3b5177393c5548d4c723a5652f51cd591ee8364ce9b  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt
+3878d4b514341be6444e015f1b723813c4ebd24904360127a615d9b49e192934  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCache.kt
 9c26f8c7ac5f30e7690345598bc1f619f5efe0d3fc6507da358bdc9950f9e245  app/src/main/java/com/realityforge/scanner/engine/features/FeatureCacheFormat.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
@@ -59,7 +59,7 @@ b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/r
 2092701a82e733704fa219424c84bc7a11bc6e183f479131d9b1d0a5b79d4be3  app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt
 3fd043571a35cd199bd8b038a676f6b1d83608bcd5794613ab9e6d0184815894  app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt
 3b7f5ab073697174da4debd2d6223fa3beb0654acf5ea2e87ee7cfa5c5cc1378  app/src/test/java/com/realityforge/scanner/engine/ScanQualityEvidenceTest.kt
-6803097203ee6ea09580f085ccb3a1c24c242974b1e19cb5aad176ca893191fb  app/src/test/java/com/realityforge/scanner/engine/features/FeatureCacheTest.kt
+98e4af0dfd006ff61c79701a5a6f12b0a2c998119bd55a29e37e65e437803e23  app/src/test/java/com/realityforge/scanner/engine/features/FeatureCacheTest.kt
 284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593  benchmarks/fixtures/relief/calibration.json
 66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c  benchmarks/fixtures/relief/view-01.jpg
 c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b  benchmarks/fixtures/relief/view-02.jpg

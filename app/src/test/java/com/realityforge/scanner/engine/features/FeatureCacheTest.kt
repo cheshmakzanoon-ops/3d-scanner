@@ -36,12 +36,26 @@ class FeatureCacheTest {
             assertTrue(root.listFiles()!!.none{it.name.endsWith(".partial")})
         }finally{root.deleteRecursively()}
     }
+    @Test fun oversizedOpenedFileAndSymbolicRootsAreRejected() {
+        val root=Files.createTempDirectory("features-sparse").toFile()
+        val link=File(root.parentFile,root.name+"-link")
+        try {
+            val cache=FeatureCache(root,1000000);assertTrue(cache.store(record()))
+            val entry=root.listFiles()!!.single()
+            java.io.RandomAccessFile(entry,"rw").use{it.setLength(4L*1024*1024*1024)}
+            assertTrue(cache.load(identity) is FeatureCacheRead.Miss)
+            Files.createSymbolicLink(link.toPath(),root.toPath())
+            assertFalse(FeatureCache(link,1000000).store(record()))
+        }finally{link.delete();root.deleteRecursively()}
+    }
     @Test fun concurrentAtomicWritesNeverExposePartialPayloads() {
         val root=Files.createTempDirectory("features-concurrent").toFile()
         try {
             val cache=FeatureCache(root,1000000)
-            val threads=(0..3).map{Thread{repeat(30){assertTrue(cache.store(record()));assertTrue(cache.load(identity) is FeatureCacheRead.Hit)}}.apply{start()}}
+            val failure=java.util.concurrent.atomic.AtomicReference<Throwable?>()
+            val threads=(0..3).map{Thread{try{repeat(30){assertTrue(cache.store(record()));assertTrue(cache.load(identity) is FeatureCacheRead.Hit)}}catch(t:Throwable){failure.set(t)}}.apply{start()}}
             threads.forEach{it.join()}
+            failure.get()?.let{throw it}
             assertTrue(cache.load(identity) is FeatureCacheRead.Hit)
         }finally{root.deleteRecursively()}
     }

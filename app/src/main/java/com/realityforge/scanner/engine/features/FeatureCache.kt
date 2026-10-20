@@ -26,6 +26,7 @@ class FeatureCache(private val directory:File,private val byteBudget:Long) {
     private fun root():File {
         require(!Files.isSymbolicLink(directory.toPath()))
         check(directory.isDirectory || directory.mkdirs()) { "Cache directory unavailable" }
+        require(directory.canonicalFile.toPath()==directory.absoluteFile.toPath().normalize()) { "Symbolic cache ancestor" }
         return directory.canonicalFile
     }
     @Synchronized fun load(identity:FeatureCacheIdentity):FeatureCacheRead = try {
@@ -33,9 +34,13 @@ class FeatureCache(private val directory:File,private val byteBudget:Long) {
         if(!Files.exists(file.toPath(),LinkOption.NOFOLLOW_LINKS)) FeatureCacheRead.Miss(FeatureCacheRead.Reason.ABSENT)
         else if(!Files.isRegularFile(file.toPath(),LinkOption.NOFOLLOW_LINKS) || file.length() !in 44..FeatureCacheFormat.MAX_BYTES.toLong()) FeatureCacheRead.Miss(FeatureCacheRead.Reason.STALE_OR_CORRUPT)
         else {
-            val record=DataInputStream(file.inputStream().buffered()).use{input->
-                val bytes=ByteArray(file.length().toInt());input.readFully(bytes);require(input.read()==-1)
-                FeatureCacheFormat.decode(bytes,identity)
+            val record=Files.newByteChannel(file.toPath(),setOf(java.nio.file.StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)).use{channel->
+                val boundedSize=channel.size()
+                require(boundedSize in 44..FeatureCacheFormat.MAX_BYTES.toLong())
+                DataInputStream(java.nio.channels.Channels.newInputStream(channel).buffered()).use{input->
+                    val bytes=ByteArray(boundedSize.toInt());input.readFully(bytes);require(input.read()==-1)
+                    FeatureCacheFormat.decode(bytes,identity)
+                }
             }
             file.setLastModified(System.currentTimeMillis())
             FeatureCacheRead.Hit(record)
