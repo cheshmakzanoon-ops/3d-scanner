@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "role": "099",
+  "status": "HISTORICAL_SOURCE_ARCHIVE_ONLY",
+  "executed_after_user_stop": false,
+  "sources": [
+    {
+      "archive": "final_86_prepare.py",
+      "original_path": "/workspace/campaign/evidence/099/final-86/prepare.py",
+      "sha256": "bfed0cc2fd76d9a7538217a080c2f3857bcd05a9618408711d39f159ac003285",
+      "bytes": 10627
+    }
+  ]
+}
