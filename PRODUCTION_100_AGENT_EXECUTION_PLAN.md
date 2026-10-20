@@ -23,6 +23,12 @@ keeps debug instrumentation as the default and selects release instrumentation
 through the validated `realityForgeTestBuildType` property. Both actual variant
 graphs must be resolved and verified before accepting the combined module lock.
 
+Agent095 owns the corresponding debug-only notice assets under
+`app/src/debug/assets/third-party-notices/`. Actual resolution found six debug-only
+runtime coordinates beyond the123-module release graph. Keep the129-module debug
+inventory and its full notice texts specific to that variant; the release assets
+and release inventory remain separate.
+
 ## Start here: “You are Agent X”
 
 If the user tells you **“You are Agent X; do what the repository tells you and do not stop until success”**, that is an instruction to execute this guide, not to write another plan.
@@ -5261,6 +5267,7 @@ The common working agreement and definition of success above apply to every role
 - `gradle/dependency-locks/`
 - `tools/requirements.lock`
 - `app/src/main/assets/third-party-notices/`
+- `app/src/debug/assets/third-party-notices/`
 - `tests/test_dependency_inventory.py`
 
 **Implementation instructions:**
