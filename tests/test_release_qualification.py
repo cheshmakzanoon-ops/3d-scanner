@@ -13,7 +13,8 @@ sys.path.insert(0, str(ROOT))
 from tools.release.qualification.aggregate import qualify, POLICY_PATH, validate_record, load_json
 from tools.release.qualification.aggregate import check_acceptance
 from tools.release.qualification.branches import index
-from tools.release.qualification.journey import parse_instrumentation, validate_bundle
+from tools.release.qualification.journey import parse_instrumentation, validate_bundle, execute
+from tools.release.qualification.journey import EXPECTED_CLASS, EXPECTED_METHOD
 from tools.release.qualification.quality_adapter import adapt
 
 NOW = datetime(2026, 10, 20, 2, tzinfo=timezone.utc)
@@ -156,14 +157,133 @@ def test_cli_missing_records_cannot_succeed(tmp_path):
     assert json.loads(output.read_text())['status'] == 'BLOCKED_EXTERNAL'
 
 
+def instrumentation_fixture(source_sha='1'*40, apk_sha256='2'*64):
+    # Actual AndroidJUnitRunner event shape, but entirely synthetic unit data.
+    fields = ('INSTRUMENTATION_STATUS: id=AndroidJUnitRunner\n'
+              'INSTRUMENTATION_STATUS: numtests=1\n'
+              'INSTRUMENTATION_STATUS: class=' + EXPECTED_CLASS + '\n'
+              'INSTRUMENTATION_STATUS: test=' + EXPECTED_METHOD + '\n'
+              'INSTRUMENTATION_STATUS: current=1\n')
+    receipt = {'schema':1,'kind':'synthetic','source_sha':source_sha,'artifact_sha256':apk_sha256,'export_sha256':'3'*64,'originals_preserved':True,'photo_count':3,'triangle_count':40}
+    start = fields + 'INSTRUMENTATION_STATUS_CODE: 1\n'
+    evidence = 'INSTRUMENTATION_STATUS: rf099_evidence=' + json.dumps(receipt) + '\nINSTRUMENTATION_STATUS_CODE: 0\n'
+    finish = fields + 'INSTRUMENTATION_STATUS: stream=.\nINSTRUMENTATION_STATUS_CODE: 0\n'
+    final = 'INSTRUMENTATION_RESULT: stream=\n\nTime: 0.2\n\nOK (1 test)\n\nINSTRUMENTATION_CODE: -1\n'
+    return start, evidence, finish, final
+
+
 def test_real_instrumentation_output_requires_completion_and_app_evidence():
-    text = 'INSTRUMENTATION_STATUS: rf099_evidence={"kind":"synthetic"}\nINSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_STATUS: class=com.example.Test\nINSTRUMENTATION_STATUS: test=actualCase\nINSTRUMENTATION_STATUS_CODE: 0\nOK (1 test)\nINSTRUMENTATION_CODE: -1\n'
-    assert parse_instrumentation(text)['status'] == 'PASS'
-    assert parse_instrumentation(text)['executed_tests'] == 1
-    assert parse_instrumentation(text.replace('OK (1 test)', ''))['status'] == 'FAIL'
-    assert parse_instrumentation(text.replace('STATUS_CODE: 0', 'STATUS_CODE: -3'))['status'] == 'FAIL'
-    assert parse_instrumentation(text.replace('STATUS_CODE: 0', 'STATUS_CODE: -2'))['status'] == 'FAIL'
-    assert parse_instrumentation(text.replace('rf099_evidence=', 'other='))['status'] == 'FAIL'
+    text = ''.join(instrumentation_fixture())
+    report = parse_instrumentation(text)
+    assert report['status'] == 'PASS', report
+    assert report['executed_tests'] == 1
+    assert report['events'] == [{'class':EXPECTED_CLASS,'test':EXPECTED_METHOD,'current':1,'numtests':1,'code':0}]
+
+
+@pytest.mark.parametrize('mutation', ['missing_start','duplicate_start','missing_end','duplicate_end','missing_receipt','duplicate_receipt','receipt_before_start','receipt_after_end','receipt_unknown_code','summary_missing','summary_duplicate','summary_zero','summary_wrong_count','final_missing','final_duplicate','final_wrong_code','unknown_status','failed','ignored','assumption','missing_current','wrong_current','missing_numtests','inconsistent_numtests','wrong_class','wrong_method','duplicate_identity_field','incomplete_tail','event_after_final','unknown_control','crash','malformed_receipt','duplicate_receipt_key','wrong_receipt_schema','terminal_before_start'])
+def test_instrumentation_adversarial_event_sequences_fail_closed(mutation):
+    start,evidence,finish,final = instrumentation_fixture()
+    text = start+evidence+finish+final
+    if mutation == 'missing_start': text=evidence+finish+final
+    elif mutation == 'duplicate_start': text=start+start+evidence+finish+final
+    elif mutation == 'missing_end': text=start+evidence+final
+    elif mutation == 'duplicate_end': text=start+evidence+finish+finish+final
+    elif mutation == 'missing_receipt': text=start+finish+final
+    elif mutation == 'duplicate_receipt': text=start+evidence+evidence+finish+final
+    elif mutation == 'receipt_before_start': text=evidence+start+finish+final
+    elif mutation == 'receipt_after_end': text=start+finish+evidence+final
+    elif mutation == 'receipt_unknown_code': text=start+evidence.replace('STATUS_CODE: 0','STATUS_CODE: 5')+finish+final
+    elif mutation == 'summary_missing': text=text.replace('OK (1 test)','')
+    elif mutation == 'summary_duplicate': text=text.replace('OK (1 test)','OK (1 test)\nOK (1 test)')
+    elif mutation == 'summary_zero': text=text.replace('OK (1 test)','OK (0 tests)')
+    elif mutation == 'summary_wrong_count': text=text.replace('OK (1 test)','OK (2 tests)')
+    elif mutation == 'final_missing': text=text.replace('INSTRUMENTATION_CODE: -1','')
+    elif mutation == 'final_duplicate': text+='INSTRUMENTATION_CODE: -1\n'
+    elif mutation == 'final_wrong_code': text=text.replace('INSTRUMENTATION_CODE: -1','INSTRUMENTATION_CODE: 0')
+    elif mutation == 'unknown_status': text=start+evidence+finish.replace('STATUS_CODE: 0','STATUS_CODE: 2')+final
+    elif mutation in ('failed','ignored','assumption'):
+        text=start+evidence+finish.replace('STATUS_CODE: 0','STATUS_CODE: '+{'failed':'-2','ignored':'-3','assumption':'-4'}[mutation])+final
+    elif mutation == 'missing_current': text=text.replace('INSTRUMENTATION_STATUS: current=1\n','',1)
+    elif mutation == 'wrong_current': text=start+evidence+finish.replace('current=1','current=2')+final
+    elif mutation == 'missing_numtests': text=text.replace('INSTRUMENTATION_STATUS: numtests=1\n','',1)
+    elif mutation == 'inconsistent_numtests': text=start+evidence+finish.replace('numtests=1','numtests=2')+final
+    elif mutation == 'wrong_class': text=text.replace(EXPECTED_CLASS,'com.example.UnrelatedTest')
+    elif mutation == 'wrong_method': text=text.replace(EXPECTED_METHOD,'unrelatedMethod')
+    elif mutation == 'duplicate_identity_field': text=text.replace('INSTRUMENTATION_STATUS: current=1','INSTRUMENTATION_STATUS: current=1\nINSTRUMENTATION_STATUS: current=1',1)
+    elif mutation == 'incomplete_tail': text=start+evidence+finish+'INSTRUMENTATION_STATUS: current=1\n'+final
+    elif mutation == 'event_after_final': text+=finish
+    elif mutation == 'unknown_control': text=text.replace('Time: 0.2','INSTRUMENTATION_UNKNOWN: done')
+    elif mutation == 'crash': text=text.replace('Time: 0.2','Process crashed')
+    elif mutation == 'malformed_receipt': text=start+'INSTRUMENTATION_STATUS: rf099_evidence={\nINSTRUMENTATION_STATUS_CODE: 0\n'+finish+final
+    elif mutation == 'duplicate_receipt_key': text=start+evidence.replace('{"schema": 1','{"schema": 1, "schema": 1')+finish+final
+    elif mutation == 'wrong_receipt_schema': text=start+evidence.replace('"schema": 1','"schema": true')+finish+final
+    elif mutation == 'terminal_before_start': text=finish+start+evidence+final
+    report=parse_instrumentation(text)
+    assert report['status'] == 'FAIL', (mutation,report)
+
+
+@pytest.fixture
+def mocked_installed_device(tmp_path,monkeypatch):
+    """Mock ADB protocol only; never device execution evidence."""
+    import tools.release.qualification.journey as journey
+    apk,test_apk=tmp_path/'app.apk',tmp_path/'test.apk'
+    apk.write_bytes(b'SYNTHETIC APP APK');test_apk.write_bytes(b'SYNTHETIC TEST APK')
+    candidate={'source_sha':'1'*40,'artifact_sha256':hashlib.sha256(apk.read_bytes()).hexdigest()}
+    digests={'com.realityforge.scanner':candidate['artifact_sha256'],'com.realityforge.scanner.test':hashlib.sha256(test_apk.read_bytes()).hexdigest()}
+    paths={name:'/data/app/~~unit-test/'+name+'-unit/base.apk' for name in digests}
+    state={'digests':digests,'paths':paths,'calls':[],'pm_overrides':{}}
+    def run(argv,**kwargs):
+        state['calls'].append(argv)
+        if argv==['adb','devices']: out='List of devices attached\nUNIT_FAKE_DEVICE\tdevice\n'
+        elif argv[:3]==['adb','-s','UNIT_FAKE_DEVICE']:
+            command=argv[3:]
+            if command[:2]==['install','-r']: out='Success\n'
+            elif command[:2]==['shell','getprop']:
+                out={'ro.kernel.qemu':'1','ro.build.fingerprint':'SYNTHETIC UNIT EMULATOR','ro.product.cpu.abi':'x86_64','ro.build.version.sdk':'35'}[command[2]]+'\n'
+            elif command[:3]==['shell','pm','path']:
+                package=command[3];out=state['pm_overrides'].get(package,'package:'+paths[package]+'\n')
+            elif command[:2]==['shell','sha256sum']:
+                package=next(name for name,path in paths.items() if path==command[2]);out=digests[package]+'  '+command[2]+'\n'
+            elif command[:3]==['shell','am','instrument']:
+                assert EXPECTED_CLASS+'#'+EXPECTED_METHOD in command
+                out=''.join(instrumentation_fixture(candidate['source_sha'],candidate['artifact_sha256']))
+            else: raise AssertionError('Unexpected mock ADB command: '+repr(command))
+        else: raise AssertionError('Unexpected mock command: '+repr(argv))
+        return subprocess.CompletedProcess(argv,0,stdout=out,stderr='')
+    monkeypatch.setattr(journey.subprocess,'run',run)
+    return candidate,apk,test_apk,tmp_path/'output',state
+
+
+def test_controller_hashes_both_actual_expected_packages_before_instrumentation(mocked_installed_device):
+    candidate,apk,test_apk,output,state=mocked_installed_device
+    report=execute(candidate,apk,test_apk,None,output)
+    assert report['status']=='PASS',report
+    assert {row['package'] for row in report['installed_packages']}==set(state['digests'])
+    hashes=[i for i,args in enumerate(state['calls']) if args[3:5]==['shell','sha256sum']]
+    instrumentation=next(i for i,args in enumerate(state['calls']) if args[3:6]==['shell','am','instrument'])
+    assert len(hashes)==2 and max(hashes)<instrumentation
+
+
+@pytest.mark.parametrize('package',['com.realityforge.scanner','com.realityforge.scanner.test'])
+def test_wrong_package_install_success_cannot_reuse_stale_expected_package(mocked_installed_device,package):
+    candidate,apk,test_apk,output,state=mocked_installed_device
+    # Supplied APK install reports Success, but the expected package remains old.
+    # Its test can echo correct candidate arguments; it must never be invoked.
+    state['digests'][package]='f'*64
+    report=execute(candidate,apk,test_apk,None,output)
+    assert report['status']=='FAIL' and 'Installed package hash differs' in report['blockers'][0]
+    assert not any(args[3:6]==['shell','am','instrument'] for args in state['calls'])
+
+
+@pytest.mark.parametrize('package',['com.realityforge.scanner','com.realityforge.scanner.test'])
+@pytest.mark.parametrize('bad_path',['split','missing','unsafe'])
+def test_missing_split_or_unsafe_installed_package_fails_before_test(mocked_installed_device,package,bad_path):
+    candidate,apk,test_apk,output,state=mocked_installed_device
+    path=state['paths'][package]
+    state['pm_overrides'][package]={'split':'package:'+path+'\npackage:'+path.replace('base.apk','split_config.apk')+'\n','missing':'','unsafe':'package:/data/app/unit;touch/base.apk\n'}[bad_path]
+    report=execute(candidate,apk,test_apk,None,output)
+    assert report['status']=='FAIL'
+    assert not any(args[3:6]==['shell','am','instrument'] for args in state['calls'])
 
 
 def test_physical_bundle_must_resolve_exact_original_bytes(tmp_path):

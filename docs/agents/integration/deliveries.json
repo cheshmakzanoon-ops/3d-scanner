@@ -248,6 +248,13 @@
       "branch": "agents/093-parallel-branch-ci-validation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "099",
+      "source_sha": "0eb889184d1b8d622734ba64532be293b02a5c53",
+      "branch": "agents/099-release-candidate-journey-qualification",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
