@@ -24,11 +24,18 @@ inline bool validate(std::span<const Entry> entries,const std::string& expected,
 // Only our exact reference cache names are eligible. Never traverse directories,
 // follow symlinks, or touch originals/models/unknown files in a shared directory.
 inline bool referenceName(const std::filesystem::path& p){const auto s=p.filename().string();return s.size()==9&&s.starts_with("ref-")&&s[4]>='0'&&s[4]<='7'&&s.substr(5)==".bin";}
+inline bool tileName(const std::filesystem::path& p){
+ const auto s=p.filename().string();
+ if(s.size()<12||!s.starts_with("tile-")||s[5]<'0'||s[5]>'7'||s[6]!='-'||!s.ends_with(".bin"))return false;
+ const auto digits=s.substr(7,s.size()-11);if(digits.empty()||digits.size()>4||(digits.size()>1&&digits[0]=='0'))return false;
+ unsigned value=0;for(char c:digits){if(c<'0'||c>'9')return false;value=value*10+unsigned(c-'0');}return value<4096;
+}
+inline bool cacheName(const std::filesystem::path& p){return referenceName(p)||tileName(p);}
 inline bool evictFor(const std::filesystem::path& directory,std::uint64_t budget,std::uint64_t incoming,const std::filesystem::path& replacing){
  if(incoming>budget)return false;
  struct Item{std::filesystem::path p;std::uint64_t bytes;std::filesystem::file_time_type time;};std::vector<Item> items;std::uint64_t total=0;std::error_code ec;
  for(std::filesystem::directory_iterator it(directory,ec),end;!ec&&it!=end;it.increment(ec)){
-  const auto& e=*it;if(!referenceName(e.path())||e.path()==replacing||e.is_symlink(ec)||!e.is_regular_file(ec))continue;
+  const auto& e=*it;if(!cacheName(e.path())||e.path()==replacing||e.is_symlink(ec)||!e.is_regular_file(ec))continue;
   auto bytes=e.file_size(ec);if(ec||total>std::numeric_limits<std::uint64_t>::max()-bytes)return false;
   auto time=e.last_write_time(ec);if(ec)return false;total+=bytes;items.push_back({e.path(),bytes,time});
  }

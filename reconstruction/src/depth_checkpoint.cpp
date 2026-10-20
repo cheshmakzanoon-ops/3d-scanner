@@ -63,6 +63,7 @@ std::uint32_t crc32(const std::uint8_t* data,std::size_t size){
     }
     return ~crc;
 }
+bool publish(const std::filesystem::path&,const std::vector<std::uint8_t>&,std::size_t);
 std::filesystem::path pathFor(const Scope& scoped,std::size_t index){
     return std::filesystem::path(scoped.directory())/("ref-"+std::to_string(index)+".bin");
 }
@@ -144,7 +145,11 @@ bool store(std::size_t index,const DenseDepthMap& map){
     }
     auto crc=crc32(bytes.data()+HEADER,count*8);
     for(int i=0;i<4;++i)bytes[HEADER-4+i]=static_cast<std::uint8_t>(crc>>(8*i));
-    const auto target=pathFor(*active,index);
+    return publish(pathFor(*active,index),bytes,active->byteBudget_);
+}
+
+namespace {
+bool publish(const std::filesystem::path& target,const std::vector<std::uint8_t>& bytes,std::size_t budget){
     std::error_code ec;
     std::filesystem::create_directories(target.parent_path(),ec);
     if(ec)return false;
@@ -160,11 +165,12 @@ bool store(std::size_t index,const DenseDepthMap& map){
     // these exact-format orphan temporary files. Unknown files are untouched.
     for(std::filesystem::directory_iterator it(target.parent_path(),ec),end;!ec&&it!=end;it.increment(ec)){
         const auto name=it->path().filename().string();
-        if(name.size()>18&&depth_cache::referenceName(name.substr(0,9))&&name.substr(9,9)==".partial-"&&
+        const auto marker=name.find(".partial-");
+        if(marker!=std::string::npos&&depth_cache::cacheName(name.substr(0,marker))&&
            !it->is_symlink(ec)&&it->is_regular_file(ec))std::filesystem::remove(it->path(),ec);
     }
     if(ec)return false;
-    if(!depth_cache::evictFor(target.parent_path(),active->byteBudget_,bytes.size(),target))return false;
+    if(!depth_cache::evictFor(target.parent_path(),budget,bytes.size(),target))return false;
     std::string temporary=target.string()+".partial-XXXXXX";
     FD output;output.value=::mkstemp(temporary.data());
     if(output.value<0)return false;
@@ -197,5 +203,44 @@ bool store(std::size_t index,const DenseDepthMap& map){
     // never advertise a non-durable write as an accepted checkpoint.
     return false;
 #endif
+}
+bool validTile(const TileKey& k){
+ return k.reference<8&&k.tile<4096&&k.fullWidth>=32&&k.fullWidth<=640&&k.fullHeight>=32&&k.fullHeight<=640&&
+  static_cast<std::size_t>(k.fullWidth)*k.fullHeight<=MAX_PIXELS&&k.width>0&&k.height>0&&k.x<k.fullWidth&&k.y<k.fullHeight&&
+  k.width<=k.fullWidth-k.x&&k.height<=k.fullHeight-k.y&&k.stride>=2&&k.stride<=8&&k.solverVersion>0&&k.solverVersion<1000000&&
+  !k.solverIdentity.empty()&&k.solverIdentity.size()<=512&&std::all_of(k.solverIdentity.begin(),k.solverIdentity.end(),[](unsigned char c){return c>=32&&c<127;});
+}
+std::vector<std::uint8_t> tilePrefix(const TileKey& k,const std::string& identity){
+ std::vector<std::uint8_t> out{'R','F','T','I','L','E','0','1'};
+ for(auto v:{1u,k.reference,k.tile,k.fullWidth,k.fullHeight,k.x,k.y,k.width,k.height,k.stride,k.solverVersion,static_cast<std::uint32_t>(k.solverIdentity.size()),k.width*k.height*8u})append32(out,v);
+ out.insert(out.end(),identity.begin(),identity.end());out.insert(out.end(),k.solverIdentity.begin(),k.solverIdentity.end());return out;
+}
+std::filesystem::path tilePath(const TileKey& k){return std::filesystem::path(active->directory())/("tile-"+std::to_string(k.reference)+"-"+std::to_string(k.tile)+".bin");}
+}
+bool loadTile(const TileKey& key,DenseDepthMap& map){
+ if(!active||!validTile(key))return false;
+ cancellation::checkpoint();
+ auto prefix=tilePrefix(key,active->identity());const auto count=static_cast<std::size_t>(key.width)*key.height,header=prefix.size()+4,total=header+count*8;
+ if(total>active->byteBudget_)return false;
+#if defined(__unix__) || defined(__ANDROID__)
+ struct Lease{int fd{-1};~Lease(){if(fd>=0)::close(fd);}} lease;
+ lease.fd=::open(active->directory().c_str(),O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
+ if(lease.fd<0||!lockDirectory(lease.fd,LOCK_SH))return false;
+#endif
+ const auto path=tilePath(key);std::error_code ec;if(std::filesystem::is_symlink(path,ec)||!std::filesystem::is_regular_file(path,ec)||std::filesystem::file_size(path,ec)!=total||ec)return false;
+ std::ifstream file(path,std::ios::binary);std::vector<std::uint8_t> bytes(total);file.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
+ if(!file||file.gcount()!=static_cast<std::streamsize>(bytes.size())||!std::equal(prefix.begin(),prefix.end(),bytes.begin())||read32(bytes,prefix.size())!=crc32(bytes.data()+header,count*8))return false;
+ std::vector<float> depth(count),confidence(count);
+ for(std::size_t i=0;i<count;++i){if((i&8191)==0)cancellation::checkpoint();float d=std::bit_cast<float>(read32(bytes,header+i*8)),c=std::bit_cast<float>(read32(bytes,header+i*8+4));if(!std::isfinite(d)||!std::isfinite(c)||d<0||d>100000||c<0||c>1||(d==0&&c!=0))return false;depth[i]=d;confidence[i]=c;}
+ map.width=static_cast<int>(key.width);map.height=static_cast<int>(key.height);map.depth=std::move(depth);map.confidence=std::move(confidence);return true;
+}
+bool storeTile(const TileKey& key,const DenseDepthMap& map){
+ if(!active||!validTile(key)||map.width!=static_cast<int>(key.width)||map.height!=static_cast<int>(key.height))return false;
+ cancellation::checkpoint();
+ const auto count=static_cast<std::size_t>(key.width)*key.height;if(map.depth.size()!=count||map.confidence.size()!=count)return false;
+ auto bytes=tilePrefix(key,active->identity());const auto checksum=bytes.size();append32(bytes,0);const auto header=bytes.size();if(header+count*8>active->byteBudget_)return false;bytes.reserve(header+count*8);
+ for(std::size_t i=0;i<count;++i){if((i&8191)==0)cancellation::checkpoint();const float d=map.depth[i],c=map.confidence[i];if(!std::isfinite(d)||!std::isfinite(c)||d<0||d>100000||c<0||c>1||(d==0&&c!=0))return false;append32(bytes,std::bit_cast<std::uint32_t>(d));append32(bytes,std::bit_cast<std::uint32_t>(c));}
+ const auto crc=crc32(bytes.data()+header,count*8);for(int i=0;i<4;++i)bytes[checksum+i]=static_cast<std::uint8_t>(crc>>(8*i));
+ return publish(tilePath(key),bytes,active->byteBudget_);
 }
 } // namespace rf::depth_checkpoint
