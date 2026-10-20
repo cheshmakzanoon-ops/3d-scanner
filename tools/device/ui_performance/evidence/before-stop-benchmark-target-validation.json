@@ -1,0 +1,14 @@
+{
+  "targetPackage": "com.realityforge.scanner",
+  "driverPackage": "com.realityforge.scanner.macrobenchmark",
+  "targetNonDebuggable": true,
+  "targetProfileable": true,
+  "selfInstrumenting": true,
+  "schemaVersion": 1,
+  "status": "PASS",
+  "targetSha256": "f6a4bd427fc075ff6645c6692e502fa8064bd15195aea2cafdac6efcde313cef",
+  "benchmarkSha256": "8acad61d4d90bd34cc16feeec63e97e51e3da9b363e9d67e6bc7c49c241d8e64",
+  "mappingSha256": "39d56298f707a81e7a62d477942fd38ab208f781c7d062893fdca7e69c710400",
+  "modelManifestSha256": "8bb69a8495e877fab9ddf9a2758492e492d3d0191bda8c37625063814b23f8fb",
+  "deviceExecution": "NOT_RUN"
+}
