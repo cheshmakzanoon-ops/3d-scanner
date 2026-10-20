@@ -3,6 +3,7 @@
 #include "realityforge/cancellation.hpp"
 #include "realityforge/depth_cache_manifest.hpp"
 #include <cerrno>
+#include <chrono>
 #if defined(__unix__) || defined(__ANDROID__)
 #include <fcntl.h>
 #include <unistd.h>
@@ -24,12 +25,29 @@
 #include <thread>
 #include <vector>
 
+#ifdef RF_CHECKPOINT_TEST_HOOKS
+extern "C" void rf_depth_checkpoint_test_stage(unsigned);
+#endif
 namespace rf::depth_checkpoint {
 namespace {
 thread_local const Scope* active = nullptr;
 constexpr std::array<char,8> MAGIC{'R','F','D','P','T','0','1','8'};
 constexpr std::size_t HEADER = 8+4*6+64;
 constexpr std::size_t MAX_PIXELS = 320000;
+#if defined(__unix__) || defined(__ANDROID__)
+bool lockDirectory(int fd,int mode){
+    // Cache contention is bounded optional work, never an uninterruptible wait
+    // that can hold a reconstruction alive behind an abandoned/stopped writer.
+    for(unsigned attempt=0;attempt<100;++attempt){
+        cancellation::checkpoint();
+        if(::flock(fd,mode|LOCK_NB)==0)return true;
+        if(errno!=EWOULDBLOCK&&errno!=EAGAIN&&errno!=EINTR)return false;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    return false;
+}
+#endif
+
 void append32(std::vector<std::uint8_t>& out,std::uint32_t n){
     for(int i=0;i<4;++i)out.push_back(static_cast<std::uint8_t>(n>>(8*i)));
 }
@@ -61,9 +79,17 @@ Scope::~Scope() noexcept {active=previous_;}
 bool load(std::size_t index,DenseDepthMap& map){
     if(!active)return false;
     cancellation::checkpoint();
-    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
+    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32||map.width>640||map.height>640)return false;
     const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
     if(count>MAX_PIXELS||HEADER+count*8>active->byteBudget_)return false;
+#if defined(__unix__) || defined(__ANDROID__)
+    struct ReadLease {int fd{-1};~ReadLease(){if(fd>=0)::close(fd);}} lease;
+    lease.fd=::open(active->directory().c_str(),O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
+    if(lease.fd<0||!lockDirectory(lease.fd,LOCK_SH))return false;
+#ifdef RF_CHECKPOINT_TEST_HOOKS
+    rf_depth_checkpoint_test_stage(3);
+#endif
+#endif
     const auto file=pathFor(*active,index);
     std::error_code ec;
     if(!std::filesystem::is_regular_file(file,ec)||std::filesystem::is_symlink(file,ec))return false;
@@ -96,7 +122,7 @@ bool load(std::size_t index,DenseDepthMap& map){
 bool store(std::size_t index,const DenseDepthMap& map){
     if(!active)return false;
     cancellation::checkpoint();
-    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
+    if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32||map.width>640||map.height>640)return false;
     const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
     if(count>MAX_PIXELS||HEADER+count*8>active->byteBudget_||map.depth.size()!=count||map.confidence.size()!=count)return false;
     std::vector<std::uint8_t> bytes;
@@ -127,7 +153,7 @@ bool store(std::size_t index,const DenseDepthMap& map){
     // publish competing partial names. FDs are closed on every failure path.
     struct FD {int value{-1};~FD(){if(value>=0)::close(value);}} directoryFd;
     directoryFd.value=::open(target.parent_path().c_str(),O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
-    if(directoryFd.value<0||::flock(directoryFd.value,LOCK_EX)<0)return false;
+    if(directoryFd.value<0||!lockDirectory(directoryFd.value,LOCK_EX))return false;
     if(std::filesystem::is_symlink(target,ec))return false;
     ec.clear();
     // Holding the cross-process directory lock proves no current writer owns
@@ -142,6 +168,9 @@ bool store(std::size_t index,const DenseDepthMap& map){
     std::string temporary=target.string()+".partial-XXXXXX";
     FD output;output.value=::mkstemp(temporary.data());
     if(output.value<0)return false;
+#ifdef RF_CHECKPOINT_TEST_HOOKS
+    rf_depth_checkpoint_test_stage(1);
+#endif
     const auto discard=[&]{std::error_code error;std::filesystem::remove(temporary,error);};
     try{
         std::size_t done=0;
@@ -153,8 +182,12 @@ bool store(std::size_t index,const DenseDepthMap& map){
             done+=static_cast<std::size_t>(countWritten);
         }
         if(::fsync(output.value)!=0){discard();return false;}
+#ifdef RF_CHECKPOINT_TEST_HOOKS
+        rf_depth_checkpoint_test_stage(2);
+#endif
         cancellation::checkpoint();
-        if(::rename(temporary.c_str(),target.c_str())!=0){discard();return false;}
+        std::filesystem::rename(temporary,target,ec);
+        if(ec){discard();return false;}
         // Success means file AND rename metadata reached supported fsync calls.
         // Actual power-cut behavior still requires storage/device qualification.
         return ::fsync(directoryFd.value)==0;
