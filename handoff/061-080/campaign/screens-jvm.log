@@ -1,0 +1,10 @@
+Compile production adapters and real peer contracts with Kotlin2.1.21/JDK17
+agent-work/072/app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt:44:61: warning: only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+        val original=File(dir,"$id/originals/source.image");original.parentFile.mkdirs();original.writeBytes(data)
+                                                            ^^^^^^^^^^^^^^^^^^^
+JUnit version 4.13.2
+...........................
+Time: 0.999
+
+OK (27 tests)
+

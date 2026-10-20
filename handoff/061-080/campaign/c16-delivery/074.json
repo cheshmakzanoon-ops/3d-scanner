@@ -1,0 +1,17 @@
+{
+  "agent": "074",
+  "branch": "agents/074-processing-recovery-ui",
+  "previous_head": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+  "head": "db9a41e9eb48865b5c9864f706430f5127c1c389",
+  "remote_head": "db9a41e9eb48865b5c9864f706430f5127c1c389",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/074.md"
+  ],
+  "manifest_verifier": {
+    "files": 203,
+    "source": "index",
+    "status": "PASS"
+  }
+}

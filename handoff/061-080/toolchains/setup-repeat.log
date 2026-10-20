@@ -1,0 +1,73 @@
+Requirement already satisfied: cmake==3.31.6 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (3.31.6)
+Requirement already satisfied: ninja==1.11.1.4 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (1.11.1.4)
+Requirement already satisfied: numpy==2.2.6 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from -r /workspace/3d-scanner/tools/requirements.txt (line 1)) (2.2.6)
+Requirement already satisfied: opencv-python-headless==4.12.0.88 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from -r /workspace/3d-scanner/tools/requirements.txt (line 2)) (4.12.0.88)
+Requirement already satisfied: pytest==8.4.1 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from -r /workspace/3d-scanner/tools/requirements.txt (line 3)) (8.4.1)
+Requirement already satisfied: scikit-image==0.25.2 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from -r tools/requirements-real-benchmark.txt (line 2)) (0.25.2)
+Requirement already satisfied: iniconfig>=1 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from pytest==8.4.1->-r /workspace/3d-scanner/tools/requirements.txt (line 3)) (2.3.1)
+Requirement already satisfied: packaging>=20 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from pytest==8.4.1->-r /workspace/3d-scanner/tools/requirements.txt (line 3)) (26.3)
+Requirement already satisfied: pluggy<2,>=1.5 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from pytest==8.4.1->-r /workspace/3d-scanner/tools/requirements.txt (line 3)) (1.7.0)
+Requirement already satisfied: pygments>=2.7.2 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from pytest==8.4.1->-r /workspace/3d-scanner/tools/requirements.txt (line 3)) (2.21.0)
+Requirement already satisfied: scipy>=1.11.4 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from scikit-image==0.25.2->-r tools/requirements-real-benchmark.txt (line 2)) (1.18.1)
+Requirement already satisfied: networkx>=3.0 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from scikit-image==0.25.2->-r tools/requirements-real-benchmark.txt (line 2)) (3.7)
+Requirement already satisfied: pillow>=10.1 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from scikit-image==0.25.2->-r tools/requirements-real-benchmark.txt (line 2)) (13.0.0)
+Requirement already satisfied: imageio!=2.35.0,>=2.33 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from scikit-image==0.25.2->-r tools/requirements-real-benchmark.txt (line 2)) (2.38.1)
+Requirement already satisfied: tifffile>=2022.8.12 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from scikit-image==0.25.2->-r tools/requirements-real-benchmark.txt (line 2)) (2026.10.15)
+Requirement already satisfied: lazy-loader>=0.4 in /workspace/.venvs/3d-scanner/lib/python3.12/site-packages (from scikit-image==0.25.2->-r tools/requirements-real-benchmark.txt (line 2)) (0.6)
+
+[notice] A new release of pip is available: 25.0.1 -> 26.2.1
+[notice] To update, run: pip install --upgrade pip
+All SDK package licenses accepted.
+
+yes: standard output: Broken pipe
+
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /workspace/3d-scanner/build/host
+ninja: no work to do.
+Internal ctest changing into directory: /workspace/3d-scanner/build/host
+Test project /workspace/3d-scanner/build/host
+      Start  1: native_core
+ 1/11 Test  #1: native_core ......................   Passed    0.03 sec
+      Start  2: native_multiview
+ 2/11 Test  #2: native_multiview .................   Passed    0.01 sec
+      Start  3: native_bundle_adjustment
+ 3/11 Test  #3: native_bundle_adjustment .........   Passed    0.01 sec
+      Start  4: native_dense_mvs
+ 4/11 Test  #4: native_dense_mvs .................   Passed    0.32 sec
+      Start  5: native_surface_mesh
+ 5/11 Test  #5: native_surface_mesh ..............   Passed    0.33 sec
+      Start  6: native_texture_atlas
+ 6/11 Test  #6: native_texture_atlas .............   Passed    0.11 sec
+      Start  7: native_photometric
+ 7/11 Test  #7: native_photometric ...............   Passed    0.01 sec
+      Start  8: native_stereo_warp
+ 8/11 Test  #8: native_stereo_warp ...............   Passed    0.01 sec
+      Start  9: native_dense_selection
+ 9/11 Test  #9: native_dense_selection ...........   Passed    0.22 sec
+      Start 10: native_cancellation
+10/11 Test #10: native_cancellation ..............   Passed    0.02 sec
+      Start 11: native_depth_checkpoint
+11/11 Test #11: native_depth_checkpoint ..........   Passed    0.04 sec
+
+100% tests passed, 0 tests failed out of 11
+
+Total Test time (real) =   1.11 sec
+........................................................................ [ 61%]
+.............................................                            [100%]
+117 passed in 5.45s
+
+------------------------------------------------------------
+Gradle 8.13
+------------------------------------------------------------
+
+Build time:    2025-02-25 09:22:14 UTC
+Revision:      073314332697ba45c16c0a0ce1891fa6794179ff
+
+Kotlin:        2.0.21
+Groovy:        3.0.22
+Ant:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024
+Launcher JVM:  17.0.16 (Eclipse Adoptium 17.0.16+8)
+Daemon JVM:    /workspace/toolchains/jdk-17.0.16+8 (no JDK specified, using current Java home)
+OS:            Linux 6.18.55 amd64
+

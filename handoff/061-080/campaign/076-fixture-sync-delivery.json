@@ -1,0 +1,41 @@
+{
+  "source_commit": "e1a573bf92f5a40870efa438907a82af68d556a0",
+  "branch": "agents/076-adaptive-design-system",
+  "remote_head_verified": true,
+  "worktree_clean": true,
+  "source_blob_sha256": "1d436dc495a319a4a27f40ce76d88aaa941399d5590caddb4fafbaa3f5de9762",
+  "changed_files": [
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a076/DesignSystemDeviceTest.kt",
+    "SOURCE_MANIFEST.sha256"
+  ],
+  "old_actual_evidence": {
+    "source_sha": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+    "tests_run": 1,
+    "tests_passed": 0,
+    "tests_failed": 1,
+    "failure": "Initial unscoped text lookup expected1 label node but found0; action/check-state assertions not reached",
+    "log": "/workspace/campaign-061-080/device-3b9f915-remaining/class-2.log",
+    "log_sha256": "30b28e761a22118b4323fe2ce54ee5e470e4344fae5123d4db5d79311ae02b09"
+  },
+  "changes": [
+    "Unique actual toggle fixture tag plus bounded semantic readiness, no waitForIdleSync.",
+    "Retain Compose fontScale2 and exactly1 named accessibility node.",
+    "Require enabled/clickable/checkable semantics, an unchecked initial state, actual visible-window containment and48dp bounds.",
+    "Perform one actual accessibility click and require one callback plus updated actual checked semantics.",
+    "Bounded privacy-safe structural diagnostics on readiness/state timeout."
+  ],
+  "compiled_against_actual_candidate": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "focused_compile": "PASS",
+  "compile_compatibility_warnings": "AccessibilityNodeInfo.isChecked is deprecated in SDK36 but used for API29-compatible state observation; compilation succeeds.",
+  "compile_log": "/workspace/campaign-061-080/076-fixture-sync-compile.log",
+  "compile_log_sha256": "4e0649185b10498d2599ec33c7c805972bbc1f7bb518ff2ffbc35f21d0558a38",
+  "new_source_gradle": "NOT_RUN_ROOT_PENDING",
+  "new_source_runtime": "NOT_RUN_ROOT_PENDING",
+  "device_operations": "NONE",
+  "production_source_and_status": "UNCHANGED",
+  "manifest": {
+    "status": "PASS",
+    "source": "HEAD",
+    "files": 199
+  }
+}

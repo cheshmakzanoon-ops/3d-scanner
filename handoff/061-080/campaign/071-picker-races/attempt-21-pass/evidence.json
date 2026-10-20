@@ -1,0 +1,52 @@
+{
+  "result": "PASS",
+  "tests": 21,
+  "failures": 0,
+  "skipped": 0,
+  "source_commit": "8cfd97ae04577c14c0e20d429160cc6879638461",
+  "command": "python /workspace/campaign-061-080/071-picker-races/run.py",
+  "log": "/workspace/campaign-061-080/071-picker-races/attempt-21-pass/junit-final.log",
+  "log_sha256": "663587a8142f1709cb7b92c5e72b74ddf9a718f37ec86592aec3a679c522a869",
+  "source_files": {
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": {
+      "sha256": "7105c663faab1eef1413eb2c14f1eb13d9a91c4098de69dda87e3aadb4a0af10",
+      "git_blob": "d19b9f31beac4fcc31a1e857e65afb1031d8b092"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/NavigationState.kt": {
+      "sha256": "149d06d636d3869514b0b70bc84d54e9ce540f0d82acd482d0918f1d6ca46ca4",
+      "git_blob": "f3f076a7e74cc727e5be08cbbba564d9e5e51308"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/PickerCallbackSlots.kt": {
+      "sha256": "0e7ca80903d72c4cab66d86b8cd916d28fe7e018c7aee25d7ae309b6940e4b1a",
+      "git_blob": "55291aefda5eec8f5863f844b8e68b2a44fa8406"
+    },
+    "app/src/main/res/values/agent_071.xml": {
+      "sha256": "a7bedcbadb65f3bf18d945c74ab370ecd9826a56eddf7fe690a5e888b5e0fd7c",
+      "git_blob": "fe6015212e77bf74931c5fc7e911272f39862d0e"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a071/NavigationStateTest.kt": {
+      "sha256": "56c6ec6737ea6ad61d2a3f2b92614d1d2518213569912d23b5406c034429fd12",
+      "git_blob": "f4b085e95a0d23657ade3ed4ae051e47edd12e55"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a071/PickerCallbackSlotsTest.kt": {
+      "sha256": "5111123d5eb811d7fdd2909943a255db4eefa3a792980eb5788260d4d4a4a493",
+      "git_blob": "434629b5605fb7f10bd1e7120b28f75d8019af75"
+    }
+  },
+  "harness_sha256": "cde8e549bf6d2548c1019fdda8be45a6947cca3964693918a5c4dd819be3d24d",
+  "actual001_sources": {
+    "OperationContext.kt": "9b18d4c775b81b7a27bac9aa2453d5aee13fc4bc42ceadab9190e17d6e35780e",
+    "OperationCoordinator.kt": "186fc36f34dc9dbbd7bd7f6821ea95f25e96e81c479fc965b26e28108bfc59f4"
+  },
+  "actual067_sources": {
+    "ExportContract.kt": "824bdb7d141dac9030fa33ce0103ac5f3b3346773246dff4fbdd1226c696d231",
+    "PendingExportStore.kt": "2af880450d8b2529254465647ba2174bd0c49aedb99059b3b49347c7bb974589"
+  },
+  "actual067_head": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+  "environment": "JDK17.0.16+8/Kotlin2.1.21/JUnit4.13.2/coroutines1.10.2; actual published001 OperationCoordinator/codec and067 PendingExportStore, no substitutes",
+  "limitations": [
+    "Synthetic deterministic lifecycle/race fixtures; no ActivityResultRegistry/device/process-kill execution.",
+    "Focused Kotlin/Compose compilation separately recorded; final immutable Android/APK/JVM/lint qualification remains parent-owned."
+  ],
+  "terminal_reconciliation": "Actual001 BoundExternalRequestCodec restores pendingA without pre-cancellation for consumed and cancelled saved origins; exact-origin retirement releases B admission and preserves different B stored bytes. Full project/revision/artifact/option mismatches do not authorize terminal cleanup."
+}

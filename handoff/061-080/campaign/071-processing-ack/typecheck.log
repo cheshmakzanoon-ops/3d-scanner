@@ -1,0 +1,36 @@
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:8:54: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                            val currentProject=model.projects.value.find {it.id==action.identity.projectId}
+                                                     ^^^^^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:10:39: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                model.selectedId.value!=action.identity.projectId || currentProject?.revision!=action.identity.revision) false
+                                      ^^^^^^^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:15:55: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                    val current=model.scannerState.value.activeOperation
+                                                      ^^^^^^^^^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:16:46: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                    if(model.busy.value && current?.kind==OperationKind.RECONSTRUCT &&
+                                             ^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:18:41: error: smart cast to 'ProjectRevision' is impossible, because 'source' is a public API property declared in different module.
+                                        current.source.revision==action.identity.revision) {model.pause();true} else false
+                                        ^^^^^^^^^^^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:18:99: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                        current.source.revision==action.identity.revision) {model.pause();true} else false
+                                                                                                  ^^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:20:63: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                JobCommand.RETRY -> if(!model.busy.value && currentProject.state in setOf("FAILED","INTERRUPTED")) {
+                                                              ^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:21:43: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                    model.reconstruct(lastFocal)
+                                          ^^^^^^^^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:22:43: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                    model.busy.value // C1 leaves this false when reservation rejects the dispatch.
+                                          ^^^^
+campaign-061-080/071-processing-ack/ActualDispatchBody.kt:25:62: error: cannot access 'AndroidViewModel' which is a supertype of 'ScannerViewModel'. Check your module classpath for missing or conflicting dependencies.
+                                    val currentPreview=model.preview.value
+                                                             ^^^^^^^
+Traceback (most recent call last):
+  File "/workspace/campaign-061-080/071-processing-ack/compile.py", line 15, in <module>
+    subprocess.run([java,'-Xmx512m','-cp',':'.join(compiler),'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler','-no-stdlib','-no-reflect','-jvm-target','17','-classpath',':'.join(cp),'-d',str(out),*sources],check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/toolchains/jdk-17.0.16+8/bin/java', '-Xmx512m', '-cp', '/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-compiler-embeddable/2.1.21/70a69b95905e33806fbee6c6c9c48e2b2b2b4da4/kotlin-compiler-embeddable-2.1.21.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.21/97a0975aa19d925e109537af60eb46902920015c/kotlin-stdlib-2.1.21.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.10.2/4a9f78ef49483748e2c129f3d124b8fa249dafbf/kotlinx-coroutines-core-jvm-1.10.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains/annotations/23.0.0/8cc20c07506ec18e0834947b84a864bfc094484e/annotations-23.0.0.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-reflect/1.6.10/1cbe9c92c12a94eea200d23c2bbaedaf3daf5132/kotlin-reflect-1.6.10.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/2.1.21/e274d560d10526099330411c45961f04d85e77b9/kotlin-script-runtime-2.1.21.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.intellij.deps/trove4j/1.0.20200330/3afb14d5f9ceb459d724e907a21145e8ff394f02/trove4j-1.0.20200330.jar', 'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler', '-no-stdlib', '-no-reflect', '-jvm-target', '17', '-classpath', '/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.21/97a0975aa19d925e109537af60eb46902920015c/kotlin-stdlib-2.1.21.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.10.2/4a9f78ef49483748e2c129f3d124b8fa249dafbf/kotlinx-coroutines-core-jvm-1.10.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains/annotations/23.0.0/8cc20c07506ec18e0834947b84a864bfc094484e/annotations-23.0.0.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/source/app/build/tmp/kotlin-classes/debug:/workspace/toolchains/android-sdk/platforms/android-36/android.jar', '-d', '/workspace/campaign-061-080/071-processing-ack/classes', '/workspace/campaign-061-080/071-processing-ack/ActualDispatchBody.kt']' returned non-zero exit status 1.

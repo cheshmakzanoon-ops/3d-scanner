@@ -1,0 +1,17 @@
+{
+  "agent": "073",
+  "branch": "agents/073-photo-review-project-ui",
+  "previous_head": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+  "head": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+  "remote_head": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/073.md"
+  ],
+  "manifest_verifier": {
+    "files": 208,
+    "source": "index",
+    "status": "PASS"
+  }
+}

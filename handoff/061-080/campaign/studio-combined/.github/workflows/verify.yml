@@ -1,0 +1,111 @@
+name: Verify RealityForge
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_device_tests:
+        type: boolean
+        default: false
+        description: Run Android emulator instrumentation tests
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r tools/requirements-real-benchmark.txt
+      - run: cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror
+      - run: cmake --build build/host --parallel 2
+      - run: ctest --test-dir build/host --output-on-failure
+      - run: python -m pytest tests -q --junitxml=reports/ci-pytest.xml
+      - name: Exercise joint BA on calibrated synthetic photographs
+        run: python tools/bundle_three_view.py > reports/m06-three-photographs.json
+      - name: Measure eight-view synthetic observable-grid completeness
+        run: python tools/benchmark_multiview_coverage.py --gate --output reports/m14-eight-view-coverage.json
+      - name: Benchmark REAL Middlebury stereo images against disparity ground truth
+        run: python tools/benchmark_middlebury.py --output reports/m05-middlebury-real.json --gate
+      - name: Benchmark bounded CPU dense stereo on real Middlebury photographs
+        run: python tools/benchmark_dense_middlebury.py --output reports/m07-middlebury-dense.json --gate
+      - name: Benchmark confidence-fused triangle mesh on real Middlebury photographs
+        run: python tools/benchmark_surface_middlebury.py --output reports/m08-middlebury-surface.json --gate
+      - name: Benchmark real photographic UV atlas and embedded GLB PNG
+        run: python tools/benchmark_texture_middlebury.py --output reports/m10-middlebury-texture.json --gate
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-test-reports
+          path: |
+            reports/ci-pytest.xml
+            reports/m14-eight-view-coverage.json
+            reports/m05-middlebury-real.json
+            reports/m06-three-photographs.json
+            reports/m07-middlebury-dense.json
+            reports/m08-middlebury-surface.json
+            reports/m10-middlebury-texture.json
+  android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - run: gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+      - run: python3 tools/check_apk.py app/build/outputs/apk/debug/app-debug.apk --sdk "$ANDROID_HOME" --report reports/apk-validation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-build-and-reports
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/androidTest/debug/*.apk
+            app/build/reports/
+            reports/apk-validation.json
+  device:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_device_tests)
+    needs: android
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+      - name: Enable KVM for accelerated Android emulation
+        run: |
+          test -e /dev/kvm
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: bash tools/run-device-tests.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: device-test-reports
+          path: |
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/connected/
+            reports/device/

@@ -1,0 +1,55 @@
+{
+  "result": "PASS",
+  "tests": 22,
+  "failures": 0,
+  "skipped": 0,
+  "source_commit": "a72c7934f6b6b2cd4be733648f77398beafce270",
+  "command": "python /workspace/campaign-061-080/071-picker-races/run.py",
+  "log": "/workspace/campaign-061-080/071-picker-races/junit-matrix-final.log",
+  "log_sha256": "9be543b143b18398baaeef33254d38c493ce7dbe6663c4ceb7b2081447071bf4",
+  "source_files": {
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": {
+      "sha256": "b23c606f2f19b4cf2b6478f526b0375b59e455b20018a6ecf8c08b6abdad9bd9",
+      "git_blob": "57b132140d1f4024341881061d27fc0d61198c47"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/NavigationState.kt": {
+      "sha256": "149d06d636d3869514b0b70bc84d54e9ce540f0d82acd482d0918f1d6ca46ca4",
+      "git_blob": "f3f076a7e74cc727e5be08cbbba564d9e5e51308"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/PickerCallbackSlots.kt": {
+      "sha256": "3936fc55bbcfaad6317d1181d37891b2ed74486b6c57fa79c52201f1f236befd",
+      "git_blob": "be2c80d996b42b42369c6da1b7ebae0c463ebaa2"
+    },
+    "app/src/main/res/values/agent_071.xml": {
+      "sha256": "e0af7c6216451b7e482bdac848727b996e8d7cf9a35c8af07ea46a6c1b5f7fbe",
+      "git_blob": "cd9231cc265015608f9e37bfc330a5613509d7bf"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a071/NavigationStateTest.kt": {
+      "sha256": "56c6ec6737ea6ad61d2a3f2b92614d1d2518213569912d23b5406c034429fd12",
+      "git_blob": "f4b085e95a0d23657ade3ed4ae051e47edd12e55"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a071/PickerCallbackSlotsTest.kt": {
+      "sha256": "7acff90397d657fe83067f1345af55388775ae849a4d16be4a180ae0c176dc0d",
+      "git_blob": "207efad96d6a5adf56eb5ab0bd86a661caca81b5"
+    }
+  },
+  "harness_sha256": "cde8e549bf6d2548c1019fdda8be45a6947cca3964693918a5c4dd819be3d24d",
+  "actual001_sources": {
+    "OperationContext.kt": "9b18d4c775b81b7a27bac9aa2453d5aee13fc4bc42ceadab9190e17d6e35780e",
+    "OperationCoordinator.kt": "186fc36f34dc9dbbd7bd7f6821ea95f25e96e81c479fc965b26e28108bfc59f4"
+  },
+  "actual067_sources": {
+    "ExportContract.kt": "824bdb7d141dac9030fa33ce0103ac5f3b3346773246dff4fbdd1226c696d231",
+    "PendingExportStore.kt": "2af880450d8b2529254465647ba2174bd0c49aedb99059b3b49347c7bb974589"
+  },
+  "actual067_head": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+  "environment": "JDK17.0.16+8/Kotlin2.1.21/JUnit4.13.2/coroutines1.10.2; actual published001 OperationCoordinator/codec and067 PendingExportStore, no substitutes",
+  "limitations": [
+    "Synthetic deterministic lifecycle/race fixtures; no ActivityResultRegistry/device/process-kill execution.",
+    "Focused Kotlin/Compose compilation separately recorded; final immutable Android/APK/JVM/lint qualification remains parent-owned."
+  ],
+  "terminal_reconciliation": "Production reconcileStartup decision verified across20 combinations: saved consumed/cancelled model-export origin x actual001 codec-restored C1 pendingA/B x absent/validA/validB/corrupt/valid067unsupported-optionB store. Terminal IDs retire independently of disk, C1/UI/store B preserved, blocked slots infer no cancellation, stale epochs reject all mutation.",
+  "matrix_combinations": 20,
+  "initial_test_expectation_failure_preserved": "/workspace/campaign-061-080/071-picker-races/junit-matrix-initial-expectation-fail.log",
+  "initial_test_expectation_correction": "A distinct valid B can retain the preexisting explicit-cancel UI restoration behavior only when no logical pending request or occupied export launcher exists; no transfer or disk deletion occurs. The final matrix asserts this allowed outcome instead of expecting null."
+}

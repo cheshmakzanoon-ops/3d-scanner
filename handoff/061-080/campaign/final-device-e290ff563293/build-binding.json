@@ -1,0 +1,9 @@
+{
+  "source_sha": "e290ff56329322b4365298b97bba7df8b16d2470",
+  "apk_sha256": "c50cc20de436d0c37916ccac64a84b751d7b14602867fdf59aef1b06c913c07e",
+  "test_apk_sha256": "982a7484683b177225cad7f77d1d12318d289394fad540cc944bef8c092ad592",
+  "validation_receipt": "/workspace/campaign-061-080/final-validation/e290ff563293/result.json",
+  "validation_receipt_sha256": "ff230ed7525f04ff7f5cba63e62846d2c4586b5d89edca921749307fa2343022",
+  "adb_wrapper_sha256": "06865a6c46510b5d9b8d80874627b94d25a1c81f12f9fe8f09c6ada639f146a7",
+  "transport_note": "Standard --no-streaming ADB installation via a recorded wrapper; no test argument or APK byte changes."
+}

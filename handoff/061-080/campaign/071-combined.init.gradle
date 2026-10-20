@@ -1,0 +1,23 @@
+allprojects { p ->
+ p.plugins.withId('com.android.application') {
+  def android=p.extensions.getByName('android')
+  android.sourceSets.main.java.srcDirs += [
+   '/workspace/agent-work/067/app/src/main/java/com/realityforge/scanner/export',
+   '/workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library',
+   '/workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview',
+   '/workspace/agent-work/074/app/src/main/java/com/realityforge/scanner/ui/processing',
+   '/workspace/agent-work/075/app/src/main/java/com/realityforge/scanner/ui/onboarding',
+   '/workspace/agent-work/076/app/src/main/java/com/realityforge/scanner/ui/designsystem',
+   '/workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization',
+   '/workspace/agent-work/079/app/src/main/java/com/realityforge/scanner/preferences',
+   '/workspace/agent-work/079/app/src/main/java/com/realityforge/scanner/ui/preferences']
+  android.sourceSets.main.java.srcDir '/workspace/campaign-061-080/071-service-dependencies'
+  android.sourceSets.main.java.srcDir '/workspace/campaign-061-080/067-saf-bridge/peer026'
+  android.sourceSets.main.res.srcDir '/workspace/campaign-061-080/ui-dependency-res'
+  android.sourceSets.main.assets.srcDir '/workspace/agent-work/075/app/src/main/assets'
+  ['067','072','073','074','075','076','078','079'].each { role ->
+   android.sourceSets.test.java.srcDir '/workspace/agent-work/'+role+'/app/src/test/java/com/realityforge/scanner/agents/a'+role
+   android.sourceSets.androidTest.java.srcDir '/workspace/agent-work/'+role+'/app/src/androidTest/java/com/realityforge/scanner/agents/a'+role
+  }
+ }
+}

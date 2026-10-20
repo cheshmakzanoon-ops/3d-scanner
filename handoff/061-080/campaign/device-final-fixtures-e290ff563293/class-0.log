@@ -1,0 +1,138 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a077.ActualAccessibilityTest:
+INSTRUMENTATION_STATUS: test=primaryActionRemainsReachableAtTwoHundredPercentText
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=primaryActionRemainsReachableAtTwoHundredPercentText
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Expected actual accessibility control did not become available within 20000ms
+run=24e8c7ff-b574-4f9f-b124-d8e093b73da4 activePackage=com.realityforge.scanner screenshot=/data/data/com.realityforge.scanner/cache/a077/24e8c7ff-b574-4f9f-b124-d8e093b73da4.png
+Bounded active accessibility tree (no text/field values):
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+ package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+  package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+   package=com.realityforge.scanner class=android.view.ViewGroup id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+    package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+     package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+      package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+       package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(24, 220 - 234, 252) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(24, 268 - 296, 332) visible=true enabled=true clickable=true editable=true focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(24, 332 - 296, 372) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(161, 396 - 230, 444) visible=true enabled=true clickable=true editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(238, 396 - 296, 444) visible=true enabled=false clickable=true editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(24, 268 - 296, 332) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(40, 292 - 146, 316) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(173, 410 - 218, 430) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(161, 400 - 230, 440) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(251, 410 - 283, 430) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(238, 400 - 296, 440) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.failWithDiagnostics(ActualAccessibilityTest.kt:122)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await(ActualAccessibilityTest.kt:136)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await$default(ActualAccessibilityTest.kt:133)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(ActualAccessibilityTest.kt:234)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(com.realityforge.scanner.agents.a077.ActualAccessibilityTest):
+java.lang.AssertionError: Expected actual accessibility control did not become available within 20000ms
+run=24e8c7ff-b574-4f9f-b124-d8e093b73da4 activePackage=com.realityforge.scanner screenshot=/data/data/com.realityforge.scanner/cache/a077/24e8c7ff-b574-4f9f-b124-d8e093b73da4.png
+Bounded active accessibility tree (no text/field values):
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+ package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+  package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+   package=com.realityforge.scanner class=android.view.ViewGroup id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+    package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+     package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+      package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+       package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(24, 220 - 234, 252) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(24, 268 - 296, 332) visible=true enabled=true clickable=true editable=true focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(24, 332 - 296, 372) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(161, 396 - 230, 444) visible=true enabled=true clickable=true editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(238, 396 - 296, 444) visible=true enabled=false clickable=true editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(24, 268 - 296, 332) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(40, 292 - 146, 316) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(173, 410 - 218, 430) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(161, 400 - 230, 440) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(251, 410 - 283, 430) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(238, 400 - 296, 440) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.failWithDiagnostics(ActualAccessibilityTest.kt:122)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await(ActualAccessibilityTest.kt:136)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await$default(ActualAccessibilityTest.kt:133)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(ActualAccessibilityTest.kt:234)
+
+INSTRUMENTATION_STATUS: test=realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 241.274
+There was 1 failure:
+1) realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(com.realityforge.scanner.agents.a077.ActualAccessibilityTest)
+java.lang.AssertionError: Expected actual accessibility control did not become available within 20000ms
+run=24e8c7ff-b574-4f9f-b124-d8e093b73da4 activePackage=com.realityforge.scanner screenshot=/data/data/com.realityforge.scanner/cache/a077/24e8c7ff-b574-4f9f-b124-d8e093b73da4.png
+Bounded active accessibility tree (no text/field values):
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+ package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+  package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+   package=com.realityforge.scanner class=android.view.ViewGroup id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+    package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+     package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+      package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+       package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 196 - 320, 468) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(24, 220 - 234, 252) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(24, 268 - 296, 332) visible=true enabled=true clickable=true editable=true focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(24, 332 - 296, 372) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(161, 396 - 230, 444) visible=true enabled=true clickable=true editable=false focused=false accessibilityFocused=false
+        package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(238, 396 - 296, 444) visible=true enabled=false clickable=true editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(24, 268 - 296, 332) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(40, 292 - 146, 316) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(173, 410 - 218, 430) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(161, 400 - 230, 440) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(251, 410 - 283, 430) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+         package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(238, 400 - 296, 440) visible=true enabled=true clickable=false editable=false focused=false accessibilityFocused=false
+
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.failWithDiagnostics(ActualAccessibilityTest.kt:122)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await(ActualAccessibilityTest.kt:136)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await$default(ActualAccessibilityTest.kt:133)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(ActualAccessibilityTest.kt:234)
+
+FAILURES!!!
+Tests run: 3,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

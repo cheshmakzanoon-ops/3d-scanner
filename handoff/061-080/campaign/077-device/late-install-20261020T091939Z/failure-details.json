@@ -1,0 +1,20 @@
+[
+  {
+    "test": "primaryActionRemainsReachableAtTwoHundredPercentText",
+    "status": "FAIL",
+    "error": "java.lang.AssertionError: Expected actual accessibility control did not become available",
+    "stage": "initial library-control await"
+  },
+  {
+    "test": "visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics",
+    "status": "FAIL",
+    "error": "java.lang.AssertionError: Expected actual accessibility control did not become available",
+    "stage": "initial library-control await"
+  },
+  {
+    "test": "realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject",
+    "status": "FAIL",
+    "error": "java.lang.AssertionError: Expected actual accessibility control did not become available",
+    "stage": "initial library-control await"
+  }
+]

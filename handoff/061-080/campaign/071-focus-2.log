@@ -1,0 +1,53 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (No such file or directory)
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:mergeDebugResources
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:27:40 Unresolved reference 'rf_import_finished'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:28:37 Unresolved reference 'rf_capture_saved'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:29:41 Unresolved reference 'rf_calibration_saved'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:30:43 Unresolved reference 'rf_calibration_removed'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:31:44 Unresolved reference 'rf_reconstruction_saved'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:32:68 Unresolved reference 'rf_export_finished'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:33:79 Unresolved reference 'rf_pending_request'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:35:90 Unresolved reference 'rf_project_unavailable'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:38:75 Unresolved reference 'rf_delete_incomplete'.
+e: file:///workspace/agent-work/078/app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt:41:26 Unresolved reference 'rf_operation_updated'.
+
+> Task :app:compileDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 6s
+16 actionable tasks: 8 executed, 8 up-to-date

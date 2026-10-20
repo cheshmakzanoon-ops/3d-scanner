@@ -1,0 +1,49 @@
+{
+  "source_commit": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+  "pytest_nodeid": "tests/test_project_contracts.py::test_m18_depth_resume_is_input_identified_atomic_and_native_scoped",
+  "actual_pytest_result": "FAIL",
+  "classification": "Literal assertion no longer matches refactored compatibility-domain access; no suite success inferred.",
+  "production_path": "app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt",
+  "production_sha256": "1030312c4221645e7c9daa80fec4a75f3c1aaf9a6f35c95795e18327c23d4fe2",
+  "evidence": [
+    "M18_DOMAIN still equals realityforge-m18-native-reference-depth-v1 plus NUL",
+    "M18_COMPATIBILITY retains schema18 and M18_DOMAIN",
+    "fingerprint requires supports() and hashes compatibility.algorithmDomain before artifact/settings/camera/pixel bytes",
+    "Actual JVM test independently compares50 randomized contexts with legacy fingerprint and rejects unsupported compatibility19"
+  ],
+  "behavioral_junit_xml": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.engine.DepthCheckpointIdentityTest.xml",
+  "behavioral_junit_xml_sha256": "9019a390406d0135f9b3e5c838ff638dbd0b7624e548ed96078e3f0dfd53bc56",
+  "behavioral_junit_results": {
+    "name": "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+    "tests": "4",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-10-20T09:14:31.624Z",
+    "hostname": "06ddcaafa06e",
+    "time": "0.035"
+  },
+  "behavioral_junit_cases": [
+    {
+      "name": "malformedContextIsRejectedBeforeReadingAnyCache",
+      "classname": "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+      "time": "0.004"
+    },
+    {
+      "name": "exactInputIsReproducibleButChangesInvalidateTheSha256Identity",
+      "classname": "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+      "time": "0.006"
+    },
+    {
+      "name": "cacheRetainsCurrentAndAtMostOneRecentIdentityAndRemovesPartialSiblings",
+      "classname": "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+      "time": "0.002"
+    },
+    {
+      "name": "m18FingerprintRemainsBitForBitCompatibleAndUnknownFormatsAreRejected",
+      "classname": "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+      "time": "0.023"
+    }
+  ],
+  "limitation": "Seven failed Python checks remain recorded in full-pytest.xml and pytest-result.json. No tracked test or source was edited, and device checkpoint execution remains independent."
+}

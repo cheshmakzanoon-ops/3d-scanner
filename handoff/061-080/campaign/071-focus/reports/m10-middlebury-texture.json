@@ -1,0 +1,55 @@
+{
+  "atlasedDimensions": [
+    1228,
+    416
+  ],
+  "cameraColorGains": [
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1.03960288,
+      1.040703846,
+      1.045927333
+    ]
+  ],
+  "cameraTriangleCounts": [
+    2045,
+    1485
+  ],
+  "candidateMeshTriangles": 3530,
+  "dataset": "Middlebury Motorcycle 2014, two real calibrated photographs",
+  "denseDimensions": [
+    228,
+    154
+  ],
+  "exposureSamples": 982,
+  "faceCoverage": 1,
+  "gltfUvAccessorValidated": true,
+  "groundTruthUsedForTextureOrOptimization": false,
+  "limits": [
+    "2 real stereo photos only, no physical-device 360 capture",
+    "Camera-tiled UV atlas; not seamless multi-view material blending",
+    "Open partial triangle mesh in arbitrary scale, no global completeness"
+  ],
+  "medianDisparityErrorPx": 0.479483293171203,
+  "meshVertexCount": 2454,
+  "overlapMedianLogErrorAfter": 0.05345468227,
+  "overlapMedianLogErrorBefore": 0.06745840389,
+  "photographicPixelsVerified": 6,
+  "potentialViewSeamEdges": 787,
+  "potentialViewSeamEdgesBefore": 791,
+  "realPhotographs": true,
+  "reassignedFaces": 17,
+  "schema": 10,
+  "sourcePhotoDimensions": [
+    608,
+    410
+  ],
+  "textureEmbeddedPng": true,
+  "texturedTriangles": 3530,
+  "uvOrigin": "upper_left",
+  "uvVertices": 3235
+}

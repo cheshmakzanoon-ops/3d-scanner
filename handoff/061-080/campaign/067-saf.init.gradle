@@ -1,0 +1,6 @@
+gradle.beforeProject { p ->
+ if (p.path == ':app') p.plugins.withId('com.android.application') {
+  p.android.sourceSets.main.java.srcDir('/workspace/campaign-061-080/dependencies/026/app/src/main/java')
+  p.android.sourceSets.main.java.srcDir('/workspace/campaign-061-080/067-manifest/peer009')
+ }
+}

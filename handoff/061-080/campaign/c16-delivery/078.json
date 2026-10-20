@@ -1,0 +1,17 @@
+{
+  "agent": "078",
+  "branch": "agents/078-localization-resources",
+  "previous_head": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+  "head": "2d91e44478dd26e3af51558fa4f2606025a96817",
+  "remote_head": "2d91e44478dd26e3af51558fa4f2606025a96817",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/078.md"
+  ],
+  "manifest_verifier": {
+    "files": 200,
+    "source": "index",
+    "status": "PASS"
+  }
+}

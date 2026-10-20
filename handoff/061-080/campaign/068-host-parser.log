@@ -1,0 +1,140 @@
+app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt:18:30: warning: non-public primary constructor is exposed via the generated 'copy()' method of the 'data' class.
+
+The generated 'copy()' will change its visibility in future releases.
+
+To suppress the warning do one of the following:
+- Annotate the data class with the '@ConsistentCopyVisibility' annotation.
+- Use the '-Xconsistent-data-class-copy-visibility' compiler flag.
+- Annotate the data class with the '@ExposedCopyVisibility' annotation 
+  (Discouraged, but can be used to keep binary compatibility).
+
+To learn more, see the documentation of the '@ConsistentCopyVisibility' and '@ExposedCopyVisibility' annotations.
+
+This will become an error in Kotlin 2.2.
+data class PhotographicAsset internal constructor(
+                             ^^^^^^^^
+Exception in thread "main" java.lang.AssertionError: Accepted malformed corpus input 10
+	at com.realityforge.scanner.agents.a068.GlbParserHostHarness.reject(GlbParserHostHarness.java:25)
+	at com.realityforge.scanner.agents.a068.GlbParserHostHarness.main(GlbParserHostHarness.java:86)
+F
+=================================== FAILURES ===================================
+_______________________ test_real_parser_corpus_on_host ________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-24/test_real_parser_corpus_on_hos0')
+
+    def test_real_parser_corpus_on_host(tmp_path):
+        cache = Path(os.environ.get('GRADLE_USER_HOME', '/workspace/toolchains/gradle-user'))/'caches/modules-2/files-2.1'
+        json_jar = Path(os.environ.get('RF_ANDROID_JSON_JAR', '/workspace/campaign-061-080/android-json.jar'))
+        if not cache.is_dir() or not json_jar.is_file():
+            pytest.skip('Requires Android/Kotlin setup and real android-json host artifact; run Android corpus otherwise.')
+        def jar(group, name, version):
+            matches = list((cache/group/name/version).glob('*/*.jar'))
+            if len(matches) != 1:
+                pytest.skip(f'Requires pinned {name} {version} in Gradle cache.')
+            return str(matches[0])
+        compiler = [jar('org.jetbrains.kotlin','kotlin-compiler-embeddable','2.1.21'),
+                    jar('org.jetbrains.kotlin','kotlin-stdlib','2.1.21'),
+                    jar('org.jetbrains.kotlin','kotlin-script-runtime','2.1.21'),
+                    jar('org.jetbrains.kotlin','kotlin-reflect','1.6.10'),
+                    jar('org.jetbrains.kotlin','kotlin-daemon-embeddable','2.1.21'),
+                    jar('org.jetbrains.intellij.deps','trove4j','1.0.20200330'),
+                    jar('org.jetbrains','annotations','13.0'),
+                    jar('org.jetbrains.kotlinx','kotlinx-coroutines-core-jvm','1.8.0')]
+        runtime = [str(json_jar), jar('org.jetbrains.kotlin','kotlin-stdlib','2.1.21'),
+                   jar('org.jetbrains.kotlinx','kotlinx-coroutines-core-jvm','1.10.2'),
+                   jar('org.jetbrains','annotations','13.0')]
+        classes = tmp_path/'classes'; classes.mkdir()
+        viewer = ROOT/'app/src/main/java/com/realityforge/scanner/viewer'
+        files = [viewer/'PhotographicGlb.kt',viewer/'loading/GlbStructure.kt',viewer/'loading/PhotographicModelLoader.kt']
+        subprocess.run(['java','-cp',os.pathsep.join(compiler),'org.jetbrains.kotlin.cli.jvm.K2JVMCompiler',
+                        '-no-stdlib','-no-reflect','-classpath',os.pathsep.join(runtime),'-jvm-target','17','-d',str(classes),*map(str,files)],check=True)
+        runtime.append(str(classes))
+        source = ROOT/'app/src/androidTest/java/com/realityforge/scanner/agents/a068/GlbParserHostHarness.java'
+        subprocess.run(['javac','-classpath',os.pathsep.join(runtime),'-d',str(classes),str(source)],check=True)
+        args = []
+        if os.environ.get('RF_AGENT061_GLB_FIXTURES'):
+            args.append(os.environ['RF_AGENT061_GLB_FIXTURES'])
+>       subprocess.run(['java','-Xmx256m','-cp',os.pathsep.join(runtime),'com.realityforge.scanner.agents.a068.GlbParserHostHarness',*args],check=True)
+
+tests/test_agent_068_parser_host.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['java', '-Xmx256m', '-cp', '/workspace/campaign-061-080/android-json.jar:/workspace/toolchains/gradle-user/caches/mo...lasses', 'com.realityforge.scanner.agents.a068.GlbParserHostHarness', '/tmp/pytest-of-agent/pytest-3/canonical-glb0'],)
+kwargs = {}
+process = <Popen: returncode: 1 args: ['java', '-Xmx256m', '-cp', '/workspace/campaign...>
+stdout = None, stderr = None, retcode = 1
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout (seconds) is given and the process takes too long,
+         a TimeoutExpired exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['java', '-Xmx256m', '-cp', '/workspace/campaign-061-080/android-json.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.21/97a0975aa19d925e109537af60eb46902920015c/kotlin-stdlib-2.1.21.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.10.2/4a9f78ef49483748e2c129f3d124b8fa249dafbf/kotlinx-coroutines-core-jvm-1.10.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar:/tmp/pytest-of-agent/pytest-24/test_real_parser_corpus_on_hos0/classes', 'com.realityforge.scanner.agents.a068.GlbParserHostHarness', '/tmp/pytest-of-agent/pytest-3/canonical-glb0']' returned non-zero exit status 1.
+
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py:571: CalledProcessError
+=========================== short test summary info ============================
+FAILED tests/test_agent_068_parser_host.py::test_real_parser_corpus_on_host
+1 failed in 23.27s

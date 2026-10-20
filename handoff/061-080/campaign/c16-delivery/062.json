@@ -1,0 +1,17 @@
+{
+  "agent": "062",
+  "branch": "agents/062-obj-export",
+  "previous_head": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+  "head": "ae68b4255b7a1f605c71c533f34dba2c9d6c6aad",
+  "remote_head": "ae68b4255b7a1f605c71c533f34dba2c9d6c6aad",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/062.md"
+  ],
+  "manifest_verifier": {
+    "files": 202,
+    "source": "index",
+    "status": "PASS"
+  }
+}

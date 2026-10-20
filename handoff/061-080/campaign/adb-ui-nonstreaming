@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+# Standard ADB transport mode; all APK bytes, test arguments and assertions are preserved.
+if [[ "${1-}" == '-s' && "${3-}" == 'install' ]]; then
+  exec /workspace/campaign-061-080/adb "$1" "$2" install --no-streaming "${@:4}"
+fi
+exec /workspace/campaign-061-080/adb "$@"

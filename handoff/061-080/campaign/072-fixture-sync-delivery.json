@@ -1,0 +1,31 @@
+{
+  "source_commit": "7d918e90a260ce59877584314e8b1078a089cb75",
+  "branch": "agents/072-project-library-ui",
+  "remote_head_verified": true,
+  "source_blob_sha256": "82dab69062be9d3bcc018b316bc8c37a729662861c32832349fe1ff17b1ff295",
+  "production_library_screen_unchanged_sha256": "aa603dabdb95eaa90670659b784fb03b582c3de4ab6360e771e21e81e175b541",
+  "old_actual_evidence": {
+    "source_sha": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+    "role_source_commit": "baaac4d17c638522c6f02c301b85557c7af7b420",
+    "tests_run": 2,
+    "tests_failed": 2,
+    "log": "/workspace/campaign-061-080/device-3b9f915/class-2.log",
+    "log_sha256": "ffe68e55232e99473567befd0212ee23875e765fca15db37939df08dc273beb0",
+    "cause_limit": "Original helper could observe old composition; no fixture marker/frame condition and no scroll for a lazily composed project. The old null description does not establish which editable node was observed."
+  },
+  "changes": [
+    "Wait for a unique test-only fixture view ID before observing fields or projects.",
+    "Require an actual visible editable node with the exact localized description; retain equality and edit-action assertions.",
+    "Use bounded accessibility ACTION_SCROLL_FORWARD on the real fixture LazyColumn to reveal the synthetic project/Delete control.",
+    "Remove all waitForIdleSync calls; poll concrete bounded semantics and callback conditions.",
+    "Capture up to6000 characters of real structural diagnostics and editable parent chains before teardown; arbitrary text/field values/descriptions redacted."
+  ],
+  "compiled_against_actual_candidate": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "focused_compile": "PASS",
+  "compile_log": "/workspace/campaign-061-080/072-fixture-sync-compile.log",
+  "compile_log_sha256": "6e381d77b45dadf51032ed9b1aa635621ee6e140154052e7cfaae714d2d324c9",
+  "new_source_gradle": "NOT_RUN_ROOT_PENDING",
+  "new_source_runtime": "NOT_RUN_ROOT_PENDING",
+  "device_operations": "NONE; root device lock respected",
+  "remaining_diagnosis": "If the fixture-bound named-field predicate still fails, inspect its editable-parent chains for a genuine parent/child semantics defect. No speculative production change was made."
+}

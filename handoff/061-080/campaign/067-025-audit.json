@@ -1,0 +1,41 @@
+{
+  "agent": "067",
+  "mode": "READ_ONLY_AUDIT",
+  "audited_067_source": "5763a21d21057807b3b67563f4cddc6d0091c9b1",
+  "remote_heads": {
+    "025": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+    "024": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+    "009": "c77bc8046907012ebc034cc530991ad6c6c4e3fa"
+  },
+  "evidence_command": "git ls-remote --heads origin refs/heads/agents/025-capture-archive-roundtrip refs/heads/agents/024-reopen-schema-integrity refs/heads/agents/009-artifact-provenance",
+  "025_diff_from_campaign_base": "",
+  "025_api_available": false,
+  "024_api_available": false,
+  "009_core_contract_compatibility": "No changes to existing artifact binding, snapshots, identity or manifest APIs between0cb6532d921e61a0e56ff0b310cafe6329f6f7cd andc77bc8046907012ebc034cc530991ad6c6c4e3fa; only new sparse-frontier checkpoint storage/tests/docs",
+  "baseline_legacy_writer": "ProjectRepository.exportCaptureBundle(projectId, OutputStream):Int re-queries mutable project, emits unverified legacy session.json ZIP, has stale engine identity and no complete archive validator/importer/publication record. It is not published025 delivery.",
+  "future_adapter_files": [
+    "app/src/main/java/com/realityforge/scanner/export/ArchiveExportSource.kt",
+    "app/src/test/java/com/realityforge/scanner/agents/a067/ArchiveExportSourceTest.kt"
+  ],
+  "required_actual_025_inputs": [
+    "Published completed archive record bound to exact project/revision/publication ID and immutable full archive member ordering/hash/length metadata",
+    "Actual archive file byte size/SHA256 plus canonical025 archive-manifest hash and explicit schema/kind",
+    "Actual025 bounded structural/member/hash validator; a checksum or generic application/zip is insufficient",
+    "Cancellation/budget-aware actual025 writer if archive creation is needed before offering; no request-dependent mutable requery",
+    "Admitted009 InputSnapshot/ArtifactBinding and canonical StageManifest+expected identities or equivalent023 published lease; complete EXPORT_PACKAGE with independent acceptance",
+    "Currentness lease fence to reject changed revision/job/publication before offer/staging/open/commit"
+  ],
+  "critical_distinctions": [
+    "009 selectedPhotos is reconstruction-selected order, not necessarily every archived original.025 must separately bind full member list/include flags/calibration metadata.",
+    "Generic EXPORT_PACKAGE+application/zip also describes OBJ package; never infer CAPTURE_ARCHIVE solely from MIME/extension.",
+    "025 validation and roundtrip acceptance must be actual source-owner code, not an unimplemented callback adapter presented as integration."
+  ],
+  "future_verification": [
+    "Compile tests against actual025+009+026 source commits outside067 checkout without copying peer production source into067 history",
+    "Real025 archive creation and validation; exact original hashes/order/calibration roundtrip",
+    "Stale revision/publication, mutated archive/member/manifest, wrong archive kind/schema, bounded inflation/traversal/duplicate member rejection",
+    "Cancellation and size budget admission before destination opens; actual026 exact readback/short write/unverified outcomes"
+  ],
+  "result": "NOT_RUN",
+  "remaining_blocker": "No actual025 implementation/API is published; root preparing owner025 request.067 source remains unchanged."
+}

@@ -1,0 +1,17 @@
+{
+  "agent": "065",
+  "branch": "agents/065-mesh-lod",
+  "previous_head": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+  "head": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc",
+  "remote_head": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/065.md"
+  ],
+  "manifest_verifier": {
+    "files": 207,
+    "source": "index",
+    "status": "PASS"
+  }
+}

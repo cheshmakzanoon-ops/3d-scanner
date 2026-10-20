@@ -1,0 +1,102 @@
+{
+  "061": {
+    "branch": "agents/061-glb-asset-contract",
+    "path": "/workspace/agent-work/061",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "062": {
+    "branch": "agents/062-obj-export",
+    "path": "/workspace/agent-work/062",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "063": {
+    "branch": "agents/063-stl-export",
+    "path": "/workspace/agent-work/063",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "064": {
+    "branch": "agents/064-ply-export",
+    "path": "/workspace/agent-work/064",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "065": {
+    "branch": "agents/065-mesh-lod",
+    "path": "/workspace/agent-work/065",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "066": {
+    "branch": "agents/066-model-editing",
+    "path": "/workspace/agent-work/066",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "067": {
+    "branch": "agents/067-export-coordinator",
+    "path": "/workspace/agent-work/067",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "068": {
+    "branch": "agents/068-model-loader",
+    "path": "/workspace/agent-work/068",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "069": {
+    "branch": "agents/069-studio-renderer",
+    "path": "/workspace/agent-work/069",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "070": {
+    "branch": "agents/070-studio-controls",
+    "path": "/workspace/agent-work/070",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "071": {
+    "branch": "agents/071-app-navigation-composition",
+    "path": "/workspace/agent-work/071",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "072": {
+    "branch": "agents/072-project-library-ui",
+    "path": "/workspace/agent-work/072",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "073": {
+    "branch": "agents/073-photo-review-project-ui",
+    "path": "/workspace/agent-work/073",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "074": {
+    "branch": "agents/074-processing-recovery-ui",
+    "path": "/workspace/agent-work/074",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "075": {
+    "branch": "agents/075-capture-onboarding-instructions",
+    "path": "/workspace/agent-work/075",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "076": {
+    "branch": "agents/076-adaptive-design-system",
+    "path": "/workspace/agent-work/076",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "077": {
+    "branch": "agents/077-accessibility-verification",
+    "path": "/workspace/agent-work/077",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "078": {
+    "branch": "agents/078-localization-resources",
+    "path": "/workspace/agent-work/078",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "079": {
+    "branch": "agents/079-preferences-about-privacy-ui",
+    "path": "/workspace/agent-work/079",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  },
+  "080": {
+    "branch": "agents/080-actual-ui-end-to-end",
+    "path": "/workspace/agent-work/080",
+    "base": "ad3029193f304c70931b94ea7a0df90b69d84b07"
+  }
+}

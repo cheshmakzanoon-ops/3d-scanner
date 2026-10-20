@@ -1,0 +1,124 @@
+{
+  "synthetic": true,
+  "physical": false,
+  "time": "2026-10-20T10:22:45.435794+00:00",
+  "commands": [
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "input",
+        "keyevent",
+        "224"
+      ],
+      "exit_code": 0,
+      "artifact": "wake.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "wm",
+        "dismiss-keyguard"
+      ],
+      "exit_code": 0,
+      "artifact": "dismiss-unsecured-keyguard.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "uiautomator",
+        "dump",
+        "/data/local/tmp/rf-final-preparation.xml"
+      ],
+      "exit_code": 0,
+      "artifact": "window.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "exec-out",
+        "cat",
+        "/data/local/tmp/rf-final-preparation.xml"
+      ],
+      "exit_code": 0,
+      "artifact": "tree.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "settings",
+        "get",
+        "system",
+        "font_scale"
+      ],
+      "exit_code": 0,
+      "artifact": "font-before.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "settings",
+        "put",
+        "system",
+        "font_scale",
+        "1.0"
+      ],
+      "exit_code": 0,
+      "artifact": "font-default-fixture.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "settings",
+        "get",
+        "system",
+        "font_scale"
+      ],
+      "exit_code": 0,
+      "artifact": "font-after.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "wm",
+        "size"
+      ],
+      "exit_code": 0,
+      "artifact": "display-size.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "wm",
+        "density"
+      ],
+      "exit_code": 0,
+      "artifact": "display-density.log"
+    }
+  ]
+}

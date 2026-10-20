@@ -1,0 +1,95 @@
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /workspace/campaign-061-080/combined/build/host
+[1/52] Building CXX object CMakeFiles/agent_062_obj_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp.o
+[2/52] Building CXX object CMakeFiles/agent_061_asset_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp.o
+[3/52] Building CXX object CMakeFiles/agent_063_stl_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp.o
+[4/52] Building CXX object CMakeFiles/agent_064_ply_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp.o
+[5/52] Building CXX object CMakeFiles/agent_065_mesh_lod.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp.o
+[6/52] Building CXX object CMakeFiles/agent_066_asset_edit.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp.o
+[7/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o
+[8/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o
+[9/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o
+[10/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o
+[11/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o
+[12/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o
+[13/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o
+[14/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o
+[15/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o
+[16/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o
+[17/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_model.cpp.o
+[18/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/glb_export.cpp.o
+[19/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/stl_export.cpp.o
+[20/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/obj_export.cpp.o
+[21/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/ply_export.cpp.o
+[22/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/mesh_lod.cpp.o
+[23/52] Building CXX object baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_edit.cpp.o
+[24/52] Linking CXX shared library librealityforge.so
+[25/52] Linking CXX executable agent_061_asset_test
+[26/52] Linking CXX executable agent_062_obj_test
+[27/52] Linking CXX executable agent_063_stl_test
+[28/52] Linking CXX executable agent_064_ply_test
+[29/52] Linking CXX executable agent_065_mesh_lod
+[30/52] Building CXX object baseline/CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o
+[31/52] Linking CXX executable agent_066_asset_edit
+[32/52] Linking CXX executable baseline/rf_native_tests
+[33/52] Building CXX object baseline/CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o
+[34/52] Linking CXX executable baseline/rf_bundle_tests
+[35/52] Building CXX object baseline/CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o
+[36/52] Linking CXX executable baseline/rf_multiview_tests
+[37/52] Building CXX object baseline/CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o
+[38/52] Linking CXX executable baseline/rf_dense_tests
+[39/52] Building CXX object baseline/CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o
+[40/52] Linking CXX executable baseline/rf_surface_tests
+[41/52] Building CXX object baseline/CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o
+[42/52] Building CXX object baseline/CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o
+[43/52] Linking CXX executable baseline/rf_photometric_tests
+[44/52] Linking CXX executable baseline/rf_texture_tests
+[45/52] Building CXX object baseline/CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o
+[46/52] Linking CXX executable baseline/rf_stereo_warp_tests
+[47/52] Building CXX object baseline/CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o
+[48/52] Linking CXX executable baseline/rf_dense_selection_tests
+[49/52] Building CXX object baseline/CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o
+[50/52] Linking CXX executable baseline/rf_cancellation_tests
+[51/52] Building CXX object baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o
+[52/52] Linking CXX executable baseline/rf_depth_checkpoint_tests
+Internal ctest changing into directory: /workspace/campaign-061-080/combined/build/host
+Test project /workspace/campaign-061-080/combined/build/host
+      Start  1: agent061
+ 1/17 Test  #1: agent061 .........................   Passed    0.04 sec
+      Start  2: agent062
+ 2/17 Test  #2: agent062 .........................   Passed    0.01 sec
+      Start  3: agent063
+ 3/17 Test  #3: agent063 .........................   Passed    0.00 sec
+      Start  4: agent064
+ 4/17 Test  #4: agent064 .........................   Passed    0.01 sec
+      Start  5: agent065
+ 5/17 Test  #5: agent065 .........................   Passed    0.01 sec
+      Start  6: agent066
+ 6/17 Test  #6: agent066 .........................   Passed    0.02 sec
+      Start  7: native_core
+ 7/17 Test  #7: native_core ......................   Passed    0.14 sec
+      Start  8: native_multiview
+ 8/17 Test  #8: native_multiview .................   Passed    0.04 sec
+      Start  9: native_bundle_adjustment
+ 9/17 Test  #9: native_bundle_adjustment .........   Passed    0.02 sec
+      Start 10: native_dense_mvs
+10/17 Test #10: native_dense_mvs .................   Passed    1.24 sec
+      Start 11: native_surface_mesh
+11/17 Test #11: native_surface_mesh ..............   Passed    1.91 sec
+      Start 12: native_texture_atlas
+12/17 Test #12: native_texture_atlas .............   Passed    0.43 sec
+      Start 13: native_photometric
+13/17 Test #13: native_photometric ...............   Passed    0.02 sec
+      Start 14: native_stereo_warp
+14/17 Test #14: native_stereo_warp ...............   Passed    0.04 sec
+      Start 15: native_dense_selection
+15/17 Test #15: native_dense_selection ...........   Passed    0.86 sec
+      Start 16: native_cancellation
+16/17 Test #16: native_cancellation ..............   Passed    0.05 sec
+      Start 17: native_depth_checkpoint
+17/17 Test #17: native_depth_checkpoint ..........   Passed    0.18 sec
+
+100% tests passed, 0 tests failed out of 17
+
+Total Test time (real) =   5.03 sec

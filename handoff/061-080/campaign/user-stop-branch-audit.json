@@ -1,0 +1,162 @@
+{
+  "061": {
+    "branch": "agents/061-glb-asset-contract",
+    "head": "c9125e028928997a1be42787a8e348b1dd21a7dc",
+    "remote_sha": "c9125e028928997a1be42787a8e348b1dd21a7dc",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "062": {
+    "branch": "agents/062-obj-export",
+    "head": "0323b8470797ce8fa4e31e1ca72cbdc6ab588c08",
+    "remote_sha": "0323b8470797ce8fa4e31e1ca72cbdc6ab588c08",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "063": {
+    "branch": "agents/063-stl-export",
+    "head": "3da83289c83c11e618282c754a45d3a4c8b03b72",
+    "remote_sha": "3da83289c83c11e618282c754a45d3a4c8b03b72",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "064": {
+    "branch": "agents/064-ply-export",
+    "head": "b9dab415e9631a012e1559207654c7db33290122",
+    "remote_sha": "b9dab415e9631a012e1559207654c7db33290122",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "065": {
+    "branch": "agents/065-mesh-lod",
+    "head": "d5c968703f447ca0bc8b616180e2ff7b19d3b27b",
+    "remote_sha": "d5c968703f447ca0bc8b616180e2ff7b19d3b27b",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "066": {
+    "branch": "agents/066-model-editing",
+    "head": "6ca4ca792d3bac127f193c0f590e7668bdc72681",
+    "remote_sha": "6ca4ca792d3bac127f193c0f590e7668bdc72681",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "067": {
+    "branch": "agents/067-export-coordinator",
+    "head": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+    "remote_sha": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "068": {
+    "branch": "agents/068-model-loader",
+    "head": "9483d69c80ec65524224759e2536e52955669b6d",
+    "remote_sha": "9483d69c80ec65524224759e2536e52955669b6d",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "069": {
+    "branch": "agents/069-studio-renderer",
+    "head": "1230d61816d2cc73889db4d6d48331a26973ebb4",
+    "remote_sha": "1230d61816d2cc73889db4d6d48331a26973ebb4",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "070": {
+    "branch": "agents/070-studio-controls",
+    "head": "bb01bca912af85d7edd973e7327e818fcbac2577",
+    "remote_sha": "bb01bca912af85d7edd973e7327e818fcbac2577",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "071": {
+    "branch": "agents/071-app-navigation-composition",
+    "head": "0cec378b19d65dbaef94f739ef16cea6ed294530",
+    "remote_sha": "0cec378b19d65dbaef94f739ef16cea6ed294530",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "072": {
+    "branch": "agents/072-project-library-ui",
+    "head": "7d918e90a260ce59877584314e8b1078a089cb75",
+    "remote_sha": "7d918e90a260ce59877584314e8b1078a089cb75",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "073": {
+    "branch": "agents/073-photo-review-project-ui",
+    "head": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+    "remote_sha": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "074": {
+    "branch": "agents/074-processing-recovery-ui",
+    "head": "4507a0d78c997c7540160d7c09825314bc6317ff",
+    "remote_sha": "4507a0d78c997c7540160d7c09825314bc6317ff",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "075": {
+    "branch": "agents/075-capture-onboarding-instructions",
+    "head": "39049fa4cfc5180231e6649acc6577527d63b8ca",
+    "remote_sha": "39049fa4cfc5180231e6649acc6577527d63b8ca",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "076": {
+    "branch": "agents/076-adaptive-design-system",
+    "head": "e1a573bf92f5a40870efa438907a82af68d556a0",
+    "remote_sha": "e1a573bf92f5a40870efa438907a82af68d556a0",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "077": {
+    "branch": "agents/077-accessibility-verification",
+    "head": "7b13dc190f752a21de04958ea3e4b67d8d239e95",
+    "remote_sha": "7b13dc190f752a21de04958ea3e4b67d8d239e95",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "078": {
+    "branch": "agents/078-localization-resources",
+    "head": "2fc0fc283646e779dc8762e845cc95a37d3d7557",
+    "remote_sha": "2fc0fc283646e779dc8762e845cc95a37d3d7557",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "079": {
+    "branch": "agents/079-preferences-about-privacy-ui",
+    "head": "c39338ebc8a4cdfc0606396807469bf8647f6374",
+    "remote_sha": "c39338ebc8a4cdfc0606396807469bf8647f6374",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  },
+  "080": {
+    "branch": "agents/080-actual-ui-end-to-end",
+    "head": "2426c46ebbcc76ba41b19510c13c83c3633565c2",
+    "remote_sha": "2426c46ebbcc76ba41b19510c13c83c3633565c2",
+    "remote_matches": true,
+    "clean": true,
+    "status": ""
+  }
+}

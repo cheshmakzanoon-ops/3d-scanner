@@ -1,0 +1,185 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/workspace/.venvs/3d-scanner/bin/python",
+        "/workspace/toolchains/gradle-cloud.py",
+        "--init-script",
+        "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/final.init.gradle",
+        ":app:assembleDebug",
+        ":app:assembleDebugAndroidTest",
+        ":app:testDebugUnitTest",
+        ":app:lintDebug"
+      ],
+      "duration_seconds": 10.003,
+      "exit_code": 1,
+      "log": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/android.log",
+      "log_sha256": "768562909f13201493326c80c36770c99305388eeaa1c9cdac14fc97b6e9bf6c"
+    }
+  ],
+  "error": "Android Gradle validation failed: /workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/android.log",
+  "finished_at": "2026-10-20T09:10:24.795375+00:00",
+  "known_prior_literal_test_failures": {
+    "tests/test_project_contracts.py::test_capture_package_requires_explicit_destination_and_preserves_hashes": "ScannerApp now delegates document destination and transport to coordinator.",
+    "tests/test_project_contracts.py::test_m09_camera_projected_uvs_are_embedded_and_exportable": "ScannerApp moved individual export handlers behind project-scoped export route.",
+    "tests/test_project_contracts.py::test_m19_persisted_scan_evidence_and_local_export": "ScannerApp now delegates diagnostic export behind coordinator route.",
+    "tests/test_project_contracts.py::test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl": "Photographic viewer lifecycle disposal implementation changed spelling/ownership.",
+    "tests/test_project_contracts.py::test_sparse_output_disclosed_in_ui": "ScannerApp moved disclosure to localized resources and route composition.",
+    "tests/test_surface.py::test_android_mesh_is_shown_and_exportable_without_network_calls": "ScannerApp now delegates mesh display to studio route."
+  },
+  "limitations": [
+    "External verification CMake adapter registers seven native sources on owner004 realityforge target.",
+    "External verification Gradle adapter adds exact Filament/gltfio1.56.0 dependencies requested by owner069.",
+    "No source-set replacement, handwritten stubs or foreign worktree source injection is used.",
+    "Compilation and packaged symbol inclusion do not prove JNI/application routing or runtime invocation.",
+    "No instrumentation/device execution, physical accuracy, frame budget, accessibility or production readiness is claimed.",
+    "Original owner004 app/build.gradle.kts fails compilation because java DSL accessor shadows package qualifiers; external build script adds URI and MessageDigest imports and replaces exactly those two package references. Original immutable attempt remains FAIL in its separate result directory."
+  ],
+  "manifest_commit": {
+    "files": 567,
+    "source": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "status": "PASS"
+  },
+  "planned_inputs": [
+    {
+      "agent": "001",
+      "source_sha": "931013353311becf909290f1791de92a239bfb2d"
+    },
+    {
+      "agent": "004",
+      "source_sha": "0f818763c5dab78291bee45af2408909a596dbad"
+    },
+    {
+      "agent": "007",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb"
+    },
+    {
+      "agent": "018",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e"
+    },
+    {
+      "agent": "019",
+      "source_sha": "c88fc09fb9605aba08fef07f83514bddcd3342b8"
+    },
+    {
+      "agent": "026",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e"
+    },
+    {
+      "agent": "061",
+      "source_sha": "73212fcf78f2dcd31c03cabad4227b5da657d3c5"
+    },
+    {
+      "agent": "062",
+      "source_sha": "92f102f0d42230ce671e2349dc3fb1a610a3da35"
+    },
+    {
+      "agent": "063",
+      "source_sha": "51a362e57ab40cc6fd82988c6130c709f77537a5"
+    },
+    {
+      "agent": "064",
+      "source_sha": "9bfa724729c27d45fb591bcf5aeb12e54ac51392"
+    },
+    {
+      "agent": "065",
+      "source_sha": "e4ed1e369e38ee562b09e9879f2069fe4261915c"
+    },
+    {
+      "agent": "066",
+      "source_sha": "a7cabb5bc778b91b056362762ca8c24820587ee1"
+    },
+    {
+      "agent": "067",
+      "source_sha": "5763a21d21057807b3b67563f4cddc6d0091c9b1"
+    },
+    {
+      "agent": "068",
+      "source_sha": "729fa9e209468fae54212581d2659026713a55e7"
+    },
+    {
+      "agent": "069",
+      "source_sha": "c137e6996477f35735f169b10c8b92112c551007"
+    },
+    {
+      "agent": "070",
+      "source_sha": "5c683605423d2c4c743bac2420192364ee430b44"
+    },
+    {
+      "agent": "071",
+      "source_sha": "621c816991992be43e5d5591caea48bf1d56d721"
+    },
+    {
+      "agent": "072",
+      "source_sha": "15784131be98a0bff6a638641fad92fcd0f04887"
+    },
+    {
+      "agent": "073",
+      "source_sha": "d8990f8c6751f989bbbbfdce816b009179e3db40"
+    },
+    {
+      "agent": "074",
+      "source_sha": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b"
+    },
+    {
+      "agent": "075",
+      "source_sha": "323c1daf366c9640243a69fa71b8ae26fcb7769b"
+    },
+    {
+      "agent": "076",
+      "source_sha": "63399f41996659bbfde5705907b9198fd9416d8d"
+    },
+    {
+      "agent": "077",
+      "source_sha": "d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671"
+    },
+    {
+      "agent": "078",
+      "source_sha": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1"
+    },
+    {
+      "agent": "079",
+      "source_sha": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e"
+    },
+    {
+      "agent": "080",
+      "source_sha": "f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3"
+    },
+    {
+      "agent": "009",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd"
+    },
+    {
+      "agent": "088",
+      "source_sha": "0e5d9415c168c46a21899450dcd82c84886095f8"
+    }
+  ],
+  "planned_inputs_sha256": "95708147cfe20de69facd2295c60b0922e408cdf180cc70c2e8db8361e47fc04",
+  "schema": 1,
+  "source_commit": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+  "source_directory": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/source",
+  "source_tree_oid": "0f516ab69a0715b30073abf75fc2ce9e7442335d",
+  "started_at": "2026-10-20T09:10:10.831012+00:00",
+  "state": "FAIL",
+  "tools": {
+    "/workspace/campaign-061-080/dependencies/094/source_manifest.py": "41c38c8320e27ce8e1c4720fa8abde872a4e62b6a8fda11b17a988a7680b1ad8",
+    "/workspace/campaign-061-080/final-validation.py": "2d3fedca9a6b733445b9158155872fb6eef93de9ec2fe4aeda73d499f554ccf6",
+    "/workspace/toolchains/gradle-cloud.py": "f2798b2ebd95a821a14a8c6ca9e5e2c8adf89f62861bff5005c04c8601f35f64"
+  },
+  "tracked_files": 568,
+  "tracked_source_digest_sha256": "e38901041120ba730d9edfe6f21e666b3faef9fbb11a11a8adace67e12855dfd",
+  "verification_adapters": {
+    "cmake": {
+      "path": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/cmake/CMakeLists.txt",
+      "sha256": "6ddace8c632248443ee3e1b571cd73252a94e92d20479b8d94ce82ab4f58f3f9"
+    },
+    "gradle": {
+      "path": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/final.init.gradle",
+      "sha256": "b6c599c6a3b9477a4f762566588f10625215790fdeb9478d7bb66696daef9f60"
+    },
+    "owner004_app_build_script_import_fix": {
+      "path": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/app-build.gradle.kts",
+      "sha256": "eb6e182ad0a2fa5e371a78f58de2ef6a540255e6734a59ac818192295c142d89"
+    }
+  }
+}

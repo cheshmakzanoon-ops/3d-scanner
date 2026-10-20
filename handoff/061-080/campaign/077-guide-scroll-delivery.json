@@ -1,0 +1,39 @@
+{
+  "source_commit": "6d4ae6a58272b0da99f548e7fdbfd5b27496e330",
+  "branch": "agents/077-accessibility-verification",
+  "remote_head_verified": true,
+  "source_blob_sha256": "d1d4057df2db17b0d9df6f5af6ba06e40fa2411bbfbf7d499dec1d96b143f503",
+  "changed_files": [
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a077/ActualAccessibilityTest.kt",
+    "SOURCE_MANIFEST.sha256"
+  ],
+  "guide_scroll_guard": "Actual visible app-owned a071-route-onboarding subtree or ancestor of resolved a075_title; no generic or library scroll target.",
+  "scroll_budget": {
+    "maximum_actions": 8,
+    "minimum_interval_ms": 750,
+    "enclosing_wait_ms": 20000
+  },
+  "preserved_assertions": [
+    "Visible library Create without library scrolling",
+    "48dp actual primary touch target",
+    "Named editable field and real set-text/create/recreation",
+    "Interactive/unlocked device fixture"
+  ],
+  "additional_readiness": [
+    "Match actual a072_name when present so a pending create dialog cannot select the old search field.",
+    "Named control must have an enabled clickable target before the actual accessibility click."
+  ],
+  "compile_against_actual_candidate": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "focused_compile": "PASS",
+  "compile_log": "/workspace/campaign-061-080/077-guide-scroll-compile.log",
+  "compile_log_sha256": "9b77db4fa7b345d00e82af3fd7bb9e346a10d63c6a1632b971eddf8869e1555e",
+  "new_source_gradle": "NOT_RUN_ROOT_PENDING",
+  "new_source_runtime": "NOT_RUN_ROOT_PENDING",
+  "device_operations": "NONE",
+  "production_and_parent_status_request": "UNCHANGED",
+  "manifest": {
+    "status": "PASS",
+    "source": "HEAD",
+    "files": 198
+  }
+}

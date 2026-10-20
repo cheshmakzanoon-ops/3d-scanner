@@ -1,0 +1,146 @@
+{
+  "observed_at": "2026-10-20T10:29:58.806598+00:00",
+  "combined_commit": "e290ff56329322b4365298b97bba7df8b16d2470",
+  "rows": [
+    {
+      "agent": "061",
+      "branch": "agents/061-glb-asset-contract",
+      "pinned_source_sha": "de0153411abae6ad267e9460007c04991d464859",
+      "remote_head": "de0153411abae6ad267e9460007c04991d464859",
+      "exact_match": true
+    },
+    {
+      "agent": "062",
+      "branch": "agents/062-obj-export",
+      "pinned_source_sha": "ae68b4255b7a1f605c71c533f34dba2c9d6c6aad",
+      "remote_head": "ae68b4255b7a1f605c71c533f34dba2c9d6c6aad",
+      "exact_match": true
+    },
+    {
+      "agent": "063",
+      "branch": "agents/063-stl-export",
+      "pinned_source_sha": "3561dd0beff9727986a9192341a629a3dbd55b3d",
+      "remote_head": "3561dd0beff9727986a9192341a629a3dbd55b3d",
+      "exact_match": true
+    },
+    {
+      "agent": "064",
+      "branch": "agents/064-ply-export",
+      "pinned_source_sha": "c0a926daa9863c1b68a2fb8ea9b4759dca023134",
+      "remote_head": "c0a926daa9863c1b68a2fb8ea9b4759dca023134",
+      "exact_match": true
+    },
+    {
+      "agent": "065",
+      "branch": "agents/065-mesh-lod",
+      "pinned_source_sha": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc",
+      "remote_head": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc",
+      "exact_match": true
+    },
+    {
+      "agent": "066",
+      "branch": "agents/066-model-editing",
+      "pinned_source_sha": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a",
+      "remote_head": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a",
+      "exact_match": true
+    },
+    {
+      "agent": "067",
+      "branch": "agents/067-export-coordinator",
+      "pinned_source_sha": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+      "remote_head": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+      "exact_match": true
+    },
+    {
+      "agent": "068",
+      "branch": "agents/068-model-loader",
+      "pinned_source_sha": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+      "remote_head": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+      "exact_match": true
+    },
+    {
+      "agent": "069",
+      "branch": "agents/069-studio-renderer",
+      "pinned_source_sha": "1230d61816d2cc73889db4d6d48331a26973ebb4",
+      "remote_head": "1230d61816d2cc73889db4d6d48331a26973ebb4",
+      "exact_match": true
+    },
+    {
+      "agent": "070",
+      "branch": "agents/070-studio-controls",
+      "pinned_source_sha": "bb01bca912af85d7edd973e7327e818fcbac2577",
+      "remote_head": "bb01bca912af85d7edd973e7327e818fcbac2577",
+      "exact_match": true
+    },
+    {
+      "agent": "071",
+      "branch": "agents/071-app-navigation-composition",
+      "pinned_source_sha": "0cec378b19d65dbaef94f739ef16cea6ed294530",
+      "remote_head": "0cec378b19d65dbaef94f739ef16cea6ed294530",
+      "exact_match": true
+    },
+    {
+      "agent": "072",
+      "branch": "agents/072-project-library-ui",
+      "pinned_source_sha": "7d918e90a260ce59877584314e8b1078a089cb75",
+      "remote_head": "7d918e90a260ce59877584314e8b1078a089cb75",
+      "exact_match": true
+    },
+    {
+      "agent": "073",
+      "branch": "agents/073-photo-review-project-ui",
+      "pinned_source_sha": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+      "remote_head": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+      "exact_match": true
+    },
+    {
+      "agent": "074",
+      "branch": "agents/074-processing-recovery-ui",
+      "pinned_source_sha": "4507a0d78c997c7540160d7c09825314bc6317ff",
+      "remote_head": "4507a0d78c997c7540160d7c09825314bc6317ff",
+      "exact_match": true
+    },
+    {
+      "agent": "075",
+      "branch": "agents/075-capture-onboarding-instructions",
+      "pinned_source_sha": "39049fa4cfc5180231e6649acc6577527d63b8ca",
+      "remote_head": "39049fa4cfc5180231e6649acc6577527d63b8ca",
+      "exact_match": true
+    },
+    {
+      "agent": "076",
+      "branch": "agents/076-adaptive-design-system",
+      "pinned_source_sha": "e1a573bf92f5a40870efa438907a82af68d556a0",
+      "remote_head": "e1a573bf92f5a40870efa438907a82af68d556a0",
+      "exact_match": true
+    },
+    {
+      "agent": "077",
+      "branch": "agents/077-accessibility-verification",
+      "pinned_source_sha": "6d4ae6a58272b0da99f548e7fdbfd5b27496e330",
+      "remote_head": "6d4ae6a58272b0da99f548e7fdbfd5b27496e330",
+      "exact_match": true
+    },
+    {
+      "agent": "078",
+      "branch": "agents/078-localization-resources",
+      "pinned_source_sha": "2d91e44478dd26e3af51558fa4f2606025a96817",
+      "remote_head": "2d91e44478dd26e3af51558fa4f2606025a96817",
+      "exact_match": true
+    },
+    {
+      "agent": "079",
+      "branch": "agents/079-preferences-about-privacy-ui",
+      "pinned_source_sha": "c39338ebc8a4cdfc0606396807469bf8647f6374",
+      "remote_head": "c39338ebc8a4cdfc0606396807469bf8647f6374",
+      "exact_match": true
+    },
+    {
+      "agent": "080",
+      "branch": "agents/080-actual-ui-end-to-end",
+      "pinned_source_sha": "2426c46ebbcc76ba41b19510c13c83c3633565c2",
+      "remote_head": "2426c46ebbcc76ba41b19510c13c83c3633565c2",
+      "exact_match": true
+    }
+  ]
+}

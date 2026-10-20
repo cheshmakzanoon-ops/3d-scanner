@@ -1,0 +1,35 @@
+{
+  "status": "FAIL_ACTUAL_TESTS",
+  "device_gate": "FAIL_AUTOMATED_ACCESSIBILITY",
+  "build_source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+  "serial": "emulator-5556",
+  "expected_installed_app_sha256": "5830c15c4fcd7675dcb03b8414c6937f6671550fdc22225966057cd541d5eb02",
+  "test_apk": {
+    "path": "/workspace/agent-work/077/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+    "bytes": 2239070,
+    "sha256": "22bd5f6a68b06ca1e79d82d5c611b3d87821f4f9bf6ed537c71d42b31a6a82a2"
+  },
+  "installed_app_hash_verified": true,
+  "test_apk_install": "PASS",
+  "actual_accessibility_tests": "FAIL",
+  "physical_hardware": false,
+  "talkback_manual": "NOT_RUN",
+  "earlier_attempt": "../attempt-20261020T090718Z/RECEIPT.md",
+  "installed_base_apk": "/data/app/com.realityforge.scanner-2reV1DeVi-A9B9OMfKcPRQ==/base.apk",
+  "observed_installed_app_sha256": "5830c15c4fcd7675dcb03b8414c6937f6671550fdc22225966057cd541d5eb02",
+  "instrumentation_exit_code": 0,
+  "completed_utc": "2026-10-20T09:22:56.492355+00:00",
+  "device_lock": "Held exclusively through this attempt; released on script exit.",
+  "tests_run": 3,
+  "tests_passed": 0,
+  "tests_failed": 3,
+  "failed_methods": [
+    "primaryActionRemainsReachableAtTwoHundredPercentText",
+    "visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics",
+    "realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject"
+  ],
+  "failure_stage": "Initial visible library-control await; main touch-target, create-field and recreation assertions were not reached.",
+  "diagnosis": "Unresolved. Guest system logs contain a pre-existing System UI ANR window and launch/window timeouts. The tests did not capture the active accessibility-window package/tree before ActivityScenario teardown. Expected control text exists in source; no new app crash is in the captured crash buffer.",
+  "screenshot": "screen.png (captured after instrumentation teardown; blank activity, not a failure-time app screenshot)",
+  "source_edits": false
+}

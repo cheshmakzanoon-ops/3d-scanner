@@ -1,0 +1,112 @@
+........................................................................ [ 37%]
+........................................................................ [ 74%]
+...F....F..FF......FF.......................F.....                       [100%]
+=================================== FAILURES ===================================
+______________________ test_sparse_output_disclosed_in_ui ______________________
+
+    def test_sparse_output_disclosed_in_ui():
+        source=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt").read_text()
+>       assert "not a finished mesh" in source
+E       AssertionError: assert 'not a finished mesh' in 'package com.realityforge.scanner.ui\n\nimport android.app.Activity\nimport android.content.Intent\nimport androidx.ac...R.string.a071_export\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\n}\n'
+
+tests/test_project_contracts.py:41: AssertionError
+___ test_capture_package_requires_explicit_destination_and_preserves_hashes ____
+
+    def test_capture_package_requires_explicit_destination_and_preserves_hashes():
+        repository=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
+        view_model=(ROOT/"app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt").read_text()
+        screen=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt").read_text()
+        assert "suspend fun exportCaptureBundle(projectId: String, destination: OutputStream)" in repository
+        assert 'MessageDigest.getInstance("SHA-256")' in repository
+        assert 'ZipEntry("session.json")' in repository
+>       assert "ActivityResultContracts.CreateDocument(\"application/zip\")" in screen
+E       assert 'ActivityResultContracts.CreateDocument("application/zip")' in 'package com.realityforge.scanner.ui\n\nimport android.app.Activity\nimport android.content.Intent\nimport androidx.ac...R.string.a071_export\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\n}\n'
+
+tests/test_project_contracts.py:87: AssertionError
+__________ test_m09_camera_projected_uvs_are_embedded_and_exportable ___________
+
+    def test_m09_camera_projected_uvs_are_embedded_and_exportable():
+        native=(ROOT/"reconstruction/src/texture.cpp").read_text()
+        adapter=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
+        repo=(ROOT/"app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt").read_text()
+        app=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt").read_text()
+        assert "TEXCOORD_0" in native and "image/png" in native
+        assert "depthAgreement(" in native and "visiblePixel(" in native
+        assert "NativeCore.reconstructTexturedSurface" in adapter
+        assert "textureError" in adapter and "textured.glb" in adapter and "texture.png" in adapter
+        assert "textured.glb" in repo and "texture.png" in repo
+>       assert "exportTexturedGlb" in app and "exportTexturePng" in app
+E       AssertionError: assert ('exportTexturedGlb' in 'package com.realityforge.scanner.ui\n\nimport android.app.Activity\nimport android.content.Intent\nimport androidx.ac...R.string.a071_export\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\n}\n')
+
+tests/test_project_contracts.py:125: AssertionError
+_____ test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl ______
+
+    def test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl():
+        parser=(ROOT/"app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt").read_text()
+        renderer=(ROOT/"app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt").read_text()
+        screen=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt").read_text()
+        assert "MAX_FILE_BYTES" in parser and "MAX_IMAGE_PIXELS" in parser
+        assert "CRC32" in parser and "External model data is not permitted" in parser
+        assert "glDrawElements" in renderer and "glTF v=0" in renderer
+        assert "RENDERMODE_WHEN_DIRTY" in screen
+>       assert "Lifecycle.Event.ON_PAUSE" in screen and "surface.dispose()" in screen
+E       AssertionError: assert ('Lifecycle.Event.ON_PAUSE' in 'package com.realityforge.scanner.ui\n\nimport android.app.ActivityManager\nimport android.content.Context\nimport and...    }\n        return true\n    }\n    override fun performClick(): Boolean { super.performClick(); return true }\n}\n' and 'surface.dispose()' in 'package com.realityforge.scanner.ui\n\nimport android.app.ActivityManager\nimport android.content.Context\nimport and...    }\n        return true\n    }\n    override fun performClick(): Boolean { super.performClick(); return true }\n}\n')
+
+tests/test_project_contracts.py:136: AssertionError
+______ test_m18_depth_resume_is_input_identified_atomic_and_native_scoped ______
+
+    def test_m18_depth_resume_is_input_identified_atomic_and_native_scoped():
+        native=(ROOT/"reconstruction/src/depth_checkpoint.cpp").read_text()
+        pipeline=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt").read_text()
+        identity=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt").read_text()
+        core=(ROOT/"reconstruction/src/dense.cpp").read_text()
+        assert 'SHA-256' in identity and 'digest.update(rgba)' in identity
+>       assert 'digest.update("realityforge-m18-native-reference-depth-v1' in identity
+E       assert 'digest.update("realityforge-m18-native-reference-depth-v1' in 'package com.realityforge.scanner.engine\n\nimport java.io.File\nimport java.nio.charset.StandardCharsets\nimport java... operation lease.\n        stale.drop(1).forEach { old -> old.deleteRecursively() }\n        return chosen\n    }\n}\n'
+
+tests/test_project_contracts.py:221: AssertionError
+______________ test_m19_persisted_scan_evidence_and_local_export _______________
+
+    def test_m19_persisted_scan_evidence_and_local_export():
+        root=ROOT/"app/src/main/java/com/realityforge/scanner"
+        engine=(root/"engine/ScanQualityEvidence.kt").read_text()
+        report=(root/"engine/ScanQualityReport.kt").read_text()
+        pipeline=(root/"engine/SparsePipeline.kt").read_text()
+        ui=(root/"ui/ScannerApp.kt").read_text()
+        model=(root/"ScannerViewModel.kt").read_text()
+        assert "RECIPROCAL" in engine.upper() and "PHOTOS_NOT_REGISTERED" in engine
+        assert "NOT 360-degree completeness" in report
+        assert 'output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))' in pipeline
+>       assert 'model.export(it, "json")' in ui
+E       assert 'model.export(it, "json")' in 'package com.realityforge.scanner.ui\n\nimport android.app.Activity\nimport android.content.Intent\nimport androidx.ac...R.string.a071_export\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\n}\n'
+
+tests/test_project_contracts.py:242: AssertionError
+_______ test_android_mesh_is_shown_and_exportable_without_network_calls ________
+
+    def test_android_mesh_is_shown_and_exportable_without_network_calls():
+        root=ROOT/'app/src/main/java/com/realityforge/scanner'
+        core=(root/'engine/NativeCore.kt').read_text()
+        jni=(ROOT/'reconstruction/src/jni.cpp').read_text()
+        pipeline=(root/'engine/SparsePipeline.kt').read_text()
+        adapter=(root/'engine/DensePreview.kt').read_text()
+        screen=(root/'ui/ScannerApp.kt').read_text()
+        repo=(root/'data/ProjectRepository.kt').read_text()
+        viewer=(root/'ui/SurfaceMeshViewer.kt').read_text()
+        assert 'external fun reconstructSurface(' in core
+        assert 'NativeCore_reconstructSurface(' in jni
+        assert 'NativeCore.reconstructSurfaceCheckpointed(' in adapter
+        assert 'output.put("meshPreview",' in pipeline
+>       assert 'SurfaceMeshViewer(mesh,' in screen
+E       AssertionError: assert 'SurfaceMeshViewer(mesh,' in 'package com.realityforge.scanner.ui\n\nimport android.app.Activity\nimport android.content.Intent\nimport androidx.ac...R.string.a071_export\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\n}\n'
+
+tests/test_surface.py:95: AssertionError
+- generated xml file: /workspace/campaign-061-080/final-validation/e290ff563293/full-pytest.xml -
+=========================== short test summary info ============================
+FAILED tests/test_project_contracts.py::test_sparse_output_disclosed_in_ui - ...
+FAILED tests/test_project_contracts.py::test_capture_package_requires_explicit_destination_and_preserves_hashes
+FAILED tests/test_project_contracts.py::test_m09_camera_projected_uvs_are_embedded_and_exportable
+FAILED tests/test_project_contracts.py::test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl
+FAILED tests/test_project_contracts.py::test_m18_depth_resume_is_input_identified_atomic_and_native_scoped
+FAILED tests/test_project_contracts.py::test_m19_persisted_scan_evidence_and_local_export
+FAILED tests/test_surface.py::test_android_mesh_is_shown_and_exportable_without_network_calls
+7 failed, 187 passed in 80.81s (0:01:20)

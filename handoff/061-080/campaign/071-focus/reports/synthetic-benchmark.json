@@ -1,0 +1,11 @@
+{
+  "fixture": "Procedurally rendered textured relief (synthetic, not a physical-object scan)",
+  "matched_features": 589,
+  "accepted_points": 579,
+  "rotation_error_degrees": 0.045881992624927544,
+  "median_reprojection_error_pixels": 0.10854451553872001,
+  "median_depth_residual_synthetic_units": 0.009485892133214602,
+  "p90_depth_residual_synthetic_units": 0.019457412979587127,
+  "phone_performance_measured": false,
+  "real_object_quality_validated": false
+}

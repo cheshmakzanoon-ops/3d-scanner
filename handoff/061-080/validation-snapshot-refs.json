@@ -1,0 +1,22 @@
+[
+  {
+    "ref": "refs/archive/061-080/e290ff563293",
+    "sha": "e290ff56329322b4365298b97bba7df8b16d2470",
+    "original_worktree": "/workspace/campaign-061-080/combined"
+  },
+  {
+    "ref": "refs/archive/061-080/3b9f9157753b",
+    "sha": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+    "original_worktree": "/workspace/campaign-061-080/final-validation/3b9f9157753b/source"
+  },
+  {
+    "ref": "refs/archive/061-080/a18aa6eb6d8f",
+    "sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "original_worktree": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-fix/source"
+  },
+  {
+    "ref": "refs/archive/061-080/c5d6ad0180e9",
+    "sha": "c5d6ad0180e9afec6833996cd9c3bb1e0e62a717",
+    "original_worktree": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source"
+  }
+]

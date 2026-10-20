@@ -1,0 +1,17 @@
+{
+  "agent": "066",
+  "branch": "agents/066-model-editing",
+  "previous_head": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+  "head": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a",
+  "remote_head": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/066.md"
+  ],
+  "manifest_verifier": {
+    "files": 209,
+    "source": "index",
+    "status": "PASS"
+  }
+}

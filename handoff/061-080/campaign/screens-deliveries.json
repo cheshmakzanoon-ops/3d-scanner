@@ -1,0 +1,37 @@
+{
+  "072": {
+    "branch": "agents/072-project-library-ui",
+    "head": "15784131be98a0bff6a638641fad92fcd0f04887",
+    "source": "e017cecb9b63829ec73e6ec98dac597ad67d123a",
+    "status": "WORKING",
+    "remote_verified": true
+  },
+  "073": {
+    "branch": "agents/073-photo-review-project-ui",
+    "head": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+    "source": "561181693abb1b41fb58f7b0a4cfbb39ed486404",
+    "status": "WORKING",
+    "remote_verified": true
+  },
+  "074": {
+    "branch": "agents/074-processing-recovery-ui",
+    "head": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+    "source": "4aa72e0f895b6a568ee66d724bc21e91b8e33a76",
+    "status": "WORKING",
+    "remote_verified": true
+  },
+  "075": {
+    "branch": "agents/075-capture-onboarding-instructions",
+    "head": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+    "source": "e7766d8998881468c8a7750b634e5af5cb626411",
+    "status": "WORKING",
+    "remote_verified": true
+  },
+  "079": {
+    "branch": "agents/079-preferences-about-privacy-ui",
+    "head": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+    "source": "e2b205013bc4f459b1cde19935eaad49b58afc90",
+    "status": "WORKING",
+    "remote_verified": true
+  }
+}

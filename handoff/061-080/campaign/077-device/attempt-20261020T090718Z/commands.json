@@ -1,0 +1,566 @@
+[
+  {
+    "label": "app-badging",
+    "command": [
+      "/workspace/toolchains/android-sdk/build-tools/36.0.0/aapt2",
+      "dump",
+      "badging",
+      "/workspace/agent-work/077/app/build/outputs/apk/debug/app-debug.apk"
+    ],
+    "start_utc": "2026-10-20T09:07:18.560827+00:00",
+    "duration_seconds": 0.047,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "app-badging.log"
+  },
+  {
+    "label": "test-manifest",
+    "command": [
+      "/workspace/toolchains/android-sdk/build-tools/36.0.0/aapt2",
+      "dump",
+      "xmltree",
+      "--file",
+      "AndroidManifest.xml",
+      "/workspace/agent-work/077/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+    ],
+    "start_utc": "2026-10-20T09:07:18.608363+00:00",
+    "duration_seconds": 0.004,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "test-manifest.log"
+  },
+  {
+    "label": "devices",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "devices",
+      "-l"
+    ],
+    "start_utc": "2026-10-20T09:07:18.612295+00:00",
+    "duration_seconds": 0.083,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "devices.log"
+  },
+  {
+    "label": "prop-ro.build.version.sdk",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "ro.build.version.sdk"
+    ],
+    "start_utc": "2026-10-20T09:07:18.695402+00:00",
+    "duration_seconds": 2.988,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-ro.build.version.sdk.log"
+  },
+  {
+    "label": "prop-ro.product.cpu.abi",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "ro.product.cpu.abi"
+    ],
+    "start_utc": "2026-10-20T09:07:21.684475+00:00",
+    "duration_seconds": 1.483,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-ro.product.cpu.abi.log"
+  },
+  {
+    "label": "prop-ro.build.fingerprint",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "ro.build.fingerprint"
+    ],
+    "start_utc": "2026-10-20T09:07:23.168047+00:00",
+    "duration_seconds": 2.937,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-ro.build.fingerprint.log"
+  },
+  {
+    "label": "prop-ro.kernel.qemu",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "ro.kernel.qemu"
+    ],
+    "start_utc": "2026-10-20T09:07:26.105202+00:00",
+    "duration_seconds": 1.088,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-ro.kernel.qemu.log"
+  },
+  {
+    "label": "prop-sys.boot_completed",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "sys.boot_completed"
+    ],
+    "start_utc": "2026-10-20T09:07:27.194074+00:00",
+    "duration_seconds": 0.595,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-sys.boot_completed.log"
+  },
+  {
+    "label": "prop-init.svc.bootanim",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "init.svc.bootanim"
+    ],
+    "start_utc": "2026-10-20T09:07:27.789528+00:00",
+    "duration_seconds": 0.505,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-init.svc.bootanim.log"
+  },
+  {
+    "label": "uptime",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "cat",
+      "/proc/uptime"
+    ],
+    "start_utc": "2026-10-20T09:07:28.295560+00:00",
+    "duration_seconds": 0.655,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "uptime.log"
+  },
+  {
+    "label": "crash-before",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "crash",
+      "-d",
+      "-t",
+      "200"
+    ],
+    "start_utc": "2026-10-20T09:07:28.950824+00:00",
+    "duration_seconds": 6.894,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "crash-before.log"
+  },
+  {
+    "label": "health-0-pid",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:07:35.845362+00:00",
+    "duration_seconds": 12.003,
+    "exit_code": null,
+    "timed_out": true,
+    "log": "health-0-pid.log"
+  },
+  {
+    "label": "health-0-package",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "service",
+      "check",
+      "package"
+    ],
+    "start_utc": "2026-10-20T09:07:47.849287+00:00",
+    "duration_seconds": 10.431,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-0-package.log"
+  },
+  {
+    "label": "health-0-activity",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "service",
+      "check",
+      "activity"
+    ],
+    "start_utc": "2026-10-20T09:07:58.280360+00:00",
+    "duration_seconds": 8.163,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-0-activity.log"
+  },
+  {
+    "label": "health-0-boot",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "sys.boot_completed"
+    ],
+    "start_utc": "2026-10-20T09:08:06.444156+00:00",
+    "duration_seconds": 9.275,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-0-boot.log"
+  },
+  {
+    "label": "health-1-pid",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:08:25.721156+00:00",
+    "duration_seconds": 12.019,
+    "exit_code": null,
+    "timed_out": true,
+    "log": "health-1-pid.log"
+  },
+  {
+    "label": "health-1-package",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "service",
+      "check",
+      "package"
+    ],
+    "start_utc": "2026-10-20T09:08:37.741780+00:00",
+    "duration_seconds": 12.018,
+    "exit_code": null,
+    "timed_out": true,
+    "log": "health-1-package.log"
+  },
+  {
+    "label": "health-1-activity",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "service",
+      "check",
+      "activity"
+    ],
+    "start_utc": "2026-10-20T09:08:49.760940+00:00",
+    "duration_seconds": 9.596,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-1-activity.log"
+  },
+  {
+    "label": "health-1-boot",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "sys.boot_completed"
+    ],
+    "start_utc": "2026-10-20T09:08:59.357216+00:00",
+    "duration_seconds": 8.686,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-1-boot.log"
+  },
+  {
+    "label": "health-2-pid",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:09:18.043652+00:00",
+    "duration_seconds": 10.507,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-2-pid.log"
+  },
+  {
+    "label": "health-2-package",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "service",
+      "check",
+      "package"
+    ],
+    "start_utc": "2026-10-20T09:09:28.551617+00:00",
+    "duration_seconds": 2.276,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-2-package.log"
+  },
+  {
+    "label": "health-2-activity",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "service",
+      "check",
+      "activity"
+    ],
+    "start_utc": "2026-10-20T09:09:30.827775+00:00",
+    "duration_seconds": 1.122,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-2-activity.log"
+  },
+  {
+    "label": "health-2-boot",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "sys.boot_completed"
+    ],
+    "start_utc": "2026-10-20T09:09:31.950563+00:00",
+    "duration_seconds": 3.983,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "health-2-boot.log"
+  },
+  {
+    "label": "final-boot",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "sys.boot_completed"
+    ],
+    "start_utc": "2026-10-20T09:09:35.934400+00:00",
+    "duration_seconds": 3.475,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "final-boot.log"
+  },
+  {
+    "label": "final-pid",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:09:39.410210+00:00",
+    "duration_seconds": 4.93,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "final-pid.log"
+  },
+  {
+    "label": "crash-after",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "crash",
+      "-d",
+      "-t",
+      "250"
+    ],
+    "start_utc": "2026-10-20T09:09:44.340819+00:00",
+    "duration_seconds": 8.973,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "crash-after.log"
+  },
+  {
+    "label": "system-after",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "system",
+      "-d",
+      "-t",
+      "500"
+    ],
+    "start_utc": "2026-10-20T09:09:53.314997+00:00",
+    "duration_seconds": 11.639,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "system-after.log"
+  },
+  {
+    "label": "install-readiness-pid",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:10:35.041560+00:00",
+    "duration_seconds": 3.791,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "install-readiness-pid.log"
+  },
+  {
+    "label": "install-0",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "install",
+      "--no-streaming",
+      "-r",
+      "-t",
+      "/workspace/agent-work/077/app/build/outputs/apk/debug/app-debug.apk"
+    ],
+    "start_utc": "2026-10-20T09:10:38.833327+00:00",
+    "duration_seconds": 180.109,
+    "exit_code": null,
+    "timed_out": true,
+    "log": "install-0.log"
+  },
+  {
+    "label": "install-final-boot",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "sys.boot_completed"
+    ],
+    "start_utc": "2026-10-20T09:13:38.943617+00:00",
+    "duration_seconds": 11.89,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "install-final-boot.log"
+  },
+  {
+    "label": "install-final-pid",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:13:50.834650+00:00",
+    "duration_seconds": 20.003,
+    "exit_code": null,
+    "timed_out": true,
+    "log": "install-final-pid.log"
+  },
+  {
+    "label": "install-timeout-cleanup",
+    "command": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "exec",
+      "rf-adb-server",
+      "/bin/sh",
+      "-c",
+      "kill -TERM 541"
+    ],
+    "start_utc": "2026-10-20T09:14:06.799386+00:00",
+    "duration_seconds": 0.283,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "install-timeout-cleanup.log",
+    "identity_check": "Host PID123590 exact ADBargv matched; namespace PID541"
+  },
+  {
+    "label": "install-crash-after",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "crash",
+      "-d",
+      "-t",
+      "250"
+    ],
+    "start_utc": "2026-10-20T09:14:10.838677+00:00",
+    "duration_seconds": 19.152,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "install-crash-after.log"
+  },
+  {
+    "label": "install-system-after",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "system",
+      "-d",
+      "-t",
+      "500"
+    ],
+    "start_utc": "2026-10-20T09:14:29.991777+00:00",
+    "duration_seconds": 12.26,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "install-system-after.log"
+  }
+]

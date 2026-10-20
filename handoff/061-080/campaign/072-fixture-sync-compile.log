@@ -1,0 +1,2 @@
+Kotlin2.1.21/Compose compiler2.1.21/JDK17; source SHA256 {"LibraryState.kt": "a79153914002d66179750b615b79c8aed67fe51c4edf8e1efc3380ac6ba37b81", "LibraryScreen.kt": "aa603dabdb95eaa90670659b784fb03b582c3de4ab6360e771e21e81e175b541", "ScreenInteractionTest.kt": "82dab69062be9d3bcc018b316bc8c37a729662861c32832349fe1ff17b1ff295"}
+PASS: focused LibraryScreen + real accessibility-node instrumentation compilation

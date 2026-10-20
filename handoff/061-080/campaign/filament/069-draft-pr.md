@@ -1,0 +1,5 @@
+The existing GLES viewer now has an explicit render/lifecycle contract and a typed Filament 1.56.0 backend for validated, embedded photographic GLB assets. The backend preserves original assets, supports unlit photography and labelled neutral geometry, bounds admission before native upload, restores saved pose across Surface creation and contains resize failures so the UI can fall back to GLES.
+
+Both renderers share the same numeric camera convention. Regression coverage checks independent asymmetric camera fixtures, model/viewport budgets and actual Filament pose restoration, pause/resume and oversized-resize disposal. The final Android build uses immutable supplier commits and external dependency registration pending owner004; exact results are recorded in docs/agents/status/069.md.
+
+GLES remains the default until owner004 dependency registration, owner095 provenance review and real-device pixel/resource/frame-pacing qualification. Physical hardware and profiling gates remain open. No main merge is included.

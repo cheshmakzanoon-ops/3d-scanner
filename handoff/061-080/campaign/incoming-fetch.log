@@ -1,0 +1,56 @@
+From https://github.com/cheshmakzanoon-ops/3d-scanner
+   149fdaf..197dc04  agents/003-jni-boundary -> origin/agents/003-jni-boundary
+   0f81876..d18b6f9  agents/004-build-foundation -> origin/agents/004-build-foundation
+   622aa2b..4407355  agents/035-verified-feature-matching -> origin/agents/035-verified-feature-matching
+   5c45fd0..0675116  agents/036-stable-feature-tracks -> origin/agents/036-stable-feature-tracks
+   2f2148d..06775ec  agents/037-two-view-initializer -> origin/agents/037-two-view-initializer
+   ea8fd85..56c699c  agents/038-robust-camera-resection -> origin/agents/038-robust-camera-resection
+   825f248..e92f9fe  agents/039-incremental-registration -> origin/agents/039-incremental-registration
+   ceeca89..f20c7d2  agents/040-multiview-triangulation -> origin/agents/040-multiview-triangulation
+   f893213..6d9f8be  agents/041-bundle-adjustment -> origin/agents/041-bundle-adjustment
+   87d5cb6..c3b1ee4  agents/042-intrinsic-refinement -> origin/agents/042-intrinsic-refinement
+   8142ac0..4370146  agents/043-loop-closure-drift -> origin/agents/043-loop-closure-drift
+   844c388..1da65a6  agents/044-dense-view-selection -> origin/agents/044-dense-view-selection
+   3fa0bba..1b75ae6  agents/045-image-pyramids-rectification -> origin/agents/045-image-pyramids-rectification
+   c663ebe..a3da8e0  agents/046-tiled-cpu-depth-core -> origin/agents/046-tiled-cpu-depth-core
+   4cc3b2d..05a348b  agents/049-depth-confidence-occlusion -> origin/agents/049-depth-confidence-occlusion
+   71342b9..4d7a2a7  agents/050-depth-checkpoint-durability -> origin/agents/050-depth-checkpoint-durability
+   8711d25..a960183  agents/052-vulkan-depth-backend -> origin/agents/052-vulkan-depth-backend
+   d60e067..b780ab9  agents/053-surface-fusion-meshing -> origin/agents/053-surface-fusion-meshing
+   d7f55e6..658f806  agents/054-normals-geometric-uncertainty -> origin/agents/054-normals-geometric-uncertainty
+   4770570..2c659b7  agents/055-mesh-topology-diagnostics -> origin/agents/055-mesh-topology-diagnostics
+   f4261f1..6cb3c5b  agents/057-photographic-atlas-pipeline -> origin/agents/057-photographic-atlas-pipeline
+   5069a3a..e7f3ee3  agents/058-uv-charts-packing -> origin/agents/058-uv-charts-packing
+   991f659..01bb975  agents/059-texture-seam-blending -> origin/agents/059-texture-seam-blending
+   f9c2683..2dd1546  agents/060-photometric-color-consistency -> origin/agents/060-photometric-color-consistency
+   04f5357..0cd6605  agents/061-glb-asset-contract -> origin/agents/061-glb-asset-contract
+   f733056..31f1efb  agents/062-obj-export   -> origin/agents/062-obj-export
+   63699d4..a443e42  agents/063-stl-export   -> origin/agents/063-stl-export
+   1baaaa2..9b02e96  agents/064-ply-export   -> origin/agents/064-ply-export
+   983bf9e..500982d  agents/065-mesh-lod     -> origin/agents/065-mesh-lod
+   b54b763..7ef3232  agents/066-model-editing -> origin/agents/066-model-editing
+   48d331e..3eaacd8  agents/067-export-coordinator -> origin/agents/067-export-coordinator
+   456519e..c23b7d2  agents/068-model-loader -> origin/agents/068-model-loader
+   6194b41..38849d8  agents/069-studio-renderer -> origin/agents/069-studio-renderer
+   3ba9771..76a9541  agents/070-studio-controls -> origin/agents/070-studio-controls
+   6a98d4d..ca893af  agents/071-app-navigation-composition -> origin/agents/071-app-navigation-composition
+ * [new branch]      agents/077-accessibility-verification -> origin/agents/077-accessibility-verification
+   1e9368b..7ea751c  agents/078-localization-resources -> origin/agents/078-localization-resources
+ * [new branch]      agents/080-actual-ui-end-to-end -> origin/agents/080-actual-ui-end-to-end
+   588ab3e..39e90e5  agents/081-host-numerical-sanitizers -> origin/agents/081-host-numerical-sanitizers
+ * [new branch]      agents/082-native-jni-parser-fuzzing -> origin/agents/082-native-jni-parser-fuzzing
+ * [new branch]      agents/085-photographic-texture-quality -> origin/agents/085-photographic-texture-quality
+ * [new branch]      agents/086-physical-arm64-capture-validation -> origin/agents/086-physical-arm64-capture-validation
+ * [new branch]      agents/087-physical-resource-profiling -> origin/agents/087-physical-resource-profiling
+ * [new branch]      agents/088-failure-recovery-instrumentation -> origin/agents/088-failure-recovery-instrumentation
+ * [new branch]      agents/089-runtime-offline-privacy -> origin/agents/089-runtime-offline-privacy
+   401cf77..50d224e  agents/090-export-interoperability-validation -> origin/agents/090-export-interoperability-validation
+ * [new branch]      agents/091-release-package-validation -> origin/agents/091-release-package-validation
+   b7d04f8..9ff09f3  agents/092-android-compatibility-matrix -> origin/agents/092-android-compatibility-matrix
+   01f48dd..bd87f4f  agents/093-parallel-branch-ci-validation -> origin/agents/093-parallel-branch-ci-validation
+   b00f662..eee2243  agents/094-source-provenance-reproducibility -> origin/agents/094-source-provenance-reproducibility
+ * [new branch]      agents/095-dependency-notices-sbom -> origin/agents/095-dependency-notices-sbom
+   2f76d31..6e4cbee  agents/096-security-hostile-input-assurance -> origin/agents/096-security-hostile-input-assurance
+ * [new branch]      agents/097-startup-viewer-macrobenchmarks -> origin/agents/097-startup-viewer-macrobenchmarks
+ * [new branch]      agents/098-current-documentation-runbook -> origin/agents/098-current-documentation-runbook
+   3dd348b..2f969b2  agents/100-integration-lead -> origin/agents/100-integration-lead

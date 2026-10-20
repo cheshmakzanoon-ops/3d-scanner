@@ -1,0 +1,2 @@
+PID                 COMMAND             COMMAND
+16911               adb                 /workspace/toolchains/android-sdk/platform-tools/adb -L tcp:5037 nodaemon server

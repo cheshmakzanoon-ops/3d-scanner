@@ -1,0 +1,895 @@
+--------- beginning of system
+10-20 08:44:50.399  1559  1559 I vold    : Vold 3.0 (the awakening) firing up
+10-20 08:44:50.484  1559  1559 D vold    : Detected support for: ext4 f2fs vfat
+10-20 08:44:50.706  1559  1559 D vold    : Found unmanaged dm device named vendor
+10-20 08:44:50.728  1559  1559 D vold    : Found unmanaged dm device named system
+10-20 08:44:50.728  1559  1559 D vold    : Found unmanaged dm device named system-verity
+10-20 08:44:50.732  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop3: No such device or address
+10-20 08:44:50.733  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop5: No such device or address
+10-20 08:44:50.733  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop7: No such device or address
+10-20 08:44:50.733  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop0: No such device or address
+10-20 08:44:50.733  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop2: No such device or address
+10-20 08:44:50.734  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop4: No such device or address
+10-20 08:44:50.734  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop6: No such device or address
+10-20 08:44:50.734  1559  1559 W vold    : Failed to LOOP_GET_STATUS64 /dev/block/loop1: No such device or address
+10-20 08:44:50.815  1559  1559 I vold    : Skip mounting partition: /product
+10-20 08:44:50.834  1559  1559 I vold    : Skip mounting partition: /product_services
+10-20 08:44:50.917  1559  1559 D vold    : VoldNativeService::start() completed OK
+10-20 08:44:58.132  1559  1559 I vold    : fscrypt_initialize_global_de
+10-20 08:44:58.175  1559  1559 I vold    : Creating new key in /data/unencrypted/key
+10-20 08:44:58.810  1559  1559 I vold    : List of Keymaster HALs found:
+10-20 08:44:58.826  1559  1559 I vold    : Keymaster HAL #1: SoftwareKeymasterDevice from Google SecurityLevel: SOFTWARE HAL: android.hardware.keymaster@3.0::IKeymasterDevice/default
+10-20 08:44:58.832  1559  1559 I vold    : Using SoftwareKeymasterDevice from Google for encryption.  Security level: SOFTWARE, HAL: android.hardware.keymaster@3.0::IKeymasterDevice/default
+10-20 08:44:58.843  1559  1559 D vold    : Creating key that doesn't need auth token
+10-20 08:44:59.224  1559  1559 D vold    : Created key: /data/unencrypted/key
+10-20 08:44:59.239  1559  1559 D vold    : Added key 608767668 (ext4:8120aad557b174cd) to keyring 900081900 in process 1559
+10-20 08:44:59.239  1559  1559 D vold    : Added key 790124466 (f2fs:8120aad557b174cd) to keyring 900081900 in process 1559
+10-20 08:44:59.239  1559  1559 D vold    : Added key 418989487 (fscrypt:8120aad557b174cd) to keyring 900081900 in process 1559
+10-20 08:44:59.338  1559  1559 I vold    : Wrote system DE key reference to:/data/unencrypted/ref
+10-20 08:45:06.580  1559  1559 D vold    : fscrypt_init_user0
+10-20 08:45:06.586  1559  1559 D vold    : Preparing: /data/misc/vold/user_keys
+10-20 08:45:06.593  1559  1559 D vold    : Preparing: /data/misc/vold/user_keys/ce
+10-20 08:45:06.598  1559  1559 D vold    : Preparing: /data/misc/vold/user_keys/de
+10-20 08:45:06.600  1559  1559 D vold    : Preparing: /data/misc/vold/user_keys/ce/0
+10-20 08:45:06.610  1559  1559 D vold    : Skipping non-key .
+10-20 08:45:06.611  1559  1559 D vold    : Skipping non-key ..
+10-20 08:45:06.771  1559  1559 I vold    : List of Keymaster HALs found:
+10-20 08:45:06.777  1559  1559 I vold    : Keymaster HAL #1: SoftwareKeymasterDevice from Google SecurityLevel: SOFTWARE HAL: android.hardware.keymaster@3.0::IKeymasterDevice/default
+10-20 08:45:06.783  1559  1559 I vold    : Using SoftwareKeymasterDevice from Google for encryption.  Security level: SOFTWARE, HAL: android.hardware.keymaster@3.0::IKeymasterDevice/default
+10-20 08:45:06.783  1559  1559 D vold    : Creating key that doesn't need auth token
+10-20 08:45:06.823  1559  1559 D vold    : Created key: /data/misc/vold/user_keys/ce/0/current
+10-20 08:45:06.986  1559  1559 I vold    : List of Keymaster HALs found:
+10-20 08:45:06.987  1559  1559 I vold    : Keymaster HAL #1: SoftwareKeymasterDevice from Google SecurityLevel: SOFTWARE HAL: android.hardware.keymaster@3.0::IKeymasterDevice/default
+10-20 08:45:06.991  1559  1559 I vold    : Using SoftwareKeymasterDevice from Google for encryption.  Security level: SOFTWARE, HAL: android.hardware.keymaster@3.0::IKeymasterDevice/default
+10-20 08:45:06.992  1559  1559 D vold    : Creating key that doesn't need auth token
+10-20 08:45:07.032  1559  1559 D vold    : Created key: /data/misc/vold/user_keys/de/0
+10-20 08:45:07.033  1559  1559 D vold    : Added key 40773338 (ext4:5eeb3144bf1bfc6a) to keyring 900081900 in process 1559
+10-20 08:45:07.033  1559  1559 D vold    : Added key 872768610 (f2fs:5eeb3144bf1bfc6a) to keyring 900081900 in process 1559
+10-20 08:45:07.033  1559  1559 D vold    : Added key 888879608 (fscrypt:5eeb3144bf1bfc6a) to keyring 900081900 in process 1559
+10-20 08:45:07.033  1559  1559 D vold    : Added key 488134320 (ext4:f3ce27747c145499) to keyring 900081900 in process 1559
+10-20 08:45:07.034  1559  1559 D vold    : Added key 144923372 (f2fs:f3ce27747c145499) to keyring 900081900 in process 1559
+10-20 08:45:07.034  1559  1559 D vold    : Added key 987391571 (fscrypt:f3ce27747c145499) to keyring 900081900 in process 1559
+10-20 08:45:07.035  1559  1559 D vold    : Created keys for user 0
+10-20 08:45:07.035  1559  1559 D vold    : Skipping non-de-key .
+10-20 08:45:07.035  1559  1559 D vold    : Skipping non-de-key ..
+10-20 08:45:07.036  1559  1559 D vold    : fscrypt_prepare_user_storage for volume null, user 0, serial 0, flags 1
+10-20 08:45:07.042  1559  1559 D vold    : Preparing: /data/system/users/0
+10-20 08:45:07.044  1559  1559 D vold    : Preparing: /data/misc/profiles/cur/0
+10-20 08:45:07.070  1559  1559 D vold    : Preparing: /data/system_de/0
+10-20 08:45:07.073  1559  1559 D vold    : Preparing: /data/misc_de/0
+10-20 08:45:07.078  1559  1559 D vold    : Preparing: /data/vendor_de/0
+10-20 08:45:07.079  1559  1559 D vold    : Preparing: /data/user_de/0
+10-20 08:45:07.087  1559  1559 I vold    : Policy for /data/system_de/0 set to 5eeb3144bf1bfc6a modes 1/4
+10-20 08:45:07.088  1559  1559 I vold    : Policy for /data/misc_de/0 set to 5eeb3144bf1bfc6a modes 1/4
+10-20 08:45:07.088  1559  1559 I vold    : Policy for /data/vendor_de/0 set to 5eeb3144bf1bfc6a modes 1/4
+10-20 08:45:07.098  1559  1559 I vold    : Policy for /data/user_de/0 set to 5eeb3144bf1bfc6a modes 1/4
+10-20 08:45:07.098  1559  1559 D vold    : /system/bin/vold_prepare_subdirs
+10-20 08:45:07.098  1559  1559 D vold    :     prepare
+10-20 08:45:07.098  1559  1559 D vold    :     
+10-20 08:45:07.098  1559  1559 D vold    :     0
+10-20 08:45:07.098  1559  1559 D vold    :     1
+10-20 08:46:29.674  1744  1744 I installd: installd firing up
+10-20 08:46:30.128  1744  1744 D installd: Assuming that device has multi-user storage layout; upgrade no longer supported
+10-20 08:46:30.180  1744  1744 D installd: Upgrading to /data/misc/user directories
+10-20 08:46:46.239  1756  1756 I wificond: wificond is starting up...
+10-20 08:46:56.410  1707  1707 I android.hardware.wifi@1.0-service: Wifi Hal is booting up...
+10-20 08:46:58.103  1707  1707 I ServiceManagement: Registered android.hardware.wifi@1.3::IWifi/default (start delay of 68175ms)
+10-20 08:47:49.499  1755  1867 E storaged: getService package_native failed
+10-20 08:47:51.401  1755  1867 I storaged: storaged: Start
+10-20 08:47:56.733  1755  1867 E storaged: getService package_native failed
+10-20 08:49:01.104  1676  1676 D Zygote32Timing: PostZygoteInitGC took to complete: 1125ms
+10-20 08:49:01.130  1676  1676 D Zygote32Timing: ZygoteInit took to complete: 1200ms
+10-20 08:49:01.912  1675  1675 D Zygote64Timing: BeginPreload took to complete: 2002ms
+10-20 08:49:28.083  1675  1675 D Zygote64Timing: PreloadClasses took to complete: 26170ms
+10-20 08:49:28.386  1675  1675 D Zygote64Timing: CacheNonBootClasspathClassLoaders took to complete: 304ms
+10-20 08:49:38.210  1675  1675 D Zygote64Timing: PreloadResources took to complete: 9824ms
+10-20 08:49:38.476  1675  1675 D Zygote64Timing: ZygotePreload took to complete: 38566ms
+10-20 08:49:38.744  1675  1675 D Zygote64Timing: PostZygoteInitGC took to complete: 268ms
+10-20 08:49:38.744  1675  1675 D Zygote64Timing: ZygoteInit took to complete: 38840ms
+10-20 08:49:40.137  1922  1922 I chatty  : uid=1000 system_server expire 337 lines
+10-20 08:49:41.700  1922  1945 I chatty  : uid=1000 system_server expire 15 lines
+10-20 08:49:42.843  1922  1952 I chatty  : uid=1000 system_server expire 11 lines
+10-20 08:49:44.299  1922  1941 I chatty  : uid=1000 system_server expire 5 lines
+10-20 08:49:45.414  1922  1962 I chatty  : uid=1000 system_server expire 2 lines
+10-20 08:49:45.430  1922  1963 I chatty  : uid=1000 system_server expire 7 lines
+10-20 08:49:45.491  1922  1961 I chatty  : uid=1000 system_server expire 4 lines
+10-20 08:49:45.579  1922  1964 I chatty  : uid=1000 system_server expire 5 lines
+10-20 08:49:50.009  1922  1968 I chatty  : uid=1000 system_server expire 1 line
+10-20 08:49:50.314  1922  1971 I chatty  : uid=1000 system_server expire 14 lines
+10-20 08:49:50.606  1922  1969 I chatty  : uid=1000 system_server expire 10 lines
+10-20 08:49:50.689  1922  1970 I chatty  : uid=1000 system_server expire 7 lines
+10-20 08:49:50.709  1922  1972 I chatty  : uid=1000 system_server expire 6 lines
+10-20 08:49:56.876  1922  1973 I chatty  : uid=1000 system_server expire 11 lines
+10-20 08:49:56.944  1922  1974 I chatty  : uid=1000 system_server expire 10 lines
+10-20 08:49:57.707  1922  1976 I chatty  : uid=1000 system_server expire 7 lines
+10-20 08:49:57.873  1922  1975 I chatty  : uid=1000 system_server expire 8 lines
+10-20 08:50:01.105  1922  1977 I chatty  : uid=1000 system_server expire 2 lines
+10-20 08:50:01.182  1922  1978 I chatty  : uid=1000 system_server expire 6 lines
+10-20 08:50:01.497  1922  1979 I chatty  : uid=1000 system_server expire 3 lines
+10-20 08:50:02.224  1922  1980 I chatty  : uid=1000 system_server expire 4 lines
+10-20 08:50:06.523  1922  1981 I chatty  : uid=1000 system_server expire 4 lines
+10-20 08:50:06.621  1922  1982 I chatty  : uid=1000 system_server expire 2 lines
+10-20 08:50:06.913  1922  1984 I chatty  : uid=1000 system_server expire 4 lines
+10-20 08:50:07.021  1922  1983 I chatty  : uid=1000 system_server expire 3 lines
+10-20 08:50:10.422  1922  1938 I chatty  : uid=1000 system_server expire 11 lines
+10-20 08:50:22.313  1676  1676 D ZygoteInitTiming_lazy: BeginPreload took to complete: 789ms
+10-20 08:50:22.737  1922  1922 I chatty  : uid=1000 system_server expire 77 lines
+10-20 08:50:24.721  1922  1940 I chatty  : uid=1000 system_server expire 12 lines
+10-20 08:50:25.338  1922  1939 I chatty  : uid=1000 system_server expire 11 lines
+10-20 08:50:26.613  1922  2010 I chatty  : uid=1000 system_server expire 4 lines
+10-20 08:50:26.688  1922  2009 I chatty  : uid=1000 system_server expire 1 line
+10-20 08:50:39.621  1559  2016 I vold    : Skip mounting partition: /product
+10-20 08:50:39.622  1559  2016 I vold    : Skip mounting partition: /product_services
+10-20 08:50:39.623  1559  2016 D vold    : Starting trim of /data
+10-20 08:50:39.625  1559  2016 W vold    : Trim failed on /data: Operation not supported on transport endpoint
+10-20 08:50:39.666  1559  2016 D vold    : Starting trim of none
+10-20 08:50:39.677  1559  2016 W vold    : Failed to open none: No such file or directory
+10-20 08:50:40.375  1922  1922 I chatty  : uid=1000 system_server expire 231 lines
+10-20 08:50:45.275  1676  1676 D ZygoteInitTiming_lazy: PreloadClasses took to complete: 22962ms
+10-20 08:50:45.839  1676  1676 D ZygoteInitTiming_lazy: CacheNonBootClasspathClassLoaders took to complete: 563ms
+10-20 08:50:51.213  1676  1676 D ZygoteInitTiming_lazy: PreloadResources took to complete: 5374ms
+10-20 08:50:51.220  1922  1922 I chatty  : uid=1000 system_server expire 71 lines
+10-20 08:50:53.521  1922  1945 I chatty  : uid=1000 system_server expire 18 lines
+10-20 08:50:56.778  1922  1955 I chatty  : uid=1000 system_server expire 2 lines
+10-20 08:50:56.980  1559  1559 D vold    : Remounting 1001 as mode default
+10-20 08:50:57.015  1559  1559 D vold    : Found matching PID 1760
+10-20 08:50:57.028  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:50:57.039  1559  1572 D vold    : Remounting 1001 as mode default
+10-20 08:50:57.087  1559  1572 D vold    : Found matching PID 1760
+10-20 08:50:57.088  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.102  1559  1572 D vold    : Remounting 1001 as mode default
+10-20 08:50:57.115  1559  1572 D vold    : Found matching PID 1760
+10-20 08:50:57.115  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.139  1559  1559 D vold    : Remounting 1001 as mode default
+10-20 08:50:57.178  1559  1559 D vold    : Found matching PID 1760
+10-20 08:50:57.178  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:50:57.293  1559  1559 D vold    : Remounting 1027 as mode default
+10-20 08:50:57.311  1559  1559 I chatty  : uid=0(root) Binder:1559_2 identical 1 line
+10-20 08:50:57.343  1559  1559 D vold    : Remounting 1027 as mode default
+10-20 08:50:57.412  1559  1572 D vold    : Remounting 1027 as mode default
+10-20 08:50:57.624  1559  1572 D vold    : Remounting 1000 as mode full
+10-20 08:50:57.631  1559  1572 D vold    : Found matching PID 1555
+10-20 08:50:57.632  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.632  1559  1572 D vold    : Found matching PID 1556
+10-20 08:50:57.632  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.632  1559  1572 D vold    : Found matching PID 1557
+10-20 08:50:57.633  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.666  1559  1572 D vold    : Found matching PID 1680
+10-20 08:50:57.667  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.668  1559  1572 D vold    : Found matching PID 1681
+10-20 08:50:57.668  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.669  1559  1572 D vold    : Found matching PID 1688
+10-20 08:50:57.669  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.670  1559  1572 D vold    : Found matching PID 1694
+10-20 08:50:57.670  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.670  1559  1572 D vold    : Found matching PID 1701
+10-20 08:50:57.671  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.671  1559  1572 D vold    : Found matching PID 1702
+10-20 08:50:57.672  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.672  1559  1572 D vold    : Found matching PID 1703
+10-20 08:50:57.672  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.673  1559  1572 D vold    : Found matching PID 1704
+10-20 08:50:57.673  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.673  1559  1572 D vold    : Found matching PID 1705
+10-20 08:50:57.673  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.674  1559  1572 D vold    : Found matching PID 1706
+10-20 08:50:57.674  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.675  1559  1572 D vold    : Found matching PID 1719
+10-20 08:50:57.675  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.698  1559  1572 D vold    : Found matching PID 1742
+10-20 08:50:57.698  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.700  1559  1572 D vold    : Found matching PID 1771
+10-20 08:50:57.700  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.701  1559  1572 D vold    : Found matching PID 1775
+10-20 08:50:57.702  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:57.702  1559  1572 D vold    : Found matching PID 1922
+10-20 08:50:57.945  1559  1570 D vold    : Remounting 1000 as mode full
+10-20 08:50:58.009  1559  1570 D vold    : Found matching PID 1555
+10-20 08:50:58.013  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.014  1559  1570 D vold    : Found matching PID 1556
+10-20 08:50:58.015  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.015  1559  1570 D vold    : Found matching PID 1557
+10-20 08:50:58.015  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.016  1559  1570 D vold    : Found matching PID 1680
+10-20 08:50:58.016  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.016  1559  1570 D vold    : Found matching PID 1681
+10-20 08:50:58.048  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.100  1559  1570 D vold    : Found matching PID 1688
+10-20 08:50:58.110  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.110  1559  1570 D vold    : Found matching PID 1694
+10-20 08:50:58.111  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.111  1559  1570 D vold    : Found matching PID 1701
+10-20 08:50:58.111  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.116  1559  1570 D vold    : Found matching PID 1702
+10-20 08:50:58.117  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.117  1559  1570 D vold    : Found matching PID 1703
+10-20 08:50:58.118  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.118  1559  1570 D vold    : Found matching PID 1704
+10-20 08:50:58.118  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.118  1559  1570 D vold    : Found matching PID 1705
+10-20 08:50:58.118  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.118  1559  1570 D vold    : Found matching PID 1706
+10-20 08:50:58.166  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.190  1559  1570 D vold    : Found matching PID 1719
+10-20 08:50:58.190  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.192  1559  1570 D vold    : Found matching PID 1742
+10-20 08:50:58.192  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.285  1559  1570 D vold    : Found matching PID 1771
+10-20 08:50:58.285  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.286  1559  1570 D vold    : Found matching PID 1775
+10-20 08:50:58.286  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.287  1559  1570 D vold    : Found matching PID 1922
+10-20 08:50:58.795  1559  1570 D vold    : Remounting 1000 as mode full
+10-20 08:50:58.799  1559  1570 D vold    : Found matching PID 1555
+10-20 08:50:58.799  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.799  1559  1570 D vold    : Found matching PID 1556
+10-20 08:50:58.799  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.799  1559  1570 D vold    : Found matching PID 1557
+10-20 08:50:58.799  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.800  1559  1570 D vold    : Found matching PID 1680
+10-20 08:50:58.800  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.800  1559  1570 D vold    : Found matching PID 1681
+10-20 08:50:58.800  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.809  1559  1570 D vold    : Found matching PID 1688
+10-20 08:50:58.809  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.810  1559  1570 D vold    : Found matching PID 1694
+10-20 08:50:58.810  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.810  1559  1570 D vold    : Found matching PID 1701
+10-20 08:50:58.810  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.810  1559  1570 D vold    : Found matching PID 1702
+10-20 08:50:58.810  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.810  1559  1570 D vold    : Found matching PID 1703
+10-20 08:50:58.811  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.811  1559  1570 D vold    : Found matching PID 1704
+10-20 08:50:58.811  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.811  1559  1570 D vold    : Found matching PID 1705
+10-20 08:50:58.811  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.811  1559  1570 D vold    : Found matching PID 1706
+10-20 08:50:58.811  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.812  1559  1570 D vold    : Found matching PID 1719
+10-20 08:50:58.812  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.815  1559  1570 D vold    : Found matching PID 1742
+10-20 08:50:58.816  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.829  1559  1570 D vold    : Found matching PID 1771
+10-20 08:50:58.830  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.830  1559  1570 D vold    : Found matching PID 1775
+10-20 08:50:58.830  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:50:58.830  1559  1570 D vold    : Found matching PID 1922
+10-20 08:50:59.245  1559  1572 D vold    : Remounting 1000 as mode full
+10-20 08:50:59.248  1559  1572 D vold    : Found matching PID 1555
+10-20 08:50:59.248  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.248  1559  1572 D vold    : Found matching PID 1556
+10-20 08:50:59.317  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.330  1559  1572 D vold    : Found matching PID 1557
+10-20 08:50:59.330  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.330  1559  1572 D vold    : Found matching PID 1680
+10-20 08:50:59.331  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.331  1559  1572 D vold    : Found matching PID 1681
+10-20 08:50:59.331  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.331  1559  1572 D vold    : Found matching PID 1688
+10-20 08:50:59.331  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.331  1559  1572 D vold    : Found matching PID 1694
+10-20 08:50:59.332  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.332  1559  1572 D vold    : Found matching PID 1701
+10-20 08:50:59.332  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.332  1559  1572 D vold    : Found matching PID 1702
+10-20 08:50:59.332  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.332  1559  1572 D vold    : Found matching PID 1703
+10-20 08:50:59.332  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.402  1559  1572 D vold    : Found matching PID 1704
+10-20 08:50:59.402  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.402  1559  1572 D vold    : Found matching PID 1705
+10-20 08:50:59.403  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.403  1559  1572 D vold    : Found matching PID 1706
+10-20 08:50:59.403  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.404  1559  1572 D vold    : Found matching PID 1719
+10-20 08:50:59.404  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.419  1559  1572 D vold    : Found matching PID 1742
+10-20 08:50:59.420  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.425  1559  1572 D vold    : Found matching PID 1771
+10-20 08:50:59.426  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.426  1559  1572 D vold    : Found matching PID 1775
+10-20 08:50:59.469  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:50:59.469  1559  1572 D vold    : Found matching PID 1922
+10-20 08:51:00.533  1707  1707 I android.hardware.wifi@1.0-service: Wifi HAL started
+10-20 08:51:00.715  1559  1572 D vold    : Remounting 2000 as mode default
+10-20 08:51:00.724  1559  1572 D vold    : Found matching PID 1729
+10-20 08:51:00.725  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:51:00.726  1559  1572 D vold    : Found matching PID 1734
+10-20 08:51:00.767  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:51:00.776  1559  1570 D vold    : Remounting 2000 as mode default
+10-20 08:51:00.782  1559  1570 D vold    : Found matching PID 1729
+10-20 08:51:00.782  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:51:00.783  1559  1570 D vold    : Found matching PID 1734
+10-20 08:51:00.783  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:51:00.796  1559  1559 D vold    : Remounting 2000 as mode full
+10-20 08:51:00.801  1559  1559 D vold    : Found matching PID 1729
+10-20 08:51:00.801  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:00.802  1559  1559 D vold    : Found matching PID 1734
+10-20 08:51:00.803  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:00.812  1559  1570 D vold    : Remounting 2000 as mode full
+10-20 08:51:00.830  1559  1570 D vold    : Found matching PID 1729
+10-20 08:51:00.830  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:51:00.831  1559  1570 D vold    : Found matching PID 1734
+10-20 08:51:00.831  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:51:00.892  1707  1707 I android.hardware.wifi@1.0-service: Adding interface handle for wlan0
+10-20 08:51:00.892  1707  1707 W android.hardware.wifi@1.0-service: No active wlan interfaces in use! Using default
+10-20 08:51:00.893  1707  1707 E android.hardware.wifi@1.0-service: Failed to register radio mode change callback
+10-20 08:51:00.893  1707  1707 W android.hardware.wifi@1.0-service: No active wlan interfaces in use! Using default
+10-20 08:51:00.970  1707  1707 I android.hardware.wifi@1.0-service: Configured chip in mode 0
+10-20 08:51:00.970  1707  1707 W android.hardware.wifi@1.0-service: No active wlan interfaces in use! Using default
+10-20 08:51:00.988  1707  1707 E android.hardware.wifi@1.0-service: Failed to set DFS flag; DFS channels may be unavailable.
+10-20 08:51:01.032  1559  1570 D vold    : Remounting 10102 as mode default
+10-20 08:51:01.085  1559  2059 D vold    : Remounting 10102 as mode default
+10-20 08:51:01.323  1559  2059 D vold    : Remounting 1002 as mode default
+10-20 08:51:01.346  1559  2059 D vold    : Remounting 1002 as mode default
+10-20 08:51:01.391  1756  1756 I wificond: create scanner for interface with index: 3
+10-20 08:51:01.392  1756  1756 I wificond: subscribe scan result for interface with index: 3
+10-20 08:51:01.430  1559  1570 D vold    : Remounting 1002 as mode default
+10-20 08:51:01.443  1559  1559 D vold    : Remounting 1002 as mode default
+10-20 08:51:01.479  1756  1756 E wificond: No Offload Service available
+10-20 08:51:01.480  1756  1756 I wificond: Offload HAL not supported 
+10-20 08:51:01.599  1922  1922 I chatty  : uid=1000 system_server expire 46 lines
+10-20 08:51:01.813  1559  1559 D vold    : Remounting 10112 as mode default
+10-20 08:51:01.833  1559  1570 D vold    : Remounting 10112 as mode default
+10-20 08:51:01.880  1559  1570 D vold    : Remounting 10112 as mode default
+10-20 08:51:01.901  1559  1559 D vold    : Remounting 10112 as mode default
+10-20 08:51:01.943  1559  1559 D vold    : Remounting 10050 as mode full
+10-20 08:51:01.988  1559  1570 D vold    : Remounting 10050 as mode full
+10-20 08:51:02.027  1559  1559 D vold    : Remounting 10050 as mode full
+10-20 08:51:02.083  1559  1570 D vold    : Remounting 10050 as mode full
+10-20 08:51:02.111  1559  1559 D vold    : Remounting 10054 as mode default
+10-20 08:51:02.138  1559  1570 D vold    : Remounting 10054 as mode default
+10-20 08:51:02.190  1707  1707 W android.hardware.wifi@1.0-service: No active wlan interfaces in use! Using default
+10-20 08:51:02.215  1559  1559 D vold    : Remounting 10054 as mode full
+10-20 08:51:02.247  1559  1570 D vold    : Remounting 10054 as mode full
+10-20 08:51:02.283  1756  1756 I wificond: Unsubscribe scan result for interface with index: 3
+10-20 08:51:02.399  1707  1707 I android.hardware.wifi@1.0-service: Legacy HAL stop complete callback received
+10-20 08:51:02.430  1707  1707 I android.hardware.wifi@1.0-service: Wifi HAL stopped
+10-20 08:51:02.530  1707  1707 I android.hardware.wifi@1.0-service: Wifi HAL started
+10-20 08:51:02.998  1559  1570 D vold    : Remounting 10075 as mode default
+10-20 08:51:03.014  1559  1559 D vold    : Remounting 10075 as mode default
+10-20 08:51:03.041  1559  1570 D vold    : Remounting 10075 as mode default
+10-20 08:51:03.090  1559  1559 D vold    : Remounting 10075 as mode default
+10-20 08:51:03.289  1559  1559 D vold    : Remounting 10055 as mode default
+10-20 08:51:03.340  1559  1570 D vold    : Remounting 10055 as mode default
+10-20 08:51:03.489  1559  1570 D vold    : Remounting 10055 as mode default
+10-20 08:51:03.515  1559  1559 D vold    : Remounting 10055 as mode default
+10-20 08:51:03.740  1559  1559 D vold    : Remounting 10109 as mode default
+10-20 08:51:03.793  1559  1570 D vold    : Remounting 10109 as mode default
+10-20 08:51:03.829  1559  1559 D vold    : Remounting 10109 as mode default
+10-20 08:51:03.905  1559  1559 D vold    : Remounting 10109 as mode default
+10-20 08:51:04.011  1559  1559 D vold    : Remounting 10104 as mode default
+10-20 08:51:04.024  1559  1570 D vold    : Remounting 10104 as mode default
+10-20 08:51:04.181  1559  1559 D vold    : Remounting 10098 as mode default
+10-20 08:51:04.193  1559  1559 D vold    : Remounting 10098 as mode default
+10-20 08:51:04.211  1559  1570 D vold    : Remounting 10098 as mode default
+10-20 08:51:04.222  1559  2059 D vold    : Remounting 10098 as mode default
+10-20 08:51:04.314  1559  1559 D vold    : Remounting 10049 as mode full
+10-20 08:51:04.339  1559  2059 D vold    : Remounting 10049 as mode full
+10-20 08:51:04.412  1559  1559 D vold    : Remounting 10049 as mode full
+10-20 08:51:04.438  1559  2059 D vold    : Remounting 10049 as mode full
+10-20 08:51:06.282  1707  1707 I android.hardware.wifi@1.0-service: Adding interface handle for wlan0
+10-20 08:51:06.282  1707  1707 W android.hardware.wifi@1.0-service: No active wlan interfaces in use! Using default
+10-20 08:51:06.283  1707  1707 E android.hardware.wifi@1.0-service: Failed to register radio mode change callback
+10-20 08:51:06.283  1707  1707 W android.hardware.wifi@1.0-service: No active wlan interfaces in use! Using default
+10-20 08:51:06.344  1707  1707 I android.hardware.wifi@1.0-service: Configured chip in mode 0
+10-20 08:51:06.345  1707  1707 W android.hardware.wifi@1.0-service: No active wlan interfaces in use! Using default
+10-20 08:51:06.386  1707  1707 E android.hardware.wifi@1.0-service: Failed to set DFS flag; DFS channels may be unavailable.
+10-20 08:51:06.625  1756  1756 I wificond: create scanner for interface with index: 3
+10-20 08:51:06.625  1756  1756 I wificond: subscribe scan result for interface with index: 3
+10-20 08:51:06.636  1756  1756 E wificond: No Offload Service available
+10-20 08:51:06.637  1756  1756 I wificond: Offload HAL not supported 
+10-20 08:51:08.001  1922  1948 I chatty  : uid=1000 system_server expire 13 lines
+10-20 08:51:08.767  1922  1989 I chatty  : uid=1000 system_server expire 37 lines
+10-20 08:51:11.789  1922  1944 I chatty  : uid=1000 system_server expire 10 lines
+10-20 08:51:13.670  2075  2155 W SystemConfig: No directory /product/etc/sysconfig, skipping
+10-20 08:51:14.133  2075  2155 W SystemConfig: No directory /product_services/etc/sysconfig, skipping
+10-20 08:51:14.174  2075  2155 W SystemConfig: No directory /product_services/etc/permissions, skipping
+10-20 08:51:15.104  1922  1988 I chatty  : uid=1000 system_server expire 20 lines
+10-20 08:51:16.235  1922  1936 I chatty  : uid=1000 system_server expire 88 lines
+10-20 08:51:17.494  1922  2178 I chatty  : uid=1000 system_server expire 8 lines
+10-20 08:51:18.122  1922  1952 I chatty  : uid=1000 system_server expire 8 lines
+10-20 08:51:20.888  1559  2059 D vold    : Remounting 10075 as mode write
+10-20 08:51:20.925  1922  1922 I chatty  : uid=1000 system_server expire 46 lines
+10-20 08:51:20.968  1559  1559 D vold    : Remounting 10097 as mode default
+10-20 08:51:21.000  1559  2059 D vold    : Remounting 10112 as mode write
+10-20 08:51:21.008  1922  1945 I chatty  : uid=1000 system_server expire 8 lines
+10-20 08:51:21.065  1559  1570 D vold    : Remounting 10101 as mode default
+10-20 08:51:22.218  2068  2068 D SystemUIBootTiming: StartServicescom.android.systemui.Dependency$DependencyCreator took to complete: 1124ms
+10-20 08:51:22.340  1922  2177 I chatty  : uid=1000 system_server expire 2 lines
+10-20 08:51:22.529  1922  1954 I chatty  : uid=1000 system_server expire 10 lines
+10-20 08:51:22.611  1559  1570 D vold    : Remounting 10109 as mode write
+10-20 08:51:22.669  1922  1938 I chatty  : uid=1000 system_server expire 14 lines
+10-20 08:51:22.694  1922  2019 I chatty  : uid=1000 system_server expire 1 line
+10-20 08:51:22.770  1559  2059 D vold    : Remounting 10115 as mode default
+10-20 08:51:22.784  1559  1559 D vold    : Remounting 10103 as mode default
+10-20 08:51:22.817  1559  2059 D vold    : Remounting 10114 as mode default
+10-20 08:51:22.839  1559  1572 D vold    : Remounting 10107 as mode default
+10-20 08:51:22.931  1559  1570 D vold    : Remounting 10104 as mode read
+10-20 08:51:23.126  1559  1572 D vold    : Remounting 10108 as mode default
+10-20 08:51:23.427  2068  2068 D SystemUIBootTiming: StartServicescom.android.systemui.util.NotificationChannels took to complete: 1209ms
+10-20 08:51:23.525  1559  1570 D vold    : Remounting 1002 as mode write
+10-20 08:51:23.669  2068  2068 D SystemUIBootTiming: StartServicescom.android.systemui.statusbar.CommandQueue$CommandQueueStart took to complete: 237ms
+10-20 08:51:23.689  1559  1572 D vold    : Remounting 1001 as mode default
+10-20 08:51:23.736  1559  1572 D vold    : Found matching PID 1760
+10-20 08:51:23.768  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:51:23.775  1559  1570 D vold    : Remounting 1001 as mode default
+10-20 08:51:23.881  1559  1570 D vold    : Found matching PID 1760
+10-20 08:51:23.881  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:51:23.888  1559  1572 D vold    : Remounting 1001 as mode default
+10-20 08:51:23.914  1559  1572 D vold    : Found matching PID 1760
+10-20 08:51:23.915  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:51:24.370  1559  1572 D vold    : Remounting 1001 as mode default
+10-20 08:51:24.491  1559  1572 D vold    : Found matching PID 1760
+10-20 08:51:24.492  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:51:24.502  1559  1570 D vold    : Remounting 1001 as mode default
+10-20 08:51:24.571  1559  1570 D vold    : Found matching PID 1760
+10-20 08:51:24.572  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:51:24.581  1559  1572 D vold    : Remounting 1001 as mode default
+10-20 08:51:24.625  1559  1572 D vold    : Found matching PID 1760
+10-20 08:51:24.625  1559  1572 W vold    : Skipping due to root namespace
+10-20 08:51:24.636  1559  1570 D vold    : Remounting 1001 as mode default
+10-20 08:51:24.642  1559  1570 D vold    : Found matching PID 1760
+10-20 08:51:24.642  1559  1570 W vold    : Skipping due to root namespace
+10-20 08:51:24.742  1559  1570 D vold    : Remounting 10055 as mode default
+10-20 08:51:24.839  1559  1572 D vold    : Remounting 10050 as mode full
+10-20 08:51:24.866  1559  1559 D vold    : Remounting 10050 as mode full
+10-20 08:51:24.981  1559  1570 D vold    : Remounting 10050 as mode full
+10-20 08:51:25.084  1559  1559 D vold    : Remounting 10050 as mode full
+10-20 08:51:25.122  1559  1570 D vold    : Remounting 10054 as mode full
+10-20 08:51:25.240  1559  1570 D vold    : Remounting 1027 as mode default
+10-20 08:51:25.420  1559  1570 D vold    : Remounting 10100 as mode default
+10-20 08:51:25.480  1559  1559 D vold    : Remounting 10049 as mode full
+10-20 08:51:25.816  1559  1559 D vold    : Remounting 1000 as mode full
+10-20 08:51:25.825  1559  1559 D vold    : Found matching PID 1555
+10-20 08:51:25.826  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:25.826  1559  1559 D vold    : Found matching PID 1556
+10-20 08:51:25.826  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:25.845  1559  1559 D vold    : Found matching PID 1557
+10-20 08:51:25.845  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.008  1559  1559 D vold    : Found matching PID 1680
+10-20 08:51:26.008  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.008  1559  1559 D vold    : Found matching PID 1681
+10-20 08:51:26.009  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.009  1559  1559 D vold    : Found matching PID 1688
+10-20 08:51:26.009  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.009  1559  1559 D vold    : Found matching PID 1694
+10-20 08:51:26.010  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.010  1559  1559 D vold    : Found matching PID 1701
+10-20 08:51:26.010  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.010  1559  1559 D vold    : Found matching PID 1702
+10-20 08:51:26.010  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.011  1559  1559 D vold    : Found matching PID 1703
+10-20 08:51:26.011  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.011  1559  1559 D vold    : Found matching PID 1704
+10-20 08:51:26.011  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.011  1559  1559 D vold    : Found matching PID 1705
+10-20 08:51:26.011  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.011  1559  1559 D vold    : Found matching PID 1706
+10-20 08:51:26.011  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.012  1559  1559 D vold    : Found matching PID 1719
+10-20 08:51:26.012  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.014  1559  1559 D vold    : Found matching PID 1742
+10-20 08:51:26.014  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.015  1559  1559 D vold    : Found matching PID 1771
+10-20 08:51:26.015  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.015  1559  1559 D vold    : Found matching PID 1775
+10-20 08:51:26.015  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.016  1559  1559 D vold    : Found matching PID 1922
+10-20 08:51:26.037  1922  1946 I chatty  : uid=1000 system_server expire 6 lines
+10-20 08:51:26.475  1559  1559 D vold    : Found matching PID 2205
+10-20 08:51:26.476  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.477  1559  1559 D vold    : Found matching PID 2208
+10-20 08:51:26.477  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.477  1559  1559 D vold    : Found matching PID 2210
+10-20 08:51:26.477  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.486  1559  1559 D vold    : Remounting 1000 as mode full
+10-20 08:51:26.490  1559  1559 D vold    : Found matching PID 1555
+10-20 08:51:26.490  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.491  1559  1559 D vold    : Found matching PID 1556
+10-20 08:51:26.491  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.491  1559  1559 D vold    : Found matching PID 1557
+10-20 08:51:26.491  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.492  1559  1559 D vold    : Found matching PID 1680
+10-20 08:51:26.492  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.492  1559  1559 D vold    : Found matching PID 1681
+10-20 08:51:26.492  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.493  1559  1559 D vold    : Found matching PID 1688
+10-20 08:51:26.493  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.493  1559  1559 D vold    : Found matching PID 1694
+10-20 08:51:26.493  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.494  1559  1559 D vold    : Found matching PID 1701
+10-20 08:51:26.494  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.494  1559  1559 D vold    : Found matching PID 1702
+10-20 08:51:26.494  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.494  1559  1559 D vold    : Found matching PID 1703
+10-20 08:51:26.495  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.495  1559  1559 D vold    : Found matching PID 1704
+10-20 08:51:26.495  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.495  1559  1559 D vold    : Found matching PID 1705
+10-20 08:51:26.495  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.495  1559  1559 D vold    : Found matching PID 1706
+10-20 08:51:26.496  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.496  1559  1559 D vold    : Found matching PID 1719
+10-20 08:51:26.496  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.531  1559  1559 D vold    : Found matching PID 1742
+10-20 08:51:26.531  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.532  1559  1559 D vold    : Found matching PID 1771
+10-20 08:51:26.532  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.533  1559  1559 D vold    : Found matching PID 1775
+10-20 08:51:26.533  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.533  1559  1559 D vold    : Found matching PID 1922
+10-20 08:51:26.904  1559  1559 D vold    : Found matching PID 2205
+10-20 08:51:26.904  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.905  1559  1559 D vold    : Found matching PID 2208
+10-20 08:51:26.905  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.905  1559  1559 D vold    : Found matching PID 2210
+10-20 08:51:26.905  1559  1559 W vold    : Skipping due to root namespace
+10-20 08:51:26.910  1559  2200 D vold    : Remounting 1000 as mode full
+10-20 08:51:26.918  1559  2200 D vold    : Found matching PID 1555
+10-20 08:51:26.919  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.919  1559  2200 D vold    : Found matching PID 1556
+10-20 08:51:26.919  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.920  1559  2200 D vold    : Found matching PID 1557
+10-20 08:51:26.920  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.921  1559  2200 D vold    : Found matching PID 1680
+10-20 08:51:26.921  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.921  1559  2200 D vold    : Found matching PID 1681
+10-20 08:51:26.922  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.922  1559  2200 D vold    : Found matching PID 1688
+10-20 08:51:26.923  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.924  1559  2200 D vold    : Found matching PID 1694
+10-20 08:51:26.924  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.924  1559  2200 D vold    : Found matching PID 1701
+10-20 08:51:26.925  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.925  1559  2200 D vold    : Found matching PID 1702
+10-20 08:51:26.925  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.926  1559  2200 D vold    : Found matching PID 1703
+10-20 08:51:26.926  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.969  1559  2200 D vold    : Found matching PID 1704
+10-20 08:51:26.969  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.969  1559  2200 D vold    : Found matching PID 1705
+10-20 08:51:26.970  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.970  1559  2200 D vold    : Found matching PID 1706
+10-20 08:51:26.970  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:26.970  1559  2200 D vold    : Found matching PID 1719
+10-20 08:51:26.971  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.002  1559  2200 D vold    : Found matching PID 1742
+10-20 08:51:27.002  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.004  1559  2200 D vold    : Found matching PID 1771
+10-20 08:51:27.004  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.066  1559  2200 D vold    : Found matching PID 1775
+10-20 08:51:27.066  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.067  1559  2200 D vold    : Found matching PID 1922
+10-20 08:51:27.240  1559  2200 D vold    : Found matching PID 2210
+10-20 08:51:27.241  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.297  1559  2200 D vold    : Remounting 1000 as mode full
+10-20 08:51:27.304  1559  2200 D vold    : Found matching PID 1555
+10-20 08:51:27.305  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.305  1559  2200 D vold    : Found matching PID 1556
+10-20 08:51:27.305  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.305  1559  2200 D vold    : Found matching PID 1557
+10-20 08:51:27.305  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.330  1559  2200 D vold    : Found matching PID 1680
+10-20 08:51:27.331  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.331  1559  2200 D vold    : Found matching PID 1681
+10-20 08:51:27.331  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.332  1559  2200 D vold    : Found matching PID 1688
+10-20 08:51:27.332  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.333  1559  2200 D vold    : Found matching PID 1694
+10-20 08:51:27.333  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.333  1559  2200 D vold    : Found matching PID 1701
+10-20 08:51:27.366  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.366  1559  2200 D vold    : Found matching PID 1702
+10-20 08:51:27.367  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.367  1559  2200 D vold    : Found matching PID 1703
+10-20 08:51:27.367  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.367  1559  2200 D vold    : Found matching PID 1704
+10-20 08:51:27.367  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.367  1559  2200 D vold    : Found matching PID 1705
+10-20 08:51:27.367  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.367  1559  2200 D vold    : Found matching PID 1706
+10-20 08:51:27.368  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.369  1559  2200 D vold    : Found matching PID 1719
+10-20 08:51:27.370  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.372  1559  2200 D vold    : Found matching PID 1742
+10-20 08:51:27.372  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.374  1559  2200 D vold    : Found matching PID 1771
+10-20 08:51:27.374  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.374  1559  2200 D vold    : Found matching PID 1775
+10-20 08:51:27.375  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.375  1559  2200 D vold    : Found matching PID 1922
+10-20 08:51:27.669  1559  2200 D vold    : Found matching PID 2210
+10-20 08:51:27.670  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:27.674  1559  2199 D vold    : Remounting 1000 as mode full
+10-20 08:51:27.683  1559  2199 D vold    : Found matching PID 1555
+10-20 08:51:27.683  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.683  1559  2199 D vold    : Found matching PID 1556
+10-20 08:51:27.683  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.683  1559  2199 D vold    : Found matching PID 1557
+10-20 08:51:27.684  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.710  1559  2199 D vold    : Found matching PID 1680
+10-20 08:51:27.711  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.711  1559  2199 D vold    : Found matching PID 1681
+10-20 08:51:27.711  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.715  1559  2199 D vold    : Found matching PID 1688
+10-20 08:51:27.716  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.727  1559  2199 D vold    : Found matching PID 1694
+10-20 08:51:27.727  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.728  1559  2199 D vold    : Found matching PID 1701
+10-20 08:51:27.728  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.729  1559  2199 D vold    : Found matching PID 1702
+10-20 08:51:27.729  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.729  1559  2199 D vold    : Found matching PID 1703
+10-20 08:51:27.729  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.729  1559  2199 D vold    : Found matching PID 1704
+10-20 08:51:27.729  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.730  1559  2199 D vold    : Found matching PID 1705
+10-20 08:51:27.730  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.730  1559  2199 D vold    : Found matching PID 1706
+10-20 08:51:27.730  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.730  1559  2199 D vold    : Found matching PID 1719
+10-20 08:51:27.731  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.791  1559  2199 D vold    : Found matching PID 1742
+10-20 08:51:27.792  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.818  1559  2199 D vold    : Found matching PID 1771
+10-20 08:51:27.819  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.819  1559  2199 D vold    : Found matching PID 1775
+10-20 08:51:27.819  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:27.821  1559  2199 D vold    : Found matching PID 1922
+10-20 08:51:28.634  1559  2199 D vold    : Found matching PID 2210
+10-20 08:51:28.635  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:28.636  1559  2199 D vold    : Found matching PID 2219
+10-20 08:51:28.641  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:28.783  1559  2199 D vold    : Remounting 1000 as mode full
+10-20 08:51:29.070  1559  2199 D vold    : Found matching PID 1555
+10-20 08:51:29.071  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.071  1559  2199 D vold    : Found matching PID 1556
+10-20 08:51:29.071  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.071  1559  2199 D vold    : Found matching PID 1557
+10-20 08:51:29.072  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.073  1559  2199 D vold    : Found matching PID 1680
+10-20 08:51:29.073  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.074  1559  2199 D vold    : Found matching PID 1681
+10-20 08:51:29.074  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.074  1559  2199 D vold    : Found matching PID 1688
+10-20 08:51:29.074  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.074  1559  2199 D vold    : Found matching PID 1694
+10-20 08:51:29.075  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.075  1559  2199 D vold    : Found matching PID 1701
+10-20 08:51:29.075  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.075  1559  2199 D vold    : Found matching PID 1702
+10-20 08:51:29.076  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.076  1559  2199 D vold    : Found matching PID 1703
+10-20 08:51:29.076  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.076  1559  2199 D vold    : Found matching PID 1704
+10-20 08:51:29.111  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.111  1559  2199 D vold    : Found matching PID 1705
+10-20 08:51:29.112  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.112  1559  2199 D vold    : Found matching PID 1706
+10-20 08:51:29.112  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.271  1559  2199 D vold    : Found matching PID 1719
+10-20 08:51:29.271  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.323  1559  2199 D vold    : Found matching PID 1742
+10-20 08:51:29.323  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.324  1559  2199 D vold    : Found matching PID 1771
+10-20 08:51:29.324  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.324  1559  2199 D vold    : Found matching PID 1775
+10-20 08:51:29.324  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:29.403  1559  2199 D vold    : Found matching PID 1922
+10-20 08:51:29.602  1922  1944 I chatty  : uid=1000 system_server expire 4 lines
+10-20 08:51:29.711  1922  1937 I chatty  : uid=1000 system_server expire 5 lines
+10-20 08:51:30.182  1559  2199 D vold    : Found matching PID 2219
+10-20 08:51:30.183  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:30.186  1559  2199 D vold    : Found matching PID 2223
+10-20 08:51:30.186  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:30.187  1559  2199 D vold    : Found matching PID 2227
+10-20 08:51:30.187  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:30.191  1559  2200 D vold    : Remounting 1000 as mode full
+10-20 08:51:30.202  1559  2200 D vold    : Found matching PID 1555
+10-20 08:51:30.202  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.243  1559  2200 D vold    : Found matching PID 1556
+10-20 08:51:30.243  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.243  1559  2200 D vold    : Found matching PID 1557
+10-20 08:51:30.243  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.244  1559  2200 D vold    : Found matching PID 1680
+10-20 08:51:30.245  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.245  1559  2200 D vold    : Found matching PID 1681
+10-20 08:51:30.245  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.245  1559  2200 D vold    : Found matching PID 1688
+10-20 08:51:30.245  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.246  1559  2200 D vold    : Found matching PID 1694
+10-20 08:51:30.246  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.246  1559  2200 D vold    : Found matching PID 1701
+10-20 08:51:30.246  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.246  1559  2200 D vold    : Found matching PID 1702
+10-20 08:51:30.246  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.246  1559  2200 D vold    : Found matching PID 1703
+10-20 08:51:30.246  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.247  1559  2200 D vold    : Found matching PID 1704
+10-20 08:51:30.247  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.247  1559  2200 D vold    : Found matching PID 1705
+10-20 08:51:30.247  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.247  1559  2200 D vold    : Found matching PID 1706
+10-20 08:51:30.247  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.248  1559  2200 D vold    : Found matching PID 1719
+10-20 08:51:30.248  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.530  1559  2200 D vold    : Found matching PID 1742
+10-20 08:51:30.531  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.531  1559  2200 D vold    : Found matching PID 1771
+10-20 08:51:30.532  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.532  1559  2200 D vold    : Found matching PID 1775
+10-20 08:51:30.532  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:30.542  1559  2200 D vold    : Found matching PID 1922
+10-20 08:51:30.924  1922  1948 I chatty  : uid=1000 system_server expire 20 lines
+10-20 08:51:31.546  1559  2200 D vold    : Found matching PID 2219
+10-20 08:51:31.546  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:31.546  1559  2200 D vold    : Found matching PID 2223
+10-20 08:51:31.546  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:31.546  1559  2200 D vold    : Found matching PID 2227
+10-20 08:51:31.546  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:31.547  1559  2200 D vold    : Found matching PID 2230
+10-20 08:51:31.547  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.069  1559  2200 D vold    : Remounting 1000 as mode full
+10-20 08:51:33.075  1559  2200 D vold    : Found matching PID 1555
+10-20 08:51:33.075  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.075  1559  2200 D vold    : Found matching PID 1556
+10-20 08:51:33.075  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.075  1559  2200 D vold    : Found matching PID 1557
+10-20 08:51:33.075  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.076  1559  2200 D vold    : Found matching PID 1680
+10-20 08:51:33.098  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.098  1559  2200 D vold    : Found matching PID 1681
+10-20 08:51:33.098  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.099  1559  2200 D vold    : Found matching PID 1688
+10-20 08:51:33.099  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.099  1559  2200 D vold    : Found matching PID 1694
+10-20 08:51:33.100  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.100  1559  2200 D vold    : Found matching PID 1701
+10-20 08:51:33.100  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.100  1559  2200 D vold    : Found matching PID 1702
+10-20 08:51:33.101  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.102  1559  2200 D vold    : Found matching PID 1703
+10-20 08:51:33.102  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.102  1559  2200 D vold    : Found matching PID 1704
+10-20 08:51:33.102  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.102  1559  2200 D vold    : Found matching PID 1705
+10-20 08:51:33.102  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.103  1559  2200 D vold    : Found matching PID 1706
+10-20 08:51:33.103  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.103  1559  2200 D vold    : Found matching PID 1719
+10-20 08:51:33.103  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.182  1559  2200 D vold    : Found matching PID 1742
+10-20 08:51:33.183  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.186  1559  2200 D vold    : Found matching PID 1771
+10-20 08:51:33.212  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.213  1559  2200 D vold    : Found matching PID 1775
+10-20 08:51:33.213  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.214  1559  2200 D vold    : Found matching PID 1922
+10-20 08:51:33.433  2068  2068 D SystemUIBootTiming: StartServicescom.android.systemui.keyguard.KeyguardViewMediator took to complete: 9763ms
+10-20 08:51:33.979  1559  2200 D vold    : Found matching PID 2245
+10-20 08:51:33.979  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.979  1559  2200 D vold    : Found matching PID 2260
+10-20 08:51:33.979  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.980  1559  2200 D vold    : Found matching PID 2262
+10-20 08:51:33.980  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:33.982  1559  2199 D vold    : Remounting 1000 as mode full
+10-20 08:51:33.986  1559  2199 D vold    : Found matching PID 1555
+10-20 08:51:33.987  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.987  1559  2199 D vold    : Found matching PID 1556
+10-20 08:51:33.987  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.987  1559  2199 D vold    : Found matching PID 1557
+10-20 08:51:33.987  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.988  1559  2199 D vold    : Found matching PID 1680
+10-20 08:51:33.988  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.988  1559  2199 D vold    : Found matching PID 1681
+10-20 08:51:33.988  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.989  1559  2199 D vold    : Found matching PID 1688
+10-20 08:51:33.989  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.989  1559  2199 D vold    : Found matching PID 1694
+10-20 08:51:33.989  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.989  1559  2199 D vold    : Found matching PID 1701
+10-20 08:51:33.989  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.990  1559  2199 D vold    : Found matching PID 1702
+10-20 08:51:33.990  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.990  1559  2199 D vold    : Found matching PID 1703
+10-20 08:51:33.990  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.990  1559  2199 D vold    : Found matching PID 1704
+10-20 08:51:33.990  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.990  1559  2199 D vold    : Found matching PID 1705
+10-20 08:51:33.990  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.990  1559  2199 D vold    : Found matching PID 1706
+10-20 08:51:33.991  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.991  1559  2199 D vold    : Found matching PID 1719
+10-20 08:51:33.991  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.993  1559  2199 D vold    : Found matching PID 1742
+10-20 08:51:33.993  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.994  1559  2199 D vold    : Found matching PID 1771
+10-20 08:51:33.994  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.994  1559  2199 D vold    : Found matching PID 1775
+10-20 08:51:33.994  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:33.995  1559  2199 D vold    : Found matching PID 1922
+10-20 08:51:34.238  2068  2068 D SystemUIBootTiming: StartServicescom.android.systemui.recents.Recents took to complete: 700ms
+10-20 08:51:34.236  1922  1922 I chatty  : uid=1000 system_server expire 27 lines
+10-20 08:51:34.814  1559  2199 D vold    : Found matching PID 2245
+10-20 08:51:34.814  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:34.821  1559  2199 D vold    : Found matching PID 2260
+10-20 08:51:34.822  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:34.822  1559  2199 D vold    : Found matching PID 2262
+10-20 08:51:34.822  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:34.823  1559  2199 D vold    : Found matching PID 2266
+10-20 08:51:34.823  1559  2199 W vold    : Skipping due to root namespace
+10-20 08:51:34.833  1559  2200 D vold    : Remounting 1000 as mode full
+10-20 08:51:34.846  1559  2200 D vold    : Found matching PID 1555
+10-20 08:51:34.846  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.846  1559  2200 D vold    : Found matching PID 1556
+10-20 08:51:34.927  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.927  1559  2200 D vold    : Found matching PID 1557
+10-20 08:51:34.927  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.928  1559  2200 D vold    : Found matching PID 1680
+10-20 08:51:34.928  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.929  1559  2200 D vold    : Found matching PID 1681
+10-20 08:51:34.929  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.929  1559  2200 D vold    : Found matching PID 1688
+10-20 08:51:34.929  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.930  1559  2200 D vold    : Found matching PID 1694
+10-20 08:51:34.930  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.930  1559  2200 D vold    : Found matching PID 1701
+10-20 08:51:34.930  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.930  1559  2200 D vold    : Found matching PID 1702
+10-20 08:51:34.930  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.931  1559  2200 D vold    : Found matching PID 1703
+10-20 08:51:34.931  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.931  1559  2200 D vold    : Found matching PID 1704
+10-20 08:51:34.932  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.932  1559  2200 D vold    : Found matching PID 1705
+10-20 08:51:34.932  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.932  1559  2200 D vold    : Found matching PID 1706
+10-20 08:51:34.933  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:34.933  1559  2200 D vold    : Found matching PID 1719
+10-20 08:51:35.084  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.110  1559  2200 D vold    : Found matching PID 1742
+10-20 08:51:35.110  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.112  1559  2200 D vold    : Found matching PID 1771
+10-20 08:51:35.112  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.112  1559  2200 D vold    : Found matching PID 1775
+10-20 08:51:35.112  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.113  1559  2200 D vold    : Found matching PID 1922
+10-20 08:51:35.468  1922  1938 I chatty  : uid=1000 system_server expire 10 lines
+10-20 08:51:35.539  1559  2200 D vold    : Found matching PID 2245
+10-20 08:51:35.540  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.540  1559  2200 D vold    : Found matching PID 2260
+10-20 08:51:35.540  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.540  1559  2200 D vold    : Found matching PID 2262
+10-20 08:51:35.541  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.541  1559  2200 D vold    : Found matching PID 2266
+10-20 08:51:35.541  1559  2200 W vold    : Skipping due to root namespace
+10-20 08:51:35.771  1559  2200 D vold    : Remounting 10053 as mode default
+10-20 08:51:35.874  1559  2199 D vold    : Remounting 10098 as mode default
+10-20 08:51:35.885  1559  2059 D vold    : Remounting 2000 as mode full
+10-20 08:51:35.892  1559  2059 D vold    : Found matching PID 1729
+10-20 08:51:35.893  1559  2059 W vold    : Skipping due to root namespace
+10-20 08:51:35.893  1559  2059 D vold    : Found matching PID 1734
+10-20 08:51:35.894  1559  2059 W vold    : Skipping due to root namespace
+10-20 08:51:35.899  1559  1572 D vold    : Remounting 10102 as mode default
+10-20 08:51:35.913  1559  1572 D vold    : Found matching PID 2068
+10-20 08:51:40.869  1922  2222 I chatty  : uid=1000 system_server expire 11 lines
+10-20 08:51:41.303  1922  1947 I chatty  : uid=1000 system_server expire 23 lines
+10-20 08:51:47.711  2068  2068 D SystemUIBootTiming: StartServicescom.android.systemui.volume.VolumeUI took to complete: 13472ms
+10-20 08:51:49.541  2068  2068 D SystemUIBootTiming: StartServicescom.android.systemui.stackdivider.Divider took to complete: 1829ms
+10-20 08:51:51.999  1922  1938 I chatty  : uid=1000 system_server expire 11 lines
+10-20 08:51:52.110  1922  1922 I chatty  : uid=1000 system_server expire 62 lines
+10-20 08:51:53.436  1922  1948 I chatty  : uid=1000 system_server expire 19 lines
+10-20 08:51:55.879  1922  2331 I chatty  : uid=1000 system_server expire 5 lines
+10-20 08:51:58.638  1922  2376 I chatty  : uid=1000 system_server expire 1 line
+10-20 08:51:58.774  1922  1936 I chatty  : uid=1000 system_server expire 3 lines
+10-20 08:51:59.369  1922  2378 I chatty  : uid=1000 system_server expire 2 lines
+10-20 08:51:59.474  1922  2379 I chatty  : uid=1000 system_server expire 1 line
+10-20 08:52:00.002  1922  1960 I chatty  : uid=1000 system_server expire 2 lines
+10-20 08:52:03.235  1922  1946 I UsageStatsService: Time changed in UsageStats by -2 seconds
+10-20 08:52:03.412  1922  1946 I UsageStatsService: User[0] Flushing usage stats to disk
+10-20 08:52:04.000  1922  1941 W WindowManager: Window freeze timeout expired.
+10-20 08:52:04.007  1922  1941 W WindowManager: Force clearing orientation change: Window{2a51887 u0 com.android.settings/com.android.settings.FallbackHome}
+10-20 08:52:05.712  1922  1937 W ActivityManager: Slow operation: 119ms so far, now at startProcess: done creating new process record
+10-20 08:52:05.712  1922  1937 W ActivityManager: Slow operation: 119ms so far, now at startProcess: stepping in to startProcess

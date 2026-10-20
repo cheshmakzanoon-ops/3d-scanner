@@ -1,0 +1,23 @@
+{
+  "source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+  "command": [
+    "/workspace/campaign-061-080/adb",
+    "-s",
+    "emulator-5556",
+    "shell",
+    "am",
+    "instrument",
+    "-w",
+    "-r",
+    "-e",
+    "class",
+    "com.realityforge.scanner.agents.a077.ActualAccessibilityTest",
+    "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "app_sha256": "5830c15c4fcd7675dcb03b8414c6937f6671550fdc22225966057cd541d5eb02",
+  "test_apk_sha256": "22bd5f6a68b06ca1e79d82d5c611b3d87821f4f9bf6ed537c71d42b31a6a82a2",
+  "preparation": "/workspace/campaign-061-080/device-preparation/commands.json",
+  "prior_result": "FAIL3of3atstartup:SystemUIANRvisible",
+  "physical": false,
+  "exit_code": 0
+}

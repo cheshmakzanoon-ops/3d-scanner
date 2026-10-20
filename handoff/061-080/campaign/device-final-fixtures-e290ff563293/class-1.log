@@ -1,0 +1,169 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a072.ScreenInteractionTest:
+INSTRUMENTATION_STATUS: test=editableFieldsExposeLocalizedNamesAndKeepEditActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: No visible editable node exposes the required localized description: Search projects
+Bounded actual accessibility structure (field values omitted):
+editable[0] parent chain:
+package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=true enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-fixture-a065daff-f741-4ad4-b50b-0cf7c117b823 bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=androidx.compose.ui.platform.ComposeView id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+active window structure:
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=androidx.compose.ui.platform.ComposeView id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-fixture-a065daff-f741-4ad4-b50b-0cf7c117b823 bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(16, 16 - 119, 52) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-create bounds=Rect(16, 52 - 190, 100) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=true enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 164 - 97, 212) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 212 - 91, 260) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 260 - 87, 308) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 308 - 66, 356) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 356 - 125, 404) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 404 - 152, 452) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(16, 464 - 304, 512) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(40, 66 - 166, 86) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(16, 56 - 190, 96) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=false enabled=true clickable=false description=Search projects
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 124 - 157, 148) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 178 - 81, 198) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 172 - 97, 204) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 226 - 75, 246) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 220 - 91, 252) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 274 - 71, 294) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 268 - 87, 300) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 322 - 50, 
+<tree truncated>
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.failWithTree(ScreenInteractionTest.kt:88)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.awaitNode(ScreenInteractionTest.kt:97)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableNode(ScreenInteractionTest.kt:107)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableFieldsExposeLocalizedNamesAndKeepEditActions(ScreenInteractionTest.kt:156)
+
+INSTRUMENTATION_STATUS: stream=
+Error in editableFieldsExposeLocalizedNamesAndKeepEditActions(com.realityforge.scanner.agents.a072.ScreenInteractionTest):
+java.lang.AssertionError: No visible editable node exposes the required localized description: Search projects
+Bounded actual accessibility structure (field values omitted):
+editable[0] parent chain:
+package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=true enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-fixture-a065daff-f741-4ad4-b50b-0cf7c117b823 bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=androidx.compose.ui.platform.ComposeView id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+active window structure:
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=androidx.compose.ui.platform.ComposeView id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-fixture-a065daff-f741-4ad4-b50b-0cf7c117b823 bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(16, 16 - 119, 52) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-create bounds=Rect(16, 52 - 190, 100) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=true enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 164 - 97, 212) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 212 - 91, 260) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 260 - 87, 308) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 308 - 66, 356) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 356 - 125, 404) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 404 - 152, 452) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(16, 464 - 304, 512) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(40, 66 - 166, 86) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(16, 56 - 190, 96) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=false enabled=true clickable=false description=Search projects
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 124 - 157, 148) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 178 - 81, 198) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 172 - 97, 204) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 226 - 75, 246) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 220 - 91, 252) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 274 - 71, 294) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 268 - 87, 300) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 322 - 50, 
+<tree truncated>
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.failWithTree(ScreenInteractionTest.kt:88)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.awaitNode(ScreenInteractionTest.kt:97)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableNode(ScreenInteractionTest.kt:107)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableFieldsExposeLocalizedNamesAndKeepEditActions(ScreenInteractionTest.kt:156)
+
+INSTRUMENTATION_STATUS: test=editableFieldsExposeLocalizedNamesAndKeepEditActions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realControlsDispatchBoundActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realControlsDispatchBoundActions
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 163.005
+There was 1 failure:
+1) editableFieldsExposeLocalizedNamesAndKeepEditActions(com.realityforge.scanner.agents.a072.ScreenInteractionTest)
+java.lang.AssertionError: No visible editable node exposes the required localized description: Search projects
+Bounded actual accessibility structure (field values omitted):
+editable[0] parent chain:
+package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=true enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-fixture-a065daff-f741-4ad4-b50b-0cf7c117b823 bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=androidx.compose.ui.platform.ComposeView id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+active window structure:
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.FrameLayout id=android:id/content bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=androidx.compose.ui.platform.ComposeView id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-fixture-a065daff-f741-4ad4-b50b-0cf7c117b823 bounds=Rect(0, 0 - 320, 640) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(16, 16 - 119, 52) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=a072-create bounds=Rect(16, 52 - 190, 100) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.widget.EditText id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=true enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 164 - 97, 212) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 212 - 91, 260) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 260 - 87, 308) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 308 - 66, 356) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 356 - 125, 404) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 404 - 152, 452) visible=true editable=false enabled=true clickable=true description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(16, 464 - 304, 512) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(40, 66 - 166, 86) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.Button id=<none> bounds=Rect(16, 56 - 190, 96) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.view.View id=<none> bounds=Rect(16, 100 - 304, 164) visible=true editable=false enabled=true clickable=false description=Search projects
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 124 - 157, 148) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 178 - 81, 198) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 172 - 97, 204) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 226 - 75, 246) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 220 - 91, 252) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 274 - 71, 294) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.CheckBox id=<none> bounds=Rect(16, 268 - 87, 300) visible=true editable=false enabled=true clickable=false description=<none>
+package=com.realityforge.scanner class=android.widget.TextView id=<none> bounds=Rect(32, 322 - 50, 
+<tree truncated>
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.failWithTree(ScreenInteractionTest.kt:88)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.awaitNode(ScreenInteractionTest.kt:97)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableNode(ScreenInteractionTest.kt:107)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableFieldsExposeLocalizedNamesAndKeepEditActions(ScreenInteractionTest.kt:156)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

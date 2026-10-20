@@ -1,0 +1,31 @@
+{
+  "calibrationUsedForProcessing": "published rectified focal/principal offsets, arbitrary unit baseline",
+  "cameraCount": 2,
+  "consistentPixels": 4271,
+  "dataset": "Middlebury 2014 Motorcycle (real rectified stereo)",
+  "densePointCount": 4248,
+  "depthRelativeErrorP50": 0.007412611410656182,
+  "depthRelativeErrorP90": 0.047658756454421296,
+  "disparityAbsoluteErrorPxP50": 0.501367370119965,
+  "disparityAbsoluteErrorPxP90": 3.0430995789578548,
+  "groundTruthMatchedPoints": 3899,
+  "groundTruthUsedForOptimization": false,
+  "inputDownsampledDimensions": [
+    228,
+    154
+  ],
+  "limitations": [
+    "Two cameras only, not a handheld 360 object scan",
+    "No 3D mesh or photographic UV textures",
+    "Ground-truth annotations cover only evaluated pixels",
+    "Downsampled low-resolution CPU reference preview"
+  ],
+  "photometricPixels": 4976,
+  "realPhotographs": true,
+  "sampledPixels": 7252,
+  "schema": 7,
+  "sourceImageDimensions": [
+    741,
+    500
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "source_commit": "b253e996283f4f01e72f9784823ce28c840fea03",
+  "branch": "agents/077-accessibility-verification",
+  "remote_head_verified": true,
+  "owned_changed_files": [
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a077/ActualAccessibilityTest.kt",
+    "SOURCE_MANIFEST.sha256"
+  ],
+  "source_sha256": "481216db2ff87257c90d5116cfb6db72213e396112384bb324fe01cca83dfc6c",
+  "focused_compile": "PASS",
+  "compile_log": "/workspace/campaign-061-080/077-diagnostic-compile.log",
+  "compile_log_sha256": "6be550f34088e4c2a4811958430b63a4b685d8271166d76395f80579a9db8888",
+  "full_gradle_new_source": "PENDING_ROOT_FINAL_COMBINED",
+  "runtime_new_source": "NOT_RUN",
+  "status077_untouched": true
+}

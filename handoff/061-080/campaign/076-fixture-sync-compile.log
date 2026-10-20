@@ -1,0 +1,14 @@
+Kotlin2.1.21/Compose compiler2.1.21/JDK17; source SHA256 {"DesignSystemDeviceTest.kt": "1d436dc495a319a4a27f40ce76d88aaa941399d5590caddb4fafbaa3f5de9762"}
+agent-work/076/app/src/androidTest/java/com/realityforge/scanner/agents/a076/DesignSystemDeviceTest.kt:72:67: warning: 'var isChecked: Boolean' is deprecated. Deprecated in Java.
+                    "checkable=${node.isCheckable} checked=${node.isChecked} syntheticLabel=$named"
+                                                                  ^^^^^^^^^
+agent-work/076/app/src/androidTest/java/com/realityforge/scanner/agents/a076/DesignSystemDeviceTest.kt:115:81: warning: 'var isChecked: Boolean' is deprecated. Deprecated in Java.
+            assertFalse("The actual toggle must initially be unchecked", toggle.isChecked)
+                                                                                ^^^^^^^^^
+agent-work/076/app/src/androidTest/java/com/realityforge/scanner/agents/a076/DesignSystemDeviceTest.kt:124:112: warning: 'var isChecked: Boolean' is deprecated. Deprecated in Java.
+                checked.value && callbacks.get() == 1 && namedNodes(fixture).let { it.size == 1 && it.single().isChecked }
+                                                                                                               ^^^^^^^^^
+agent-work/076/app/src/androidTest/java/com/realityforge/scanner/agents/a076/DesignSystemDeviceTest.kt:128:53: warning: 'var isChecked: Boolean' is deprecated. Deprecated in Java.
+            assertTrue(namedNodes(fixture).single().isChecked)
+                                                    ^^^^^^^^^
+PASS: focused 200-percent actual toggle instrumentation compilation

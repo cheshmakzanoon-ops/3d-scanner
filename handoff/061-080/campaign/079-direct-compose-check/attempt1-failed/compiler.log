@@ -1,0 +1,12 @@
+campaign-061-080/079-direct-compose-check/source/app/src/androidTest/java/com/realityforge/scanner/agents/a079/ScreenInteractionTest.kt:79:38: error: only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'AccessibilityNodeInfo?'.
+                    while (!candidate.isClickable && candidate.parent != null && !tagged(candidate,fixture)) candidate = candidate.parent
+                                     ^
+campaign-061-080/079-direct-compose-check/source/app/src/androidTest/java/com/realityforge/scanner/agents/a079/ScreenInteractionTest.kt:79:63: error: only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'AccessibilityNodeInfo?'.
+                    while (!candidate.isClickable && candidate.parent != null && !tagged(candidate,fixture)) candidate = candidate.parent
+                                                              ^
+campaign-061-080/079-direct-compose-check/source/app/src/androidTest/java/com/realityforge/scanner/agents/a079/ScreenInteractionTest.kt:79:90: error: argument type mismatch: actual type is 'AccessibilityNodeInfo?', but 'AccessibilityNodeInfo' was expected.
+                    while (!candidate.isClickable && candidate.parent != null && !tagged(candidate,fixture)) candidate = candidate.parent
+                                                                                         ^^^^^^^^^
+campaign-061-080/079-direct-compose-check/source/app/src/androidTest/java/com/realityforge/scanner/agents/a079/ScreenInteractionTest.kt:79:131: error: only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'AccessibilityNodeInfo?'.
+                    while (!candidate.isClickable && candidate.parent != null && !tagged(candidate,fixture)) candidate = candidate.parent
+                                                                                                                                  ^

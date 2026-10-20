@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-09",
+  "os": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.13.5",
+  "packages": {
+    "numpy": "2.3.5",
+    "pytest": "9.0.2"
+  },
+  "java": "openjdk version \"21.0.12.1\" 2026-08-18\nOpenJDK Runtime Environment (build 21.0.12.1+1-1-deb13u1-Debian)\nOpenJDK 64-Bit Server VM (build 21.0.12.1+1-1-deb13u1-Debian, mixed mode, sharing)",
+  "cmake": "cmake version 3.31.6",
+  "gcc": "g++ (Debian 14.2.0-19) 14.2.0",
+  "androidSdkInstalled": false,
+  "gradleInstalled": false,
+  "ndkInstalled": false,
+  "emulatorAvailable": false,
+  "androidBuildCompleted": false,
+  "networkFailure": "Could not resolve host: raw.githubusercontent.com; Gradle bootstrap exited 6",
+  "opencv": "4.13.0"
+}

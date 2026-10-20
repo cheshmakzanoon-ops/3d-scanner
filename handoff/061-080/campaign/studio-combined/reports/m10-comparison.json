@@ -1,0 +1,20 @@
+{
+  "baselineCommit": "20117345d753c2793820c5800bca7e4188689b8a",
+  "dataset": "Middlebury Motorcycle 2014, two real calibrated photographs",
+  "oldTexturedTriangles": 1079,
+  "newTexturedTriangles": 3530,
+  "meshTriangles": 3530,
+  "geometryUnchanged": true,
+  "oldFaceCoverage": 0.3056657224,
+  "newFaceCoverage": 1,
+  "medianDisparityErrorPx": 0.479483293171203,
+  "colorErrorBefore": 0.06745840389,
+  "colorErrorAfter": 0.05345468227,
+  "colorErrorReductionFraction": 0.20759046779160317,
+  "visibilityThresholdsRelaxed": false,
+  "limitations": [
+    "Two calibrated photographs, not a physical-phone or full-object validation",
+    "Bounds remain three Android depth views at 256px edge",
+    "Camera seams remain; local label selection is not multiband blending"
+  ]
+}

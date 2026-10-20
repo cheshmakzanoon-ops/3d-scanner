@@ -1,0 +1,17 @@
+{
+  "agent": "071",
+  "branch": "agents/071-app-navigation-composition",
+  "previous_head": "621c816991992be43e5d5591caea48bf1d56d721",
+  "head": "c345e4116e25d56a95175c0c2bb64b7aaa6fddba",
+  "remote_head": "c345e4116e25d56a95175c0c2bb64b7aaa6fddba",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/071.md"
+  ],
+  "manifest_verifier": {
+    "files": 205,
+    "source": "index",
+    "status": "PASS"
+  }
+}

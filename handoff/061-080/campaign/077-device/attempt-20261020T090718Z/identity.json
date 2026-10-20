@@ -1,0 +1,20 @@
+{
+  "build_source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+  "build_source_authority": "Parent-supplied immutable Agent077 APK-pair source",
+  "serial": "emulator-5556",
+  "apks": [
+    {
+      "path": "/workspace/agent-work/077/app/build/outputs/apk/debug/app-debug.apk",
+      "bytes": 118301749,
+      "sha256": "5830c15c4fcd7675dcb03b8414c6937f6671550fdc22225966057cd541d5eb02",
+      "mtime_utc": "2026-10-20T08:34:56.244795+00:00"
+    },
+    {
+      "path": "/workspace/agent-work/077/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "bytes": 2239070,
+      "sha256": "22bd5f6a68b06ca1e79d82d5c611b3d87821f4f9bf6ed537c71d42b31a6a82a2",
+      "mtime_utc": "2026-10-20T08:35:08.136789+00:00"
+    }
+  ],
+  "observed_delivery_head": "d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671"
+}

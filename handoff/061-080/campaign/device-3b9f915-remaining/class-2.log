@@ -1,0 +1,47 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a076.DesignSystemDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a076.DesignSystemDeviceTest:
+INSTRUMENTATION_STATUS: test=largeTextLabelAndToggleShareOneOperableAction
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a076.DesignSystemDeviceTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<1> but was:<0>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a076.DesignSystemDeviceTest.largeTextLabelAndToggleShareOneOperableAction(DesignSystemDeviceTest.kt:33)
+
+INSTRUMENTATION_STATUS: stream=
+Error in largeTextLabelAndToggleShareOneOperableAction(com.realityforge.scanner.agents.a076.DesignSystemDeviceTest):
+java.lang.AssertionError: expected:<1> but was:<0>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a076.DesignSystemDeviceTest.largeTextLabelAndToggleShareOneOperableAction(DesignSystemDeviceTest.kt:33)
+
+INSTRUMENTATION_STATUS: test=largeTextLabelAndToggleShareOneOperableAction
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 76.269
+There was 1 failure:
+1) largeTextLabelAndToggleShareOneOperableAction(com.realityforge.scanner.agents.a076.DesignSystemDeviceTest)
+java.lang.AssertionError: expected:<1> but was:<0>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a076.DesignSystemDeviceTest.largeTextLabelAndToggleShareOneOperableAction(DesignSystemDeviceTest.kt:33)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

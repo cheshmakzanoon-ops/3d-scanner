@@ -1,0 +1,26 @@
+{
+  "status": "NOT_RUN_INSTALL_TIMED_OUT",
+  "health_service_stability": true,
+  "build_source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+  "identity": "identity.json",
+  "command_receipts": "commands.json",
+  "physical_hardware": false,
+  "talkback_manual": "NOT_RUN",
+  "notes": "The 118301749-byte APK transfer completed in 26.241 s at 4.3 MB/s. Package installation produced no Success before the 180.109 s timeout. This is not evidence of an app assertion failure or a successful runtime gate. No application/test source edits. Physical hardware and manual TalkBack review NOT_RUN.",
+  "readiness_assessment": "The initial strict loop was interrupted by shell command timeouts. System server PID 4585 was observed unchanged at 09:07:35, 09:09:18 and 09:09:39; final package/activity checks succeeded and boot_completed was 1. One bounded installation attempt followed a successful current PID check.",
+  "device_gate": "BLOCKED_EXTERNAL",
+  "installation_state": "UNKNOWN_AFTER_TIMEOUT",
+  "actual_accessibility_tests": "NOT_RUN",
+  "test_apk_install": "NOT_RUN",
+  "completed_utc": "2026-10-20T09:15:31.733193+00:00",
+  "client_cleanup": {
+    "verified_exact_argv": true,
+    "host_pid": 123590,
+    "container_pid": 541,
+    "signal": "TERM",
+    "termination_command_exit_code": 0,
+    "no_install_client_in_final_container_snapshot": true
+  },
+  "retries": "One prior streaming failure retained. One bounded no-streaming app installation attempt made here; no test APK install or instrumentation invocation followed.",
+  "device_lock": "Held exclusively for each readiness/install phase and final client inspection; released when this script exits."
+}

@@ -1,0 +1,7 @@
+{
+  "files": {
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": "12194520adcb1a4461801540214ee2dfe2acc69292ee42fbd1840c338d8e12a4",
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/PickerCallbackSlots.kt": "af2485264574a36b294babe1452d3db5172529ea5d6bd7943e63e67748a3c1f8"
+  },
+  "state": "Awaiting mesh confirmation before actual compile"
+}

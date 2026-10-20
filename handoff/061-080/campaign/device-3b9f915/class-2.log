@@ -1,0 +1,74 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a072.ScreenInteractionTest:
+INSTRUMENTATION_STATUS: test=editableFieldsExposeLocalizedNamesAndKeepEditActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: expected:<Search projects> but was:<null>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableFieldsExposeLocalizedNamesAndKeepEditActions(ScreenInteractionTest.kt:71)
+
+INSTRUMENTATION_STATUS: stream=
+Error in editableFieldsExposeLocalizedNamesAndKeepEditActions(com.realityforge.scanner.agents.a072.ScreenInteractionTest):
+java.lang.AssertionError: expected:<Search projects> but was:<null>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableFieldsExposeLocalizedNamesAndKeepEditActions(ScreenInteractionTest.kt:71)
+
+INSTRUMENTATION_STATUS: test=editableFieldsExposeLocalizedNamesAndKeepEditActions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realControlsDispatchBoundActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a072.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: Visible semantic node missing: Synthetic library fixture
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.node(ScreenInteractionTest.kt:52)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.realControlsDispatchBoundActions(ScreenInteractionTest.kt:93)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realControlsDispatchBoundActions(com.realityforge.scanner.agents.a072.ScreenInteractionTest):
+java.lang.IllegalStateException: Visible semantic node missing: Synthetic library fixture
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.node(ScreenInteractionTest.kt:52)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.realControlsDispatchBoundActions(ScreenInteractionTest.kt:93)
+
+INSTRUMENTATION_STATUS: test=realControlsDispatchBoundActions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 140.646
+There were 2 failures:
+1) editableFieldsExposeLocalizedNamesAndKeepEditActions(com.realityforge.scanner.agents.a072.ScreenInteractionTest)
+java.lang.AssertionError: expected:<Search projects> but was:<null>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.editableFieldsExposeLocalizedNamesAndKeepEditActions(ScreenInteractionTest.kt:71)
+2) realControlsDispatchBoundActions(com.realityforge.scanner.agents.a072.ScreenInteractionTest)
+java.lang.IllegalStateException: Visible semantic node missing: Synthetic library fixture
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.node(ScreenInteractionTest.kt:52)
+	at com.realityforge.scanner.agents.a072.ScreenInteractionTest.realControlsDispatchBoundActions(ScreenInteractionTest.kt:93)
+
+FAILURES!!!
+Tests run: 2,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

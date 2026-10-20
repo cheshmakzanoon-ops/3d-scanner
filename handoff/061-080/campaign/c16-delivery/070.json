@@ -1,0 +1,17 @@
+{
+  "agent": "070",
+  "branch": "agents/070-studio-controls",
+  "previous_head": "bd6873223d9f0a528e1a1187b6d1c7a1d33cbfa0",
+  "head": "714ad3b3a8340db8461910c64cc5680f6353d9a1",
+  "remote_head": "714ad3b3a8340db8461910c64cc5680f6353d9a1",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/070.md"
+  ],
+  "manifest_verifier": {
+    "files": 206,
+    "source": "index",
+    "status": "PASS"
+  }
+}

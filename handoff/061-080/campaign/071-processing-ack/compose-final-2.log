@@ -1,0 +1,1 @@
+PASS: actual071ScannerApp+actual074ProcessingScreen/JobUiState compile with Kotlin/Compose2.1.21 against real pinned Android36 and a18 peer classes; no source stubs

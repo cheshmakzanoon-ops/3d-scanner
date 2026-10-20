@@ -1,0 +1,51 @@
+{
+  "result": "PASS",
+  "tests": 20,
+  "failures": 0,
+  "skipped": 0,
+  "source_commit": "f2d97f3d24f6a2a8f7a59b6c96ff649c6ecd8026",
+  "command": "python /workspace/campaign-061-080/071-picker-races/run.py",
+  "log": "/workspace/campaign-061-080/071-picker-races/attempt-20-pass/junit-final.log",
+  "log_sha256": "7f5f5c0311d9e9dad6dabf560de9fa5e2beaf608bce85b5f565f66136b7ea6dc",
+  "source_files": {
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": {
+      "sha256": "a5795decf246ed98501675c3ee405f4bf0aa2f433b2ab9bc58489a625c9617b2",
+      "git_blob": "1941d9cdc78f33a6c130da1fb38bce991cb130ea"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/NavigationState.kt": {
+      "sha256": "149d06d636d3869514b0b70bc84d54e9ce540f0d82acd482d0918f1d6ca46ca4",
+      "git_blob": "f3f076a7e74cc727e5be08cbbba564d9e5e51308"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/PickerCallbackSlots.kt": {
+      "sha256": "7319656ddf82881ed73409d0d7d456a7505fe7da6d95740787406d73ed3ddc3e",
+      "git_blob": "072fbd00942c2b4855ccf15ccf6c3b4557b1f831"
+    },
+    "app/src/main/res/values/agent_071.xml": {
+      "sha256": "a7bedcbadb65f3bf18d945c74ab370ecd9826a56eddf7fe690a5e888b5e0fd7c",
+      "git_blob": "fe6015212e77bf74931c5fc7e911272f39862d0e"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a071/NavigationStateTest.kt": {
+      "sha256": "56c6ec6737ea6ad61d2a3f2b92614d1d2518213569912d23b5406c034429fd12",
+      "git_blob": "f4b085e95a0d23657ade3ed4ae051e47edd12e55"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a071/PickerCallbackSlotsTest.kt": {
+      "sha256": "091357709f51209a1cb70aa71268cb53a9d70b1aa0ef01b1e8637c2e076870c1",
+      "git_blob": "d689998830dcf0fe1fc8eee664bd31a16e161f93"
+    }
+  },
+  "harness_sha256": "cde8e549bf6d2548c1019fdda8be45a6947cca3964693918a5c4dd819be3d24d",
+  "actual001_sources": {
+    "OperationContext.kt": "9b18d4c775b81b7a27bac9aa2453d5aee13fc4bc42ceadab9190e17d6e35780e",
+    "OperationCoordinator.kt": "186fc36f34dc9dbbd7bd7f6821ea95f25e96e81c479fc965b26e28108bfc59f4"
+  },
+  "actual067_sources": {
+    "ExportContract.kt": "824bdb7d141dac9030fa33ce0103ac5f3b3346773246dff4fbdd1226c696d231",
+    "PendingExportStore.kt": "2af880450d8b2529254465647ba2174bd0c49aedb99059b3b49347c7bb974589"
+  },
+  "actual067_head": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+  "environment": "JDK17.0.16+8/Kotlin2.1.21/JUnit4.13.2/coroutines1.10.2; actual published001 OperationCoordinator/codec and067 PendingExportStore, no substitutes",
+  "limitations": [
+    "Synthetic deterministic lifecycle/race fixtures; no ActivityResultRegistry/device/process-kill execution.",
+    "Focused Kotlin/Compose compilation separately recorded; final immutable Android/APK/JVM/lint qualification remains parent-owned."
+  ]
+}

@@ -1,0 +1,125 @@
+[
+  {
+    "agent": "061",
+    "source_sha": "de0153411abae6ad267e9460007c04991d464859",
+    "branch": "agents/061-glb-asset-contract",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "062",
+    "source_sha": "ae68b4255b7a1f605c71c533f34dba2c9d6c6aad",
+    "branch": "agents/062-obj-export",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "063",
+    "source_sha": "3561dd0beff9727986a9192341a629a3dbd55b3d",
+    "branch": "agents/063-stl-export",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "064",
+    "source_sha": "c0a926daa9863c1b68a2fb8ea9b4759dca023134",
+    "branch": "agents/064-ply-export",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "065",
+    "source_sha": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc",
+    "branch": "agents/065-mesh-lod",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "066",
+    "source_sha": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a",
+    "branch": "agents/066-model-editing",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "067",
+    "source_sha": "5a94a62a2387cdf9309df743d2ecf69ee181ca07",
+    "branch": "agents/067-export-coordinator",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "068",
+    "source_sha": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+    "branch": "agents/068-model-loader",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "069",
+    "source_sha": "1230d61816d2cc73889db4d6d48331a26973ebb4",
+    "branch": "agents/069-studio-renderer",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "070",
+    "source_sha": "bb01bca912af85d7edd973e7327e818fcbac2577",
+    "branch": "agents/070-studio-controls",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "071",
+    "source_sha": "0cec378b19d65dbaef94f739ef16cea6ed294530",
+    "branch": "agents/071-app-navigation-composition",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "072",
+    "source_sha": "7d918e90a260ce59877584314e8b1078a089cb75",
+    "branch": "agents/072-project-library-ui",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "073",
+    "source_sha": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+    "branch": "agents/073-photo-review-project-ui",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "074",
+    "source_sha": "4507a0d78c997c7540160d7c09825314bc6317ff",
+    "branch": "agents/074-processing-recovery-ui",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "075",
+    "source_sha": "39049fa4cfc5180231e6649acc6577527d63b8ca",
+    "branch": "agents/075-capture-onboarding-instructions",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "076",
+    "source_sha": "e1a573bf92f5a40870efa438907a82af68d556a0",
+    "branch": "agents/076-adaptive-design-system",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "077",
+    "source_sha": "6d4ae6a58272b0da99f548e7fdbfd5b27496e330",
+    "branch": "agents/077-accessibility-verification",
+    "metadata_changes_not_merged": [
+      " M docs/agents/status/077.md",
+      "?? docs/agents/requests/077-to-072.md"
+    ]
+  },
+  {
+    "agent": "078",
+    "source_sha": "2d91e44478dd26e3af51558fa4f2606025a96817",
+    "branch": "agents/078-localization-resources",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "079",
+    "source_sha": "c39338ebc8a4cdfc0606396807469bf8647f6374",
+    "branch": "agents/079-preferences-about-privacy-ui",
+    "metadata_changes_not_merged": []
+  },
+  {
+    "agent": "080",
+    "source_sha": "2426c46ebbcc76ba41b19510c13c83c3633565c2",
+    "branch": "agents/080-actual-ui-end-to-end",
+    "metadata_changes_not_merged": []
+  }
+]

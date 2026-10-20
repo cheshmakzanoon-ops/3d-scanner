@@ -1,0 +1,6 @@
+Starting: Intent { cmp=com.realityforge.scanner/.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.realityforge.scanner/.MainActivity
+WaitTime: 12560
+Complete

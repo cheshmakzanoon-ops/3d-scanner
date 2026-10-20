@@ -1,0 +1,75 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.PhotographicViewerTest:
+INSTRUMENTATION_STATUS: test=actualDialogViewerRendersAfterActivityPauseAndResume
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Activity never becomes requested state "[CREATED]" (last lifecycle transition = "RESUMED")
+	at androidx.test.core.app.ActivityScenario.waitForActivityToBecomeAnyOf(ActivityScenario.java:454)
+	at androidx.test.core.app.ActivityScenario.moveToState(ActivityScenario.java:689)
+	at com.realityforge.scanner.PhotographicViewerTest.actualDialogViewerRendersAfterActivityPauseAndResume(PhotographicViewerTest.kt:169)
+
+INSTRUMENTATION_STATUS: stream=
+Error in actualDialogViewerRendersAfterActivityPauseAndResume(com.realityforge.scanner.PhotographicViewerTest):
+java.lang.AssertionError: Activity never becomes requested state "[CREATED]" (last lifecycle transition = "RESUMED")
+	at androidx.test.core.app.ActivityScenario.waitForActivityToBecomeAnyOf(ActivityScenario.java:454)
+	at androidx.test.core.app.ActivityScenario.moveToState(ActivityScenario.java:689)
+	at com.realityforge.scanner.PhotographicViewerTest.actualDialogViewerRendersAfterActivityPauseAndResume(PhotographicViewerTest.kt:169)
+
+INSTRUMENTATION_STATUS: test=actualDialogViewerRendersAfterActivityPauseAndResume
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=boundedLoaderPreservesActualCoordinatesUvsAndIndices
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=boundedLoaderPreservesActualCoordinatesUvsAndIndices
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=pngBudgetIsEnforcedBeforeImageDecode
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=pngBudgetIsEnforcedBeforeImageDecode
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=malformedHeadersAndChunkBoundsFailClosed
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=malformedHeadersAndChunkBoundsFailClosed
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.PhotographicViewerTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=9
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=filamentRestoresCameraPausesAndRejectsOversizedResize
+INSTRUMENTATION_STATUS_CODE: 1

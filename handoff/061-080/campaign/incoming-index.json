@@ -1,0 +1,3772 @@
+{
+  "schema": 1,
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "deliveries": [
+    {
+      "agent": "001",
+      "branch": "agents/001-app-composition",
+      "source_sha": "931013353311becf909290f1791de92a239bfb2d",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/001.md",
+      "ownership_errors": [],
+      "receipt_sha": "fe48b6a365bc86fb646d14178d293f7d9cb28fad"
+    },
+    {
+      "agent": "002",
+      "branch": "agents/002-pipeline-orchestration",
+      "source_sha": "df912b81127ec389584b96d7e76d2111d52d619d",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/002.md",
+      "ownership_errors": [],
+      "receipt_sha": "cb44d8a9898179d84b14b09ea66aa8a40d1415f9"
+    },
+    {
+      "agent": "003",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "state": "INTEGRATED_PENDING_VERIFICATION",
+      "receipt_path": "docs/agents/status/003.md",
+      "ownership_errors": [
+        "CMakeLists.txt",
+        "app/build.gradle.kts",
+        "app/src/androidTest/java/com/realityforge/scanner/agents/a037/InitializerNativeTest.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/dense/DenseViewSelection.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/registration/LoopClosure.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/dense/DenseViewSelectionTest.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/registration/LoopClosureTest.kt",
+        "docs/agents/contracts/004-zlib-streaming.md",
+        "docs/agents/contracts/037.md",
+        "docs/agents/contracts/041.md",
+        "docs/agents/contracts/042.md",
+        "docs/agents/contracts/043.md",
+        "docs/agents/contracts/044.md",
+        "docs/agents/contracts/046.md",
+        "docs/agents/contracts/047.md",
+        "docs/agents/contracts/048.md",
+        "docs/agents/contracts/049.md",
+        "docs/agents/contracts/050.md",
+        "docs/agents/contracts/051.md",
+        "docs/agents/contracts/057.md",
+        "docs/agents/contracts/058.md",
+        "docs/agents/contracts/059.md",
+        "docs/agents/contracts/060.md",
+        "docs/agents/requests/037-to-003.md",
+        "docs/agents/requests/037-to-004.md",
+        "docs/agents/requests/037-to-061.md",
+        "docs/agents/requests/041-to-002.md",
+        "docs/agents/requests/041-to-003.md",
+        "docs/agents/requests/042-to-004.md",
+        "docs/agents/requests/043-to-004.md",
+        "docs/agents/requests/043-to-039.md",
+        "docs/agents/requests/044-to-030.md",
+        "docs/agents/requests/044-to-046.md",
+        "docs/agents/requests/046-to-003.md",
+        "docs/agents/requests/046-to-004.md",
+        "docs/agents/requests/046-to-009.md",
+        "docs/agents/requests/046-to-030.md",
+        "docs/agents/requests/047-to-004.md",
+        "docs/agents/requests/047-to-046.md",
+        "docs/agents/requests/048-to-004.md",
+        "docs/agents/requests/048-to-046.md",
+        "docs/agents/requests/049-to-004.md",
+        "docs/agents/requests/049-to-046.md",
+        "docs/agents/requests/050-to-004.md",
+        "docs/agents/requests/050-to-009.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/requests/057-to-003.md",
+        "docs/agents/requests/057-to-004.md",
+        "docs/agents/requests/057-to-009.md",
+        "docs/agents/requests/057-to-095.md",
+        "docs/agents/requests/058-to-057.md",
+        "docs/agents/requests/059-to-057.md",
+        "docs/agents/requests/060-to-057.md",
+        "docs/agents/status/037.md",
+        "docs/agents/status/041.md",
+        "docs/agents/status/042.md",
+        "docs/agents/status/043.md",
+        "docs/agents/status/044.md",
+        "docs/agents/status/046.md",
+        "docs/agents/status/047.md",
+        "docs/agents/status/051.md",
+        "docs/agents/status/057.md",
+        "docs/agents/status/058.md",
+        "docs/agents/status/059.md",
+        "docs/agents/status/060.md",
+        "reconstruction/include/realityforge/bundle_adjustment.hpp",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/core.hpp",
+        "reconstruction/include/realityforge/dense.hpp",
+        "reconstruction/include/realityforge/dense_selection.hpp",
+        "reconstruction/include/realityforge/depth_cache_manifest.hpp",
+        "reconstruction/include/realityforge/depth_checkpoint.hpp",
+        "reconstruction/include/realityforge/depth_consistency.hpp",
+        "reconstruction/include/realityforge/depth_refinement.hpp",
+        "reconstruction/include/realityforge/depth_tiles.hpp",
+        "reconstruction/include/realityforge/intrinsics.hpp",
+        "reconstruction/include/realityforge/loop_closure.hpp",
+        "reconstruction/include/realityforge/matching_cost.hpp",
+        "reconstruction/include/realityforge/photometric.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/include/realityforge/texture.hpp",
+        "reconstruction/include/realityforge/texture_blend.hpp",
+        "reconstruction/include/realityforge/texture_png.hpp",
+        "reconstruction/include/realityforge/texture_visibility.hpp",
+        "reconstruction/include/realityforge/uv_atlas.hpp",
+        "reconstruction/src/bundle_adjustment.cpp",
+        "reconstruction/src/bundle_problem_bridge.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/core.cpp",
+        "reconstruction/src/dense.cpp",
+        "reconstruction/src/depth_cache_manifest.cpp",
+        "reconstruction/src/depth_checkpoint.cpp",
+        "reconstruction/src/depth_consistency.cpp",
+        "reconstruction/src/depth_refinement.cpp",
+        "reconstruction/src/depth_tiles.cpp",
+        "reconstruction/src/intrinsics.cpp",
+        "reconstruction/src/loop_closure.cpp",
+        "reconstruction/src/matching_cost.cpp",
+        "reconstruction/src/photometric.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/src/texture.cpp",
+        "reconstruction/src/texture_blend.cpp",
+        "reconstruction/src/texture_png.cpp",
+        "reconstruction/src/texture_visibility.cpp",
+        "reconstruction/src/uv_atlas.cpp",
+        "reconstruction/tests/agent_046_real_profile.cpp",
+        "reconstruction/tests/agent_046_tile_process.cpp",
+        "reconstruction/tests/agent_050_process_recovery.cpp",
+        "reconstruction/tests/agent_057_c_abi_failure.cpp",
+        "reconstruction/tests/agents/003_bundle_problem_bridge_test.cpp",
+        "reconstruction/tests/bundle_adjustment_test.cpp",
+        "reconstruction/tests/dense_selection_test.cpp",
+        "reconstruction/tests/depth_cache_manifest_test.cpp",
+        "reconstruction/tests/depth_checkpoint_test.cpp",
+        "reconstruction/tests/depth_consistency_test.cpp",
+        "reconstruction/tests/depth_refinement_test.cpp",
+        "reconstruction/tests/depth_tiles_test.cpp",
+        "reconstruction/tests/initializer_degeneracy_test.cpp",
+        "reconstruction/tests/intrinsics_test.cpp",
+        "reconstruction/tests/loop_closure_test.cpp",
+        "reconstruction/tests/matching_cost_test.cpp",
+        "reconstruction/tests/photometric_adversarial_test.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "reconstruction/tests/texture_blend_test.cpp",
+        "reconstruction/tests/texture_png_test.cpp",
+        "reconstruction/tests/texture_test.cpp",
+        "reconstruction/tests/texture_visibility_test.cpp",
+        "reconstruction/tests/uv_atlas_test.cpp",
+        "tests/test_agent_037_native.py",
+        "tests/test_agent_046_native.py",
+        "tests/test_agent_046_refined_real.py",
+        "tests/test_agent_047_native.py",
+        "tests/test_agent_048_native.py",
+        "tests/test_agent_049_native.py",
+        "tests/test_agent_050_native.py",
+        "tests/test_agent_051_progress.py",
+        "tests/test_agent_057_texture.py",
+        "tests/test_agent_058_uv.py",
+        "tests/test_agent_059_blend.py",
+        "tests/test_agent_060_radiometry.py"
+      ],
+      "receipt_sha": "48738ddc62dbfc72111fa4abee5a9440218ab9d4"
+    },
+    {
+      "agent": "004",
+      "branch": "agents/004-build-foundation",
+      "source_sha": "d18b6f9e10228d341f4afe7bafac03ea3a35838b",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/004.md",
+      "ownership_errors": [
+        "docs/agents/contracts/004-campaign-native-registration.md",
+        "docs/agents/contracts/004-zlib-streaming.md"
+      ],
+      "receipt_sha": "9b0677a101dddde1fa7d0abf59ec93788ee40612"
+    },
+    {
+      "agent": "005",
+      "branch": "agents/005-database-migrations",
+      "source_sha": "bf7a848d5167a374c1f67fde324f2a608c7537ba",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/005.md",
+      "ownership_errors": [],
+      "receipt_sha": "6c7b059693a2f8aa44861b44f40183fe46b04329"
+    },
+    {
+      "agent": "006",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/006.md",
+      "ownership_errors": [],
+      "receipt_sha": "d31a6f1c149c79b08f178573359d1054a3b2388c"
+    },
+    {
+      "agent": "007",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/007.md",
+      "ownership_errors": [],
+      "receipt_sha": "6f9f3eaaaa22f985e2bd1afdc33cc2cc1a14ef28"
+    },
+    {
+      "agent": "008",
+      "branch": "agents/008-execution-lifecycle",
+      "source_sha": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/008.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "009",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/009.md",
+      "ownership_errors": [],
+      "receipt_sha": "7c0206d096dd4b3aef65e30de9d47b9ac2472a10"
+    },
+    {
+      "agent": "010",
+      "branch": "agents/010-diagnostics-contract",
+      "source_sha": "004cc4e82d216f34f3c1f389e0a36befe6d2a318",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/010.md",
+      "ownership_errors": [],
+      "receipt_sha": "113ee8d037a3c2212cfe111bb68f75267b8dadd6"
+    },
+    {
+      "agent": "011",
+      "branch": "agents/011-bounded-photo-import",
+      "source_sha": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/011.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "012",
+      "branch": "agents/012-image-decoding-lifetimes",
+      "source_sha": "07cf44a74358b1685302b74f4718c82d1671ae88",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/012.md",
+      "ownership_errors": [
+        "docs/agents/contracts/012-image-decoding.md",
+        "docs/agents/requests/012-to-010-diagnostics.md"
+      ],
+      "receipt_sha": "3e121cfc8c43d08d2d278faa19a69524976152df"
+    },
+    {
+      "agent": "013",
+      "branch": "agents/013-capture-metadata-identity",
+      "source_sha": "70a5245feb92cecc27e2437b69003783ed4c1d5a",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/013.md",
+      "ownership_errors": [],
+      "receipt_sha": "7736a27516e5364fb42209a83d864b682540e4c7"
+    },
+    {
+      "agent": "014",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/014.md",
+      "ownership_errors": [],
+      "receipt_sha": "f52a3e5e6843d0792478f5baf949c1d6195ebd20"
+    },
+    {
+      "agent": "015",
+      "branch": "agents/015-camera-optical-controls",
+      "source_sha": "89c30758a2aa29ccee9d2fc7c89e9000dcb5a317",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/015.md",
+      "ownership_errors": [],
+      "receipt_sha": "47391695a7967446092ac118b969a0f5dc515001"
+    },
+    {
+      "agent": "016",
+      "branch": "agents/016-live-capture-quality",
+      "source_sha": "615b82291892a691464b97ea5cb0912722257651",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/016.md",
+      "ownership_errors": [],
+      "receipt_sha": "8f1b2941ec53a8abfbd6a42d29a331ce11e775d0"
+    },
+    {
+      "agent": "017",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/017.md",
+      "ownership_errors": [],
+      "receipt_sha": "c1904faff9349b511e11bb9c76ba60f424474757"
+    },
+    {
+      "agent": "018",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/018.md",
+      "ownership_errors": [],
+      "receipt_sha": "70c1d020f6d30691e9c4914c6d87452e56ea9217"
+    },
+    {
+      "agent": "019",
+      "branch": "agents/019-project-library-commands",
+      "source_sha": "c88fc09fb9605aba08fef07f83514bddcd3342b8",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/019.md",
+      "ownership_errors": [],
+      "receipt_sha": "d6b2375861fca730685dd61f81e568b545359687"
+    },
+    {
+      "agent": "020",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/020.md",
+      "ownership_errors": [
+        "docs/agents/contracts/020-cache-garbage-collection.md"
+      ],
+      "receipt_sha": "b5ef1417ced169246e5b6cd66abcde09ea99ae80"
+    },
+    {
+      "agent": "021",
+      "branch": "agents/021-storage-budgets",
+      "source_sha": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/021.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "022",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/022.md",
+      "ownership_errors": [],
+      "receipt_sha": "df2e0d5b135d8d92d680deb1c47dc69f53497273"
+    },
+    {
+      "agent": "023",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/023.md",
+      "ownership_errors": [],
+      "receipt_sha": "4367681049fd2ea3e149f5b47db644b61ccfc16c"
+    },
+    {
+      "agent": "024",
+      "branch": "agents/024-reopen-schema-integrity",
+      "source_sha": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/024.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "025",
+      "branch": "agents/025-capture-archive-roundtrip",
+      "source_sha": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/025.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "026",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/026.md",
+      "ownership_errors": [],
+      "receipt_sha": "6e9f5805322bd83071474040ad5c14102abe43ee"
+    },
+    {
+      "agent": "027",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/027.md",
+      "ownership_errors": [],
+      "receipt_sha": "823e02bfbe2c6e116d39d804c327acba3e662034"
+    },
+    {
+      "agent": "028",
+      "branch": "agents/028-storage-management-ui",
+      "source_sha": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/028.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "029",
+      "branch": "agents/029-processing-notifications",
+      "source_sha": "463fc56faf595dd1242166ff93296a5e4ebddd92",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/029.md",
+      "ownership_errors": [],
+      "receipt_sha": "cdc71201683ed7256c27e4d660fe797181c3d7ff"
+    },
+    {
+      "agent": "030",
+      "branch": "agents/030-resource-thermal-scheduling",
+      "source_sha": "bf2c478fed7f9a688583817b2f4596ffbd1f9aa5",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/030.md",
+      "ownership_errors": [],
+      "receipt_sha": "9db7e184d1018b2eb5a65cde64f14afce04cb90f"
+    },
+    {
+      "agent": "031",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "source_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/031.md",
+      "ownership_errors": [],
+      "receipt_sha": "15c473389a9adec7ea063a528327b454c06e3277"
+    },
+    {
+      "agent": "032",
+      "branch": "agents/032-feature-extraction",
+      "source_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/032.md",
+      "ownership_errors": [],
+      "receipt_sha": "5534f39aaca88e28746548ba3aa5d309768d2650"
+    },
+    {
+      "agent": "033",
+      "branch": "agents/033-feature-cache-integrity",
+      "source_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/033.md",
+      "ownership_errors": [],
+      "receipt_sha": "9a78b53883a710244d9403f9c6ebadfb073906bf"
+    },
+    {
+      "agent": "034",
+      "branch": "agents/034-overlap-candidate-graph",
+      "source_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/034.md",
+      "ownership_errors": [],
+      "receipt_sha": "b2ceccef46f6604fefa45ae81e4d017e9dc3a838"
+    },
+    {
+      "agent": "035",
+      "branch": "agents/035-verified-feature-matching",
+      "source_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/035.md",
+      "ownership_errors": [
+        "app/src/androidTest/java/com/realityforge/scanner/NativeSmokeTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/engine/features/FeatureExtractorTest.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureExtractor.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/OverlapGraph.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/matching/OverlapGraphTest.kt",
+        "docs/agents/contracts/003.md",
+        "docs/agents/contracts/032.md",
+        "docs/agents/contracts/034.md",
+        "docs/agents/contracts/051.md",
+        "docs/agents/requests/003-to-002.md",
+        "docs/agents/requests/003-to-004.md",
+        "docs/agents/requests/003-to-037.md",
+        "docs/agents/requests/003-to-038.md",
+        "docs/agents/requests/003-to-039.md",
+        "docs/agents/requests/003-to-040.md",
+        "docs/agents/requests/003-to-041.md",
+        "docs/agents/requests/003-to-046.md",
+        "docs/agents/requests/003-to-051.md",
+        "docs/agents/requests/003-to-094.md",
+        "docs/agents/requests/032-to-002.md",
+        "docs/agents/requests/032-to-009.md",
+        "docs/agents/requests/032-to-033.md",
+        "docs/agents/requests/032-to-035.md",
+        "docs/agents/requests/032-to-045.md",
+        "docs/agents/requests/034-to-002.md",
+        "docs/agents/requests/034-to-035.md",
+        "docs/agents/requests/034-to-039.md",
+        "docs/agents/requests/034-to-043.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/status/032.md",
+        "docs/agents/status/034.md",
+        "docs/agents/status/051.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/jni_support.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/jni.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/tests/agent_003_jni_boundary_test.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "tests/test_agent_003_jni_boundary.py",
+        "tests/test_agent_051_progress.py"
+      ],
+      "receipt_sha": "23df65d5f9cccb04507a8641c52cb4a92b5582be"
+    },
+    {
+      "agent": "036",
+      "branch": "agents/036-stable-feature-tracks",
+      "source_sha": "0675116d884629361f7e128b32ae90f0e32637ae",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/036.md",
+      "ownership_errors": [],
+      "receipt_sha": "b0c86bec3571ac69ea66e84c1a1bf1bcf2fff261"
+    },
+    {
+      "agent": "037",
+      "branch": "agents/037-two-view-initializer",
+      "source_sha": "06775ece8c3799c5e0fce51939e2da9f92f26d91",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/037.md",
+      "ownership_errors": [
+        "docs/agents/contracts/051.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/status/051.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "tests/test_agent_051_progress.py"
+      ],
+      "receipt_sha": "b9adf635e994447bc829fd4f2f3b261608f34dc4"
+    },
+    {
+      "agent": "038",
+      "branch": "agents/038-robust-camera-resection",
+      "source_sha": "56c699cd57304f61c67afa129a2d578b4dc8f7f6",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/038.md",
+      "ownership_errors": [
+        "docs/agents/contracts/051.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/status/051.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "tests/test_agent_051_progress.py",
+        "tests/test_multiview.py"
+      ],
+      "receipt_sha": "53b476c4411568ff5c7b0274e71036ba2168e455"
+    },
+    {
+      "agent": "039",
+      "branch": "agents/039-incremental-registration",
+      "source_sha": "e92f9fe25cd968d14b48a99807a31950202e5144",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/039.md",
+      "ownership_errors": [
+        "app/src/androidTest/java/com/realityforge/scanner/NativeSmokeTest.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/tracks/TrackSnapshot.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/tracks/TrackSnapshotTest.kt",
+        "docs/agents/contracts/003.md",
+        "docs/agents/contracts/036.md",
+        "docs/agents/contracts/051.md",
+        "docs/agents/requests/003-to-002.md",
+        "docs/agents/requests/003-to-004.md",
+        "docs/agents/requests/003-to-037.md",
+        "docs/agents/requests/003-to-038.md",
+        "docs/agents/requests/003-to-039.md",
+        "docs/agents/requests/003-to-040.md",
+        "docs/agents/requests/003-to-041.md",
+        "docs/agents/requests/003-to-046.md",
+        "docs/agents/requests/003-to-051.md",
+        "docs/agents/requests/003-to-094.md",
+        "docs/agents/requests/036-to-009.md",
+        "docs/agents/requests/036-to-039.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/status/036.md",
+        "docs/agents/status/051.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/jni_support.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/jni.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/tests/agent_003_jni_boundary_test.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "tests/test_agent_003_jni_boundary.py",
+        "tests/test_agent_051_progress.py"
+      ],
+      "receipt_sha": "e17851b1d846689cfe21f1a9b5aeb79a0fd5b2f6"
+    },
+    {
+      "agent": "040",
+      "branch": "agents/040-multiview-triangulation",
+      "source_sha": "f20c7d2c6e3ec4e0f05d01032d65c51cb9a494f5",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/040.md",
+      "ownership_errors": [
+        "docs/agents/contracts/051.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/status/051.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "tests/test_agent_051_progress.py"
+      ],
+      "receipt_sha": "9e5658cb9f1981a649d8f5e8b433d2cda62c8226"
+    },
+    {
+      "agent": "041",
+      "branch": "agents/041-bundle-adjustment",
+      "source_sha": "6d9f8be25be00bbf593f6a629acac0be85af5cb2",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/041.md",
+      "ownership_errors": [
+        "app/src/main/java/com/realityforge/scanner/engine/registration/LoopClosure.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/registration/LoopClosureTest.kt",
+        "docs/agents/contracts/042.md",
+        "docs/agents/contracts/043.md",
+        "docs/agents/requests/042-to-004.md",
+        "docs/agents/requests/043-to-004.md",
+        "docs/agents/requests/043-to-039.md",
+        "docs/agents/status/042.md",
+        "docs/agents/status/043.md",
+        "reconstruction/include/realityforge/intrinsics.hpp",
+        "reconstruction/include/realityforge/loop_closure.hpp",
+        "reconstruction/src/intrinsics.cpp",
+        "reconstruction/src/loop_closure.cpp",
+        "reconstruction/tests/intrinsics_test.cpp",
+        "reconstruction/tests/loop_closure_test.cpp"
+      ],
+      "receipt_sha": "828970e964a5becb2e5978c36f2caca6e90e1fd1"
+    },
+    {
+      "agent": "042",
+      "branch": "agents/042-intrinsic-refinement",
+      "source_sha": "c3b1ee4a60bd9e83b5a16cb29446efc4f54dcb1f",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/042.md",
+      "ownership_errors": [],
+      "receipt_sha": "a8694b6dbd4a99032b1e0c243e60f951fcbaadb7"
+    },
+    {
+      "agent": "043",
+      "branch": "agents/043-loop-closure-drift",
+      "source_sha": "437014623f3b601d2e3bef5c243dd68b094c0559",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/043.md",
+      "ownership_errors": [],
+      "receipt_sha": "246c48e61d0ea1ae6a2140dac059cb5982f6bbd3"
+    },
+    {
+      "agent": "044",
+      "branch": "agents/044-dense-view-selection",
+      "source_sha": "1da65a698443dc214be716ed89e8715c50a6fcbe",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/044.md",
+      "ownership_errors": [],
+      "receipt_sha": "b6531b0836a988bbc448f814a43894b0f65753f3"
+    },
+    {
+      "agent": "045",
+      "branch": "agents/045-image-pyramids-rectification",
+      "source_sha": "1b75ae698bc0a97908cf9498e42af05190491eba",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/045.md",
+      "ownership_errors": [
+        "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt",
+        "app/src/main/java/com/realityforge/scanner/engine/geometry/PixelTransform.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/geometry/PixelTransformTest.kt",
+        "docs/agents/contracts/031.md",
+        "docs/agents/requests/031-to-002.md",
+        "docs/agents/requests/031-to-009.md",
+        "docs/agents/requests/031-to-027.md",
+        "docs/agents/requests/031-to-042.md",
+        "docs/agents/requests/031-to-045.md",
+        "docs/agents/status/031.md",
+        "tests/test_camera_calibration.py"
+      ],
+      "receipt_sha": "0fe8d997e754d06b5c5f241c4943a903ee1a52ce"
+    },
+    {
+      "agent": "046",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "source_sha": "a3da8e025e4efe5587a40b6e28d28d4e1601a49a",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/046.md",
+      "ownership_errors": [
+        "app/src/main/java/com/realityforge/scanner/engine/dense/DenseViewSelection.kt",
+        "app/src/test/java/com/realityforge/scanner/engine/dense/DenseViewSelectionTest.kt",
+        "docs/agents/contracts/044.md",
+        "docs/agents/contracts/047.md",
+        "docs/agents/contracts/048.md",
+        "docs/agents/contracts/049.md",
+        "docs/agents/contracts/050.md",
+        "docs/agents/contracts/051.md",
+        "docs/agents/requests/044-to-030.md",
+        "docs/agents/requests/044-to-046.md",
+        "docs/agents/requests/047-to-004.md",
+        "docs/agents/requests/047-to-046.md",
+        "docs/agents/requests/048-to-004.md",
+        "docs/agents/requests/048-to-046.md",
+        "docs/agents/requests/049-to-004.md",
+        "docs/agents/requests/049-to-046.md",
+        "docs/agents/requests/050-to-004.md",
+        "docs/agents/requests/050-to-009.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/status/044.md",
+        "docs/agents/status/047.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/dense_selection.hpp",
+        "reconstruction/include/realityforge/depth_cache_manifest.hpp",
+        "reconstruction/include/realityforge/depth_checkpoint.hpp",
+        "reconstruction/include/realityforge/depth_consistency.hpp",
+        "reconstruction/include/realityforge/depth_refinement.hpp",
+        "reconstruction/include/realityforge/matching_cost.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/depth_cache_manifest.cpp",
+        "reconstruction/src/depth_checkpoint.cpp",
+        "reconstruction/src/depth_consistency.cpp",
+        "reconstruction/src/depth_refinement.cpp",
+        "reconstruction/src/matching_cost.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/tests/agent_050_process_recovery.cpp",
+        "reconstruction/tests/dense_selection_test.cpp",
+        "reconstruction/tests/depth_cache_manifest_test.cpp",
+        "reconstruction/tests/depth_checkpoint_test.cpp",
+        "reconstruction/tests/depth_consistency_test.cpp",
+        "reconstruction/tests/depth_refinement_test.cpp",
+        "reconstruction/tests/matching_cost_test.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "tests/test_agent_047_native.py",
+        "tests/test_agent_048_native.py",
+        "tests/test_agent_049_native.py",
+        "tests/test_agent_050_native.py",
+        "tests/test_agent_051_progress.py"
+      ],
+      "receipt_sha": "bda7ac3cd2ef9fd9f35782d302d38e2892b688a4"
+    },
+    {
+      "agent": "047",
+      "branch": "agents/047-depth-refinement",
+      "source_sha": "be8e9f87963c39b7f0fc3a921493a2609a989496",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/047.md",
+      "ownership_errors": [],
+      "receipt_sha": "3d48a1eb955db9b43d2cd4cea1525967f0b30761"
+    },
+    {
+      "agent": "048",
+      "branch": "agents/048-photometric-matching-costs",
+      "source_sha": "8b8ff320d5681bb17c39a428157e8cc0e80dc2db",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/048.md",
+      "ownership_errors": [],
+      "receipt_sha": "496af1439d696cb5ea811d0bb6f80dbf6d41f5dd"
+    },
+    {
+      "agent": "049",
+      "branch": "agents/049-depth-confidence-occlusion",
+      "source_sha": "05a348b3caa0bdea0965f2d8bad2819e2f8c6d76",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/049.md",
+      "ownership_errors": [],
+      "receipt_sha": "717ba72c653e893eaecc12c248c3b4bc6930122f"
+    },
+    {
+      "agent": "050",
+      "branch": "agents/050-depth-checkpoint-durability",
+      "source_sha": "4d7a2a7d574052c9bb739e3c92cc2971c721c543",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/050.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "051",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/051.md",
+      "ownership_errors": [],
+      "receipt_sha": "375d411af3a05563d770160bff9e78f3c3b66a83"
+    },
+    {
+      "agent": "052",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "state": "OPTIONAL_DISABLED",
+      "receipt_path": "docs/agents/status/052.md",
+      "ownership_errors": [],
+      "receipt_sha": "029f2fe006659abdcbad78592d7bb7c4f924d77d"
+    },
+    {
+      "agent": "053",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "state": "INTEGRATED_PENDING_VERIFICATION",
+      "receipt_path": "docs/agents/status/053.md",
+      "ownership_errors": [
+        "docs/agents/contracts/049.md",
+        "docs/agents/contracts/051.md",
+        "docs/agents/contracts/054.md",
+        "docs/agents/contracts/055.md",
+        "docs/agents/contracts/056.md",
+        "docs/agents/requests/049-to-004.md",
+        "docs/agents/requests/049-to-046.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/requests/054-to-040.md",
+        "docs/agents/requests/054-to-047.md",
+        "docs/agents/requests/054-to-049.md",
+        "docs/agents/requests/054-to-053.md",
+        "docs/agents/requests/055-to-053.md",
+        "docs/agents/requests/055-to-056.md",
+        "docs/agents/requests/055-to-058.md",
+        "docs/agents/requests/055-to-065.md",
+        "docs/agents/requests/056-to-053.md",
+        "docs/agents/status/051.md",
+        "docs/agents/status/056.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/depth_consistency.hpp",
+        "reconstruction/include/realityforge/mesh_cleanup.hpp",
+        "reconstruction/include/realityforge/mesh_topology.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/include/realityforge/surface_evidence.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/depth_consistency.cpp",
+        "reconstruction/src/mesh_cleanup.cpp",
+        "reconstruction/src/mesh_topology.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/src/surface_evidence.cpp",
+        "reconstruction/tests/depth_consistency_test.cpp",
+        "reconstruction/tests/mesh_cleanup_test.cpp",
+        "reconstruction/tests/mesh_topology_test.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "reconstruction/tests/surface_evidence_test.cpp",
+        "tests/test_agent_049_native.py",
+        "tests/test_agent_051_progress.py",
+        "tests/test_agent_054_surface_evidence.py",
+        "tests/test_agent_055_mesh_topology.py",
+        "tests/test_agent_056_cleanup.py"
+      ],
+      "receipt_sha": "77c89be9a994224cf884daea89e1fdc9151ec24b"
+    },
+    {
+      "agent": "054",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "source_sha": "658f80669ce418d2d2cfa376aa40cd8501c3ca37",
+      "state": "INTEGRATED_PENDING_VERIFICATION",
+      "receipt_path": "docs/agents/status/054.md",
+      "ownership_errors": [],
+      "receipt_sha": "ccecb928107af3991a917ed8b99ef6dd5cc142e0"
+    },
+    {
+      "agent": "055",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "source_sha": "2c659b78b597f63988cb65e9cce9d44fc475bac3",
+      "state": "INTEGRATED_PENDING_VERIFICATION",
+      "receipt_path": "docs/agents/status/055.md",
+      "ownership_errors": [],
+      "receipt_sha": "2b39270f164f6a44d6768d7d2c93b1c2fa714b22"
+    },
+    {
+      "agent": "056",
+      "branch": "agents/056-conservative-mesh-cleanup",
+      "source_sha": "668a8a489bdea1c12125e6d6e4cb3239926332e8",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/056.md",
+      "ownership_errors": [],
+      "receipt_sha": "b090ac5bef0160603543b5ab58c8c4de7323780c"
+    },
+    {
+      "agent": "057",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "source_sha": "6cb3c5b060658935d062f6420c4a4daa2b576ae6",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/057.md",
+      "ownership_errors": [
+        "CMakeLists.txt",
+        "app/build.gradle.kts",
+        "docs/agents/contracts/004-zlib-streaming.md",
+        "docs/agents/contracts/049.md",
+        "docs/agents/contracts/051.md",
+        "docs/agents/contracts/058.md",
+        "docs/agents/contracts/059.md",
+        "docs/agents/contracts/060.md",
+        "docs/agents/requests/049-to-004.md",
+        "docs/agents/requests/049-to-046.md",
+        "docs/agents/requests/051-to-002.md",
+        "docs/agents/requests/051-to-003.md",
+        "docs/agents/requests/051-to-037.md",
+        "docs/agents/requests/051-to-038.md",
+        "docs/agents/requests/051-to-039.md",
+        "docs/agents/requests/051-to-040.md",
+        "docs/agents/requests/051-to-041.md",
+        "docs/agents/requests/051-to-046.md",
+        "docs/agents/requests/051-to-050.md",
+        "docs/agents/requests/051-to-053.md",
+        "docs/agents/requests/051-to-057.md",
+        "docs/agents/requests/051-to-060.md",
+        "docs/agents/requests/058-to-057.md",
+        "docs/agents/requests/059-to-057.md",
+        "docs/agents/requests/060-to-057.md",
+        "docs/agents/status/058.md",
+        "docs/agents/status/059.md",
+        "docs/agents/status/060.md",
+        "reconstruction/include/realityforge/cancellation.hpp",
+        "reconstruction/include/realityforge/depth_consistency.hpp",
+        "reconstruction/include/realityforge/photometric.hpp",
+        "reconstruction/include/realityforge/progress.hpp",
+        "reconstruction/include/realityforge/texture_blend.hpp",
+        "reconstruction/include/realityforge/uv_atlas.hpp",
+        "reconstruction/src/cancellation.cpp",
+        "reconstruction/src/depth_consistency.cpp",
+        "reconstruction/src/photometric.cpp",
+        "reconstruction/src/progress.cpp",
+        "reconstruction/src/texture_blend.cpp",
+        "reconstruction/src/uv_atlas.cpp",
+        "reconstruction/tests/depth_consistency_test.cpp",
+        "reconstruction/tests/photometric_adversarial_test.cpp",
+        "reconstruction/tests/progress_test.cpp",
+        "reconstruction/tests/texture_blend_test.cpp",
+        "reconstruction/tests/uv_atlas_test.cpp",
+        "tests/test_agent_049_native.py",
+        "tests/test_agent_051_progress.py",
+        "tests/test_agent_058_uv.py",
+        "tests/test_agent_059_blend.py",
+        "tests/test_agent_060_radiometry.py"
+      ],
+      "receipt_sha": "5452ac1221b09c338c2b8921eaedeac4845c5d2d"
+    },
+    {
+      "agent": "058",
+      "branch": "agents/058-uv-charts-packing",
+      "source_sha": "e7f3ee3fed6dd831a82ef6ace672ec132237966e",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/058.md",
+      "ownership_errors": [],
+      "receipt_sha": "85907134c76afda2feee7ac41d3888921e735a0d"
+    },
+    {
+      "agent": "059",
+      "branch": "agents/059-texture-seam-blending",
+      "source_sha": "01bb975cfc7fdb7699034a8f0c6c558c2133f081",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/059.md",
+      "ownership_errors": [],
+      "receipt_sha": "25ff29b51a1c8aab032846393190f757b829f45b"
+    },
+    {
+      "agent": "060",
+      "branch": "agents/060-photometric-color-consistency",
+      "source_sha": "2dd1546fc569595b315002a2d77b6cc646689db6",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/060.md",
+      "ownership_errors": [],
+      "receipt_sha": "2078c5bcaf90a5aa7cc0210a3292d78d24db8603"
+    },
+    {
+      "agent": "061",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/061.md",
+      "ownership_errors": [],
+      "receipt_sha": "4725c01a9765da861e9ef4cc001d972055b0c60e"
+    },
+    {
+      "agent": "062",
+      "branch": "agents/062-obj-export",
+      "source_sha": "31f1efb068cc0c00788b3f7d87c4ac4f4c1e6778",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/062.md",
+      "ownership_errors": [],
+      "receipt_sha": "035e4b0ef1061b603fbc3bc34cce19ef71d94c3e"
+    },
+    {
+      "agent": "063",
+      "branch": "agents/063-stl-export",
+      "source_sha": "a443e42bb4983e36e7cf952619cf836b5519de34",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/063.md",
+      "ownership_errors": [],
+      "receipt_sha": "79ac965b755c4908df0a9d4e35f8ddb0afb1f208"
+    },
+    {
+      "agent": "064",
+      "branch": "agents/064-ply-export",
+      "source_sha": "9b02e967707cda696645094e6e61c7130caa07be",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/064.md",
+      "ownership_errors": [],
+      "receipt_sha": "51785c705d555900a2f8a0f43ec6b10c01475884"
+    },
+    {
+      "agent": "065",
+      "branch": "agents/065-mesh-lod",
+      "source_sha": "500982de076f54b670b9021364a26a333aca6510",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/065.md",
+      "ownership_errors": [],
+      "receipt_sha": "82c08145c8bb2ac577cd05030c64d18297ccfece"
+    },
+    {
+      "agent": "066",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/066.md",
+      "ownership_errors": [],
+      "receipt_sha": "5c319c58ca0b0b992bc508679d62f62212d61fb8"
+    },
+    {
+      "agent": "067",
+      "branch": "agents/067-export-coordinator",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/067.md",
+      "ownership_errors": [],
+      "receipt_sha": "f4b1983962a65b8d4ae3d8708027c7f0cd899451"
+    },
+    {
+      "agent": "068",
+      "branch": "agents/068-model-loader",
+      "source_sha": "c23b7d212101a91aab1ab363fb7c6c43924af260",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/068.md",
+      "ownership_errors": [],
+      "receipt_sha": "b0c32ee1a55cbce9dfef214ce1ddb2ec90ad8ead"
+    },
+    {
+      "agent": "069",
+      "branch": "agents/069-studio-renderer",
+      "source_sha": "38849d8150cc154b111db7769a5fc9d0dd204792",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/069.md",
+      "ownership_errors": [],
+      "receipt_sha": "21154da62c3cf3198aab6b1ac1f03432a91ccc2b"
+    },
+    {
+      "agent": "070",
+      "branch": "agents/070-studio-controls",
+      "source_sha": "76a954184220d2f218d2a2eed9ecbeb8d29fc850",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/070.md",
+      "ownership_errors": [],
+      "receipt_sha": "c18bf896ad886cd6657fbe3599fe49e8e9575836"
+    },
+    {
+      "agent": "071",
+      "branch": "agents/071-app-navigation-composition",
+      "source_sha": "ca893af34b7fe10efeb9e5591fd99dd87b4788ef",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/071.md",
+      "ownership_errors": [],
+      "receipt_sha": "186567e3fa98a4b258d021829b8846d8e9b622d8"
+    },
+    {
+      "agent": "072",
+      "branch": "agents/072-project-library-ui",
+      "source_sha": "2e3c01258bc03c23966538bf4abcb1e50d5214de",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/072.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "073",
+      "branch": "agents/073-photo-review-project-ui",
+      "source_sha": "c0fc42b967f465314af89c62e680de54215a0843",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/073.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "074",
+      "branch": "agents/074-processing-recovery-ui",
+      "source_sha": "2118907f269bf1354a0114548726d931ea48288f",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/074.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "075",
+      "branch": "agents/075-capture-onboarding-instructions",
+      "source_sha": "456e5c4d633acce60112213055e95f37f71c64ad",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/075.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "076",
+      "branch": "agents/076-adaptive-design-system",
+      "source_sha": "4d82505ed699ec28568c964a3eea7f638fe4065d",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/076.md",
+      "ownership_errors": [],
+      "receipt_sha": "a4ab054cdc2fba1f06be3dd4d463f85de14f14a0"
+    },
+    {
+      "agent": "077",
+      "branch": "agents/077-accessibility-verification",
+      "source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/077.md",
+      "ownership_errors": [],
+      "receipt_sha": "6ea634cb4106470e7fd418ce35a2f21c86ce7b15"
+    },
+    {
+      "agent": "078",
+      "branch": "agents/078-localization-resources",
+      "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/078.md",
+      "ownership_errors": [],
+      "receipt_sha": "b7c0ae9a74b43592dcf638e1e8aba66f67171470"
+    },
+    {
+      "agent": "079",
+      "branch": "agents/079-preferences-about-privacy-ui",
+      "source_sha": "867831b8f08fcd8bae0dce2f12deed5727e0fc1a",
+      "state": "MISSING_RECEIPT",
+      "receipt_path": "docs/agents/status/079.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "080",
+      "branch": "agents/080-actual-ui-end-to-end",
+      "source_sha": "fa90a25b3e2d0cd86cc6b8eda603fad5919761a3",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/080.md",
+      "ownership_errors": [],
+      "receipt_sha": "075258f0354bebdc3695d3df36c3c8b5f500c998"
+    },
+    {
+      "agent": "081",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "source_sha": "39e90e534ed414ccb9dc152e64709a45f1f28bcc",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/081.md",
+      "ownership_errors": [],
+      "receipt_sha": "e303b0d10aa8bb38cdabed3967a900d682c47c5b"
+    },
+    {
+      "agent": "082",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "source_sha": "6cc3465926186f0db10e58e2d3e30db638cbe2fe",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/082.md",
+      "ownership_errors": [],
+      "receipt_sha": "5d19fca65a3ff1205fbd97f4b43678df84da726b"
+    },
+    {
+      "agent": "083",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "source_sha": "eb95eb05d75a77d7236cd68bc32dacf4acb4825b",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/083.md",
+      "ownership_errors": [],
+      "receipt_sha": "3d9d7108e22b418fe9805c6ce0a4261379dcf04d"
+    },
+    {
+      "agent": "084",
+      "branch": "agents/084-full-object-geometry-quality",
+      "source_sha": "4cc6f123b38027921e477eda9c243d7c0c1b4ed8",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/084.md",
+      "ownership_errors": [],
+      "receipt_sha": "ea664331e11f02092944395d102016c0312876f9"
+    },
+    {
+      "agent": "085",
+      "branch": "agents/085-photographic-texture-quality",
+      "source_sha": "e88a374f4f9aaf8a5104354f4747778b372e2465",
+      "state": "INVALID_RECEIPT",
+      "receipt_path": "docs/agents/status/085.md",
+      "ownership_errors": [],
+      "receipt_sha": "e0846d2d4ae11e95332a3f1f8dd28d32fbd46342"
+    },
+    {
+      "agent": "086",
+      "branch": "agents/086-physical-arm64-capture-validation",
+      "source_sha": "edf7729e10c1cb1e2b8078a6d4d912f2adc7014b",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/086.md",
+      "ownership_errors": [],
+      "receipt_sha": "927f8dfb8d8ecbe01476648791c9bf549b698c7b"
+    },
+    {
+      "agent": "087",
+      "branch": "agents/087-physical-resource-profiling",
+      "source_sha": "5fe3c5d9e0c4965da37d57bc1f6600fe990e75c0",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/087.md",
+      "ownership_errors": [],
+      "receipt_sha": "374d37a769a6141abfc269c136c714c0d93e50aa"
+    },
+    {
+      "agent": "088",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "source_sha": "0e5d9415c168c46a21899450dcd82c84886095f8",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/088.md",
+      "ownership_errors": [],
+      "receipt_sha": "b8af81628b98697ce198f5bc3d1cef693b5067ef"
+    },
+    {
+      "agent": "089",
+      "branch": "agents/089-runtime-offline-privacy",
+      "source_sha": "3b8da57874a5ae2fd9ddeb127acc85f587ba289f",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/089.md",
+      "ownership_errors": [],
+      "receipt_sha": "45ae0201ee82c5f4057ec14af3dc0d6e03089b65"
+    },
+    {
+      "agent": "090",
+      "branch": "agents/090-export-interoperability-validation",
+      "source_sha": "50d224e7cfbcb3b5d17df006da723560fb38b962",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/090.md",
+      "ownership_errors": [],
+      "receipt_sha": "1e9706bbffe7ad8a4e562764e6f4866b47f1c3fb"
+    },
+    {
+      "agent": "091",
+      "branch": "agents/091-release-package-validation",
+      "source_sha": "b5686a3e93fe706298a8fedfa8f042a04969fc22",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/091.md",
+      "ownership_errors": [],
+      "receipt_sha": "521c9394d63123835d6a9239356b255402532b48"
+    },
+    {
+      "agent": "092",
+      "branch": "agents/092-android-compatibility-matrix",
+      "source_sha": "9ff09f36631f459ef92bcd4ae6d676cf3f6867fa",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/092.md",
+      "ownership_errors": [],
+      "receipt_sha": "941602b54aab40e005a23b7e6715cb420a2bb2d5"
+    },
+    {
+      "agent": "093",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "source_sha": "bd87f4fa02639f7a4f565064e6792cfe03c40b92",
+      "state": "READY_FOR_INTEGRATION",
+      "receipt_path": "docs/agents/status/093.md",
+      "ownership_errors": [],
+      "receipt_sha": "ec9f599086491760078adf18a19f566bb4b86fba"
+    },
+    {
+      "agent": "094",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706",
+      "state": "DONE",
+      "receipt_path": "docs/agents/status/094.md",
+      "ownership_errors": [],
+      "receipt_sha": "56df91408ade3b1dfc1b33ffb3fd775ea5cbcdf7"
+    },
+    {
+      "agent": "095",
+      "branch": "agents/095-dependency-notices-sbom",
+      "source_sha": "9f957ea2a740c56673a8a1f66d914de4bbf048ee",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/095.md",
+      "ownership_errors": [],
+      "receipt_sha": "780cb5debdbc4a75ca5bcddb908aebbb34dac82c"
+    },
+    {
+      "agent": "096",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "source_sha": "6e4cbee9d47beebf6978164f5a87b618aec08c56",
+      "state": "BLOCKED_EXTERNAL",
+      "receipt_path": "docs/agents/status/096.md",
+      "ownership_errors": [],
+      "receipt_sha": "9ce4d845df1f76c8bb0779cabf2d1e1e658de2e4"
+    },
+    {
+      "agent": "097",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "source_sha": "b3dbb2ba53dccd84e324a0001671eef0a4089227",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/097.md",
+      "ownership_errors": [],
+      "receipt_sha": "f6f4be58ca6020865f74aa832d34b4cab90c43fb"
+    },
+    {
+      "agent": "098",
+      "branch": "agents/098-current-documentation-runbook",
+      "source_sha": "3b987458a7382c1abbfb605b795e9d9b3c5a1054",
+      "state": "DONE",
+      "receipt_path": "docs/agents/status/098.md",
+      "ownership_errors": [],
+      "receipt_sha": "3583b184269b75247b8438b4a95077f14cdd98c8"
+    },
+    {
+      "agent": "099",
+      "branch": "agents/099-release-candidate-journey-qualification",
+      "source_sha": null,
+      "state": "NOT_RUN",
+      "receipt_path": "docs/agents/status/099.md",
+      "ownership_errors": []
+    },
+    {
+      "agent": "100",
+      "branch": "agents/100-integration-lead",
+      "source_sha": "2f969b28ec15e9ed781a436e7821bb884296cdb1",
+      "state": "WORKING",
+      "receipt_path": "docs/agents/status/100.md",
+      "ownership_errors": [
+        ".github/workflows/android-compatibility.yml",
+        ".github/workflows/export-source-snapshot.yml",
+        ".github/workflows/release-candidate.yml",
+        ".github/workflows/security-analysis.yml",
+        "README.md",
+        "app/proguard-rules.pro",
+        "app/src/androidTest/AndroidManifest.xml",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/CompatibilityContractTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/FaultDocumentProvider.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/OfflinePrivacyJourneyTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/PhysicalCaptureContractTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/RecoveryStageContractTest.kt",
+        "app/src/androidTest/java/com/realityforge/scanner/qa/ReleaseNativeContractTest.kt",
+        "app/src/main/res/xml/data_extraction_rules.xml",
+        "benchmarks/corpus/README.md",
+        "benchmarks/corpus/requirements-v1.json",
+        "benchmarks/export_fixtures/README.md",
+        "benchmarks/export_fixtures/asymmetric.glb",
+        "benchmarks/export_fixtures/asymmetric.mtl",
+        "benchmarks/export_fixtures/asymmetric.obj",
+        "benchmarks/export_fixtures/asymmetric.ply",
+        "benchmarks/export_fixtures/asymmetric.stl",
+        "benchmarks/export_fixtures/checker.png",
+        "benchmarks/export_fixtures/flipped-uv.glb",
+        "benchmarks/export_fixtures/geometry.expected.json",
+        "benchmarks/export_fixtures/invalid-index.glb",
+        "benchmarks/export_fixtures/missing-sidecar.obj",
+        "benchmarks/export_fixtures/reversed-normal.glb",
+        "benchmarks/export_fixtures/textured.expected.json",
+        "benchmarks/export_fixtures/traversal.obj",
+        "benchmarks/export_fixtures/unproven-metric.glb",
+        "benchmarks/quality_protocols/geometry.json",
+        "docs/ARCHITECTURE.md",
+        "docs/BUILDING.md",
+        "docs/MILESTONE_STATUS.md",
+        "docs/NEXT_MILESTONE.md",
+        "docs/PRIVACY.md",
+        "docs/agents/contracts/083.md",
+        "docs/agents/contracts/084.md",
+        "docs/agents/contracts/086.md",
+        "docs/agents/contracts/088.md",
+        "docs/agents/contracts/089.md",
+        "docs/agents/contracts/090.md",
+        "docs/agents/contracts/091.md",
+        "docs/agents/contracts/092.md",
+        "docs/agents/contracts/094.md",
+        "docs/agents/contracts/096.md",
+        "docs/agents/requests/083-to-086.md",
+        "docs/agents/requests/083-to-095.md",
+        "docs/agents/requests/084-to-086.md",
+        "docs/agents/requests/088-to-002.md",
+        "docs/agents/requests/088-to-050.md",
+        "docs/agents/requests/090-to-061.md",
+        "docs/agents/requests/090-to-095.md",
+        "docs/agents/requests/091-to-004.md",
+        "docs/agents/requests/096-to-068.md",
+        "docs/agents/status/083.md",
+        "docs/agents/status/084.md",
+        "docs/agents/status/086.md",
+        "docs/agents/status/088.md",
+        "docs/agents/status/089.md",
+        "docs/agents/status/090.md",
+        "docs/agents/status/091.md",
+        "docs/agents/status/092.md",
+        "docs/agents/status/094.md",
+        "docs/agents/status/096.md",
+        "docs/agents/status/098.md",
+        "docs/device-protocols/physical-capture.md",
+        "docs/quality-protocols/export-interoperability.md",
+        "docs/security/threat-model.md",
+        "gradle/release-validation.gradle.kts",
+        "tests/test_agent_086_capture.py",
+        "tests/test_agent_092_runner.py",
+        "tests/test_benchmark_corpus.py",
+        "tests/test_capture_audit.py",
+        "tests/test_export_interoperability.py",
+        "tests/test_geometry_quality_metrics.py",
+        "tests/test_privacy_evidence.py",
+        "tests/test_project_contracts.py",
+        "tests/test_recovery_controller.py",
+        "tests/test_release_package_validation.py",
+        "tests/test_runbook_consistency.py",
+        "tests/test_screenshot_artifact.py",
+        "tests/test_security_evidence.py",
+        "tests/test_source_manifest_tool.py",
+        "tools/capture_audit.py",
+        "tools/check_apk.py",
+        "tools/check_screenshot.py",
+        "tools/ci/source_snapshot/archive.py",
+        "tools/device/capture_validation/qualify.py",
+        "tools/device/capture_validation/requirements.txt",
+        "tools/device/compatibility/README.md",
+        "tools/device/compatibility/runner.py",
+        "tools/device/failure_recovery/controller.py",
+        "tools/device/offline_privacy/audit.py",
+        "tools/device/offline_privacy/journey.py",
+        "tools/docs/check_runbook.py",
+        "tools/qa/corpus/__init__.py",
+        "tools/qa/corpus/__main__.py",
+        "tools/qa/corpus/fixture.py",
+        "tools/qa/corpus/manifest.py",
+        "tools/qa/export_interoperability/__init__.py",
+        "tools/qa/export_interoperability/blender_roundtrip.py",
+        "tools/qa/export_interoperability/khronos.cjs",
+        "tools/qa/export_interoperability/make_fixtures.py",
+        "tools/qa/export_interoperability/validate.py",
+        "tools/qa/geometry_quality/__init__.py",
+        "tools/qa/geometry_quality/__main__.py",
+        "tools/qa/geometry_quality/baseline.py",
+        "tools/qa/geometry_quality/glb.py",
+        "tools/qa/geometry_quality/metrics.py",
+        "tools/release/package_validation/__init__.py",
+        "tools/release/package_validation/apk.py",
+        "tools/release/package_validation/bundle.py",
+        "tools/release/package_validation/candidate.py",
+        "tools/run-device-tests.sh",
+        "tools/security/requirements-lock.txt",
+        "tools/security/requirements.txt",
+        "tools/security/scan.py",
+        "tools/security/suppressions-v1.json",
+        "tools/source_manifest.py"
+      ],
+      "receipt_sha": "44124304042fe57f6deb925c58ad20588d2b0975"
+    }
+  ],
+  "requests": [
+    {
+      "from_agent": "001",
+      "to_agent": "008",
+      "branch": "agents/001-app-composition",
+      "source_sha": "931013353311becf909290f1791de92a239bfb2d",
+      "path": "docs/agents/requests/001-to-008.md"
+    },
+    {
+      "from_agent": "001",
+      "to_agent": "071",
+      "branch": "agents/001-app-composition",
+      "source_sha": "931013353311becf909290f1791de92a239bfb2d",
+      "path": "docs/agents/requests/001-to-071.md"
+    },
+    {
+      "from_agent": "002",
+      "to_agent": "009",
+      "branch": "agents/002-pipeline-orchestration",
+      "source_sha": "df912b81127ec389584b96d7e76d2111d52d619d",
+      "path": "docs/agents/requests/002-to-009.md"
+    },
+    {
+      "from_agent": "002",
+      "to_agent": "023",
+      "branch": "agents/002-pipeline-orchestration",
+      "source_sha": "df912b81127ec389584b96d7e76d2111d52d619d",
+      "path": "docs/agents/requests/002-to-023.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "002",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-002.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "004",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-004.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "037",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-037.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "038",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-038.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "039",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-039.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "040",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-040.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "041",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-041.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "046",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-046.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "051",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-051.md"
+    },
+    {
+      "from_agent": "003",
+      "to_agent": "094",
+      "branch": "agents/003-jni-boundary",
+      "source_sha": "197dc04930116abbecc23ca8b7bd0024ceb839df",
+      "path": "docs/agents/requests/003-to-094.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "001",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-001.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "002",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-002.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "005",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-005.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "007",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-007.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "011",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-011.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "019",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-019.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "020",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-020.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "021",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-021.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "022",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-022.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "023",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-023.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "024",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-024.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "025",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-025.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "026",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-026.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "088",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-088.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "093",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-093.md"
+    },
+    {
+      "from_agent": "006",
+      "to_agent": "094",
+      "branch": "agents/006-repository-boundaries",
+      "source_sha": "9af9f4a3d43a1f90768b46afc4a9e65dc78c0be1",
+      "path": "docs/agents/requests/006-to-094.md"
+    },
+    {
+      "from_agent": "007",
+      "to_agent": "001",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "path": "docs/agents/requests/007-to-001.md"
+    },
+    {
+      "from_agent": "007",
+      "to_agent": "005",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "path": "docs/agents/requests/007-to-005.md"
+    },
+    {
+      "from_agent": "007",
+      "to_agent": "008",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "path": "docs/agents/requests/007-to-008.md"
+    },
+    {
+      "from_agent": "007",
+      "to_agent": "009",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "path": "docs/agents/requests/007-to-009.md"
+    },
+    {
+      "from_agent": "007",
+      "to_agent": "023",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "path": "docs/agents/requests/007-to-023.md"
+    },
+    {
+      "from_agent": "007",
+      "to_agent": "074",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "path": "docs/agents/requests/007-to-074.md"
+    },
+    {
+      "from_agent": "007",
+      "to_agent": "088",
+      "branch": "agents/007-durable-job-store",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb",
+      "path": "docs/agents/requests/007-to-088.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "002",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-002.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "005",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-005.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "007",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-007.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "020",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-020.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "023",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-023.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "024",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-024.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "031",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-031.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "033",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-033.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "050",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-050.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "061",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-061.md"
+    },
+    {
+      "from_agent": "009",
+      "to_agent": "067",
+      "branch": "agents/009-artifact-provenance",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+      "path": "docs/agents/requests/009-to-067.md"
+    },
+    {
+      "from_agent": "010",
+      "to_agent": "001",
+      "branch": "agents/010-diagnostics-contract",
+      "source_sha": "004cc4e82d216f34f3c1f389e0a36befe6d2a318",
+      "path": "docs/agents/requests/010-to-001.md"
+    },
+    {
+      "from_agent": "010",
+      "to_agent": "009",
+      "branch": "agents/010-diagnostics-contract",
+      "source_sha": "004cc4e82d216f34f3c1f389e0a36befe6d2a318",
+      "path": "docs/agents/requests/010-to-009.md"
+    },
+    {
+      "from_agent": "010",
+      "to_agent": "049",
+      "branch": "agents/010-diagnostics-contract",
+      "source_sha": "004cc4e82d216f34f3c1f389e0a36befe6d2a318",
+      "path": "docs/agents/requests/010-to-049.md"
+    },
+    {
+      "from_agent": "010",
+      "to_agent": "055",
+      "branch": "agents/010-diagnostics-contract",
+      "source_sha": "004cc4e82d216f34f3c1f389e0a36befe6d2a318",
+      "path": "docs/agents/requests/010-to-055.md"
+    },
+    {
+      "from_agent": "010",
+      "to_agent": "057",
+      "branch": "agents/010-diagnostics-contract",
+      "source_sha": "004cc4e82d216f34f3c1f389e0a36befe6d2a318",
+      "path": "docs/agents/requests/010-to-057.md"
+    },
+    {
+      "from_agent": "010",
+      "to_agent": "074",
+      "branch": "agents/010-diagnostics-contract",
+      "source_sha": "004cc4e82d216f34f3c1f389e0a36befe6d2a318",
+      "path": "docs/agents/requests/010-to-074.md"
+    },
+    {
+      "from_agent": "012",
+      "to_agent": "ics",
+      "branch": "agents/012-image-decoding-lifetimes",
+      "source_sha": "07cf44a74358b1685302b74f4718c82d1671ae88",
+      "path": "docs/agents/requests/012-to-010-diagnostics.md"
+    },
+    {
+      "from_agent": "013",
+      "to_agent": "005",
+      "branch": "agents/013-capture-metadata-identity",
+      "source_sha": "70a5245feb92cecc27e2437b69003783ed4c1d5a",
+      "path": "docs/agents/requests/013-to-005.md"
+    },
+    {
+      "from_agent": "014",
+      "to_agent": "001",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "path": "docs/agents/requests/014-to-001.md"
+    },
+    {
+      "from_agent": "014",
+      "to_agent": "006",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "path": "docs/agents/requests/014-to-006.md"
+    },
+    {
+      "from_agent": "014",
+      "to_agent": "013",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "path": "docs/agents/requests/014-to-013.md"
+    },
+    {
+      "from_agent": "014",
+      "to_agent": "015",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "path": "docs/agents/requests/014-to-015.md"
+    },
+    {
+      "from_agent": "014",
+      "to_agent": "016",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "path": "docs/agents/requests/014-to-016.md"
+    },
+    {
+      "from_agent": "014",
+      "to_agent": "017",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "path": "docs/agents/requests/014-to-017.md"
+    },
+    {
+      "from_agent": "014",
+      "to_agent": "071",
+      "branch": "agents/014-camera-session-lifecycle",
+      "source_sha": "ad783c93241f5267db3869c5083a60ed9013564b",
+      "path": "docs/agents/requests/014-to-071.md"
+    },
+    {
+      "from_agent": "015",
+      "to_agent": "010",
+      "branch": "agents/015-camera-optical-controls",
+      "source_sha": "89c30758a2aa29ccee9d2fc7c89e9000dcb5a317",
+      "path": "docs/agents/requests/015-to-010.md"
+    },
+    {
+      "from_agent": "015",
+      "to_agent": "013",
+      "branch": "agents/015-camera-optical-controls",
+      "source_sha": "89c30758a2aa29ccee9d2fc7c89e9000dcb5a317",
+      "path": "docs/agents/requests/015-to-013.md"
+    },
+    {
+      "from_agent": "015",
+      "to_agent": "014",
+      "branch": "agents/015-camera-optical-controls",
+      "source_sha": "89c30758a2aa29ccee9d2fc7c89e9000dcb5a317",
+      "path": "docs/agents/requests/015-to-014.md"
+    },
+    {
+      "from_agent": "016",
+      "to_agent": "014",
+      "branch": "agents/016-live-capture-quality",
+      "source_sha": "615b82291892a691464b97ea5cb0912722257651",
+      "path": "docs/agents/requests/016-to-014.md"
+    },
+    {
+      "from_agent": "016",
+      "to_agent": "017",
+      "branch": "agents/016-live-capture-quality",
+      "source_sha": "615b82291892a691464b97ea5cb0912722257651",
+      "path": "docs/agents/requests/016-to-017.md"
+    },
+    {
+      "from_agent": "016",
+      "to_agent": "030",
+      "branch": "agents/016-live-capture-quality",
+      "source_sha": "615b82291892a691464b97ea5cb0912722257651",
+      "path": "docs/agents/requests/016-to-030.md"
+    },
+    {
+      "from_agent": "017",
+      "to_agent": "002",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "path": "docs/agents/requests/017-to-002.md"
+    },
+    {
+      "from_agent": "017",
+      "to_agent": "010",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "path": "docs/agents/requests/017-to-010.md"
+    },
+    {
+      "from_agent": "017",
+      "to_agent": "013",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "path": "docs/agents/requests/017-to-013.md"
+    },
+    {
+      "from_agent": "017",
+      "to_agent": "014",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "path": "docs/agents/requests/017-to-014.md"
+    },
+    {
+      "from_agent": "017",
+      "to_agent": "016",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "path": "docs/agents/requests/017-to-016.md"
+    },
+    {
+      "from_agent": "017",
+      "to_agent": "030",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "path": "docs/agents/requests/017-to-030.md"
+    },
+    {
+      "from_agent": "017",
+      "to_agent": "075",
+      "branch": "agents/017-capture-overlap-guidance",
+      "source_sha": "9eeb0ea766552d89e2092d5a9a3b1ad1b307f9ad",
+      "path": "docs/agents/requests/017-to-075.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "002",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-002.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "005",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-005.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "006",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-006.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "009",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-009.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "010",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-010.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "022",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-022.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "023",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-023.md"
+    },
+    {
+      "from_agent": "018",
+      "to_agent": "073",
+      "branch": "agents/018-photo-curation",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e",
+      "path": "docs/agents/requests/018-to-073.md"
+    },
+    {
+      "from_agent": "020",
+      "to_agent": "006",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "path": "docs/agents/requests/020-to-006.md"
+    },
+    {
+      "from_agent": "020",
+      "to_agent": "007",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "path": "docs/agents/requests/020-to-007.md"
+    },
+    {
+      "from_agent": "020",
+      "to_agent": "009",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "path": "docs/agents/requests/020-to-009.md"
+    },
+    {
+      "from_agent": "020",
+      "to_agent": "010",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "path": "docs/agents/requests/020-to-010.md"
+    },
+    {
+      "from_agent": "020",
+      "to_agent": "021",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "path": "docs/agents/requests/020-to-021.md"
+    },
+    {
+      "from_agent": "020",
+      "to_agent": "023",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "path": "docs/agents/requests/020-to-023.md"
+    },
+    {
+      "from_agent": "020",
+      "to_agent": "028",
+      "branch": "agents/020-derived-cache-gc",
+      "source_sha": "66437b054e84395947d4c2b3c0bca4b160552c6f",
+      "path": "docs/agents/requests/020-to-028.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "005",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-005.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "006",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-006.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "007",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-007.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "009",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-009.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "010",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-010.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "018",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-018.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "019",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-019.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "020",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-020.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "023",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-023.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "072",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-072.md"
+    },
+    {
+      "from_agent": "022",
+      "to_agent": "073",
+      "branch": "agents/022-deletion-tombstones",
+      "source_sha": "c95f1981b0a13a70219bfa305a50334f570268ba",
+      "path": "docs/agents/requests/022-to-073.md"
+    },
+    {
+      "from_agent": "023",
+      "to_agent": "002",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "path": "docs/agents/requests/023-to-002.md"
+    },
+    {
+      "from_agent": "023",
+      "to_agent": "005",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "path": "docs/agents/requests/023-to-005.md"
+    },
+    {
+      "from_agent": "023",
+      "to_agent": "006",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "path": "docs/agents/requests/023-to-006.md"
+    },
+    {
+      "from_agent": "023",
+      "to_agent": "007",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "path": "docs/agents/requests/023-to-007.md"
+    },
+    {
+      "from_agent": "023",
+      "to_agent": "009",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "path": "docs/agents/requests/023-to-009.md"
+    },
+    {
+      "from_agent": "023",
+      "to_agent": "010",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "path": "docs/agents/requests/023-to-010.md"
+    },
+    {
+      "from_agent": "023",
+      "to_agent": "088",
+      "branch": "agents/023-atomic-result-publication",
+      "source_sha": "eed453459e3593244799ea80fe7a0e71711e7049",
+      "path": "docs/agents/requests/023-to-088.md"
+    },
+    {
+      "from_agent": "026",
+      "to_agent": "001",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "path": "docs/agents/requests/026-to-001.md"
+    },
+    {
+      "from_agent": "026",
+      "to_agent": "006",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "path": "docs/agents/requests/026-to-006.md"
+    },
+    {
+      "from_agent": "026",
+      "to_agent": "021",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "path": "docs/agents/requests/026-to-021.md"
+    },
+    {
+      "from_agent": "026",
+      "to_agent": "023",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "path": "docs/agents/requests/026-to-023.md"
+    },
+    {
+      "from_agent": "026",
+      "to_agent": "025",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "path": "docs/agents/requests/026-to-025.md"
+    },
+    {
+      "from_agent": "026",
+      "to_agent": "067",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "path": "docs/agents/requests/026-to-067.md"
+    },
+    {
+      "from_agent": "026",
+      "to_agent": "088",
+      "branch": "agents/026-saf-export-io",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+      "path": "docs/agents/requests/026-to-088.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "001",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-001.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "005",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-005.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "006",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-006.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "009",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-009.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "010",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-010.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "012",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-012.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "013",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-013.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "021",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-021.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "023",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-023.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "031",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-031.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "073",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-073.md"
+    },
+    {
+      "from_agent": "027",
+      "to_agent": "075",
+      "branch": "agents/027-lens-calibration-workflow",
+      "source_sha": "a9a28d75c3ff8576173547918cfda8568a20305f",
+      "path": "docs/agents/requests/027-to-075.md"
+    },
+    {
+      "from_agent": "029",
+      "to_agent": "007",
+      "branch": "agents/029-processing-notifications",
+      "source_sha": "463fc56faf595dd1242166ff93296a5e4ebddd92",
+      "path": "docs/agents/requests/029-to-007.md"
+    },
+    {
+      "from_agent": "029",
+      "to_agent": "008",
+      "branch": "agents/029-processing-notifications",
+      "source_sha": "463fc56faf595dd1242166ff93296a5e4ebddd92",
+      "path": "docs/agents/requests/029-to-008.md"
+    },
+    {
+      "from_agent": "029",
+      "to_agent": "074",
+      "branch": "agents/029-processing-notifications",
+      "source_sha": "463fc56faf595dd1242166ff93296a5e4ebddd92",
+      "path": "docs/agents/requests/029-to-074.md"
+    },
+    {
+      "from_agent": "031",
+      "to_agent": "002",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "source_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a",
+      "path": "docs/agents/requests/031-to-002.md"
+    },
+    {
+      "from_agent": "031",
+      "to_agent": "009",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "source_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a",
+      "path": "docs/agents/requests/031-to-009.md"
+    },
+    {
+      "from_agent": "031",
+      "to_agent": "027",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "source_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a",
+      "path": "docs/agents/requests/031-to-027.md"
+    },
+    {
+      "from_agent": "031",
+      "to_agent": "042",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "source_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a",
+      "path": "docs/agents/requests/031-to-042.md"
+    },
+    {
+      "from_agent": "031",
+      "to_agent": "045",
+      "branch": "agents/031-lens-coordinate-geometry",
+      "source_sha": "a7dc014ecfab6aa5e196d094f7ba8cbcf5453e6a",
+      "path": "docs/agents/requests/031-to-045.md"
+    },
+    {
+      "from_agent": "032",
+      "to_agent": "002",
+      "branch": "agents/032-feature-extraction",
+      "source_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+      "path": "docs/agents/requests/032-to-002.md"
+    },
+    {
+      "from_agent": "032",
+      "to_agent": "009",
+      "branch": "agents/032-feature-extraction",
+      "source_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+      "path": "docs/agents/requests/032-to-009.md"
+    },
+    {
+      "from_agent": "032",
+      "to_agent": "033",
+      "branch": "agents/032-feature-extraction",
+      "source_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+      "path": "docs/agents/requests/032-to-033.md"
+    },
+    {
+      "from_agent": "032",
+      "to_agent": "035",
+      "branch": "agents/032-feature-extraction",
+      "source_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+      "path": "docs/agents/requests/032-to-035.md"
+    },
+    {
+      "from_agent": "032",
+      "to_agent": "045",
+      "branch": "agents/032-feature-extraction",
+      "source_sha": "26fad30c919e506b1ce5a6671f1d2ffb1f3fdbff",
+      "path": "docs/agents/requests/032-to-045.md"
+    },
+    {
+      "from_agent": "033",
+      "to_agent": "002",
+      "branch": "agents/033-feature-cache-integrity",
+      "source_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+      "path": "docs/agents/requests/033-to-002.md"
+    },
+    {
+      "from_agent": "033",
+      "to_agent": "009",
+      "branch": "agents/033-feature-cache-integrity",
+      "source_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+      "path": "docs/agents/requests/033-to-009.md"
+    },
+    {
+      "from_agent": "033",
+      "to_agent": "020",
+      "branch": "agents/033-feature-cache-integrity",
+      "source_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+      "path": "docs/agents/requests/033-to-020.md"
+    },
+    {
+      "from_agent": "033",
+      "to_agent": "032",
+      "branch": "agents/033-feature-cache-integrity",
+      "source_sha": "9ee7a9e67765f6b886d1b71c5d2e0e3ca52d517a",
+      "path": "docs/agents/requests/033-to-032.md"
+    },
+    {
+      "from_agent": "034",
+      "to_agent": "002",
+      "branch": "agents/034-overlap-candidate-graph",
+      "source_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+      "path": "docs/agents/requests/034-to-002.md"
+    },
+    {
+      "from_agent": "034",
+      "to_agent": "035",
+      "branch": "agents/034-overlap-candidate-graph",
+      "source_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+      "path": "docs/agents/requests/034-to-035.md"
+    },
+    {
+      "from_agent": "034",
+      "to_agent": "039",
+      "branch": "agents/034-overlap-candidate-graph",
+      "source_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+      "path": "docs/agents/requests/034-to-039.md"
+    },
+    {
+      "from_agent": "034",
+      "to_agent": "043",
+      "branch": "agents/034-overlap-candidate-graph",
+      "source_sha": "df86f792757b43b8bd308233912f9d47288f8589",
+      "path": "docs/agents/requests/034-to-043.md"
+    },
+    {
+      "from_agent": "035",
+      "to_agent": "002",
+      "branch": "agents/035-verified-feature-matching",
+      "source_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "path": "docs/agents/requests/035-to-002.md"
+    },
+    {
+      "from_agent": "035",
+      "to_agent": "003",
+      "branch": "agents/035-verified-feature-matching",
+      "source_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "path": "docs/agents/requests/035-to-003.md"
+    },
+    {
+      "from_agent": "035",
+      "to_agent": "009",
+      "branch": "agents/035-verified-feature-matching",
+      "source_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "path": "docs/agents/requests/035-to-009.md"
+    },
+    {
+      "from_agent": "035",
+      "to_agent": "032",
+      "branch": "agents/035-verified-feature-matching",
+      "source_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "path": "docs/agents/requests/035-to-032.md"
+    },
+    {
+      "from_agent": "035",
+      "to_agent": "036",
+      "branch": "agents/035-verified-feature-matching",
+      "source_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "path": "docs/agents/requests/035-to-036.md"
+    },
+    {
+      "from_agent": "035",
+      "to_agent": "037",
+      "branch": "agents/035-verified-feature-matching",
+      "source_sha": "4407355dc29917cffc1a4a855b83a655583d3455",
+      "path": "docs/agents/requests/035-to-037.md"
+    },
+    {
+      "from_agent": "036",
+      "to_agent": "009",
+      "branch": "agents/036-stable-feature-tracks",
+      "source_sha": "0675116d884629361f7e128b32ae90f0e32637ae",
+      "path": "docs/agents/requests/036-to-009.md"
+    },
+    {
+      "from_agent": "036",
+      "to_agent": "039",
+      "branch": "agents/036-stable-feature-tracks",
+      "source_sha": "0675116d884629361f7e128b32ae90f0e32637ae",
+      "path": "docs/agents/requests/036-to-039.md"
+    },
+    {
+      "from_agent": "037",
+      "to_agent": "003",
+      "branch": "agents/037-two-view-initializer",
+      "source_sha": "06775ece8c3799c5e0fce51939e2da9f92f26d91",
+      "path": "docs/agents/requests/037-to-003.md"
+    },
+    {
+      "from_agent": "037",
+      "to_agent": "004",
+      "branch": "agents/037-two-view-initializer",
+      "source_sha": "06775ece8c3799c5e0fce51939e2da9f92f26d91",
+      "path": "docs/agents/requests/037-to-004.md"
+    },
+    {
+      "from_agent": "037",
+      "to_agent": "061",
+      "branch": "agents/037-two-view-initializer",
+      "source_sha": "06775ece8c3799c5e0fce51939e2da9f92f26d91",
+      "path": "docs/agents/requests/037-to-061.md"
+    },
+    {
+      "from_agent": "038",
+      "to_agent": "003",
+      "branch": "agents/038-robust-camera-resection",
+      "source_sha": "56c699cd57304f61c67afa129a2d578b4dc8f7f6",
+      "path": "docs/agents/requests/038-to-003.md"
+    },
+    {
+      "from_agent": "038",
+      "to_agent": "004",
+      "branch": "agents/038-robust-camera-resection",
+      "source_sha": "56c699cd57304f61c67afa129a2d578b4dc8f7f6",
+      "path": "docs/agents/requests/038-to-004.md"
+    },
+    {
+      "from_agent": "038",
+      "to_agent": "039",
+      "branch": "agents/038-robust-camera-resection",
+      "source_sha": "56c699cd57304f61c67afa129a2d578b4dc8f7f6",
+      "path": "docs/agents/requests/038-to-039.md"
+    },
+    {
+      "from_agent": "039",
+      "to_agent": "002",
+      "branch": "agents/039-incremental-registration",
+      "source_sha": "e92f9fe25cd968d14b48a99807a31950202e5144",
+      "path": "docs/agents/requests/039-to-002.md"
+    },
+    {
+      "from_agent": "039",
+      "to_agent": "003",
+      "branch": "agents/039-incremental-registration",
+      "source_sha": "e92f9fe25cd968d14b48a99807a31950202e5144",
+      "path": "docs/agents/requests/039-to-003.md"
+    },
+    {
+      "from_agent": "039",
+      "to_agent": "009",
+      "branch": "agents/039-incremental-registration",
+      "source_sha": "e92f9fe25cd968d14b48a99807a31950202e5144",
+      "path": "docs/agents/requests/039-to-009.md"
+    },
+    {
+      "from_agent": "040",
+      "to_agent": "003",
+      "branch": "agents/040-multiview-triangulation",
+      "source_sha": "f20c7d2c6e3ec4e0f05d01032d65c51cb9a494f5",
+      "path": "docs/agents/requests/040-to-003.md"
+    },
+    {
+      "from_agent": "040",
+      "to_agent": "004",
+      "branch": "agents/040-multiview-triangulation",
+      "source_sha": "f20c7d2c6e3ec4e0f05d01032d65c51cb9a494f5",
+      "path": "docs/agents/requests/040-to-004.md"
+    },
+    {
+      "from_agent": "040",
+      "to_agent": "041",
+      "branch": "agents/040-multiview-triangulation",
+      "source_sha": "f20c7d2c6e3ec4e0f05d01032d65c51cb9a494f5",
+      "path": "docs/agents/requests/040-to-041.md"
+    },
+    {
+      "from_agent": "041",
+      "to_agent": "002",
+      "branch": "agents/041-bundle-adjustment",
+      "source_sha": "6d9f8be25be00bbf593f6a629acac0be85af5cb2",
+      "path": "docs/agents/requests/041-to-002.md"
+    },
+    {
+      "from_agent": "041",
+      "to_agent": "003",
+      "branch": "agents/041-bundle-adjustment",
+      "source_sha": "6d9f8be25be00bbf593f6a629acac0be85af5cb2",
+      "path": "docs/agents/requests/041-to-003.md"
+    },
+    {
+      "from_agent": "042",
+      "to_agent": "004",
+      "branch": "agents/042-intrinsic-refinement",
+      "source_sha": "c3b1ee4a60bd9e83b5a16cb29446efc4f54dcb1f",
+      "path": "docs/agents/requests/042-to-004.md"
+    },
+    {
+      "from_agent": "043",
+      "to_agent": "004",
+      "branch": "agents/043-loop-closure-drift",
+      "source_sha": "437014623f3b601d2e3bef5c243dd68b094c0559",
+      "path": "docs/agents/requests/043-to-004.md"
+    },
+    {
+      "from_agent": "043",
+      "to_agent": "039",
+      "branch": "agents/043-loop-closure-drift",
+      "source_sha": "437014623f3b601d2e3bef5c243dd68b094c0559",
+      "path": "docs/agents/requests/043-to-039.md"
+    },
+    {
+      "from_agent": "044",
+      "to_agent": "030",
+      "branch": "agents/044-dense-view-selection",
+      "source_sha": "1da65a698443dc214be716ed89e8715c50a6fcbe",
+      "path": "docs/agents/requests/044-to-030.md"
+    },
+    {
+      "from_agent": "044",
+      "to_agent": "046",
+      "branch": "agents/044-dense-view-selection",
+      "source_sha": "1da65a698443dc214be716ed89e8715c50a6fcbe",
+      "path": "docs/agents/requests/044-to-046.md"
+    },
+    {
+      "from_agent": "045",
+      "to_agent": "002",
+      "branch": "agents/045-image-pyramids-rectification",
+      "source_sha": "1b75ae698bc0a97908cf9498e42af05190491eba",
+      "path": "docs/agents/requests/045-to-002.md"
+    },
+    {
+      "from_agent": "046",
+      "to_agent": "003",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "source_sha": "a3da8e025e4efe5587a40b6e28d28d4e1601a49a",
+      "path": "docs/agents/requests/046-to-003.md"
+    },
+    {
+      "from_agent": "046",
+      "to_agent": "004",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "source_sha": "a3da8e025e4efe5587a40b6e28d28d4e1601a49a",
+      "path": "docs/agents/requests/046-to-004.md"
+    },
+    {
+      "from_agent": "046",
+      "to_agent": "009",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "source_sha": "a3da8e025e4efe5587a40b6e28d28d4e1601a49a",
+      "path": "docs/agents/requests/046-to-009.md"
+    },
+    {
+      "from_agent": "046",
+      "to_agent": "030",
+      "branch": "agents/046-tiled-cpu-depth-core",
+      "source_sha": "a3da8e025e4efe5587a40b6e28d28d4e1601a49a",
+      "path": "docs/agents/requests/046-to-030.md"
+    },
+    {
+      "from_agent": "047",
+      "to_agent": "004",
+      "branch": "agents/047-depth-refinement",
+      "source_sha": "be8e9f87963c39b7f0fc3a921493a2609a989496",
+      "path": "docs/agents/requests/047-to-004.md"
+    },
+    {
+      "from_agent": "047",
+      "to_agent": "046",
+      "branch": "agents/047-depth-refinement",
+      "source_sha": "be8e9f87963c39b7f0fc3a921493a2609a989496",
+      "path": "docs/agents/requests/047-to-046.md"
+    },
+    {
+      "from_agent": "048",
+      "to_agent": "004",
+      "branch": "agents/048-photometric-matching-costs",
+      "source_sha": "8b8ff320d5681bb17c39a428157e8cc0e80dc2db",
+      "path": "docs/agents/requests/048-to-004.md"
+    },
+    {
+      "from_agent": "048",
+      "to_agent": "046",
+      "branch": "agents/048-photometric-matching-costs",
+      "source_sha": "8b8ff320d5681bb17c39a428157e8cc0e80dc2db",
+      "path": "docs/agents/requests/048-to-046.md"
+    },
+    {
+      "from_agent": "049",
+      "to_agent": "004",
+      "branch": "agents/049-depth-confidence-occlusion",
+      "source_sha": "05a348b3caa0bdea0965f2d8bad2819e2f8c6d76",
+      "path": "docs/agents/requests/049-to-004.md"
+    },
+    {
+      "from_agent": "049",
+      "to_agent": "046",
+      "branch": "agents/049-depth-confidence-occlusion",
+      "source_sha": "05a348b3caa0bdea0965f2d8bad2819e2f8c6d76",
+      "path": "docs/agents/requests/049-to-046.md"
+    },
+    {
+      "from_agent": "050",
+      "to_agent": "004",
+      "branch": "agents/050-depth-checkpoint-durability",
+      "source_sha": "4d7a2a7d574052c9bb739e3c92cc2971c721c543",
+      "path": "docs/agents/requests/050-to-004.md"
+    },
+    {
+      "from_agent": "050",
+      "to_agent": "009",
+      "branch": "agents/050-depth-checkpoint-durability",
+      "source_sha": "4d7a2a7d574052c9bb739e3c92cc2971c721c543",
+      "path": "docs/agents/requests/050-to-009.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "002",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-002.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "003",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-003.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "037",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-037.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "038",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-038.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "039",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-039.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "040",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-040.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "041",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-041.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "046",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-046.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "050",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-050.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "053",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-053.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "057",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-057.md"
+    },
+    {
+      "from_agent": "051",
+      "to_agent": "060",
+      "branch": "agents/051-native-cancellation-progress",
+      "source_sha": "ae58a96aed55753357616e8dc1428dcc33839796",
+      "path": "docs/agents/requests/051-to-060.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "002",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-002.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "003",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-003.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "004",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-004.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "030",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-030.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "046",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-046.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "047",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-047.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "048",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-048.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "049",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-049.md"
+    },
+    {
+      "from_agent": "052",
+      "to_agent": "051",
+      "branch": "agents/052-vulkan-depth-backend",
+      "source_sha": "a9601837be0df65ba6fe987a9e5ea85082f79711",
+      "path": "docs/agents/requests/052-to-051.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "002",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-002.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "003",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-003.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "004",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-004.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "009",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-009.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "046",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-046.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "049",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-049.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "054",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-054.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "055",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-055.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "056",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-056.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "057",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-057.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "061",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-061.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "064",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-064.md"
+    },
+    {
+      "from_agent": "053",
+      "to_agent": "065",
+      "branch": "agents/053-surface-fusion-meshing",
+      "source_sha": "b780ab9bd086cb9d05f2ae123fc84427326315d8",
+      "path": "docs/agents/requests/053-to-065.md"
+    },
+    {
+      "from_agent": "054",
+      "to_agent": "040",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "source_sha": "658f80669ce418d2d2cfa376aa40cd8501c3ca37",
+      "path": "docs/agents/requests/054-to-040.md"
+    },
+    {
+      "from_agent": "054",
+      "to_agent": "047",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "source_sha": "658f80669ce418d2d2cfa376aa40cd8501c3ca37",
+      "path": "docs/agents/requests/054-to-047.md"
+    },
+    {
+      "from_agent": "054",
+      "to_agent": "049",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "source_sha": "658f80669ce418d2d2cfa376aa40cd8501c3ca37",
+      "path": "docs/agents/requests/054-to-049.md"
+    },
+    {
+      "from_agent": "054",
+      "to_agent": "053",
+      "branch": "agents/054-normals-geometric-uncertainty",
+      "source_sha": "658f80669ce418d2d2cfa376aa40cd8501c3ca37",
+      "path": "docs/agents/requests/054-to-053.md"
+    },
+    {
+      "from_agent": "055",
+      "to_agent": "053",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "source_sha": "2c659b78b597f63988cb65e9cce9d44fc475bac3",
+      "path": "docs/agents/requests/055-to-053.md"
+    },
+    {
+      "from_agent": "055",
+      "to_agent": "056",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "source_sha": "2c659b78b597f63988cb65e9cce9d44fc475bac3",
+      "path": "docs/agents/requests/055-to-056.md"
+    },
+    {
+      "from_agent": "055",
+      "to_agent": "058",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "source_sha": "2c659b78b597f63988cb65e9cce9d44fc475bac3",
+      "path": "docs/agents/requests/055-to-058.md"
+    },
+    {
+      "from_agent": "055",
+      "to_agent": "065",
+      "branch": "agents/055-mesh-topology-diagnostics",
+      "source_sha": "2c659b78b597f63988cb65e9cce9d44fc475bac3",
+      "path": "docs/agents/requests/055-to-065.md"
+    },
+    {
+      "from_agent": "056",
+      "to_agent": "053",
+      "branch": "agents/056-conservative-mesh-cleanup",
+      "source_sha": "668a8a489bdea1c12125e6d6e4cb3239926332e8",
+      "path": "docs/agents/requests/056-to-053.md"
+    },
+    {
+      "from_agent": "057",
+      "to_agent": "003",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "source_sha": "6cb3c5b060658935d062f6420c4a4daa2b576ae6",
+      "path": "docs/agents/requests/057-to-003.md"
+    },
+    {
+      "from_agent": "057",
+      "to_agent": "004",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "source_sha": "6cb3c5b060658935d062f6420c4a4daa2b576ae6",
+      "path": "docs/agents/requests/057-to-004.md"
+    },
+    {
+      "from_agent": "057",
+      "to_agent": "009",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "source_sha": "6cb3c5b060658935d062f6420c4a4daa2b576ae6",
+      "path": "docs/agents/requests/057-to-009.md"
+    },
+    {
+      "from_agent": "057",
+      "to_agent": "095",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "source_sha": "6cb3c5b060658935d062f6420c4a4daa2b576ae6",
+      "path": "docs/agents/requests/057-to-095.md"
+    },
+    {
+      "from_agent": "058",
+      "to_agent": "057",
+      "branch": "agents/058-uv-charts-packing",
+      "source_sha": "e7f3ee3fed6dd831a82ef6ace672ec132237966e",
+      "path": "docs/agents/requests/058-to-057.md"
+    },
+    {
+      "from_agent": "059",
+      "to_agent": "057",
+      "branch": "agents/059-texture-seam-blending",
+      "source_sha": "01bb975cfc7fdb7699034a8f0c6c558c2133f081",
+      "path": "docs/agents/requests/059-to-057.md"
+    },
+    {
+      "from_agent": "060",
+      "to_agent": "057",
+      "branch": "agents/060-photometric-color-consistency",
+      "source_sha": "2dd1546fc569595b315002a2d77b6cc646689db6",
+      "path": "docs/agents/requests/060-to-057.md"
+    },
+    {
+      "from_agent": "061",
+      "to_agent": "003",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "path": "docs/agents/requests/061-to-003.md"
+    },
+    {
+      "from_agent": "061",
+      "to_agent": "004",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "path": "docs/agents/requests/061-to-004.md"
+    },
+    {
+      "from_agent": "061",
+      "to_agent": "009",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "path": "docs/agents/requests/061-to-009.md"
+    },
+    {
+      "from_agent": "061",
+      "to_agent": "037",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "path": "docs/agents/requests/061-to-037.md"
+    },
+    {
+      "from_agent": "061",
+      "to_agent": "053",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "path": "docs/agents/requests/061-to-053.md"
+    },
+    {
+      "from_agent": "061",
+      "to_agent": "057",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "path": "docs/agents/requests/061-to-057.md"
+    },
+    {
+      "from_agent": "061",
+      "to_agent": "067",
+      "branch": "agents/061-glb-asset-contract",
+      "source_sha": "0cd6605f65da162614d0c1bf9f4b2bf6825c479f",
+      "path": "docs/agents/requests/061-to-067.md"
+    },
+    {
+      "from_agent": "062",
+      "to_agent": "003",
+      "branch": "agents/062-obj-export",
+      "source_sha": "31f1efb068cc0c00788b3f7d87c4ac4f4c1e6778",
+      "path": "docs/agents/requests/062-to-003.md"
+    },
+    {
+      "from_agent": "062",
+      "to_agent": "004",
+      "branch": "agents/062-obj-export",
+      "source_sha": "31f1efb068cc0c00788b3f7d87c4ac4f4c1e6778",
+      "path": "docs/agents/requests/062-to-004.md"
+    },
+    {
+      "from_agent": "062",
+      "to_agent": "057",
+      "branch": "agents/062-obj-export",
+      "source_sha": "31f1efb068cc0c00788b3f7d87c4ac4f4c1e6778",
+      "path": "docs/agents/requests/062-to-057.md"
+    },
+    {
+      "from_agent": "062",
+      "to_agent": "067",
+      "branch": "agents/062-obj-export",
+      "source_sha": "31f1efb068cc0c00788b3f7d87c4ac4f4c1e6778",
+      "path": "docs/agents/requests/062-to-067.md"
+    },
+    {
+      "from_agent": "062",
+      "to_agent": "090",
+      "branch": "agents/062-obj-export",
+      "source_sha": "31f1efb068cc0c00788b3f7d87c4ac4f4c1e6778",
+      "path": "docs/agents/requests/062-to-090.md"
+    },
+    {
+      "from_agent": "063",
+      "to_agent": "003",
+      "branch": "agents/063-stl-export",
+      "source_sha": "a443e42bb4983e36e7cf952619cf836b5519de34",
+      "path": "docs/agents/requests/063-to-003.md"
+    },
+    {
+      "from_agent": "063",
+      "to_agent": "004",
+      "branch": "agents/063-stl-export",
+      "source_sha": "a443e42bb4983e36e7cf952619cf836b5519de34",
+      "path": "docs/agents/requests/063-to-004.md"
+    },
+    {
+      "from_agent": "063",
+      "to_agent": "055",
+      "branch": "agents/063-stl-export",
+      "source_sha": "a443e42bb4983e36e7cf952619cf836b5519de34",
+      "path": "docs/agents/requests/063-to-055.md"
+    },
+    {
+      "from_agent": "063",
+      "to_agent": "066",
+      "branch": "agents/063-stl-export",
+      "source_sha": "a443e42bb4983e36e7cf952619cf836b5519de34",
+      "path": "docs/agents/requests/063-to-066.md"
+    },
+    {
+      "from_agent": "063",
+      "to_agent": "067",
+      "branch": "agents/063-stl-export",
+      "source_sha": "a443e42bb4983e36e7cf952619cf836b5519de34",
+      "path": "docs/agents/requests/063-to-067.md"
+    },
+    {
+      "from_agent": "063",
+      "to_agent": "090",
+      "branch": "agents/063-stl-export",
+      "source_sha": "a443e42bb4983e36e7cf952619cf836b5519de34",
+      "path": "docs/agents/requests/063-to-090.md"
+    },
+    {
+      "from_agent": "064",
+      "to_agent": "003",
+      "branch": "agents/064-ply-export",
+      "source_sha": "9b02e967707cda696645094e6e61c7130caa07be",
+      "path": "docs/agents/requests/064-to-003.md"
+    },
+    {
+      "from_agent": "064",
+      "to_agent": "004",
+      "branch": "agents/064-ply-export",
+      "source_sha": "9b02e967707cda696645094e6e61c7130caa07be",
+      "path": "docs/agents/requests/064-to-004.md"
+    },
+    {
+      "from_agent": "064",
+      "to_agent": "037",
+      "branch": "agents/064-ply-export",
+      "source_sha": "9b02e967707cda696645094e6e61c7130caa07be",
+      "path": "docs/agents/requests/064-to-037.md"
+    },
+    {
+      "from_agent": "064",
+      "to_agent": "053",
+      "branch": "agents/064-ply-export",
+      "source_sha": "9b02e967707cda696645094e6e61c7130caa07be",
+      "path": "docs/agents/requests/064-to-053.md"
+    },
+    {
+      "from_agent": "064",
+      "to_agent": "067",
+      "branch": "agents/064-ply-export",
+      "source_sha": "9b02e967707cda696645094e6e61c7130caa07be",
+      "path": "docs/agents/requests/064-to-067.md"
+    },
+    {
+      "from_agent": "064",
+      "to_agent": "090",
+      "branch": "agents/064-ply-export",
+      "source_sha": "9b02e967707cda696645094e6e61c7130caa07be",
+      "path": "docs/agents/requests/064-to-090.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "003",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-003.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "004",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-004.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "005",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-005.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "009",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-009.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "055",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-055.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "067",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-067.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "070",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-070.md"
+    },
+    {
+      "from_agent": "066",
+      "to_agent": "090",
+      "branch": "agents/066-model-editing",
+      "source_sha": "7ef32323353d2c9fa0241dbb2a33b71e6ab7754a",
+      "path": "docs/agents/requests/066-to-090.md"
+    },
+    {
+      "from_agent": "067",
+      "to_agent": "001",
+      "branch": "agents/067-export-coordinator",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c",
+      "path": "docs/agents/requests/067-to-001.md"
+    },
+    {
+      "from_agent": "067",
+      "to_agent": "003",
+      "branch": "agents/067-export-coordinator",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c",
+      "path": "docs/agents/requests/067-to-003.md"
+    },
+    {
+      "from_agent": "067",
+      "to_agent": "026",
+      "branch": "agents/067-export-coordinator",
+      "source_sha": "3eaacd8b8466c8018f5169b613ee46de9e7f088c",
+      "path": "docs/agents/requests/067-to-026.md"
+    },
+    {
+      "from_agent": "068",
+      "to_agent": "004",
+      "branch": "agents/068-model-loader",
+      "source_sha": "c23b7d212101a91aab1ab363fb7c6c43924af260",
+      "path": "docs/agents/requests/068-to-004.md"
+    },
+    {
+      "from_agent": "068",
+      "to_agent": "030",
+      "branch": "agents/068-model-loader",
+      "source_sha": "c23b7d212101a91aab1ab363fb7c6c43924af260",
+      "path": "docs/agents/requests/068-to-030.md"
+    },
+    {
+      "from_agent": "068",
+      "to_agent": "069",
+      "branch": "agents/068-model-loader",
+      "source_sha": "c23b7d212101a91aab1ab363fb7c6c43924af260",
+      "path": "docs/agents/requests/068-to-069.md"
+    },
+    {
+      "from_agent": "068",
+      "to_agent": "070",
+      "branch": "agents/068-model-loader",
+      "source_sha": "c23b7d212101a91aab1ab363fb7c6c43924af260",
+      "path": "docs/agents/requests/068-to-070.md"
+    },
+    {
+      "from_agent": "068",
+      "to_agent": "082",
+      "branch": "agents/068-model-loader",
+      "source_sha": "c23b7d212101a91aab1ab363fb7c6c43924af260",
+      "path": "docs/agents/requests/068-to-082.md"
+    },
+    {
+      "from_agent": "069",
+      "to_agent": "004",
+      "branch": "agents/069-studio-renderer",
+      "source_sha": "38849d8150cc154b111db7769a5fc9d0dd204792",
+      "path": "docs/agents/requests/069-to-004.md"
+    },
+    {
+      "from_agent": "069",
+      "to_agent": "070",
+      "branch": "agents/069-studio-renderer",
+      "source_sha": "38849d8150cc154b111db7769a5fc9d0dd204792",
+      "path": "docs/agents/requests/069-to-070.md"
+    },
+    {
+      "from_agent": "069",
+      "to_agent": "095",
+      "branch": "agents/069-studio-renderer",
+      "source_sha": "38849d8150cc154b111db7769a5fc9d0dd204792",
+      "path": "docs/agents/requests/069-to-095.md"
+    },
+    {
+      "from_agent": "070",
+      "to_agent": "066",
+      "branch": "agents/070-studio-controls",
+      "source_sha": "76a954184220d2f218d2a2eed9ecbeb8d29fc850",
+      "path": "docs/agents/requests/070-to-066.md"
+    },
+    {
+      "from_agent": "070",
+      "to_agent": "068",
+      "branch": "agents/070-studio-controls",
+      "source_sha": "76a954184220d2f218d2a2eed9ecbeb8d29fc850",
+      "path": "docs/agents/requests/070-to-068.md"
+    },
+    {
+      "from_agent": "070",
+      "to_agent": "071",
+      "branch": "agents/070-studio-controls",
+      "source_sha": "76a954184220d2f218d2a2eed9ecbeb8d29fc850",
+      "path": "docs/agents/requests/070-to-071.md"
+    },
+    {
+      "from_agent": "070",
+      "to_agent": "094",
+      "branch": "agents/070-studio-controls",
+      "source_sha": "76a954184220d2f218d2a2eed9ecbeb8d29fc850",
+      "path": "docs/agents/requests/070-to-094.md"
+    },
+    {
+      "from_agent": "071",
+      "to_agent": "001",
+      "branch": "agents/071-app-navigation-composition",
+      "source_sha": "ca893af34b7fe10efeb9e5591fd99dd87b4788ef",
+      "path": "docs/agents/requests/071-to-001.md"
+    },
+    {
+      "from_agent": "071",
+      "to_agent": "006",
+      "branch": "agents/071-app-navigation-composition",
+      "source_sha": "ca893af34b7fe10efeb9e5591fd99dd87b4788ef",
+      "path": "docs/agents/requests/071-to-006.md"
+    },
+    {
+      "from_agent": "071",
+      "to_agent": "094",
+      "branch": "agents/071-app-navigation-composition",
+      "source_sha": "ca893af34b7fe10efeb9e5591fd99dd87b4788ef",
+      "path": "docs/agents/requests/071-to-094.md"
+    },
+    {
+      "from_agent": "071",
+      "to_agent": "100",
+      "branch": "agents/071-app-navigation-composition",
+      "source_sha": "ca893af34b7fe10efeb9e5591fd99dd87b4788ef",
+      "path": "docs/agents/requests/071-to-100.md"
+    },
+    {
+      "from_agent": "076",
+      "to_agent": "001",
+      "branch": "agents/076-adaptive-design-system",
+      "source_sha": "4d82505ed699ec28568c964a3eea7f638fe4065d",
+      "path": "docs/agents/requests/076-to-001.md"
+    },
+    {
+      "from_agent": "077",
+      "to_agent": "070",
+      "branch": "agents/077-accessibility-verification",
+      "source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+      "path": "docs/agents/requests/077-to-070.md"
+    },
+    {
+      "from_agent": "077",
+      "to_agent": "071",
+      "branch": "agents/077-accessibility-verification",
+      "source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+      "path": "docs/agents/requests/077-to-071.md"
+    },
+    {
+      "from_agent": "078",
+      "to_agent": "001",
+      "branch": "agents/078-localization-resources",
+      "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+      "path": "docs/agents/requests/078-to-001.md"
+    },
+    {
+      "from_agent": "078",
+      "to_agent": "004",
+      "branch": "agents/078-localization-resources",
+      "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+      "path": "docs/agents/requests/078-to-004.md"
+    },
+    {
+      "from_agent": "078",
+      "to_agent": "100",
+      "branch": "agents/078-localization-resources",
+      "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+      "path": "docs/agents/requests/078-to-100.md"
+    },
+    {
+      "from_agent": "080",
+      "to_agent": "004",
+      "branch": "agents/080-actual-ui-end-to-end",
+      "source_sha": "fa90a25b3e2d0cd86cc6b8eda603fad5919761a3",
+      "path": "docs/agents/requests/080-to-004.md"
+    },
+    {
+      "from_agent": "080",
+      "to_agent": "071",
+      "branch": "agents/080-actual-ui-end-to-end",
+      "source_sha": "fa90a25b3e2d0cd86cc6b8eda603fad5919761a3",
+      "path": "docs/agents/requests/080-to-071.md"
+    },
+    {
+      "from_agent": "080",
+      "to_agent": "088",
+      "branch": "agents/080-actual-ui-end-to-end",
+      "source_sha": "fa90a25b3e2d0cd86cc6b8eda603fad5919761a3",
+      "path": "docs/agents/requests/080-to-088.md"
+    },
+    {
+      "from_agent": "081",
+      "to_agent": "004",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "source_sha": "39e90e534ed414ccb9dc152e64709a45f1f28bcc",
+      "path": "docs/agents/requests/081-to-004.md"
+    },
+    {
+      "from_agent": "082",
+      "to_agent": "004",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "source_sha": "6cc3465926186f0db10e58e2d3e30db638cbe2fe",
+      "path": "docs/agents/requests/082-to-004.md"
+    },
+    {
+      "from_agent": "083",
+      "to_agent": "086",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "source_sha": "eb95eb05d75a77d7236cd68bc32dacf4acb4825b",
+      "path": "docs/agents/requests/083-to-086.md"
+    },
+    {
+      "from_agent": "083",
+      "to_agent": "095",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "source_sha": "eb95eb05d75a77d7236cd68bc32dacf4acb4825b",
+      "path": "docs/agents/requests/083-to-095.md"
+    },
+    {
+      "from_agent": "084",
+      "to_agent": "086",
+      "branch": "agents/084-full-object-geometry-quality",
+      "source_sha": "4cc6f123b38027921e477eda9c243d7c0c1b4ed8",
+      "path": "docs/agents/requests/084-to-086.md"
+    },
+    {
+      "from_agent": "085",
+      "to_agent": "057",
+      "branch": "agents/085-photographic-texture-quality",
+      "source_sha": "e88a374f4f9aaf8a5104354f4747778b372e2465",
+      "path": "docs/agents/requests/085-to-057.md"
+    },
+    {
+      "from_agent": "085",
+      "to_agent": "069",
+      "branch": "agents/085-photographic-texture-quality",
+      "source_sha": "e88a374f4f9aaf8a5104354f4747778b372e2465",
+      "path": "docs/agents/requests/085-to-069.md"
+    },
+    {
+      "from_agent": "087",
+      "to_agent": "030",
+      "branch": "agents/087-physical-resource-profiling",
+      "source_sha": "5fe3c5d9e0c4965da37d57bc1f6600fe990e75c0",
+      "path": "docs/agents/requests/087-to-030.md"
+    },
+    {
+      "from_agent": "088",
+      "to_agent": "002",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "source_sha": "0e5d9415c168c46a21899450dcd82c84886095f8",
+      "path": "docs/agents/requests/088-to-002.md"
+    },
+    {
+      "from_agent": "088",
+      "to_agent": "050",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "source_sha": "0e5d9415c168c46a21899450dcd82c84886095f8",
+      "path": "docs/agents/requests/088-to-050.md"
+    },
+    {
+      "from_agent": "090",
+      "to_agent": "061",
+      "branch": "agents/090-export-interoperability-validation",
+      "source_sha": "50d224e7cfbcb3b5d17df006da723560fb38b962",
+      "path": "docs/agents/requests/090-to-061.md"
+    },
+    {
+      "from_agent": "090",
+      "to_agent": "064",
+      "branch": "agents/090-export-interoperability-validation",
+      "source_sha": "50d224e7cfbcb3b5d17df006da723560fb38b962",
+      "path": "docs/agents/requests/090-to-064.md"
+    },
+    {
+      "from_agent": "090",
+      "to_agent": "095",
+      "branch": "agents/090-export-interoperability-validation",
+      "source_sha": "50d224e7cfbcb3b5d17df006da723560fb38b962",
+      "path": "docs/agents/requests/090-to-095.md"
+    },
+    {
+      "from_agent": "091",
+      "to_agent": "004",
+      "branch": "agents/091-release-package-validation",
+      "source_sha": "b5686a3e93fe706298a8fedfa8f042a04969fc22",
+      "path": "docs/agents/requests/091-to-004.md"
+    },
+    {
+      "from_agent": "095",
+      "to_agent": "004",
+      "branch": "agents/095-dependency-notices-sbom",
+      "source_sha": "9f957ea2a740c56673a8a1f66d914de4bbf048ee",
+      "path": "docs/agents/requests/095-to-004.md"
+    },
+    {
+      "from_agent": "095",
+      "to_agent": "091",
+      "branch": "agents/095-dependency-notices-sbom",
+      "source_sha": "9f957ea2a740c56673a8a1f66d914de4bbf048ee",
+      "path": "docs/agents/requests/095-to-091.md"
+    },
+    {
+      "from_agent": "096",
+      "to_agent": "068",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "source_sha": "6e4cbee9d47beebf6978164f5a87b618aec08c56",
+      "path": "docs/agents/requests/096-to-068.md"
+    },
+    {
+      "from_agent": "097",
+      "to_agent": "004",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "source_sha": "b3dbb2ba53dccd84e324a0001671eef0a4089227",
+      "path": "docs/agents/requests/097-to-004.md"
+    },
+    {
+      "from_agent": "097",
+      "to_agent": "069",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "source_sha": "b3dbb2ba53dccd84e324a0001671eef0a4089227",
+      "path": "docs/agents/requests/097-to-069.md"
+    },
+    {
+      "from_agent": "097",
+      "to_agent": "070",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "source_sha": "b3dbb2ba53dccd84e324a0001671eef0a4089227",
+      "path": "docs/agents/requests/097-to-070.md"
+    }
+  ],
+  "campaign_complete": false
+}

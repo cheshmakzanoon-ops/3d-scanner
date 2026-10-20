@@ -1,0 +1,134 @@
+{
+  "source_commit": "c5d6ad0180e9afec6833996cd9c3bb1e0e62a717",
+  "proof_path": "/workspace/campaign-061-080/native-assertions-final.json",
+  "proof_sha256": "4c6d5ce2ab0f3b0b79cdd76dd47af6d58afb9d2ce7849868e90ed4c14653df14",
+  "status": "PASS",
+  "ctest_count": 17,
+  "actual_compile_commands_sha256": "16a7ae44c6f08664b8a87d84fa640a76a0b5f4b820cc1291e8fc1d4ea1e58be2",
+  "assertions_enabled_by_last_flag_on_all_17_test_compiles": true,
+  "root_native_input_bytes_match_frozen_snapshot": true,
+  "ctest_log_hash_and17pass_verified": true,
+  "host_library_sha256": "4449f98d65dc6cc196eb49c60fef629255fc1fdb53b17bb13c2174eceaeccef7",
+  "historical_a18_baseline_assertion_results_not_reused": true,
+  "compile_command_checks": [
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "02682aebf59ec2e709bf6270b339e0f381139e60409f9dc970546ff2bcf7c668",
+      "root_recorded_compile_command_sha256": "02682aebf59ec2e709bf6270b339e0f381139e60409f9dc970546ff2bcf7c668",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "4dee20b8f8f38e78a5b7d25bc94b02d988fe6eb2b7f173c3c549e74498d88f13",
+      "root_recorded_compile_command_sha256": "4dee20b8f8f38e78a5b7d25bc94b02d988fe6eb2b7f173c3c549e74498d88f13",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "14a804a1a6cfbe4dec0e856d9c7b1d0fb3595f64d2b5f415f3b2522a8a992505",
+      "root_recorded_compile_command_sha256": "14a804a1a6cfbe4dec0e856d9c7b1d0fb3595f64d2b5f415f3b2522a8a992505",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "2fb3a90af3e94ee53237322419cb2bae6dc3184791e69c42761c7d0b2dc0d40b",
+      "root_recorded_compile_command_sha256": "2fb3a90af3e94ee53237322419cb2bae6dc3184791e69c42761c7d0b2dc0d40b",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "0e065825cfa8b0c37eb9ed8ff9bae249854738e5ba903953d637b4c6baabfb93",
+      "root_recorded_compile_command_sha256": "0e065825cfa8b0c37eb9ed8ff9bae249854738e5ba903953d637b4c6baabfb93",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "3e549ba8870a6191b3021799115f8e3a174a8bb9aaf750e822025d8009de0170",
+      "root_recorded_compile_command_sha256": "3e549ba8870a6191b3021799115f8e3a174a8bb9aaf750e822025d8009de0170",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/core_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "2ad5918d1e70795a98f606fcedf78d1e640eefc18303597c16e5583e3fcea47b",
+      "root_recorded_compile_command_sha256": "2ad5918d1e70795a98f606fcedf78d1e640eefc18303597c16e5583e3fcea47b",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/multiview_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "72fa8de6ea8d684645348f437fe2662501208898c80dda8bd3f5ab6f6fc0fe9d",
+      "root_recorded_compile_command_sha256": "72fa8de6ea8d684645348f437fe2662501208898c80dda8bd3f5ab6f6fc0fe9d",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/bundle_adjustment_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "79f89bfa456cf4a60036d5a25ab71ecd251c1f7cc0b473dec2ed2512ca738ed3",
+      "root_recorded_compile_command_sha256": "79f89bfa456cf4a60036d5a25ab71ecd251c1f7cc0b473dec2ed2512ca738ed3",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/dense_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "0dd8b1aa4ca5ffb685dd5b4c61ff4ed75470323afa417ab2d5e9576bc7fe723d",
+      "root_recorded_compile_command_sha256": "0dd8b1aa4ca5ffb685dd5b4c61ff4ed75470323afa417ab2d5e9576bc7fe723d",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/surface_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "c9a6aa47b7c8b4d5e1f094aa99e78c9e8e898ece919b92bf84bc1ce593711e65",
+      "root_recorded_compile_command_sha256": "c9a6aa47b7c8b4d5e1f094aa99e78c9e8e898ece919b92bf84bc1ce593711e65",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/texture_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "293f443bdc9e7d64532079238456fac9c8cbc08fe7168311354af3bb1d09487b",
+      "root_recorded_compile_command_sha256": "293f443bdc9e7d64532079238456fac9c8cbc08fe7168311354af3bb1d09487b",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/photometric_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "509089de0f0c87a801352a3a674a61e0c711351487467df143c5b61a4cd07f65",
+      "root_recorded_compile_command_sha256": "509089de0f0c87a801352a3a674a61e0c711351487467df143c5b61a4cd07f65",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/stereo_warp_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "52a29c8a00ba3f70f25828e8269266e9ce1631a5046cff8c7626c8980819142b",
+      "root_recorded_compile_command_sha256": "52a29c8a00ba3f70f25828e8269266e9ce1631a5046cff8c7626c8980819142b",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/dense_selection_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "1d651370e93c5a0d97471434cb2b9e7d4dfd112a57e8a969c0f271b40b9ab51d",
+      "root_recorded_compile_command_sha256": "1d651370e93c5a0d97471434cb2b9e7d4dfd112a57e8a969c0f271b40b9ab51d",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/cancellation_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "aa62d5b3eaf0f667b10ba710ec8a99abd7e4a29b720feb841e5c7bc15eeff6da",
+      "root_recorded_compile_command_sha256": "aa62d5b3eaf0f667b10ba710ec8a99abd7e4a29b720feb841e5c7bc15eeff6da",
+      "command_hash_matches": true
+    },
+    {
+      "source": "/workspace/campaign-061-080/combined/reconstruction/tests/depth_checkpoint_test.cpp",
+      "actual_last_assertion_flag": "-UNDEBUG",
+      "actual_compile_command_sha256": "8e2d89e4e9ef3841919a3338dc9136157af14a5afa57557b70d3cd1498bf1879",
+      "root_recorded_compile_command_sha256": "8e2d89e4e9ef3841919a3338dc9136157af14a5afa57557b70d3cd1498bf1879",
+      "command_hash_matches": true
+    }
+  ]
+}

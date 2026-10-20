@@ -1,0 +1,56 @@
+E/AndroidRuntime( 2075): FATAL EXCEPTION: RoleControllerService
+E/AndroidRuntime( 2075): Process: com.android.permissioncontroller, PID: 2075
+E/AndroidRuntime( 2075): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 2068): FATAL EXCEPTION: main
+E/AndroidRuntime( 2068): Process: com.android.systemui, PID: 2068
+E/AndroidRuntime( 2068): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 2338): FATAL EXCEPTION: main
+E/AndroidRuntime( 2338): Process: com.android.phone, PID: 2338
+E/AndroidRuntime( 2338): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 2677): FATAL EXCEPTION: main
+E/AndroidRuntime( 2677): Process: com.android.documentsui, PID: 2677
+E/AndroidRuntime( 2677): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 2863): FATAL EXCEPTION: main
+E/AndroidRuntime( 2863): Process: com.android.printspooler, PID: 2863
+E/AndroidRuntime( 2863): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 2712): FATAL EXCEPTION: launcher-loader
+E/AndroidRuntime( 2712): Process: com.android.launcher3, PID: 2712
+E/AndroidRuntime( 2712): java.lang.RuntimeException: system server dead?
+E/AndroidRuntime( 2712): 	at android.appwidget.AppWidgetHost.deleteHost(AppWidgetHost.java:352)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.LauncherProvider$DatabaseHelper.onEmptyDbCreated(LauncherProvider.java:640)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.LauncherProvider$DatabaseHelper.onCreate(LauncherProvider.java:624)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.LauncherProvider$DatabaseHelper.createEmptyDB(LauncherProvider.java:811)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.LauncherProvider.loadDefaultFavoritesIfNecessary(LauncherProvider.java:496)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.LauncherProvider.call(LauncherProvider.java:393)
+E/AndroidRuntime( 2712): 	at android.content.ContentProvider.call(ContentProvider.java:2152)
+E/AndroidRuntime( 2712): 	at android.content.ContentProvider$Transport.call(ContentProvider.java:477)
+E/AndroidRuntime( 2712): 	at android.content.ContentResolver.call(ContentResolver.java:2042)
+E/AndroidRuntime( 2712): 	at android.content.ContentResolver.call(ContentResolver.java:2022)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.LauncherSettings$Settings.call(LauncherSettings.java:299)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.model.LoaderTask.loadWorkspace(LoaderTask.java:278)
+E/AndroidRuntime( 2712): 	at com.android.launcher3.model.LoaderTask.run(LoaderTask.java:171)
+E/AndroidRuntime( 2712): 	at android.os.Handler.handleCallback(Handler.java:883)
+E/AndroidRuntime( 2712): 	at android.os.Handler.dispatchMessage(Handler.java:100)
+E/AndroidRuntime( 2712): 	at android.os.Looper.loop(Looper.java:214)
+E/AndroidRuntime( 2712): 	at android.os.HandlerThread.run(HandlerThread.java:67)
+E/AndroidRuntime( 2712): Caused by: android.os.DeadObjectException
+E/AndroidRuntime( 2712): 	at android.os.BinderProxy.transactNative(Native Method)
+E/AndroidRuntime( 2712): 	at android.os.BinderProxy.transact(BinderProxy.java:510)
+E/AndroidRuntime( 2712): 	at com.android.internal.appwidget.IAppWidgetService$Stub$Proxy.deleteHost(IAppWidgetService.java:829)
+E/AndroidRuntime( 2712): 	at android.appwidget.AppWidgetHost.deleteHost(AppWidgetHost.java:349)
+E/AndroidRuntime( 2712): 	... 16 more
+E/AndroidRuntime( 3202): FATAL EXCEPTION: Thread-7
+E/AndroidRuntime( 3202): Process: com.android.networkstack, PID: 3202
+E/AndroidRuntime( 3202): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 3202): FATAL EXCEPTION: Thread-8
+E/AndroidRuntime( 3202): Process: com.android.networkstack, PID: 3202
+E/AndroidRuntime( 3202): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 3788): FATAL EXCEPTION: main
+E/AndroidRuntime( 3788): Process: com.android.phone, PID: 3788
+E/AndroidRuntime( 3788): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 3236): FATAL EXCEPTION: RoleControllerService
+E/AndroidRuntime( 3236): Process: com.android.permissioncontroller, PID: 3236
+E/AndroidRuntime( 3236): DeadSystemException: The system died; earlier logs will point to the root cause
+E/AndroidRuntime( 3082): FATAL EXCEPTION: main
+E/AndroidRuntime( 3082): Process: com.android.systemui, PID: 3082
+E/AndroidRuntime( 3082): DeadSystemException: The system died; earlier logs will point to the root cause

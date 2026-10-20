@@ -1,0 +1,689 @@
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1554
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1681
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1555
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1754
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 7
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1577
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1683
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1695
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1718
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1726
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 1747
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 5036
+10-20 09:07:54.792  4585  4638 I ActivityManager: Skipping next CPU consuming process, not a java proc: 5104
+10-20 09:07:55.263  4585  4638 I ActivityManager: Dumping to /data/anr/anr_2026-10-20-09-07-55-066
+10-20 09:07:55.263  4585  4638 I ActivityManager: Collecting stacks for pid 4747
+10-20 09:07:56.594  4585  4630 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-20 09:07:57.150  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.SystemBars took to complete: 28084ms
+10-20 09:07:57.348  5036  5101 W Looper  : Slow dispatch took 12700ms android.bg h=android.os.Handler c=android.os.-$$Lambda$StrictMode$yZJXPvy2veRNA-xL_SWdXzX_OLg@b41eb33 m=0
+10-20 09:07:57.362  4585  4630 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-20 09:07:57.796  5003  5003 W SystemConfig: No directory /product/etc/sysconfig, skipping
+10-20 09:07:58.333  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.usb.StorageNotification took to complete: 1017ms
+10-20 09:07:59.214  5003  5003 W SystemConfig: No directory /product_services/etc/sysconfig, skipping
+10-20 09:07:59.247  5003  5003 W SystemConfig: No directory /product_services/etc/permissions, skipping
+10-20 09:07:59.707  4585  4718 D ConnectivityService: Got NetworkFactory Messenger for PhoneSwitcherNetworkRequstListener
+10-20 09:08:00.293  4585  4718 D ConnectivityService: Got NetworkFactory Messenger for TelephonyNetworkFactory[0]
+10-20 09:08:00.864  4747  5113 E ActivityThread: Failed to find provider info for com.android.contacts
+10-20 09:08:01.382  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.power.PowerUI took to complete: 3049ms
+10-20 09:08:01.530  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.media.RingtonePlayer took to complete: 147ms
+10-20 09:08:01.598  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.keyboard.KeyboardUI took to complete: 67ms
+10-20 09:08:01.799  5003  5117 E ActivityThread: Failed to find provider info for com.android.contacts
+10-20 09:08:03.413  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.pip.PipUI took to complete: 1814ms
+10-20 09:08:03.609  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.shortcut.ShortcutKeyDispatcher took to complete: 113ms
+10-20 09:08:03.610  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.VendorServices took to complete: 1ms
+10-20 09:08:03.816  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.util.leak.GarbageMonitor$Service took to complete: 205ms
+10-20 09:08:04.012  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.LatencyTester took to complete: 196ms
+10-20 09:08:04.283  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.globalactions.GlobalActionsComponent took to complete: 271ms
+10-20 09:08:04.465  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.ScreenDecorations took to complete: 181ms
+10-20 09:08:04.650  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.biometrics.BiometricDialogImpl took to complete: 184ms
+10-20 09:08:04.727  4585  4631 W WindowManager: ***** BOOT TIMEOUT: forcing display enabled
+10-20 09:08:04.732  4585  4631 I WindowManager: ******* TELLING SURFACE FLINGER WE ARE BOOTED!
+10-20 09:08:04.810  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.SliceBroadcastRelayHandler took to complete: 128ms
+10-20 09:08:04.811  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.SizeCompatModeActivityController took to complete: 2ms
+10-20 09:08:05.249  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.statusbar.notification.InstantAppNotifier took to complete: 438ms
+10-20 09:08:05.564  4747  4747 D SystemUIBootTiming: StartServicescom.android.systemui.theme.ThemeOverlayController took to complete: 315ms
+10-20 09:08:05.580  4585  4638 W ActivityManager: Dumping Java threads failed, initiating native stack dump.
+10-20 09:08:05.946  4585  4631 I SystemServiceManager: Starting phase 1000
+10-20 09:08:05.965  4585  4655 V DisplayPowerController: Brightness [102] reason changing to: 'manual', previous reason: 'override'.
+10-20 09:08:06.076  4585  4631 W SystemServiceManager: Service com.android.server.rollback.RollbackManagerService took 93 ms in onBootPhase
+10-20 09:08:06.095  4585  4709 D StorageManagerService: Thinking about init, mBootCompleted=true, mDaemonConnected=true
+10-20 09:08:06.097  4585  4709 D StorageManagerService: Thinking about reset, mBootCompleted=true, mDaemonConnected=true
+10-20 09:08:06.113  4585  4841 V StorageManagerService: Found primary storage at VolumeInfo{emulated}:
+10-20 09:08:06.113  4585  4841 V StorageManagerService:     type=EMULATED diskId=null partGuid= mountFlags=0 mountUserId=-10000 
+10-20 09:08:06.113  4585  4841 V StorageManagerService:     state=UNMOUNTED 
+10-20 09:08:06.113  4585  4841 V StorageManagerService:     fsType=null fsUuid=null fsLabel=null 
+10-20 09:08:06.113  4585  4841 V StorageManagerService:     path=null internalPath=null 
+10-20 09:08:06.124  4585  4631 D TestHarnessModeService: Completing Test Harness Mode setup.
+10-20 09:08:06.124  4585  4631 D TestHarnessModeService: Getting PersistentDataBlockManagerInternal from LocalServices
+10-20 09:08:06.124  4585  4631 E TestHarnessModeService: Failed to start Test Harness Mode; no implementation of PersistentDataBlockManagerInternal was bound!
+10-20 09:08:06.345  4585  4628 W Looper  : Slow dispatch took 152ms android.fg h=com.android.server.usb.UsbDeviceManager$UsbHandlerLegacy c=null m=4
+10-20 09:08:07.232  4585  4585 W Looper  : Slow dispatch took 891ms main h=com.android.server.notification.NotificationManagerService$WorkerHandler c=com.android.server.notification.NotificationManagerService$EnqueueNotificationRunnable@4187fe5 m=0
+10-20 09:08:07.239  4585  4631 W SystemServiceManager: Service com.android.server.SensorNotificationService took 1038 ms in onBootPhase
+10-20 09:08:07.115  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.383  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 1 line
+10-20 09:08:07.441  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.460  4585  4631 D ActivityManager: Finishing user boot 0
+10-20 09:08:07.461  4585  4631 I ActivityManager: User 0 state changed from BOOTING to RUNNING_LOCKED
+10-20 09:08:07.464  4585  4631 D StorageManagerService: unlockUserKey: 0
+10-20 09:08:07.469  1559  2199 D vold    : fscrypt_unlock_user_key 0 serial=0 token_present=0
+10-20 09:08:07.470  1559  2199 W vold    : Tried to unlock already-unlocked key for user 0
+10-20 09:08:07.471  4585  4631 D ActivityManager: Started unlocking user 0
+10-20 09:08:07.472  4585  4631 D ActivityManager: Unlocking user 0 progress 0
+10-20 09:08:07.472  4585  4631 D ActivityManager: Unlocking user 0 progress 5
+10-20 09:08:07.477  1559  2199 D vold    : fscrypt_prepare_user_storage for volume null, user 0, serial 0, flags 2
+10-20 09:08:07.477  1559  2199 D vold    : Preparing: /data/system_ce/0
+10-20 09:08:07.478  1559  2199 D vold    : Preparing: /data/misc_ce/0
+10-20 09:08:07.478  1559  2199 D vold    : Preparing: /data/vendor_ce/0
+10-20 09:08:07.478  1559  2199 D vold    : Preparing: /data/media/0
+10-20 09:08:07.478  1559  2199 D vold    : Preparing: /data/data
+10-20 09:08:07.480  1559  2199 I vold    : Found policy f3ce27747c145499 at /data/system_ce/0 which matches expected value
+10-20 09:08:07.480  1559  2199 I vold    : Found policy f3ce27747c145499 at /data/misc_ce/0 which matches expected value
+10-20 09:08:07.480  1559  2199 I vold    : Found policy f3ce27747c145499 at /data/vendor_ce/0 which matches expected value
+10-20 09:08:07.481  1559  2199 I vold    : Found policy f3ce27747c145499 at /data/media/0 which matches expected value
+10-20 09:08:07.498  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.557  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.598  4585  4638 W ActivityManager: Native stack dump failed!
+10-20 09:08:07.599  4585  4638 I ActivityManager: Collecting stacks for pid 4585
+10-20 09:08:07.614  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.755  1559  2199 I vold    : Found policy f3ce27747c145499 at /data/data which matches expected value
+10-20 09:08:07.756  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.756  1559  2199 D vold    : Starting restorecon of /data/system_ce/0
+10-20 09:08:07.808  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.841  4585  4631 D ColorDisplayService: setUp: currentUser=0
+10-20 09:08:07.859  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:07.910  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 1 line
+10-20 09:08:07.961  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:08.005  4585  4631 I WindowManager: Using new display size: 320x640
+10-20 09:08:08.011  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:09.810  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 35 lines
+10-20 09:08:09.863  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:09.906  4585  4585 W Looper  : Slow dispatch took 2602ms main h=com.android.server.job.JobSchedulerService$JobHandler c=null m=1
+10-20 09:08:09.914  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.016  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 2 lines
+10-20 09:08:10.083  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.098  4585  4585 W Looper  : Slow delivery took 2757ms main h=android.os.Handler c=android.app.AlarmManager$ListenerWrapper@61c0f36 m=0
+10-20 09:08:10.134  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.244  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 2 lines
+10-20 09:08:10.295  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.311  4585  4585 W Looper  : Slow dispatch took 213ms main h=com.android.server.notification.NotificationManagerService$WorkerHandler c=com.android.server.notification.NotificationManagerService$PostNotificationRunnable@164910d m=0
+10-20 09:08:10.345  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.379  1559  2199 D vold    : Finished restorecon of /data/system_ce/0
+10-20 09:08:10.379  1559  2199 D vold    : Starting restorecon of /data/vendor_ce/0
+10-20 09:08:10.398  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.550  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 3 lines
+10-20 09:08:10.601  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.603  4585  4585 W Looper  : Slow dispatch took 287ms main h=com.android.server.job.JobSchedulerService$JobHandler c=null m=0
+10-20 09:08:10.660  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.813  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 3 lines
+10-20 09:08:10.864  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:10.892  4585  4585 W Looper  : Drained
+10-20 09:08:10.892  4585  4585 W Looper  : Slow dispatch took 162ms main h=android.app.job.JobServiceEngine$JobHandler c=null m=0
+10-20 09:08:10.914  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:11.632  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 14 lines
+10-20 09:08:11.682  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:11.683  5125  5125 W sdcard  : Device explicitly enabled sdcardfs
+10-20 09:08:11.733  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:11.835  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 2 lines
+10-20 09:08:11.890  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:11.938  5125  5125 W sdcard  : Failed to mount sdcardfs with options fsuid=1023,fsgid=1023,multiuser,derive_gid,default_normal,unshared_obb,mask=6,userid=0,gid=1015: Permission denied
+10-20 09:08:11.939  5125  5125 W sdcard  : Failed to mount sdcardfs with options fsuid=1023,fsgid=1023,multiuser,derive_gid,default_normal,mask=6,userid=0,gid=1015: Permission denied
+10-20 09:08:11.940  5125  5125 W sdcard  : Failed to mount sdcardfs with options fsuid=1023,fsgid=1023,multiuser,derive_gid,mask=6,userid=0,gid=1015: Permission denied
+10-20 09:08:11.941  5125  5125 W sdcard  : Failed to mount sdcardfs with options fsuid=1023,fsgid=1023,multiuser,mask=6,userid=0,gid=1015: Permission denied
+10-20 09:08:11.941  5125  5125 W sdcard  : Failed to mount sdcardfs with options fsuid=1023,fsgid=1023,mask=6,userid=0,gid=1015: Permission denied
+10-20 09:08:11.942  5125  5125 F sdcard  : sdcard.cpp:190] failed to sdcardfs_setup
+10-20 09:08:11.947  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:12.049  1559  2200 I chatty  : uid=0(root) Binder:1559_6 identical 2 lines
+10-20 09:08:12.099  1559  2200 D vold    : Waiting for FUSE to spin up...
+10-20 09:08:12.150  1559  2200 W vold    : Timed out while waiting for FUSE to spin up
+10-20 09:08:16.803  1559  2199 D vold    : Finished restorecon of /data/vendor_ce/0
+10-20 09:08:16.803  1559  2199 D vold    : Starting restorecon of /data/misc_ce/0
+10-20 09:08:17.510  1559  2199 D vold    : Finished restorecon of /data/misc_ce/0
+10-20 09:08:17.511  1559  2199 D vold    : /system/bin/vold_prepare_subdirs
+10-20 09:08:17.511  1559  2199 D vold    :     prepare
+10-20 09:08:17.511  1559  2199 D vold    :     
+10-20 09:08:17.511  1559  2199 D vold    :     0
+10-20 09:08:17.511  1559  2199 D vold    :     2
+10-20 09:08:18.883  4585  4634 I Watchdog: WAITED_HALF
+10-20 09:08:20.115  4585  4634 I ActivityManager: dumpStackTraces pids=null nativepids=[1683, 1701, 1686, 1702, 1703, 4584, 1705, 1770, 1757, 1559, 1719, 1741, 1749, 1750, 1751, 1754, 1757, 1770, 4568, 4574, 4575, 5125, 5144]
+10-20 09:08:20.797  4585  4634 I ActivityManager: Dumping to /data/anr/anr_2026-10-20-09-08-20-741
+10-20 09:08:20.798  4585  4634 I ActivityManager: Collecting stacks for pid 4585
+10-20 09:08:23.796  4585  4628 V UserDataPreparer: Found /data/user/0 with serial number 0
+10-20 09:08:23.798  4585  4628 V UserDataPreparer: Found /data/system_ce/0 with serial number 0
+10-20 09:08:23.817  4585  4628 D UserDataPreparer: Setting property: sys.user.0.ce_available=true
+10-20 09:08:23.899  4585  4628 V PackageManager: reconcileAppsData for null u0 0x2 migrateAppData=false
+10-20 09:08:30.888  4585  4634 W ActivityManager: Dumping Java threads failed, initiating native stack dump.
+10-20 09:08:32.046  4585  4638 W ActivityManager: Dumping Java threads failed, initiating native stack dump.
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 
+10-20 09:08:32.080  4585  4709 E StorageManagerService: android.os.ServiceSpecificException:  (code -110)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at android.os.Parcel.createException(Parcel.java:2085)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at android.os.Parcel.readException(Parcel.java:2039)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at android.os.Parcel.readException(Parcel.java:1987)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at android.os.IVold$Stub$Proxy.mount(IVold.java:1565)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at com.android.server.StorageManagerService.mount(StorageManagerService.java:1808)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at com.android.server.StorageManagerService.access$1600(StorageManagerService.java:188)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at com.android.server.StorageManagerService$StorageManagerServiceHandler.handleMessage(StorageManagerService.java:650)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at android.os.Looper.loop(Looper.java:214)
+10-20 09:08:32.080  4585  4709 E StorageManagerService: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+10-20 09:08:32.084  4585  4718 D ConnectivityService: Got NetworkFactory Messenger for WifiNetworkFactory
+10-20 09:08:32.084  4585  4718 D ConnectivityService: Got NetworkFactory Messenger for UntrustedWifiNetworkFactory
+10-20 09:08:32.099  4585  4638 W ActivityManager: Native stack dump failed!
+10-20 09:08:32.100  4585  4638 E ActivityManager: Aborting stack trace dump (current firstPid=4585); deadline exceeded.
+10-20 09:08:32.872  4747  4747 D SystemUIBootTiming: StartServices took to complete: 72727ms
+10-20 09:08:32.966  4585  4634 W ActivityManager: Native stack dump failed!
+10-20 09:08:32.968  4585  4634 I ActivityManager: Collecting stacks for native pid 1683
+10-20 09:08:35.050  4585  4634 I ActivityManager: Collecting stacks for native pid 1701
+10-20 09:08:35.283  4585  4638 E ActivityManager: ANR in com.android.systemui
+10-20 09:08:35.283  4585  4638 E ActivityManager: PID: 4747
+10-20 09:08:35.283  4585  4638 E ActivityManager: Reason: executing service com.android.systemui/.SystemUIService
+10-20 09:08:35.283  4585  4638 E ActivityManager: Load: 10.64 / 12.45 / 10.21
+10-20 09:08:35.283  4585  4638 E ActivityManager: CPU usage from 0ms to 58179ms later (2026-10-20 09:07:33.922 to 2026-10-20 09:08:32.100):
+10-20 09:08:35.283  4585  4638 E ActivityManager:   31% 1719/surfaceflinger: 16% user + 14% kernel / faults: 27 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   24% 5019/com.android.settings: 14% user + 10% kernel / faults: 1055 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   15% 1702/android.hardware.graphics.composer@2.1-service: 5.8% user + 9.5% kernel / faults: 3 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   9.6% 4585/system_server: 6.1% user + 3.4% kernel / faults: 3437 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   3.2% 4747/com.android.systemui: 2.2% user + 0.9% kernel / faults: 5244 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   1.7% 5003/com.android.phone: 1.2% user + 0.4% kernel / faults: 1385 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   1.1% 1705/android.hardware.sensors@1.0-service: 0.5% user + 0.5% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.5% 1744/installd: 0.3% user + 0.2% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.8% 3989/kworker/0:0: 0% user + 0.8% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.6% 8/rcu_preempt: 0% user + 0.6% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.4% 5036/android.ext.services: 0.3% user + 0.1% kernel / faults: 1861 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.3% 1554/logd: 0.3% user + 0% kernel / faults: 4 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.3% 1734/adbd: 0% user + 0.3% kernel / faults: 335 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.2% 1/init: 0% user + 0.1% kernel / faults: 196 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.1% 1559/vold: 0.1% user + 0% kernel / faults: 71 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.1% 4568/audioserver: 0.1% user + 0% kernel / faults: 9 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.1% 1754/statsd: 0% user + 0% kernel / faults: 1 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.1% 1726/logcat: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.1% 1555/servicemanager: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.1% 1746/keystore: 0.1% user + 0% kernel / faults: 63 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0.1% 4566/zygote64: 0% user + 0% kernel / faults: 157 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1681/android.system.suspend@1.0-service: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1760/rild: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1772/tombstoned: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 4901/com.android.permissioncontroller: 0% user + 0% kernel / faults: 334 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1556/hwservicemanager: 0% user + 0% kernel / faults: 56 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 4576/netd: 0% user + 0% kernel / faults: 6 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 4884/zygote64: 0% user + 0% kernel / faults: 66 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1577/jbd2/vdc-8: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 7/ksoftirqd/0: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1683/healthd: 0% user + 0% kernel / faults: 3 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1695/android.hardware.gnss@1.0-service: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 3654/kworker/u2:3: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 4583/wificond: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 9/rcu_sched: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 809/kworker/0:1H: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1235/init: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1701/android.hardware.graphics.allocator@2.0-service: 0% user + 0% kernel / faults: 3 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1714/ashmemd: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1716/gpuservice: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1718/lmkd: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1721/netmgr: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1736/traced_probes: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 1747/mdnsd: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 4574/cameraserver: 0% user + 0% kernel / faults: 4 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 4584/android.hardware.audio@2.0-service: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   0% 4950/com.android.launcher3: 0% user + 0% kernel / faults: 9 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:  +0% 5062/com.android.inputmethod.latin: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:  +0% 5125/sdcard: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:  +0% 5137/crash_dump64: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:  +0% 5140/com.android.systemui: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:  +0% 5141/crash_dump64: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:  +0% 5144/sdcard: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:  +0% 5147/pidof: 0% user + 0% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager: 100% TOTAL: 55% user + 44% kernel + 0.1% softirq
+10-20 09:08:35.283  4585  4638 E ActivityManager: CPU usage from 1378ms to 17994ms later (2026-10-20 09:07:35.299 to 2026-10-20 09:07:51.915):
+10-20 09:08:35.283  4585  4638 E ActivityManager:   29% 1719/surfaceflinger: 15% user + 14% kernel / faults: 8 minor
+10-20 09:08:35.283  4585  4638 E ActivityManager:     11% 1719/surfaceflinger: 7.8% user + 4% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     5.6% 2047/Binder:1719_4: 2.3% user + 3.3% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     4.3% 2404/Binder:1719_5: 1.9% user + 2.4% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     2.4% 1861/DispSync: 0.7% user + 1.6% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     1.8% 1868/HwBinder:1719_1: 0.9% user + 0.9% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     1.3% 1863/app: 0.4% user + 0.9% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     1.2% 1864/sf: 0.3% user + 0.9% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     0.6% 1862/surfaceflinger: 0.1% user + 0.4% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     0.2% 1866/surfaceflinger: 0% user + 0.2% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:   15% 1702/android.hardware.graphics.composer@2.1-service: 5% user + 10% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     6.6% 1702/composer@2.1-se: 2% user + 4.5% kernel
+10-20 09:08:35.283  4585  4638 E ActivityManager:     6.2% 2489/HwBinder:1702_3: 2.1% user + 4%
+10-20 09:08:35.715  4585  5156 I DropBoxManagerService: add tag=system_app_anr isTagEnabled=true flags=0x2
+10-20 09:08:36.076  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:08:36.889  4585  4630 I chatty  : uid=1000(system) android.io identical 3 lines
+10-20 09:08:37.041  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:08:37.121  4585  4634 I ActivityManager: Collecting stacks for native pid 1686
+10-20 09:08:37.231  4585  4628 V PackageManager: reconcileAppsData finished 145 packages
+10-20 09:08:37.231  4585  4628 I ActivityManager: User 0 state changed from RUNNING_LOCKED to RUNNING_UNLOCKING
+10-20 09:08:37.232  4585  4628 D ActivityManager: Unlocking user 0 progress 20
+10-20 09:08:37.232  4585  4628 W Looper  : Slow dispatch took 29758ms android.fg h=android.os.Handler c=com.android.server.am.-$$Lambda$UserController$stQk1028ON105v_u-VMykVjcxLk@b975283 m=0
+10-20 09:08:37.232  4585  4628 W Looper  : Slow delivery took 29749ms android.fg h=android.os.Handler c=com.android.server.am.-$$Lambda$UserController$G0WJmqt4X_QG30fRlvXobn18mrE@ee43c00 m=0
+10-20 09:08:37.399  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:08:37.797  4585  4630 I chatty  : uid=1000(system) android.io identical 1 line
+10-20 09:08:38.033  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:08:38.119  4585  4628 W Looper  : Drained
+10-20 09:08:38.593  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:08:38.806  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:08:39.203  4585  4634 I ActivityManager: Collecting stacks for native pid 1702
+10-20 09:08:40.242  4585  4634 I ActivityManager: Collecting stacks for native pid 1703
+10-20 09:08:45.874  4583  4583 W wificond: Scan is not started. Ignore abort request
+10-20 09:08:50.243  4585  4634 E ActivityManager: Aborting stack trace dump (current native pid=1703); deadline exceeded.
+10-20 09:08:50.803  4585  4585 W Looper  : Slow delivery took 12491ms main h=com.android.server.AlarmManagerService$AlarmHandler c=null m=8
+10-20 09:08:51.227  4585  4585 W Looper  : Slow dispatch took 421ms main h=android.os.Handler c=android.telecom.Logging.-$$Lambda$SessionManager$VyH2gT1EjIvzDy_C9JfTT60CISM@3292642 m=0
+10-20 09:08:51.601  4585  4585 W Looper  : Drained
+10-20 09:08:51.942  4585  4628 W Looper  : Slow dispatch took 1634ms android.fg h=android.os.Handler c=com.android.server.Watchdog$HandlerChecker@ebdc159 m=0
+10-20 09:08:52.217  4585  4638 W ActivityManager: Slow operation: 508ms so far, now at startProcess: done creating new process record
+10-20 09:08:52.278  4585  4638 W ActivityManager: Slow operation: 569ms so far, now at startProcess: stepping in to startProcess
+10-20 09:08:52.425  4585  4639 W ActivityManager: Slow operation: 148ms so far, now at startProcess: asking zygote to start proc
+10-20 09:08:52.446  4585  4638 W ActivityManager: Slow operation: 737ms so far, now at startProcess: done starting proc!
+10-20 09:08:53.482  4585  4638 I ActivityManager: Force stopping com.android.providers.media appid=10050 user=-1: vold reset
+10-20 09:08:53.498  4585  4629 W Looper  : Slow dispatch took 17580ms android.ui h=com.android.server.am.ActivityManagerService$UiHandler c=null m=2
+10-20 09:08:53.546  4585  4629 W Looper  : Slow delivery took 11135ms android.ui h=com.android.server.am.BaseErrorDialog$1 c=null m=1
+10-20 09:08:53.619  4585  4638 W ActivityManager: Timeout executing service: ServiceRecord{e196281 u0 com.android.phone/com.android.internal.telephony.CellularNetworkService}
+10-20 09:08:53.627  4585  4628 W Looper  : Slow delivery took 323ms android.fg h=android.os.Handler c=<recycled PooledLambda@68993f3> m=0
+10-20 09:08:53.627  4585  4628 W Looper  : Slow dispatch took 1684ms android.fg h=android.os.Handler c=<recycled PooledLambda@68993f3> m=0
+10-20 09:08:53.878  4583  4583 E wificond: NL80211_CMD_TRIGGER_SCAN failed: Device or resource busy
+10-20 09:08:53.914  4585  4628 W Looper  : Slow dispatch took 286ms android.fg h=android.os.Handler c=<recycled PooledLambda@bdba3f2> m=0
+10-20 09:08:54.349  4585  4628 W Looper  : Slow dispatch took 434ms android.fg h=android.os.Handler c=<recycled PooledLambda@4b5e8c0> m=0
+10-20 09:08:54.561  4585  4628 W Looper  : Slow dispatch took 211ms android.fg h=android.os.Handler c=<recycled PooledLambda@2dec9f9> m=0
+10-20 09:08:54.647  4585  4639 W ActivityManager: Slow operation: 2370ms so far, now at startProcess: returned from zygote!
+10-20 09:08:54.649  4585  4639 W ActivityManager: Slow operation: 2371ms so far, now at startProcess: done updating battery stats
+10-20 09:08:54.878  4585  4639 W ActivityManager: Slow operation: 2600ms so far, now at startProcess: building log message
+10-20 09:08:54.878  4585  4639 I ActivityManager: Start proc 5192:com.android.deskclock/u0a108 for broadcast {com.android.deskclock/com.android.deskclock.AlarmInitReceiver}
+10-20 09:08:54.879  4585  4639 W ActivityManager: Slow operation: 2601ms so far, now at startProcess: starting to update pids map
+10-20 09:08:54.879  4585  4639 W ActivityManager: Slow operation: 2602ms so far, now at startProcess: done updating pids map
+10-20 09:08:55.078  4585  4628 W Looper  : Slow dispatch took 513ms android.fg h=android.os.Handler c=<recycled PooledLambda@970d0ec> m=0
+10-20 09:08:55.250  4585  4638 W ProcessCpuTracker: Failed to stat(/proc/5172): android.system.ErrnoException: stat failed: ENOENT (No such file or directory)
+10-20 09:08:55.331  4585  4638 W ProcessCpuTracker: Skipping unknown process pid 5172
+10-20 09:08:55.333  4585  4638 W ProcessCpuTracker: Failed to stat(/proc/5175): android.system.ErrnoException: stat failed: ENOENT (No such file or directory)
+10-20 09:08:55.333  4585  4638 W ProcessCpuTracker: Skipping unknown process pid 5175
+10-20 09:08:55.372  4585  4628 W Looper  : Slow dispatch took 293ms android.fg h=android.os.Handler c=<recycled PooledLambda@babf31> m=0
+10-20 09:08:56.031  4585  4638 I ActivityManager: dumpStackTraces pids=null nativepids=null
+10-20 09:08:56.278  4583  4583 I wificond: Received external scan result notification from kernel.
+10-20 09:08:56.565  4585  4638 I ActivityManager: Dumping to /data/anr/anr_2026-10-20-09-08-56-223
+10-20 09:08:56.565  4585  4638 I ActivityManager: Collecting stacks for pid 5003
+10-20 09:08:58.747  4585  5189 W ActivityManager: Slow operation: 81ms so far, now at attachApplicationLocked: immediately before bindApplication
+10-20 09:08:58.913  4585  5189 W ActivityManager: Slow operation: 246ms so far, now at attachApplicationLocked: immediately after bindApplication
+10-20 09:08:58.914  4585  5189 W ActivityManager: Slow operation: 247ms so far, now at attachApplicationLocked: after updateLruProcessLocked
+10-20 09:08:58.966  4585  5189 W ActivityManager: Slow operation: 299ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 09:08:59.198  4585  5189 W ActivityManager: Slow operation: 532ms so far, now at attachApplicationLocked: after sendPendingBroadcastsLocked
+10-20 09:09:00.640  4585  4628 W Looper  : Drained
+10-20 09:09:01.378  4585  4734 W ActivityManager: Slow operation: 112ms so far, now at getContentProviderImpl: after updateOomAdj
+10-20 09:09:01.378  4585  4734 W ActivityManager: Slow operation: 113ms so far, now at getContentProviderImpl: done!
+10-20 09:09:02.916  4585  4756 W NativeCrashListener: Couldn't find ProcessRecord for pid 5125
+10-20 09:09:02.979  4585  4639 W ActivityManager: Slow operation: 1573ms so far, now at startProcess: returned from zygote!
+10-20 09:09:02.979  4585  4639 W ActivityManager: Slow operation: 1574ms so far, now at startProcess: done updating battery stats
+10-20 09:09:02.980  4585  4639 W ActivityManager: Slow operation: 1574ms so far, now at startProcess: building log message
+10-20 09:09:02.980  4585  4639 I ActivityManager: Start proc 5213:android.process.acore/u0a51 for content provider {com.android.providers.contacts/com.android.providers.contacts.ContactsProvider2}
+10-20 09:09:02.980  4585  4639 W ActivityManager: Slow operation: 1574ms so far, now at startProcess: starting to update pids map
+10-20 09:09:02.981  4585  4639 W ActivityManager: Slow operation: 1575ms so far, now at startProcess: done updating pids map
+10-20 09:09:05.439  4585  4980 W ActivityManager: Slow operation: 843ms so far, now at attachApplicationLocked: before bindApplication
+10-20 09:09:05.440  4585  4980 W ActivityManager: Slow operation: 844ms so far, now at attachApplicationLocked: immediately before bindApplication
+10-20 09:09:05.452  4585  4980 W ActivityManager: Slow operation: 856ms so far, now at attachApplicationLocked: immediately after bindApplication
+10-20 09:09:05.452  4585  4980 W ActivityManager: Slow operation: 857ms so far, now at attachApplicationLocked: after updateLruProcessLocked
+10-20 09:09:05.599  4585  4980 W ActivityManager: Slow operation: 932ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 09:09:05.653  4585  4638 I ActivityManager: Done dumping
+10-20 09:09:05.617  4585  4980 W ActivityManager: Slow operation: 1021ms so far, now at attachApplicationLocked: after updateOomAdjLocked
+10-20 09:09:05.730  4585  4585 W Looper  : Slow dispatch took 663ms main h=android.app.ActivityThread$H c=null m=131
+10-20 09:09:05.745  4583  4583 W wificond: Scan is not started. Ignore abort request
+10-20 09:09:06.351  4583  4583 I wificond: Received external scan result notification from kernel.
+10-20 09:09:06.351  4583  4583 W wificond: Scan aborted
+10-20 09:09:07.460  4585  4638 E ActivityManager: ANR in com.android.phone
+10-20 09:09:07.460  4585  4638 E ActivityManager: PID: 5003
+10-20 09:09:07.460  4585  4638 E ActivityManager: Reason: executing service com.android.phone/com.android.internal.telephony.CellularNetworkService
+10-20 09:09:07.460  4585  4638 E ActivityManager: Load: 0.0 / 0.0 / 0.0
+10-20 09:09:07.460  4585  4638 E ActivityManager: CPU usage from 0ms to 11867ms later (2026-10-20 09:08:53.786 to 2026-10-20 09:09:05.653):
+10-20 09:09:07.460  4585  4638 E ActivityManager:   30% 1719/surfaceflinger: 15% user + 14% kernel / faults: 8 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   23% 5019/com.android.settings: 14% user + 9% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   17% 1702/android.hardware.graphics.composer@2.1-service: 8.9% user + 8.3% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   7.6% 4585/system_server: 4.8% user + 2.7% kernel / faults: 1334 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   3% 5192/zygote64: 2.3% user + 0.6% kernel / faults: 2536 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   2.1% 5160/crash_dump64: 2% user + 0% kernel / faults: 1311 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   1.9% 5003/com.android.phone: 0.9% user + 1% kernel / faults: 821 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   1.6% 4747/com.android.systemui: 1.5% user + 0.1% kernel / faults: 167 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   1.2% 1705/android.hardware.sensors@1.0-service: 0.7% user + 0.5% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.6% 3989/kworker/0:0: 0% user + 0.6% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.5% 4566/zygote64: 0% user + 0.5% kernel / faults: 170 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.5% 8/rcu_preempt: 0% user + 0.5% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.5% 1554/logd: 0.1% user + 0.3% kernel / faults: 11 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0% 1781/llkd: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.3% 1734/adbd: 0% user + 0.2% kernel / faults: 66 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.2% 4884/zygote64: 0.1% user + 0% kernel / faults: 50 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0% 1695/android.hardware.gnss@1.0-service: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.1% 1726/logcat: 0.1% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.1% 1754/statsd: 0% user + 0.1% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.1% 2062/wpa_supplicant: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.1% 3654/kworker/u2:3: 0% user + 0.1% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0.1% 4583/wificond: 0.1% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0% 1/init: 0% user + 0% kernel / faults: 5 minor
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0% 5/kworker/u2:0: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0% 1577/jbd2/vdc-8: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0% 1772/tombstoned: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:   0% 1782/hostapd_nohidl: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:  +0% 5208/getprop: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager:  +0% 5213/android.process.acore: 0% user + 0% kernel
+10-20 09:09:07.460  4585  4638 E ActivityManager: 100% TOTAL: 57% user + 42% kernel + 0.1% softirq
+10-20 09:09:07.460  4585  4638 E ActivityManager: CPU usage from 1539549ms to 1539549ms ago (1970-01-01 00:00:00.000 to 1970-01-01 00:00:00.000) with 0% awake:
+10-20 09:09:07.460  4585  4638 E ActivityManager: 0% TOTAL: 0% user + 0% kernel
+10-20 09:09:07.502  4585  4628 W Looper  : Slow dispatch took 306ms android.fg h=android.os.Handler c=com.android.server.-$$Lambda$NetworkManagementService$NetdUnsolicitedEventListener$pOV71EYm5PphEVG1PGQnV_c6XiA@7d18e7b m=0
+10-20 09:09:07.748  4585  4638 I ActivityManager: Killing 5003:com.android.phone/1001 (adj -800): bg anr
+10-20 09:09:07.997  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:08.050  4585  5233 I DropBoxManagerService: add tag=system_app_anr isTagEnabled=true flags=0x2
+10-20 09:09:08.181  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:08.429  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:08.515  4585  4638 I DropBoxManagerService: add tag=system_server_wtf isTagEnabled=true flags=0x2
+10-20 09:09:08.662  4585  4638 I SystemServiceManager: Calling onUnlockUser u0
+10-20 09:09:08.665  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:08.798  4585  4585 W Looper  : Slow delivery took 1467ms main h=android.os.AsyncTask$InternalHandler c=null m=1
+10-20 09:09:08.800  4585  4628 W Looper  : Slow delivery took 250ms android.fg h=com.android.server.location.GnssLocationProvider$ProviderHandler c=null m=18
+10-20 09:09:08.800  4585  4628 W Looper  : Slow dispatch took 1298ms android.fg h=com.android.server.location.GnssLocationProvider$ProviderHandler c=null m=18
+10-20 09:09:08.912  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:08.958  4585  4606 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ LISTEN id=13, [ Transports: WIFI Capabilities: INTERNET&TRUSTED&NOT_VPN&FOREGROUND Uid: 1001] ], android.os.BinderProxy@f52c5d3)
+10-20 09:09:08.962  4585  4718 D ConnectivityService: unregisterNetworkFactory for PhoneSwitcherNetworkRequstListener
+10-20 09:09:08.962  4585  4718 D ConnectivityService: unregisterNetworkFactory for TelephonyNetworkFactory[0]
+10-20 09:09:08.967  4585  4606 I ActivityManager: Process com.android.phone (pid 5003) has died: pers PER 
+10-20 09:09:09.093  4585  4606 W ActivityManager: Scheduling restart of crashed service com.android.phone/.TelephonyDebugService in 0ms
+10-20 09:09:09.098  4585  4638 W SystemServiceManager: Service com.android.server.wm.ActivityTaskManagerService$Lifecycle took 435 ms in onUnlockUser 
+10-20 09:09:09.141  4585  4606 W ActivityManager: Re-adding persistent process ProcessRecord{5be375a 5003:com.android.phone/1001}
+10-20 09:09:08.896  4585  4715 D ConnectivityService: registerNetworkAgent NetworkAgentInfo{ ni{[type: WIFI[], state: CONNECTING/CONNECTING, reason: (unspecified), extra: (none), failover: false, available: true, roaming: false]}  network{100}  nethandle{432902426637}  lp{{LinkAddresses: [ ] DnsAddresses: [ ] Domains: null MTU: 0 Routes: [ ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&NOT_VPN&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=1048576Kbps LinkDnBandwidth>=1048576Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID="AndroidWifi", BSSID=02:15:b4:00:01:00, mOriginalRequestorUid=-1, mOriginalRequestorPackageName=]> SSID: "AndroidWifi"]}  Score{20}  everValidated{false}  lastValidated{false}  created{false} lingering{false} explicitlySelected{false} acceptUnvalidated{false} everCaptivePortalDetected{false} lastCaptivePortalDetected{false} captivePortalValidationPending{false} partialConnectivity{false} acceptPartialConnectivity{false} clat{mBaseIface: null, mIface: null, mState: IDLE} }
+10-20 09:09:09.149  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:09.167  4585  4638 W SystemServiceManager: Service com.android.server.rollback.RollbackManagerService took 68 ms in onUnlockUser 
+10-20 09:09:09.197  4585  4638 D StorageManagerService: onUnlockUser 0
+10-20 09:09:09.204  1559  2199 D vold    : Linking /storage/emulated/0 to /mnt/user/0/primary
+10-20 09:09:09.245  4585  4628 W Looper  : Drained
+10-20 09:09:09.294  4585  4606 W ActivityManager: Slow operation: 152ms so far, now at startProcess: done removing from pids map
+10-20 09:09:09.295  4585  4606 W ActivityManager: Slow operation: 152ms so far, now at startProcess: starting to update cpu stats
+10-20 09:09:09.295  4585  4606 W ActivityManager: Slow operation: 152ms so far, now at startProcess: done updating cpu stats
+10-20 09:09:09.295  4585  4606 W ActivityManager: Slow operation: 152ms so far, now at startProcess: getting gids from package manager
+10-20 09:09:09.378  4585  4638 W SystemServiceManager: Service com.android.server.StorageManagerService$Lifecycle took 181 ms in onUnlockUser 
+10-20 09:09:09.395  4585  4606 W ActivityManager: Slow operation: 252ms so far, now at startProcess: building args
+10-20 09:09:09.458  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:09.531  4585  4638 W SystemServiceManager: Service com.android.server.appprediction.AppPredictionManagerService took 150 ms in onUnlockUser 
+10-20 09:09:09.648  4585  4639 W ActivityManager: Slow operation: 505ms so far, now at startProcess: asking zygote to start proc
+10-20 09:09:09.734  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:09.892  4585  4638 W SystemServiceManager: Service com.android.server.midi.MidiService$Lifecycle took 347 ms in onUnlockUser 
+10-20 09:09:09.896  4585  4638 W VoiceInteractionManagerService: no available voice interaction services found for user 0
+10-20 09:09:09.900  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:10.077  4585  4638 W VoiceInteractionManagerService: no available voice recognition services found for user 0
+10-20 09:09:10.149  4585  4638 W SystemServiceManager: Service com.android.server.voiceinteraction.VoiceInteractionManagerService took 254 ms in onUnlockUser 
+10-20 09:09:10.591  4585  4638 W SystemServiceManager: Service com.android.server.print.PrintManagerService took 441 ms in onUnlockUser 
+10-20 09:09:10.594  4585  4638 D AutofillManagerServiceImpl: Reset component for user 0:
+10-20 09:09:10.595  4585  4638 D FieldClassificationStrategy: reset(): service is not bound. Do nothing.
+10-20 09:09:10.628  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:10.636  4585  4585 W Looper  : Drained
+10-20 09:09:10.637  4585  4585 W Looper  : Slow dispatch took 1442ms main h=android.os.Handler c=null m=5000
+10-20 09:09:10.652  4585  4638 W SystemServiceManager: Service com.android.server.appbinding.AppBindingService$Lifecycle took 57 ms in onUnlockUser 
+10-20 09:09:10.676  4585  4628 I ActivityTaskManager: Loading recents for user 0 into memory.
+10-20 09:09:10.677  4585  4628 E TaskPersister: restoreTasksForUserLocked: Unable to list files from /data/system_ce/0/recent_tasks
+10-20 09:09:10.691  4585  4638 I ActivityManager: User 0 state changed from RUNNING_UNLOCKING to RUNNING_UNLOCKED
+10-20 09:09:10.692  4585  4638 D SystemServerTiming: SystemUserUnlock took to complete: 63220ms
+10-20 09:09:11.350  4585  4639 W ActivityManager: Slow operation: 2207ms so far, now at startProcess: returned from zygote!
+10-20 09:09:11.980  4585  4585 W Looper  : Slow delivery took 1258ms main h=android.os.Handler c=com.android.server.locksettings.LockSettingsService$1@328f317 m=0
+10-20 09:09:11.981  4585  4585 W Looper  : Slow dispatch took 1344ms main h=android.os.Handler c=com.android.server.locksettings.LockSettingsService$1@328f317 m=0
+10-20 09:09:12.002  4585  4718 D ConnectivityService: NetworkAgentInfo [WIFI () - 100] EVENT_NETWORK_INFO_CHANGED, going from null to CONNECTING
+10-20 09:09:12.232  4585  4639 W ActivityManager: Slow operation: 3090ms so far, now at startProcess: done updating battery stats
+10-20 09:09:12.233  4585  4639 W ActivityManager: Slow operation: 3090ms so far, now at startProcess: building log message
+10-20 09:09:12.233  4585  4639 I ActivityManager: Start proc 5241:com.android.phone/1001 for restart com.android.phone
+10-20 09:09:12.233  4585  4639 W ActivityManager: Slow operation: 3091ms so far, now at startProcess: starting to update pids map
+10-20 09:09:12.258  4585  4639 W ActivityManager: Slow operation: 3115ms so far, now at startProcess: done updating pids map
+10-20 09:09:12.258  4585  4639 W ActivityManager: Slow operation: 231ms so far, now at startProcess: asking zygote to start proc
+10-20 09:09:12.277  4585  4628 W Looper  : Slow dispatch took 1598ms android.fg h=com.android.server.DropBoxManagerService$DropBoxManagerBroadcastHandler c=null m=2
+10-20 09:09:12.278  4585  4628 W Looper  : Slow delivery took 1034ms android.fg h=com.android.server.location.GnssLocationProvider$ProviderHandler c=null m=18
+10-20 09:09:13.810  4585  4639 W ActivityManager: Slow operation: 1782ms so far, now at startProcess: returned from zygote!
+10-20 09:09:14.555  4585  4585 W Looper  : Slow dispatch took 2573ms main h=com.android.server.job.JobSchedulerService$JobHandler c=null m=1
+10-20 09:09:14.563  4585  4628 W Looper  : Drained
+10-20 09:09:14.563  4585  4628 W Looper  : Slow dispatch took 1934ms android.fg h=com.android.server.DropBoxManagerService$DropBoxManagerBroadcastHandler c=null m=2
+10-20 09:09:14.576  4585  4639 W ActivityManager: Slow operation: 2548ms so far, now at startProcess: done updating battery stats
+10-20 09:09:14.577  4585  4639 W ActivityManager: Slow operation: 2549ms so far, now at startProcess: building log message
+10-20 09:09:14.577  4585  4639 I ActivityManager: Start proc 5260:com.android.se/1068 for added application com.android.se
+10-20 09:09:14.577  4585  4639 W ActivityManager: Slow operation: 2550ms so far, now at startProcess: starting to update pids map
+10-20 09:09:14.578  4585  4639 W ActivityManager: Slow operation: 2550ms so far, now at startProcess: done updating pids map
+10-20 09:09:14.578  4585  4639 W ActivityManager: Slow operation: 2413ms so far, now at startProcess: asking zygote to start proc
+10-20 09:09:14.627  4585  4628 W Looper  : Slow delivery took 1053ms android.fg h=android.os.Handler c=com.android.server.-$$Lambda$NetworkManagementService$NetdUnsolicitedEventListener$QjjL0oku3yfQh6xuCG2xu7lWiSM@dc2e534 m=0
+10-20 09:09:14.647  4585  5189 W ActivityManager: Slow operation: 64ms so far, now at attachApplicationLocked: immediately after bindApplication
+10-20 09:09:14.648  4585  5189 W ActivityManager: Slow operation: 65ms so far, now at attachApplicationLocked: after updateLruProcessLocked
+10-20 09:09:14.717  4585  5189 W ActivityManager: Slow operation: 134ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 09:09:14.727  4585  4628 W Looper  : Drained
+10-20 09:09:14.757  4585  5189 W ActivityManager: Slow operation: 174ms so far, now at attachApplicationLocked: after updateOomAdjLocked
+10-20 09:09:15.614  4585  4638 I ActivityManager: Posting BOOT_COMPLETED user #0
+10-20 09:09:15.625  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:15.640  4585  4630 I chatty  : uid=1000(system) android.io identical 1 line
+10-20 09:09:15.798  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:15.867  4585  4864 W ActivityManager: Slow operation: 282ms so far, now at startProcess: building args
+10-20 09:09:16.477  4585  4639 W ActivityManager: Slow operation: 4311ms so far, now at startProcess: returned from zygote!
+10-20 09:09:16.844  4585  4864 W ActivityManager: Slow operation: 1260ms so far, now at startProcess: done starting proc!
+10-20 09:09:16.917  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:17.347  4585  4732 I BackupManagerService: Starting service for user: 0
+10-20 09:09:17.778  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:18.015  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:18.319  4585  4585 W Looper  : Drained
+10-20 09:09:18.320  4585  4585 W Looper  : Slow dispatch took 746ms main h=com.android.server.pm.UserManagerService$MainHandler c=null m=1
+10-20 09:09:18.393  4585  4732 V BackupManagerService: Starting with transport com.android.localtransport/.LocalTransport
+10-20 09:09:18.515  4585  4606 W ActivityManager: Slow operation: 729ms so far, now at attachApplicationLocked: before bindApplication
+10-20 09:09:18.527  4585  4606 W ActivityManager: Slow operation: 742ms so far, now at attachApplicationLocked: immediately before bindApplication
+10-20 09:09:18.541  4585  4606 W ActivityManager: Slow operation: 755ms so far, now at attachApplicationLocked: immediately after bindApplication
+10-20 09:09:18.541  4585  4606 W ActivityManager: Slow operation: 755ms so far, now at attachApplicationLocked: after updateLruProcessLocked
+10-20 09:09:18.542  4585  4606 W ActivityManager: Slow operation: 757ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 09:09:18.553  4585  4606 W ActivityManager: Slow operation: 767ms so far, now at attachApplicationLocked: after updateOomAdjLocked
+10-20 09:09:19.799  4585  4639 W ActivityManager: Slow operation: 7634ms so far, now at startProcess: done updating battery stats
+10-20 09:09:19.799  4585  4639 W ActivityManager: Slow operation: 7634ms so far, now at startProcess: building log message
+10-20 09:09:19.800  4585  4639 I ActivityManager: Start proc 5278:com.android.ims.rcsservice/1001 for added application com.android.ims.rcsservice
+10-20 09:09:19.800  4585  4639 W ActivityManager: Slow operation: 7634ms so far, now at startProcess: starting to update pids map
+10-20 09:09:19.992  4585  4639 W ActivityManager: Slow operation: 7827ms so far, now at startProcess: done updating pids map
+10-20 09:09:19.993  4585  4639 W ActivityManager: Slow operation: 4408ms so far, now at startProcess: asking zygote to start proc
+10-20 09:09:20.337  4585  5290 W ActivityManager: Slow operation: 160ms so far, now at attachApplicationLocked: before bindApplication
+10-20 09:09:20.338  4585  5290 W ActivityManager: Slow operation: 160ms so far, now at attachApplicationLocked: immediately before bindApplication
+10-20 09:09:20.340  4585  5290 W ActivityManager: Slow operation: 163ms so far, now at attachApplicationLocked: immediately after bindApplication
+10-20 09:09:20.340  4585  5290 W ActivityManager: Slow operation: 163ms so far, now at attachApplicationLocked: after updateLruProcessLocked
+10-20 09:09:20.347  4585  5290 W ActivityManager: Slow operation: 169ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 09:09:20.351  4585  5290 W ActivityManager: Slow operation: 174ms so far, now at attachApplicationLocked: after updateOomAdjLocked
+10-20 09:09:20.486  4585  5189 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.HOME] flg=0x10000100 cmp=com.android.launcher3/.Launcher} from uid 0
+10-20 09:09:20.526  4585  4606 D CountryDetector: The first listener is added
+10-20 09:09:20.563  4585  4585 V NotificationAssistants: disabling notification assistant for user 0: ComponentInfo{android.ext.services/android.ext.services.notification.Assistant}
+10-20 09:09:20.564  4585  4585 D NotificationListeners: Removing active service ComponentInfo{android.ext.services/android.ext.services.notification.Assistant}
+10-20 09:09:20.958  4585  4732 D BackupManagerService: Started thread backup-0 for user 0
+10-20 09:09:21.265  4585  4638 I ActivityManager: Killing 5213:android.process.acore/u0a51 (adj 0): timeout publishing content providers
+10-20 09:09:21.709  4585  4585 V NotificationAssistants: enabling notification assistant for 0: ComponentInfo{android.ext.services/android.ext.services.notification.Assistant}
+10-20 09:09:21.710  4585  4585 V NotificationAssistants: binding: Intent { act=android.service.notification.NotificationAssistantService cmp=android.ext.services/.notification.Assistant (has extras) }
+10-20 09:09:21.760  4585  4831 E ActivityManager: Timeout waiting for provider com.android.providers.contacts/10051 for provider com.android.contacts providerRunning=false caller=com.android.systemui/10102
+10-20 09:09:21.842  4585  4638 I DropBoxManagerService: add tag=system_server_wtf isTagEnabled=true flags=0x2
+10-20 09:09:21.873  4747  5001 E ActivityThread: Failed to find provider info for com.android.contacts
+10-20 09:09:21.893  4585  4639 W ActivityManager: Slow operation: 6308ms so far, now at startProcess: returned from zygote!
+10-20 09:09:21.980  4585  4639 W ActivityManager: Slow operation: 6395ms so far, now at startProcess: done updating battery stats
+10-20 09:09:21.980  4585  4639 W ActivityManager: Slow operation: 6395ms so far, now at startProcess: building log message
+10-20 09:09:21.980  4585  4639 I ActivityManager: Start proc 5311:com.android.externalstorage/u0a54 for broadcast {com.android.externalstorage/com.android.externalstorage.MountReceiver}
+10-20 09:09:21.981  4585  4639 W ActivityManager: Slow operation: 6396ms so far, now at startProcess: starting to update pids map
+10-20 09:09:22.007  4585  4639 W ActivityManager: Slow operation: 6422ms so far, now at startProcess: done updating pids map
+10-20 09:09:22.220  4585  4585 V NotificationListeners: enabling notification listener for 0: ComponentInfo{com.android.launcher3/com.android.launcher3.notification.NotificationListener}
+10-20 09:09:22.221  4585  4585 V NotificationListeners: binding: Intent { act=android.service.notification.NotificationListenerService cmp=com.android.launcher3/.notification.NotificationListener (has extras) }
+10-20 09:09:22.308  4585  5307 D CountryDetector: No listener is left
+10-20 09:09:22.501  4585  4585 W Looper  : Slow dispatch took 2036ms main h=android.app.ActivityThread$H c=android.app.-$$Lambda$LoadedApk$ReceiverDispatcher$Args$_BumDX2UKsnxLVrE6UJsJZkotuA@7427a4e m=0
+10-20 09:09:23.483  4585  4628 W AppWidgetServiceImpl: Failed to read state: java.io.FileNotFoundException: /data/system/users/0/appwidgets.xml: open failed: ENOENT (No such file or directory)
+10-20 09:09:23.484  4585  4628 V AppWidgetServiceImpl: Upgrading widget database from 0 to 1
+10-20 09:09:23.797  4585  4628 I AppWidgetServiceImpl: Processing of handleUserUnlocked u0 took 8188 ms
+10-20 09:09:23.797  4585  4628 W Looper  : Slow dispatch took 8189ms android.fg h=android.os.Handler c=com.android.server.am.-$$Lambda$UserController$Injector$MYTLl7MOQKjyMJknWdxPeBLoPCc@bdf841a m=0
+10-20 09:09:23.818  4585  5307 W ActivityManager: Slow operation: 157ms so far, now at attachApplicationLocked: after sendPendingBroadcastsLocked
+10-20 09:09:23.958  4585  4628 W Looper  : Slow dispatch took 161ms android.fg h=android.os.Handler c=com.android.server.Watchdog$HandlerChecker@ebdc159 m=0
+10-20 09:09:24.127  4585  4628 W Looper  : Slow delivery took 8367ms android.fg h=android.os.Handler c=com.android.server.am.-$$Lambda$UserController$I0p0bKjuvsSPLZB71mKQFfdUjZ4@e875b4b m=0
+10-20 09:09:24.127  4585  4628 W Looper  : Slow dispatch took 145ms android.fg h=android.os.Handler c=com.android.server.am.-$$Lambda$UserController$I0p0bKjuvsSPLZB71mKQFfdUjZ4@e875b4b m=0
+10-20 09:09:24.377  4585  4628 W Looper  : Slow dispatch took 157ms android.fg h=com.android.server.location.GnssLocationProvider$ProviderHandler c=null m=18
+10-20 09:09:24.639  4585  4628 W Looper  : Slow dispatch took 262ms android.fg h=com.android.server.DropBoxManagerService$DropBoxManagerBroadcastHandler c=null m=2
+10-20 09:09:24.962  4585  4585 W Looper  : Slow delivery took 2143ms main h=android.app.ActivityThread$H c=android.app.-$$Lambda$LoadedApk$ReceiverDispatcher$Args$_BumDX2UKsnxLVrE6UJsJZkotuA@3dba7ed m=0
+10-20 09:09:24.962  4585  4585 W Looper  : Slow dispatch took 2461ms main h=android.app.ActivityThread$H c=android.app.-$$Lambda$LoadedApk$ReceiverDispatcher$Args$_BumDX2UKsnxLVrE6UJsJZkotuA@3dba7ed m=0
+10-20 09:09:24.964  4585  4585 V NotificationAssistants: 0 notification assistant service connected: ComponentInfo{android.ext.services/android.ext.services.notification.Assistant}
+10-20 09:09:24.968  4585  4718 D ConnectivityService: NetworkAgentInfo [WIFI () - 100] EVENT_NETWORK_INFO_CHANGED, going from CONNECTING to CONNECTING
+10-20 09:09:25.153  4585  4718 D ConnectivityService: Adding iface wlan0 to network 100
+10-20 09:09:25.250  4585  4628 W Looper  : Drained
+10-20 09:09:25.318  4585  4718 E ConnectivityService: Exception adding interface: java.lang.IllegalStateException: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+10-20 09:09:26.888  4585  4585 W Looper  : Drained
+10-20 09:09:27.028  4585  4639 W ActivityManager: Slow operation: 3408ms so far, now at startProcess: returned from zygote!
+10-20 09:09:27.160  4585  4607 W ActivityManager: Slow operation: 3540ms so far, now at startProcess: done updating battery stats
+10-20 09:09:27.161  4585  4607 W ActivityManager: Slow operation: 3540ms so far, now at startProcess: building log message
+10-20 09:09:27.161  4585  4607 I ActivityManager: Start proc 5356:com.android.keychain/1000 for service {com.android.keychain/com.android.keychain.KeyChainService}
+10-20 09:09:27.161  4585  4607 W ActivityManager: Slow operation: 3540ms so far, now at startProcess: starting to update pids map
+10-20 09:09:27.177  4585  4607 W ActivityManager: Slow operation: 3556ms so far, now at startProcess: done updating pids map
+10-20 09:09:27.218  4585  4607 W ActivityManager: Slow operation: 58ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 09:09:27.355  4585  4746 I SyncManager: Loaded persisted syncs: 0 periodic syncs, 0 oneshot syncs, 9 total system server jobs, JobStats: FirstLoad: 0/0/0 LastSave: -1/-1/-1
+10-20 09:09:31.296  4585  4631 W ActivityTaskManager: Launch timeout has expired, giving up wake lock!
+10-20 09:09:31.444  4585  4585 V NotificationListeners: 0 notification listener service connected: ComponentInfo{com.android.launcher3/com.android.launcher3.notification.NotificationListener}
+10-20 09:09:31.974  4585  4718 E ConnectivityService: Exception in addRoute for non-gateway: java.lang.IllegalStateException: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+10-20 09:09:31.979  4585  4718 E ConnectivityService: Exception in addRoute for gateway: java.lang.IllegalStateException: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+10-20 09:09:32.758  4585  4718 D ConnectivityService: Setting DNS servers for network 100 to [/10.0.2.3]
+10-20 09:09:32.764  4585  4718 D DnsManager: setDnsConfigurationForNetwork(100, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [])
+10-20 09:09:32.857  4585  4718 E DnsManager: Error setting DNS configuration: android.os.ServiceSpecificException: Machine is not on the network (code 64)
+10-20 09:09:33.179  4585  4718 D ConnectivityService: NetworkAgentInfo [WIFI () - 100] EVENT_NETWORK_INFO_CHANGED, going from CONNECTING to CONNECTED
+10-20 09:09:33.338  4585  4718 W DnsManager: updatePrivateDns(100, PrivateDnsConfig{true:/[]})
+10-20 09:09:33.339  4585  4718 D ConnectivityService: Setting DNS servers for network 100 to [/10.0.2.3]
+10-20 09:09:33.342  4585  4718 D DnsManager: setDnsConfigurationForNetwork(100, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+10-20 09:09:33.467  4585  4718 D ConnectivityService: Adding iface wlan0 to network 100
+10-20 09:09:33.642  4585  4718 D ConnectivityService: Setting DNS servers for network 100 to [/10.0.2.3]
+10-20 09:09:33.643  4585  4718 D DnsManager: setDnsConfigurationForNetwork(100, [10.0.2.3], [], 1800, 25, 8, 64, 0, 0, , [10.0.2.3])
+10-20 09:09:33.805  4585  4639 W ActivityManager: Slow operation: 851ms so far, now at startProcess: returned from zygote!
+10-20 09:09:33.806  4585  4639 W ActivityManager: Slow operation: 852ms so far, now at startProcess: done updating battery stats
+10-20 09:09:33.806  4585  4639 W ActivityManager: Slow operation: 852ms so far, now at startProcess: building log message
+10-20 09:09:33.806  4585  4639 I ActivityManager: Start proc 5398:com.android.smspush/u0a80 for service {com.android.smspush/com.android.smspush.WapPushManager}
+10-20 09:09:33.806  4585  4639 W ActivityManager: Slow operation: 852ms so far, now at startProcess: starting to update pids map
+10-20 09:09:33.820  4585  4639 W ActivityManager: Slow operation: 866ms so far, now at startProcess: done updating pids map
+10-20 09:09:34.153  4585  4718 D ConnectivityService: Switching to new default network: NetworkAgentInfo{ ni{[type: WIFI[], state: CONNECTED/CONNECTED, reason: (unspecified), extra: (none), failover: false, available: true, roaming: false]}  network{100}  nethandle{432902426637}  lp{{InterfaceName: wlan0 LinkAddresses: [ fe80::15:b4ff:fe00:0/64,fec0::15:b4ff:fe00:0/64,fec0::100e:a49:a14e:6a77/64,10.0.2.16/24 ] DnsAddresses: [ /10.0.2.3 ] Domains: null MTU: 0 TcpBufferSizes: 524288,1048576,2097152,262144,524288,1048576 Routes: [ fe80::/64 -> :: wlan0,::/0 -> fe80::2 wlan0,fec0::/64 -> :: wlan0,10.0.2.0/24 -> 0.0.0.0 wlan0,0.0.0.0/0 -> 10.0.2.2 wlan0 ]}}  nc{[ Transports: WIFI Capabilities: NOT_METERED&INTERNET&NOT_RESTRICTED&TRUSTED&NOT_VPN&NOT_ROAMING&FOREGROUND&NOT_CONGESTED&NOT_SUSPENDED LinkUpBandwidth>=1048576Kbps LinkDnBandwidth>=1048576Kbps Specifier: <WifiNetworkAgentSpecifier [WifiConfiguration=, SSID="AndroidWifi", BSSID=02:15:b4:00:01:00, mOriginalRequestorUid=-1, mOriginalRequestorPackageName=]> SignalStrength: -30 SSID: "AndroidWifi"]}  Score{20}  everValidated{false}  lastValidated{false}  created{true} lingering{false} explicitlySelected{false} acceptUnvalidated{false} everCaptivePortalDetected{false} lastCaptivePortalDetected{false} captivePortalValidationPending{false} partialConnectivity{false} acceptPartialConnectivity{false} clat{mBaseIface: null, mIface: null, mState: IDLE} }
+10-20 09:09:34.738  4585  4718 D ConnectivityService: Sending CONNECTED broadcast for type 1 NetworkAgentInfo [WIFI () - 100] isDefaultNetwork=true
+10-20 09:09:35.310  4585  4732 E BackupPasswordManager: Unable to read backup pw version
+10-20 09:09:35.311  4585  4732 E BackupPasswordManager: Unable to read saved backup pw hash
+10-20 09:09:37.232  4585  4628 W Looper  : Slow dispatch took 260ms android.fg h=android.os.Handler c=<recycled PooledLambda@66bc2ca> m=0
+10-20 09:09:37.593  4585  4628 W Looper  : Slow delivery took 325ms android.fg h=android.os.Handler c=<recycled PooledLambda@3ba3904> m=0
+10-20 09:09:37.594  4585  4628 W Looper  : Slow dispatch took 360ms android.fg h=android.os.Handler c=<recycled PooledLambda@3ba3904> m=0
+10-20 09:09:38.198  4585  4628 W Looper  : Slow dispatch took 605ms android.fg h=android.os.Handler c=<recycled PooledLambda@43da49c> m=0
+10-20 09:09:38.422  4585  4628 W Looper  : Slow dispatch took 223ms android.fg h=android.os.Handler c=<recycled PooledLambda@68993f3> m=0
+10-20 09:09:38.816  4585  4628 W Looper  : Slow dispatch took 393ms android.fg h=android.os.Handler c=<recycled PooledLambda@bdba3f2> m=0
+10-20 09:09:38.979  4585  4630 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:39.095  4585  4628 W Looper  : Slow dispatch took 280ms android.fg h=android.os.Handler c=<recycled PooledLambda@4b5e8c0> m=0
+10-20 09:09:39.100  4585  4630 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:39.180  4585  4630 I chatty  : uid=1000(system) android.io identical 1 line
+10-20 09:09:39.279  4585  4630 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:39.317  4585  4628 W Looper  : Slow dispatch took 221ms android.fg h=android.os.Handler c=<recycled PooledLambda@e742632> m=0
+10-20 09:09:39.322  4585  4630 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:39.665  5241  5241 W SystemConfig: No directory /product/etc/sysconfig, skipping
+10-20 09:09:40.250  4585  4628 W Looper  : Drained
+10-20 09:09:40.564  4585  4638 W ActivityManager: Timeout executing service: ServiceRecord{35c0ef0 u0 com.android.phone/.TelephonyDebugService}
+10-20 09:09:40.724  5241  5241 W SystemConfig: No directory /product_services/etc/sysconfig, skipping
+10-20 09:09:40.725  5241  5241 W SystemConfig: No directory /product_services/etc/permissions, skipping
+10-20 09:09:40.741  4585  4732 V BackupManagerService: No ancestral data
+10-20 09:09:40.878  4585  4638 I ActivityManager: dumpStackTraces pids=null nativepids=null
+10-20 09:09:40.916  4585  4638 I ActivityManager: Dumping to /data/anr/anr_2026-10-20-09-09-40-914
+10-20 09:09:40.916  4585  4638 I ActivityManager: Collecting stacks for pid 5241
+10-20 09:09:41.679  4585  4628 W Looper  : Slow dispatch took 578ms android.fg h=com.android.server.DropBoxManagerService$DropBoxManagerBroadcastHandler c=null m=2
+10-20 09:09:41.683  4585  4628 W Looper  : Slow delivery took 425ms android.fg h=com.android.server.location.GnssLocationProvider$ProviderHandler c=null m=18
+10-20 09:09:42.252  4585  4628 W Looper  : Drained
+10-20 09:09:43.026  4585  4585 W Looper  : Slow dispatch took 1045ms main h=android.database.sqlite.SQLiteConnectionPool$IdleConnectionHandler c=null m=2
+10-20 09:09:43.964  4585  4638 I ActivityManager: Done dumping
+10-20 09:09:43.983  4585  4638 E ActivityManager: ANR in com.android.phone
+10-20 09:09:43.983  4585  4638 E ActivityManager: PID: 5241
+10-20 09:09:43.983  4585  4638 E ActivityManager: Reason: executing service com.android.phone/.TelephonyDebugService
+10-20 09:09:43.983  4585  4638 E ActivityManager: Load: 0.0 / 0.0 / 0.0
+10-20 09:09:43.983  4585  4638 E ActivityManager: CPU usage from 34918ms to 0ms ago (2026-10-20 09:09:05.653 to 2026-10-20 09:09:40.571):
+10-20 09:09:43.983  4585  4638 E ActivityManager:   20% 4585/system_server: 14% user + 6% kernel / faults: 7036 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   17% 1719/surfaceflinger: 9% user + 8% kernel / faults: 97 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   5.3% 4950/com.android.launcher3: 4.4% user + 0.8% kernel / faults: 7289 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   9.1% 5019/com.android.settings: 5.8% user + 3.2% kernel / faults: 352 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   8.6% 1702/android.hardware.graphics.composer@2.1-service: 3.2% user + 5.4% kernel / faults: 142 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   5.1% 4747/com.android.systemui: 4% user + 1% kernel / faults: 3517 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   1.7% 1705/android.hardware.sensors@1.0-service: 0.8% user + 0.8% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   1.6% 4884/zygote64: 1.2% user + 0.4% kernel / faults: 634 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   1.2% 1781/llkd: 0.3% user + 0.9% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   1.2% 4566/zygote64: 0% user + 1.1% kernel / faults: 946 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.5% 4576/netd: 0.3% user + 0.1% kernel / faults: 157 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.7% 1554/logd: 0.3% user + 0.4% kernel / faults: 6 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.6% 1734/adbd: 0% user + 0.6% kernel / faults: 397 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.6% 8/rcu_preempt: 0% user + 0.6% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.4% 3989/kworker/0:0: 0% user + 0.4% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.4% 5192/zygote64: 0.4% user + 0% kernel / faults: 296 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 1747/mdnsd: 0% user + 0.1% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 1746/keystore: 0.1% user + 0% kernel / faults: 202 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.2% 1726/logcat: 0.2% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 1555/servicemanager: 0% user + 0.1% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 1556/hwservicemanager: 0.1% user + 0% kernel / faults: 55 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.2% 1754/statsd: 0% user + 0.1% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.2% 5/kworker/u2:0: 0% user + 0.2% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 5062/com.android.inputmethod.latin: 0% user + 0% kernel / faults: 151 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 7/ksoftirqd/0: 0% user + 0.1% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 1577/jbd2/vdc-8: 0% user + 0.1% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 1701/android.hardware.graphics.allocator@2.0-service: 0% user + 0% kernel / faults: 166 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1760/rild: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0.1% 2062/wpa_supplicant: 0.1% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1/init: 0% user + 0% kernel / faults: 20 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1714/ashmemd: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 4583/wificond: 0% user + 0% kernel / faults: 1 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 4591/iptables-restore: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 4592/ip6tables-restore: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 5036/android.ext.services: 0% user + 0% kernel / faults: 7 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 9/rcu_sched: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 809/kworker/0:1H: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1707/android.hardware.wifi@1.0-service: 0% user + 0% kernel / faults: 5 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1718/lmkd: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1744/installd: 0% user + 0% kernel / faults: 31 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 3654/kworker/u2:3: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1559/vold: 0% user + 0% kernel / faults: 6 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1681/android.system.suspend@1.0-service: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1688/android.hardware.configstore@1.1-service: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1695/android.hardware.gnss@1.0-service: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1703/android.hardware.health@2.0-service.goldfish: 0% user + 0% kernel / faults: 15 minor
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1731/wifi_forwarder: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1755/storaged: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1778/dhcpclient: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:   0% 1782/hostapd_nohidl: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5241/com.android.phone: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5250/kworker/u2:1: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5260/com.android.se: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5278/com.android.ims.rcsservice: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5311/com.android.externalstorage: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5356/com.android.keychain: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5398/com.android.smspush: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager:  +0% 5436/sh: 0% user + 0% kernel
+10-20 09:09:43.983  4585  4638 E ActivityManager: 100% TOTAL: 60% user + 39% kernel + 0.3% softirq
+10-20 09:09:43.983  4585  4638 E ActivityManager: CPU usage from 1586334ms to 1586334ms ago (1970-01-01 00:00:00.000 to 1970-01-01 00:00:00.000) with 0% awake:
+10-20 09:09:43.983  4585  4638 E ActivityManager: 0% TOTAL: 0% user + 0% kernel
+10-20 09:09:44.328  4585  4718 D ConnectivityService: Got NetworkFactory Messenger for PhoneSwitcherNetworkRequstListener
+10-20 09:09:44.678  4585  4638 I ActivityManager: Killing 5241:com.android.phone/1001 (adj -800): bg anr
+10-20 09:09:44.828  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:45.603  4585  4630 I chatty  : uid=1000(system) android.io identical 1 line
+10-20 09:09:45.664  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:45.695  4585  5307 D ConnectivityService: ConnectivityService NetworkRequestInfo binderDied(NetworkRequest [ LISTEN id=15, [ Transports: WIFI Capabilities: INTERNET&TRUSTED&NOT_VPN&FOREGROUND Uid: 1001] ], android.os.BinderProxy@d69d367)
+10-20 09:09:45.703  4585  4718 D ConnectivityService: unregisterNetworkFactory for PhoneSwitcherNetworkRequstListener
+10-20 09:09:45.707  4585  5307 I ActivityManager: Process com.android.phone (pid 5241) has died: pers PER 
+10-20 09:09:45.841  4585  5307 W ActivityManager: Scheduling restart of crashed service com.android.phone/.TelephonyDebugService in 0ms
+10-20 09:09:45.873  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:45.893  4585  5307 W ActivityManager: Re-adding persistent process ProcessRecord{5be375a 5241:com.android.phone/1001}
+10-20 09:09:45.954  4585  5307 W ActivityManager: Slow operation: 60ms so far, now at startProcess: building args
+10-20 09:09:45.967  4585  4639 W ActivityManager: Slow operation: 74ms so far, now at startProcess: asking zygote to start proc
+10-20 09:09:46.499  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:47.091  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:47.116  4585  5441 I DropBoxManagerService: add tag=system_app_anr isTagEnabled=true flags=0x2
+10-20 09:09:47.138  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:47.259  4585  4630 I chatty  : uid=1000(system) android.io identical 2 lines
+10-20 09:09:47.467  4585  4630 I DropBoxManagerService: add tag=system_server_strictmode isTagEnabled=true flags=0x2
+10-20 09:09:47.763  4585  4628 W Looper  : Slow dispatch took 190ms android.fg h=com.android.server.DropBoxManagerService$DropBoxManagerBroadcastHandler c=null m=2
+10-20 09:09:47.791  4585  4732 I BackupManagerService: Backup enabled => false
+10-20 09:09:47.932  4585  4639 W ActivityManager: Slow operation: 2039ms so far, now at startProcess: returned from zygote!
+10-20 09:09:47.939  4585  4639 W ActivityManager: Slow operation: 2046ms so far, now at startProcess: done updating battery stats
+10-20 09:09:47.940  4585  4639 W ActivityManager: Slow operation: 2047ms so far, now at startProcess: building log message
+10-20 09:09:47.941  4585  4639 I ActivityManager: Start proc 5448:com.android.phone/1001 for restart com.android.phone
+10-20 09:09:47.941  4585  4639 W ActivityManager: Slow operation: 2047ms so far, now at startProcess: starting to update pids map
+10-20 09:09:47.943  4585  4639 W ActivityManager: Slow operation: 2050ms so far, now at startProcess: done updating pids map
+10-20 09:09:48.338  4585  5313 V BackupManagerConstants: getKeyValueBackupIntervalMilliseconds(...) returns 14400000
+10-20 09:09:48.338  4585  5313 V BackupManagerConstants: getKeyValueBackupFuzzMilliseconds(...) returns 600000
+10-20 09:09:48.338  4585  5313 V BackupManagerConstants: getKeyValueBackupRequiredNetworkType(...) returns 1
+10-20 09:09:48.338  4585  5313 V BackupManagerConstants: getKeyValueBackupRequireCharging(...) returns true
+10-20 09:09:48.339  4585  5313 V KeyValueBackupJob: Scheduling k/v pass in 247 minutes
+10-20 09:09:49.707  4585  4637 W Looper  : Slow dispatch took 122979ms android.bg h=com.android.server.am.ActivityManagerService$5 c=null m=1
+10-20 09:09:49.708  4585  4637 W Looper  : Slow delivery took 125436ms android.bg h=com.android.server.usage.UsageStatsService$H c=null m=0
+10-20 09:09:49.942  4585  5447 W ActivityManager: Slow operation: 61ms so far, now at attachApplicationLocked: immediately after bindApplication
+10-20 09:09:49.942  4585  5447 W ActivityManager: Slow operation: 61ms so far, now at attachApplicationLocked: after updateLruProcessLocked
+10-20 09:09:50.028  4585  5447 W ActivityManager: Slow operation: 148ms so far, now at attachApplicationLocked: after mServices.attachApplicationLocked
+10-20 09:09:50.316  4585  4634 I Watchdog: WAITED_HALF
+10-20 09:09:51.360  4585  4634 I ActivityManager: dumpStackTraces pids=null nativepids=[1683, 1701, 1686, 1702, 1703, 4584, 1705, 1770, 1757, 1559, 1719, 1741, 1749, 1750, 1751, 1754, 1757, 1770, 4568, 4574, 4575]
+10-20 09:09:51.550  4585  5313 V BackupManagerConstants: getKeyValueBackupIntervalMilliseconds(...) returns 14400000
+10-20 09:09:51.550  4585  5313 V BackupManagerConstants: getKeyValueBackupFuzzMilliseconds(...) returns 600000
+10-20 09:09:51.550  4585  5313 V BackupManagerConstants: getKeyValueBackupRequiredNetworkType(...) returns 1
+10-20 09:09:51.550  4585  5313 V BackupManagerConstants: getKeyValueBackupRequireCharging(...) returns true
+10-20 09:09:51.608  4585  4634 I ActivityManager: Dumping to /data/anr/anr_2026-10-20-09-09-51-588
+10-20 09:09:51.608  4585  4634 I ActivityManager: Collecting stacks for pid 4585
+10-20 09:09:51.550  4585  5313 V KeyValueBackupJob: Scheduling k/v pass in 249 minutes

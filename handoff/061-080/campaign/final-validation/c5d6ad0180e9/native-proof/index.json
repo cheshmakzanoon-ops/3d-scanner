@@ -1,0 +1,22 @@
+{
+  "source_commit": "c5d6ad0180e9afec6833996cd9c3bb1e0e62a717",
+  "ctest_count": 17,
+  "status": "PASS",
+  "files": [
+    {
+      "original_path": "/workspace/campaign-061-080/native-assertions-final.json",
+      "snapshot_path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/native-proof/native-assertions-final.json",
+      "sha256": "4c6d5ce2ab0f3b0b79cdd76dd47af6d58afb9d2ce7849868e90ed4c14653df14"
+    },
+    {
+      "original_path": "/workspace/campaign-061-080/native-assertions-final.log",
+      "snapshot_path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/native-proof/native-assertions-final.log",
+      "sha256": "535f763a31533558605474e42c5e13ebfc994a3f6c12adf216bf08d185ad4793"
+    },
+    {
+      "original_path": "/workspace/campaign-061-080/combined/build/host/librealityforge.so",
+      "snapshot_path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/native-proof/librealityforge.so",
+      "sha256": "4449f98d65dc6cc196eb49c60fef629255fc1fdb53b17bb13c2174eceaeccef7"
+    }
+  ]
+}

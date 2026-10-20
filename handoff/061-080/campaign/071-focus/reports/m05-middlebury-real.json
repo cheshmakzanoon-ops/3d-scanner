@@ -1,0 +1,40 @@
+{
+  "cameraCount": 2,
+  "captureType": "rectified calibrated stereo, not handheld multi-view scanning",
+  "dataset": "Middlebury 2014 Motorcycle (downsampled scikit-image stereo pair)",
+  "datasetOrigin": "https://vision.middlebury.edu/stereo/data/scenes2014/",
+  "groundTruthValidPoints": 741,
+  "inputSha256": {
+    "groundTruthDisparity": "f2c0a477374eb7465e98bca1674c0adb6c536c1c3e05999fb16c68472dc798aa",
+    "left": "ca829467c1d4f427da9c4862ba43829da6ac90afe1f75735e95dba9e3fd9620b",
+    "right": "ae44d83f55e66623c7985499fd2f1685a56023e442e66eca89b3457dd46b17af"
+  },
+  "knownCalibration": {
+    "baselineMetersForEvaluationOnly": 0.193001,
+    "cxLeftPixels": 311.193,
+    "cxRightPixels": 342.279,
+    "cyPixels": 254.877,
+    "focalPixels": 994.978
+  },
+  "leftFeatures": 2650,
+  "limitations": [
+    "Sparse two-view reconstruction only; not a 3D surface or texture",
+    "Absolute metric scale supplied ONLY for benchmark evaluation",
+    "Not an Android camera, physical handset or real multi-view object test",
+    "Ground-truth evaluation uses valid disparities at right-view keypoint locations"
+  ],
+  "matchedDisparityAbsErrorPxP50": 0.9802322387695312,
+  "matchedDisparityAbsErrorPxP75": 3.00579833984375,
+  "matchedDisparityAbsErrorPxP90": 13.467397689819336,
+  "nativeAcceptedSparsePoints": 795,
+  "nativeMedianReprojectionErrorNormalized": 0.000145903806345,
+  "processingSecondsOnHost": 0.501,
+  "ratio": 0.67,
+  "realPhotographs": true,
+  "reciprocalMatches": 805,
+  "referenceScaledDepthRelativeErrorP50": 0.018051171954694523,
+  "referenceScaledDepthRelativeErrorP90": 0.19579947018918029,
+  "rightFeatures": 2588,
+  "rotationFromRectifiedDeg": 0.0649406181938717,
+  "schema": 1
+}

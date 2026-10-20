@@ -1,0 +1,23 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a070.ViewerControlsTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a070.ViewerControlsTest:
+INSTRUMENTATION_STATUS: test=zoomRotateAndFitWorkWithoutPinchOrDrag
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a070.ViewerControlsTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=1
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=zoomRotateAndFitWorkWithoutPinchOrDrag
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 81.823
+
+OK (1 test)
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,33 @@
+{
+  "source_commit": "e290ff56329322b4365298b97bba7df8b16d2470",
+  "rows": [
+    {
+      "agent": "065",
+      "head": "d5c968703f447ca0bc8b616180e2ff7b19d3b27b",
+      "remote_head": "d5c968703f447ca0bc8b616180e2ff7b19d3b27b",
+      "clean": true,
+      "changes_since_frozen_input": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/065.md"
+      ],
+      "implementation_matches_frozen_e290": true,
+      "project_contract_tests": 26,
+      "canonical_manifest": "PASS",
+      "canonical_ownership": "PASS"
+    },
+    {
+      "agent": "066",
+      "head": "6ca4ca792d3bac127f193c0f590e7668bdc72681",
+      "remote_head": "6ca4ca792d3bac127f193c0f590e7668bdc72681",
+      "clean": true,
+      "changes_since_frozen_input": [
+        "SOURCE_MANIFEST.sha256",
+        "docs/agents/status/066.md"
+      ],
+      "implementation_matches_frozen_e290": true,
+      "project_contract_tests": 26,
+      "canonical_manifest": "PASS",
+      "canonical_ownership": "PASS"
+    }
+  ]
+}

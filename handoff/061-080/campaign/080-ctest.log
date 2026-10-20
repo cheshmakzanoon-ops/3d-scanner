@@ -1,0 +1,28 @@
+Internal ctest changing into directory: /workspace/agent-work/080/build/host
+Test project /workspace/agent-work/080/build/host
+      Start  1: native_core
+ 1/11 Test  #1: native_core ......................   Passed    0.11 sec
+      Start  2: native_multiview
+ 2/11 Test  #2: native_multiview .................   Passed    0.05 sec
+      Start  3: native_bundle_adjustment
+ 3/11 Test  #3: native_bundle_adjustment .........   Passed    0.02 sec
+      Start  4: native_dense_mvs
+ 4/11 Test  #4: native_dense_mvs .................   Passed    1.20 sec
+      Start  5: native_surface_mesh
+ 5/11 Test  #5: native_surface_mesh ..............   Passed    1.93 sec
+      Start  6: native_texture_atlas
+ 6/11 Test  #6: native_texture_atlas .............   Passed    0.53 sec
+      Start  7: native_photometric
+ 7/11 Test  #7: native_photometric ...............   Passed    0.02 sec
+      Start  8: native_stereo_warp
+ 8/11 Test  #8: native_stereo_warp ...............   Passed    0.04 sec
+      Start  9: native_dense_selection
+ 9/11 Test  #9: native_dense_selection ...........   Passed    0.91 sec
+      Start 10: native_cancellation
+10/11 Test #10: native_cancellation ..............   Passed    0.04 sec
+      Start 11: native_depth_checkpoint
+11/11 Test #11: native_depth_checkpoint ..........   Passed    0.16 sec
+
+100% tests passed, 0 tests failed out of 11
+
+Total Test time (real) =   5.01 sec

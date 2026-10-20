@@ -1,0 +1,708 @@
+{
+  "apk_checks": {
+    "apk": "app-debug.apk",
+    "elfLibrariesChecked": [
+      "lib/arm64-v8a/libandroidx.graphics.path.so",
+      "lib/arm64-v8a/libc++_shared.so",
+      "lib/arm64-v8a/libfilament-jni.so",
+      "lib/arm64-v8a/libgltfio-jni.so",
+      "lib/arm64-v8a/libimage_processing_util_jni.so",
+      "lib/arm64-v8a/libopencv_java4.so",
+      "lib/arm64-v8a/librealityforge.so",
+      "lib/arm64-v8a/libsurface_util_jni.so",
+      "lib/x86_64/libandroidx.graphics.path.so",
+      "lib/x86_64/libc++_shared.so",
+      "lib/x86_64/libfilament-jni.so",
+      "lib/x86_64/libgltfio-jni.so",
+      "lib/x86_64/libimage_processing_util_jni.so",
+      "lib/x86_64/libopencv_java4.so",
+      "lib/x86_64/librealityforge.so",
+      "lib/x86_64/libsurface_util_jni.so"
+    ],
+    "internetPermission": false,
+    "zipAlignment16k": true
+  },
+  "artifacts": {
+    "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": {
+      "bytes": 2719123,
+      "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk",
+      "sha256": "fa6bdc7fb0785011f7481fe1178afdf2b1f6c17c6ab192ad02ce13d36264fa67"
+    },
+    "app/build/outputs/apk/debug/app-debug.apk": {
+      "bytes": 136091647,
+      "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/outputs/apk/debug/app-debug.apk",
+      "sha256": "99be9c53e8b367b76f27e2bc8c514d705e626167c175a9b0d5385cabec89800c"
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "/workspace/.venvs/3d-scanner/bin/python",
+        "/workspace/toolchains/gradle-cloud.py",
+        "--init-script",
+        "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/final.init.gradle",
+        ":app:assembleDebug",
+        ":app:assembleDebugAndroidTest",
+        ":app:testDebugUnitTest",
+        ":app:lintDebug"
+      ],
+      "duration_seconds": 292.087,
+      "exit_code": 0,
+      "log": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/android.log",
+      "log_sha256": "2cef30cd0e83407badf1f6f2dc06bd9dde97f64e05d77cc56ef0d3f5f2664a24"
+    },
+    {
+      "command": [
+        "/workspace/.venvs/3d-scanner/bin/python",
+        "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/tools/check_apk.py",
+        "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/outputs/apk/debug/app-debug.apk",
+        "--sdk",
+        "/workspace/toolchains/android-sdk",
+        "--report",
+        "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/apk-check.json"
+      ],
+      "duration_seconds": 2.001,
+      "exit_code": 0,
+      "log": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/apk-check.log",
+      "log_sha256": "58df7053dd2f009769255582a2a29ae0dbda10986f3ae3afe4df88d739e72d8c"
+    }
+  ],
+  "finished_at": "2026-10-20T09:51:42.926743+00:00",
+  "jvm_tests": {
+    "errors": 0,
+    "failures": 0,
+    "reports": [
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.CalibrationTest.xml",
+        "sha256": "b39644db9091f05fa7923b72dc19c292c27fa33524f661e42832351c239f9683",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.CalibrationTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a001.OperationCoordinatorTest.xml",
+        "sha256": "5cf9e29d8f524d704bd62750ea835770013d85249ebaa3935e35d641ab5798d1",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a001.OperationCoordinatorTest",
+        "tests": 7
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a007.DurableJobContractsTest.xml",
+        "sha256": "1357f33e3ee3e9dc8536bb5db1613a2d657083a423f19456d0a566f6133600f9",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a007.DurableJobContractsTest",
+        "tests": 8
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a009.AlignmentCheckpointContractTest.xml",
+        "sha256": "0538421839045f963ab6f47a717bdc7147acfc1a5b5de5a2cddcbe27d9148804",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a009.AlignmentCheckpointContractTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a009.ArtifactIdentityPolicyTest.xml",
+        "sha256": "641637d95ae5d90b5a3845f513c3479e4e49fe38d82f177cbe1e3b6df7c735e8",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a009.ArtifactIdentityPolicyTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a009.StageManifestCodecTest.xml",
+        "sha256": "62309bb66a54e82051707822885046f1c3034b39842930072fb377c3d5f97e3c",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a009.StageManifestCodecTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationCancellationTest.xml",
+        "sha256": "a069016c489b253791e9999d22fd6b89985977c9b5d75ec65f64fc0ec97b9761",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationCancellationTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationConcurrencyTest.xml",
+        "sha256": "5c7ea66f0462cfd9efd577c5c8b69c5630bd8df1dc0341ad2a7cba76f979d0ae",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationConcurrencyTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationExcludedOrderTest.xml",
+        "sha256": "0f3f2da020f754afa248f0bfbf2e493f861b6083937c92535842e665301e0b14",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationExcludedOrderTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationRandomizedTest.xml",
+        "sha256": "bccdecb1dd96697d5b6afe7861f9bfb56afaa6fe731dfcc592af668513cc1405",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationRandomizedTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationRemovalTest.xml",
+        "sha256": "e09172e78fc5024c41fa512f424eddebe3663bc6d7d85e869cebc54910665abd",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationRemovalTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationRevisionSemanticsTest.xml",
+        "sha256": "92fa1918ff5300c434d832cd631bcd0e850e2de3699c89bceb5c6d2850dc753a",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationRevisionSemanticsTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationSelectionTest.xml",
+        "sha256": "50fb4e6286a9f0957ca654ce80ced178174e5677849ed6aff5d2401547446570",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationSelectionTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationStateValidationTest.xml",
+        "sha256": "3faecc6b9e573e302fcd9fa388ae311f9f50854f134b692f0dbdd75ae3351935",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationStateValidationTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationUndoIdentityTest.xml",
+        "sha256": "1c26dd59675d9acec022920b2a31095dffa0c7dd90d2e456a2144924212bc298",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationUndoIdentityTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a018.PhotoCurationUndoTest.xml",
+        "sha256": "d6974b9924bd0237ae037c8a148d3853dd7c82b7f69aa585d214a254577812ff",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a018.PhotoCurationUndoTest",
+        "tests": 1
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a019.LibrarySelectionTest.xml",
+        "sha256": "b90d78fe84b34b3ce802f91b3efa60f23a72f7dbf095eee4da40e825e089c460",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a019.LibrarySelectionTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a026.DestinationTransferServiceTest.xml",
+        "sha256": "72af10cdeb1f30dffe898635be2aaccacc176b0dbd0bf1e43b215b91cf5e3215",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a026.DestinationTransferServiceTest",
+        "tests": 11
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a066.EditControllerTest.xml",
+        "sha256": "0ed2fcbe3f297984b2f2b88936de53049fe679d80ec6cdf3e1d92d906591e50e",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a066.EditControllerTest",
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a067.ExportCoordinatorTest.xml",
+        "sha256": "310714df400e85d2a268baa7a9326adfe44d6f3ceeab2909a69021eb2cbf35b4",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a067.ExportCoordinatorTest",
+        "tests": 23
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a067.ManifestExportSourceTest.xml",
+        "sha256": "3c2926cb50f1023f591209ff7bd22d9d8662c03bda00c635fce4500abb7793a5",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a067.ManifestExportSourceTest",
+        "tests": 24
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a067.SafExportCoordinatorTest.xml",
+        "sha256": "221667c870d27a8ba3fa76c71cf96f03ef6eb2d7721208e4b15fc6b985ca3200",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a067.SafExportCoordinatorTest",
+        "tests": 18
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a068.StrictJsonTest.xml",
+        "sha256": "299b262f4ed184700a93540a6d982f3760041df2edb17d4e2a5e97bf3c306350",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a068.StrictJsonTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a069.DisplayCameraTest.xml",
+        "sha256": "5f5e67622beccf4cc34df98241df2f20a445bd46346aca4145cba8f5e0ec6407",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a069.DisplayCameraTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a069.RenderBudgetTest.xml",
+        "sha256": "575b0f6750aa75255f552d7e8a16aef306bd63b08b76dd969033dde2f1f6bac5",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a069.RenderBudgetTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a070.StudioEditingInputTest.xml",
+        "sha256": "c9a131bc3b78ce10436e290ba0261c2e7dadacae7ed52c0a2c8478bf109a39f6",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a070.StudioEditingInputTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a070.StudioPoseTest.xml",
+        "sha256": "26909a54f7965ab0b92cbf0bde22c3984f9a2932896c7c23b65c92f4d035c010",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a070.StudioPoseTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a071.NavigationStateTest.xml",
+        "sha256": "683c3cefea454061ef6279720b4799875d27273379d76e752a2fb74aa27caf5b",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a071.NavigationStateTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a072.LibraryPresenterTest.xml",
+        "sha256": "d50795af43f2d62109ce267ddcd560ffde2bd95b88f3d010170fb1e7561326da",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a072.LibraryPresenterTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a072.LibraryQueryTest.xml",
+        "sha256": "f1c624be998ac79bf6cddab06627bb5993f491816df1af70cf986d96d8c49047",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a072.LibraryQueryTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a073.PhotoCurationPresenterTest.xml",
+        "sha256": "7c3d31e57cf11f19278da3de372dde407c29289cda292f381b63d0da79751f35",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a073.PhotoCurationPresenterTest",
+        "tests": 7
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a073.ReviewAdmissionTest.xml",
+        "sha256": "70301f55970b3c0af0ab9309cc1a0bf3060fe85e07515747650964eaa655430c",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a073.ReviewAdmissionTest",
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a074.DurableJobUiAdapterTest.xml",
+        "sha256": "28dbaf30e785616ace8d66c06face7bcbb24c392a0e25a0bac6e1fb3d52f18eb",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a074.DurableJobUiAdapterTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a074.JobActionTest.xml",
+        "sha256": "2f89d0e83b4d0d853836021e2c37d21922af2a5c5f3f89498f44353585ee3516",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a074.JobActionTest",
+        "tests": 7
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a075.CaptureGuideTest.xml",
+        "sha256": "bea65708f0a277e65d1c55198e4bfa29bc991717a49bcd41300be53145f25824",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a075.CaptureGuideTest",
+        "tests": 2
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a076.LayoutPolicyTest.xml",
+        "sha256": "3d213a66eed9de6874af3c45df21b26c535feadf15d1adca09c03db1158b97b3",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a076.LayoutPolicyTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a077.AccessibilityContractTest.xml",
+        "sha256": "01690c2605a0cd4fe994137789ffb33643b5fd745643bfb85153e18ab9cd1ff0",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a077.AccessibilityContractTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a078.LocalizedFormatsTest.xml",
+        "sha256": "4de3ea6480efa8d515c0ba8bb95cc4ba40b1da22f26d9eab16e8b88af822935f",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a078.LocalizedFormatsTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.agents.a079.PreferencesStoreTest.xml",
+        "sha256": "f30db28862b60f768f05e703f4d2f719f6330b90103872d4dedbd41862070390",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.agents.a079.PreferencesStoreTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.engine.DenseWorkloadTest.xml",
+        "sha256": "8e4537a6be4f47b6eba028b4f394f19beae0eabfae0c53387b8b74da98c962c8",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.engine.DenseWorkloadTest",
+        "tests": 8
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.engine.DepthCheckpointIdentityTest.xml",
+        "sha256": "17d3a85423293be98ed9230253b17e932daeaa40cafcd30a6c70d59b06c491c3",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+        "tests": 4
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.engine.IncrementalRegistrationTest.xml",
+        "sha256": "81ea30d0a84c20b18357977c06a468ea197c99028f28f1ed1c42d53407334b55",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.engine.IncrementalRegistrationTest",
+        "tests": 8
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.engine.LensGeometryTest.xml",
+        "sha256": "aa54aa3614c78b91593c9374e2cfee66a41ec13c00b726a6397901ebfd86a71d",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.engine.LensGeometryTest",
+        "tests": 5
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.engine.MultiViewTracksTest.xml",
+        "sha256": "206a82fe809f4e17e2ed7dbb5b8c6f605abd29344d76db454d5c5ce64a7c5ee7",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.engine.MultiViewTracksTest",
+        "tests": 3
+      },
+      {
+        "errors": 0,
+        "failures": 0,
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/test-results/testDebugUnitTest/TEST-com.realityforge.scanner.engine.ScanQualityEvidenceTest.xml",
+        "sha256": "f9d2f09a6b8eac0d8f350dc95b5eadae7b967afb5d80e6fdc3240ad3fcf79147",
+        "skipped": 0,
+        "suite": "com.realityforge.scanner.engine.ScanQualityEvidenceTest",
+        "tests": 5
+      }
+    ],
+    "skipped": 0,
+    "tests": 217
+  },
+  "known_prior_literal_test_failures": {
+    "tests/test_project_contracts.py::test_capture_package_requires_explicit_destination_and_preserves_hashes": "ScannerApp now delegates document destination and transport to coordinator.",
+    "tests/test_project_contracts.py::test_m09_camera_projected_uvs_are_embedded_and_exportable": "ScannerApp moved individual export handlers behind project-scoped export route.",
+    "tests/test_project_contracts.py::test_m19_persisted_scan_evidence_and_local_export": "ScannerApp now delegates diagnostic export behind coordinator route.",
+    "tests/test_project_contracts.py::test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl": "Photographic viewer lifecycle disposal implementation changed spelling/ownership.",
+    "tests/test_project_contracts.py::test_sparse_output_disclosed_in_ui": "ScannerApp moved disclosure to localized resources and route composition.",
+    "tests/test_surface.py::test_android_mesh_is_shown_and_exportable_without_network_calls": "ScannerApp now delegates mesh display to studio route."
+  },
+  "limitations": [
+    "External verification CMake adapter registers seven native sources on owner004 realityforge target.",
+    "External verification Gradle adapter adds exact Filament/gltfio1.56.0 dependencies requested by owner069.",
+    "No source-set replacement, handwritten stubs or foreign worktree source injection is used.",
+    "Compilation and packaged symbol inclusion do not prove JNI/application routing or runtime invocation.",
+    "No instrumentation/device execution, physical accuracy, frame budget, accessibility or production readiness is claimed."
+  ],
+  "lint": {
+    "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/build/reports/lint-results-debug.xml",
+    "severity_counts": {
+      "Warning": 28
+    },
+    "sha256": "dfb1537b28a43863a52c40fa8ea363943b38e1352df47be5d7dc59f57b73e5a0"
+  },
+  "manifest_commit": {
+    "files": 576,
+    "source": "c5d6ad0180e9afec6833996cd9c3bb1e0e62a717",
+    "status": "PASS"
+  },
+  "new_native_packaging": {
+    "compile_commands": [
+      {
+        "abi": "arm64-v8a",
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/.cxx/tools/debug/arm64-v8a/compile_commands.json",
+        "sha256": "34276c2919af28c1c3c7885455abc48058e97d6c9aaf83b73f6fbcc3a188715b"
+      },
+      {
+        "abi": "arm64-v8a",
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/.cxx/Debug/163d5g83/arm64-v8a/compile_commands.json",
+        "sha256": "34276c2919af28c1c3c7885455abc48058e97d6c9aaf83b73f6fbcc3a188715b"
+      },
+      {
+        "abi": "x86_64",
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/.cxx/tools/debug/x86_64/compile_commands.json",
+        "sha256": "e34036804d10cab75c18ceb09f40f2513131784487e182dda564bdb7a133ff6d"
+      },
+      {
+        "abi": "x86_64",
+        "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source/app/.cxx/Debug/163d5g83/x86_64/compile_commands.json",
+        "sha256": "e34036804d10cab75c18ceb09f40f2513131784487e182dda564bdb7a133ff6d"
+      }
+    ],
+    "libraries": [
+      {
+        "apk_entry": "lib/arm64-v8a/librealityforge.so",
+        "bytes": 2868680,
+        "sha256": "3ff33e99d0b308bc4a0f6447a7bf7f6e1266b502110658a8309122fc5d64f7be",
+        "verified_exported_symbols": [
+          "rf::asset::validate(",
+          "rf::asset::writeGlb(",
+          "rf::asset::writeObj(",
+          "rf::asset::writeStl(",
+          "rf::asset::writePly(",
+          "rf::asset::simplifySurface(",
+          "rf::asset::applyEdits("
+        ]
+      },
+      {
+        "apk_entry": "lib/x86_64/librealityforge.so",
+        "bytes": 2830504,
+        "sha256": "895f5da7271971dd71e09c4bd198977681f0956c5cbfe99549c6afea52a61cab",
+        "verified_exported_symbols": [
+          "rf::asset::validate(",
+          "rf::asset::writeGlb(",
+          "rf::asset::writeObj(",
+          "rf::asset::writeStl(",
+          "rf::asset::writePly(",
+          "rf::asset::simplifySurface(",
+          "rf::asset::applyEdits("
+        ]
+      }
+    ]
+  },
+  "planned_inputs": [
+    {
+      "agent": "001",
+      "source_sha": "931013353311becf909290f1791de92a239bfb2d"
+    },
+    {
+      "agent": "004",
+      "source_sha": "71262455888e051fd03a1df06f276db0db461ef7"
+    },
+    {
+      "agent": "007",
+      "source_sha": "65ec95d6c529c680d649e4bc8a930b67efa127cb"
+    },
+    {
+      "agent": "018",
+      "source_sha": "ce8ee61c936c518bb895aa8be849adc72aee9b8e"
+    },
+    {
+      "agent": "019",
+      "source_sha": "c88fc09fb9605aba08fef07f83514bddcd3342b8"
+    },
+    {
+      "agent": "026",
+      "source_sha": "14be63f8760aa7b497f2e56df649b4cccc0adf3e"
+    },
+    {
+      "agent": "061",
+      "source_sha": "de0153411abae6ad267e9460007c04991d464859"
+    },
+    {
+      "agent": "062",
+      "source_sha": "ae68b4255b7a1f605c71c533f34dba2c9d6c6aad"
+    },
+    {
+      "agent": "063",
+      "source_sha": "3561dd0beff9727986a9192341a629a3dbd55b3d"
+    },
+    {
+      "agent": "064",
+      "source_sha": "c0a926daa9863c1b68a2fb8ea9b4759dca023134"
+    },
+    {
+      "agent": "065",
+      "source_sha": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc"
+    },
+    {
+      "agent": "066",
+      "source_sha": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a"
+    },
+    {
+      "agent": "067",
+      "source_sha": "5f5719f803a88858a565b997ae980889ab66ceca"
+    },
+    {
+      "agent": "068",
+      "source_sha": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2"
+    },
+    {
+      "agent": "069",
+      "source_sha": "fb250011bdd303b3d3af8017b69e1f95d0b3c529"
+    },
+    {
+      "agent": "070",
+      "source_sha": "714ad3b3a8340db8461910c64cc5680f6353d9a1"
+    },
+    {
+      "agent": "071",
+      "source_sha": "3a19ef1a6d1bf06882ec5d8dd92b4493429a6f10"
+    },
+    {
+      "agent": "072",
+      "source_sha": "baaac4d17c638522c6f02c301b85557c7af7b420"
+    },
+    {
+      "agent": "073",
+      "source_sha": "196f4afa47532aa2179aa7bd6938f3327e746c62"
+    },
+    {
+      "agent": "074",
+      "source_sha": "be950605ca5881fe591bea7022792dc612c0024c"
+    },
+    {
+      "agent": "075",
+      "source_sha": "e7f1c568d3bc5d2a6adb5562c94d469576c696dc"
+    },
+    {
+      "agent": "076",
+      "source_sha": "58197d124d34a8bce17552ccc6ad292dc4a78108"
+    },
+    {
+      "agent": "077",
+      "source_sha": "b253e996283f4f01e72f9784823ce28c840fea03"
+    },
+    {
+      "agent": "078",
+      "source_sha": "2d91e44478dd26e3af51558fa4f2606025a96817"
+    },
+    {
+      "agent": "079",
+      "source_sha": "b92828231f0858e712232fc36d5645f2a9296342"
+    },
+    {
+      "agent": "080",
+      "source_sha": "d6c276045181a3bbe8ca5bc75cb734b58c0be7fc"
+    },
+    {
+      "agent": "009",
+      "source_sha": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd"
+    },
+    {
+      "agent": "088",
+      "source_sha": "0e5d9415c168c46a21899450dcd82c84886095f8"
+    }
+  ],
+  "planned_inputs_sha256": "0617260ac9f60aef4159bd874b3e6ea5281715f8d073366953d26a0bba433824",
+  "postbuild_untracked_status": [
+    "?? app/schemas/com.realityforge.scanner.data.ScanDatabase/1.json",
+    ""
+  ],
+  "schema": 1,
+  "source_commit": "c5d6ad0180e9afec6833996cd9c3bb1e0e62a717",
+  "source_directory": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/source",
+  "source_tree_oid": "c45e288768cc9752c38fa16db9fbc700e85d36bd",
+  "started_at": "2026-10-20T09:46:43.231822+00:00",
+  "state": "PASS",
+  "tools": {
+    "/workspace/campaign-061-080/dependencies/094/source_manifest.py": "41c38c8320e27ce8e1c4720fa8abde872a4e62b6a8fda11b17a988a7680b1ad8",
+    "/workspace/campaign-061-080/final-validation.py": "ccda73986b3d8178c797ed38d77b931ceda146406cd77f7f0b1e56e110a8800d",
+    "/workspace/toolchains/gradle-cloud.py": "f2798b2ebd95a821a14a8c6ca9e5e2c8adf89f62861bff5005c04c8601f35f64"
+  },
+  "tracked_files": 577,
+  "tracked_source_digest_sha256": "f46b5087df0587f01adfdc4fff029ad1306046cd32a8eda13cbb9cd438af266a",
+  "tracked_source_unchanged_after_validation": true,
+  "verification_adapters": {
+    "cmake": {
+      "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/cmake/CMakeLists.txt",
+      "sha256": "9bddb67c84010c963e9e1271291238b39b7bba4a819c8c7a212ac6e2387c2b69"
+    },
+    "gradle": {
+      "path": "/workspace/campaign-061-080/final-validation/c5d6ad0180e9/final.init.gradle",
+      "sha256": "d4f0eadbb373045b0d9ee4a28b603616fa872a7dc8db7e9b9d65f4726c248119"
+    }
+  }
+}

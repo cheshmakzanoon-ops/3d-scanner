@@ -1,0 +1,29 @@
+{
+  "agent": "078",
+  "role_head_before_receipt": "2d91e44478dd26e3af51558fa4f2606025a96817",
+  "combined_source": "e290ff56329322b4365298b97bba7df8b16d2470",
+  "device_source": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "source_paths": {
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a078/LocalizedResourcesDeviceTest.kt": {
+      "blob_oid": "51392b1381fb7ad6f0ac6ea3ad5900cc64f5b707",
+      "sha256": "ee60ff4bea1cc2690ca3dc18697827140363f930929f351c26342d414160ed9a"
+    },
+    "app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt": {
+      "blob_oid": "b62578b15841f90df52383d8be1cfe110474a7c5",
+      "sha256": "4d9a460d2fa0d8afe984a6d7ec550a74cf2df3f7b5edafe5c826846e1b7f7641"
+    },
+    "app/src/main/res/values/localization.xml": {
+      "blob_oid": "befa5548f95867c0f42a1a4e84a567ccd1931eb0",
+      "sha256": "d770210bbf4fa83dbb3690e8405c5f7cee27749f9ea1c2d44593f2707edf246c"
+    },
+    "app/src/main/res/values/strings.xml": {
+      "blob_oid": "acb4e26f25d4670be57b6a81ae278fcd2858372b",
+      "sha256": "f5eaf68d498a6596060bc1b0b481b560eec94707ec515f04501d32ae728890a8"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a078/LocalizedFormatsTest.kt": {
+      "blob_oid": "387710454f05b88eebe220feec000499be3275a3",
+      "sha256": "3bb1cf1d6ea23224204815f99c574479e908fa1e7b470ec64b42da95b0e1c390"
+    }
+  },
+  "matched_all_role_code_resource_test_paths": true
+}

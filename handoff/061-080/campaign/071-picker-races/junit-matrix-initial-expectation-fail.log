@@ -1,0 +1,23 @@
+JUnit version 4.13.2
+............E..........
+Time: 0.219
+There was 1 failure:
+1) terminalStartupReconcilesActualRestoredAdmissionsAcrossIndependentDiskStates(com.realityforge.scanner.agents.a071.PickerCallbackSlotsTest)
+java.lang.AssertionError: expected:<null> but was:<PendingRequest(requestId=3e83df21-3d32-4b6f-8feb-54b61ede19bc, kind=EXPORT, projectId=8cf53e8b-8274-48a7-bdde-072a90a60e54, revision=8, artifactKey=asset-8, extension=json)>
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.realityforge.scanner.agents.a071.PickerCallbackSlotsTest.terminalStartupReconcilesActualRestoredAdmissionsAcrossIndependentDiskStates$lambda$13(PickerCallbackSlotsTest.kt:243)
+	at com.realityforge.scanner.agents.a071.PickerCallbackSlotsTest.temporary(PickerCallbackSlotsTest.kt:35)
+	at com.realityforge.scanner.agents.a071.PickerCallbackSlotsTest.terminalStartupReconcilesActualRestoredAdmissionsAcrossIndependentDiskStates(PickerCallbackSlotsTest.kt:227)
+
+FAILURES!!!
+Tests run: 22,  Failures: 1
+
+Traceback (most recent call last):
+  File "/workspace/campaign-061-080/071-picker-races/run.py", line 19, in <module>
+    subprocess.run([java,'-cp',':'.join([str(out),*cp]),'org.junit.runner.JUnitCore','com.realityforge.scanner.agents.a071.NavigationStateTest','com.realityforge.scanner.agents.a071.PickerCallbackSlotsTest'],check=True)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/workspace/toolchains/jdk-17.0.16+8/bin/java', '-cp', '/workspace/campaign-061-080/071-picker-races/classes:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.21/97a0975aa19d925e109537af60eb46902920015c/kotlin-stdlib-2.1.21.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.10.2/4a9f78ef49483748e2c129f3d124b8fa249dafbf/kotlinx-coroutines-core-jvm-1.10.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains/annotations/23.0.0/8cc20c07506ec18e0834947b84a864bfc094484e/annotations-23.0.0.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar:/workspace/agent-work/072/app/build/tmp/kotlin-classes/debug:/workspace/toolchains/android-sdk/platforms/android-36/android.jar', 'org.junit.runner.JUnitCore', 'com.realityforge.scanner.agents.a071.NavigationStateTest', 'com.realityforge.scanner.agents.a071.PickerCallbackSlotsTest']' returned non-zero exit status 1.

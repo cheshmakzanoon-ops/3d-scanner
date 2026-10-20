@@ -1,0 +1,29 @@
+{
+  "source_commit": "7baa0dcae9e43e52dda9689433dea09bcfbbe835",
+  "branch": "agents/077-accessibility-verification",
+  "source_blob_sha256": "2d4ba290b0736396abea0184907d748a90df69cef83ceb3f4b872d5aad1586e7",
+  "changed_files": [
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a077/ActualAccessibilityTest.kt",
+    "SOURCE_MANIFEST.sha256"
+  ],
+  "selector_audit": {
+    "072": {
+      "a072_create": "Create local project",
+      "a072_save": "Save",
+      "a072_name": "Project name",
+      "a072_search": "Search projects"
+    },
+    "075": {
+      "a075_skip": "Skip guide"
+    }
+  },
+  "guide_view_id": "a075-skip",
+  "fallback_scope": "Only standalone checkouts where optional feature string IDs are absent.",
+  "compile_against_actual_candidate": "3b9f9157753b",
+  "focused_compile": "PASS",
+  "compile_log": "/workspace/campaign-061-080/077-selector-compile.log",
+  "compile_log_sha256": "c50390c7023eaaed7854da4c4bff3aefda811a47a4884a5b862b7713fcf6ef83",
+  "new_source_gradle": "NOT_RUN_ROOT_PENDING",
+  "new_source_runtime": "NOT_RUN_ROOT_PENDING",
+  "status077_and_request_untouched": true
+}

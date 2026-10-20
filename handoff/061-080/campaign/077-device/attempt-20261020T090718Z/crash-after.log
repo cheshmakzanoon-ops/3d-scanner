@@ -1,0 +1,116 @@
+10-20 08:54:56.616  2075  2787 E AndroidRuntime: FATAL EXCEPTION: RoleControllerService
+10-20 08:54:56.616  2075  2787 E AndroidRuntime: Process: com.android.permissioncontroller, PID: 2075
+10-20 08:54:56.616  2075  2787 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 08:54:57.040  2068  2068 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 08:54:57.040  2068  2068 E AndroidRuntime: Process: com.android.systemui, PID: 2068
+10-20 08:54:57.040  2068  2068 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 08:54:57.642  2338  2338 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 08:54:57.642  2338  2338 E AndroidRuntime: Process: com.android.phone, PID: 2338
+10-20 08:54:57.642  2338  2338 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 08:54:57.676  2677  2677 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 08:54:57.676  2677  2677 E AndroidRuntime: Process: com.android.documentsui, PID: 2677
+10-20 08:54:57.676  2677  2677 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 08:54:57.824  2863  2863 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 08:54:57.824  2863  2863 E AndroidRuntime: Process: com.android.printspooler, PID: 2863
+10-20 08:54:57.824  2863  2863 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: FATAL EXCEPTION: launcher-loader
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: Process: com.android.launcher3, PID: 2712
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: java.lang.RuntimeException: system server dead?
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.appwidget.AppWidgetHost.deleteHost(AppWidgetHost.java:352)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.LauncherProvider$DatabaseHelper.onEmptyDbCreated(LauncherProvider.java:640)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.LauncherProvider$DatabaseHelper.onCreate(LauncherProvider.java:624)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.LauncherProvider$DatabaseHelper.createEmptyDB(LauncherProvider.java:811)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.LauncherProvider.loadDefaultFavoritesIfNecessary(LauncherProvider.java:496)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.LauncherProvider.call(LauncherProvider.java:393)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.content.ContentProvider.call(ContentProvider.java:2152)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.content.ContentProvider$Transport.call(ContentProvider.java:477)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.content.ContentResolver.call(ContentResolver.java:2042)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.content.ContentResolver.call(ContentResolver.java:2022)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.LauncherSettings$Settings.call(LauncherSettings.java:299)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.model.LoaderTask.loadWorkspace(LoaderTask.java:278)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.launcher3.model.LoaderTask.run(LoaderTask.java:171)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:883)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:100)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:214)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.os.HandlerThread.run(HandlerThread.java:67)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: Caused by: android.os.DeadObjectException
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.os.BinderProxy.transactNative(Native Method)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.os.BinderProxy.transact(BinderProxy.java:510)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at com.android.internal.appwidget.IAppWidgetService$Stub$Proxy.deleteHost(IAppWidgetService.java:829)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	at android.appwidget.AppWidgetHost.deleteHost(AppWidgetHost.java:349)
+10-20 08:54:57.932  2712  2805 E AndroidRuntime: 	... 16 more
+10-20 09:01:12.195  3202  3970 E AndroidRuntime: FATAL EXCEPTION: Thread-7
+10-20 09:01:12.195  3202  3970 E AndroidRuntime: Process: com.android.networkstack, PID: 3202
+10-20 09:01:12.195  3202  3970 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:01:12.223  3202  3971 E AndroidRuntime: FATAL EXCEPTION: Thread-8
+10-20 09:01:12.223  3202  3971 E AndroidRuntime: Process: com.android.networkstack, PID: 3202
+10-20 09:01:12.223  3202  3971 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:01:13.139  3788  3788 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 09:01:13.139  3788  3788 E AndroidRuntime: Process: com.android.phone, PID: 3788
+10-20 09:01:13.139  3788  3788 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:01:13.188  3236  3984 E AndroidRuntime: FATAL EXCEPTION: RoleControllerService
+10-20 09:01:13.188  3236  3984 E AndroidRuntime: Process: com.android.permissioncontroller, PID: 3236
+10-20 09:01:13.188  3236  3984 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:01:13.684  3082  3082 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 09:01:13.684  3082  3082 E AndroidRuntime: Process: com.android.systemui, PID: 3082
+10-20 09:01:13.684  3082  3082 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:05:49.285  4545  4545 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 4545 (sdcard), pid 4545 (sdcard)
+10-20 09:06:07.683  4556  4556 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-20 09:06:07.684  4556  4556 F DEBUG   : Build fingerprint: 'Android/sdk_phone_x86_64/generic_x86_64:10/QSR1.210820.001/7663313:userdebug/test-keys'
+10-20 09:06:07.684  4556  4556 F DEBUG   : Revision: '0'
+10-20 09:06:07.684  4556  4556 F DEBUG   : ABI: 'x86_64'
+10-20 09:06:08.127  4556  4556 F DEBUG   : Timestamp: 2026-10-20 09:06:07+0000
+10-20 09:06:08.128  4556  4556 F DEBUG   : pid: 4545, tid: 4545, name: sdcard  >>> /system/bin/sdcard <<<
+10-20 09:06:08.128  4556  4556 F DEBUG   : uid: 0
+10-20 09:06:08.128  4556  4556 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+10-20 09:06:08.129  4556  4556 F DEBUG   : Abort message: 'failed to sdcardfs_setup'
+10-20 09:06:08.131  4556  4556 F DEBUG   :     rax 0000000000000000  rbx 00000000000011c1  rcx 0000735f444583f8  rdx 0000000000000006
+10-20 09:06:08.131  4556  4556 F DEBUG   :     r8  00007ffd3d7c2620  r9  0000000000000000  r10 00007ffd3d7c2ae0  r11 0000000000000246
+10-20 09:06:08.131  4556  4556 F DEBUG   :     r12 00007ffd3d7c2c40  r13 0000000000000001  r14 00007ffd3d7c2b68  r15 00000000000011c1
+10-20 09:06:08.132  4556  4556 F DEBUG   :     rdi 00000000000011c1  rsi 00000000000011c1
+10-20 09:06:08.132  4556  4556 F DEBUG   :     rbp 00000000000003ff  rsp 00007ffd3d7c2ad8  rip 0000735f444583f8
+10-20 09:06:09.095  4556  4556 F DEBUG   : 
+10-20 09:06:09.095  4556  4556 F DEBUG   : backtrace:
+10-20 09:06:09.290  4556  4556 F DEBUG   :       #00 pc 00000000000943f8  /apex/com.android.runtime/lib64/bionic/libc.so (syscall+24) (BuildId: b5c6019a3b4ea61b5e9a2f56319b584e)
+10-20 09:06:09.291  4556  4556 F DEBUG   :       #01 pc 0000000000097146  /apex/com.android.runtime/lib64/bionic/libc.so (abort+182) (BuildId: b5c6019a3b4ea61b5e9a2f56319b584e)
+10-20 09:06:09.293  4556  4556 F DEBUG   :       #02 pc 000000000000bdca  /system/lib64/libbase.so (android::base::DefaultAborter(char const*)+10) (BuildId: 40d2b536dbf0730fdc31abd2b469f94f)
+10-20 09:06:09.294  4556  4556 F DEBUG   :       #03 pc 000000000000c873  /system/lib64/libbase.so (android::base::LogMessage::~LogMessage()+611) (BuildId: 40d2b536dbf0730fdc31abd2b469f94f)
+10-20 09:06:09.432  4556  4556 F DEBUG   :       #04 pc 0000000000003c05  /system/bin/sdcard (run_sdcardfs(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, unsigned int, unsigned int, unsigned int, bool, bool, bool, bool, bool, bool)+837) (BuildId: 8e0ee19f147730de85ba02f796afc3d0)
+10-20 09:06:09.432  4556  4556 F DEBUG   :       #05 pc 00000000000034ad  /system/bin/sdcard (main+1101) (BuildId: 8e0ee19f147730de85ba02f796afc3d0)
+10-20 09:06:09.433  4556  4556 F DEBUG   :       #06 pc 000000000008a985  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+117) (BuildId: b5c6019a3b4ea61b5e9a2f56319b584e)
+10-20 09:06:20.886  4398  4456 E AndroidRuntime: FATAL EXCEPTION: RoleControllerService
+10-20 09:06:20.886  4398  4456 E AndroidRuntime: Process: com.android.permissioncontroller, PID: 4398
+10-20 09:06:20.886  4398  4456 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:06:20.900  4474  4474 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 09:06:20.900  4474  4474 E AndroidRuntime: Process: com.android.inputmethod.latin, PID: 4474
+10-20 09:06:20.900  4474  4474 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:06:20.906  4192  4192 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 09:06:20.906  4192  4192 E AndroidRuntime: Process: com.android.systemui, PID: 4192
+10-20 09:06:20.906  4192  4192 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:06:21.103  4415  4415 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 09:06:21.103  4415  4415 E AndroidRuntime: Process: com.android.phone, PID: 4415
+10-20 09:06:21.103  4415  4415 E AndroidRuntime: DeadSystemException: The system died; earlier logs will point to the root cause
+10-20 09:08:11.944  5125  5125 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 5125 (sdcard), pid 5125 (sdcard)
+10-20 09:08:25.969  5141  5141 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+10-20 09:08:25.970  5141  5141 F DEBUG   : Build fingerprint: 'Android/sdk_phone_x86_64/generic_x86_64:10/QSR1.210820.001/7663313:userdebug/test-keys'
+10-20 09:08:25.971  5141  5141 F DEBUG   : Revision: '0'
+10-20 09:08:25.971  5141  5141 F DEBUG   : ABI: 'x86_64'
+10-20 09:08:26.333  5141  5141 F DEBUG   : Timestamp: 2026-10-20 09:08:25+0000
+10-20 09:08:26.381  5141  5141 F DEBUG   : pid: 5125, tid: 5125, name: sdcard  >>> /system/bin/sdcard <<<
+10-20 09:08:26.382  5141  5141 F DEBUG   : uid: 0
+10-20 09:08:26.382  5141  5141 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+10-20 09:08:26.382  5141  5141 F DEBUG   : Abort message: 'failed to sdcardfs_setup'
+10-20 09:08:26.383  5141  5141 F DEBUG   :     rax 0000000000000000  rbx 0000000000001405  rcx 00007e10e1a6a3f8  rdx 0000000000000006
+10-20 09:08:26.383  5141  5141 F DEBUG   :     r8  00007fffff7b31a0  r9  0000000000000000  r10 00007fffff7b3660  r11 0000000000000246
+10-20 09:08:26.383  5141  5141 F DEBUG   :     r12 00007fffff7b37c0  r13 0000000000000001  r14 00007fffff7b36e8  r15 0000000000001405
+10-20 09:08:26.478  5141  5141 F DEBUG   :     rdi 0000000000001405  rsi 0000000000001405
+10-20 09:08:26.478  5141  5141 F DEBUG   :     rbp 00000000000003ff  rsp 00007fffff7b3658  rip 00007e10e1a6a3f8
+10-20 09:08:27.244  5141  5141 F DEBUG   : 
+10-20 09:08:27.244  5141  5141 F DEBUG   : backtrace:
+10-20 09:08:27.246  5141  5141 F DEBUG   :       #00 pc 00000000000943f8  /apex/com.android.runtime/lib64/bionic/libc.so (syscall+24) (BuildId: b5c6019a3b4ea61b5e9a2f56319b584e)
+10-20 09:08:27.246  5141  5141 F DEBUG   :       #01 pc 0000000000097146  /apex/com.android.runtime/lib64/bionic/libc.so (abort+182) (BuildId: b5c6019a3b4ea61b5e9a2f56319b584e)
+10-20 09:08:27.549  5141  5141 F DEBUG   :       #02 pc 000000000000bdca  /system/lib64/libbase.so (android::base::DefaultAborter(char const*)+10) (BuildId: 40d2b536dbf0730fdc31abd2b469f94f)
+10-20 09:08:27.550  5141  5141 F DEBUG   :       #03 pc 000000000000c873  /system/lib64/libbase.so (android::base::LogMessage::~LogMessage()+611) (BuildId: 40d2b536dbf0730fdc31abd2b469f94f)
+10-20 09:08:27.740  5141  5141 F DEBUG   :       #04 pc 0000000000003c05  /system/bin/sdcard (run_sdcardfs(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>> const&, unsigned int, unsigned int, unsigned int, bool, bool, bool, bool, bool, bool)+837) (BuildId: 8e0ee19f147730de85ba02f796afc3d0)
+10-20 09:08:27.741  5141  5141 F DEBUG   :       #05 pc 00000000000034ad  /system/bin/sdcard (main+1101) (BuildId: 8e0ee19f147730de85ba02f796afc3d0)
+10-20 09:08:27.741  5141  5141 F DEBUG   :       #06 pc 000000000008a985  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+117) (BuildId: b5c6019a3b4ea61b5e9a2f56319b584e)

@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "generated_at": "2026-10-20T10:39:09.721170+00:00",
+  "source_commit": "e290ff56329322b4365298b97bba7df8b16d2470",
+  "roles": {
+    "061": {
+      "role_head_before_receipt": "de0153411abae6ad267e9460007c04991d464859",
+      "frozen_role_input_sha": "de0153411abae6ad267e9460007c04991d464859",
+      "files": [
+        {
+          "path": "reconstruction/include/realityforge/asset_model.hpp",
+          "role_blob": "2689da8c058958ef1a4cabc7eb5285e736f6ecd4",
+          "combined_blob": "2689da8c058958ef1a4cabc7eb5285e736f6ecd4"
+        },
+        {
+          "path": "reconstruction/include/realityforge/glb_export.hpp",
+          "role_blob": "53c313c01d5a8ed3034a465ac835268e707e4211",
+          "combined_blob": "53c313c01d5a8ed3034a465ac835268e707e4211"
+        },
+        {
+          "path": "reconstruction/src/asset_model.cpp",
+          "role_blob": "43980183fcd364b8e1fc29f7813fbe3ae0721784",
+          "combined_blob": "43980183fcd364b8e1fc29f7813fbe3ae0721784"
+        },
+        {
+          "path": "reconstruction/src/glb_export.cpp",
+          "role_blob": "647cce2a80ff94ee88da170fe948f5b0e0db6dfb",
+          "combined_blob": "647cce2a80ff94ee88da170fe948f5b0e0db6dfb"
+        },
+        {
+          "path": "reconstruction/tests/agent_061_asset_test.cpp",
+          "role_blob": "b6d5aaae1ef48056bee79a2f0155fac03461a37d",
+          "combined_blob": "b6d5aaae1ef48056bee79a2f0155fac03461a37d"
+        },
+        {
+          "path": "tests/test_agent_061_asset_contract.py",
+          "role_blob": "8b56594f334b65c116d159f15e46088181c2cc28",
+          "combined_blob": "8b56594f334b65c116d159f15e46088181c2cc28"
+        }
+      ],
+      "all_non_doc_nonmanifest_blobs_match_frozen_combined": true
+    },
+    "068": {
+      "role_head_before_receipt": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+      "frozen_role_input_sha": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+      "files": [
+        {
+          "path": "app/src/androidTest/java/com/realityforge/scanner/agents/a068/GlbParserCorpusTest.kt",
+          "role_blob": "fe984b6ab500828aa3457a8dc09e340d0919f573",
+          "combined_blob": "fe984b6ab500828aa3457a8dc09e340d0919f573",
+          "old_3b_device_blob": "fe984b6ab500828aa3457a8dc09e340d0919f573"
+        },
+        {
+          "path": "app/src/androidTest/java/com/realityforge/scanner/agents/a068/GlbParserHostHarness.java",
+          "role_blob": "82be6b765eea49434a69467133ecade7f1ad2351",
+          "combined_blob": "82be6b765eea49434a69467133ecade7f1ad2351",
+          "old_3b_device_blob": "82be6b765eea49434a69467133ecade7f1ad2351"
+        },
+        {
+          "path": "app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt",
+          "role_blob": "f914cf8d3395e9b986dd606f679b68730e8a27fc",
+          "combined_blob": "f914cf8d3395e9b986dd606f679b68730e8a27fc",
+          "old_3b_device_blob": "f914cf8d3395e9b986dd606f679b68730e8a27fc"
+        },
+        {
+          "path": "app/src/main/java/com/realityforge/scanner/viewer/loading/GlbStructure.kt",
+          "role_blob": "83b5727cf7581978f7e25ebc14e67e305b31549d",
+          "combined_blob": "83b5727cf7581978f7e25ebc14e67e305b31549d",
+          "old_3b_device_blob": "83b5727cf7581978f7e25ebc14e67e305b31549d"
+        },
+        {
+          "path": "app/src/main/java/com/realityforge/scanner/viewer/loading/PhotographicModelLoader.kt",
+          "role_blob": "2a5784de910d680da8a83390cc9c71529c082fa3",
+          "combined_blob": "2a5784de910d680da8a83390cc9c71529c082fa3",
+          "old_3b_device_blob": "2a5784de910d680da8a83390cc9c71529c082fa3"
+        },
+        {
+          "path": "app/src/test/java/com/realityforge/scanner/agents/a068/StrictJsonTest.kt",
+          "role_blob": "e478887f9d1c09361dd0987efc983d45e4ad415a",
+          "combined_blob": "e478887f9d1c09361dd0987efc983d45e4ad415a",
+          "old_3b_device_blob": "e478887f9d1c09361dd0987efc983d45e4ad415a"
+        },
+        {
+          "path": "tests/test_agent_068_parser_host.py",
+          "role_blob": "54ca9e1cb1a07fa3d5302647454cb6ed7011cb79",
+          "combined_blob": "54ca9e1cb1a07fa3d5302647454cb6ed7011cb79",
+          "old_3b_device_blob": "54ca9e1cb1a07fa3d5302647454cb6ed7011cb79"
+        }
+      ],
+      "all_non_doc_nonmanifest_blobs_match_frozen_combined": true,
+      "all_parser_and_corpus_blobs_match_old_device_candidate": true
+    }
+  },
+  "scope": "Read-only Git blob equality; receipts/manifests excluded. No code, tests, APKs or combined checkout changed."
+}

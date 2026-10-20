@@ -1,0 +1,33 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a074.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a074.ScreenInteractionTest:
+INSTRUMENTATION_STATUS: test=actualScreenBlocksRepeatedDispatchUntilAcceptedIdentityChanges
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a074.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: Visible semantic node missing: Pause
+	at com.realityforge.scanner.agents.a074.ScreenInteractionTest.node(ScreenInteractionTest.kt:31)
+	at com.realityforge.scanner.agents.a074.ScreenInteractionTest.click(ScreenInteractionTest.kt:34)
+	at com.realityforge.scanner.agents.a074.ScreenInteractionTest.actualScreenBlocksRepeatedDispatchUntilAcceptedIdentityChanges(ScreenInteractionTest.kt:61)
+
+INSTRUMENTATION_STATUS: stream=
+Error in actualScreenBlocksRepeatedDispatchUntilAcceptedIdentityChanges(com.realityforge.scanner.agents.a074.ScreenInteractionTest):
+java.lang.IllegalStateException: Visible semantic node missing: Pause
+	at com.realityforge.scanner.agents.a074.ScreenInteractionTest.node(ScreenInteractionTest.kt:31)
+	at com.realityforge.scanner.agents.a074.ScreenInteractionTest.click(ScreenInteractionTest.kt:34)
+	at com.realityforge.scanner.agents.a074.ScreenInteractionTest.actualScreenBlocksRepeatedDispatchUntilAcceptedIdentityChanges(ScreenInteractionTest.kt:61)
+
+INSTRUMENTATION_STATUS: test=actualScreenBlocksRepeatedDispatchUntilAcceptedIdentityChanges
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a074.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realControlsDispatchBoundActions
+INSTRUMENTATION_STATUS_CODE: 1

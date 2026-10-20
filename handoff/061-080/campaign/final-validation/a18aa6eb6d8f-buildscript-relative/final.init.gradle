@@ -1,0 +1,14 @@
+gradle.settingsEvaluated { s ->
+  s.project(':app').buildFileName = "../../app-build.gradle.kts"
+}
+gradle.beforeProject { p ->
+  if (p.path == ':app') {
+    p.plugins.withId('com.android.application') {
+      p.dependencies.add('implementation', 'com.google.android.filament:filament-android:1.56.0')
+      p.dependencies.add('implementation', 'com.google.android.filament:gltfio-android:1.56.0')
+      p.extensions.getByName('androidComponents').finalizeDsl { dsl ->
+        dsl.externalNativeBuild.cmake.path = new File("/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/cmake/CMakeLists.txt")
+      }
+    }
+  }
+}

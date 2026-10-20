@@ -1,0 +1,105 @@
+{
+  "schema": 14,
+  "synthetic": true,
+  "physicalDevice": false,
+  "knownCameraPoses": true,
+  "groundTruthUsedByDepthSolver": false,
+  "worldGridCellSize": 0.15,
+  "groundTruthPlaneZ": 5.0,
+  "measurements": {
+    "3": {
+      "coveredCells": 476,
+      "observableCells": 816,
+      "coverage": 0.5833333333333334,
+      "depthErrorP50": 0.020179272000000026,
+      "vertices": 1769,
+      "triangles": 3507,
+      "pointCount": 4390,
+      "sourceViewIndices": [
+        [
+          1,
+          2
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "consistentPixelsPerView": [
+        1470,
+        1715,
+        1448
+      ],
+      "peakLuminanceBytes": 94848,
+      "wallSeconds": 0.21012070500000846
+    },
+    "8": {
+      "coveredCells": 816,
+      "observableCells": 816,
+      "coverage": 1.0,
+      "depthErrorP50": 0.019587357999999888,
+      "vertices": 3161,
+      "triangles": 6675,
+      "pointCount": 11459,
+      "sourceViewIndices": [
+        [
+          1,
+          2,
+          3
+        ],
+        [
+          0,
+          2,
+          3
+        ],
+        [
+          1,
+          3,
+          0
+        ],
+        [
+          2,
+          4,
+          1
+        ],
+        [
+          3,
+          5,
+          2
+        ],
+        [
+          4,
+          6,
+          3
+        ],
+        [
+          5,
+          7,
+          4
+        ],
+        [
+          6,
+          5,
+          4
+        ]
+      ],
+      "consistentPixelsPerView": [
+        1470,
+        1715,
+        1715,
+        1715,
+        1715,
+        1715,
+        1715,
+        1438
+      ],
+      "peakLuminanceBytes": 126464,
+      "wallSeconds": 0.7522642410000344
+    }
+  },
+  "coverageRatio": 1.7142857142857142
+}

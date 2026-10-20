@@ -1,0 +1,106 @@
+[
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "uiautomator",
+      "dump",
+      "/data/local/tmp/rf-before-ui.xml"
+    ],
+    "exit_code": 0,
+    "log": "dump-before.log"
+  },
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "cat",
+      "/data/local/tmp/rf-before-ui.xml"
+    ],
+    "exit_code": 0,
+    "log": "tree-before.log"
+  },
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "input",
+      "tap",
+      "159",
+      "382"
+    ],
+    "exit_code": 0,
+    "log": "system-ui-wait.log"
+  },
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "input",
+      "keyevent",
+      "224"
+    ],
+    "exit_code": 0,
+    "log": "wake.log"
+  },
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "wm",
+      "dismiss-keyguard"
+    ],
+    "exit_code": 0,
+    "log": "dismiss-unsecured-keyguard.log"
+  },
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "am",
+      "start",
+      "-W",
+      "-n",
+      "com.realityforge.scanner/.MainActivity"
+    ],
+    "exit_code": 0,
+    "log": "start-app.log"
+  },
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "uiautomator",
+      "dump",
+      "/data/local/tmp/rf-after-ui.xml"
+    ],
+    "exit_code": 0,
+    "log": "dump-after.log"
+  },
+  {
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "cat",
+      "/data/local/tmp/rf-after-ui.xml"
+    ],
+    "exit_code": 0,
+    "log": "tree-after.log"
+  }
+]

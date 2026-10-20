@@ -1,0 +1,102 @@
+{
+  "app_apk_sha256": "0e60bc83d4d7e3838d98c4d7d969afef4ae8901a75ea18795fe7d4df65fe0585",
+  "device": "Android29 x86_64 software emulator5556, Android/sdk_phone_x86_64/generic_x86_64:10/QSR1.210820.001/7663313:userdebug/test-keys",
+  "evidence_logs": {
+    "abi.log": "aaf631698ae5160ceb04a97681a14887fdcab47cd6e0f163c87485b3b1340b62",
+    "api.log": "3840bc236ee03aacbb1ef7d5108ddfa347c59f10b68d4174affbb53140f31273",
+    "class-4.log": "52425781608815c0cfdb0e77e850b1936cbecfe63107c2d75c1c60464ccd04ff",
+    "class-5.log": "6de5d6c00e586dcae48c1df0935b544af71cd4c699b3f9439ed1b923be85a1d7",
+    "class-6.log": "ca211ea77e5cb093a9ab0271c4b7c533e797dca5399dc094469b7898a51c3cf6",
+    "egl-class-0.log": "ff9107816a3ef77103e7e43be364ba0ca325c86b3f4855bcd05fc269f860cbd3",
+    "egl-class-1.log": "ad339629990251be72981658b592dbe18e2d6e3c2c28d49e830e2537bbb0c8e8",
+    "egl-class-2.log": "b14231bb9e09fde99664b5c62369b654d7942a1610f8710b21324a57b7bfeec6",
+    "fingerprint.log": "6ae65e4e6a95d74db8a522b1941f25805a3cfd4c5828470d6f5ea1afd1c0a003",
+    "installed-sha-0.log": "da03c25a1ea0417dae8976912b0d845e2c21a5c6286b95a88f83b577969f0217",
+    "installed-sha-1.log": "d73cf9561573b9988e70ba8a9bac7a4479f106147dfaaa229577baaec9f12bd3"
+  },
+  "findings": [
+    "Lifecycle test reached a real submitted GLES frame with no renderer failure before ActivityScenario.moveToState(CREATED) failed. It did not reach resume or resumed-frame assertions.",
+    "ActivityScenario1.6.1 stopActivity starts its separate EmptyActivity then waits for STOPPED. Its test manifest declares that helper using WhiteBackgroundTheme; no missing helper declaration was found.",
+    "The failed method selects default GLES; Filament is not involved until its separately started test.",
+    "ON_PAUSE->GLSurfaceView.onPause and queueEvent(resource deletion)->onPause on disposal match the campaign baseline. No new application-level circular wait was found in069/070. GL callbacks only post failure asynchronously; none waits for the main thread.",
+    "MainActivity.onStop calls model.onHostStopped -> pause; that cancels the coroutine and conditionally native work without a join. The synthetic viewer fixture does not start reconstruction.",
+    "No recorded main/GL thread stack or ActivityTaskManager lifecycle events accompany this failure. Therefore these logs do not establish whether ON_PAUSE was reached, whether a GPU/driver wait occurred, or whether the helper transition was delayed/blocked. Neither emulator blame nor a confirmed application deadlock is supported.",
+    "Separate070 fallback test subsequently completed real GLES rendering plus ActivityScenario close/disposal. This is relevant evidence that the normal close path can complete, but does not turn the separate CREATED-transition failure into a pass or identify its cause."
+  ],
+  "no_guest_calls": true,
+  "physical": false,
+  "read_only_review": true,
+  "recommendation": "Preserve original lifecycle FAIL and incomplete Filament result. No production change justified from current evidence. On a separately authorized bounded reproduction, capture main+GLThread stacks, ActivityTaskManager events and actual owner lifecycle state before cleanup; retain same fixture/artifact identities. Root owns subsequent guest calls.",
+  "runtime_results": {
+    "PhotographicViewerTest": "INCOMPLETE class:3 parser PASS,1 lifecycle FAIL,Filament started without completion before240s outer timeout; never a9-case pass",
+    "RendererFallbackTest": "PASS1/1,95.698 seconds,successful terminal summary; actual replacement GLES view rendered and closed old alternative surface",
+    "ViewerControlsTest": "PASS1/1,81.823 seconds,successful terminal summary",
+    "filamentRestoresCameraPausesAndRejectsOversizedResize": "PASS1/1,83.907 seconds,successful standalone terminal summary; actual native renderer/frame/matrix/pause/resume/resize-refusal disposal",
+    "maskedPixelsStayEmptyAndContextLossReuploadsTheAtlas": "PASS1/1,successful standalone terminal summary; actual two EGL context uploads",
+    "openGlRendersCorrectPhotographicQuadrantsWithoutVerticalFlip": "PASS1/1,3.319 seconds,successful standalone terminal summary"
+  },
+  "source_correlation": {
+    "app/src/androidTest/java/com/realityforge/scanner/PhotographicViewerTest.kt": {
+      "branch_source_commit": "c137e6996477f35735f169b10c8b92112c551007",
+      "role": "069",
+      "sha256": "16eddc159576f71810bb453f4a54f9b89b9e59aa2131910bc9f219c47b18742a"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a070/RendererFallbackTest.kt": {
+      "branch_source_commit": "5c683605423d2c4c743bac2420192364ee430b44",
+      "role": "070",
+      "sha256": "fec521a6037c81bd40e92d58907e07634b2f1f2232be82cf59cee881268d4098"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a070/ViewerControlsTest.kt": {
+      "branch_source_commit": "5c683605423d2c4c743bac2420192364ee430b44",
+      "role": "070",
+      "sha256": "85354d9b14277ee1440636db343fff65ad1b761d4197ac8e7d3252cca38beb6f"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt": {
+      "branch_source_commit": "5c683605423d2c4c743bac2420192364ee430b44",
+      "role": "070",
+      "sha256": "0242f2c49a6d1e03965e74b2e2ff2b9a8c624f8e581119dcd49f784b67bbae16"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt": {
+      "branch_source_commit": "5c683605423d2c4c743bac2420192364ee430b44",
+      "role": "070",
+      "sha256": "d3261b60f9293d154991ee3f4086be43feddd992803b9b0277936061389ff553"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/studio/StudioControls.kt": {
+      "branch_source_commit": "5c683605423d2c4c743bac2420192364ee430b44",
+      "role": "070",
+      "sha256": "c31f756357543ecf0ca3797af128883e7d3ca796ace83bd34fbea54bdbf287c2"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/studio/StudioPose.kt": {
+      "branch_source_commit": "5c683605423d2c4c743bac2420192364ee430b44",
+      "role": "070",
+      "sha256": "3d04a67116cf82bf7b1d423de4b44febfb5d8df0cde3e4c743693d90cee747e9"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt": {
+      "branch_source_commit": "c137e6996477f35735f169b10c8b92112c551007",
+      "role": "069",
+      "sha256": "c34ec1b5591780185a134e3a6905fef87f2fe1cb947bbe69f8cffb1d769c2f67"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/RenderBackend.kt": {
+      "branch_source_commit": "c137e6996477f35735f169b10c8b92112c551007",
+      "role": "069",
+      "sha256": "586f8bbb7f33ec92dce02d1df990ba321b479d9e558f69cb78cfc02a293a2262"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/filament/FilamentBackend.kt": {
+      "branch_source_commit": "c137e6996477f35735f169b10c8b92112c551007",
+      "role": "069",
+      "sha256": "32fcf7ab16d49f531b1c2aa02b10161baae63f480e7e3384f20e5c7d5fc40c0c"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/filament/FilamentStudioView.kt": {
+      "branch_source_commit": "c137e6996477f35735f169b10c8b92112c551007",
+      "role": "069",
+      "sha256": "7923eaedd04c278110dfbb74d5c714c35e26b4328cfeb55c3462cd99c442bb15"
+    },
+    "app/src/main/res/values/agent_070.xml": {
+      "branch_source_commit": "5c683605423d2c4c743bac2420192364ee430b44",
+      "role": "070",
+      "sha256": "0e3d2af1ca775a428ee7adfc87e31f16f3dcfb055382772680df16638cc1f340"
+    }
+  },
+  "source_sha": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "test_apk_sha256": "2e93c6656d30d2832626ac2302136f1ac50395037ba3a1d82cdd28d3440489f5"
+}

@@ -1,0 +1,294 @@
+[
+  {
+    "label": "prop-ro.build.version.sdk",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "ro.build.version.sdk"
+    ],
+    "start_utc": "2026-10-20T09:19:39.382415+00:00",
+    "duration_seconds": 0.748,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-ro.build.version.sdk.log"
+  },
+  {
+    "label": "prop-ro.product.cpu.abi",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "ro.product.cpu.abi"
+    ],
+    "start_utc": "2026-10-20T09:19:40.130358+00:00",
+    "duration_seconds": 0.614,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-ro.product.cpu.abi.log"
+  },
+  {
+    "label": "prop-ro.build.fingerprint",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "ro.build.fingerprint"
+    ],
+    "start_utc": "2026-10-20T09:19:40.744440+00:00",
+    "duration_seconds": 0.668,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-ro.build.fingerprint.log"
+  },
+  {
+    "label": "prop-sys.boot_completed",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "getprop",
+      "sys.boot_completed"
+    ],
+    "start_utc": "2026-10-20T09:19:41.412725+00:00",
+    "duration_seconds": 0.53,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "prop-sys.boot_completed.log"
+  },
+  {
+    "label": "system-server-before",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:19:41.943394+00:00",
+    "duration_seconds": 0.599,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "system-server-before.log"
+  },
+  {
+    "label": "crash-before",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "crash",
+      "-d",
+      "-t",
+      "200"
+    ],
+    "start_utc": "2026-10-20T09:19:42.543242+00:00",
+    "duration_seconds": 0.768,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "crash-before.log"
+  },
+  {
+    "label": "installed-app-path",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pm",
+      "path",
+      "com.realityforge.scanner"
+    ],
+    "start_utc": "2026-10-20T09:19:43.311582+00:00",
+    "duration_seconds": 0.857,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "installed-app-path.log"
+  },
+  {
+    "label": "installed-app-sha256",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "sha256sum",
+      "/data/app/com.realityforge.scanner-2reV1DeVi-A9B9OMfKcPRQ==/base.apk"
+    ],
+    "start_utc": "2026-10-20T09:19:44.169291+00:00",
+    "duration_seconds": 11.189,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "installed-app-sha256.log"
+  },
+  {
+    "label": "test-apk-install",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "install",
+      "--no-streaming",
+      "-r",
+      "-t",
+      "/workspace/agent-work/077/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+    ],
+    "start_utc": "2026-10-20T09:19:55.358342+00:00",
+    "duration_seconds": 8.31,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "test-apk-install.log"
+  },
+  {
+    "label": "instrumentation-list",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pm",
+      "list",
+      "instrumentation"
+    ],
+    "start_utc": "2026-10-20T09:20:03.669708+00:00",
+    "duration_seconds": 5.878,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "instrumentation-list.log"
+  },
+  {
+    "label": "actual-accessibility",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "am",
+      "instrument",
+      "-w",
+      "-r",
+      "-e",
+      "class",
+      "com.realityforge.scanner.agents.a077.ActualAccessibilityTest",
+      "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+    ],
+    "start_utc": "2026-10-20T09:20:09.548552+00:00",
+    "duration_seconds": 154.481,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "actual-accessibility.log"
+  },
+  {
+    "label": "screenshot",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "screencap",
+      "-p",
+      "/data/local/tmp/agent077-late-install.png"
+    ],
+    "start_utc": "2026-10-20T09:22:44.031049+00:00",
+    "duration_seconds": 7.521,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "screenshot.log"
+  },
+  {
+    "label": "screenshot-pull",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "pull",
+      "/data/local/tmp/agent077-late-install.png",
+      "/workspace/campaign-061-080/077-device/late-install-20261020T091939Z/screen.png"
+    ],
+    "start_utc": "2026-10-20T09:22:51.552590+00:00",
+    "duration_seconds": 0.206,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "screenshot-pull.log"
+  },
+  {
+    "label": "system-server-after",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "shell",
+      "pidof",
+      "system_server"
+    ],
+    "start_utc": "2026-10-20T09:22:51.758478+00:00",
+    "duration_seconds": 1.191,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "system-server-after.log"
+  },
+  {
+    "label": "crash-after",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "crash",
+      "-d",
+      "-t",
+      "250"
+    ],
+    "start_utc": "2026-10-20T09:22:52.951063+00:00",
+    "duration_seconds": 0.749,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "crash-after.log"
+  },
+  {
+    "label": "system-after",
+    "command": [
+      "/workspace/campaign-061-080/adb",
+      "-s",
+      "emulator-5556",
+      "logcat",
+      "-b",
+      "system",
+      "-d",
+      "-t",
+      "600"
+    ],
+    "start_utc": "2026-10-20T09:22:53.700423+00:00",
+    "duration_seconds": 2.762,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "system-after.log"
+  },
+  {
+    "label": "clients-final",
+    "command": [
+      "docker",
+      "--host=unix:///var/run/docker.sock",
+      "top",
+      "rf-adb-server",
+      "-eo",
+      "pid,comm,args"
+    ],
+    "start_utc": "2026-10-20T09:22:56.463335+00:00",
+    "duration_seconds": 0.029,
+    "exit_code": 0,
+    "timed_out": false,
+    "log": "clients-final.log"
+  }
+]

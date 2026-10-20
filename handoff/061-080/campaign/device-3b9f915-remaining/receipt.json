@@ -1,0 +1,465 @@
+{
+  "source_sha": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "synthetic": true,
+  "physical": false,
+  "build_receipt": "/workspace/campaign-061-080/final-validation/3b9f9157753b/result.json",
+  "build_receipt_sha256": "ee667b6725ef3a421de8d9c55a32d5965e1a9cc64aa4af827b2757222351e93b",
+  "commands": [
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "force-stop",
+        "com.realityforge.scanner"
+      ],
+      "started": "2026-10-20T10:03:39.305997+00:00",
+      "exit_code": 0,
+      "log": "stop-com.realityforge.scanner.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "force-stop",
+        "com.realityforge.scanner.test"
+      ],
+      "started": "2026-10-20T10:04:01.169477+00:00",
+      "exit_code": 0,
+      "log": "stop-com.realityforge.scanner.test.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "pm",
+        "path",
+        "com.realityforge.scanner"
+      ],
+      "started": "2026-10-20T10:04:05.171026+00:00",
+      "exit_code": 0,
+      "log": "installed-path-0.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "sha256sum /data/app/com.realityforge.scanner-1bRzbDqOnr9fTCQ3AxJ7Gg==/base.apk"
+      ],
+      "started": "2026-10-20T10:04:07.141294+00:00",
+      "exit_code": 0,
+      "log": "installed-sha-0.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "pm",
+        "path",
+        "com.realityforge.scanner.test"
+      ],
+      "started": "2026-10-20T10:04:20.309076+00:00",
+      "exit_code": 0,
+      "log": "installed-path-1.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "sha256sum /data/app/com.realityforge.scanner.test-WXcUobZQvCuRKNI7HFEMTg==/base.apk"
+      ],
+      "started": "2026-10-20T10:04:21.261433+00:00",
+      "exit_code": 0,
+      "log": "installed-sha-1.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "input",
+        "keyevent",
+        "224"
+      ],
+      "started": "2026-10-20T10:04:21.981242+00:00",
+      "exit_code": 0,
+      "log": "wake.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "wm",
+        "dismiss-keyguard"
+      ],
+      "started": "2026-10-20T10:04:26.155599+00:00",
+      "exit_code": 0,
+      "log": "dismiss-unsecured-keyguard.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "ro.build.fingerprint"
+      ],
+      "started": "2026-10-20T10:04:26.989464+00:00",
+      "exit_code": 0,
+      "log": "fingerprint.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "ro.build.version.sdk"
+      ],
+      "started": "2026-10-20T10:04:27.498198+00:00",
+      "exit_code": 0,
+      "log": "api.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "ro.product.cpu.abi"
+      ],
+      "started": "2026-10-20T10:04:28.345719+00:00",
+      "exit_code": 0,
+      "log": "abi.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.agents.a075.ScreenInteractionTest",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:04:28.878020+00:00",
+      "exit_code": 0,
+      "log": "class-0.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.agents.a079.ScreenInteractionTest",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:06:13.382305+00:00",
+      "exit_code": 0,
+      "log": "class-1.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.agents.a076.DesignSystemDeviceTest",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:09:01.745253+00:00",
+      "exit_code": 0,
+      "log": "class-2.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.agents.a078.LocalizedResourcesDeviceTest",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:10:43.055563+00:00",
+      "exit_code": 0,
+      "log": "class-3.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.PhotographicViewerTest",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:11:03.820403+00:00",
+      "exit_code": "TIMEOUT",
+      "log": "class-4.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "force-stop",
+        "com.realityforge.scanner"
+      ],
+      "started": "2026-10-20T10:15:03.835383+00:00",
+      "exit_code": 0,
+      "log": "timeout-stop-4-com.realityforge.scanner.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "force-stop",
+        "com.realityforge.scanner.test"
+      ],
+      "started": "2026-10-20T10:15:05.695080+00:00",
+      "exit_code": 0,
+      "log": "timeout-stop-4-com.realityforge.scanner.test.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.agents.a070.ViewerControlsTest",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:15:08.594406+00:00",
+      "exit_code": 0,
+      "log": "class-5.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.agents.a070.RendererFallbackTest",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:16:53.020205+00:00",
+      "exit_code": 0,
+      "log": "class-6.log"
+    }
+  ],
+  "classes": [
+    {
+      "class": "com.realityforge.scanner.agents.a075.ScreenInteractionTest",
+      "result": {
+        "status": "FAIL",
+        "passed": 1,
+        "failed": 1,
+        "skipped": 0,
+        "completed": 2,
+        "test_identities": [
+          "com.realityforge.scanner.agents.a075.ScreenInteractionTest#checkerboardIsPackagedAndReadableEntirelyOffline",
+          "com.realityforge.scanner.agents.a075.ScreenInteractionTest#realControlsDispatchBoundActions"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": [
+          "Test failures/errors reported",
+          "Instrumentation reported a runner/process failure",
+          "Missing or inconsistent successful JUnit summary"
+        ]
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.agents.a079.ScreenInteractionTest",
+      "result": {
+        "status": "FAIL",
+        "passed": 1,
+        "failed": 1,
+        "skipped": 0,
+        "completed": 2,
+        "test_identities": [
+          "com.realityforge.scanner.agents.a079.ScreenInteractionTest#actualAndroidPreferencesSurviveActivityAndStoreRecreation",
+          "com.realityforge.scanner.agents.a079.ScreenInteractionTest#realControlsDispatchBoundActions"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": [
+          "Test failures/errors reported",
+          "Instrumentation reported a runner/process failure",
+          "Missing or inconsistent successful JUnit summary"
+        ]
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.agents.a076.DesignSystemDeviceTest",
+      "result": {
+        "status": "FAIL",
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "completed": 1,
+        "test_identities": [
+          "com.realityforge.scanner.agents.a076.DesignSystemDeviceTest#largeTextLabelAndToggleShareOneOperableAction"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": [
+          "No successfully executed tests",
+          "Test failures/errors reported",
+          "Instrumentation reported a runner/process failure",
+          "Missing or inconsistent successful JUnit summary"
+        ]
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.agents.a078.LocalizedResourcesDeviceTest",
+      "result": {
+        "status": "PASS",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 1,
+        "test_identities": [
+          "com.realityforge.scanner.agents.a078.LocalizedResourcesDeviceTest#photoPluralsAndStructuredErrorsResolveWithoutLeakingEvidence"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": []
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.PhotographicViewerTest",
+      "result": {
+        "status": "FAIL",
+        "passed": 3,
+        "failed": 1,
+        "skipped": 0,
+        "completed": 4,
+        "test_identities": [
+          "com.realityforge.scanner.PhotographicViewerTest#actualDialogViewerRendersAfterActivityPauseAndResume",
+          "com.realityforge.scanner.PhotographicViewerTest#boundedLoaderPreservesActualCoordinatesUvsAndIndices",
+          "com.realityforge.scanner.PhotographicViewerTest#pngBudgetIsEnforcedBeforeImageDecode",
+          "com.realityforge.scanner.PhotographicViewerTest#malformedHeadersAndChunkBoundsFailClosed"
+        ],
+        "terminal_codes": [],
+        "errors": [
+          "adb/instrument command exited 124",
+          "Missing or unsuccessful terminal instrumentation code",
+          "Test failures/errors reported",
+          "Started and completed test identities disagree",
+          "Declared and completed test counts disagree",
+          "Missing or inconsistent successful JUnit summary"
+        ]
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.agents.a070.ViewerControlsTest",
+      "result": {
+        "status": "PASS",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 1,
+        "test_identities": [
+          "com.realityforge.scanner.agents.a070.ViewerControlsTest#zoomRotateAndFitWorkWithoutPinchOrDrag"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": []
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.agents.a070.RendererFallbackTest",
+      "result": {
+        "status": "PASS",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 1,
+        "test_identities": [
+          "com.realityforge.scanner.agents.a070.RendererFallbackTest#asynchronousAlternativeFailureActuallyMountsAndDrawsGlesFallback"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": []
+      }
+    }
+  ],
+  "status": "FAIL",
+  "artifacts": {
+    "/workspace/campaign-061-080/final-validation/3b9f9157753b/source/app/build/outputs/apk/debug/app-debug.apk": "0e60bc83d4d7e3838d98c4d7d969afef4ae8901a75ea18795fe7d4df65fe0585",
+    "/workspace/campaign-061-080/final-validation/3b9f9157753b/source/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "2e93c6656d30d2832626ac2302136f1ac50395037ba3a1d82cdd28d3440489f5"
+  }
+}

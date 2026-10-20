@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "tests": 18,
+  "compiler": "Kotlin 2.1.21/JDK17",
+  "foreign_source_commit": "14be63f8760aa7b497f2e56df649b4cccc0adf3e",
+  "command": [
+    "/workspace/toolchains/jdk-17.0.16+8/bin/java",
+    "-cp",
+    "/workspace/campaign-061-080/067-saf-bridge/classes:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.1.21/97a0975aa19d925e109537af60eb46902920015c/kotlin-stdlib-2.1.21.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.10.2/4a9f78ef49483748e2c129f3d124b8fa249dafbf/kotlinx-coroutines-core-jvm-1.10.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.jetbrains/annotations/23.0.0/8cc20c07506ec18e0834947b84a864bfc094484e/annotations-23.0.0.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/junit/junit/4.13.2/8ac9e16d933b6fb43bc7f576336b8f4d7eb5ba12/junit-4.13.2.jar:/workspace/toolchains/gradle-user/caches/modules-2/files-2.1/org.hamcrest/hamcrest-core/1.3/42a25dc3219429f0e5d060061f71acb49bf010a0/hamcrest-core-1.3.jar",
+    "org.junit.runner.JUnitCore",
+    "com.realityforge.scanner.agents.a067.SafExportCoordinatorTest"
+  ],
+  "evidence": "junit.log",
+  "evidence_sha256": "07551970851f2195feb6568e49e5f9c29398c948bd26f0fea6bf2facc9f93163",
+  "source_files_sha256": {
+    "/workspace/agent-work/067/app/src/main/java/com/realityforge/scanner/export/SafExportCoordinator.kt": "63510ccd3e7f7a9b75111552b94891b66b322702a082b077442b0457ad29b9f5",
+    "/workspace/agent-work/067/app/src/test/java/com/realityforge/scanner/agents/a067/SafExportCoordinatorTest.kt": "b090b40981e18b9584e5d220ebb7ff9fe8f9d1df6c7a8a64d53397a3a0a05a49",
+    "/workspace/campaign-061-080/067-saf-bridge/peer026/FileVerifiedExportSourceAccess.kt": "80de18fafff8f67d20e74d1a71a49540fa495abccddf4366029ce6e309f009bd",
+    "/workspace/campaign-061-080/067-saf-bridge/peer026/SafTransferPorts.kt": "df88fa1083d93222e3a733c3ea87a449233aa6e76d9680670afa9699e41c795d",
+    "/workspace/campaign-061-080/067-saf-bridge/peer026/DestinationTransferService.kt": "ec2a44cb089a47d487c9e51c4ad9575f78ce32c34048560c2dc17500673b584b",
+    "/workspace/campaign-061-080/067-saf-bridge/peer026/SafExportContracts.kt": "61a0f4f1d77161deccf3da6b81c50042a2c606a185a8ab415a19cfe375d87bca"
+  },
+  "limitation": "This focused JVM test uses actual026 services with test-only ports. Android integration/device provider tests remain separate."
+}

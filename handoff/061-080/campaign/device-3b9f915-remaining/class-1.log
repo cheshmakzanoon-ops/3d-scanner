@@ -1,0 +1,55 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a079.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a079.ScreenInteractionTest:
+INSTRUMENTATION_STATUS: test=actualAndroidPreferencesSurviveActivityAndStoreRecreation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a079.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualAndroidPreferencesSurviveActivityAndStoreRecreation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a079.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realControlsDispatchBoundActions
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a079.ScreenInteractionTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=2
+INSTRUMENTATION_STATUS: stack=java.lang.IllegalStateException: Visible semantic node missing: Dark
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.node(ScreenInteractionTest.kt:29)
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.click(ScreenInteractionTest.kt:32)
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.realControlsDispatchBoundActions(ScreenInteractionTest.kt:55)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realControlsDispatchBoundActions(com.realityforge.scanner.agents.a079.ScreenInteractionTest):
+java.lang.IllegalStateException: Visible semantic node missing: Dark
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.node(ScreenInteractionTest.kt:29)
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.click(ScreenInteractionTest.kt:32)
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.realControlsDispatchBoundActions(ScreenInteractionTest.kt:55)
+
+INSTRUMENTATION_STATUS: test=realControlsDispatchBoundActions
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 149.857
+There was 1 failure:
+1) realControlsDispatchBoundActions(com.realityforge.scanner.agents.a079.ScreenInteractionTest)
+java.lang.IllegalStateException: Visible semantic node missing: Dark
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.node(ScreenInteractionTest.kt:29)
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.click(ScreenInteractionTest.kt:32)
+	at com.realityforge.scanner.agents.a079.ScreenInteractionTest.realControlsDispatchBoundActions(ScreenInteractionTest.kt:55)
+
+FAILURES!!!
+Tests run: 2,  Failures: 1
+
+
+INSTRUMENTATION_CODE: -1

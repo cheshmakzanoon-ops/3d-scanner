@@ -1,0 +1,32 @@
+{
+  "schema": 13,
+  "dataset": "Real Middlebury Motorcycle, 228-pixel preview",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "baselineSha256": "457856bd2a2cf871001131c1ae7ce487c83b6bc804bdf1aefba64e16892ad68c",
+  "currentSha256": "fe9f918231fcdd6c22f06f2e51c3a13173e8393886f6d4341a57163e18dc4be9",
+  "baselineSeconds": [
+    0.4874890480000431,
+    0.5038530890000175,
+    0.5193174350000049,
+    0.5731136770000376,
+    0.49531946100000823
+  ],
+  "optimizedSeconds": [
+    0.14410651499997584,
+    0.15134316099999978,
+    0.14755757899996524,
+    0.14988889099998914,
+    0.15282702700000073
+  ],
+  "hostMedianSpeedup": 3.3615105538412045,
+  "geometryMaximumAbsoluteDeltas": {
+    "dense.points": 0.0,
+    "mesh.vertices": 0.0,
+    "mesh.triangles": 0.0
+  },
+  "densePoints": 4248,
+  "vertices": 2454,
+  "triangles": 3530,
+  "phonePerformanceVerified": false,
+  "geometryGatesUnchanged": true
+}

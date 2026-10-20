@@ -1,0 +1,47 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (No such file or directory)
+e: file:///workspace/campaign-061-080/final-validation/a18aa6eb6d8f/source/app/build.gradle.kts:78:31: Unresolved reference: net
+e: file:///workspace/campaign-061-080/final-validation/a18aa6eb6d8f/source/app/build.gradle.kts:81:13: Unresolved reference: connectTimeout
+e: file:///workspace/campaign-061-080/final-validation/a18aa6eb6d8f/source/app/build.gradle.kts:82:13: Unresolved reference: readTimeout
+e: file:///workspace/campaign-061-080/final-validation/a18aa6eb6d8f/source/app/build.gradle.kts:84:43: Cannot infer a type for this parameter. Please specify it explicitly.
+e: file:///workspace/campaign-061-080/final-validation/a18aa6eb6d8f/source/app/build.gradle.kts:87:27: Unresolved reference: security
+e: file:///workspace/campaign-061-080/final-validation/a18aa6eb6d8f/source/app/build.gradle.kts:89:33: Cannot infer a type for this parameter. Please specify it explicitly.
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/workspace/campaign-061-080/final-validation/a18aa6eb6d8f/source/app/build.gradle.kts' line: 78
+
+* What went wrong:
+Script compilation errors:
+
+  Line 78:         val connection = java.net.URI(
+                                         ^ Unresolved reference: net
+
+  Line 81:             connectTimeout = 30_000
+                       ^ Unresolved reference: connectTimeout
+
+  Line 82:             readTimeout = 60_000
+                       ^ Unresolved reference: readTimeout
+
+  Line 84:         connection.getInputStream().use { input ->
+                                                     ^ Cannot infer a type for this parameter. Please specify it explicitly.
+
+  Line 87:         val actual = java.security.MessageDigest.getInstance("SHA-256")
+                                     ^ Unresolved reference: security
+
+  Line 89:             .joinToString("") { byte -> "%02x".format(byte) }
+                                           ^ Cannot infer a type for this parameter. Please specify it explicitly.
+
+6 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 22s

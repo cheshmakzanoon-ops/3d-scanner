@@ -1,0 +1,1303 @@
+$ git merge-base --is-ancestor 931013353311becf909290f1791de92a239bfb2d HEAD
+
+$ git merge-base --is-ancestor 0f818763c5dab78291bee45af2408909a596dbad HEAD
+
+$ git merge-base --is-ancestor 65ec95d6c529c680d649e4bc8a930b67efa127cb HEAD
+
+$ git merge-base --is-ancestor 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd HEAD
+
+$ git merge --no-ff --no-edit 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 009 at 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd
+[detached HEAD a5f2d17] Temporary verification merge: 009 at 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd
+
+$ git merge-base --is-ancestor ce8ee61c936c518bb895aa8be849adc72aee9b8e HEAD
+
+$ git merge-base --is-ancestor c88fc09fb9605aba08fef07f83514bddcd3342b8 HEAD
+
+$ git merge-base --is-ancestor 14be63f8760aa7b497f2e56df649b4cccc0adf3e HEAD
+
+$ git merge-base --is-ancestor 73212fcf78f2dcd31c03cabad4227b5da657d3c5 HEAD
+
+$ git merge --no-ff --no-edit 73212fcf78f2dcd31c03cabad4227b5da657d3c5
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 061 at 73212fcf78f2dcd31c03cabad4227b5da657d3c5
+[detached HEAD c075709] Temporary verification merge: 061 at 73212fcf78f2dcd31c03cabad4227b5da657d3c5
+
+$ git merge-base --is-ancestor 31f1efb068cc0c00788b3f7d87c4ac4f4c1e6778 HEAD
+
+$ git merge-base --is-ancestor a443e42bb4983e36e7cf952619cf836b5519de34 HEAD
+
+$ git merge-base --is-ancestor 9b02e967707cda696645094e6e61c7130caa07be HEAD
+
+$ git merge-base --is-ancestor e4ed1e369e38ee562b09e9879f2069fe4261915c HEAD
+
+$ git merge --no-ff --no-edit e4ed1e369e38ee562b09e9879f2069fe4261915c
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 065 at e4ed1e369e38ee562b09e9879f2069fe4261915c
+[detached HEAD 00f6731] Temporary verification merge: 065 at e4ed1e369e38ee562b09e9879f2069fe4261915c
+
+$ git merge-base --is-ancestor a7cabb5bc778b91b056362762ca8c24820587ee1 HEAD
+
+$ git merge --no-ff --no-edit a7cabb5bc778b91b056362762ca8c24820587ee1
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 066 at a7cabb5bc778b91b056362762ca8c24820587ee1
+[detached HEAD 4a3d3ff] Temporary verification merge: 066 at a7cabb5bc778b91b056362762ca8c24820587ee1
+
+$ git merge-base --is-ancestor 98242d6bdced6f1d41a4b2211cf4a957feaaa6b6 HEAD
+
+$ git merge --no-ff --no-edit 98242d6bdced6f1d41a4b2211cf4a957feaaa6b6
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 067 at 98242d6bdced6f1d41a4b2211cf4a957feaaa6b6
+[detached HEAD c547643] Temporary verification merge: 067 at 98242d6bdced6f1d41a4b2211cf4a957feaaa6b6
+
+$ git merge-base --is-ancestor 0e85e76bdc38d0df80c627933a96a5d868c867fe HEAD
+
+$ git merge --no-ff --no-edit 0e85e76bdc38d0df80c627933a96a5d868c867fe
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 068 at 0e85e76bdc38d0df80c627933a96a5d868c867fe
+[detached HEAD c445df0] Temporary verification merge: 068 at 0e85e76bdc38d0df80c627933a96a5d868c867fe
+
+$ git merge-base --is-ancestor c137e6996477f35735f169b10c8b92112c551007 HEAD
+
+$ git merge --no-ff --no-edit c137e6996477f35735f169b10c8b92112c551007
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 069 at c137e6996477f35735f169b10c8b92112c551007
+[detached HEAD 791e507] Temporary verification merge: 069 at c137e6996477f35735f169b10c8b92112c551007
+
+$ git merge-base --is-ancestor 5c683605423d2c4c743bac2420192364ee430b44 HEAD
+
+$ git merge --no-ff --no-edit 5c683605423d2c4c743bac2420192364ee430b44
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 070 at 5c683605423d2c4c743bac2420192364ee430b44
+[detached HEAD 5dff1bb] Temporary verification merge: 070 at 5c683605423d2c4c743bac2420192364ee430b44
+
+$ git merge-base --is-ancestor 621c816991992be43e5d5591caea48bf1d56d721 HEAD
+
+$ git merge --no-ff --no-edit 621c816991992be43e5d5591caea48bf1d56d721
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 071 at 621c816991992be43e5d5591caea48bf1d56d721
+[detached HEAD 59c366f] Temporary verification merge: 071 at 621c816991992be43e5d5591caea48bf1d56d721
+
+$ git merge-base --is-ancestor 9cf8eaa2bd2d32de555e0b6a19a286eca044a67c HEAD
+
+$ git merge --no-ff --no-edit 9cf8eaa2bd2d32de555e0b6a19a286eca044a67c
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 072 at 9cf8eaa2bd2d32de555e0b6a19a286eca044a67c
+[detached HEAD 028e400] Temporary verification merge: 072 at 9cf8eaa2bd2d32de555e0b6a19a286eca044a67c
+
+$ git merge-base --is-ancestor 561181693abb1b41fb58f7b0a4cfbb39ed486404 HEAD
+
+$ git merge --no-ff --no-edit 561181693abb1b41fb58f7b0a4cfbb39ed486404
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 073 at 561181693abb1b41fb58f7b0a4cfbb39ed486404
+[detached HEAD d48a125] Temporary verification merge: 073 at 561181693abb1b41fb58f7b0a4cfbb39ed486404
+
+$ git merge-base --is-ancestor 8b86e93b3e2c810dd762bc87d8a6a2248c302c52 HEAD
+
+$ git merge --no-ff --no-edit 8b86e93b3e2c810dd762bc87d8a6a2248c302c52
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 074 at 8b86e93b3e2c810dd762bc87d8a6a2248c302c52
+[detached HEAD 4201252] Temporary verification merge: 074 at 8b86e93b3e2c810dd762bc87d8a6a2248c302c52
+
+$ git merge-base --is-ancestor e7766d8998881468c8a7750b634e5af5cb626411 HEAD
+
+$ git merge --no-ff --no-edit e7766d8998881468c8a7750b634e5af5cb626411
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 075 at e7766d8998881468c8a7750b634e5af5cb626411
+[detached HEAD 4ac3819] Temporary verification merge: 075 at e7766d8998881468c8a7750b634e5af5cb626411
+
+$ git merge-base --is-ancestor 63399f41996659bbfde5705907b9198fd9416d8d HEAD
+
+$ git merge --no-ff --no-edit 63399f41996659bbfde5705907b9198fd9416d8d
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 076 at 63399f41996659bbfde5705907b9198fd9416d8d
+[detached HEAD 4036c26] Temporary verification merge: 076 at 63399f41996659bbfde5705907b9198fd9416d8d
+
+$ git merge-base --is-ancestor 0c76ec2d2f9ab4dd3c7480036e9566b84307a515 HEAD
+
+$ git merge-base --is-ancestor 5e38c3a249ac39ca3c2f8882c4537c313adbf4d1 HEAD
+
+$ git merge --no-ff --no-edit 5e38c3a249ac39ca3c2f8882c4537c313adbf4d1
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 078 at 5e38c3a249ac39ca3c2f8882c4537c313adbf4d1
+[detached HEAD ce32d5f] Temporary verification merge: 078 at 5e38c3a249ac39ca3c2f8882c4537c313adbf4d1
+
+$ git merge-base --is-ancestor e2b205013bc4f459b1cde19935eaad49b58afc90 HEAD
+
+$ git merge --no-ff --no-edit e2b205013bc4f459b1cde19935eaad49b58afc90
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 079 at e2b205013bc4f459b1cde19935eaad49b58afc90
+[detached HEAD a01c66b] Temporary verification merge: 079 at e2b205013bc4f459b1cde19935eaad49b58afc90
+
+$ git merge-base --is-ancestor b30cdf56389bfe0e794ed8ec5ba89367a4441467 HEAD
+
+$ git merge --no-ff --no-edit b30cdf56389bfe0e794ed8ec5ba89367a4441467
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 080 at b30cdf56389bfe0e794ed8ec5ba89367a4441467
+[detached HEAD 3685bec] Temporary verification merge: 080 at b30cdf56389bfe0e794ed8ec5ba89367a4441467
+
+$ git merge-base --is-ancestor 0e5d9415c168c46a21899450dcd82c84886095f8 HEAD
+
+$ git merge --no-ff --no-edit 0e5d9415c168c46a21899450dcd82c84886095f8
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 088 at 0e5d9415c168c46a21899450dcd82c84886095f8
+[detached HEAD 79dcd6a] Temporary verification merge: 088 at 0e5d9415c168c46a21899450dcd82c84886095f8
+
+$ git rev-parse HEAD
+79dcd6a1f1f9701bb1432257b472f248c030bd69
+
+$ git merge-base --is-ancestor 931013353311becf909290f1791de92a239bfb2d HEAD
+
+$ git merge-base --is-ancestor 0f818763c5dab78291bee45af2408909a596dbad HEAD
+
+$ git merge-base --is-ancestor 65ec95d6c529c680d649e4bc8a930b67efa127cb HEAD
+
+$ git merge-base --is-ancestor 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd HEAD
+
+$ git merge-base --is-ancestor ce8ee61c936c518bb895aa8be849adc72aee9b8e HEAD
+
+$ git merge-base --is-ancestor c88fc09fb9605aba08fef07f83514bddcd3342b8 HEAD
+
+$ git merge-base --is-ancestor 14be63f8760aa7b497f2e56df649b4cccc0adf3e HEAD
+
+$ git merge-base --is-ancestor 73212fcf78f2dcd31c03cabad4227b5da657d3c5 HEAD
+
+$ git merge-base --is-ancestor 92f102f0d42230ce671e2349dc3fb1a610a3da35 HEAD
+
+$ git merge --no-ff --no-edit 92f102f0d42230ce671e2349dc3fb1a610a3da35
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 062 at 92f102f0d42230ce671e2349dc3fb1a610a3da35
+[detached HEAD ccb11fb] Temporary verification merge: 062 at 92f102f0d42230ce671e2349dc3fb1a610a3da35
+
+$ git merge-base --is-ancestor 51a362e57ab40cc6fd82988c6130c709f77537a5 HEAD
+
+$ git merge --no-ff --no-edit 51a362e57ab40cc6fd82988c6130c709f77537a5
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 063 at 51a362e57ab40cc6fd82988c6130c709f77537a5
+[detached HEAD aa36d43] Temporary verification merge: 063 at 51a362e57ab40cc6fd82988c6130c709f77537a5
+
+$ git merge-base --is-ancestor 9bfa724729c27d45fb591bcf5aeb12e54ac51392 HEAD
+
+$ git merge --no-ff --no-edit 9bfa724729c27d45fb591bcf5aeb12e54ac51392
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 064 at 9bfa724729c27d45fb591bcf5aeb12e54ac51392
+[detached HEAD de1cecc] Temporary verification merge: 064 at 9bfa724729c27d45fb591bcf5aeb12e54ac51392
+
+$ git merge-base --is-ancestor e4ed1e369e38ee562b09e9879f2069fe4261915c HEAD
+
+$ git merge-base --is-ancestor a7cabb5bc778b91b056362762ca8c24820587ee1 HEAD
+
+$ git merge-base --is-ancestor 5763a21d21057807b3b67563f4cddc6d0091c9b1 HEAD
+
+$ git merge --no-ff --no-edit 5763a21d21057807b3b67563f4cddc6d0091c9b1
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 067 at 5763a21d21057807b3b67563f4cddc6d0091c9b1
+[detached HEAD 49c77a1] Temporary verification merge: 067 at 5763a21d21057807b3b67563f4cddc6d0091c9b1
+
+$ git merge-base --is-ancestor 729fa9e209468fae54212581d2659026713a55e7 HEAD
+
+$ git merge --no-ff --no-edit 729fa9e209468fae54212581d2659026713a55e7
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 068 at 729fa9e209468fae54212581d2659026713a55e7
+[detached HEAD 6b329f2] Temporary verification merge: 068 at 729fa9e209468fae54212581d2659026713a55e7
+
+$ git merge-base --is-ancestor c137e6996477f35735f169b10c8b92112c551007 HEAD
+
+$ git merge-base --is-ancestor 5c683605423d2c4c743bac2420192364ee430b44 HEAD
+
+$ git merge-base --is-ancestor 621c816991992be43e5d5591caea48bf1d56d721 HEAD
+
+$ git merge-base --is-ancestor 15784131be98a0bff6a638641fad92fcd0f04887 HEAD
+
+$ git merge --no-ff --no-edit 15784131be98a0bff6a638641fad92fcd0f04887
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 072 at 15784131be98a0bff6a638641fad92fcd0f04887
+[detached HEAD 7b45d98] Temporary verification merge: 072 at 15784131be98a0bff6a638641fad92fcd0f04887
+
+$ git merge-base --is-ancestor d8990f8c6751f989bbbbfdce816b009179e3db40 HEAD
+
+$ git merge --no-ff --no-edit d8990f8c6751f989bbbbfdce816b009179e3db40
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 073 at d8990f8c6751f989bbbbfdce816b009179e3db40
+[detached HEAD 134f04e] Temporary verification merge: 073 at d8990f8c6751f989bbbbfdce816b009179e3db40
+
+$ git merge-base --is-ancestor b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b HEAD
+
+$ git merge --no-ff --no-edit b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 074 at b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b
+[detached HEAD ffc8427] Temporary verification merge: 074 at b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b
+
+$ git merge-base --is-ancestor 323c1daf366c9640243a69fa71b8ae26fcb7769b HEAD
+
+$ git merge --no-ff --no-edit 323c1daf366c9640243a69fa71b8ae26fcb7769b
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 075 at 323c1daf366c9640243a69fa71b8ae26fcb7769b
+[detached HEAD 9f83354] Temporary verification merge: 075 at 323c1daf366c9640243a69fa71b8ae26fcb7769b
+
+$ git merge-base --is-ancestor 63399f41996659bbfde5705907b9198fd9416d8d HEAD
+
+$ git merge-base --is-ancestor d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671 HEAD
+
+$ git merge --no-ff --no-edit d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 077 at d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671
+[detached HEAD 99a59b0] Temporary verification merge: 077 at d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671
+
+$ git merge-base --is-ancestor 5e38c3a249ac39ca3c2f8882c4537c313adbf4d1 HEAD
+
+$ git merge-base --is-ancestor 399df50b8c0e845bb4d45ebbe5d35e8817725d0e HEAD
+
+$ git merge --no-ff --no-edit 399df50b8c0e845bb4d45ebbe5d35e8817725d0e
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 079 at 399df50b8c0e845bb4d45ebbe5d35e8817725d0e
+[detached HEAD 44fda93] Temporary verification merge: 079 at 399df50b8c0e845bb4d45ebbe5d35e8817725d0e
+
+$ git merge-base --is-ancestor f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3 HEAD
+
+$ git merge --no-ff --no-edit f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 080 at f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3
+[detached HEAD a18aa6e] Temporary verification merge: 080 at f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3
+
+$ git merge-base --is-ancestor 0e5d9415c168c46a21899450dcd82c84886095f8 HEAD
+
+$ git rev-parse HEAD
+a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502
+
+$ git merge-base --is-ancestor 931013353311becf909290f1791de92a239bfb2d HEAD
+
+$ git merge-base --is-ancestor 0f818763c5dab78291bee45af2408909a596dbad HEAD
+
+$ git merge-base --is-ancestor 65ec95d6c529c680d649e4bc8a930b67efa127cb HEAD
+
+$ git merge-base --is-ancestor 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd HEAD
+
+$ git merge-base --is-ancestor ce8ee61c936c518bb895aa8be849adc72aee9b8e HEAD
+
+$ git merge-base --is-ancestor c88fc09fb9605aba08fef07f83514bddcd3342b8 HEAD
+
+$ git merge-base --is-ancestor 14be63f8760aa7b497f2e56df649b4cccc0adf3e HEAD
+
+$ git merge-base --is-ancestor de0153411abae6ad267e9460007c04991d464859 HEAD
+
+$ git merge --no-ff --no-edit de0153411abae6ad267e9460007c04991d464859
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 061 at de0153411abae6ad267e9460007c04991d464859
+[detached HEAD 1f704c3] Temporary verification merge: 061 at de0153411abae6ad267e9460007c04991d464859
+
+$ git merge-base --is-ancestor ae68b4255b7a1f605c71c533f34dba2c9d6c6aad HEAD
+
+$ git merge --no-ff --no-edit ae68b4255b7a1f605c71c533f34dba2c9d6c6aad
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 062 at ae68b4255b7a1f605c71c533f34dba2c9d6c6aad
+[detached HEAD 3baac6e] Temporary verification merge: 062 at ae68b4255b7a1f605c71c533f34dba2c9d6c6aad
+
+$ git merge-base --is-ancestor 3561dd0beff9727986a9192341a629a3dbd55b3d HEAD
+
+$ git merge --no-ff --no-edit 3561dd0beff9727986a9192341a629a3dbd55b3d
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 063 at 3561dd0beff9727986a9192341a629a3dbd55b3d
+[detached HEAD bf92f09] Temporary verification merge: 063 at 3561dd0beff9727986a9192341a629a3dbd55b3d
+
+$ git merge-base --is-ancestor c0a926daa9863c1b68a2fb8ea9b4759dca023134 HEAD
+
+$ git merge --no-ff --no-edit c0a926daa9863c1b68a2fb8ea9b4759dca023134
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 064 at c0a926daa9863c1b68a2fb8ea9b4759dca023134
+[detached HEAD 9816b52] Temporary verification merge: 064 at c0a926daa9863c1b68a2fb8ea9b4759dca023134
+
+$ git merge-base --is-ancestor c53e536dc8b07d1a51bfaad54642fa6e7ae139bc HEAD
+
+$ git merge --no-ff --no-edit c53e536dc8b07d1a51bfaad54642fa6e7ae139bc
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 065 at c53e536dc8b07d1a51bfaad54642fa6e7ae139bc
+[detached HEAD b1263fc] Temporary verification merge: 065 at c53e536dc8b07d1a51bfaad54642fa6e7ae139bc
+
+$ git merge-base --is-ancestor 61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a HEAD
+
+$ git merge --no-ff --no-edit 61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 066 at 61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a
+[detached HEAD 471975a] Temporary verification merge: 066 at 61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a
+
+$ git merge-base --is-ancestor 5f5719f803a88858a565b997ae980889ab66ceca HEAD
+
+$ git merge --no-ff --no-edit 5f5719f803a88858a565b997ae980889ab66ceca
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 067 at 5f5719f803a88858a565b997ae980889ab66ceca
+[detached HEAD 09b7cb5] Temporary verification merge: 067 at 5f5719f803a88858a565b997ae980889ab66ceca
+
+$ git merge-base --is-ancestor 6f1237c7efbe66356fae1a59f9065b151f2ab6d2 HEAD
+
+$ git merge --no-ff --no-edit 6f1237c7efbe66356fae1a59f9065b151f2ab6d2
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 068 at 6f1237c7efbe66356fae1a59f9065b151f2ab6d2
+[detached HEAD 90d0680] Temporary verification merge: 068 at 6f1237c7efbe66356fae1a59f9065b151f2ab6d2
+
+$ git merge-base --is-ancestor fb250011bdd303b3d3af8017b69e1f95d0b3c529 HEAD
+
+$ git merge --no-ff --no-edit fb250011bdd303b3d3af8017b69e1f95d0b3c529
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 069 at fb250011bdd303b3d3af8017b69e1f95d0b3c529
+[detached HEAD 5ca5573] Temporary verification merge: 069 at fb250011bdd303b3d3af8017b69e1f95d0b3c529
+
+$ git merge-base --is-ancestor 714ad3b3a8340db8461910c64cc5680f6353d9a1 HEAD
+
+$ git merge --no-ff --no-edit 714ad3b3a8340db8461910c64cc5680f6353d9a1
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 070 at 714ad3b3a8340db8461910c64cc5680f6353d9a1
+[detached HEAD fb0c428] Temporary verification merge: 070 at 714ad3b3a8340db8461910c64cc5680f6353d9a1
+
+$ git merge-base --is-ancestor 3a19ef1a6d1bf06882ec5d8dd92b4493429a6f10 HEAD
+
+$ git merge --no-ff --no-edit 3a19ef1a6d1bf06882ec5d8dd92b4493429a6f10
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 071 at 3a19ef1a6d1bf06882ec5d8dd92b4493429a6f10
+[detached HEAD 76bac1a] Temporary verification merge: 071 at 3a19ef1a6d1bf06882ec5d8dd92b4493429a6f10
+
+$ git merge-base --is-ancestor baaac4d17c638522c6f02c301b85557c7af7b420 HEAD
+
+$ git merge --no-ff --no-edit baaac4d17c638522c6f02c301b85557c7af7b420
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 072 at baaac4d17c638522c6f02c301b85557c7af7b420
+[detached HEAD c97cef2] Temporary verification merge: 072 at baaac4d17c638522c6f02c301b85557c7af7b420
+
+$ git merge-base --is-ancestor 196f4afa47532aa2179aa7bd6938f3327e746c62 HEAD
+
+$ git merge --no-ff --no-edit 196f4afa47532aa2179aa7bd6938f3327e746c62
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 073 at 196f4afa47532aa2179aa7bd6938f3327e746c62
+[detached HEAD afdd5d5] Temporary verification merge: 073 at 196f4afa47532aa2179aa7bd6938f3327e746c62
+
+$ git merge-base --is-ancestor be950605ca5881fe591bea7022792dc612c0024c HEAD
+
+$ git merge --no-ff --no-edit be950605ca5881fe591bea7022792dc612c0024c
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 074 at be950605ca5881fe591bea7022792dc612c0024c
+[detached HEAD 02a5b60] Temporary verification merge: 074 at be950605ca5881fe591bea7022792dc612c0024c
+
+$ git merge-base --is-ancestor e7f1c568d3bc5d2a6adb5562c94d469576c696dc HEAD
+
+$ git merge --no-ff --no-edit e7f1c568d3bc5d2a6adb5562c94d469576c696dc
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 075 at e7f1c568d3bc5d2a6adb5562c94d469576c696dc
+[detached HEAD 361d5b5] Temporary verification merge: 075 at e7f1c568d3bc5d2a6adb5562c94d469576c696dc
+
+$ git merge-base --is-ancestor 58197d124d34a8bce17552ccc6ad292dc4a78108 HEAD
+
+$ git merge --no-ff --no-edit 58197d124d34a8bce17552ccc6ad292dc4a78108
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 076 at 58197d124d34a8bce17552ccc6ad292dc4a78108
+[detached HEAD b756360] Temporary verification merge: 076 at 58197d124d34a8bce17552ccc6ad292dc4a78108
+
+$ git merge-base --is-ancestor b253e996283f4f01e72f9784823ce28c840fea03 HEAD
+
+$ git merge --no-ff --no-edit b253e996283f4f01e72f9784823ce28c840fea03
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 077 at b253e996283f4f01e72f9784823ce28c840fea03
+[detached HEAD 4c56a24] Temporary verification merge: 077 at b253e996283f4f01e72f9784823ce28c840fea03
+
+$ git merge-base --is-ancestor 2d91e44478dd26e3af51558fa4f2606025a96817 HEAD
+
+$ git merge --no-ff --no-edit 2d91e44478dd26e3af51558fa4f2606025a96817
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 078 at 2d91e44478dd26e3af51558fa4f2606025a96817
+[detached HEAD 9fc05d3] Temporary verification merge: 078 at 2d91e44478dd26e3af51558fa4f2606025a96817
+
+$ git merge-base --is-ancestor b92828231f0858e712232fc36d5645f2a9296342 HEAD
+
+$ git merge --no-ff --no-edit b92828231f0858e712232fc36d5645f2a9296342
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 079 at b92828231f0858e712232fc36d5645f2a9296342
+[detached HEAD a51c06d] Temporary verification merge: 079 at b92828231f0858e712232fc36d5645f2a9296342
+
+$ git merge-base --is-ancestor 731855cf1d415f7bc2a6305cc4eef9f1d60c33cb HEAD
+
+$ git merge --no-ff --no-edit 731855cf1d415f7bc2a6305cc4eef9f1d60c33cb
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 080 at 731855cf1d415f7bc2a6305cc4eef9f1d60c33cb
+[detached HEAD 3b9f915] Temporary verification merge: 080 at 731855cf1d415f7bc2a6305cc4eef9f1d60c33cb
+
+$ git merge-base --is-ancestor 0e5d9415c168c46a21899450dcd82c84886095f8 HEAD
+
+$ git rev-parse HEAD
+3b9f9157753b934350e05287a6ff33bbe46c665a
+
+$ git merge-base --is-ancestor 931013353311becf909290f1791de92a239bfb2d HEAD
+
+$ git merge-base --is-ancestor 71262455888e051fd03a1df06f276db0db461ef7 HEAD
+
+$ git merge --no-ff --no-edit 71262455888e051fd03a1df06f276db0db461ef7
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 004 at 71262455888e051fd03a1df06f276db0db461ef7
+[detached HEAD e022ca2] Temporary verification merge: 004 at 71262455888e051fd03a1df06f276db0db461ef7
+
+$ git merge-base --is-ancestor 65ec95d6c529c680d649e4bc8a930b67efa127cb HEAD
+
+$ git merge-base --is-ancestor 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd HEAD
+
+$ git merge-base --is-ancestor ce8ee61c936c518bb895aa8be849adc72aee9b8e HEAD
+
+$ git merge-base --is-ancestor c88fc09fb9605aba08fef07f83514bddcd3342b8 HEAD
+
+$ git merge-base --is-ancestor 14be63f8760aa7b497f2e56df649b4cccc0adf3e HEAD
+
+$ git merge-base --is-ancestor de0153411abae6ad267e9460007c04991d464859 HEAD
+
+$ git merge-base --is-ancestor ae68b4255b7a1f605c71c533f34dba2c9d6c6aad HEAD
+
+$ git merge-base --is-ancestor 3561dd0beff9727986a9192341a629a3dbd55b3d HEAD
+
+$ git merge-base --is-ancestor c0a926daa9863c1b68a2fb8ea9b4759dca023134 HEAD
+
+$ git merge-base --is-ancestor c53e536dc8b07d1a51bfaad54642fa6e7ae139bc HEAD
+
+$ git merge-base --is-ancestor 61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a HEAD
+
+$ git merge-base --is-ancestor 5f5719f803a88858a565b997ae980889ab66ceca HEAD
+
+$ git merge-base --is-ancestor 6f1237c7efbe66356fae1a59f9065b151f2ab6d2 HEAD
+
+$ git merge-base --is-ancestor fb250011bdd303b3d3af8017b69e1f95d0b3c529 HEAD
+
+$ git merge-base --is-ancestor 714ad3b3a8340db8461910c64cc5680f6353d9a1 HEAD
+
+$ git merge-base --is-ancestor 3a19ef1a6d1bf06882ec5d8dd92b4493429a6f10 HEAD
+
+$ git merge-base --is-ancestor baaac4d17c638522c6f02c301b85557c7af7b420 HEAD
+
+$ git merge-base --is-ancestor 196f4afa47532aa2179aa7bd6938f3327e746c62 HEAD
+
+$ git merge-base --is-ancestor be950605ca5881fe591bea7022792dc612c0024c HEAD
+
+$ git merge-base --is-ancestor e7f1c568d3bc5d2a6adb5562c94d469576c696dc HEAD
+
+$ git merge-base --is-ancestor 58197d124d34a8bce17552ccc6ad292dc4a78108 HEAD
+
+$ git merge-base --is-ancestor b253e996283f4f01e72f9784823ce28c840fea03 HEAD
+
+$ git merge-base --is-ancestor 2d91e44478dd26e3af51558fa4f2606025a96817 HEAD
+
+$ git merge-base --is-ancestor b92828231f0858e712232fc36d5645f2a9296342 HEAD
+
+$ git merge-base --is-ancestor d6c276045181a3bbe8ca5bc75cb734b58c0be7fc HEAD
+
+$ git merge --no-ff --no-edit d6c276045181a3bbe8ca5bc75cb734b58c0be7fc
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 080 at d6c276045181a3bbe8ca5bc75cb734b58c0be7fc
+[detached HEAD c5d6ad0] Temporary verification merge: 080 at d6c276045181a3bbe8ca5bc75cb734b58c0be7fc
+
+$ git merge-base --is-ancestor 0e5d9415c168c46a21899450dcd82c84886095f8 HEAD
+
+$ git rev-parse HEAD
+c5d6ad0180e9afec6833996cd9c3bb1e0e62a717
+
+$ git merge-base --is-ancestor 931013353311becf909290f1791de92a239bfb2d HEAD
+
+$ git merge-base --is-ancestor 71262455888e051fd03a1df06f276db0db461ef7 HEAD
+
+$ git merge-base --is-ancestor 65ec95d6c529c680d649e4bc8a930b67efa127cb HEAD
+
+$ git merge-base --is-ancestor 0cb6532d921e61a0e56ff0b310cafe6329f6f7cd HEAD
+
+$ git merge-base --is-ancestor ce8ee61c936c518bb895aa8be849adc72aee9b8e HEAD
+
+$ git merge-base --is-ancestor c88fc09fb9605aba08fef07f83514bddcd3342b8 HEAD
+
+$ git merge-base --is-ancestor 14be63f8760aa7b497f2e56df649b4cccc0adf3e HEAD
+
+$ git merge-base --is-ancestor de0153411abae6ad267e9460007c04991d464859 HEAD
+
+$ git merge-base --is-ancestor ae68b4255b7a1f605c71c533f34dba2c9d6c6aad HEAD
+
+$ git merge-base --is-ancestor 3561dd0beff9727986a9192341a629a3dbd55b3d HEAD
+
+$ git merge-base --is-ancestor c0a926daa9863c1b68a2fb8ea9b4759dca023134 HEAD
+
+$ git merge-base --is-ancestor c53e536dc8b07d1a51bfaad54642fa6e7ae139bc HEAD
+
+$ git merge-base --is-ancestor 61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a HEAD
+
+$ git merge-base --is-ancestor 5a94a62a2387cdf9309df743d2ecf69ee181ca07 HEAD
+
+$ git merge --no-ff --no-edit 5a94a62a2387cdf9309df743d2ecf69ee181ca07
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 067 at 5a94a62a2387cdf9309df743d2ecf69ee181ca07
+[detached HEAD 7849e50] Temporary verification merge: 067 at 5a94a62a2387cdf9309df743d2ecf69ee181ca07
+
+$ git merge-base --is-ancestor 6f1237c7efbe66356fae1a59f9065b151f2ab6d2 HEAD
+
+$ git merge-base --is-ancestor 1230d61816d2cc73889db4d6d48331a26973ebb4 HEAD
+
+$ git merge --no-ff --no-edit 1230d61816d2cc73889db4d6d48331a26973ebb4
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 069 at 1230d61816d2cc73889db4d6d48331a26973ebb4
+[detached HEAD 6eb5d3b] Temporary verification merge: 069 at 1230d61816d2cc73889db4d6d48331a26973ebb4
+
+$ git merge-base --is-ancestor bb01bca912af85d7edd973e7327e818fcbac2577 HEAD
+
+$ git merge --no-ff --no-edit bb01bca912af85d7edd973e7327e818fcbac2577
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 070 at bb01bca912af85d7edd973e7327e818fcbac2577
+[detached HEAD 7c1ec71] Temporary verification merge: 070 at bb01bca912af85d7edd973e7327e818fcbac2577
+
+$ git merge-base --is-ancestor 0cec378b19d65dbaef94f739ef16cea6ed294530 HEAD
+
+$ git merge --no-ff --no-edit 0cec378b19d65dbaef94f739ef16cea6ed294530
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 071 at 0cec378b19d65dbaef94f739ef16cea6ed294530
+[detached HEAD 0163402] Temporary verification merge: 071 at 0cec378b19d65dbaef94f739ef16cea6ed294530
+
+$ git merge-base --is-ancestor 7d918e90a260ce59877584314e8b1078a089cb75 HEAD
+
+$ git merge --no-ff --no-edit 7d918e90a260ce59877584314e8b1078a089cb75
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 072 at 7d918e90a260ce59877584314e8b1078a089cb75
+[detached HEAD a700fd0] Temporary verification merge: 072 at 7d918e90a260ce59877584314e8b1078a089cb75
+
+$ git merge-base --is-ancestor 196f4afa47532aa2179aa7bd6938f3327e746c62 HEAD
+
+$ git merge-base --is-ancestor 4507a0d78c997c7540160d7c09825314bc6317ff HEAD
+
+$ git merge --no-ff --no-edit 4507a0d78c997c7540160d7c09825314bc6317ff
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 074 at 4507a0d78c997c7540160d7c09825314bc6317ff
+[detached HEAD decfe36] Temporary verification merge: 074 at 4507a0d78c997c7540160d7c09825314bc6317ff
+
+$ git merge-base --is-ancestor 39049fa4cfc5180231e6649acc6577527d63b8ca HEAD
+
+$ git merge --no-ff --no-edit 39049fa4cfc5180231e6649acc6577527d63b8ca
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 075 at 39049fa4cfc5180231e6649acc6577527d63b8ca
+[detached HEAD 2e5b586] Temporary verification merge: 075 at 39049fa4cfc5180231e6649acc6577527d63b8ca
+
+$ git merge-base --is-ancestor e1a573bf92f5a40870efa438907a82af68d556a0 HEAD
+
+$ git merge --no-ff --no-edit e1a573bf92f5a40870efa438907a82af68d556a0
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 076 at e1a573bf92f5a40870efa438907a82af68d556a0
+[detached HEAD 746e3e4] Temporary verification merge: 076 at e1a573bf92f5a40870efa438907a82af68d556a0
+
+$ git merge-base --is-ancestor 6d4ae6a58272b0da99f548e7fdbfd5b27496e330 HEAD
+
+$ git merge --no-ff --no-edit 6d4ae6a58272b0da99f548e7fdbfd5b27496e330
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 077 at 6d4ae6a58272b0da99f548e7fdbfd5b27496e330
+[detached HEAD 636e1a4] Temporary verification merge: 077 at 6d4ae6a58272b0da99f548e7fdbfd5b27496e330
+
+$ git merge-base --is-ancestor 2d91e44478dd26e3af51558fa4f2606025a96817 HEAD
+
+$ git merge-base --is-ancestor c39338ebc8a4cdfc0606396807469bf8647f6374 HEAD
+
+$ git merge --no-ff --no-edit c39338ebc8a4cdfc0606396807469bf8647f6374
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 079 at c39338ebc8a4cdfc0606396807469bf8647f6374
+[detached HEAD 1fe900a] Temporary verification merge: 079 at c39338ebc8a4cdfc0606396807469bf8647f6374
+
+$ git merge-base --is-ancestor 2426c46ebbcc76ba41b19510c13c83c3633565c2 HEAD
+
+$ git merge --no-ff --no-edit 2426c46ebbcc76ba41b19510c13c83c3633565c2
+Auto-merging SOURCE_MANIFEST.sha256
+CONFLICT (content): Merge conflict in SOURCE_MANIFEST.sha256
+Automatic merge failed; fix conflicts and then commit the result.
+
+$ git diff --name-only --diff-filter=U
+SOURCE_MANIFEST.sha256
+
+$ git rm -f SOURCE_MANIFEST.sha256
+rm 'SOURCE_MANIFEST.sha256'
+
+$ git add SOURCE_MANIFEST.sha256
+
+$ git commit -m Temporary verification merge: 080 at 2426c46ebbcc76ba41b19510c13c83c3633565c2
+[detached HEAD e290ff5] Temporary verification merge: 080 at 2426c46ebbcc76ba41b19510c13c83c3633565c2
+
+$ git merge-base --is-ancestor 0e5d9415c168c46a21899450dcd82c84886095f8 HEAD
+
+$ git rev-parse HEAD
+e290ff56329322b4365298b97bba7df8b16d2470
+

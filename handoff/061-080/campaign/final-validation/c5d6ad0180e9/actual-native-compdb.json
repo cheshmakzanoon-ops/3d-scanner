@@ -1,0 +1,554 @@
+[
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_agent_061_asset_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -MD -MT CMakeFiles/agent_061_asset_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp.o -MF CMakeFiles/agent_061_asset_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp.o.d -o CMakeFiles/agent_061_asset_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp",
+    "output": "CMakeFiles/agent_061_asset_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/agent_061_asset_test.dir/link.d CMakeFiles/agent_061_asset_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp.o -o agent_061_asset_test  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so  /usr/lib/x86_64-linux-gnu/libz.so && :",
+    "file": "CMakeFiles/agent_061_asset_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_061_asset_test.cpp.o",
+    "output": "agent_061_asset_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_agent_062_obj_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -MD -MT CMakeFiles/agent_062_obj_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp.o -MF CMakeFiles/agent_062_obj_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp.o.d -o CMakeFiles/agent_062_obj_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp",
+    "output": "CMakeFiles/agent_062_obj_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/agent_062_obj_test.dir/link.d CMakeFiles/agent_062_obj_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp.o -o agent_062_obj_test  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so  /usr/lib/x86_64-linux-gnu/libz.so && :",
+    "file": "CMakeFiles/agent_062_obj_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_062_obj_test.cpp.o",
+    "output": "agent_062_obj_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_agent_063_stl_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -MD -MT CMakeFiles/agent_063_stl_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp.o -MF CMakeFiles/agent_063_stl_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp.o.d -o CMakeFiles/agent_063_stl_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp",
+    "output": "CMakeFiles/agent_063_stl_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/agent_063_stl_test.dir/link.d CMakeFiles/agent_063_stl_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp.o -o agent_063_stl_test  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so  /usr/lib/x86_64-linux-gnu/libz.so && :",
+    "file": "CMakeFiles/agent_063_stl_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_063_stl_test.cpp.o",
+    "output": "agent_063_stl_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_agent_064_ply_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -MD -MT CMakeFiles/agent_064_ply_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp.o -MF CMakeFiles/agent_064_ply_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp.o.d -o CMakeFiles/agent_064_ply_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp",
+    "output": "CMakeFiles/agent_064_ply_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/agent_064_ply_test.dir/link.d CMakeFiles/agent_064_ply_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp.o -o agent_064_ply_test  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so  /usr/lib/x86_64-linux-gnu/libz.so && :",
+    "file": "CMakeFiles/agent_064_ply_test.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_064_ply_test.cpp.o",
+    "output": "agent_064_ply_test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_agent_065_mesh_lod"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -MD -MT CMakeFiles/agent_065_mesh_lod.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp.o -MF CMakeFiles/agent_065_mesh_lod.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp.o.d -o CMakeFiles/agent_065_mesh_lod.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp",
+    "output": "CMakeFiles/agent_065_mesh_lod.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/agent_065_mesh_lod.dir/link.d CMakeFiles/agent_065_mesh_lod.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp.o -o agent_065_mesh_lod  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so  /usr/lib/x86_64-linux-gnu/libz.so && :",
+    "file": "CMakeFiles/agent_065_mesh_lod.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_065_mesh_lod.cpp.o",
+    "output": "agent_065_mesh_lod"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_agent_066_asset_edit"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=gnu++20 -Wall -Wextra -Wpedantic -Werror -UNDEBUG -MD -MT CMakeFiles/agent_066_asset_edit.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp.o -MF CMakeFiles/agent_066_asset_edit.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp.o.d -o CMakeFiles/agent_066_asset_edit.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp",
+    "output": "CMakeFiles/agent_066_asset_edit.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/agent_066_asset_edit.dir/link.d CMakeFiles/agent_066_asset_edit.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp.o -o agent_066_asset_edit  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so  /usr/lib/x86_64-linux-gnu/libz.so && :",
+    "file": "CMakeFiles/agent_066_asset_edit.dir/workspace/campaign-061-080/combined/reconstruction/tests/agent_066_asset_edit.cpp.o",
+    "output": "agent_066_asset_edit"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "CMakeFiles/test.util",
+    "output": "test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "CMakeFiles/edit_cache.util",
+    "output": "edit_cache"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "CMakeFiles/rebuild_cache.util",
+    "output": "rebuild_cache"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": ".",
+    "output": "cmake_object_order_depends_target_realityforge"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/core.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/core.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/pnp.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/pnp.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/multiview.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/multiview.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/bundle_adjustment.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/bundle_adjustment.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/dense.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/dense.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/surface.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/surface.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/texture.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/texture.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/photometric.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/photometric.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/cancellation.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/cancellation.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/depth_checkpoint.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/depth_checkpoint.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_model.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_model.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_model.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/asset_model.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/asset_model.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_model.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/glb_export.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/glb_export.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/glb_export.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/glb_export.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/glb_export.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/glb_export.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/obj_export.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/obj_export.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/obj_export.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/obj_export.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/obj_export.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/obj_export.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/stl_export.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/stl_export.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/stl_export.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/stl_export.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/stl_export.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/stl_export.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/ply_export.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/ply_export.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/ply_export.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/ply_export.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/ply_export.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/ply_export.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/mesh_lod.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/mesh_lod.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/mesh_lod.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/mesh_lod.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/mesh_lod.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/mesh_lod.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++ -Drealityforge_EXPORTS -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -fPIC -Wall -Wextra -Wpedantic -MD -MT baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_edit.cpp.o -MF baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_edit.cpp.o.d -o baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_edit.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/src/asset_edit.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/src/asset_edit.cpp",
+    "output": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_edit.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -fPIC -O3 -DNDEBUG  -Wl,--dependency-file=baseline/CMakeFiles/realityforge.dir/link.d -shared -Wl,-soname,librealityforge.so -o /workspace/campaign-061-080/combined/build/host/librealityforge.so baseline/CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/pnp.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/multiview.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/bundle_adjustment.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/dense.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/surface.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/texture.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/photometric.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/cancellation.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/depth_checkpoint.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_model.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/glb_export.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/obj_export.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/stl_export.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/ply_export.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/mesh_lod.cpp.o baseline/CMakeFiles/realityforge.dir/reconstruction/src/asset_edit.cpp.o  /usr/lib/x86_64-linux-gnu/libz.so && :",
+    "file": "baseline/CMakeFiles/realityforge.dir/reconstruction/src/core.cpp.o",
+    "output": "/workspace/campaign-061-080/combined/build/host/librealityforge.so"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_native_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o -MF baseline/CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o.d -o baseline/CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/core_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/core_test.cpp",
+    "output": "baseline/CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_native_tests.dir/link.d baseline/CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o -o baseline/rf_native_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_native_tests.dir/reconstruction/tests/core_test.cpp.o",
+    "output": "baseline/rf_native_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_multiview_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o -MF baseline/CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o.d -o baseline/CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/multiview_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/multiview_test.cpp",
+    "output": "baseline/CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_multiview_tests.dir/link.d baseline/CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o -o baseline/rf_multiview_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_multiview_tests.dir/reconstruction/tests/multiview_test.cpp.o",
+    "output": "baseline/rf_multiview_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_bundle_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o -MF baseline/CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o.d -o baseline/CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/bundle_adjustment_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/bundle_adjustment_test.cpp",
+    "output": "baseline/CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_bundle_tests.dir/link.d baseline/CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o -o baseline/rf_bundle_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_bundle_tests.dir/reconstruction/tests/bundle_adjustment_test.cpp.o",
+    "output": "baseline/rf_bundle_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_dense_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o -MF baseline/CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o.d -o baseline/CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/dense_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/dense_test.cpp",
+    "output": "baseline/CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_dense_tests.dir/link.d baseline/CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o -o baseline/rf_dense_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_dense_tests.dir/reconstruction/tests/dense_test.cpp.o",
+    "output": "baseline/rf_dense_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_surface_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o -MF baseline/CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o.d -o baseline/CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/surface_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/surface_test.cpp",
+    "output": "baseline/CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_surface_tests.dir/link.d baseline/CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o -o baseline/rf_surface_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_surface_tests.dir/reconstruction/tests/surface_test.cpp.o",
+    "output": "baseline/rf_surface_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_texture_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o -MF baseline/CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o.d -o baseline/CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/texture_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/texture_test.cpp",
+    "output": "baseline/CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_texture_tests.dir/link.d baseline/CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o -o baseline/rf_texture_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_texture_tests.dir/reconstruction/tests/texture_test.cpp.o",
+    "output": "baseline/rf_texture_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_photometric_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o -MF baseline/CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o.d -o baseline/CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/photometric_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/photometric_test.cpp",
+    "output": "baseline/CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_photometric_tests.dir/link.d baseline/CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o -o baseline/rf_photometric_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_photometric_tests.dir/reconstruction/tests/photometric_test.cpp.o",
+    "output": "baseline/rf_photometric_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_stereo_warp_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o -MF baseline/CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o.d -o baseline/CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/stereo_warp_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/stereo_warp_test.cpp",
+    "output": "baseline/CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_stereo_warp_tests.dir/link.d baseline/CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o -o baseline/rf_stereo_warp_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_stereo_warp_tests.dir/reconstruction/tests/stereo_warp_test.cpp.o",
+    "output": "baseline/rf_stereo_warp_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_dense_selection_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o -MF baseline/CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o.d -o baseline/CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/dense_selection_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/dense_selection_test.cpp",
+    "output": "baseline/CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_dense_selection_tests.dir/link.d baseline/CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o -o baseline/rf_dense_selection_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_dense_selection_tests.dir/reconstruction/tests/dense_selection_test.cpp.o",
+    "output": "baseline/rf_dense_selection_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_cancellation_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o -MF baseline/CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o.d -o baseline/CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/cancellation_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/cancellation_test.cpp",
+    "output": "baseline/CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_cancellation_tests.dir/link.d baseline/CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o -o baseline/rf_cancellation_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_cancellation_tests.dir/reconstruction/tests/cancellation_test.cpp.o",
+    "output": "baseline/rf_cancellation_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "cmake_object_order_depends_target_realityforge",
+    "output": "cmake_object_order_depends_target_rf_depth_checkpoint_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/usr/bin/c++  -I/workspace/campaign-061-080/combined/reconstruction/include -O3 -DNDEBUG -std=c++20 -UNDEBUG -MD -MT baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o -MF baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o.d -o baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o -c /workspace/campaign-061-080/combined/reconstruction/tests/depth_checkpoint_test.cpp",
+    "file": "/workspace/campaign-061-080/combined/reconstruction/tests/depth_checkpoint_test.cpp",
+    "output": "baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": ": && /usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/link.d baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o -o baseline/rf_depth_checkpoint_tests  -Wl,-rpath,/workspace/campaign-061-080/combined/build/host  /workspace/campaign-061-080/combined/build/host/librealityforge.so && :",
+    "file": "baseline/CMakeFiles/rf_depth_checkpoint_tests.dir/reconstruction/tests/depth_checkpoint_test.cpp.o",
+    "output": "baseline/rf_depth_checkpoint_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/CMakeFiles/test.util",
+    "output": "baseline/test"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/CMakeFiles/edit_cache.util",
+    "output": "baseline/edit_cache"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/CMakeFiles/rebuild_cache.util",
+    "output": "baseline/rebuild_cache"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "/workspace/campaign-061-080/combined/build/host/librealityforge.so",
+    "output": "librealityforge.so"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "/workspace/campaign-061-080/combined/build/host/librealityforge.so",
+    "output": "realityforge"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_bundle_tests",
+    "output": "rf_bundle_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_cancellation_tests",
+    "output": "rf_cancellation_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_dense_selection_tests",
+    "output": "rf_dense_selection_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_dense_tests",
+    "output": "rf_dense_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_depth_checkpoint_tests",
+    "output": "rf_depth_checkpoint_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_multiview_tests",
+    "output": "rf_multiview_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_native_tests",
+    "output": "rf_native_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_photometric_tests",
+    "output": "rf_photometric_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_stereo_warp_tests",
+    "output": "rf_stereo_warp_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_surface_tests",
+    "output": "rf_surface_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "baseline/rf_texture_tests",
+    "output": "rf_texture_tests"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "agent_061_asset_test",
+    "output": "all"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "",
+    "file": "/workspace/campaign-061-080/combined/build/host/librealityforge.so",
+    "output": "baseline/all"
+  },
+  {
+    "directory": "/workspace/campaign-061-080/native-harness/build",
+    "command": "/workspace/.venvs/3d-scanner/lib/python3.12/site-packages/cmake/data/bin/cmake --regenerate-during-build -S/workspace/campaign-061-080/native-harness -B/workspace/campaign-061-080/native-harness/build",
+    "file": "/workspace/.venvs/3d-scanner/lib/python3.12/site-packages/cmake/data/share/cmake-3.31/Modules/CMakeCXXInformation.cmake",
+    "output": "build.ninja"
+  }
+]

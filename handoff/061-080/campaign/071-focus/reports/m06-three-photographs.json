@@ -1,0 +1,14 @@
+{
+  "fixture": "synthetic rendered relief photographs; no physical object",
+  "cameraCount": 3,
+  "initialAnchorPoints": 524,
+  "thirdViewTrackCount": 244,
+  "bundlePoints": 524,
+  "jointSolver": "coupled_huber_schur_lm",
+  "medianErrorBefore": 0.00019534202193118,
+  "medianErrorAfter": 0.00018539503749347,
+  "costBefore": 6.2039957826965e-05,
+  "costAfter": 4.2044396335027e-05,
+  "acceptedSteps": 6,
+  "fixedAnchors": 2
+}

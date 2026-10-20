@@ -1,0 +1,1781 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="60" failures="16" skipped="0" tests="145" time="38.892" timestamp="2026-10-20T09:01:04.050819+00:00" hostname="06ddcaafa06e"><testcase classname="tests.test_agent_080_ui_evidence" name="test_success_collects_exact_identity_real_png_and_keeps_other_gates_open" time="1.959" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[zero]" time="1.729" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[skip]" time="2.036" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[failure]" time="1.355" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[wrong-test]" time="1.888" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[missing-terminal]" time="1.867" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[adb-failed]" time="1.914" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[no-screenshot]" time="1.399" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[stale-screenshot]" time="1.395" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[pull-failed]" time="1.846" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_command_success_alone_never_qualifies_bad_runner_or_evidence[install-failed]" time="0.873" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_unavailable_device_is_blocked_and_installs_nothing" time="0.276" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_stale_candidate_fails_before_any_device_operation[stale-head]" time="0.208" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_stale_candidate_fails_before_any_device_operation[changed-apk]" time="0.203" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_stale_candidate_fails_before_any_device_operation[dirty-source]" time="0.266" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_old_evidence_directory_is_not_reused" time="0.245" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_emulator_cannot_satisfy_physical_entrypoint" time="0.697" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_physical_entrypoint_requires_identified_hardware_and_capture_test" time="0.917" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_physical_adapter_accepts_explicit_operator_record_only_after_ui_execution" time="1.441" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_shared_controller_adapter_validates_identity_and_data_preservation[pass]" time="1.404" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_shared_controller_adapter_validates_identity_and_data_preservation[stale]" time="0.987" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_shared_controller_adapter_validates_identity_and_data_preservation[changed-original]" time="0.627" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_shared_controller_adapter_validates_identity_and_data_preservation[lost-previous]" time="0.582" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_shared_controller_adapter_validates_identity_and_data_preservation[no-tests]" time="0.747" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_shared_controller_adapter_validates_identity_and_data_preservation[invalid-types]" time="1.113" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_missing_owner088_dependency_is_explicit_unrun" time="0.792" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_png_crc_corruption_and_dimension_bomb_rejected" time="0.006" /><testcase classname="tests.test_agent_080_ui_evidence" name="test_completion_without_start_is_not_execution_evidence" time="0.001" /><testcase classname="tests.test_bundle_adjustment" name="test_joint_ba_improves_independent_perturbed_camera_and_points" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_joint_ba_removes_large_reprojection_outliers" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_solver_is_deterministic_under_fixed_observations" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[nan_camera]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[nan_point]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[duplicate_point]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[fractional_track]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[unknown_camera]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[zero_baseline]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[excess_iterations]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_bad_geometry_rejected_explicitly[bad_threshold]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_bundle_adjustment.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_bundle_adjustment" name="test_calibrated_synthetic_photographs_feed_actual_joint_solver" time="1.043"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def photographic():return run()
+                              ^^^^^
+
+tests/test_bundle_adjustment.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/bundle_three_view.py:21: in run
+    engine=NativeEngine()
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_camera_calibration" name="test_synthetic_checkerboard_calibration_recovers_intrinsics" time="1.261" /><testcase classname="tests.test_camera_calibration" name="test_opencv_brown_conrady_undistortion_roundtrip" time="0.001" /><testcase classname="tests.test_capture_audit" name="test_capture_audit_labels_synthetic_and_checks_overlap" time="1.016" /><testcase classname="tests.test_capture_audit" name="test_capture_audit_rejects_tampered_image" time="0.053" /><testcase classname="tests.test_capture_audit" name="test_capture_audit_rejects_duplicate_images" time="0.293" /><testcase classname="tests.test_capture_audit" name="test_capture_audit_rejects_path_traversal" time="0.041" /><testcase classname="tests.test_dense" name="test_low_texture_view_must_not_produce_fake_geometry" time="0.001"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_low_texture_view_must_not_produce_fake_geometry():
+        rgba=np.ones((2,40,48,4),dtype=np.uint8)*128
+        rgba[...,3]=255
+        camera=[]
+        for i in range(2):
+            camera.append([1,0,0,0,1,0,0,0,1,-i*.5,0,0,70,70,23.5,19.5])
+&gt;       result=NativeEngine().dense(rgba,np.asarray(camera),2.,8.,32,3)
+               ^^^^^^^^^^^^^^
+
+tests/test_dense.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_dense" name="test_malformed_rectified_camera_shapes_rejected" time="0.001"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_malformed_rectified_camera_shapes_rejected():
+        rgba=np.ones((2,40,48,4),dtype=np.uint8)*255
+        with pytest.raises(ValueError):
+&gt;           NativeEngine().dense(rgba,np.ones((2,12)),2,8)
+            ^^^^^^^^^^^^^^
+
+tests/test_dense.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_dense" name="test_real_stereo_depth_vs_independent_middlebury_ground_truth" time="0.415"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_real_stereo_depth_vs_independent_middlebury_ground_truth():
+&gt;       measured=run()
+                 ^^^^^
+
+tests/test_dense.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/benchmark_dense_middlebury.py:35: in run
+    result=NativeEngine().dense(np.asarray(rgba),np.asarray(cameras),near=6,far=80,
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_dense" name="test_dense_jni_wiring_and_explicit_limit_contract" time="0.001" /><testcase classname="tests.test_dense_multicamera" name="test_more_views_increase_observed_extent_on_fixed_reference_grid" time="0.034"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_more_views_increase_observed_extent_on_fixed_reference_grid():
+&gt;       report=run()
+               ^^^^^
+
+tests/test_dense_multicamera.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/benchmark_multiview_coverage.py:60: in run
+    engine=NativeEngine(); results={}
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_dense_multicamera" name="test_eight_camera_texture_atlas_has_valid_source_provenance" time="0.007"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-69/test_eight_camera_texture_atla0')
+
+    def test_eight_camera_texture_atlas_has_valid_source_provenance(tmp_path):
+        images,cameras=fixture()
+        glb=tmp_path/'multi.glb';png=tmp_path/'multi.png'
+&gt;       result=NativeEngine().textured_surface(images,images,cameras,3.1,7,64,2,
+               ^^^^^^^^^^^^^^
+            textured_glb=glb,atlas_png=png)
+
+tests/test_dense_multicamera.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_dense_multicamera" name="test_fully_masked_eighth_view_cannot_create_geometry" time="0.011"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_fully_masked_eighth_view_cannot_create_geometry():
+        images,cameras=fixture()
+        images[7,:,:,3]=0
+&gt;       result=NativeEngine().dense(images,cameras,3.1,7,40,3)
+               ^^^^^^^^^^^^^^
+
+tests/test_dense_multicamera.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_dense_multicamera" name="test_ninth_view_and_excessive_sampling_workload_rejected" time="0.009"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_ninth_view_and_excessive_sampling_workload_rejected():
+        images,cameras=fixture()
+        with pytest.raises(ValueError):
+&gt;           NativeEngine().dense(np.concatenate([images,images[:1]]),np.vstack([cameras,cameras[:1]]),3.1,7)
+            ^^^^^^^^^^^^^^
+
+tests/test_dense_multicamera.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_dense_multicamera" name="test_small_set_reference_plan_retains_all_sources" time="0.028"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_small_set_reference_plan_retains_all_sources():
+        images,cameras=fixture(4)
+&gt;       result=NativeEngine().dense(images,cameras,3.1,7,40,3)
+               ^^^^^^^^^^^^^^
+
+tests/test_dense_multicamera.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_multiview" name="test_pnp_recovers_camera_with_noise_and_outliers[1]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_recovers_camera_with_noise_and_outliers[17]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_recovers_camera_with_noise_and_outliers[81]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_recovers_camera_with_noise_and_outliers[170]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_deterministic" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_insufficient_tracks[0]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_insufficient_tracks[1]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_insufficient_tracks[8]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_insufficient_tracks[15]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_nonfinite[nan]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_nonfinite[inf]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_nonfinite[-inf]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_planar_geometry" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_pnp_rejects_bad_threshold" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+&gt;   def engine():return NativeEngine()
+                        ^^^^^^^^^^^^^^
+
+tests/test_multiview.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_actual_three_photographs_register_third_camera" time="0.966"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+    def three_camera():
+&gt;       return run_three(ROOT/'benchmarks/fixtures/relief')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_multiview.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/three_view.py:51: in run_three
+    engine=NativeEngine();anchor=engine.reconstruct(np.asarray(rows),1.5/min(k[0][0,0],k[1][0,0]))
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_multiview" name="test_third_photo_ground_truth" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope='module')
+    def three_camera():
+&gt;       return run_three(ROOT/'benchmarks/fixtures/relief')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_multiview.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/three_view.py:51: in run_three
+    engine=NativeEngine();anchor=engine.reconstruct(np.asarray(rows),1.5/min(k[0][0,0],k[1][0,0]))
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_exact_geometry_different_seeds[1]" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_exact_geometry_different_seeds[7]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_exact_geometry_different_seeds[19]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_exact_geometry_different_seeds[82]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_exact_geometry_different_seeds[131]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_outliers_with_noise[20]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_outliers_with_noise[45]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_outliers_with_noise[65]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_nonfinite_input_rejected[nan]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_nonfinite_input_rejected[inf]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_nonfinite_input_rejected[-inf]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_invalid_settings_rejected[0]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_invalid_settings_rejected[-0.001]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_invalid_settings_rejected[0.2]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_invalid_settings_rejected[nan]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_too_few_matches[0]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_too_few_matches[1]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_too_few_matches[7]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_too_few_matches[19]" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_pure_rotation_rejected" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_low_parallax_rejected" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_exact_planar_degeneracy_rejected" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_export_failure_is_reported" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_deterministic_same_seed" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_glb_point_contract_and_bounds" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_ply_output_counts" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_photographs_use_sift_and_actual_core" time="0.643"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=&lt;pluggy._tracing.TagTracerSub object at 0x7f5344ca1160&gt;, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-69'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def photo_result(tmp_path_factory):
+        folder=ROOT/"benchmarks/fixtures/relief"
+        meta=json.loads((folder/"calibration.json").read_text())
+        c1,c2=meta["cameras"][:2]
+        output=tmp_path_factory.mktemp("photo-result")
+&gt;       result=run(folder/c1["image"],folder/c2["image"],np.array(c1["K"]),np.array(c2["K"]),output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/photo_pair.py:48: in run
+    result=NativeEngine().reconstruct(rows,1.5/min(ka[0,0],ka[1,1],kb[0,0],kb[1,1]),output/"sparse.glb",output/"sparse.ply")
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_photo_pose_accuracy" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=&lt;pluggy._tracing.TagTracerSub object at 0x7f5344ca1160&gt;, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-69'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def photo_result(tmp_path_factory):
+        folder=ROOT/"benchmarks/fixtures/relief"
+        meta=json.loads((folder/"calibration.json").read_text())
+        c1,c2=meta["cameras"][:2]
+        output=tmp_path_factory.mktemp("photo-result")
+&gt;       result=run(folder/c1["image"],folder/c2["image"],np.array(c1["K"]),np.array(c2["K"]),output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/photo_pair.py:48: in run
+    result=NativeEngine().reconstruct(rows,1.5/min(ka[0,0],ka[1,1],kb[0,0],kb[1,1]),output/"sparse.glb",output/"sparse.ply")
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_photo_surface_accuracy" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=&lt;pluggy._tracing.TagTracerSub object at 0x7f5344ca1160&gt;, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-69'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def photo_result(tmp_path_factory):
+        folder=ROOT/"benchmarks/fixtures/relief"
+        meta=json.loads((folder/"calibration.json").read_text())
+        c1,c2=meta["cameras"][:2]
+        output=tmp_path_factory.mktemp("photo-result")
+&gt;       result=run(folder/c1["image"],folder/c2["image"],np.array(c1["K"]),np.array(c2["K"]),output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/photo_pair.py:48: in run
+    result=NativeEngine().reconstruct(rows,1.5/min(ka[0,0],ka[1,1],kb[0,0],kb[1,1]),output/"sparse.glb",output/"sparse.ply")
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_photo_exports_structurally_valid" time="0.000"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=None, _trace=&lt;pluggy._tracing.TagTracerSub object at 0x7f5344ca1160&gt;, _basetemp=PosixPath('/tmp/pytest-of-agent/pytest-69'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="session")
+    def photo_result(tmp_path_factory):
+        folder=ROOT/"benchmarks/fixtures/relief"
+        meta=json.loads((folder/"calibration.json").read_text())
+        c1,c2=meta["cameras"][:2]
+        output=tmp_path_factory.mktemp("photo-result")
+&gt;       result=run(folder/c1["image"],folder/c2["image"],np.array(c1["K"]),np.array(c2["K"]),output)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/photo_pair.py:48: in run
+    result=NativeEngine().reconstruct(rows,1.5/min(ka[0,0],ka[1,1],kb[0,0],kb[1,1]),output/"sparse.glb",output/"sparse.ply")
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_pipeline" name="test_python_bridge_shape_validation" time="0.001"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="session")
+&gt;   def engine(): return NativeEngine()
+                         ^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:17: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_project_contracts" name="test_manifest_strips_network_permissions" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_xml_well_formed[path0]" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_xml_well_formed[path1]" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_xml_well_formed[path2]" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_xml_well_formed[path3]" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_xml_well_formed[path4]" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_jni_names_match_declared_methods" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_no_dynamic_dependency_versions" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_sparse_output_disclosed_in_ui" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_revision_guard_in_database" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_lens_calibration_is_wired_to_all_reconstruction_stages" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_export_artifact_key_supports_milestone_versions" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_source_manifest_matches_every_tracked_artifact" time="0.010" /><testcase classname="tests.test_project_contracts" name="test_capture_package_requires_explicit_destination_and_preserves_hashes" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_bundle_adjustment_engine_and_jni_have_true_joint_contract" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_dense_source_is_bounded_cpu_reference_and_preserves_sparse_fallback" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_m09_camera_projected_uvs_are_embedded_and_exportable" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_session_reopen_and_export_have_revision_and_operation_guards" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_adaptive_dense_adapter_has_eight_view_and_bitmap_lifetime_guards" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_incremental_registration_uses_shared_triangulation_and_verified_landmarks" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_track_snapshot_enforces_native_observation_bound" time="0.000" /><testcase classname="tests.test_project_contracts" name="test_m17_native_cancellation_uses_scoped_tokens_not_global_stop" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_cancelled_worker_has_native_and_android_regressions" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_m18_depth_resume_is_input_identified_atomic_and_native_scoped" time="0.001" /><testcase classname="tests.test_project_contracts" name="test_m19_persisted_scan_evidence_and_local_export" time="0.001" /><testcase classname="tests.test_real_benchmark" name="test_middlebury_real_images_reconstruct_without_ground_truth_in_matching" time="0.907"><error message="failed on setup with &quot;FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host&quot;">@pytest.fixture(scope="module")
+    def result():
+        pytest.importorskip("skimage")
+&gt;       return benchmark()
+               ^^^^^^^^^^^
+
+tests/test_real_benchmark.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/benchmark_middlebury.py:121: in benchmark
+    native = NativeEngine().reconstruct(matches, 1.5 / FOCAL_PIXELS)
+             ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</error></testcase><testcase classname="tests.test_real_benchmark" name="test_real_benchmark_refuses_invalid_or_missing_ground_truth" time="0.001" /><testcase classname="tests.test_screenshot_artifact" name="test_valid_png_is_checked" time="0.001" /><testcase classname="tests.test_screenshot_artifact" name="test_adb_errors_and_corrupt_images_are_rejected[run-as: unknown package: com.realityforge.scanner\n]" time="0.001" /><testcase classname="tests.test_screenshot_artifact" name="test_adb_errors_and_corrupt_images_are_rejected[\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x80\x00\x00\x00\x80\x08\x02\x00\x00\x00L\\xf6\x9c\x00\x00\x00\xfaIDATx\x9c\xed\xd1A\r\x00 \x0c\xc0\xc0I@\x02\x12\xf0\xaf\x0e\x19{\xf4\x92\nhrs\xee\xd3b\xb3~\x10\x0f\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda}&quot;\x00\x01iN\xd2T\xdb\x00\x00]" time="0.001" /><testcase classname="tests.test_screenshot_artifact" name="test_adb_errors_and_corrupt_images_are_rejected[\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x80\x00\x00\x00\x80\x08\x02\x00\x00\x00L\\xf6\x9c\x00\x00\x00\xfaIDATx\x9c\xed\xd1A\r\x00 \x0c\xc0\xc0I@\x02\x12\xf0\xaf\x0e\x19{\xf4\x92\nhrs\xee\xd3b\xb3~\x10\x0f\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda}&quot;\x00\x01iN\xd2T\xdb\x00\x00\x00\x00IEND\xaeB`x]" time="0.001" /><testcase classname="tests.test_screenshot_artifact" name="test_adb_errors_and_corrupt_images_are_rejected[\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x80\x00\x00\x00\x80\x08\x02\x00\x00\x00L\\xf6\x9c\x00\x00\x00\xfaIDATx\x9c\xed\xd1A\r\x00 \x0c\xc0\xc0I@\x02\x12\xf0\xaf\x0e\x19{\xf4\x92\nhrs\xee\xd3b\xb3~\x10\x0f\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda\x01\x00\xd0\x0e\x00\x80v\x00\x00\xb4\x03\x00\xa0\x1d\x00\x00\xed\x00\x00h\x07\x00@;\x00\x00\xda}&quot;\x00\x01iN\xd2T\xdb\x00\x00\x00\x00IEND\xaeB`\x82unwanted output]" time="0.001" /><testcase classname="tests.test_surface" name="test_uniform_photographs_do_not_generate_false_mesh" time="0.001"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-69/test_uniform_photographs_do_no0')
+
+    def test_uniform_photographs_do_not_generate_false_mesh(tmp_path):
+        rgba=np.full((2,44,60,4),128,np.uint8);rgba[...,3]=255
+        cams=np.array([[1,0,0,0,1,0,0,0,1,-i*.6,0,0,95,95,29.5,21.5] for i in range(2)],float)
+        glb=tmp_path/'unsupported.glb'
+&gt;       result=NativeEngine().surface(rgba,cams,2.,8.,32,3,glb=glb)
+               ^^^^^^^^^^^^^^
+
+tests/test_surface.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_surface" name="test_invalid_surface_buffers_rejected_without_native_crash" time="0.001"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_invalid_surface_buffers_rejected_without_native_crash():
+&gt;       engine=NativeEngine()
+               ^^^^^^^^^^^^^^
+
+tests/test_surface.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_surface" name="test_real_photographs_generate_indexed_open_surfaces" time="0.076"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_real_photographs_generate_indexed_open_surfaces():
+&gt;       result=run_real()
+               ^^^^^^^^^^
+
+tests/test_surface.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/benchmark_surface_middlebury.py:30: in run
+    native=NativeEngine().surface(np.asarray(images),cameras,6.,80.,planes,3,glb=glb,ply=ply)
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_surface" name="test_mesh_glb_and_ply_contain_actual_triangle_faces" time="0.070"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-69/test_mesh_glb_and_ply_contain_0')
+
+    def test_mesh_glb_and_ply_contain_actual_triangle_faces(tmp_path):
+        glb=tmp_path/'real-surface.glb';ply=tmp_path/'real-surface.ply'
+&gt;       metrics=run_real(glb=glb,ply=ply)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_surface.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/benchmark_surface_middlebury.py:30: in run
+    native=NativeEngine().surface(np.asarray(images),cameras,6.,80.,planes,3,glb=glb,ply=ply)
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_surface" name="test_android_mesh_is_shown_and_exportable_without_network_calls" time="0.001" /><testcase classname="tests.test_texture" name="test_uniform_photos_do_not_invent_textures" time="0.001"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-69/test_uniform_photos_do_not_inv0')
+
+    def test_uniform_photos_do_not_invent_textures(tmp_path):
+        rgba,cams=simple_scene()
+        png=tmp_path/'unsupported.png';glb=tmp_path/'unsupported.glb'
+&gt;       out=NativeEngine().textured_surface(rgba,rgba,cams,2,9,32,3,
+            ^^^^^^^^^^^^^^
+                                            textured_glb=glb,atlas_png=png)
+
+tests/test_texture.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_texture" name="test_invalid_shapes_rejected_before_read" time="0.000"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">def test_invalid_shapes_rejected_before_read():
+        rgba,cams=simple_scene()
+&gt;       with pytest.raises(ValueError):NativeEngine().textured_surface(rgba,rgba[:1],cams,2,8)
+                                       ^^^^^^^^^^^^^^
+
+tests/test_texture.py:40: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_texture" name="test_real_image_texture_is_embedded_losslessly" time="0.073"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-69/test_real_image_texture_is_emb0')
+
+    def test_real_image_texture_is_embedded_losslessly(tmp_path):
+&gt;       result=real_texture(tmp_path)
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_texture.py:47: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/benchmark_texture_middlebury.py:52: in run
+    output=NativeEngine().textured_surface(low,high,cameras,6.,80.,64,3,
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_texture" name="test_actual_uv_geometry_corresponds_to_photo_projection" time="0.085"><failure message="FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-69/test_actual_uv_geometry_corres0')
+
+    def test_actual_uv_geometry_corresponds_to_photo_projection(tmp_path):
+&gt;       real_texture(tmp_path)
+
+tests/test_texture.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/benchmark_texture_middlebury.py:52: in run
+    output=NativeEngine().textured_surface(low,high,cameras,6.,80.,64,3,
+           ^^^^^^^^^^^^^^
+tools/native_api.py:27: in __init__
+    self.library=ctypes.CDLL(str(path or library_path()))
+                                         ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def library_path() -&gt; Path:
+        override=os.environ.get("RF_NATIVE_LIBRARY")
+        if override:
+            return Path(override)
+        name={"Linux":"librealityforge.so","Darwin":"librealityforge.dylib","Windows":"realityforge.dll"}[platform.system()]
+        for parent in [ROOT/"build/host",ROOT/"build/host/Release",ROOT/"build"]:
+            path=parent/name
+            if path.exists(): return path
+&gt;       raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host")
+E       FileNotFoundError: Build the C++ library first: cmake -S . -B build/host &amp;&amp; cmake --build build/host
+
+tools/native_api.py:22: FileNotFoundError</failure></testcase><testcase classname="tests.test_texture" name="test_android_source_has_fallback_for_photo_preprocess_failure" time="0.001" /></testsuite></testsuites>

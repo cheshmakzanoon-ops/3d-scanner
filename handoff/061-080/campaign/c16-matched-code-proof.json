@@ -1,0 +1,595 @@
+{
+  "061": {
+    "role_head_before_receipt": "73212fcf78f2dcd31c03cabad4227b5da657d3c5",
+    "planned_input_sha": "73212fcf78f2dcd31c03cabad4227b5da657d3c5",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "reconstruction/include/realityforge/asset_model.hpp": {
+        "role_blob_oid": "2689da8c058958ef1a4cabc7eb5285e736f6ecd4",
+        "combined_blob_oid": "2689da8c058958ef1a4cabc7eb5285e736f6ecd4"
+      },
+      "reconstruction/include/realityforge/glb_export.hpp": {
+        "role_blob_oid": "53c313c01d5a8ed3034a465ac835268e707e4211",
+        "combined_blob_oid": "53c313c01d5a8ed3034a465ac835268e707e4211"
+      },
+      "reconstruction/src/asset_model.cpp": {
+        "role_blob_oid": "43980183fcd364b8e1fc29f7813fbe3ae0721784",
+        "combined_blob_oid": "43980183fcd364b8e1fc29f7813fbe3ae0721784"
+      },
+      "reconstruction/src/glb_export.cpp": {
+        "role_blob_oid": "647cce2a80ff94ee88da170fe948f5b0e0db6dfb",
+        "combined_blob_oid": "647cce2a80ff94ee88da170fe948f5b0e0db6dfb"
+      },
+      "reconstruction/tests/agent_061_asset_test.cpp": {
+        "role_blob_oid": "b6d5aaae1ef48056bee79a2f0155fac03461a37d",
+        "combined_blob_oid": "b6d5aaae1ef48056bee79a2f0155fac03461a37d"
+      },
+      "tests/test_agent_061_asset_contract.py": {
+        "role_blob_oid": "8b56594f334b65c116d159f15e46088181c2cc28",
+        "combined_blob_oid": "8b56594f334b65c116d159f15e46088181c2cc28"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "062": {
+    "role_head_before_receipt": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+    "planned_input_sha": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "reconstruction/include/realityforge/obj_export.hpp": {
+        "role_blob_oid": "e1025b7c43b4413b27a489ef84dbe0ee02580d60",
+        "combined_blob_oid": "e1025b7c43b4413b27a489ef84dbe0ee02580d60"
+      },
+      "reconstruction/src/obj_export.cpp": {
+        "role_blob_oid": "3fa39b44e01fabff49da1b87f98589a0e6f5d6aa",
+        "combined_blob_oid": "3fa39b44e01fabff49da1b87f98589a0e6f5d6aa"
+      },
+      "reconstruction/tests/agent_062_obj_test.cpp": {
+        "role_blob_oid": "82d639115877f7d532901a6f9b873ca11958a1dd",
+        "combined_blob_oid": "82d639115877f7d532901a6f9b873ca11958a1dd"
+      },
+      "tests/test_agent_062_obj.py": {
+        "role_blob_oid": "8ee6dcccc2c011052dfe0cfc4e040c9dbc68fc90",
+        "combined_blob_oid": "8ee6dcccc2c011052dfe0cfc4e040c9dbc68fc90"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "063": {
+    "role_head_before_receipt": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+    "planned_input_sha": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "reconstruction/include/realityforge/stl_export.hpp": {
+        "role_blob_oid": "19b073eea2f437d6be3390a640a8fc4fae7e9a7e",
+        "combined_blob_oid": "19b073eea2f437d6be3390a640a8fc4fae7e9a7e"
+      },
+      "reconstruction/src/stl_export.cpp": {
+        "role_blob_oid": "3f563c80c7df8cf508432113ddbd68bafefa924b",
+        "combined_blob_oid": "3f563c80c7df8cf508432113ddbd68bafefa924b"
+      },
+      "reconstruction/tests/agent_063_stl_test.cpp": {
+        "role_blob_oid": "68ba3b9f6edd04ea17d11c7ebddcacbcd3751bc5",
+        "combined_blob_oid": "68ba3b9f6edd04ea17d11c7ebddcacbcd3751bc5"
+      },
+      "tests/test_agent_063_stl.py": {
+        "role_blob_oid": "1de429390a7d354411170cca6c4bb250c5f07903",
+        "combined_blob_oid": "1de429390a7d354411170cca6c4bb250c5f07903"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "064": {
+    "role_head_before_receipt": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+    "planned_input_sha": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "reconstruction/include/realityforge/ply_export.hpp": {
+        "role_blob_oid": "f8d4da7b8215e6c640c05f6857a9301bbddfc8c2",
+        "combined_blob_oid": "f8d4da7b8215e6c640c05f6857a9301bbddfc8c2"
+      },
+      "reconstruction/src/ply_export.cpp": {
+        "role_blob_oid": "7bd6323607ff435ea02eb22bd8624a6e25c34125",
+        "combined_blob_oid": "7bd6323607ff435ea02eb22bd8624a6e25c34125"
+      },
+      "reconstruction/tests/agent_064_ply_test.cpp": {
+        "role_blob_oid": "17e712d59c32a98d44e6752f71fbc54c0a4d20d3",
+        "combined_blob_oid": "17e712d59c32a98d44e6752f71fbc54c0a4d20d3"
+      },
+      "tests/test_agent_064_ply.py": {
+        "role_blob_oid": "2a2f70741339a99f6824350e99b0a2fb5fdc78c2",
+        "combined_blob_oid": "2a2f70741339a99f6824350e99b0a2fb5fdc78c2"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "065": {
+    "role_head_before_receipt": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+    "planned_input_sha": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "reconstruction/include/realityforge/mesh_lod.hpp": {
+        "role_blob_oid": "613a0402f352088daea9beca24fce82b60e433dc",
+        "combined_blob_oid": "613a0402f352088daea9beca24fce82b60e433dc"
+      },
+      "reconstruction/src/mesh_lod.cpp": {
+        "role_blob_oid": "ac08bf7bfe0d90423a12a0f4001ffc192f7f217c",
+        "combined_blob_oid": "ac08bf7bfe0d90423a12a0f4001ffc192f7f217c"
+      },
+      "reconstruction/tests/agent_065_mesh_lod.cpp": {
+        "role_blob_oid": "a3db59da7ae14a15ebf4474649d401a5aa479dee",
+        "combined_blob_oid": "a3db59da7ae14a15ebf4474649d401a5aa479dee"
+      },
+      "tests/test_agent_065_mesh_lod.py": {
+        "role_blob_oid": "f278b55da202a7cdf0fd078625df9d7094b94b23",
+        "combined_blob_oid": "f278b55da202a7cdf0fd078625df9d7094b94b23"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "066": {
+    "role_head_before_receipt": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+    "planned_input_sha": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a066/EditHistoryDeviceTest.kt": {
+        "role_blob_oid": "f0e8f17e9ba80b3cdc867d6ae54d7d9714d08a06",
+        "combined_blob_oid": "f0e8f17e9ba80b3cdc867d6ae54d7d9714d08a06"
+      },
+      "app/src/main/java/com/realityforge/scanner/studio/editing/EditController.kt": {
+        "role_blob_oid": "c8ae03ff493206ab518e313a808f928fd5d5bec4",
+        "combined_blob_oid": "c8ae03ff493206ab518e313a808f928fd5d5bec4"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a066/EditControllerTest.kt": {
+        "role_blob_oid": "cf61af6ad28a8c8a605945e3cdad76eda37e43be",
+        "combined_blob_oid": "cf61af6ad28a8c8a605945e3cdad76eda37e43be"
+      },
+      "reconstruction/include/realityforge/asset_edit.hpp": {
+        "role_blob_oid": "8902d6bedaa2096b6deacfefebee363be4e3c2e0",
+        "combined_blob_oid": "8902d6bedaa2096b6deacfefebee363be4e3c2e0"
+      },
+      "reconstruction/src/asset_edit.cpp": {
+        "role_blob_oid": "0d9f48dc8d8a15611064ef0b654d80651e147c37",
+        "combined_blob_oid": "0d9f48dc8d8a15611064ef0b654d80651e147c37"
+      },
+      "reconstruction/tests/agent_066_asset_edit.cpp": {
+        "role_blob_oid": "f916066f84f27bfa655202c439a69d99f16fbadb",
+        "combined_blob_oid": "f916066f84f27bfa655202c439a69d99f16fbadb"
+      },
+      "tests/test_agent_066_asset_edit.py": {
+        "role_blob_oid": "55147f78d37ca6c85ef0729fef965f023646061f",
+        "combined_blob_oid": "55147f78d37ca6c85ef0729fef965f023646061f"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "068": {
+    "role_head_before_receipt": "729fa9e209468fae54212581d2659026713a55e7",
+    "planned_input_sha": "729fa9e209468fae54212581d2659026713a55e7",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a068/GlbParserCorpusTest.kt": {
+        "role_blob_oid": "fe984b6ab500828aa3457a8dc09e340d0919f573",
+        "combined_blob_oid": "fe984b6ab500828aa3457a8dc09e340d0919f573"
+      },
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a068/GlbParserHostHarness.java": {
+        "role_blob_oid": "82be6b765eea49434a69467133ecade7f1ad2351",
+        "combined_blob_oid": "82be6b765eea49434a69467133ecade7f1ad2351"
+      },
+      "app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt": {
+        "role_blob_oid": "f914cf8d3395e9b986dd606f679b68730e8a27fc",
+        "combined_blob_oid": "f914cf8d3395e9b986dd606f679b68730e8a27fc"
+      },
+      "app/src/main/java/com/realityforge/scanner/viewer/loading/GlbStructure.kt": {
+        "role_blob_oid": "83b5727cf7581978f7e25ebc14e67e305b31549d",
+        "combined_blob_oid": "83b5727cf7581978f7e25ebc14e67e305b31549d"
+      },
+      "app/src/main/java/com/realityforge/scanner/viewer/loading/PhotographicModelLoader.kt": {
+        "role_blob_oid": "2a5784de910d680da8a83390cc9c71529c082fa3",
+        "combined_blob_oid": "2a5784de910d680da8a83390cc9c71529c082fa3"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a068/StrictJsonTest.kt": {
+        "role_blob_oid": "e478887f9d1c09361dd0987efc983d45e4ad415a",
+        "combined_blob_oid": "e478887f9d1c09361dd0987efc983d45e4ad415a"
+      },
+      "tests/test_agent_068_parser_host.py": {
+        "role_blob_oid": "54ca9e1cb1a07fa3d5302647454cb6ed7011cb79",
+        "combined_blob_oid": "54ca9e1cb1a07fa3d5302647454cb6ed7011cb79"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "069": {
+    "role_head_before_receipt": "e44d6088bad8023de44534f5ee7af3fb07d54e78",
+    "planned_input_sha": "c137e6996477f35735f169b10c8b92112c551007",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/PhotographicViewerTest.kt": {
+        "role_blob_oid": "fe3072ecbfeada0c7dc2e85fc55b9d83d2ac578d",
+        "combined_blob_oid": "fe3072ecbfeada0c7dc2e85fc55b9d83d2ac578d"
+      },
+      "app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt": {
+        "role_blob_oid": "72c2c05ee4484995fa74d1748b102c7a6ea0221a",
+        "combined_blob_oid": "72c2c05ee4484995fa74d1748b102c7a6ea0221a"
+      },
+      "app/src/main/java/com/realityforge/scanner/viewer/RenderBackend.kt": {
+        "role_blob_oid": "29906d0139179ba659bc57c799517e3e7d839bb8",
+        "combined_blob_oid": "29906d0139179ba659bc57c799517e3e7d839bb8"
+      },
+      "app/src/main/java/com/realityforge/scanner/viewer/filament/FilamentBackend.kt": {
+        "role_blob_oid": "52900fa023a72458e8727f3cb88df470a5be3bca",
+        "combined_blob_oid": "52900fa023a72458e8727f3cb88df470a5be3bca"
+      },
+      "app/src/main/java/com/realityforge/scanner/viewer/filament/FilamentStudioView.kt": {
+        "role_blob_oid": "8aec8a674c5609405acf0ee600e96d0869012da0",
+        "combined_blob_oid": "8aec8a674c5609405acf0ee600e96d0869012da0"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a069/DisplayCameraTest.kt": {
+        "role_blob_oid": "05308225139a0e955ab928ef65998471e761c4a1",
+        "combined_blob_oid": "05308225139a0e955ab928ef65998471e761c4a1"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a069/RenderBudgetTest.kt": {
+        "role_blob_oid": "a572cf83100294312e88b12eeb1219ef66fd6fdd",
+        "combined_blob_oid": "a572cf83100294312e88b12eeb1219ef66fd6fdd"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "070": {
+    "role_head_before_receipt": "bd6873223d9f0a528e1a1187b6d1c7a1d33cbfa0",
+    "planned_input_sha": "5c683605423d2c4c743bac2420192364ee430b44",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a070/RendererFallbackTest.kt": {
+        "role_blob_oid": "d80ed56ff23f4e768d728e5a2b8a975038eeea42",
+        "combined_blob_oid": "d80ed56ff23f4e768d728e5a2b8a975038eeea42"
+      },
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a070/ViewerControlsTest.kt": {
+        "role_blob_oid": "c1337a522448c6f59b3a1ee9f045086221fa008f",
+        "combined_blob_oid": "c1337a522448c6f59b3a1ee9f045086221fa008f"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt": {
+        "role_blob_oid": "ad9a2dd4d70a5bd4267696bcff02a5cfb9302626",
+        "combined_blob_oid": "ad9a2dd4d70a5bd4267696bcff02a5cfb9302626"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt": {
+        "role_blob_oid": "e7460201e4290bf17e35a132ccd8fc060d31bd56",
+        "combined_blob_oid": "e7460201e4290bf17e35a132ccd8fc060d31bd56"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt": {
+        "role_blob_oid": "5ad64bb32c2edf2c60dacc6544ac29786a37242a",
+        "combined_blob_oid": "5ad64bb32c2edf2c60dacc6544ac29786a37242a"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/studio/StudioControls.kt": {
+        "role_blob_oid": "e6d735a840ec7d1b1f766d206b68dbd7f6302a47",
+        "combined_blob_oid": "e6d735a840ec7d1b1f766d206b68dbd7f6302a47"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/studio/StudioEditingInput.kt": {
+        "role_blob_oid": "ed16eebe6ee5d77e111c56e30483970059e8e8a9",
+        "combined_blob_oid": "ed16eebe6ee5d77e111c56e30483970059e8e8a9"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/studio/StudioEditingPanel.kt": {
+        "role_blob_oid": "74f8767282a9541b7f9563db2df0ec8f1105c24f",
+        "combined_blob_oid": "74f8767282a9541b7f9563db2df0ec8f1105c24f"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/studio/StudioPose.kt": {
+        "role_blob_oid": "c8c38fca3338c50568399c81580832ba1910b632",
+        "combined_blob_oid": "c8c38fca3338c50568399c81580832ba1910b632"
+      },
+      "app/src/main/res/values/agent_070.xml": {
+        "role_blob_oid": "cb0fdffb18c2c5bdb333dd3149b161e32d7afb0a",
+        "combined_blob_oid": "cb0fdffb18c2c5bdb333dd3149b161e32d7afb0a"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a070/StudioEditingInputTest.kt": {
+        "role_blob_oid": "2fbbd550bec812845c5f9c8b5ddbc4346c754663",
+        "combined_blob_oid": "2fbbd550bec812845c5f9c8b5ddbc4346c754663"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a070/StudioPoseTest.kt": {
+        "role_blob_oid": "4c31e9ea0800d3d1425135c77453bcec2ee4bd6c",
+        "combined_blob_oid": "4c31e9ea0800d3d1425135c77453bcec2ee4bd6c"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "071": {
+    "role_head_before_receipt": "621c816991992be43e5d5591caea48bf1d56d721",
+    "planned_input_sha": "621c816991992be43e5d5591caea48bf1d56d721",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a071/NavigationLifecycleDeviceTest.kt": {
+        "role_blob_oid": "4606e11755f4f44cdeeaa27199110974c49cbb25",
+        "combined_blob_oid": "4606e11755f4f44cdeeaa27199110974c49cbb25"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": {
+        "role_blob_oid": "b1fae67349de504a66094c7256649319b66bc49b",
+        "combined_blob_oid": "b1fae67349de504a66094c7256649319b66bc49b"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/navigation/CanonicalExportServices.kt": {
+        "role_blob_oid": "9e77077a1ac786b11e4689453f2aeb01a931800e",
+        "combined_blob_oid": "9e77077a1ac786b11e4689453f2aeb01a931800e"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/navigation/NavigationState.kt": {
+        "role_blob_oid": "f3f076a7e74cc727e5be08cbbba564d9e5e51308",
+        "combined_blob_oid": "f3f076a7e74cc727e5be08cbbba564d9e5e51308"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/navigation/PreferencesRoute.kt": {
+        "role_blob_oid": "1e8259bf767df663448ef7df05acd83816d1e644",
+        "combined_blob_oid": "1e8259bf767df663448ef7df05acd83816d1e644"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/navigation/ResultRoutes.kt": {
+        "role_blob_oid": "2be55f13e10607374b739fe33c8fcbc81e3c76a3",
+        "combined_blob_oid": "2be55f13e10607374b739fe33c8fcbc81e3c76a3"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/navigation/ScannerFeatureServices.kt": {
+        "role_blob_oid": "194f66cf8b8e45bc0d670c08d87e4f6986ffb6d4",
+        "combined_blob_oid": "194f66cf8b8e45bc0d670c08d87e4f6986ffb6d4"
+      },
+      "app/src/main/res/values/agent_071.xml": {
+        "role_blob_oid": "e8e15d3327c7637bb046b674fbb343da94c1b660",
+        "combined_blob_oid": "e8e15d3327c7637bb046b674fbb343da94c1b660"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a071/NavigationStateTest.kt": {
+        "role_blob_oid": "f4b085e95a0d23657ade3ed4ae051e47edd12e55",
+        "combined_blob_oid": "f4b085e95a0d23657ade3ed4ae051e47edd12e55"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "072": {
+    "role_head_before_receipt": "15784131be98a0bff6a638641fad92fcd0f04887",
+    "planned_input_sha": "15784131be98a0bff6a638641fad92fcd0f04887",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a072/ScreenInteractionTest.kt": {
+        "role_blob_oid": "61a1831dd0be5243a3d0cc3e2c3c356dad694f20",
+        "combined_blob_oid": "61a1831dd0be5243a3d0cc3e2c3c356dad694f20"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt": {
+        "role_blob_oid": "acf815dcc6616e9a79e14e7317f6ec6ae3f2f09c",
+        "combined_blob_oid": "acf815dcc6616e9a79e14e7317f6ec6ae3f2f09c"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/library/LibraryScreen.kt": {
+        "role_blob_oid": "70efe9f9adab21bee6b402de5bec971821571282",
+        "combined_blob_oid": "70efe9f9adab21bee6b402de5bec971821571282"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/library/LibraryServiceScreen.kt": {
+        "role_blob_oid": "2956fae2de9a8487c77e3e0437b33911e0413f10",
+        "combined_blob_oid": "2956fae2de9a8487c77e3e0437b33911e0413f10"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/library/LibraryState.kt": {
+        "role_blob_oid": "0e8cf741240efdb4db16ef825c5f1e29c266080e",
+        "combined_blob_oid": "0e8cf741240efdb4db16ef825c5f1e29c266080e"
+      },
+      "app/src/main/res/values/agent_072.xml": {
+        "role_blob_oid": "99a8d4377a4e5c7d41b0fb798ba72d0e5072e33b",
+        "combined_blob_oid": "99a8d4377a4e5c7d41b0fb798ba72d0e5072e33b"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt": {
+        "role_blob_oid": "c172cc96663e073e8f48f26cb9e5f5174b1e7a45",
+        "combined_blob_oid": "c172cc96663e073e8f48f26cb9e5f5174b1e7a45"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a072/LibraryQueryTest.kt": {
+        "role_blob_oid": "004608ceba3219d42721c99555c631043a7f7ecd",
+        "combined_blob_oid": "004608ceba3219d42721c99555c631043a7f7ecd"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "073": {
+    "role_head_before_receipt": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+    "planned_input_sha": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a073/ScreenInteractionTest.kt": {
+        "role_blob_oid": "44c5b766a3704f893c8e7ace8d888ea65b6865d3",
+        "combined_blob_oid": "44c5b766a3704f893c8e7ace8d888ea65b6865d3"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt": {
+        "role_blob_oid": "1eff09d98361633be3a23a5d75509d1ec5916a71",
+        "combined_blob_oid": "1eff09d98361633be3a23a5d75509d1ec5916a71"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt": {
+        "role_blob_oid": "1cc413b067e76c4fbec439004d5562c899306cfc",
+        "combined_blob_oid": "1cc413b067e76c4fbec439004d5562c899306cfc"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/photoreview/ProjectReviewScreen.kt": {
+        "role_blob_oid": "c5692ae808afd7585c3376ed7f3fe6560eaf93ea",
+        "combined_blob_oid": "c5692ae808afd7585c3376ed7f3fe6560eaf93ea"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/photoreview/ReviewState.kt": {
+        "role_blob_oid": "2bfb0118f8612f92440e591b6ffde98939fb6e83",
+        "combined_blob_oid": "2bfb0118f8612f92440e591b6ffde98939fb6e83"
+      },
+      "app/src/main/res/values/agent_073.xml": {
+        "role_blob_oid": "9c9a148a1d3b45813d6c5b59ec3b2f078fe81012",
+        "combined_blob_oid": "9c9a148a1d3b45813d6c5b59ec3b2f078fe81012"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a073/PhotoCurationPresenterTest.kt": {
+        "role_blob_oid": "48b2ba64b84174a5759f57908cb17f2ca63c0309",
+        "combined_blob_oid": "48b2ba64b84174a5759f57908cb17f2ca63c0309"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a073/ReviewAdmissionTest.kt": {
+        "role_blob_oid": "b8b0a16da8b2bf9a1aa87b3053a65374672e6fb5",
+        "combined_blob_oid": "b8b0a16da8b2bf9a1aa87b3053a65374672e6fb5"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "074": {
+    "role_head_before_receipt": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+    "planned_input_sha": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a074/ScreenInteractionTest.kt": {
+        "role_blob_oid": "97140c43ea125bf384df6d73768b3b9e870f5756",
+        "combined_blob_oid": "97140c43ea125bf384df6d73768b3b9e870f5756"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/processing/DurableJobUiAdapter.kt": {
+        "role_blob_oid": "a1d47ec31111a8c79c79210ca33a599ceff9e2e9",
+        "combined_blob_oid": "a1d47ec31111a8c79c79210ca33a599ceff9e2e9"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/processing/JobUiState.kt": {
+        "role_blob_oid": "a46b3391fb3f30e32030a0c98a5d6ef4bf7f64ef",
+        "combined_blob_oid": "a46b3391fb3f30e32030a0c98a5d6ef4bf7f64ef"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/processing/ProcessingScreen.kt": {
+        "role_blob_oid": "6246fa5207fa6849dbd01de81f76f07a2b39ee21",
+        "combined_blob_oid": "6246fa5207fa6849dbd01de81f76f07a2b39ee21"
+      },
+      "app/src/main/res/values/agent_074.xml": {
+        "role_blob_oid": "b55847557f26f4c7dc6e6796502ee8c31ec311ee",
+        "combined_blob_oid": "b55847557f26f4c7dc6e6796502ee8c31ec311ee"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a074/DurableJobUiAdapterTest.kt": {
+        "role_blob_oid": "b939d5beb3bd3bf0cbe586cf41fc4c7877acba87",
+        "combined_blob_oid": "b939d5beb3bd3bf0cbe586cf41fc4c7877acba87"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a074/JobActionTest.kt": {
+        "role_blob_oid": "e721374175290685506bc3c1eaf7343296c9445d",
+        "combined_blob_oid": "e721374175290685506bc3c1eaf7343296c9445d"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "075": {
+    "role_head_before_receipt": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+    "planned_input_sha": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a075/ScreenInteractionTest.kt": {
+        "role_blob_oid": "6dce2ee5adfb2a8bcbc8cbd8f00feb0cdc08adbe",
+        "combined_blob_oid": "6dce2ee5adfb2a8bcbc8cbd8f00feb0cdc08adbe"
+      },
+      "app/src/main/assets/onboarding/checkerboard-9x6.svg": {
+        "role_blob_oid": "09af3d56a6d8dcabcf5a5bec29dbe2e6c9d1aa5b",
+        "combined_blob_oid": "09af3d56a6d8dcabcf5a5bec29dbe2e6c9d1aa5b"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/onboarding/CaptureGuide.kt": {
+        "role_blob_oid": "87bd294e0172bd1e29c2ee23eabc43a6b32747e2",
+        "combined_blob_oid": "87bd294e0172bd1e29c2ee23eabc43a6b32747e2"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/onboarding/OnboardingScreen.kt": {
+        "role_blob_oid": "d10f7f3f51b59166b24543e73fbf1c81e553a870",
+        "combined_blob_oid": "d10f7f3f51b59166b24543e73fbf1c81e553a870"
+      },
+      "app/src/main/res/values/agent_075.xml": {
+        "role_blob_oid": "44e93b27957bbf002115aab49df70a3a4aa32bba",
+        "combined_blob_oid": "44e93b27957bbf002115aab49df70a3a4aa32bba"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a075/CaptureGuideTest.kt": {
+        "role_blob_oid": "25f26598b662356302b974182b859711c3c6ce8f",
+        "combined_blob_oid": "25f26598b662356302b974182b859711c3c6ce8f"
+      },
+      "tests/test_agent_075_offline_content.py": {
+        "role_blob_oid": "089c26541f2a0184c719666690779726dcd50541",
+        "combined_blob_oid": "089c26541f2a0184c719666690779726dcd50541"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "076": {
+    "role_head_before_receipt": "63399f41996659bbfde5705907b9198fd9416d8d",
+    "planned_input_sha": "63399f41996659bbfde5705907b9198fd9416d8d",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a076/DesignSystemDeviceTest.kt": {
+        "role_blob_oid": "a5d07d8e30cd4071a0f81bea7feeeacf43d187c5",
+        "combined_blob_oid": "a5d07d8e30cd4071a0f81bea7feeeacf43d187c5"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/designsystem/AppTheme.kt": {
+        "role_blob_oid": "8d6753ae53caf27abe17be8fc98f5939dde5e67b",
+        "combined_blob_oid": "8d6753ae53caf27abe17be8fc98f5939dde5e67b"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/designsystem/LayoutPolicy.kt": {
+        "role_blob_oid": "ec8b1f43845a4671bdbf62825c9a57461a84e212",
+        "combined_blob_oid": "ec8b1f43845a4671bdbf62825c9a57461a84e212"
+      },
+      "app/src/main/res/values/design_system.xml": {
+        "role_blob_oid": "7829b95ce9cd9339c614bf68045859895bdc5199",
+        "combined_blob_oid": "7829b95ce9cd9339c614bf68045859895bdc5199"
+      },
+      "app/src/main/res/values/styles.xml": {
+        "role_blob_oid": "3044d89011bb6fe0fd9daeafb3b20a93b35a46ab",
+        "combined_blob_oid": "3044d89011bb6fe0fd9daeafb3b20a93b35a46ab"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a076/LayoutPolicyTest.kt": {
+        "role_blob_oid": "14953de9aac91d3810718ea54ddcb6505e9e33ae",
+        "combined_blob_oid": "14953de9aac91d3810718ea54ddcb6505e9e33ae"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "078": {
+    "role_head_before_receipt": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+    "planned_input_sha": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a078/LocalizedResourcesDeviceTest.kt": {
+        "role_blob_oid": "51392b1381fb7ad6f0ac6ea3ad5900cc64f5b707",
+        "combined_blob_oid": "51392b1381fb7ad6f0ac6ea3ad5900cc64f5b707"
+      },
+      "app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt": {
+        "role_blob_oid": "b62578b15841f90df52383d8be1cfe110474a7c5",
+        "combined_blob_oid": "b62578b15841f90df52383d8be1cfe110474a7c5"
+      },
+      "app/src/main/res/values/localization.xml": {
+        "role_blob_oid": "befa5548f95867c0f42a1a4e84a567ccd1931eb0",
+        "combined_blob_oid": "befa5548f95867c0f42a1a4e84a567ccd1931eb0"
+      },
+      "app/src/main/res/values/strings.xml": {
+        "role_blob_oid": "acb4e26f25d4670be57b6a81ae278fcd2858372b",
+        "combined_blob_oid": "acb4e26f25d4670be57b6a81ae278fcd2858372b"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a078/LocalizedFormatsTest.kt": {
+        "role_blob_oid": "387710454f05b88eebe220feec000499be3275a3",
+        "combined_blob_oid": "387710454f05b88eebe220feec000499be3275a3"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  },
+  "079": {
+    "role_head_before_receipt": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+    "planned_input_sha": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+    "combined_source_sha": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+    "files": {
+      "app/src/androidTest/java/com/realityforge/scanner/agents/a079/ScreenInteractionTest.kt": {
+        "role_blob_oid": "134c219a7d51a5ecf83e143a171aaae8b95400aa",
+        "combined_blob_oid": "134c219a7d51a5ecf83e143a171aaae8b95400aa"
+      },
+      "app/src/main/java/com/realityforge/scanner/preferences/PreferencesStore.kt": {
+        "role_blob_oid": "52d024532526265a16e8541cf2e43342864c5f90",
+        "combined_blob_oid": "52d024532526265a16e8541cf2e43342864c5f90"
+      },
+      "app/src/main/java/com/realityforge/scanner/ui/preferences/PreferencesScreen.kt": {
+        "role_blob_oid": "118785c8c1265cc484490f104a661f5f513a3d7f",
+        "combined_blob_oid": "118785c8c1265cc484490f104a661f5f513a3d7f"
+      },
+      "app/src/main/res/values/agent_079.xml": {
+        "role_blob_oid": "093a8bd21dd946761e324b762c7a48083ac1f490",
+        "combined_blob_oid": "093a8bd21dd946761e324b762c7a48083ac1f490"
+      },
+      "app/src/test/java/com/realityforge/scanner/agents/a079/PreferencesStoreTest.kt": {
+        "role_blob_oid": "54e104ce4ab5a236231cbf2d187435cdfc256a5d",
+        "combined_blob_oid": "54e104ce4ab5a236231cbf2d187435cdfc256a5d"
+      }
+    },
+    "mismatches": [],
+    "state": "PASS"
+  }
+}

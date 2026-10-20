@@ -1,0 +1,17 @@
+{
+  "agent": "063",
+  "branch": "agents/063-stl-export",
+  "previous_head": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+  "head": "3561dd0beff9727986a9192341a629a3dbd55b3d",
+  "remote_head": "3561dd0beff9727986a9192341a629a3dbd55b3d",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/063.md"
+  ],
+  "manifest_verifier": {
+    "files": 203,
+    "source": "index",
+    "status": "PASS"
+  }
+}

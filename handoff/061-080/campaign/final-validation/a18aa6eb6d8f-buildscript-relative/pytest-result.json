@@ -1,0 +1,164 @@
+{
+  "command": {
+    "command": [
+      "/workspace/.venvs/3d-scanner/bin/python",
+      "-m",
+      "pytest",
+      "tests",
+      "-q",
+      "--junitxml=/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/full-pytest.xml",
+      "--basetemp=/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/pytest-temp"
+    ],
+    "duration_seconds": 128.03,
+    "exit_code": 1,
+    "log": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/full-pytest.log",
+    "log_sha256": "9922d2df9f1467b2bef65f419411d719d9d19214d5dd148a7985f5278c206d84"
+  },
+  "failed_cases": [
+    {
+      "known_prior_literal_failure": true,
+      "message": "AssertionError: assert 'not a finished mesh' in 'package com.realityforge.scanner.ui\\n\\nimport android.app.Activity\\nimport android.content.Intent\\nimport androidx.ac...R.string.a071_export\\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\\n}\\n'",
+      "nodeid": "tests/test_project_contracts.py::test_sparse_output_disclosed_in_ui",
+      "recorded_mapping": "ScannerApp moved disclosure to localized resources and route composition."
+    },
+    {
+      "known_prior_literal_failure": true,
+      "message": "assert 'ActivityResultContracts.CreateDocument(\"application/zip\")' in 'package com.realityforge.scanner.ui\\n\\nimport android.app.Activity\\nimport android.content.Intent\\nimport androidx.ac...R.string.a071_export\\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\\n}\\n'",
+      "nodeid": "tests/test_project_contracts.py::test_capture_package_requires_explicit_destination_and_preserves_hashes",
+      "recorded_mapping": "ScannerApp now delegates document destination and transport to coordinator."
+    },
+    {
+      "known_prior_literal_failure": true,
+      "message": "AssertionError: assert ('exportTexturedGlb' in 'package com.realityforge.scanner.ui\\n\\nimport android.app.Activity\\nimport android.content.Intent\\nimport androidx.ac...R.string.a071_export\\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\\n}\\n')",
+      "nodeid": "tests/test_project_contracts.py::test_m09_camera_projected_uvs_are_embedded_and_exportable",
+      "recorded_mapping": "ScannerApp moved individual export handlers behind project-scoped export route."
+    },
+    {
+      "known_prior_literal_failure": true,
+      "message": "AssertionError: assert ('Lifecycle.Event.ON_PAUSE' in 'package com.realityforge.scanner.ui\\n\\nimport android.app.ActivityManager\\nimport android.content.Context\\nimport and...    }\\n        return true\\n    }\\n    override fun performClick(): Boolean { super.performClick(); return true }\\n}\\n' and 'surface.dispose()' in 'package com.realityforge.scanner.ui\\n\\nimport android.app.ActivityManager\\nimport android.content.Context\\nimport and...    }\\n        return true\\n    }\\n    override fun performClick(): Boolean { super.performClick(); return true }\\n}\\n')",
+      "nodeid": "tests/test_project_contracts.py::test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl",
+      "recorded_mapping": "Photographic viewer lifecycle disposal implementation changed spelling/ownership."
+    },
+    {
+      "known_prior_literal_failure": false,
+      "message": "assert 'digest.update(\"realityforge-m18-native-reference-depth-v1' in 'package com.realityforge.scanner.engine\\n\\nimport java.io.File\\nimport java.nio.charset.StandardCharsets\\nimport java... operation lease.\\n        stale.drop(1).forEach { old -> old.deleteRecursively() }\\n        return chosen\\n    }\\n}\\n'",
+      "nodeid": "tests/test_project_contracts.py::test_m18_depth_resume_is_input_identified_atomic_and_native_scoped",
+      "recorded_mapping": null
+    },
+    {
+      "known_prior_literal_failure": true,
+      "message": "assert 'model.export(it, \"json\")' in 'package com.realityforge.scanner.ui\\n\\nimport android.app.Activity\\nimport android.content.Intent\\nimport androidx.ac...R.string.a071_export\\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\\n}\\n'",
+      "nodeid": "tests/test_project_contracts.py::test_m19_persisted_scan_evidence_and_local_export",
+      "recorded_mapping": "ScannerApp now delegates diagnostic export behind coordinator route."
+    },
+    {
+      "known_prior_literal_failure": true,
+      "message": "AssertionError: assert 'SurfaceMeshViewer(mesh,' in 'package com.realityforge.scanner.ui\\n\\nimport android.app.Activity\\nimport android.content.Intent\\nimport androidx.ac...R.string.a071_export\\n    Destination.SETTINGS->R.string.a071_settings;Destination.ONBOARDING->R.string.a071_help\\n}\\n'",
+      "nodeid": "tests/test_surface.py::test_android_mesh_is_shown_and_exportable_without_network_calls",
+      "recorded_mapping": "ScannerApp now delegates mesh display to studio route."
+    }
+  ],
+  "finished_at": "2026-10-20T09:14:35.603034+00:00",
+  "host_build_and_17_ctest_log": {
+    "path": "/workspace/campaign-061-080/combined-final-native.log",
+    "sha256": "979fc070c0688750dfffacbb342eeb0574c8499d7013941eab13f64a6107735f"
+  },
+  "host_library": {
+    "bytes": 743368,
+    "copied_path": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/host-library/librealityforge.so",
+    "original_path": "/workspace/campaign-061-080/combined/build/host/librealityforge.so",
+    "sha256": "4449f98d65dc6cc196eb49c60fef629255fc1fdb53b17bb13c2174eceaeccef7"
+  },
+  "known_prior_literal_failures": {
+    "tests/test_project_contracts.py::test_capture_package_requires_explicit_destination_and_preserves_hashes": "ScannerApp now delegates document destination and transport to coordinator.",
+    "tests/test_project_contracts.py::test_m09_camera_projected_uvs_are_embedded_and_exportable": "ScannerApp moved individual export handlers behind project-scoped export route.",
+    "tests/test_project_contracts.py::test_m19_persisted_scan_evidence_and_local_export": "ScannerApp now delegates diagnostic export behind coordinator route.",
+    "tests/test_project_contracts.py::test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl": "Photographic viewer lifecycle disposal implementation changed spelling/ownership.",
+    "tests/test_project_contracts.py::test_sparse_output_disclosed_in_ui": "ScannerApp moved disclosure to localized resources and route composition.",
+    "tests/test_surface.py::test_android_mesh_is_shown_and_exportable_without_network_calls": "ScannerApp now delegates mesh display to studio route."
+  },
+  "limitations": "No failures are deselected, xfailed, hidden or converted to success. Prior stale-literal mappings are classification only; application runtime coverage is independent.",
+  "native_input_sha256": {
+    "CMakeLists.txt": "a4d1ab7355a5eb6d14e69d2687ba2d6e8dafb98bd4091cc541179c671e3ff1e1",
+    "reconstruction/include/realityforge/asset_edit.hpp": "f2ae21c3fed45b67e277e471c076bac7bbbd851fbfebbd7e2cd7b9f3147a65b1",
+    "reconstruction/include/realityforge/asset_model.hpp": "f6db5fd4fe627fcaee5bf52264f7fb5a8e5b3bb5cd6139f1b3092ab91144ccde",
+    "reconstruction/include/realityforge/bundle_adjustment.hpp": "fefd5210eafd27aa5e875d86ec50872eef05c1eef13f3bb9985ca2edfbf55b3f",
+    "reconstruction/include/realityforge/cancellation.hpp": "43e510887353f933d50da0db2542022e5cb65cded9d4d35111dab9f2041ada7b",
+    "reconstruction/include/realityforge/core.hpp": "c7f1123412fdb7002a2d85b28d9d3f277acf1255d30aac2888b35c60e303e3b7",
+    "reconstruction/include/realityforge/dense.hpp": "079d94fd4335d5821639d87459d933036b9102cf9b4876cda54a66f51952d7d9",
+    "reconstruction/include/realityforge/dense_selection.hpp": "ba2d0a1421a1661b009e723c0b8147d37eaed145aa0926a6e16049ac9aaf3935",
+    "reconstruction/include/realityforge/depth_checkpoint.hpp": "1b5d898f3068acf6c8794074d4e01fd73aa69ff27ad64c8a4fbbcfe56e1e40dc",
+    "reconstruction/include/realityforge/glb_export.hpp": "88108eb943777d430d80f43f5cfcabf267d7f6d32bb29d76013e7bf9c8c8c4cf",
+    "reconstruction/include/realityforge/mesh_lod.hpp": "40a2c5a841562ab05f41bf77e1f49f3c24a4b83b5b71bc09b29f076c25980188",
+    "reconstruction/include/realityforge/multiview.hpp": "3d7a4ec6221b9b8b5fda2c475de75df9734a2a44b8906f5df8fcc00d2f430f3d",
+    "reconstruction/include/realityforge/obj_export.hpp": "1927504fe407a6dec43955c3f3aa2d6b051c355d342aa392b329b7554302dc1a",
+    "reconstruction/include/realityforge/photometric.hpp": "14f69c925104c55fb95a808805b5c4d7fc5a68206ac79633ddf62eb133ffddb4",
+    "reconstruction/include/realityforge/ply_export.hpp": "6279335b1f826fce4d439af364bf5682b569c464b33b16424520d1e2c8e6ae39",
+    "reconstruction/include/realityforge/pnp.hpp": "eecd2627b377ef060ac1f2b4dd5d7439328a445c3faff00b7fb416a8c981cfd8",
+    "reconstruction/include/realityforge/stereo_warp.hpp": "793ee03c563699d32b6c12138d2b30d584821d428fd0432b70e993654efcf889",
+    "reconstruction/include/realityforge/stl_export.hpp": "28153071902bbe41b9380105963a6d79c262374cec8b5535bf5d5c04d14b6fe5",
+    "reconstruction/include/realityforge/surface.hpp": "4736583aa2cac12eb239168bd1d07723f78b77ec26785813064cc4504e4abb19",
+    "reconstruction/include/realityforge/texture.hpp": "4964f9a399042d75c2176c651964620a017f0db0f27d78d32f46c07bec2a8c82",
+    "reconstruction/src/asset_edit.cpp": "dd1789fd460681c7d0140fe09d8328771bc331f88995a3114aadbca7398ca529",
+    "reconstruction/src/asset_model.cpp": "10b8def4ec8080cd5a4231c54a5b020a34d587820da4a35959f1ba981cf2aa3d",
+    "reconstruction/src/bundle_adjustment.cpp": "25aa3da43650bb91c3d06a41a903b133ab93c1d0a4d36235e04e80c07f513a09",
+    "reconstruction/src/cancellation.cpp": "aab4ca7df233bf0d5815f70a6faff813165da18b5327b232291f33ed9ec06eec",
+    "reconstruction/src/core.cpp": "874ec245480c10d07d5a8e8104875d76791de2cf68d995282ccd9e2267abff68",
+    "reconstruction/src/dense.cpp": "1b19520229176100f858c22e394a4d7ecdad4a1f456a35e05ce049bf8f6c4bc0",
+    "reconstruction/src/depth_checkpoint.cpp": "c38e9043b1ef3e33416fe7a84cad8240c1c1eb82d90b6c85089bd77949c68580",
+    "reconstruction/src/glb_export.cpp": "f1fea2d16637571bc314b0c00cbafcee480b1eaeeb66257ae9adaf66668edfb7",
+    "reconstruction/src/jni.cpp": "d0340c67fb9157d77423972105b7d92898a386184509d6629cd2807ad990f358",
+    "reconstruction/src/mesh_lod.cpp": "62c1755124474501ccafc28efd1e98dd7f5019ece7f8f1255362044d1c64356e",
+    "reconstruction/src/multiview.cpp": "532d369f05f399fa4f68f186a09845b63a4292ccf0ccb80ae91749ef999380da",
+    "reconstruction/src/obj_export.cpp": "df9481137720dcd41f9858f5d3bc77856cafc8cfdebe90cadfe8a7cfbeb017eb",
+    "reconstruction/src/photometric.cpp": "96c08bfe35ed3cf21cea227ae918a35ccdcb20ddb74b38b4dbd5940b4104e25a",
+    "reconstruction/src/ply_export.cpp": "33f613e472273feeca1301084ce157c27c19e86177ea27e4f27c4b73f1a1c098",
+    "reconstruction/src/pnp.cpp": "cc7c1096d1d8d26c784d13844125924f2263bb8d96c45fdedd87866765091593",
+    "reconstruction/src/stl_export.cpp": "7f62daedce8ea17dee0a9f92d427a161bb7af19c59f76f27e2f1ba196a9b92be",
+    "reconstruction/src/surface.cpp": "f6cd55c85a585ccdcc32b3e19f09ebc1e7a8b9684a1b36b93392f19422efaf4a",
+    "reconstruction/src/texture.cpp": "827848120afdc5b1d7ba1aae68c7bdd232fe557e20da949eb60b515cf2ee1ce1",
+    "reconstruction/tests/agent_061_asset_test.cpp": "6a8b66aa85eff01d01dd6c2a7171d5a02d26021a92c29582ff82a98bf7daea35",
+    "reconstruction/tests/agent_062_obj_test.cpp": "7d6c0c1ffcff76dbef2ba9a6228dcf11e5483ffb5b3e712daddee8aec6676662",
+    "reconstruction/tests/agent_063_stl_test.cpp": "40a13f44f7c34c3fb8131362e627af1d3094fb437b8b855b1c43bfb7bfaf7116",
+    "reconstruction/tests/agent_064_ply_test.cpp": "d51b5cc725d75a542d086db19cc65470a5de3346c0de7121e293ee0235f1a568",
+    "reconstruction/tests/agent_065_mesh_lod.cpp": "c052fa143cd6b1c87a137847f299e72b5de941751b77b988f4ea65c93854e3d5",
+    "reconstruction/tests/agent_066_asset_edit.cpp": "4729933d83b1d8877c83bce5ab5c738efb1a2f57ef3d455c63403b53551a8905",
+    "reconstruction/tests/bundle_adjustment_test.cpp": "53a69dd412396e1c2828c2bd6232f3a9ca112d3fe31ed0e585286513dfff3fc9",
+    "reconstruction/tests/cancellation_test.cpp": "94a0a011bf6e86784950ce8893070d088fba04ed3039ba627f10fd731593161f",
+    "reconstruction/tests/core_test.cpp": "5444fa196aae12091b37003bc8f94d23ca74801aae9babfb7b7ff9613882d307",
+    "reconstruction/tests/dense_selection_test.cpp": "95cf721c1a3ce226415cb24d80e4f39d888da421a91de2a2721e9a2143ab17fa",
+    "reconstruction/tests/dense_test.cpp": "e45639f478365cdb5075c667706c79785a12374d364f901a5a46fd4a52163db7",
+    "reconstruction/tests/depth_checkpoint_test.cpp": "a097e9e78bbd2db0accf96e1ed5036f2dfc482ff57983ce6cc4d7567400ad47e",
+    "reconstruction/tests/multiview_test.cpp": "ba28217c480835e0a4c191e8b2296b96ed24f531c384e539ebb4ecaca46e11b9",
+    "reconstruction/tests/photometric_test.cpp": "c6cb6f48f9f957f26a72bba50f1ce721d9c85ae7fe8165f42122627991b39dcf",
+    "reconstruction/tests/stereo_warp_test.cpp": "7706f397f75c2b3cf860f38762d19b6088eb472f6477922764652dd0f13b723c",
+    "reconstruction/tests/surface_test.cpp": "8e2e287501e2ee45e6ccadd8f04ac60cf8ef1390f15bee3e0cda3b3746472df6",
+    "reconstruction/tests/texture_test.cpp": "a8ae8416ea714f774684d5bd2676a3556e1c741e96476c8fc53c15c660686039"
+  },
+  "new_or_unclassified_failures": [
+    {
+      "known_prior_literal_failure": false,
+      "message": "assert 'digest.update(\"realityforge-m18-native-reference-depth-v1' in 'package com.realityforge.scanner.engine\\n\\nimport java.io.File\\nimport java.nio.charset.StandardCharsets\\nimport java... operation lease.\\n        stale.drop(1).forEach { old -> old.deleteRecursively() }\\n        return chosen\\n    }\\n}\\n'",
+      "nodeid": "tests/test_project_contracts.py::test_m18_depth_resume_is_input_identified_atomic_and_native_scoped",
+      "recorded_mapping": null
+    }
+  ],
+  "passed": 176,
+  "schema": 1,
+  "source_commit": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+  "source_directory": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/source",
+  "started_at": "2026-10-20T09:12:25.098291+00:00",
+  "state": "FAIL",
+  "totals": {
+    "errors": 0,
+    "failures": 7,
+    "skipped": 0,
+    "tests": 183
+  },
+  "tracked_source_and_host_library_unchanged": true,
+  "tracked_source_digest_sha256": "e38901041120ba730d9edfe6f21e666b3faef9fbb11a11a8adace67e12855dfd",
+  "xml": {
+    "path": "/workspace/campaign-061-080/final-validation/a18aa6eb6d8f-buildscript-relative/full-pytest.xml",
+    "sha256": "6ec42c7bb2def41274a07431aacbf70e5b24f508d3d946520d878d8bb126e789"
+  }
+}

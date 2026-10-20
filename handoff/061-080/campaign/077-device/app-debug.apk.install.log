@@ -1,0 +1,3 @@
+adb: failed to install /workspace/agent-work/077/app/build/outputs/apk/debug/app-debug.apk: cmd: Failure calling service package: Broken pipe (32)
+
+Performing Streamed Install

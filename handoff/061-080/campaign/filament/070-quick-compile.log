@@ -1,0 +1,35 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (No such file or directory)
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:mergeDebugResources
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+
+> Task :app:processDebugMainManifest
+/workspace/campaign-061-080/studio-combined/app/src/main/AndroidManifest.xml:5:5-87 Warning:
+	uses-permission#android.permission.INTERNET was tagged at AndroidManifest.xml:5 to remove other declarations but no other declaration present
+/workspace/campaign-061-080/studio-combined/app/src/main/AndroidManifest.xml:6:5-99 Warning:
+	uses-permission#android.permission.ACCESS_NETWORK_STATE was tagged at AndroidManifest.xml:6 to remove other declarations but no other declaration present
+
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+w: file:///workspace/campaign-061-080/studio-combined/app/src/main/java/com/realityforge/scanner/viewer/filament/FilamentBackend.kt:199:44 'fun remove(p0: Int): Unit' is deprecated. Deprecated in Java.
+
+BUILD SUCCESSFUL in 6m 50s
+16 actionable tasks: 16 executed

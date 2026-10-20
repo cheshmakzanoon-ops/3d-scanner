@@ -1,0 +1,270 @@
+{
+  "source_sha": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "synthetic": true,
+  "physical": false,
+  "build_receipt": "/workspace/campaign-061-080/final-validation/3b9f9157753b/result.json",
+  "build_receipt_sha256": "ee667b6725ef3a421de8d9c55a32d5965e1a9cc64aa4af827b2757222351e93b",
+  "commands": [
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "force-stop",
+        "com.realityforge.scanner"
+      ],
+      "started": "2026-10-20T10:18:53.743979+00:00",
+      "exit_code": 0,
+      "log": "stop-com.realityforge.scanner.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "force-stop",
+        "com.realityforge.scanner.test"
+      ],
+      "started": "2026-10-20T10:18:55.583495+00:00",
+      "exit_code": 0,
+      "log": "stop-com.realityforge.scanner.test.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "pm",
+        "path",
+        "com.realityforge.scanner"
+      ],
+      "started": "2026-10-20T10:18:56.636737+00:00",
+      "exit_code": 0,
+      "log": "installed-path-0.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "sha256sum /data/app/com.realityforge.scanner-1bRzbDqOnr9fTCQ3AxJ7Gg==/base.apk"
+      ],
+      "started": "2026-10-20T10:18:58.227271+00:00",
+      "exit_code": 0,
+      "log": "installed-sha-0.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "pm",
+        "path",
+        "com.realityforge.scanner.test"
+      ],
+      "started": "2026-10-20T10:19:11.607541+00:00",
+      "exit_code": 0,
+      "log": "installed-path-1.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "sha256sum /data/app/com.realityforge.scanner.test-WXcUobZQvCuRKNI7HFEMTg==/base.apk"
+      ],
+      "started": "2026-10-20T10:19:12.360046+00:00",
+      "exit_code": 0,
+      "log": "installed-sha-1.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "input",
+        "keyevent",
+        "224"
+      ],
+      "started": "2026-10-20T10:19:13.042353+00:00",
+      "exit_code": 0,
+      "log": "wake.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "wm",
+        "dismiss-keyguard"
+      ],
+      "started": "2026-10-20T10:19:17.089005+00:00",
+      "exit_code": 0,
+      "log": "dismiss-unsecured-keyguard.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "ro.build.fingerprint"
+      ],
+      "started": "2026-10-20T10:19:18.333020+00:00",
+      "exit_code": 0,
+      "log": "fingerprint.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "ro.build.version.sdk"
+      ],
+      "started": "2026-10-20T10:19:18.876620+00:00",
+      "exit_code": 0,
+      "log": "api.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "getprop",
+        "ro.product.cpu.abi"
+      ],
+      "started": "2026-10-20T10:19:19.342893+00:00",
+      "exit_code": 0,
+      "log": "abi.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.PhotographicViewerTest#openGlRendersCorrectPhotographicQuadrantsWithoutVerticalFlip",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:19:19.771247+00:00",
+      "exit_code": 0,
+      "log": "class-0.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.PhotographicViewerTest#maskedPixelsStayEmptyAndContextLossReuploadsTheAtlas",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:19:37.218850+00:00",
+      "exit_code": 0,
+      "log": "class-1.log"
+    },
+    {
+      "command": [
+        "/workspace/campaign-061-080/adb",
+        "-s",
+        "emulator-5556",
+        "shell",
+        "am",
+        "instrument",
+        "-w",
+        "-r",
+        "-e",
+        "class",
+        "com.realityforge.scanner.PhotographicViewerTest#filamentRestoresCameraPausesAndRejectsOversizedResize",
+        "com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner"
+      ],
+      "started": "2026-10-20T10:19:53.153561+00:00",
+      "exit_code": 0,
+      "log": "class-2.log"
+    }
+  ],
+  "classes": [
+    {
+      "class": "com.realityforge.scanner.PhotographicViewerTest#openGlRendersCorrectPhotographicQuadrantsWithoutVerticalFlip",
+      "result": {
+        "status": "PASS",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 1,
+        "test_identities": [
+          "com.realityforge.scanner.PhotographicViewerTest#openGlRendersCorrectPhotographicQuadrantsWithoutVerticalFlip"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": []
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.PhotographicViewerTest#maskedPixelsStayEmptyAndContextLossReuploadsTheAtlas",
+      "result": {
+        "status": "PASS",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 1,
+        "test_identities": [
+          "com.realityforge.scanner.PhotographicViewerTest#maskedPixelsStayEmptyAndContextLossReuploadsTheAtlas"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": []
+      }
+    },
+    {
+      "class": "com.realityforge.scanner.PhotographicViewerTest#filamentRestoresCameraPausesAndRejectsOversizedResize",
+      "result": {
+        "status": "PASS",
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "completed": 1,
+        "test_identities": [
+          "com.realityforge.scanner.PhotographicViewerTest#filamentRestoresCameraPausesAndRejectsOversizedResize"
+        ],
+        "terminal_codes": [
+          -1
+        ],
+        "errors": []
+      }
+    }
+  ],
+  "status": "PASS",
+  "artifacts": {
+    "/workspace/campaign-061-080/final-validation/3b9f9157753b/source/app/build/outputs/apk/debug/app-debug.apk": "0e60bc83d4d7e3838d98c4d7d969afef4ae8901a75ea18795fe7d4df65fe0585",
+    "/workspace/campaign-061-080/final-validation/3b9f9157753b/source/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "2e93c6656d30d2832626ac2302136f1ac50395037ba3a1d82cdd28d3440489f5"
+  }
+}

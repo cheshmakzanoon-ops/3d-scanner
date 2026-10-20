@@ -1,0 +1,5 @@
+Sparse/dense point, observed-mesh and photographic viewers now share saved camera state, labelled 48dp camera buttons, semantic actions and predictable orbit/pan/zoom/fit controls. Photographic loading uses the actual bounded/cancellable owner068 lease, keeps its validated source, disposes renderer and CPU ownership on lifecycle changes and mounts a real GLES replacement after an alternative renderer fails.
+
+The studio adds truthful sampled diagnostic disclosures, facet-normal inspection, known/unknown scale captions and an actual owner066 non-destructive edit panel. Edit/measurement/LOD/export actions appear only when real service callbacks are provided. Existing two-argument photographic viewer calls remain source compatible.
+
+Validation includes actual Android compilation, JVM/lint checks and focused Android interaction/fallback regressions; precise immutable sources and results are in docs/agents/status/070.md. Physical accessibility/performance checks and upstream service materialization remain explicit handoffs. The owner094 legacy literal check requires the documented staged-loader/lifecycle update. No main merge is included.

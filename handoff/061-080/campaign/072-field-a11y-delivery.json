@@ -1,0 +1,21 @@
+{
+  "branch": "agents/072-project-library-ui",
+  "source_commit": "baaac4d17c638522c6f02c301b85557c7af7b420",
+  "remote_head_verified": true,
+  "worktree_clean": true,
+  "manifest": {
+    "status": "PASS",
+    "files": 205,
+    "source": "HEAD"
+  },
+  "source_blob_sha256": {
+    "app/src/main/java/com/realityforge/scanner/ui/library/LibraryScreen.kt": "aa603dabdb95eaa90670659b784fb03b582c3de4ab6360e771e21e81e175b541",
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a072/ScreenInteractionTest.kt": "38a7e2b624b92f17aae4d898a470155fac6f9a28fe976c1d3eab1f180ef5e9b7"
+  },
+  "focused_compile_log": "/workspace/campaign-061-080/072-field-a11y-compile.log",
+  "focused_compile": "PASS",
+  "new_source_gradle": "NOT_RUN_ROOT_FINAL_COMBINED_PENDING",
+  "new_source_device": "NOT_RUN_ROOT_FINAL_COMBINED_PENDING",
+  "historical_a18_qualification_applies_to_role_input": "15784131be98a0bff6a638641fad92fcd0f04887",
+  "actual_new_test": "com.realityforge.scanner.agents.a072.ScreenInteractionTest#editableFieldsExposeLocalizedNamesAndKeepEditActions"
+}

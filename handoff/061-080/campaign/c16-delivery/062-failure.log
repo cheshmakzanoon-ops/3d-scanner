@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/campaign-061-080/c16-publish.py", line 16, in <module>
+    assert set(git('diff','--cached','--name-only').splitlines())==allowed
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

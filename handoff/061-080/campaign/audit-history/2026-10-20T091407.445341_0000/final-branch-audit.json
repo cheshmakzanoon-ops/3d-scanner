@@ -1,0 +1,3138 @@
+{
+  "schema": 1,
+  "started_at": "2026-10-20T09:13:24.733606+00:00",
+  "finished_at": "2026-10-20T09:14:07.445341+00:00",
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "roster_path": "/workspace/campaign-061-080/roster.json",
+  "roster_sha256": "60595d6938e44997c0c02459fada25771ed329b3788b38e17b9a87fe1b09cc26",
+  "canonical_plan_sha256": "da0c0efe7cd7bf63bd31612d8d00680130079f38226be4dd38e0d4882489161c",
+  "audit_tools": [
+    {
+      "path": "/workspace/campaign-061-080/dependencies/100/campaign.py",
+      "sha256": "017a6d7ca8e331408334d73b4080e2c948c2cfc145ed414ab25a7ffac7c43215"
+    },
+    {
+      "path": "/workspace/campaign-061-080/dependencies/094/source_manifest.py",
+      "sha256": "41c38c8320e27ce8e1c4720fa8abde872a4e62b6a8fda11b17a988a7680b1ad8"
+    }
+  ],
+  "scope": "Read-only delivery and recorded contract status audit; no builds, tests, device runs, merges or acceptance claims are inferred.",
+  "claim_limit": "Receipt states and acceptance results are author claims from exact audited commit blobs. READY_FOR_INTEGRATION and WORKING leave contract requirements open.",
+  "summary": {
+    "branches": 20,
+    "delivery_status_counts": {
+      "PUBLISHED_CLEAN": 18,
+      "PENDING": 2
+    },
+    "contract_state_counts": {
+      "READY_FOR_INTEGRATION": 14,
+      "WORKING": 6
+    },
+    "local_remote_equal": 20,
+    "committed_manifest_pass": 20,
+    "ownership_pass": 20,
+    "clean_worktrees": 18,
+    "committed_contracts_present": 20,
+    "failures": {},
+    "pending": {
+      "067": [
+        "UNCOMMITTED_WORKTREE_CHANGES",
+        "MANIFEST_WORKTREE_NOT_VALID_AT_SNAPSHOT"
+      ],
+      "077": [
+        "UNCOMMITTED_WORKTREE_CHANGES",
+        "MANIFEST_WORKTREE_NOT_VALID_AT_SNAPSHOT"
+      ]
+    },
+    "contract_completion_claimed": false
+  },
+  "deliveries": [
+    {
+      "agent": "061",
+      "branch": "agents/061-glb-asset-contract",
+      "path": "/workspace/agent-work/061",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:25.198962+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "73212fcf78f2dcd31c03cabad4227b5da657d3c5",
+        "branch": "agents/061-glb-asset-contract",
+        "index_entries_sha256": "40285c0c9dd40852777fc3c7e5d57b89db71ef0132c5e4c74bb489f641e01644",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "73212fcf78f2dcd31c03cabad4227b5da657d3c5",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "73212fcf78f2dcd31c03cabad4227b5da657d3c5",
+        "files": 206,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 206,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 206,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/061.md",
+        "exists": true,
+        "blob_oid": "77f9d07291087b0dc781ba0de8b1395934cac8dd",
+        "sha256": "684dcc27ad96eafeed39aaa9d153ecef813c45b41f0011dff21611715b5950b7"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "source_candidate": "973d3b0c6fcd55d631eba183de5a4c05122f6a3b",
+        "source_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "production_implementation": "814437be7ca667f8bd6f95cf98cc949e2e14aaf7",
+        "integration_requests": [
+          "003",
+          "004",
+          "009",
+          "037",
+          "053",
+          "057",
+          "067"
+        ],
+        "interfaces_published": [
+          "C10"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/061.md",
+        "exists": true,
+        "blob_oid": "a6738e7c12878b61af7d26e0dbbcdd8a03d6c7af",
+        "sha256": "a2eaa7cd11fb5ac339331ea6a83a557491a23fb25d5116cd049ded657055b70b"
+      },
+      "requirements_from_plan": {
+        "mission": "Give points, observed meshes and photographic assets one explicit representation contract and export standards-conforming GLB without semantic mislabeling.",
+        "success_criteria": "- Sparse POINTS, dense POINTS, observed triangles and textured triangles retain correct representation after external import.\n- GLB lengths/indices/accessors/materials pass an independent validator; opposite-axis fixtures prove winding and UV orientation.\n- Oversized/nonfinite/invalid input is rejected before large allocation or output publication; export is cancellable and preserves original geometry.",
+        "required_verification": "HOST; ANDROID; DEVICE; INTEROPERABILITY."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/061-to-003.md",
+        "docs/agents/requests/061-to-004.md",
+        "docs/agents/requests/061-to-009.md",
+        "docs/agents/requests/061-to-037.md",
+        "docs/agents/requests/061-to-053.md",
+        "docs/agents/requests/061-to-057.md",
+        "docs/agents/requests/061-to-067.md"
+      ],
+      "final_checkout": {
+        "head": "73212fcf78f2dcd31c03cabad4227b5da657d3c5",
+        "branch": "agents/061-glb-asset-contract",
+        "index_entries_sha256": "40285c0c9dd40852777fc3c7e5d57b89db71ef0132c5e4c74bb489f641e01644",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:29.640280+00:00",
+      "remote_head_end": "73212fcf78f2dcd31c03cabad4227b5da657d3c5",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "062",
+      "branch": "agents/062-obj-export",
+      "path": "/workspace/agent-work/062",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:25.201713+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+        "branch": "agents/062-obj-export",
+        "index_entries_sha256": "213ef11ac9653948b3bc428821cd9bf1bc41958821c3fc007c09b2ff442eafd5",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+        "files": 202,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 202,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 202,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/062.md",
+        "exists": true,
+        "blob_oid": "ed97a5e3d18d603b663130a5913553be8354addf",
+        "sha256": "619abc67a75f5ee5be7f3e6958b2ca2a75ba1e9b8a6ae1ca63ec1e9b906820c7"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "json",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "HOST baseline and owned behavioral import/error checks",
+            "result": "PASS",
+            "command": "cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror && cmake --build build/host --parallel 2 && ctest --test-dir build/host --output-on-failure && RF_CANONICAL_ASSET_ROOT=/workspace/agent-work/061 python -m pytest tests -q --junitxml=build/agent-validation/pytest.xml",
+            "source_sha": "da5d0b38e84833749faf63702dc3f7ab440f5ad0",
+            "result_detail": "11 CTest cases and 118 pytest checks passed; no skips",
+            "environment": "GCC 14.2.0; C++20 Release -Werror; Python 3.12; analytic explicitly synthetic fixtures",
+            "evidence": "build/agent-validation/{ctest.log,pytest.log,pytest.xml}",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Portable filename and final candidate regression",
+            "result": "PASS",
+            "command": "RF_CANONICAL_ASSET_ROOT=/workspace/agent-work/061 python -m pytest tests/test_project_contracts.py tests/test_agent_062_obj.py -q",
+            "source_sha": "32bbaedbf68c0af3f9447da7e3ebf215ddc2e952",
+            "evidence": "27 source-contract and owned behavior checks passed; portable DOS names and failing texture stream rejected",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Android ARM64 and x86_64 native compilation",
+            "result": "PASS",
+            "command": "$ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/<aarch64|x86_64>-linux-android29-clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -Ireconstruction/include -I/path/to/061/reconstruction/include -c reconstruction/src/obj_export.cpp",
+            "source_sha": "32bbaedbf68c0af3f9447da7e3ebf215ddc2e952",
+            "environment": "NDK 28.2.13676358; API 29; ARM64 and x86_64",
+            "evidence": "build/agent-validation/aarch64-linux-android29.o and x86_64-linux-android29.o",
+            "limitation": "Object compilation is not JNI/Gradle/device runtime integration.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "ASan and UBSan fixture execution, including cancellation and failed streams",
+            "result": "PASS",
+            "command": "g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -Ireconstruction/include -I/path/to/061/reconstruction/include reconstruction/src/obj_export.cpp /path/to/061/reconstruction/src/asset_model.cpp reconstruction/tests/agent_062_obj_test.cpp -o build/agent-validation/fixtures/fixture-sanitized; ASAN_OPTIONS=detect_leaks=1 build/agent-validation/fixtures/fixture-sanitized <fixture arguments>",
+            "source_sha": "32bbaedbf68c0af3f9447da7e3ebf215ddc2e952",
+            "environment": "GCC14 address+undefined sanitizers with leak detection",
+            "evidence": "build/agent-validation/sanitizers.log",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Independent exported-asset interoperability",
+            "result": "PASS",
+            "command": "RF_CANONICAL_ASSET_ROOT=/path/to/061 python -m pytest tests/test_agent_062_obj.py -q; additionally import build/agent-validation/fixtures/asymmetric.obj with trimesh.load_mesh(..., process=False)",
+            "source_sha": "32bbaedbf68c0af3f9447da7e3ebf215ddc2e952",
+            "environment": "Independent Python typed reader plus trimesh 4.7.4, NumPy 2.2.6; analytic synthetic geometry only",
+            "evidence": {
+              "independentReader": "trimesh",
+              "version": "4.7.4",
+              "numpyVersion": "2.2.6",
+              "synthetic": true,
+              "physical": false,
+              "assetSha256": "20344f4cd6e1bced0852a4dfe1c27b2d63fd890a1211e3ea48eb3cbd7dd69dd4",
+              "asset": "asymmetric.obj",
+              "result": "PASS"
+            },
+            "limitation": "Production target-tool and physical scan qualification remain unrun.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "ANDROID combined serializer invocation through actual application",
+            "result": "NOT_RUN",
+            "command": "Integrate 004 source registration and 003/067 typed materializer, then :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug and selected export execution",
+            "source_sha": "32bbaedbf68c0af3f9447da7e3ebf215ddc2e952",
+            "evidence": "Concrete owner handoffs committed in docs/agents/requests",
+            "limitation": "Legacy/JNI/application wiring belongs to other source owners and is not present on this isolated agent branch.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Compatibility with final hardened C10 PNG/zlib contract",
+            "result": "PASS",
+            "command": "RF_CANONICAL_ASSET_ROOT=/workspace/agent-work/061 python -m pytest tests/test_project_contracts.py tests/test_agent_062_obj.py -q",
+            "source_sha": "e99b3a962b691c17d2b0df46ab09be1d6ccf538c",
+            "dependency_source_sha": "34f2f5e616cb0d9beecabf80c0b671c2ce3cb36a",
+            "result_detail": "27 passed; standalone fixture links platform zlib; production serializer source/API unchanged",
+            "environment": "GCC14 C++20 -Werror, Python3.12, final C10 PNG decode/chunk/bomb validation",
+            "evidence": "Focused independent format import and malformed/cancel/short-write regression output"
+          }
+        ],
+        "remaining_work": [
+          "Owner 004 build registration and owner 003 JNI/runtime wiring",
+          "Owner 067 application materialization/transport integration; owners 037/053/057 legacy delegation where relevant",
+          "Agent 100 combined candidate and Agent 090 production target-tool qualification"
+        ],
+        "external_blockers": [
+          "No authorized physical Android handset is attached; no physical or device runtime claim",
+          "GitHub API read returns Forbidden at api.github.com; draft PR creation unavailable although HTTPS Git pushes succeed"
+        ],
+        "next_action": "Integrate the published component through named owners, run actual Android exports on combined candidate, and retain unrun gates explicitly.",
+        "integration_requests": [
+          "docs/agents/requests/062-to-003.md",
+          "docs/agents/requests/062-to-004.md",
+          "docs/agents/requests/062-to-057.md",
+          "docs/agents/requests/062-to-067.md",
+          "docs/agents/requests/062-to-090.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/062.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/062.md",
+        "exists": true,
+        "blob_oid": "c136c04cb20cb20e4a2adad0aab591f45bbca870",
+        "sha256": "72fa0107a1050ccc35d7fa535e8d6a15464b97135a74280345c79faf501c689e"
+      },
+      "requirements_from_plan": {
+        "mission": "Export useful OBJ packages with valid geometry, material references and the actual photographic atlas.",
+        "success_criteria": "- An independently imported OBJ package has the expected triangle count, bounding box, normals, UV orientation and photographed appearance.\n- Texture filenames resolve after ZIP extraction into a different directory, with no external path or missing sibling resource.\n- Cancellation, short writes and large-model limits produce a clear failed export without changing the current project artifact.",
+        "required_verification": "HOST; ANDROID; INTEROPERABILITY."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/062-to-003.md",
+        "docs/agents/requests/062-to-004.md",
+        "docs/agents/requests/062-to-057.md",
+        "docs/agents/requests/062-to-067.md",
+        "docs/agents/requests/062-to-090.md"
+      ],
+      "final_checkout": {
+        "head": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+        "branch": "agents/062-obj-export",
+        "index_entries_sha256": "213ef11ac9653948b3bc428821cd9bf1bc41958821c3fc007c09b2ff442eafd5",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:29.325985+00:00",
+      "remote_head_end": "92f102f0d42230ce671e2349dc3fb1a610a3da35",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "063",
+      "branch": "agents/063-stl-export",
+      "path": "/workspace/agent-work/063",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:29.326095+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+        "branch": "agents/063-stl-export",
+        "index_entries_sha256": "dfd07b808cb4a3e7852bbe1ab3d532bdd30a460301a30697131d1c3baf6147e2",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 203,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/063.md",
+        "exists": true,
+        "blob_oid": "33330ffb9238b9da051b68649c7f150cd50e9ef1",
+        "sha256": "dc45319ec249bb16711b5fae91eece59db6f1a7a5c45470e85d4f1e68bb42a26"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "json",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "HOST baseline and owned behavioral import/error checks",
+            "result": "PASS",
+            "command": "cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror && cmake --build build/host --parallel 2 && ctest --test-dir build/host --output-on-failure && RF_CANONICAL_ASSET_ROOT=/workspace/agent-work/061 python -m pytest tests -q --junitxml=build/agent-validation/pytest.xml",
+            "source_sha": "eaa349b27a39fa5e5f5b4326fa191a7555b30dad",
+            "result_detail": "11 CTest cases and 118 pytest checks passed; no skips",
+            "environment": "GCC 14.2.0; C++20 Release -Werror; Python 3.12; analytic explicitly synthetic fixtures",
+            "evidence": "build/agent-validation/{ctest.log,pytest.log,pytest.xml}",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Android ARM64 and x86_64 native compilation",
+            "result": "PASS",
+            "command": "$ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/<aarch64|x86_64>-linux-android29-clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -Ireconstruction/include -I/path/to/061/reconstruction/include -c reconstruction/src/stl_export.cpp",
+            "source_sha": "eaa349b27a39fa5e5f5b4326fa191a7555b30dad",
+            "environment": "NDK 28.2.13676358; API 29; ARM64 and x86_64",
+            "evidence": "build/agent-validation/aarch64-linux-android29.o and x86_64-linux-android29.o",
+            "limitation": "Object compilation is not JNI/Gradle/device runtime integration.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "ASan and UBSan fixture execution, including cancellation and failed streams",
+            "result": "PASS",
+            "command": "g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -Ireconstruction/include -I/path/to/061/reconstruction/include reconstruction/src/stl_export.cpp /path/to/061/reconstruction/src/asset_model.cpp reconstruction/tests/agent_063_stl_test.cpp -o build/agent-validation/fixtures/fixture-sanitized; ASAN_OPTIONS=detect_leaks=1 build/agent-validation/fixtures/fixture-sanitized <fixture arguments>",
+            "source_sha": "eaa349b27a39fa5e5f5b4326fa191a7555b30dad",
+            "environment": "GCC14 address+undefined sanitizers with leak detection",
+            "evidence": "build/agent-validation/sanitizers.log",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Independent exported-asset interoperability",
+            "result": "PASS",
+            "command": "RF_CANONICAL_ASSET_ROOT=/path/to/061 python -m pytest tests/test_agent_063_stl.py -q; additionally import build/agent-validation/fixtures/asymmetric.stl with trimesh.load_mesh(..., process=False)",
+            "source_sha": "eaa349b27a39fa5e5f5b4326fa191a7555b30dad",
+            "environment": "Independent Python typed reader plus trimesh 4.7.4, NumPy 2.2.6; analytic synthetic geometry only",
+            "evidence": {
+              "independentReader": "trimesh",
+              "version": "4.7.4",
+              "numpyVersion": "2.2.6",
+              "synthetic": true,
+              "physical": false,
+              "assetSha256": "115ead18288ca7298bdeeca5341fd1d61e8c53ae98a4fe72cefe6ce3567cf1d6",
+              "asset": "asymmetric.stl",
+              "result": "PASS"
+            },
+            "limitation": "Production target-tool and physical scan qualification remain unrun.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "ANDROID combined serializer invocation through actual application",
+            "result": "NOT_RUN",
+            "command": "Integrate 004 source registration and 003/067 typed materializer, then :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug and selected export execution",
+            "source_sha": "eaa349b27a39fa5e5f5b4326fa191a7555b30dad",
+            "evidence": "Concrete owner handoffs committed in docs/agents/requests",
+            "limitation": "Legacy/JNI/application wiring belongs to other source owners and is not present on this isolated agent branch.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Compatibility with final hardened C10 PNG/zlib contract",
+            "result": "PASS",
+            "command": "RF_CANONICAL_ASSET_ROOT=/workspace/agent-work/061 python -m pytest tests/test_project_contracts.py tests/test_agent_063_stl.py -q",
+            "source_sha": "d99409b4c6ed04a45ab81bbbf38f9793f0dd2954",
+            "dependency_source_sha": "34f2f5e616cb0d9beecabf80c0b671c2ce3cb36a",
+            "result_detail": "27 passed; standalone fixture links platform zlib; production serializer source/API unchanged",
+            "environment": "GCC14 C++20 -Werror, Python3.12, final C10 PNG decode/chunk/bomb validation",
+            "evidence": "Focused independent format import and malformed/cancel/short-write regression output"
+          }
+        ],
+        "remaining_work": [
+          "Owner 004 build registration and owner 003 JNI/runtime wiring",
+          "Owner 067 application materialization/transport integration; owners 037/053/057 legacy delegation where relevant",
+          "Agent 100 combined candidate and Agent 090 production target-tool qualification"
+        ],
+        "external_blockers": [
+          "No authorized physical Android handset is attached; no physical or device runtime claim",
+          "GitHub API read returns Forbidden at api.github.com; draft PR creation unavailable although HTTPS Git pushes succeed"
+        ],
+        "next_action": "Integrate the published component through named owners, run actual Android exports on combined candidate, and retain unrun gates explicitly.",
+        "integration_requests": [
+          "docs/agents/requests/063-to-003.md",
+          "docs/agents/requests/063-to-004.md",
+          "docs/agents/requests/063-to-055.md",
+          "docs/agents/requests/063-to-066.md",
+          "docs/agents/requests/063-to-067.md",
+          "docs/agents/requests/063-to-090.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/063.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/063.md",
+        "exists": true,
+        "blob_oid": "44cb59fe51e0fb4d12241139aadcceaa6160a288",
+        "sha256": "e1edc9bb54f642428bddca35e89e54b4cd57900db2897d779528545c1a1b57bb"
+      },
+      "requirements_from_plan": {
+        "mission": "Offer an honest, interoperable triangle-only STL export with explicit scale and topology limitations.",
+        "success_criteria": "- An independent STL parser reports identical triangle count and the selected scale/bounds for an asymmetric reference fixture.\n- Point clouds and missing/invalid scale choices receive clear appropriate handling, and an open mesh remains identified as open.\n- Invalid normals/coordinates/count overflow and interrupted writes cannot be published as successful STL exports.",
+        "required_verification": "HOST; ANDROID; INTEROPERABILITY."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/063-to-003.md",
+        "docs/agents/requests/063-to-004.md",
+        "docs/agents/requests/063-to-055.md",
+        "docs/agents/requests/063-to-066.md",
+        "docs/agents/requests/063-to-067.md",
+        "docs/agents/requests/063-to-090.md"
+      ],
+      "final_checkout": {
+        "head": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+        "branch": "agents/063-stl-export",
+        "index_entries_sha256": "dfd07b808cb4a3e7852bbe1ab3d532bdd30a460301a30697131d1c3baf6147e2",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:33.044192+00:00",
+      "remote_head_end": "51a362e57ab40cc6fd82988c6130c709f77537a5",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "064",
+      "branch": "agents/064-ply-export",
+      "path": "/workspace/agent-work/064",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:29.640405+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+        "branch": "agents/064-ply-export",
+        "index_entries_sha256": "34020a1e7d95eb6bdfab2c8b1eadfdd0eebb91c50397bd890771cd348453f1ce",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 203,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/064.md",
+        "exists": true,
+        "blob_oid": "f7c2c42352c5712aaa090da8e875cd76e9f2eca6",
+        "sha256": "def4efbc35ffa9b5e83ae55cbdcceb0ccb3d047762b90754fd9246d1dfa9237a"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "json",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "HOST baseline and owned behavioral import/error checks",
+            "result": "PASS",
+            "command": "cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror && cmake --build build/host --parallel 2 && ctest --test-dir build/host --output-on-failure && RF_CANONICAL_ASSET_ROOT=/workspace/agent-work/061 python -m pytest tests -q --junitxml=build/agent-validation/pytest.xml",
+            "source_sha": "b1f5bc2766e4d6cc62f39300505dade5146c6011",
+            "result_detail": "11 CTest cases and 118 pytest checks passed; no skips",
+            "environment": "GCC 14.2.0; C++20 Release -Werror; Python 3.12; analytic explicitly synthetic fixtures",
+            "evidence": "build/agent-validation/{ctest.log,pytest.log,pytest.xml}",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Android ARM64 and x86_64 native compilation",
+            "result": "PASS",
+            "command": "$ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/<aarch64|x86_64>-linux-android29-clang++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -Ireconstruction/include -I/path/to/061/reconstruction/include -c reconstruction/src/ply_export.cpp",
+            "source_sha": "b1f5bc2766e4d6cc62f39300505dade5146c6011",
+            "environment": "NDK 28.2.13676358; API 29; ARM64 and x86_64",
+            "evidence": "build/agent-validation/aarch64-linux-android29.o and x86_64-linux-android29.o",
+            "limitation": "Object compilation is not JNI/Gradle/device runtime integration.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "ASan and UBSan fixture execution, including cancellation and failed streams",
+            "result": "PASS",
+            "command": "g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -Ireconstruction/include -I/path/to/061/reconstruction/include reconstruction/src/ply_export.cpp /path/to/061/reconstruction/src/asset_model.cpp reconstruction/tests/agent_064_ply_test.cpp -o build/agent-validation/fixtures/fixture-sanitized; ASAN_OPTIONS=detect_leaks=1 build/agent-validation/fixtures/fixture-sanitized <fixture arguments>",
+            "source_sha": "b1f5bc2766e4d6cc62f39300505dade5146c6011",
+            "environment": "GCC14 address+undefined sanitizers with leak detection",
+            "evidence": "build/agent-validation/sanitizers.log",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Independent exported-asset interoperability",
+            "result": "PASS",
+            "command": "RF_CANONICAL_ASSET_ROOT=/path/to/061 python -m pytest tests/test_agent_064_ply.py -q; additionally import build/agent-validation/fixtures/surface.ply with trimesh.load_mesh(..., process=False)",
+            "source_sha": "b1f5bc2766e4d6cc62f39300505dade5146c6011",
+            "environment": "Independent Python typed reader plus trimesh 4.7.4, NumPy 2.2.6; analytic synthetic geometry only",
+            "evidence": {
+              "independentReader": "trimesh",
+              "version": "4.7.4",
+              "numpyVersion": "2.2.6",
+              "synthetic": true,
+              "physical": false,
+              "assetSha256": "bc5297e559e2abb2b38c01c92dbffb2ef242390f25d2c51cc95b54728a35e4a2",
+              "asset": "surface.ply",
+              "result": "PASS"
+            },
+            "limitation": "Production target-tool and physical scan qualification remain unrun.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "ANDROID combined serializer invocation through actual application",
+            "result": "NOT_RUN",
+            "command": "Integrate 004 source registration and 003/067 typed materializer, then :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug and selected export execution",
+            "source_sha": "b1f5bc2766e4d6cc62f39300505dade5146c6011",
+            "evidence": "Concrete owner handoffs committed in docs/agents/requests",
+            "limitation": "Legacy/JNI/application wiring belongs to other source owners and is not present on this isolated agent branch.",
+            "dependency_source_sha": "47e0fb49c6ac2cbceb84a1d5c132c6d63fda310d"
+          },
+          {
+            "criterion": "Compatibility with final hardened C10 PNG/zlib contract",
+            "result": "PASS",
+            "command": "RF_CANONICAL_ASSET_ROOT=/workspace/agent-work/061 python -m pytest tests/test_project_contracts.py tests/test_agent_064_ply.py -q",
+            "source_sha": "8fc7c1bcfb906abf8726361a98dc2fd81428d788",
+            "dependency_source_sha": "34f2f5e616cb0d9beecabf80c0b671c2ce3cb36a",
+            "result_detail": "27 passed; standalone fixture links platform zlib; production serializer source/API unchanged",
+            "environment": "GCC14 C++20 -Werror, Python3.12, final C10 PNG decode/chunk/bomb validation",
+            "evidence": "Focused independent format import and malformed/cancel/short-write regression output"
+          }
+        ],
+        "remaining_work": [
+          "Owner 004 build registration and owner 003 JNI/runtime wiring",
+          "Owner 067 application materialization/transport integration; owners 037/053/057 legacy delegation where relevant",
+          "Agent 100 combined candidate and Agent 090 production target-tool qualification"
+        ],
+        "external_blockers": [
+          "No authorized physical Android handset is attached; no physical or device runtime claim",
+          "GitHub API read returns Forbidden at api.github.com; draft PR creation unavailable although HTTPS Git pushes succeed"
+        ],
+        "next_action": "Integrate the published component through named owners, run actual Android exports on combined candidate, and retain unrun gates explicitly.",
+        "integration_requests": [
+          "docs/agents/requests/064-to-003.md",
+          "docs/agents/requests/064-to-004.md",
+          "docs/agents/requests/064-to-037.md",
+          "docs/agents/requests/064-to-053.md",
+          "docs/agents/requests/064-to-067.md",
+          "docs/agents/requests/064-to-090.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/064.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/064.md",
+        "exists": true,
+        "blob_oid": "60a2d21610e0d0f8a6e1f04f5daf98a9a7d9711c",
+        "sha256": "218f6cd833cd633b4ff4960ac65da3a6b5f25f7454027f0c0f3c74230ffd2be0"
+      },
+      "requirements_from_plan": {
+        "mission": "Preserve useful scan evidence in interoperable point and surface PLY exports.",
+        "success_criteria": "- Independent readers recover expected points/faces, colors, normal directions, confidence fields and bounds from roundtrip fixtures.\n- Dense outputs are never labeled sparse; surface exports carry actual face indices and sparse exports never fabricate faces.\n- Malformed geometry, unsupported field sizes and cancellation produce explicit errors with bounded memory.",
+        "required_verification": "HOST; ANDROID; INTEROPERABILITY."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/064-to-003.md",
+        "docs/agents/requests/064-to-004.md",
+        "docs/agents/requests/064-to-037.md",
+        "docs/agents/requests/064-to-053.md",
+        "docs/agents/requests/064-to-067.md",
+        "docs/agents/requests/064-to-090.md"
+      ],
+      "final_checkout": {
+        "head": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+        "branch": "agents/064-ply-export",
+        "index_entries_sha256": "34020a1e7d95eb6bdfab2c8b1eadfdd0eebb91c50397bd890771cd348453f1ce",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:32.991988+00:00",
+      "remote_head_end": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "065",
+      "branch": "agents/065-mesh-lod",
+      "path": "/workspace/agent-work/065",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:32.992096+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+        "branch": "agents/065-mesh-lod",
+        "index_entries_sha256": "4a732fd5745256f04208fc1829d39bf0646b43b42e1a8dacbd257e3209af777d",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+        "files": 207,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 207,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 207,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/065.md",
+        "exists": true,
+        "blob_oid": "96e0e5d4d6bbb2a33fa97f64113dc8e6d23b566a",
+        "sha256": "f0f7a7fbf5cbf014941b8aa59b9fea16c1162589d86f2d7c42258a7ff20963d0"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "Supported reductions obey explicit displacement, topology, seam and work constraints; unsupported reductions are refused",
+            "result": "PASS",
+            "command": "RF_ASSET_CONTRACT_ROOT=/workspace/agent-work/061 RF_TOPOLOGY_CONTRACT_ROOT=/workspace/campaign-061-080/dependencies/055 python -m pytest tests/test_agent_065_mesh_lod.py -q",
+            "source_sha": "8a81ece56a4fb7e2e5a63e7d1e2599546a3e1892",
+            "environment": "GCC 14.2.0 C++20 -Wall -Wextra -Werror, Linux x86_64",
+            "dataset_identity": "explicitly synthetic open grid, closed octahedron, thin strip, UV seam and disconnected grids",
+            "evidence": "reconstruction/tests/agent_065_mesh_lod.cpp"
+          },
+          {
+            "criterion": "A useful bounded mesh reduction produces actual derived geometry",
+            "result": "PASS",
+            "command": "same focused native executable, 20000 to 10000 triangle fixture, work limit 2000000, displacement limit 3 arbitrary units",
+            "source_sha": "8a81ece56a4fb7e2e5a63e7d1e2599546a3e1892",
+            "environment": "Host synthetic numerical regression, not phone profiling",
+            "evidence": "reconstruction/tests/agent_065_mesh_lod.cpp"
+          },
+          {
+            "criterion": "Independent topology and GLB checks preserve boundaries, components, winding and buffer integrity",
+            "result": "PASS",
+            "command": "actual Agent 055 analyzeMeshTopology plus independent binary GLB decoding and Khronos gltf-validator 2.0.0-dev.3.10",
+            "source_sha": "8a81ece56a4fb7e2e5a63e7d1e2599546a3e1892",
+            "artifact_sha256": "72db135f71e3170ac2ddf9a2d48f04642bff3d52716c948d404d5305f033d902",
+            "environment": "Pinned owner 055 header at 47705706512d04da64fd5c090b2325d91d888aa1, unchanged in incoming 2c659b78b597f63988cb65e9cce9d44fc475bac3",
+            "evidence": "/workspace/campaign-061-080/065-gltf-validation.json"
+          },
+          {
+            "criterion": "LOD reuse/invalidation and actual export/renderer selection follow owner 009 identities",
+            "result": "NOT_RUN",
+            "source_sha": "8a81ece56a4fb7e2e5a63e7d1e2599546a3e1892",
+            "command": "Integrate owners 004/009/057/058/067/069, then execute the real selected-variant path",
+            "evidence": "docs/agents/requests/065-to-009.md"
+          },
+          {
+            "criterion": "Independent real geometry and photographic texture qualification on supported assets",
+            "result": "NOT_RUN",
+            "source_sha": "8a81ece56a4fb7e2e5a63e7d1e2599546a3e1892",
+            "command": "Owners 084/085/090 measure the final materialized variant on frozen eligible data and thresholds",
+            "evidence": "docs/agents/requests/065-to-084.md"
+          }
+        ],
+        "remaining_work": [
+          "Owner 004 registers mesh_lod.cpp and the actual native test target after C10 source registration",
+          "Owner 009 assigns descendant identity from complete recipe, parent, UV/normal inputs, algorithm version and implementation hash",
+          "Owners 053/057 compose parent vertex/face maps with observation provenance; 058/057 qualify any rebake",
+          "Owners 067/069 consume real derived geometry through source-owner native wiring; 100 integrates compatible immutable commits",
+          "Independent real-data geometry/appearance/interoperability qualification remains open"
+        ],
+        "external_blockers": [
+          "Qualified physical complete-object geometry and photographic texture measurements are unavailable; synthetic bounds are not physical scan accuracy"
+        ],
+        "next_action": "Agent 100 indexes the pushed handoffs, integrates source-owner adapters and reruns actual variant export/render plus independent quality gates",
+        "candidate_commit": "8a81ece56a4fb7e2e5a63e7d1e2599546a3e1892",
+        "native_candidate_commit": "d71b496ece5d926bc4c69540cdd43714bd077f3e",
+        "integration_requests": [
+          4,
+          "009",
+          43,
+          45,
+          47,
+          "058",
+          55,
+          "069",
+          "084",
+          "085"
+        ],
+        "interfaces_published": [
+          "C10-derived-LOD",
+          "parent-observation-index-sidecars"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/065.md",
+        "exists": true,
+        "blob_oid": "6f044151676b049cc810238056fa2483d2e69286",
+        "sha256": "4477e474971a516d510d8586a8f6693f426059797ce5512045594f6e56f2c6c9"
+      },
+      "requirements_from_plan": {
+        "mission": "Create smaller view/export variants with measured geometric and photographic error while preserving the highest-fidelity source.",
+        "success_criteria": "- Requested reductions meet predeclared geometric error bounds on closed, open, thin and disconnected fixtures without invented surface closure.\n- UV/normal/face integrity and texture seams remain valid after reduction, or the operation refuses an unsupported case.\n- LOD reuse/invalidation follows 009 identities; master counts/hashes remain unchanged and cancellation never replaces the master.",
+        "required_verification": "HOST; GEOMETRY; TEXTURE; INTEROPERABILITY."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/065-to-004.md",
+        "docs/agents/requests/065-to-009.md",
+        "docs/agents/requests/065-to-053.md",
+        "docs/agents/requests/065-to-055.md",
+        "docs/agents/requests/065-to-057.md",
+        "docs/agents/requests/065-to-058.md",
+        "docs/agents/requests/065-to-067.md",
+        "docs/agents/requests/065-to-069.md",
+        "docs/agents/requests/065-to-084.md",
+        "docs/agents/requests/065-to-085.md"
+      ],
+      "final_checkout": {
+        "head": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+        "branch": "agents/065-mesh-lod",
+        "index_entries_sha256": "4a732fd5745256f04208fc1829d39bf0646b43b42e1a8dacbd257e3209af777d",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:37.854094+00:00",
+      "remote_head_end": "e4ed1e369e38ee562b09e9879f2069fe4261915c",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "066",
+      "branch": "agents/066-model-editing",
+      "path": "/workspace/agent-work/066",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:33.044312+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+        "branch": "agents/066-model-editing",
+        "index_entries_sha256": "c85cbc095009e258374e0d1876dd62c60db48bfdf39165f97795ae9b22300dbc",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+        "files": 209,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 209,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 209,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/066.md",
+        "exists": true,
+        "blob_oid": "dd5ee5312541f14de30ea1e5a61035480c6787bc",
+        "sha256": "2c0d552492fef7cde109ba076f26c515a5c013e57139b38b91ede8286ad3f749"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "Pure native orientation, reflection, crop, component selection and known-distance measurement preserve source geometry",
+            "result": "PASS",
+            "command": "RF_ASSET_CONTRACT_ROOT=/workspace/agent-work/061 python -m pytest tests/test_agent_066_asset_edit.py -q",
+            "source_sha": "355f838654ea2fc71703d0ef517bb7713c07c3d3",
+            "environment": "GCC 14.2.0, C++20, Linux x86_64",
+            "dataset_identity": "explicitly synthetic asymmetric disconnected triangles",
+            "evidence": "build/agent-066/pytest/test_native_edit_materializati0/"
+          },
+          {
+            "criterion": "Undo/redo and reopening reproduce exact active recipes and retained redo history",
+            "result": "PASS",
+            "command": "python /workspace/toolchains/gradle-cloud.py :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "6488e64d30195e5b17fa314e350a31890912d3f1",
+            "artifact_sha256": "93ba30b1743fdcdc23c17716dbf0e2e016c4d0fdfb5046cd2950c2ae38fab878",
+            "environment": "JDK 17.0.16, Gradle 8.13, SDK 36, NDK 28.2.13676358; host JVM tests",
+            "evidence": "app/build/test-results/testDebugUnitTest/ and app/build/reports/lint-results-debug.xml"
+          },
+          {
+            "criterion": "Crop/transform outputs pass topology and external-format checks, including reflected transforms",
+            "result": "PASS",
+            "command": "native executable assertions, independent binary GLB decoding, Khronos gltf-validator 2.0.0-dev.3.10",
+            "source_sha": "355f838654ea2fc71703d0ef517bb7713c07c3d3",
+            "artifact_sha256": "f9a2bd9d709f320c3f684ca43f02d0c2527cf3646689eddeba42d8c76e6149d3",
+            "environment": "Linux x86_64; synthetic fixture, not physical capture",
+            "evidence": "/workspace/campaign-061-080/066-reflection-gltf-validation.json"
+          },
+          {
+            "criterion": "Actual database-persisted editor and export journeys on a supported Android device",
+            "result": "NOT_RUN",
+            "source_sha": "6488e64d30195e5b17fa314e350a31890912d3f1",
+            "command": "Owner 003/004/005/009/067/070 integration followed by EditHistoryDeviceTest and full studio/export journey",
+            "environment": "Device unavailable during this branch validation; test APK compiled",
+            "evidence": "docs/agents/requests/066-to-003.md"
+          }
+        ],
+        "remaining_work": [
+          "Owner 004 registers the native module/tests and owner 003 binds checked JNI materialization/cancellation",
+          "Owner 005 connects recipe history to committed parent artifact/revision and owner 009 assigns canonical descendant identity",
+          "Owners 067/070 invoke real materialization from export/studio; owner 100 integrates immutable compatible commits",
+          "Execute compiled Android private-history test, integrated UI/export/device journey and independent owner 090 qualification"
+        ],
+        "external_blockers": [
+          "Physical known-distance capture/accuracy qualification and manual device evidence are unavailable; synthetic reference uncertainty is not reconstruction accuracy"
+        ],
+        "next_action": "Merge compatible owner contributions through Agent 100, execute compiled device test and revalidate actual editor/export routes",
+        "candidate_commit": "355f838654ea2fc71703d0ef517bb7713c07c3d3",
+        "integration_requests": [
+          3,
+          4,
+          5,
+          "009",
+          43,
+          45,
+          55,
+          56,
+          "090"
+        ],
+        "interfaces_published": [
+          "C11-edit-recipe",
+          "EditController",
+          "active-recipe-materialization-bytes"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/066.md",
+        "exists": true,
+        "blob_oid": "7d18bf931bca2d789e6224bde1a918d39ac6d433",
+        "sha256": "4d4ed0c9bea6821f91b3b59310767ebded07ff5f62d21e734fe51c9555acafd1"
+      },
+      "requirements_from_plan": {
+        "mission": "Let users make useful local edits and measurements through reversible recipes with explicit scale provenance.",
+        "success_criteria": "- Undo/redo and reopening reproduce exact edit recipes while source geometry/photo hashes remain unchanged.\n- Known-distance synthetic fixtures yield the expected scale/measurement and axis orientation; unknown scale is never displayed as measured meters.\n- Crop/transform outputs pass topology and external-format checks, including negative/reflected transforms if supported; unsupported operations fail explicitly.",
+        "required_verification": "HOST; ANDROID; DEVICE; INTEROPERABILITY."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/066-to-003.md",
+        "docs/agents/requests/066-to-004.md",
+        "docs/agents/requests/066-to-005.md",
+        "docs/agents/requests/066-to-009.md",
+        "docs/agents/requests/066-to-053.md",
+        "docs/agents/requests/066-to-055.md",
+        "docs/agents/requests/066-to-067.md",
+        "docs/agents/requests/066-to-070.md",
+        "docs/agents/requests/066-to-090.md"
+      ],
+      "final_checkout": {
+        "head": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+        "branch": "agents/066-model-editing",
+        "index_entries_sha256": "c85cbc095009e258374e0d1876dd62c60db48bfdf39165f97795ae9b22300dbc",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:38.032611+00:00",
+      "remote_head_end": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "067",
+      "branch": "agents/067-export-coordinator",
+      "path": "/workspace/agent-work/067",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:37.854229+00:00",
+      "failures": [],
+      "pending": [
+        "UNCOMMITTED_WORKTREE_CHANGES",
+        "MANIFEST_WORKTREE_NOT_VALID_AT_SNAPSHOT"
+      ],
+      "initial_checkout": {
+        "head": "5763a21d21057807b3b67563f4cddc6d0091c9b1",
+        "branch": "agents/067-export-coordinator",
+        "index_entries_sha256": "8fdd20d52f29d2a26fb442f7f3fc9d62d9964a4cd6c014a15f6e529fcfe3217c",
+        "worktree": {
+          "clean": false,
+          "paths": [
+            {
+              "status": " M",
+              "path": "docs/agents/contracts/067.md"
+            },
+            {
+              "status": " M",
+              "path": "docs/agents/requests/067-to-001.md"
+            },
+            {
+              "status": "??",
+              "path": "docs/agents/requests/067-to-004.md"
+            },
+            {
+              "status": "??",
+              "path": "docs/agents/requests/067-to-025.md"
+            }
+          ],
+          "porcelain_sha256": "66a552530172c94cb4da6f44819372bbe9f7d3eb5405464029ed453731b6906d"
+        }
+      },
+      "remote_head_start": "5763a21d21057807b3b67563f4cddc6d0091c9b1",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "5763a21d21057807b3b67563f4cddc6d0091c9b1",
+        "files": 208,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 208,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "status": "FAIL",
+        "error": "Manifest hash mismatch: ['docs/agents/contracts/067.md', 'docs/agents/requests/067-to-001.md']"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/067.md",
+        "exists": true,
+        "blob_oid": "6cb1a84488af92c07280ef24050a74462a346e62",
+        "sha256": "f757a994a6f06c56512a11e40f17a61cb21976a3d8646b08101adb91d7184973"
+      },
+      "contract_status": {
+        "state": "WORKING",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "WORKING",
+        "acceptance_results": [
+          {
+            "criterion": "Real typed export behavior and failure regressions",
+            "result": "NOT_RUN",
+            "command": "python /workspace/toolchains/gradle-cloud.py :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "environment": "JDK17 Gradle8.13 SDK36 NDK28.2 x86_64 Linux",
+            "evidence": "/workspace/campaign-061-080/067-android-final.log"
+          }
+        ],
+        "remaining_work": [
+          "Complete current Android validation",
+          "final source receipt",
+          "integrated device and interoperable serializer materializers"
+        ],
+        "external_blockers": [
+          "001 immutable operation reservation",
+          "003 canonical native boundary",
+          "026 provider transaction integration",
+          "100 combined candidate",
+          "physical device"
+        ],
+        "next_action": "Finish all runnable checks and publish exact tested candidate evidence",
+        "implementation_commits": [],
+        "integration_requests": [
+          "docs/agents/requests/067-to-001.md",
+          "docs/agents/requests/067-to-003.md",
+          "docs/agents/requests/067-to-026.md"
+        ],
+        "interfaces_published": [
+          "C12",
+          "docs/agents/contracts/067.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/067.md",
+        "exists": true,
+        "blob_oid": "f4b1983962a65b8d4ae3d8708027c7f0cd899451",
+        "sha256": "9e6c7ee58c50df267691b8770cc3247b53b49d8916aa37bef0bafbeec34d7a92"
+      },
+      "requirements_from_plan": {
+        "mission": "Present and execute valid export choices tied to the exact model, representation, edits and destination.",
+        "success_criteria": "- Every displayed export option produces a valid independent-reader artifact, and unavailable representation/format combinations cannot be selected.\n- A pending system-picker result stays bound to the initiating project/artifact even after navigation, process recreation or concurrent changes.\n- Export-only choices reuse upstream reconstruction and preserve originals/master artifacts through cancellation and provider errors.",
+        "required_verification": "ANDROID; DEVICE; INTEROPERABILITY; RESILIENCE."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/067-to-001.md",
+        "docs/agents/requests/067-to-003.md",
+        "docs/agents/requests/067-to-009.md",
+        "docs/agents/requests/067-to-023.md",
+        "docs/agents/requests/067-to-026.md"
+      ],
+      "final_checkout": {
+        "head": "5763a21d21057807b3b67563f4cddc6d0091c9b1",
+        "branch": "agents/067-export-coordinator",
+        "index_entries_sha256": "8fdd20d52f29d2a26fb442f7f3fc9d62d9964a4cd6c014a15f6e529fcfe3217c",
+        "worktree": {
+          "clean": false,
+          "paths": [
+            {
+              "status": " M",
+              "path": "docs/agents/contracts/067.md"
+            },
+            {
+              "status": " M",
+              "path": "docs/agents/requests/067-to-001.md"
+            },
+            {
+              "status": "??",
+              "path": "docs/agents/requests/067-to-004.md"
+            },
+            {
+              "status": "??",
+              "path": "docs/agents/requests/067-to-025.md"
+            }
+          ],
+          "porcelain_sha256": "66a552530172c94cb4da6f44819372bbe9f7d3eb5405464029ed453731b6906d"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:42.397091+00:00",
+      "remote_head_end": "5763a21d21057807b3b67563f4cddc6d0091c9b1",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PENDING"
+    },
+    {
+      "agent": "068",
+      "branch": "agents/068-model-loader",
+      "path": "/workspace/agent-work/068",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:38.032807+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "729fa9e209468fae54212581d2659026713a55e7",
+        "branch": "agents/068-model-loader",
+        "index_entries_sha256": "99554a0f382efa81536bedc6142590782697dba851736da40edf4497066e63bc",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "729fa9e209468fae54212581d2659026713a55e7",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "729fa9e209468fae54212581d2659026713a55e7",
+        "files": 204,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 204,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 204,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/068.md",
+        "exists": true,
+        "blob_oid": "ab82f46393029e999a11c75f99a28ae9c955a04f",
+        "sha256": "51f6467f57a998076ad6fd8c836c9eb03aaa0cbcef444b49d157cb8c9a9d8325"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "source_candidate": "0e85e76bdc38d0df80c627933a96a5d868c867fe",
+        "source_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "integration_requests": [
+          "004",
+          "030",
+          "069",
+          "070",
+          "082"
+        ],
+        "interfaces_published": [
+          "C13"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/068.md",
+        "exists": true,
+        "blob_oid": "3909e4e8ffcaa8264a345f97551776c7d461435a",
+        "sha256": "c0d6c5a771e55a0cb14b6236858ef06e5d4bc21d5a5646a1e73680911732471a"
+      },
+      "requirements_from_plan": {
+        "mission": "Keep model loading safe and correct as exported geometry, atlases and studio capabilities grow.",
+        "success_criteria": "- Generated current and new 061 GLBs load with identical geometry, UV orientation and image dimensions within the supported contract.\n- Malformed/truncated/oversized/overlapping buffers and decompression-bomb inputs fail without crash, unbounded allocation or external access.\n- Repeated open/cancel/close cycles release CPU assets and integrate with renderer lifecycle; supported maximum assets stay within measured budget.",
+        "required_verification": "ANDROID; DEVICE; FUZZ; INTEROPERABILITY."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/068-to-004.md",
+        "docs/agents/requests/068-to-030.md",
+        "docs/agents/requests/068-to-069.md",
+        "docs/agents/requests/068-to-070.md",
+        "docs/agents/requests/068-to-082.md"
+      ],
+      "final_checkout": {
+        "head": "729fa9e209468fae54212581d2659026713a55e7",
+        "branch": "agents/068-model-loader",
+        "index_entries_sha256": "99554a0f382efa81536bedc6142590782697dba851736da40edf4497066e63bc",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:42.607049+00:00",
+      "remote_head_end": "729fa9e209468fae54212581d2659026713a55e7",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "069",
+      "branch": "agents/069-studio-renderer",
+      "path": "/workspace/agent-work/069",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:42.397198+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "e44d6088bad8023de44534f5ee7af3fb07d54e78",
+        "branch": "agents/069-studio-renderer",
+        "index_entries_sha256": "bef1df127ef3355c89ddea2f1070f49b9109e09bfeea07b8d6be3a85244c76fa",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "e44d6088bad8023de44534f5ee7af3fb07d54e78",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "e44d6088bad8023de44534f5ee7af3fb07d54e78",
+        "files": 201,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 201,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 201,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/069.md",
+        "exists": true,
+        "blob_oid": "733de40be70ac8dbed938c87c9a3eb43ea9dffd1",
+        "sha256": "bb608e687cd46ad2be19159e54b1309e06305dc9b5b56182615784504316228d"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "canonical-state-only",
+        "claimed_complete": false,
+        "recorded_result_tokens": {
+          "PASS": 2,
+          "NOT_RUN": 2
+        },
+        "narrative_receipt_requires_reading": true
+      },
+      "receipt": {
+        "path": "docs/agents/status/069.md",
+        "exists": true,
+        "blob_oid": "6ff908864b77511ebfb5df1c13ccc8e6bbd8d395",
+        "sha256": "8d32e2e6e61cdc42430193524863e7ec0e98a5739b81c03fb96ebfe1ef92b7f3"
+      },
+      "requirements_from_plan": {
+        "mission": "Implement the production model renderer with correct photographed appearance, resource control and a dependable supported fallback.",
+        "success_criteria": "- Photographic reference pixels, UV orientation and geometry bounds match independent fixtures with explicit color-space handling.\n- Repeated load/close/background/context-loss cycles produce no growing resource usage, stale rendering or fatal driver errors on qualified devices.\n- The supported asset/profile matrix meets measured interaction budgets and falls back or refuses safely before exhausting GPU memory.",
+        "required_verification": "ANDROID; DEVICE; COMPATIBILITY; PERFORMANCE."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/069-to-004.md",
+        "docs/agents/requests/069-to-070.md",
+        "docs/agents/requests/069-to-095.md"
+      ],
+      "final_checkout": {
+        "head": "e44d6088bad8023de44534f5ee7af3fb07d54e78",
+        "branch": "agents/069-studio-renderer",
+        "index_entries_sha256": "bef1df127ef3355c89ddea2f1070f49b9109e09bfeea07b8d6be3a85244c76fa",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:46.237912+00:00",
+      "remote_head_end": "e44d6088bad8023de44534f5ee7af3fb07d54e78",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "070",
+      "branch": "agents/070-studio-controls",
+      "path": "/workspace/agent-work/070",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:42.607178+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "bd6873223d9f0a528e1a1187b6d1c7a1d33cbfa0",
+        "branch": "agents/070-studio-controls",
+        "index_entries_sha256": "561713ee1960491509107a057d99ac5965d30f231393b2a864a9534ef6d951d1",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "bd6873223d9f0a528e1a1187b6d1c7a1d33cbfa0",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "bd6873223d9f0a528e1a1187b6d1c7a1d33cbfa0",
+        "files": 206,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 206,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 206,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/070.md",
+        "exists": true,
+        "blob_oid": "64298d44e6b90528287ce04b2192eff82ea7e4d3",
+        "sha256": "a0bebe12a4f84141864a6ce473f4e27ce84b9ed1a972eab517bd6734cb88d403"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "canonical-state-only",
+        "claimed_complete": false,
+        "recorded_result_tokens": {
+          "PASS": 2,
+          "NOT_RUN": 2,
+          "FAIL": 1
+        },
+        "narrative_receipt_requires_reading": true
+      },
+      "receipt": {
+        "path": "docs/agents/status/070.md",
+        "exists": true,
+        "blob_oid": "2807c4d194b5e04c87b4b329fc5e53d997fd800e",
+        "sha256": "25fff830ceda47d760375388a537e73cc97270387c9ef395efe359f6d813ca49"
+      },
+      "requirements_from_plan": {
+        "mission": "Make all actual scan representations inspectable through responsive, accessible controls and truthful diagnostic overlays.",
+        "success_criteria": "- Users can inspect sparse, dense, observed mesh and photographic output without confusing them, including unsupported/failed-renderer cases.\n- Camera controls and edits remain stable through resizing/reopen; measured scale and unknown scale stay visibly distinct.\n- Accessible controls perform the same essential actions as gestures, and repeated studio sessions pass lifecycle/performance tests.",
+        "required_verification": "ANDROID; DEVICE; ACCESSIBILITY; PERFORMANCE."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/070-to-066.md",
+        "docs/agents/requests/070-to-068.md",
+        "docs/agents/requests/070-to-071.md",
+        "docs/agents/requests/070-to-094.md"
+      ],
+      "final_checkout": {
+        "head": "bd6873223d9f0a528e1a1187b6d1c7a1d33cbfa0",
+        "branch": "agents/070-studio-controls",
+        "index_entries_sha256": "561713ee1960491509107a057d99ac5965d30f231393b2a864a9534ef6d951d1",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:46.936358+00:00",
+      "remote_head_end": "bd6873223d9f0a528e1a1187b6d1c7a1d33cbfa0",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "071",
+      "branch": "agents/071-app-navigation-composition",
+      "path": "/workspace/agent-work/071",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:46.238012+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "621c816991992be43e5d5591caea48bf1d56d721",
+        "branch": "agents/071-app-navigation-composition",
+        "index_entries_sha256": "38064713233c2799db5e90a262703580ffaea56b641520cbfc58c365c3394fee",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "621c816991992be43e5d5591caea48bf1d56d721",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "621c816991992be43e5d5591caea48bf1d56d721",
+        "files": 205,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 205,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 205,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/071.md",
+        "exists": true,
+        "blob_oid": "01f468ec5a387c4da782f892727743ed455f78eb",
+        "sha256": "aa6a244372381b5bb90bdd0fa221f8cbda1acfac3a73a68459bb65223adb8631"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "Project-aware route/back and bounded pending-request behavior; 10 total071/076/078 tests, zero failures/skips",
+            "result": "PASS",
+            "command": "python /workspace/campaign-061-080/ui-foundation-jvm.py",
+            "source_sha": "f837a8ef7f7e08f2c5e021d8697d7370691742e4",
+            "artifact_sha256": "775ba15a6a95e8995dc88d1d2db4509af90bf5660e9eb44088e2abcff465a795",
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": "Synthetic route/picker and locale/layout inputs",
+            "evidence": "/workspace/campaign-061-080/ui-foundation-jvm.log"
+          },
+          {
+            "criterion": "Final complete canonical-provider and existing feature-service APIs compile with actual067/026/018/019/007 contracts;22 actual009 manifest-source tests pass",
+            "result": "PASS",
+            "command": "python /workspace/campaign-061-080/067-manifest/run.py",
+            "source_sha": "8495a20f8912e6c48ed9d28f6ecaf056f574cbfe",
+            "artifact_sha256": "81be7f59d09965270740cc3e14e733bd172b718bc8cff64add50f4a394c713b8",
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": "Real peer contracts; synthetic on-disk C8 acceptance/artifact fixtures",
+            "evidence": "/workspace/campaign-061-080/067-manifest/junit-final.log"
+          },
+          {
+            "criterion": "Final immutable combined APK, unit tests, instrumentation APK and lint",
+            "result": "NOT_RUN",
+            "command": "Parent pinned combined candidate Android qualification",
+            "source_sha": "8495a20f8912e6c48ed9d28f6ecaf056f574cbfe",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "Parent final campaign evidence index pending"
+          },
+          {
+            "criterion": "Actual Activity settings/recreation/Back accessibility behavior",
+            "result": "NOT_RUN",
+            "command": ":app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.realityforge.scanner.agents.a071.NavigationLifecycleDeviceTest",
+            "source_sha": "8495a20f8912e6c48ed9d28f6ecaf056f574cbfe",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "Implemented instrumentation awaiting integrated device run"
+          },
+          {
+            "criterion": "Capture-to-export on real datasets, process death, physical/adaptive/accessibility flow",
+            "result": "NOT_RUN",
+            "command": "Run080/100 integrated flow and physical-device matrix",
+            "source_sha": "8495a20f8912e6c48ed9d28f6ecaf056f574cbfe",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "No device or release qualification claim"
+          }
+        ],
+        "remaining_work": [
+          "Final immutable combined Android qualification",
+          "Required actual device/process-death/physical flow acceptance",
+          "Canonical C8 chooser remains disabled until complete001 delegated C1 provider and its owned binding exist"
+        ],
+        "external_blockers": [
+          "005/006 implementations of real018/019 transactional persistence ports",
+          "002/008 job/reconstruction actor wiring",
+          "001 C1 reserved delegated026 transfer and023 accepted C8 lease producer",
+          "094 legacy monolith source-contract migration",
+          "100 combined integration and supported-device qualification"
+        ],
+        "next_action": "Integrate frozen owned source with exact peer commits, execute remaining gates and append immutable receipts; do not mark DONE",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "70983b1b524bf9931cc227b082c0875e6ac3fe10",
+          "6a98d4d707b22ad21f282a8e07ac0b3404e12838",
+          "ca893af34b7fe10efeb9e5591fd99dd87b4788ef",
+          "f82f46637b2d65839282c1ce409ed627fe230300",
+          "f837a8ef7f7e08f2c5e021d8697d7370691742e4",
+          "8495a20f8912e6c48ed9d28f6ecaf056f574cbfe"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/071-to-094.md",
+          "docs/agents/requests/071-to-001.md",
+          "docs/agents/requests/071-to-100.md",
+          "docs/agents/requests/071-to-006.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/071.md",
+          "ScannerFeatureServices",
+          "CanonicalExportServices"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/071.md",
+        "exists": true,
+        "blob_oid": "6d8a7e0ec8a9e56e57af818d9700c50380a64c8f",
+        "sha256": "1cdda0a4bf04cfb6b1242c16353d467b07b2bc6dab7bc8f9cdc236849f8f465b"
+      },
+      "requirements_from_plan": {
+        "mission": "Turn the existing app shell into a coherent, fully wired capture-to-export flow while preserving all real implemented functionality.",
+        "success_criteria": "- The real app completes create/import/capture/review/reconstruct/studio/export/reopen through wired routes with no dead buttons or fixture-only screens.\n- Back, rotation, process recreation and returning activity results preserve correct project/operation identity without opening an unrelated model.\n- All migrated baseline capabilities remain reachable and regression-tested; route navigation and user-facing state match persisted operations.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; 080 integrated UI end-to-end gate."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/071-to-001.md",
+        "docs/agents/requests/071-to-006.md",
+        "docs/agents/requests/071-to-094.md",
+        "docs/agents/requests/071-to-100.md"
+      ],
+      "final_checkout": {
+        "head": "621c816991992be43e5d5591caea48bf1d56d721",
+        "branch": "agents/071-app-navigation-composition",
+        "index_entries_sha256": "38064713233c2799db5e90a262703580ffaea56b641520cbfc58c365c3394fee",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:50.105482+00:00",
+      "remote_head_end": "621c816991992be43e5d5591caea48bf1d56d721",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "072",
+      "branch": "agents/072-project-library-ui",
+      "path": "/workspace/agent-work/072",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:46.936490+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "15784131be98a0bff6a638641fad92fcd0f04887",
+        "branch": "agents/072-project-library-ui",
+        "index_entries_sha256": "228c87ace0ec00fcb069b385039d692c15792d79e8163d8ab0d35ea1869b77dc",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "15784131be98a0bff6a638641fad92fcd0f04887",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "15784131be98a0bff6a638641fad92fcd0f04887",
+        "files": 205,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 205,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 205,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/072.md",
+        "exists": true,
+        "blob_oid": "2441ab1df2bcc748e6c96692d5d639988949df36",
+        "sha256": "cd59cca1cc17b9f4dcdd3a6bdcd4e9f096dc0dc02eb2d9ebc2dd6e5ab52b7027"
+      },
+      "contract_status": {
+        "state": "WORKING",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "WORKING",
+        "acceptance_results": [
+          {
+            "criterion": "Stable10,000-project queries, Unicode names, real019service rename/verifiedcopy/page cancellation",
+            "result": "PASS",
+            "command": "python3 /workspace/campaign-061-080/screens-jvm.py",
+            "source_sha": "e017cecb9b63829ec73e6ec98dac597ad67d123a",
+            "environment": "Kotlin2.1.21 compiler/JDK17.0.16; real pinned018ce8ee61,019c88fc09,00765ec95d contracts; synthetic test ports only in tests",
+            "dataset_identity": "Deterministic metadata, private temp files, verified copy bytes and original SHA-256; no physical captures",
+            "evidence": "32 actual JUnit4.13.2 tests passed; immutable stdout artifact /workspace/campaign-061-080/evidence/screens-jvm-d705ab3e1dd86701.log; source-bundle identity d705ab3e1dd86701b6369c2b693efb956ecf6326043db0dfd680c73da647078a. This is JVM evidence, not Android/device qualification.",
+            "artifact_sha256": "0d9bfc6d0310a7f20d454f8b75d1ecb0622aba553cf096444699f74a7d48a360"
+          },
+          {
+            "criterion": "Existing full Python regression suite and staged-source integrity on final source",
+            "result": "PASS",
+            "command": "RF_NATIVE_LIBRARY=/workspace/3d-scanner/build/host/librealityforge.so python -m pytest tests -q",
+            "source_sha": "e017cecb9b63829ec73e6ec98dac597ad67d123a",
+            "environment": "Python3.12; unchanged baseline native library from ad3029193f304c70931b94ea7a0df90b69d84b07",
+            "evidence": "118 passed, zero failed; /workspace/campaign-061-080/072-pytest-final.log. The role075 count includes2 new real board-content checks.",
+            "artifact_sha256": null,
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Final combined Android app/testAPK compilation, GradleJVM tests and lint",
+            "result": "NOT_RUN",
+            "command": "python /workspace/toolchains/gradle-cloud.py --init-script /workspace/campaign-061-080/071-dependencies.init.gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "e017cecb9b63829ec73e6ec98dac597ad67d123a",
+            "artifact_sha256": null,
+            "environment": "PinnedJDK17/Gradle8.13/API36/NDK28.2.13676358; Agent071 owns this in-flight combined validation",
+            "evidence": "Current071 combined Kotlin compilation passed; app/testAPK, GradleJVM and lint completion remain pending. No final pass inferred from an open process.",
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Actual UI control interactions and joined application flow",
+            "result": "NOT_RUN",
+            "command": "connectedDebugAndroidTest / Agent080 actual UI scenarios",
+            "source_sha": "e017cecb9b63829ec73e6ec98dac597ad67d123a",
+            "artifact_sha256": null,
+            "environment": "API35 software emulator provisioning is available; root owns serialized final device execution",
+            "evidence": "Role-specific AccessibilityNodeInfo interaction test exists; software-emulator result pending. No physical-device claim.",
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Initial standalone library Android build and APK privacy/alignment baseline",
+            "result": "PASS",
+            "command": "gradle :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; python tools/check_apk.py app/build/outputs/apk/debug/app-debug.apk --sdk $ANDROID_HOME",
+            "source_sha": "2e3c01258bc03c23966538bf4abcb1e50d5214de",
+            "artifact_sha256": "ca5f42d386ea3e3753ef10dad3a4d6a49cd81c847614b89be65e0bd77db4f999",
+            "evidence": "39JVM tests0failures0skips; lint0errors9warnings; noINTERNET and16KB ZIP/ELF checks pass. Later service adapters require the final combined gate above.",
+            "environment": "Current managed Linux cloud environment; exact compiler/device scope is described in evidence.",
+            "dataset_identity": null
+          }
+        ],
+        "remaining_work": [
+          "005/006 must implement ProjectLibraryPort and repository duplicate leases before actual persisted rename/duplicate UI can enable.",
+          "Large-collection frame budget and manualTalkBack/keyboard/200%font gates remain unmeasured.",
+          "Agent100 must integrate immutable supplying/receiving commits and rerun the final candidate gates; no main merge or foreign history was pushed by this agent."
+        ],
+        "external_blockers": [
+          "Physical handset, measured frame/bitmap budgets and manual assistive-technology qualification are not supplied by a software-emulator pass.",
+          "DraftPR API read failed: gh pr list returned Post https://api.github.com/graphql: Forbidden; nativeGit push and exact remote-head verification work."
+        ],
+        "next_action": "Consume071 combined test result and root software-emulator receipts, fix owned failures, then record final integration readiness without closing unrun hardware or receiving-owner gates.",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "2e3c01258bc03c23966538bf4abcb1e50d5214de",
+          "05af4ef1198355d85efb31eec36c5a1ecf9f1433",
+          "f6dcab03da620006358a011c8849e026a7cdf0ad",
+          "e017cecb9b63829ec73e6ec98dac597ad67d123a"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/072-to-001.md",
+          "docs/agents/requests/072-to-005.md",
+          "docs/agents/requests/072-to-006.md",
+          "docs/agents/requests/072-to-019.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/072.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/072.md",
+        "exists": true,
+        "blob_oid": "c73662a659bee5c316ba5261b6a3f89273b4b591",
+        "sha256": "ee13d70acdce0a956d914f4de5bb78aa56d21e7ec070308c2f122a867b121e09"
+      },
+      "requirements_from_plan": {
+        "mission": "Provide a usable offline project library that accurately represents scan availability, progress and recoverable failures as collections grow.",
+        "success_criteria": "- Large project fixtures scroll/filter/sort within a declared UI frame budget and maintain stable item identity and restored position.\n- Actual create/rename/duplicate/delete/reopen actions update persisted library state, and editing/deleting one duplicate leaves the other unchanged.\n- TalkBack, keyboard, large text and rotation preserve clear destructive scope, recoverable errors and access to previous completed results.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; 080 library management flow."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/072-to-001.md",
+        "docs/agents/requests/072-to-005.md",
+        "docs/agents/requests/072-to-006.md",
+        "docs/agents/requests/072-to-019.md"
+      ],
+      "final_checkout": {
+        "head": "15784131be98a0bff6a638641fad92fcd0f04887",
+        "branch": "agents/072-project-library-ui",
+        "index_entries_sha256": "228c87ace0ec00fcb069b385039d692c15792d79e8163d8ab0d35ea1869b77dc",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:51.215296+00:00",
+      "remote_head_end": "15784131be98a0bff6a638641fad92fcd0f04887",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "073",
+      "branch": "agents/073-photo-review-project-ui",
+      "path": "/workspace/agent-work/073",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:50.105629+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+        "branch": "agents/073-photo-review-project-ui",
+        "index_entries_sha256": "299ddd09bb4155dd934df836d1ad2d9273e15f47d1ae2c6d92963b5937ad11ef",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+        "files": 208,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 208,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 208,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/073.md",
+        "exists": true,
+        "blob_oid": "f885a693caa1c4ce9ba4d4ad2c887a0109379853",
+        "sha256": "271898902eb46e51de2858f29f8ad8b028f9bfed5ee0f36a0cbb8a5b27c5f3d0"
+      },
+      "contract_status": {
+        "state": "WORKING",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "WORKING",
+        "acceptance_results": [
+          {
+            "criterion": "Persisted-service curation command mapping, original identities, undo acrossRoomemissions, conflicts and no stale navigation",
+            "result": "PASS",
+            "command": "python3 /workspace/campaign-061-080/screens-jvm.py",
+            "source_sha": "561181693abb1b41fb58f7b0a4cfbb39ed486404",
+            "environment": "Kotlin2.1.21 compiler/JDK17.0.16; real pinned018ce8ee61,019c88fc09,00765ec95d contracts; synthetic test ports only in tests",
+            "dataset_identity": "Deterministic metadata, private temp files, verified copy bytes and original SHA-256; no physical captures",
+            "evidence": "32 actual JUnit4.13.2 tests passed; immutable stdout artifact /workspace/campaign-061-080/evidence/screens-jvm-d705ab3e1dd86701.log; source-bundle identity d705ab3e1dd86701b6369c2b693efb956ecf6326043db0dfd680c73da647078a. This is JVM evidence, not Android/device qualification.",
+            "artifact_sha256": "0d9bfc6d0310a7f20d454f8b75d1ecb0622aba553cf096444699f74a7d48a360"
+          },
+          {
+            "criterion": "Existing full Python regression suite before the additive diagnostic-link UI change",
+            "result": "PASS",
+            "command": "RF_NATIVE_LIBRARY=/workspace/3d-scanner/build/host/librealityforge.so python -m pytest tests -q",
+            "source_sha": "2a6b9170939f43597cd8fa6eafda2dea2f59cab4",
+            "environment": "Python3.12; unchanged baseline native library from ad3029193f304c70931b94ea7a0df90b69d84b07",
+            "evidence": "118 passed, zero failed; /workspace/campaign-061-080/073-pytest-final.log. The role075 count includes2 new real board-content checks.",
+            "artifact_sha256": null,
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Final combined Android app/testAPK compilation, GradleJVM tests and lint",
+            "result": "NOT_RUN",
+            "command": "python /workspace/toolchains/gradle-cloud.py --init-script /workspace/campaign-061-080/071-dependencies.init.gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "2a6b9170939f43597cd8fa6eafda2dea2f59cab4",
+            "artifact_sha256": null,
+            "environment": "PinnedJDK17/Gradle8.13/API36/NDK28.2.13676358; Agent071 owns this in-flight combined validation",
+            "evidence": "Current071 combined Kotlin compilation passed; app/testAPK, GradleJVM and lint completion remain pending. No final pass inferred from an open process.",
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Actual UI control interactions and joined application flow",
+            "result": "NOT_RUN",
+            "command": "connectedDebugAndroidTest / Agent080 actual UI scenarios",
+            "source_sha": "2a6b9170939f43597cd8fa6eafda2dea2f59cab4",
+            "artifact_sha256": null,
+            "environment": "API35 software emulator provisioning is available; root owns serialized final device execution",
+            "evidence": "Role-specific AccessibilityNodeInfo interaction test exists; software-emulator result pending. No physical-device claim.",
+            "dataset_identity": null
+          }
+        ],
+        "remaining_work": [
+          "005/006 must implement PhotoCurationStore;022 must durably consume removal directives and002 must consume the selection lease at admission/publication.",
+          "Real mixed-photo persisted curation/reconstruction and bitmap residency measurements remain pending integration/device execution.",
+          "Agent100 must integrate immutable supplying/receiving commits and rerun the final candidate gates; no main merge or foreign history was pushed by this agent."
+        ],
+        "external_blockers": [
+          "Physical handset, measured frame/bitmap budgets and manual assistive-technology qualification are not supplied by a software-emulator pass.",
+          "DraftPR API read failed: gh pr list returned Post https://api.github.com/graphql: Forbidden; nativeGit push and exact remote-head verification work."
+        ],
+        "next_action": "Consume071 combined test result and root software-emulator receipts, fix owned failures, then record final integration readiness without closing unrun hardware or receiving-owner gates.",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "b11a77f9523168dc0ae05ff62db6e0021eb1e091",
+          "c0fc42b967f465314af89c62e680de54215a0843",
+          "c81101b739f15bd58b63202cd43cdaa4904f39c8",
+          "a4d689b3703f68cf7d2142fd849094e34ee1ce48",
+          "2a6b9170939f43597cd8fa6eafda2dea2f59cab4",
+          "561181693abb1b41fb58f7b0a4cfbb39ed486404"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/073-to-002.md",
+          "docs/agents/requests/073-to-005.md",
+          "docs/agents/requests/073-to-006.md",
+          "docs/agents/requests/073-to-012.md",
+          "docs/agents/requests/073-to-018.md",
+          "docs/agents/requests/073-to-027.md",
+          "docs/agents/requests/073-to-010.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/073.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/073.md",
+        "exists": true,
+        "blob_oid": "094704c8f39e603f7d8661db8870ba295aa81750",
+        "sha256": "424c9f879bbfa20633ec66017651e544f256d90fa85f970c0d6b442843672c3d"
+      },
+      "requirements_from_plan": {
+        "mission": "Make photo review an actionable stage where users inspect images, curate reconstruction inputs, understand failures and prepare a valid scan.",
+        "success_criteria": "- A real mixed-photo project can inspect/exclude/reorder poor inputs and reconstruct using exactly the resulting persisted selection.\n- Calibration/quality failures identify concrete affected inputs or unknown evidence without claiming complete object coverage from texture statistics.\n- Large images/collections, rotation and repeated review navigation remain within measured thumbnail/bitmap budgets and expose all actions accessibly.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; 080 photo curation/calibration/reconstruction flow."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/073-to-002.md",
+        "docs/agents/requests/073-to-005.md",
+        "docs/agents/requests/073-to-006.md",
+        "docs/agents/requests/073-to-010.md",
+        "docs/agents/requests/073-to-012.md",
+        "docs/agents/requests/073-to-018.md",
+        "docs/agents/requests/073-to-027.md"
+      ],
+      "final_checkout": {
+        "head": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+        "branch": "agents/073-photo-review-project-ui",
+        "index_entries_sha256": "299ddd09bb4155dd934df836d1ad2d9273e15f47d1ae2c6d92963b5937ad11ef",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:54.534842+00:00",
+      "remote_head_end": "d8990f8c6751f989bbbbfdce816b009179e3db40",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "074",
+      "branch": "agents/074-processing-recovery-ui",
+      "path": "/workspace/agent-work/074",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:51.215404+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+        "branch": "agents/074-processing-recovery-ui",
+        "index_entries_sha256": "ffac8d0a10228ec5f180777077025888dc9a4ae9691e4b95bf356c1f4d6a16d6",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 203,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/074.md",
+        "exists": true,
+        "blob_oid": "d505b1a81c5a182b280656e2244ffc6c9d1c9fb6",
+        "sha256": "339c5d8531aa2e1952125c9111e74ffe6dcf2861cd13b49ceb7fa329f64aab02"
+      },
+      "contract_status": {
+        "state": "WORKING",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "WORKING",
+        "acceptance_results": [
+          {
+            "criterion": "All8durable states, attempt/version identity, per-stage unknown totals and action admission",
+            "result": "PASS",
+            "command": "python3 /workspace/campaign-061-080/screens-jvm.py",
+            "source_sha": "4aa72e0f895b6a568ee66d724bc21e91b8e33a76",
+            "environment": "Kotlin2.1.21 compiler/JDK17.0.16; real pinned018ce8ee61,019c88fc09,00765ec95d contracts; synthetic test ports only in tests",
+            "dataset_identity": "Deterministic metadata, private temp files, verified copy bytes and original SHA-256; no physical captures",
+            "evidence": "32 actual JUnit4.13.2 tests passed; immutable stdout artifact /workspace/campaign-061-080/evidence/screens-jvm-d705ab3e1dd86701.log; source-bundle identity d705ab3e1dd86701b6369c2b693efb956ecf6326043db0dfd680c73da647078a. This is JVM evidence, not Android/device qualification.",
+            "artifact_sha256": "0d9bfc6d0310a7f20d454f8b75d1ecb0622aba553cf096444699f74a7d48a360"
+          },
+          {
+            "criterion": "Existing full Python regression suite and staged-source integrity on final source",
+            "result": "PASS",
+            "command": "RF_NATIVE_LIBRARY=/workspace/3d-scanner/build/host/librealityforge.so python -m pytest tests -q",
+            "source_sha": "4aa72e0f895b6a568ee66d724bc21e91b8e33a76",
+            "environment": "Python3.12; unchanged baseline native library from ad3029193f304c70931b94ea7a0df90b69d84b07",
+            "evidence": "118 passed, zero failed; /workspace/campaign-061-080/074-pytest-final.log. The role075 count includes2 new real board-content checks.",
+            "artifact_sha256": null,
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Final combined Android app/testAPK compilation, GradleJVM tests and lint",
+            "result": "NOT_RUN",
+            "command": "python /workspace/toolchains/gradle-cloud.py --init-script /workspace/campaign-061-080/071-dependencies.init.gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "4aa72e0f895b6a568ee66d724bc21e91b8e33a76",
+            "artifact_sha256": null,
+            "environment": "PinnedJDK17/Gradle8.13/API36/NDK28.2.13676358; Agent071 owns this in-flight combined validation",
+            "evidence": "Current071 combined Kotlin compilation passed; app/testAPK, GradleJVM and lint completion remain pending. No final pass inferred from an open process.",
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Actual UI control interactions and joined application flow",
+            "result": "NOT_RUN",
+            "command": "connectedDebugAndroidTest / Agent080 actual UI scenarios",
+            "source_sha": "4aa72e0f895b6a568ee66d724bc21e91b8e33a76",
+            "artifact_sha256": null,
+            "environment": "API35 software emulator provisioning is available; root owns serialized final device execution",
+            "evidence": "Role-specific AccessibilityNodeInfo interaction test exists; software-emulator result pending. No physical-device claim.",
+            "dataset_identity": null
+          }
+        ],
+        "remaining_work": [
+          "005/001 must register realJobStore and008/007 must atomically dispatch full attempt/stateVersion identity.",
+          "Actual process-kill/reconnect/pause/resume matrix remains pending joined execution integration.",
+          "Agent100 must integrate immutable supplying/receiving commits and rerun the final candidate gates; no main merge or foreign history was pushed by this agent."
+        ],
+        "external_blockers": [
+          "Physical handset, measured frame/bitmap budgets and manual assistive-technology qualification are not supplied by a software-emulator pass.",
+          "DraftPR API read failed: gh pr list returned Post https://api.github.com/graphql: Forbidden; nativeGit push and exact remote-head verification work."
+        ],
+        "next_action": "Consume071 combined test result and root software-emulator receipts, fix owned failures, then record final integration readiness without closing unrun hardware or receiving-owner gates.",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "2118907f269bf1354a0114548726d931ea48288f",
+          "4aa72e0f895b6a568ee66d724bc21e91b8e33a76"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/074-to-007.md",
+          "docs/agents/requests/074-to-008.md",
+          "docs/agents/requests/074-to-010.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/074.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/074.md",
+        "exists": true,
+        "blob_oid": "38d140e53d89854a77506b54b7d35b5130f3313a",
+        "sha256": "ba5097444122dbe0a0302de4285e779668c5eb12286a42acaf9b4f78e2e2cf97"
+      },
+      "requirements_from_plan": {
+        "mission": "Present the durable pipeline truthfully so users can pause, return, recover and inspect previous results without losing track of their scan.",
+        "success_criteria": "- A real background/process-killed job reconnects to matching persisted state after reopen and offers valid resume/retry actions without duplicate work.\n- Displayed progress/cached stages/status match actual execution events; missing stages and unknown time never become fabricated completion percentages.\n- Rapid repeated actions, changed inputs, rotation and notification entry cannot operate on a stale job or discard previous completed output.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; 080 interrupted/background reconstruction UI flow."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/074-to-007.md",
+        "docs/agents/requests/074-to-008.md",
+        "docs/agents/requests/074-to-010.md"
+      ],
+      "final_checkout": {
+        "head": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+        "branch": "agents/074-processing-recovery-ui",
+        "index_entries_sha256": "ffac8d0a10228ec5f180777077025888dc9a4ae9691e4b95bf356c1f4d6a16d6",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:55.340842+00:00",
+      "remote_head_end": "b4d12af9b3264a34f5f5d85a58efb85f3ce2eb4b",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "075",
+      "branch": "agents/075-capture-onboarding-instructions",
+      "path": "/workspace/agent-work/075",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:54.535016+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+        "branch": "agents/075-capture-onboarding-instructions",
+        "index_entries_sha256": "5bca305cff945c4f3a128f7ac45b8d94bbf8334df78bb210ed3511e40e9baab5",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+        "files": 202,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 202,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 202,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/075.md",
+        "exists": true,
+        "blob_oid": "c76c789f0612cd281928c7e35f154624fe1e9063",
+        "sha256": "6db42b0e83b8445473cebc5f2e376ca4402626eb37c27735224a8e3ff7a37501"
+      },
+      "contract_status": {
+        "state": "WORKING",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "WORKING",
+        "acceptance_results": [
+          {
+            "criterion": "Guide step transitions and exact approved9x6inner-corner board geometry",
+            "result": "PASS",
+            "command": "python3 /workspace/campaign-061-080/screens-jvm.py",
+            "source_sha": "e7766d8998881468c8a7750b634e5af5cb626411",
+            "environment": "Kotlin2.1.21 compiler/JDK17.0.16; real pinned018ce8ee61,019c88fc09,00765ec95d contracts; synthetic test ports only in tests",
+            "dataset_identity": "Deterministic metadata, private temp files, verified copy bytes and original SHA-256; no physical captures",
+            "evidence": "32 actual JUnit4.13.2 tests passed; immutable stdout artifact /workspace/campaign-061-080/evidence/screens-jvm-d705ab3e1dd86701.log; source-bundle identity d705ab3e1dd86701b6369c2b693efb956ecf6326043db0dfd680c73da647078a. This is JVM evidence, not Android/device qualification.",
+            "artifact_sha256": "0d9bfc6d0310a7f20d454f8b75d1ecb0622aba553cf096444699f74a7d48a360"
+          },
+          {
+            "criterion": "Approved bundled board geometry and no external tutorial asset references",
+            "result": "PASS",
+            "command": "python -m pytest tests/test_agent_075_offline_content.py -q",
+            "source_sha": "672478ae26f7809f5452872e3b6f6d280bb43036",
+            "evidence": "2 behavioral asset/content checks pass; full suite result is in the finalpytest receipt below.",
+            "artifact_sha256": null,
+            "environment": "Current managed Linux cloud environment; exact compiler/device scope is described in evidence.",
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Existing full Python regression suite and staged-source integrity on final source",
+            "result": "PASS",
+            "command": "RF_NATIVE_LIBRARY=/workspace/3d-scanner/build/host/librealityforge.so python -m pytest tests -q",
+            "source_sha": "672478ae26f7809f5452872e3b6f6d280bb43036",
+            "environment": "Python3.12; unchanged baseline native library from ad3029193f304c70931b94ea7a0df90b69d84b07",
+            "evidence": "120 passed, zero failed; /workspace/campaign-061-080/075-pytest-final.log. The role075 count includes2 new real board-content checks.",
+            "artifact_sha256": null,
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Final combined Android app/testAPK compilation, GradleJVM tests and lint",
+            "result": "NOT_RUN",
+            "command": "python /workspace/toolchains/gradle-cloud.py --init-script /workspace/campaign-061-080/071-dependencies.init.gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "672478ae26f7809f5452872e3b6f6d280bb43036",
+            "artifact_sha256": null,
+            "environment": "PinnedJDK17/Gradle8.13/API36/NDK28.2.13676358; Agent071 owns this in-flight combined validation",
+            "evidence": "Current071 combined Kotlin compilation passed; app/testAPK, GradleJVM and lint completion remain pending. No final pass inferred from an open process.",
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Actual UI control interactions and joined application flow",
+            "result": "NOT_RUN",
+            "command": "connectedDebugAndroidTest / Agent080 actual UI scenarios",
+            "source_sha": "672478ae26f7809f5452872e3b6f6d280bb43036",
+            "artifact_sha256": null,
+            "environment": "API35 software emulator provisioning is available; root owns serialized final device execution",
+            "evidence": "Role-specific AccessibilityNodeInfo interaction test exists; software-emulator result pending. No physical-device claim.",
+            "dataset_identity": null
+          }
+        ],
+        "remaining_work": [
+          "071 must finish combined Android and fresh-install offline guide-to-capture/import software-emulator validation.",
+          "Physical/manual usability and assistive technology review remain unrun.",
+          "Agent100 must integrate immutable supplying/receiving commits and rerun the final candidate gates; no main merge or foreign history was pushed by this agent."
+        ],
+        "external_blockers": [
+          "Physical handset, measured frame/bitmap budgets and manual assistive-technology qualification are not supplied by a software-emulator pass.",
+          "DraftPR API read failed: gh pr list returned Post https://api.github.com/graphql: Forbidden; nativeGit push and exact remote-head verification work."
+        ],
+        "next_action": "Consume071 combined test result and root software-emulator receipts, fix owned failures, then record final integration readiness without closing unrun hardware or receiving-owner gates.",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "456e5c4d633acce60112213055e95f37f71c64ad",
+          "672478ae26f7809f5452872e3b6f6d280bb43036",
+          "e7766d8998881468c8a7750b634e5af5cb626411"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/075-to-014.md",
+          "docs/agents/requests/075-to-027.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/075.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/075.md",
+        "exists": true,
+        "blob_oid": "8e9f211b257cf51bbeb99a705421814748367740",
+        "sha256": "0d5488bbf1f4597310225f95e9950454993bec7d74dcc6ada7fe7b427119900c"
+      },
+      "requirements_from_plan": {
+        "mission": "Explain the supported offline scanning workflow clearly enough that a new user can gather useful photographs and understand unsupported outcomes.",
+        "success_criteria": "- An offline fresh-install walkthrough reaches a real capture/import session, and every instruction/help asset remains available in airplane mode.\n- Content validation checks board geometry, capability descriptions and scale/coverage wording against implemented feature contracts and current evidence.\n- Large text, TalkBack, Back/skip/revisit and process recreation make the guide usable without trapping or delaying returning users.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; Offline fresh-install usability/content review."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/075-to-014.md",
+        "docs/agents/requests/075-to-027.md"
+      ],
+      "final_checkout": {
+        "head": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+        "branch": "agents/075-capture-onboarding-instructions",
+        "index_entries_sha256": "5bca305cff945c4f3a128f7ac45b8d94bbf8334df78bb210ed3511e40e9baab5",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:58.614039+00:00",
+      "remote_head_end": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "076",
+      "branch": "agents/076-adaptive-design-system",
+      "path": "/workspace/agent-work/076",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:55.340962+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "63399f41996659bbfde5705907b9198fd9416d8d",
+        "branch": "agents/076-adaptive-design-system",
+        "index_entries_sha256": "8eabc82f7ab7315a820801f20f94dd87b8c769d230d567927805d057818febbd",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "63399f41996659bbfde5705907b9198fd9416d8d",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "63399f41996659bbfde5705907b9198fd9416d8d",
+        "files": 199,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 199,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 199,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/076.md",
+        "exists": true,
+        "blob_oid": "84312b55c435248ac6f6705a42efecba964270e5",
+        "sha256": "125740d7c2c5a2a90f5c0c0569b59a60ddaff0398d529f491d84a35b404f0934"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "Production Android compilation, JVM regressions and debug lint at original implementation",
+            "result": "PASS",
+            "command": "python /workspace/toolchains/gradle-cloud.py :app:assembleDebug :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "30e11e2b7c4b3e5d987cc31e0dce4be22d21f291",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "/workspace/campaign-061-080/076-android.log"
+          },
+          {
+            "criterion": "Final owned pure JVM behavior; 10 total across071/076/078, zero failures or skips",
+            "result": "PASS",
+            "command": "python /workspace/campaign-061-080/ui-foundation-jvm.py",
+            "source_sha": "4d82505ed699ec28568c964a3eea7f638fe4065d",
+            "artifact_sha256": "775ba15a6a95e8995dc88d1d2db4509af90bf5660e9eb44088e2abcff465a795",
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": "Synthetic behavioral unit inputs, explicitly locale-controlled",
+            "evidence": "/workspace/campaign-061-080/ui-foundation-jvm.log"
+          },
+          {
+            "criterion": "Final integrated production, instrumentation APK and lint",
+            "result": "NOT_RUN",
+            "command": "Parent final pinned combined Android candidate",
+            "source_sha": "4d82505ed699ec28568c964a3eea7f638fe4065d",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "Parent campaign evidence index pending"
+          },
+          {
+            "criterion": "Actual activity accessibility semantics and resource behavior",
+            "result": "NOT_RUN",
+            "command": ":app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.realityforge.scanner.agents.a076.DesignSystemDeviceTest",
+            "source_sha": "4d82505ed699ec28568c964a3eea7f638fe4065d",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "Implemented Android instrumentation; pending integrated device run"
+          },
+          {
+            "criterion": "Adaptive phone/landscape/tablet,200% font,screen reader and locale flow matrix",
+            "result": "NOT_RUN",
+            "command": "Run integrated manual/device qualification matrix",
+            "source_sha": "4d82505ed699ec28568c964a3eea7f638fe4065d",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "No physical-device or screenshot qualification claimed"
+          }
+        ],
+        "remaining_work": [
+          "Final immutable combined Android build/tests/lint",
+          "Required physical/adaptive/accessibility/locale matrix"
+        ],
+        "external_blockers": [
+          "Agent100 combined integration and supported-device qualification",
+          "Owner001 native system-bar/night integration"
+        ],
+        "next_action": "Integrate exact source into parent combined candidate, execute remaining gates and append immutable evidence; no DONE claim",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "30e11e2b7c4b3e5d987cc31e0dce4be22d21f291",
+          "4d82505ed699ec28568c964a3eea7f638fe4065d"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/076-to-001.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/076.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/076.md",
+        "exists": true,
+        "blob_oid": "bf720b680129a7fd8335116734e6cc5617317566",
+        "sha256": "3b492b8f6db7030e0c6fde5b679b1ac813d2759a532aa49ba0344afa0bf97c18"
+      },
+      "requirements_from_plan": {
+        "mission": "Give the app a consistent, responsive visual system that remains readable and operable across supported Android form factors.",
+        "success_criteria": "- Representative screens render without clipped actions/text at small-phone, landscape and tablet sizes with 100% and 200% font scales.\n- Contrast/touch-target checks pass for documented token states in light/dark themes and error/disabled/selection variants.\n- Integrated feature screens consume the shared components without duplicate theme definitions or visual state disagreement.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; Adaptive layout/theme screenshot review."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/076-to-001.md"
+      ],
+      "final_checkout": {
+        "head": "63399f41996659bbfde5705907b9198fd9416d8d",
+        "branch": "agents/076-adaptive-design-system",
+        "index_entries_sha256": "8eabc82f7ab7315a820801f20f94dd87b8c769d230d567927805d057818febbd",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:13:59.138201+00:00",
+      "remote_head_end": "63399f41996659bbfde5705907b9198fd9416d8d",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "077",
+      "branch": "agents/077-accessibility-verification",
+      "path": "/workspace/agent-work/077",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:58.614351+00:00",
+      "failures": [],
+      "pending": [
+        "UNCOMMITTED_WORKTREE_CHANGES",
+        "MANIFEST_WORKTREE_NOT_VALID_AT_SNAPSHOT"
+      ],
+      "initial_checkout": {
+        "head": "d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671",
+        "branch": "agents/077-accessibility-verification",
+        "index_entries_sha256": "3f99ffc14620b37423dd8c02f07f53d318edc831777c81fe80b9f707543a4fd4",
+        "worktree": {
+          "clean": false,
+          "paths": [
+            {
+              "status": " M",
+              "path": "docs/agents/status/077.md"
+            }
+          ],
+          "porcelain_sha256": "6e224c3afcd20b1852fd0d7bdd5363597bd95fe7a8c3a1bc7e79e8944c6611ac"
+        }
+      },
+      "remote_head_start": "d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671",
+        "files": 198,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 198,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "status": "FAIL",
+        "error": "Manifest hash mismatch: ['docs/agents/status/077.md']"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/077.md",
+        "exists": true,
+        "blob_oid": "56b1b44b0223ca7bb61106159b697fb8446be8e1",
+        "sha256": "31bc0f303452fec1156053ecd08185bb3ba195256ccdd1aedd08ba2871f65e98"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "json",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "Actual Android production/test APK compilation,38 JVM regressions, debug lint",
+            "result": "PASS",
+            "command": "python /workspace/toolchains/gradle-cloud.py :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+            "artifact_sha256": {
+              "app/build/outputs/apk/debug/app-debug.apk": "5830c15c4fcd7675dcb03b8414c6937f6671550fdc22225966057cd541d5eb02",
+              "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "22bd5f6a68b06ca1e79d82d5c611b3d87821f4f9bf6ed537c71d42b31a6a82a2"
+            },
+            "environment": "Linux x86_64; JDK17; Gradle8.13; SDK36; NDK28.2",
+            "dataset_identity": "Unit inputs explicitly synthetic; 3 owned accessibility tests plus35 baseline JVM cases",
+            "evidence": "/workspace/campaign-061-080/077-android.log; app/build/test-results/testDebugUnitTest; app/build/reports/lint-results-debug.html"
+          },
+          {
+            "criterion": "Actual application accessibility action tree, project-name entry, recreation,48dp target and200percent text",
+            "result": "NOT_RUN",
+            "command": "adb -s emulator-5556 shell am instrument -w -r -e class com.realityforge.scanner.agents.a077.ActualAccessibilityTest com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner",
+            "source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+            "artifact_sha256": {
+              "app/build/outputs/apk/debug/app-debug.apk": "5830c15c4fcd7675dcb03b8414c6937f6671550fdc22225966057cd541d5eb02",
+              "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "22bd5f6a68b06ca1e79d82d5c611b3d87821f4f9bf6ed537c71d42b31a6a82a2"
+            },
+            "environment": "API29 x86_64 software guest; first install failed with package-service broken pipe during system_server restart; bounded retry active",
+            "dataset_identity": "Only disposable synthetic test projects; no real geometry qualification",
+            "evidence": "/workspace/campaign-061-080/077-device; /workspace/campaign-061-080/emulator29-crash.log"
+          },
+          {
+            "criterion": "Manual TalkBack,keyboard,switch-access primary scan/export audit at200percent text andRTL",
+            "result": "NOT_RUN",
+            "command": "Perform exact screen audit in docs/agents/contracts/077.md against final APK SHA",
+            "source_sha": "0c76ec2d2f9ab4dd3c7480036e9566b84307a515",
+            "artifact_sha256": null,
+            "environment": "Requires real assistive-technology operator and supported device",
+            "dataset_identity": null,
+            "evidence": "No manual recording or full integrated journey claimed"
+          }
+        ],
+        "remaining_work": [
+          "Final100-integrated Android/device qualification and owner070/071 screen remediation recheck",
+          "Manual TalkBack,keyboard,switch access,focus restoration,200percent text,RTL and contrast audit"
+        ],
+        "external_blockers": [
+          "Physical supported device and manual operator qualification",
+          "Production scan/export pipeline integration belongs to the assigned semantic owners"
+        ],
+        "next_action": "Run actual instrumentation on a stable device; append exact source/APK/device evidence and keep missing manual gates open",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "0c76ec2d2f9ab4dd3c7480036e9566b84307a515"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/077-to-070.md",
+          "docs/agents/requests/077-to-071.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/077.md",
+          "ui/accessibility/ScanAccessibility.kt"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/077.md",
+        "exists": true,
+        "blob_oid": "4550b153ad059df79dc261d0ed08116a7895773c",
+        "sha256": "e686566e3073d657ed8df948193ed3a90b36040fc3b918321559267a0f4755a2"
+      },
+      "requirements_from_plan": {
+        "mission": "Make the actual capture/review/processing/studio/export workflow operable with assistive technologies and verify beyond basic label presence.",
+        "success_criteria": "- The integrated app's primary offline scan/export path completes through accessibility actions without requiring inaccessible pinch/drag-only gestures.\n- Automated semantic/layout checks and a recorded TalkBack/keyboard review pass at 200% text with clear errors and destructive confirmations.\n- Every remediation request is integrated by its owner and rechecked against the actual screen; unresolved hardware/manual evidence remains explicitly open.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; Manual TalkBack/keyboard/switch-access device gate."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/077-to-070.md",
+        "docs/agents/requests/077-to-071.md"
+      ],
+      "final_checkout": {
+        "head": "d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671",
+        "branch": "agents/077-accessibility-verification",
+        "index_entries_sha256": "3f99ffc14620b37423dd8c02f07f53d318edc831777c81fe80b9f707543a4fd4",
+        "worktree": {
+          "clean": false,
+          "paths": [
+            {
+              "status": " M",
+              "path": "docs/agents/status/077.md"
+            }
+          ],
+          "porcelain_sha256": "6e224c3afcd20b1852fd0d7bdd5363597bd95fe7a8c3a1bc7e79e8944c6611ac"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:14:02.079446+00:00",
+      "remote_head_end": "d5f4c3bccb1ab6fcb00ce3356775fc5315c1e671",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PENDING"
+    },
+    {
+      "agent": "078",
+      "branch": "agents/078-localization-resources",
+      "path": "/workspace/agent-work/078",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:13:59.138447+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+        "branch": "agents/078-localization-resources",
+        "index_entries_sha256": "f2faf4e84b03201cab30102ae2d1ddd94ae6e53489b12fa2cff109ce3e0f41ef",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+        "files": 200,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 200,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 200,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/078.md",
+        "exists": true,
+        "blob_oid": "c326e81bb00460ac457c7c4df1bf9553110a0e39",
+        "sha256": "2c944373e03befa4b30d26f9db31884e3d25f90638aa0d1a2a2ca32cffe52ee4"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "Production Android compilation, JVM regressions and debug lint at original implementation",
+            "result": "PASS",
+            "command": "python /workspace/toolchains/gradle-cloud.py :app:assembleDebug :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "06ef94d9dcfb728b9dd3664c3f52870ce8000a32",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "/workspace/campaign-061-080/078-android.log"
+          },
+          {
+            "criterion": "Final owned pure JVM behavior; 10 total across071/076/078, zero failures or skips",
+            "result": "PASS",
+            "command": "python /workspace/campaign-061-080/ui-foundation-jvm.py",
+            "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+            "artifact_sha256": "775ba15a6a95e8995dc88d1d2db4509af90bf5660e9eb44088e2abcff465a795",
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": "Synthetic behavioral unit inputs, explicitly locale-controlled",
+            "evidence": "/workspace/campaign-061-080/ui-foundation-jvm.log"
+          },
+          {
+            "criterion": "Final integrated production, instrumentation APK and lint",
+            "result": "NOT_RUN",
+            "command": "Parent final pinned combined Android candidate",
+            "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "Parent campaign evidence index pending"
+          },
+          {
+            "criterion": "Actual activity accessibility semantics and resource behavior",
+            "result": "NOT_RUN",
+            "command": ":app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.realityforge.scanner.agents.a078.LocalizedResourcesDeviceTest",
+            "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "Implemented Android instrumentation; pending integrated device run"
+          },
+          {
+            "criterion": "Adaptive phone/landscape/tablet,200% font,screen reader and locale flow matrix",
+            "result": "NOT_RUN",
+            "command": "Run integrated manual/device qualification matrix",
+            "source_sha": "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e",
+            "artifact_sha256": null,
+            "environment": "Linux x86_64; JDK17; Kotlin2.1.21; Android SDK36; Gradle8.13",
+            "dataset_identity": null,
+            "evidence": "No physical-device or screenshot qualification claimed"
+          }
+        ],
+        "remaining_work": [
+          "Final immutable combined Android build/tests/lint",
+          "Required physical/adaptive/accessibility/locale matrix"
+        ],
+        "external_blockers": [
+          "Agent100 combined integration and supported-device qualification",
+          "Owner004 pseudo-locales configuration",
+          "Remaining camera/viewer source-owner localization"
+        ],
+        "next_action": "Integrate exact source into parent combined candidate, execute remaining gates and append immutable evidence; no DONE claim",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "06ef94d9dcfb728b9dd3664c3f52870ce8000a32",
+          "1e9368ba8c057756a43ab555881ecc1e3671b328",
+          "7ea751c2cc4e67fb19e43ecf7f101b5fa171f99e"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/078-to-004.md",
+          "docs/agents/requests/078-to-100.md",
+          "docs/agents/requests/078-to-001.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/078.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/078.md",
+        "exists": true,
+        "blob_oid": "2d978c058827a1baa86c606c80fb520d3221980b",
+        "sha256": "7fe007c01b6471492b5a63753f6aa5802807982194c7f81acd3a17d9649cb2d9"
+      },
+      "requirements_from_plan": {
+        "mission": "Make all shipped user-facing content localizable with correct formatting, plurals, locale behavior and accessible wording.",
+        "success_criteria": "- A resource/source audit finds no unjustified hard-coded user-facing sentences in integrated primary screens or transient operation errors.\n- Pseudo-localized long text and RTL runs show no missing resources, format crashes, clipped critical controls or reversed measurement meaning.\n- Structured errors preserve technical evidence separately while resolving actionable localized UI messages consistently across screens/notifications.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; Pseudo-locale/RTL and resource completeness gate."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/078-to-001.md",
+        "docs/agents/requests/078-to-004.md",
+        "docs/agents/requests/078-to-100.md"
+      ],
+      "final_checkout": {
+        "head": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+        "branch": "agents/078-localization-resources",
+        "index_entries_sha256": "f2faf4e84b03201cab30102ae2d1ddd94ae6e53489b12fa2cff109ce3e0f41ef",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:14:03.178420+00:00",
+      "remote_head_end": "5e38c3a249ac39ca3c2f8882c4537c313adbf4d1",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "079",
+      "branch": "agents/079-preferences-about-privacy-ui",
+      "path": "/workspace/agent-work/079",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:14:02.084882+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+        "branch": "agents/079-preferences-about-privacy-ui",
+        "index_entries_sha256": "515024c875975b9e063a08458261a1a3212b223262cf2a16a356fca1c326978b",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+        "files": 201,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 201,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 201,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/079.md",
+        "exists": true,
+        "blob_oid": "e55cc7fb0b7cc0a6d9e63f6cfd6124074c189bf3",
+        "sha256": "b5800ec2b307495d72ae99d92f61c0fcbe77186b1bef1fa75630e31bf02083d2"
+      },
+      "contract_status": {
+        "state": "WORKING",
+        "parser": "yaml-safe-load",
+        "claimed_complete": false,
+        "document_claimed_state": "WORKING",
+        "acceptance_results": [
+          {
+            "criterion": "Atomic versioned preferences reopen, strictcodec, rejectedfile preservation and immutable defaults",
+            "result": "PASS",
+            "command": "python3 /workspace/campaign-061-080/screens-jvm.py",
+            "source_sha": "e2b205013bc4f459b1cde19935eaad49b58afc90",
+            "environment": "Kotlin2.1.21 compiler/JDK17.0.16; real pinned018ce8ee61,019c88fc09,00765ec95d contracts; synthetic test ports only in tests",
+            "dataset_identity": "Deterministic metadata, private temp files, verified copy bytes and original SHA-256; no physical captures",
+            "evidence": "32 actual JUnit4.13.2 tests passed; immutable stdout artifact /workspace/campaign-061-080/evidence/screens-jvm-d705ab3e1dd86701.log; source-bundle identity d705ab3e1dd86701b6369c2b693efb956ecf6326043db0dfd680c73da647078a. This is JVM evidence, not Android/device qualification.",
+            "artifact_sha256": "0d9bfc6d0310a7f20d454f8b75d1ecb0622aba553cf096444699f74a7d48a360"
+          },
+          {
+            "criterion": "Existing full Python regression suite and staged-source integrity on final source",
+            "result": "PASS",
+            "command": "RF_NATIVE_LIBRARY=/workspace/3d-scanner/build/host/librealityforge.so python -m pytest tests -q",
+            "source_sha": "c629e0e5f442480bf76fd6e647d469c1bc99f310",
+            "environment": "Python3.12; unchanged baseline native library from ad3029193f304c70931b94ea7a0df90b69d84b07",
+            "evidence": "118 passed, zero failed; /workspace/campaign-061-080/079-pytest-final.log. The role075 count includes2 new real board-content checks.",
+            "artifact_sha256": null,
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Final combined Android app/testAPK compilation, GradleJVM tests and lint",
+            "result": "NOT_RUN",
+            "command": "python /workspace/toolchains/gradle-cloud.py --init-script /workspace/campaign-061-080/071-dependencies.init.gradle :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug",
+            "source_sha": "c629e0e5f442480bf76fd6e647d469c1bc99f310",
+            "artifact_sha256": null,
+            "environment": "PinnedJDK17/Gradle8.13/API36/NDK28.2.13676358; Agent071 owns this in-flight combined validation",
+            "evidence": "Current071 combined Kotlin compilation passed; app/testAPK, GradleJVM and lint completion remain pending. No final pass inferred from an open process.",
+            "dataset_identity": null
+          },
+          {
+            "criterion": "Actual UI control interactions and joined application flow",
+            "result": "NOT_RUN",
+            "command": "connectedDebugAndroidTest / Agent080 actual UI scenarios",
+            "source_sha": "c629e0e5f442480bf76fd6e647d469c1bc99f310",
+            "artifact_sha256": null,
+            "environment": "API35 software emulator provisioning is available; root owns serialized final device execution",
+            "evidence": "Role-specific AccessibilityNodeInfo interaction test exists; software-emulator result pending. No physical-device claim.",
+            "dataset_identity": null
+          }
+        ],
+        "remaining_work": [
+          "071 must finish combined Android and actual persisted-settings/next-operation software-emulator validation.",
+          "028storage/030qualifiedmanualprofiles/095auditednotice providers remain unintegrated; those unsupported controls are not displayed.",
+          "Agent100 must integrate immutable supplying/receiving commits and rerun the final candidate gates; no main merge or foreign history was pushed by this agent."
+        ],
+        "external_blockers": [
+          "Physical handset, measured frame/bitmap budgets and manual assistive-technology qualification are not supplied by a software-emulator pass.",
+          "DraftPR API read failed: gh pr list returned Post https://api.github.com/graphql: Forbidden; nativeGit push and exact remote-head verification work."
+        ],
+        "next_action": "Consume071 combined test result and root software-emulator receipts, fix owned failures, then record final integration readiness without closing unrun hardware or receiving-owner gates.",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "867831b8f08fcd8bae0dce2f12deed5727e0fc1a",
+          "c629e0e5f442480bf76fd6e647d469c1bc99f310",
+          "e2b205013bc4f459b1cde19935eaad49b58afc90"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/079-to-001.md",
+          "docs/agents/requests/079-to-030.md",
+          "docs/agents/requests/079-to-095.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/079.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/079.md",
+        "exists": true,
+        "blob_oid": "624e2ebe8178e4e22c7221176c085ef290bb99e4",
+        "sha256": "c62f29bd3a72e6eabfdcce98fd7cf5a9e730ef4fd3c602c93debaf509a518c3a"
+      },
+      "requirements_from_plan": {
+        "mission": "Provide reliable local preferences and clear capability/privacy information tied to the app actually shipped.",
+        "success_criteria": "- Preferences survive process recreation/update, reject corrupt/unsupported values and keep active job settings/identity unchanged.\n- Fresh-install/airplane-mode settings/about/privacy routes function entirely locally and describe actual manifest/backup/export behavior accurately.\n- Profile/settings selection is accessible, localized and reflected in the next actual operation without claiming unsupported quality or background behavior.",
+        "required_verification": "./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; Offline preferences persistence/privacy consistency gate."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/079-to-001.md",
+        "docs/agents/requests/079-to-030.md",
+        "docs/agents/requests/079-to-095.md"
+      ],
+      "final_checkout": {
+        "head": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+        "branch": "agents/079-preferences-about-privacy-ui",
+        "index_entries_sha256": "515024c875975b9e063a08458261a1a3212b223262cf2a16a356fca1c326978b",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:14:06.032402+00:00",
+      "remote_head_end": "399df50b8c0e845bb4d45ebbe5d35e8817725d0e",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    },
+    {
+      "agent": "080",
+      "branch": "agents/080-actual-ui-end-to-end",
+      "path": "/workspace/agent-work/080",
+      "base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "started_at": "2026-10-20T09:14:03.178510+00:00",
+      "failures": [],
+      "pending": [],
+      "initial_checkout": {
+        "head": "f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3",
+        "branch": "agents/080-actual-ui-end-to-end",
+        "index_entries_sha256": "0a2fd18bc82cafe489bd9c3ddd9bd82bc4f9d757efb69025c43c0d4c8dbb55b5",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "remote_head_start": "f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3",
+      "ownership_unowned_paths": [],
+      "ownership_status": "PASS",
+      "manifest_commit": {
+        "source": "f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_index": {
+        "source": "index",
+        "files": 203,
+        "status": "PASS"
+      },
+      "manifest_worktree": {
+        "source": "worktree",
+        "files": 203,
+        "status": "PASS"
+      },
+      "contract": {
+        "path": "docs/agents/contracts/080.md",
+        "exists": true,
+        "blob_oid": "9c718fac1b1bd16f50030efcf472a6671c4c95a7",
+        "sha256": "a14160526bf6523e3128cc498d610ae264b9b13b7241cb2410059150e410282a"
+      },
+      "contract_status": {
+        "state": "READY_FOR_INTEGRATION",
+        "parser": "json",
+        "claimed_complete": false,
+        "document_claimed_state": "READY_FOR_INTEGRATION",
+        "acceptance_results": [
+          {
+            "criterion": "Host Release build and numerical/lifetime regression",
+            "result": "PASS",
+            "source_sha": "b30cdf56389bfe0e794ed8ec5ba89367a4441467",
+            "artifact_sha256": "f6d5e030f8162c6c8d3e7af6a38e5e107c625d2fb8f7fe188184734e620adce7",
+            "agent": "080",
+            "command": "cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror; cmake --build build/host --parallel 2; ctest --test-dir build/host --output-on-failure",
+            "environment": {
+              "os": "Linux",
+              "arch": "x86_64",
+              "python": "3.12.14",
+              "native": "GCC 14.2.0; C++20 Release -Werror",
+              "android_toolchain": "JDK17, Gradle8.13, AGP8.11.1, SDK36, NDK28.2.13676358",
+              "activation": "source /workspace/toolchains/activate-3d-scanner.sh"
+            },
+            "device_identity": {
+              "kind": "HOST",
+              "os": "Linux",
+              "arch": "x86_64",
+              "android_serial": null,
+              "android_api": null,
+              "android_abi": null
+            },
+            "dataset_identity_sha256": "206487f8f35c11ab338c1848f711f157be1972c83d644462ecd76155d0dcb758",
+            "measured_result": {
+              "ctest_passed": 11,
+              "ctest_failed": 0,
+              "ctest_skipped": 0
+            },
+            "evidence": "/workspace/campaign-061-080/080-ctest.log",
+            "remaining_blocker": null
+          },
+          {
+            "criterion": "Final source full Python suite, including 28 runner behavioral cases",
+            "result": "PASS",
+            "source_sha": "b30cdf56389bfe0e794ed8ec5ba89367a4441467",
+            "artifact_sha256": "d07b32a9d6e164080f6b75859341e40377ff8bebf19783293220c58f737dbfc5",
+            "agent": "080",
+            "command": "python -m pytest tests -q --junitxml=/workspace/campaign-061-080/080-final-pytest.xml",
+            "environment": {
+              "os": "Linux",
+              "arch": "x86_64",
+              "python": "3.12.14",
+              "native": "GCC 14.2.0; C++20 Release -Werror",
+              "android_toolchain": "JDK17, Gradle8.13, AGP8.11.1, SDK36, NDK28.2.13676358",
+              "activation": "source /workspace/toolchains/activate-3d-scanner.sh"
+            },
+            "device_identity": {
+              "kind": "HOST",
+              "os": "Linux",
+              "arch": "x86_64",
+              "android_serial": null,
+              "android_api": null,
+              "android_abi": null
+            },
+            "dataset_identity_sha256": "206487f8f35c11ab338c1848f711f157be1972c83d644462ecd76155d0dcb758",
+            "measured_result": {
+              "passed": 145,
+              "failed": 0,
+              "errors": 0,
+              "skipped": 0,
+              "runner_cases_included": 28,
+              "runner_test_doubles": "Explicit synthetic adb/controller doubles are confined to tests; no device success inferred"
+            },
+            "evidence": {
+              "log": "/workspace/campaign-061-080/080-final-pytest.log",
+              "junit_xml": "/workspace/campaign-061-080/080-final-pytest.xml",
+              "junit_sha256": "df18ac02803066da601b4830a8ab640bc88725625790edc852819b49a63b003d"
+            },
+            "remaining_blocker": null
+          },
+          {
+            "criterion": "Exact complete source manifest using canonical094 implementation",
+            "result": "PASS",
+            "source_sha": "b30cdf56389bfe0e794ed8ec5ba89367a4441467",
+            "artifact_sha256": "7325621452619e4d8818f84fcb5f88a3b821e7c0e0b0353d404c0f00d4b8c5d9",
+            "agent": "080",
+            "command": "python /workspace/campaign-061-080/dependencies/094/source_manifest.py verify --source HEAD",
+            "environment": {
+              "os": "Linux",
+              "arch": "x86_64",
+              "python": "3.12.14",
+              "native": "GCC 14.2.0; C++20 Release -Werror",
+              "android_toolchain": "JDK17, Gradle8.13, AGP8.11.1, SDK36, NDK28.2.13676358",
+              "activation": "source /workspace/toolchains/activate-3d-scanner.sh"
+            },
+            "device_identity": {
+              "kind": "HOST",
+              "os": "Linux",
+              "arch": "x86_64",
+              "android_serial": null,
+              "android_api": null,
+              "android_abi": null
+            },
+            "dataset_identity_sha256": "206487f8f35c11ab338c1848f711f157be1972c83d644462ecd76155d0dcb758",
+            "measured_result": {
+              "tracked_files_excluding_manifest": 203,
+              "exact_set_and_hashes": "PASS"
+            },
+            "evidence": "Canonical tool from094 eee224368ed47ee940c3f95ee9b157e705d86706; tool SHA256 41c38c8320e27ce8e1c4720fa8abde872a4e62b6a8fda11b17a988a7680b1ad8",
+            "remaining_blocker": null
+          },
+          {
+            "criterion": "Final source actual Android app/test APK compilation and lint",
+            "result": "NOT_RUN",
+            "source_sha": "b30cdf56389bfe0e794ed8ec5ba89367a4441467",
+            "artifact_sha256": null,
+            "agent": "080",
+            "command": "python /workspace/toolchains/gradle-cloud.py :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug",
+            "environment": {
+              "os": "Linux",
+              "arch": "x86_64",
+              "python": "3.12.14",
+              "native": "GCC 14.2.0; C++20 Release -Werror",
+              "android_toolchain": "JDK17, Gradle8.13, AGP8.11.1, SDK36, NDK28.2.13676358",
+              "activation": "source /workspace/toolchains/activate-3d-scanner.sh"
+            },
+            "device_identity": {
+              "kind": "ANDROID",
+              "serial": null,
+              "api": null,
+              "abi": null,
+              "fingerprint": null,
+              "reason": "No candidate-bound device invocation has executed"
+            },
+            "dataset_identity_sha256": "206487f8f35c11ab338c1848f711f157be1972c83d644462ecd76155d0dcb758",
+            "measured_result": null,
+            "evidence": "Parent-owned final pinned combined build includes actual088 provider and manifest",
+            "remaining_blocker": "Earlier 81-task build predates new shared-provider source; cannot qualify this candidate"
+          },
+          {
+            "criterion": "Actual final integrated UI action-to-artifact journeys",
+            "result": "NOT_RUN",
+            "source_sha": "b30cdf56389bfe0e794ed8ec5ba89367a4441467",
+            "artifact_sha256": null,
+            "agent": "080",
+            "command": "python tools/android-ui-e2e/run.py --source-sha FINAL_COMBINED_SHA --apk APP_APK --test-apk TEST_APK --build-receipt EXACT_BUILD_JSON --serial AUTHORIZED_SERIAL --adb SESSION_ADB --output NEW_EVIDENCE_DIRECTORY --all-required",
+            "environment": {
+              "os": "Linux",
+              "arch": "x86_64",
+              "python": "3.12.14",
+              "native": "GCC 14.2.0; C++20 Release -Werror",
+              "android_toolchain": "JDK17, Gradle8.13, AGP8.11.1, SDK36, NDK28.2.13676358",
+              "activation": "source /workspace/toolchains/activate-3d-scanner.sh"
+            },
+            "device_identity": {
+              "kind": "ANDROID",
+              "serial": null,
+              "api": null,
+              "abi": null,
+              "fingerprint": null,
+              "reason": "No candidate-bound device invocation has executed"
+            },
+            "dataset_identity_sha256": "206487f8f35c11ab338c1848f711f157be1972c83d644462ecd76155d0dcb758",
+            "measured_result": {
+              "executed_android_tests": 0,
+              "genuine_screenshots_collected": 0
+            },
+            "evidence": "tools/android-ui-e2e/README.md; exact build/source/APK/device binding is mandatory",
+            "remaining_blocker": "Final combined app/test APKs and candidate-bound device execution are pending"
+          },
+          {
+            "criterion": "External process-kill, picker return and camera/provider recovery UI gates",
+            "result": "NOT_RUN",
+            "source_sha": "b30cdf56389bfe0e794ed8ec5ba89367a4441467",
+            "artifact_sha256": null,
+            "agent": "080",
+            "command": "Same runner with --process-controller AGREED_OWNER088_UI_ADAPTER",
+            "environment": {
+              "os": "Linux",
+              "arch": "x86_64",
+              "python": "3.12.14",
+              "native": "GCC 14.2.0; C++20 Release -Werror",
+              "android_toolchain": "JDK17, Gradle8.13, AGP8.11.1, SDK36, NDK28.2.13676358",
+              "activation": "source /workspace/toolchains/activate-3d-scanner.sh"
+            },
+            "device_identity": {
+              "kind": "ANDROID",
+              "serial": null,
+              "api": null,
+              "abi": null,
+              "fingerprint": null,
+              "reason": "No candidate-bound device invocation has executed"
+            },
+            "dataset_identity_sha256": "206487f8f35c11ab338c1848f711f157be1972c83d644462ecd76155d0dcb758",
+            "measured_result": {
+              "accepted_ui_controller_port": false,
+              "duplicated_private_controller": false
+            },
+            "evidence": "docs/agents/requests/080-to-088.md",
+            "remaining_blocker": "088 published coarse pipeline controller has no accepted actual-UI class/event callback port"
+          },
+          {
+            "criterion": "Physical capture entrypoint and identified hardware/operator evidence",
+            "result": "BLOCKED_EXTERNAL",
+            "source_sha": "b30cdf56389bfe0e794ed8ec5ba89367a4441467",
+            "artifact_sha256": null,
+            "agent": "080",
+            "command": "Same runner --scenario physical_capture --physical-class REAL_UI_CAPTURE_CLASS#METHOD --hardware-evidence-id OPERATOR_PROTOCOL_RECEIPT",
+            "environment": {
+              "os": "Linux",
+              "arch": "x86_64",
+              "python": "3.12.14",
+              "native": "GCC 14.2.0; C++20 Release -Werror",
+              "android_toolchain": "JDK17, Gradle8.13, AGP8.11.1, SDK36, NDK28.2.13676358",
+              "activation": "source /workspace/toolchains/activate-3d-scanner.sh"
+            },
+            "device_identity": {
+              "kind": "ANDROID",
+              "serial": null,
+              "api": null,
+              "abi": null,
+              "fingerprint": null,
+              "reason": "No candidate-bound device invocation has executed"
+            },
+            "dataset_identity_sha256": "206487f8f35c11ab338c1848f711f157be1972c83d644462ecd76155d0dcb758",
+            "measured_result": {
+              "physical_captures": 0
+            },
+            "evidence": "Physical entrypoint rejects emulator identities and requires actual UI execution",
+            "remaining_blocker": "Qualified physical phone/camera, actual capture UI test and operator protocol evidence are unavailable"
+          }
+        ],
+        "remaining_work": [
+          "Integrate pinned001/004/007/018/019/026 and061\u2013080 product source plus088 test provider/manifest; compile/lint final immutable candidate",
+          "Run every candidate-bound actual UI scenario; retain genuine failures/screenshots and route product fixes to semantic owners",
+          "Agree and implement088 actual-UI process/picker/camera stage port, then execute true external kill/relaunch/recovery scenarios",
+          "Complete supported API29/intermediate/current, ARM64/x86_64 and required16KB runtime/device matrix",
+          "Run actual physical capture/operator and manual accessibility/large-font/RTL/adaptive qualification; none is claimed by host or emulator evidence",
+          "Owners094/053 update moved source contracts semantically on their own branches;080 does not edit or hide those assertions"
+        ],
+        "external_blockers": [
+          "No qualified physical phone/camera/operator supplied",
+          "GitHub API access denied in this environment; draft PR unavailable although normal HTTPS Git pushes work"
+        ],
+        "next_action": "Agent100 integrates the frozen source with named peer owners, produces exact source/APK/test-APK receipt, executes runtime matrix, and appends evidence. This receipt does not declare DONE or production readiness.",
+        "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+        "implementation_commits": [
+          "fa90a25b3e2d0cd86cc6b8eda603fad5919761a3",
+          "f564564fd1acfb41baa9b3c92aafbdab08bc50ec",
+          "b30cdf56389bfe0e794ed8ec5ba89367a4441467"
+        ],
+        "integration_requests": [
+          "docs/agents/requests/080-to-004.md",
+          "docs/agents/requests/080-to-053.md",
+          "docs/agents/requests/080-to-071.md",
+          "docs/agents/requests/080-to-088.md",
+          "docs/agents/requests/080-to-094.md"
+        ],
+        "interfaces_published": [
+          "docs/agents/contracts/080.md",
+          "tools/android-ui-e2e/README.md"
+        ]
+      },
+      "receipt": {
+        "path": "docs/agents/status/080.md",
+        "exists": true,
+        "blob_oid": "fa5669f1da0f8331bef1a9770087d8a87e07862b",
+        "sha256": "d3c04eed03f63834d87a852b374ba64d88c211ecdd6c3644868dfbe3cf654e72"
+      },
+      "requirements_from_plan": {
+        "mission": "Verify the complete user-visible app through actual UI interactions, document providers and process/lifecycle interruptions on the final integrated code.",
+        "success_criteria": "- The integrated real UI imports/reconstructs/views/exports/reopens known fixtures with exact exported/original hashes and no uncaught crash or stale result.\n- Process-kill/picker/camera/provider fault scenarios recover to valid persisted state, preserving originals and previous completed output without duplicate publication.\n- Head-specific test reports contain device/API/ABI, commands, failures and genuine screenshots; unsupported hardware gates remain explicitly pending.",
+        "required_verification": "./gradlew :app:assembleDebug :app:lintDebug; ./gradlew :app:connectedDebugAndroidTest; External process-kill/relaunch UI gate; Physical camera/permission/user-flow gate."
+      },
+      "outgoing_request_paths": [
+        "docs/agents/requests/080-to-004.md",
+        "docs/agents/requests/080-to-053.md",
+        "docs/agents/requests/080-to-071.md",
+        "docs/agents/requests/080-to-088.md",
+        "docs/agents/requests/080-to-094.md"
+      ],
+      "final_checkout": {
+        "head": "f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3",
+        "branch": "agents/080-actual-ui-end-to-end",
+        "index_entries_sha256": "0a2fd18bc82cafe489bd9c3ddd9bd82bc4f9d757efb69025c43c0d4c8dbb55b5",
+        "worktree": {
+          "clean": true,
+          "paths": [],
+          "porcelain_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "checkout_changed_during_audit": false,
+      "finished_at": "2026-10-20T09:14:07.039950+00:00",
+      "remote_head_end": "f7f3d71e45de675f6d29354feb9c2fc5ff53a2c3",
+      "remote_changed_during_audit": false,
+      "local_remote_head_equal": true,
+      "delivery_status": "PUBLISHED_CLEAN"
+    }
+  ]
+}

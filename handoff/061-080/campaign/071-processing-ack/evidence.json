@@ -1,0 +1,15 @@
+{
+  "071_source": "de4bb309077588d25aa671ccd9ce259042942266",
+  "074_source": "cb04463b39a41e0facfe2d8f0f4b13f6e1480b9c",
+  "peer_baseline": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+  "result": "PASS",
+  "command": "python /workspace/campaign-061-080/071-processing-ack/compile-compose.py",
+  "source_sha256": {
+    "/workspace/agent-work/071/app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": "ff9bc1b06f47bea5978f9ab7bbe6838ec2301883a780f3dde5dcb2795c1a3d54",
+    "/workspace/agent-work/074/app/src/main/java/com/realityforge/scanner/ui/processing/ProcessingScreen.kt": "00915ce0e7caf20090e6213ac6b3ad20ed25c82f9a0a01140373905f11e1e563",
+    "/workspace/agent-work/074/app/src/main/java/com/realityforge/scanner/ui/processing/JobUiState.kt": "3a40a60eb142b539ad5097e9169a18c33cb533d47411fb3babec3ef687de55a7"
+  },
+  "log": "/workspace/campaign-061-080/071-processing-ack/compose-final-2.log",
+  "log_sha256": "739947e6a20fe3c99c1c6b67622b6a9a89f581008ed4fa5f0c46916efceb77ba",
+  "scope": "Actual Kotlin/Compose compilation of071ScannerApp +074screen/state, real AndroidX and pinned compiled peer classes; not full APK/lint/JVM/device qualification"
+}

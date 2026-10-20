@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "representation": "sparse_points",
+  "scale": "arbitrary",
+  "registeredCameras": 2,
+  "inputMatches": 589,
+  "inliers": 579,
+  "pointCount": 579,
+  "medianErrorNormalized": 0.000142821730972,
+  "medianParallaxDegrees": 8.57624951945,
+  "rotation": [
+    0.988383844364,
+    -7.45585493069e-05,
+    0.151978191332,
+    -0.00148061929957,
+    0.999947698275,
+    0.0101197075162,
+    -0.151970997121,
+    -0.0102271772619,
+    0.988332039792
+  ],
+  "translation": [
+    -0.991952549142,
+    -0.0641917190004,
+    0.109130946402
+  ],
+  "firstFeatures": 1536,
+  "secondFeatures": 1530,
+  "reciprocalMatches": 589,
+  "secondsOnThisHost": 0.206,
+  "inputs": [
+    "view-01.jpg",
+    "view-02.jpg"
+  ],
+  "warning": "Two-view sparse points only. Not a dense surface mesh, not a quality claim for real-world scans."
+}

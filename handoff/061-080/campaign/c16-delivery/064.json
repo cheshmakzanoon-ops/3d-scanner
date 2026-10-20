@@ -1,0 +1,17 @@
+{
+  "agent": "064",
+  "branch": "agents/064-ply-export",
+  "previous_head": "9bfa724729c27d45fb591bcf5aeb12e54ac51392",
+  "head": "c0a926daa9863c1b68a2fb8ea9b4759dca023134",
+  "remote_head": "c0a926daa9863c1b68a2fb8ea9b4759dca023134",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/064.md"
+  ],
+  "manifest_verifier": {
+    "files": 203,
+    "source": "index",
+    "status": "PASS"
+  }
+}

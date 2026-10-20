@@ -1,0 +1,17 @@
+{
+  "agent": "076",
+  "branch": "agents/076-adaptive-design-system",
+  "previous_head": "63399f41996659bbfde5705907b9198fd9416d8d",
+  "head": "58197d124d34a8bce17552ccc6ad292dc4a78108",
+  "remote_head": "58197d124d34a8bce17552ccc6ad292dc4a78108",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/076.md"
+  ],
+  "manifest_verifier": {
+    "files": 199,
+    "source": "index",
+    "status": "PASS"
+  }
+}

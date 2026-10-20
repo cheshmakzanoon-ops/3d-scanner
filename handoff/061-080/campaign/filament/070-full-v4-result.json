@@ -1,0 +1,23 @@
+{
+  "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "d2ef665bffb0a469673e74bfed1f575fa1156e81a18ed9a8fd5e6d2c548c545d",
+  "app/build/outputs/apk/debug/app-debug.apk": "00c4186f6fd3176faa4e625778603981eae2689eb4d2c18360ad902f984a4c1d",
+  "command": [
+    "/workspace/.venvs/3d-scanner/bin/python",
+    "/workspace/toolchains/gradle-cloud.py",
+    "--init-script",
+    "/workspace/campaign-061-080/filament/dependencies.init.gradle",
+    ":app:assembleDebug",
+    ":app:assembleDebugAndroidTest",
+    ":app:testDebugUnitTest",
+    ":app:lintDebug"
+  ],
+  "cwd": "/workspace/campaign-061-080/studio-combined",
+  "exit_code": 0,
+  "heads": {
+    "066": "a7cabb5bc778b91b056362762ca8c24820587ee1",
+    "068": "0e85e76bdc38d0df80c627933a96a5d868c867fe",
+    "069": "c137e6996477f35735f169b10c8b92112c551007",
+    "070": "5c683605423d2c4c743bac2420192364ee430b44"
+  },
+  "source_digest_sha256": "6b1e5ec3a6eb5f81d4cfd2b2d6fb644d88caf8af2e8cff8f2c918838959a710d"
+}

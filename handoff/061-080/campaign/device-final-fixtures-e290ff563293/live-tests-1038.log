@@ -1,0 +1,49 @@
+--------- beginning of main
+--------- beginning of system
+--------- beginning of crash
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: Process: com.realityforge.scanner.test, PID: 8462
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: java.lang.NoClassDefFoundError: Failed resolution of: Lkotlin/collections/CollectionsKt;
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at com.realityforge.scanner.qa.FaultDocumentProvider.<clinit>(FaultDocumentProvider.kt:22)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at java.lang.Class.newInstance(Native Method)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.app.AppComponentFactory.instantiateProvider(AppComponentFactory.java:147)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:6972)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:6528)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6445)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:219)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1859)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:214)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7356)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:492)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:930)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "kotlin.collections.CollectionsKt" on path: DexPathList[[zip file "/data/app/com.realityforge.scanner.test-Y1LjvCxbg8AfbxD-MnOvSA==/base.apk"],nativeLibraryDirectories=[/data/app/com.realityforge.scanner.test-Y1LjvCxbg8AfbxD-MnOvSA==/lib/x86_64, /system/lib64, /system/product/lib64]]
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:196)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:379)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:312)
+10-20 10:36:57.913  8462  8462 E AndroidRuntime: 	... 14 more
+10-20 10:37:48.693  8409  8427 I TestRunner: finished: primaryActionRemainsReachableAtTwoHundredPercentText(com.realityforge.scanner.agents.a077.ActualAccessibilityTest)
+10-20 10:37:48.720  8409  8427 I TestRunner: started: visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics(com.realityforge.scanner.agents.a077.ActualAccessibilityTest)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: FATAL EXCEPTION: main
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: Process: com.realityforge.scanner.test, PID: 8502
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: java.lang.NoClassDefFoundError: Failed resolution of: Lkotlin/collections/CollectionsKt;
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at com.realityforge.scanner.qa.FaultDocumentProvider.<clinit>(FaultDocumentProvider.kt:22)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at java.lang.Class.newInstance(Native Method)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.app.AppComponentFactory.instantiateProvider(AppComponentFactory.java:147)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.app.ActivityThread.installProvider(ActivityThread.java:6972)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.app.ActivityThread.installContentProviders(ActivityThread.java:6528)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6445)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.app.ActivityThread.access$1300(ActivityThread.java:219)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1859)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:107)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:214)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:7356)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:492)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:930)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: Caused by: java.lang.ClassNotFoundException: Didn't find class "kotlin.collections.CollectionsKt" on path: DexPathList[[zip file "/data/app/com.realityforge.scanner.test-Y1LjvCxbg8AfbxD-MnOvSA==/base.apk"],nativeLibraryDirectories=[/data/app/com.realityforge.scanner.test-Y1LjvCxbg8AfbxD-MnOvSA==/lib/x86_64, /system/lib64, /system/product/lib64]]
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at dalvik.system.BaseDexClassLoader.findClass(BaseDexClassLoader.java:196)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:379)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	at java.lang.ClassLoader.loadClass(ClassLoader.java:312)
+10-20 10:38:03.612  8502  8502 E AndroidRuntime: 	... 14 more

@@ -1,0 +1,3445 @@
+{
+  "commit": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "files": {
+    ".github/workflows/export-source-snapshot.yml": {
+      "blob_oid": "3dbd11f67bd08504a3ebf00dfd5d8964cb213714",
+      "bytes": 534,
+      "mode": "100644",
+      "sha256": "2387750437eabd16fca92e8af835afef35153e9420dfd465fd6997c2bfe5fbf0"
+    },
+    ".github/workflows/verify.yml": {
+      "blob_oid": "cc384713f0d9956121ae3bb4d9bc06a7babf708d",
+      "bytes": 4745,
+      "mode": "100644",
+      "sha256": "ca51550c32bd9d720c766b1be1b7fb4b04bb597a511b199ade7c4ac84b381a0c"
+    },
+    ".gitignore": {
+      "blob_oid": "e37aac1e9226d23d46d2416880fc6c0af4bfab15",
+      "bytes": 169,
+      "mode": "100644",
+      "sha256": "c7589414316f0f26de772048811ed0709b226e2a206ce2015c8e744b9a02a14c"
+    },
+    "AGENTS.md": {
+      "blob_oid": "f6bb45c7fe4666d5efe35036cf3ee5de42de8ff8",
+      "bytes": 2138,
+      "mode": "100644",
+      "sha256": "4284a776cfc3fb244c324eeaa94fee71d8b94c8eeebbf04c2d50a5e3210fed29"
+    },
+    "CMakeLists.txt": {
+      "blob_oid": "6a391a4184578f5ace99fe1c9fcb89c6d3df1fdd",
+      "bytes": 3661,
+      "mode": "100644",
+      "sha256": "a4d1ab7355a5eb6d14e69d2687ba2d6e8dafb98bd4091cc541179c671e3ff1e1"
+    },
+    "PRODUCTION_100_AGENT_EXECUTION_PLAN.md": {
+      "blob_oid": "9b549f0f2e461e13f780f28ad729cc7e2cf468d7",
+      "bytes": 377886,
+      "mode": "100644",
+      "sha256": "da0c0efe7cd7bf63bd31612d8d00680130079f38226be4dd38e0d4882489161c"
+    },
+    "PROJECT_PLAN.md": {
+      "blob_oid": "3e5d7fbd289efd8ee9644ce36d12a0e9b930a10c",
+      "bytes": 8824,
+      "mode": "100644",
+      "sha256": "866afa3dda3df512d25f6ffa68ce00426daf073e0a4b698f9e9506dcb55496bb"
+    },
+    "README.md": {
+      "blob_oid": "d4c25b960d8a4754e8f96966df33b79b89d148ce",
+      "bytes": 6644,
+      "mode": "100644",
+      "sha256": "cbead15c4fac1b973c53c1138107ccfb008607e2f5216bb30a6b472989a02587"
+    },
+    "SOURCE_MANIFEST.sha256": {
+      "blob_oid": "b192de85f36dcacf16b3fc541ab7dc4f3a80bdc0",
+      "bytes": 65226,
+      "mode": "100644",
+      "sha256": "ee45f39de84980645fd4ea52cc3a7337d05ac7a166b5ca8fe96708e1d07dfc76"
+    },
+    "THIRD_PARTY_NOTICES.md": {
+      "blob_oid": "73dd35ad769a679aa68ae0eda3ae9a5eb5058547",
+      "bytes": 2110,
+      "mode": "100644",
+      "sha256": "ba9ca4922c43204f116eca1bc5a4c12ea6aaa5da9d949f8135ea86d95ba24069"
+    },
+    "VERSION": {
+      "blob_oid": "05ed0a1d8f44ae08b40d505f4f446bc8c1392ba6",
+      "bytes": 11,
+      "mode": "100644",
+      "sha256": "48decd0e547b6bc535b8083f6edc13b4814c2a6ac259c52512b90417a2a4e2e7"
+    },
+    "app/build.gradle.kts": {
+      "blob_oid": "c62a96e0726566392b71506e97eebebde0605d11",
+      "bytes": 4644,
+      "mode": "100644",
+      "sha256": "1a385ec6b701518b2d61e4eb675c137356e27b8c63862d1429b1415a449f005d"
+    },
+    "app/proguard-rules.pro": {
+      "blob_oid": "3dea8881e7c1c6b70ac5d1a45c8b691000fb5cbe",
+      "bytes": 95,
+      "mode": "100644",
+      "sha256": "dcdc8a3390232fd3a05dc242ea17ee4c65513c7de130e129028800f66c25f582"
+    },
+    "app/src/androidTest/AndroidManifest.xml": {
+      "blob_oid": "82afdcd26257a7967a8e05abcae9eefdc279550e",
+      "bytes": 674,
+      "mode": "100644",
+      "sha256": "92c647b0562faa2c83ff876f543eb9aaa9ac982c3399c2ec3f8efb46759ccaa0"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/AdaptiveDensePipelineTest.kt": {
+      "blob_oid": "e2aaa0e1f2e57f1d14b9c84cd0d4f1541e6533f2",
+      "bytes": 4192,
+      "mode": "100644",
+      "sha256": "082801fc8e7db236db8df6c7c78b5c32ebb9a310e7e9ee8d54857377e77a1e4b"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/DatabaseContractTest.kt": {
+      "blob_oid": "42a037c0fb6fa857254e5a61020d21cd7cb7f6bb",
+      "bytes": 1861,
+      "mode": "100644",
+      "sha256": "d8b0e80549d3e22d61ca08c5c02c67406c7da2fe6c00bfe4b493b557fce3a9da"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/DepthCheckpointDeviceTest.kt": {
+      "blob_oid": "d1dcbdf583cf388a48aeed266063d6fafb63b027",
+      "bytes": 3131,
+      "mode": "100644",
+      "sha256": "0e7536d335d2da2fa016462330c804eeae14d156d755ca8d37e48eb963a6eb89"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/IncrementalNativeRegistrationTest.kt": {
+      "blob_oid": "6a11beaf4bcf49813cf07412a0952732568286e5",
+      "bytes": 4057,
+      "mode": "100644",
+      "sha256": "0a3b3cc54e639398da48a7095c35e13a266076daf9868b2203fb3369c661a257"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/MultiCameraNativeTest.kt": {
+      "blob_oid": "95acbe81dfc1e20778793359a53fc24601e0ce92",
+      "bytes": 3090,
+      "mode": "100644",
+      "sha256": "6c69271bfba1cedf5db744fa0e3befdd78e2c6250c63add4bf150f651263841c"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/NativeSmokeTest.kt": {
+      "blob_oid": "f04e65b5c253750383e5b5fa681131cfc519b42b",
+      "bytes": 12463,
+      "mode": "100644",
+      "sha256": "b1fcd2f9761e1dfbf955dc4bc872afeb45d76950eaba6b38fa0d24f9320bf3a3"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/OfflineCaptureBundleTest.kt": {
+      "blob_oid": "1f86a424103fd7e7b8d4f10e318b3c042dce42ce",
+      "bytes": 5295,
+      "mode": "100644",
+      "sha256": "3be9b2fdd2fb1eb1af23675f9fb7cbf4d8a7f24b26158e3f810cb5923189ebcf"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/PhotographicViewerTest.kt": {
+      "blob_oid": "fe3072ecbfeada0c7dc2e85fc55b9d83d2ac578d",
+      "bytes": 16175,
+      "mode": "100644",
+      "sha256": "16eddc159576f71810bb453f4a54f9b89b9e59aa2131910bc9f219c47b18742a"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/ScanQualityReportDeviceTest.kt": {
+      "blob_oid": "fd5f1f506dd075fd9540a763bbd435e0e3d0a675",
+      "bytes": 2289,
+      "mode": "100644",
+      "sha256": "b5ea61073b24529363194ee75a5a7cc9cb0a8e7dcb8dab1f30c5ebf1d6c37573"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/SessionReliabilityTest.kt": {
+      "blob_oid": "2846a49f944695c7e292b6654786456176fa849d",
+      "bytes": 12359,
+      "mode": "100644",
+      "sha256": "7383890d1a8296c9a26147e8a4906851210157ef316e6d82903e3df75ee2df48"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a001/OperationIdentityDeviceTest.kt": {
+      "blob_oid": "bbce29c2cef30394a836b3bd0f9768a0270aca5e",
+      "bytes": 6820,
+      "mode": "100644",
+      "sha256": "9b6f000b649bf67092613c494f8f237e7bda70de31feed82d4cb102878d961b4"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a007/DurableJobStoreDeviceSupport.kt": {
+      "blob_oid": "c4b6b00a231c25bdab1623e26d028b7d4c87bcee",
+      "bytes": 2637,
+      "mode": "100644",
+      "sha256": "6f0d1c2c52ed5b9aa71f9bbbd64a74cc1662ea3a6d03e1fc8394b90920e93115"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a007/DurableJobStoreHistoryDeviceTest.kt": {
+      "blob_oid": "41be3129be5ed6bc97fc96be4df04551d8050b84",
+      "bytes": 2765,
+      "mode": "100644",
+      "sha256": "810263bf925d34ff98ec58c7d5565d75fdbe437604bbb4e5a036959895f187a8"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a007/DurableJobStoreLeaseDeviceTest.kt": {
+      "blob_oid": "c5fbf1d64f001cc88cfdb8e255bb1bcabb620fa4",
+      "bytes": 3238,
+      "mode": "100644",
+      "sha256": "b31261b77bb312800ec4f604b97b310e1b038a56e920a18aa1911037a778e1a9"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a007/DurableJobStoreRecoveryDeviceTest.kt": {
+      "blob_oid": "476e4e65219e61f16fe827aa485eb8a221e5d9d1",
+      "bytes": 9680,
+      "mode": "100644",
+      "sha256": "84e55b7bacd5041eb684eb8bea587a47ca7ebb7bfdfccb005c04acc14e8c27e5"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a007/DurableJobStoreStateDeviceTest.kt": {
+      "blob_oid": "55306e37a1b0881d268e4dcd8016df161012101e",
+      "bytes": 6136,
+      "mode": "100644",
+      "sha256": "fe6162e22788087626c9b829a9ae26bce65d7f32a826c3f3225579b05aaed260"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a018/PhotoCurationContractDeviceTest.kt": {
+      "blob_oid": "6ad0e67663bdfd03c046b08408dd29a25c9c7ad3",
+      "bytes": 5016,
+      "mode": "100644",
+      "sha256": "655f0b8a7faca7cfe061ea6e5ceabee8852e6fa7e2a1a6e9e75af114dca55ffb"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a026/AndroidSafDestinationStoreDeviceTest.kt": {
+      "blob_oid": "2ac06e0ada25e3b937adc6f5038ad90fba678e65",
+      "bytes": 1801,
+      "mode": "100644",
+      "sha256": "325824a051f016a313c99f0f5bcf0eea46ab539841beb14ef7b78c918eba14c5"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a066/EditHistoryDeviceTest.kt": {
+      "blob_oid": "f0e8f17e9ba80b3cdc867d6ae54d7d9714d08a06",
+      "bytes": 1670,
+      "mode": "100644",
+      "sha256": "3b1af833e238f70bd4a73927e5d16d9f16f4093c513374d6ced2ead7d623f470"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a068/GlbParserCorpusTest.kt": {
+      "blob_oid": "fe984b6ab500828aa3457a8dc09e340d0919f573",
+      "bytes": 405,
+      "mode": "100644",
+      "sha256": "fa09d5d108d72d6327ee695e3fa5300766b049753ac4b44048d72cfee07f9130"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a068/GlbParserHostHarness.java": {
+      "blob_oid": "82be6b765eea49434a69467133ecade7f1ad2351",
+      "bytes": 9406,
+      "mode": "100644",
+      "sha256": "817c3a678ab1bed7d9af99ab9f7a3b4f6c96087947ec0cacc4912806dffd4ca8"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a070/RendererFallbackTest.kt": {
+      "blob_oid": "d80ed56ff23f4e768d728e5a2b8a975038eeea42",
+      "bytes": 4084,
+      "mode": "100644",
+      "sha256": "fec521a6037c81bd40e92d58907e07634b2f1f2232be82cf59cee881268d4098"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a070/ViewerControlsTest.kt": {
+      "blob_oid": "c1337a522448c6f59b3a1ee9f045086221fa008f",
+      "bytes": 3398,
+      "mode": "100644",
+      "sha256": "85354d9b14277ee1440636db343fff65ad1b761d4197ac8e7d3252cca38beb6f"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a071/NavigationLifecycleDeviceTest.kt": {
+      "blob_oid": "4606e11755f4f44cdeeaa27199110974c49cbb25",
+      "bytes": 2082,
+      "mode": "100644",
+      "sha256": "4fa1e41a75ce31c0c47b37df4302e187fe6ed21741afaf73b655477e22db245a"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a072/ScreenInteractionTest.kt": {
+      "blob_oid": "1eef70856cb090c47daa0a7c72dca65e6406b523",
+      "bytes": 5185,
+      "mode": "100644",
+      "sha256": "38a7e2b624b92f17aae4d898a470155fac6f9a28fe976c1d3eab1f180ef5e9b7"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a073/ScreenInteractionTest.kt": {
+      "blob_oid": "44c5b766a3704f893c8e7ace8d888ea65b6865d3",
+      "bytes": 2391,
+      "mode": "100644",
+      "sha256": "e442618d3b30a27e709d723838c76177d37a3a31d3c47a84066411e145e23eb5"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a074/ScreenInteractionTest.kt": {
+      "blob_oid": "d8d919b49ea87581a4c82a64202a1a005f98e14b",
+      "bytes": 4347,
+      "mode": "100644",
+      "sha256": "d2d6de35c4a78ffacd8cea2370555c57ae8cd6284ceda86632d5bbca63f5b056"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a075/ScreenInteractionTest.kt": {
+      "blob_oid": "6dce2ee5adfb2a8bcbc8cbd8f00feb0cdc08adbe",
+      "bytes": 2579,
+      "mode": "100644",
+      "sha256": "ccaa8302966ae5cb244b15052040371e5d76e2c19b3b66f4a99b41d6ad4a808a"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a076/DesignSystemDeviceTest.kt": {
+      "blob_oid": "a5d07d8e30cd4071a0f81bea7feeeacf43d187c5",
+      "bytes": 1783,
+      "mode": "100644",
+      "sha256": "ac4a25e29bfc51d890b83fc27a760e4089043e22fca71c0a4b872e5e746f2dc7"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a077/ActualAccessibilityTest.kt": {
+      "blob_oid": "0add65a6132c450c6d6d652ecc5c8ce887653326",
+      "bytes": 10887,
+      "mode": "100644",
+      "sha256": "481216db2ff87257c90d5116cfb6db72213e396112384bb324fe01cca83dfc6c"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a078/LocalizedResourcesDeviceTest.kt": {
+      "blob_oid": "51392b1381fb7ad6f0ac6ea3ad5900cc64f5b707",
+      "bytes": 1227,
+      "mode": "100644",
+      "sha256": "ee60ff4bea1cc2690ca3dc18697827140363f930929f351c26342d414160ed9a"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a079/ScreenInteractionTest.kt": {
+      "blob_oid": "134c219a7d51a5ecf83e143a171aaae8b95400aa",
+      "bytes": 3049,
+      "mode": "100644",
+      "sha256": "a3ec3517e8cbd286ad6d085490ad0acc346c10c0df11a231d2eb10dbafdc77ce"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/qa/FaultDocumentProvider.kt": {
+      "blob_oid": "6341d424b25c66e68774f566ea13f42fb95a9e82",
+      "bytes": 4955,
+      "mode": "100644",
+      "sha256": "983a8d6a9d2abb8fa31525fb4599cf61763afe311df186533fe38d3696fb0610"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/qa/RecoveryStageContractTest.kt": {
+      "blob_oid": "2865edceb07afc909b9844b4287a24070d66b968",
+      "bytes": 11631,
+      "mode": "100644",
+      "sha256": "a1e80e656f5d6655f66bdd1f27f076eabff85563d2fc80be042670891ca6241d"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/uiflow/ActualUiJourneyTest.kt": {
+      "blob_oid": "433f0998239b9aaf54b66f695e5c5d4458418b7b",
+      "bytes": 18204,
+      "mode": "100644",
+      "sha256": "9fdf63296123dd6864ae2146214e21e3fe7f1209ef6bd4bafb91dbcb5f03f619"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/uiflow/CameraPermissionJourneyTest.kt": {
+      "blob_oid": "0afc07c7d1b9beb46344f18e57551efc32603c5a",
+      "bytes": 3263,
+      "mode": "100644",
+      "sha256": "f610319c3346f026bbd25c8c969a0d2976f34b10c4c89267e4e9bb432804486f"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/uiflow/InterruptionUiJourneyTest.kt": {
+      "blob_oid": "6a941b38f9f3b737e3f8e5c0d66874f44104ae6d",
+      "bytes": 14373,
+      "mode": "100644",
+      "sha256": "942b3dea052b8ba116ae3fd4d4a89eff4dab5bff6bf10e3fdb33d8d891caaa7d"
+    },
+    "app/src/androidTest/java/com/realityforge/scanner/uiflow/PhysicalCaptureJourneyTest.kt": {
+      "blob_oid": "cb704ee3478f1324fa973dc792deafcd3a5669bd",
+      "bytes": 10403,
+      "mode": "100644",
+      "sha256": "c81e2527efabeb357c2ab2a945032a2dd4e71e16876f2a696111fa1d54c8c730"
+    },
+    "app/src/main/AndroidManifest.xml": {
+      "blob_oid": "5981bea112638fc9fb359336ad789d0c87dd3a72",
+      "bytes": 1295,
+      "mode": "100644",
+      "sha256": "e7ca836913bee87952103ffdaaf41a5fb3aac9d8052fd85e0f25abcc89536884"
+    },
+    "app/src/main/assets/onboarding/checkerboard-9x6.svg": {
+      "blob_oid": "09af3d56a6d8dcabcf5a5bec29dbe2e6c9d1aa5b",
+      "bytes": 3128,
+      "mode": "100644",
+      "sha256": "13f63963a49857b3de2ce075b26c5630ca486ee0f9873c264294eadc9608f078"
+    },
+    "app/src/main/java/com/realityforge/scanner/MainActivity.kt": {
+      "blob_oid": "4b958d6055da510332c0f144a5f3568df856d708",
+      "bytes": 919,
+      "mode": "100644",
+      "sha256": "6342226554757fcd8c5bc453da2454b59769e62bac5d6a89ef1aeac5d1e8e76c"
+    },
+    "app/src/main/java/com/realityforge/scanner/RealityForgeApplication.kt": {
+      "blob_oid": "612b4d8be006d2df3287618b7aa8310f978f1bb7",
+      "bytes": 603,
+      "mode": "100644",
+      "sha256": "ea2c5efae951d81df25677205423650350b8cd70e1f827b5457f82efa4f298a2"
+    },
+    "app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt": {
+      "blob_oid": "036dfceaa112c54f399a55625e03241ab2142632",
+      "bytes": 37911,
+      "mode": "100644",
+      "sha256": "4d190d83e33b887a1031eba4fec5832fdd811d74d16e88e3d4ad60737555ddc4"
+    },
+    "app/src/main/java/com/realityforge/scanner/application/OperationCoordinator.kt": {
+      "blob_oid": "26975f3f34fb988ad8b75c6e8c44069be6a05f99",
+      "bytes": 5117,
+      "mode": "100644",
+      "sha256": "186fc36f34dc9dbbd7bd7f6821ea95f25e96e81c479fc965b26e28108bfc59f4"
+    },
+    "app/src/main/java/com/realityforge/scanner/application/ScannerCompositionRoot.kt": {
+      "blob_oid": "968eb881358a5d41c1993623ebd116355c1433e8",
+      "bytes": 1213,
+      "mode": "100644",
+      "sha256": "1eb9c797c97e007e91c3a80c9cc3b991a62070afa518add884de81a301608de2"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/Database.kt": {
+      "blob_oid": "dc4974d3d9057a0a0ec42a60c2dbfdd9a4cbb9f2",
+      "bytes": 3210,
+      "mode": "100644",
+      "sha256": "68df182dbacf8f4b6023fe24efe57b874ed4f343b4b13d4a91fcf22327d5b6eb"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/ProjectRepository.kt": {
+      "blob_oid": "e08db961d9ed1c823c95e178858f337aa1846c30",
+      "bytes": 11445,
+      "mode": "100644",
+      "sha256": "a1f5aba58c2f75b0d7a5046407e46a04c886248db89140352b05488aa14dc08f"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CuratedPhotoState.kt": {
+      "blob_oid": "a1f5e1f3ac4ae2abd68df68e999d40b82681f711",
+      "bytes": 1472,
+      "mode": "100644",
+      "sha256": "5b21c3d9deb023443b23ae7bfca591025af3dff700df9ac7506cde42d3e94557"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CurationCommands.kt": {
+      "blob_oid": "06b55d8dad56ff470c172efddf18802478226bad",
+      "bytes": 3926,
+      "mode": "100644",
+      "sha256": "f3e92e8ffd134b7b7a945fce1844b9130f872d1cfa192a4ec9fc511f81f09ebe"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CurationCoreTypes.kt": {
+      "blob_oid": "89228cfda681424adb50b713f68bc076695bacb9",
+      "bytes": 1319,
+      "mode": "100644",
+      "sha256": "3a54fcef4b20f5d8cd133a145dd340e0140f47b0b6eababb3c115ec91ca95c70"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CurationExecution.kt": {
+      "blob_oid": "acdc8e5608ceffe5d03ce077e7cef8924d15ff94",
+      "bytes": 6114,
+      "mode": "100644",
+      "sha256": "c0d1171327bd66e6ea0e8bd0019d3e7f3f1466bc703a6acb6d46e8674244cbf9"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CurationReducer.kt": {
+      "blob_oid": "5f0dd13c0c30eb9a758fc7685f99cfd90d3a968b",
+      "bytes": 6037,
+      "mode": "100644",
+      "sha256": "81c3de74ec7f384bc10349dc52e7021619904baf529d9276fddcef3c84fdf117"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CurationSelection.kt": {
+      "blob_oid": "16606fee46adc3e7afba6b987821fedc793d834a",
+      "bytes": 5488,
+      "mode": "100644",
+      "sha256": "8a2c087a2153a7a590af78652231807b10437a4bf57031ea22462ff96bfb5457"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CurationUndo.kt": {
+      "blob_oid": "9e0eaeaf5af48ec232be5126517881161693747b",
+      "bytes": 2080,
+      "mode": "100644",
+      "sha256": "84439435add590cbe229d69e81b3e041074479a0df915eed1c36eb26089306a6"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/CurationValidation.kt": {
+      "blob_oid": "0987a3fd7c9c1f27b08f92a4c3728ed4df6cd4bc",
+      "bytes": 484,
+      "mode": "100644",
+      "sha256": "1af23d3d20fe64aa0413370d9b05b46cf3e0f478a2040a3fbb071f8c944b3da0"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationService.kt": {
+      "blob_oid": "3902b248530568b7fffe1ef46ac40aff524d98b8",
+      "bytes": 1102,
+      "mode": "100644",
+      "sha256": "44db3aeb6870a94561a4755ed9fa3964a657e58fe022a24a482d701671ec1ede"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationStore.kt": {
+      "blob_oid": "b95f59048f9b924cbd689ac7a6aaf61a5282a0f4",
+      "bytes": 1161,
+      "mode": "100644",
+      "sha256": "dd23810e845fd08e08194fe700235034f114d1014c4811e6b34fa034f21589c4"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/curation/SelectedPhotoState.kt": {
+      "blob_oid": "8505c5a46c2c8a9b2161647ce22b8fd8e2e94d28",
+      "bytes": 2018,
+      "mode": "100644",
+      "sha256": "df9ca02c387311a8b76de376bf8e17beec001eea400dae435b6a779db92e4bcd"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/jobs/IsolatedJobStoreDatabase.kt": {
+      "blob_oid": "cd81bab9df6f21b2a682f7b73486617677108f92",
+      "bytes": 648,
+      "mode": "100644",
+      "sha256": "1bdeb697dc6d2cc609695de5ce4c9bb59874863da20048d2a93e28f4fca78870"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/jobs/JobContracts.kt": {
+      "blob_oid": "992402046331d9e1c1ccb78d5c72e90873d589ea",
+      "bytes": 9161,
+      "mode": "100644",
+      "sha256": "9e1f2baba745151667d20c9f81ed31baf5a19b0c80f22c544e991f7cd7f078cb"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/jobs/JobDao.kt": {
+      "blob_oid": "268803b669690fc44ab1080a600a772923745a10",
+      "bytes": 4504,
+      "mode": "100644",
+      "sha256": "2be3e2ed22fbfb93ebd8d05c5a75a151ddc1a1b8948fd78dfeffa903bb544224"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/jobs/JobEntities.kt": {
+      "blob_oid": "f865aeef2ad96d58f7c572c3757d64aa36067175",
+      "bytes": 5808,
+      "mode": "100644",
+      "sha256": "8341ee0febb703756c766c40d486e136a2f32506f6a0b69d4b27f337c675f5d5"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/jobs/JobStateMachine.kt": {
+      "blob_oid": "be5fe0f5824ceda9ae9fbbf846cd743e76c3a781",
+      "bytes": 5407,
+      "mode": "100644",
+      "sha256": "f4e79f953ce05c7d0efcf28fe6eef3481200560de55c3c2ab6bc07228075be73"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/jobs/JobStore.kt": {
+      "blob_oid": "2158b87cdcd8d1ceef9c07c23ca3a640f9664a6c",
+      "bytes": 4270,
+      "mode": "100644",
+      "sha256": "27988ab0da84036d0f4dc728870387b7dbcca19ee36ec1e64f63ba38d28decca"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/jobs/RoomJobStore.kt": {
+      "blob_oid": "3e12352dee56ff3f4ba4e3321710c07ccf727e18",
+      "bytes": 24224,
+      "mode": "100644",
+      "sha256": "488b35e21ce1931de4f9128fc179a68aaa8759178e09e4d07ffa9556000f04b7"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/library/ProjectLibraryService.kt": {
+      "blob_oid": "1609e7e4a357cd667aece06a3ab7ed1dfdc8238e",
+      "bytes": 8625,
+      "mode": "100644",
+      "sha256": "65d90d60c3dae798d35cefd53dfe19e5c5a05304fe701be23c3a9fd74fba599e"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/safexport/AndroidSafDestinationStore.kt": {
+      "blob_oid": "ada702a9be96d0eaac29d315a9c76d7a0e85ffca",
+      "bytes": 5885,
+      "mode": "100644",
+      "sha256": "b71ec8715beacab8dae074e34dc54a1e2ecac2051dee82bf9867c42edf402ced"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/safexport/DestinationTransferService.kt": {
+      "blob_oid": "084caa31ce340b8662a18f69194674ae729bff79",
+      "bytes": 21170,
+      "mode": "100644",
+      "sha256": "ec2a44cb089a47d487c9e51c4ad9575f78ce32c34048560c2dc17500673b584b"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/safexport/FileVerifiedExportSourceAccess.kt": {
+      "blob_oid": "0a12f9e64a351763b89869bfd878548bc77230e7",
+      "bytes": 3443,
+      "mode": "100644",
+      "sha256": "80de18fafff8f67d20e74d1a71a49540fa495abccddf4366029ce6e309f009bd"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/safexport/SafExportContracts.kt": {
+      "blob_oid": "95e9356effafde7b1c100805d52ebabca855098f",
+      "bytes": 5002,
+      "mode": "100644",
+      "sha256": "61a0f4f1d77161deccf3da6b81c50042a2c606a185a8ab415a19cfe375d87bca"
+    },
+    "app/src/main/java/com/realityforge/scanner/data/safexport/SafTransferPorts.kt": {
+      "blob_oid": "0f9579e660c69e13b6c6d70e16a16d63b3855d3c",
+      "bytes": 4821,
+      "mode": "100644",
+      "sha256": "df88fa1083d93222e3a733c3ea87a449233aa6e76d9680670afa9699e41c795d"
+    },
+    "app/src/main/java/com/realityforge/scanner/domain/OperationContext.kt": {
+      "blob_oid": "a543523cceacaed5654573fc1f169c5e755e6f1c",
+      "bytes": 7676,
+      "mode": "100644",
+      "sha256": "9b18d4c775b81b7a27bac9aa2453d5aee13fc4bc42ceadab9190e17d6e35780e"
+    },
+    "app/src/main/java/com/realityforge/scanner/domain/ScannerState.kt": {
+      "blob_oid": "b26ccd5bfdec8f4a7d8215245a7693e948e1a692",
+      "bytes": 2317,
+      "mode": "100644",
+      "sha256": "99bd1c5c5e8ef86bd1cd921a77993250798b89f2cc378f5e57049453e25f913c"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt": {
+      "blob_oid": "24a581ea62f4b9493dd28cc9ca04767d239c9cc4",
+      "bytes": 16716,
+      "mode": "100644",
+      "sha256": "06da4a881eedff1d9b83e393feccd943914d8f70b7ee23254410be53ce2041c8"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt": {
+      "blob_oid": "0da007d4565896fe08be4cdacfaf088cc8753ac0",
+      "bytes": 5077,
+      "mode": "100644",
+      "sha256": "bf8683d8a1ddb0f4667a5fdffb6f2c21fb15fb218838eb58566999cd362c8b0e"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt": {
+      "blob_oid": "3c4777989fb8fdfa353e952d8472f09e65c671a9",
+      "bytes": 4433,
+      "mode": "100644",
+      "sha256": "1030312c4221645e7c9daa80fec4a75f3c1aaf9a6f35c95795e18327c23d4fe2"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/ImageLoader.kt": {
+      "blob_oid": "a89476c2b9e91cfe01113e6cb8a5e140ec0bfb74",
+      "bytes": 3607,
+      "mode": "100644",
+      "sha256": "673bcd062832ff24805dde3bbad3da7434b3b21e6c949316138caae43fed1e48"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt": {
+      "blob_oid": "68593c573df27f1c0b2a4bfe1e5208e6d51584c0",
+      "bytes": 9946,
+      "mode": "100644",
+      "sha256": "e57287cc195b4eb3663fe5fdbf79e1031e3743fdc9c08d47b57095a2075701dd"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/LensCalibration.kt": {
+      "blob_oid": "d57d41a5bd9ca3aa9ecc7c698020eda3ff86b23a",
+      "bytes": 9171,
+      "mode": "100644",
+      "sha256": "773c1029cf26cd6799fb3ad3cc71e377caf19014a34d8e4c9a0e139d4d0d2461"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": {
+      "blob_oid": "c119eda6f21caf4be64021a17c0cb9640c4fd2ca",
+      "bytes": 5162,
+      "mode": "100644",
+      "sha256": "98149f2827efb2382e9adea7b6f444a94ff0f090270f93b54e413c8e0036dbd3"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/MultiViewTracks.kt": {
+      "blob_oid": "3ed23e414af209a560156b924c2aeba298307554",
+      "bytes": 6488,
+      "mode": "100644",
+      "sha256": "72ffb3645c932c2c6c5eabd8995a53f41fac7d2e8efc6dae9d7615562df25024"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt": {
+      "blob_oid": "617512d8e9ecfd8de585c48978856ad37fe90a67",
+      "bytes": 3281,
+      "mode": "100644",
+      "sha256": "f249696a5581071d385d75491b75e911eff5163b984d6c6a1b411009e2293dec"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/NativeFrontierGeometry.kt": {
+      "blob_oid": "42bfef44fd40e8512168bb62dada6e1a6f6627a8",
+      "bytes": 1210,
+      "mode": "100644",
+      "sha256": "2d4c42f0a805c4c542b186637f0444ce0435b8990161a32fe9688f3e9ffe4c4f"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt": {
+      "blob_oid": "d2810082fcfd62426a9a45c51aa37223740ad7a1",
+      "bytes": 4330,
+      "mode": "100644",
+      "sha256": "f5a42f096021e8685814e10e47d959c95135639f9a41cc5b11acc77c39dbfa87"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt": {
+      "blob_oid": "8bf56d5ee28bf1c781f027fefa61475b36e63011",
+      "bytes": 3025,
+      "mode": "100644",
+      "sha256": "8bf8038aae0a36e779ea3e59a56dd82c5a1c875e1fc1598a61af05b609291d56"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt": {
+      "blob_oid": "5ad1eee7415dc9c3f19e8a1c4c9f70267fcdafe1",
+      "bytes": 35820,
+      "mode": "100644",
+      "sha256": "679e999d088c4c2ef621a580042006f7c2e56d8a67dcf71337f073935ab413b0"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpoint.kt": {
+      "blob_oid": "1bd800448abc58b1189e9b7e76bbf71dc6f0b7d6",
+      "bytes": 8906,
+      "mode": "100644",
+      "sha256": "8c9399238a3e3b157ac9912496663548ceec2523ee68e8e9b319271b5ed4418a"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointCodec.kt": {
+      "blob_oid": "0c62503b17855b37e8923851e68e7f9d8f1a1693",
+      "bytes": 6591,
+      "mode": "100644",
+      "sha256": "4d21971b428abee530fee58e5b8295ad28a43fd5be543c74d0582a600f8daa53"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointComparator.kt": {
+      "blob_oid": "a2f67cc776989cf20d4543fde4e309c5f21c3d97",
+      "bytes": 4637,
+      "mode": "100644",
+      "sha256": "a5e235d0b20c0c0bd5b2e95c7191f55c2ffe72bb9bbea91c842a33205f3854a5"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/AlignmentCheckpointValidator.kt": {
+      "blob_oid": "a83d086f644c3075fabfe1bbd3ca15ad43510c58",
+      "bytes": 9143,
+      "mode": "100644",
+      "sha256": "19acbf7e6186ad02b03fd86fc1de98d81a18aa441c6a6646292bacc3f832df64"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactContracts.kt": {
+      "blob_oid": "6a024c020011b07b2f9fa3dd81019a6c4e9a2ebc",
+      "bytes": 9503,
+      "mode": "100644",
+      "sha256": "b784cfa6f07c35cfcd8612e3df3f5af61c3fa9680cdd3943bfb0cc0287685404"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactIdentityPolicy.kt": {
+      "blob_oid": "1d968c338cdbbe21c2cd68b1f613b7be177bda57",
+      "bytes": 5410,
+      "mode": "100644",
+      "sha256": "9f37f36ded3dedfbd39bd5df749aff6927c5797c39a32e9d2782667023ad1cb4"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/ArtifactIntegrity.kt": {
+      "blob_oid": "2fb24d97b7b771d28ab5218c894abfc56b67520d",
+      "bytes": 2327,
+      "mode": "100644",
+      "sha256": "ca62e5c2674ab4bb0db6642eaa7987f2807746579825d324215f5a7654b44871"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/BinaryCodec.kt": {
+      "blob_oid": "76cee2dbf07183c880594ac33878cdf6e679930a",
+      "bytes": 8497,
+      "mode": "100644",
+      "sha256": "7608fa4e7d40a1cff38e36add7fb801775b5ae3ec4949f32bd1584933ebaed56"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/InputSnapshotCodec.kt": {
+      "blob_oid": "ad590a176749caccc2784a5a2f6bd8d8f338b59f",
+      "bytes": 2524,
+      "mode": "100644",
+      "sha256": "7482a036284e48368b550f8c155874c757219cb14cd1ff3fa783722bb8fbe6ef"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/StageContracts.kt": {
+      "blob_oid": "9f2faf8fc789a6936f7ef61c9d809a3ba6900247",
+      "bytes": 12314,
+      "mode": "100644",
+      "sha256": "653c9e9cadf05383545b7cef212e38c9009bc9dcee07753b45d1f32acd8466f7"
+    },
+    "app/src/main/java/com/realityforge/scanner/engine/artifacts/StageManifestCodec.kt": {
+      "blob_oid": "dd5c714940247ee5e4d15fe66d786ae3f0992532",
+      "bytes": 12907,
+      "mode": "100644",
+      "sha256": "fe2aae7775cb1b685ea3c8def2422df954dfd4a77c115e4d0863ad3630f16f88"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/ExportContract.kt": {
+      "blob_oid": "7e3f2bead4edff55c55a925a3e1de68ad317936b",
+      "bytes": 3620,
+      "mode": "100644",
+      "sha256": "824bdb7d141dac9030fa33ce0103ac5f3b3346773246dff4fbdd1226c696d231"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/ExportCoordinator.kt": {
+      "blob_oid": "7543363183c3285bf3cfcd3d2271f57702a9f9a4",
+      "bytes": 8496,
+      "mode": "100644",
+      "sha256": "595f6cd12d793f8b0d040fdf8850fbd5fcd7322b82a45726ab73aa9c6730734f"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt": {
+      "blob_oid": "5da1ceeee7d0b95fdeef2e32b1f379026747da3c",
+      "bytes": 2666,
+      "mode": "100644",
+      "sha256": "020c56538415595615f7ab1652985ef12a04eb429a1053b16926206eda4fe973"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/ManifestExportSource.kt": {
+      "blob_oid": "4355a94477869c8093c5c2c40666478b76809229",
+      "bytes": 14057,
+      "mode": "100644",
+      "sha256": "5c6bc57850fe3fdc601f55c6e74f82ac23435fd15c3c2f84e600b16d25dc0729"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/PendingExportStore.kt": {
+      "blob_oid": "d701d51a4d262d5e6cba70d168cfa709c6672749",
+      "bytes": 4399,
+      "mode": "100644",
+      "sha256": "2af880450d8b2529254465647ba2174bd0c49aedb99059b3b49347c7bb974589"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/RepositoryExportSource.kt": {
+      "blob_oid": "95b64e7bf0e99cacbd994c4e4b0e2ec9a3a7bfb3",
+      "bytes": 5363,
+      "mode": "100644",
+      "sha256": "d29ac8b27ac5c3894fcb81af8a5e93115131fbf2cf8a538fa496909d0d6b401c"
+    },
+    "app/src/main/java/com/realityforge/scanner/export/SafExportCoordinator.kt": {
+      "blob_oid": "80e01bb9274cc2f179a16f6891fa15c01d3117e1",
+      "bytes": 9408,
+      "mode": "100644",
+      "sha256": "d7af16985577a6f07019aeeec30f13f88bd16c7fb57699cb6831f3489eb95b97"
+    },
+    "app/src/main/java/com/realityforge/scanner/localization/UserMessage.kt": {
+      "blob_oid": "b62578b15841f90df52383d8be1cfe110474a7c5",
+      "bytes": 4281,
+      "mode": "100644",
+      "sha256": "4d9a460d2fa0d8afe984a6d7ec550a74cf2df3f7b5edafe5c826846e1b7f7641"
+    },
+    "app/src/main/java/com/realityforge/scanner/preferences/PreferencesStore.kt": {
+      "blob_oid": "52d024532526265a16e8541cf2e43342864c5f90",
+      "bytes": 4291,
+      "mode": "100644",
+      "sha256": "836877e73c9e828669d51154fc5ae4f3adaa4b5a28bd7a88f5733d93188f2b74"
+    },
+    "app/src/main/java/com/realityforge/scanner/studio/editing/EditController.kt": {
+      "blob_oid": "c8ae03ff493206ab518e313a808f928fd5d5bec4",
+      "bytes": 8931,
+      "mode": "100644",
+      "sha256": "284b05c188b684595b874e5efc8fcd8cd2cf2b699aba5bea7edd02049dbdd489"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt": {
+      "blob_oid": "b56e8f9fd20ffcfd117d9154122883af058511d8",
+      "bytes": 4685,
+      "mode": "100644",
+      "sha256": "e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt": {
+      "blob_oid": "ad9a2dd4d70a5bd4267696bcff02a5cfb9302626",
+      "bytes": 11552,
+      "mode": "100644",
+      "sha256": "0242f2c49a6d1e03965e74b2e2ff2b9a8c624f8e581119dcd49f784b67bbae16"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt": {
+      "blob_oid": "e7460201e4290bf17e35a132ccd8fc060d31bd56",
+      "bytes": 3763,
+      "mode": "100644",
+      "sha256": "d3261b60f9293d154991ee3f4086be43feddd992803b9b0277936061389ff553"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": {
+      "blob_oid": "8fbd5289cd49c56718dcbb40484fa20f4ee5666d",
+      "bytes": 28646,
+      "mode": "100644",
+      "sha256": "ff9bc1b06f47bea5978f9ab7bbe6838ec2301883a780f3dde5dcb2795c1a3d54"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt": {
+      "blob_oid": "5ad64bb32c2edf2c60dacc6544ac29786a37242a",
+      "bytes": 7455,
+      "mode": "100644",
+      "sha256": "9d15583e41942fca5b5d9400b80557c6b53cefc6fc6a258973762c9e70a77209"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/accessibility/ScanAccessibility.kt": {
+      "blob_oid": "9e6282ddb5f1d17102f0ceeed52fc40944839546",
+      "bytes": 3781,
+      "mode": "100644",
+      "sha256": "82699d754be2e832a8c8241385cc7d075c66d17fca7f8b0f46ad71324e4d312c"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/designsystem/AppTheme.kt": {
+      "blob_oid": "8d6753ae53caf27abe17be8fc98f5939dde5e67b",
+      "bytes": 3997,
+      "mode": "100644",
+      "sha256": "8ded3bc4ac9df8376944601567f3743312c2531803b803fca83dd93d8536db8d"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/designsystem/LayoutPolicy.kt": {
+      "blob_oid": "ec8b1f43845a4671bdbf62825c9a57461a84e212",
+      "bytes": 1286,
+      "mode": "100644",
+      "sha256": "1c21b08c31ad0cb830c4d14d7b106007c04a4bd19b77596ccb10b47cfe9de9a2"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt": {
+      "blob_oid": "acf815dcc6616e9a79e14e7317f6ec6ae3f2f09c",
+      "bytes": 4853,
+      "mode": "100644",
+      "sha256": "aa550391397528c0057efa5e8529b89c6151fa54d26e013205e3f38c625105a6"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/library/LibraryScreen.kt": {
+      "blob_oid": "665f7410390c3a3f948afdb7e0a6ee966702e944",
+      "bytes": 7602,
+      "mode": "100644",
+      "sha256": "aa603dabdb95eaa90670659b784fb03b582c3de4ab6360e771e21e81e175b541"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/library/LibraryServiceScreen.kt": {
+      "blob_oid": "2956fae2de9a8487c77e3e0437b33911e0413f10",
+      "bytes": 1077,
+      "mode": "100644",
+      "sha256": "afcfd0be55573ebe95a9bdccd60818c4bf1dde80c363abb5f419aefb9ccb5da4"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/library/LibraryState.kt": {
+      "blob_oid": "0e8cf741240efdb4db16ef825c5f1e29c266080e",
+      "bytes": 2971,
+      "mode": "100644",
+      "sha256": "a79153914002d66179750b615b79c8aed67fe51c4edf8e1efc3380ac6ba37b81"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/CanonicalExportServices.kt": {
+      "blob_oid": "9e77077a1ac786b11e4689453f2aeb01a931800e",
+      "bytes": 1253,
+      "mode": "100644",
+      "sha256": "4f265466feabad6508df175f399134ccd13d540437f1e0298f19a6c797fd9405"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/NavigationState.kt": {
+      "blob_oid": "f3f076a7e74cc727e5be08cbbba564d9e5e51308",
+      "bytes": 2990,
+      "mode": "100644",
+      "sha256": "149d06d636d3869514b0b70bc84d54e9ce540f0d82acd482d0918f1d6ca46ca4"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/PreferencesRoute.kt": {
+      "blob_oid": "1e8259bf767df663448ef7df05acd83816d1e644",
+      "bytes": 1883,
+      "mode": "100644",
+      "sha256": "08e0e27f56123a37c22d9ea7cb9405bc6c4063526b510a2978e64f331876a4d0"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/ResultRoutes.kt": {
+      "blob_oid": "2be55f13e10607374b739fe33c8fcbc81e3c76a3",
+      "bytes": 6267,
+      "mode": "100644",
+      "sha256": "78c14c656280d7a166d7a8883b85dd0c01ad838349d351c9ac1ebabe106ef164"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/ScannerFeatureServices.kt": {
+      "blob_oid": "194f66cf8b8e45bc0d670c08d87e4f6986ffb6d4",
+      "bytes": 1216,
+      "mode": "100644",
+      "sha256": "06e535a5ffbd034ec4bd391dae5731221d7f88aeadb0587eb91277c26914f3ef"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/onboarding/CaptureGuide.kt": {
+      "blob_oid": "87bd294e0172bd1e29c2ee23eabc43a6b32747e2",
+      "bytes": 639,
+      "mode": "100644",
+      "sha256": "ae6e387afe852d0116dc53fb49af2f568616accbb75be5d78f65b9c9af2002ef"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/onboarding/OnboardingScreen.kt": {
+      "blob_oid": "d10f7f3f51b59166b24543e73fbf1c81e553a870",
+      "bytes": 3324,
+      "mode": "100644",
+      "sha256": "0cceaaeeb52fdc2870c692e33ebbe0cc5a851423585160f3cf3a9f95e04cbae9"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt": {
+      "blob_oid": "1eff09d98361633be3a23a5d75509d1ec5916a71",
+      "bytes": 1730,
+      "mode": "100644",
+      "sha256": "52f41406e1703fdb9507bc9cc779a71fb8dfe19ea6789dfec927d339528c746f"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt": {
+      "blob_oid": "1cc413b067e76c4fbec439004d5562c899306cfc",
+      "bytes": 6851,
+      "mode": "100644",
+      "sha256": "b6147dd2f8d51d447908cd0a6a7fb1ccb855a02ecfb5c6f9304fc3e1a882a7b2"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/photoreview/ProjectReviewScreen.kt": {
+      "blob_oid": "c5692ae808afd7585c3376ed7f3fe6560eaf93ea",
+      "bytes": 11174,
+      "mode": "100644",
+      "sha256": "e1d330c68eee616f69f5cb42c0fc17a7cb67b72b61307182f03c606d2be28c8a"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/photoreview/ReviewState.kt": {
+      "blob_oid": "2bfb0118f8612f92440e591b6ffde98939fb6e83",
+      "bytes": 4506,
+      "mode": "100644",
+      "sha256": "6a568ac1df7937c52e02356edfd3bc01909736e485e903cb4be830ef6babeca2"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/preferences/PreferencesScreen.kt": {
+      "blob_oid": "118785c8c1265cc484490f104a661f5f513a3d7f",
+      "bytes": 4774,
+      "mode": "100644",
+      "sha256": "c63a596c116cfc63df1ff5dcc6d3d555bbbd165771878b883270c711f497277c"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/processing/DurableJobUiAdapter.kt": {
+      "blob_oid": "a1d47ec31111a8c79c79210ca33a599ceff9e2e9",
+      "bytes": 3139,
+      "mode": "100644",
+      "sha256": "eae44eacdd74cf223bc36887664fea1562c82ef1f8f24d9e21b522e997a65533"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/processing/JobUiState.kt": {
+      "blob_oid": "43a2382ab9aa9d46fcb8000652f78d736cf99251",
+      "bytes": 3181,
+      "mode": "100644",
+      "sha256": "3a40a60eb142b539ad5097e9169a18c33cb533d47411fb3babec3ef687de55a7"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/processing/ProcessingScreen.kt": {
+      "blob_oid": "3edb115b79ed8c4a58110be3d9768718f042dee5",
+      "bytes": 5019,
+      "mode": "100644",
+      "sha256": "00915ce0e7caf20090e6213ac6b3ad20ed25c82f9a0a01140373905f11e1e563"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/studio/StudioControls.kt": {
+      "blob_oid": "e6d735a840ec7d1b1f766d206b68dbd7f6302a47",
+      "bytes": 4060,
+      "mode": "100644",
+      "sha256": "c31f756357543ecf0ca3797af128883e7d3ca796ace83bd34fbea54bdbf287c2"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/studio/StudioEditingInput.kt": {
+      "blob_oid": "ed16eebe6ee5d77e111c56e30483970059e8e8a9",
+      "bytes": 479,
+      "mode": "100644",
+      "sha256": "94ca3fccb82300931930c9d69175738998cfe0a1af592f33f8f2fdec2165ae10"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/studio/StudioEditingPanel.kt": {
+      "blob_oid": "74f8767282a9541b7f9563db2df0ec8f1105c24f",
+      "bytes": 4049,
+      "mode": "100644",
+      "sha256": "dbbb22496ebc024428314a6d5a7073fb23bf56ddc9043f36783281f1c5a83144"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/studio/StudioPose.kt": {
+      "blob_oid": "c8c38fca3338c50568399c81580832ba1910b632",
+      "bytes": 1484,
+      "mode": "100644",
+      "sha256": "3d04a67116cf82bf7b1d423de4b44febfb5d8df0cde3e4c743693d90cee747e9"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt": {
+      "blob_oid": "f914cf8d3395e9b986dd606f679b68730e8a27fc",
+      "bytes": 17909,
+      "mode": "100644",
+      "sha256": "608811ae63aad312a9cff7d497d6a3e76ad2cf8395dc50fef33a17a912f9fa25"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt": {
+      "blob_oid": "72c2c05ee4484995fa74d1748b102c7a6ea0221a",
+      "bytes": 10582,
+      "mode": "100644",
+      "sha256": "c34ec1b5591780185a134e3a6905fef87f2fe1cb947bbe69f8cffb1d769c2f67"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/RenderBackend.kt": {
+      "blob_oid": "29906d0139179ba659bc57c799517e3e7d839bb8",
+      "bytes": 4387,
+      "mode": "100644",
+      "sha256": "586f8bbb7f33ec92dce02d1df990ba321b479d9e558f69cb78cfc02a293a2262"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/filament/FilamentBackend.kt": {
+      "blob_oid": "52900fa023a72458e8727f3cb88df470a5be3bca",
+      "bytes": 11630,
+      "mode": "100644",
+      "sha256": "32fcf7ab16d49f531b1c2aa02b10161baae63f480e7e3384f20e5c7d5fc40c0c"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/filament/FilamentStudioView.kt": {
+      "blob_oid": "8aec8a674c5609405acf0ee600e96d0869012da0",
+      "bytes": 4761,
+      "mode": "100644",
+      "sha256": "7923eaedd04c278110dfbb74d5c714c35e26b4328cfeb55c3462cd99c442bb15"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/loading/GlbStructure.kt": {
+      "blob_oid": "83b5727cf7581978f7e25ebc14e67e305b31549d",
+      "bytes": 21739,
+      "mode": "100644",
+      "sha256": "c64be6cb6695c83586368047dd4ea6d76973ff54953e3c70ad939c6c3634cd36"
+    },
+    "app/src/main/java/com/realityforge/scanner/viewer/loading/PhotographicModelLoader.kt": {
+      "blob_oid": "2a5784de910d680da8a83390cc9c71529c082fa3",
+      "bytes": 2053,
+      "mode": "100644",
+      "sha256": "7c5d3ab28742813725058a620c111eb690b82efb887abf1094206236d13c9958"
+    },
+    "app/src/main/res/drawable/ic_launcher.xml": {
+      "blob_oid": "9449ae2550801e0d6152c41136d3fe24d28e08ea",
+      "bytes": 432,
+      "mode": "100644",
+      "sha256": "194a1757f73992ba07cf4323c65338eb470a3e7a64948ab23ee874ce6a4f4a3a"
+    },
+    "app/src/main/res/values/agent_070.xml": {
+      "blob_oid": "cb0fdffb18c2c5bdb333dd3149b161e32d7afb0a",
+      "bytes": 4246,
+      "mode": "100644",
+      "sha256": "0e3d2af1ca775a428ee7adfc87e31f16f3dcfb055382772680df16638cc1f340"
+    },
+    "app/src/main/res/values/agent_071.xml": {
+      "blob_oid": "e8e15d3327c7637bb046b674fbb343da94c1b660",
+      "bytes": 4029,
+      "mode": "100644",
+      "sha256": "e63089514de631575f3f9569089c418c242e8a3fa62081aa4c62e1fa65c15d14"
+    },
+    "app/src/main/res/values/agent_072.xml": {
+      "blob_oid": "99a8d4377a4e5c7d41b0fb798ba72d0e5072e33b",
+      "bytes": 1683,
+      "mode": "100644",
+      "sha256": "f21edb523791518aa40d0e33fbe7feafa5bf24927d7fc9138b587f43b6b4c5ca"
+    },
+    "app/src/main/res/values/agent_073.xml": {
+      "blob_oid": "9c9a148a1d3b45813d6c5b59ec3b2f078fe81012",
+      "bytes": 2464,
+      "mode": "100644",
+      "sha256": "8e0ecc4236ab9d343959d8c5543bcf20b8a326033321ca7767fc7a32b5576b11"
+    },
+    "app/src/main/res/values/agent_074.xml": {
+      "blob_oid": "d64c30d0b441150528b4a1be0121f4179e8237c6",
+      "bytes": 1664,
+      "mode": "100644",
+      "sha256": "41007383e0ac9e33c01bf47e6cc8d76cbb3e23e445c8abe333033a3eff4ca76a"
+    },
+    "app/src/main/res/values/agent_075.xml": {
+      "blob_oid": "44e93b27957bbf002115aab49df70a3a4aa32bba",
+      "bytes": 2807,
+      "mode": "100644",
+      "sha256": "ec6eb56e7cb626f3ef99562f775236c3eaecd7f793e9f9496f533d0101f288e4"
+    },
+    "app/src/main/res/values/agent_079.xml": {
+      "blob_oid": "093a8bd21dd946761e324b762c7a48083ac1f490",
+      "bytes": 2707,
+      "mode": "100644",
+      "sha256": "b634f96cbd5259f6c5f02cad498b19e4d0379d7f112b586d19d69246dab65775"
+    },
+    "app/src/main/res/values/design_system.xml": {
+      "blob_oid": "7829b95ce9cd9339c614bf68045859895bdc5199",
+      "bytes": 235,
+      "mode": "100644",
+      "sha256": "01a3c12c8509058304a3309f504656875922f61899a34f9fa5197a6e02e39fbf"
+    },
+    "app/src/main/res/values/localization.xml": {
+      "blob_oid": "befa5548f95867c0f42a1a4e84a567ccd1931eb0",
+      "bytes": 2871,
+      "mode": "100644",
+      "sha256": "d770210bbf4fa83dbb3690e8405c5f7cee27749f9ea1c2d44593f2707edf246c"
+    },
+    "app/src/main/res/values/strings.xml": {
+      "blob_oid": "acb4e26f25d4670be57b6a81ae278fcd2858372b",
+      "bytes": 153,
+      "mode": "100644",
+      "sha256": "f5eaf68d498a6596060bc1b0b481b560eec94707ec515f04501d32ae728890a8"
+    },
+    "app/src/main/res/values/styles.xml": {
+      "blob_oid": "3044d89011bb6fe0fd9daeafb3b20a93b35a46ab",
+      "bytes": 530,
+      "mode": "100644",
+      "sha256": "66785f77a711c75fe85c00c4844de76d7e1df8c91213fa84bee8deabde19e6a5"
+    },
+    "app/src/main/res/xml/data_extraction_rules.xml": {
+      "blob_oid": "491c90fd5f783712abda0e0d73f78a8971c6c15f",
+      "bytes": 671,
+      "mode": "100644",
+      "sha256": "8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22"
+    },
+    "app/src/test/java/com/realityforge/scanner/CalibrationTest.kt": {
+      "blob_oid": "33d8b422c803054a9412d156a49cec227f9b7a49",
+      "bytes": 686,
+      "mode": "100644",
+      "sha256": "3824769adf7a6d91d0c99a0447727c043308fae00d93c1a6f66c77a98b7f0cfe"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a001/OperationCoordinatorTest.kt": {
+      "blob_oid": "928216e792d62bac5e6335f61df969dba9cfa670",
+      "bytes": 6199,
+      "mode": "100644",
+      "sha256": "2a046bbf04680bc029d2c352e9faae968e7a4e1d13e0f75e238a4620f9b23e89"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a007/DurableJobContractsTest.kt": {
+      "blob_oid": "dddb2e5988962edce2aa17a8720ca1a2251f8721",
+      "bytes": 10174,
+      "mode": "100644",
+      "sha256": "62e05f5638d53f1d09b8c690fedd6e18a4ed1bbbf1d279bfe3d6a091c82e8bf2"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a009/AlignmentCheckpointContractTest.kt": {
+      "blob_oid": "797f237ca218a424160b6553c86f83fff6bc6ad1",
+      "bytes": 2860,
+      "mode": "100644",
+      "sha256": "3c8b55f6004ff20ccd373be4a8ad230d3095e262734d22ec900d5997c8aad843"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a009/ArtifactIdentityPolicyTest.kt": {
+      "blob_oid": "e8d4b343984249f5315d1bce71b64ee3044f6fc9",
+      "bytes": 3515,
+      "mode": "100644",
+      "sha256": "3034f7ef07e868cd0b4b9f887c47302d9ad880c7e41e2f3a2d2306315cd5157b"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a009/ArtifactProvenanceFixtures.kt": {
+      "blob_oid": "abca41d4a3d2d562a0d1857718a00ba44d9b1cc4",
+      "bytes": 5447,
+      "mode": "100644",
+      "sha256": "b6ab9a66af77ac533b17275664a8dfd5e03e8957f3fa6e620489a7fcbe962f22"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a009/StageManifestCodecTest.kt": {
+      "blob_oid": "69868e2378b35cbc002c69ba842c37a61203ccc2",
+      "bytes": 4857,
+      "mode": "100644",
+      "sha256": "7ae6cce0e6a274d85d991737916c9110b45c5bb8f978b7862937171c7450ccda"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/CurationTestSupport.kt": {
+      "blob_oid": "1a8df538f5d54e242e3b196c8e8142fee1e24bf9",
+      "bytes": 2162,
+      "mode": "100644",
+      "sha256": "928da536d0c1fc1426cbd94b080f4a4baaa22a435ea7a529d14fd880f2263038"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationCancellationTest.kt": {
+      "blob_oid": "8a6356ffa32a065b1283b3bbd16b13e200e64690",
+      "bytes": 1433,
+      "mode": "100644",
+      "sha256": "6afdb252ddff6919df2c14e238b9f31804496fdaeaada793673cdc5e99113c23"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationConcurrencyTest.kt": {
+      "blob_oid": "dcb6dd3531f3d2190a0b65896929c8589f94c6de",
+      "bytes": 1244,
+      "mode": "100644",
+      "sha256": "0e218327ef25d73e7d0021a0acee8b54c3fcadd5ad9bb0d391b5cf2757b2a539"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationExcludedOrderTest.kt": {
+      "blob_oid": "4e513a64e05355d75bb44563d92b7ee6bfde3f56",
+      "bytes": 1025,
+      "mode": "100644",
+      "sha256": "1dc62ffc25c1505347f796dfa1e500b07cc0f8c3f2eefe2cb70a5a25853326ed"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRandomizedTest.kt": {
+      "blob_oid": "75f8d6d1ceebda73a54e1fd0aeacaef183fe07e8",
+      "bytes": 3616,
+      "mode": "100644",
+      "sha256": "d5cb317998354ee137e7f8db200017c3b0a9a0ce6f01fd77e378a1f5d11f8feb"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRemovalTest.kt": {
+      "blob_oid": "c5f9e90691c4eceaf6bce3e1ae4d6ac02a115d07",
+      "bytes": 2498,
+      "mode": "100644",
+      "sha256": "12af606b8c9092b7708c35b6dac9e359feab82bd101cd01384cd283bfeb32601"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRevisionSemanticsTest.kt": {
+      "blob_oid": "e0fe4cac3651d0a6e35d86eeb3d172ea3cf03b44",
+      "bytes": 5167,
+      "mode": "100644",
+      "sha256": "9a0e1fb448841d4f4cc67a499e124bb63db887741e48ecdca0e27ec70e9b4175"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationSelectionTest.kt": {
+      "blob_oid": "d379e78c695532a25672aa5f72d049bfcc973127",
+      "bytes": 1821,
+      "mode": "100644",
+      "sha256": "17c65d45c97e5cc7f761412744833b24cda0b76fec74c5baee3a3bfeb901e360"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationStateValidationTest.kt": {
+      "blob_oid": "00bc563de541b9811b7173ecd2096de04aacdf0f",
+      "bytes": 4328,
+      "mode": "100644",
+      "sha256": "cc7bff05e5161f95ab1cedb4b51b0d27e4c1fe47de3e0442974da03ab5f09ce4"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationUndoIdentityTest.kt": {
+      "blob_oid": "395c562e380e0c3597e48c2b510144a02478c505",
+      "bytes": 793,
+      "mode": "100644",
+      "sha256": "dcd1da71ce611456c17cd76487b92da17d1e1aadc1b96559cdd89d1bc629fa06"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationUndoTest.kt": {
+      "blob_oid": "8e0b813cc88de03d95c331c898a196edb2564bc3",
+      "bytes": 1522,
+      "mode": "100644",
+      "sha256": "010bf99600eddc75511ff79cf71dfd6cee550a9d1d256cc04e3a2cb791e1d3f5"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a019/LibrarySelectionTest.kt": {
+      "blob_oid": "89607cbe0c2f99beb69f2440bad0cbfcfe95b42c",
+      "bytes": 2294,
+      "mode": "100644",
+      "sha256": "d300376ba7383365cb8771c887f3f15a005d67288d507b653e7d78cf48af1d6e"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a026/DestinationTransferServiceTest.kt": {
+      "blob_oid": "99362dcb9e8c5c8e1212e0e7753c46383dd724ce",
+      "bytes": 18763,
+      "mode": "100644",
+      "sha256": "19a4b7ea9ac93985a2ccfcb0e20bf48cf0492c33286df8c86b9069cc39a3802f"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a066/EditControllerTest.kt": {
+      "blob_oid": "cf61af6ad28a8c8a605945e3cdad76eda37e43be",
+      "bytes": 3273,
+      "mode": "100644",
+      "sha256": "3739c94c455c1c8b2aac700cf62186f6f5ea95c72989eefcbc2d6fd89de0adb7"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a067/ExportCoordinatorTest.kt": {
+      "blob_oid": "bb28eb310ef963620ba346a35f3dbcb4c4e81e6a",
+      "bytes": 14892,
+      "mode": "100644",
+      "sha256": "4ab48f79251f3f3a71483df87ae317b8e4daf5b75c80d64c85f0cfc0e8a8f51e"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a067/ManifestExportSourceTest.kt": {
+      "blob_oid": "8baa7f51355a36fbc7d1998b6e7cee120e244c51",
+      "bytes": 16694,
+      "mode": "100644",
+      "sha256": "81315763d429608bde9d29ee1f0b00e66e4fd42fd92d31bcef9ea621a9c00d0f"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a067/SafExportCoordinatorTest.kt": {
+      "blob_oid": "d54359f42b03026d2173d7cef3db476e0232fb52",
+      "bytes": 18266,
+      "mode": "100644",
+      "sha256": "b090b40981e18b9584e5d220ebb7ff9fe8f9d1df6c7a8a64d53397a3a0a05a49"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a068/StrictJsonTest.kt": {
+      "blob_oid": "e478887f9d1c09361dd0987efc983d45e4ad415a",
+      "bytes": 1151,
+      "mode": "100644",
+      "sha256": "70099e0bc58ae47c507d0f1fd0bb711ccafe95939ae47bee12807e79d59d54c6"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a069/DisplayCameraTest.kt": {
+      "blob_oid": "05308225139a0e955ab928ef65998471e761c4a1",
+      "bytes": 1353,
+      "mode": "100644",
+      "sha256": "1d5016000e817b2b812e4b0f4bc5e2685de2ed42ba0bdbda02fa6df9085058da"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a069/RenderBudgetTest.kt": {
+      "blob_oid": "a572cf83100294312e88b12eeb1219ef66fd6fdd",
+      "bytes": 1290,
+      "mode": "100644",
+      "sha256": "4d51f2b7d6c4b8d3fbccc6293e3868a86bc0357ad569166938afd518e74e3bc9"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a070/StudioEditingInputTest.kt": {
+      "blob_oid": "2fbbd550bec812845c5f9c8b5ddbc4346c754663",
+      "bytes": 709,
+      "mode": "100644",
+      "sha256": "9f52f584d1dda69f9f4d2163bc97b8c2882c2601635cf07a9a9c92986c8402e6"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a070/StudioPoseTest.kt": {
+      "blob_oid": "4c31e9ea0800d3d1425135c77453bcec2ee4bd6c",
+      "bytes": 1064,
+      "mode": "100644",
+      "sha256": "1bdf4c39f84f667220a52623551df007ab2ae45d9c0dd8aed4f70e166fbb9ffd"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a071/NavigationStateTest.kt": {
+      "blob_oid": "f4b085e95a0d23657ade3ed4ae051e47edd12e55",
+      "bytes": 1635,
+      "mode": "100644",
+      "sha256": "56c6ec6737ea6ad61d2a3f2b92614d1d2518213569912d23b5406c034429fd12"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt": {
+      "blob_oid": "c172cc96663e073e8f48f26cb9e5f5174b1e7a45",
+      "bytes": 6320,
+      "mode": "100644",
+      "sha256": "1d34bc0ae7e89b5100a34c1009bf8f76d9bea75f0f584702344b441e63e76e95"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a072/LibraryQueryTest.kt": {
+      "blob_oid": "004608ceba3219d42721c99555c631043a7f7ecd",
+      "bytes": 2010,
+      "mode": "100644",
+      "sha256": "55fb45116ab64753b563fa12e74234a40518a6330b118e905d0107da2889e889"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a073/PhotoCurationPresenterTest.kt": {
+      "blob_oid": "48b2ba64b84174a5759f57908cb17f2ca63c0309",
+      "bytes": 5230,
+      "mode": "100644",
+      "sha256": "bc55526457858ca69f24557a147e24143463b8371f9a5e3df1a0d66d8c2005e9"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a073/ReviewAdmissionTest.kt": {
+      "blob_oid": "b8b0a16da8b2bf9a1aa87b3053a65374672e6fb5",
+      "bytes": 2169,
+      "mode": "100644",
+      "sha256": "b455db72015580bd46ed4c5b4a143dec59d6bd31fa06d6492fc867e2066d06cb"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a074/DurableJobUiAdapterTest.kt": {
+      "blob_oid": "b939d5beb3bd3bf0cbe586cf41fc4c7877acba87",
+      "bytes": 1899,
+      "mode": "100644",
+      "sha256": "eee7088040b322dd276ee9fe228a8e77292ba4a310a8195895bb514991fc811c"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a074/JobActionTest.kt": {
+      "blob_oid": "4bfeaed87d81c49088399f4a131febf15a27bbe2",
+      "bytes": 3444,
+      "mode": "100644",
+      "sha256": "737397fe183acb0c554c48e3ec5349434f6c3760ad5752d2496ad926d187b7c8"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a075/CaptureGuideTest.kt": {
+      "blob_oid": "25f26598b662356302b974182b859711c3c6ce8f",
+      "bytes": 862,
+      "mode": "100644",
+      "sha256": "4f4c2034d20cc0a02fe367ce37a39fd28dcf5714c1527350e06410c5c7a83f15"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a076/LayoutPolicyTest.kt": {
+      "blob_oid": "14953de9aac91d3810718ea54ddcb6505e9e33ae",
+      "bytes": 923,
+      "mode": "100644",
+      "sha256": "125aa3a7eac00dabf4e5f93f3d24469c22c75fa1219f9beee4df1a37c0909f1e"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a077/AccessibilityContractTest.kt": {
+      "blob_oid": "4adcb3c7f28f368e70e2903915413b5872471290",
+      "bytes": 1831,
+      "mode": "100644",
+      "sha256": "c6e32ac25bc9640aabffabaa1d06dd46c947047c6eb5a26e82d13928ca62d0cc"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a078/LocalizedFormatsTest.kt": {
+      "blob_oid": "387710454f05b88eebe220feec000499be3275a3",
+      "bytes": 936,
+      "mode": "100644",
+      "sha256": "3bb1cf1d6ea23224204815f99c574479e908fa1e7b470ec64b42da95b0e1c390"
+    },
+    "app/src/test/java/com/realityforge/scanner/agents/a079/PreferencesStoreTest.kt": {
+      "blob_oid": "54e104ce4ab5a236231cbf2d187435cdfc256a5d",
+      "bytes": 1860,
+      "mode": "100644",
+      "sha256": "d8b94afdbfef4f03bb1641de7f0a47bf04a67705910ab8060c88444fcd5d3cdc"
+    },
+    "app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt": {
+      "blob_oid": "dd73cc25c53161033252f646b6b9548362c8a9b8",
+      "bytes": 3695,
+      "mode": "100644",
+      "sha256": "0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37"
+    },
+    "app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt": {
+      "blob_oid": "8ff81438b1ef0300a5113a96d078f83dac07ab72",
+      "bytes": 5718,
+      "mode": "100644",
+      "sha256": "102e5ba7313c8c26da4623d51bede324e21d8a313279e18052177060f83d8aeb"
+    },
+    "app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt": {
+      "blob_oid": "d3bcead7788e5c616a363b075cf7d02fdd7f2c4e",
+      "bytes": 4734,
+      "mode": "100644",
+      "sha256": "1f3b5993478073348f05b5e1db6eec27e26c305fd9845287437373a13f84a4a7"
+    },
+    "app/src/test/java/com/realityforge/scanner/engine/LensGeometryTest.kt": {
+      "blob_oid": "49b635f4c3c341fa66a465a98283fbb903063e6e",
+      "bytes": 2068,
+      "mode": "100644",
+      "sha256": "2092701a82e733704fa219424c84bc7a11bc6e183f479131d9b1d0a5b79d4be3"
+    },
+    "app/src/test/java/com/realityforge/scanner/engine/MultiViewTracksTest.kt": {
+      "blob_oid": "024b5cc200dbee8c9e295581e202ea45b0706f2e",
+      "bytes": 1742,
+      "mode": "100644",
+      "sha256": "3fd043571a35cd199bd8b038a676f6b1d83608bcd5794613ab9e6d0184815894"
+    },
+    "app/src/test/java/com/realityforge/scanner/engine/ScanQualityEvidenceTest.kt": {
+      "blob_oid": "819834c527826239fac82b545532fee38e3c1036",
+      "bytes": 2297,
+      "mode": "100644",
+      "sha256": "3b7f5ab073697174da4debd2d6223fa3beb0654acf5ea2e87ee7cfa5c5cc1378"
+    },
+    "benchmarks/fixtures/relief/calibration.json": {
+      "blob_oid": "ce5c213cdbcdefe206c718d5f225c03d37711196",
+      "bytes": 2394,
+      "mode": "100644",
+      "sha256": "284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593"
+    },
+    "benchmarks/fixtures/relief/view-01.jpg": {
+      "blob_oid": "c7f6b222e1f6c688aaf25b565c503c729cda5a4f",
+      "bytes": 286415,
+      "mode": "100644",
+      "sha256": "66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c"
+    },
+    "benchmarks/fixtures/relief/view-02.jpg": {
+      "blob_oid": "0674e1007a0dc933e7c816f0646bfba92e1e2754",
+      "bytes": 281835,
+      "mode": "100644",
+      "sha256": "c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b"
+    },
+    "benchmarks/fixtures/relief/view-03.jpg": {
+      "blob_oid": "616a46cfd2b9fdb54a4a925d30fcbef0e302a123",
+      "bytes": 284289,
+      "mode": "100644",
+      "sha256": "a0d386746c2a8f47840058613bc89aa3c4a8095995288fa936d368ad67fe6c0f"
+    },
+    "benchmarks/output/m02-three-view.json": {
+      "blob_oid": "062a74708bb0eeb3bdce91898a5353a208022eb2",
+      "bytes": 4082,
+      "mode": "100644",
+      "sha256": "6fe35c1a7eedff0faa0662afc9100c794ac002bc74a841dcc07ba5bd6f325d43"
+    },
+    "benchmarks/output/matches.npy": {
+      "blob_oid": "16eb82a3477ba24dae8a21fec10843a4de2dcd0e",
+      "bytes": 33112,
+      "mode": "100644",
+      "sha256": "c4413e6beef6eff676e58a0393e8ca6653e0063ffd4ddd529f44b184d0535fb1"
+    },
+    "benchmarks/output/reconstruction.json": {
+      "blob_oid": "786f1df43a2b385a107ba1daa0dc59f4e0dbd814",
+      "bytes": 96645,
+      "mode": "100644",
+      "sha256": "6c45316ac7e7f8839558cea2061d39582db3a5f5a26874b37093f0095426bf5f"
+    },
+    "benchmarks/output/sparse.glb": {
+      "blob_oid": "dde89d9b1fbf7d3e656e4f0886771bc7a8f16825",
+      "bytes": 10024,
+      "mode": "100644",
+      "sha256": "37cad672460c642cae2204410d81bb036153c4f96eb2cbebdb76aeb07e964440"
+    },
+    "benchmarks/output/sparse.ply": {
+      "blob_oid": "c601ce67bf25efe2f8ae7d724c5db2d72f748690",
+      "bytes": 26808,
+      "mode": "100644",
+      "sha256": "9490404f123da5150aa300d6affec74dc816401f3e53e708ef36727b479c4a83"
+    },
+    "build.gradle.kts": {
+      "blob_oid": "f57aac591f3ca8958a0e0c9a9bbfcd716a892242",
+      "bytes": 287,
+      "mode": "100644",
+      "sha256": "dd74fbdff2f6186f7ad526f54a07aeea8f010e6a9dc7d887948378393cf2e879"
+    },
+    "docs/ARCHITECTURE.md": {
+      "blob_oid": "d10c14316f5236d6a3b71f38ad093b24a15202f9",
+      "bytes": 8207,
+      "mode": "100644",
+      "sha256": "fc42c3678c9e3a31f6fdc0b986e88f03b3beab2b521ef0bc1860db98218f9803"
+    },
+    "docs/BUILDING.md": {
+      "blob_oid": "bef0e20293d6b90fb99bb09c5b95cc73b78652b0",
+      "bytes": 5500,
+      "mode": "100644",
+      "sha256": "fccd4f729c6b455f3dd05196abe7733bbe10a408204685fcfdf9cb54a8bc8b0e"
+    },
+    "docs/M02_VALIDATION.md": {
+      "blob_oid": "78dc714cdbdeb2f8732ba8c1fbc6e5b47d2e31f1",
+      "bytes": 1865,
+      "mode": "100644",
+      "sha256": "e00cf017e647fccf549bcf3f99676c4bbd6f22d13e9ac07c8b2b3cac1fafa382"
+    },
+    "docs/M03_VALIDATION.md": {
+      "blob_oid": "b48d31b29a9864ff58fc2a6c18600c177899dac3",
+      "bytes": 3193,
+      "mode": "100644",
+      "sha256": "e0960a7bef07682adf0c02f1cf5bd72192f2fc5e3eddd66e3de30c807580fbd0"
+    },
+    "docs/M04_CALIBRATION_GUIDE.md": {
+      "blob_oid": "dd1d8a58272d1143caf3bd39466867f008d21761",
+      "bytes": 3920,
+      "mode": "100644",
+      "sha256": "aa24e53f409842871b3e53250377e21be5f7a587b94472084c761fbbce2f7862"
+    },
+    "docs/M05_REAL_VALIDATION.md": {
+      "blob_oid": "8eb0b8a192343dae00d78770fc20b2670ffe83f0",
+      "bytes": 5157,
+      "mode": "100644",
+      "sha256": "83662ca76c14a641131a9d8a8538f251802bf499ea90f09f322372f565b7c2bb"
+    },
+    "docs/M06_VALIDATION.md": {
+      "blob_oid": "ee46c50b71c1038adfb236d0baf37d734c580fa2",
+      "bytes": 4328,
+      "mode": "100644",
+      "sha256": "b1528470dc0e6c8272098a3b66de3f18bc77afb1d495987738ba005a7bc34c6e"
+    },
+    "docs/M07_VALIDATION.md": {
+      "blob_oid": "6b9c8a87d5971569c2bad8cf5d1507a1befa387e",
+      "bytes": 5286,
+      "mode": "100644",
+      "sha256": "47a1144986d5877710cd99d3511692c0b9d1faae9187bd1285c37b86e8a65bc4"
+    },
+    "docs/M08_VALIDATION.md": {
+      "blob_oid": "d3ed63a982043993d900a7bb3c6e93ebf883d8c5",
+      "bytes": 6097,
+      "mode": "100644",
+      "sha256": "66c9eb832595a5f7416c29e810ffe4f8fc106fc00cbe0301f8cdd6be86c41e66"
+    },
+    "docs/M09_VALIDATION.md": {
+      "blob_oid": "b395b375858a9b1dc92e986121bda68854ccd4aa",
+      "bytes": 6261,
+      "mode": "100644",
+      "sha256": "b50ca59afe680d8c6d6e9114a2dc2aaf75eea8a91ad57a00e6f72e70886a3d39"
+    },
+    "docs/M10_VALIDATION.md": {
+      "blob_oid": "3c497c94e446057a3b84ac49fda878ff8f0356bc",
+      "bytes": 3466,
+      "mode": "100644",
+      "sha256": "c70e756e980dc7ef34b0c5e644f8b12bafb90b490f4b4a84bef1a21d252f7e25"
+    },
+    "docs/M11_VIEWER.md": {
+      "blob_oid": "cf4715a024dc8382daa1ea6bf4c0136503bc4d6f",
+      "bytes": 4323,
+      "mode": "100644",
+      "sha256": "ab7247509004f8f757379096444795adf0800b6b1ad2fc1490e65351045d701f"
+    },
+    "docs/M12_SESSION_RELIABILITY.md": {
+      "blob_oid": "a50146005c328a8ea1bc60ffc46985a5fd375fbd",
+      "bytes": 4238,
+      "mode": "100644",
+      "sha256": "bef3828a570a6c590e5c2c18695ab6b5c79a390eda8d33812a5af171235ccf5b"
+    },
+    "docs/M13_VALIDATION.md": {
+      "blob_oid": "81bb8343d22b0dee2784b109b9f01f54c05f93bf",
+      "bytes": 2275,
+      "mode": "100644",
+      "sha256": "bf424621d86759bf601bc7d9c8a2c4d310a3df82c05fc22e2dac57fb312f190c"
+    },
+    "docs/M14_MULTIVIEW.md": {
+      "blob_oid": "9a03c371a2f23dde9fea217d4eb56610eb2035bd",
+      "bytes": 4315,
+      "mode": "100644",
+      "sha256": "b37611c56730ff3b3d981eeddf4ad49206da4e0ed6395a18799f64b28b663825"
+    },
+    "docs/M15_ADAPTIVE_ANDROID.md": {
+      "blob_oid": "554c094f4dcfec81b86dd65915614f34bd6c41a7",
+      "bytes": 3915,
+      "mode": "100644",
+      "sha256": "ca775b9503f58253e89dac790fecaa0e579ad699209e9852d2af7339b39f9a4a"
+    },
+    "docs/M16_INCREMENTAL_REGISTRATION.md": {
+      "blob_oid": "8cde50e978dfd3ec13162229d641e5aaf21eb9b4",
+      "bytes": 4707,
+      "mode": "100644",
+      "sha256": "19853ef1e30958172edf1cc56be29ed75d937b53b0c33d43e065f5c532af3869"
+    },
+    "docs/M17_CANCELLATION.md": {
+      "blob_oid": "d54ef052a5026f0f0ea829770317bf7bf54a993d",
+      "bytes": 2213,
+      "mode": "100644",
+      "sha256": "944bc1d2b6fd9d4ddba658d131d49eb80331eb51693f2ef58643a7491c44a882"
+    },
+    "docs/M18_DEPTH_CHECKPOINTS.md": {
+      "blob_oid": "c8039f7659c7af75aad5c055552044ec2ccf1108",
+      "bytes": 2943,
+      "mode": "100644",
+      "sha256": "569e13958a664818a7f64eb6d2e94ba439cad22c588372a9c3b39e427d147ab7"
+    },
+    "docs/M19_SCAN_EVIDENCE.md": {
+      "blob_oid": "061a2fa9d168b1bc1f8af2046f5e8b90a09129b1",
+      "bytes": 2943,
+      "mode": "100644",
+      "sha256": "1def71c6c6ca747cfe53aca09b6042e0f5b6e72f7c2d2d770ec14f55414f6101"
+    },
+    "docs/MILESTONE_STATUS.md": {
+      "blob_oid": "26aca73906e9501728ed181083f6bf5c0a981964",
+      "bytes": 6677,
+      "mode": "100644",
+      "sha256": "133bf6d124b932be7afab7f9fc9b36560b11a64d42a6bf80125c2328783f36b8"
+    },
+    "docs/NEXT_MILESTONE.md": {
+      "blob_oid": "c30361d76b5a46680713079d4d34dc3f07b674e0",
+      "bytes": 4950,
+      "mode": "100644",
+      "sha256": "a8db3290c48c38089c359dcddde09cd003d373324c8149f415b42ed2d1d22ef2"
+    },
+    "docs/PRIVACY.md": {
+      "blob_oid": "c706509fe78b5c2bca3508f878fec0448cf19954",
+      "bytes": 1664,
+      "mode": "100644",
+      "sha256": "050784fe625a982067a8e58fa772e9313056bdc9640d34332a7e325115ec26ed"
+    },
+    "docs/VALIDATION_REPORT.md": {
+      "blob_oid": "c80ec96017d7f1ff20d8f9edc61e3ecb621cb347",
+      "bytes": 7616,
+      "mode": "100644",
+      "sha256": "ad71ed94e90adcc7857e96cd492df5c31f598656a6e9a0e3f6a42bc51cc3aaf5"
+    },
+    "docs/agents/contracts/001.md": {
+      "blob_oid": "e234e115249fbeb7e5d177446fa241cee67aee39",
+      "bytes": 3586,
+      "mode": "100644",
+      "sha256": "c06b722073eb705fac1a7190fae70e4ac096fd63045af9df8d688f6ca17198c5"
+    },
+    "docs/agents/contracts/004-zlib-streaming.md": {
+      "blob_oid": "44b239769cf1f73f57a6ebe9ead606ebf3310060",
+      "bytes": 1177,
+      "mode": "100644",
+      "sha256": "c65166b82ee0c2d153fb32626893406b949f7b542c126808a0fa9b7fb893944c"
+    },
+    "docs/agents/contracts/007.md": {
+      "blob_oid": "b3be6ff35382fe84507f02ff385baf9b51be2c08",
+      "bytes": 5264,
+      "mode": "100644",
+      "sha256": "e7d663d6168789b98de69d3de41fa803cd431696d01be137dc598bd2b2230a23"
+    },
+    "docs/agents/contracts/009.md": {
+      "blob_oid": "bd67adcad3d3110772a05c8cef4470e07f68f45d",
+      "bytes": 8224,
+      "mode": "100644",
+      "sha256": "443600bd8d1648fc96615291b9c0c393e72fb9b837133a455c5eef8d00ed0445"
+    },
+    "docs/agents/contracts/018.md": {
+      "blob_oid": "62a35f7076d8e0ae9732e9b1ba8fcfcf06f74369",
+      "bytes": 4379,
+      "mode": "100644",
+      "sha256": "b000c7a52afc735c219831d1d4d428497a434a7ecaae1f2a5e94e681bc2d66bb"
+    },
+    "docs/agents/contracts/026.md": {
+      "blob_oid": "2a4c5bca872bb21a3fdaea58a57a5e9378bf89b2",
+      "bytes": 4522,
+      "mode": "100644",
+      "sha256": "58af253deb6719c77090e49d3274ddda961f24a01cb201d073b75249c1327077"
+    },
+    "docs/agents/contracts/061.md": {
+      "blob_oid": "77f9d07291087b0dc781ba0de8b1395934cac8dd",
+      "bytes": 3624,
+      "mode": "100644",
+      "sha256": "684dcc27ad96eafeed39aaa9d153ecef813c45b41f0011dff21611715b5950b7"
+    },
+    "docs/agents/contracts/062.md": {
+      "blob_oid": "ed97a5e3d18d603b663130a5913553be8354addf",
+      "bytes": 1745,
+      "mode": "100644",
+      "sha256": "619abc67a75f5ee5be7f3e6958b2ca2a75ba1e9b8a6ae1ca63ec1e9b906820c7"
+    },
+    "docs/agents/contracts/063.md": {
+      "blob_oid": "33330ffb9238b9da051b68649c7f150cd50e9ef1",
+      "bytes": 1770,
+      "mode": "100644",
+      "sha256": "dc45319ec249bb16711b5fae91eece59db6f1a7a5c45470e85d4f1e68bb42a26"
+    },
+    "docs/agents/contracts/064.md": {
+      "blob_oid": "f7c2c42352c5712aaa090da8e875cd76e9f2eca6",
+      "bytes": 1578,
+      "mode": "100644",
+      "sha256": "def4efbc35ffa9b5e83ae55cbdcceb0ccb3d047762b90754fd9246d1dfa9237a"
+    },
+    "docs/agents/contracts/065.md": {
+      "blob_oid": "96e0e5d4d6bbb2a33fa97f64113dc8e6d23b566a",
+      "bytes": 4670,
+      "mode": "100644",
+      "sha256": "f0f7a7fbf5cbf014941b8aa59b9fea16c1162589d86f2d7c42258a7ff20963d0"
+    },
+    "docs/agents/contracts/066.md": {
+      "blob_oid": "dd5ee5312541f14de30ea1e5a61035480c6787bc",
+      "bytes": 4713,
+      "mode": "100644",
+      "sha256": "2c0d552492fef7cde109ba076f26c515a5c013e57139b38b91ede8286ad3f749"
+    },
+    "docs/agents/contracts/067.md": {
+      "blob_oid": "d44b4949e90cc82e7d5aa8558b945b4faa2e87ca",
+      "bytes": 3677,
+      "mode": "100644",
+      "sha256": "f8d9909b73a7c31fbc456a244b8b8c5fa3e98137174361e6e518e670c6088463"
+    },
+    "docs/agents/contracts/068.md": {
+      "blob_oid": "ab82f46393029e999a11c75f99a28ae9c955a04f",
+      "bytes": 3977,
+      "mode": "100644",
+      "sha256": "51f6467f57a998076ad6fd8c836c9eb03aaa0cbcef444b49d157cb8c9a9d8325"
+    },
+    "docs/agents/contracts/069.md": {
+      "blob_oid": "733de40be70ac8dbed938c87c9a3eb43ea9dffd1",
+      "bytes": 3039,
+      "mode": "100644",
+      "sha256": "bb608e687cd46ad2be19159e54b1309e06305dc9b5b56182615784504316228d"
+    },
+    "docs/agents/contracts/070.md": {
+      "blob_oid": "64298d44e6b90528287ce04b2192eff82ea7e4d3",
+      "bytes": 2792,
+      "mode": "100644",
+      "sha256": "a0bebe12a4f84141864a6ce473f4e27ce84b9ed1a972eab517bd6734cb88d403"
+    },
+    "docs/agents/contracts/071.md": {
+      "blob_oid": "c12924dd97fc1e262c26cfa60edba3663a66f393",
+      "bytes": 5616,
+      "mode": "100644",
+      "sha256": "c38f847bcd834cae8c344127e44b827904ee9b8128c6301f8a0e9a10b67e56d7"
+    },
+    "docs/agents/contracts/072.md": {
+      "blob_oid": "0b62db33fcce4268fff55892daa02007b274935e",
+      "bytes": 2035,
+      "mode": "100644",
+      "sha256": "2fb358d199344cfec3dbf0c3557d9d09985652d2c63a3b88b108e5647f817595"
+    },
+    "docs/agents/contracts/073.md": {
+      "blob_oid": "f885a693caa1c4ce9ba4d4ad2c887a0109379853",
+      "bytes": 2130,
+      "mode": "100644",
+      "sha256": "271898902eb46e51de2858f29f8ad8b028f9bfed5ee0f36a0cbb8a5b27c5f3d0"
+    },
+    "docs/agents/contracts/074.md": {
+      "blob_oid": "7d7c0810331ece745e5d810a4d999ebb6d4b99a7",
+      "bytes": 2441,
+      "mode": "100644",
+      "sha256": "954b39755c5f6cd1a9a010194a7e6ff8912e3edac241754f67b90e5f58f11f3c"
+    },
+    "docs/agents/contracts/075.md": {
+      "blob_oid": "c76c789f0612cd281928c7e35f154624fe1e9063",
+      "bytes": 1244,
+      "mode": "100644",
+      "sha256": "6db42b0e83b8445473cebc5f2e376ca4402626eb37c27735224a8e3ff7a37501"
+    },
+    "docs/agents/contracts/076.md": {
+      "blob_oid": "84312b55c435248ac6f6705a42efecba964270e5",
+      "bytes": 833,
+      "mode": "100644",
+      "sha256": "125740d7c2c5a2a90f5c0c0569b59a60ddaff0398d529f491d84a35b404f0934"
+    },
+    "docs/agents/contracts/077.md": {
+      "blob_oid": "56b1b44b0223ca7bb61106159b697fb8446be8e1",
+      "bytes": 2103,
+      "mode": "100644",
+      "sha256": "31bc0f303452fec1156053ecd08185bb3ba195256ccdd1aedd08ba2871f65e98"
+    },
+    "docs/agents/contracts/078.md": {
+      "blob_oid": "c326e81bb00460ac457c7c4df1bf9553110a0e39",
+      "bytes": 1775,
+      "mode": "100644",
+      "sha256": "2c944373e03befa4b30d26f9db31884e3d25f90638aa0d1a2a2ca32cffe52ee4"
+    },
+    "docs/agents/contracts/079.md": {
+      "blob_oid": "e55cc7fb0b7cc0a6d9e63f6cfd6124074c189bf3",
+      "bytes": 1520,
+      "mode": "100644",
+      "sha256": "b5800ec2b307495d72ae99d92f61c0fcbe77186b1bef1fa75630e31bf02083d2"
+    },
+    "docs/agents/contracts/080.md": {
+      "blob_oid": "6356c446ffe627d30612e1edba1fa78694a81ba1",
+      "bytes": 3806,
+      "mode": "100644",
+      "sha256": "3bddcf62765c5d821941df7546c8a6fbc2d0535e92a737bbe811946e571112c5"
+    },
+    "docs/agents/contracts/088.md": {
+      "blob_oid": "53986de17196f128b036fb3b0038abb2d962ac5b",
+      "bytes": 3091,
+      "mode": "100644",
+      "sha256": "387d891545acdbca9c80412501eb885078dccff14c1f5709cdcf2a829432af53"
+    },
+    "docs/agents/requests/001-to-008.md": {
+      "blob_oid": "4d1b4135a4295af37187c04ebeaac819777e361c",
+      "bytes": 5252,
+      "mode": "100644",
+      "sha256": "1ebc5fe405cdaf4417e91bfa1094cdda58261f8abf71e6b716cd162186e447b2"
+    },
+    "docs/agents/requests/001-to-071.md": {
+      "blob_oid": "a94ee1c40367a2fe297248003b6ff0fd71873530",
+      "bytes": 5571,
+      "mode": "100644",
+      "sha256": "c79a279e2f2090af1669b3ef24f4332c8c86cef2b5a3cb597923287964cdbf0d"
+    },
+    "docs/agents/requests/007-to-001.md": {
+      "blob_oid": "20df7a27fa933aa6b681218970cbc329aa05bfb2",
+      "bytes": 2323,
+      "mode": "100644",
+      "sha256": "69ac18b763c13415cf5a3fb44170d930029622ae876067f17f569ba49315e684"
+    },
+    "docs/agents/requests/007-to-005.md": {
+      "blob_oid": "e4d07c1a4515b6a177773e620ab0e4859a2d76e2",
+      "bytes": 3287,
+      "mode": "100644",
+      "sha256": "8e18285289dc86a48210eb1fa485bb268987d414b087f03293af70b41cd36c45"
+    },
+    "docs/agents/requests/007-to-008.md": {
+      "blob_oid": "eafd5159e34977e1b7d8c62307ea1bc8d0dc3183",
+      "bytes": 3214,
+      "mode": "100644",
+      "sha256": "a221e83ea2d8f53a57ee90f8115836d58271b4bd1a5d01dacf86b52f5fade260"
+    },
+    "docs/agents/requests/007-to-009.md": {
+      "blob_oid": "262cd024405982bc1382c3e63e1efab07840a703",
+      "bytes": 2960,
+      "mode": "100644",
+      "sha256": "69fc0c4f425828aa389db8401c5dad02c9d663168d671b9ff827bc0bd977aa44"
+    },
+    "docs/agents/requests/007-to-023.md": {
+      "blob_oid": "02f5e47255938eb303c961ccaf8464d8f3ef3130",
+      "bytes": 3067,
+      "mode": "100644",
+      "sha256": "6267c288ddfc9c5caf81676d83ed9805ad180a64bc15816bc77586dd24689201"
+    },
+    "docs/agents/requests/007-to-074.md": {
+      "blob_oid": "3363d99bac0e1999d58e23faee6ab61691f87796",
+      "bytes": 2460,
+      "mode": "100644",
+      "sha256": "0a893b6dfd8dfc5dfb4a222b57d023a23485f655643dba132e78bd820e23cc8a"
+    },
+    "docs/agents/requests/007-to-088.md": {
+      "blob_oid": "c4c467dfe0311e1491a93f24d87b455767f1981d",
+      "bytes": 2816,
+      "mode": "100644",
+      "sha256": "897be7a55bfa5abb269066427f3fc8fcaaf35cb0f2c0fd61cd7696705cf1ddeb"
+    },
+    "docs/agents/requests/009-to-002.md": {
+      "blob_oid": "ecbdaef0d383692dc7671bd2f87f2dd9e39c10d1",
+      "bytes": 1440,
+      "mode": "100644",
+      "sha256": "e826269341a3337051f011b85176615fc4c3738de427526029765949db1f2eca"
+    },
+    "docs/agents/requests/009-to-005.md": {
+      "blob_oid": "3cc5da44c80baccf926135593705d3ec97dee5cb",
+      "bytes": 823,
+      "mode": "100644",
+      "sha256": "1a90510dd2b0302d99f88916e18820ad5c1fab85ec5f1b9ba4d779552c05bd28"
+    },
+    "docs/agents/requests/009-to-007.md": {
+      "blob_oid": "58dea12c9ad687b794291a327ad145e7c4b1d5de",
+      "bytes": 590,
+      "mode": "100644",
+      "sha256": "d9dce18c249eb120a5edf107ba4e16a88f2c9c639b2b35b595f1ec1e10853012"
+    },
+    "docs/agents/requests/009-to-020.md": {
+      "blob_oid": "b5f17c759dde23d0824b7602445417131985afdd",
+      "bytes": 600,
+      "mode": "100644",
+      "sha256": "b129e8a68f65145cadfc73b99583fc315937b22319d976b4ad4c98d1cd7dd07e"
+    },
+    "docs/agents/requests/009-to-023.md": {
+      "blob_oid": "5d0ae3bd2ac509bf0a4fd921f0fedfada301ad69",
+      "bytes": 717,
+      "mode": "100644",
+      "sha256": "c94c9880771acf03c1a3140d7039366b5802c39aae7ba4db862b31397c8bbfac"
+    },
+    "docs/agents/requests/009-to-024.md": {
+      "blob_oid": "a58ae84bafcbb7e42d20c12f5ea07e3950904517",
+      "bytes": 528,
+      "mode": "100644",
+      "sha256": "dbb642309be4663d741ea6c6567220e35b1ed92431be7fb8a66367fa0d536999"
+    },
+    "docs/agents/requests/009-to-031.md": {
+      "blob_oid": "81b3d1f925c10f76d4025e6f820c0b152ab481f4",
+      "bytes": 562,
+      "mode": "100644",
+      "sha256": "d6b6114a042f62080795cb4c5341d42af9948c74663980b80246a6bff7b19367"
+    },
+    "docs/agents/requests/009-to-033.md": {
+      "blob_oid": "c5c233d1776c12df51047ae031a49449a09369c8",
+      "bytes": 547,
+      "mode": "100644",
+      "sha256": "6500071fb1f68ea04d75628ebb1e7dda285067ed428d334d7a3144ab5824ca4c"
+    },
+    "docs/agents/requests/009-to-050.md": {
+      "blob_oid": "e8efd35ab316197b27a452bf80154ff4d2f7e29c",
+      "bytes": 863,
+      "mode": "100644",
+      "sha256": "f68f95718ca016b7b441da1b28debd0739f5bf44145ef25d6319a775a6ded0d1"
+    },
+    "docs/agents/requests/009-to-061.md": {
+      "blob_oid": "bccff47db3de92add8617783294deeafa64c183d",
+      "bytes": 628,
+      "mode": "100644",
+      "sha256": "64998825a975499155242c12e4f1d4ca40b2ba397888bc525d4f7738ecedbfda"
+    },
+    "docs/agents/requests/009-to-067.md": {
+      "blob_oid": "4a8e9a1be54addb34f8e2d0732e6ed4c733c24fd",
+      "bytes": 379,
+      "mode": "100644",
+      "sha256": "ffac7c52a9301f3dd9aa1d1a9c4581855243bd068f121ba873369eee278d55d7"
+    },
+    "docs/agents/requests/018-to-002.md": {
+      "blob_oid": "f69363ae59dfdea5958f7bbd198f61ef9d856d13",
+      "bytes": 1739,
+      "mode": "100644",
+      "sha256": "843de46f63960fa999f9531e8062b2757034af6aeb8b68fe74878e2b2a73afe3"
+    },
+    "docs/agents/requests/018-to-005.md": {
+      "blob_oid": "c2da7e90282e5a75be3dc80f129c163714531960",
+      "bytes": 1904,
+      "mode": "100644",
+      "sha256": "5fa570a1d5db8d7c2163b98351a661e97c75c1f20ab4b967e9decf18520b9ac5"
+    },
+    "docs/agents/requests/018-to-006.md": {
+      "blob_oid": "20e693fc2313261bc16171b6014ae691e1f25d6d",
+      "bytes": 1696,
+      "mode": "100644",
+      "sha256": "8e40bc38444926fbf079ca4129a9c96b320b2f40204b3a4cb16a6c9b80693349"
+    },
+    "docs/agents/requests/018-to-009.md": {
+      "blob_oid": "a53f54688be400db2f24ffa7bc74299841c9b055",
+      "bytes": 1538,
+      "mode": "100644",
+      "sha256": "408ba3bbf91cdb5dd75dc5f15b9c93cf7ffbab41c8b247fe248ed4517ef4552d"
+    },
+    "docs/agents/requests/018-to-010.md": {
+      "blob_oid": "e5297fe32838ec1f017164cc6267fc8503add49f",
+      "bytes": 1465,
+      "mode": "100644",
+      "sha256": "aa9c35d85b0c3ef511607222fe0246f5ff49703a64bc6fb136b45cf455825106"
+    },
+    "docs/agents/requests/018-to-022.md": {
+      "blob_oid": "b56ba821b8f5ef17d172b0e14a05fbb90f619950",
+      "bytes": 1614,
+      "mode": "100644",
+      "sha256": "2712b7bbf741e16634f32647099b061378b7a7bfacf4543c23f95f866415907c"
+    },
+    "docs/agents/requests/018-to-023.md": {
+      "blob_oid": "c00f2304d797f303276b55ba85f58264c8ba34be",
+      "bytes": 1700,
+      "mode": "100644",
+      "sha256": "806276a994bf65e22231b8f8dc71045a419cbd29187cf2eddb795e1e69a9db81"
+    },
+    "docs/agents/requests/018-to-073.md": {
+      "blob_oid": "8ca43325161c1bb0477ba342b98cb551d183d2d5",
+      "bytes": 1746,
+      "mode": "100644",
+      "sha256": "f472033379352f05782b70712a883c4dd3b767dbdd14e34b4557088428c20bcc"
+    },
+    "docs/agents/requests/026-to-001.md": {
+      "blob_oid": "b5e5696dfce4e12b5ea5b4baa4670372fd9829db",
+      "bytes": 1867,
+      "mode": "100644",
+      "sha256": "f245f440ffc5181e5990247fcef31108fe19fa3fe3e0c3f543a857ca32b91cd0"
+    },
+    "docs/agents/requests/026-to-006.md": {
+      "blob_oid": "079ec2c82d9a2500a00abd502693f2501f346e82",
+      "bytes": 1573,
+      "mode": "100644",
+      "sha256": "b31a9264515f2bfc002e5ab86292bfefd5f357d8d08ac686e2ad2bd823263734"
+    },
+    "docs/agents/requests/026-to-021.md": {
+      "blob_oid": "a9e0982e1172f841b3b5f53aaad330f902f3b265",
+      "bytes": 1352,
+      "mode": "100644",
+      "sha256": "c971a6037ef8c6d659d67178ebf9d9dbbf751f2217e39eef8c625c684a88b417"
+    },
+    "docs/agents/requests/026-to-023.md": {
+      "blob_oid": "c928c7daec5bc49e01a165c68b9748350475777e",
+      "bytes": 1490,
+      "mode": "100644",
+      "sha256": "2bab7a375820f6f0fb2375386d3410feb932ca4986814c02c62ea1e8f6bc2c48"
+    },
+    "docs/agents/requests/026-to-025.md": {
+      "blob_oid": "fcace0c2f3d41f377cf04df3ada672cf18a7df01",
+      "bytes": 1350,
+      "mode": "100644",
+      "sha256": "e3ec497ee753fdac6991e367b5bc5bdab8b1b4255d5b050a1d2e703ba9653c3a"
+    },
+    "docs/agents/requests/026-to-067.md": {
+      "blob_oid": "9cf479353694dc6bb1a4895fe50da0ce68d8a49d",
+      "bytes": 1794,
+      "mode": "100644",
+      "sha256": "8a750c2e853cd810940adaff4e157a3d2e26a65f824903e180a72f56c63bb870"
+    },
+    "docs/agents/requests/026-to-088.md": {
+      "blob_oid": "4903c8b7702145b5a7f14bbf1f311e259dfc503a",
+      "bytes": 1978,
+      "mode": "100644",
+      "sha256": "ad0d76191e549bba5e4e458420fd59867dd928855b480bedb4a23004ee32f404"
+    },
+    "docs/agents/requests/061-to-003.md": {
+      "blob_oid": "eb8f2ffb3e9a4edb22847b1f09ad02e945aaabb1",
+      "bytes": 1427,
+      "mode": "100644",
+      "sha256": "056ba9c4b9e7fe33dfe3bc6c1286b64689809fdbd4d3c79a308be52805132993"
+    },
+    "docs/agents/requests/061-to-004.md": {
+      "blob_oid": "6b8cf476de362d90616c9279cb7e48a11a0d01a5",
+      "bytes": 1704,
+      "mode": "100644",
+      "sha256": "6a66e32cb8ba58fde515c2db0254ee47274ac7b149bffc28b6ef6dd0fd80c522"
+    },
+    "docs/agents/requests/061-to-009.md": {
+      "blob_oid": "6bb21c4b9c6675d24c539a8ba227191b2f427b8b",
+      "bytes": 2040,
+      "mode": "100644",
+      "sha256": "8d50d15ea91740fba2fbbd19895474d9812bc4f5ca5748b43983e9dd16c62916"
+    },
+    "docs/agents/requests/061-to-037.md": {
+      "blob_oid": "df38ecf489750aea9b6a852afd4fa7ad9ad04c1c",
+      "bytes": 1528,
+      "mode": "100644",
+      "sha256": "52003d021fd34e7e13d3bc51af54458347333c68cd609c185f3ab1e7766a918f"
+    },
+    "docs/agents/requests/061-to-053.md": {
+      "blob_oid": "954534610c5dd07b584b0e8d766814b00828e578",
+      "bytes": 1317,
+      "mode": "100644",
+      "sha256": "af00d11882757ecfa9153f5823b25d2cd1a789bfff6dd9c1713594575c8383e9"
+    },
+    "docs/agents/requests/061-to-057.md": {
+      "blob_oid": "1763ba36dea99e24a1e1663d4a0eef4e3572c2be",
+      "bytes": 1348,
+      "mode": "100644",
+      "sha256": "d80feb50e3a1d67b9afd2f33262f2dd60e64ac872feceebcca3550781f3098bf"
+    },
+    "docs/agents/requests/061-to-067.md": {
+      "blob_oid": "a35a3f716e532556c342b11f5d2d93be698a823a",
+      "bytes": 1130,
+      "mode": "100644",
+      "sha256": "43e2717dafe78203a801579d144284b439672a5c6a8463888e444bd5b017c335"
+    },
+    "docs/agents/requests/062-to-003.md": {
+      "blob_oid": "552c4cf17c4304dad64913356c62924e0dcd116b",
+      "bytes": 855,
+      "mode": "100644",
+      "sha256": "9e320d80cabec502f1d3374e18843eb037510af5be1a46a243bfde9b532b7b1e"
+    },
+    "docs/agents/requests/062-to-004.md": {
+      "blob_oid": "9c37f159af87ec609cefd617fb17173c64c1ea0a",
+      "bytes": 1056,
+      "mode": "100644",
+      "sha256": "7c4e20bb4382c7dea40301f928e8ee63cb1708beeca4bcbe83cbcd19c00b266b"
+    },
+    "docs/agents/requests/062-to-057.md": {
+      "blob_oid": "5c4a2285110f64d96ad928bb3741d902362bdd21",
+      "bytes": 787,
+      "mode": "100644",
+      "sha256": "85a408901a6033b8f5223a8a2d66dfd0bcdea759c1600c6577b754168d0f5dba"
+    },
+    "docs/agents/requests/062-to-067.md": {
+      "blob_oid": "fcdad9f07510389a9ca5c84d9d54175e721c1acc",
+      "bytes": 1659,
+      "mode": "100644",
+      "sha256": "cf50eaaa02145845f707f2fa021da4eb87f67a29cfc3e48a916a433dae07b72a"
+    },
+    "docs/agents/requests/062-to-090.md": {
+      "blob_oid": "0c8c18da5ef37816e125b1bfd8c3a6ab54ffb52e",
+      "bytes": 893,
+      "mode": "100644",
+      "sha256": "0a932cc9886d7e99d9b23ce2b4339212585181f35608cd23f6c48ad8437ffe00"
+    },
+    "docs/agents/requests/063-to-003.md": {
+      "blob_oid": "3923b52e895cab25a28db2014ee0075bb041f7cc",
+      "bytes": 847,
+      "mode": "100644",
+      "sha256": "b279a67e4f3b4972eae83b528b20d50b7c26b13101d45671abbc540a7f9bbb3d"
+    },
+    "docs/agents/requests/063-to-004.md": {
+      "blob_oid": "c43ebc8598923c2a19d0a45c3fb7a1bcf353b407",
+      "bytes": 1056,
+      "mode": "100644",
+      "sha256": "1b4442b0b1b5265b1fd2c17b3a2dee9b9494a8082d27d6e3c5a37d400ccb29ab"
+    },
+    "docs/agents/requests/063-to-055.md": {
+      "blob_oid": "4f6e70dcac6ac0a3e1a5a5fc1acb03f33bde40cb",
+      "bytes": 843,
+      "mode": "100644",
+      "sha256": "367022297c72c9a79db97995beb64bc2a307370fae4896d898083fdd5809b211"
+    },
+    "docs/agents/requests/063-to-066.md": {
+      "blob_oid": "1945bf613de89f5a1407a417abe996fd5d5496cf",
+      "bytes": 801,
+      "mode": "100644",
+      "sha256": "7aec060499c71c6e7f671c767b197386ae2eb72fbeb95d219cdce4ae4eb82f75"
+    },
+    "docs/agents/requests/063-to-067.md": {
+      "blob_oid": "c426ba092f19e60a02b43f6446b717eea008fee8",
+      "bytes": 1766,
+      "mode": "100644",
+      "sha256": "a5813f7788050108c82fad37bbaf2b412ef68bbb40bcc2995675ce524cbf0c82"
+    },
+    "docs/agents/requests/063-to-090.md": {
+      "blob_oid": "2a6b5f79c8f28a6d238ac6a7e474aa457da28837",
+      "bytes": 893,
+      "mode": "100644",
+      "sha256": "1b800a95b34d485ebd1a2a8e4c34bb70fce8a5bf373c9dabced2a6b78027f54f"
+    },
+    "docs/agents/requests/064-to-003.md": {
+      "blob_oid": "76d06c02a906daaf4e47e48cdaa317223b0b0c02",
+      "bytes": 797,
+      "mode": "100644",
+      "sha256": "0df576445b117d3d2a73269204d1645a6fc2689ed68557456c649ac31c26447d"
+    },
+    "docs/agents/requests/064-to-004.md": {
+      "blob_oid": "9612ade4e82ece95a7406fafa412b12ba3153632",
+      "bytes": 1056,
+      "mode": "100644",
+      "sha256": "14218eab8b62d69270a70d7cd57eb9d4a9e9d4279f9eed62d88eb1d77a915f5d"
+    },
+    "docs/agents/requests/064-to-037.md": {
+      "blob_oid": "da34b6fbae5d5eee171bb7a4d5e647df36f4495b",
+      "bytes": 839,
+      "mode": "100644",
+      "sha256": "fb0561076d09f0a660f83363f34dd4589695d100dd6018a224bef3793f7368ff"
+    },
+    "docs/agents/requests/064-to-053.md": {
+      "blob_oid": "b8e6b6c95ccaee042e9b58bce5ea646fe270c4a3",
+      "bytes": 832,
+      "mode": "100644",
+      "sha256": "38692481d1a75fe658251da062a835670c1a45dc4b0ebfcbed51111437870ce5"
+    },
+    "docs/agents/requests/064-to-067.md": {
+      "blob_oid": "d1c0a61ef0b3d1083b52840663412266bcd36c4b",
+      "bytes": 1574,
+      "mode": "100644",
+      "sha256": "04dc4440100838559fb67341bb3ac3688259308844c6b5fe83a192515b2b3a4e"
+    },
+    "docs/agents/requests/064-to-090.md": {
+      "blob_oid": "f2ca56b222a57a1f290321d8a423fa93ebcf522b",
+      "bytes": 893,
+      "mode": "100644",
+      "sha256": "6731d7090e89289db20e30178d6b10ec5427a5d52cb469688a7e7ccef8646162"
+    },
+    "docs/agents/requests/065-to-004.md": {
+      "blob_oid": "1d04e28c579a3a256799d3adad460854a74e0ce1",
+      "bytes": 2964,
+      "mode": "100644",
+      "sha256": "686c81f7d72bf7f502aa6b15bafebb6954a1fe6a667fbd0155804f564406e524"
+    },
+    "docs/agents/requests/065-to-009.md": {
+      "blob_oid": "7faeb3830730968b13c2d65b09f9912016fd6eaa",
+      "bytes": 2294,
+      "mode": "100644",
+      "sha256": "63c755fbbee24e9b0d89cf52683708c92e8e767260e50cc9bae00a4571f78304"
+    },
+    "docs/agents/requests/065-to-053.md": {
+      "blob_oid": "d70e1868dae7c04d167871106fbe69fb2805a2e8",
+      "bytes": 1743,
+      "mode": "100644",
+      "sha256": "0b576ad32f5cb9fbe40df95424292d65e7cadbe34b795ee02e36120156637a69"
+    },
+    "docs/agents/requests/065-to-055.md": {
+      "blob_oid": "e8075c713fc25d576402cce2e736080ef6950e41",
+      "bytes": 2318,
+      "mode": "100644",
+      "sha256": "5d10e229d32a1e04bede4cb2dc71dafcd69292bccb34bcc0247ed83fff7a3995"
+    },
+    "docs/agents/requests/065-to-057.md": {
+      "blob_oid": "e92ee18580527f67583255a231873745dc6379d1",
+      "bytes": 2726,
+      "mode": "100644",
+      "sha256": "723a3abf03ab4efa36793335c44111bb3a7b5d1b631349345591f8a429491bef"
+    },
+    "docs/agents/requests/065-to-058.md": {
+      "blob_oid": "38fee14a792c86752ae4ff9ab419edb97deca00c",
+      "bytes": 2263,
+      "mode": "100644",
+      "sha256": "3da7098bb3587961a2ea4ee0422e217b111b8c4f2d1899c648b511c7cd161924"
+    },
+    "docs/agents/requests/065-to-067.md": {
+      "blob_oid": "5a65646814ef5094fbd2ddb308fae896789432a7",
+      "bytes": 2272,
+      "mode": "100644",
+      "sha256": "8326534a68692bb5dec98c13d92d43287f585faaa0c2a18ce93d34422b05cee6"
+    },
+    "docs/agents/requests/065-to-069.md": {
+      "blob_oid": "2e77154d9cf825477ae48eb3acbce8621915553e",
+      "bytes": 2278,
+      "mode": "100644",
+      "sha256": "5e948eeed3533d5e5a43afc5645c968b983bd6dac6e60d07212d4c44dc1dcc2a"
+    },
+    "docs/agents/requests/065-to-084.md": {
+      "blob_oid": "cdcf47fbe69d58adfbe865f671602844f01055f9",
+      "bytes": 2308,
+      "mode": "100644",
+      "sha256": "491c054d0f9d444c70162dff7c52d4da9eb91d96115fd7633c7a38786ac0c79e"
+    },
+    "docs/agents/requests/065-to-085.md": {
+      "blob_oid": "2a1678ac4898cdeb9f1943ab938c867c6566560e",
+      "bytes": 2319,
+      "mode": "100644",
+      "sha256": "ea349103b32733806a54b4051daa880f9c6bdafb6dbd22bb00989eccb0d469dd"
+    },
+    "docs/agents/requests/066-to-003.md": {
+      "blob_oid": "4e9379238e21ef281994178853a87d8f21420b0c",
+      "bytes": 2788,
+      "mode": "100644",
+      "sha256": "29ebbb4b8c52be6f732789a0faa0e26aca15b0eb2f26564c19ab34f5c07858cc"
+    },
+    "docs/agents/requests/066-to-004.md": {
+      "blob_oid": "f47709e4569fcca9598561ecadf33e2ab16e404d",
+      "bytes": 3183,
+      "mode": "100644",
+      "sha256": "fd4ea6115e2652b01bde05dfd43b550a036e15374908fde5bdd43138d9c8456f"
+    },
+    "docs/agents/requests/066-to-005.md": {
+      "blob_oid": "a068aa655cf380514dc5318aa3c892cf4f52a536",
+      "bytes": 3138,
+      "mode": "100644",
+      "sha256": "e9ac49972d3e726df14d1fb15354c8b950ec6c9c896bb49460ab73880278ab34"
+    },
+    "docs/agents/requests/066-to-009.md": {
+      "blob_oid": "810b8f886ed37ead55c21d4e804323bd56a9ca51",
+      "bytes": 3150,
+      "mode": "100644",
+      "sha256": "828fc1f22c4144946931748741794920c8b22d3d392a8792450d620ace8080df"
+    },
+    "docs/agents/requests/066-to-053.md": {
+      "blob_oid": "0f88a7932e2aa68bf2d362fa8440964119af4654",
+      "bytes": 1748,
+      "mode": "100644",
+      "sha256": "97abd62a3fe0565a49b7e0439118323933164cf71d80686555b51fa90539e0e7"
+    },
+    "docs/agents/requests/066-to-055.md": {
+      "blob_oid": "7f4370114808518aab35a993f4af50dcf6970340",
+      "bytes": 2542,
+      "mode": "100644",
+      "sha256": "4cb80a998fe37a6bf7ed3e4b720cb5d74a93068b4a9640583c06f5a3fc43219f"
+    },
+    "docs/agents/requests/066-to-067.md": {
+      "blob_oid": "3e103eaf4352746f78c7d853ba661eb390c0c0a0",
+      "bytes": 2484,
+      "mode": "100644",
+      "sha256": "b5153ccc2ec07f3f02fc3ec53dd7ecb8447a01e7db7f3f525caf0715adb5c7b2"
+    },
+    "docs/agents/requests/066-to-070.md": {
+      "blob_oid": "3d776faa5c0474157e70b45daa2b7a2b88a8576e",
+      "bytes": 2493,
+      "mode": "100644",
+      "sha256": "cd6a83f240ef1ce20370631e563fa523d6a4922859fe6b34ef6e6a3baa74e641"
+    },
+    "docs/agents/requests/066-to-090.md": {
+      "blob_oid": "e52541aa2283b0841d04b92d0791f1dce5065fb1",
+      "bytes": 2490,
+      "mode": "100644",
+      "sha256": "8a20c3c149f9e314c8e9d116ef67f551d19c61ba63333df67bb678cb39a206cb"
+    },
+    "docs/agents/requests/067-to-001.md": {
+      "blob_oid": "cae550de5370a2ad34646da1739113baf8bc5482",
+      "bytes": 2234,
+      "mode": "100644",
+      "sha256": "cb724a868556efc9edf1b86f76c75c51eb866b650fb5c276ef1563c1900f2115"
+    },
+    "docs/agents/requests/067-to-003.md": {
+      "blob_oid": "b77b47175918bcb6622cbe6b69978013027bbc0d",
+      "bytes": 997,
+      "mode": "100644",
+      "sha256": "3f854d90e1b5c4ad3f87873478437e59b53c10f628f667dca2c31985c7d87d13"
+    },
+    "docs/agents/requests/067-to-004.md": {
+      "blob_oid": "87de55856f266b29dc4b30ad3fa7b3c8ef854c0c",
+      "bytes": 1898,
+      "mode": "100644",
+      "sha256": "3db678c3477ddc28f5d37fdc749709bc0eb01fb9e5311ef1b3e5ac75d72d78cc"
+    },
+    "docs/agents/requests/067-to-009.md": {
+      "blob_oid": "c63251ac836f9ce61a2d8f12b019c4273a605aff",
+      "bytes": 1475,
+      "mode": "100644",
+      "sha256": "76e6a8e705d140c2de71946c48b518666c1dc88e15ca3f02aada0b3be49e5f7d"
+    },
+    "docs/agents/requests/067-to-023.md": {
+      "blob_oid": "a2dd7e1419cd380149c97788b66bfb5b20b1e44d",
+      "bytes": 1576,
+      "mode": "100644",
+      "sha256": "ef244e39abfc1a6c1c71e6e6d648d383fd230eb3ba3802feddf330cb145b0e11"
+    },
+    "docs/agents/requests/067-to-025.md": {
+      "blob_oid": "70eee7602877302b838c0da62e9e917878254588",
+      "bytes": 1998,
+      "mode": "100644",
+      "sha256": "e69c730aa85416d31cb3af9dce7d4c7da48869e5812594c620d56250648300b2"
+    },
+    "docs/agents/requests/067-to-026.md": {
+      "blob_oid": "1c55e5526d92ffa6283df8e9047fe8ca05283644",
+      "bytes": 2869,
+      "mode": "100644",
+      "sha256": "dc1789a62fc34daacc1f8a357f55d7904bd0b9d089bb5cec0a017cc64e71bce1"
+    },
+    "docs/agents/requests/068-to-004.md": {
+      "blob_oid": "de1be8973ecc07c378cb0484dbf41d937d314a7d",
+      "bytes": 1163,
+      "mode": "100644",
+      "sha256": "b97c175da73779e1f2e7358f7f0cb214f1ca0e0043f55e3e69fe0f20dd6915e1"
+    },
+    "docs/agents/requests/068-to-030.md": {
+      "blob_oid": "f3c200ac67e30c42d2588f4f9e3b2c178201e059",
+      "bytes": 979,
+      "mode": "100644",
+      "sha256": "716316721cf4223f65ba6887439521efe003aea961e27554ac15eb34c3e029d7"
+    },
+    "docs/agents/requests/068-to-069.md": {
+      "blob_oid": "bd166e296fdf0454ad8ea90c9718091f7da02a0e",
+      "bytes": 976,
+      "mode": "100644",
+      "sha256": "6b140b9c8ab17d2b7ef153bb402c3f6bb6cd65bfc1c5c28d74da9be336d88f95"
+    },
+    "docs/agents/requests/068-to-070.md": {
+      "blob_oid": "37aea526a2ae16638f1a7cb3a7bd31b3eba65de1",
+      "bytes": 984,
+      "mode": "100644",
+      "sha256": "242c699adc090736a02f442f40d3410db7b609b175def0cd3bf62f5b89d008c2"
+    },
+    "docs/agents/requests/068-to-082.md": {
+      "blob_oid": "36fe7ed05555e0accf5f41ca25eb4d9806da5856",
+      "bytes": 943,
+      "mode": "100644",
+      "sha256": "706a5998133469e30acd186f5a80ef4059cc681e410a298377f1832aabe43da0"
+    },
+    "docs/agents/requests/069-to-004.md": {
+      "blob_oid": "31c9654b80c617471bd0a202d1a05d94d5c8d89d",
+      "bytes": 1519,
+      "mode": "100644",
+      "sha256": "8f191272108a8e26bfbcbbebb70c7ccf7b8c537c7e42648a7466efaa50fa3b8b"
+    },
+    "docs/agents/requests/069-to-070.md": {
+      "blob_oid": "95a9af88139909836a2817ded48606cb54573ef8",
+      "bytes": 1156,
+      "mode": "100644",
+      "sha256": "50befebe47602ecd1c6dc5e8d9a19f0eda8f5f950437dc2a784620ca1d009b77"
+    },
+    "docs/agents/requests/069-to-095.md": {
+      "blob_oid": "7a8da775710121a4d3759686eae1e3fe0a0196d9",
+      "bytes": 994,
+      "mode": "100644",
+      "sha256": "badbaed12a67d1e5333a8100bfd5070e734fad32922899f7ce25f2b76fd11729"
+    },
+    "docs/agents/requests/070-to-066.md": {
+      "blob_oid": "4c9aaca339b61455da959c5e4b8f9c87abd20b21",
+      "bytes": 901,
+      "mode": "100644",
+      "sha256": "e5ffc901f62453bf8f7c4bb4287e9fbf03167c790214ec88ff88af2c6d5ca524"
+    },
+    "docs/agents/requests/070-to-068.md": {
+      "blob_oid": "fa155e1af5b748874caf4b419a68e4f4adaa404d",
+      "bytes": 765,
+      "mode": "100644",
+      "sha256": "82435bc03a158915a937eb075408f03ce2109ab798c10824abd8c779a1ceb42e"
+    },
+    "docs/agents/requests/070-to-071.md": {
+      "blob_oid": "6a56414750f3b6510c2d7035aa6430317df3345b",
+      "bytes": 2725,
+      "mode": "100644",
+      "sha256": "a072956c2e3f665a01b7c9fc2bb995fe853497f175b58cf87653d78d69154ca5"
+    },
+    "docs/agents/requests/070-to-094.md": {
+      "blob_oid": "1386ba3fa76656f18b9343afdb330fa8f6a1890f",
+      "bytes": 2136,
+      "mode": "100644",
+      "sha256": "56ae8448c0e40851ab541ec42324cb9707a83072f268725017a672d4e9fd6ef7"
+    },
+    "docs/agents/requests/071-to-001.md": {
+      "blob_oid": "4523dd891b7b8655cbf770cb196770ef658e793a",
+      "bytes": 3801,
+      "mode": "100644",
+      "sha256": "87fd7969498856ec693acfc0305029e848af56e699643d62b8b0c9b628469de5"
+    },
+    "docs/agents/requests/071-to-006.md": {
+      "blob_oid": "14fdfda763715c3ba5e3d697d739e236515ea7c7",
+      "bytes": 1046,
+      "mode": "100644",
+      "sha256": "4560aebc79a108e5a63d2cd7160aaa89925416f8cc3676e3c3731dbc1b222fed"
+    },
+    "docs/agents/requests/071-to-094.md": {
+      "blob_oid": "9fe9671d85ad9ac443bf50b2d1cabfc6218d07d0",
+      "bytes": 792,
+      "mode": "100644",
+      "sha256": "008d37c72bd69c4cb58746e470c58c991d9cdc8cd81b9da5202e994b7f7fe144"
+    },
+    "docs/agents/requests/071-to-100.md": {
+      "blob_oid": "03a843fc33c605fbd85cfcc3d52fb41ffefc984b",
+      "bytes": 1181,
+      "mode": "100644",
+      "sha256": "d28a875c6d2d7230b8258342f4de78342c9851f828921b1008e056dc9b9f9ce8"
+    },
+    "docs/agents/requests/072-to-001.md": {
+      "blob_oid": "6beba7e3fa1cefbe9bf8366a20e6f6bba3b2ca4a",
+      "bytes": 1184,
+      "mode": "100644",
+      "sha256": "54d41cdccda7898691e14665d9f73cd012d4a3b8251991d28a64c1acd46baf22"
+    },
+    "docs/agents/requests/072-to-005.md": {
+      "blob_oid": "f4c6572bce96d0d318de325e45a9bb763155efac",
+      "bytes": 1487,
+      "mode": "100644",
+      "sha256": "d371894a6f2a3fda8577b597fb172d11b131fcfc89763e756c113a20b471e799"
+    },
+    "docs/agents/requests/072-to-006.md": {
+      "blob_oid": "42da68429ce5d979befd609d0c9e7e7b9c5546c5",
+      "bytes": 1238,
+      "mode": "100644",
+      "sha256": "bfb5212d66e12f14b5c8741f2c811758f8b6a572e162271495ef9787ce053b0f"
+    },
+    "docs/agents/requests/072-to-019.md": {
+      "blob_oid": "a8fdd057f856c4ad835e882f65afe87b05f9b48a",
+      "bytes": 1248,
+      "mode": "100644",
+      "sha256": "78c633231b08657d44c10668458955ef8c6c83c298abd73af26715231898deaa"
+    },
+    "docs/agents/requests/073-to-002.md": {
+      "blob_oid": "f5b601f5818273a5555ec5b7d3e87980c41de686",
+      "bytes": 1327,
+      "mode": "100644",
+      "sha256": "1fc561c27c31dfd8ae5eee2656454a765c440fc9002b3c121f4d19729f9de781"
+    },
+    "docs/agents/requests/073-to-005.md": {
+      "blob_oid": "751d355dd1531c784f59659ffdb851950076d7bf",
+      "bytes": 1255,
+      "mode": "100644",
+      "sha256": "edd731bab00c1a72db288dbe4317a24a45d0afa50fe37c33e6ae5d08d7fbe44c"
+    },
+    "docs/agents/requests/073-to-006.md": {
+      "blob_oid": "75f92c630234e7d3427d56cddb2cdb0c8277125b",
+      "bytes": 1101,
+      "mode": "100644",
+      "sha256": "89a29d48fe13ccbbcfe25333ee899dd649bd12febff90e767ae8bbdfe03363eb"
+    },
+    "docs/agents/requests/073-to-010.md": {
+      "blob_oid": "189fd2abc00a006320baf95340db18faf2fe3232",
+      "bytes": 989,
+      "mode": "100644",
+      "sha256": "4872d6015be083fd5101c8a48f79394dae9f8665bb6ebe8131b556c01e444666"
+    },
+    "docs/agents/requests/073-to-012.md": {
+      "blob_oid": "3a32833f69c2b6fcd70aae5bedf1965b048a541e",
+      "bytes": 1249,
+      "mode": "100644",
+      "sha256": "f40dc739269870ac934d3b4c35c226b9b5b90aafc86254e0616bd8436789727e"
+    },
+    "docs/agents/requests/073-to-018.md": {
+      "blob_oid": "8118c031aa98209bf46937b1cf6673775bd73278",
+      "bytes": 1369,
+      "mode": "100644",
+      "sha256": "e606a915b4b82fca9865fe8b36293b82f597e176b898b401f1b05657ef400934"
+    },
+    "docs/agents/requests/073-to-027.md": {
+      "blob_oid": "26b462bbe487316a7ca1cafd18458e6cf398291e",
+      "bytes": 1198,
+      "mode": "100644",
+      "sha256": "351c5d13e5d6268f4a04f082a428096ed8ab1baa3ed9ea4a02853183edd4e0d0"
+    },
+    "docs/agents/requests/074-to-007.md": {
+      "blob_oid": "935c2f67f420f28aab955c8683fd7a093e10dd38",
+      "bytes": 1249,
+      "mode": "100644",
+      "sha256": "5abac0131c574fb09af2760ef91406c60a21479cfc81a7f9dfd14a460ad959eb"
+    },
+    "docs/agents/requests/074-to-008.md": {
+      "blob_oid": "c8b74e675e1a083d7dcd9e28fdc6e9208d1a1ee0",
+      "bytes": 1275,
+      "mode": "100644",
+      "sha256": "77db64e655dd8e7688de3fe34ac193f525e0458157c9fb49d769d2c51c1ff70a"
+    },
+    "docs/agents/requests/074-to-010.md": {
+      "blob_oid": "d3c9eac2e8964a066bef708e947ab0a6af9df510",
+      "bytes": 1143,
+      "mode": "100644",
+      "sha256": "9e3a763d2f5e9b1afbb3b5d4b7b2b578903ba46e61ff2d3bb59737e1501fbb4f"
+    },
+    "docs/agents/requests/074-to-071.md": {
+      "blob_oid": "9d2e85fbf6fe86e237b55adfba988bb6d596b060",
+      "bytes": 1467,
+      "mode": "100644",
+      "sha256": "7172731501a0ab9e4cda0e869417a9c7516679b52afeff38f26cbf328aff4fe9"
+    },
+    "docs/agents/requests/075-to-014.md": {
+      "blob_oid": "ebc8053f0b2b72fe23e010d7c69dc13530f5a07b",
+      "bytes": 1179,
+      "mode": "100644",
+      "sha256": "e53f0c3aeb23386de4b6091551e7270f736ed871b768b51f9b8d162dc5abd56d"
+    },
+    "docs/agents/requests/075-to-027.md": {
+      "blob_oid": "b3f4cb3ad5053476eb285fa416451e1ae3eee64d",
+      "bytes": 1242,
+      "mode": "100644",
+      "sha256": "209bd93334435513fa09358c140876cadb7748377943292905573cf0330bbfcc"
+    },
+    "docs/agents/requests/076-to-001.md": {
+      "blob_oid": "dfe9cc8cbcfdde46c8b218776452f5b926b74f06",
+      "bytes": 628,
+      "mode": "100644",
+      "sha256": "e28330c33f548391eae211ed576a9636730ad38c8ac4661526eead3fe17738f8"
+    },
+    "docs/agents/requests/077-to-070.md": {
+      "blob_oid": "ca03cd92f860df406fd99057cf102004c88ae1e9",
+      "bytes": 796,
+      "mode": "100644",
+      "sha256": "0711a4f4dd040ae25841d46c48f38731169f933e6cda2d2fbd42ebe045cc50e7"
+    },
+    "docs/agents/requests/077-to-071.md": {
+      "blob_oid": "69d0754190652d1615e677662af1f2d1e44f5dbb",
+      "bytes": 795,
+      "mode": "100644",
+      "sha256": "f5592c20ea27c538efb37cba8d1c9ce2150c365626388935228265698b5c7756"
+    },
+    "docs/agents/requests/078-to-001.md": {
+      "blob_oid": "77fe1e282ed967b4d7bcdad11690dd7e8dff53fa",
+      "bytes": 635,
+      "mode": "100644",
+      "sha256": "cc8a9ee2b7cd2ac51b4009575c566d98ba0e1878eb7905db935202cc698ee278"
+    },
+    "docs/agents/requests/078-to-004.md": {
+      "blob_oid": "a6a6531ca049b235ea220e14c52e3da49c300012",
+      "bytes": 484,
+      "mode": "100644",
+      "sha256": "4d36774fc127d6b30a63171771430da96e44a430b9563a51aa753aa097267ec2"
+    },
+    "docs/agents/requests/078-to-100.md": {
+      "blob_oid": "46322d70882435c0c1f82b6432b7a9c2a21e5b28",
+      "bytes": 647,
+      "mode": "100644",
+      "sha256": "765e5115d32b6e84d9e6b174ff0a9dac4f1f7e4fcd73b2fac7510af3086e1a11"
+    },
+    "docs/agents/requests/079-to-001.md": {
+      "blob_oid": "582f1e065731aa24b0181d3090a7cf5a36cde7bb",
+      "bytes": 1287,
+      "mode": "100644",
+      "sha256": "86ab54c7b7702b63b86e1f520c05119c5326e6053d190e8b0680a2eeb946ba49"
+    },
+    "docs/agents/requests/079-to-030.md": {
+      "blob_oid": "d6a81bc96b6306d24150be7f38f795b3047c906b",
+      "bytes": 1189,
+      "mode": "100644",
+      "sha256": "b80110c676310fa545c55504552c36f5011d75b850a1c6b9965d038baff8f36d"
+    },
+    "docs/agents/requests/079-to-095.md": {
+      "blob_oid": "2114cba3dd300680ba7ec217adc468f5a38e20bf",
+      "bytes": 1172,
+      "mode": "100644",
+      "sha256": "6680f167c2cb0720d31fd52765c0e059b01302bbee31a9b32612d60b407a4ff9"
+    },
+    "docs/agents/requests/080-to-004.md": {
+      "blob_oid": "f7913b65553f3398684bed228e8d9e1bb46dc6b0",
+      "bytes": 1398,
+      "mode": "100644",
+      "sha256": "0946bb4cdd6477f200f34f0e1381e19a41ca7d3cf238e62e28b4d2a547f78ff0"
+    },
+    "docs/agents/requests/080-to-053.md": {
+      "blob_oid": "0b560cedba628ff555f9993cd6dc2bc28497e7d1",
+      "bytes": 901,
+      "mode": "100644",
+      "sha256": "c46f709b585dd4353d60b6ed3fbe04062f5870548a48537fb202f738e2e06561"
+    },
+    "docs/agents/requests/080-to-071.md": {
+      "blob_oid": "bad6980ef9a095385401e46a2bd8f84199c0682c",
+      "bytes": 868,
+      "mode": "100644",
+      "sha256": "8407e577924e1f6a03e582131db5ebed27cd99ed50c00811ec618a68bd4b87d5"
+    },
+    "docs/agents/requests/080-to-088.md": {
+      "blob_oid": "dd49bd411f759e0d5adbce679f52f77bfa061355",
+      "bytes": 3007,
+      "mode": "100644",
+      "sha256": "e7a3cd3748a8e335b15a13b82c7ea901b7fc52311d91f01d8f19b9634b397b77"
+    },
+    "docs/agents/requests/080-to-094.md": {
+      "blob_oid": "faf9fdf2ebc04c99ffc3261812e8595e375651b1",
+      "bytes": 4381,
+      "mode": "100644",
+      "sha256": "df6e08610e49cab1950794c691972c0877916ccb6fc670fc01a9422dfbb3e019"
+    },
+    "docs/agents/requests/088-to-002.md": {
+      "blob_oid": "bb129b487637ba8ea5103d708c48405e4e6dce32",
+      "bytes": 793,
+      "mode": "100644",
+      "sha256": "df915e2f1986a28b273648d60e3c7e710979a4a4c20b69d1f3607e6861c8a7bf"
+    },
+    "docs/agents/requests/088-to-050.md": {
+      "blob_oid": "3c33ad227d4134531c9d1eb502a95dbc8fded2c3",
+      "bytes": 885,
+      "mode": "100644",
+      "sha256": "33f0812a51fbdd30e71d63d881c95bbfee66019b8bcadd06ba664e8a7aecfa8d"
+    },
+    "docs/agents/status/001.md": {
+      "blob_oid": "fe48b6a365bc86fb646d14178d293f7d9cb28fad",
+      "bytes": 6627,
+      "mode": "100644",
+      "sha256": "f23454760cb8b406d4e7c9ffdd569ef2dccf03605c6605d9c09f7b99fcdbf547"
+    },
+    "docs/agents/status/007.md": {
+      "blob_oid": "6f9f3eaaaa22f985e2bd1afdc33cc2cc1a14ef28",
+      "bytes": 5740,
+      "mode": "100644",
+      "sha256": "217555dc8c9fbd851b017543f9812a3e8870dc3f38a4f3e0766b82e4d92115fa"
+    },
+    "docs/agents/status/009.md": {
+      "blob_oid": "7c0206d096dd4b3aef65e30de9d47b9ac2472a10",
+      "bytes": 3037,
+      "mode": "100644",
+      "sha256": "5bf2ee47530f2805983f6dbbb55bf0555e3b2a4db7f2ca886f8c058af9aed641"
+    },
+    "docs/agents/status/018.md": {
+      "blob_oid": "70c1d020f6d30691e9c4914c6d87452e56ea9217",
+      "bytes": 3787,
+      "mode": "100644",
+      "sha256": "a75ac168a463bd8854ed53862a3f8991b08ff30c1d99e5655d9cb74140218987"
+    },
+    "docs/agents/status/019.md": {
+      "blob_oid": "d6b2375861fca730685dd61f81e568b545359687",
+      "bytes": 3035,
+      "mode": "100644",
+      "sha256": "55fa4658d97524feb30bfaf0ca1474aaa18a870f9bbc5f2b5005454341380872"
+    },
+    "docs/agents/status/026.md": {
+      "blob_oid": "6e9f5805322bd83071474040ad5c14102abe43ee",
+      "bytes": 5951,
+      "mode": "100644",
+      "sha256": "a7aa3a4e627fe036f0c1b7ea61da6a067f89b1ed1f76ea693a34114c1184f1cc"
+    },
+    "docs/agents/status/061.md": {
+      "blob_oid": "6c4f7195e7887decc86bfece5d94edc6d4b4601f",
+      "bytes": 17789,
+      "mode": "100644",
+      "sha256": "1eb1993315bc434694df6b26656eee35cd38e24a8ac30907b8aae3c7c36a9b01"
+    },
+    "docs/agents/status/062.md": {
+      "blob_oid": "56be1d60c7e9dafe1300d5864528a6db9eea9eb2",
+      "bytes": 18695,
+      "mode": "100644",
+      "sha256": "3e07a2e381b252d3f0529ed67ab87faf1bf83b2958478f43fe4a3fea794d11c4"
+    },
+    "docs/agents/status/063.md": {
+      "blob_oid": "fb45d3a110ab7575a7304c25eddcbc7b99f21668",
+      "bytes": 18037,
+      "mode": "100644",
+      "sha256": "801f2628ff01c22640bafcc770b4897bdee7a90865f33a7b0815f2f2b622f630"
+    },
+    "docs/agents/status/064.md": {
+      "blob_oid": "f914c95d53d500bed8a76ed5f970344208c82761",
+      "bytes": 18042,
+      "mode": "100644",
+      "sha256": "ed045d23defee68b30cb037b44234d4461d5115e7b597f6cb49f08bd95440f2e"
+    },
+    "docs/agents/status/065.md": {
+      "blob_oid": "01661b7bfd4ab4113611af6361fc77993a4f4a56",
+      "bytes": 18355,
+      "mode": "100644",
+      "sha256": "a98df931ea8c93bc0ed04d3d1a790b68b3d9d442a3d3223a333f8ad47ec89167"
+    },
+    "docs/agents/status/066.md": {
+      "blob_oid": "2d57088e909b6b4af4bb6cc6ae8e2548f2d9a942",
+      "bytes": 19634,
+      "mode": "100644",
+      "sha256": "373efcd06d55e1752d0ef502e6829507516a9a52d1e68b46ff42abf5b04303ec"
+    },
+    "docs/agents/status/067.md": {
+      "blob_oid": "061f965ddeaaf64a8b09ccf2b75b9da56ec3f492",
+      "bytes": 8592,
+      "mode": "100644",
+      "sha256": "ad644088c8b90582a102dccdfcacb6f7fd0f7143f420f69986aa78fc66b82b34"
+    },
+    "docs/agents/status/068.md": {
+      "blob_oid": "df00087d429b0456c46e735f95a21b289d12f662",
+      "bytes": 17403,
+      "mode": "100644",
+      "sha256": "d05da9816a85b910957aca4691668f57a277e047af3d33ba8134f58a20976a00"
+    },
+    "docs/agents/status/069.md": {
+      "blob_oid": "1e62123c53af289f666074f7f233afe6cffcb540",
+      "bytes": 16199,
+      "mode": "100644",
+      "sha256": "7747d777525c7dab99aea86e220bb30875b43b1fc81808abb9a970f456b1fe99"
+    },
+    "docs/agents/status/070.md": {
+      "blob_oid": "ea27f69b39df5990af37270375cba1239562ebc4",
+      "bytes": 17436,
+      "mode": "100644",
+      "sha256": "1b0b01ae90fdc912611c482cbbf015bc037c047da1140b91d2aa19546acc9828"
+    },
+    "docs/agents/status/071.md": {
+      "blob_oid": "75bde622d70db919de743a9f6f930a450d2d2f4f",
+      "bytes": 17639,
+      "mode": "100644",
+      "sha256": "19610d3318c1cdb173fc6b01e9a2f9d2e0849c83b178d9cc2f7bed427e86b0e9"
+    },
+    "docs/agents/status/072.md": {
+      "blob_oid": "50dd3e25587668b72d7aec81ec66480fb17ba3b1",
+      "bytes": 18527,
+      "mode": "100644",
+      "sha256": "ead426768936add837d606747d0f733c612c8b17bdc0d032150dd7824853e79c"
+    },
+    "docs/agents/status/073.md": {
+      "blob_oid": "2586b3ef62274bcf334519607578f8be1b050eed",
+      "bytes": 15991,
+      "mode": "100644",
+      "sha256": "c0e240ddf64629edffd28d5b26b38b97cbf0bf4bed4718c027b1d28034c25bb1"
+    },
+    "docs/agents/status/074.md": {
+      "blob_oid": "1e62322455d449551bfd6c3cfe3f3fc5ff0d4e2f",
+      "bytes": 18464,
+      "mode": "100644",
+      "sha256": "91f2562d52567ee001ef93e371432501d8e15a4ff59a91ba5b0311ba7009c6b1"
+    },
+    "docs/agents/status/075.md": {
+      "blob_oid": "83dc09338556757b4153613fc62dfacc5ef35851",
+      "bytes": 15455,
+      "mode": "100644",
+      "sha256": "cb7535450f51cff5cce12d8221ce764ea0464c7b1fa4b8a3f9d7cfda1fc6c268"
+    },
+    "docs/agents/status/076.md": {
+      "blob_oid": "0f5d46394e0fa344a235b2a95c1c6452061a7396",
+      "bytes": 13853,
+      "mode": "100644",
+      "sha256": "ebb15134e12bf4bac6307434a3eb5ee9e0f14f4530e9d9fc6991c621c8ca5247"
+    },
+    "docs/agents/status/077.md": {
+      "blob_oid": "4550b153ad059df79dc261d0ed08116a7895773c",
+      "bytes": 4331,
+      "mode": "100644",
+      "sha256": "e686566e3073d657ed8df948193ed3a90b36040fc3b918321559267a0f4755a2"
+    },
+    "docs/agents/status/078.md": {
+      "blob_oid": "02e7b61bea295afba026c3d0016a483cf98da3cb",
+      "bytes": 14026,
+      "mode": "100644",
+      "sha256": "7b50effb27219093c7ac00d3fb1b3646085e6c76378370bb55f2d1c5e48b7030"
+    },
+    "docs/agents/status/079.md": {
+      "blob_oid": "7ee7ff9bdd71e3df39a14ce2bc7c03a498cf19c7",
+      "bytes": 15243,
+      "mode": "100644",
+      "sha256": "8d07d08ca3aae80f43a1e3f7ded245c607dbef4f4ed669fa9ebc8e561c660561"
+    },
+    "docs/agents/status/080.md": {
+      "blob_oid": "b1a1d99827104818aebf638461c14a72e6ffe953",
+      "bytes": 41704,
+      "mode": "100644",
+      "sha256": "410a81544eeafe90ae8bdbdc077e18af3930ac5c99888e5200efa2b4ca17e1d6"
+    },
+    "docs/agents/status/088.md": {
+      "blob_oid": "b8af81628b98697ce198f5bc3d1cef693b5067ef",
+      "bytes": 5511,
+      "mode": "100644",
+      "sha256": "c9f1dce8324294734cdb0fce1afc515e8df8c8170aa45050b6d6b1874f01774a"
+    },
+    "docs/checkerboard-9x6.svg": {
+      "blob_oid": "09af3d56a6d8dcabcf5a5bec29dbe2e6c9d1aa5b",
+      "bytes": 3128,
+      "mode": "100644",
+      "sha256": "13f63963a49857b3de2ce075b26c5630ca486ee0f9873c264294eadc9608f078"
+    },
+    "gradle.properties": {
+      "blob_oid": "ce96a98f6ca371784e10e24da9db65d4d997d492",
+      "bytes": 158,
+      "mode": "100644",
+      "sha256": "0449021373b9161767f7104773e2b94acc428a12e10693f4449c739254ac0b01"
+    },
+    "gradle/wrapper/gradle-wrapper.properties": {
+      "blob_oid": "498731d355b200d2a58d1835254719a98c572b92",
+      "bytes": 251,
+      "mode": "100644",
+      "sha256": "14719d10e452dca94a65a44d96d23124cf134ba9ae3c83692a4c9faf4239f1ab"
+    },
+    "gradlew": {
+      "blob_oid": "52e8cb7dc019d26cf52835cc4562090d67bc4d03",
+      "bytes": 500,
+      "mode": "100755",
+      "sha256": "4da668a6522d10fe550bd3740468b64c1036ac4c38d4fe5c8e7447b4abab4932"
+    },
+    "gradlew.bat": {
+      "blob_oid": "61b5b23f5877f29491169f69196dc53e3c633b9c",
+      "bytes": 452,
+      "mode": "100644",
+      "sha256": "5e8c4964fb4ebf90982c2250232c5ba5756b649bf059d4d8fec2d56a324e124e"
+    },
+    "reconstruction/include/realityforge/asset_edit.hpp": {
+      "blob_oid": "8902d6bedaa2096b6deacfefebee363be4e3c2e0",
+      "bytes": 1951,
+      "mode": "100644",
+      "sha256": "f2ae21c3fed45b67e277e471c076bac7bbbd851fbfebbd7e2cd7b9f3147a65b1"
+    },
+    "reconstruction/include/realityforge/asset_model.hpp": {
+      "blob_oid": "2689da8c058958ef1a4cabc7eb5285e736f6ecd4",
+      "bytes": 2150,
+      "mode": "100644",
+      "sha256": "f6db5fd4fe627fcaee5bf52264f7fb5a8e5b3bb5cd6139f1b3092ab91144ccde"
+    },
+    "reconstruction/include/realityforge/bundle_adjustment.hpp": {
+      "blob_oid": "a2192343bbe29f294c9fe042e3cec27ba8419bad",
+      "bytes": 2103,
+      "mode": "100644",
+      "sha256": "fefd5210eafd27aa5e875d86ec50872eef05c1eef13f3bb9985ca2edfbf55b3f"
+    },
+    "reconstruction/include/realityforge/cancellation.hpp": {
+      "blob_oid": "82417d611d2cc3483db2396933015cabae3e62fd",
+      "bytes": 747,
+      "mode": "100644",
+      "sha256": "43e510887353f933d50da0db2542022e5cb65cded9d4d35111dab9f2041ada7b"
+    },
+    "reconstruction/include/realityforge/core.hpp": {
+      "blob_oid": "fe327f503ae5fcc4a2a0786fcbaaa0d1215916a4",
+      "bytes": 2199,
+      "mode": "100644",
+      "sha256": "c7f1123412fdb7002a2d85b28d9d3f277acf1255d30aac2888b35c60e303e3b7"
+    },
+    "reconstruction/include/realityforge/dense.hpp": {
+      "blob_oid": "e3659cbe333258e5f83a1be66d37edef859c9514",
+      "bytes": 2939,
+      "mode": "100644",
+      "sha256": "079d94fd4335d5821639d87459d933036b9102cf9b4876cda54a66f51952d7d9"
+    },
+    "reconstruction/include/realityforge/dense_selection.hpp": {
+      "blob_oid": "197ebe09f91fc7a3e27a0875b781371ffef41988",
+      "bytes": 3183,
+      "mode": "100644",
+      "sha256": "ba2d0a1421a1661b009e723c0b8147d37eaed145aa0926a6e16049ac9aaf3935"
+    },
+    "reconstruction/include/realityforge/depth_checkpoint.hpp": {
+      "blob_oid": "1497699405f10af3e8af7c3bb9bd090a3aba8871",
+      "bytes": 1227,
+      "mode": "100644",
+      "sha256": "1b5d898f3068acf6c8794074d4e01fd73aa69ff27ad64c8a4fbbcfe56e1e40dc"
+    },
+    "reconstruction/include/realityforge/glb_export.hpp": {
+      "blob_oid": "53c313c01d5a8ed3034a465ac835268e707e4211",
+      "bytes": 859,
+      "mode": "100644",
+      "sha256": "88108eb943777d430d80f43f5cfcabf267d7f6d32bb29d76013e7bf9c8c8c4cf"
+    },
+    "reconstruction/include/realityforge/mesh_lod.hpp": {
+      "blob_oid": "613a0402f352088daea9beca24fce82b60e433dc",
+      "bytes": 1917,
+      "mode": "100644",
+      "sha256": "40a2c5a841562ab05f41bf77e1f49f3c24a4b83b5b71bc09b29f076c25980188"
+    },
+    "reconstruction/include/realityforge/multiview.hpp": {
+      "blob_oid": "a07375d623a0a7791a3f502c3b1d516a58aca744",
+      "bytes": 1825,
+      "mode": "100644",
+      "sha256": "3d7a4ec6221b9b8b5fda2c475de75df9734a2a44b8906f5df8fcc00d2f430f3d"
+    },
+    "reconstruction/include/realityforge/obj_export.hpp": {
+      "blob_oid": "e1025b7c43b4413b27a489ef84dbe0ee02580d60",
+      "bytes": 1781,
+      "mode": "100644",
+      "sha256": "1927504fe407a6dec43955c3f3aa2d6b051c355d342aa392b329b7554302dc1a"
+    },
+    "reconstruction/include/realityforge/photometric.hpp": {
+      "blob_oid": "5f9e01a47eb932616dfa81262aa8c279d804d297",
+      "bytes": 789,
+      "mode": "100644",
+      "sha256": "14f69c925104c55fb95a808805b5c4d7fc5a68206ac79633ddf62eb133ffddb4"
+    },
+    "reconstruction/include/realityforge/ply_export.hpp": {
+      "blob_oid": "f8d4da7b8215e6c640c05f6857a9301bbddfc8c2",
+      "bytes": 1438,
+      "mode": "100644",
+      "sha256": "6279335b1f826fce4d439af364bf5682b569c464b33b16424520d1e2c8e6ae39"
+    },
+    "reconstruction/include/realityforge/pnp.hpp": {
+      "blob_oid": "694beafc2a4a4a0823e3a25552c5e5922cde2fd3",
+      "bytes": 1025,
+      "mode": "100644",
+      "sha256": "eecd2627b377ef060ac1f2b4dd5d7439328a445c3faff00b7fb416a8c981cfd8"
+    },
+    "reconstruction/include/realityforge/stereo_warp.hpp": {
+      "blob_oid": "a50ddc1169c16df7545123d07479c9336599eeff",
+      "bytes": 1345,
+      "mode": "100644",
+      "sha256": "793ee03c563699d32b6c12138d2b30d584821d428fd0432b70e993654efcf889"
+    },
+    "reconstruction/include/realityforge/stl_export.hpp": {
+      "blob_oid": "19b073eea2f437d6be3390a640a8fc4fae7e9a7e",
+      "bytes": 1815,
+      "mode": "100644",
+      "sha256": "28153071902bbe41b9380105963a6d79c262374cec8b5535bf5d5c04d14b6fe5"
+    },
+    "reconstruction/include/realityforge/surface.hpp": {
+      "blob_oid": "88139b58bd75b576ed76e03c9761c9f736d07027",
+      "bytes": 2185,
+      "mode": "100644",
+      "sha256": "4736583aa2cac12eb239168bd1d07723f78b77ec26785813064cc4504e4abb19"
+    },
+    "reconstruction/include/realityforge/texture.hpp": {
+      "blob_oid": "d40b9f321678867b1b4bd264ff18fdc88751a74b",
+      "bytes": 2840,
+      "mode": "100644",
+      "sha256": "4964f9a399042d75c2176c651964620a017f0db0f27d78d32f46c07bec2a8c82"
+    },
+    "reconstruction/src/asset_edit.cpp": {
+      "blob_oid": "0d9f48dc8d8a15611064ef0b654d80651e147c37",
+      "bytes": 9508,
+      "mode": "100644",
+      "sha256": "dd1789fd460681c7d0140fe09d8328771bc331f88995a3114aadbca7398ca529"
+    },
+    "reconstruction/src/asset_model.cpp": {
+      "blob_oid": "43980183fcd364b8e1fc29f7813fbe3ae0721784",
+      "bytes": 9727,
+      "mode": "100644",
+      "sha256": "10b8def4ec8080cd5a4231c54a5b020a34d587820da4a35959f1ba981cf2aa3d"
+    },
+    "reconstruction/src/bundle_adjustment.cpp": {
+      "blob_oid": "7a176dbf4f5e4495752f973980727dd174fcceb4",
+      "bytes": 20534,
+      "mode": "100644",
+      "sha256": "25aa3da43650bb91c3d06a41a903b133ab93c1d0a4d36235e04e80c07f513a09"
+    },
+    "reconstruction/src/cancellation.cpp": {
+      "blob_oid": "1f12d15c0c75d1c929ea17f27dd4819002ca8b41",
+      "bytes": 352,
+      "mode": "100644",
+      "sha256": "aab4ca7df233bf0d5815f70a6faff813165da18b5327b232291f33ed9ec06eec"
+    },
+    "reconstruction/src/core.cpp": {
+      "blob_oid": "6cc3340c2305daae7c2e068c71cb156128e0abc5",
+      "bytes": 16647,
+      "mode": "100644",
+      "sha256": "874ec245480c10d07d5a8e8104875d76791de2cf68d995282ccd9e2267abff68"
+    },
+    "reconstruction/src/dense.cpp": {
+      "blob_oid": "2fc8a61062b89fa22e4841d29784ea121f8af265",
+      "bytes": 19409,
+      "mode": "100644",
+      "sha256": "1b19520229176100f858c22e394a4d7ecdad4a1f456a35e05ce049bf8f6c4bc0"
+    },
+    "reconstruction/src/depth_checkpoint.cpp": {
+      "blob_oid": "501b917af9b41e2b2429cf72a0fdaf870ee20480",
+      "bytes": 6219,
+      "mode": "100644",
+      "sha256": "c38e9043b1ef3e33416fe7a84cad8240c1c1eb82d90b6c85089bd77949c68580"
+    },
+    "reconstruction/src/glb_export.cpp": {
+      "blob_oid": "647cce2a80ff94ee88da170fe948f5b0e0db6dfb",
+      "bytes": 11195,
+      "mode": "100644",
+      "sha256": "f1fea2d16637571bc314b0c00cbafcee480b1eaeeb66257ae9adaf66668edfb7"
+    },
+    "reconstruction/src/jni.cpp": {
+      "blob_oid": "fd28799c586a119ed4cb34f169790c5fda3cbbe0",
+      "bytes": 19602,
+      "mode": "100644",
+      "sha256": "d0340c67fb9157d77423972105b7d92898a386184509d6629cd2807ad990f358"
+    },
+    "reconstruction/src/mesh_lod.cpp": {
+      "blob_oid": "ac08bf7bfe0d90423a12a0f4001ffc192f7f217c",
+      "bytes": 12783,
+      "mode": "100644",
+      "sha256": "62c1755124474501ccafc28efd1e98dd7f5019ece7f8f1255362044d1c64356e"
+    },
+    "reconstruction/src/multiview.cpp": {
+      "blob_oid": "075a7954121b136819a4bbd57f3b1f458aa3777b",
+      "bytes": 16407,
+      "mode": "100644",
+      "sha256": "532d369f05f399fa4f68f186a09845b63a4292ccf0ccb80ae91749ef999380da"
+    },
+    "reconstruction/src/obj_export.cpp": {
+      "blob_oid": "3fa39b44e01fabff49da1b87f98589a0e6f5d6aa",
+      "bytes": 8989,
+      "mode": "100644",
+      "sha256": "df9481137720dcd41f9858f5d3bc77856cafc8cfdebe90cadfe8a7cfbeb017eb"
+    },
+    "reconstruction/src/photometric.cpp": {
+      "blob_oid": "27f6ec67cff4d0901ea37a18311c8c8486b7a89c",
+      "bytes": 5121,
+      "mode": "100644",
+      "sha256": "96c08bfe35ed3cf21cea227ae918a35ccdcb20ddb74b38b4dbd5940b4104e25a"
+    },
+    "reconstruction/src/ply_export.cpp": {
+      "blob_oid": "7bd6323607ff435ea02eb22bd8624a6e25c34125",
+      "bytes": 7940,
+      "mode": "100644",
+      "sha256": "33f613e472273feeca1301084ce157c27c19e86177ea27e4f27c4b73f1a1c098"
+    },
+    "reconstruction/src/pnp.cpp": {
+      "blob_oid": "453f4957a272a209be8b5c47ddec4dcd4031b921",
+      "bytes": 11907,
+      "mode": "100644",
+      "sha256": "cc7c1096d1d8d26c784d13844125924f2263bb8d96c45fdedd87866765091593"
+    },
+    "reconstruction/src/stl_export.cpp": {
+      "blob_oid": "3f563c80c7df8cf508432113ddbd68bafefa924b",
+      "bytes": 7440,
+      "mode": "100644",
+      "sha256": "7f62daedce8ea17dee0a9f92d427a161bb7af19c59f76f27e2f1ba196a9b92be"
+    },
+    "reconstruction/src/surface.cpp": {
+      "blob_oid": "2039ba488f7cae2802172796984db44d51700383",
+      "bytes": 21679,
+      "mode": "100644",
+      "sha256": "f6cd55c85a585ccdcc32b3e19f09ebc1e7a8b9684a1b36b93392f19422efaf4a"
+    },
+    "reconstruction/src/texture.cpp": {
+      "blob_oid": "c9aabb66e4bd784aef5a4364285c60c6f7419713",
+      "bytes": 32790,
+      "mode": "100644",
+      "sha256": "827848120afdc5b1d7ba1aae68c7bdd232fe557e20da949eb60b515cf2ee1ce1"
+    },
+    "reconstruction/tests/agent_061_asset_test.cpp": {
+      "blob_oid": "b6d5aaae1ef48056bee79a2f0155fac03461a37d",
+      "bytes": 5295,
+      "mode": "100644",
+      "sha256": "6a8b66aa85eff01d01dd6c2a7171d5a02d26021a92c29582ff82a98bf7daea35"
+    },
+    "reconstruction/tests/agent_062_obj_test.cpp": {
+      "blob_oid": "82d639115877f7d532901a6f9b873ca11958a1dd",
+      "bytes": 4324,
+      "mode": "100644",
+      "sha256": "7d6c0c1ffcff76dbef2ba9a6228dcf11e5483ffb5b3e712daddee8aec6676662"
+    },
+    "reconstruction/tests/agent_063_stl_test.cpp": {
+      "blob_oid": "68ba3b9f6edd04ea17d11c7ebddcacbcd3751bc5",
+      "bytes": 3903,
+      "mode": "100644",
+      "sha256": "40a13f44f7c34c3fb8131362e627af1d3094fb437b8b855b1c43bfb7bfaf7116"
+    },
+    "reconstruction/tests/agent_064_ply_test.cpp": {
+      "blob_oid": "17e712d59c32a98d44e6752f71fbc54c0a4d20d3",
+      "bytes": 3928,
+      "mode": "100644",
+      "sha256": "d51b5cc725d75a542d086db19cc65470a5de3346c0de7121e293ee0235f1a568"
+    },
+    "reconstruction/tests/agent_065_mesh_lod.cpp": {
+      "blob_oid": "a3db59da7ae14a15ebf4474649d401a5aa479dee",
+      "bytes": 7841,
+      "mode": "100644",
+      "sha256": "c052fa143cd6b1c87a137847f299e72b5de941751b77b988f4ea65c93854e3d5"
+    },
+    "reconstruction/tests/agent_066_asset_edit.cpp": {
+      "blob_oid": "f916066f84f27bfa655202c439a69d99f16fbadb",
+      "bytes": 3621,
+      "mode": "100644",
+      "sha256": "4729933d83b1d8877c83bce5ab5c738efb1a2f57ef3d455c63403b53551a8905"
+    },
+    "reconstruction/tests/bundle_adjustment_test.cpp": {
+      "blob_oid": "1ddf8ee95056941b9380e89ff1e2ac5b961686d3",
+      "bytes": 7405,
+      "mode": "100644",
+      "sha256": "53a69dd412396e1c2828c2bd6232f3a9ca112d3fe31ed0e585286513dfff3fc9"
+    },
+    "reconstruction/tests/cancellation_test.cpp": {
+      "blob_oid": "d40915158c67cebf396fb180cc784741aface604",
+      "bytes": 4665,
+      "mode": "100644",
+      "sha256": "94a0a011bf6e86784950ce8893070d088fba04ed3039ba627f10fd731593161f"
+    },
+    "reconstruction/tests/core_test.cpp": {
+      "blob_oid": "940e5328972ed2b3ba00f98a436dafb9d8fa5400",
+      "bytes": 5547,
+      "mode": "100644",
+      "sha256": "5444fa196aae12091b37003bc8f94d23ca74801aae9babfb7b7ff9613882d307"
+    },
+    "reconstruction/tests/dense_selection_test.cpp": {
+      "blob_oid": "6c9bd8affc0cbbe102140e0bfa4b94b37bb66cee",
+      "bytes": 5417,
+      "mode": "100644",
+      "sha256": "95cf721c1a3ce226415cb24d80e4f39d888da421a91de2a2721e9a2143ab17fa"
+    },
+    "reconstruction/tests/dense_test.cpp": {
+      "blob_oid": "b0136cb5de57ba19399ee83b9e4084a370c5e736",
+      "bytes": 4763,
+      "mode": "100644",
+      "sha256": "e45639f478365cdb5075c667706c79785a12374d364f901a5a46fd4a52163db7"
+    },
+    "reconstruction/tests/depth_checkpoint_test.cpp": {
+      "blob_oid": "10a23dfe17f59317c44878dd2a43740e743ae6bd",
+      "bytes": 7329,
+      "mode": "100644",
+      "sha256": "a097e9e78bbd2db0accf96e1ed5036f2dfc482ff57983ce6cc4d7567400ad47e"
+    },
+    "reconstruction/tests/multiview_test.cpp": {
+      "blob_oid": "be3b788e67442f308e2107b7b21230028ac0c161",
+      "bytes": 5008,
+      "mode": "100644",
+      "sha256": "ba28217c480835e0a4c191e8b2296b96ed24f531c384e539ebb4ecaca46e11b9"
+    },
+    "reconstruction/tests/photometric_test.cpp": {
+      "blob_oid": "808e2dfc297121b1e841a84569ac9577493085e2",
+      "bytes": 6828,
+      "mode": "100644",
+      "sha256": "c6cb6f48f9f957f26a72bba50f1ce721d9c85ae7fe8165f42122627991b39dcf"
+    },
+    "reconstruction/tests/stereo_warp_test.cpp": {
+      "blob_oid": "1ae2c6490fac73d2933f51bdb5ad7f134e4934c3",
+      "bytes": 3116,
+      "mode": "100644",
+      "sha256": "7706f397f75c2b3cf860f38762d19b6088eb472f6477922764652dd0f13b723c"
+    },
+    "reconstruction/tests/surface_test.cpp": {
+      "blob_oid": "5398852474e988969fcf54654c527b1c6d77684c",
+      "bytes": 7498,
+      "mode": "100644",
+      "sha256": "8e2e287501e2ee45e6ccadd8f04ac60cf8ef1390f15bee3e0cda3b3746472df6"
+    },
+    "reconstruction/tests/texture_test.cpp": {
+      "blob_oid": "85c43bb1704935e7366933689a5044287018a01a",
+      "bytes": 6644,
+      "mode": "100644",
+      "sha256": "a8ae8416ea714f774684d5bd2676a3556e1c741e96476c8fc53c15c660686039"
+    },
+    "reports/android-build-attempt.log": {
+      "blob_oid": "4a20dd6862e82d61b24c2f086b8061790ce09669",
+      "bytes": 1144,
+      "mode": "100644",
+      "sha256": "4b32f97c9f17ed6505711733d10f1c6e855c67b1d64d6908e0846b8e9a4d5a14"
+    },
+    "reports/clang-build.log": {
+      "blob_oid": "6c0c1f5f17fb86ec1e04488533584e35a9df037c",
+      "bytes": 275,
+      "mode": "100644",
+      "sha256": "b2228cd837869cb743392a41ad356f2d6406af46d5160e7e5bf054d57fa65935"
+    },
+    "reports/clang-configure.log": {
+      "blob_oid": "a2a239d0c246c944eecfce6e7aba70f26055145a",
+      "bytes": 406,
+      "mode": "100644",
+      "sha256": "93513920e378735a719cd3804db5d86d60804dd52b5eb24c5d781237ef198d46"
+    },
+    "reports/clang-tests.log": {
+      "blob_oid": "4a1d0b10fc9978ee010e449cd6ee7f9ce764581a",
+      "bytes": 298,
+      "mode": "100644",
+      "sha256": "8fcaa9b9af98de2eb5d4ecc1044add7e58e03e5d6e78f85d884333ec8ee32366"
+    },
+    "reports/environment.json": {
+      "blob_oid": "7a6d1753fce09b3485a0456d20d01043e10882bd",
+      "bytes": 713,
+      "mode": "100644",
+      "sha256": "ab85d55c83cbcadd3a4f9fc328f236aa2a11928318c7c271de75b617494f25cc"
+    },
+    "reports/fixture-generation.json": {
+      "blob_oid": "ce5c213cdbcdefe206c718d5f225c03d37711196",
+      "bytes": 2394,
+      "mode": "100644",
+      "sha256": "284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593"
+    },
+    "reports/jni-host-syntax.log": {
+      "blob_oid": "b325f2c49af92c0ec565e9a155ec7e1613d63af3",
+      "bytes": 25,
+      "mode": "100644",
+      "sha256": "3d85c9002b5fcd4e75ba1922010fea1308addc78a4fe96b0f821018aa1101433"
+    },
+    "reports/m05-middlebury-real.json": {
+      "blob_oid": "9ff50afbdc5b85623357e8ae044d60bb63f906f4",
+      "bytes": 1706,
+      "mode": "100644",
+      "sha256": "6862fe1fad5002c9a69aa4f7887e85ff9bd06288c00afc288af3bcea89e94089"
+    },
+    "reports/m06-three-photographs.json": {
+      "blob_oid": "5406a57db0f3f596192b28f7957a1267b0d69709",
+      "bytes": 426,
+      "mode": "100644",
+      "sha256": "bf774cb8616a829cc1411053d979a67b0805a899b0f1cb697b34bf86ecab1328"
+    },
+    "reports/m07-middlebury-dense.json": {
+      "blob_oid": "ee1c1220ede9684ba0c683da0382334817d33491",
+      "bytes": 977,
+      "mode": "100644",
+      "sha256": "67872da0373c1e58f1742b87ce8e4621ac31fb148f4d4690ac60e851b206822c"
+    },
+    "reports/m08-middlebury-surface.json": {
+      "blob_oid": "8f14b495d9caa874001b5b0b8e4093a8b4c06364",
+      "bytes": 1262,
+      "mode": "100644",
+      "sha256": "e66c27eb03ade2ebc24b4281b1480796f2d572b090945f7af3fee44105ea20cf"
+    },
+    "reports/m09-middlebury-texture.json": {
+      "blob_oid": "e09f2c9b3182c7d3de00b38e727de697323d123c",
+      "bytes": 923,
+      "mode": "100644",
+      "sha256": "ce96302532cf450bb3020272f8a68e232a64e10b84d09830a8a4a7ff960f30ed"
+    },
+    "reports/m10-comparison.json": {
+      "blob_oid": "c70e72777b1c0b4779d8fa020df85520bd3760e4",
+      "bytes": 776,
+      "mode": "100644",
+      "sha256": "9f6b53bc7b4f605abee4efd005b5b961b5b9bd9afc3967b5353946e3d7f974b4"
+    },
+    "reports/m10-middlebury-texture.json": {
+      "blob_oid": "31fef7579653930dcf2f032b88c43fad224597c2",
+      "bytes": 1263,
+      "mode": "100644",
+      "sha256": "57f60499b77a448fdd5b0d848a254b722138c5d6fd4c98a1730dbb129a389c82"
+    },
+    "reports/m13-stereo-kernel.json": {
+      "blob_oid": "0308334214fd8e000375cea585233470775cb713",
+      "bytes": 907,
+      "mode": "100644",
+      "sha256": "cee9c89f660e28fea1c5fe808ea13976e35bea2e8601e61cf779348e6da1fb57"
+    },
+    "reports/m14-eight-view-coverage.json": {
+      "blob_oid": "37dcf2fc7cd91b975ea2c62eb3373eba52e5732c",
+      "bytes": 1784,
+      "mode": "100644",
+      "sha256": "2a4a6c96b1b291f91249469208cf745d140893a93f6ea036c992318fc8c2090c"
+    },
+    "reports/native-build.log": {
+      "blob_oid": "964c94da09cb08da83122b6981346c45baa80fca",
+      "bytes": 22,
+      "mode": "100644",
+      "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+    },
+    "reports/native-configure.log": {
+      "blob_oid": "2b7c4465a35f6ebb61067602551b8e13c5c04f81",
+      "bytes": 383,
+      "mode": "100644",
+      "sha256": "624e70dfe31c179fbebbcdff70d281274d084d4026317ae9aceff8fc812210c9"
+    },
+    "reports/native-tests.log": {
+      "blob_oid": "131b2a4d5299ea783befe3162642d32f17fed82d",
+      "bytes": 452,
+      "mode": "100644",
+      "sha256": "73298b02025eaded2571799c93261eb259ef18ee42e5cf5fdfcc305549c99b6b"
+    },
+    "reports/photo-pair.log": {
+      "blob_oid": "5cd6eb09a84e541cb5bc96f9cfbaa9764237a919",
+      "bytes": 830,
+      "mode": "100644",
+      "sha256": "14240797e77c72692d49903c99c85a6069b520e10750d74568e754482f73a83a"
+    },
+    "reports/pytest.log": {
+      "blob_oid": "e8e2328c85c9099133809c02fd5b9110d330fbf1",
+      "bytes": 99,
+      "mode": "100644",
+      "sha256": "e69346eb7bccabafca411dbbfc84c29c90f7f6c3a3889f9f50fbc685150034a5"
+    },
+    "reports/pytest.xml": {
+      "blob_oid": "89ad6649d5087748b492c8772ed46c21d39741d6",
+      "bytes": 4300,
+      "mode": "100644",
+      "sha256": "50f6cd8c826d3809f26756846be1d7d8a7b12bf570a46c25382330caf813d4b9"
+    },
+    "reports/sanitizer-build.log": {
+      "blob_oid": "6c0c1f5f17fb86ec1e04488533584e35a9df037c",
+      "bytes": 275,
+      "mode": "100644",
+      "sha256": "b2228cd837869cb743392a41ad356f2d6406af46d5160e7e5bf054d57fa65935"
+    },
+    "reports/sanitizer-configure.log": {
+      "blob_oid": "afb7a146b8af58c1f085ddcf73d9ff69ab8043f3",
+      "bytes": 388,
+      "mode": "100644",
+      "sha256": "944d2ded05112982e52b6be91d93321f868605d9f569f5899fa031193d8af92c"
+    },
+    "reports/sanitizer-tests.log": {
+      "blob_oid": "163115cfbf84b79a5728a2fbe045f9ea1b0d4041",
+      "bytes": 306,
+      "mode": "100644",
+      "sha256": "370dad255d846f10e7bad335c060ea6e4fec1b6cb28465ebd601c0b318b5c995"
+    },
+    "reports/synthetic-benchmark.json": {
+      "blob_oid": "4de5c9ec3209a2f4e881a115dec14361a742fd01",
+      "bytes": 467,
+      "mode": "100644",
+      "sha256": "b9fbd927c4b227bb9754b48b6630f320dc5e6cf8be91464c87d5a65601315e62"
+    },
+    "reports/validation-summary.json": {
+      "blob_oid": "b8da46c01de8ee7c35630266f9da1b3320c8a60f",
+      "bytes": 1312,
+      "mode": "100644",
+      "sha256": "9945d75d9e11a76bbb31d4f4509e3745c581aeffc3f3d7d1d72189d7c6e8958a"
+    },
+    "settings.gradle.kts": {
+      "blob_oid": "86f31720c2846d1646ca9597a9ed57bfa191fd72",
+      "bytes": 281,
+      "mode": "100644",
+      "sha256": "62c711aefc8c3b5f3acf66d70bf2279e964222c1536e2db755a3255ffe78795c"
+    },
+    "tests/test_agent_001_operation_identity.py": {
+      "blob_oid": "d088340381b19e92310821cd27a83fccff777c84",
+      "bytes": 1966,
+      "mode": "100644",
+      "sha256": "253b001009d394a8a088c39b72960cf09ea3e6d32d4c9bb35206abe528f4d4d3"
+    },
+    "tests/test_agent_061_asset_contract.py": {
+      "blob_oid": "8b56594f334b65c116d159f15e46088181c2cc28",
+      "bytes": 5593,
+      "mode": "100644",
+      "sha256": "a03c03fd2ace18c4f8512b66e0f5c7fb251bf495270dedc086ec8ec22cf00be4"
+    },
+    "tests/test_agent_062_obj.py": {
+      "blob_oid": "8ee6dcccc2c011052dfe0cfc4e040c9dbc68fc90",
+      "bytes": 3645,
+      "mode": "100644",
+      "sha256": "dc2c473028848fb9f516cee92b81228474755507dfd0e894de47239492d893d7"
+    },
+    "tests/test_agent_063_stl.py": {
+      "blob_oid": "1de429390a7d354411170cca6c4bb250c5f07903",
+      "bytes": 1829,
+      "mode": "100644",
+      "sha256": "76da0464b58294767e8868d5c802d589ca8539ee7837eca898a3f1a1d4cbb980"
+    },
+    "tests/test_agent_064_ply.py": {
+      "blob_oid": "2a2f70741339a99f6824350e99b0a2fb5fdc78c2",
+      "bytes": 4317,
+      "mode": "100644",
+      "sha256": "8594e1268313e9e95b8ae4e3cde6e6bc6794db374d82040badc4929a64d73acd"
+    },
+    "tests/test_agent_065_mesh_lod.py": {
+      "blob_oid": "f278b55da202a7cdf0fd078625df9d7094b94b23",
+      "bytes": 2837,
+      "mode": "100644",
+      "sha256": "155ea50fba53f1003c7556b40d8e9b8373bc8492b2d12a622dd9b73fbffcd8d3"
+    },
+    "tests/test_agent_066_asset_edit.py": {
+      "blob_oid": "55147f78d37ca6c85ef0729fef965f023646061f",
+      "bytes": 2824,
+      "mode": "100644",
+      "sha256": "52b15a5d6dadd7c1fe355b2a766ce8bae840205a682bd398a3a9f0b3b5c6aa07"
+    },
+    "tests/test_agent_068_parser_host.py": {
+      "blob_oid": "54ca9e1cb1a07fa3d5302647454cb6ed7011cb79",
+      "bytes": 2978,
+      "mode": "100644",
+      "sha256": "c278610d01ec052b2b9e61c0ee60cb14c2d2609144a6abbfa5495cefaf7fe0f0"
+    },
+    "tests/test_agent_075_offline_content.py": {
+      "blob_oid": "089c26541f2a0184c719666690779726dcd50541",
+      "bytes": 1316,
+      "mode": "100644",
+      "sha256": "a67a59abd4fbfd0b7aa26e48975e71bb5bdc7903e02ff07060c27c9d9f5eee04"
+    },
+    "tests/test_agent_080_ui_evidence.py": {
+      "blob_oid": "f64aaa7a66a4d50a43b289aba4e113e9e39fb90b",
+      "bytes": 18740,
+      "mode": "100644",
+      "sha256": "e24988433b2c7702ef4ab95c42e4f6c30f07954ff2f54b5ff4abafe55cac771d"
+    },
+    "tests/test_bundle_adjustment.py": {
+      "blob_oid": "4ae9eb46b92da1ead4599a8984f0a3472f2b25b4",
+      "bytes": 3763,
+      "mode": "100644",
+      "sha256": "7a8174d7daac262e4979c4c600fb1c8a2aab8e230f993780b9867f9d6a6313b3"
+    },
+    "tests/test_camera_calibration.py": {
+      "blob_oid": "29a9dbdef65c0beae5528bc151e9b4dc31360f68",
+      "bytes": 1995,
+      "mode": "100644",
+      "sha256": "79c485cc106c12278a83f5ec09cda404a7dad0dfe989cd2ed982caa7af1f132c"
+    },
+    "tests/test_capture_audit.py": {
+      "blob_oid": "f735f2cc59789908e2f1c6c847b11900d1a19ec2",
+      "bytes": 2008,
+      "mode": "100644",
+      "sha256": "04be89a5547a8a97c1af3bda48cf328dcca754c54a7f557cb072334ab38ac86e"
+    },
+    "tests/test_dense.py": {
+      "blob_oid": "ad250017907bfea0598e11b3245c0a903011b109",
+      "bytes": 2186,
+      "mode": "100644",
+      "sha256": "8501df3c90971783c2f15583dbd8d373a2e1cf70967b635072faf21fc80e107d"
+    },
+    "tests/test_dense_multicamera.py": {
+      "blob_oid": "e4af33531f72a8134720139946682d55af02ddaf",
+      "bytes": 2774,
+      "mode": "100644",
+      "sha256": "8a8bc76df29aa3761d3473e89cf342ca1f8cb28db3958bc37d39f8c98bbe29f9"
+    },
+    "tests/test_multiview.py": {
+      "blob_oid": "098211a99121904bb2e242c4a5c63d78abd6ff30",
+      "bytes": 3491,
+      "mode": "100644",
+      "sha256": "9c174a5eda20789561510afdcebab7ba870ef6f08f4c7db92e73ad2b44ba7294"
+    },
+    "tests/test_pipeline.py": {
+      "blob_oid": "18259ed847855e1bbb837e16c8422482342f033e",
+      "bytes": 7065,
+      "mode": "100644",
+      "sha256": "26d4a548f9bc4ba79be4dc8942738e83f7224face99d2955b5d06b220ad205fd"
+    },
+    "tests/test_project_contracts.py": {
+      "blob_oid": "1a45a0325ef7975fbe9280b8f2f390d9cac8bb90",
+      "bytes": 14561,
+      "mode": "100644",
+      "sha256": "42a7a12ed6fe5a6653d0e739f1d2a985752b4cebb2826305f27a178b603ce5a3"
+    },
+    "tests/test_real_benchmark.py": {
+      "blob_oid": "230f1cf560a6b70abaa9db6d7f894cefd2768f97",
+      "bytes": 1101,
+      "mode": "100644",
+      "sha256": "f3ad494e1350edc71e67a05626ec5443ac7fc247350fc01a1b8c6886df60ffd3"
+    },
+    "tests/test_recovery_controller.py": {
+      "blob_oid": "4f60dc5dfebff117d9788a4a7af6fd23e107400a",
+      "bytes": 3973,
+      "mode": "100644",
+      "sha256": "89fab805ba923d6e8e7875122a218d3f5539962b8acfe324988c0763d8abc08d"
+    },
+    "tests/test_screenshot_artifact.py": {
+      "blob_oid": "b3fe9d80e9a4c4be74ce2e5ec6fd8f4f3f385f10",
+      "bytes": 1176,
+      "mode": "100644",
+      "sha256": "3727df8badbac5c7e34a6de005e80b027e8ebe65bc6243da517cd1a9801e8026"
+    },
+    "tests/test_surface.py": {
+      "blob_oid": "d930245f749eda8849cb30081c29f442ab64fb79",
+      "bytes": 4570,
+      "mode": "100644",
+      "sha256": "bcebea2f7c4c5920f544d00a720f4f423e0184186f9ee1c5056b72d35d8d2258"
+    },
+    "tests/test_texture.py": {
+      "blob_oid": "66314c4f13ce41d45e629ec3d26da68371ba925f",
+      "bytes": 5194,
+      "mode": "100644",
+      "sha256": "0c22fa3d03c4a0cf85acb654bf471382a50a850bfec1545fb996e5b53a59adf3"
+    },
+    "tools/android-ui-e2e/README.md": {
+      "blob_oid": "999ea343e22dffa3f74c7f82ec83722e17ca87cc",
+      "bytes": 8284,
+      "mode": "100644",
+      "sha256": "e1cf75a528718b32b10ddb6d1f9188a0a3613b8188b7d9440d82cb9eecc4a9a6"
+    },
+    "tools/android-ui-e2e/run.py": {
+      "blob_oid": "6aa5a62656fcedaaf88d65fab0ba49f20a513d57",
+      "bytes": 32721,
+      "mode": "100644",
+      "sha256": "7f6884503f452d6ee8fe6a5b08c44e2ed6380d3055203dd25135c36c7b4733a2"
+    },
+    "tools/benchmark_dense_middlebury.py": {
+      "blob_oid": "9a5894cf1ab20e1f09bcd8aed88871874264056e",
+      "bytes": 4436,
+      "mode": "100644",
+      "sha256": "250076aa4894a7e89f716afdcae3706dd7b8bf16f6f0e4a023028fc99fed3765"
+    },
+    "tools/benchmark_middlebury.py": {
+      "blob_oid": "259ad1bddd3aaf08c78a4b353c518f33a623a0fd",
+      "bytes": 8662,
+      "mode": "100644",
+      "sha256": "89ee610336f439765c86e12779a5adfac3d19293172576099aff80b2042f7e26"
+    },
+    "tools/benchmark_multiview_coverage.py": {
+      "blob_oid": "3be370b2e33b09c4694895689351f80e446dc67e",
+      "bytes": 4286,
+      "mode": "100644",
+      "sha256": "08a0cdf31bb0e34a67dc35ce7f353d1e3fb1bf6a1a354d812beddd9e6897c4b0"
+    },
+    "tools/benchmark_stereo_kernel.py": {
+      "blob_oid": "92d31aa1892f2d6bcc198e40b2b9e9b0119bebd0",
+      "bytes": 3334,
+      "mode": "100644",
+      "sha256": "e20d3b75b1dffc58372b3b888ea6bb835f1bd6787dc8872a0da38cd7e44d959b"
+    },
+    "tools/benchmark_surface_middlebury.py": {
+      "blob_oid": "72517f320bf905a112bf6ec75798848de31c9cc3",
+      "bytes": 4922,
+      "mode": "100644",
+      "sha256": "cfec63d7df951d6af90c075dbcb3351d86bf2d0d8cc856e3be7b83efedc8f740"
+    },
+    "tools/benchmark_texture_middlebury.py": {
+      "blob_oid": "f6b7899bb946138744fb75e9a0406632e2488bfe",
+      "bytes": 7363,
+      "mode": "100644",
+      "sha256": "572c39af8f8a5f2237840a66465a3c55489cc0180f3074badb775cd56a8d8d5b"
+    },
+    "tools/bootstrap-wrapper.ps1": {
+      "blob_oid": "19fc2e02ddbd65e157b8a9077612addfe16c84d6",
+      "bytes": 1636,
+      "mode": "100644",
+      "sha256": "e394d8b612eb3371b98b8ed6952247884fdf3c43c54b92ced756d864ad29b3f0"
+    },
+    "tools/bootstrap-wrapper.sh": {
+      "blob_oid": "6b31ac0ed1c6f90aed6ff454ca9373c5f433ed26",
+      "bytes": 1736,
+      "mode": "100755",
+      "sha256": "4cbb992cac00663e55709e4006f3a99f4c0acba8b12efa7b5542f7676f62e89d"
+    },
+    "tools/bundle_three_view.py": {
+      "blob_oid": "2074a02a6c0a41734c4efee4eb1c08e154b7d62d",
+      "bytes": 3074,
+      "mode": "100644",
+      "sha256": "a43f727c64874a921d8760ef5c7b77f15d4a970981f66226e2dd3eb60a1bc25f"
+    },
+    "tools/capture_audit.py": {
+      "blob_oid": "330734d21aa710aca9eea286ff65c5c27228543f",
+      "bytes": 7054,
+      "mode": "100644",
+      "sha256": "21aefced6a37827c123afe8156cd16879b258bda1671265d5375745cf32658d1"
+    },
+    "tools/check_apk.py": {
+      "blob_oid": "380d9470fadc5b0d79132f8ac720bedcff7471eb",
+      "bytes": 2432,
+      "mode": "100755",
+      "sha256": "a4da2e3baf3142d06a28e716f1e8f770ddef4e73d94e0719618c84edb1ca7bfe"
+    },
+    "tools/check_screenshot.py": {
+      "blob_oid": "2172c36f94ee5ab37722d8037ce0ce5535207fd5",
+      "bytes": 2272,
+      "mode": "100644",
+      "sha256": "7fffe000f9d494f7f9fe9f65ea889ddc2dda9b7653b6c83392ee5da43c12fd70"
+    },
+    "tools/device/failure_recovery/controller.py": {
+      "blob_oid": "289c15d41861dc25ef966fdef9e9ee72009e55e1",
+      "bytes": 7847,
+      "mode": "100644",
+      "sha256": "87c789c9ce25fb995081a280ba523b1bedd51b3b8baa9599ce912f478fb341e9"
+    },
+    "tools/make_fixture.py": {
+      "blob_oid": "31d5db58163ff137e7d36353ff2685b4bac9e5bb",
+      "bytes": 3533,
+      "mode": "100755",
+      "sha256": "c3660732f2fbccf68efd6d5452fdb1701427ce060c076f6d5558c500497783f9"
+    },
+    "tools/native_api.py": {
+      "blob_oid": "0ca057cc8cc9a22c44885fb342fb7ba978034f4e",
+      "bytes": 11517,
+      "mode": "100644",
+      "sha256": "894a307eed014dc67c77cd14bb8ad2bbdbb1d179514e59726e566285bcd28f56"
+    },
+    "tools/photo_pair.py": {
+      "blob_oid": "a7187925f4041d7eb297b93d769e024be6186566",
+      "bytes": 3642,
+      "mode": "100644",
+      "sha256": "37a5df893659b62cf529dcfc9b88519573b5c73537598275132a3028f8c730a7"
+    },
+    "tools/requirements-real-benchmark.txt": {
+      "blob_oid": "5280b228a6ac0dbf3b841f8a5059da15a69d835c",
+      "bytes": 41,
+      "mode": "100644",
+      "sha256": "4320d6809d7f3eb07cc2618ec29eb2b1e92d84c724e0a9250acdb66c7656b991"
+    },
+    "tools/requirements.txt": {
+      "blob_oid": "d78edc8a0002c44b1b029852243585ad134b8a96",
+      "bytes": 61,
+      "mode": "100644",
+      "sha256": "e20c478468d94631a390cf9f8f5cf380667f8c869eb73435796310039874c0d9"
+    },
+    "tools/run-device-tests.sh": {
+      "blob_oid": "f634e5084c22a2cc7545d20cdd85b3e9bef6a0be",
+      "bytes": 878,
+      "mode": "100644",
+      "sha256": "48ab00afe025470632f23c61d7d1a9e11635db185db768511dcf6e186f37777e"
+    },
+    "tools/three_view.py": {
+      "blob_oid": "b2dc6f33139d91577bf671864bed934989629baa",
+      "bytes": 3599,
+      "mode": "100644",
+      "sha256": "38ef6e0d04bc60303e9434f8530f38f6b45f0b42c3976784407781282aa411d3"
+    }
+  },
+  "tracked_source_digest_sha256": "242961f1dd43bd47fd230250a310839582e0f3fea80c050f237fa41680dca82f",
+  "tree_oid": "714db2b9f746cdb793527d996269479aa9959dbb"
+}

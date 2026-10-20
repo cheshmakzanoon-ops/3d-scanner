@@ -1,0 +1,16 @@
+{
+  "preserved_at": "2026-10-20T10:49:57.985731+00:00",
+  "files_copied": 1211,
+  "bytes_copied": 11978369,
+  "excluded_categories": [
+    "Downloaded SDKs, JDK, Gradle and third-party packages",
+    "Build outputs, APKs, libraries, bytecode and generated caches/resources",
+    "Disposable pytest temporary repositories and generated test data",
+    "Downloaded Material3 and Filament reference sources",
+    "Credentials, platform configuration and symlinks"
+  ],
+  "skipped_selected_file_counts": {
+    "downloaded_source_reference": 2
+  },
+  "snapshot_bundle_sha256": "8f0e5ce92339b49d240233bda1822fe5774c24bdd1b9e1cbcb724612b4d8e065"
+}

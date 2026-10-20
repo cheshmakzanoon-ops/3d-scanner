@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "combined_source_sha": "e290ff56329322b4365298b97bba7df8b16d2470",
+  "tracked_source_digest_sha256": "3947dc28f8668274c6c0bdc743382c784325401c2eafe54518c726e0d134a33d",
+  "roles": {
+    "065": {
+      "role_input_sha": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc",
+      "implementation_files": [
+        {
+          "path": "reconstruction/include/realityforge/mesh_lod.hpp",
+          "role_blob_oid": "613a0402f352088daea9beca24fce82b60e433dc",
+          "combined_blob_oid": "613a0402f352088daea9beca24fce82b60e433dc",
+          "equal": true
+        },
+        {
+          "path": "reconstruction/src/mesh_lod.cpp",
+          "role_blob_oid": "ac08bf7bfe0d90423a12a0f4001ffc192f7f217c",
+          "combined_blob_oid": "ac08bf7bfe0d90423a12a0f4001ffc192f7f217c",
+          "equal": true
+        },
+        {
+          "path": "reconstruction/tests/agent_065_mesh_lod.cpp",
+          "role_blob_oid": "a3db59da7ae14a15ebf4474649d401a5aa479dee",
+          "combined_blob_oid": "a3db59da7ae14a15ebf4474649d401a5aa479dee",
+          "equal": true
+        },
+        {
+          "path": "tests/test_agent_065_mesh_lod.py",
+          "role_blob_oid": "f278b55da202a7cdf0fd078625df9d7094b94b23",
+          "combined_blob_oid": "f278b55da202a7cdf0fd078625df9d7094b94b23",
+          "equal": true
+        }
+      ],
+      "all_implementation_blobs_equal_combined": true
+    },
+    "066": {
+      "role_input_sha": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a",
+      "implementation_files": [
+        {
+          "path": "app/src/androidTest/java/com/realityforge/scanner/agents/a066/EditHistoryDeviceTest.kt",
+          "role_blob_oid": "f0e8f17e9ba80b3cdc867d6ae54d7d9714d08a06",
+          "combined_blob_oid": "f0e8f17e9ba80b3cdc867d6ae54d7d9714d08a06",
+          "equal": true
+        },
+        {
+          "path": "app/src/main/java/com/realityforge/scanner/studio/editing/EditController.kt",
+          "role_blob_oid": "c8ae03ff493206ab518e313a808f928fd5d5bec4",
+          "combined_blob_oid": "c8ae03ff493206ab518e313a808f928fd5d5bec4",
+          "equal": true
+        },
+        {
+          "path": "app/src/test/java/com/realityforge/scanner/agents/a066/EditControllerTest.kt",
+          "role_blob_oid": "cf61af6ad28a8c8a605945e3cdad76eda37e43be",
+          "combined_blob_oid": "cf61af6ad28a8c8a605945e3cdad76eda37e43be",
+          "equal": true
+        },
+        {
+          "path": "reconstruction/include/realityforge/asset_edit.hpp",
+          "role_blob_oid": "8902d6bedaa2096b6deacfefebee363be4e3c2e0",
+          "combined_blob_oid": "8902d6bedaa2096b6deacfefebee363be4e3c2e0",
+          "equal": true
+        },
+        {
+          "path": "reconstruction/src/asset_edit.cpp",
+          "role_blob_oid": "0d9f48dc8d8a15611064ef0b654d80651e147c37",
+          "combined_blob_oid": "0d9f48dc8d8a15611064ef0b654d80651e147c37",
+          "equal": true
+        },
+        {
+          "path": "reconstruction/tests/agent_066_asset_edit.cpp",
+          "role_blob_oid": "f916066f84f27bfa655202c439a69d99f16fbadb",
+          "combined_blob_oid": "f916066f84f27bfa655202c439a69d99f16fbadb",
+          "equal": true
+        },
+        {
+          "path": "tests/test_agent_066_asset_edit.py",
+          "role_blob_oid": "55147f78d37ca6c85ef0729fef965f023646061f",
+          "combined_blob_oid": "55147f78d37ca6c85ef0729fef965f023646061f",
+          "equal": true
+        }
+      ],
+      "all_implementation_blobs_equal_combined": true
+    }
+  }
+}

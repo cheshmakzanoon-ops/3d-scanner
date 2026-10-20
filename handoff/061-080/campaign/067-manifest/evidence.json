@@ -1,0 +1,12 @@
+{
+  "peer009": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+  "071_runtime_source": "8495a20f8912e6c48ed9d28f6ecaf056f574cbfe",
+  "command": "python /workspace/campaign-061-080/067-manifest/run.py",
+  "result": "PASS",
+  "tests": 22,
+  "source_sha256": {
+    "/workspace/agent-work/067/app/src/main/java/com/realityforge/scanner/export/ManifestExportSource.kt": "6439f252ec32181afad6d96bbe0565a59069366dd8daa84664bd44637cacf5c5",
+    "/workspace/agent-work/067/app/src/test/java/com/realityforge/scanner/agents/a067/ManifestExportSourceTest.kt": "e50cda2d924856efbbdab6948f86a11d2a49ad20ec37cfa06ac95f598cad6612"
+  },
+  "log_sha256": "81be7f59d09965270740cc3e14e733bd172b718bc8cff64add50f4a394c713b8"
+}

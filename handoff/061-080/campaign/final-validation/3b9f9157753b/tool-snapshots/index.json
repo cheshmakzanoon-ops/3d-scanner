@@ -1,0 +1,12 @@
+[
+  {
+    "original_path": "/workspace/campaign-061-080/final-targeted-pytest.py",
+    "snapshot_path": "/workspace/campaign-061-080/final-validation/3b9f9157753b/tool-snapshots/final-targeted-pytest.py",
+    "sha256": "cb706fe574f623bd2ac490561628d9f2dadfb45f4f22e8a4521e0d4510f21142"
+  },
+  {
+    "original_path": "/workspace/campaign-061-080/final-validation.py",
+    "snapshot_path": "/workspace/campaign-061-080/final-validation/3b9f9157753b/tool-snapshots/final-validation.py",
+    "sha256": "ccda73986b3d8178c797ed38d77b931ceda146406cd77f7f0b1e56e110a8800d"
+  }
+]

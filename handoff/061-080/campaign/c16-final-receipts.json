@@ -1,0 +1,279 @@
+{
+  "combined_source": "a18aa6eb6d8fac17a8db6f1b489f7f04ebb95502",
+  "state": "PASS",
+  "agents": [
+    {
+      "agent": "061",
+      "branch": "agents/061-glb-asset-contract",
+      "head": "de0153411abae6ad267e9460007c04991d464859",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 206,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 6,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "062",
+      "branch": "agents/062-obj-export",
+      "head": "ae68b4255b7a1f605c71c533f34dba2c9d6c6aad",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 202,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 4,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "063",
+      "branch": "agents/063-stl-export",
+      "head": "3561dd0beff9727986a9192341a629a3dbd55b3d",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 203,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 4,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "064",
+      "branch": "agents/064-ply-export",
+      "head": "c0a926daa9863c1b68a2fb8ea9b4759dca023134",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 203,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 4,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "065",
+      "branch": "agents/065-mesh-lod",
+      "head": "c53e536dc8b07d1a51bfaad54642fa6e7ae139bc",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 207,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 4,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "066",
+      "branch": "agents/066-model-editing",
+      "head": "61911fcfad9fa1fd7facd92d4d36fb4d9b1d674a",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 209,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 7,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "068",
+      "branch": "agents/068-model-loader",
+      "head": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 204,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 7,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "069",
+      "branch": "agents/069-studio-renderer",
+      "head": "fb250011bdd303b3d3af8017b69e1f95d0b3c529",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 201,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 7,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "070",
+      "branch": "agents/070-studio-controls",
+      "head": "714ad3b3a8340db8461910c64cc5680f6353d9a1",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 206,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 12,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "071",
+      "branch": "agents/071-app-navigation-composition",
+      "head": "c345e4116e25d56a95175c0c2bb64b7aaa6fddba",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 205,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 9,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "072",
+      "branch": "agents/072-project-library-ui",
+      "head": "c370f2903875ff1e981078a13fbf5c1964bdcb65",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 205,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 8,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "073",
+      "branch": "agents/073-photo-review-project-ui",
+      "head": "196f4afa47532aa2179aa7bd6938f3327e746c62",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 208,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 8,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "074",
+      "branch": "agents/074-processing-recovery-ui",
+      "head": "db9a41e9eb48865b5c9864f706430f5127c1c389",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 203,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 7,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "075",
+      "branch": "agents/075-capture-onboarding-instructions",
+      "head": "e7f1c568d3bc5d2a6adb5562c94d469576c696dc",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 202,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 7,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "076",
+      "branch": "agents/076-adaptive-design-system",
+      "head": "58197d124d34a8bce17552ccc6ad292dc4a78108",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 199,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 6,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "078",
+      "branch": "agents/078-localization-resources",
+      "head": "2d91e44478dd26e3af51558fa4f2606025a96817",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 200,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 5,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    },
+    {
+      "agent": "079",
+      "branch": "agents/079-preferences-about-privacy-ui",
+      "head": "b92828231f0858e712232fc36d5645f2a9296342",
+      "remote_verified": true,
+      "receipt_yaml": "PASS",
+      "manifest": {
+        "files": 201,
+        "source": "index",
+        "status": "PASS"
+      },
+      "metadata_only": true,
+      "matched_code_paths": 5,
+      "source_blobs_equal_combined": true,
+      "state": "READY_FOR_INTEGRATION"
+    }
+  ],
+  "matched_code_proof_sha256": "cc903b80c527dc3c5959d84f7ec3d7b7c7e949b5c58440ec07eb469f1df492c7"
+}

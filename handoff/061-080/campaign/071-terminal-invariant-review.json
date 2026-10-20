@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "reviewed_at": "2026-10-20T10:25:43.046509+00:00",
+  "reviewed_head": "0cec378b19d65dbaef94f739ef16cea6ed294530",
+  "runtime_commit": "a72c7934f6b6b2cd4be733648f77398beafce270",
+  "status": "PASS_READ_ONLY_REVIEW",
+  "files": {
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt": {
+      "sha256": "b23c606f2f19b4cf2b6478f526b0375b59e455b20018a6ecf8c08b6abdad9bd9",
+      "blob_oid": "57b132140d1f4024341881061d27fc0d61198c47"
+    },
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/PickerCallbackSlots.kt": {
+      "sha256": "3936fc55bbcfaad6317d1181d37891b2ed74486b6c57fa79c52201f1f236befd",
+      "blob_oid": "be2c80d996b42b42369c6da1b7ebae0c463ebaa2"
+    },
+    "app/src/main/res/values/agent_071.xml": {
+      "sha256": "e0af7c6216451b7e482bdac848727b996e8d7cf9a35c8af07ea46a6c1b5f7fbe",
+      "blob_oid": "cd9231cc265015608f9e37bfc330a5613509d7bf"
+    }
+  },
+  "evidence": {
+    "071-picker-races/evidence.json": {
+      "path": "/workspace/campaign-061-080/071-picker-races/evidence.json",
+      "sha256": "5c2568754a7eb07cd76ca182f7915f79c0c8c2fbdcc3c3efe5afd0b792259c3b"
+    },
+    "071-picker-races/junit-matrix-final.log": {
+      "path": "/workspace/campaign-061-080/071-picker-races/junit-matrix-final.log",
+      "sha256": "9be543b143b18398baaeef33254d38c493ce7dbe6663c4ceb7b2081447071bf4"
+    },
+    "071-picker-slots-compile/result.json": {
+      "path": "/workspace/campaign-061-080/071-picker-slots-compile/result.json",
+      "sha256": "5730b3d2dc7461870d1d49a8139b893af84c53e3eecdbdd45244dd972e5febf8"
+    }
+  },
+  "invariants_reviewed": [
+    "Activity results use immutable launch origins; late A cannot consume B.",
+    "Dual pending/launch epochs reject stale startup reads.",
+    "Saved consumed/cancelled model-export origins retire only their exact C1 IDs independently of disk presence.",
+    "Only full origin equality authorizes disk cleanup;067 atomic request-ID guard rejects a newer distinct UUID.",
+    "Absent, valid A, valid B, corrupt and valid unsupported-option B records preserve B and invalid bytes.",
+    "Current UI B remains intact; known terminal UI A can be cleared only by full equality.",
+    "Cancelled OS slots remain occupied until their callback drains; consumed origin marker remains saveable.",
+    "Malformed or blocked saved slots yield no inferred cancellation; app-task restart guidance preserves project files."
+  ],
+  "tests": {
+    "actual_jvm_tests": 22,
+    "terminal_matrix_states": 20,
+    "owner_reported_fresh_compose_classes": 104
+  },
+  "limitations": [
+    "Read-only source/invariant review with owner-produced actual001/067 JVM and Compose evidence.",
+    "No fresh Android full-build, instrumentation, or actual process-kill result is claimed here; parent immutable validation remains pending."
+  ]
+}

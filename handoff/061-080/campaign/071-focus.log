@@ -1,0 +1,196 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+Unable to initialize metrics, ensure /home/agent/.android is writable, details: /home/agent/.android/analytics.settings (No such file or directory)
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig
+> Task :app:checkDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:mergeDebugResources
+> Task :app:packageDebugResources
+> Task :app:parseDebugLocalResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+
+> Task :app:processDebugMainManifest
+/workspace/campaign-061-080/071-focus/app/src/main/AndroidManifest.xml:5:5-87 Warning:
+	uses-permission#android.permission.INTERNET was tagged at AndroidManifest.xml:5 to remove other declarations but no other declaration present
+/workspace/campaign-061-080/071-focus/app/src/main/AndroidManifest.xml:6:5-99 Warning:
+	uses-permission#android.permission.ACCESS_NETWORK_STATE was tagged at AndroidManifest.xml:6 to remove other declarations but no other declaration present
+
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :app:processDebugResources
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:3:38 Unresolved reference 'library'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:4:38 Unresolved reference 'library'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:5:38 Unresolved reference 'library'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:15:44 Unresolved reference 'ProjectLibraryService'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:20:23 Unresolved reference 'ServiceQuery'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:24:15 Unresolved reference 'ServiceQuery'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:24:91 Unresolved reference 'LibraryOrder'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:24:132 Unresolved reference 'LibraryOrder'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:24:171 Unresolved reference 'LibraryOrder'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:28:38 Unresolved reference 'ServiceQuery'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:32:35 Unresolved reference 'query'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:33:74 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:34:32 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:34:38 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:34:46 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:34:59 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:34:71 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:34:83 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:34:103 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:36:131 Unresolved reference 'limit'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:47:35 Unresolved reference 'query'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:80 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:123 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:129 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:137 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:150 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:162 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:174 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:48:194 Unresolved reference 'it'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:58:56 Unresolved reference 'rename'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:61:29 Unresolved reference 'duplicate'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:61:100 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:61:159 Unresolved reference 'copiedBytes'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt:61:195 Unresolved reference 'totalBytes'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryScreen.kt:46:104 Unresolved reference 'a072_copy_progress'.
+e: file:///workspace/agent-work/072/app/src/main/java/com/realityforge/scanner/ui/library/LibraryScreen.kt:64:166 Unresolved reference 'a072_load_more'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt:5:38 Unresolved reference 'curation'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt:6:38 Unresolved reference 'curation'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt:12:75 Unresolved reference 'ReconstructionSelectionLease'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt:22:32 Unresolved reference 'ReconstructionAdmission'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/CurationReviewScreen.kt:22:93 Unresolved reference 'lease'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:3:38 Unresolved reference 'curation'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:13:18 Unresolved reference 'SelectedPhotoSet'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:15:50 Unresolved reference 'PhotoCurationService'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:16:33 Unresolved reference 'PhotoCurationFailure'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:18:43 Unresolved reference 'PhotoRemovalDirective'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:23:25 Unresolved reference 'PhotoCurationState'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:25:22 Unresolved reference 'CurationUndoToken'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:35:31 Unresolved reference 'state'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:38:33 Unresolved reference 'PhotoCurationState'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:40:27 Unresolved reference 'projectId'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:42:30 Unresolved reference 'photos'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:42:43 Cannot infer type for this parameter. Specify it explicitly.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:43:32 Unresolved reference 'id'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:44:39 Unresolved reference 'sha256'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:45:37 Unresolved reference 'state'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:45:44 Unresolved reference 'CuratedPhotoState'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:45:92 Unresolved reference 'state'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:45:99 Unresolved reference 'CuratedPhotoState'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:48:76 Unresolved reference 'revision'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:49:166 Unresolved reference 'selectedPhotoSet'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:57:78 Unresolved reference 'revision'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:59:62 Unresolved reference 'PhotoCurationCommand'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:60:26 Unresolved reference 'PhotoCurationCommand'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:60:106 Unresolved reference 'PhotoCurationReason'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:60:126 Unresolved reference 'PhotoExclusionCode'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:61:58 Unresolved reference 'photos'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:61:71 Unresolved reference 'it'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:62:42 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:63:32 Unresolved reference 'removeAt'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:63:52 Unresolved reference 'add'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:63:67 Unresolved reference 'PhotoCurationCommand'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:64:41 Unresolved reference 'PhotoCurationCommand'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:64:128 Unresolved reference 'PhotoRemovalReason'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:64:147 Unresolved reference 'PhotoRemovalCode'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:65:42 Unresolved reference 'PhotoCurationCommand'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:66:81 Unresolved reference 'PhotoCurationCommand'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:69:20 'when' expression must be exhaustive. Add an 'else' branch.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:69:45 Unresolved reference 'execute'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:70:20 Unresolved reference 'PhotoCurationOutcome'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:70:65 Unresolved reference 'undoToken'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:73:32 Unresolved reference 'removalDirectives'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:73:105 Unresolved reference 'removalDirectives'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:75:20 Unresolved reference 'PhotoCurationOutcome'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:76:20 Unresolved reference 'PhotoCurationOutcome'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:77:32 Unresolved reference 'failure'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:77:43 Unresolved reference 'PhotoCurationFailure'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:79:77 Unresolved reference 'failure'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:85:43 Unresolved reference 'ReconstructionAdmission'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/PhotoCurationPresenter.kt:87:31 Unresolved reference 'selectedPhotos'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/ProjectReviewScreen.kt:76:81 Unresolved reference 'a073_pending'.
+e: file:///workspace/agent-work/073/app/src/main/java/com/realityforge/scanner/ui/photoreview/ProjectReviewScreen.kt:76:261 Unresolved reference 'a073_restore'.
+e: file:///workspace/campaign-061-080/071-c1-dependency/com/realityforge/scanner/MainActivity.kt:10:7 Redeclaration:
+class MainActivity : ComponentActivity
+e: file:///workspace/campaign-061-080/071-c1-dependency/com/realityforge/scanner/RealityForgeApplication.kt:6:7 Redeclaration:
+class RealityForgeApplication : Application
+e: file:///workspace/campaign-061-080/071-c1-dependency/com/realityforge/scanner/ScannerViewModel.kt:48:7 Redeclaration:
+class ScannerViewModel : AndroidViewModel
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/MainActivity.kt:10:7 Redeclaration:
+class MainActivity : ComponentActivity
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/RealityForgeApplication.kt:8:7 Redeclaration:
+class RealityForgeApplication : Application
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:18:7 Redeclaration:
+class ScannerViewModel : AndroidViewModel
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:44:13 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:44:30 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:44:30 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:89:31 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:89:48 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:89:48 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:110:27 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:110:44 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:110:44 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:122:31 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:122:48 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:122:48 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:150:13 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:150:30 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:150:30 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:166:13 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:166:30 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:166:30 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:218:13 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:218:30 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:218:30 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:230:13 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:230:30 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:230:30 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:247:139 Unresolved reference 'not' for operator '!'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:247:156 No value passed for parameter 'kind'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt:247:156 No value passed for parameter 'source'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt:280:91 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'ScanProject?'.
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt:14:12 Redeclaration:
+data class PhotographicAsset : Any
+e: file:///workspace/campaign-061-080/071-focus/app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt:21:8 Redeclaration:
+object PhotographicGlb : Any
+e: file:///workspace/campaign-061-080/071-parser-dependency/GlbStructure.kt:45:47 Cannot access 'fun validatePng(png: ByteArray): Pair<Int, Int>': it is private in 'com/realityforge/scanner/viewer/PhotographicGlb'.
+e: file:///workspace/campaign-061-080/071-parser-dependency/GlbStructure.kt:240:51 Cannot access 'fun validatePng(png: ByteArray): Pair<Int, Int>': it is private in 'com/realityforge/scanner/viewer/PhotographicGlb'.
+e: file:///workspace/campaign-061-080/071-parser-dependency/PhotographicGlb.kt:19:12 Redeclaration:
+data class PhotographicAsset : Any
+e: file:///workspace/campaign-061-080/071-parser-dependency/PhotographicGlb.kt:26:8 Redeclaration:
+object PhotographicGlb : Any
+e: file:///workspace/campaign-061-080/071-parser-dependency/PhotographicGlb.kt:32:58 Too many arguments for 'fun read(file: File): PhotographicAsset'.
+e: file:///workspace/campaign-061-080/071-parser-dependency/PhotographicGlb.kt:51:30 Too many arguments for 'fun decode(bytes: ByteArray): PhotographicAsset'.
+e: file:///workspace/campaign-061-080/071-parser-dependency/PhotographicGlb.kt:54:69 Too many arguments for 'fun decode(bytes: ByteArray): PhotographicAsset'.
+e: file:///workspace/campaign-061-080/071-parser-dependency/PhotographicGlb.kt:204:48 Too many arguments for 'fun validatePng(png: ByteArray): Pair<Int, Int>'.
+e: file:///workspace/campaign-061-080/071-parser-dependency/PhotographicModelLoader.kt:41:51 Too many arguments for 'fun decode(bytes: ByteArray): PhotographicAsset'.
+
+> Task :app:compileDebugKotlin FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 45s
+16 actionable tasks: 16 executed

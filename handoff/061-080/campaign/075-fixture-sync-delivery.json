@@ -1,0 +1,42 @@
+{
+  "source_commit": "39049fa4cfc5180231e6649acc6577527d63b8ca",
+  "branch": "agents/075-capture-onboarding-instructions",
+  "remote_head_verified": true,
+  "worktree_clean": true,
+  "source_blob_sha256": "56b5abab0d2268a9776ebcd765fec804da84a5b03107e90902123199acd98bbd",
+  "changed_files": [
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a075/ScreenInteractionTest.kt",
+    "SOURCE_MANIFEST.sha256"
+  ],
+  "old_actual_evidence": {
+    "source_sha": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+    "tests_run": 2,
+    "tests_passed": 1,
+    "tests_failed": 1,
+    "packaged_checkerboard": "PASS",
+    "initial_guide_control_lookup": "FAIL",
+    "log": "/workspace/campaign-061-080/device-3b9f915-remaining/class-0.log",
+    "log_sha256": "3f6c04cfd4a0e9f1648b842545420c27065e897e48e17b7621489c5d851e356e"
+  },
+  "changes": [
+    "Unique actual fixture tag and fresh Compose key before state/control lookup.",
+    "Only scoped recursive accessibility traversal; no unbounded waitForIdleSync.",
+    "Current localized title/Next/Skip resources; actual visible bounds required.",
+    "Bounded real forward/backward scroll for offscreen guide controls/titles.",
+    "Next reaches the actual second-page title; Skip fires once; completion remains absent.",
+    "Failure-time structural tree is bounded to6000 characters and excludes arbitrary text/field values."
+  ],
+  "compiled_against_actual_candidate": "3b9f9157753b934350e05287a6ff33bbe46c665a",
+  "focused_compile": "PASS",
+  "compile_log": "/workspace/campaign-061-080/075-fixture-sync-compile.log",
+  "compile_log_sha256": "ef99e415bcb96e3231b9636b521a9e707e6be0b757c6af384ed5e28877dfae9c",
+  "new_source_gradle": "NOT_RUN_ROOT_PENDING",
+  "new_source_runtime": "NOT_RUN_ROOT_PENDING",
+  "device_operations": "NONE",
+  "production_source_and_checkerboard_test": "UNCHANGED",
+  "manifest": {
+    "status": "PASS",
+    "source": "HEAD",
+    "files": 202
+  }
+}

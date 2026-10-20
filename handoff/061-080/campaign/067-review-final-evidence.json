@@ -1,0 +1,16 @@
+{
+  "source_base": "98242d6bdced6f1d41a4b2211cf4a957feaaa6b6",
+  "working_tree_source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/export/ExportCoordinator.kt": "595f6cd12d793f8b0d040fdf8850fbd5fcd7322b82a45726ab73aa9c6730734f",
+    "app/src/main/java/com/realityforge/scanner/export/ManifestExportSource.kt": "5c6bc57850fe3fdc601f55c6e74f82ac23435fd15c3c2f84e600b16d25dc0729",
+    "app/src/test/java/com/realityforge/scanner/agents/a067/ExportCoordinatorTest.kt": "4ab48f79251f3f3a71483df87ae317b8e4daf5b75c80d64c85f0cfc0e8a8f51e",
+    "app/src/test/java/com/realityforge/scanner/agents/a067/ManifestExportSourceTest.kt": "81315763d429608bde9d29ee1f0b00e66e4fd42fd92d31bcef9ea621a9c00d0f"
+  },
+  "peer009": "0cb6532d921e61a0e56ff0b310cafe6329f6f7cd",
+  "peer026": "14be63f (actual source snapshot067-saf-bridge/peer026)",
+  "command": "python /workspace/campaign-061-080/067-review.py",
+  "result": "PASS",
+  "tests": 65,
+  "log": "/workspace/campaign-061-080/067-review-final.log",
+  "log_sha256": "e9dc0a78139b0a89bdf17811421fc6b9ffd91c7cf7e19d86f0821fcd1f6bbd93"
+}

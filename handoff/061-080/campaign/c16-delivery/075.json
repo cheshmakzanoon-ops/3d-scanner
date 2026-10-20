@@ -1,0 +1,17 @@
+{
+  "agent": "075",
+  "branch": "agents/075-capture-onboarding-instructions",
+  "previous_head": "323c1daf366c9640243a69fa71b8ae26fcb7769b",
+  "head": "e7f1c568d3bc5d2a6adb5562c94d469576c696dc",
+  "remote_head": "e7f1c568d3bc5d2a6adb5562c94d469576c696dc",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/075.md"
+  ],
+  "manifest_verifier": {
+    "files": 202,
+    "source": "index",
+    "status": "PASS"
+  }
+}

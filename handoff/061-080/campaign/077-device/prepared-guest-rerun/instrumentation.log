@@ -1,0 +1,91 @@
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+com.realityforge.scanner.agents.a077.ActualAccessibilityTest:
+INSTRUMENTATION_STATUS: test=primaryActionRemainsReachableAtTwoHundredPercentText
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Expected actual accessibility control did not become available
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await(ActualAccessibilityTest.kt:34)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await$default(ActualAccessibilityTest.kt:31)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics(ActualAccessibilityTest.kt:81)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.primaryActionRemainsReachableAtTwoHundredPercentText(ActualAccessibilityTest.kt:73)
+
+INSTRUMENTATION_STATUS: stream=
+Error in primaryActionRemainsReachableAtTwoHundredPercentText(com.realityforge.scanner.agents.a077.ActualAccessibilityTest):
+java.lang.AssertionError: Expected actual accessibility control did not become available
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await(ActualAccessibilityTest.kt:34)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await$default(ActualAccessibilityTest.kt:31)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics(ActualAccessibilityTest.kt:81)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.primaryActionRemainsReachableAtTwoHundredPercentText(ActualAccessibilityTest.kt:73)
+
+INSTRUMENTATION_STATUS: test=primaryActionRemainsReachableAtTwoHundredPercentText
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.realityforge.scanner.agents.a077.ActualAccessibilityTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=3
+INSTRUMENTATION_STATUS: stack=java.lang.AssertionError: Project-name field must expose a label or hint
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(ActualAccessibilityTest.kt:56)
+
+INSTRUMENTATION_STATUS: stream=
+Error in realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(com.realityforge.scanner.agents.a077.ActualAccessibilityTest):
+java.lang.AssertionError: Project-name field must expose a label or hint
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(ActualAccessibilityTest.kt:56)
+
+INSTRUMENTATION_STATUS: test=realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject
+INSTRUMENTATION_STATUS_CODE: -2
+INSTRUMENTATION_RESULT: stream=
+
+Time: 103.518
+There were 2 failures:
+1) primaryActionRemainsReachableAtTwoHundredPercentText(com.realityforge.scanner.agents.a077.ActualAccessibilityTest)
+java.lang.AssertionError: Expected actual accessibility control did not become available
+	at org.junit.Assert.fail(Assert.java:89)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await(ActualAccessibilityTest.kt:34)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.await$default(ActualAccessibilityTest.kt:31)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.visiblePrimaryLibraryActionHasTouchTargetAndClickSemantics(ActualAccessibilityTest.kt:81)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.primaryActionRemainsReachableAtTwoHundredPercentText(ActualAccessibilityTest.kt:73)
+2) realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(com.realityforge.scanner.agents.a077.ActualAccessibilityTest)
+java.lang.AssertionError: Project-name field must expose a label or hint
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at com.realityforge.scanner.agents.a077.ActualAccessibilityTest.realCreateDialogHasNamedEditableFieldAndReturnsToCorrectProject(ActualAccessibilityTest.kt:56)
+
+FAILURES!!!
+Tests run: 3,  Failures: 2
+
+
+INSTRUMENTATION_CODE: -1

@@ -1,0 +1,17 @@
+{
+  "agent": "068",
+  "branch": "agents/068-model-loader",
+  "previous_head": "729fa9e209468fae54212581d2659026713a55e7",
+  "head": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+  "remote_head": "6f1237c7efbe66356fae1a59f9065b151f2ab6d2",
+  "metadata_only": true,
+  "changed_paths": [
+    "SOURCE_MANIFEST.sha256",
+    "docs/agents/status/068.md"
+  ],
+  "manifest_verifier": {
+    "files": 204,
+    "source": "index",
+    "status": "PASS"
+  }
+}
