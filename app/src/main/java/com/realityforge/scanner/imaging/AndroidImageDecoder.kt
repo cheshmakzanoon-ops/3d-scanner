@@ -10,7 +10,7 @@ import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.io.IOException
 import java.util.Locale
-import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -18,18 +18,30 @@ import kotlin.coroutines.coroutineContext
 
 /** Offline, bounded Android decoder. It never writes to the source file. */
 object AndroidImageDecoder {
+    const val POLICY_IDENTITY = "rf-owned-image-v3:srgb-argb8888:exif8-centres:ceil-power2:defaultEdge1600:defaultPeak67108864"
     private val srgb: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
 
-    suspend fun decode(request: DecodeRequest): OwnedImage = withContext(Dispatchers.IO) {
-        coroutineContext.ensureActive()
-        val owned = decodeBlocking(request)
+    suspend fun decode(request: DecodeRequest): OwnedImage = decodeOwned(Dispatchers.IO) {
+        decodeBlocking(request)
+    }
+
+    /** Keep ownership outside withContext: prompt cancellation can discard its return value
+     * while dispatching back to the caller, even after an IO-side ensureActive succeeded.
+     * The IO block returns Unit; only a successful dispatcher handoff transfers the owner.
+     */
+    internal suspend fun decodeOwned(dispatcher: CoroutineDispatcher, decode: () -> OwnedImage): OwnedImage {
+        var owned: OwnedImage? = null
         try {
-            // Cancellation delivered while BitmapFactory was executing must not strand its bitmap.
-            coroutineContext.ensureActive()
-            owned
-        } catch (cancelled: CancellationException) {
-            owned.close()
-            throw cancelled
+            withContext(dispatcher) {
+                coroutineContext.ensureActive()
+                owned = decode()
+                coroutineContext.ensureActive()
+            }
+            val result = checkNotNull(owned)
+            owned = null
+            return result
+        } finally {
+            owned?.close()
         }
     }
 
@@ -160,8 +172,11 @@ object AndroidImageDecoder {
                 measuredPeakBytes = measuredPeak,
                 warnings = orientationRead.warnings,
             )
+            // OwnedImage/its lock can allocate. Keep bitmap tracking live until
+            // construction succeeds so a late allocation failure still recycles it.
+            val owner = OwnedImage(finalBitmap, info)
             if (finalBitmap === rendered) rendered = null else decoded = null
-            return OwnedImage(finalBitmap, info)
+            return owner
         } catch (failure: ImageDecodeException) {
             throw failure
         } catch (failure: OutOfMemoryError) {

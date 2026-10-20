@@ -57,3 +57,24 @@ capture-metadata identity contract.
 
 A physical ARM64 JPEG/PNG/WebP/HEIF/HEIC matrix remains a required device gate. Emulator decoding
 and generated fixtures do not qualify physical vendor codec behavior or process-memory budgets.
+
+The receiving032 resource review fixed two final ownership windows. decodeBlocking constructs
+OwnedImage before clearing tracked Bitmap references, so owner/lock construction failure still
+reaches bitmap cleanup. suspend decode tracks its owner outside withContext: the IO block returns
+Unit, successful dispatcher return transfers ownership, and prompt cancellation before delivery
+closes the undelivered owner. Blocking ImageLoader.upright remains source compatible.
+
+Canonical decoder policy is AndroidImageDecoder.POLICY_IDENTITY:
+`rf-owned-image-v3:srgb-argb8888:exif8-centres:ceil-power2:defaultEdge1600:defaultPeak67108864`.
+Consumers include this plus their actual decoder/extractor options in derived-cache and stage
+identity. Default limits are1600 pixels/67108864 bytes; requested options remain explicit.
+The ceil-based sampling and sRGB policy can change decoded output from the old embedded decoder,
+so previous feature/depth descendants must miss/recompute.031 Canvas edge-to-pixel-center
+conventions remain identical across all eight EXIF transforms.
+
+ImageOwnershipHandoffInstrumentedTest deterministically queues caller resumption after actual
+Android Bitmap ownership is produced on IO. It checks cancellation recycles the undelivered
+bitmap and successful delivery keeps it live until caller close. Run that class alongside
+ImageDecodingInstrumentedTest on the frozen integrated APK; source compilation alone is not
+runtime cancellation evidence. Actual native allocation failure inside owner construction is
+covered by the retained cleanup ordering, not falsely claimed as an injected OOM measurement.
