@@ -234,3 +234,57 @@ def test_oversized_requirements_never_uses_unbounded_read(tmp_path, monkeypatch)
     monkeypatch.setattr(Path,'read_bytes',guarded)
     report=scan(source,tmp_path/'absent',requirements)
     assert report['status']=='NOT_RUN' and report['checks']=={}
+
+
+def test_external_policy_directory_retarget_never_passes(tmp_path, monkeypatch):
+    import importlib
+    module=importlib.import_module('tools.security.scan')
+    source=tmp_path/'source';source.mkdir();(source/'safe.py').write_text('answer = 3\n')
+    requirements=tmp_path/'requirements.txt';requirements.write_text('requests==2.19.1\n')
+    directory=tmp_path/'policy-dir';directory.mkdir()
+    policy=directory/'policy.json';policy.write_text('{"schema":1,"entries":[]}')
+    other=tmp_path/'other';other.mkdir();(other/'policy.json').write_text('{"schema":1,"entries":[]}')
+    def runner(argv, **kwargs):
+        if '-c' in argv:return module.PINS
+        if 'bandit' in argv:return {'results':[]}
+        if 'detect_secrets' in argv:return {'results':{}}
+        directory.rename(tmp_path/'original-policy-dir')
+        directory.symlink_to(other,target_is_directory=True)
+        return {'dependencies':[{'name':'requests','version':'2.19.1','vulns':[]}]}
+    monkeypatch.setattr(module,'run_json',runner)
+    report=scan(source,Path(sys.executable),requirements,policy)
+    assert report['status']=='NOT_RUN'
+
+
+def test_policy_bytes_applied_must_match_recorded_hash(tmp_path):
+    policy=tmp_path/'policy.json';policy.write_text('{"schema":1,"entries":[]}')
+    report={'findings':[],'checks':{}}
+    with pytest.raises(ValueError,match='changed'):
+        apply_suppressions(report,tmp_path,policy,hashlib.sha256(b'old policy').hexdigest())
+
+
+def test_transient_policy_replacement_cannot_change_captured_review(tmp_path, monkeypatch):
+    import importlib
+    module=importlib.import_module('tools.security.scan')
+    source=tmp_path/'source';source.mkdir();code=source/'safe.py';code.write_text('eval(input())\n')
+    requirements=tmp_path/'requirements.txt';requirements.write_text('requests==2.19.1\n')
+    policy=tmp_path/'policy.json';original='{"schema":1,"entries":[]}'
+    policy.write_text(original)
+    replacement={'schema':1,'entries':[{'scanner':'bandit','path':'safe.py','line':1,'rule':'B307',
+        'source_sha256':'sha256:'+hashlib.sha256(code.read_bytes()).hexdigest(),'expires':'2099-01-01',
+        'justification':'Synthetic alternate policy must never be applied after the original policy was captured.'}]}
+    def runner(argv, **kwargs):
+        if '-c' in argv:return module.PINS
+        if 'bandit' in argv:return {'results':[{'filename':str(code),'line_number':1,'test_id':'B307','issue_severity':'MEDIUM'}]}
+        if 'detect_secrets' in argv:return {'results':{}}
+        return {'dependencies':[{'name':'requests','version':'2.19.1','vulns':[]}]}
+    apply=module.apply_policy
+    def replace_then_restore(report,root,entries):
+        policy.write_text(json.dumps(replacement))
+        try:apply(report,root,entries)
+        finally:policy.write_text(original)
+    monkeypatch.setattr(module,'run_json',runner)
+    monkeypatch.setattr(module,'apply_policy',replace_then_restore)
+    report=scan(source,Path(sys.executable),requirements,policy)
+    assert report['status']=='FAIL' and len(report['findings'])==1 and not report['suppressed']
+    assert report['suppressions_sha256']==hashlib.sha256(original.encode()).hexdigest()

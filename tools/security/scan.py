@@ -20,6 +20,12 @@ def file_sha256(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
+def regular_input(path):
+    if any(parent.is_symlink() for parent in (path, *path.parents)) or not path.is_file():
+        raise ValueError('input must be a regular file without symlink ancestors')
+    return path.resolve()
+
+
 def run_json(argv, accepted=(0, 1), timeout=180, cwd=None):
     run = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, cwd=cwd)
     if run.returncode not in accepted:
@@ -116,8 +122,19 @@ def requirements_closure(path):
         raise ValueError('requirements contains no package pins')
     return '\n'.join(lines) + '\n', {str(p): hashlib.sha256(data).hexdigest() for p, data in files.items()}, packages
 
-def apply_suppressions(report, root, path):
-    entries = json.loads(path.read_text())
+def read_policy(path, expected_sha=None):
+    with path.open('rb') as stream:
+        policy_bytes = stream.read(4 * 1024 * 1024 + 1)
+    if len(policy_bytes) > 4 * 1024 * 1024 or (expected_sha is not None and hashlib.sha256(policy_bytes).hexdigest() != expected_sha):
+        raise ValueError('suppression policy changed or exceeds budget')
+    return json.loads(policy_bytes), hashlib.sha256(policy_bytes).hexdigest()
+
+
+def apply_suppressions(report, root, path, expected_sha=None):
+    apply_policy(report, root, read_policy(path, expected_sha)[0])
+
+
+def apply_policy(report, root, entries):
     if entries.get('schema') != 1 or not isinstance(entries.get('entries'), list):
         raise ValueError('invalid suppression policy')
     active, suppressed = [], []
@@ -149,13 +166,18 @@ def scan(root, python, requirements=None, suppressions=None, expected_source=Non
             raise ValueError('candidate source differs or is dirty')
         driver = Path(__file__).resolve()
         report['scanner_source_sha256'] = file_sha256(driver)
-        input_hashes = {str(path.resolve()): file_sha256(path) for path in (suppressions, driver) if path}
+        if suppressions:
+            policy_source = regular_input(suppressions.absolute())
+            policy_entries, policy_digest = read_policy(suppressions)
+        input_hashes = {str(driver): report['scanner_source_sha256']}
+        if suppressions:
+            input_hashes[str(policy_source)] = policy_digest
         if requirements:
             flattened, closure_hashes, expected_packages = requirements_closure(requirements)
             report['requirements_files_sha256'] = closure_hashes
             report['requirements_packages_count'] = len(expected_packages)
         if suppressions:
-            report['suppressions_sha256'] = file_sha256(suppressions)
+            report['suppressions_sha256'] = policy_digest
         # Verify exact installed distributions through the selected isolated Python.
         code = 'import importlib.metadata,json; print(json.dumps({n:importlib.metadata.version(n) for n in '+repr(list(PINS))+'}))'
         if run_json([str(python), '-c', code], accepted=(0,)) != PINS:
@@ -199,9 +221,12 @@ def scan(root, python, requirements=None, suppressions=None, expected_source=Non
         report['raw_findings'] = [dict(f) for f in report['findings']]
         report['suppressed'] = []
         if suppressions:
-            apply_suppressions(report, root, suppressions)
+            if regular_input(suppressions.absolute()) != policy_source:
+                raise ValueError('suppression policy route/bytes changed before application')
+            apply_policy(report, root, policy_entries)
         report['finding_counts'] = finding_counts(report['raw_findings'], report['findings'], report['suppressed'])
         if (source_identity(root) != original
+                or (suppressions and regular_input(suppressions.absolute()) != policy_source)
                 or any(file_sha256(Path(name)) != digest for name, digest in input_hashes.items())
                 or (requirements and requirements_closure(requirements) != (flattened, closure_hashes, expected_packages))):
             raise ValueError('source or policy/requirements changed during scan')
