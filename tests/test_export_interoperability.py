@@ -49,6 +49,14 @@ def test_tangent_smooth_vertex_normal_is_legal(corpus):
     assert validate(corpus / 'tangent-normal.glb')['status'] == 'PASS'
 
 
+def test_real066_plain_pbr_material_remains_untextured_surface():
+    asset = ROOT / 'benchmarks/export_fixtures/066-metric-edit.glb'
+    report = validate(asset, {'representation':'triangles','triangles':2,'textured_triangles':0,
+                              'bounds':[[0,-.4,0],[2.4,0,0]]}, target_tool=True)
+    assert report['status'] == 'PASS', report
+    assert report['target_tool']['status'] == 'PASS'
+
+
 def test_missing_validator_is_not_run(corpus, monkeypatch):
     monkeypatch.delenv('RF_GLTF_VALIDATOR', raising=False)
     assert validate(corpus / 'asymmetric.glb')['status'] == 'NOT_RUN'
