@@ -294,9 +294,10 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
                             Text(stringResource(R.string.a071_no_active_job))
                             TextButton(onClick={navigate(AppRoute(Destination.REVIEW,project.id))}) {Text(stringResource(R.string.a071_back))}
                         } else {
-                        val phase=if(busy) JobPhase.RUNNING else when(project.state) {"INTERRUPTED"->JobPhase.INTERRUPTED;"FAILED"->JobPhase.FAILED;"SPARSE_READY"->JobPhase.COMPLETED;else->JobPhase.INTERRUPTED}
-                        val state=JobUiState(JobIdentity(project.id,project.revision,scanner.activeOperation?.jobId?.value ?: "project-${project.id}-${project.revision}"),phase,
-                            stage=progress?.stage,completed=progress?.completed?.toLong(),total=progress?.total?.toLong(),
+                        val execution=scanner.activeOperation?.takeIf {it.kind==OperationKind.RECONSTRUCT && it.source?.projectId==project.id && it.source.revision==project.revision}
+                        val phase=if(execution!=null && busy) JobPhase.RUNNING else when(project.state) {"INTERRUPTED"->JobPhase.INTERRUPTED;"FAILED"->JobPhase.FAILED;"SPARSE_READY"->JobPhase.COMPLETED;else->JobPhase.INTERRUPTED}
+                        val state=JobUiState(JobIdentity(project.id,project.revision,execution?.jobId?.value ?: "project-status-${project.id}-${project.revision}"),phase,
+                            stage=if(execution!=null) progress?.stage else null,completed=if(execution!=null) progress?.completed?.toLong() else null,total=if(execution!=null) progress?.total?.toLong() else null,
                             technicalDetails=project.message,hasPreviousResult=preview!=null,pauseSupported=true,resumeSupported=false)
                         val durableFlow=remember(features.jobStates,project.id,project.revision) {features.jobStates?.invoke(project.id,project.revision)}
                         val durable=durableFlow?.collectAsState(initial=null)?.value
@@ -305,7 +306,7 @@ fun ScannerApp(model: ScannerViewModel,features:ScannerFeatureServices=ScannerFe
                             scope.launch {features.jobAction.invoke(action)}
                         } else if(action.identity==state.identity && state.can(action.command)) when(action.command) {
                             JobCommand.PAUSE -> if(model.scannerState.value.activeOperation?.jobId?.value==action.identity.jobId) model.pause()
-                            JobCommand.RETRY -> if(model.selectedId.value==action.identity.projectId && model.projects.value.find {it.id==action.identity.projectId}?.revision==action.identity.revision) model.reconstruct(lastFocal)
+                            JobCommand.RETRY -> if(!model.busy.value && model.selectedId.value==action.identity.projectId && model.projects.value.find {it.id==action.identity.projectId}?.revision==action.identity.revision) model.reconstruct(lastFocal)
                             JobCommand.OPEN_PREVIOUS -> navigate(AppRoute(Destination.STUDIO,project.id))
                             else -> Unit
                         }},modifier=modifier)
