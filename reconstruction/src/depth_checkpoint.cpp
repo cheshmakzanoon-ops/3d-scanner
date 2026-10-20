@@ -1,6 +1,13 @@
 #include "realityforge/depth_checkpoint.hpp"
 #include "realityforge/dense.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/depth_cache_manifest.hpp"
+#include <cerrno>
+#if defined(__unix__) || defined(__ANDROID__)
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/file.h>
+#endif
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -42,9 +49,9 @@ std::filesystem::path pathFor(const Scope& scoped,std::size_t index){
     return std::filesystem::path(scoped.directory())/("ref-"+std::to_string(index)+".bin");
 }
 }
-Scope::Scope(std::string directory,std::string sha256Identity):
-    previous_(active),directory_(std::move(directory)),identity_(std::move(sha256Identity)){
-    if(directory_.empty()||directory_.size()>1000||identity_.size()!=64||
+Scope::Scope(std::string directory,std::string sha256Identity,std::size_t byteBudget):
+    previous_(active),directory_(std::move(directory)),identity_(std::move(sha256Identity)),byteBudget_(byteBudget){
+    if(byteBudget_==0||byteBudget_>256u*1024u*1024u||directory_.empty()||directory_.size()>1000||identity_.size()!=64||
         !std::all_of(identity_.begin(),identity_.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))
         throw std::invalid_argument("Invalid bounded depth checkpoint identity");
     active=this;
@@ -56,7 +63,7 @@ bool load(std::size_t index,DenseDepthMap& map){
     cancellation::checkpoint();
     if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
     const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
-    if(count>MAX_PIXELS)return false;
+    if(count>MAX_PIXELS||HEADER+count*8>active->byteBudget_)return false;
     const auto file=pathFor(*active,index);
     std::error_code ec;
     if(!std::filesystem::is_regular_file(file,ec)||std::filesystem::is_symlink(file,ec))return false;
@@ -91,7 +98,7 @@ bool store(std::size_t index,const DenseDepthMap& map){
     cancellation::checkpoint();
     if(index>=MAX_DENSE_VIEWS||map.width<32||map.height<32)return false;
     const std::size_t count=static_cast<std::size_t>(map.width)*map.height;
-    if(count>MAX_PIXELS||map.depth.size()!=count||map.confidence.size()!=count)return false;
+    if(count>MAX_PIXELS||HEADER+count*8>active->byteBudget_||map.depth.size()!=count||map.confidence.size()!=count)return false;
     std::vector<std::uint8_t> bytes;
     bytes.reserve(HEADER+count*8);
     bytes.insert(bytes.end(),MAGIC.begin(),MAGIC.end());
@@ -105,29 +112,57 @@ bool store(std::size_t index,const DenseDepthMap& map){
     for(std::size_t i=0;i<count;++i){
         if((i&8191)==0)cancellation::checkpoint();
         float d=map.depth[i],c=map.confidence[i];
-        if(!std::isfinite(d)||!std::isfinite(c)||d<0||d>100000||c<0||c>1)return false;
+        if(!std::isfinite(d)||!std::isfinite(c)||d<0||d>100000||c<0||c>1||(d==0&&c!=0))return false;
         append32(bytes,std::bit_cast<std::uint32_t>(d));
         append32(bytes,std::bit_cast<std::uint32_t>(c));
     }
     auto crc=crc32(bytes.data()+HEADER,count*8);
     for(int i=0;i<4;++i)bytes[HEADER-4+i]=static_cast<std::uint8_t>(crc>>(8*i));
     const auto target=pathFor(*active,index);
-    const auto temporary=target.string()+".partial-"+
-        std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
     std::error_code ec;
     std::filesystem::create_directories(target.parent_path(),ec);
-    if(ec)return false; // caching must never prevent normal reconstruction
+    if(ec)return false;
+#if defined(__unix__) || defined(__ANDROID__)
+    // Lock the directory inode: independent processes cannot race eviction or
+    // publish competing partial names. FDs are closed on every failure path.
+    struct FD {int value{-1};~FD(){if(value>=0)::close(value);}} directoryFd;
+    directoryFd.value=::open(target.parent_path().c_str(),O_RDONLY|O_DIRECTORY|O_CLOEXEC|O_NOFOLLOW);
+    if(directoryFd.value<0||::flock(directoryFd.value,LOCK_EX)<0)return false;
+    if(std::filesystem::is_symlink(target,ec))return false;
+    ec.clear();
+    // Holding the cross-process directory lock proves no current writer owns
+    // these exact-format orphan temporary files. Unknown files are untouched.
+    for(std::filesystem::directory_iterator it(target.parent_path(),ec),end;!ec&&it!=end;it.increment(ec)){
+        const auto name=it->path().filename().string();
+        if(name.size()>18&&depth_cache::referenceName(name.substr(0,9))&&name.substr(9,9)==".partial-"&&
+           !it->is_symlink(ec)&&it->is_regular_file(ec))std::filesystem::remove(it->path(),ec);
+    }
+    if(ec)return false;
+    if(!depth_cache::evictFor(target.parent_path(),active->byteBudget_,bytes.size(),target))return false;
+    std::string temporary=target.string()+".partial-XXXXXX";
+    FD output;output.value=::mkstemp(temporary.data());
+    if(output.value<0)return false;
+    const auto discard=[&]{std::error_code error;std::filesystem::remove(temporary,error);};
     try{
-        std::ofstream file(temporary,std::ios::binary|std::ios::trunc);
-        if(!file)return false;
-        file.write(reinterpret_cast<const char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
-        file.flush();
-        if(!file){file.close();std::filesystem::remove(temporary,ec);return false;}
-        file.close();
+        std::size_t done=0;
+        while(done<bytes.size()){
+            cancellation::checkpoint();
+            auto countWritten=::write(output.value,bytes.data()+done,bytes.size()-done);
+            if(countWritten<0&&errno==EINTR)continue;
+            if(countWritten<=0){discard();return false;}
+            done+=static_cast<std::size_t>(countWritten);
+        }
+        if(::fsync(output.value)!=0){discard();return false;}
         cancellation::checkpoint();
-        std::filesystem::rename(temporary,target,ec);
-        if(ec){std::filesystem::remove(temporary,ec);return false;}
-        return true;
-    }catch(...){std::filesystem::remove(temporary,ec);throw;}
+        if(::rename(temporary.c_str(),target.c_str())!=0){discard();return false;}
+        // Success means file AND rename metadata reached supported fsync calls.
+        // Actual power-cut behavior still requires storage/device qualification.
+        return ::fsync(directoryFd.value)==0;
+    }catch(...){discard();throw;}
+#else
+    // Unsupported durable filesystem primitives: normal computation continues;
+    // never advertise a non-durable write as an accepted checkpoint.
+    return false;
+#endif
 }
 } // namespace rf::depth_checkpoint
