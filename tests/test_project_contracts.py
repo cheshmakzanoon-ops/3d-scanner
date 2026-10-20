@@ -7,6 +7,74 @@ import pytest
 ROOT=Path(__file__).resolve().parents[1]
 ANDROID="{http://schemas.android.com/apk/res/android}"
 TOOLS="{http://schemas.android.com/tools}"
+APP = Path("app/src/main/java/com/realityforge/scanner")
+
+
+def _feature_ui():
+    """A partially adopted shell must satisfy the full published route contract."""
+    source = (ROOT / APP / "ui/ScannerApp.kt").read_text()
+    routes = ROOT / APP / "ui/navigation/ResultRoutes.kt"
+    return routes.exists() or "ui.navigation.*" in source
+
+
+def _feature_resources():
+    return {node.attrib["name"]: "".join(node.itertext()) for node in
+            ET.parse(ROOT / "app/src/main/res/values/agent_071.xml").getroot().findall("string")}
+
+
+def _export_catalog():
+    shell = (ROOT / APP / "ui/ScannerApp.kt").read_text()
+    routes = (ROOT / APP / "ui/navigation/ResultRoutes.kt").read_text()
+    catalog = (ROOT / APP / "export/RepositoryExportSource.kt").read_text()
+    pending = (ROOT / APP / "export/PendingExportStore.kt").read_text()
+    # Real provider calls, representation types and versioned identities replace
+    # obsolete button variable names; a prose compatibility anchor is insufficient.
+    assert "RepositoryExportSource(model.repository" in shell
+    assert "GlbStructure.validate(file,mode)" in shell and "GlbStructure.validatePng(file)" in shell
+    assert "source.validate(typed," in shell and "source.isCurrent(typed.artifact)" in shell
+    assert "exportStore.save(typed)" in shell and "exportStore.restore()" in shell
+    assert 'out.writeInt(1)' in pending and 'input.readInt() == 1' in pending
+    assert 'MessageDigest.isEqual(MessageDigest.getInstance("SHA-256").digest(bytes)' in pending
+    assert "ExportCoordinator.digest(json) == identity.sha256" in catalog
+    assert "p.resultRevision != identity.revision" in catalog and "p.resultKey != identity.artifactKey" in catalog
+    assert "source.available(identity)" in routes and "onExport(it,option)" in routes
+    return catalog
+
+
+def _delegated_storage(repository):
+    services_path = ROOT / APP / "data/operations/ProjectStorageServices.kt"
+    adopted = services_path.exists() or "ProjectStorageServices" in repository
+    if not adopted:
+        return None
+    services = services_path.read_text()
+    archive = (ROOT / APP / "data/operations/CaptureArchiveServiceImpl.kt").read_text()
+    preview = (ROOT / APP / "data/operations/PreviewReopeningServiceImpl.kt").read_text()
+    operation = (ROOT / APP / "data/operations/ProjectOperation.kt").read_text()
+    assert "val captureArchive: CaptureArchiveService" in services
+    assert "captureArchive = CaptureArchiveServiceImpl(rawDao, paths)" in repository
+    assert "previewReopening = PreviewReopeningServiceImpl(rawDao, paths)" in repository
+    assert "services.captureArchive.export(projectId, destination)" in repository
+    assert "services.previewReopening.currentPreview(id)" in repository
+    assert "ProjectRepository.newCaptureDigest()" in archive and "digest.update(buffer, 0, read)" in archive
+    assert "copied == photo.bytes" in archive and "digest.digest().toHex() == photo.sha256" in archive
+    # The completion member must follow original integrity/revision checks and
+    # precede ZIP completion; merely declaring the façade helpers cannot pass.
+    assert archive.index("dao.project(projectId)?.revision == project.revision") < archive.index("ProjectRepository.captureManifestEntry()") < archive.index("zip.finish()")
+    assert "ProjectRepository.validatePreviewIdentity(json, before.revision, key)" in preview
+    assert "ProjectRepository.MAX_PREVIEW_BYTES" in preview and "input.read() == -1" in preview
+    assert "reader.nextClean()" in preview and "after.revision != before.revision" in preview
+    for method, next_method in (("inputSnapshot", "currentResult(projectId"), ("currentResult", "<T> withProjectAccess")):
+        start = repository.index(f"override suspend fun {method}(session: ProjectAccessSession)")
+        end = repository.index(f"override suspend fun {next_method}", start)
+        body = repository[start:end]
+        assert body.count("requireStableSession(session)") == 2
+        assert "coordinator.acquire(" not in body and "withProjectAccess(" not in body
+    assert "session.requireActive(sessionOwnerToken)" in repository
+    assert "session?.invalidate()" in repository and "withContext(NonCancellable + Dispatchers.IO) { lease.close() }" in repository
+    assert "ownerToken !== expectedOwnerToken || !active.get()" in operation and "active.set(false)" in operation
+    assert "RECONSTRUCT(ProjectAccessMode.EXCLUSIVE, true, true)" in operation
+    assert "PUBLISH_RESULT(ProjectAccessMode.EXCLUSIVE, true, true)" in operation
+    return archive, preview
 
 
 def test_manifest_strips_network_permissions():
@@ -29,18 +97,15 @@ def test_jni_names_match_declared_methods():
     # calls between wrappers are intentionally excluded from this inventory.
     assert len(method_names)==len(set(method_names))
     assert len(export_names)==len(set(export_names))
-    expected={
-        "reconstruct","registerCamera","reconstructMultiview","bundleAdjust",
-        "reconstructDense","reconstructSurface","reconstructTexturedSurface",
-        "reconstructSurfaceCancellable","reconstructTexturedSurfaceCancellable",
-        "beginReconstruction","cancelReconstruction","finishReconstruction",
-        "reconstructSurfaceCheckpointed","reconstructTexturedSurfaceCheckpointed",
-        "quality","exportPoints","exportPointsTyped","reconstructCancellable",
-        "registerCameraCancellable","reconstructMultiviewCancellable",
-        "bundleAdjustCancellable","bundleAdjustProblemCancellable","pollNativeProgress",
-        "reconstructDenseRefinedCancellable","reconstructTexturedSurfaceCompactCheckpointed",
-        "reconstructTexturedSurfaceRefinedCheckpointed",
-    }
+    legacy={"reconstruct","registerCamera","reconstructMultiview","bundleAdjust","reconstructDense","reconstructSurface","reconstructTexturedSurface","reconstructSurfaceCancellable","reconstructTexturedSurfaceCancellable","beginReconstruction","cancelReconstruction","finishReconstruction","reconstructSurfaceCheckpointed","reconstructTexturedSurfaceCheckpointed","quality","exportPoints"}
+    scoped={"reconstructCancellable","registerCameraCancellable","reconstructMultiviewCancellable",
+            "bundleAdjustCancellable","bundleAdjustProblemCancellable","pollNativeProgress",
+            "reconstructDenseRefinedCancellable","reconstructTexturedSurfaceCompactCheckpointed",
+            "reconstructTexturedSurfaceRefinedCheckpointed","exportPointsTyped"}
+    # Preserve upstream's exact unadopted baseline; the reviewed003 boundary
+    # helper also marks adoption, so deleting every scoped export cannot bypass it.
+    adopted=bool((set(method_names)|set(export_names)) & scoped) or (ROOT/"reconstruction/include/realityforge/jni_support.hpp").exists()
+    expected=legacy|scoped if adopted else legacy
     assert set(method_names)==set(export_names)==expected
 
 
@@ -65,8 +130,19 @@ def test_no_dynamic_dependency_versions():
 
 def test_sparse_output_disclosed_in_ui():
     source=(ROOT/"app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt").read_text()
-    assert "not a finished mesh" in source
-    assert "POINTS, not triangles" in source
+    if _feature_ui():
+        routes=(ROOT/APP/"ui/navigation/ResultRoutes.kt").read_text()
+        resources=_feature_resources()
+        for name, text in (("a071_sparse", "Sparse points"), ("a071_dense", "Dense points"), ("a071_surface", "Observed open surface")):
+            assert resources[name] == text and f"R.string.{name}" in routes
+        assert "Arbitrary scale" in resources["a071_unknown_scale"]
+        assert "do not establish complete-object geometry or printability" in resources["a071_unknown_scale"]
+        assert '"dense" -> if(dense!=null) PointCloudViewer(dense,' in routes
+        assert '"surface" -> if(mesh!=null)' in routes and "SurfaceMeshViewer(mesh," in routes
+        assert "else -> PointCloudViewer(result," in routes
+    else:
+        assert "not a finished mesh" in source
+        assert "POINTS, not triangles" in source
 
 
 def test_revision_guard_in_database():
@@ -109,8 +185,16 @@ def test_capture_package_requires_explicit_destination_and_preserves_hashes():
     assert "suspend fun exportCaptureBundle(projectId: String, destination: OutputStream)" in repository
     assert 'MessageDigest.getInstance("SHA-256")' in repository
     assert 'ZipEntry("session.json")' in repository
-    assert "ActivityResultContracts.CreateDocument(\"application/zip\")" in screen
-    assert "model.exportCaptureBundle(it)" in screen
+    _delegated_storage(repository)
+    if _feature_ui():
+        _export_catalog()
+        assert "PendingKind.CAPTURE_ARCHIVE" in screen
+        assert 'Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/zip")' in screen
+        assert "model.completeCaptureBundleExport(accepted.requestId,uri)" in screen
+        assert "Original photographs remain private unless you choose the capture archive" in _feature_resources()["a071_export_help"]
+    else:
+        assert "ActivityResultContracts.CreateDocument(\"application/zip\")" in screen
+        assert "model.exportCaptureBundle(it)" in screen
     assert "openOutputStream(uri, \"wt\")" in view_model
 
 
@@ -164,7 +248,12 @@ def test_m09_camera_projected_uvs_are_embedded_and_exportable():
     assert "identity(PipelineStage.TEXTURE)" in adapter
     assert "textureError" in adapter and "textured.glb" in adapter and "texture.png" in adapter
     assert "textured.glb" in repo and "texture.png" in repo
-    assert "exportTexturedGlb" in app and "exportTexturePng" in app
+    if _feature_ui():
+        catalog=_export_catalog()
+        assert 'add("textured.glb", ExportFormat.GLB, AssetRepresentation.PHOTOGRAPHIC_SURFACE, true)' in catalog
+        assert 'add("texture.png", ExportFormat.PNG, AssetRepresentation.PHOTOGRAPHIC_ATLAS, true)' in catalog
+    else:
+        assert "exportTexturedGlb" in app and "exportTexturePng" in app
 
 
 def test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl():
@@ -175,8 +264,27 @@ def test_photographic_viewer_uses_bounded_local_assets_and_on_demand_gl():
     assert "CRC32" in parser and "External model data is not permitted" in parser
     assert "glDrawElements" in renderer and "glTF v=0" in renderer
     assert "RENDERMODE_WHEN_DIRTY" in screen
-    assert "Lifecycle.Event.ON_PAUSE" in screen and "surface.dispose()" in screen
-    assert "PhotographicGlb.read(file)" in screen
+    assert "Lifecycle.Event.ON_PAUSE" in screen
+    loader_path=ROOT/APP/"viewer/loading/PhotographicModelLoader.kt"
+    if loader_path.exists() or "PhotographicModelLoader.load(file)" in screen:
+        loader=loader_path.read_text()
+        structure=(ROOT/APP/"viewer/loading/GlbStructure.kt").read_text()
+        backend=(ROOT/APP/"viewer/RenderBackend.kt").read_text()
+        assert "PhotographicModelLoader.load(file)" in screen
+        assert "owned?.close()" in screen and "surface.close()" in screen
+        assert "surface.pauseRendering()" in screen and "interface StudioRenderSurface : AutoCloseable" in backend
+        assert "catch (cancelled: CancellationException) { throw cancelled }" in screen
+        assert "GlbStructure.readBounded(file, cancelled)" in loader
+        assert "GlbStructure.validate(bytes, 4, cancelled)" in loader
+        assert "PhotographicGlb.decode(bytes, cancelled)" in loader and "context.ensureActive()" in loader
+        assert "assetReference = null; byteReference = null" in loader
+        assert "file.length() in 28L..PhotographicGlb.MAX_FILE_BYTES.toLong()" in structure
+        assert 'if (cancelled()) throw CancellationException("Model load cancelled.")' in structure
+        assert 'require(input.read() == -1) { "Model changed while loading." }' in structure
+        assert 'require(!buffer.has("uri"))' in structure and '!image.has("uri")' in structure
+    else:
+        assert "surface.dispose()" in screen
+        assert "PhotographicGlb.read(file)" in screen
 
 
 def test_session_reopen_and_export_have_revision_and_operation_guards():
@@ -185,6 +293,7 @@ def test_session_reopen_and_export_have_revision_and_operation_guards():
     assert "MAX_PREVIEW_BYTES" in repository and "suspend fun currentPreview(" in repository
     assert "storedRevision is Int || storedRevision is Long" in repository
     assert "Project changed during capture export" in repository
+    _delegated_storage(repository)
     assert "busy.compareAndSet(false, true)" in model and "selectionGeneration" in model
     assert "repository.currentPreview(id)" in model
     assert "stream.use { repository.exportCaptureBundle" in model
@@ -318,6 +427,17 @@ def test_m19_persisted_scan_evidence_and_local_export():
     assert "RECIPROCAL" in engine.upper() and "PHOTOS_NOT_REGISTERED" in engine
     assert "NOT 360-degree completeness" in report
     assert 'output.put("scanDiagnostics",ScanQualityReport.build(output,photos.size))' in pipeline
-    assert 'model.export(it, "json")' in ui
+    if _feature_ui():
+        catalog=_export_catalog()
+        routes=(ROOT/APP/"ui/navigation/ResultRoutes.kt").read_text()
+        resources=_feature_resources()
+        assert 'add("json", ExportFormat.JSON, AssetRepresentation.DIAGNOSTICS)' in catalog
+        assert 'val evidence=result.optJSONObject("scanDiagnostics")' in routes
+        assert 'evidence.optInt("registeredCameraCount")' in routes and 'evidence.optInt("observedMeshTriangles")' in routes
+        assert "not whole-object completeness, physical accuracy or a quality score" in resources["a071_evidence_limits"]
+        assert "ReviewCommand.CALIBRATE -> beginCalibration()" in ui
+        assert "ReviewCommand.CLEAR_CALIBRATION -> model.clearLensCalibration()" in ui
+    else:
+        assert 'model.export(it, "json")' in ui
     assert '"json", "glb"' in model
     assert "ScanQualityReportDeviceTest" in (ROOT/"app/src/androidTest/java/com/realityforge/scanner/ScanQualityReportDeviceTest.kt").read_text()
