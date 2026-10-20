@@ -1205,32 +1205,62 @@
     {
       "scanner": "bandit",
       "path": "device/failure_recovery/controller.py",
-      "line": 9,
+      "line": 10,
       "rule": "B404",
       "severity": "LOW",
-      "source_sha256": "sha256:87c789c9ce25fb995081a280ba523b1bedd51b3b8baa9599ce912f478fb341e9",
+      "source_sha256": "sha256:cc39d041e9685fa15a34fb10f4e690e4dad21a1020257e9b9dddc9d2ccec02aa",
       "expires": "2026-11-20",
       "justification": "Operator-authorized private test-provider/process fault injection; local argv runner, not remote source execution. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "device/failure_recovery/controller.py",
-      "line": 45,
+      "line": 74,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:87c789c9ce25fb995081a280ba523b1bedd51b3b8baa9599ce912f478fb341e9",
+      "source_sha256": "sha256:cc39d041e9685fa15a34fb10f4e690e4dad21a1020257e9b9dddc9d2ccec02aa",
       "expires": "2026-11-20",
       "justification": "Operator-authorized private test-provider/process fault injection; local argv runner, not remote source execution. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "device/failure_recovery/controller.py",
-      "line": 49,
+      "line": 78,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:87c789c9ce25fb995081a280ba523b1bedd51b3b8baa9599ce912f478fb341e9",
+      "source_sha256": "sha256:cc39d041e9685fa15a34fb10f4e690e4dad21a1020257e9b9dddc9d2ccec02aa",
       "expires": "2026-11-20",
       "justification": "Operator-authorized private test-provider/process fault injection; local argv runner, not remote source execution. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
+    },
+    {
+      "scanner": "bandit",
+      "path": "device/failure_recovery/stdio_controller.py",
+      "line": 14,
+      "rule": "B404",
+      "severity": "LOW",
+      "source_sha256": "sha256:27e5b5933d2c87ecc4db1ce2f27484300bbe569147dcecc59d6c54f9f0f0d649",
+      "expires": "2026-11-20",
+      "justification": "Candidate/APK/test-APK/device/nonce-bound operator UI fixture controller. Remote shell argv are shlex-quoted; fixed hex run IDs and validated live PID bound its explicit private ACK/kill actions. Missing fixtures remain NOT_RUN, never substituted. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
+    },
+    {
+      "scanner": "bandit",
+      "path": "device/failure_recovery/stdio_controller.py",
+      "line": 125,
+      "rule": "B603",
+      "severity": "LOW",
+      "source_sha256": "sha256:27e5b5933d2c87ecc4db1ce2f27484300bbe569147dcecc59d6c54f9f0f0d649",
+      "expires": "2026-11-20",
+      "justification": "Candidate/APK/test-APK/device/nonce-bound operator UI fixture controller. Remote shell argv are shlex-quoted; fixed hex run IDs and validated live PID bound its explicit private ACK/kill actions. Missing fixtures remain NOT_RUN, never substituted. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
+    },
+    {
+      "scanner": "bandit",
+      "path": "device/failure_recovery/stdio_controller.py",
+      "line": 176,
+      "rule": "B603",
+      "severity": "LOW",
+      "source_sha256": "sha256:27e5b5933d2c87ecc4db1ce2f27484300bbe569147dcecc59d6c54f9f0f0d649",
+      "expires": "2026-11-20",
+      "justification": "Candidate/APK/test-APK/device/nonce-bound operator UI fixture controller. Remote shell argv are shlex-quoted; fixed hex run IDs and validated live PID bound its explicit private ACK/kill actions. Missing fixtures remain NOT_RUN, never substituted. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
@@ -1508,7 +1538,7 @@
       "line": 14,
       "rule": "B404",
       "severity": "LOW",
-      "source_sha256": "sha256:b419edac9b68117507a87035d9abc6acc8717144670e5351f4fc9a808a692e84",
+      "source_sha256": "sha256:71e2a0e4e97911b198c3960625f9bf345dd9bba7866658b12947f086f0f91c66",
       "expires": "2026-11-20",
       "justification": "Pinned external Node/Khronos and Blender QA readers use fixed scripts and asset paths as separate argv, with bounded timeouts. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -1518,7 +1548,7 @@
       "line": 104,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:b419edac9b68117507a87035d9abc6acc8717144670e5351f4fc9a808a692e84",
+      "source_sha256": "sha256:71e2a0e4e97911b198c3960625f9bf345dd9bba7866658b12947f086f0f91c66",
       "expires": "2026-11-20",
       "justification": "Pinned external Node/Khronos and Blender QA readers use fixed scripts and asset paths as separate argv, with bounded timeouts. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -1528,27 +1558,27 @@
       "line": 104,
       "rule": "B607",
       "severity": "LOW",
-      "source_sha256": "sha256:b419edac9b68117507a87035d9abc6acc8717144670e5351f4fc9a808a692e84",
+      "source_sha256": "sha256:71e2a0e4e97911b198c3960625f9bf345dd9bba7866658b12947f086f0f91c66",
       "expires": "2026-11-20",
       "justification": "Pinned external Node/Khronos and Blender QA readers use fixed scripts and asset paths as separate argv, with bounded timeouts. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "qa/export_interoperability/validate.py",
-      "line": 180,
+      "line": 184,
       "rule": "B603",
       "severity": "LOW",
-      "source_sha256": "sha256:b419edac9b68117507a87035d9abc6acc8717144670e5351f4fc9a808a692e84",
+      "source_sha256": "sha256:71e2a0e4e97911b198c3960625f9bf345dd9bba7866658b12947f086f0f91c66",
       "expires": "2026-11-20",
       "justification": "Pinned external Node/Khronos and Blender QA readers use fixed scripts and asset paths as separate argv, with bounded timeouts. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
     {
       "scanner": "bandit",
       "path": "qa/export_interoperability/validate.py",
-      "line": 180,
+      "line": 184,
       "rule": "B607",
       "severity": "LOW",
-      "source_sha256": "sha256:b419edac9b68117507a87035d9abc6acc8717144670e5351f4fc9a808a692e84",
+      "source_sha256": "sha256:71e2a0e4e97911b198c3960625f9bf345dd9bba7866658b12947f086f0f91c66",
       "expires": "2026-11-20",
       "justification": "Pinned external Node/Khronos and Blender QA readers use fixed scripts and asset paths as separate argv, with bounded timeouts. Reviewed host QA invocation uses explicit argv with shell=False/default; trusted developer PATH/SDK is assumed and no Android runtime dependency is introduced."
     },
@@ -3565,7 +3595,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 5,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3574,7 +3604,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 27,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3583,7 +3613,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 51,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3592,7 +3622,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 70,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3601,7 +3631,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 95,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3610,7 +3640,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 125,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3619,7 +3649,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 162,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3628,7 +3658,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 188,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3637,7 +3667,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 213,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3646,7 +3676,7 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 241,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -3655,34 +3685,34 @@
       "path": "dependencies/evidence/host-tools.json",
       "line": 269,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/host-tools.json",
-      "line": 296,
+      "line": 294,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/host-tools.json",
-      "line": 325,
+      "line": 323,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/host-tools.json",
-      "line": 353,
+      "line": 351,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:bab88e318becb28bfd146c9861cbb975e20f84ef8616480e6adfac41392924b0",
+      "source_sha256": "sha256:8f5dcdc6ddb8f58503ea12259c71adfbb2cab0baebd743eac80f68a38328ae0d",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6751,7 +6781,7 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 3,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sourceCommit: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6760,7 +6790,7 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 5,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field app/build.gradle.kts: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6769,7 +6799,7 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 6,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field build.gradle.kts: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6778,7 +6808,7 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 7,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field settings.gradle.kts: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6787,7 +6817,7 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 8,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field gradle/verification-metadata.xml: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6796,7 +6826,7 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 9,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field gradle/dependency-locks/app.lockfile: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6805,7 +6835,7 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 10,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field tools/requirements.lock: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6814,16 +6844,97 @@
       "path": "dependencies/evidence/provenance.json",
       "line": 23,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:737e30fc97e927fc0411656319797ec22a9faedbc595b99e3ba7ea0466ce5b4e",
+      "source_sha256": "sha256:7846978a700317b5daa58785f2f325169fcbbc5defe66cb8b7e0a4c2f05cb498",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field installationReceiptSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-9.0.3-provenance.json",
+      "line": 8,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:70783537c3bfd89c0d1e0598ce3d758b2f935759d2213bdcc26aa766c49e6804",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 12,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field lockSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 16,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field rawReportSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 22,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field lockSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 26,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field rawReportSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 32,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field lockSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 36,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field rawReportSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 40,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field freshQaInstallationSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
+    },
+    {
+      "scanner": "detect-secrets",
+      "path": "dependencies/evidence/pytest-security-update.json",
+      "line": 42,
+      "rule": "Hex High Entropy String",
+      "source_sha256": "sha256:5aead615b9df94f9b56a27f67a0c7e362d01cc5ed157f9166b96a07a9f17f338",
+      "expires": "2026-11-20",
+      "justification": "Public generated provenance field functionalLogSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 5,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6832,7 +6943,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 27,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6841,7 +6952,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 51,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6850,7 +6961,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 70,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6859,7 +6970,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 95,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6868,7 +6979,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 125,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6877,7 +6988,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 162,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6886,7 +6997,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 188,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6895,7 +7006,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 213,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6904,7 +7015,7 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 241,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6913,43 +7024,43 @@
       "path": "dependencies/evidence/qa-host-tools.json",
       "line": 269,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/qa-host-tools.json",
-      "line": 296,
+      "line": 294,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/qa-host-tools.json",
-      "line": 325,
+      "line": 323,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/qa-host-tools.json",
-      "line": 353,
+      "line": 351,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
     {
       "scanner": "detect-secrets",
       "path": "dependencies/evidence/qa-host-tools.json",
-      "line": 372,
+      "line": 370,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:fb431b25b63bd85af8754e3bdcadc2faa73b6ae6a8c4a258eefae67a0405225f",
+      "source_sha256": "sha256:f8c668cd5b34505e90b2a1d3aa238266a272fc606e62921778aa8a59270f9fbe",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field sha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6958,7 +7069,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 4,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field installerSourceSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6967,7 +7078,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 25,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field archiveSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6976,7 +7087,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 26,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field binarySha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6985,7 +7096,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 30,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field archiveSha512: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -6994,7 +7105,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 35,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field binarySha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -7003,7 +7114,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 38,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field qa-requirements.lock: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -7012,7 +7123,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 39,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field security-requirements.lock: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -7021,7 +7132,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 40,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field qa-tools.json: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -7030,7 +7141,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 48,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field logSha256: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -7039,7 +7150,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 50,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field 090: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
@@ -7048,7 +7159,7 @@
       "path": "dependencies/evidence/qa-install-validation.json",
       "line": 51,
       "rule": "Hex High Entropy String",
-      "source_sha256": "sha256:a38976c360db9b6d125fe3fa68cdb1ec907bf1ae31aab02782d0d0c919e466d9",
+      "source_sha256": "sha256:509060744cb29ba3bbc8352816a1c8d13798d91325c8faedd2e1d69547f36d6a",
       "expires": "2026-11-20",
       "justification": "Public generated provenance field 096: hexadecimal SHA256/SHA512 artifact, POM, test/log/source digest or GNU ELF build ID. The reviewed producer emits content identities, never authentication material; exact evidence-file bytes/line are bound."
     },
