@@ -78,3 +78,14 @@ bitmap and successful delivery keeps it live until caller close. Run that class 
 ImageDecodingInstrumentedTest on the frozen integrated APK; source compilation alone is not
 runtime cancellation evidence. Actual native allocation failure inside owner construction is
 covered by the retained cleanup ordering, not falsely claimed as an injected OOM measurement.
+
+AndroidX ExifInterface1.4.1 inserts an undefined orientation0 for files with no orientation tag.
+Its compatibility attribute has byte offset-1, so getAttribute/hasAttribute alone cannot
+establish physical presence. A fresh reader now treats only undefined0 without a physical
+attribute range as ABSENT; a physically stored0 (or another invalid value) remains MALFORMED.
+Valid derived HEIF rotations1..8 remain PRESENT even when their range is unavailable. The
+instrumentation oracle independently reads the controlled JPEG APP1/TIFF bytes to distinguish
+absent, stored0 and all eight stored valid values, without using AndroidX's attribute map.
+This corrects warning/evidence classification only: fallback orientation, decoded pixels,
+allocation limits and ownership remain identical, so the decoder pixel-policy identity is
+unchanged. Actual platform execution of the corrected fixture must be recorded separately.
