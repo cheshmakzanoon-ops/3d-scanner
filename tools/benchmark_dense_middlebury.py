@@ -21,7 +21,7 @@ def run(size:int=228,planes:int=64)->dict:
     h,w=left.shape[:2]
     outw=int(size);outh=round(h*outw/w)
     ratiox=outw/w;ratioy=outh/h
-    # Bilinear RGB sampling is independent of native optimization.
+    # Area-resampled pixel centres require the same half-pixel camera transform.
     rgba=[]
     for img in (left,right):
         rgb=cv2.resize(img,(outw,outh),interpolation=cv2.INTER_AREA)
@@ -31,7 +31,7 @@ def run(size:int=228,planes:int=64)->dict:
     for i,cx in enumerate((CX_LEFT,CX_RIGHT)):
         cameras.append([1,0,0,0,1,0,0,0,1,-float(i),0,0,
                         FOCAL_PIXELS*ratiox,FOCAL_PIXELS*ratioy,
-                        cx*ratiox,CY*ratioy])
+                        (cx+.5)*ratiox-.5,(CY+.5)*ratioy-.5])
     result=NativeEngine().dense(np.asarray(rgba),np.asarray(cameras),near=6,far=80,
                                 depth_planes=planes,pixel_stride=3)
     points=np.asarray(result['points'],float).reshape(-1,8)
