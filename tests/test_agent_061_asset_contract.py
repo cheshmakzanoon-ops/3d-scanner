@@ -60,6 +60,15 @@ def test_representation_lengths_bounds_winding_and_uv(outputs, name, representat
     assert root['accessors'][0]['min'] == [-2,-5,-3]
     assert root['accessors'][0]['max'] == [4,-1,-3]
     assert values(primitive['attributes']['NORMAL'], '<3f', 12) == [(0,0,-1)] * 3
+    if name != 'texture':
+        color_index = primitive['attributes']['COLOR_0']
+        assert root['accessors'][color_index]['componentType'] == 5126
+        color = values(color_index, '<4f', 16)
+        assert color[0] == (1,0,0,1) and color[2] == (0,0,1,1)
+        def linear(value):
+            srgb = value / 255
+            return srgb / 12.92 if srgb <= .04045 else ((srgb + .055) / 1.055) ** 2.4
+        assert color[1] == pytest.approx(tuple(linear(c) for c in (128,64,32)) + (1.0,))
     if mode == 4:
         assert values(primitive['indices'], '<I', 4) == [(0,), (1,), (2,)]
     else:

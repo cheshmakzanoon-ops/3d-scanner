@@ -20,7 +20,7 @@ struct Provenance {
 struct PointAsset {
     Representation representation = Representation::SparsePoints;
     std::span<const Vec3> positions;
-    std::span<const std::array<std::uint8_t,3>> colors;
+    std::span<const std::array<std::uint8_t,3>> colors; // encoded sRGB; GLB converts to linear COLOR_0.
     std::span<const Vec3> normals;
     std::span<const float> confidence;
     std::span<const std::uint32_t> supportingViews;

@@ -42,7 +42,7 @@ void serialize(const PointAsset& a,const SurfaceAsset* surface,const TexturedAss
     const auto positionView=add(count,12,34962);
     const bool hasNormal=!a.normals.empty(),hasColor=!a.colors.empty()&&!texture;
     const auto normalView=hasNormal?add(count,12,34962):0;
-    const auto colorView=hasColor?add(count,4,34962):0;
+    const auto colorView=hasColor?add(count,16,34962):0;
     const auto uvView=texture?add(count,8,34962):0;
     const auto indexView=surface?add(surface->indices.size(),4,34963):0;
     const auto imageView=texture?add(texture->png.size(),1,0):0;
@@ -55,7 +55,7 @@ void serialize(const PointAsset& a,const SurfaceAsset* surface,const TexturedAss
     s<<"],\"accessors\":[{\"bufferView\":"<<positionView<<",\"componentType\":5126,\"count\":"<<count<<",\"type\":\"VEC3\",\"min\":["<<static_cast<float>(bounds.minimum.x)<<','<<static_cast<float>(bounds.minimum.y)<<','<<static_cast<float>(bounds.minimum.z)<<"],\"max\":["<<static_cast<float>(bounds.maximum.x)<<','<<static_cast<float>(bounds.maximum.y)<<','<<static_cast<float>(bounds.maximum.z)<<"]}";
     int next=1,normalAccessor=-1,colorAccessor=-1,uvAccessor=-1,indexAccessor=-1;
     if(hasNormal) {normalAccessor=next++;s<<",{\"bufferView\":"<<normalView<<",\"componentType\":5126,\"count\":"<<count<<",\"type\":\"VEC3\"}";}
-    if(hasColor) {colorAccessor=next++;s<<",{\"bufferView\":"<<colorView<<",\"componentType\":5121,\"normalized\":true,\"count\":"<<count<<",\"type\":\"VEC4\"}";}
+    if(hasColor) {colorAccessor=next++;s<<",{\"bufferView\":"<<colorView<<",\"componentType\":5126,\"count\":"<<count<<",\"type\":\"VEC4\"}";}
     if(texture) {uvAccessor=next++;s<<",{\"bufferView\":"<<uvView<<",\"componentType\":5126,\"count\":"<<count<<",\"type\":\"VEC2\"}";}
     if(surface) {indexAccessor=next++;s<<",{\"bufferView\":"<<indexView<<",\"componentType\":5125,\"count\":"<<surface->indices.size()<<",\"type\":\"SCALAR\"}";}
     s<<"],\"meshes\":[{\"primitives\":[{\"attributes\":{\"POSITION\":0";
@@ -76,7 +76,15 @@ void serialize(const PointAsset& a,const SurfaceAsset* surface,const TexturedAss
     auto pad=[&](std::size_t target) {while(emitted<target){const char zero=0;raw(out,&zero,1);++emitted;}};
     for(std::size_t i=0;i<count;++i) {if(i%1024==0)checkCancelled(cancel);auto v=toGltf(a.positions[i]);f32(out,v.x);f32(out,v.y);f32(out,v.z);}emitted=count*12;
     if(hasNormal) {pad(views[normalView].offset);for(std::size_t i=0;i<count;++i){if(i%1024==0)checkCancelled(cancel);auto v=toGltf(a.normals[i]);f32(out,v.x);f32(out,v.y);f32(out,v.z);}emitted+=count*12;}
-    if(hasColor) {pad(views[colorView].offset);for(std::size_t i=0;i<count;++i){if(i%1024==0)checkCancelled(cancel);raw(out,a.colors[i].data(),3);const char alpha=char(255);raw(out,&alpha,1);}emitted+=count*4;}
+    if(hasColor) {
+        pad(views[colorView].offset);
+        for(std::size_t i=0;i<count;++i) {
+            if(i%1024==0)checkCancelled(cancel);
+            for(auto channel:a.colors[i]) {const auto srgb=channel/255.0;f32(out,srgb<=.04045?srgb/12.92:std::pow((srgb+.055)/1.055,2.4));}
+            f32(out,1.0);
+        }
+        emitted+=count*16;
+    }
     if(texture) {pad(views[uvView].offset);for(std::size_t i=0;i<count;++i){if(i%1024==0)checkCancelled(cancel);f32(out,texture->uv[i].x);f32(out,texture->uv[i].y);}emitted+=count*8;}
     if(surface) {pad(views[indexView].offset);for(std::size_t i=0;i<surface->indices.size();++i){if(i%1024==0)checkCancelled(cancel);u32(out,surface->indices[i]);}emitted+=surface->indices.size()*4;}
     if(texture) {pad(views[imageView].offset);for(std::size_t i=0;i<texture->png.size();i+=65536){checkCancelled(cancel);raw(out,texture->png.data()+i,std::min(std::size_t(65536),texture->png.size()-i));}emitted+=texture->png.size();}

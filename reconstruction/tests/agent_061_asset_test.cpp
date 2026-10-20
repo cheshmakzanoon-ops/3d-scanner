@@ -14,7 +14,7 @@ int main(int argc,char** argv) {
     assert(argc==3);const std::filesystem::path out=argv[1];std::filesystem::create_directories(out);
     std::vector<Vec3> positions{{-2,1,3},{4,1,3},{-2,5,3}};const auto original=positions;
     std::vector<Vec3> normals(3,Vec3{0,0,1});
-    std::vector<std::array<std::uint8_t,3>> colors{{255,0,0},{0,255,0},{0,0,255}};
+    std::vector<std::array<std::uint8_t,3>> colors{{255,0,0},{128,64,32},{0,0,255}};
     std::vector<std::uint32_t> indices{0,1,2};std::vector<Vec2> uv{{0,0},{1,0},{0,1}};
     std::ifstream pngFile(argv[2],std::ios::binary);std::vector<std::uint8_t> png{std::istreambuf_iterator<char>(pngFile),{}};
     PointAsset p;p.positions=positions;p.colors=colors;p.normals=normals;p.provenance.assetId="fixture";p.provenance.algorithmVersion="synthetic-1";
