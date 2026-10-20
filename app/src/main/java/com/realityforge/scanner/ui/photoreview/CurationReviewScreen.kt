@@ -1,6 +1,5 @@
 package com.realityforge.scanner.ui.photoreview
 import androidx.compose.runtime.*
-import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import com.realityforge.scanner.data.curation.ReconstructionAdmission
 import com.realityforge.scanner.data.curation.ReconstructionSelectionLease
@@ -14,7 +13,8 @@ fun CurationReviewScreen(presenter:PhotoCurationPresenter,metadata:ProjectReview
     val state by presenter.state.collectAsState()
     val scope=rememberCoroutineScope()
     LaunchedEffect(metadata.projectId,metadata.revision,metadata.photos) { presenter.attach(metadata) }
-    val visible=state.review ?: metadata.copy(busy=true,canCurate=false,canReconstruct=false)
+    val selected=state.review?.takeIf { it.projectId==metadata.projectId } ?: metadata.copy(busy=state.failure==null,canCurate=false,canReconstruct=false)
+    val visible=state.failure?.let { selected.copy(diagnostics=listOf(it)+selected.diagnostics) } ?: selected
     ProjectReviewScreen(visible,onAction={action ->
         when {
             action is ReviewAction.Command && action.command==ReviewCommand.RECONSTRUCT -> scope.launch {
@@ -25,5 +25,4 @@ fun CurationReviewScreen(presenter:PhotoCurationPresenter,metadata:ProjectReview
             else->onHostAction(action)
         }
     },modifier=modifier,fallbackFocal35mm=fallbackFocal35mm)
-    state.failure?.let { Text(it) }
 }

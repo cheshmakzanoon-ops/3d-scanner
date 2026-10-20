@@ -24,8 +24,8 @@ class PhotoCurationPresenter(private val service:PhotoCurationService,
     private var base:ProjectReviewUiState?=null
     private var undo:CurationUndoToken?=null
     suspend fun attach(metadata:ProjectReviewUiState) {
-        if(!commands.tryLock()) return
-        try { base=metadata;undo=null;reload() }
+        commands.lock()
+        try { base=metadata;current=null;undo=null;mutable.value=CurationReviewState();reload() }
         catch(cancelled:CancellationException) { throw cancelled }
         catch(error:Exception) { mutable.update { it.copy(failure=unexpectedFailure(error)) } }
         finally { commands.unlock() }

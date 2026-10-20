@@ -38,6 +38,11 @@ class PhotoCurationPresenterTest {
         presenter.attach(metadata().copy(photos=metadata().photos.map {it.copy(sha256="c".repeat(64))}))
         assertNull(presenter.state.value.review);assertEquals("identity mismatch",presenter.state.value.failure)
     }
+    @Test fun failedNavigationAttachDoesNotExposeThePreviousProject()=runBlocking {
+        val presenter=PhotoCurationPresenter(DefaultPhotoCurationService(store()),{"typed failure"},{"unavailable"})
+        presenter.attach(metadata());assertNotNull(presenter.state.value.review)
+        presenter.attach(metadata().copy(projectId="missing"));assertNull(presenter.state.value.review)
+    }
     @Test fun revisionConflictReloadsActualStoreWithoutRetryingCommand()=runBlocking {
         val store=store();val presenter=PhotoCurationPresenter(DefaultPhotoCurationService(store),{"conflict"},{"failure"})
         presenter.attach(metadata());store.snapshot=store.snapshot.copy(revision=CurationRevision(4,1))
