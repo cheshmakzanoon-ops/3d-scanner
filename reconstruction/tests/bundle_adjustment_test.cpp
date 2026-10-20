@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <limits>
 #include <random>
 #include <stdexcept>
@@ -17,6 +19,7 @@ rf::Vec2 project(const rf::ViewPose& c,rf::Vec3 p){
     auto q=rf::multiply(c.rotation,p);q.x+=c.translation.x;q.y+=c.translation.y;q.z+=c.translation.z;
     return {q.x/q.z,q.y/q.z};
 }
+std::string stableSource(std::size_t i){std::ostringstream s;s<<std::hex<<std::setw(64)<<std::setfill('0')<<i;return s.str();}
 double dist(rf::Vec3 a,rf::Vec3 b){return std::sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)+(a.z-b.z)*(a.z-b.z));}
 void rejects(const auto& f){try{f();}catch(const rf::Error&){return;}throw std::runtime_error("Expected explicit rejection");}
 struct Scene {
@@ -196,14 +199,18 @@ int main(){
         rf::LoopProposal proposal;proposal.sourcePhotoId="circle-start";proposal.revisitPhotoId="circle-revisit";proposal.componentId=proposal.revisitComponentId="object-A";proposal.revisitCamera=7;proposal.currentPose=p.cameras[7];
         for(std::size_t i=0;i<100;++i){const rf::Vec3 xyz{(int(i%10)-4)*.11,(int(i/10)-4)*.12,(int(i%7)-3)*.07};p.seeds.push_back({i,xyz,{120,100,90}});
             for(std::size_t c=0;c<8;++c){const auto ray=project(truth[c],xyz);p.observations.push_back({i,c,rf::projectIntrinsic(lens,ray).pixel,{120,100,90}});}
-            proposal.landmarks.push_back({i,xyz,project(truth[7],xyz),7});}
+            p.stableTrackMapping.emplace_back(i,stableSource(i));
+            proposal.landmarks.push_back({i,stableSource(i),xyz,project(truth[7],xyz),7});}
         const auto verified=rf::verifyLoopClosure(proposal);require(verified.accepted,"Circular revisit verification failed");p.loops.push_back(verified.constraint);
         rf::BundleSettings settings{.025,0};const auto out=rf::bundleAdjustProblem(p,settings);
         require(out.acceptedLoopCorrections==1,"Verified improving closure not consumed");
         const rf::Vec3 withheld{.125,-.17,.09};const auto expected=project(truth[7],withheld),before=project(p.cameras[7],withheld),after=project(out.geometry.cameras[7],withheld);
         require(std::hypot(after.x-expected.x,after.y-expected.y)<std::hypot(before.x-expected.x,before.y-expected.y)*.01,"Withheld circular drift was not improved");
         require(out.geometry.cameras[0].rotation==truth[0].rotation,"Loop altered world gauge");
-        p.loops[0].schema=999;rejects([&]{rf::bundleAdjustProblem(p,settings);});
+        const auto sourceBefore=out.stableTrackMapping;p.stableTrackMapping[0].second=stableSource(99999);
+        require(out.stableTrackMapping==sourceBefore,"Returned source mapping aliases caller metadata");
+        rejects([&]{rf::bundleAdjustProblem(p,settings);});
+        p.stableTrackMapping[0].second=stableSource(0);p.loops[0].schema=999;rejects([&]{rf::bundleAdjustProblem(p,settings);});
     });
     test("30-camera bounded exact window remains valid and larger global graphs reject explicitly",[]{
         std::vector<rf::ViewPose> cameras;std::vector<rf::BundleSeed> points;std::vector<rf::TrackObservation> rows;

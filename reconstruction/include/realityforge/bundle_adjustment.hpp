@@ -67,11 +67,13 @@ struct BundleProblem {
     std::vector<BundleIntrinsicGroup> intrinsicGroups;
     std::vector<std::size_t> cameraIntrinsicGroups;
     std::vector<VerifiedLoopConstraint> loops;
+    std::vector<std::pair<std::size_t,std::string>> stableTrackMapping; // immutable compact-native to full source SHA256
 };
 struct BundleProblemResult {
     BundleResult geometry;
     std::vector<IntrinsicModel> intrinsics;
     std::size_t acceptedLoopCorrections{}, acceptedIntrinsicGroups{};
+    std::vector<std::pair<std::size_t,std::string>> stableTrackMapping;
 };
 BundleProblemResult bundleAdjustProblem(const BundleProblem&,const BundleSettings& settings={});
 std::string bundleJson(const BundleResult& result);

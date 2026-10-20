@@ -394,12 +394,18 @@ IntrinsicRefinement refineIntrinsicGroup(const IntrinsicModel& model,const Intri
 }
 BundleProblemResult bundleAdjustProblem(const BundleProblem& p,const BundleSettings& settings) {
     if(p.schema!=1||p.seeds.empty()||p.seeds.size()>20000||p.intrinsicGroups.empty()||p.intrinsicGroups.size()>32||p.cameraIntrinsicGroups.size()!=p.cameras.size()||
-       p.observations.size()>100000||p.loops.size()>64)throw Error("Invalid versioned bundle problem");
+       p.observations.size()>100000||p.loops.size()>64||p.stableTrackMapping.size()>p.seeds.size())throw Error("Invalid versioned bundle problem");
     verifyCameras(p.cameras);
     for(const auto& group:p.intrinsicGroups)validateIntrinsicModel(group.model);
     for(auto group:p.cameraIntrinsicGroups)if(group>=p.intrinsicGroups.size())throw Error("Invalid bundle intrinsic group mapping");
     std::map<std::size_t,BundleSeed> seedMap;for(const auto& s:p.seeds)if(!seedMap.emplace(s.track,s).second)throw Error("Duplicate bundle point identity");
-    BundleProblemResult out;for(const auto& group:p.intrinsicGroups)out.intrinsics.push_back(group.model);
+    std::map<std::size_t,std::string> sourceIds;std::set<std::string> uniqueSourceIds;
+    for(const auto& entry:p.stableTrackMapping){
+        if(entry.second.size()!=64||!std::all_of(entry.second.begin(),entry.second.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');})||
+           !seedMap.contains(entry.first)||!sourceIds.emplace(entry).second||!uniqueSourceIds.insert(entry.second).second)throw Error("Invalid stable bundle track mapping");
+    }
+    if(!p.loops.empty()&&sourceIds.size()!=seedMap.size())throw Error("Loop closure requires complete immutable source track mapping");
+    BundleProblemResult out;out.stableTrackMapping=p.stableTrackMapping;for(const auto& group:p.intrinsicGroups)out.intrinsics.push_back(group.model);
     const auto normalized=[&](const auto& models){std::vector<TrackObservation> rows;rows.reserve(p.observations.size());
         for(const auto& o:p.observations){if(o.camera>=p.cameras.size()||!seedMap.contains(o.track))throw Error("Invalid pixel observation identity");
             rows.push_back({o.track,o.camera,unprojectIntrinsic(models[p.cameraIntrinsicGroups[o.camera]],o.pixel),o.color});}return rows;};
@@ -412,10 +418,11 @@ BundleProblemResult bundleAdjustProblem(const BundleProblem& p,const BundleSetti
         return cost;};
     double cost=pixelCost(out.geometry,out.intrinsics);
     for(const auto& loop:p.loops){cancellation::checkpoint();
-        if(loop.schema!=1||loop.camera<2||loop.camera>=p.cameras.size()||loop.supportingTrackIds.size()<16||loop.inlierFraction<.65||loop.componentId.empty()||
+        if(loop.schema!=1||loop.camera<2||loop.camera>=p.cameras.size()||loop.supportingTrackIds.size()<16||loop.supportingTrackIds.size()>20000||loop.supportingStableTrackIds.size()!=loop.supportingTrackIds.size()||!std::isfinite(loop.inlierFraction)||loop.inlierFraction<.65||loop.inlierFraction>1||loop.componentId.empty()||
            loop.sourcePhotoId.empty()||loop.revisitPhotoId.empty()||!std::isfinite(loop.medianNormalizedError)||loop.medianNormalizedError>settings.maxReprojectionError)
             throw Error("Invalid verified loop constraint");
-        std::set<std::size_t> seen;for(auto id:loop.supportingTrackIds)if(!seedMap.contains(id)||!seen.insert(id).second)throw Error("Unknown or duplicate loop track");
+        std::set<std::size_t> seen;for(std::size_t i=0;i<loop.supportingTrackIds.size();++i){const auto id=loop.supportingTrackIds[i];
+            if(!seedMap.contains(id)||!seen.insert(id).second||sourceIds.at(id)!=loop.supportingStableTrackIds[i])throw Error("Unknown, duplicate or remapped loop source track");}
         auto cameras=out.geometry.cameras;cameras[loop.camera]=loop.correctedPose;
         std::vector<BundleSeed> seeds;for(const auto& point:out.geometry.points)seeds.push_back(point.seed);
         auto candidate=bundleAdjust(cameras,seeds,observations,settings);const double value=pixelCost(candidate,out.intrinsics);
