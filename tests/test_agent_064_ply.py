@@ -60,7 +60,7 @@ def test_ply_variants_independent_roundtrip_and_rejection(tmp_path):
         "g++", "-std=c++20", "-Wall", "-Wextra", "-Wpedantic", "-Werror", "-O2",
         "-I" + str(ROOT / "reconstruction/include"), "-I" + str(canonical / "reconstruction/include"),
         str(ROOT / "reconstruction/src/ply_export.cpp"), str(canonical / "reconstruction/src/asset_model.cpp"),
-        str(ROOT / "reconstruction/tests/agent_064_ply_test.cpp"), "-o", str(executable),
+        str(ROOT / "reconstruction/tests/agent_064_ply_test.cpp"), "-lz", "-o", str(executable),
     ], check=True)
     subprocess.run([str(executable), str(tmp_path)], check=True)
     for filename in ("dense.ply", "sparse.ply", "surface.ply", "surface-ascii.ply"):
