@@ -1,5 +1,10 @@
 # Next integrated-candidate gates after M19
 
+> STOP archive: the pending86 candidate/evidence updates in this document are an
+> unfinished historical draft. Later source fixes and old86 debug-notice
+> invalidation are not reconciled here. No final replacement candidate is qualified.
+
+
 Current source is0.19.0-m19. The campaign implements081–100 evidence and assurance
 on isolated numbered branches;100 integrates tested dependencies. Existing001–080
 remote deliveries require review, runtime wiring and actual candidate verification.
@@ -18,6 +23,16 @@ delivery index and committed `docs/agents/integration/gate-applicability.json`.
 All18 candidate gates remain required. An ordinary compatibility suite excludes
 specialist controllers explicitly and cannot close full instrumentation, capture,
 recovery, offline radios, physical profiles or release journey requirements.
+
+Frozen86 acceptance currently fails native sanitizer/Python-hosted cases and the
+legacy vulnerable pytest8.4.1 declaration; fix and retest those exact paths while
+preserving diagnostic baselines. Resolve the candidate's23 UV-overlap pairs rather
+than substitute an unmerged compact-atlas result. Source owner004 still needs to
+publish the reviewed release Gradle/lock wiring; its temporary0a4d910 test overlay
+is separate from the frozen debug source. Obtain the first-party distribution
+license decision, production signing and independent beta evidence. Physical
+ARM64 capture/reference/held-out and sustained30/100/250 resource profiles remain
+required even if ordinary emulator compatibility passes.
 
 The existing source supports operation-scoped dense cancellation and per-reference
 depth reuse, not durable every-stage background/session resumption. Unknown surfaces

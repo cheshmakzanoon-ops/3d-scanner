@@ -1,5 +1,10 @@
 # Build, verify and recover the current source
 
+> STOP archive: the pending86 candidate/evidence updates in this document are an
+> unfinished historical draft. Later source fixes and old86 debug-notice
+> invalidation are not reconciled here. No final replacement candidate is qualified.
+
+
 The source baseline is M19, version0.19.0-m19. Historical build limitations in M02
 are retained in milestone records; they do not describe current tool availability.
 The audited commit `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42` passed
@@ -16,9 +21,13 @@ scanning stays offline; first-time build dependencies need network access.
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-python -m pip install -r tools/requirements-real-benchmark.txt
 sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
 ```
+
+Install host dependencies with the pinned QA setup in [Integrated campaign QA](#integrated-campaign-qa)
+from the integrated checkout. The legacy `tools/requirements.txt` and its real-benchmark
+include still declare vulnerable pytest8.4.1; their retained audit failure is not a
+recommended install path. The approved095 locks use pytest9.0.3.
 
 Accept required SDK licenses through the official SDK tool. Set `ANDROID_HOME`
 (or private ignored `local.properties`) to that SDK. Do not commit local SDK paths,
@@ -68,7 +77,7 @@ only the original scientific requirements:090 needs Trimesh/Khronos/Blender and0
 needs its isolated scanner Python.
 
 Agent095's pinned, hash-verified installer is published at
-`1a741bc7ffc6618b0a001ffbe217ef65c16c0db4`. From the integrated root:
+`754f2892902eb18ece95c6bc1bfde0d4a20861af`, including the pytest9.0.3 fix. From the integrated root:
 
 ```bash
 QA_ROOT=$(mktemp -d /tmp/realityforge-qa.XXXXXX)
@@ -163,8 +172,12 @@ Source flags alone do not establish package compatibility.
 ## Installed instrumentation and recovery
 
 Requires authorized API29+ hardware or a functioning emulator/ADB. The cloud
-campaign has no `/dev/kvm` or connected handset: installed tests remain NOT_RUN
-there. Camera, lens/EXIF, thermals, power and whole-object evidence need physical ARM64.
+campaign has no `/dev/kvm` or physical handset. A bounded API29 x86_64 software
+emulator uses TCG/SwiftShader; its actual terminal controller outcomes are separate
+from physical qualification. Coordinate emulator-5580 operations with
+`flock /workspace/campaign/device-5580.lock` and wait for the current device owner
+to hand off its interval. Camera, lens/EXIF, thermals, power and whole-object evidence
+need physical ARM64.
 
 ```bash
 adb devices -l
@@ -204,6 +217,11 @@ The default release build currently has R8 disabled and no production signing
 qualification; `assembleRelease` is not store acceptance. Agent091 owns actual
 APK/AAB/R8/signing validation; Agent099 owns exact-candidate physical journeys and
 independent gate aggregation. Signing keys are supplied securely, never committed.
+The tested minified APK/AAB uses separate004-overlay source
+`0a4d910dce4f527d0cf4e1e98b96a33bd9a55ab4`, not the frozen86 debug candidate.
+Its85 packaged APK checks do not retarget to a different source/artifact or establish
+production signing. First-party distribution-license selection remains an explicit
+owner decision and BLOCKED_EXTERNAL even when third-party notices pass.
 No store upload/public release is authorized by these development commands.
 
 Follow [AGENTS](../AGENTS.md) and the shared ownership/manifest protocol in the

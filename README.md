@@ -1,5 +1,10 @@
 # RealityForge — offline Android photo-to-3D scanner
 
+> STOP archive: the pending86 candidate/evidence updates in this document are an
+> unfinished historical draft. Later source fixes and old86 debug-notice
+> invalidation are not reconciled here. No final replacement candidate is qualified.
+
+
 **Current engineering increment: M19, version 0.19.0-m19. Not a completed
 consumer product or a guarantee of high-quality complete-object scanning.**
 
@@ -91,6 +96,14 @@ under `docs/agents/status/` describes only its own verified source and gates.
 Agent100 freezes integrated candidate source/artifact hashes before acceptance.
 Missing physical complete-object, resource, signing and license gates stay open.
 Do not treat a remote branch or successful build as integrated app behavior.
+
+The combined frozen candidate `86df647bcdba4b110ad36dfb6ce572adb4261462`
+has a failing independent18-gate decision: strict sanitizer/Python-hosted checks
+and legacy dependency input fail, and independent texture validation retains23 UV
+overlap pairs. Release compiler/debug build passes and supplemental software-emulator
+tests cannot close the physical, full-feature, signing or license gates. See the
+[measured current status](docs/MILESTONE_STATUS.md#frozen081100-combined-measurement-20-october2026)
+and integrated100 delivery report for exact artifact identities and limitations.
 
 Follow [AGENTS](AGENTS.md), the exact numbered role and the shared mechanical
 source-manifest protocol in the execution plan. Stage owned source/tests/receipt

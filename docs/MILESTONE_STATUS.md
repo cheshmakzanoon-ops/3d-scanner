@@ -1,5 +1,10 @@
 # Current source status — M19
 
+> STOP archive: the pending86 candidate/evidence updates in this document are an
+> unfinished historical draft. Later source fixes and old86 debug-notice
+> invalidation are not reconciled here. No final replacement candidate is qualified.
+
+
 Version0.19.0-m19; campaign base `ad3029193f304c70931b94ea7a0df90b69d84b07`.
 The current code includes M17 operation cancellation, M18 per-reference depth
 checkpoints and M19 persisted scan diagnostics. Sparse work remains12-photo and
@@ -23,6 +28,47 @@ physical evidence. The final integration applicability keeps all18 required gate
 open until their own exact-candidate records pass. Current physical/reference/
 held-out/signing/beta prerequisites remain unavailable, and known failed assets or
 sanitizer checks must stay visible in their independent reports.
+
+## Frozen081–100 combined measurement —20 October2026
+
+The immutable tested candidate is `86df647bcdba4b110ad36dfb6ce572adb4261462`.
+Its debug app APK SHA256 is
+`3b747cd8d568e8c64fad1993033089a30b006998337c5225d8db587d613c2f58`;
+test APK SHA256 is
+`4224aa71f0e3d4b7507a54092ca18fd20537b99d57bb3e3f3416ddea2ae4c523`.
+Later integration reports/receipts are metadata, not new binary provenance.
+
+GCC and Clang Release each pass764 pytest cases and11 CTest tests. Both sanitized
+configurations pass11 CTest tests but fail24 Python cases each, with740 passes;
+strict LeakSanitizer failures remain enabled and unresolved. All30,000 native fuzz
+iterations and three numerical comparisons pass separately. Debug app/test compile,
+35 JVM tests, lint and actual package privacy/16KiB checks pass. Approved Python
+host/QA/security graphs pass scoped scanners with zero active findings; reviewed
+exceptions are retained. Legacy pytest8.4.1 entrypoints still fail their audit.
+
+The exact candidate's independent texture gate fails23 UV-overlap pairs despite
+the historical texture benchmark's PASS/exit0. Held-out and physical appearance
+remain unqualified.064's external analytic PLY fixture also retains a supplied
+normal failure; this is not proof that its serializer changed winding. R8/AAB and
+85 packaged-APK checks pass on the separately identified004 release overlay, not
+on this frozen86 debug artifact. The license owner's first-party distribution
+choice and production signing remain BLOCKED_EXTERNAL.
+
+Agent099's actual clean-source/APK-backed fixed18-gate decision is FAIL, with no
+rejected input records. The native and legacy dependency failures are admitted;
+physical scene/device gates remain BLOCKED_EXTERNAL. The scoped host scanner and
+debug compilation passes do not qualify full runtime security, complete installed
+instrumentation or full product wiring. No required gate is waived. Software
+emulator compatibility and synthetic controller outcomes are supplemental and must
+be read at their actual terminal status; physical ARM64 measurements remain absent.
+
+In the integrated100 tree, read `docs/agents/integration/081-100-delivery-report.md`,
+`validation.json`, `candidate-qualification.json` and the numbered status receipts.
+The retained external099 canonical decision is
+`/workspace/campaign/evidence/099/final-86/decision.json`, SHA256
+`fe52d0fb187435b9d9bac8c0aac3417ef17fe345ca527780ce1d9e80707f2f6a`.
+Its input directory contains exact candidate/record JSON and hash-named backing
+blobs. Source-specific UV/provider/release observations remain separately labeled.
 
 ## Historical M12 snapshot
 
