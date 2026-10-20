@@ -41,9 +41,9 @@ def run(output_dir:Path|None=None,width:int=228, photo_width:int=608) -> dict:
     low=np.stack([rgba(im,width,height) for im in (left,right)])
     high=np.stack([rgba(im,photo_width,photo_height) for im in (left,right)])
     sx=width/original_w;sy=height/original_h
-    # Same arbitrary unit-baseline calibrated coordinates as M08 real benchmark.
+    # Match cv2.resize pixel centres; rounded height uses its separate scale.
     cameras=np.asarray([[1,0,0,0,1,0,0,0,1,-float(i),0,0,
-        FOCAL_PIXELS*sx,FOCAL_PIXELS*sy,cx*sx,CY*sy]
+        FOCAL_PIXELS*sx,FOCAL_PIXELS*sy,(cx+.5)*sx-.5,(CY+.5)*sy-.5]
         for i,cx in enumerate((CX_LEFT,CX_RIGHT))],dtype=np.float64)
     root=output_dir or Path('build/host')
     root.mkdir(parents=True,exist_ok=True)

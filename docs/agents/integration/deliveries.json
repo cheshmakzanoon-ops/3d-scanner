@@ -514,6 +514,13 @@
       "branch": "agents/088-failure-recovery-instrumentation",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "085",
+      "source_sha": "52758dc7f51dcbc1eb9b76cd7e6f1c19da45bf1f",
+      "branch": "agents/085-photographic-texture-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
