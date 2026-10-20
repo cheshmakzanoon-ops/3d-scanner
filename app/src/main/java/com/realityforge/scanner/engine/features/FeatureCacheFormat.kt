@@ -10,7 +10,9 @@ import java.security.MessageDigest
 data class FeatureCacheIdentity(val originalSha256:String,val decoderTransform:String,val extractorSettings:String,val openCvVersion:String) {
     init {
         require(originalSha256.matches(Regex("[a-f0-9]{64}")))
-        require(listOf(decoderTransform,extractorSettings,openCvVersion).all{it.isNotBlank() && it.toByteArray(Charsets.UTF_8).size<=4096})
+        require(listOf(decoderTransform,extractorSettings,openCvVersion).all{value->
+            value.length in 1..4096 && value.isNotBlank() && value.toByteArray(Charsets.UTF_8).let{it.size<=4096 && it.toString(Charsets.UTF_8)==value}
+        })
     }
 }
 class CachedFeatures(val identity:FeatureCacheIdentity,val width:Int,val height:Int,xy:FloatArray,colors:IntArray,descriptors:FloatArray) {
