@@ -1,4 +1,5 @@
 #include "realityforge/bundle_adjustment.hpp"
+#include "realityforge/cancellation.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -96,7 +97,7 @@ struct ActivePoint {
 };
 struct PointSystem {
     M3 hpp{};V3 gp{};
-    std::vector<M63> cross; // one 6x3 block per free camera
+    std::map<std::size_t,M63> cross; // one 6x3 block per free camera
     std::vector<std::size_t> touched; // only cameras observing THIS sparse point
 };
 struct Linearization {
@@ -104,9 +105,9 @@ struct Linearization {
     std::vector<double> hcc;
     std::vector<double> gc;
 };
-std::size_t freeCameras(const std::vector<ViewPose>& cameras){return cameras.size()-2;}
+std::size_t freeCameras(const std::vector<ViewPose>& cameras,std::size_t fixed){return cameras.size()-fixed;}
 void verifyCameras(std::span<const ViewPose> cameras){
-    if(cameras.size()<3||cameras.size()>12)throw Error("Joint BA needs 3..12 registered cameras");
+    if(cameras.size()<3||cameras.size()>32)throw Error("Joint BA needs 3..32 registered cameras; use bounded windows for larger graphs");
     for(const auto& c:cameras){
         if(!finite(c.translation))throw Error("Nonfinite BA translation");
         for(const double v:c.rotation)if(!std::isfinite(v))throw Error("Nonfinite BA rotation");
@@ -131,14 +132,14 @@ std::vector<ActivePoint> prepare(std::span<const BundleSeed> seeds,
         if(!ids.emplace(seed.track,rows.size()).second)throw Error("Duplicate BA track ID");
         rows.push_back({seed,{}});
     }
-    std::vector<std::array<bool,12>> seen(seeds.size());
+    std::vector<std::vector<bool>> seen(seeds.size(),std::vector<bool>(cams.size()));
     std::size_t skipped=0;
     for(const auto& item:obs){
         if(item.camera>=cams.size()||item.track>10000000||!std::isfinite(item.image.x)||!std::isfinite(item.image.y)||
            std::abs(item.image.x)>10||std::abs(item.image.y)>10)throw Error("Invalid BA observation");
         auto it=ids.find(item.track);
         if(it==ids.end()){++skipped;continue;}
-        auto& slot=seen[it->second][item.camera];
+        auto slot=seen[it->second][item.camera];
         if(slot)throw Error("Conflicting same-camera BA observations");
         slot=true;
         if(residual(cams[item.camera],rows[it->second].seed.xyz,item.image)>delta*3.){++skipped;continue;}
@@ -154,12 +155,13 @@ std::vector<ActivePoint> prepare(std::span<const BundleSeed> seeds,
     return accepted;
 }
 // Build shared camera normal equations and per-point blocks from the SAME linearization.
-Linearization linearize(const std::vector<ViewPose>& cameras,const std::vector<ActivePoint>& points,double huberDelta){
-    const std::size_t nfree=freeCameras(cameras),n=6*nfree;
+Linearization linearize(const std::vector<ViewPose>& cameras,const std::vector<ActivePoint>& points,double huberDelta,std::size_t fixed){
+    const std::size_t nfree=freeCameras(cameras,fixed),n=6*nfree;
     Linearization l;
     l.points.reserve(points.size());l.hcc.assign(n*n,0.);l.gc.assign(n,0.);
     for(const auto& point:points){
-        PointSystem h;h.cross.resize(nfree);
+        cancellation::checkpoint();
+        PointSystem h;
         for(const auto& o:point.observations){
             const auto& c=cameras[o.camera];
             const auto q=cameraPoint(c,point.seed.xyz);
@@ -173,11 +175,12 @@ Linearization linearize(const std::vector<ViewPose>& cameras,const std::vector<A
                 h.gp[j]+=w*(jp0[j]*r0+jp1[j]*r1);
                 for(int k=0;k<3;++k)h.hpp[j*3+k]+=w*(jp0[j]*jp0[k]+jp1[j]*jp1[k]);
             }
-            if(o.camera<2)continue;
-            const std::size_t cam=o.camera-2,start=6*cam;
+            if(o.camera<fixed)continue;
+            const std::size_t cam=o.camera-fixed,start=6*cam;
             h.touched.push_back(cam);
-            const V6 jc0{-u*v,1+u*u,-v,1/q.z,0.,-u/q.z};
-            const V6 jc1{-1-v*v,u*v,u,0.,1/q.z,-v/q.z};
+            const auto jac=bundleCameraJacobian(q);
+            V6 jc0{},jc1{};
+            std::copy_n(jac.begin(),6,jc0.begin());std::copy_n(jac.begin()+6,6,jc1.begin());
             for(int a=0;a<6;++a){
                 l.gc[start+a]+=w*(jc0[a]*r0+jc1[a]*r1);
                 for(int b=0;b<6;++b)l.hcc[(start+a)*n+start+b]+=w*(jc0[a]*jc0[b]+jc1[a]*jc1[b]);
@@ -190,7 +193,7 @@ Linearization linearize(const std::vector<ViewPose>& cameras,const std::vector<A
 }
 struct Delta {std::vector<V3> points;std::vector<V6> cameras;double squaredNorm{};};
 bool computeStep(const Linearization& l,double lambda,Delta& step){
-    const std::size_t nfree=l.points[0].cross.size(), n=nfree*6;
+    const std::size_t nfree=l.gc.size()/6, n=nfree*6;
     std::vector<double> schur=l.hcc,rhs(n,0.);
     for(std::size_t i=0;i<n;++i){schur[i*n+i]+=lambda*(1.+schur[i*n+i]);rhs[i]=-l.gc[i];}
     std::vector<M3> inverses;inverses.reserve(l.points.size());
@@ -201,13 +204,13 @@ bool computeStep(const Linearization& l,double lambda,Delta& step){
         inverses.push_back(inv);
         const auto ig=multiply3(inv,point.gp);
         for(const auto a:point.touched){
-            const auto& Aa=point.cross[a];
+            const auto& Aa=point.cross.at(a);
             for(int i=0;i<6;++i){
                 double correction=0.;for(int p=0;p<3;++p)correction+=Aa[i*3+p]*ig[p];
                 rhs[a*6+i]+=correction;
             }
             for(const auto b:point.touched){
-                const auto& Ab=point.cross[b];
+                const auto& Ab=point.cross.at(b);
                 for(int i=0;i<6;++i)for(int j=0;j<6;++j){
                     double correction=0.;
                     for(int p=0;p<3;++p)for(int q=0;q<3;++q)
@@ -227,7 +230,7 @@ bool computeStep(const Linearization& l,double lambda,Delta& step){
         V3 negGradient{};
         for(int j=0;j<3;++j)negGradient[j]=-l.points[i].gp[j];
         for(const auto a:l.points[i].touched){
-            const auto& cross=l.points[i].cross[a];
+            const auto& cross=l.points[i].cross.at(a);
             for(int k=0;k<3;++k)for(int j=0;j<6;++j)
                 negGradient[k]-=cross[j*3+k]*step.cameras[a][j];
         }
@@ -236,7 +239,7 @@ bool computeStep(const Linearization& l,double lambda,Delta& step){
     }
     return std::isfinite(step.squaredNorm);
 }
-void applyStep(std::vector<ViewPose>& cameras,std::vector<ActivePoint>& points,const Delta& step){
+void applyStep(std::vector<ViewPose>& cameras,std::vector<ActivePoint>& points,const Delta& step,std::size_t fixed){
     double camScale=1.;
     for(const auto& c:step.cameras){
         double s=0.;for(double x:c)s+=x*x;
@@ -245,7 +248,7 @@ void applyStep(std::vector<ViewPose>& cameras,std::vector<ActivePoint>& points,c
     }
     for(std::size_t j=0;j<step.cameras.size();++j){
         const auto& v=step.cameras[j];const auto r=rotExp({v[0]*camScale,v[1]*camScale,v[2]*camScale});
-        auto& c=cameras[j+2];
+        auto& c=cameras[j+fixed];
         c.translation=add(multiply(r,c.translation),{v[3]*camScale,v[4]*camScale,v[5]*camScale});
         c.rotation=multiply(r,c.rotation);
     }
@@ -274,8 +277,15 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
     const BundleSettings& settings){
     if(!std::isfinite(settings.maxReprojectionError)||settings.maxReprojectionError<1e-6||settings.maxReprojectionError>.05||
        settings.maxIterations<0||settings.maxIterations>25)throw Error("Invalid bundle adjustment settings");
+    cancellation::checkpoint();
     verifyCameras(inputCameras);
-    BundleResult out;out.cameras.assign(inputCameras.begin(),inputCameras.end());
+    const std::size_t fixed=settings.gauge==BundleGauge::PoseAndBaseline?1:2;
+    const std::size_t cameraDof=6*(inputCameras.size()-fixed);
+    // Includes two candidate copies and sparse point/camera cross blocks. Inputs are bounded before multiplication.
+    if(initialPoints.size()>20000||inputObservations.size()>100000)throw Error("Out of bounds joint BA input");
+    const std::size_t estimated=3*cameraDof*cameraDof*sizeof(double)+initialPoints.size()*1024+inputObservations.size()*512;
+    if(estimated>settings.maxWorkingBytes)throw Error("Bundle working-set budget exceeded");
+    BundleResult out;out.gauge=settings.gauge;out.estimatedWorkingBytes=estimated;out.termination="iteration_limit";out.cameras.assign(inputCameras.begin(),inputCameras.end());
     out.inputPoints=initialPoints.size();out.inputObservations=inputObservations.size();
     auto points=prepare(initialPoints,inputObservations,out.cameras,settings.maxReprojectionError,out.rejectedObservations);
     for(const auto& p:points)out.usableObservations+=p.observations.size();
@@ -284,9 +294,11 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
     out.robustCostBefore=totalCost(out.cameras,points,settings.maxReprojectionError);
     double cost=out.robustCostBefore;
     double lambda=1e-3;
+    const double gaugeBaseline=norm(sub(cameraCenter(out.cameras[0]),cameraCenter(out.cameras[1])));
     for(int iter=0;iter<settings.maxIterations;++iter){
+        cancellation::checkpoint();
         ++out.attemptedIterations;
-        const auto l=linearize(out.cameras,points,settings.maxReprojectionError);
+        const auto l=linearize(out.cameras,points,settings.maxReprojectionError,fixed);
         bool accepted=false;
         for(int tryLambda=0;tryLambda<7;++tryLambda){
             Delta delta;
@@ -294,7 +306,18 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
             if(delta.squaredNorm<1e-18)break;
             auto candidateCameras=out.cameras;
             auto candidatePoints=points;
-            applyStep(candidateCameras,candidatePoints,delta);
+            applyStep(candidateCameras,candidatePoints,delta,fixed);
+            if(fixed==1){
+                const auto origin=cameraCenter(candidateCameras[0]);
+                const double length=norm(sub(cameraCenter(candidateCameras[1]),origin));
+                if(!std::isfinite(length)||length<1e-8){lambda*=8.;continue;}
+                const double scale=gaugeBaseline/length;
+                for(std::size_t k=1;k<candidateCameras.size();++k){
+                    auto& c=candidateCameras[k];const auto centre=add(origin,mul(sub(cameraCenter(c),origin),scale));
+                    c.translation=mul(multiply(c.rotation,centre),-1.);
+                }
+                for(auto& p:candidatePoints)p.seed.xyz=add(origin,mul(sub(p.seed.xyz,origin),scale));
+            }
             const auto proposed=totalCost(candidateCameras,candidatePoints,settings.maxReprojectionError);
             if(proposed<cost-1e-15&&std::isfinite(proposed)){
                 const double improvement=cost-proposed;
@@ -306,7 +329,7 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
             }
             lambda*=8.;
         }
-        if(!accepted)break;
+        if(!accepted){out.termination="no_improving_step";break;}
     }
     out.robustCostAfter=totalCost(out.cameras,points,settings.maxReprojectionError);
     out.medianErrorAfter=median(residuals(out.cameras,points));
@@ -324,12 +347,22 @@ BundleResult bundleAdjust(std::span<const ViewPose> inputCameras,
         if(*std::max_element(errors.begin(),errors.end())>settings.maxReprojectionError*3.||maxAngle<.8)continue;
         out.points.push_back({active.seed,active.observations.size(),median(errors),maxAngle});
     }
+    for(std::size_t c=0;c<out.cameras.size();++c){
+        std::vector<double> errors;for(const auto& p:points)for(const auto& o:p.observations)if(o.camera==c)errors.push_back(residual(out.cameras[c],p.seed.xyz,o.image));
+        out.medianCameraResiduals.push_back(errors.empty()?0.:median(errors));
+    }
     if(out.points.size()<16)throw Error("Too few valid sparse points after joint BA");
     return out;
+}
+std::array<double,12> bundleCameraJacobian(Vec3 q){
+    if(!finite(q)||q.z<=1e-8)throw Error("Invalid camera point for BA Jacobian");
+    const double u=q.x/q.z,v=q.y/q.z;
+    return {-u*v,1+u*u,-v,1/q.z,0.,-u/q.z,-1-v*v,u*v,u,0.,1/q.z,-v/q.z};
 }
 std::string bundleJson(const BundleResult& r){
     std::ostringstream out;out.imbue(std::locale::classic());out<<std::setprecision(14);
     out<<"{\"schema\":6,\"representation\":\"sparse_points\",\"optimization\":\"coupled_huber_schur_lm\",\"scale\":\"arbitrary\",\"anchorCamerasFixed\":2"
+       <<",\"gaugeMode\":\""<<(r.gauge==BundleGauge::PoseAndBaseline?"pose_and_baseline":"two_anchors")<<"\",\"estimatedWorkingBytes\":"<<r.estimatedWorkingBytes<<",\"termination\":\""<<r.termination<<"\""
        <<",\"registeredCameras\":"<<r.cameras.size()<<",\"pointCount\":"<<r.points.size()
        <<",\"inputPoints\":"<<r.inputPoints<<",\"inputObservations\":"<<r.inputObservations
        <<",\"usableObservations\":"<<r.usableObservations<<",\"rejectedObservations\":"<<r.rejectedObservations
@@ -340,7 +373,7 @@ std::string bundleJson(const BundleResult& r){
     for(std::size_t i=0;i<r.cameras.size();++i){
         if(i)out<<',';
         const auto& c=r.cameras[i];
-        out<<"{\"fixed\":"<<(i<2?"true":"false")<<",\"rotation\":[";
+        out<<"{\"fixed\":"<<(i<(r.gauge==BundleGauge::PoseAndBaseline?1U:2U)?"true":"false")<<",\"rotation\":[";
         for(int j=0;j<9;++j){if(j)out<<',';out<<c.rotation[j];}
         out<<"],\"translation\":["<<c.translation.x<<','<<c.translation.y<<','<<c.translation.z<<"]}";
     }
@@ -362,10 +395,11 @@ std::size_t exactIndex(double x,std::size_t maximum){
 }
 extern "C" char* rf_bundle_adjust_json(const double* cameras,std::size_t nc,
     const double* points,std::size_t np,const double* observations,std::size_t no,
-    double threshold,int iterations){
+    double threshold,int iterations) noexcept {
+    try {
     std::string response;
     try{
-        if(!cameras||!points||!observations||nc<3||nc>12||np<16||np>20000||no<32||no>100000)
+        if(!cameras||!points||!observations||nc<3||nc>32||np<16||np>20000||no<32||no>100000)
             throw rf::Error("Invalid joint BA buffers");
         std::vector<rf::ViewPose> poses;poses.reserve(nc);
         for(std::size_t i=0;i<nc;++i){rf::ViewPose p;for(int j=0;j<9;++j)p.rotation[j]=cameras[i*12+j];
@@ -390,4 +424,5 @@ extern "C" char* rf_bundle_adjust_json(const double* cameras,std::size_t nc,
     }
     auto* p=static_cast<char*>(std::malloc(response.size()+1));if(!p)return nullptr;
     std::memcpy(p,response.c_str(),response.size()+1);return p;
+    } catch(...) {return nullptr;}
 }

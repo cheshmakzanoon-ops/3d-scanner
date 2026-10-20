@@ -127,5 +127,39 @@ int main(){
         observations[7]=0.;pts[0]=.75;
         nativeBridgeRejects(cams,pts,observations,16,32);
     });
+    test("minimal gauge releases second anchor while preserving baseline and first pose",[]{
+        auto s=scene();s.initial[1].rotation=yaw(.073);s.initial[1].translation.y+=.025;
+        rf::BundleSettings cfg{.025,25};cfg.gauge=rf::BundleGauge::PoseAndBaseline;
+        const auto out=rf::bundleAdjust(s.initial,s.seeds,s.observations,cfg);
+        require(out.robustCostAfter<out.robustCostBefore*.1,"Minimal gauge did not converge");
+        require(out.cameras[0].rotation==s.initial[0].rotation,"First pose gauge changed");
+        const auto centre=[](const auto& p){auto c=rf::multiply(rf::transpose(p.rotation),p.translation);return rf::Vec3{-c.x,-c.y,-c.z};};
+        require(std::abs(dist(centre(out.cameras[1]),centre(out.cameras[0]))-dist(centre(s.initial[1]),centre(s.initial[0])))<1e-10,"Scale gauge drifted");
+        require(std::abs(out.cameras[1].rotation[2]-s.truth[1].rotation[2])<std::abs(s.initial[1].rotation[2]-s.truth[1].rotation[2]),"Second anchor rotation did not improve");
+        require(out.medianCameraResiduals.size()==s.truth.size(),"Per-camera evidence missing");
+        require(out.estimatedWorkingBytes<=cfg.maxWorkingBytes,"Working set exceeded admission");
+    });
+    test("camera Jacobian agrees with independent finite differences",[]{
+        const rf::Vec3 q{.3,-.2,4.};const auto j=rf::bundleCameraJacobian(q);const double h=1e-6;
+        for(int k=0;k<6;++k){
+            auto displaced=[&](double d){rf::Vec3 a=q;if(k<3){
+                const double c=std::cos(d),s=std::sin(d);
+                if(k==0)a={q.x,c*q.y-s*q.z,s*q.y+c*q.z};
+                if(k==1)a={c*q.x+s*q.z,q.y,-s*q.x+c*q.z};
+                if(k==2)a={c*q.x-s*q.y,s*q.x+c*q.y,q.z};
+            }else{if(k==3)a.x+=d;if(k==4)a.y+=d;if(k==5)a.z+=d;}return rf::Vec2{a.x/a.z,a.y/a.z};};
+            const auto a=displaced(h),b=displaced(-h);
+            require(std::abs((a.x-b.x)/(2*h)-j[k])<1e-8,"X derivative mismatch");
+            require(std::abs((a.y-b.y)/(2*h)-j[6+k])<1e-8,"Y derivative mismatch");
+        }
+    });
+    test("large graph and budget rejection are explicit before allocations",[]{
+        auto s=scene();s.initial.resize(80,s.initial[2]);
+        rejects([&]{rf::bundleAdjust(s.initial,s.seeds,s.observations);});
+        s=scene();rf::BundleSettings cfg;cfg.maxWorkingBytes=1;
+        rejects([&]{rf::bundleAdjust(s.initial,s.seeds,s.observations,cfg);});
+        char* e=rf_bundle_adjust_json(nullptr,250,nullptr,16,nullptr,32,.003,2);
+        require(e!=nullptr,"Invalid C request did not return error");rf_free(e);
+    });
     std::cout<<passed<<" bundle adjustment cases passed\n";
 }
