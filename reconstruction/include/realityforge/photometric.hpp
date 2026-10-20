@@ -14,6 +14,11 @@ struct ExposureBalance {
     std::vector<std::array<double,3>> gains;
     std::size_t supportedPairs{}, acceptedSamples{};
     double medianLogErrorBefore{}, medianLogErrorAfter{};
+    std::vector<bool> cameraSupported;
+    std::vector<double> cameraConfidence;
+    std::size_t rejectedSamples{}, rejectedPairs{}, heldOutSamples{};
+    double heldOutLogErrorBefore{}, heldOutLogErrorAfter{};
+    bool correctionAccepted{};
 };
 double srgbToLinear(double value);
 double linearToSrgb(double value);
