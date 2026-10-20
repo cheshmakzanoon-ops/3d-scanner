@@ -9,10 +9,12 @@ m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 
 
-def transcript(codes=(0,)*32):
+def transcript(codes=(0,)*32, selectors=None):
     text=[]
+    selectors = selectors or m.suite_scope('debug')['requiredPassedSelectors']
     for index,code in enumerate(codes,1):
-        fields=f'INSTRUMENTATION_STATUS: class=synthetic.ParserFixture\nINSTRUMENTATION_STATUS: test=case{index}\nINSTRUMENTATION_STATUS: current={index}\nINSTRUMENTATION_STATUS: numtests={len(codes)}\n'
+        owner, method = selectors[index-1].split('#') if index <= len(selectors) else ('synthetic.ParserFixture',f'case{index}')
+        fields=f'INSTRUMENTATION_STATUS: class={owner}\nINSTRUMENTATION_STATUS: test={method}\nINSTRUMENTATION_STATUS: current={index}\nINSTRUMENTATION_STATUS: numtests={len(codes)}\n'
         text.extend([fields+'INSTRUMENTATION_STATUS_CODE: 1\n',fields+f'INSTRUMENTATION_STATUS_CODE: {code}\n'])
     text.append(f"OK ({len(codes)-sum(code==-3 for code in codes)} tests)\nINSTRUMENTATION_CODE: -1")
     return ''.join(text)
@@ -68,6 +70,8 @@ def test_complete_candidate_run_records_actual_runtime16k_and_decoded_screenshot
         if cmd==['adb','devices','-l']:return 'List of devices attached\nfixture device\n'
         assert cmd[:3]==['adb','-s','fixture']
         if cmd[3]=='pull':Path(cmd[-1]).write_bytes(png);return ''
+        if 'instrument' in cmd:
+            assert cmd[cmd.index('notClass')+1]==','.join(m.suite_scope('debug')['notClass'])
         key=' '.join(cmd[4:])
         if key.startswith('pm path '):return 'package:/data/app/fixture.apk'
         if key.startswith('sha256sum '):return hashlib.sha256(apk.read_bytes()).hexdigest()+' /data/app/fixture.apk'
@@ -76,6 +80,10 @@ def test_complete_candidate_run_records_actual_runtime16k_and_decoded_screenshot
     receipt=json.loads((args.output/'compatibility.json').read_text())
     assert receipt['runtime16kb']=='PASS' and receipt['physicalCapture']=='NOT_RUN'
     assert receipt['screenshotSize']==[128,128]
+    assert receipt['suite']['scope']=='debug'
+    assert receipt['suite']['manifestSha256']==hashlib.sha256(m.SUITES.read_bytes()).hexdigest()
+    assert receipt['suite']['fullQualification']=='NOT_RUN'
+    assert all(row['status']=='NOT_RUN' and row['reason'] for row in receipt['suite']['excludedGates'])
     def wrong(cmd):return 'b'*64+' bad.apk' if 'sha256sum' in cmd else execute(cmd)
     assert m.run(args,wrong)==1
     receipt=json.loads((args.output/'compatibility.json').read_text())
@@ -105,3 +113,45 @@ def test_different_names_cannot_reuse_current_and_mask_a_missing_test_index():
 @pytest.mark.parametrize('text',[transcript((0,)).replace('INSTRUMENTATION_CODE: -1',''),transcript((0,)).replace('INSTRUMENTATION_CODE: -1','INSTRUMENTATION_CODE: 0'),transcript((0,)).replace('OK (1 tests)','INSTRUMENTATION_STATUS: stream=OK (1 tests)')])
 def test_missing_failed_or_embedded_completion_cannot_qualify(text):
     with pytest.raises(ValueError):m.instrumentation_counts(text)
+
+
+def test_debug_suite_excludes_only_named_specialist_contracts_and_routes_release_separately():
+    debug=m.suite_scope('debug');release=m.suite_scope('release')
+    assert {row['gate'] for row in debug['excludedGates']}=={'physical_capture','external_recovery','physical_resource_profile','offline_radios_journey','minified_release'}
+    assert 'com.realityforge.scanner.qa.ReleaseNativeContractTest' in debug['notClass']
+    assert 'com.realityforge.scanner.qa.ReleaseNativeContractTest' not in release['notClass']
+    assert any(s.startswith('com.realityforge.scanner.qa.ReleaseNativeContractTest#') for s in release['requiredPassedSelectors'])
+    assert 'com.realityforge.scanner.agents.a087.ResourceProbeContractTest' in release['notClass']
+    for scope in (debug,release):
+        assert m.suite_arguments(scope)==['-e','notClass',','.join(scope['notClass'])]
+        # No positive class filter: ordinary discovery still runs baseline and new tests.
+        assert 'class' not in m.suite_arguments(scope)
+        assert not any(s.startswith('com.realityforge.scanner.NativeSmokeTest') or s.startswith('com.realityforge.scanner.qa.CompatibilityContractTest') or s.startswith('com.realityforge.scanner.SessionReliabilityTest') for s in scope['notClass'])
+        assert all(row['status']=='NOT_RUN' and row['reason'] for row in scope['excludedGates'])
+        assert scope['fullQualification']=='NOT_RUN'
+
+
+def test_required_baseline_and_new_compatibility_contract_must_really_pass():
+    scope=m.suite_scope('debug')
+    with pytest.raises(ValueError,match='did not actually pass'):m.scoped_counts(transcript((0,-4)),scope)
+    with pytest.raises(ValueError,match='did not actually pass'):m.scoped_counts(transcript((0,),['synthetic.MissingBaseline#case']),scope)
+    assert m.scoped_counts(transcript((0,0,-4)),scope)=={'tests':3,'passed':2,'skipped':1,'failed':0}
+
+
+@pytest.mark.parametrize('scope_name,selector,code',[
+    ('debug','com.realityforge.scanner.qa.PhysicalCaptureContractTest#savedPhysicalOriginalsDecodeWithSelectedCameraAndExactHashes',0),
+    ('debug','com.realityforge.scanner.qa.ReleaseNativeContractTest#installedCandidateIsMinifiedReleaseAndNativeExportsReopen',0),
+    ('release','com.realityforge.scanner.agents.a087.ResourceProbeContractTest#debugProbeRecordsActualSameProcessCounters',-4),
+])
+def test_excluded_gate_execution_or_skip_cannot_become_a_scope_pass(scope_name,selector,code):
+    scope=m.suite_scope(scope_name);required=scope['requiredPassedSelectors']
+    with pytest.raises(ValueError,match='excluded specialist'):
+        m.scoped_counts(transcript((0,)*len(required)+(code,),required+[selector]),scope)
+
+
+def test_release_scope_requires_actual_minified_release_contract_and_keeps_physical_unrun():
+    release=m.suite_scope('release');required=release['requiredPassedSelectors']
+    with pytest.raises(ValueError,match='ReleaseNativeContractTest'):
+        m.scoped_counts(transcript((0,0)),release)
+    assert m.scoped_counts(transcript((0,)*len(required),required),release)['passed']==3
+    assert {row['gate']:row['status'] for row in release['excludedGates']}=={'physical_capture':'NOT_RUN','external_recovery':'NOT_RUN','physical_resource_profile':'NOT_RUN','offline_radios_journey':'NOT_RUN'}

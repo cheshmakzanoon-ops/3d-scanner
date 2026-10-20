@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'tools'))
 from check_screenshot import validate
 SCREEN = '/data/local/tmp/realityforge-m12-session.png'
+SUITES = Path(__file__).with_name('suites.json')
 
 
 def select_serial(listing, requested=None):
@@ -35,7 +36,7 @@ def test_count(output):
     return int(summaries[0])
 
 
-def instrumentation_counts(output):
+def _instrumentation_report(output):
     """AndroidJUnitRunner1.6.2 raw statuses; -3 ignored, -4 failed assumption.
 
     JUnit's OK summary excludes ignored tests but includes assumption failures.
@@ -77,7 +78,54 @@ def instrumentation_counts(output):
               'failed': sum(code in (-1, -2) for code in finished.values())}
     if counts['failed'] or counts['passed'] < 1 or summary != counts['tests'] - ignored:
         raise ValueError('Instrumentation summary disagrees with actual pass/skip/failure events')
-    return counts
+    return {'counts': counts, 'events': [
+        {'class': key[0], 'test': key[1], 'current': key[2], 'code': code}
+        for key, code in finished.items()]}
+
+
+def instrumentation_counts(output):
+    return _instrumentation_report(output)['counts']
+
+
+def suite_scope(name):
+    raw = SUITES.read_bytes()
+    manifest = json.loads(raw)
+    if manifest.get('schema') != 'realityforge.android-suite-scopes.v1' or name not in ('debug', 'release'):
+        raise ValueError('Unsupported checked-in instrumentation suite scope')
+    scope = manifest['scopes'][name]
+    exclusions = scope['excludedGates']
+    if (not exclusions or len({row['gate'] for row in exclusions}) != len(exclusions)
+            or not scope['requiredPassedSelectors']):
+        raise ValueError('Invalid suite manifest gate/selector declarations')
+    selectors = [row['selector'] for row in exclusions] + scope['requiredPassedSelectors']
+    if any(not re.fullmatch(r'com\.realityforge\.scanner\.[A-Za-z0-9_.]+(?:#[A-Za-z0-9_]+)?', selector) for selector in selectors):
+        raise ValueError('Invalid suite selector')
+    return {'schema': 1, 'scope': name, 'manifestSha256': hashlib.sha256(raw).hexdigest(),
+            'notClass': [row['selector'] for row in exclusions],
+            'requiredPassedSelectors': scope['requiredPassedSelectors'],
+            'excludedGates': [{**row, 'status': 'NOT_RUN'} for row in exclusions],
+            'fullQualification': 'NOT_RUN'}
+
+
+def suite_arguments(scope):
+    return ['-e', 'notClass', ','.join(scope['notClass'])]
+
+
+def _selector_matches(selector, event):
+    owner, separator, method = selector.partition('#')
+    return event['class'] == owner and (not separator or event['test'] == method)
+
+
+def scoped_counts(output, scope):
+    report = _instrumentation_report(output)
+    for event in report['events']:
+        if any(_selector_matches(selector, event) for selector in scope['notClass']):
+            raise ValueError('An excluded specialist test executed; suite selection was not honored')
+    for selector in scope['requiredPassedSelectors']:
+        matching = [event for event in report['events'] if _selector_matches(selector, event)]
+        if not matching or any(event['code'] != 0 for event in matching):
+            raise ValueError('Required scope test did not actually pass: ' + selector)
+    return report['counts']
 
 
 def command(args, timeout=900):
@@ -93,6 +141,7 @@ def run(args, execute=command):
     receipt = {'schema': 1, 'status': 'FAIL', 'runtime16kb': 'NOT_RUN', 'physicalCapture': 'NOT_RUN'}
     selected = None
     try:
+        receipt['suite'] = suite_scope(getattr(args, 'scope', 'debug'))
         for apk in (args.app_apk, args.test_apk):
             if not apk.is_file():
                 raise ValueError('APK missing: ' + str(apk))
@@ -123,9 +172,10 @@ def run(args, execute=command):
                 raise ValueError('Expected single installed base APK; candidate splits require complete package identity')
             if shell('sha256sum', installed[0][8:]).split()[0] != receipt[key]:
                 raise ValueError('Installed package hash differs from selected candidate')
-        transcript = shell('am', 'instrument', '-w', '-r', 'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner')
+        transcript = shell('am', 'instrument', '-w', '-r', *suite_arguments(receipt['suite']),
+                           'com.realityforge.scanner.test/androidx.test.runner.AndroidJUnitRunner')
         (output / 'instrumentation.txt').write_text(transcript + '\n')
-        receipt['counts'] = instrumentation_counts(transcript)
+        receipt['counts'] = scoped_counts(transcript, receipt['suite'])
         receipt['tests'] = receipt['counts']['tests']
         execute(adb + ['pull', SCREEN, str(screenshot)])
         receipt['screenshotSize'] = validate(screenshot)
@@ -147,6 +197,8 @@ def run(args, execute=command):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial')
+    parser.add_argument('--scope', choices=['debug', 'release'], default='debug',
+                        help='Checked-in suite routing; excluded required specialist gates remain NOT_RUN')
     parser.add_argument('--app-apk', type=Path, default=Path('app/build/outputs/apk/debug/app-debug.apk'))
     parser.add_argument('--test-apk', type=Path, default=Path('app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk'))
     parser.add_argument('--output', type=Path, default=Path('reports/device'))
