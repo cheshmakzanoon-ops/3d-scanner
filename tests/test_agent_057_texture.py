@@ -59,7 +59,7 @@ def test_compact_real_photographs_and_independent_uv_projection(tmp_path):
     texture=result['texture']
     assert texture['compactCharts'] and texture['supportedTexels']>100
     assert 0<=texture['maximumUvStretch']<=.02+1e-8
-    assert texture['textureEngineVersion']=='rf-atlas-v2-groups-zlib-radiometry2'
+    assert texture['textureEngineVersion']=='rf-atlas-v2-groups-zlib-radiometry3'
     assert texture['exposureHeldOutSamples']>0
     assert texture['exposureHeldOutLogErrorAfter']<texture['exposureHeldOutLogErrorBefore']
     assert texture['triangleCount']==texture['inputTriangles']==result['mesh']['triangleCount']
