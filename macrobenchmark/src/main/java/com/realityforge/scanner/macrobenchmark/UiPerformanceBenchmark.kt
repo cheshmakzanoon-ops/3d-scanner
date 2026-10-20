@@ -82,7 +82,7 @@ class UiPerformanceBenchmark {
         val model = checkNotNull(ui.findObject(By.desc("Photographic 3D model. Drag to rotate and pinch to zoom.")))
         val bounds = model.visibleBounds
         repeat(4) { ui.swipe(bounds.centerX(),bounds.centerY(),bounds.centerX()+bounds.width()/4,bounds.centerY()+bounds.height()/8,20) }
-        model.pinchOpen(50,30);model.pinchClose(50,30)
+        model.pinchOpen(0.5f,1000);model.pinchClose(0.5f,1000)
         checkNotNull(ui.findObject(By.text("Reset view"))).click(); colorsVisible()
     }
     @Test fun viewerLifecycle() = benchmark.measureRepeated(packageName, listOf(FrameTimingMetric()),

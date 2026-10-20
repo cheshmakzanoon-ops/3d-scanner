@@ -32,7 +32,7 @@ class BaselineProfileGenerator {
                 "Photographic 3D model. Drag to rotate and pinch to zoom.")),15000))
             val b = viewer.visibleBounds
             ui.swipe(b.centerX(),b.centerY(),b.centerX()+b.width()/4,b.centerY(),20)
-            viewer.pinchOpen(50,20);viewer.pinchClose(50,20)
+            viewer.pinchOpen(0.5f,1000);viewer.pinchClose(0.5f,1000)
             checkNotNull(ui.findObject(By.text("Reset view"))).click()
             pressHome()
         }
