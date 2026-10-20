@@ -55,9 +55,10 @@ def validate(manifest: dict, root: Path) -> dict:
     require(manifest['units'] != 'arbitrary' or not manifest['metric_scale_verified'], 'arbitrary scale cannot be verified metric')
     photos = manifest.get('photos')
     require(isinstance(photos, list) and len(photos) >= 2, 'at least two photographs required')
-    seen, hashes, ids = set(), set(), set()
+    seen, hashes, ids, local_photos = set(), set(), set(), []
     for photo in photos:
         local_photo = _file(photo, root, seen)
+        local_photos.append(local_photo)
         require(photo['sha256'] not in hashes, 'duplicate photo content')
         hashes.add(photo['sha256'])
         require(isinstance(photo.get('id'), str) and photo['id'] and photo['id'] not in ids, 'duplicate/missing photo ID')
@@ -88,6 +89,12 @@ def validate(manifest: dict, root: Path) -> dict:
         k = calibration_data['K']
         require(len(k) == 3 and all(len(row) == 3 for row in k) and all(type(v) in (float, int) and math.isfinite(v) for row in k for v in row), 'invalid calibration matrix')
         require(k[0][0] > 0 and k[1][1] > 0 and k[2] == [0, 0, 1], 'invalid calibration intrinsics')
+        if 'source_profile' in calibration_data or 'conversion' in calibration_data:
+            from .calibration import CONVERSION, convert
+            require(calibration_data.get('conversion') == CONVERSION, 'unsupported calibration conversion')
+            source = _file(calibration_data['source_profile'], root, seen)
+            require(calibration_data == convert(source, capture['lens_id'], local_photos, root),
+                    'wrapped calibration differs from original profile/frame')
     except (OSError, KeyError, TypeError, json.JSONDecodeError) as exc:
         raise InvalidManifest('invalid calibration content') from exc
     reference = manifest.get('reference', {})
