@@ -360,6 +360,13 @@
       "branch": "agents/094-source-provenance-reproducibility",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "a9ab00942b90cad654b8ba75fdc3496a9fbc10f1",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
