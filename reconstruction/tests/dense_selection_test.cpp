@@ -20,10 +20,57 @@ std::vector<rf::DenseView> views(std::size_t count){
     }
     return result;
 }
+std::vector<double> packedCameras(const std::vector<rf::DenseView>& input){
+    std::vector<double> rows(input.size()*16);
+    for(std::size_t i=0;i<input.size();++i){const auto& v=input[i];
+        std::copy(v.pose.rotation.begin(),v.pose.rotation.end(),rows.begin()+static_cast<std::ptrdiff_t>(i*16));
+        rows[16*i+9]=v.pose.translation.x;rows[16*i+10]=v.pose.translation.y;rows[16*i+11]=v.pose.translation.z;
+        rows[16*i+12]=v.fx;rows[16*i+13]=v.fy;rows[16*i+14]=v.cx;rows[16*i+15]=v.cy;
+    }
+    return rows;
+}
 }
 int main(){
     int count=0;
     auto test=[&](const char* name,auto fn){fn();++count;std::cout<<"PASS "<<name<<'\n';};
+    test("approved adjacency is copied and drives the real solver, including empty rows",[]{
+        const auto v=views(3);auto rows=packedCameras(v);
+        std::vector<std::vector<std::size_t>> plan{{2},{},{0}};const auto expected=plan;
+        const auto baseline=rf::detail::denseSourcePlan(v,3,8);
+        {
+            rf::detail::DenseSourcePlanScope scope(plan,rows);
+            plan[0]={1};rows[9]=1000;
+            require(rf::detail::denseSourcePlan(v,3,8)==expected,"Caller mutation escaped approved snapshot");
+            const auto result=rf::reconstructDense(v);
+            require(result.sourceViews==expected&&result.points.empty(),"Actual solver ignored approved source edges");
+            auto coarse=v;
+            for(auto& image:coarse){image.width=48;image.height=32;image.fx*=.5;image.fy*=.5;
+                image.cx=(image.cx+.5)*.5-.5;image.cy=(image.cy+.5)*.5-.5;image.rgba.resize(48*32*4);}
+            require(rf::detail::denseSourcePlan(coarse,3,8)==expected,"Coarse pixels incorrectly invalidated same camera plan");
+            std::vector<std::vector<std::size_t>> other{{1},{0},{1}};
+            {rf::detail::DenseSourcePlanScope nested(other,packedCameras(v));
+                require(rf::detail::denseSourcePlan(v,3,8)==other,"Nested scope ignored");}
+            require(rf::detail::denseSourcePlan(v,3,8)==expected,"Nested scope did not restore outer snapshot");
+            auto changed=v;std::swap(changed[0],changed[1]);
+            rejects([&]{rf::detail::denseSourcePlan(changed,3,8);});
+            changed=v;changed[1].pose.translation.y=.001;
+            rejects([&]{rf::detail::denseSourcePlan(changed,3,8);});
+        }
+        require(rf::detail::denseSourcePlan(v,3,8)==baseline,"Scope leaked into next operation");
+    });
+    test("invalid approved adjacency rejects before changing the current scope",[]{
+        const auto v=views(3);const auto rows=packedCameras(v);
+        std::vector<std::vector<std::size_t>> good{{1},{0},{1}};
+        rf::detail::DenseSourcePlanScope scope(good,rows);
+        for(const auto& bad:std::vector<std::vector<std::vector<std::size_t>>>{{{0},{0},{1}},{{1,1},{0},{1}},{{3},{0},{1}},{{1,2,1,2},{0},{1}},{{1},{0}}})
+            rejects([&]{rf::detail::DenseSourcePlanScope invalid(bad,rows);});
+        auto badRows=rows;badRows[0]=2;
+        rejects([&]{rf::detail::DenseSourcePlanScope invalid(good,badRows);});
+        require(rf::detail::denseSourcePlan(v,3,8)==good,"Failed construction changed active scope");
+        auto coincident=v;coincident[1].pose=coincident[0].pose;
+        {rf::detail::DenseSourcePlanScope invalid(good,packedCameras(coincident));
+            rejects([&]{rf::detail::denseSourcePlan(coincident,3,8);});}
+    });
     test("eight-view source lists are bounded, distinct and deterministic",[]{
         const auto v=views(8);const auto a=rf::detail::denseSourcePlan(v,3,8);
         require(a==rf::detail::denseSourcePlan(v,3,8),"Source plan is not deterministic");
