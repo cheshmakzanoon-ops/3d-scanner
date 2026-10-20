@@ -15,6 +15,7 @@ namespace rf {
 struct MeshTopologySettings {
     std::size_t maxVertices{40000},maxFaces{80000},maxIntersectionCandidates{2000000};
     double relativeTolerance{1e-10};
+    std::span<const std::uint8_t> faceEvidence; // 0 unknown, 1 observed, 2 generated; empty means unknown
 };
 struct MeshTopologyReport {
     std::vector<std::size_t> degenerateFaces,duplicateFaces,windingConflictFaces,nonmanifoldFaces;
@@ -22,6 +23,7 @@ struct MeshTopologyReport {
     std::vector<std::uint32_t> faceComponents;
     std::vector<std::vector<std::uint32_t>> boundaryLoops,boundaryChains;
     std::size_t components{},boundaryEdges{},nonmanifoldEdges{},nonmanifoldVertices{},intersectionCandidates{};
+    std::size_t observedFaces{},generatedFaces{},unknownFaces{};
     double tolerance{};
     bool intersectionBudgetExceeded{};
     // A diagnostic does not certify watertightness or infer generated geometry.
@@ -90,6 +92,9 @@ inline MeshTopologyReport analyzeMeshTopology(const SurfaceMesh& mesh,const Mesh
        s.maxIntersectionCandidates>20000000||!std::isfinite(s.relativeTolerance)||s.relativeTolerance<=0||s.relativeTolerance>.001)
         throw Error("Mesh topology bounds/settings exceeded");
     MeshTopologyReport out;const auto n=mesh.triangles.size();
+    if(!s.faceEvidence.empty()&&s.faceEvidence.size()!=n)throw Error("Topology face-evidence size mismatch");
+    if(s.faceEvidence.empty())out.unknownFaces=n;
+    else for(auto kind:s.faceEvidence){if(kind==0)++out.unknownFaces;else if(kind==1)++out.observedFaces;else if(kind==2)++out.generatedFaces;else throw Error("Invalid topology face evidence");}
     std::vector<std::uint32_t> parent(n);std::iota(parent.begin(),parent.end(),0);
     auto root=[&](std::uint32_t x){while(parent[x]!=x){parent[x]=parent[parent[x]];x=parent[x];}return x;};
     auto unite=[&](std::uint32_t a,std::uint32_t b){a=root(a);b=root(b);if(a!=b)parent[std::max(a,b)]=std::min(a,b);};

@@ -5,6 +5,7 @@ namespace {void check(bool c){if(!c)throw std::runtime_error("mesh topology regr
 int main(){
     rf::SurfaceMesh m;m.vertices={v(0,0,0),v(1,0,0),v(1,1,0),v(0,1,0)};m.triangles={{0,1,2,0},{0,2,3,0}};
     auto r=rf::analyzeMeshTopology(m);check(r.components==1&&r.boundaryEdges==4&&r.boundaryLoops.size()==1&&r.nonmanifoldEdges==0&&r.intersections.empty());
+    std::array<std::uint8_t,2> evidence{1,2};rf::MeshTopologySettings provenance;provenance.faceEvidence=evidence;auto classified=rf::analyzeMeshTopology(m,provenance);check(classified.observedFaces==1&&classified.generatedFaces==1&&classified.unknownFaces==0);check(r.unknownFaces==2);
     m.triangles.push_back({2,1,0,1});m.triangles.push_back({0,0,1,0});r=rf::analyzeMeshTopology(m);check(r.duplicateFaces==std::vector<std::size_t>{2}&&r.degenerateFaces==std::vector<std::size_t>{3}&&r.nonmanifoldEdges==1);
     m.triangles={{0,1,2,0},{0,3,2,0}};r=rf::analyzeMeshTopology(m);check(r.windingConflictFaces.size()==2);
     rf::SurfaceMesh cross;cross.vertices={v(-1,-1,0),v(1,-1,0),v(0,1,0),v(0,-.5,-1),v(0,-.5,1),v(0,.5,.5)};cross.triangles={{0,1,2,0},{3,4,5,1}};
