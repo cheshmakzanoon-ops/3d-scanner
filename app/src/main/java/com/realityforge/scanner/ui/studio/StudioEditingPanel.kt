@@ -57,10 +57,3 @@ fun StudioEditingPanel(
         if(rejected) Text(stringResource(R.string.a070_invalid_edit),color=MaterialTheme.colorScheme.error)
     }
 }
-
-/** Locale-independent engineering coordinate entry; presentation/measurements remain explicit. */
-internal fun parseEditPoint(text: String): EditPoint {
-    val parts=text.trim().split(Regex("[\\s;]+"))
-    require(parts.size==3)
-    return EditPoint(requireNotNull(parts[0].toDoubleOrNull()),requireNotNull(parts[1].toDoubleOrNull()),requireNotNull(parts[2].toDoubleOrNull()))
-}

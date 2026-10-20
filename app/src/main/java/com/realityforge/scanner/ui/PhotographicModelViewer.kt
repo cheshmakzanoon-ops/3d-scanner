@@ -37,6 +37,10 @@ import java.io.File
 
 /** Opens only a locally selected, current project artifact; never resolves an external URI. */
 @Composable
+fun PhotographicModelViewer(file: File, onClose: () -> Unit) =
+    PhotographicModelViewer(file,StudioFeatureActions(),null,onClose)
+
+@Composable
 fun PhotographicModelViewer(
     file: File,
     features: StudioFeatureActions = StudioFeatureActions(),
@@ -46,6 +50,7 @@ fun PhotographicModelViewer(
     var model by remember(file.path) { mutableStateOf<LoadedPhotographicModel?>(null) }
     val asset=model?.asset
     var failure by remember(file.path) { mutableStateOf<String?>(null) }
+    var fallbackUsed by remember(file.path) { mutableStateOf(false) }
     val context = LocalContext.current
     val glUnavailable=stringResource(R.string.a070_gl_unavailable)
     val openFailure=stringResource(R.string.a070_open_failure)
@@ -78,10 +83,12 @@ fun PhotographicModelViewer(
                     LinearProgressIndicator(Modifier.fillMaxWidth())
                     Text(stringResource(R.string.a070_loading))
                 } else {
-                    PhotoGlSurface(requireNotNull(model),pose,{pose=it},surfaceFactory,Modifier.weight(1f).fillMaxWidth()) { failure=it }
+                    PhotoGlSurface(requireNotNull(model),pose,{pose=it},surfaceFactory,{fallbackUsed=true},Modifier.weight(1f).fillMaxWidth()) { failure=it }
+                    if (fallbackUsed) Text(stringResource(R.string.a070_using_compatible_renderer),modifier=Modifier.semantics { liveRegion=LiveRegionMode.Polite })
                     StudioControls(pose,{ pose=it })
                     StudioFeatureControls(features)
-                    Text(stringResource(R.string.a070_model_info,loaded.indices.size/3,loaded.imageWidth,loaded.imageHeight), style = MaterialTheme.typography.bodySmall)
+                    val scale = stringResource(if (model?.summary?.units=="meters") R.string.a070_metric_scale else R.string.a070_unknown_scale)
+                    Text(stringResource(R.string.a070_model_info,loaded.indices.size/3,loaded.imageWidth,loaded.imageHeight,scale), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -94,6 +101,7 @@ private fun PhotoGlSurface(
     pose: StudioPose,
     onPoseChange: (StudioPose)->Unit,
     factory: ((Context,LoadedPhotographicModel,(String)->Unit)->StudioRenderSurface)?,
+    onFallback: () -> Unit,
     modifier: Modifier,
     onFailure: (String) -> Unit,
 ) {
@@ -101,12 +109,21 @@ private fun PhotoGlSurface(
     val asset=model.asset
     val owner=LocalLifecycleOwner.current
     val callback by rememberUpdatedState(onFailure)
+    val fallbackCallback by rememberUpdatedState(onFallback)
     val poseCallback by rememberUpdatedState(onPoseChange)
     val currentPose by rememberUpdatedState(pose)
     val label=stringResource(R.string.a070_photo_accessibility)
-    val surface=remember(asset,context,factory) {
-        factory?.invoke(context,model) { callback(it) } ?: PhotoGlView(context,asset) { callback(it) }
+    var useFallback by remember(asset,factory) { mutableStateOf(false) }
+    val candidate=remember(asset,context,factory,useFallback) {
+        if (factory!=null && !useFallback) {
+            try {
+                factory.invoke(context,model) { useFallback=true; fallbackCallback() } to false
+            } catch (_: Exception) { PhotoGlView(context,asset) { callback(it) } to true }
+            catch (_: LinkageError) { PhotoGlView(context,asset) { callback(it) } to true }
+        } else PhotoGlView(context,asset) { callback(it) } to false
     }
+    val surface=candidate.first
+    LaunchedEffect(candidate) { if(candidate.second) fallbackCallback() }
     SideEffect { (surface as? PhotoGlView)?.onInteract={ h,v,f -> poseCallback(currentPose.orbit(h,v).magnify(f)) } }
     LaunchedEffect(surface,pose) {
         if (surface is PhotoGlView) surface.applyPose(pose)

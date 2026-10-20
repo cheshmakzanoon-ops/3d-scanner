@@ -5,6 +5,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -49,13 +50,13 @@ class ViewerControlsTest {
             await { all -> all.any { it.contentDescription?.toString()==context.getString(R.string.a070_dense_points) } }
             click(context.getString(R.string.a070_zoom_in))
             val zoomed=context.getString(R.string.a070_camera_state,0,0,120)
-            await { all -> all.any { it.stateDescription?.toString()==zoomed } }
+            await { all -> all.any { AccessibilityNodeInfoCompat.wrap(it).stateDescription?.toString()==zoomed } }
             click(context.getString(R.string.a070_orbit_right))
             val rotated=context.getString(R.string.a070_camera_state,15,0,120)
-            await { all -> all.any { it.stateDescription?.toString()==rotated } }
+            await { all -> all.any { AccessibilityNodeInfoCompat.wrap(it).stateDescription?.toString()==rotated } }
             click(context.getString(R.string.a070_fit))
             val reset=context.getString(R.string.a070_camera_state,0,0,100)
-            await { all -> all.any { it.stateDescription?.toString()==reset } }
+            await { all -> all.any { AccessibilityNodeInfoCompat.wrap(it).stateDescription?.toString()==reset } }
         }
     }
 }
