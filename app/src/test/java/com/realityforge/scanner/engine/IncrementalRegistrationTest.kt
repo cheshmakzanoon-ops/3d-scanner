@@ -123,14 +123,30 @@ class IncrementalRegistrationTest {
             val ids=List(count){"photo-%03d".format(it)};var calls=0;var latest:com.realityforge.scanner.engine.registration.RegistrationFrontier?=null
             suspend fun run(resume:com.realityforge.scanner.engine.registration.RegistrationFrontier?,interrupt:Boolean)=IncrementalRegistration.grow(views,initial,
                 {a,b->++calls;assertTrue(kotlin.math.abs(a-b)<=2);FeaturePairs(IntArray(20){it},IntArray(20){it})},
-                {poses,_,_->assertTrue(poses.size<=144);List(20){FrontierPoint(it,doubleArrayOf(it*.1,0.0,5.0))}},
+                {poses,observations,_->
+                    assertTrue(poses.size<=144)
+                    // A bounded anchor+frontier window can contain separate
+                    // components for the same scene feature. Compact track IDs
+                    // belong to these exact rows, never to global key ordinals.
+                    observations.asList().chunked(7).groupBy {it[0].toInt()}.map { (track,rows)->
+                        val sample=rows.first();val camera=sample[1].toInt()
+                        val key=kotlin.math.round((sample[2]*5-poses[camera*12+9])/.1).toInt()
+                        assertTrue(key in 0 until 20)
+                        FrontierPoint(track,doubleArrayOf(key*.1,0.0,5.0),rows.map {it[1].toInt()})
+                    }
+                },
                 {rows,_->val tx=rows[3]*5-rows[0];FrontierPose(views[0].rotation,doubleArrayOf(tx,0.0,0.0),IntArray(rows.size/5){it})},
                 photoIds=ids,resume=resume,checkpoint={latest=it;if(interrupt&&it.cameras.size==10)throw CancellationException("simulated persisted interruption")},
                 neighbors={a->setOf(a-2,a-1,a+1,a+2).filter {it in views.indices}.toSet()})
             try{run(null,true);fail("Did not interrupt") }catch(_:CancellationException){}
             val resumed=run(com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(requireNotNull(latest).encode()),false)
+            val clean=run(null,false)
             assertEquals(count,resumed.cameras.size);assertTrue(resumed.unregistered.isEmpty());assertTrue(calls<count*8)
-            for(camera in resumed.cameras)assertEquals(-camera.photo*.01,camera.view.translation[0],1e-5)
+            assertEquals(clean.cameras.map {it.photo},resumed.cameras.map {it.photo})
+            for(camera in resumed.cameras){
+                assertEquals(-camera.photo*.01,camera.view.translation[0],1e-5)
+                assertArrayEquals(clean.cameras.first {it.photo==camera.photo}.view.translation,camera.view.translation,1e-5)
+            }
         }
     }
 
