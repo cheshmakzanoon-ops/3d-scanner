@@ -101,6 +101,15 @@ inline ObservedNormal estimateObservedNormal(std::span<const NormalObservation> 
     out.direction={eigen[0][ids[0]],eigen[1][ids[0]],eigen[2][ids[0]]};
     const auto camera=sub(observations[nearby.front().second].cameraCenter,query);
     if(dot(out.direction,camera)<0){out.direction.x=-out.direction.x;out.direction.y=-out.direction.y;out.direction.z=-out.direction.z;}
+    std::vector<double> residuals;residuals.reserve(nearby.size());
+    for(auto item:nearby)residuals.push_back(dot(sub(observations[item.second].position,center),out.direction));
+    std::sort(residuals.begin(),residuals.end());
+    // Two tight separated layers are not one uncertain average plane.
+    for(std::size_t split=3;split+3<=residuals.size();++split){
+        if(residuals[split]-residuals[split-1]>6*s.observationSigma&&
+           residuals[split-1]-residuals.front()<=2*s.observationSigma&&
+           residuals.back()-residuals[split]<=2*s.observationSigma){out.validity=NormalValidity::Discontinuity;return out;}
+    }
     out.validity=NormalValidity::Supported;
     for(auto item:nearby)out.supportingObservationIds.push_back(observations[item.second].observationId);
     return out;

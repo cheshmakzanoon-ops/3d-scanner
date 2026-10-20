@@ -17,6 +17,8 @@ int main(){
     check(rf::estimateDepthNeighborhoodNormal(view,map,4,4,1).validity==rf::NormalValidity::Supported);
     map.depth[3*9+3]=3;check(rf::estimateDepthNeighborhoodNormal(view,map,4,4,1).validity==rf::NormalValidity::Discontinuity);
     check(rf::estimateDepthNeighborhoodNormal(view,map,0,0,1).validity==rf::NormalValidity::SparseSupport);
+    auto curved=plane;for(auto& p:curved)p.position.z+=.1*(p.position.x*p.position.x+p.position.y*p.position.y);auto curvature=rf::estimateObservedNormal(curved,{0,0,2});check(curvature.validity==rf::NormalValidity::Supported&&curvature.direction.z<-.999&&curvature.uncertainty.planeResidual>n.uncertainty.planeResidual);
+    auto layers=plane;for(std::size_t i=0;i<layers.size();++i)layers[i].position.z+=i%2?.02:0;check(rf::estimateObservedNormal(layers,{0,0,2}).validity==rf::NormalValidity::Discontinuity);
     auto duplicate=plane;duplicate[1].observationId=duplicate[0].observationId;bool dup=false;try{(void)rf::estimateObservedNormal(duplicate,{0,0,2});}catch(const rf::Error&){dup=true;}check(dup);
     auto huge=plane;huge[0].position.x=1e200;bool overflow=false;try{(void)rf::estimateObservedNormal(huge,{0,0,2});}catch(const rf::Error&){overflow=true;}check(overflow);
     check(rf::estimateDepthNeighborhoodNormal(view,map,2147483647,4,1).validity==rf::NormalValidity::SparseSupport);
