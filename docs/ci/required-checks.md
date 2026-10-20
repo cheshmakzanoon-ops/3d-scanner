@@ -28,7 +28,8 @@ performed by this workflow.
   Python, synthetic three-photo BA, eight-view coverage and real Middlebury
   stereo/dense/surface/photographic texture gate. Compiler parity must pass.
   A missing compiler, a missing report or a sanitizer failure fails the job.
-  After installing the baseline requirements, Agent095's QA-only installer runs
+  After the initial host dependencies install from Agent095's fully pinned
+  `tools/requirements.lock` with `--require-hashes --only-binary=:all:`, its QA-only installer runs
   after the native start marker and before the matrix:
   `python tools/dependencies/install_qa.py --root "$RUNNER_TEMP/rf-qa" --github-env "$GITHUB_ENV" --github-path "$GITHUB_PATH" --require-portable-blender`.
   Its isolated, pinned scientific/pytest environment includes Trimesh4.5.3;
