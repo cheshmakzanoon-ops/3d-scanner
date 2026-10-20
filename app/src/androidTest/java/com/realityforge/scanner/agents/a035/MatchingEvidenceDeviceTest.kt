@@ -94,7 +94,7 @@ class MatchingEvidenceDeviceTest {
                                     runs.put(JSONObject().put("iteration",iteration).put("elapsedMs",(System.nanoTime()-begin)/1e6)
                                         .put("matches",actual.count).put("exactReferenceRecall",agreement))
                                     assertEquals("Exact blocked matcher changed reciprocal reference identities",reference,keys)
-                                    if(iteration==0){
+                                    if(iteration==0 && actual.count>=20){
                                         val focal=minOf(first.projection.fx,first.projection.fy,second.projection.fx,second.projection.fy)
                                         require(focal>=30.0)
                                         val token=NativeCore.beginReconstruction();require(token>0)
@@ -112,6 +112,9 @@ class MatchingEvidenceDeviceTest {
                                             }
                                             if(manifest==null)assertFalse("Synthetic calibrated baseline rejected",result.has("error"))
                                         }finally{assertTrue("Scoped native operation must close",NativeCore.finishReconstruction(token))}
+                                    }else if(iteration==0){
+                                        row.put("nativeAccepted",false).put("nativeRejection","Fewer than 20 reciprocal SIFT matches")
+                                        assertTrue("Synthetic calibrated baseline must have sufficient correspondences",manifest!=null)
                                     }
                                 }
                                 if(first.count>=2 && second.count>=2){
