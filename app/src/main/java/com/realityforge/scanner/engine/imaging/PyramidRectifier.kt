@@ -32,7 +32,8 @@ object PyramidRectifier {
                     val p00 = source[iy * sourceWidth + ix]; val p10 = source[iy * sourceWidth + ix + 1]
                     val p01 = source[(iy + 1) * sourceWidth + ix]; val p11 = source[(iy + 1) * sourceWidth + ix + 1]
                     var color = 0xff000000.toInt()
-                    for (shift in intArrayOf(16, 8, 0)) {
+                    for (channelIndex in 0..2) {
+                        val shift = 16 - 8 * channelIndex
                         val a = (p00 ushr shift) and 255; val b = (p10 ushr shift) and 255
                         val c = (p01 ushr shift) and 255; val d = (p11 ushr shift) and 255
                         val channel = (a * (1-u) * (1-v) + b * u * (1-v) + c * (1-u) * v + d * u * v).roundToInt().coerceIn(0, 255)

@@ -38,6 +38,23 @@ class PyramidTest {
             level.close();try{level.pixels();fail("closed buffers escaped")}catch(_:IllegalStateException){}
         }finally {directory.deleteRecursively()}
     }
+    @Test fun callerMutationCannotChangeLevelAndBudgetFailureLeavesNoPartialFile() {
+        val t=PixelTransform.identity(20,20);val key=PyramidLevel.identity("b".repeat(64),"fixed-calibration",t)
+        val pixels=IntArray(400){it};val valid=ByteArray(400){1};val level=PyramidLevel(key,20,20,t,pixels,valid)
+        pixels[0]=12345;valid[0]=0;val copy=level.pixels();copy[1]=999
+        assertEquals(0,level.pixels()[0]);assertEquals(1,level.pixels()[1]);assertEquals(1,level.validity()[0].toInt())
+        val directory=Files.createTempDirectory("rf-pyramid-budget").toFile()
+        try {assertFalse(PyramidStore(directory,1024).store(level));assertTrue(directory.listFiles()!!.isEmpty())}
+        finally {level.close();directory.deleteRecursively()}
+    }
+    @Test fun cacheRejectsMismatchedTransformEvenWithSameTargetDimensions() {
+        val t=PixelTransform.resize(8,6,4,3);val other=PixelTransform.resize(12,9,4,3)
+        val key=PyramidLevel.identity("c".repeat(64),"calibration",t)
+        val directory=Files.createTempDirectory("rf-pyramid-transform").toFile()
+        try {val level=PyramidLevel(key,4,3,t,IntArray(12),ByteArray(12){1});val store=PyramidStore(directory,2048)
+            assertTrue(store.store(level));assertNull(store.load(key,other));level.close()}
+        finally {directory.deleteRecursively()}
+    }
     @Test fun cancellationPublishesNoTile() {
         var published=0
         try {PyramidRectifier.tiles(IntArray(12),4,3,PixelTransform.identity(4,3),LensProjection(4.0,4.0,1.5,1.0),LensProjection(4.0,4.0,1.5,1.0),4,3,cancelled={true}){published++};fail("cancel accepted")}
