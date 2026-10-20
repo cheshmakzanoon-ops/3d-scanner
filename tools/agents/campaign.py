@@ -128,6 +128,19 @@ def ownership(root: Path, rows: list[dict], agent: str, base: str, revision: str
     return [p for p in errors if p not in permitted]
 
 
+def receipt_state(text: str) -> str:
+    try:
+        mapping = json.loads(text)
+    except json.JSONDecodeError:
+        mapping = None
+    if isinstance(mapping, dict):
+        value = mapping.get('state')
+    else:
+        match = re.search(r'^state:\s*[\"\x27]?([A-Z_]+)[\"\x27]?\s*$', text, re.M)
+        value = match.group(1) if match else None
+    return value if isinstance(value, str) and value in STATES else 'INVALID_RECEIPT'
+
+
 def index(root: Path, rows: list[dict], base: str) -> dict:
     deliveries = []
     requests = []
@@ -144,11 +157,7 @@ def index(root: Path, rows: list[dict], base: str) -> dict:
             receipt = subprocess.run(['git', '-C', str(root), 'show', f'{sha}:{row["receipt"]}'],
                                      text=True, capture_output=True)
             if receipt.returncode == 0:
-                match = re.search(r'^\s*state:\s*[\"\x27]?([A-Z_]+)', receipt.stdout, re.M)
-                if not match:
-                    # Markdown wrappers are allowed around the plan's compact YAML receipt.
-                    match = re.search(r'\bstate\s*:\s*[\"\x27]?([A-Z_]+)', receipt.stdout)
-                entry['state'] = match.group(1) if match and match.group(1) in STATES else 'INVALID_RECEIPT'
+                entry['state'] = receipt_state(receipt.stdout)
                 entry['receipt_sha'] = git(root, 'rev-parse', f'{sha}:{row["receipt"]}')
             else:
                 entry['state'] = 'MISSING_RECEIPT'

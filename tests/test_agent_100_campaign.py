@@ -48,3 +48,11 @@ def test_absent_branches_never_close_campaign(tmp_path):
     assert not result['campaign_complete']
     assert len(result['deliveries']) == 100
     assert all(r['state'] == 'NOT_RUN' and r['source_sha'] is None for r in result['deliveries'])
+
+
+def test_receipt_mapping_and_allowed_states_cannot_infer_success():
+    assert campaign.receipt_state('{"state": "BLOCKED_EXTERNAL", "agent": "083"}') == 'BLOCKED_EXTERNAL'
+    assert campaign.receipt_state('agent: 094\nstate: DONE\n') == 'DONE'
+    for text in ['State: IMPLEMENTED', 'All tests passed', '{"status":"PASS"}',
+                 'state: IMPLEMENTED', 'narrative state: DONE', 'state: DONE_WITH_EXCEPTIONS']:
+        assert campaign.receipt_state(text) == 'INVALID_RECEIPT'
