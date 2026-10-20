@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="a017_saved_pair_title">Last saved photographs</string>
+    <string name="a017_overlap_unknown">Image overlap is not yet known.</string>
+    <string name="a017_overlap_insufficient">Few shared image features were confirmed.</string>
+    <string name="a017_overlap_observed">Shared image features were confirmed.</string>
+    <string name="a017_overlap_repeated">These photographs show very similar image content.</string>
+    <string name="a017_wait">Save another overlapping photograph to compare views.</string>
+    <string name="a017_more_overlap">Keep more of the previous view in the next photograph.</string>
+    <string name="a017_hold_steady">Hold steady, check focus and retake the photograph.</string>
+    <string name="a017_keep_still">Keep the object still and retake the photograph.</string>
+    <string name="a017_move_sideways">Move sideways around the object while keeping it in view.</string>
+    <string name="a017_change_viewpoint">Try a different viewpoint while keeping overlapping detail.</string>
+    <string name="a017_useful_view">This pair added a useful measured change in viewpoint.</string>
+    <string name="a017_pair_geometry">Local geometry passed the two-view check using reported focal metadata.</string>
+    <string name="a017_pose_unknown">The camera viewpoint change is not yet confirmed.</string>
+    <string name="a017_coverage_unknown">Whole-object surface coverage has not been measured.</string>
+    <string name="a017_guidance_unavailable">Photo saved. Image-overlap advice is unavailable for this photograph.</string>
+</resources>

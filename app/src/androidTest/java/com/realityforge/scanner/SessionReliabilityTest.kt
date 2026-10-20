@@ -18,6 +18,7 @@ import com.realityforge.scanner.data.ScanDatabase
 import com.realityforge.scanner.engine.LensCalibration
 import com.realityforge.scanner.engine.LensProfile
 import com.realityforge.scanner.viewer.PhotographicGlb
+import com.realityforge.scanner.qa.FaultDocumentProvider
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -79,10 +80,15 @@ class SessionReliabilityTest {
                 val reopened = requireNotNull(ProjectRepository(app,repository.dao).currentPreview(id))
                 assertEquals(key,reopened.getString("artifactKey"))
                 assertEquals(result.getInt("pointCount"),reopened.getInt("pointCount"))
-                val destination = File.createTempFile("export-check-", ".glb",app.cacheDir).also { temporary.add(it) }
-                scenario.onActivity { model.export(Uri.fromFile(destination),"textured.glb") }
-                awaitIdle(model,30000)
-                assertEquals("Export must preserve exact model bytes",hash(artifact),hash(destination))
+                val destination = FaultDocumentProvider.createUri(app)
+                try {
+                    scenario.onActivity {
+                        val requestId = requireNotNull(model.beginArtifactExportRequest("textured.glb"))
+                        model.completeArtifactExport(requestId, destination)
+                    }
+                    awaitIdle(model,30000)
+                    assertEquals("SAF export must preserve exact model bytes",hash(artifact),FaultDocumentProvider.hash(app,destination))
+                } finally { FaultDocumentProvider.cleanup(app,destination) }
                 for (photo in repository.dao.photos(id)) assertEquals(original[photo.id],hash(repository.photoFile(photo)))
                 android.util.Log.i("RealityForgeSessionTest","Synthetic full session: ${result.getInt("pointCount")} sparse points, ${modelData.indices.size/3} photo-textured triangles; hashes preserved")
                 // Busy operations must reject deletion and selection, not invalidate the live project.

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Explicitly strip network permissions from transitive dependencies. -->
     <uses-permission android:name="android.permission.INTERNET" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" tools:node="remove" />
@@ -11,6 +15,9 @@
         android:label="@string/app_name" android:icon="@drawable/ic_launcher"
         android:theme="@style/Theme.RealityForge" android:supportsRtl="true"
         android:usesCleartextTraffic="false">
+        <service android:name=".work.execution.ReconstructionService"
+            android:exported="false" android:stopWithTask="false"
+            android:foregroundServiceType="dataSync|mediaProcessing" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

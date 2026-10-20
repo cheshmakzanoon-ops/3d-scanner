@@ -36,6 +36,7 @@ android {
     testOptions { unitTests.isIncludeAndroidResources = true }
     // Synthetic photographic regression fixtures are test APK assets, never release assets.
     sourceSets.getByName("androidTest").assets.srcDir("../benchmarks/fixtures")
+    sourceSets.getByName("androidTest").assets.srcDir("schemas")
     lint { abortOnError = true }
 }
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
@@ -59,6 +60,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.opencv:opencv:4.12.0")
     testImplementation("junit:junit:4.13.2")
+    // Android's mockable JSONObject throws in local tests; exercise the real JSON codec.
+    testImplementation("org.json:json:20250517")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.room:room-testing:2.7.1")

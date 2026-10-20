@@ -1,3 +1,4 @@
+#include "realityforge/c_abi_support.hpp"
 #include "realityforge/dense.hpp"
 #include "realityforge/depth_checkpoint.hpp"
 #include "realityforge/stereo_warp.hpp"
@@ -312,7 +313,7 @@ std::string denseJson(const DenseResult& result){
 } // namespace rf
 
 extern "C" char* rf_dense_json(const std::uint8_t* rgba,int width,int height,
-    const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,int planes,int stride){
+    const double* camera_rows,std::size_t camera_count,double near_depth,double far_depth,int planes,int stride)noexcept try {
     std::string response;
     try{
         if(!rgba||!camera_rows||camera_count<2||camera_count>rf::MAX_DENSE_VIEWS||width<32||height<32||width>640||height>640||
@@ -330,11 +331,18 @@ extern "C" char* rf_dense_json(const std::uint8_t* rgba,int width,int height,
         }
         rf::DenseSettings s;s.nearDepth=near_depth;s.farDepth=far_depth;s.depthPlanes=planes;s.pixelStride=stride;
         response=rf::denseJson(rf::reconstructDense(views,s));
-    }catch(const std::exception& e){
+    }catch(const std::bad_alloc&){throw;}
+    catch(const std::exception& e){
         response="{\"error\":\"";
         for(char c:std::string(e.what())){if(c=='"'||c=='\\')response+='\\';if(static_cast<unsigned char>(c)>=32)response+=c;}
         response+="\"}";
     }
     auto* out=static_cast<char*>(std::malloc(response.size()+1));if(!out)return nullptr;
     std::memcpy(out,response.c_str(),response.size()+1);return out;
+} catch (const std::bad_alloc&) {
+    return rf::abi::error("RESOURCE_EXHAUSTED", "Native allocation failed");
+} catch (const std::exception&) {
+    return rf::abi::error("NATIVE_FAILURE", "Native boundary failure");
+} catch (...) {
+    return rf::abi::error("UNKNOWN_NATIVE_FAILURE", "Unknown native boundary failure");
 }

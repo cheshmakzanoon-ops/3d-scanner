@@ -41,6 +41,9 @@ Point triangulate(const Match& match, const Mat3& rotation, Vec3 translation);
 Result reconstruct(std::span<const Match> matches, const Settings& settings = {});
 Quality quality(std::span<const std::uint8_t> gray, int width, int height, int stride);
 std::string resultJson(const Result& result);
+enum class PointRepresentation { Sparse, Dense };
+void writePointPly(const Result& result, const std::string& path, PointRepresentation representation);
+void writePointGlb(const Result& result, const std::string& path, PointRepresentation representation);
 void writePly(const Result& result, const std::string& path);
 void writeGlb(const Result& result, const std::string& path);
 }
@@ -49,6 +52,6 @@ void writeGlb(const Result& result, const std::string& path);
 extern "C" {
 // rows: [x1,y1,x2,y2,r,g,b]. Returns malloc-owned JSON; always release via rf_free.
 char* rf_reconstruct_json(const double* rows, std::size_t count, double threshold,
-                          const char* glb_path, const char* ply_path);
-void rf_free(void* pointer);
+                          const char* glb_path, const char* ply_path) noexcept;
+void rf_free(void* pointer) noexcept;
 }

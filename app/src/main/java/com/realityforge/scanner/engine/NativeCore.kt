@@ -39,5 +39,8 @@ object NativeCore {
         meshGlbPath: String, meshPlyPath: String, texturedGlbPath: String, atlasPngPath: String,
         token: Long, checkpointDirectory: String, checkpointIdentity: String): String
     external fun quality(gray: ByteArray, width: Int, height: Int): DoubleArray
+    const val SPARSE_POINTS = 0
+    const val DENSE_POINTS = 1
+    external fun exportPointCloud(rows: DoubleArray, destination: String, glb: Boolean, representation: Int)
     external fun exportPoints(rows: DoubleArray, destination: String, glb: Boolean)
 }

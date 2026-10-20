@@ -74,4 +74,4 @@ std::string denseJson(const DenseResult& result);
 // malloc-owned JSON, release with rf_free.
 extern "C" char* rf_dense_json(const std::uint8_t* rgba, int width, int height,
     const double* camera_rows, std::size_t camera_count,
-    double near_depth, double far_depth, int depth_planes, int pixel_stride);
+    double near_depth, double far_depth, int depth_planes, int pixel_stride) noexcept;
