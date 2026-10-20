@@ -37,6 +37,8 @@ int main(){
    assert(std::abs(out[0].estimate.point.xyz.z-5)<1e-8);
   }
  }
+ {std::vector<rf::ViewPose> poses{{rf::identity(),{}},{rf::identity(),{-1e-5,0,0}}};std::vector<rf::TrackObservation> rows{{0,0,{.1,.02},{}},{0,1,{.1-2e-6,.02},{}}};
+  bool weak=false;try{rf::reconstructMultiView(poses,rows);}catch(const rf::Error&){weak=true;}assert(weak);}
  auto measured=state->snapshot();assert(measured.stage==rf::progress::Stage::Sparse&&measured.tile==2&&measured.completed==measured.total);
  char* error=rf_multiview_json(nullptr,0,nullptr,0,.003,0);assert(error&&std::string(error).find("error")!=std::string::npos);rf_free(error);
  std::atomic_bool stop{true};rf::cancellation::Scope scope(&stop);std::vector<rf::ViewPose> cameras{{rf::identity(),{}},{rf::identity(),{-1,0,0}}};std::vector<rf::TrackObservation> rows{{1,0,{0,0},{}},{1,1,{-.2,0},{}}};

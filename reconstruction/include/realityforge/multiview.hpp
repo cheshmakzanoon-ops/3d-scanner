@@ -24,7 +24,7 @@ struct SparseTrackPoint {
     Point point;
     std::size_t track{}, supportingViews{};
     // Geometric sensitivity, not a posterior covariance or physical accuracy claim.
-    double angularCondition{}; // 1/sin(maximum observed ray angle)
+    double angularCondition{}; // 1/max(sin(observed pairwise ray angle))
     std::vector<std::size_t> supportingCameras{};
 };
 struct MultiViewResult {
@@ -55,4 +55,4 @@ std::string multiViewJson(const MultiViewResult& result);
 // Returns malloc-owned JSON and must be freed with rf_free. IDs must be exact integers.
 extern "C" char* rf_multiview_json(const double* cameras, std::size_t camera_count,
     const double* observations, std::size_t observation_count,
-    double max_error, int iterations);
+    double max_error, int iterations) noexcept;
