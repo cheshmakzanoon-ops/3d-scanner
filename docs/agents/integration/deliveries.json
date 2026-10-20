@@ -381,6 +381,13 @@
       "branch": "agents/095-dependency-notices-sbom",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "01215c7bc58701f33710c2b2c7fd8fbb2a48355b",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
