@@ -619,6 +619,13 @@
       "branch": "agents/097-startup-viewer-macrobenchmarks",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "27c5adac94c963f487bf6bea59edaa96fda58650",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }

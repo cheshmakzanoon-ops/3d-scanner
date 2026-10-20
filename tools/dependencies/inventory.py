@@ -60,7 +60,7 @@ def configuration_scope(name):
  if name.startswith('benchmark') and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-benchmark'
  if name.startswith(('releaseAndroidTest','debugAndroidTest')) and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-instrumentation'
  if name.startswith(('releaseUnitTest','debugUnitTest')) and name.endswith(('RuntimeClasspath','CompileClasspath')):return 'qa-jvm'
- if name in ('kspReleaseKotlinProcessorClasspath','kspDebugKotlinProcessorClasspath'):return 'build-processor'
+ if name in ('kspReleaseKotlinProcessorClasspath','kspDebugKotlinProcessorClasspath','kspBenchmarkKotlinProcessorClasspath'):return 'build-processor'
  raise ValueError('Unsupported resolved dependency configuration: '+name)
 
 def resolution_variant(resolution):

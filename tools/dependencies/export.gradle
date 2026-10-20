@@ -3,7 +3,7 @@ import groovy.json.JsonOutput
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 allprojects { project ->
     project.configurations.configureEach { configuration ->
-        if (configuration.name in ['releaseRuntimeClasspath','releaseCompileClasspath','kspReleaseKotlinProcessorClasspath','releaseAndroidTestRuntimeClasspath','releaseAndroidTestCompileClasspath','releaseUnitTestRuntimeClasspath','releaseUnitTestCompileClasspath','debugRuntimeClasspath','debugCompileClasspath','kspDebugKotlinProcessorClasspath','debugAndroidTestRuntimeClasspath','debugAndroidTestCompileClasspath','debugUnitTestRuntimeClasspath','debugUnitTestCompileClasspath','benchmarkRuntimeClasspath','benchmarkCompileClasspath']) {
+        if (configuration.name in ['releaseRuntimeClasspath','releaseCompileClasspath','kspReleaseKotlinProcessorClasspath','releaseAndroidTestRuntimeClasspath','releaseAndroidTestCompileClasspath','releaseUnitTestRuntimeClasspath','releaseUnitTestCompileClasspath','debugRuntimeClasspath','debugCompileClasspath','kspDebugKotlinProcessorClasspath','debugAndroidTestRuntimeClasspath','debugAndroidTestCompileClasspath','debugUnitTestRuntimeClasspath','debugUnitTestCompileClasspath','benchmarkRuntimeClasspath','benchmarkCompileClasspath','kspBenchmarkKotlinProcessorClasspath']) {
             configuration.resolutionStrategy.activateDependencyLocking()
         }
     }
@@ -16,7 +16,8 @@ allprojects { project ->
                         'release': ['releaseRuntimeClasspath','releaseCompileClasspath','kspReleaseKotlinProcessorClasspath'],
                         'tests': ['releaseAndroidTestRuntimeClasspath','releaseAndroidTestCompileClasspath','releaseUnitTestRuntimeClasspath','releaseUnitTestCompileClasspath'],
                         'debug': ['debugRuntimeClasspath','debugCompileClasspath','kspDebugKotlinProcessorClasspath'],
-                        'debug-tests': ['debugAndroidTestRuntimeClasspath','debugAndroidTestCompileClasspath','debugUnitTestRuntimeClasspath','debugUnitTestCompileClasspath']
+                        'debug-tests': ['debugAndroidTestRuntimeClasspath','debugAndroidTestCompileClasspath','debugUnitTestRuntimeClasspath','debugUnitTestCompileClasspath'],
+                        'benchmark': ['benchmarkRuntimeClasspath','benchmarkCompileClasspath','kspBenchmarkKotlinProcessorClasspath']
                     ]
                     def scope = project.findProperty('rfInventoryScope') ?: 'release'
                     if (!scopes.containsKey(scope)) throw new GradleException('Unsupported rfInventoryScope: '+scope)
