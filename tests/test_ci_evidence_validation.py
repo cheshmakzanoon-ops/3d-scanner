@@ -37,6 +37,17 @@ def png(path):
     return path
 
 
+def instrumentation(codes=(0, -4, -3)):
+    rows = []
+    for current, code in enumerate(codes, 1):
+        fields = (f"INSTRUMENTATION_STATUS: class=synthetic.Test\n"
+                  f"INSTRUMENTATION_STATUS: test=fixture{current}\n"
+                  f"INSTRUMENTATION_STATUS: current={current}\n"
+                  f"INSTRUMENTATION_STATUS: numtests={len(codes)}\n")
+        rows += [fields + "INSTRUMENTATION_STATUS_CODE: 1\n", fields + f"INSTRUMENTATION_STATUS_CODE: {code}\n"]
+    return "".join(rows) + f"OK ({len(codes) - codes.count(-3)} tests)\n"
+
+
 @pytest.fixture
 def candidate(tmp_path):
     repo = tmp_path / 'repo'
@@ -67,8 +78,8 @@ def native(candidate):
             commands.append(dict(log=str(path), log_sha256=ci.sha(path), result='PASS', reason=None, exit_code=0))
         xml(folder / 'pytest.xml')
         lib = write(folder / 'lib.so', 'synthetic binary fixture')
-        numeric = dump(folder / 'numerical.json', {'fixture': 'synthetic'})
-        result['configurations'].append(dict(name=name, result='PASS', commands=commands, binaries=[dict(path=str(lib), sha256=ci.sha(lib))], artifacts=[dict(path=str(numeric), sha256=ci.sha(numeric))]))
+        numerical = [dump(folder / filename, {'fixture': 'synthetic'}) for filename in sorted(ci.NATIVE_REPORTS)]
+        result['configurations'].append(dict(name=name, result='PASS', commands=commands, binaries=[dict(path=str(lib), sha256=ci.sha(lib))], artifacts=[dict(path=str(path), sha256=ci.sha(path)) for path in numerical]))
     result['comparisons'] = [dict(config=row['name'], result='PASS') for row in result['configurations'][1:]]
     return dump(execution / 'native' / 'evidence.json', result)
 
@@ -90,9 +101,9 @@ def bundle(candidate):
     app, test, report = android_files(candidate)
     ci.collect(marker, bundles / 'android', [str(xml(execution / 'android' / 'unit.xml'))], [str(app), str(test)], apk_report=report)
     marker = start(candidate, 'device')
-    device = dict(schema=1, status='PASS', tests=2, device=dict(serial='emulator-test', fingerprint='synthetic emulator fixture', api=35, abi='x86_64', pageSize=4096, emulator=True), appSha256=ci.sha(app), testSha256=ci.sha(test), physicalCapture='NOT_RUN')
+    device = dict(schema=1, status='PASS', tests=3, counts=dict(tests=3, passed=1, skipped=2, failed=0), device=dict(serial='emulator-5554', fingerprint='synthetic emulator fixture', api=35, abi='x86_64', pageSize=4096, emulator=True), appSha256=ci.sha(app), testSha256=ci.sha(test), physicalCapture='NOT_RUN')
     record = dump(execution / 'device' / 'compatibility.json', device)
-    write(record.with_name('instrumentation.txt'), 'OK (2 tests)\n')
+    write(record.with_name('instrumentation.txt'), instrumentation())
     ci.collect(marker, bundles / 'device', artifact_patterns=[str(app), str(test)], screenshot=png(execution / 'device' / 'photographic-viewer.png'), device=record)
     return candidate
 
@@ -163,7 +174,7 @@ def test_capture_rejects_stale_reports_and_missing_globs(candidate):
         ci.expanded([str(path.parent / 'absent*.xml')])
 
 
-@pytest.mark.parametrize('mutation', ['missing-config', 'failed-command', 'missing-ctest', 'failed-parity', 'wrong-source', 'dirty-tree'])
+@pytest.mark.parametrize('mutation', ['missing-config', 'failed-command', 'missing-ctest', 'failed-parity', 'wrong-source', 'dirty-tree', 'missing-benchmark'])
 def test_native_record_requires_full_executed_matrix(candidate, mutation):
     start(candidate, 'native')
     path = native(candidate)
@@ -177,5 +188,50 @@ def test_native_record_requires_full_executed_matrix(candidate, mutation):
     elif mutation == 'failed-parity': value['comparisons'][0]['result'] = 'FAIL'
     elif mutation == 'wrong-source': value['source_sha'] = '0' * 40
     elif mutation == 'dirty-tree': value['dirty_tree'] = True
+    elif mutation == 'missing-benchmark': value['configurations'][0]['artifacts'].pop()
     dump(path, value)
     with pytest.raises(ci.EvidenceError): ci.native_record(path, candidate[1])
+
+
+def test_sealed_evidence_cannot_be_overwritten(bundle):
+    with pytest.raises(ci.EvidenceError, match='immutable'):
+        ci.collect(bundle[2] / 'android/start.json', bundle[3] / 'android')
+
+
+def test_instrumentation_preserves_assumptions_and_ignored_tests():
+    assert ci.instrumentation_counts(instrumentation()) == dict(tests=3, passed=1, skipped=2, failed=0)
+
+
+@pytest.mark.parametrize("mutation", ["only-skips", "failed", "duplicate", "incomplete", "missing-start", "wrong-summary", "missing-raw", "duplicate-current", "missing-declared"])
+def test_instrumentation_requires_actual_nonzero_completed_passes(mutation):
+    text = instrumentation((0, 0))
+    if mutation == "only-skips": text = instrumentation((-3, -4))
+    elif mutation == "failed": text = instrumentation((0, -2))
+    elif mutation == "duplicate": text = text.replace("INSTRUMENTATION_STATUS_CODE: 0", "INSTRUMENTATION_STATUS_CODE: 0\nINSTRUMENTATION_STATUS_CODE: 0", 1)
+    elif mutation == "incomplete": text = text.replace("INSTRUMENTATION_STATUS_CODE: 0", "INSTRUMENTATION_STATUS_CODE: 1", 1)
+    elif mutation == "missing-start": text = text.replace("INSTRUMENTATION_STATUS_CODE: 1", "INSTRUMENTATION_STATUS_CODE: 0", 1)
+    elif mutation == "wrong-summary": text = text.replace("OK (2 tests)", "OK (9 tests)")
+    elif mutation == "missing-raw": text = "OK (2 tests)"
+    elif mutation == "duplicate-current": text = text.replace("current=2", "current=1")
+    elif mutation == "missing-declared": text = text.replace("numtests=2", "numtests=3")
+    with pytest.raises(ci.EvidenceError): ci.instrumentation_counts(text)
+
+
+def test_android_gate_requires_both_candidate_apks(candidate):
+    marker = start(candidate, "android")
+    app, _, report = android_files(candidate)
+    with pytest.raises(ci.EvidenceError, match="built APKs"):
+        ci.collect(marker, candidate[3] / "android", [str(xml(candidate[2] / "android/unit.xml"))], [str(app)], apk_report=report)
+
+
+@pytest.mark.parametrize("mutation", ["wrong-api", "wrong-serial", "skip-overclaim"])
+def test_device_receipt_must_match_measured_environment_and_raw_outcomes(bundle, mutation):
+    _, _, execution, _ = bundle
+    path = execution / "device/compatibility.json"
+    value = ci.load(path)
+    if mutation == "wrong-api": value["device"]["api"] = 34
+    elif mutation == "wrong-serial": value["device"]["serial"] = "another-emulator"
+    else: value["counts"].update(passed=3, skipped=0)
+    dump(path, value)
+    with pytest.raises(ci.EvidenceError):
+        ci.device_record(path, path.with_name("instrumentation.txt"), [execution / "android/app-debug.apk", execution / "android/app-debug-androidTest.apk"])

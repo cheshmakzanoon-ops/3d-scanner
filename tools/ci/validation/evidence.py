@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 
 SCHEMA = "realityforge.ci-evidence.v1"
 GATES = {"native": "host-synthetic-and-real-stereo", "android": "host-jvm", "device": "emulator-synthetic-session"}
+NATIVE_REPORTS = {"numerical.json", "benchmark_multiview_coverage.json", "benchmark_middlebury.json", "benchmark_dense_middlebury.json", "benchmark_surface_middlebury.json", "benchmark_texture_middlebury.json"}
 NATIVE_CONFIGS = {"gcc-release", "clang-release", "gcc-sanitize", "clang-sanitize"}
 COMMANDS = {"configure", "build", "ctest", "numerical", "pytest", "bundle-three-view", "benchmark_multiview_coverage", "benchmark_middlebury", "benchmark_dense_middlebury", "benchmark_surface_middlebury", "benchmark_texture_middlebury"}
 
@@ -125,29 +126,76 @@ def native_record(path, expected, mapped=None):
             if sha(artifact) != item.get("sha256"):
                 raise EvidenceError("Native artifact hash mismatch")
             files.append(artifact)
-        if not config.get("binaries") or not config.get("artifacts"):
-            raise EvidenceError("Native binaries/numerical reports missing")
+        if not config.get("binaries") or {Path(item["path"]).name for item in config.get("artifacts", [])} != NATIVE_REPORTS:
+            raise EvidenceError("Native binaries/numerical/benchmark reports missing")
     comparisons = data.get("comparisons", [])
     if len(comparisons) != 3 or any(item.get("result") != "PASS" for item in comparisons) or {item.get("config") for item in comparisons} != NATIVE_CONFIGS - {configs[0]["name"]}:
         raise EvidenceError("Native cross-compiler parity evidence incomplete")
     return files, xml
 
 
+def instrumentation_counts(text):
+    """Independently verify AndroidJUnitRunner raw completion and skip events."""
+    summary = re.search(r"OK \((\d+) tests?\)", text)
+    if not summary or any(value in text for value in ("FAILURES!!!", "INSTRUMENTATION_FAILED", "Process crashed", "INSTRUMENTATION_ABORTED")):
+        raise EvidenceError("Device instrumentation failed/incomplete")
+    fields, starts, ends, totals = {}, set(), {}, set()
+    for line in text.splitlines():
+        if line.startswith("INSTRUMENTATION_STATUS: "):
+            key, separator, value = line[len("INSTRUMENTATION_STATUS: "):].partition("=")
+            if separator and key in ("class", "test", "current", "numtests"):
+                if key in fields:
+                    raise EvidenceError("Duplicate instrumentation event field")
+                fields[key] = value
+        elif line.startswith("INSTRUMENTATION_STATUS_CODE: "):
+            try:
+                code = int(line.split(": ", 1)[1])
+                current, total = int(fields["current"]), int(fields["numtests"])
+                key = (fields["class"], fields["test"], current)
+            except (KeyError, ValueError) as error:
+                raise EvidenceError("Incomplete instrumentation event identity") from error
+            if not key[0] or not key[1] or not 1 <= current <= total:
+                raise EvidenceError("Invalid instrumentation identity/count")
+            totals.add(total)
+            if code == 1:
+                if key in starts:
+                    raise EvidenceError("Duplicate instrumentation start")
+                starts.add(key)
+            elif code in (0, -1, -2, -3, -4):
+                if key not in starts or key in ends:
+                    raise EvidenceError("Missing instrumentation start or duplicate completion")
+                ends[key] = code
+            else:
+                raise EvidenceError("Unknown instrumentation status")
+            fields = {}
+    if fields or not ends or starts != set(ends) or totals != {len(ends)} or {key[2] for key in ends} != set(range(1, len(ends) + 1)):
+        raise EvidenceError("Incomplete instrumentation test discovery/completion")
+    result = dict(tests=len(ends), passed=sum(code == 0 for code in ends.values()),
+                  skipped=sum(code in (-3, -4) for code in ends.values()),
+                  failed=sum(code in (-1, -2) for code in ends.values()))
+    # JUnit's summary excludes @Ignore (-3), but includes assumptions (-4).
+    if result["failed"] or result["passed"] < 1 or int(summary[1]) != result["tests"] - sum(code == -3 for code in ends.values()):
+        raise EvidenceError("Instrumentation summary/pass/skip counts disagree")
+    return result
+
+
 def device_record(record, transcript, apks):
     data = load(record)
     text = Path(transcript).read_text()
-    match = re.search(r"OK \((\d+) tests?\)", text)
-    if data.get("schema") != 1 or data.get("status") != "PASS" or not match or int(match[1]) < 1 or any(value in text for value in ("FAILURES!!!", "INSTRUMENTATION_FAILED", "Process crashed", "INSTRUMENTATION_ABORTED")):
-        raise EvidenceError("Device instrumentation failed/incomplete")
+    counts = instrumentation_counts(text)
+    if data.get("schema") != 1 or data.get("status") != "PASS" or data.get("counts") != counts:
+        raise EvidenceError("Device receipt differs from actual instrumentation outcomes")
     device = data.get("device", {})
-    if device.get("emulator") is not True or not device.get("serial") or not device.get("fingerprint") or device.get("api", 0) < 1 or device.get("pageSize") not in (4096, 16384) or device.get("abi") != "x86_64":
+    if device.get("emulator") is not True or device.get("serial") != "emulator-5554" or not device.get("fingerprint") or device.get("api") != 35 or device.get("pageSize") not in (4096, 16384) or device.get("abi") != "x86_64":
         raise EvidenceError("Expected actual x86_64 emulator identity")
-    if data.get("tests") != int(match[1]) or {data.get("appSha256"), data.get("testSha256")} != {sha(path) for path in apks} or len(apks) != 2:
+    if data.get("tests") != counts["tests"] or {data.get("appSha256"), data.get("testSha256")} != {sha(path) for path in apks} or len(apks) != 2:
         raise EvidenceError("Device test count/candidate APK identity mismatch")
-    return dict(tests=int(match[1]), passed=int(match[1]), failed=0, skipped=0)
+    return counts
 
 
 def collect(start_path, output, xml_patterns=(), artifact_patterns=(), native=None, screenshot=None, apk_report=None, device=None):
+    if output.exists():
+        raise EvidenceError("Use a new sealed output directory; existing evidence is immutable")
     start = load(start_path)
     if start.get("schema") != SCHEMA or start.get("gate") not in GATES:
         raise EvidenceError("Invalid start record")
@@ -161,7 +209,7 @@ def collect(start_path, output, xml_patterns=(), artifact_patterns=(), native=No
         files += native_files
         xml += native_xml
     if gate == "android":
-        if apk_report is None or not any(path.suffix == ".apk" for path in files):
+        if apk_report is None or len([path for path in files if path.suffix == ".apk"]) != 2:
             raise EvidenceError("Android gate requires built APKs and APK validation report")
         report = load(fresh(apk_report, start["started_ns"]))
         if report.get("internetPermission") is not False or report.get("zipAlignment16k") is not True or not report.get("elfLibrariesChecked"):
@@ -225,7 +273,7 @@ def verify_bundle(directory, expected, run_id, required=("native", "android", "d
             if not relative.startswith("files/") or str(PurePosixPath(relative)) != relative or ".." in PurePosixPath(relative).parts or "\\" in relative:
                 raise EvidenceError("Unsafe artifact path")
             candidate = path.parent / relative
-            if candidate.is_symlink() or not candidate.is_file() or candidate.stat().st_size != artifact["size_bytes"] or sha(candidate) != artifact["sha256"]:
+            if candidate.is_symlink() or candidate.parent.is_symlink() or not candidate.is_file() or candidate.stat().st_size != artifact["size_bytes"] or sha(candidate) != artifact["sha256"]:
                 raise EvidenceError("Missing/tampered CI artifact")
             if artifact["original_path"] in mapped:
                 raise EvidenceError("Duplicate artifact identity")

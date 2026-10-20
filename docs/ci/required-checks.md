@@ -51,8 +51,16 @@ exclusive delivery branch; Agent100 integrates the immutable deliveries.
 checked-out HEAD and a `run_id:run_attempt`. Run it before generating reports.
 `collect` rejects stale/empty/missing files, failed/zero/all-skipped JUnit,
 missing compiler configurations, absent CTest completion, command failures,
-invalid PNG, failed APK validation and mismatched installed APK hashes. Each
+invalid PNG, failed APK validation and mismatched installed APK hashes. Native
+evidence must include all six numerical/benchmark JSON reports. Sealed output
+directories cannot overwrite earlier evidence. Each
 sealed bundle contains `evidence.json` plus hashed files copied into `files/`.
+The collector independently parses AndroidJUnitRunner1.6.2 raw start/terminal
+events: code0 passes, -3 ignored and -4 assumptions remain skips; -1/-2 fail. It
+requires complete unique events, declared test counts and contiguous current
+indices, compares the producer counts, and requires at least one actual pass.
+JUnit OK summaries exclude ignored tests but include assumptions, so their total
+is never relabeled as passes. API35/emulator-5554/x86_64 identity is checked.
 The collector preserves partial skips separately from passes. It never turns
 an unavailable device into a pass or claims a physical result from an emulator.
 Device APKs can predate device startup because the prior Android job built them;
@@ -82,7 +90,8 @@ actionlint .github/workflows/verify.yml
 
 The test suite uses labeled synthetic evidence files to verify corruption and
 failure rejection. It does not execute or certify an Android device. Actual
-hosted PR and combined-candidate runs remain required; GitHub API Forbidden in
-this environment prevents observing/dispatching those runs here. Agent081 has
+hosted PR and combined-candidate runs remain required. GitHub API Forbidden
+prevents API dispatch/PR creation here; the public web UI independently showed
+branch run39392960956 queued on01f48ddf, without any success claim. Agent081 has
 reported Python/NumPy LeakSanitizer baseline leaks; these remain visible failures,
 with detection enabled, until resolved by the owning dependency/toolchain work.
