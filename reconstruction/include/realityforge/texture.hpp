@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace rf {
+inline constexpr const char* PHOTOGRAPHIC_ATLAS_ENGINE_VERSION="rf-atlas-v2-groups-zlib-radiometry2";
 // M09: camera-projection UV charts over real rectified photographs. An atlas
 // contains source camera images (not painted procedural colors). All geometry
 // remains open, incomplete, unscaled and backed by M08 depth evidence.
@@ -20,6 +21,7 @@ struct TextureSettings {
     bool compactCharts = false; // opt-in until device/profile qualification; baseline remains available
     int depthSampleStride = 1, depthSampleOrigin = 0; // declared sparse depth grid
     int atlasEdge = 2048; // 2K CPU admission; 4K requires an explicitly qualified budget
+    double maximumUvStretch = .02; // explicit compact profile distortion admission
     double chartTexelsPerUnit = 128.; // arbitrary world units; measured density is returned
     double seamPenalty = .18; // local label smoothing over manifold, similarly oriented faces
 };
@@ -44,7 +46,7 @@ struct TexturedSurface {
     std::size_t viewSwitchEdgesBefore{}, reassignedFaces{};
     ExposureBalance exposure;
     std::size_t supportedTexels{},unsupportedTexels{},blendedTexels{},chartCount{};
-    double texelsPerUnit{},atlasUtilization{},meanBlendResidual{};
+    double texelsPerUnit{},atlasUtilization{},meanBlendResidual{},maximumUvStretch{};
     bool compactCharts{};
 };
 TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
