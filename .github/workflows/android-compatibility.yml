@@ -2,7 +2,7 @@ name: Android compatibility runtime
 on:
   workflow_dispatch:
   pull_request:
-    paths: ['app/**', 'reconstruction/**', 'tools/device/**', 'tools/run-device-tests.sh', '.github/workflows/android-compatibility.yml']
+    paths: ['app/**', 'reconstruction/**', 'tools/device/**', 'tools/run-device-tests.sh', 'tools/dependencies/**', 'gradle/**', 'build.gradle.kts', 'settings.gradle.kts', 'gradle.properties', '.github/workflows/android-compatibility.yml']
 permissions:
   contents: read
 jobs:
@@ -24,7 +24,7 @@ jobs:
         with:
           gradle-version: '8.13'
       - run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
-      - run: gradle --no-daemon --max-workers=2 :app:assembleDebug :app:assembleDebugAndroidTest
+      - run: gradle --no-daemon --max-workers=2 --dependency-verification strict :app:assembleDebug :app:assembleDebugAndroidTest
       - name: Enable KVM
         run: |
           test -e /dev/kvm
