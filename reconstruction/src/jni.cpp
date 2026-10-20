@@ -9,6 +9,8 @@
 #include "realityforge/depth_checkpoint.hpp"
 #include "realityforge/jni_support.hpp"
 #include "realityforge/progress.hpp"
+#include "realityforge/dense_selection.hpp"
+#include <optional>
 #include <cmath>
 #include <algorithm>
 #include <array>
@@ -247,12 +249,12 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructSurface(
 }
 // Native M09: one calibrated depth pass, M08 mesh, view-ranked photo atlas,
 // embedded GLB PNG, and a separate PNG. All paths are app-private partial files.
-extern "C" JNIEXPORT jstring JNICALL
-Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
+namespace {
+jstring texturedSurface(
     JNIEnv* env, jobject, jbyteArray depthRgba, jint width, jint height,
     jbyteArray textureRgba, jint texWidth, jint texHeight, jdoubleArray cameraRows,
     jdouble nearDepth, jdouble farDepth, jint depthPlanes, jint pixelStride,
-    jstring meshGlbPath, jstring meshPlyPath, jstring texturedGlbPath, jstring atlasPngPath) {
+    jstring meshGlbPath, jstring meshPlyPath, jstring texturedGlbPath, jstring atlasPngPath,bool compact) {
     return rf::jni::boundary<jstring>(env,nullptr,[&]() -> jstring {
     if(!depthRgba||!textureRgba||!cameraRows||!meshGlbPath||!meshPlyPath||!texturedGlbPath||!atlasPngPath||
        width<32||height<32||width>640||height>640||
@@ -281,7 +283,7 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
     for(int i=0;i<4;++i){
         paths[i]=jString(env,jpaths[i]);
     }
-    auto* json=rf_textured_surface_json(low.data(),width,height,
+    auto* json=(compact?rf_textured_surface_compact_json:rf_textured_surface_json)(low.data(),width,height,
         high.data(),texWidth,texHeight,camera.data(),static_cast<std::size_t>(count/16),
         nearDepth,farDepth,depthPlanes,pixelStride,
         paths[0].c_str(),paths[1].c_str(),paths[2].c_str(),paths[3].c_str());
@@ -290,6 +292,15 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
 
     });
 }
+}
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurface(
+    JNIEnv* env,jobject receiver,jbyteArray rgba,jint w,jint h,jbyteArray texture,jint tw,jint th,
+    jdoubleArray cameras,jdouble near,jdouble far,jint planes,jint stride,
+    jstring meshGlb,jstring meshPly,jstring texturedGlb,jstring png){
+    return rf::jni::boundary<jstring>(env,nullptr,[&]{return texturedSurface(env,receiver,rgba,w,h,texture,tw,th,cameras,near,far,planes,stride,meshGlb,meshPly,texturedGlb,png,false);});
+}
+
 // Existing JNI entry points retain their exact legacy ABI. These adapters
 // install a thread-local scope only during the current native execution.
 extern "C" JNIEXPORT jstring JNICALL
@@ -356,16 +367,26 @@ Java_com_realityforge_scanner_engine_NativeCore_quality(JNIEnv* env,jobject,jbyt
 
     });
 }
-extern "C" JNIEXPORT void JNICALL
-Java_com_realityforge_scanner_engine_NativeCore_exportPoints(JNIEnv* env,jobject,jdoubleArray rows,jstring destination,jboolean glb) {
+namespace {
+void exportPointData(JNIEnv* env,jobject,jdoubleArray rows,jstring destination,jboolean glb,jboolean dense) {
     rf::jni::boundaryVoid(env,[&]{
     if(!rows||!destination){illegal(env,"Missing export data");return;}auto count=env->GetArrayLength(rows);if(count%6||count==0||count>120000){illegal(env,"Invalid point buffer");return;}
     std::vector<double>data(static_cast<std::size_t>(count));rf::jni::doubles(env,rows,0,count,data.data());if(env->ExceptionCheck())return;
     const auto path=jString(env,destination);
-    rf::Result result;for(int i=0;i<count;i+=6){rf::Point p{{data[i],data[i+1],data[i+2]},{},0,0,0};for(int c=0;c<3;++c){double x=data[i+3+c];if(!std::isfinite(x)||x<0||x>255)throw rf::Error("Invalid color");p.color[c]=static_cast<std::uint8_t>(x);}result.points.push_back(p);}if(glb)rf::writeGlb(result,path);else rf::writePly(result,path);
+    rf::Result result;result.representation=dense==JNI_TRUE?rf::PointRepresentation::DensePoints:rf::PointRepresentation::SparsePoints;for(int i=0;i<count;i+=6){rf::Point p{{data[i],data[i+1],data[i+2]},{},0,0,0};for(int c=0;c<3;++c){double x=data[i+3+c];if(!std::isfinite(x)||x<0||x>255)throw rf::Error("Invalid color");p.color[c]=static_cast<std::uint8_t>(x);}result.points.push_back(p);}if(glb)rf::writeGlb(result,path);else rf::writePly(result,path);
 
     });
 }
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_exportPoints(JNIEnv* env,jobject receiver,jdoubleArray rows,jstring path,jboolean glb){
+    rf::jni::boundaryVoid(env,[&]{exportPointData(env,receiver,rows,path,glb,JNI_FALSE);});
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_exportPointsTyped(JNIEnv* env,jobject receiver,jdoubleArray rows,jstring path,jboolean glb,jboolean dense){
+    rf::jni::boundaryVoid(env,[&]{exportPointData(env,receiver,rows,path,glb,dense);});
+}
+
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_realityforge_scanner_engine_NativeCore_reconstructCancellable(
@@ -446,5 +467,101 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructDenseRefinedCancellab
         return rf::jni::response(env,rf_dense_refined_json(pixels.data(),width,height,cameras.data(),static_cast<std::size_t>(count/16),
             near,far,planes,stride,priorSize?priors.data():nullptr,static_cast<std::size_t>(priorSize/6),
             coarse?coarsePixels.data():nullptr,coarseWidth,coarseHeight,coarse?coarseCameras.data():nullptr,identity.c_str()));
+    });});
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceCompactCheckpointed(
+    JNIEnv* env,jobject receiver,jbyteArray rgba,jint w,jint h,
+    jbyteArray texture,jint tw,jint th,jdoubleArray cameras,
+    jdouble near,jdouble far,jint planes,jint stride,
+    jstring meshGlb,jstring meshPly,jstring texturedGlb,jstring png,
+    jlong token,jstring directory,jstring identity){
+    return rf::jni::boundary<jstring>(env,nullptr,[&]{return withOperation(env,token,[&]{
+        rf::depth_checkpoint::Scope cache(jString(env,directory),jString(env,identity));
+        rf::progress::begin(rf::progress::Stage::Texture);
+        return texturedSurface(env,receiver,rgba,w,h,texture,tw,th,cameras,near,far,planes,stride,meshGlb,meshPly,texturedGlb,png,true);
+    });});
+}
+
+namespace {
+struct PreparedRefinement {
+    std::vector<rf::DenseSparseDepthPrior> priors;
+    std::vector<rf::DenseView> coarse;
+    std::string identity;
+};
+PreparedRefinement prepareRefinement(JNIEnv* env,jint width,jint height,jdoubleArray fullCameras,
+    jdoubleArray priorRows,jbyteArray coarseRgba,jint coarseWidth,jint coarseHeight,
+    jdoubleArray coarseCameraRows,jstring inputIdentity,bool allowPlanOnly=false){
+    if(!fullCameras||!priorRows||!coarseRgba||!coarseCameraRows||!inputIdentity||width<32||height<32||width>640||height>640||static_cast<std::int64_t>(width)*height>320000)
+        throw std::invalid_argument("Invalid whole-pipeline refinement input");
+    const auto cameraSize=env->GetArrayLength(fullCameras),priorSize=env->GetArrayLength(priorRows);
+    if(cameraSize<32||cameraSize>128||cameraSize%16||priorSize%6||priorSize>120000)
+        throw std::invalid_argument("Invalid refinement camera/prior shape");
+    const auto cameraCount=static_cast<std::size_t>(cameraSize/16);
+    const auto coarseBytes=env->GetArrayLength(coarseRgba),coarseCameraSize=env->GetArrayLength(coarseCameraRows);
+    const bool coarse=coarseWidth!=0||coarseHeight!=0;
+    if(coarse){
+        if(coarseWidth<32||coarseHeight<32||coarseWidth>=width||coarseHeight>=height||
+           static_cast<std::int64_t>(coarseWidth)*coarseHeight>320000||coarseCameraSize!=cameraSize||
+           static_cast<std::int64_t>(coarseWidth)*coarseHeight*4*static_cast<std::int64_t>(cameraCount)!=coarseBytes)
+            throw std::invalid_argument("Coarse refinement shape does not match ordered full views");
+    }else if(coarseBytes||coarseCameraSize)throw std::invalid_argument("Absent coarse pyramid has nonempty buffers");
+    if(!coarse&&!priorSize&&!allowPlanOnly)throw std::invalid_argument("Refinement requires actual coarse photographs or sparse priors");
+    PreparedRefinement out;out.identity=jString(env,inputIdentity);
+    if(out.identity.size()!=64||!std::all_of(out.identity.begin(),out.identity.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}))throw std::invalid_argument("Refinement identity must be canonical lowercase SHA256");
+    std::vector<double> priors(static_cast<std::size_t>(priorSize)),cameras(static_cast<std::size_t>(coarseCameraSize));
+    if(priorSize)rf::jni::doubles(env,priorRows,0,priorSize,priors.data());
+    if(coarseCameraSize)rf::jni::doubles(env,coarseCameraRows,0,coarseCameraSize,cameras.data());
+    out.priors.reserve(priors.size()/6);
+    for(std::size_t i=0;i<priors.size();i+=6){
+        if(priors[i]<0||priors[i]>=cameraCount||priors[i]!=std::floor(priors[i])||priors[i+1]<0||priors[i+1]>=width||priors[i+2]<0||priors[i+2]>=height||priors[i+3]<=0||priors[i+4]<0||priors[i+4]>.25||(priors[i+5]!=0&&priors[i+5]!=1))throw std::invalid_argument("Invalid admitted sparse depth prior");
+        out.priors.push_back({static_cast<std::uint32_t>(priors[i]),priors[i+1],priors[i+2],priors[i+3],priors[i+4],priors[i+5]==1});
+    }
+    if(coarse){
+        out.coarse.reserve(cameraCount);const auto bytes=static_cast<std::size_t>(coarseWidth)*coarseHeight*4;
+        for(std::size_t i=0;i<cameraCount;++i){
+            rf::cancellation::checkpoint();rf::DenseView view;view.width=coarseWidth;view.height=coarseHeight;const auto* row=cameras.data()+i*16;
+            for(int k=0;k<9;++k){view.pose.rotation[k]=row[k];}
+            view.pose.translation={row[9],row[10],row[11]};view.fx=row[12];view.fy=row[13];view.cx=row[14];view.cy=row[15];view.rgba.resize(bytes);
+            env->GetByteArrayRegion(coarseRgba,static_cast<jsize>(i*bytes),static_cast<jsize>(bytes),reinterpret_cast<jbyte*>(view.rgba.data()));
+            if(env->ExceptionCheck()){throw rf::jni::PendingJavaException();}
+            out.coarse.push_back(std::move(view));
+        }
+    }return out;
+}
+}
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructTexturedSurfaceRefinedCheckpointed(
+    JNIEnv* env,jobject receiver,jbyteArray rgba,jint width,jint height,
+    jbyteArray photos,jint photoWidth,jint photoHeight,jdoubleArray cameras,
+    jdouble near,jdouble far,jint planes,jint stride,
+    jstring meshGlb,jstring meshPly,jstring texturedGlb,jstring png,
+    jdoubleArray priorRows,jbyteArray coarseRgba,jint coarseWidth,jint coarseHeight,
+    jdoubleArray coarseCameras,jstring refinementIdentity,jintArray sourceAdjacency,jboolean compactAtlas,
+    jlong token,jstring directory,jstring checkpointIdentity){
+    return rf::jni::boundary<jstring>(env,nullptr,[&]{return withOperation(env,token,[&]{
+        if(!cameras||!sourceAdjacency)throw std::invalid_argument("Missing admitted dense source plan");
+        const auto cameraSize=env->GetArrayLength(cameras),adjacencySize=env->GetArrayLength(sourceAdjacency);
+        if(cameraSize<32||cameraSize>128||cameraSize%16||adjacencySize>32)throw std::invalid_argument("Dense source plan exceeds bounded camera shape");
+        std::vector<double> fullCameras(static_cast<std::size_t>(cameraSize));rf::jni::doubles(env,cameras,0,cameraSize,fullCameras.data());
+        std::vector<jint> encoded(static_cast<std::size_t>(adjacencySize));if(adjacencySize)env->GetIntArrayRegion(sourceAdjacency,0,adjacencySize,encoded.data());
+        if(env->ExceptionCheck())throw rf::jni::PendingJavaException();
+        std::vector<std::vector<std::size_t>> adjacency;
+        if(adjacencySize){
+            const auto count=static_cast<std::size_t>(cameraSize/16);adjacency.resize(count);std::size_t cursor=0;
+            for(std::size_t reference=0;reference<count;++reference){
+                if(cursor>=encoded.size()){throw std::invalid_argument("Truncated dense source adjacency");}
+                const int degree=encoded[cursor++];
+                if(degree<0||degree>3||cursor+static_cast<std::size_t>(degree)>encoded.size())throw std::invalid_argument("Invalid dense source degree");
+                for(int k=0;k<degree;++k){const int source=encoded[cursor++];if(source<0||source>=static_cast<int>(count)||source==static_cast<int>(reference)||std::find(adjacency[reference].begin(),adjacency[reference].end(),static_cast<std::size_t>(source))!=adjacency[reference].end())throw std::invalid_argument("Invalid or duplicate dense source identity");adjacency[reference].push_back(static_cast<std::size_t>(source));}
+            }if(cursor!=encoded.size())throw std::invalid_argument("Appended dense source adjacency");
+        }
+        auto prepared=prepareRefinement(env,width,height,cameras,priorRows,coarseRgba,coarseWidth,coarseHeight,coarseCameras,refinementIdentity,!adjacency.empty());
+        const rf::DenseRefinementInputs inputs{prepared.priors,prepared.coarse,prepared.identity};
+        rf::DenseRefinementScope refinement(prepared.priors.empty()&&prepared.coarse.empty()?nullptr:&inputs);
+        std::optional<rf::detail::DenseSourcePlanScope> sourcePlan;if(!adjacency.empty())sourcePlan.emplace(adjacency,fullCameras);
+        rf::depth_checkpoint::Scope cache(jString(env,directory),jString(env,checkpointIdentity));
+        return texturedSurface(env,receiver,rgba,width,height,photos,photoWidth,photoHeight,cameras,near,far,planes,stride,meshGlb,meshPly,texturedGlb,png,compactAtlas==JNI_TRUE);
     });});
 }

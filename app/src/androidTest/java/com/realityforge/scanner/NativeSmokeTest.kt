@@ -266,6 +266,21 @@ class NativeSmokeTest {
             assertEquals(0,result.getInt("pointCount")) // Uniform photographs must not create geometry.
             assertEquals(result.getInt("totalTiles"),result.getInt("completedTiles"))
             assertTrue(NativeCore.pollNativeProgress(token)[6]>0L)
+            val directory=File(InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,"refined-jni-$token").apply{mkdirs()}
+            val meshGlb=File(directory,"mesh.glb");val meshPly=File(directory,"mesh.ply")
+            val photoGlb=File(directory,"photo.glb");val atlas=File(directory,"atlas.png")
+            val pipeline=JSONObject(NativeCore.reconstructTexturedSurfaceRefinedCheckpointed(full,w,h,full,w,h,fullCameras,
+                3.0,7.0,24,3,meshGlb.path,meshPly.path,photoGlb.path,atlas.path,doubleArrayOf(),coarse,cw,ch,
+                coarseCameras,identity,intArrayOf(1,1,1,0),true,token,File(directory,"depth").path,identity))
+            assertFalse(pipeline.toString(),pipeline.has("error"));assertTrue(pipeline.has("meshError"))
+            val dense=pipeline.getJSONObject("dense");assertEquals(2,dense.getInt("coarseDepthMaps"))
+            assertEquals(0,dense.getInt("pointCount"));assertEquals("[[1],[0]]",dense.getJSONArray("sourceViewIndices").toString())
+            assertFalse(photoGlb.exists());assertFalse(atlas.exists())
+            val points=doubleArrayOf(0.0,0.0,1.0,128.0,140.0,180.0,1.0,0.0,1.0,140.0,150.0,160.0,0.0,1.0,1.0,100.0,120.0,130.0)
+            val densePly=File(directory,"dense.ply");val denseGlb=File(directory,"dense.glb")
+            NativeCore.exportPointsTyped(points,densePly.path,false,true);NativeCore.exportPointsTyped(points,denseGlb.path,true,true)
+            assertTrue(densePly.readText().contains("comment representation dense_points"))
+            assertTrue(String(denseGlb.readBytes(),Charsets.ISO_8859_1).contains("\"representation\":\"dense_points\""))
         } finally { assertTrue(NativeCore.finishReconstruction(token)) }
     }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
