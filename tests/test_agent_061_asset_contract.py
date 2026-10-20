@@ -24,7 +24,7 @@ def outputs(tmp_path_factory):
     exe = folder / 'writer'
     subprocess.run(['g++', '-std=c++20', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I', str(ROOT/'reconstruction/include'),
                     str(ROOT/'reconstruction/src/asset_model.cpp'), str(ROOT/'reconstruction/src/glb_export.cpp'),
-                    str(ROOT/'reconstruction/tests/agent_061_asset_test.cpp'), '-o', str(exe)], check=True)
+                    str(ROOT/'reconstruction/tests/agent_061_asset_test.cpp'), '-lz', '-o', str(exe)], check=True)
     subprocess.run([str(exe), str(folder), str(image)], check=True)
     return folder
 
@@ -45,11 +45,11 @@ def unpack(path):
     return root, binary
 
 
-@pytest.mark.parametrize('name,representation,mode', [('sparse','sparse_points',0), ('dense','dense_points',0), ('surface','observed_surface',4), ('texture','photographic_surface',4)])
+@pytest.mark.parametrize('name,representation,mode', [('sparse','sparse_points',0), ('dense','dense_points',0), ('metric','dense_points',0), ('surface','observed_surface',4), ('texture','photographic_surface',4)])
 def test_representation_lengths_bounds_winding_and_uv(outputs, name, representation, mode):
     root, binary = unpack(outputs/f'{name}.glb')
     assert root['extras']['representation'] == representation
-    assert root['extras']['units'] == 'arbitrary'
+    assert root['extras']['units'] == ('meters' if name == 'metric' else 'arbitrary')
     primitive = root['meshes'][0]['primitives'][0]
     assert primitive['mode'] == mode
     def values(index, fmt, unit):

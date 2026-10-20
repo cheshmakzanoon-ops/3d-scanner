@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <zlib.h>
 
 namespace rf::asset {
 namespace {
@@ -82,10 +83,11 @@ Bounds validate(const TexturedAsset& a,const Limits& limits,const Cancel& cancel
     const auto bounds=validate(a.surface,limits,cancel);
     if(a.uv.size()!=a.surface.vertices.positions.size()||a.surface.vertices.normals.empty())throw Error("Photographic asset requires per-vertex normals and UVs");
     for(std::size_t i=0;i<a.uv.size();++i) {if(i%1024==0)checkCancelled(cancel);auto uv=a.uv[i];if(!std::isfinite(uv.x)||!std::isfinite(uv.y)||uv.x<0||uv.x>1||uv.y<0||uv.y>1)throw Error("Invalid photographic UV");}
-    if(!a.imageWidth||!a.imageHeight||std::uint64_t(a.imageWidth)*a.imageHeight>limits.maxImagePixels||a.png.size()>limits.maxImageBytes||a.png.size()<57)throw Error("Photographic image budget exceeded");
+    if(!a.imageWidth||!a.imageHeight||std::uint64_t(a.imageWidth)*a.imageHeight>limits.maxImagePixels||a.png.size()>limits.maxImageBytes||a.png.size()>std::numeric_limits<uInt>::max()||a.png.size()<57)throw Error("Photographic image budget exceeded");
     constexpr std::array<std::uint8_t,8> signature{137,80,78,71,13,10,26,10};
     if(!std::equal(signature.begin(),signature.end(),a.png.begin()))throw Error("Invalid PNG signature");
-    bool data=false,end=false,afterData=false;std::size_t chunks=0;
+    bool data=false,end=false,afterData=false;std::size_t chunks=0;std::uint64_t channels=0;
+    std::vector<std::span<const std::uint8_t>> compressed;
     for(std::size_t at=8;at<a.png.size();) {
         checkCancelled(cancel);
         if(++chunks>10000||a.png.size()-at<12)throw Error("Invalid PNG chunk");
@@ -95,12 +97,38 @@ Bounds validate(const TexturedAsset& a,const Limits& limits,const Cancel& cancel
         if(crc(a.png.subspan(at+4,length+4))!=be32(a.png,at+8+length))throw Error("Invalid PNG CRC");
         if(at==8) {
             if(type!="IHDR"||length!=13||be32(a.png,at+8)!=a.imageWidth||be32(a.png,at+12)!=a.imageHeight||a.png[at+16]!=8||(a.png[at+17]!=2&&a.png[at+17]!=6)||a.png[at+18]||a.png[at+19]||a.png[at+20])throw Error("Unsupported PNG header");
-        } else if(type=="IDAT") {if(!length||afterData)throw Error("Invalid PNG data ordering");data=true;}
+            channels=a.png[at+17]==6?4:3;
+        } else if(type=="IDAT") {if(!length||afterData)throw Error("Invalid PNG data ordering");data=true;compressed.push_back(a.png.subspan(at+8,length));}
         else if(type=="IEND") {if(length||!data||at+12!=a.png.size())throw Error("Invalid PNG end");end=true;}
         else {if(type=="IHDR"||type=="acTL"||type=="fcTL"||type=="fdAT"||!(a.png[at+4]&32))throw Error("Unsupported PNG chunk");if(data)afterData=true;}
         at+=std::size_t(length)+12;
     }
     if(!end)throw Error("Missing PNG end");
+    const std::uint64_t rowBytes=std::uint64_t(a.imageWidth)*channels+1;
+    if(rowBytes>std::numeric_limits<std::uint64_t>::max()/a.imageHeight)throw Error("PNG decoded size overflow");
+    const auto expected=rowBytes*a.imageHeight;
+    z_stream stream{};
+    if(::inflateInit(&stream)!=Z_OK)throw Error("Cannot initialize PNG validation");
+    struct End {z_stream& stream;~End(){::inflateEnd(&stream);}} guard{stream};
+    std::array<std::uint8_t,16384> scratch{};std::uint64_t produced=0;bool finished=false;
+    for(auto bytes:compressed) {
+        if(finished)throw Error("Trailing PNG compressed data");
+        stream.next_in=const_cast<Bytef*>(bytes.data());stream.avail_in=static_cast<uInt>(bytes.size());
+        do {
+            checkCancelled(cancel);
+            stream.next_out=scratch.data();stream.avail_out=static_cast<uInt>(scratch.size());
+            const auto inputBefore=stream.avail_in;const auto status=::inflate(&stream,Z_NO_FLUSH);
+            const auto count=scratch.size()-stream.avail_out;
+            if(status!=Z_OK&&status!=Z_STREAM_END)throw Error("Invalid PNG compressed data");
+            if(!count&&inputBefore==stream.avail_in)throw Error("PNG inflater made no progress");
+            if(count>expected-produced)throw Error("PNG decompression exceeds dimensions");
+            for(std::size_t i=0;i<count;++i)if((produced+i)%rowBytes==0&&scratch[i]>4)throw Error("Invalid PNG row filter");
+            produced+=count;finished=status==Z_STREAM_END;
+            if(finished)break;
+        } while(stream.avail_in||stream.avail_out==0);
+        if(stream.avail_in)throw Error("Trailing PNG compressed data");
+    }
+    if(!finished||produced!=expected)throw Error("Truncated PNG pixel data");
     return bounds;
 }
 }
