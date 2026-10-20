@@ -32,4 +32,3 @@ def test_agent_037_native_regression(tmp_path):
         assert "1 2 3 11 22 33" in ply
         if kind=="dense":
             assert "sparse reconstruction" not in ply
-
