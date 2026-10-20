@@ -224,7 +224,17 @@ extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double
         std::vector<rf::Match>matches;matches.reserve(count);
         for(std::size_t i=0;i<count;++i){const auto*p=data+i*7;rf::Match m{{p[0],p[1]},{p[2],p[3]},{}};for(int c=0;c<3;++c){if(!std::isfinite(p[4+c]))throw rf::Error("Non-finite color");m.color[c]=static_cast<std::uint8_t>(std::clamp(p[4+c],0.0,255.0));}matches.push_back(m);}
         rf::Settings s;s.threshold=threshold;auto result=rf::reconstruct(matches,s);if(glb&&*glb)rf::writeGlb(result,glb);if(ply&&*ply)rf::writePly(result,ply);text=rf::resultJson(result);
-    }catch(const std::exception&e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"}";}
+    }catch(const std::exception&e){text="{\"error\":\"";for(char c:std::string(e.what())){if(c=='"'||c=='\\')text+='\\';if(static_cast<unsigned char>(c)>=32)text+=c;}text+="\"";
+        if(auto failure=dynamic_cast<const rf::InitializationError*>(&e)){
+            const char* code="INVALID_INPUT";
+            switch(failure->code){case rf::InitializationFailure::InvalidInput:break;
+                case rf::InitializationFailure::CollinearFeatures:code="COLLINEAR_FEATURES";break;
+                case rf::InitializationFailure::PlanarAmbiguity:code="PLANAR_AMBIGUITY";break;
+                case rf::InitializationFailure::RotationOnly:code="ROTATION_ONLY";break;
+                case rf::InitializationFailure::InsufficientConsensus:code="INSUFFICIENT_CONSENSUS";break;
+                case rf::InitializationFailure::WeakBaseline:code="WEAK_BASELINE";break;}
+            text+=",\"errorCode\":\"";text+=code;text+="\"";
+        }text+="}";}
     auto*p=static_cast<char*>(std::malloc(text.size()+1));if(!p)return nullptr;std::memcpy(p,text.c_str(),text.size()+1);return p;
     }catch(...){return nullptr;}
 }
