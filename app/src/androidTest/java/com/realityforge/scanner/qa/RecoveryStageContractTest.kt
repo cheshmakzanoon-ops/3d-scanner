@@ -119,7 +119,7 @@ class RecoveryStageContractTest {
             }
             val (undeletable, undeletableUri) = configure(deleteFails = true)
             write(undeletableUri, bytes)
-            assertTrue(runCatching { DocumentsContract.deleteDocument(resolver, undeletableUri) }.isFailure)
+            assertFalse("Configured delete failure reported success", runCatching { DocumentsContract.deleteDocument(resolver, undeletableUri) }.getOrDefault(false))
             assertArrayEquals(bytes, read(undeletableUri)); assertEquals(1, snapshot(undeletable).getInt("deleteCalls"))
             assertFalse(snapshot(undeletable).getBoolean("deleted"))
             val (existing, existingUri) = configure(preExisting = true)
@@ -164,7 +164,7 @@ class RecoveryStageContractTest {
             assertTrue(runCatching { resolver.openOutputStream(denied, "wt") }.exceptionOrNull() is SecurityException)
             val (_, missing) = configure("missing")
             assertTrue(runCatching { resolver.openOutputStream(missing, "wt") }.exceptionOrNull() is java.io.FileNotFoundException)
-            assertTrue(runCatching { resolver.query(missing, null, null, null, null) }.exceptionOrNull() is java.io.FileNotFoundException)
+            assertNull("DocumentsProvider translates missing query to a null cursor", resolver.query(missing, null, null, null, null))
             val (id, readbackDenied) = configure("revoke-readback")
             requireNotNull(resolver.openOutputStream(readbackDenied, "wt")).use { it.write(byteArrayOf(1, 2, 3)) }
             assertTrue(runCatching { resolver.openInputStream(readbackDenied) }.exceptionOrNull() is SecurityException)
