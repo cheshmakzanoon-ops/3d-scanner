@@ -3,6 +3,7 @@
 #endif
 #include "realityforge/core.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/progress.hpp"
 #include <atomic>
 #include <cassert>
 #include <cmath>
@@ -18,7 +19,8 @@ void operator delete(void* p) noexcept {std::free(p);}
 void operator delete(void* p,std::size_t) noexcept {std::free(p);}
 int main(){
  for(int failure=0;failure<8;++failure){failAfter=failure;char* value=rf_reconstruct_json(nullptr,0,.002,nullptr,nullptr);failAfter=-1;if(value)rf_free(value);}
- auto m=scene(1.);auto r=rf::reconstruct(m);assert(r.points.size()>=115);assert(r.translation.x<-.999);assert(r.medianError<1e-7);
+ auto progressState=std::make_shared<rf::progress::State>();rf::progress::Scope reporting(progressState);
+ auto m=scene(1.);auto r=rf::reconstruct(m);auto report=progressState->snapshot();assert(report.stage==rf::progress::Stage::Sparse&&report.tile==0&&report.completed>=81&&!report.total);assert(r.points.size()>=115);assert(r.translation.x<-.999);assert(r.medianError<1e-7);
  bool rotation=false;try{rf::reconstruct(scene(0.));}catch(const rf::InitializationError& e){rotation=e.code==rf::InitializationFailure::RotationOnly;}assert(rotation);
  auto line=m;for(int i=0;i<120;++i){line[i].a.y=.2*line[i].a.x;line[i].b.y=.2*line[i].b.x;}
  bool collinear=false;try{rf::reconstruct(line);}catch(const rf::InitializationError& e){collinear=e.code==rf::InitializationFailure::CollinearFeatures;}assert(collinear);

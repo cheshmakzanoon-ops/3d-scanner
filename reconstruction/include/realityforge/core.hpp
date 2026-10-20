@@ -55,6 +55,6 @@ void writeGlb(const Result& result, const std::string& path);
 extern "C" {
 // rows: [x1,y1,x2,y2,r,g,b]. Returns malloc-owned JSON; always release via rf_free.
 char* rf_reconstruct_json(const double* rows, std::size_t count, double threshold,
-                          const char* glb_path, const char* ply_path);
-void rf_free(void* pointer);
+                          const char* glb_path, const char* ply_path) noexcept;
+void rf_free(void* pointer) noexcept;
 }

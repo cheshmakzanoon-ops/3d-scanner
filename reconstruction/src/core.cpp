@@ -1,5 +1,6 @@
 #include "realityforge/core.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/progress.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -154,12 +155,16 @@ Result reconstruct(std::span<const Match> matches,const Settings& s) {
     } catch(const InitializationError&){throw;}catch(const Error&){}
     std::mt19937 rng(s.seed);std::uniform_int_distribution<std::size_t> distribution(0,matches.size()-1);
     Mat3 best{};std::vector<std::size_t>bestInliers;double bestResidual=std::numeric_limits<double>::infinity();int validHypotheses=0;
+    // Sparse work-unit tile0 is initializer RANSAC hypotheses; total is
+    // unknown because statistically sufficient consensus can terminate early.
+    progress::begin(progress::Stage::Sparse,0,0);
     for(int trial=0;trial<s.iterations;++trial) {
         cancellation::checkpoint();
         std::vector<std::size_t>ids;ids.reserve(8);while(ids.size()<8){auto i=distribution(rng);if(std::find(ids.begin(),ids.end(),i)==ids.end())ids.push_back(i);}
         try{auto e=fitEssential(matches,ids);++validHypotheses;auto good=inliers(matches,e,s.threshold);double residual=0;for(auto i:good)residual+=sampson(e,matches[i]);
             if(good.size()>bestInliers.size()||(good.size()==bestInliers.size()&&residual<bestResidual)){best=e;bestResidual=residual;bestInliers=std::move(good);}}
         catch(const cancellation::Cancelled&){throw;}catch(const Error&){} // Degenerate samples are expected in robust sampling.
+        progress::advance(static_cast<std::uint64_t>(trial+1));
         if(trial>=80&&bestInliers.size()>matches.size()*0.98)break;
     }
     if(bestInliers.size()<s.minInliers)throw InitializationError(validHypotheses==0?InitializationFailure::PlanarAmbiguity:InitializationFailure::InsufficientConsensus,
@@ -211,7 +216,7 @@ void writeGlb(const Result& r,const std::string& path) {
     for(auto&p:r.points){for(auto c:p.color)out.put(static_cast<char>(c));out.put(static_cast<char>(255));}out.flush();if(!out)throw Error("GLB write failed; storage may be full");
 }
 } // namespace rf
-extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double threshold,const char* glb,const char* ply) {
+extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double threshold,const char* glb,const char* ply) noexcept {
     try { // Error JSON allocation and serialization are also inside the no-throw boundary.
     std::string text;
     try {
@@ -223,4 +228,4 @@ extern "C" char* rf_reconstruct_json(const double* data,std::size_t count,double
     auto*p=static_cast<char*>(std::malloc(text.size()+1));if(!p)return nullptr;std::memcpy(p,text.c_str(),text.size()+1);return p;
     }catch(...){return nullptr;}
 }
-extern "C" void rf_free(void* p){std::free(p);}
+extern "C" void rf_free(void* p) noexcept {std::free(p);}
