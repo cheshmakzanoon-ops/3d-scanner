@@ -66,15 +66,12 @@ def test_export_artifact_key_supports_milestone_versions():
 
 
 def test_source_manifest_matches_every_tracked_artifact():
-    import hashlib
-    manifest=(ROOT/"SOURCE_MANIFEST.sha256").read_text().splitlines()
-    assert len(manifest) >= 105
-    assert len(set(row.split("  ",1)[1] for row in manifest)) == len(manifest)
-    for row in manifest:
-        expected,path=row.split("  ",1)
-        candidate=ROOT/path
-        assert candidate.is_file(), path
-        assert hashlib.sha256(candidate.read_bytes()).hexdigest()==expected, path
+    # Verify the exact tracked set as well as every byte; ignored build outputs
+    # are intentionally outside the source tree. Other source contracts stay intact.
+    import sys
+    sys.path.insert(0, str(ROOT / "tools"))
+    from source_manifest import verify
+    assert verify(ROOT, "worktree")["files"] >= 105
 
 
 def test_capture_package_requires_explicit_destination_and_preserves_hashes():
