@@ -33,6 +33,18 @@ void serialize(const PointAsset& a,const SurfaceAsset* surface,const TexturedAss
         validate(a,limits,cancel);
     }
     if(a.representation==Representation::PhotographicSurface&&!texture)throw Error("Photographic representation requires an embedded photographic texture");
+    // FLOAT accessors cannot preserve triangles smaller than the float ULP at
+    // a large offset. Reject collapse/inversion before writing any output.
+    if(surface) {
+        auto cross=[](Vec3 a,Vec3 b,Vec3 c) {Vec3 u{b.x-a.x,b.y-a.y,b.z-a.z},v{c.x-a.x,c.y-a.y,c.z-a.z};return Vec3{u.y*v.z-u.z*v.y,u.z*v.x-u.x*v.z,u.x*v.y-u.y*v.x};};
+        auto rounded=[](Vec3 p) {p=toGltf(p);return Vec3{static_cast<float>(p.x),static_cast<float>(p.y),static_cast<float>(p.z)};};
+        for(std::size_t i=0;i<surface->indices.size();i+=3) {
+            if(i%3072==0)checkCancelled(cancel);
+            const auto p=a.positions[surface->indices[i]],q=a.positions[surface->indices[i+1]],r=a.positions[surface->indices[i+2]];
+            const auto original=cross(toGltf(p),toGltf(q),toGltf(r)),converted=cross(rounded(p),rounded(q),rounded(r));
+            if(original.x*converted.x+original.y*converted.y+original.z*converted.z<=0)throw Error("GLB float precision collapses or inverts a triangle");
+        }
+    }
     std::vector<View> views;std::size_t binary=0;
     auto add=[&](std::size_t count,std::size_t unit,int target) {
         if(count>limits.maxOutputBytes/unit||binary>limits.maxOutputBytes-count*unit)throw Error("GLB output budget exceeded");

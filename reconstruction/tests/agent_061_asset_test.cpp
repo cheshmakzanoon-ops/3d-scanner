@@ -23,6 +23,9 @@ int main(int argc,char** argv) {
     p.representation=Representation::ObservedSurface;SurfaceAsset s{p,indices};writeGlbFile(s,out/"surface.glb");
     s.vertices.representation=Representation::PhotographicSurface;TexturedAsset t{s,uv,png,2,2};writeGlbFile(t,out/"texture.glb");
     assert(positions[0].x==original[0].x&&positions[1].y==original[1].y);
+    std::vector<Vec3> nearUlp{{1e9-3,1e9-3,1e9-3},{1e9-2,1e9-3,1e9-3},{1e9-3,1e9-2,1e9-3}};
+    auto collapsed=t;collapsed.surface.vertices.positions=nearUlp;std::ostringstream precisionUntouched;
+    rejects([&]{writeGlb(collapsed,precisionUntouched);});assert(precisionUntouched.str().empty());
     auto bad=p;bad.positions={};rejects([&]{validate(bad);});bad=p;bad.colors=std::span(colors).first(1);rejects([&]{validate(bad);});
     positions[0].x=std::numeric_limits<double>::infinity();rejects([&]{validate(t);});positions[0].x=-2;
     indices[2]=3;rejects([&]{validate(t);});indices[2]=1;rejects([&]{validate(t);});indices[2]=2;
