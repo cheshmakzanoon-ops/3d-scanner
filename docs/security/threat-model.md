@@ -149,3 +149,14 @@ cycles/duplicate pins/ranges/options/escaping includes, binds every closure file
 and checks the returned audited package/version set exactly. An omitted package
 or changed included file returns NOT_RUN. The retained pre-fix nested-input PASS
 is an intentional counterexample; it must never qualify a candidate.
+
+
+Suppression policy JSON is read once before external analysis, at most4MiB. The
+recorded policy SHA256 hashes those same captured bytes, and only that parsed
+object is applied to findings. Symlink ancestors are rejected for the policy
+route; original route and bytes are rechecked before/after application. Transient
+replace-and-restore cannot substitute a different policy during application.
+Selected source-file identities use streaming SHA256, so an oversized included
+requirements file inside tools cannot allocate its full size before closure
+budgets run. Both route retargeting and parsed-byte substitution have negative
+regressions. No candidate pass is inferred from a source- or policy-drift report.

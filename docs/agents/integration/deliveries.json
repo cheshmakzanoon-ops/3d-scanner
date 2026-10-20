@@ -437,6 +437,13 @@
       "branch": "agents/083-licensed-benchmark-corpus",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "8e506f7271cada1f6182ce14ac5a2d68b13fdc6e",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
