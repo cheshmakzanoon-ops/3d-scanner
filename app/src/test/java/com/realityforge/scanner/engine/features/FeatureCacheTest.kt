@@ -6,6 +6,11 @@ import java.io.File
 class FeatureCacheTest {
     private val identity=FeatureCacheIdentity("a".repeat(64),"decoder-v2","sift3500-v2","4.12.0")
     private fun record(id:FeatureCacheIdentity=identity)=CachedFeatures(id,100,80,floatArrayOf(1.2f,3.4f,50f,60f),intArrayOf(7,8),FloatArray(256){it%128.toFloat()})
+    @Test fun metadataRejectsMalformedUnicodeAndExcessiveEncodedLength() {
+        for(value in listOf("\uD800","\uD801","x".repeat(4097),"\u00e9".repeat(2049)))
+            assertThrows(IllegalArgumentException::class.java){identity.copy(decoderTransform=value)}
+        assertEquals("\u00e9".repeat(2048),identity.copy(decoderTransform="\u00e9".repeat(2048)).decoderTransform)
+    }
     @Test fun exactRoundTripAndEveryTruncationRejects() {
         val bytes=FeatureCacheFormat.encode(record())
         val result=FeatureCacheFormat.decode(bytes,identity)

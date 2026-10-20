@@ -1,0 +1,19 @@
+#version 450
+layout(local_size_x=64) in;
+layout(std430,binding=0) readonly buffer Costs {float costs[];};
+layout(std430,binding=1) readonly buffer Valid {uint valid[];};
+layout(std430,binding=2) writeonly buffer Output {vec2 samples[];};
+layout(push_constant) uniform Params {uint pixels;uint planes;float nearDepth;float farDepth;float minimumNcc;float minimumUniqueness;} p;
+void main(){
+ uint pixel=gl_GlobalInvocationID.x;if(pixel>=p.pixels)return;samples[pixel]=vec2(0);
+ if(valid[pixel]==0)return;uint base=pixel*p.planes,best=0;
+ for(uint k=1;k<p.planes;++k)if(costs[base+k]<costs[base+best])best=k;
+ float cost=costs[base+best];if(best<2||best>=p.planes-2||cost>1-p.minimumNcc)return;
+ float runner=2;for(uint k=0;k<p.planes;++k)if(abs(int(k)-int(best))>3)runner=min(runner,costs[base+k]);
+ float margin=runner-cost;if(margin<p.minimumUniqueness)return;
+ float invStep=(1/p.farDepth-1/p.nearDepth)/float(p.planes-1),inverse=1/p.nearDepth+float(best)*invStep;
+ float a=costs[base+best-1],c=costs[base+best+1],denom=a-2*cost+c;
+ if(denom>1e-8)inverse+=invStep*clamp(.5*(a-c)/denom,-.75,.75);
+ if(inverse<=0)return;
+ samples[pixel]=vec2(1/inverse,clamp(margin/.20,0,1)*clamp((1-cost)/.9,0,1));
+}

@@ -2,7 +2,7 @@ package com.realityforge.scanner.engine.matching
 
 /** Stable source keypoint IDs; normalized rays are dimensionless and colours are original sRGB bytes. */
 data class FeatureCorrespondence(val firstKey:Int,val secondKey:Int,val ax:Double,val ay:Double,val bx:Double,val by:Double,val argb:Int) {
-    init {require(firstKey>=0 && secondKey>=0 && listOf(ax,ay,bx,by).all{it.isFinite() && kotlin.math.abs(it)<4})}
+    init {require(firstKey>=0 && secondKey>=0 && listOf(ax,ay,bx,by).all{it.isFinite() && kotlin.math.abs(it)<=5})}
 }
 class TentativeMatches internal constructor(val firstPhotoId:String,val secondPhotoId:String,matches:List<FeatureCorrespondence>,val settingsIdentity:String) {
     val matches:List<FeatureCorrespondence> = java.util.Collections.unmodifiableList(ArrayList(matches))
