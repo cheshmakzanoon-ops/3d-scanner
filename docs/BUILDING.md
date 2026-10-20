@@ -58,6 +58,86 @@ physical360-degree unknown-pose object session. Synthetic fixtures stay syntheti
 Use `-DRF_SANITIZE=ON` in a separate build directory for host ASan/UBSan; do not mix
 sanitizer and Release caches. Windows multi-config builds need `--config Release`.
 
+## Integrated campaign QA
+
+This section applies after Agent100 integrates the 081–100 QA sources. The isolated
+098 baseline branch does not contain other roles' tool implementations. The actual
+integrated checkout supplies the paths below; their presence is separate from
+their runtime or physical acceptance. Do not run the full merged pytest suite with
+only the original scientific requirements:090 needs Trimesh/Khronos/Blender and096
+needs its isolated scanner Python.
+
+Agent095's pinned, hash-verified installer is published at
+`1a741bc7ffc6618b0a001ffbe217ef65c16c0db4`. From the integrated root:
+
+```bash
+QA_ROOT=$(mktemp -d /tmp/realityforge-qa.XXXXXX)
+python -m tools.dependencies.install_qa --root "$QA_ROOT"
+source "$QA_ROOT/activate.sh"
+python -m pytest tests -q
+```
+
+The installer creates an external scientific/pytest/Trimesh environment, a separate
+scanner environment, verified Node and Khronos validator, and the exact Blender
+version. Activation supplies `RF_GLTF_VALIDATOR`, `RF_SECURITY_PYTHON` and
+`SCANNER_PYTHON`; `installation.json` records actual hashes and versions. Committed
+locks are `tools/dependencies/qa-requirements.lock`, `security-requirements.lock`
+and `qa-tools.json`. No Android runtime fetches or dependencies are introduced.
+
+Fresh GitHub Actions uses the same installer with environment/path outputs and
+requires the portable Blender branch:
+
+```bash
+python -m tools.dependencies.install_qa --root "$RUNNER_TEMP/rf-qa" --github-env "$GITHUB_ENV" --github-path "$GITHUB_PATH" --require-portable-blender
+```
+
+The current cloud run verified an existing Debian Blender4.3.2 system binary.
+The proxy denies `download.blender.org`, so portable archive installation is not
+claimed here. A fresh CI runner must reach the official publisher checksum/archive
+and pass exact-name checksum verification; denied access or mismatched bytes fail
+explicitly. An installed executable hash is not a portable archive checksum.
+See `tools/dependencies/README.md` and
+`tools/dependencies/evidence/qa-install-validation.json` in the integrated source.
+
+| Required evidence area | Executable/protocol location in integrated source |
+|---|---|
+| Native compiler/sanitizer matrix and numerical checks081 | `tools/qa/native_regression/` |
+| Hostile-input fuzz082 | `tools/qa/fuzz/run.py` |
+| Authorized corpus083 | `tools/qa/corpus/` |
+| Geometry084 and held-out texture085 | `tools/qa/geometry_quality/`, `tools/qa/texture_quality/` |
+| Physical capture086 and resources087 | `tools/device/capture_validation/qualify.py`, `tools/device/resource_profiling/profile.py` |
+| Process/provider recovery088 and offline089 | `tools/device/failure_recovery/controller.py`, `tools/device/offline_privacy/` |
+| Independent export readers/target tools090 | `tools/qa/export_interoperability/` |
+| APK/AAB/R8/signing091 and installed compatibility092 | `tools/release/package_validation/`, `tools/device/compatibility/` |
+| CI evidence093 and source snapshots094 | `tools/ci/validation/`, `tools/source_manifest.py` |
+| Dependency/license inventory095 and security096 | `tools/dependencies/`, `tools/security/scan.py` |
+| Physical startup/viewer performance097 | `tools/device/ui_performance/` |
+| Runbook098 and candidate qualification099 | `tools/docs/check_runbook.py`, `tools/release/qualification/` |
+| Ownership/integration100 | `tools/agents/campaign.py`, `docs/agents/integration/` |
+
+Use each command's `--help` and its committed protocol to select actual inputs,
+budgets, package type, device and output paths. Dedicated capture/recovery/offline/
+resource/release/099 journey controllers are separate from ordinary compatibility
+scope. Their absence is NOT_RUN, never a passing complete instrumentation suite.
+Agent099 verifies actual installed app/test APK hashes and the exact selected raw
+test events; its one-method regression still does not close every physical journey.
+
+Integration metadata lives at `docs/agents/integration/campaign-base.json`,
+`deliveries.json` and `gate-applicability.json`. The applicability file freezes all
+18 qualification gates as REQUIRED before final combined measurement. Optional
+Vulkan remains disabled/unqualified and cannot waive the CPU or physical gates.
+The current discovery report is generated explicitly outside Git:
+
+```bash
+python -m tools.agents.campaign index --base ad3029193f304c70931b94ea7a0df90b69d84b07 --output /tmp/realityforge-delivery-index.json
+```
+
+Its `campaign_complete=false`, missing/invalid/not-DONE deliveries or unresolved
+owner requests remain blockers. Remote presence and Markdown receipts are discovery,
+not proof of integration or runtime behavior. The final Agent100 source/APK hashes
+and Agent099 per-gate decision must be read from the actual frozen candidate records;
+they are not inferred from this documentation or earlier baseline counts.
+
 ## Android compilation and package checks
 
 ```bash

@@ -73,6 +73,13 @@ uses synthetic analytic features with withheld camera poses; it does not replace
 physical captures. Check the workflow for the exact commit before claiming its
 Android build or device tests passed. Source contracts are not runtime evidence.
 
+The integrated 081–100 host suite also needs the independent format validators
+and security scanners. Use the pinned QA-only installer and activation described
+in [the campaign QA runbook](docs/BUILDING.md#integrated-campaign-qa).
+The baseline scientific requirements alone do not supply those tools. Ordinary
+debug/release compatibility instrumentation leaves dedicated controller and
+physical gates explicitly unrun.
+
 ## Evidence and campaign workflow
 
 The immutable audited baseline is `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42`;
