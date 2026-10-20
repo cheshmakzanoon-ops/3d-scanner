@@ -1,68 +1,62 @@
 package com.realityforge.scanner.engine
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
+import com.realityforge.scanner.imaging.AnalysisPixels
+import com.realityforge.scanner.imaging.AndroidImageDecoder
+import com.realityforge.scanner.imaging.DecodeRequest
+import com.realityforge.scanner.imaging.ImageDecodeLimits
+import com.realityforge.scanner.imaging.OwnedImage
 import java.io.File
 import kotlin.math.hypot
-import kotlin.math.max
-import kotlin.math.roundToInt
 
+/**
+ * Compatibility surface for the existing engine. New code should prefer [decode] or
+ * [decodeBlocking], retain the returned [OwnedImage] only for the operation that owns it, and close
+ * it deterministically. [upright] transfers a caller-owned bitmap for legacy call sites; callers
+ * must recycle it. All decode methods are read-only with respect to the original file.
+ */
 object ImageLoader {
-    const val ANALYSIS_EDGE = 1600
-    fun bounds(file: File): Pair<Int, Int> {
-        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        BitmapFactory.decodeFile(file.path, options)
-        require(options.outWidth in 3..32768 && options.outHeight in 3..32768) { "Unsupported or corrupt photograph." }
-        require(options.outWidth.toLong() * options.outHeight <= 200_000_000) { "Image exceeds the 200-megapixel input safety limit." }
-        return options.outWidth to options.outHeight
-    }
-    /** Decode at bounded resolution BEFORE orientation; original bytes are never modified. */
+    const val ANALYSIS_EDGE = ImageDecodeLimits.DEFAULT_MAX_EDGE
+
+    /** Full encoded dimensions before EXIF orientation. */
+    fun bounds(file: File): Pair<Int, Int> =
+        AndroidImageDecoder.inspect(DecodeRequest(file = file)).let { it.width to it.height }
+
+    /** Off-main-thread owned decode for new import, capture, analysis and preview integrations. */
+    suspend fun decode(request: DecodeRequest): OwnedImage = AndroidImageDecoder.decode(request)
+
+    /** Blocking owned decode for existing background engine stages and deterministic tests. */
+    fun decodeBlocking(request: DecodeRequest): OwnedImage = AndroidImageDecoder.decodeBlocking(request)
+
+    /**
+     * Decode at bounded resolution, apply all eight EXIF orientations and convert to sRGB
+     * ARGB_8888. Ownership is transferred to the caller, which must recycle the bitmap.
+     */
     fun upright(file: File, maxEdge: Int = ANALYSIS_EDGE): Bitmap {
-        require(maxEdge in 32..4096)
-        val (w, h) = bounds(file)
-        var sample = 1
-        while (max(w, h) / sample > maxEdge * 2) sample *= 2
-        val options = BitmapFactory.Options().apply { inSampleSize = sample; inPreferredConfig = Bitmap.Config.ARGB_8888 }
-        var bitmap = requireNotNull(BitmapFactory.decodeFile(file.path, options)) { "Cannot decode photograph." }
-        val exif = ExifInterface(file)
-        val matrix = Matrix()
-        when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
-            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.setScale(-1f, 1f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.setRotate(180f)
-            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.setScale(1f, -1f)
-            ExifInterface.ORIENTATION_TRANSPOSE -> { matrix.setRotate(90f); matrix.postScale(-1f, 1f) }
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.setRotate(90f)
-            ExifInterface.ORIENTATION_TRANSVERSE -> { matrix.setRotate(-90f); matrix.postScale(-1f, 1f) }
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.setRotate(-90f)
+        val owned = decodeBlocking(DecodeRequest(file = file, maxEdge = maxEdge))
+        return try {
+            owned.transferBitmap()
+        } finally {
+            owned.close()
         }
-        if (!matrix.isIdentity) {
-            val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-            if (rotated !== bitmap) bitmap.recycle()
-            bitmap = rotated
-        }
-        val scale = maxEdge.toDouble() / max(bitmap.width, bitmap.height)
-        if (scale < 1.0) {
-            val smaller = Bitmap.createScaledBitmap(bitmap, (bitmap.width * scale).roundToInt().coerceAtLeast(3), (bitmap.height * scale).roundToInt().coerceAtLeast(3), true)
-            if (smaller !== bitmap) bitmap.recycle()
-            bitmap = smaller
-        }
-        return bitmap
     }
+
+    /** Optional 35 mm-equivalent focal metadata. Missing or malformed EXIF remains unknown. */
     fun focal35(file: File): Double? = runCatching {
-        ExifInterface(file).getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM, 0.0).takeIf { it in 10.0..600.0 }
+        ExifInterface(file)
+            .getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM, 0.0)
+            .takeIf { it in 10.0..600.0 }
     }.getOrNull()
+
     fun focalPixels(width: Int, height: Int, focal35: Double): Double =
         focal35 * hypot(width.toDouble(), height.toDouble()) / hypot(36.0, 24.0)
 
-    fun quality(bitmap: Bitmap): DoubleArray {
-        val pixels = IntArray(bitmap.width * bitmap.height)
-        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        val gray = ByteArray(pixels.size) { i ->
-            val c = pixels[i]
-            (((c shr 16 and 255) * 77 + (c shr 8 and 255) * 150 + (c and 255) * 29) shr 8).toByte()
-        }
-        return NativeCore.quality(gray, bitmap.width, bitmap.height)
-    }
+    /**
+     * Convert one bitmap row at a time into a single luma buffer. This avoids the previous
+     * bitmap-sized IntArray plus bitmap-sized ByteArray overlap. Transparent pixels are composited
+     * over black according to AnalysisColorContract before native quality analysis.
+     */
+    fun quality(bitmap: Bitmap): DoubleArray =
+        NativeCore.quality(AnalysisPixels.grayscale(bitmap), bitmap.width, bitmap.height)
 }
