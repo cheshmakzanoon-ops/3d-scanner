@@ -1,113 +1,42 @@
-# Agents081–100 delivery and release acceptance
+# Agents081–100 stopped development checkpoint
 
-Interim historical record of frozen86. Its debug attribution result was
-invalidated when six packaged debug-only modules were found missing from the
-release-only notice index. Agent095 has supplied a separate debug inventory and
-notices. The corrected provider and the next candidate are under validation;
-final machine records and device outcomes will identify their actual source.
+Development stopped at the user’s request. Existing implementation, tests, documentation, build wiring and authored support source have been committed and published on their dedicated branches. No final successor candidate was frozen or qualified.
 
-The requested20 role implementations are committed and pushed on their assigned
-branches. Agent100 integrates reviewed owner deliveries on
-`agents/100-integration-lead`. Main remains at the campaign base,
-`ad3029193f304c70931b94ea7a0df90b69d84b07`.
+The last combined implementation checkpoint is `ff10edd86b3b6f07aff03204593a9a883770fe80`. Later stop receipts and source archives preserve existing work; they do not turn pending validation into PASS. Main remains `ad3029193f304c70931b94ea7a0df90b69d84b07`.
 
-**The release is not qualified.** Required sanitizer and texture checks fail;
-the full001–080 product cohort, physical/reference matrix, production signing
-and external-beta evidence remain incomplete. A pushed branch is not a completed
-acceptance gate. See `validation.json`, `branch-index.json`,
-`candidate-qualification.json` and each numbered status receipt for exact evidence.
+## Published branches
 
-## Tested source and artifact identities
+Full source and remote identities are in [branch-index.json](branch-index.json). The100 row is the published parent snapshot; the report commit’s own identity is checked after push.
 
-The frozen combined candidate is
-`86df647bcdba4b110ad36dfb6ce572adb4261462`, tested from a clean detached checkout.
-Later campaign-tool, receipt and report commits are separately identified and do
-not change the provenance of its binaries.
-
-| Artifact | SHA256 |
-| --- | --- |
-|Debug app APK|`3b747cd8d568e8c64fad1993033089a30b006998337c5225d8db587d613c2f58`|
-|Debug test APK|`4224aa71f0e3d4b7507a54092ca18fd20537b99d57bb3e3f3416ddea2ae4c523`|
-|Minified release APK, separate004 overlay|`ea454c8336211858deb580c2f9508fd458fb9f40fa34c9fef21ee99611908808`|
-|Release AAB, separate004 overlay|`779f51d5f79cae3cad714d2f36fe141397e190dd845e1317023fd804824bab26`|
-|Release test APK, separate004 overlay|`724a37e11c55d3ba8eb9c0d9cd31e0e13927eebdeec9b50442e9fa3c01b9cbef`|
-|Exact frozen-candidate source archive, both copies|`31af56220d6fbe5c5696f983f4f1d35554a0766ea28ca8a7219efd6377bf384c`|
-
-Release source is the separately tested temporary commit
-`0a4d910dce4f527d0cf4e1e98b96a33bd9a55ab4`: frozen86 plus Agent091's reviewed
-convention in004's module build file and its approved module lock, with the
-mechanical manifest regenerated. Patch SHA256 is
-`39425caae7039b45ce84542caf9dc57dccfe071a2fdeb7d5289efa58be9b8792`.
-The minimal immutable004 follow-up `99eb293423560e8bcd9bacbc8e82cb33fc7634bf`
-has since supplied this wiring and persistent normal-configuration locks; it is
-integrated for the next direct build. The dry-run signing key is
-not the production identity. App and test certificates agree.
-
-## Actual validation
-
-| Check | Result | Scope and limitation |
+| Agent | Dedicated branch | Published SHA |
 | --- | --- | --- |
-|GCC and Clang Release|PASS|764 pytest tests and11 CTest tests pass under each compiler; existing numerical, bundle and licensed stereo benchmark checks pass.|
-|GCC and Clang ASan/UBSan|FAIL|11 native CTest tests pass per compiler. Each Python suite has740 passes and24 failures; all eight Python-hosted commands exit nonzero with leak reports. Leak detection remains enabled.|
-|Cross-compiler numerical parity|PASS|All three comparisons against GCC Release pass within the frozen tolerances. This does not waive sanitizer failures.|
-|Native parser fuzzing|PASS|Three actual C-ABI libFuzzer targets complete10,000 iterations each with ASan/UBSan and source/compiler/library/binary fingerprints.|
-|Debug Android compile/JVM/lint|PASS|Actual app and test APKs,35 JVM tests, lint,12 ELF/ZIP16KB checks, and packaged privacy pass on frozen86. The old attribution claim is invalid: six debug-only packaged modules lacked notices; corrected129-module debug attribution requires a new build.|
-|Minified release packaging|PASS, separate overlay|Actual R8 APK/AAB/test APK,35 JVM tests, lint and85 generated universal/split APK signature/privacy/alignment checks pass. Both APK and AAB match123 runtime modules,92 notice texts and10 dependency-native records.|
-|Packaged privacy|PASS|All nine storage domains are excluded in the actual app/universal package policies, including device-protected storage. Runtime offline evidence is separate.|
-|Python host source and approved lock security|PASS|Actual Python host-tool scanners (178 files) and all14/15/31-distribution approved lock graphs pass. Reviewed path/line/rule/source/context exceptions are explicit and expiring; active findings are zero. This does not certify C++/JNI/Android security.|
-|Legacy004 dependency input on frozen86|FAIL, historical|Its pytest8.4.1 direct and included requirements trigger PYSEC-2026-1845. Minimal004 follow-up99eb293 updates the input to9.0.3; the next candidate requires actual fresh direct and included audits. No advisory suppression.|
-|Texture baseline, exact86 native library|FAIL|Independent gate finds23 UV-overlap pairs, area0.0007389108195187087. Historical benchmark PASS remains separate. Other measured anisotropy/seam/support metrics pass; no held-out or physical pass.|
-|Independent export readers|PARTIAL / FAIL|Real Trimesh/Khronos/Blender roundtrips and provider tests execute. The supplied064 PLY fixture fails normal/winding quality; this alone does not prove a serializer defect.|
-|Source reproducibility|PASS|Two canonical, manifest-verified2258961-byte archives of frozen86 are byte-identical and independently verified against that Git tree.|
-|Campaign tooling|PASS|33 focused tests cover100 assignments, ownership, rename/deletion evasion, typed receipts including standard YAML lists, stale DONE evidence and staged/unstaged post-check mutations.|
+|081|`agents/081-host-numerical-sanitizers`|`7d377264d24f251f6237d138747c60b3435bc910`|
+|082|`agents/082-native-jni-parser-fuzzing`|`32ea6bd2f4da99c16da002b421748cc009709f5d`|
+|083|`agents/083-licensed-benchmark-corpus`|`72747f26f431f0ea1849b617d58e92e473a89702`|
+|084|`agents/084-full-object-geometry-quality`|`a6751721f063db8daee08b72f19cd3f5cc8f2f14`|
+|085|`agents/085-photographic-texture-quality`|`2870909ec595d18cf5556b5cc65b12384f7db6fd`|
+|086|`agents/086-physical-arm64-capture-validation`|`e11fee5ba7ac4f2c6de9bafddfa1204a20afbf0d`|
+|087|`agents/087-physical-resource-profiling`|`cc1452d99f07a9c76b4264820ad4c4747f59ddf3`|
+|088|`agents/088-failure-recovery-instrumentation`|`0338af8c94dcdd65ce13c231c6f86e9735a3b749`|
+|089|`agents/089-runtime-offline-privacy`|`ec8c9d59c0a2e2234caf5d07a87bdbd2bec77298`|
+|090|`agents/090-export-interoperability-validation`|`16366f0925f21146fb48676dd54909ebeb8ad256`|
+|091|`agents/091-release-package-validation`|`5e3a6261ce8500ca7053b0657a804b2f9a3c85c8`|
+|092|`agents/092-android-compatibility-matrix`|`6b58c7b282492966824307e8c9017288416b0532`|
+|093|`agents/093-parallel-branch-ci-validation`|`0adc4e392d8d5c4a58c3f5c104d61c7afbafe33c`|
+|094|`agents/094-source-provenance-reproducibility`|`377e9ab290fc7cc4b505ebb6cf26622271c7779d`|
+|095|`agents/095-dependency-notices-sbom`|`1d3532aba807e04a90c4cc1b308d668f725b27f0`|
+|096|`agents/096-security-hostile-input-assurance`|`987031d0ad34fb61844ad612d8f691e8ac8cf1e9`|
+|097|`agents/097-startup-viewer-macrobenchmarks`|`60b050596b1052fafd137d2270546074be6c8156`|
+|098|`agents/098-current-documentation-runbook`|`4d96618a1d31f7c056345d429477d08985a7aef8`|
+|099|`agents/099-release-candidate-journey-qualification`|`69415492aa05a3af5712fb2f875a553e11b73933`|
+|100|`agents/100-integration-lead`|`84d3d3e7f10af0000c8573f8a3e63a05aa7b85d6`|
 
-The matching sanitizer-environment diagnostic reproduces leaks without loading
-the reconstruction library: bare Python leaks52710 bytes/1019 allocations under
-both runtimes; NumPy-only leaks287555 bytes/5335 allocations with GCC and287333
-bytes/5331 with Clang. This explains an environment contribution, not every
-individual failure, and does not turn the aggregate green. The separate default
-Python allocator experiment has different results and is retained separately.
+Minimal004 and057 foundation follow-ups are also published and recorded in the index. Concurrent remote history on004/057/085/094 is preserved; the pure supplying commits remain ancestors. No force push, branch deletion, main merge or release publication was performed.
 
-Device compatibility, supplemental JNI/provider tests, external recovery,
-the099 synthetic installed journey and089 offline/minified checks are recorded
-in the final machine evidence with their actual terminal outcomes. Emulator
-observations do not qualify physical ARM64, camera, thermal, power-loss or
-full-product journey gates. Six specialist gates remain excluded from the generic
-debug compatibility scope and cannot inherit its outcome.
+## Preserved source and verification state
 
-## Scope, remote history and unresolved work
+Historical helper sources now live under each owner’s `campaign_support` directory with original paths and byte hashes. Agent100 also preserves existing setup instructions, saved configuration, review scripts and scratch wiring variants under `tools/agents/campaign_support/`. These scripts retain historical paths and are not new supported runtime entrypoints.
 
-All100 plan slots and committed outgoing handoffs are indexed by immutable remote
-source. The index records ownership and typed-receipt failures as well as absent
-or incomplete assignments; its request count is discovery, not an unresolved-work
-total. Required001–080 source is not accepted merely because a remote branch
-exists. All18 frozen release gates remain required; optional052 Vulkan remains
-disabled and cannot replace CPU-path qualification.
+[validation.json](validation.json) records the stopped state. Completed owner checks remain identified by their actual source. Historical sanitizer and texture failures remain failures. The final combined successor build, full installed compatibility/recovery/journey/offline matrix and fresh099 qualification were cancelled or remained unrun. Physical/reference, signing, licensing and full-product prerequisites remain open.
 
-Agent094's scope-correct delivery
-`4f9bc76c42c96f571ba885975b23bd204f148ef3` is included in frozen86. Its remote was
-subsequently advanced by other campaign merges to
-`bf3c6ea2b0d8043a8ddb882d487473733de7228a`. That tree has365 paths outside094
-ownership. It is preserved unchanged;100 retains the already reviewed supplying
-commit rather than accepting the mixed tree. Its internally valid manifest is
-not proof of source ownership. The independent audit is hash-referenced in the
-machine evidence.
-
-Agent100's contract records concrete071/078/088/099 incoming dispositions.
-Existing owner handoffs name missing publication/job/database/SAF/UI adapters,
-localization and accessibility work. `100-to-004.md` supplies the actual verified
-release wiring and fixed bootstrap evidence. Real authorized whole-object scenes,
-their calibrated references, physical handset matrix, production signing identity
-and external beta remain unavailable. Source-owner fixes and missing evidence
-must be delivered and retested before acceptance; red gates are not waived.
-
-## Environment setup
-
-The saved onboarding draft contains verified JDK17, SDK36, NDK28.2, Gradle8.13,
-CMake/Ninja, the hash-checked095 Python graph with pytest9.0.3, and documented
-optional software-emulator setup. The corrected host environment passes pip-check
-and117 original baseline tests. The draft also permits the official portable
-Blender download domain for a future environment build. The published environment
-configuration is unchanged until the saved draft is published in Environment
-settings. No fresh portable-Blender installation success is inferred from that
-network-policy edit; actual local QA used the existing verified Blender4.3.2.
+Both owned emulators are stopped, with AVD data and evidence retained. Generated binaries/caches, vendor installations, credentials and signing keys are excluded from Git. The primary checkout’s pre-existing untracked schemas were left untouched.

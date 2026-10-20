@@ -1,0 +1,14 @@
+{
+  "draft_id": "2c7622f2-b7f8-43fa-a92c-81eb7fe6ce8e~cecfgdraft_6ad7350f768c8195a74816d0f23a5727",
+  "revision": 3,
+  "base_version_id": "2c7622f2-b7f8-43fa-a92c-81eb7fe6ce8e~cecfgver_6ad72062b7e88195bd9f1055703479d3",
+  "repositories": [
+    {
+      "repository_id": "github-1412111432",
+      "ref": "main",
+      "mount_path": "",
+      "depth": null
+    }
+  ],
+  "scope": "Existing saved onboarding draft preserved at user-requested development stop; publishing environment settings remains a separate UI action; no configured secrets archived"
+}
