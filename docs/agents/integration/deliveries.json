@@ -45,6 +45,13 @@
       "branch": "agents/083-licensed-benchmark-corpus",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "de7b8a4fd808aa4426f3a764c04378f90d485cd4",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
