@@ -1,5 +1,4 @@
 <resources>
-    <string name="a071_library">Library</string>
     <string name="a071_review">Photograph review</string>
     <string name="a071_processing">Processing and recovery</string>
     <string name="a071_studio">Model studio</string>
@@ -8,18 +7,8 @@
     <string name="a071_help">Capture guide</string>
     <string name="a071_back">Back</string>
     <string name="a071_loading">Opening project…</string>
-    <string name="a071_import">Import photographs</string>
     <string name="a071_camera">Use camera</string>
-    <string name="a071_reconstruct">Reconstruct</string>
-    <string name="a071_open_studio">Inspect available results</string>
     <string name="a071_open_export">Export available results</string>
-    <string name="a071_calibration">Lens calibration</string>
-    <string name="a071_calibrate">Choose checkerboard photographs</string>
-    <string name="a071_clear_calibration">Remove lens calibration</string>
-    <string name="a071_calibration_help">Use 10–40 views of the 10×7-square board, with 9×6 inner corners. Keep the same lens, zoom, aspect and orientation. Calibration does not determine physical scale.</string>
-    <string name="a071_focal">Fallback 35 mm-equivalent focal length</string>
-    <string name="a071_focal_help">Used only when EXIF has no value. This is an optical assumption, not measured calibration.</string>
-    <string name="a071_mm">mm</string>
     <string name="a071_no_result">No current completed result is available. Reconstruct the selected photographs first.</string>
     <string name="a071_sparse">Sparse points</string>
     <string name="a071_dense">Dense points</string>
@@ -49,4 +38,8 @@
     <string name="a071_pending_recover">Keep a copy and reset the request</string>
     <string name="a071_pending_waiting">A document request is pending. Return to the picker, or cancel this request before starting another.</string>
     <string name="a071_cancel_pending">Cancel the pending request</string>
+    <string name="a071_calibrated">Lens calibration: %1$d board views; RMS %2$s pixels.</string>
+    <string name="a071_calibration_loading">Reading lens calibration…</string>
+    <string name="a071_calibration_invalid">Lens calibration could not be read. Recalibrate before using this optical profile.</string>
+    <string name="a071_calibration_estimated">No lens calibration. Estimated optics do not establish physical scale.</string>
 </resources>

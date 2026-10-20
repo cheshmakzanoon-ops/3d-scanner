@@ -29,6 +29,11 @@ import com.realityforge.scanner.R
 import com.realityforge.scanner.ScannerViewModel
 import com.realityforge.scanner.export.*
 import com.realityforge.scanner.viewer.loading.GlbStructure
+import com.realityforge.scanner.domain.OperationKind
+import com.realityforge.scanner.domain.CalibrationState
+import com.realityforge.scanner.localization.UserMessageResolver
+import com.realityforge.scanner.localization.LocalizedFormats
+import androidx.compose.ui.platform.LocalConfiguration
 import com.realityforge.scanner.ui.designsystem.AppTheme
 import com.realityforge.scanner.ui.library.*
 import com.realityforge.scanner.ui.navigation.*
@@ -46,7 +51,10 @@ import java.io.File
 @Composable
 fun ScannerApp(model: ScannerViewModel) {
     val context = LocalContext.current
+    val messages=remember(context) {UserMessageResolver(context)}
+    val locale=LocalConfiguration.current.locales[0]
     val scope = rememberCoroutineScope()
+    val scanner by model.scannerState.collectAsStateWithLifecycle()
     val projects by model.projects.collectAsStateWithLifecycle()
     val selected by model.selectedId.collectAsStateWithLifecycle()
     val photos by model.photos.collectAsStateWithLifecycle()
@@ -54,7 +62,12 @@ fun ScannerApp(model: ScannerViewModel) {
     val progress by model.progress.collectAsStateWithLifecycle()
     val notice by model.notice.collectAsStateWithLifecycle()
     val preview by model.preview.collectAsStateWithLifecycle()
-    val calibration by model.calibrationStatus.collectAsStateWithLifecycle()
+    val calibration=when(val optical=scanner.calibration) {
+        is CalibrationState.Calibrated -> stringResource(R.string.a071_calibrated,optical.acceptedViews,LocalizedFormats.number(optical.rmsPixels,locale))
+        is CalibrationState.Loading -> stringResource(R.string.a071_calibration_loading)
+        is CalibrationState.Invalid -> stringResource(R.string.a071_calibration_invalid)
+        else -> stringResource(R.string.a071_calibration_estimated)
+    }
     var routeValue by rememberSaveable { mutableStateOf(AppRoute(Destination.LIBRARY).encode()) }
     val route = AppRoute.restore(routeValue)
     var pendingValue by rememberSaveable { mutableStateOf<String?>(null) }
@@ -71,7 +84,7 @@ fun ScannerApp(model: ScannerViewModel) {
     }
     val routeFocus=remember {FocusRequester()}
     LaunchedEffect(routeValue,pendingValue) { if(pendingValue==null) runCatching {routeFocus.requestFocus()} }
-    val source = remember(model.repository) { RepositoryExportSource(model.repository) {file,mode->GlbStructure.validate(file,mode);Unit} }
+    val source = remember(model.repository) { RepositoryExportSource(model.repository,geometryValidator={file,mode->GlbStructure.validate(file,mode);Unit},imageValidator={file->GlbStructure.validatePng(file);Unit}) }
     val exportStore=remember(context) {PendingExportStore(File(context.filesDir,"ui-pending-export/request.v1"))}
     var invalidExport by remember {mutableStateOf(false)}
     var exportAdmission by remember {mutableStateOf(false)}
@@ -88,21 +101,27 @@ fun ScannerApp(model: ScannerViewModel) {
     fun currentRequest(kind: PendingKind, extension: String? = null): PendingRequest? {
         if (PendingRequest.restore(pendingValue) != null || model.busy.value || exportAdmission) { model.notice.value = pendingText; return null }
         val project = model.projects.value.find { it.id == model.selectedId.value } ?: return null
-        return PendingRequest.create(kind, project.id, project.revision,
+        val requestId=when(kind) {
+            PendingKind.IMPORT->model.beginImportRequest()
+            PendingKind.CAMERA->model.beginCaptureRequest()
+            PendingKind.CALIBRATE->model.beginCalibrationRequest()
+            PendingKind.EXPORT->extension?.let(model::beginArtifactExportRequest)
+            PendingKind.CAPTURE_ARCHIVE->model.beginCaptureBundleExportRequest()
+        } ?: return null
+        return PendingRequest(requestId,kind,project.id,project.revision,
             if (kind == PendingKind.EXPORT) project.resultKey else null, extension)
     }
     fun consume(kind: PendingKind): PendingRequest? {
         val request = PendingRequest.restore(pendingValue)
         pendingValue = null
-        val project = model.projects.value.find { it.id == request?.projectId }
-        return request?.takeIf { it.kind == kind && it.accepts(model.selectedId.value, project?.revision, project?.resultKey, model.busy.value) }
-            .also { if (it == null && request != null) model.notice.value = staleText }
+        return request?.takeIf {it.kind==kind && !model.busy.value}
+            .also {if(it==null && request!=null) {model.cancelPendingRequest(request.requestId);model.notice.value=staleText}}
     }
     val importPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (consume(PendingKind.IMPORT) != null && uris.isNotEmpty()) model.import(uris)
+        consume(PendingKind.IMPORT)?.let {model.completeImport(it.requestId,uris)}
     }
     val calibrationPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (consume(PendingKind.CALIBRATE) != null && uris.isNotEmpty()) model.calibrateLens(uris)
+        consume(PendingKind.CALIBRATE)?.let {model.completeCalibration(it.requestId,uris)}
     }
     val exportPicker = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val request = PendingRequest.restore(pendingValue)
@@ -116,18 +135,23 @@ fun ScannerApp(model: ScannerViewModel) {
             try {
                 if(accepted!=null && typed?.requestId==accepted.requestId && result.resultCode==Activity.RESULT_OK && uri!=null) {
                     val valid=withContext(Dispatchers.IO) {runCatching {source.isCurrent(typed.artifact)}.getOrDefault(false)}
-                    val current=model.projects.value.find {it.id==accepted.projectId}
-                    if(valid && accepted.accepts(model.selectedId.value,current?.revision,current?.resultKey,model.busy.value)) model.export(uri,requireNotNull(accepted.extension))
-                    else model.notice.value=staleText
+                    if(valid) model.completeArtifactExport(accepted.requestId,uri)
+                    else {model.cancelPendingRequest(accepted.requestId);model.notice.value=staleText}
                 }
             } finally {
-                if(typed!=null && typed.requestId==request?.requestId) withContext(NonCancellable+Dispatchers.IO) {runCatching {exportStore.clear(typed.requestId)}}
+                if(result.resultCode!=Activity.RESULT_OK || uri==null || typed==null) model.cancelPendingRequest(request.requestId)
+                if(typed!=null && typed.requestId==request.requestId) withContext(NonCancellable+Dispatchers.IO) {runCatching {exportStore.clear(typed.requestId)}}
                 exportAdmission=false
             }
           }
-        } else if(accepted!=null && result.resultCode==Activity.RESULT_OK && uri!=null && kind==PendingKind.CAPTURE_ARCHIVE) model.exportCaptureBundle(uri)
+        } else if(accepted!=null && result.resultCode==Activity.RESULT_OK && uri!=null && kind==PendingKind.CAPTURE_ARCHIVE) model.completeCaptureBundleExport(accepted.requestId,uri)
+        else if(accepted!=null) model.cancelPendingRequest(accepted.requestId)
     }
-    LaunchedEffect(notice) { notice?.let { snackbars.showSnackbar(it); model.notice.value = null } }
+    LaunchedEffect(notice) {notice?.let {
+        val event=model.scannerState.value.message
+        val text=if(event!=null && event.fallbackText==it) messages.resolveCode(event.code) else it
+        snackbars.showSnackbar(text);model.notice.value=null
+    }}
     // Selection is restored from an explicit saved route, never from an activity-result payload.
     LaunchedEffect(route.projectId) {
         val id=route.projectId
@@ -142,29 +166,29 @@ fun ScannerApp(model: ScannerViewModel) {
         if(route.destination==Destination.CAPTURE && (pending?.kind!=PendingKind.CAMERA || pending.projectId!=route.projectId)) navigate(route.back())
     }
     BackHandler(route.destination != Destination.LIBRARY) {
-        if (route.destination == Destination.CAPTURE) pendingValue = null
+        if (route.destination == Destination.CAPTURE) {pending?.let {model.cancelPendingRequest(it.requestId)};pendingValue = null}
         val back = route.back()
         navigate(back)
         if (back.destination == Destination.LIBRARY && !busy) model.select(null)
     }
-    fun beginImport() { currentRequest(PendingKind.IMPORT)?.let { pendingValue=it.encode(); runCatching {importPicker.launch(imageTypes)}.onFailure {pendingValue=null;model.notice.value=errorText} } }
+    fun beginImport() { currentRequest(PendingKind.IMPORT)?.let { pendingValue=it.encode(); runCatching {importPicker.launch(imageTypes)}.onFailure {PendingRequest.restore(pendingValue)?.let {r->model.cancelPendingRequest(r.requestId)};pendingValue=null;model.notice.value=errorText} } }
     fun beginCamera() { currentRequest(PendingKind.CAMERA)?.let { pendingValue=it.encode(); navigate(AppRoute(Destination.CAPTURE,it.projectId)) } }
-    fun beginCalibration() { currentRequest(PendingKind.CALIBRATE)?.let { pendingValue=it.encode(); runCatching {calibrationPicker.launch(imageTypes)}.onFailure {pendingValue=null;model.notice.value=errorText} } }
+    fun beginCalibration() { currentRequest(PendingKind.CALIBRATE)?.let { pendingValue=it.encode(); runCatching {calibrationPicker.launch(imageTypes)}.onFailure {PendingRequest.restore(pendingValue)?.let {r->model.cancelPendingRequest(r.requestId)};pendingValue=null;model.notice.value=errorText} } }
     fun launchExport(identity:ArtifactIdentity,option:ExportOption) {
         val admitted=currentRequest(PendingKind.EXPORT,option.id) ?: return
-        if(admitted.projectId!=identity.projectId || admitted.revision!=identity.revision || admitted.artifactKey!=identity.artifactKey) {model.notice.value=staleText;return}
-        val typed=RepositoryExportSource.request(identity,option)
+        if(admitted.projectId!=identity.projectId || admitted.revision!=identity.revision || admitted.artifactKey!=identity.artifactKey) {model.cancelPendingRequest(admitted.requestId);model.notice.value=staleText;return}
+        val typed=ExportRequest(admitted.requestId,identity,option)
         pendingValue=PendingRequest(typed.requestId,PendingKind.EXPORT,identity.projectId,identity.revision,identity.artifactKey,option.id).encode()
         scope.launch {
             runCatching {withContext(Dispatchers.IO) {exportStore.save(typed)}}
                 .onSuccess {
                     if(PendingRequest.restore(pendingValue)?.requestId!=typed.requestId) {
-                        withContext(Dispatchers.IO) {exportStore.clear(typed.requestId)}
+                        withContext(Dispatchers.IO) {exportStore.clear(typed.requestId)};model.cancelPendingRequest(typed.requestId)
                     } else runCatching {exportPicker.launch(Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
                         .setType(option.format.mime).putExtra(Intent.EXTRA_TITLE,"realityforge-${option.representation.name.lowercase()}.${option.format.extension}"))}
-                        .onFailure {pendingValue=null;withContext(NonCancellable+Dispatchers.IO) {runCatching {exportStore.clear(typed.requestId)}};model.notice.value=errorText}
+                        .onFailure {model.cancelPendingRequest(typed.requestId);pendingValue=null;withContext(NonCancellable+Dispatchers.IO) {runCatching {exportStore.clear(typed.requestId)}};model.notice.value=errorText}
                 }
-                .onFailure {pendingValue=null;invalidExport=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}.isFailure};model.notice.value=staleText}
+                .onFailure {model.cancelPendingRequest(typed.requestId);pendingValue=null;invalidExport=withContext(Dispatchers.IO) {runCatching {exportStore.restore()}.isFailure};model.notice.value=staleText}
         }
     }
     fun leaveGuide() {
@@ -178,10 +202,10 @@ fun ScannerApp(model: ScannerViewModel) {
     AppTheme(darkTheme=dark) {
         Box(Modifier.semantics { testTagsAsResourceId=true }) {
         if (route.destination == Destination.CAPTURE && route.projectId == selected && pending?.kind == PendingKind.CAMERA) {
-            CameraScreen(onClose = { pendingValue=null; navigate(route.back()) }, onPhoto = { file ->
+            CameraScreen(onClose = {pending?.let {model.cancelPendingRequest(it.requestId)};pendingValue=null; navigate(route.back()) }, onPhoto = { file ->
                 val accepted = consume(PendingKind.CAMERA)
                 navigate(route.back())
-                if (accepted != null) model.captureReady(file) else file.delete()
+                if (accepted != null) model.completeCapture(accepted.requestId,file) else file.delete()
             })
         } else Scaffold(
             topBar = { TopAppBar(title={Text(stringResource(routeTitle(route.destination)),Modifier.focusRequester(routeFocus).focusable().semantics {heading()})},
@@ -201,6 +225,7 @@ fun ScannerApp(model: ScannerViewModel) {
                     Text(stringResource(R.string.a071_pending_waiting))
                     TextButton(onClick={
                         val cancelled=PendingRequest.restore(pendingValue);pendingValue=null
+                        cancelled?.let {model.cancelPendingRequest(it.requestId)}
                         if(cancelled?.kind==PendingKind.EXPORT) scope.launch {withContext(Dispatchers.IO) {runCatching {exportStore.clear(cancelled.requestId)}}}
                     },modifier=Modifier.testTag("a071-cancel-pending")) {Text(stringResource(R.string.a071_cancel_pending))}
                 }
@@ -209,7 +234,7 @@ fun ScannerApp(model: ScannerViewModel) {
             val modifier=Modifier.fillMaxSize().padding(padding).testTag("a071-route-${route.destination.name.lowercase()}")
             val project=projects.find { it.id==route.projectId }
             when(route.destination) {
-                Destination.LIBRARY -> LibraryScreen(LibraryUiState(projects.map(LibraryProject::from),busy=busy),onAction={action->when(action) {
+                Destination.LIBRARY -> LibraryScreen(LibraryUiState(projects.map {p->LibraryProject.from(p).let {it.copy(message=messages.projectSummary(p.state,it.hasCurrentResult))}},busy=busy),onAction={action->when(action) {
                     is LibraryAction.Create -> model.create(action.name)
                     is LibraryAction.Open -> if(!busy) {model.select(action.projectId);navigate(AppRoute(Destination.REVIEW,action.projectId))}
                     is LibraryAction.Delete -> if(!busy) { model.select(action.projectId); deleteValue="${action.projectId}\n${action.revision}" }
@@ -226,7 +251,7 @@ fun ScannerApp(model: ScannerViewModel) {
                         val state=ProjectReviewUiState(project.id,project.revision,photos.map { ReviewPhoto.from(it,model.repository.photoFile(it)) },project.name,
                             busy=busy,calibrationStatus=calibration,diagnostics=lines,canCurate=false,canInspectResult=preview!=null)
                         ProjectReviewScreen(state,onAction={action->
-                            if(ReviewAdmission.allowed(state,action) && action is ReviewAction.Command) when(action.command) {
+                            if(ReviewAdmission.allowed(state,action) && model.selectedId.value==action.projectId && model.projects.value.find {it.id==action.projectId}?.revision==action.revision && action is ReviewAction.Command) when(action.command) {
                                 ReviewCommand.IMPORT -> beginImport()
                                 ReviewCommand.CAPTURE -> beginCamera()
                                 ReviewCommand.CALIBRATE -> beginCalibration()
@@ -240,12 +265,12 @@ fun ScannerApp(model: ScannerViewModel) {
                     }
                     Destination.PROCESSING -> {
                         val phase=if(busy) JobPhase.RUNNING else when(project.state) {"INTERRUPTED"->JobPhase.INTERRUPTED;"FAILED"->JobPhase.FAILED;"SPARSE_READY"->JobPhase.COMPLETED;else->JobPhase.PAUSED}
-                        val state=JobUiState(JobIdentity(project.id,project.revision,"legacy-${project.id}-${project.revision}"),phase,
+                        val state=JobUiState(JobIdentity(project.id,project.revision,scanner.activeOperation?.jobId?.value ?: "project-${project.id}-${project.revision}"),phase,
                             stage=progress?.stage,completed=progress?.completed?.toLong(),total=progress?.total?.toLong(),
-                            message=project.message,hasPreviousResult=preview!=null,pauseSupported=true,resumeSupported=false)
+                            technicalDetails=project.message,hasPreviousResult=preview!=null,pauseSupported=true,resumeSupported=false)
                         ProcessingScreen(state,onAction={action->if(action.identity==state.identity && state.can(action.command)) when(action.command) {
-                            JobCommand.PAUSE -> model.pause()
-                            JobCommand.RETRY -> model.reconstruct(lastFocal)
+                            JobCommand.PAUSE -> if(model.scannerState.value.activeOperation?.jobId?.value==action.identity.jobId) model.pause()
+                            JobCommand.RETRY -> if(model.selectedId.value==action.identity.projectId && model.projects.value.find {it.id==action.identity.projectId}?.revision==action.identity.revision) model.reconstruct(lastFocal)
                             JobCommand.OPEN_PREVIOUS -> navigate(AppRoute(Destination.STUDIO,project.id))
                             else -> Unit
                         }},modifier=modifier)
@@ -260,13 +285,13 @@ fun ScannerApp(model: ScannerViewModel) {
         }
         if(invalidExport) AlertDialog(onDismissRequest={},title={Text(stringResource(R.string.a071_pending_recovery_title))},
             text={Text(stringResource(R.string.a071_pending_recovery_body))},confirmButton={TextButton(onClick={scope.launch {
-                runCatching {withContext(Dispatchers.IO) {exportStore.quarantineInvalid()}}.onSuccess {pendingValue=null;invalidExport=false}.onFailure {model.notice.value=staleText}
+                runCatching {withContext(Dispatchers.IO) {exportStore.quarantineInvalid()}}.onSuccess {model.scannerState.value.pendingRequests.filter {it.kind==OperationKind.EXPORT_ARTIFACT}.forEach {model.cancelPendingRequest(it.requestId.value)};pendingValue=null;invalidExport=false}.onFailure {model.notice.value=staleText}
             }}) {Text(stringResource(R.string.a071_pending_recover))}},dismissButton={TextButton(onClick={invalidExport=false}) {Text(stringResource(R.string.a071_cancel))}})
         deleteValue?.split('\n')?.takeIf { it.size==2 }?.let { request ->
             AlertDialog(onDismissRequest={deleteValue=null},title={Text(stringResource(R.string.a071_delete_title))},
                 text={Text(stringResource(R.string.a071_delete_body))},confirmButton={TextButton(enabled=!busy,onClick={
                     val original=projects.find { it.id==request[0] };deleteValue=null
-                    if(original?.revision==request[1].toLongOrNull() && selected==original.id) model.deleteSelected() else model.notice.value=staleText
+                    if(original!=null && original.revision==request[1].toLongOrNull() && selected==original.id) model.deleteSelected() else model.notice.value=staleText
                     navigate(AppRoute(Destination.LIBRARY))
                 }) {Text(stringResource(R.string.a071_delete))}},dismissButton={TextButton(onClick={deleteValue=null}) {Text(stringResource(R.string.a071_cancel))}})
         }

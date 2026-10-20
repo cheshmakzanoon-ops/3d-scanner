@@ -11,14 +11,15 @@ class NavigationStateTest {
         }
         assertEquals(Destination.LIBRARY, AppRoute.restore("STUDIO:").destination)
     }
-    @Test fun savedPickerNeverRedirectsAfterSelectionOrRevisionChange() {
-        val request = PendingRequest.create(PendingKind.EXPORT, "project-a", 7, "asset-7", "glb")
-        assertEquals(request, PendingRequest.restore(request.encode()))
-        assertTrue(request.accepts("project-a", 7, "asset-7", false))
-        assertFalse(request.accepts("project-b", 7, "asset-7", false))
-        assertFalse(request.accepts("project-a", 8, "asset-7", false))
-        assertFalse(request.accepts("project-a", 7, "asset-8", false))
-        assertFalse(request.accepts("project-a", 7, "asset-7", true))
+    @Test fun savedPickerRetainsInitiatingProjectAndArtifact() {
+        val request=PendingRequest.create(PendingKind.EXPORT,"project-a",7,"asset-7","glb")
+        val restored=requireNotNull(PendingRequest.restore(request.encode()))
+        assertEquals(request,restored)
+        assertEquals("project-a",restored.projectId)
+        assertEquals(7L,restored.revision)
+        assertNull(PendingRequest.restore(request.encode().replaceFirst("1\n","2\n")))
+        assertNull(PendingRequest.restore(request.encode().replace("\nglb","\nexecutable")))
+        assertNull(PendingRequest.restore("x".repeat(8193)))
     }
     @Test fun malformedRestorationFailsClosedAndRequestHasUniqueIdentity() {
         assertNull(PendingRequest.restore("EXPORT\np\n7"))
