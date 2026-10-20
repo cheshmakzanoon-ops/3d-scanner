@@ -47,6 +47,12 @@ int main(int argc,char** argv) {
     const auto headerCrc=::crc32(0,wrongDimensions.data()+12,17);
     for(int i=0;i<4;++i)wrongDimensions[29+i]=std::uint8_t(headerCrc>>(24-8*i));
     expansion.imageHeight=1;expansion.png=wrongDimensions;rejects([&]{validate(expansion);});
+    auto invalidChunk=t;auto reservedChunk=png;
+    std::array<std::uint8_t,12> chunk{0,0,0,0,'t','e','s','t',0,0,0,0};
+    const auto chunkCrc=::crc32(0,chunk.data()+4,4);
+    for(int i=0;i<4;++i)chunk[8+i]=std::uint8_t(chunkCrc>>(24-8*i));
+    reservedChunk.insert(reservedChunk.begin()+33,chunk.begin(),chunk.end());invalidChunk.png=reservedChunk;
+    rejects([&]{validate(invalidChunk);});
     Limits tiny;tiny.maxOutputBytes=64;std::ostringstream untouched;rejects([&]{writeGlb(t,untouched,tiny);});assert(untouched.str().empty());
     std::ofstream(out/"preserve.glb")<<"original";rejects([&]{writeGlbFile(t,out/"preserve.glb",{},[]{return true;});});
     std::ifstream preserved(out/"preserve.glb");std::string text;preserved>>text;assert(text=="original");

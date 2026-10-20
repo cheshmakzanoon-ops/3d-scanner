@@ -94,6 +94,7 @@ Bounds validate(const TexturedAsset& a,const Limits& limits,const Cancel& cancel
         const auto length=be32(a.png,at);
         if(length>a.png.size()-at-12)throw Error("Truncated PNG chunk");
         const std::string type(reinterpret_cast<const char*>(a.png.data()+at+4),4);
+        if(!std::all_of(type.begin(),type.end(),[](unsigned char c){return (c>='A'&&c<='Z')||(c>='a'&&c<='z');})||(a.png[at+6]&32))throw Error("Invalid PNG chunk type");
         if(crc(a.png.subspan(at+4,length+4))!=be32(a.png,at+8+length))throw Error("Invalid PNG CRC");
         if(at==8) {
             if(type!="IHDR"||length!=13||be32(a.png,at+8)!=a.imageWidth||be32(a.png,at+12)!=a.imageHeight||a.png[at+16]!=8||(a.png[at+17]!=2&&a.png[at+17]!=6)||a.png[at+18]||a.png[at+19]||a.png[at+20])throw Error("Unsupported PNG header");
