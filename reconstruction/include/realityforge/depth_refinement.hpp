@@ -36,6 +36,8 @@ template<class Evaluate> RefinementResult local(double leftDepth,double initialD
  auto cost=[&](double q){double c=evaluate(1/q);return std::isfinite(c)&&c>=0&&c<=2?c:2.;};
  double best=cost(bestInverse);unsigned work=1;
  if(best>=2)return {};
+ const double boundaryA=cost(lo),boundaryB=cost(hi);work+=2;
+ if(std::max({boundaryA,boundaryB,best})-std::min({boundaryA,boundaryB,best})<1e-12)return {};
  for(unsigned i=0;i<iterations;++i){
   double a=lo+(hi-lo)/3,b=hi-(hi-lo)/3,ca=cost(a),cb=cost(b);work+=2;
   if(ca<best){best=ca;bestInverse=a;}if(cb<best){best=cb;bestInverse=b;}
