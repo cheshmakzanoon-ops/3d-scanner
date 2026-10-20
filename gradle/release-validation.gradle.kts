@@ -29,7 +29,9 @@ candidateTypes.getByName("release").apply {
     setDsl("signingConfig", candidateSigner)
     dsl("ndk").setDsl("debugSymbolLevel", "FULL")
 }
-candidateAndroid.setDsl("testBuildType", "release")
+val candidateTestBuildType = providers.gradleProperty("realityForgeTestBuildType").orElse("debug").get()
+require(candidateTestBuildType in setOf("debug", "release")) { "realityForgeTestBuildType must be debug or release" }
+candidateAndroid.setDsl("testBuildType", candidateTestBuildType)
 
 // AndroidX test tracing retains these annotations; provide actual classes for test R8.
 dependencies { add("androidTestCompileOnly", "com.google.errorprone:error_prone_annotations:2.26.1") }

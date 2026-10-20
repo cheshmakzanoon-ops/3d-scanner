@@ -49,7 +49,7 @@ jobs:
               path.write_bytes(base64.b64decode(os.environ['RF_KEYSTORE_BASE64'],validate=True));path.chmod(0o600)
               with open(os.environ['GITHUB_ENV'],'a') as f:f.write('RF_RELEASE_STORE_FILE='+str(path)+'\n')
           PY
-      - run: gradle --no-daemon -PcandidateSigning=${{ inputs.signing_mode }} :app:assembleRelease :app:bundleRelease :app:assembleReleaseAndroidTest :app:lintRelease
+      - run: gradle --no-daemon -PcandidateSigning=${{ inputs.signing_mode }} -PrealityForgeTestBuildType=release :app:assembleRelease :app:bundleRelease :app:assembleReleaseAndroidTest :app:lintRelease
       - name: Audit APK, produce delivered splits and retain exact identities
         env:
           SIGNING_MODE: ${{ inputs.signing_mode }}

@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 from release.package_validation.apk import manifest_policy,archive_policy,elf_alignment,signature_policy,backup_policy,backup_resource_name,LIBRARIES
+from release.package_validation.render_convention import render
 
 def elf(align=16384,machine=183):
  d=bytearray(120);d[:6]=b'\x7fELF\x02\x01';struct.pack_into('<H',d,18,machine);struct.pack_into('<Q',d,32,64);struct.pack_into('<HH',d,54,56,1)
@@ -78,3 +79,14 @@ def test_shrunk_backup_resource_is_resolved_from_manifest_identity():
  assert backup_resource_name(xml,resources)=='data_extraction_rules'
  with pytest.raises(ValueError):backup_resource_name(xml,resources.replace('0x7f0e0000','0x7f0e0001'))
  assert backup_resource_name(manifest().replace('@xml/rules','@xml/data_extraction_rules'),resources)=='data_extraction_rules'
+
+def test_owner_inline_is_exact_idempotent_and_rejects_stale_conventions():
+ root=Path(__file__).resolve().parents[1]
+ fragment=(root/'gradle/release-validation.gradle.kts').read_text()
+ label='gradle/release-validation.gradle.kts'
+ base='plugins { id("com.android.application") }\napply(from = "../'+label+'")\n'
+ integrated=render(base,fragment,label)
+ assert 'apply(from =' not in integrated
+ assert render(integrated,fragment,label)==integrated
+ with pytest.raises(ValueError,match='differs'):
+  render(integrated,fragment+'\n// unreviewed source difference\n',label)
