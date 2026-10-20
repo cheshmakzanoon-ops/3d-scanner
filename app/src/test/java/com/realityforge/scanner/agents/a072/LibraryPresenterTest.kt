@@ -4,6 +4,10 @@ import com.realityforge.scanner.data.*
 import com.realityforge.scanner.data.library.*
 import com.realityforge.scanner.data.library.LibraryQuery as ServiceQuery
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.awaitCancellation
 import org.junit.Assert.*
 import org.junit.Test
 import java.nio.file.Files
@@ -14,8 +18,9 @@ import java.util.UUID
 /** Transactional in-memory test port; this is not a production database implementation. */
 private class TestLibraryPort(val projects:MutableMap<String,ScanProject>,val photos:MutableMap<String,List<ScanPhoto>>):ProjectLibraryPort {
     val queries=mutableListOf<ServiceQuery>()
+    var onQuery:(suspend(ServiceQuery)->List<ProjectSummary>)?=null
     private val reservations=mutableMapOf<String,ScanProject>()
-    override suspend fun summaries(query:ServiceQuery):List<ProjectSummary> { queries+=query;return LibrarySelection.page(projects.values.map { ProjectSummary(it.id,it.name,it.createdAt,it.revision,it.state,photos[it.id].orEmpty().size,it.resultKey!=null && it.resultRevision==it.revision) },query) }
+    override suspend fun summaries(query:ServiceQuery):List<ProjectSummary> { queries+=query;onQuery?.let { return it(query) };return LibrarySelection.page(projects.values.map { ProjectSummary(it.id,it.name,it.createdAt,it.revision,it.state,photos[it.id].orEmpty().size,it.resultKey!=null && it.resultRevision==it.revision) },query) }
     override suspend fun rename(id:String,expectedRevision:Long,name:String):Boolean { val p=projects[id]?:return false;if(p.revision!=expectedRevision)return false;projects[id]=p.copy(name=name);return true }
     override suspend fun snapshot(id:String)=projects[id]?.let { it to photos[id].orEmpty() }
     override suspend fun reserveDuplicate(sourceId:String,sourceRevision:Long,newId:String,name:String):Boolean { if(projects[sourceId]?.revision!=sourceRevision)return false;reservations[newId]=ScanProject(newId,name,100);return true }
@@ -38,6 +43,19 @@ class LibraryPresenterTest {
             presenter.refresh();assertEquals(100,presenter.state.value.projects.size);presenter.loadMore();assertEquals(150,presenter.state.value.projects.size)
             assertEquals(listOf(0,100),port.queries.map { it.offset });assertTrue(port.queries.all { it.limit==100 })
         } finally { dir.deleteRecursively() }
+    }
+    @Test fun cancelledOldPageCannotClearNewSearchLoadingState()=runBlocking {
+        val projects=(0..149).associate { val id=UUID.randomUUID().toString();id to ScanProject(id,"Item$it",it.toLong()) }.toMutableMap()
+        val port=TestLibraryPort(projects,mutableMapOf());val dir=Files.createTempDirectory("library-cancel").toFile()
+        try {
+            val presenter=LibraryPresenter(ProjectLibraryService(port,dir)) { "failed" };presenter.refresh()
+            val pageStarted=CompletableDeferred<Unit>();val searchStarted=CompletableDeferred<Unit>();val finishSearch=CompletableDeferred<Unit>()
+            port.onQuery={ query->when { query.offset==100->{pageStarted.complete(Unit);awaitCancellation()};query.search=="new"->{searchStarted.complete(Unit);finishSearch.await();emptyList()};else->error("unexpected query") } }
+            val page=launch {presenter.loadMore()};pageStarted.await()
+            val search=launch {presenter.refresh("new")};searchStarted.await();page.cancelAndJoin()
+            assertTrue(presenter.state.value.loading);finishSearch.complete(Unit);search.join()
+            assertFalse(presenter.state.value.loading);assertTrue(presenter.state.value.projects.isEmpty())
+        } finally {dir.deleteRecursively()}
     }
     @Test fun duplicateCopiesVerifiedIndependentOriginalsThroughRealService()=runBlocking {
         val id=UUID.randomUUID().toString();val dir=Files.createTempDirectory("library-duplicate").toFile();val data=byteArrayOf(1,2,3,4)

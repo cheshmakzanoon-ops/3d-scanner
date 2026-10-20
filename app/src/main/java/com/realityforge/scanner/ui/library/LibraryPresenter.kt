@@ -47,7 +47,7 @@ class LibraryPresenter(private val service:ProjectLibraryService,private val fai
             val summaries=service.query(next)
             val rows=summaries.filter { activeFilter!=LibraryFilter.RESULTS || it.hasCurrentResult }.map { LibraryProject(it.id,it.name,it.createdAt,it.revision,it.state,"",it.hasCurrentResult,it.photoCount) }
             if(ticket==generation.get()) { query=next;mutable.update { it.copy(projects=(existing+rows).distinctBy(LibraryProject::id),loading=false,canLoadMore=summaries.size==next.limit) } }
-        } catch(cancelled:CancellationException) { mutable.update { it.copy(loading=false) };throw cancelled }
+        } catch(cancelled:CancellationException) { if(ticket==generation.get()) mutable.update { it.copy(loading=false) };throw cancelled }
         catch(error:Exception) { if(ticket==generation.get()) mutable.update { it.copy(loading=false,error=failureMessage(error)) } }
     }
     suspend fun mutate(action:LibraryAction):Boolean {

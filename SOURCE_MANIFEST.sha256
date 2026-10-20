@@ -45,7 +45,7 @@ e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/j
 f24cd4e037d24f73509924449b8dd55c699c006512262fc2f66e2ea63f4fbb0f  app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt
 8f9dcc1a82ce985f8b1a2bb2349412ce4e65d1fdc7e5cece33d8c46a6a0aaf2d  app/src/main/java/com/realityforge/scanner/ui/ScannerApp.kt
 7d4a77829e519733477eab42e73d5a7bc5319da7c342220b6f6447eb14721d56  app/src/main/java/com/realityforge/scanner/ui/SurfaceMeshViewer.kt
-4b97516f92188f700344367a58aa85eacf11b501178ee9d5c0791d45a0551055  app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt
+aa550391397528c0057efa5e8529b89c6151fa54d26e013205e3f38c625105a6  app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt
 18b92d55e452b3b3446e11dd8a443f1a06e4270b63d5af69401c2c12e8494373  app/src/main/java/com/realityforge/scanner/ui/library/LibraryScreen.kt
 afcfd0be55573ebe95a9bdccd60818c4bf1dde80c363abb5f419aefb9ccb5da4  app/src/main/java/com/realityforge/scanner/ui/library/LibraryServiceScreen.kt
 a79153914002d66179750b615b79c8aed67fe51c4edf8e1efc3380ac6ba37b81  app/src/main/java/com/realityforge/scanner/ui/library/LibraryState.kt
@@ -57,7 +57,7 @@ cba4c90dff6ab7ea9a42540ef83addb6542ba3185fac559483816f5feb65d829  app/src/main/r
 b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/res/values/styles.xml
 8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22  app/src/main/res/xml/data_extraction_rules.xml
 3824769adf7a6d91d0c99a0447727c043308fae00d93c1a6f66c77a98b7f0cfe  app/src/test/java/com/realityforge/scanner/CalibrationTest.kt
-2675cccdb7a58bd903ae073939e5ed40433222b47a5115f354a6f62d5b69f3ce  app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt
+1d34bc0ae7e89b5100a34c1009bf8f76d9bea75f0f584702344b441e63e76e95  app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt
 55fb45116ab64753b563fa12e74234a40518a6330b118e905d0107da2889e889  app/src/test/java/com/realityforge/scanner/agents/a072/LibraryQueryTest.kt
 0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37  app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt
 05854244689335c9f17f5d26c8a4b28f960dd20c8fe1bcc526450d48b229aba4  app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt
