@@ -8,6 +8,7 @@
 #include <vector>
 
 namespace rf {
+inline constexpr const char* PHOTOGRAPHIC_ATLAS_ENGINE_VERSION="rf-atlas-v2-groups-zlib-radiometry3";
 // M09: camera-projection UV charts over real rectified photographs. An atlas
 // contains source camera images (not painted procedural colors). All geometry
 // remains open, incomplete, unscaled and backed by M08 depth evidence.
@@ -17,6 +18,11 @@ struct TextureSettings {
     double depthTolerance = 0.075;    // Reject visibility contradictions
     std::size_t maxUvVertices = 240000;
     bool balanceColors = true;
+    bool compactCharts = false; // opt-in until device/profile qualification; baseline remains available
+    int depthSampleStride = 1, depthSampleOrigin = 0; // declared sparse depth grid
+    int atlasEdge = 2048; // 2K CPU admission; 4K requires an explicitly qualified budget
+    double maximumUvStretch = .02; // explicit compact profile distortion admission
+    double chartTexelsPerUnit = 128.; // arbitrary world units; measured density is returned
     double seamPenalty = .18; // local label smoothing over manifold, similarly oriented faces
 };
 struct TextureSource {
@@ -39,6 +45,9 @@ struct TexturedSurface {
     double faceCoverage{},medianFacing{};
     std::size_t viewSwitchEdgesBefore{}, reassignedFaces{};
     ExposureBalance exposure;
+    std::size_t supportedTexels{},unsupportedTexels{},blendedTexels{},chartCount{};
+    double texelsPerUnit{},atlasUtilization{},meanBlendResidual{},maximumUvStretch{};
+    bool compactCharts{};
 };
 TexturedSurface bakePhotographicAtlas(const SurfaceMesh& mesh,
     std::span<const DenseView> depthViews,std::span<const DenseDepthMap> depthMaps,
@@ -57,4 +66,12 @@ extern "C" char* rf_textured_surface_json(
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
     const char* mesh_glb_path,const char* mesh_ply_path,
-    const char* textured_glb_path,const char* texture_png_path);
+    const char* textured_glb_path,const char* texture_png_path) noexcept;
+
+// Explicit 2K CPU compact profile, with the same checked buffers and malloc/rf_free ownership.
+extern "C" char* rf_textured_surface_compact_json(const std::uint8_t* depth_rgba,int width,int height,
+    const std::uint8_t* texture_rgba,int texture_width,int texture_height,
+    const double* camera_rows,std::size_t camera_count,
+    double near_depth,double far_depth,int depth_planes,int pixel_stride,
+    const char* mesh_glb_path,const char* mesh_ply_path,
+    const char* textured_glb_path,const char* texture_png_path) noexcept;

@@ -17,6 +17,7 @@ struct SurfaceSettings {
     std::size_t maxVertices = 40000;
     std::size_t maxTriangles = 80000;
     int pixelStride = 3;
+    std::size_t maxVoxelOccupancy = 64, maxFusionCandidates = 512;
 };
 struct SurfaceVertex {
     Vec3 xyz{};
@@ -29,11 +30,20 @@ struct SurfaceTriangle {
     std::uint32_t a{},b{},c{};
     std::uint8_t sourceCamera{}; // original depth map that supported the face
 };
+struct SurfaceObservationRef {
+    std::uint32_t vertex{};std::uint8_t camera{};std::uint16_t x{},y{};std::size_t sourceSampleId{};
+};
+struct SurfaceQualityDiagnostics {
+    std::size_t boundaryEdges{},components{},nonmanifoldEdges{},intersections{},ambiguousPairs{},removedExactDefects{};
+    bool intersectionBudgetExceeded{};
+};
 struct SurfaceMesh {
     std::vector<SurfaceVertex> vertices;
     std::vector<SurfaceTriangle> triangles;
     std::size_t inputSamples{},acceptedSamples{},rejectedCells{},rejectedTriangles{},fusedObservations{};
     float medianConfidence{};
+    std::vector<SurfaceObservationRef> observations;
+    SurfaceQualityDiagnostics topology;
 };
 // Only verified samples (reciprocal depth, >=2 supporting cameras) can
 // contribute vertices. Faces require 4 neighboring verified source samples.
@@ -50,4 +60,4 @@ void writeSurfacePly(const SurfaceMesh& mesh,const std::string& filename);
 extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
-    const char* glb_path,const char* ply_path);
+    const char* glb_path,const char* ply_path) noexcept;

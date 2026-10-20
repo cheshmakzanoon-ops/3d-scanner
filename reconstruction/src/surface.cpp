@@ -1,11 +1,20 @@
 #include "realityforge/surface.hpp"
 #include "realityforge/cancellation.hpp"
+#include "realityforge/surface_fusion.hpp"
+#include "realityforge/mesh_topology.hpp"
+#include "realityforge/mesh_cleanup.hpp"
+#include "realityforge/depth_consistency.hpp"
+#include "realityforge/progress.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
+#include <filesystem>
+#include <chrono>
+#include <atomic>
+#include <cstdio>
 #include <iomanip>
 #include <limits>
 #include <locale>
@@ -13,6 +22,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
+#include <tuple>
 
 namespace rf {
 namespace {
@@ -34,14 +44,19 @@ struct CellHash {
         return h;
     }
 };
-Cell voxel(Vec3 p,double size){return {
-    static_cast<std::int64_t>(std::floor(p.x/size)),
-    static_cast<std::int64_t>(std::floor(p.y/size)),
-    static_cast<std::int64_t>(std::floor(p.z/size))};}
+Cell voxel(Vec3 p,double size){const auto v=surface_fusion::checkedVoxel(p,size);return {v[0],v[1],v[2]};}
+struct PreparedSource { Vec3 normal{};double frontRadius{},bound{};bool supported{}; };
+static_assert(sizeof(PreparedSource)<=48);
+static_assert(MAX_DENSE_SAMPLES<=std::numeric_limits<std::uint32_t>::max());
 struct Accum {
-    Vec3 weightedPosition{};
+    Vec3 weightedPosition{},weightedNormal{};
+    bool supportedNormal{};
     std::array<double,3> weightedColor{};
-    double weight{};
+    double weight{},fusionRadius{};
+    std::size_t radiusLevel{};
+    Cell cell{};
+    std::array<std::uint32_t,MAX_DENSE_VIEWS> sourceIds{};
+    std::uint8_t sourceCount{};
     float maxConfidence{};
     std::uint8_t viewMask{};
 };
@@ -58,6 +73,20 @@ float median(std::vector<float>& v){
 }
 void u32(std::ostream& s,std::uint32_t v){for(int j=0;j<4;++j)s.put(static_cast<char>((v>>(j*8))&255));}
 void f32(std::ostream& s,float f){std::uint32_t bits{};std::memcpy(&bits,&f,4);u32(s,bits);}
+class StagedSurfaceFile {
+public:
+    std::string path;
+    explicit StagedSurfaceFile(const std::string& destination):destination_(destination){
+        static std::atomic_uint64_t nonce{0};
+        for(int attempt=0;attempt<16;++attempt){
+            path=destination+".partial."+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count())+"."+std::to_string(nonce.fetch_add(1));
+            if(auto* file=std::fopen(path.c_str(),"wbx")){std::fclose(file);return;}
+        }throw Error("Cannot reserve surface staging file");
+    }
+    ~StagedSurfaceFile(){if(!path.empty())std::remove(path.c_str());}
+    void publish(){cancellation::checkpoint();std::error_code error;std::filesystem::rename(path,destination_,error);if(error)throw Error("Cannot atomically publish surface export");path.clear();}
+private:std::string destination_;
+};
 void validateMesh(const SurfaceMesh& m){
     if(m.vertices.empty()||m.triangles.empty()||m.vertices.size()>40000||m.triangles.size()>80000)
         throw Error("No valid surface faces or mesh exceeds output bounds");
@@ -73,74 +102,157 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
        s.minimumConfidence<0||s.minimumConfidence>1||
        !std::isfinite(s.maximumRelativeDepthJump)||s.maximumRelativeDepthJump<=0||s.maximumRelativeDepthJump>.25||
        !std::isfinite(s.maximumEdgePixelFactor)||s.maximumEdgePixelFactor<1.0||s.maximumEdgePixelFactor>8||
-       s.maxVertices<10||s.maxVertices>40000||s.maxTriangles<10||s.maxTriangles>80000)
+       s.maxVertices<10||s.maxVertices>40000||s.maxTriangles<10||s.maxTriangles>80000||
+       s.maxVoxelOccupancy<1||s.maxVoxelOccupancy>512||s.maxFusionCandidates<1||s.maxFusionCandidates>4096)
         throw Error("Invalid surface settings or camera counts");
     const auto width=views.front().width,height=views.front().height;
-    if(width<32||height<32||width>640||height>640)return {};
+    if(width<32||height<32||width>640||height>640||static_cast<std::size_t>(width)*height>320000)throw Error("Unsupported surface dimensions");
+    if(dense.verifiedSamples.size()>MAX_DENSE_SAMPLES)throw Error("Surface sample budget exceeded");
     const std::size_t pixels=static_cast<std::size_t>(width)*height;
     for(const auto& v:views)if(v.width!=width||v.height!=height||
         !std::isfinite(v.fx)||!std::isfinite(v.fy)||v.fx<=0||v.fy<=0||
         !std::isfinite(v.cx)||!std::isfinite(v.cy))throw Error("Invalid surface camera intrinsics");
+    for(const auto& v:views){
+        if(!finite(v.pose.translation)||norm(v.pose.translation)>1e6)throw Error("Invalid surface camera translation");
+        for(auto r:v.pose.rotation)if(!std::isfinite(r))throw Error("Invalid surface camera rotation");
+        const auto orth=multiply(v.pose.rotation,transpose(v.pose.rotation));
+        for(int i=0;i<9;++i)if(std::abs(orth[i]-(i%4==0?1.:0.))>.025)throw Error("Surface rotation not orthonormal");
+        if(std::abs(determinant(v.pose.rotation)-1)>.025)throw Error("Surface pose has improper rotation");
+    }
     for(const auto& map:dense.maps)if(map.width!=width||map.height!=height||
         map.depth.size()!=pixels||map.confidence.size()!=pixels)throw Error("Mismatched depth-map geometry");
+    for(const auto& map:dense.maps)for(std::size_t i=0;i<pixels;++i){
+        if((i&4095u)==0)cancellation::checkpoint();
+        if(!std::isfinite(map.depth[i])||map.depth[i]<0||map.depth[i]>1e6||!std::isfinite(map.confidence[i])||map.confidence[i]<0||map.confidence[i]>1)throw Error("Invalid surface depth-map values");
+    }
     SurfaceMesh mesh;mesh.inputSamples=dense.verifiedSamples.size();
     if(dense.verifiedSamples.empty())return mesh;
-    std::vector<float> sampleSpacings;sampleSpacings.reserve(dense.verifiedSamples.size());
+    std::vector<PreparedSource> prepared(dense.verifiedSamples.size());std::size_t validationIndex=0;
+    std::unordered_set<std::size_t> sourcePixels;
     for(auto& p:dense.verifiedSamples){
         if(p.camera>=views.size())throw Error("Invalid dense sample camera index");
         const auto& v=views[p.camera];const auto c=cameraPoint(v,p.xyz);
-        if(!finite(p.xyz)||!finite(c)||c.z<=.01||!std::isfinite(p.confidence)||
+        if(!finite(p.xyz)||norm(p.xyz)>1e6||!finite(c)||c.z<=.01||c.z>1e6||!std::isfinite(p.confidence)||
            p.confidence<0||p.confidence>1)throw Error("Invalid verified sample geometry");
-        if(p.x>=width||p.y>=height||p.supportingViews<2)throw Error("Unverified surface sample");
-        sampleSpacings.push_back(static_cast<float>(c.z*s.pixelStride/std::min(v.fx,v.fy)));
+        if(p.x>=width||p.y>=height||p.supportingViews<2||p.supportingViews>views.size())throw Error("Unverified surface sample");
+        const auto pixel=static_cast<std::size_t>(p.y)*width+p.x;
+        if(!sourcePixels.insert(static_cast<std::size_t>(p.camera)*pixels+pixel).second)throw Error("Repeated source pixel identity in surface observations");
+        const double z=dense.maps[p.camera].depth[pixel];
+        if(z<=0||std::abs(c.z-z)/z>.001||std::abs(v.fx*c.x/c.z+v.cx-p.x)>.25||std::abs(v.fy*c.y/c.z+v.cy-p.y)>.25)throw Error("Verified sample does not match source pixel/depth");
+        prepared[validationIndex++].frontRadius=surface_fusion::observedFusionRadius(c.z,std::min(v.fx,v.fy),s.pixelStride);
     }
-    // Median world-space pixel footprint bounds fusion distance and triangle edges.
-    // Samples with two different source cameras may fuse; never fold two distinct
-    // samples of the same image onto the same vertex (avoids triangle collapses).
-    const float spacing=std::clamp(median(sampleSpacings),.00001f,1000.f);
-    const double fusionRadius=std::max(.0001,static_cast<double>(spacing)*.60);
-    const double cellSize=fusionRadius;
-    std::unordered_map<Cell,std::vector<std::uint32_t>,CellHash> buckets;
+    progress::begin(progress::Stage::Surface,0,0,2*prepared.size());
+    for(std::size_t i=0;i<prepared.size();++i){
+        const auto& sample=dense.verifiedSamples[i];auto& source=prepared[i];
+        const auto evidence=estimateDepthNeighborhoodNormal(views[sample.camera],dense.maps[sample.camera],sample.x,sample.y,s.pixelStride,s.maximumRelativeDepthJump);
+        source.supported=evidence.validity==NormalValidity::Supported&&surface_fusion::unitNormal(evidence.direction,source.normal);
+        source.bound=source.frontRadius;
+        if(source.supported){
+            const auto bound=surface_fusion::planePixelEnclosingRadius(views[sample.camera],sample,source.normal,source.frontRadius,s.pixelStride);
+            source.supported=bound.has_value();if(bound)source.bound=*bound;
+        }
+        progress::advance(i+1);
+    }
+    const auto visibleIn=[&](std::size_t camera,Vec3 point){
+        const auto& view=views[camera];const auto projected=cameraPoint(view,point);
+        if(!finite(projected)||projected.z<=0)return false;
+        const auto visibility=consistency::sampleDepth(dense.maps[camera],view.fx*projected.x/projected.z+view.cx,view.fy*projected.y/projected.z+view.cy,s.pixelStride,3,s.maximumRelativeDepthJump);
+        return consistency::verify(visibility,projected.z,0,s.maximumRelativeDepthJump,1).classification==consistency::Visibility::Supported;
+    };
+    // Exact calibrated pixel/normal gates stay anchored to original evidence.
+    // Frustum/slab balls enclose that metric; centroid offsets keep cluster
+    // indexing complete without replacing observed anchors by drifting means.
+    // One spatial level per accumulator bounds memory and search at all scales.
+    using BucketMap=std::unordered_map<Cell,std::vector<std::uint32_t>,CellHash>;
+    std::array<BucketMap,surface_fusion::radiusLevelCount> buckets;
     std::vector<Accum> accum;
     std::vector<std::vector<std::int32_t>> imageVertices(views.size(),std::vector<std::int32_t>(pixels,-1));
     accum.reserve(std::min<std::size_t>(dense.verifiedSamples.size(),s.maxVertices));
-    for(auto& sample:dense.verifiedSamples){
-        if((mesh.acceptedSamples & 255u)==0) cancellation::checkpoint();
+    std::vector<std::size_t> sampleOrder(dense.verifiedSamples.size());std::iota(sampleOrder.begin(),sampleOrder.end(),0);
+    std::sort(sampleOrder.begin(),sampleOrder.end(),[&](auto a,auto b){const auto& p=dense.verifiedSamples[a];const auto& q=dense.verifiedSamples[b];return std::tie(p.xyz.x,p.xyz.y,p.xyz.z,p.camera,p.y,p.x)<std::tie(q.xyz.x,q.xyz.y,q.xyz.z,q.camera,q.y,q.x);});
+    std::size_t processed=0;
+    for(auto sourceId:sampleOrder){
+        const auto& sample=dense.verifiedSamples[sourceId];
+        progress::advance(prepared.size()+processed++);
+        const auto& source=prepared[sourceId];const bool normalSupported=source.supported;
         if(sample.confidence<s.minimumConfidence)continue;
         const std::size_t pixel=static_cast<std::size_t>(sample.y)*width+sample.x;
         if(imageVertices[sample.camera][pixel]>=0)continue;
-        const auto key=voxel(sample.xyz,cellSize);
-        std::int64_t best=-1;double minDist=fusionRadius;
-        for(int dz=-1;dz<=1;++dz)for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
-            auto it=buckets.find({key.x+dx,key.y+dy,key.z+dz});
-            if(it==buckets.end())continue;
-            for(auto index:it->second){
-                const auto& a=accum[index];
-                if(a.viewMask & (1u<<sample.camera))continue;
-                auto avg=mul(a.weightedPosition,1./a.weight);
-                double d=norm(sub(avg,sample.xyz));
-                if(d<minDist){best=index;minDist=d;}
+        const double fusionRadius=source.bound;
+        const double w=std::max(.005f,sample.confidence)*sample.supportingViews;
+        std::int64_t best=-1;double minDist=INFINITY;std::size_t candidateVisits=0;
+        for(std::size_t level=0;level<buckets.size();++level){
+            const auto& cells=buckets[level];if(cells.empty())continue;
+            const auto key=voxel(sample.xyz,surface_fusion::radiusCellSize(level));
+            for(int dz=-1;dz<=1;++dz)for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
+                const auto it=cells.find({key.x+dx,key.y+dy,key.z+dz});
+                if(it==cells.end())continue;
+                for(auto index:it->second){
+                    if(++candidateVisits>s.maxFusionCandidates)throw Error("Surface fusion spatial candidate budget exceeded");
+                    if((candidateVisits&63u)==0)cancellation::checkpoint();
+                    const auto& a=accum[index];
+                    if(a.viewMask & (1u<<sample.camera))continue;
+                    if(!normalSupported||!a.supportedNormal||!surface_fusion::compatibleNormal(a.weightedNormal,source.normal))continue;
+                    const auto avg=mul(a.weightedPosition,1./a.weight);
+                    const double d=norm(sub(avg,sample.xyz));
+                    if(d>=minDist||d>fusionRadius||d>a.fusionRadius)continue;
+                    if(!visibleIn(sample.camera,avg))continue;
+                    const auto proposed=mul(add(a.weightedPosition,mul(sample.xyz,w)),1./(a.weight+w));
+                    bool admissible=surface_fusion::originalAnchorMetric(views[sample.camera],sample,source.normal,source.frontRadius,source.bound,proposed,s.pixelStride)&&visibleIn(sample.camera,proposed);
+                    for(std::size_t member=0;member<a.sourceCount&&admissible;++member){
+                        const auto anchorId=a.sourceIds[member];const auto& anchor=dense.verifiedSamples[anchorId];const auto& evidence=prepared[anchorId];
+                        admissible=surface_fusion::originalPairMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,
+                            views[sample.camera],sample,source.normal,source.frontRadius,source.bound,s.pixelStride)&&
+                            visibleIn(anchor.camera,sample.xyz)&&visibleIn(sample.camera,anchor.xyz)&&
+                            surface_fusion::originalAnchorMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,proposed,s.pixelStride)&&visibleIn(anchor.camera,proposed);
+                    }
+                    if(!admissible)continue;
+                    best=index;minDist=d;
+                }
             }
         }
-        const double w=std::max(.005f,sample.confidence)*sample.supportingViews;
         std::uint32_t assigned{};
         if(best>=0){
             assigned=static_cast<std::uint32_t>(best);
             auto& a=accum[assigned];a.weightedPosition=add(a.weightedPosition,mul(sample.xyz,w));
             for(int k=0;k<3;++k)a.weightedColor[k]+=w*sample.color[k];
+            a.weightedNormal=add(a.weightedNormal,mul(source.normal,w));
             a.weight+=w;a.viewMask|=static_cast<std::uint8_t>(1u<<sample.camera);
             a.maxConfidence=std::max(a.maxConfidence,sample.confidence);
+            if(a.sourceCount>=MAX_DENSE_VIEWS)throw Error("Surface source anchor budget exceeded");
+            a.sourceIds[a.sourceCount++]=static_cast<std::uint32_t>(sourceId);
+            a.fusionRadius=600;
+            const auto centroid=mul(a.weightedPosition,1./a.weight);
+            for(std::size_t member=0;member<a.sourceCount;++member){const auto id=a.sourceIds[member];a.fusionRadius=std::min(a.fusionRadius,prepared[id].bound+norm(sub(centroid,dense.verifiedSamples[id].xyz)));}
+            a.fusionRadius=std::max(.0001,a.fusionRadius);
+            const auto nextLevel=surface_fusion::radiusLevel(a.fusionRadius);
+            const auto nextCell=voxel(mul(a.weightedPosition,1./a.weight),surface_fusion::radiusCellSize(nextLevel));
+            if(nextLevel!=a.radiusLevel||nextCell!=a.cell){
+                auto& previous=buckets[a.radiusLevel];const auto old=previous.find(a.cell);
+                if(old==previous.end())throw Error("Missing surface spatial bucket");
+                const auto entry=std::find(old->second.begin(),old->second.end(),assigned);
+                if(entry==old->second.end())throw Error("Missing surface spatial entry");
+                old->second.erase(entry);if(old->second.empty())previous.erase(old);
+                auto& next=buckets[nextLevel][nextCell];
+                if(next.size()>=s.maxVoxelOccupancy)throw Error("Surface voxel occupancy budget exceeded");
+                next.push_back(assigned);a.radiusLevel=nextLevel;a.cell=nextCell;
+            }
             ++mesh.fusedObservations;
         } else {
             if(accum.size()>=s.maxVertices)continue;
             assigned=static_cast<std::uint32_t>(accum.size());
-            Accum a;a.weightedPosition=mul(sample.xyz,w);a.weight=w;
+            Accum a;a.weightedPosition=mul(sample.xyz,w);a.weight=w;a.fusionRadius=fusionRadius;a.sourceIds[0]=static_cast<std::uint32_t>(sourceId);a.sourceCount=1;
+            a.radiusLevel=surface_fusion::radiusLevel(fusionRadius);a.cell=voxel(sample.xyz,surface_fusion::radiusCellSize(a.radiusLevel));
+            auto& cell=buckets[a.radiusLevel][a.cell];
+            if(cell.size()>=s.maxVoxelOccupancy)throw Error("Surface voxel occupancy budget exceeded");
+            a.supportedNormal=normalSupported;if(normalSupported)a.weightedNormal=mul(source.normal,w);
             for(int k=0;k<3;++k)a.weightedColor[k]=w*sample.color[k];
             a.maxConfidence=sample.confidence;a.viewMask=static_cast<std::uint8_t>(1u<<sample.camera);
             accum.push_back(a);
-            buckets[key].push_back(assigned);
+            cell.push_back(assigned);
         }
         imageVertices[sample.camera][pixel]=static_cast<std::int32_t>(assigned);
+        mesh.observations.push_back({assigned,sample.camera,sample.x,sample.y,sourceId});
         ++mesh.acceptedSamples;
     }
     mesh.vertices.reserve(accum.size());
@@ -205,7 +317,13 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
             }
         }
     }
-    cancellation::checkpoint();
+    progress::advance(2*prepared.size());
+    {
+        const auto initialTopology=analyzeMeshTopology(mesh);
+        auto cleaned=applyMeshCleanup(mesh,planMeshCleanup(mesh,initialTopology));
+        mesh=std::move(cleaned.mesh);
+        mesh.topology.removedExactDefects=cleaned.plan.removedFaces.size();
+    } // release first diagnostic/copy before normal compaction and final report
     // Area-weighted normals from accepted geometry; no normal guesses in holes.
     for(auto& t:mesh.triangles){
         const auto n=cross(sub(mesh.vertices[t.b].xyz,mesh.vertices[t.a].xyz),
@@ -224,7 +342,11 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         if(remap[old]<0){remap[old]=static_cast<std::int32_t>(compact.size());compact.push_back(mesh.vertices[old]);}
         *index=static_cast<std::uint32_t>(remap[old]);
     }
+    for(auto& observation:mesh.observations){const auto mapped=remap[observation.vertex];observation.vertex=mapped<0?std::numeric_limits<std::uint32_t>::max():static_cast<std::uint32_t>(mapped);}
+    mesh.observations.erase(std::remove_if(mesh.observations.begin(),mesh.observations.end(),[](const auto& o){return o.vertex==std::numeric_limits<std::uint32_t>::max();}),mesh.observations.end());
     mesh.vertices=std::move(compact);
+    const auto report=analyzeMeshTopology(mesh);
+    mesh.topology.boundaryEdges=report.boundaryEdges;mesh.topology.components=report.components;mesh.topology.nonmanifoldEdges=report.nonmanifoldEdges;mesh.topology.intersections=report.intersections.size();mesh.topology.ambiguousPairs=report.ambiguousPairs.size();mesh.topology.intersectionBudgetExceeded=report.intersectionBudgetExceeded;
     std::vector<float> scores;scores.reserve(mesh.vertices.size());
     for(auto& v:mesh.vertices)scores.push_back(v.confidence);
     mesh.medianConfidence=median(scores);
@@ -237,7 +359,7 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<",\"triangleCount\":"<<m.triangles.size()<<",\"inputSamples\":"<<m.inputSamples
      <<",\"acceptedSamples\":"<<m.acceptedSamples<<",\"fusedObservations\":"<<m.fusedObservations
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":6,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])
@@ -248,7 +370,7 @@ std::string surfaceJson(const SurfaceMesh& m){
     s<<"]}";return s.str();
 }
 void writeSurfacePly(const SurfaceMesh& m,const std::string& filename){
-    validateMesh(m);std::ofstream o(filename);if(!o)throw Error("Cannot create surface PLY");
+    validateMesh(m);StagedSurfaceFile stage(filename);std::ofstream o(stage.path);if(!o)throw Error("Cannot create surface PLY");
     o.imbue(std::locale::classic());o<<std::setprecision(9);
     o<<"ply\nformat ascii 1.0\ncomment RealityForge observed open surface; arbitrary scale; no UV textures\n"
      <<"element vertex "<<m.vertices.size()<<"\nproperty float x\nproperty float y\nproperty float z\n"
@@ -259,7 +381,7 @@ void writeSurfacePly(const SurfaceMesh& m,const std::string& filename){
         <<v.normal.x<<' '<<v.normal.y<<' '<<v.normal.z<<' '
         <<int(v.color[0])<<' '<<int(v.color[1])<<' '<<int(v.color[2])<<'\n';
     for(auto& tri:m.triangles)o<<"3 "<<tri.a<<' '<<tri.b<<' '<<tri.c<<'\n';
-    o.flush();if(!o)throw Error("Surface PLY write failed");
+    o.flush();if(!o)throw Error("Surface PLY write failed");o.close();if(!o)throw Error("Surface PLY close failed");stage.publish();
 }
 void writeSurfaceGlb(const SurfaceMesh& m,const std::string& filename){
     validateMesh(m);
@@ -288,7 +410,7 @@ void writeSurfaceGlb(const SurfaceMesh& m,const std::string& filename){
      <<"{\"bufferView\":2,\"componentType\":5121,\"normalized\":true,\"count\":"<<vertexCount<<",\"type\":\"VEC4\"},"
      <<"{\"bufferView\":3,\"componentType\":5125,\"count\":"<<indexCount<<",\"type\":\"SCALAR\"}]}";
     auto json=j.str();while(json.size()%4)json+=' ';
-    std::ofstream o(filename,std::ios::binary);if(!o)throw Error("Cannot create GLB mesh");
+    StagedSurfaceFile stage(filename);std::ofstream o(stage.path,std::ios::binary);if(!o)throw Error("Cannot create GLB mesh");
     u32(o,0x46546C67);u32(o,2);u32(o,static_cast<std::uint32_t>(12+8+json.size()+8+binBytes));
     u32(o,static_cast<std::uint32_t>(json.size()));u32(o,0x4E4F534A);o.write(json.data(),static_cast<std::streamsize>(json.size()));
     u32(o,binBytes);u32(o,0x004E4942);
@@ -296,14 +418,15 @@ void writeSurfaceGlb(const SurfaceMesh& m,const std::string& filename){
     for(auto& v:m.vertices){f32(o,static_cast<float>(v.normal.x));f32(o,static_cast<float>(-v.normal.y));f32(o,static_cast<float>(-v.normal.z));}
     for(auto& v:m.vertices){for(auto c:v.color)o.put(static_cast<char>(c));o.put(static_cast<char>(255));}
     for(auto& t:m.triangles){u32(o,t.a);u32(o,t.b);u32(o,t.c);}
-    o.flush();if(!o)throw Error("GLB mesh write failed");
+    o.flush();if(!o)throw Error("GLB mesh write failed");o.close();if(!o)throw Error("GLB mesh close failed");stage.publish();
 }
 } // namespace rf
 
 extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
     const double* camera_rows,std::size_t camera_count,
     double near_depth,double far_depth,int depth_planes,int pixel_stride,
-    const char* glb_path,const char* ply_path){
+    const char* glb_path,const char* ply_path) noexcept {
+    try {
     std::string response;
     try{
         if(!rgba||!camera_rows||camera_count<2||camera_count>rf::MAX_DENSE_VIEWS||width<32||height<32||width>640||height>640||
@@ -345,4 +468,8 @@ extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
     auto* output=static_cast<char*>(std::malloc(response.size()+1));if(!output)return nullptr;
     std::memcpy(output,response.c_str(),response.size()+1);
     return output;
+    }catch(...){
+        constexpr char failure[]=R"({"error":"Native surface failure"})";
+        auto* result=static_cast<char*>(std::malloc(sizeof(failure)));if(result)std::memcpy(result,failure,sizeof(failure));return result;
+    }
 }

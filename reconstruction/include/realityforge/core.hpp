@@ -20,17 +20,25 @@ struct Settings {
     std::uint32_t seed = 20261009;
     std::size_t minInliers = 20;
 };
+enum class PointRepresentation { SparsePoints, DensePoints };
 struct Result {
     Mat3 rotation{};
     Vec3 translation{}; // unit baseline, NOT meters
     std::vector<Point> points;
     std::size_t inputMatches{}, epipolarInliers{};
     double medianError{}, medianParallax{};
+    PointRepresentation representation{PointRepresentation::SparsePoints};
 };
 struct Quality {
     double mean{}, standardDeviation{}, laplacianVariance{}, darkFraction{}, brightFraction{};
 };
 class Error : public std::runtime_error { public: using std::runtime_error::runtime_error; };
+enum class InitializationFailure { InvalidInput, CollinearFeatures, PlanarAmbiguity, RotationOnly, InsufficientConsensus, WeakBaseline };
+class InitializationError : public Error {
+public:
+    InitializationError(InitializationFailure value,const char* message):Error(message),code(value){}
+    const InitializationFailure code;
+};
 Mat3 identity();
 Mat3 transpose(const Mat3& a);
 Mat3 multiply(const Mat3& a, const Mat3& b);
@@ -49,6 +57,6 @@ void writeGlb(const Result& result, const std::string& path);
 extern "C" {
 // rows: [x1,y1,x2,y2,r,g,b]. Returns malloc-owned JSON; always release via rf_free.
 char* rf_reconstruct_json(const double* rows, std::size_t count, double threshold,
-                          const char* glb_path, const char* ply_path);
-void rf_free(void* pointer);
+                          const char* glb_path, const char* ply_path) noexcept;
+void rf_free(void* pointer) noexcept;
 }
