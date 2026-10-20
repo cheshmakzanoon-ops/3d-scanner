@@ -570,6 +570,13 @@
       "branch": "agents/095-dependency-notices-sbom",
       "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
       "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "18027d31bd08651baeadf2763c637129171d4387",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
     }
   ]
 }
