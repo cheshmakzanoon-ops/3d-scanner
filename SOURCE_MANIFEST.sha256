@@ -46,7 +46,7 @@ ec502d7aa43e0b3f7dcbd0239ead93e51162a33bdc1badf901eaebe4ed69d12a  app/src/main/j
 bace4b50ed601833e75753876fccb41924449a8fa49199039be5e68e0190c78f  app/src/main/java/com/realityforge/scanner/engine/matching/FeatureMatcher.kt
 0a0d72d96abded179718949b3b67ce8d8d9a61a86d50fe342096f7298d9b91b9  app/src/main/java/com/realityforge/scanner/engine/matching/OverlapGraph.kt
 1652324c649a2b55d5be478f10c835b69fb56d1bb0e05780739f5990a91877c7  app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt
-8df98b0fdf98b4f60a004d98fcaf0b5ca7e2f6dd57c372aaa5e1a0f940d3b6cb  app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt
+a641a4191bd25c1af6784590d99ca2bd313b82bb8cc20ac1e71f09ed61e513ec  app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt
 e104262372c7a47e5d3265c73d88739a4e16c827d4fb60dcfcde5b382ad23508  app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt
 5d1722d2977c43627f3f21f289dfe4ccdba64fab73a879b4225eae3b4f1e7547  app/src/main/java/com/realityforge/scanner/ui/PhotographicModelViewer.kt
 f24cd4e037d24f73509924449b8dd55c699c006512262fc2f66e2ea63f4fbb0f  app/src/main/java/com/realityforge/scanner/ui/PointCloudViewer.kt
@@ -59,6 +59,7 @@ cba4c90dff6ab7ea9a42540ef83addb6542ba3185fac559483816f5feb65d829  app/src/main/r
 b486aaabdf918833bcfc43a6fd5449fd28fcb88ebf2fd0b49963663a5c16a3f0  app/src/main/res/values/styles.xml
 8b55ff5489071bb19a4e89967b604a16c0e4d1e87a2df3c73c64417314a59f22  app/src/main/res/xml/data_extraction_rules.xml
 3824769adf7a6d91d0c99a0447727c043308fae00d93c1a6f66c77a98b7f0cfe  app/src/test/java/com/realityforge/scanner/CalibrationTest.kt
+fcc56955f2a57cc59c3f3d025066aea6073c18cc29a51e5385729ee2c24908e9  app/src/test/java/com/realityforge/scanner/agents/a035/CorrespondenceBoundsTest.kt
 0cf7f363b05d90dfd1577f159de2d1362d6cf90db787ed652bcda61712748a37  app/src/test/java/com/realityforge/scanner/engine/DenseWorkloadTest.kt
 05854244689335c9f17f5d26c8a4b28f960dd20c8fe1bcc526450d48b229aba4  app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt
 1f3b5993478073348f05b5e1db6eec27e26c305fd9845287437373a13f84a4a7  app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt
