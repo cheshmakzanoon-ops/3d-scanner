@@ -68,9 +68,10 @@ internal class NativeTrackBatch(sourcePhotoIds: List<String>, sourceTrackIds: Li
     val trackIds: List<String> = Collections.unmodifiableList(sourceTrackIds.toList())
     private val values = sourceRows.copyOf()
     val rows: DoubleArray get() = values.copyOf()
-    init { require(photoIds.size in 2..12 && photoIds.distinct().size==photoIds.size && trackIds.size in 1..15000 && trackIds.distinct().size==trackIds.size)
+    init { require(photoIds.size in 2..12 && photoIds.distinct().size==photoIds.size && trackIds.size in 0..15000 && trackIds.distinct().size==trackIds.size)
         require(photoIds.all {it.isNotBlank() && it.toByteArray().size<=1024} && trackIds.all {it.matches(Regex("[0-9a-f]{64}"))})
-        require(values.size%7==0 && values.size/7 in 2..100000 && values.all {it.isFinite()})
+        require(values.size%7==0 && values.size/7 in 0..100000 && values.all {it.isFinite()})
+        require(trackIds.isEmpty()==values.isEmpty())
         val support=Array(trackIds.size){mutableSetOf<Int>()}
         for(i in values.indices step 7){require(values[i]>=0 && values[i]<trackIds.size && values[i]%1.0==0.0)
             require(values[i+1]>=0 && values[i+1]<photoIds.size && values[i+1]%1.0==0.0)
