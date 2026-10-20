@@ -32,10 +32,11 @@ std::vector<rf::DenseView> fixture(){
 }
 namespace {int notify=-1;unsigned creates=0;void require(bool v,const char*m){if(!v)throw std::runtime_error(m);}}
 extern "C" void rf_depth_checkpoint_test_stage(unsigned stage){if(notify>=0&&stage==1&&++creates==2){char c='R';if(::write(notify,&c,1)!=1)::_exit(91);for(;;)::pause();}}
-int main(){try{
+struct ChildPool {std::vector<pid_t> pids;void track(pid_t p){if(p>0)pids.push_back(p);}~ChildPool(){for(auto p:pids){int status=0;if(::waitpid(p,&status,WNOHANG)==0){::kill(p,SIGKILL);(void)::waitpid(p,&status,0);}}}};
+int main(){ChildPool pool;try{
  const auto dir=std::filesystem::temp_directory_path()/("rf-dense-kill-"+std::to_string(::getpid())+"-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));std::filesystem::create_directory(dir);
  auto images=fixture();rf::DenseSettings settings;settings.nearDepth=3.2;settings.farDepth=7.2;settings.depthPlanes=36;settings.tileEdge=24;
- int fd[2];require(::pipe(fd)==0,"pipe failed");pid_t child=::fork();require(child>=0,"fork failed");
+ int fd[2];require(::pipe(fd)==0,"pipe failed");pid_t child=::fork();pool.track(child);require(child>=0,"fork failed");
  if(child==0){::close(fd[0]);notify=fd[1];rf::depth_checkpoint::Scope cache(dir.string(),std::string(64,'a'));(void)rf::reconstructDense(images,settings);::_exit(92);}
  ::close(fd[1]);pollfd ready{fd[0],POLLIN,0};require(::poll(&ready,1,30000)>0,"dense solver did not reach second tile publication");char c=0;require(::read(fd[0],&c,1)==1&&c=='R',"tile barrier absent");::close(fd[0]);
  require(::kill(child,SIGKILL)==0,"kill failed");int status=0;require(::waitpid(child,&status,0)==child&&WIFSIGNALED(status),"dense process was not terminated");
