@@ -1097,3 +1097,11 @@ replacement remains pending. No physical-device, controller/admission or complet
 publication qualification is claimed.
 
 See [evidence](../../reports/cloud-png-stream-compatibility-fix.json).
+
+### Full-core and saved/exportable result HOST milestone
+
+On source515f1435, the unchanged three-photo full-core gate passes1/1 in12.647seconds with3cameras,904sparsepoints,6,851densepoints and6,741triangles. Strict production artifact/cache validators pass. A separately reviewed publication/export test passes1/1 in14.44seconds, publishes9artifacts, verifies reopened Room result/job state and materializes7direct exports with legacy files fenced out. Its mesh has6,732triangles. Both restore normal compilation and preserve all source/runtime identities. Original inventory/PNG failures and first host-only missing-JNI export capability failure are preserved. No controller/service admission, device or physical-quality qualification. See [report](FULL_CORE_HOST_EVIDENCE.md) and [ledger](../../reports/cloud-full-core-integration.json).
+
+### Replacement engineering APK delivered
+
+Normal optimizedQA=false source515f1435 APK includes both inventory and PNG fixes; signature/package/offlinepermissions/backup/16KBZIP+16ELF checks pass. Samepackage/version/testcertificate as prior; actual upgrade not tested. Verified3downloadparts and instructions accepted in private chat, not proof of installation. The original c112 APK is superseded. See [artifact receipt](../../reports/cloud-png-fixed-engineering-apk.json) and [assembly instructions](ENGINEERING_APK_515F1435.md).

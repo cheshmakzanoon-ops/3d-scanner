@@ -1,0 +1,238 @@
+{
+  "schema": 1,
+  "scope": "HOST integration with explicit opaque Bitmap-to-Mat bridge; not device, physical calibration, GPU, resource admission or full controller qualification",
+  "coreAttempts": [
+    {
+      "evidenceDirectoryLabel": "android-full-core-three-photo-evidence",
+      "receiptSha256": "002df8542363e6121caf41b99a6e32b6d718b36a3a7eaf248fdbe59c600905c4",
+      "sourceCommit": "75411af36dfc6259adda9d1b98b44cdd51a2b7c5",
+      "sourceTree": "521c1b0762901299d8aff6bb46210d25a5737a4b",
+      "outcome": "FAILED",
+      "junit": [
+        {
+          "name": "com.realityforge.scanner.hostintegration.SparsePipelineFullCoreHostTest",
+          "tests": "1",
+          "skipped": "0",
+          "failures": "1",
+          "errors": "0",
+          "timestamp": "2026-10-21T17:40:54.542Z",
+          "time": "9.988"
+        }
+      ],
+      "xmlSha256": {
+        "TEST-com.realityforge.scanner.hostintegration.SparsePipelineFullCoreHostTest.xml": "9dba74b7ae3c8c927aa9697508c0c4acc00e3f927b96bbb8b4bf20755fa33a29"
+      },
+      "failureMessages": [
+        "java.lang.IllegalArgumentException: Depth checkpoint inventory exceeds its supported bound."
+      ],
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "restorationTrackedHashesUnchanged": true
+    },
+    {
+      "evidenceDirectoryLabel": "android-full-core-depth-fixed-evidence",
+      "receiptSha256": "1b22493dbe2f5dbeb6dfe28d8945ee190dee0deb1e6edb97182e2afc507960ae",
+      "sourceCommit": "0cb3583dfe146e340a5c4611f3eb019e4dd54105",
+      "sourceTree": "94ee287b841d362f4ced9378d00226b6cdb0b465",
+      "outcome": "FAILED",
+      "junit": [
+        {
+          "name": "com.realityforge.scanner.hostintegration.SparsePipelineFullCoreHostTest",
+          "tests": "1",
+          "skipped": "0",
+          "failures": "1",
+          "errors": "0",
+          "timestamp": "2026-10-21T18:08:09.847Z",
+          "time": "10.469"
+        }
+      ],
+      "xmlSha256": {
+        "TEST-com.realityforge.scanner.hostintegration.SparsePipelineFullCoreHostTest.xml": "5106d9c39eb263a78e6c3757d39b0655bcded8dbd3631fb35213fa749aeaf385"
+      },
+      "failureMessages": [
+        "java.lang.IllegalArgumentException: Invalid PNG compressed stream."
+      ],
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "restorationTrackedHashesUnchanged": true
+    },
+    {
+      "evidenceDirectoryLabel": "android-full-core-png-fixed-evidence",
+      "receiptSha256": "c58608c68c6afc82c0efc777d8b3a2cd63e6d15bdbdf7c7def407d06f983d4a0",
+      "sourceCommit": "515f1435a497dd1734c51ef46f26e8f4ef136950",
+      "sourceTree": "a91b282f3bce6f9e9b2c522aa652a24e50c4e6fd",
+      "outcome": "PASS",
+      "junit": [
+        {
+          "name": "com.realityforge.scanner.hostintegration.SparsePipelineFullCoreHostTest",
+          "tests": "1",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-21T18:26:26.043Z",
+          "time": "12.647"
+        }
+      ],
+      "xmlSha256": {
+        "TEST-com.realityforge.scanner.hostintegration.SparsePipelineFullCoreHostTest.xml": "c0b1542d83b0061a9cf3abad890d90ce08cf80f2beb857032235ad304b93fa37"
+      },
+      "failureMessages": [],
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "restorationTrackedHashesUnchanged": true
+    }
+  ],
+  "fixtures": {
+    "view-01.jpg": "66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c",
+    "view-02.jpg": "c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b",
+    "view-03.jpg": "a0d386746c2a8f47840058613bc89aa3c4a8095995288fa936d368ad67fe6c0f",
+    "calibration.json": "284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593"
+  },
+  "nativeInputs": {
+    "opencv": {
+      "fileName": "libopencv_java4120.so",
+      "sha256": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1"
+    },
+    "shim": {
+      "fileName": "librealityforge_jni.so",
+      "sha256": "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce"
+    },
+    "engine": {
+      "fileName": "librealityforge.so",
+      "sha256": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b"
+    }
+  },
+  "sourceAndRuntimeInputs": {
+    "opencv-4.12.0.aar": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+    "classes.jar": "60b7be2b59393bc1689b840d7b60fd75b811bb06477bdd03abee6fbc17afa5cf",
+    "android-all-15-robolectric-12650502.jar": "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b",
+    "SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+    "SandboxNativeLoaderTokenHostTest.kt": "f7f24cebe26059a50573a3fdf19e0a6115ab3e3607d98bd1b8cecd51f734429a",
+    "OpaqueBitmapBridge.kt": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+    "SparsePipelineFullCoreHostTest.kt": "157927f1a84acdbb9454d6fa67fe18643ff6a059a19a06f62b36a8335fff1b7c",
+    "SparsePrefixRunner.kt": "016869b9da27f37407d962be272b7b502119c79db0a19b25927545deaab8a9ed",
+    "java": "f5aed21d3a0b0f4b05d3a3f9fe71263916d5bc0d47b53aa52a3340b90f0b4805",
+    "runtime_app_classes.jar": "8f8dab43f9ea71d43f1d06ccabe7a621370e5745a1963d46e9cef18746fca578"
+  },
+  "nativeOwnerClassHashes": {
+    "org.opencv.android.OpenCVLoader": "35fc4b0878a47b17050e59a85745b35fa99841499175b16a1c1012ffff219527",
+    "org.opencv.android.StaticHelper": "c89a8683dcfdafdaf6507149364135217f0cb8f94a48c66f9405fd909a1038c5",
+    "org.opencv.core.Core": "f27b34125899a62847ba02faf1c4338cf08a277603fb503fd71ba1e027f1052a",
+    "org.opencv.core.Mat": "24072333aefbbfaf2e018bc33c9b3c4bacf486f9f870a4e341060d260b05ade1",
+    "com.realityforge.scanner.engine.NativeCore": "7704191a82744042ce3e93a6c1b2c9e2da4943b019a77775b7568a4aa53c3040"
+  },
+  "observedCore": {
+    "sparseOutcome": "global_typed_ba_admitted12",
+    "bundleAdjustment": true,
+    "cameras": 3,
+    "sparsePoints": 904,
+    "densePoints": 6851,
+    "triangles": 6741,
+    "denseStatus": "ready",
+    "meshStatus": "ready",
+    "textureStatus": "ready",
+    "initialCameraCount": 3,
+    "addedCameraCount": 0
+  },
+  "publication": {
+    "status": "PASS",
+    "candidateSourceSha256": "7266368576dfb86e76afe83137af3c94f7098e0df9a345563192d00ebf8db5be",
+    "firstAttempt": {
+      "evidenceDirectoryLabel": "android-full-core-publication-evidence",
+      "receiptSha256": "c2a1ba98d4e194a4b03fbbd9ba4d99f4d9d7967c8aeddc6011592ec10d447bb3",
+      "sourceCommit": "515f1435a497dd1734c51ef46f26e8f4ef136950",
+      "sourceTree": "a91b282f3bce6f9e9b2c522aa652a24e50c4e6fd",
+      "outcome": "FAILED",
+      "junit": [
+        {
+          "name": "com.realityforge.scanner.hostintegration.SparsePipelinePublicationHostTest",
+          "tests": "1",
+          "skipped": "0",
+          "failures": "1",
+          "errors": "0",
+          "timestamp": "2026-10-21T18:28:01.240Z",
+          "time": "13.392"
+        }
+      ],
+      "xmlSha256": {
+        "TEST-com.realityforge.scanner.hostintegration.SparsePipelinePublicationHostTest.xml": "5c58e931eb582d38c30c71543d65aba5cf0f5f1184abc80aa1716d62f3f7d743"
+      },
+      "failureMessages": [
+        "java.lang.UnsatisfiedLinkError: 'void com.realityforge.scanner.export.NativeAssetExports.writeObserved(java.lang.String, java.lang.String, int, java.lang.String, java.lang.Runnable)'"
+      ],
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "restorationTrackedHashesUnchanged": true
+    },
+    "firstAttemptBoundary": "Publication and reopened verified result assertions completed before RepositoryExportSource.available invoked missing native derived-export entrypoint; full export test failed",
+    "successfulAttempt": {
+      "evidenceDirectoryLabel": "android-full-core-publication-v2-evidence",
+      "receiptSha256": "6f08268964bd1fb4b43fea7c214a983d626b0c6113b1b093158eefcce2d5f9ba",
+      "sourceCommit": "515f1435a497dd1734c51ef46f26e8f4ef136950",
+      "sourceTree": "a91b282f3bce6f9e9b2c522aa652a24e50c4e6fd",
+      "outcome": "PASS",
+      "junit": [
+        {
+          "name": "com.realityforge.scanner.hostintegration.SparsePipelinePublicationHostTest",
+          "tests": "1",
+          "skipped": "0",
+          "failures": "0",
+          "errors": "0",
+          "timestamp": "2026-10-21T18:37:51.443Z",
+          "time": "14.44"
+        }
+      ],
+      "xmlSha256": {
+        "TEST-com.realityforge.scanner.hostintegration.SparsePipelinePublicationHostTest.xml": "01c5a6f0eb2c62b753db2a43c9976bd12bf5a0dbb787668d3e33c71bcbcdd9fc"
+      },
+      "failureMessages": [],
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "restorationTrackedHashesUnchanged": true
+    },
+    "publishedArtifacts": 9,
+    "directExportsMaterializedAndValidated": 7,
+    "observedCounts": {
+      "cameras": 3,
+      "sparsePoints": 904,
+      "densePoints": 6851,
+      "triangles": 6732
+    },
+    "nativeInputs": {
+      "opencv": {
+        "fileName": "libopencv_java4120.so",
+        "sha256": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1"
+      },
+      "shim": {
+        "fileName": "librealityforge_jni.so",
+        "sha256": "519a3d15329520211d1d67756fe619308453e35445b349f2c162362b941af9ea"
+      },
+      "engine": {
+        "fileName": "librealityforge.so",
+        "sha256": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b"
+      }
+    },
+    "nativeOwnerClassHashes": {
+      "org.opencv.android.OpenCVLoader": "35fc4b0878a47b17050e59a85745b35fa99841499175b16a1c1012ffff219527",
+      "org.opencv.android.StaticHelper": "c89a8683dcfdafdaf6507149364135217f0cb8f94a48c66f9405fd909a1038c5",
+      "org.opencv.core.Core": "f27b34125899a62847ba02faf1c4338cf08a277603fb503fd71ba1e027f1052a",
+      "org.opencv.core.Mat": "24072333aefbbfaf2e018bc33c9b3c4bacf486f9f870a4e341060d260b05ade1",
+      "com.realityforge.scanner.engine.NativeCore": "7704191a82744042ce3e93a6c1b2c9e2da4943b019a77775b7568a4aa53c3040",
+      "com.realityforge.scanner.export.NativeAssetExports": "60438039094ab5c4b86f1ddc75fa8f6cd6c9c62c019c4411d760a885b81df1bc"
+    },
+    "sourceInputs": {
+      "SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+      "SandboxNativeLoaderTokenHostTest.kt": "363496144376ac17f8ad993c698dd92328c7141ca87b6de69fa924dfa7d6065f",
+      "OpaqueBitmapBridge.kt": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+      "SparsePipelinePublicationHostTest.kt": "7266368576dfb86e76afe83137af3c94f7098e0df9a345563192d00ebf8db5be",
+      "SparsePrefixRunner.kt": "f27a8c99d9d336af7a3a88e3d513c5f7479bbb83811aee83b21af9d49b217cbb"
+    },
+    "capabilityBuildReceiptSha256": "7382f0436faec9838c15bd6b5db4f51738ee47efd77c4e9dd13f821705795953",
+    "negativeCheck": "Appended-byte copy rejected by length/integrity validation; not deep grammar corruption proof"
+  }
+}
