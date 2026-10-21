@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "scope": "Actual synthetic three-photo full-core output capture plus independent post-hoc intended-surface measurements; not quality PASS or physical qualification",
+  "sourceCommit": "09e879462474ca00f2cae1c236036beff47fde54",
+  "sourceTree": "db701432b7d2531a32b68e87a64acbfac8722525",
+  "capture": {
+    "outcome": "PASS",
+    "junit": {
+      "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "timestamp": "2026-10-21T19:37:18.985Z",
+      "time": "11.623"
+    },
+    "receiptSha256": "6e379a322ad3be10b9690cd02816cf8e84ac74d8858fb5b2e1609f9fe56b9b8a",
+    "junitXmlSha256": "5b7e799c674674545a1f38d054523d926791b2550702b61855f09aa436299679",
+    "inputHashesUnchanged": true,
+    "compiledInputsUnchanged": true,
+    "restored": true,
+    "nativeProvenanceFileCount": 447,
+    "fullProvenanceUnchanged": true,
+    "artifacts": {
+      "manifestSha256": "6f783bbf1ee1acde3097359ef61f0b772fff2c4b5b3ccfe0a69a39e3123db95f",
+      "artifacts": {
+        "result.json": {
+          "sha256": "61e3c0a3506e9515b00ed586ebb029c257bc529039056c587c033694c153cb16",
+          "bytes": 1386990
+        },
+        "sparse.ply": {
+          "sha256": "9aba5eb49b19799622cd13402678da39650dd77444dac750295e2b376a74f63b",
+          "bytes": 41885
+        },
+        "dense.ply": {
+          "sha256": "c7926def4a18a371eefd36238c804d27c1508fb4f853ea0befda72f2fedeff7c",
+          "bytes": 316688
+        },
+        "mesh.ply": {
+          "sha256": "dcc041648474c08146a0b4c1f8c8a754bfa7d9ac3388f2391d2faad04c78615e",
+          "bytes": 594273
+        }
+      }
+    }
+  },
+  "evaluation": {
+    "status": "MEASURE_ONLY_NOT_QUALITY_PASS",
+    "exitCode": 0,
+    "error": null,
+    "seconds": 0.7453049110044958,
+    "addressSpaceLimitBytes": 1073741824,
+    "cpuSeconds": 60,
+    "wallSeconds": 60,
+    "threads": 1,
+    "inputsUnchanged": true,
+    "pythonVersion": "Python 3.12.14",
+    "numpyVersion": "2.2.6",
+    "cv2Version": "4.12.0",
+    "reportSha256": "6de82e03ab6f08f8a899d8d24ff9842586c87193159e2d0f8955f4163d4e88a1"
+  },
+  "evaluationReceiptSha256": "6ec48362a74978584f91916039bfe6514fafc758775fe5295b0602428eab2af0",
+  "evaluationOwnerWrapperSha256": "4f82012c171afe6feb13d0a795b500cb7f7edf883ea1bd32217f991df9db3bcc",
+  "measurementReport": "reports/cloud-relief-quality-measurements.json",
+  "packageExecutableFilesByteIdenticalToExercisedSource": true,
+  "packageExecutableSha256": {
+    "tools/relief_quality_validation/probe.init.gradle": "4f724496bb1ef978ce4fd8a72aaabf29781f18dcc39bf08c0b4c111adfbe38d4",
+    "tools/relief_quality_validation/evaluate.py": "04e99a1946e2716ad55a9c51eea8ab2fcf9de33c93ff01fedcb11fddf2f85a80",
+    "tools/relief_quality_validation/validate.py": "2ba5c7a36c430934d2358aaf3077693a4a37d5da9016216f6649445fe57f9975",
+    "tools/relief_quality_validation/OpaqueBitmapBridge.kt": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+    "tools/relief_quality_validation/SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+    "tools/relief_quality_validation/SandboxNativeLoaderTokenHostTest.kt": "f7f24cebe26059a50573a3fdf19e0a6115ab3e3607d98bd1b8cecd51f734429a",
+    "tools/relief_quality_validation/SparsePrefixRunner.kt": "016869b9da27f37407d962be272b7b502119c79db0a19b25927545deaab8a9ed",
+    "tools/relief_quality_validation/SparsePipelineQualityCaptureHostTest.kt": "056a6894293a1e8a6e8e3d310c203e900bcc8cd777d4e5161d3335aa84e5b36d"
+  },
+  "helperTests": {
+    "status": "PASS",
+    "tests": 6,
+    "seconds": 0.63,
+    "scope": "Actual evaluator called with synthetic ideal helper-only poses/points for identity/proper rigid+scale and failclosed input tests; no reconstruction kernel or Gradle"
+  },
+  "broadPython": {
+    "status": "PASS",
+    "passed": 1295,
+    "skipped": 3,
+    "subtestsPassed": 6,
+    "seconds": 148.99,
+    "logSha256": "795640a2a54c3acc4e094393f2b67eba76e41612bc6f45b1928bbafd3f13d568"
+  },
+  "interpretation": {
+    "residual": "Absolute z-minus-intended-analytic-surface height, synthetic units, NOT closest-Euclidean distance",
+    "domainDenominator": "all output vertices for sparse/dense;4096 fixed area-weighted output mesh samples; fraction inside rectangle is NOT reference completeness",
+    "gauge": "Fixed estimated view01 pose and known01-to02 baseline scale only; no surface/all-camera fit. Reference pose and scale are not independently evaluated.",
+    "thresholds": "Old2view regression numbers descriptive only; not applied as full-core/dense/mesh gate",
+    "physicalGate": "BLOCKED_EXTERNAL; no physical capture/metric-scale/device qualification",
+    "rendererApproximation": "45-step ray iteration, interpolation and JPEG error not independently quantified",
+    "reprojection": "No newly captured raw observations/held-out reprojection metric; prior production validation remains separate"
+  },
+  "rawArtifacts": "Private hash-bound synthetic outputs retained externally for analysis; no generated result binaries committed."
+}
