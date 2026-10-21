@@ -1176,3 +1176,35 @@ Capture availability during pending work — actual production-controller/filesy
 Subsequent actual focused10, ordinary758 and HOST17 tests pass with zero failures/errors/skips; AndroidTest compilation and lint pass. Broad Python remains pending. See [evidence](../../reports/cloud-capture-availability-fix.json).
 
 Capture-availability broad regressions subsequently pass 1,289 Python tests and six subtests, with three optional skips.
+
+
+### Synthetic relief geometric measurements (not quality qualification)
+
+The unchanged core assertions plus bounded evidence capture pass 1/1 in 11.623 s
+on source09e87946 and restore cleanly. The independent post-hoc evaluator completes
+in 0.745 s under 1 GiB/60 s/single-thread bounds with unchanged inputs. It reports
+MEASURE_ONLY_NOT_QUALITY_PASS, not a new quality gate or physical accuracy result.
+
+After fixing only view01 pose and the known view01→02 baseline scale, camera02/03
+rotation errors are 0.02577°/0.00770°. In-domain vertical residual p95 values are
+0.02665 sparse, 0.05658 dense and 0.04749 mesh, in arbitrary synthetic units—not
+millimeters or Euclidean closest-surface distances. Domain counts are 902/904
+sparse vertices, 6518/6851 dense vertices and 3992/4096 area-weighted mesh samples.
+These denominators describe OUTPUT support, not visible-reference completeness.
+Reference pose/scale used to fix the gauge cannot independently validate themselves.
+Old two-view thresholds are shown descriptively only; none was invented or relaxed.
+
+The reusable package preserves the exact executed capture/evaluator logic. Six
+helper-only evaluator mathematical/input checks pass; broad Python is pending.
+Original synthetic assets remain unchanged, all provenance and compiled inputs
+are stable, and generated result files stay outside the repository. Physical
+quality, renderer approximation, held-out reprojection and completeness remain
+separate unqualified boundaries. See [tool](../../tools/relief_quality_validation/README.md),
+[measurements](../../reports/cloud-relief-quality-measurements.json) and
+[sanitized evidence](../../reports/cloud-relief-quality-validation.json).
+
+Broad regressions for the relief measurement package pass 1,295 Python tests and six subtests, with three optional skips.
+
+### Capture-fixed engineering APK
+
+Source 09e87946 normal optimized, QA-retention-disabled, test-signed APK includes all published production fixes. Package/signature/offline permissions/backup/16 KB ZIP and all 16 ELF checks pass. Only DEX changed from the prior ae756 APK; same package/version/test certificate. Three matching parts and assembly instructions were accepted in private chat, superseding earlier sets. Installation and upgrade remain untested; preserve existing scans. See [artifact receipt](../../reports/cloud-capture-fixed-engineering-apk.json) and [instructions](ENGINEERING_APK_09E87946.md).
