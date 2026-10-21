@@ -72,3 +72,19 @@ def test_ci_runs_and_collects_both_distinct_host_and_jvm_gates():
         assert f"--junit 'app/build/test-results/{gate}/TEST-*.xml'" in workflow
         assert f"app/build/test-results/{gate}/" in workflow
     assert "not device qualification" in workflow
+
+
+def test_robolectric_lock_memberships_never_enter_apk_or_instrumentation():
+    unit = {'debugUnitTestCompileClasspath', 'debugUnitTestRuntimeClasspath',
+            'releaseUnitTestCompileClasspath', 'releaseUnitTestRuntimeClasspath'}
+    found = []
+    for line in (ROOT / "app/gradle.lockfile").read_text().splitlines():
+        if not line.startswith("org.robolectric:"):
+            continue
+        coordinate, configs = line.split("=", 1)
+        memberships = set(configs.split(","))
+        allowed = {"robolectricSdk"} if coordinate == f"org.robolectric:android-all:{SDK_VERSION}" else unit
+        assert memberships and memberships <= allowed, (coordinate, memberships)
+        found.append(coordinate)
+    assert f"org.robolectric:android-all:{SDK_VERSION}" in found
+    assert "org.robolectric:robolectric:4.14.1" in found
