@@ -251,7 +251,9 @@ class SessionReliabilityTest {
         val deadline = SystemClock.elapsedRealtime()+maxMillis
         while (model.busy.value && SystemClock.elapsedRealtime()<deadline) Thread.sleep(50)
         val execution = (instrumentation.targetContext.applicationContext as RealityForgeApplication).compositionRoot.execution
-        val feature = execution.progress.value?.progress?.featureWork
-        assertFalse("Operation exceeded test deadline: ${model.progress.value}; featureWork=$feature",model.busy.value)
+        val latest = execution.progress.value?.progress
+        val feature = latest?.featureWork
+        val pair = latest?.pairWork
+        assertFalse("Operation exceeded test deadline: ${model.progress.value}; featureWork=$feature; pairWork=$pair",model.busy.value)
     }
 }
