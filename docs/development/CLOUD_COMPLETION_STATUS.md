@@ -1031,3 +1031,7 @@ This is defensive malformed-byte validation, not another demonstrated current
 writer defect: native sparse coordinates are already bounded below float overflow.
 See [hardening evidence](../../reports/cloud-ply-validation-hardening.json). The
 current engineering APK predates the PLY corrections; updated packaging follows.
+
+### 2026-10-21 16:17 UTC: updated PLY engineering APK
+
+Built normal optimized, test-signed source c11234b5 with QA retention disabled; package/signature/offline permissions/backup/16 KB ZIP and 16 ELF checks passed. Three verified download parts and assembly instructions were accepted in private chat. The APK contains the sparse PLY compatibility and malformed-input fixes; DEX differs from the previous snapshot. Source gates: 731 ordinary JVM tests and 12 HOST tests. Full Android scan-to-export, installation/data migration and physical quality remain unqualified. See [artifact receipt](../../reports/cloud-ply-engineering-apk.json) and [assembly instructions](ENGINEERING_APK_C11234B5.md).
