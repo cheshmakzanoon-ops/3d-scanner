@@ -63,19 +63,10 @@ class ReconstructionService : Service() {
                             ComponentName(this@ReconstructionService, ReconstructionService::class.java)) }
                         val command = (decoded as? JobActionDecodeResult.Decoded)?.action
                         val jobId = command?.let { runCatching { JobId(it.identity.jobId) }.getOrNull() }
-                        val snapshot = jobId?.let { controller.jobs.snapshot(it) }
-                        if (command != null && jobId != null &&
-                            JobNotificationActionAuthorizer().authorize(command, snapshot?.toNotification())
-                            is JobActionAuthorization.Allowed) {
-                            when (command.type) {
-                                JobNotificationActionType.PAUSE -> controller.pause(jobId)
-                                JobNotificationActionType.CANCEL -> controller.cancel(jobId)
-                                JobNotificationActionType.RESUME -> {
-                                    controller.resume(jobId)
-                                    drain.requestStart()
-                                    startWorkerIfNeeded()
-                                }
-                                JobNotificationActionType.OPEN -> Unit
+                        if (command != null && jobId != null && controller.dispatchNotificationAction(command)) {
+                            if (command.type == JobNotificationActionType.RESUME) {
+                                drain.requestStart()
+                                startWorkerIfNeeded()
                             }
                             controller.jobs.snapshot(jobId)?.let(::render)
                         }
