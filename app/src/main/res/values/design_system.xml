@@ -1,0 +1,6 @@
+<resources>
+    <color name="rf_window_background">#F6FBF8</color>
+    <color name="rf_brand_primary">#006B5E</color>
+    <dimen name="rf_minimum_touch_target">48dp</dimen>
+    <dimen name="rf_screen_spacing">16dp</dimen>
+</resources>

@@ -1,0 +1,6 @@
+# QA-only direct inputs; CPython3.12/Linuxx86_64 hashes and all transitives are in qa-requirements.lock.
+numpy==2.2.6
+opencv-python-headless==4.12.0.88
+pytest==9.0.3
+scikit-image==0.25.2
+trimesh==4.5.3

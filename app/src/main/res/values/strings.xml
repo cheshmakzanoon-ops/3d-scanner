@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">RealityForge</string>
-    <string name="milestone_label">M01 · Sparse reconstruction preview</string>
+    <string name="milestone_label">Offline photograph reconstruction</string>
 </resources>

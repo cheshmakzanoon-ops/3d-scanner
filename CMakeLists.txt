@@ -1,19 +1,74 @@
 cmake_minimum_required(VERSION 3.22)
 project(RealityForge VERSION 0.19.0 LANGUAGES CXX)
+find_package(ZLIB REQUIRED)
 option(RF_SANITIZE "Enable host address and undefined behavior sanitizers" OFF)
+option(RF_EXPERIMENTAL_VULKAN "Build the opt-in Vulkan cost-volume validation backend" OFF)
+option(RF_REQUIRE_CAMPAIGN_031_060 "Require all reviewed campaign native providers and tests" OFF)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-add_library(realityforge SHARED reconstruction/src/core.cpp reconstruction/src/pnp.cpp reconstruction/src/multiview.cpp reconstruction/src/bundle_adjustment.cpp reconstruction/src/dense.cpp reconstruction/src/surface.cpp reconstruction/src/texture.cpp reconstruction/src/photometric.cpp reconstruction/src/cancellation.cpp reconstruction/src/depth_checkpoint.cpp)
+add_library(realityforge SHARED
+    reconstruction/src/core.cpp
+    reconstruction/src/pnp.cpp
+    reconstruction/src/multiview.cpp
+    reconstruction/src/bundle_adjustment.cpp
+    reconstruction/src/dense.cpp
+    reconstruction/src/surface.cpp
+    reconstruction/src/texture.cpp
+    reconstruction/src/photometric.cpp
+    reconstruction/src/cancellation.cpp
+    reconstruction/src/depth_checkpoint.cpp
+    reconstruction/src/surface_checkpoint.cpp
+    reconstruction/src/texture_checkpoint.cpp
+    reconstruction/src/asset_model.cpp
+    reconstruction/src/glb_export.cpp
+    reconstruction/src/obj_export.cpp
+    reconstruction/src/stl_export.cpp
+    reconstruction/src/ply_export.cpp
+    reconstruction/src/mesh_lod.cpp
+    reconstruction/src/asset_edit.cpp
+    reconstruction/src/legacy_asset_export.cpp
+)
+# Provider branches can land independently. The explicit final integration gate
+# below requires every declared provider; standalone foundation remains buildable.
+set(RF_CAMPAIGN_SOURCES
+    reconstruction/src/intrinsics.cpp
+    reconstruction/src/loop_closure.cpp
+    reconstruction/src/depth_tiles.cpp
+    reconstruction/src/depth_refinement.cpp
+    reconstruction/src/matching_cost.cpp
+    reconstruction/src/depth_consistency.cpp
+    reconstruction/src/depth_cache_manifest.cpp
+    reconstruction/src/progress.cpp
+    reconstruction/src/surface_fusion.cpp
+    reconstruction/src/surface_evidence.cpp
+    reconstruction/src/mesh_topology.cpp
+    reconstruction/src/mesh_cleanup.cpp
+    reconstruction/src/texture_visibility.cpp
+    reconstruction/src/texture_png.cpp
+    reconstruction/src/uv_atlas.cpp
+    reconstruction/src/texture_blend.cpp
+)
+foreach(source IN LISTS RF_CAMPAIGN_SOURCES)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
+        target_sources(realityforge PRIVATE ${source})
+    elseif(RF_REQUIRE_CAMPAIGN_031_060)
+        message(FATAL_ERROR "Missing reviewed campaign provider: ${source}")
+    endif()
+endforeach()
 target_include_directories(realityforge PUBLIC reconstruction/include)
+target_link_libraries(realityforge PRIVATE ZLIB::ZLIB)
 target_compile_options(realityforge PRIVATE -Wall -Wextra -Wpedantic)
+if(RF_EXPERIMENTAL_VULKAN)
+    add_subdirectory(reconstruction/src/vulkan)
+endif()
 if(ANDROID)
-    target_sources(realityforge PRIVATE reconstruction/src/jni.cpp)
+    target_sources(realityforge PRIVATE reconstruction/src/jni.cpp reconstruction/src/asset_exports_jni.cpp)
     target_link_options(realityforge PRIVATE -Wl,-z,max-page-size=16384)
 else()
     if(RF_SANITIZE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-        target_compile_options(realityforge PUBLIC -fsanitize=address,undefined -fno-omit-frame-pointer)
-        target_link_options(realityforge PUBLIC -fsanitize=address,undefined)
+        target_compile_options(realityforge PUBLIC -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer)
+        target_link_options(realityforge PUBLIC -fsanitize=address,undefined,float-cast-overflow)
     endif()
     enable_testing()
     add_executable(rf_native_tests reconstruction/tests/core_test.cpp)
@@ -49,4 +104,120 @@ else()
     add_executable(rf_depth_checkpoint_tests reconstruction/tests/depth_checkpoint_test.cpp)
     target_link_libraries(rf_depth_checkpoint_tests PRIVATE realityforge)
     add_test(NAME native_depth_checkpoint COMMAND rf_depth_checkpoint_tests)
+    add_executable(rf_boundary_tests reconstruction/tests/boundary_test.cpp)
+    target_link_libraries(rf_boundary_tests PRIVATE realityforge)
+    add_test(NAME native_boundary_contract COMMAND rf_boundary_tests)
+    add_executable(rf_surface_checkpoint_tests reconstruction/tests/surface_checkpoint_test.cpp)
+    target_link_libraries(rf_surface_checkpoint_tests PRIVATE realityforge)
+    add_test(NAME native_surface_checkpoint COMMAND rf_surface_checkpoint_tests)
+    # Explicit registrations: no test source is globbed into the shipping library.
+    # Release test binaries must retain assertions, including in legacy fixtures.
+    function(rf_add_campaign_test target source)
+        if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${source}")
+            if(RF_REQUIRE_CAMPAIGN_031_060)
+                message(FATAL_ERROR "Missing reviewed campaign test: ${source}")
+            endif()
+            return()
+        endif()
+        add_executable(${target} ${source})
+        target_link_libraries(${target} PRIVATE realityforge)
+        target_compile_options(${target} PRIVATE -UNDEBUG)
+        add_test(NAME ${target} COMMAND ${target})
+    endfunction()
+    # Canonical asset exporters use isolated staging directories, including in
+    # parallel CTest runs. Their asymmetric PNG is an explicitly synthetic fixture.
+    set(RF_ASSET_TEST_DIR "${CMAKE_CURRENT_BINARY_DIR}/asset-fixtures")
+    set(RF_ASSET_TEST_PNG "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/export_fixtures/checker.png")
+    foreach(kind asset obj stl ply lod edit)
+        file(MAKE_DIRECTORY "${RF_ASSET_TEST_DIR}/${kind}")
+    endforeach()
+    function(rf_add_asset_test target source)
+        add_executable(${target} ${source})
+        target_link_libraries(${target} PRIVATE realityforge)
+        target_compile_options(${target} PRIVATE -UNDEBUG)
+        add_test(NAME ${target} COMMAND ${target} ${ARGN})
+    endfunction()
+    rf_add_asset_test(rf_legacy_asset_export_tests reconstruction/tests/legacy_asset_export_test.cpp)
+    rf_add_asset_test(rf_asset_glb_tests reconstruction/tests/agent_061_asset_test.cpp
+        "${RF_ASSET_TEST_DIR}/asset" "${RF_ASSET_TEST_PNG}")
+    target_link_libraries(rf_asset_glb_tests PRIVATE ZLIB::ZLIB)
+    rf_add_asset_test(rf_obj_export_tests reconstruction/tests/agent_062_obj_test.cpp
+        "${RF_ASSET_TEST_DIR}/obj" "${RF_ASSET_TEST_PNG}")
+    rf_add_asset_test(rf_stl_export_tests reconstruction/tests/agent_063_stl_test.cpp
+        "${RF_ASSET_TEST_DIR}/stl/fixture.stl")
+    rf_add_asset_test(rf_ply_export_tests reconstruction/tests/agent_064_ply_test.cpp
+        "${RF_ASSET_TEST_DIR}/ply")
+    rf_add_asset_test(rf_mesh_lod_tests reconstruction/tests/agent_065_mesh_lod.cpp
+        "${RF_ASSET_TEST_DIR}/lod/fixture.glb")
+    target_compile_definitions(rf_mesh_lod_tests PRIVATE RF_WITH_TOPOLOGY)
+    rf_add_asset_test(rf_asset_edit_tests reconstruction/tests/agent_066_asset_edit.cpp
+        "${RF_ASSET_TEST_DIR}/edit/fixture.glb")
+    rf_add_campaign_test(rf_bundle_problem_bridge_tests reconstruction/tests/agents/003_bundle_problem_bridge_test.cpp)
+    rf_add_campaign_test(rf_initializer_degeneracy_tests reconstruction/tests/initializer_degeneracy_test.cpp)
+    rf_add_campaign_test(rf_pnp_robustness_tests reconstruction/tests/pnp_robustness_test.cpp)
+    rf_add_campaign_test(rf_triangulation_conditioning_tests reconstruction/tests/triangulation_conditioning_test.cpp)
+    rf_add_campaign_test(rf_intrinsics_tests reconstruction/tests/intrinsics_test.cpp)
+    rf_add_campaign_test(rf_loop_closure_tests reconstruction/tests/loop_closure_test.cpp)
+    rf_add_campaign_test(rf_depth_tiles_tests reconstruction/tests/depth_tiles_test.cpp)
+    rf_add_campaign_test(rf_robust_local_objective_tests reconstruction/tests/agent_046_robust_local.cpp)
+    rf_add_campaign_test(rf_depth_refinement_tests reconstruction/tests/depth_refinement_test.cpp)
+    rf_add_campaign_test(rf_matching_cost_tests reconstruction/tests/matching_cost_test.cpp)
+    rf_add_campaign_test(rf_depth_consistency_tests reconstruction/tests/depth_consistency_test.cpp)
+    rf_add_campaign_test(rf_depth_cache_manifest_tests reconstruction/tests/depth_cache_manifest_test.cpp)
+    rf_add_campaign_test(rf_progress_tests reconstruction/tests/progress_test.cpp)
+    rf_add_campaign_test(rf_surface_fusion_tests reconstruction/tests/surface_fusion_test.cpp)
+    rf_add_campaign_test(rf_surface_evidence_tests reconstruction/tests/surface_evidence_test.cpp)
+    rf_add_campaign_test(rf_mesh_topology_tests reconstruction/tests/mesh_topology_test.cpp)
+    rf_add_campaign_test(rf_mesh_cleanup_tests reconstruction/tests/mesh_cleanup_test.cpp)
+    rf_add_campaign_test(rf_texture_visibility_tests reconstruction/tests/texture_visibility_test.cpp)
+    rf_add_campaign_test(rf_uv_atlas_tests reconstruction/tests/uv_atlas_test.cpp)
+    rf_add_campaign_test(rf_texture_blend_tests reconstruction/tests/texture_blend_test.cpp)
+    rf_add_campaign_test(rf_photometric_adversarial_tests reconstruction/tests/photometric_adversarial_test.cpp)
+    rf_add_campaign_test(rf_texture_c_abi_failure_tests reconstruction/tests/agent_057_c_abi_failure.cpp)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/reconstruction/tests/texture_png_test.cpp")
+    add_executable(rf_texture_png_tests reconstruction/tests/texture_png_test.cpp)
+    target_link_libraries(rf_texture_png_tests PRIVATE realityforge ZLIB::ZLIB)
+    target_compile_options(rf_texture_png_tests PRIVATE -UNDEBUG)
+    add_test(NAME rf_texture_png_tests COMMAND rf_texture_png_tests
+        ${CMAKE_CURRENT_BINARY_DIR}/agent057.png ${CMAKE_CURRENT_BINARY_DIR}/agent057-reference.png)
+    elseif(RF_REQUIRE_CAMPAIGN_031_060)
+        message(FATAL_ERROR "Missing reviewed PNG streaming test")
+    endif()
+    if(UNIX AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/reconstruction/tests/agent_046_tile_process.cpp" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/reconstruction/tests/agent_050_process_recovery.cpp")
+        # Compile the instrumented publisher into these process-kill executables.
+        # The actual shared solver resolves its checkpoint calls to the executable
+        # for deterministic stop points; shipping objects have no stop hooks.
+        add_executable(rf_tile_process_tests reconstruction/tests/agent_046_tile_process.cpp
+            reconstruction/src/depth_checkpoint.cpp)
+        target_compile_definitions(rf_tile_process_tests PRIVATE RF_CHECKPOINT_TEST_HOOKS)
+        target_compile_options(rf_tile_process_tests PRIVATE -UNDEBUG)
+        target_link_libraries(rf_tile_process_tests PRIVATE realityforge)
+        target_link_options(rf_tile_process_tests PRIVATE -Wl,--export-dynamic)
+        add_test(NAME rf_tile_process_tests COMMAND rf_tile_process_tests)
+        set_tests_properties(rf_tile_process_tests PROPERTIES TIMEOUT 120)
+        add_executable(rf_checkpoint_process_tests reconstruction/tests/agent_050_process_recovery.cpp
+            reconstruction/src/depth_checkpoint.cpp reconstruction/src/cancellation.cpp)
+        target_include_directories(rf_checkpoint_process_tests PRIVATE reconstruction/include)
+        target_compile_definitions(rf_checkpoint_process_tests PRIVATE RF_CHECKPOINT_TEST_HOOKS)
+        target_compile_options(rf_checkpoint_process_tests PRIVATE -UNDEBUG)
+        if(RF_SANITIZE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+            target_compile_options(rf_checkpoint_process_tests PRIVATE -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer)
+            target_link_options(rf_checkpoint_process_tests PRIVATE -fsanitize=address,undefined,float-cast-overflow)
+        endif()
+        add_test(NAME rf_checkpoint_process_tests COMMAND rf_checkpoint_process_tests)
+        set_tests_properties(rf_checkpoint_process_tests PROPERTIES TIMEOUT 120)
+    elseif(UNIX AND RF_REQUIRE_CAMPAIGN_031_060)
+        message(FATAL_ERROR "Missing reviewed process-kill checkpoint tests")
+    endif()
+    if(RF_EXPERIMENTAL_VULKAN)
+        add_executable(rf_vulkan_contract_tests reconstruction/tests/vulkan_depth_contract_test.cpp)
+        target_link_libraries(rf_vulkan_contract_tests PRIVATE rf_vulkan_depth)
+        target_compile_options(rf_vulkan_contract_tests PRIVATE -UNDEBUG)
+        add_test(NAME rf_vulkan_contract_tests COMMAND rf_vulkan_contract_tests)
+    endif()
+    foreach(target rf_native_tests rf_multiview_tests rf_bundle_tests rf_dense_tests rf_surface_tests
+            rf_texture_tests rf_photometric_tests rf_stereo_warp_tests rf_dense_selection_tests
+            rf_cancellation_tests rf_depth_checkpoint_tests)
+        target_compile_options(${target} PRIVATE -UNDEBUG)
+    endforeach()
 endif()

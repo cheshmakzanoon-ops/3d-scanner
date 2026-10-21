@@ -1,0 +1,24 @@
+<resources>
+    <string name="a020g_title">Project library storage</string>
+    <string name="a020g_scope">Measure up to 25 projects per page. Page subtotals cover measured project files; other pages and shared app files are outside this subtotal.</string>
+    <string name="a020g_back">Back to library</string>
+    <string name="a020g_progress">Measured %1$d of %2$d projects on this page…</string>
+    <string name="a020g_stopped">Measurement stopped. Completed measurements remain visible; pending projects are still unknown.</string>
+    <string name="a020g_failed">The project page could not be read. Measure again to retry.</string>
+    <string name="a020g_subtotal">Measured page subtotal: %1$s bytes from %2$d of %3$d projects</string>
+    <string name="a020g_reclaimable">Measured cleanup estimate on this page: %1$s bytes. Open a project to review its files before cleanup.</string>
+    <string name="a020g_complete">Complete inventories: %1$d of %2$d projects. Partial inventories and unmeasured projects can contain additional bytes.</string>
+    <string name="a020g_category">%1$s: %2$s measured bytes on this page</string>
+    <string name="a020g_empty">No projects on this page.</string>
+    <string name="a020g_project_bytes">Measured project files: %1$s bytes</string>
+    <string name="a020g_project_reclaimable">Cleanup estimate: %1$s bytes</string>
+    <string name="a020g_open_project">Open project storage</string>
+    <string name="a020g_previous">Previous page</string>
+    <string name="a020g_next">Next page</string>
+    <string name="a020g_pending">Measurement pending</string>
+    <string name="a020g_measured">Files measured</string>
+    <string name="a020g_partial">Partial measurement; some files remain unknown</string>
+    <string name="a020g_busy">Project in use; measurement unavailable</string>
+    <string name="a020g_changed">Project changed during measurement; measure again</string>
+    <string name="a020g_unavailable">Measurement unavailable; open project storage to retry</string>
+</resources>

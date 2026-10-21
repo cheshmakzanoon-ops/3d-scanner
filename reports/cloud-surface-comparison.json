@@ -1,0 +1,109 @@
+{
+  "baseline": {
+    "acceptedSurfaceSamples": 4269,
+    "calibration": "published rectified intrinsics, arbitrary unit baseline",
+    "cameraCount": 2,
+    "dataset": "Middlebury 2014 Motorcycle (real rectified stereo)",
+    "densePointCount": 4249,
+    "depthRelativeErrorP50": 0.006790914351532494,
+    "depthRelativeErrorP90": 0.0331591700851634,
+    "disparityAbsoluteErrorPxP50": 0.4545665350025132,
+    "disparityAbsoluteErrorPxP90": 2.151121807982405,
+    "downsampledDimensions": [
+      228,
+      154
+    ],
+    "fusedObservations": 1111,
+    "groundTruthAccurateCoveredPixels5pct": 93393,
+    "groundTruthAccuratePixelCoverage5pct": 0.2720654637403357,
+    "groundTruthCoveredPixels": 97781,
+    "groundTruthEligiblePixels": 343274,
+    "groundTruthMatchedMeshVertices": 2249,
+    "groundTruthPixelCoverage": 0.2848482553295618,
+    "groundTruthUsedForOptimization": false,
+    "limitations": [
+      "Two real calibrated stereo photos only; no 360 object scan",
+      "Open camera-visible surfaces, no filled holes or unobserved backside",
+      "Vertex colors are sampled; no photographic UV texture atlas",
+      "Baseline scale arbitrary; cannot claim dimensions in millimeters",
+      "Vertex errors and fixed-pixel coverage evaluate only the left stereo image, not whole-object completeness"
+    ],
+    "maximumFaceRelativeDepthJump": 0.030829839416508728,
+    "meshTriangleCount": 3531,
+    "meshVertexCount": 2454,
+    "meshWatertight": false,
+    "photographicUvTextures": false,
+    "realPhotographs": true,
+    "schema": 8,
+    "sourceImageDimensions": [
+      741,
+      500
+    ],
+    "verifiedDepthSamples": 4271
+  },
+  "baselineBuild": "git archive 561f5e77 reconstruction to isolated /tmp/rf-baseline; g++ -std=c++20 -O2 -shared -fPIC with core,pnp,multiview,bundle_adjustment,dense,surface,texture,photometric,cancellation,depth_checkpoint sources",
+  "baselineCommit": "561f5e7796bb01d4af49787130a26e26c31ddf93",
+  "baselineLibrarySha256": "8c8ffd338a39cc8c604b4b4d09bb61cdb93ce21bba83822411c79b8e12dabac8",
+  "evaluation": "Nearest triangle depth at fixed original left-image pixel centers; reciprocal-depth interpolation; valid GT disparity mask; accurate coverage requires relative depth error <5%; all GT consulted only after reconstruction.",
+  "integrated": {
+    "acceptedSurfaceSamples": 4269,
+    "calibration": "published rectified intrinsics, arbitrary unit baseline",
+    "cameraCount": 2,
+    "dataset": "Middlebury 2014 Motorcycle (real rectified stereo)",
+    "densePointCount": 4249,
+    "depthRelativeErrorP50": 0.006255986632570271,
+    "depthRelativeErrorP90": 0.03060362467361262,
+    "disparityAbsoluteErrorPxP50": 0.4341155249231363,
+    "disparityAbsoluteErrorPxP90": 1.9906311549182514,
+    "downsampledDimensions": [
+      228,
+      154
+    ],
+    "fusedObservations": 50,
+    "groundTruthAccurateCoveredPixels5pct": 95311,
+    "groundTruthAccuratePixelCoverage5pct": 0.27765283709223537,
+    "groundTruthCoveredPixels": 99894,
+    "groundTruthEligiblePixels": 343274,
+    "groundTruthMatchedMeshVertices": 3100,
+    "groundTruthPixelCoverage": 0.29100368801598725,
+    "groundTruthUsedForOptimization": false,
+    "limitations": [
+      "Two real calibrated stereo photos only; no 360 object scan",
+      "Open camera-visible surfaces, no filled holes or unobserved backside",
+      "Vertex colors are sampled; no photographic UV texture atlas",
+      "Baseline scale arbitrary; cannot claim dimensions in millimeters",
+      "Vertex errors and fixed-pixel coverage evaluate only the left stereo image, not whole-object completeness"
+    ],
+    "maximumFaceRelativeDepthJump": 0.030829839416508728,
+    "meshTriangleCount": 4040,
+    "meshVertexCount": 3365,
+    "meshWatertight": false,
+    "photographicUvTextures": false,
+    "realPhotographs": true,
+    "schema": 8,
+    "sourceImageDimensions": [
+      741,
+      500
+    ],
+    "verifiedDepthSamples": 4271
+  },
+  "integratedLibrarySha256": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b",
+  "integratedSourceCommit": "ab9361e32f68c39125e596dfd779f5c73d991379",
+  "limitations": [
+    "Single real calibrated stereo pair, not a full object or Android performance claim",
+    "Overlapping faces do not add pixel coverage",
+    "Ground-truth invalid regions excluded; unknown sides unmeasured"
+  ],
+  "purpose": "Replace welding-count heuristic with independently measured left-image surface accuracy and coverage",
+  "reproduction": "RF_NATIVE_LIBRARY=<baseline-or-integrated-library> python tools/benchmark_surface_middlebury.py --output <report.json>",
+  "schema": 1,
+  "settings": {
+    "depthPlanes": 64,
+    "downsampledWidth": 228,
+    "farDepth": 80,
+    "nearDepth": 6,
+    "pixelStride": 3,
+    "sourceCameras": 2,
+    "surfaceSettings": "native defaults"
+  }
+}

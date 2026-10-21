@@ -10,6 +10,10 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import re
+import stat
+import struct
+import zlib
 import zipfile
 
 import cv2
@@ -18,15 +22,101 @@ import numpy as np
 MAX_IMAGES = 250
 MAX_IMAGE_BYTES = 150 * 1024 * 1024
 MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
+MAX_MANIFEST_BYTES = 200_000
+MAX_PIXELS = 200_000_000
+MAX_DECODE_PIXELS = 16_000_000
+MAX_COMPRESSION_RATIO = 200
 
 
 def _safe_path(value: str) -> bool:
     """Zip member names must be literal relative entries from the manifest."""
-    from pathlib import PurePosixPath
-    p = PurePosixPath(value)
-    return (bool(value) and not p.is_absolute() and '\\' not in value
-            and all(x not in ("", ".", "..") for x in p.parts)
-            and p.parts[0] == 'photos' and len(p.parts) == 2)
+    return (isinstance(value, str) and len(value) <= 240
+            and bool(re.fullmatch(r'photos/[A-Za-z0-9][A-Za-z0-9._-]*', value))
+            and value.split('/')[1] not in ('.', '..'))
+
+
+def _json(data: bytes):
+    def unique(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('Duplicate JSON key')
+            result[key] = value
+        return result
+    def constant(value):
+        raise ValueError('Nonfinite JSON number')
+    def finite_float(value):
+        result = float(value)
+        if not np.isfinite(result):
+            raise ValueError('Nonfinite JSON number')
+        return result
+    try:
+        return json.loads(data, object_pairs_hook=unique, parse_constant=constant, parse_float=finite_float)
+    except (UnicodeError, RecursionError) as error:
+        raise ValueError('Malformed JSON') from error
+
+
+def _preflight_directory(path):
+    # Bound entry count/central-directory allocation BEFORE ZipFile builds objects.
+    size = path.stat().st_size
+    if not 22 <= size <= MAX_TOTAL_BYTES:
+        raise ValueError('Archive size exceeds bounds')
+    with path.open('rb') as stream:
+        stream.seek(max(0, size - 65557))
+        tail = stream.read(65557)
+    offset = tail.rfind(b'PK\x05\x06')
+    if offset < 0 or len(tail) - offset < 22:
+        raise ValueError('Missing ZIP directory')
+    _, disk, central_disk, count_disk, count, central_size, central_offset, comment = struct.unpack_from('<4s4H2IH', tail, offset)
+    if (disk or central_disk or count_disk != count or not 1 <= count <= MAX_IMAGES + 2
+            or central_size > 1024 * 1024 or central_offset + central_size > size
+            or offset + 22 + comment != len(tail)):
+        raise ValueError('Unsupported or oversized ZIP directory')
+
+
+def _image_header(data):
+    # JPEG and PNG are the explicit export-compatible subset. Never decode first.
+    if data.startswith(b'\x89PNG\r\n\x1a\n'):
+        if len(data) < 33 or data[12:16] != b'IHDR' or struct.unpack_from('>I', data, 8)[0] != 13:
+            raise ValueError('Invalid PNG header')
+        width, height = struct.unpack_from('>II', data, 16)
+        kind = 'png'
+    elif data.startswith(b'\xff\xd8'):
+        offset, width, height = 2, None, None
+        while offset < min(len(data), 1024 * 1024):
+            if data[offset] != 255:
+                raise ValueError('Invalid JPEG marker')
+            while offset < len(data) and data[offset] == 255:
+                offset += 1
+            if offset >= len(data):
+                break
+            marker = data[offset]
+            offset += 1
+            if marker in (0xd9, 0xda):
+                break
+            if marker in (0x01, *range(0xd0, 0xd9)):
+                continue
+            if offset + 2 > len(data):
+                break
+            length = struct.unpack_from('>H', data, offset)[0]
+            if length < 2 or offset + length > len(data):
+                raise ValueError('Invalid JPEG segment')
+            if marker in (0xc0, 0xc1, 0xc2):
+                if length < 8:
+                    raise ValueError('Invalid JPEG frame')
+                height, width = struct.unpack_from('>HH', data, offset + 3)
+                break
+            offset += length
+        if width is None:
+            raise ValueError('Missing/bounded-out JPEG frame')
+        kind = 'jpeg'
+    else:
+        raise ValueError('Unsupported image encoding; JPEG/PNG required')
+    if width <= 0 or height <= 0 or width * height > MAX_PIXELS:
+        raise ValueError('One photograph exceeds pixel safety limit')
+    if kind == 'png' and width * height > MAX_DECODE_PIXELS:
+        raise ValueError('PNG exceeds bounded decode pixel limit')
+    return width, height, kind
 
 
 def _matching_count(a: np.ndarray | None, b: np.ndarray | None) -> int:
@@ -43,10 +133,25 @@ def _matching_count(a: np.ndarray | None, b: np.ndarray | None) -> int:
 
 
 def inspect_zip(path: Path) -> dict:
+    try:
+        return _inspect_zip(path)
+    except (zipfile.BadZipFile, cv2.error, zlib.error, NotImplementedError, RuntimeError) as error:
+        raise ValueError('Malformed or unsupported capture payload') from error
+
+
+def _inspect_zip(path: Path) -> dict:
     if not path.is_file():
         raise ValueError("Scan capture archive not found")
+    _preflight_directory(path)
     with zipfile.ZipFile(path) as archive:
-        infos = {i.filename: i for i in archive.infolist() if not i.is_dir()}
+        entries = archive.infolist()
+        if len(entries) > MAX_IMAGES + 2 or len({i.filename for i in entries}) != len(entries):
+            raise ValueError('Duplicate/oversized ZIP entries')
+        if any(i.is_dir() or i.flag_bits & 1 or i.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
+               or stat.S_ISLNK(i.external_attr >> 16) or i.file_size > MAX_IMAGE_BYTES
+               or (i.file_size and i.file_size > MAX_COMPRESSION_RATIO * max(1, i.compress_size)) for i in entries):
+            raise ValueError('Unsafe or oversized/compression-bomb archive member')
+        infos = {i.filename: i for i in entries}
         if "session.json" not in infos or len(infos) > MAX_IMAGES + 3:
             raise ValueError("Not a valid bounded RealityForge capture bundle")
         if any(not _safe_path(name) for name in infos if name != "session.json"
@@ -54,16 +159,31 @@ def inspect_zip(path: Path) -> dict:
             raise ValueError("Archive has unexpected or unsafe member")
         if sum(i.file_size for i in infos.values()) > MAX_TOTAL_BYTES:
             raise ValueError("Capture bundle uncompressed data is too large")
-        if infos["session.json"].file_size > 200_000:
+        if infos["session.json"].file_size > MAX_MANIFEST_BYTES:
             raise ValueError("Capture manifest is too large")
-        manifest = json.loads(archive.read("session.json"))
-        if manifest.get("schema") != 1 or not isinstance(manifest.get("photos"), list):
+        manifest = _json(archive.read("session.json"))
+        if not isinstance(manifest, dict) or type(manifest.get('schema')) is not int or manifest.get("schema") != 1 or not isinstance(manifest.get("photos"), list):
             raise ValueError("Unsupported manifest schema")
         photos = manifest["photos"]
         if not 3 <= len(photos) <= MAX_IMAGES:
             raise ValueError("At least three distinct photographs are required")
+        for photo in photos:
+            if (not isinstance(photo, dict) or not _safe_path(photo.get('path'))
+                    or not isinstance(photo.get('sha256'), str) or not re.fullmatch('[0-9a-f]{64}', photo['sha256'])):
+                raise ValueError('Malformed/unsafe photograph manifest record')
+            f = photo.get('focal35mm')
+            if f is not None and (type(f) not in (int, float) or not np.isfinite(f) or not 10 <= f <= 600):
+                raise ValueError('Invalid focal metadata')
         if len(set(p.get("path") for p in photos)) != len(photos):
             raise ValueError("Duplicate paths in capture manifest")
+        if set(infos) - {'session.json', 'camera-calibration-v1.json'} != {p['path'] for p in photos}:
+            raise ValueError('Unreferenced or missing photograph members')
+        if 'camera-calibration-v1.json' in infos:
+            if infos['camera-calibration-v1.json'].file_size > MAX_MANIFEST_BYTES:
+                raise ValueError('Calibration metadata exceeds bound')
+            calibration = _json(archive.read('camera-calibration-v1.json'))
+            if not isinstance(calibration, dict):
+                raise ValueError('Malformed calibration metadata')
         items, desc, warnings = [], [], []
         seen = set()
         sizes, known_focals = [], []
@@ -81,16 +201,19 @@ def inspect_zip(path: Path) -> dict:
             if digest in seen:
                 raise ValueError("Duplicate photograph bytes in scan package")
             seen.add(digest)
-            image = cv2.imdecode(np.frombuffer(data, dtype=np.uint8), cv2.IMREAD_COLOR)
+            w, h, kind = _image_header(data)
+            reduced = kind == 'jpeg' and w*h > MAX_DECODE_PIXELS
+            flag = (cv2.IMREAD_REDUCED_COLOR_8 if reduced else cv2.IMREAD_COLOR) | cv2.IMREAD_IGNORE_ORIENTATION
+            image = cv2.imdecode(np.frombuffer(data, dtype=np.uint8), flag)
             if image is None or image.size == 0:
                 raise ValueError("Photograph failed decoding: " + member)
-            h, w = image.shape[:2]
-            if w*h > 200_000_000:
-                raise ValueError("One photograph exceeds pixel safety limit")
-            max_edge = max(w,h)
+            factor = 8 if reduced else 1
+            if image.shape[:2] != ((h+factor-1)//factor, (w+factor-1)//factor) or image.shape[0]*image.shape[1] > MAX_DECODE_PIXELS:
+                raise ValueError('Decoded image disagrees with bounded header')
+            max_edge = max(image.shape[:2])
             if max_edge > 1600:
                 scale = 1600 / max_edge
-                image = cv2.resize(image, (round(w*scale),round(h*scale)))
+                image = cv2.resize(image, (round(image.shape[1]*scale),round(image.shape[0]*scale)))
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             key, d = sift.detectAndCompute(gray,None)
             lap = float(cv2.Laplacian(gray, cv2.CV_64F).var())

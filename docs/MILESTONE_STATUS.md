@@ -1,4 +1,30 @@
-# Current status — M12
+# Current source status — M19
+
+Version0.19.0-m19; campaign base `ad3029193f304c70931b94ea7a0df90b69d84b07`.
+The current code includes M17 operation cancellation, M18 per-reference depth
+checkpoints and M19 persisted scan diagnostics. Sparse work remains12-photo and
+depth8-view bounded; see [README](../README.md) and [architecture](ARCHITECTURE.md).
+Physical complete-object geometry/texture/resource evidence, release signing and
+installed candidate qualification remain open. Agent branches below this campaign
+base are separate deliveries until100 integrates and verifies runtime dependencies.
+
+The audited SHA `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42` passed
+[Actions38488820626](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/38488820626):
+11 CTest targets,117 pytest cases and32 API35 emulator tests. These exact historical
+counts are not physical handset or later-candidate evidence. Current receipts live
+under `docs/agents/status/`; each must identify its own source/artifact and actual gates.
+
+The 081–100 campaign adds executable native/fuzz/corpus/quality/device/export/
+packaging/security/dependency/qualification tooling. The integrated host suite
+requires095's pinned QA-only installation rather than the original scientific
+requirements alone; see [BUILDING](BUILDING.md#integrated-campaign-qa). Tooling
+delivery does not establish the unimplemented/unwired001–080 runtime paths or
+physical evidence. The final integration applicability keeps all18 required gates
+open until their own exact-candidate records pass. Current physical/reference/
+held-out/signing/beta prerequisites remain unavailable, and known failed assets or
+sanitizer checks must stay visible in their independent reports.
+
+## Historical M12 snapshot
 
 | Area | Actual state |
 |---|---|

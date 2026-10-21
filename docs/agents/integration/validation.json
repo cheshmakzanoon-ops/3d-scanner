@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "development_stopped_by_user": true,
+  "status": "STOPPED_BEFORE_FINAL_SUCCESSOR_VALIDATION",
+  "qualification": "NOT_QUALIFIED",
+  "last_integrated_source_sha": "ff10edd86b3b6f07aff03204593a9a883770fe80",
+  "final_successor_candidate": null,
+  "final_successor_checks": "CANCELLED_NOT_RUN",
+  "historical_failed_candidate": "86df647bcdba4b110ad36dfb6ce572adb4261462",
+  "historical_limits": [
+    "GCC/Clang Release passed; sanitized Python processes failed with leaks and24 failed cases per configuration",
+    "Legacy independent UV overlap gate failed; corrected-producer old-engine diagnostic also failed",
+    "Old86 debug attribution claim invalidated by six missing debug modules; corrected debug129 source delivered but final combined successor not built"
+  ],
+  "completed_later_checks": [
+    "Own Agent088 e1 fresh-emulator three fault tests and one single test passed with exact installed APK hashes",
+    "Agent004 separate combined30e0e503 benchmark/debug build completed172 tasks,35 JVM tests,lint,target package audit,strict graphs anddebug129 attribution before stop"
+  ],
+  "no_new_test_claims_after_stop": true,
+  "required_gate_applicability": "All18 gates remain REQUIRED; no waiver",
+  "open_external_gates": [
+    "Physical ARM64 and authorized calibrated reference scenes",
+    "Production signing, first-party distribution license and external beta",
+    "Unaccepted required001-080 product wiring"
+  ],
+  "runtime_shutdown": {
+    "emulator_5582": "STOPPED,userdata/evidence preserved;360s reboot failure retained",
+    "emulator_5584": "STOPPED,userdata/evidence preserved"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "audit_date_utc": "2026-10-20",
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "staged_tree_before_this_evidence_update": "ad9d95403094517a775b006f6e25cb0bdbe1582d",
+  "host": {
+    "result": "PASS",
+    "tests": 126,
+    "seconds": 28.92,
+    "command": "python3 -m pytest tests -q --junitxml=/tmp/scanner-audit-final-host.xml",
+    "evidence": "host-tests.xml"
+  },
+  "portable_jvm": {
+    "result": "PASS",
+    "tests": 335,
+    "compiler": "Kotlin 2.1.21",
+    "runner": "JUnit 4.13.2",
+    "scope": "Actual existing portable Kotlin/JUnit tests and production sources; excludes full Gradle/Android/Room/OpenCV/JNI/device qualification.",
+    "evidence": "portable-jvm-summary.json",
+    "test_classes": 68
+  },
+  "native": {
+    "result": "PASS",
+    "ctest_suites": 13,
+    "configuration": "Release with -Werror",
+    "evidence": "../audit-002/native-ctest.log"
+  },
+  "first_github_checkpoint": {
+    "sha": "04dcb7ccea69614e224f32a63c18066b37905530",
+    "run_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39372493714",
+    "native_result": "PASS",
+    "android_result": "FAIL",
+    "android_subgates": "Production debug/release Kotlin compiled and debug APK built; test-source compatibility errors subsequently fixed. This is not a final Android pass."
+  },
+  "final_android": {
+    "result": "QUEUED",
+    "source_sha": "aad8e1d5754491d8f0e6a0aca96a9f1f02f53ba6",
+    "run_id": 39377251764,
+    "observed_at_utc": "2026-10-20 06:28:24 UTC",
+    "reason": "GitHub jobs have no assigned runners or executed steps. Full Android JVM/lint/APK/device verification remains unpassed; portable JVM results do not replace it."
+  },
+  "physical_qualification": {
+    "result": "BLOCKED_EXTERNAL",
+    "reason": "Actual camera/vendor/API/OS process-death, ARM64 memory/thermal and release-signing prerequisites remain explicit in the agent receipts."
+  },
+  "updated_github_code_candidate": {
+    "observed_at_utc": "2026-10-20 06:28:24 UTC",
+    "head": "aad8e1d5754491d8f0e6a0aca96a9f1f02f53ba6",
+    "run_id": 39377251764,
+    "jobs": [
+      {
+        "id": 118478058960,
+        "name": "native",
+        "status": "queued",
+        "conclusion": null,
+        "runner_id": 0,
+        "steps": []
+      },
+      {
+        "id": 118478059007,
+        "name": "android",
+        "status": "queued",
+        "conclusion": null,
+        "runner_id": 0,
+        "steps": []
+      }
+    ],
+    "run_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39377251764",
+    "tree": "f5eca2f49687ad460aac44c9d4c31d450a2f0c73"
+  }
+}

@@ -18,6 +18,25 @@ from benchmark_middlebury import load_middlebury, FOCAL_PIXELS, CX_LEFT, CX_RIGH
 from native_api import NativeEngine, library_path
 
 
+RESIZE_CAMERA_POLICY = 'rf-pixel-centres-v2:opencv-area:half-pixel-resize-v1'
+
+
+def resized_cameras(source_width: int, source_height: int,
+                    width: int, height: int) -> np.ndarray:
+    """Published source calibration transformed to resized pixel centres.
+
+    OpenCV maps a destination centre back to (u+.5)/scale-.5, so focal
+    lengths scale directly while principal points also carry that offset.
+    """
+    if min(source_width, source_height, width, height) <= 0:
+        raise ValueError('Image dimensions must be positive')
+    sx, sy = width / source_width, height / source_height
+    return np.asarray([[1,0,0,0,1,0,0,0,1,-float(i),0,0,
+        FOCAL_PIXELS*sx, FOCAL_PIXELS*sy,
+        (cx+.5)*sx-.5, (CY+.5)*sy-.5]
+        for i,cx in enumerate((CX_LEFT,CX_RIGHT))], dtype=np.float64)
+
+
 def run(baseline: Path, current: Path, repeats: int = 5) -> dict:
     if not 3 <= repeats <= 20:
         raise ValueError('Use 3–20 alternating timed samples')
@@ -26,9 +45,7 @@ def run(baseline: Path, current: Path, repeats: int = 5) -> dict:
     width, height = 228, round(h * 228 / w)
     images = np.stack([np.dstack((cv2.resize(im, (width, height), interpolation=cv2.INTER_AREA),
         np.full((height, width), 255, np.uint8))) for im in (left, right)])
-    cameras = np.array([[1,0,0,0,1,0,0,0,1,-float(i),0,0,
-        FOCAL_PIXELS*width/w,FOCAL_PIXELS*height/h,cx*width/w,CY*height/h]
-        for i,cx in enumerate((CX_LEFT,CX_RIGHT))], dtype=float)
+    cameras = resized_cameras(w, h, width, height)
     engines = [NativeEngine(baseline.resolve()), NativeEngine(current.resolve())]
     times: list[list[float]] = [[], []]
     outputs = [None, None]
@@ -46,6 +63,9 @@ def run(baseline: Path, current: Path, repeats: int = 5) -> dict:
             raise AssertionError(f'Geometry parity failed for {kind}.{key}')
         deltas[f'{kind}.{key}']=float(np.max(np.abs(a-b))) if a.size else 0.
     return dict(schema=13, dataset='Real Middlebury Motorcycle, 228-pixel preview',
+        resizeCameraPolicy=RESIZE_CAMERA_POLICY,
+        inputCameraRowsSha256=hashlib.sha256(cameras.tobytes()).hexdigest(),
+        inputImageBytesSha256=hashlib.sha256(images.tobytes()).hexdigest(),
         platform=platform.platform(), baselineSha256=hashlib.sha256(baseline.read_bytes()).hexdigest(),
         currentSha256=hashlib.sha256(current.read_bytes()).hexdigest(),
         baselineSeconds=times[0], optimizedSeconds=times[1],

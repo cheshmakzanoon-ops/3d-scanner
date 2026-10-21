@@ -18,6 +18,7 @@ import com.realityforge.scanner.data.ScanDatabase
 import com.realityforge.scanner.engine.LensCalibration
 import com.realityforge.scanner.engine.LensProfile
 import com.realityforge.scanner.viewer.PhotographicGlb
+import com.realityforge.scanner.qa.SharedFaultDocumentProvider as FaultDocumentProvider
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -41,6 +42,7 @@ class SessionReliabilityTest {
         val repository = app.repository
         val id = repository.create("Synthetic complete session ${UUID.randomUUID()}")
         val temporary = mutableListOf<File>()
+        var primaryFailure: Throwable? = null
         try {
             for (n in 1..3) {
                 val photo = File.createTempFile("relief-$n-", ".jpg", app.cacheDir).also { temporary.add(it) }
@@ -79,10 +81,15 @@ class SessionReliabilityTest {
                 val reopened = requireNotNull(ProjectRepository(app,repository.dao).currentPreview(id))
                 assertEquals(key,reopened.getString("artifactKey"))
                 assertEquals(result.getInt("pointCount"),reopened.getInt("pointCount"))
-                val destination = File.createTempFile("export-check-", ".glb",app.cacheDir).also { temporary.add(it) }
-                scenario.onActivity { model.export(Uri.fromFile(destination),"textured.glb") }
-                awaitIdle(model,30000)
-                assertEquals("Export must preserve exact model bytes",hash(artifact),hash(destination))
+                val destination = FaultDocumentProvider.createUri(app)
+                try {
+                    scenario.onActivity {
+                        val requestId = requireNotNull(model.beginArtifactExportRequest("textured.glb"))
+                        model.completeArtifactExport(requestId, destination)
+                    }
+                    awaitIdle(model,30000)
+                    assertEquals("SAF export must preserve exact model bytes",hash(artifact),FaultDocumentProvider.hash(app,destination))
+                } finally { FaultDocumentProvider.cleanup(app,destination) }
                 for (photo in repository.dao.photos(id)) assertEquals(original[photo.id],hash(repository.photoFile(photo)))
                 android.util.Log.i("RealityForgeSessionTest","Synthetic full session: ${result.getInt("pointCount")} sparse points, ${modelData.indices.size/3} photo-textured triangles; hashes preserved")
                 // Busy operations must reject deletion and selection, not invalidate the live project.
@@ -109,7 +116,27 @@ class SessionReliabilityTest {
                 assertArrayEquals("Emulator screenshot capture failed",
                     byteArrayOf(137.toByte(),80,78,71,13,10,26,10), signature)
             }
-        } finally { temporary.forEach { it.delete() }; repository.delete(id) }
+        } catch (failure: Throwable) {
+            primaryFailure = failure
+            throw failure
+        } finally {
+            cleanupPreservingFailure(primaryFailure,
+                {
+                    val execution = app.compositionRoot.execution
+                    val job = execution.current.value
+                    // Activity closure does not stop service-owned reconstruction. Cancel only
+                    // this fixture's job and join it before requesting normal leased deletion.
+                    if (job?.input?.projectId == id) {
+                        if (job.state == com.realityforge.scanner.data.jobs.ReconstructionJobState.RUNNING ||
+                            job.state == com.realityforge.scanner.data.jobs.ReconstructionJobState.QUEUED)
+                            execution.cancel(job.jobId)
+                        kotlinx.coroutines.withTimeout(30_000) { execution.awaitWorkerStopped() }
+                    }
+                },
+                { temporary.forEach { it.delete() } },
+                { repository.delete(id) },
+            )
+        }
     }
 
     @Test fun completedPreviewRejectsMismatchedFractionalOrStaleRevision() = runBlocking {
@@ -174,8 +201,33 @@ class SessionReliabilityTest {
         val db = Room.inMemoryDatabaseBuilder(context,ScanDatabase::class.java).build()
         val repository = ProjectRepository(context,db.dao())
         val id = repository.create("Synthetic reliability metadata")
-        try { block(repository,id) } finally { repository.delete(id); db.close() }
+        var primaryFailure: Throwable? = null
+        try { block(repository,id) }
+        catch (failure: Throwable) { primaryFailure = failure; throw failure }
+        finally { cleanupPreservingFailure(primaryFailure, { repository.delete(id) }, { db.close() }) }
     }
+    /** Cleanup diagnostics must never replace the pipeline failure or bypass a live lease. */
+    private suspend fun cleanupPreservingFailure(primary: Throwable?, vararg actions: suspend () -> Unit) {
+        var failure = primary
+        for (action in actions) try { action() } catch (cleanup: Throwable) {
+            if (failure == null) failure = cleanup else if (failure !== cleanup) failure.addSuppressed(cleanup)
+        }
+        if (primary == null) failure?.let { throw it }
+    }
+
+    @Test fun cleanupPreservesOriginalTimeoutAndStillRunsRemainingActions() = runBlocking {
+        val timeout = AssertionError("Original pipeline timeout")
+        val lease = IllegalStateException("Project lease remains active")
+        var lastCleanupRan = false
+        cleanupPreservingFailure(timeout, { throw lease }, { lastCleanupRan = true })
+        assertSame(lease, timeout.suppressed.single())
+        assertTrue(lastCleanupRan)
+        try {
+            cleanupPreservingFailure(null, { throw lease })
+            fail("Cleanup-only failure was swallowed")
+        } catch (actual: IllegalStateException) { assertSame(lease, actual) }
+    }
+
     private suspend fun expectRejected(block: suspend () -> Any?) {
         try { block(); fail("Invalid or stale session was accepted") }
         catch (expected: Exception) { /* A controlled validation error, not an Error/OOM. */ }

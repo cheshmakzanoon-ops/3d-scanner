@@ -1,0 +1,103 @@
+#include "realityforge/mesh_lod.hpp"
+#include "realityforge/glb_export.hpp"
+#include <cassert>
+#include <cmath>
+#include <iostream>
+#include <set>
+#include <limits>
+#ifdef RF_WITH_TOPOLOGY
+#include "realityforge/mesh_topology.hpp"
+#endif
+using namespace rf;using namespace rf::asset;
+struct Fixture {
+    std::vector<Vec3> positions;std::vector<std::uint32_t> indices;std::vector<Vec2> uv;
+    SurfaceAsset view()const{PointAsset p;p.positions=positions;p.representation=Representation::ObservedSurface;
+        p.provenance={"synthetic-grid","",std::string(64,'a'),"analytic-v1"};return {p,indices};}
+};
+Fixture grid(double offset=0,std::uint32_t edge=5){Fixture f;for(std::uint32_t y=0;y<edge;++y)for(std::uint32_t x=0;x<edge;++x){f.positions.push_back({x+offset,double(y),0});f.uv.push_back({double(x)/(edge-1),double(y)/(edge-1)});}
+    for(std::uint32_t y=0;y+1<edge;++y)for(std::uint32_t x=0;x+1<edge;++x){auto a=y*edge+x;for(auto v:{a,a+1,a+edge,a+1,a+edge+1,a+edge})f.indices.push_back(v);}
+    return f;}
+template<class F>void fails(F fn){bool failed=false;try{fn();}catch(const Error&){failed=true;}assert(failed);}
+std::size_t components(const SurfaceAsset& a){std::vector<unsigned> groups(a.vertices.positions.size());for(unsigned i=0;i<groups.size();++i)groups[i]=i;
+    auto root=[&](unsigned x){while(groups[x]!=x)x=groups[x];return x;};for(std::size_t i=0;i<a.indices.size();i+=3)for(int k=1;k<3;++k)groups[root(a.indices[i+k])]=root(a.indices[i]);
+    std::set<unsigned> ids;for(auto i:a.indices)ids.insert(root(i));return ids.size();}
+#ifdef RF_WITH_TOPOLOGY
+void independentTopology(const LodGeometry& geometry,std::size_t components,std::size_t boundary){
+    rf::SurfaceMesh mesh;for(auto p:geometry.positions){rf::SurfaceVertex v;v.xyz=p;mesh.vertices.push_back(v);}
+    for(std::size_t i=0;i<geometry.indices.size();i+=3)mesh.triangles.push_back({geometry.indices[i],geometry.indices[i+1],geometry.indices[i+2],0});
+    const auto report=rf::analyzeMeshTopology(mesh);
+    assert(report.components==components&&report.boundaryEdges==boundary);
+    assert(report.degenerateFaces.empty()&&report.duplicateFaces.empty()&&report.windingConflictFaces.empty());
+    assert(report.nonmanifoldEdges==0&&report.nonmanifoldVertices==0&&report.intersections.empty());
+    assert(!report.intersectionBudgetExceeded);
+}
+#endif
+int main(int argc,char** argv){
+    auto f=grid();const auto originals=f.positions;const auto triangles=f.indices;
+    LodRecipe r;r.targetTriangles=24;r.maximumDisplacement=1.5;
+    auto lod=simplifySurface(f.view(),r);assert(lod.geometry.indices.size()/3==24);assert(lod.report.collapsedEdges==4);
+    if(argc==2)writeGlbFile(lod.geometry.surface(),argv[1]);
+    assert(lod.report.maximumVertexDisplacement<=1.5);assert(components(lod.geometry.surface())==1);
+#ifdef RF_WITH_TOPOLOGY
+    independentTopology(lod.geometry,1,16);
+#endif
+    for(auto p:originals)if(p.x==0||p.x==4||p.y==0||p.y==4){bool found=false;for(auto q:lod.geometry.positions)found|=q.x==p.x&&q.y==p.y&&q.z==p.z;assert(found);}
+    auto same=simplifySurface(f.view(),r);assert(lod.geometry.indices==same.geometry.indices);assert(f.indices==triangles);
+    for(std::size_t i=0;i<originals.size();++i)assert(f.positions[i].x==originals[i].x&&f.positions[i].y==originals[i].y);
+    assert(lod.geometry.provenance.parentId=="synthetic-grid");assert(lod.geometry.provenance.assetId.empty());
+    assert(lod.geometry.parentTriangleIndices.size()==24);
+    assert(lod.geometry.parentVertexIndices.size()==lod.geometry.positions.size());
+    for(std::size_t i=0;i<lod.geometry.positions.size();++i){auto p=lod.geometry.positions[i],q=f.positions[lod.geometry.parentVertexIndices[i]];assert(p.x==q.x&&p.y==q.y&&p.z==q.z);}
+    for(auto i:lod.geometry.parentTriangleIndices)assert(i<32);
+    std::vector<Vec3> unitNormals(f.positions.size(),Vec3{0,0,1});
+    std::vector<std::array<std::uint8_t,3>> colors(f.positions.size(),{17,29,43});
+    std::vector<float> confidence(f.positions.size(),.8f);
+    std::vector<std::uint32_t> support(f.positions.size(),3);
+    auto attributed=f.view();attributed.vertices.normals=unitNormals;attributed.vertices.colors=colors;
+    attributed.vertices.confidence=confidence;attributed.vertices.supportingViews=support;
+    auto retained=simplifySurface(attributed,r);
+    for(std::size_t i=0;i<retained.geometry.positions.size();++i){
+        assert(retained.geometry.normals[i].z==1&&retained.geometry.normals[i].x==0&&retained.geometry.normals[i].y==0);
+        assert(retained.geometry.colors[i]==colors[retained.geometry.parentVertexIndices[i]]);
+        assert(retained.geometry.confidence[i]==.8f&&retained.geometry.supportingViews[i]==3);
+    }
+    auto g=grid(10);auto disconnected=f;disconnected.positions.insert(disconnected.positions.end(),g.positions.begin(),g.positions.end());
+    for(auto i:g.indices)disconnected.indices.push_back(i+25);
+    r.targetTriangles=48;
+    auto two=simplifySurface(disconnected.view(),r);assert(components(two.geometry.surface())==2);
+#ifdef RF_WITH_TOPOLOGY
+    independentTopology(two.geometry,2,32);
+#endif
+    r.targetTriangles=24;r.maximumUvDisplacement=.3;auto textured=simplifySurface(f.view(),r,f.uv);assert(textured.report.maximumUvDisplacement<=.3);assert(textured.geometry.uv.size()==textured.geometry.positions.size());
+    r.maximumUvDisplacement=0;fails([&]{simplifySurface(f.view(),r,f.uv);});
+    // A one-cell-wide observed strip has only boundary vertices: refuse rather
+    // than erasing its thin structure to manufacture a requested triangle count.
+    auto strip=f;strip.indices.resize(24);r.targetTriangles=6;r.maximumDisplacement=10;
+    fails([&]{simplifySurface(strip.view(),r);});assert(strip.indices.size()==24);
+    // Distinct identities at the same interior position encode a chart seam.
+    auto seam=f;seam.positions.push_back(seam.positions[12]);seam.uv.push_back(seam.uv[12]);
+    for(auto& i:seam.indices)if(i==12){i=25;break;}
+    r.targetTriangles=30;r.maximumDisplacement=1.5;r.maximumUvDisplacement=.3;
+    auto seamed=simplifySurface(seam.view(),r,seam.uv);
+    unsigned seamVertices=0;for(auto p:seamed.geometry.positions)if(p.x==2&&p.y==2)++seamVertices;assert(seamVertices==2);
+    r.targetTriangles=24;r.maximumUvDisplacement=0;
+    r.maximumDisplacement=.1;fails([&]{simplifySurface(f.view(),r);});
+    r.maximumDisplacement=1.5;fails([&]{simplifySurface(f.view(),r,{},[]{return true;});});
+    r.maximumWork=10;fails([&]{simplifySurface(f.view(),r);});r.maximumWork=20'000'000;
+    auto malformed=f;malformed.positions[0].x=std::numeric_limits<double>::infinity();fails([&]{simplifySurface(malformed.view(),r);});
+    auto tiny=f;tiny.indices={0,1,5};r.targetTriangles=1;auto unchanged=simplifySurface(tiny.view(),r);assert(unchanged.geometry.indices.size()==3);
+    Fixture oct;oct.positions={{1,0,0},{-1,0,0},{0,1,0},{0,-1,0},{0,0,1},{0,0,-1}};
+    oct.indices={0,2,4,2,1,4,1,3,4,3,0,4,2,0,5,1,2,5,3,1,5,0,3,5};
+    r.targetTriangles=6;r.minimumNormalCosine=.1;r.maximumDisplacement=1.5;auto closed=simplifySurface(oct.view(),r);assert(closed.geometry.indices.size()==18);assert(components(closed.geometry.surface())==1);
+#ifdef RF_WITH_TOPOLOGY
+    independentTopology(closed.geometry,1,0);
+#endif
+    // A meaningful 20,000-face reduction must fit a declared work budget;
+    // rescanning every face for every collapsed edge cannot pass this gate.
+    auto large=grid(0,101);LodRecipe bounded;bounded.targetTriangles=10000;
+    bounded.maximumDisplacement=3;bounded.maximumWork=2'000'000;
+    auto reduced=simplifySurface(large.view(),bounded);
+    assert(reduced.geometry.indices.size()==30000&&reduced.report.work<=bounded.maximumWork);
+    assert(reduced.report.maximumVertexDisplacement<=3);
+    std::cout<<"agent065: deterministic open/closed/disconnected/UV/error/budget/cancellation checks passed\n";
+}

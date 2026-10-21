@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "platform": "CPython3.12 Linux x86_64",
+  "node": {
+    "version": "v24.19.0",
+    "url": "https://nodejs.org/dist/v24.19.0/node-v24.19.0-linux-x64.tar.xz",
+    "sha256": "14b342e71204f811bde6153be8e04b62aef63c236fef92b55f9c83154b409647",
+    "checksumSource": "https://nodejs.org/dist/v24.19.0/SHASUMS256.txt"
+  },
+  "gltfValidator": {
+    "version": "2.0.0-dev.3.10",
+    "url": "https://registry.npmjs.org/gltf-validator/-/gltf-validator-2.0.0-dev.3.10.tgz",
+    "integrity": "sha512-odJ4k0tRkGXiDGn78yDBg+fBbAIvBnXxh3RwAta0emSxGtyagFE8B4xELB1oYe3S5RD8Ci3uZAsZaascH2LAEQ==",
+    "license": "Apache-2.0"
+  },
+  "blender": {
+    "version": "4.3.2",
+    "archive": "blender-4.3.2-linux-x64.tar.xz",
+    "url": "https://download.blender.org/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz",
+    "checksumSource": "https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256",
+    "license": "GPL-3.0-or-later; external QA executable, not linked or shipped in Android"
+  }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "coordinate": "com.android.tools.build:aapt2:8.11.1-12782657",
+    "artifact": "aapt2-8.11.1-12782657.pom",
+    "sha256": "43f1683656c6fcd2f24070bd781948427af61a67eb31a9a92fc0ffab9fc0953b",
+    "origin": "https://dl.google.com/dl/android/maven2/com/android/tools/build/aapt2/8.11.1-12782657/aapt2-8.11.1-12782657.pom",
+    "independentlyDownloadedBytesMatch": true
+  },
+  {
+    "coordinate": "com.android.tools.build:aapt2:8.11.1-12782657",
+    "artifact": "aapt2-8.11.1-12782657-linux.jar",
+    "sha256": "5ce2f1c4262b99174047f3d413816c57ceef5fb00a520264cf5ed564576bf250",
+    "origin": "https://dl.google.com/dl/android/maven2/com/android/tools/build/aapt2/8.11.1-12782657/aapt2-8.11.1-12782657-linux.jar",
+    "independentlyDownloadedBytesMatch": true
+  }
+]

@@ -1,0 +1,11 @@
+# Agent 024 bounded UI metadata follow-up
+
+The validated preview was still retained as a complete `JSONObject` in ViewModel state after the viewer had prepared its typed geometry buffers. `PreviewUiSummary.fromValidated(source)` now supplies a separate display projection for that state. The ViewModel owner calls it off the main thread after successful preview validation, then releases the source JSON.
+
+The projection reads only fixed field names: exact artifact/revision identity, sparse counts, bounded failure/status text, scalar dense/mesh/texture measurements, diagnostic summary measurements, and at most the first four recommendation actions. It preserves the `densePreview`, `meshPreview` and `texturePreview` keys consumed by the current screen. Unknown measurements remain absent or explicit null, and missing representations remain missing. The projection is not an exportable reconstruction or diagnostic report.
+
+All nested JSON objects are newly allocated. No geometry arrays, cameras, selected-photo arrays, diagnostic histories, evidence trees, private recommendation fields or arbitrary keys enter the projection. The source is never serialized or enumerated. Text is bounded to 512 characters, actions to 256 characters, and identity to 160 characters without truncating identity. Numeric strings are not coerced into measured numbers. Finite numeric values are copied to immutable primitives; no mutable JSON descendants are retained. Truncation avoids leaving a high surrogate at the end of a string.
+
+Six focused JVM behavior tests check exact fields used by the current UI and session fixture, preservation of unknown/unavailable results, two-way nested mutation isolation, rejection of malformed identity, omission of malformed optional scalar values, and action/text bounds. A source object and geometry values deliberately throw if serialized, and a fifth recommendation throws if inspected: the tests verify that the projection does neither. These are executable tests of the real helper with the real JSON implementation.
+
+At this child checkpoint, the six new JVM tests and integrated Android compilation are **not yet run**. The integration owner is preparing a pinned standalone Kotlin/JUnit runner and owns the ViewModel call-site change. No device rendering or memory benchmark is inferred from this implementation or its source review.

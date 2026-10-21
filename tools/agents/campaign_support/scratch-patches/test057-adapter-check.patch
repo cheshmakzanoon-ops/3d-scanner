@@ -1,0 +1,20 @@
+diff --git a/tests/test_texture.py b/tests/test_texture.py
+index 66314c4..7716b29 100644
+--- a/tests/test_texture.py
++++ b/tests/test_texture.py
+@@ -92,11 +92,11 @@ def test_actual_uv_geometry_corresponds_to_photo_projection(tmp_path):
+         camera=0 if atlas_x<width/2 else 1
+         local_x=atlas_x-(camera*(tex_w+6)+3)
+         local_y=atlas_y-3
+-        # Published rectified intrinsics and unit baseline; pixel-centre scale
+-        # from the lower-res reconstruction grid (same as native M09 C ABI).
++        # Published original rectified intrinsics and unit baseline. Resize
++        # directly to photographic pixel centres, including rounded-height scale.
+         c=FOCAL_PIXELS*tex_w/w
+-        cx=([CX_LEFT,CX_RIGHT][camera]*228/w+.5)*tex_w/228-.5
+-        cy=(CY*round(h*228/w)/h+.5)*tex_h/round(h*228/w)-.5
++        cx=([CX_LEFT,CX_RIGHT][camera]+.5)*tex_w/w-.5
++        cy=(CY+.5)*tex_h/h-.5
+         expected_x=(p[0]-camera)/p[2]*c+cx
+         expected_y=p[1]/p[2]*(FOCAL_PIXELS*tex_h/h)+cy
+         assert abs(local_x-expected_x)<0.05

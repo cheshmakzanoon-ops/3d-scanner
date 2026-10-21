@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "protocol": "a097-ui-performance-v2",
+  "iterations": 10,
+  "warmupRuns": 3,
+  "requiredDevice": {
+    "physical": true,
+    "abi": "arm64-v8a",
+    "batteryMinPercent": 30,
+    "thermalMaxStatus": 1
+  },
+  "budgets": {
+    "coldStartupP95Ms": 3000,
+    "warmStartupP95Ms": 1000,
+    "frameCpuP95Ms": 33.333,
+    "frameCpuP99Ms": 50,
+    "inputResponseP95Ms": 200,
+    "smallPssMaxMb": 256,
+    "largePssMaxMb": 512
+  },
+  "scenarios": [
+    "coldLaunch",
+    "warmLaunch",
+    "libraryNavigation",
+    "reopenSmallAtlasUpload",
+    "reopenLargeAtlasUpload",
+    "orbitZoom",
+    "viewerLifecycle"
+  ],
+  "requiredContext": [
+    "deviceFingerprint",
+    "appSha256",
+    "modelManifestSha256",
+    "thermalBefore",
+    "thermalAfter",
+    "batteryPercent",
+    "ambientC",
+    "refreshRateHz",
+    "protocolSha256",
+    "sourceSha",
+    "benchmarkApkSha256",
+    "installedAppSha256",
+    "installedBenchmarkApkSha256",
+    "executionStatus"
+  ],
+  "baselineProfilePolicy": "Retain only after identical-device/build/data before/after benefit with no correctness or tail regression. No profile committed without physical measurements."
+}

@@ -1,0 +1,245 @@
+{
+  "toolchain": [
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/2.1.21/kotlin-compiler-embeddable-2.1.21.jar",
+      "file": "kotlin-compiler-embeddable-2.1.21.jar",
+      "bytes": 56958642,
+      "sha256": "67a2e3673765f097725608cc7c843b0d8fdd94bd9af41327211361614aa57d49"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar",
+      "file": "kotlin-stdlib-2.1.21.jar",
+      "bytes": 1724058,
+      "sha256": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-script-runtime:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-script-runtime/2.1.21/kotlin-script-runtime-2.1.21.jar",
+      "file": "kotlin-script-runtime-2.1.21.jar",
+      "bytes": 43365,
+      "sha256": "d8221f445854f30ac92c248d543609e0ecb5d85bb5ba34c043684b013cb5b897"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-reflect:1.6.10",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/1.6.10/kotlin-reflect-1.6.10.jar",
+      "file": "kotlin-reflect-1.6.10.jar",
+      "bytes": 3038560,
+      "sha256": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-daemon-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-embeddable/2.1.21/kotlin-daemon-embeddable-2.1.21.jar",
+      "file": "kotlin-daemon-embeddable-2.1.21.jar",
+      "bytes": 345429,
+      "sha256": "9401effd82de8606df3289308a275cc1d3573768665ca5edd09dc319c71715f4"
+    },
+    {
+      "coordinate": "org.jetbrains.intellij.deps:trove4j:1.0.20200330",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+      "file": "trove4j-1.0.20200330.jar",
+      "bytes": 572985,
+      "sha256": "c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.0/kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "bytes": 1548360,
+      "sha256": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.10.2/kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "bytes": 1479317,
+      "sha256": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd"
+    },
+    {
+      "coordinate": "org.jetbrains:annotations:13.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+      "file": "annotations-13.0.jar",
+      "bytes": 17536,
+      "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478"
+    },
+    {
+      "coordinate": "org.json:json:20250517",
+      "url": "https://repo.maven.apache.org/maven2/org/json/json/20250517/json-20250517.jar",
+      "file": "json-20250517.jar",
+      "bytes": 82710,
+      "sha256": "3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796"
+    },
+    {
+      "coordinate": "junit:junit:4.13.2",
+      "url": "https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar",
+      "file": "junit-4.13.2.jar",
+      "bytes": 384581,
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3"
+    },
+    {
+      "coordinate": "org.hamcrest:hamcrest-core:1.3",
+      "url": "https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+      "file": "hamcrest-core-1.3.jar",
+      "bytes": 45024,
+      "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9"
+    }
+  ],
+  "files": [
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt",
+      "sha256": "2b34b4ec8bd3e9eb609526867ffcf5498c91c90527a072582ff74ffb7ea7ccc5"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt",
+      "sha256": "36b41ba1ae564def9e551d36d67d1afdddcc3ac55ea921a42ff3867e9ee77aed"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/nativebridge/NativeBoundaryFailure.kt",
+      "sha256": "1a893f28854596f08dcb3961d9af7b7659c0dfe14a5104d4f70b18fa61fdd565"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/nativebridge/NativeResultJson.kt",
+      "sha256": "ed52d65eb5e0ab845fbc4d98808cdbbe886b0014f21a43c75f7af8f3fd0ca909"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+      "sha256": "7982d4fc756003ed94945340c13e3755906283a203c2f8ab4e96287947d6c06b"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionEngineCompatibility.kt",
+      "sha256": "11faacff84751d6a0b7cb548fb03c973817633c6a5a1864ef1de3ab911159d2c"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt",
+      "sha256": "abc5f02994c3ee25c5306f4bd07490cf6595b40cdff303ab43abbf21908c8b88"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/operations/ProjectOperation.kt",
+      "sha256": "9d7870d4c2669630543ff4f0f191b7c790113ca897ed90f709434ddb03e8c2a6"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+      "sha256": "66f922e28b358fc2b24b3e01146d50d081c07fdadedda3b417214e162913fa87"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+      "sha256": "19ffc746d6de83fc050c5c737f1e78a9f25f41ae0529dd24d2597873abb24262"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/processing/resources/ResourceCheckpointPause.kt",
+      "sha256": "ff73001bafe13b67aae83814c29d2092fa2a9200a5c54b5d41a5fb49495861a3"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/reopening/PreviewSchemaValidator.kt",
+      "sha256": "b1cec2c363abed7a0c6b93fb61266229a982b27788f6c2c8bbb3361cdd608cfd"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/reopening/PreparedPreviewGeometry.kt",
+      "sha256": "12426c60859f7500f2e584c6d46a54869ac08ead358fd780cb522f1fe6767136"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/diagnostics/DiagnosticTypes.kt",
+      "sha256": "098b1bec240ad6999190f7f6797e241cce2d5f557f2a03343285cf031a6781e0"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/diagnostics/OperationalFailureMapper.kt",
+      "sha256": "38456d84935f45e4e537f677d496010a55ebebb1653881dd0b68d9759ee23b22"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/diagnostics/RuntimeDiagnosticRecorder.kt",
+      "sha256": "7cf0bbdb7619bdd07b1b1f720ec59a843fa3d7ec17f1bb51d1b10653fda28029"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/diagnostics/ScanEvidence.kt",
+      "sha256": "e0124624da2cdb42834a511e5f2dfaca1191b47287d79c5c76985b4b4513a77f"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/engine/diagnostics/StageProgress.kt",
+      "sha256": "ffafe4572a4ca10805e3d3571c87f4b2af405a0b35c15fe7b211b20dc2176d42"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/reopening/PreviewUiSummary.kt",
+      "sha256": "9d0c33e12daf9da8f0dfae47e8d1d3616f0bac823b517758cf3b1c30343ec253"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a010/DiagnosticsContractTest.kt",
+      "sha256": "1b73b15cc369894226d10e16658a9a2c226490abff7c61e52ab20affa5c366c7"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a010/RuntimeDiagnosticRecorderTest.kt",
+      "sha256": "3d904f41e4d0862a592ab25008b9d49754d912d1bb84bca20f81aab03b51c9e8"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a010/RuntimeDiagnosticReportTest.kt",
+      "sha256": "10d284e65ed0bcd5624b28d0005b680f76d782ce98523aeacfbbbe3a13fc7845"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt",
+      "sha256": "afdbc436d536f4c3eadd857c71d4086ad1474faaeee886aa104498a43294b740"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a024/PreviewSchemaValidatorTest.kt",
+      "sha256": "e28ed886549028ff6beed097a7618363894609f4f707d803ea2785e0ab7c2d35"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a024/PreparedPreviewGeometryTest.kt",
+      "sha256": "a64ab46293fb07952fcf1d8a395653076a94de8723c618b4722815432c34c132"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a024/PreviewUiSummaryTest.kt",
+      "sha256": "43d6a24c342cd59e2657d99ab76889cf989be3c6fba2ca1c8d45c147d6c6c528"
+    }
+  ],
+  "compiler_command": [
+    "java",
+    "-Xmx1024m",
+    "-cp",
+    "/dev/shm/scanner-jvm-checks/annotations-13.0.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/kotlin-compiler-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-daemon-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-reflect-1.6.10.jar:/dev/shm/scanner-jvm-checks/kotlin-script-runtime-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.8.0.jar:/dev/shm/scanner-jvm-checks/trove4j-1.0.20200330.jar",
+    "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+    "-no-stdlib",
+    "-no-reflect",
+    "-jvm-target",
+    "17",
+    "-classpath",
+    "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+    "-d",
+    "/tmp/scanner-jvm-core/classes",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/nativebridge/NativeBoundaryFailure.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/nativebridge/NativeResultJson.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionEngineCompatibility.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/operations/ProjectOperation.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/storagebudget/StorageBudget.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/processing/resources/ResourcePolicy.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/processing/resources/ResourceCheckpointPause.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/reopening/PreviewSchemaValidator.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/reopening/PreparedPreviewGeometry.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/diagnostics/DiagnosticTypes.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/diagnostics/OperationalFailureMapper.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/diagnostics/RuntimeDiagnosticRecorder.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/diagnostics/ScanEvidence.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/engine/diagnostics/StageProgress.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/reopening/PreviewUiSummary.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a010/DiagnosticsContractTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a010/RuntimeDiagnosticRecorderTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a010/RuntimeDiagnosticReportTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/engine/DepthCheckpointIdentityTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a024/PreviewSchemaValidatorTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a024/PreparedPreviewGeometryTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a024/PreviewUiSummaryTest.kt"
+  ],
+  "runtime_classpath": "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+  "test_classes": [
+    "com.realityforge.scanner.agents.a010.DiagnosticsContractTest",
+    "com.realityforge.scanner.agents.a010.RuntimeDiagnosticRecorderTest",
+    "com.realityforge.scanner.agents.a010.RuntimeDiagnosticReportTest",
+    "com.realityforge.scanner.engine.DepthCheckpointIdentityTest",
+    "com.realityforge.scanner.agents.a024.PreviewSchemaValidatorTest",
+    "com.realityforge.scanner.agents.a024.PreparedPreviewGeometryTest",
+    "com.realityforge.scanner.agents.a024.PreviewUiSummaryTest"
+  ]
+}

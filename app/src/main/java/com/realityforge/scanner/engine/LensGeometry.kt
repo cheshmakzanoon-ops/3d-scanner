@@ -39,9 +39,9 @@ data class LensProfile(
         }
         return LensProjection(
             fx * width / this.width, fy * height / this.height,
-            cx * width / this.width, cy * height / this.height,
+            (cx + .5) * width / this.width - .5, (cy + .5) * height / this.height - .5,
             k1, k2, p1, p2, k3,
-        )
+        ).also { it.validateDomain(width, height) }
     }
 }
 
@@ -78,13 +78,14 @@ data class LensProjection(
             val slope = k1 + 2*k2*r2 + 3*k3*r2*r2
             val dx = x*radial + 2*p1*x*y + p2*(r2 + 2*x*x) - targetX
             val dy = y*radial + p1*(r2 + 2*y*y) + 2*p2*x*y - targetY
-            if (hypot(dx, dy) < 1e-12) return x to y
+
             val a = radial + 2*x*x*slope + 2*p1*y + 6*p2*x
             val b = 2*x*y*slope + 2*p1*x + 2*p2*y
             val c = b
             val d = radial + 2*y*y*slope + 6*p1*y + 2*p2*x
             val det = a*d - b*c
-            require(det.isFinite() && abs(det) > 1e-9) { "Unstable lens inverse; recalibrate this lens" }
+            require(det.isFinite() && det > 1e-9 && a > 0 && d > 0) { "Unstable lens inverse; recalibrate this lens" }
+            if (hypot(dx, dy) < 1e-12) return x to y
             val stepX = (d*dx-b*dy)/det
             val stepY = (-c*dx+a*dy)/det
             val step = hypot(stepX,stepY)
@@ -97,7 +98,23 @@ data class LensProjection(
         return x to y
     }
 
+    /** Verify inverse existence and local orientation throughout the delivered image domain.
+     * Samples include every boundary; callers still validate each individual ray at use time.
+     */
+    fun validateDomain(width: Int, height: Int) {
+        require(width > 0 && height > 0)
+        for (row in 0..16) for (column in 0..16) {
+            val px = column * (width - 1.0) / 16
+            val py = row * (height - 1.0) / 16
+            val (x,y) = normalized(px,py)
+            val (u,v) = distort(x,y)
+            require(hypot(u*fx+cx-px,v*fy+cy-py) < 1e-5) { "Lens inverse misses image domain" }
+        }
+    }
+
     companion object {
+        const val COORDINATE_CONVENTION = "rf-xright-ydown-zforward-w2c-pixel-centres-v2"
+
         fun estimated(width: Int, height: Int, focalPixels: Double) =
             LensProjection(focalPixels, focalPixels, (width-1)/2.0, (height-1)/2.0)
     }

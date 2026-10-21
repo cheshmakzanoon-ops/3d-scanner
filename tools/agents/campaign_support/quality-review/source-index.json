@@ -1,0 +1,37 @@
+{
+  "scope": "Existing independent review/old draft construction scripts; historical source and absolute paths preserved; not executed after development stop",
+  "files": [
+    {
+      "source_path": "/tmp/quality-review/prepare-final-validation-draft.py",
+      "archive_path": "tools/agents/campaign_support/quality-review/prepare-final-validation-draft.py.json",
+      "sha256": "59c370d388611132b0efc20cf8f26554a268e6721fddafb980a0d5a3bb01d9a4",
+      "bytes": 26552,
+      "encoding": "JSON content field contains exact original UTF-8 source",
+      "archive_file_sha256": "ba39212b626874d189a55fddac12746ea8013031a8fb7d498affded3e988af28"
+    },
+    {
+      "source_path": "/tmp/quality-review/reproduce.py",
+      "archive_path": "tools/agents/campaign_support/quality-review/reproduce.py",
+      "sha256": "f2121abd9dcd6086d87c6a4d2abcd37c3cec68dedafab7866a51ec0dba6a4634",
+      "bytes": 4845
+    },
+    {
+      "source_path": "/tmp/quality-review/recheck100.py",
+      "archive_path": "tools/agents/campaign_support/quality-review/recheck100.py",
+      "sha256": "edee76d8576f8bed64d1797a578b6c03234485a82a8427bfda40fc52153a4464",
+      "bytes": 7709
+    },
+    {
+      "source_path": "/tmp/quality-review/recheck100-1b.py",
+      "archive_path": "tools/agents/campaign_support/quality-review/recheck100-1b.py",
+      "sha256": "02377d21d6c37e5c44d7d4dc7012f7190197f946d86b05d9588f61abf4e4cf57",
+      "bytes": 9049
+    },
+    {
+      "source_path": "/tmp/quality-review/recheck100-69.py",
+      "archive_path": "tools/agents/campaign_support/quality-review/recheck100-69.py",
+      "sha256": "67631a2c489a78bd0c337c573329a0b56f3e64e56c37555c3360a4dac8dea70a",
+      "bytes": 9057
+    }
+  ]
+}

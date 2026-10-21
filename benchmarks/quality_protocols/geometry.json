@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "frozen_before_measurement": true,
+  "registration_fraction_min": 0.95,
+  "accuracy_p95_bbox_diagonal_max": 0.01,
+  "observable_completeness_min": 0.95,
+  "completeness_tolerance_bbox_diagonal": 0.01,
+  "duplicate_triangles_max": 0,
+  "nonmanifold_edges_max": 0,
+  "self_intersection_pairs_max": 0,
+  "self_intersection_face_budget": 5000,
+  "synthetic_fixture_qualifies_physical": false,
+  "reference_visibility": "independent immutable sample array or reference-face mask fixed before evaluation",
+  "gauge": "explicit corresponding landmarks; posthoc proper Sim(3); never fed to engine",
+  "physical_required": "two authorized matte textured 360-degree objects plus thin/flat/adverse and held-out corpus, 12/30/100/250-photo workloads"
+}

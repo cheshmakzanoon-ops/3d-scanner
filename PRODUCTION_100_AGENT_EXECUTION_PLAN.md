@@ -10,6 +10,25 @@
 
 **Plan status at publication:** the audit and instructions are complete; the implementation assignments below are pending. Publishing this document does not implement the remaining product or launch 100 workers.
 
+**Integration amendment, 20 October 2026:** Agent088 may replace its reserved
+`qa/FaultDocumentProvider.kt` with the adjacent `qa/FaultDocumentProvider.java`,
+preserving the same test-only class, authority and fixture API. Actual standalone
+provider execution exposed missing Kotlin runtime classes in the separate test-APK
+process. The Java implementation uses platform APIs without that dependency;
+this language migration does not transfer ownership of another component.
+
+Agent004 also owns the generated `app/gradle.lockfile` that applies095's approved
+resolution to the module. Its follow-up lands091's verified release convention,
+keeps debug instrumentation as the default and selects release instrumentation
+through the validated `realityForgeTestBuildType` property. Both actual variant
+graphs must be resolved and verified before accepting the combined module lock.
+
+Agent095 owns the corresponding debug-only notice assets under
+`app/src/debug/assets/third-party-notices/`. Actual resolution found six debug-only
+runtime coordinates beyond the123-module release graph. Keep the129-module debug
+inventory and its full notice texts specific to that variant; the release assets
+and release inventory remain separate.
+
 ## Start here: “You are Agent X”
 
 If the user tells you **“You are Agent X; do what the repository tells you and do not stop until success”**, that is an instruction to execute this guide, not to write another plan.
@@ -726,6 +745,7 @@ The common working agreement and definition of success above apply to every role
 **Reserved new files/packages:**
 
 - `gradle/wrapper/gradle-wrapper.jar`
+- `app/gradle.lockfile`
 - `cmake/`
 - `build-logic/`
 
@@ -4884,6 +4904,7 @@ The common working agreement and definition of success above apply to every role
 - `tools/device/failure_recovery/`
 - `app/src/androidTest/java/com/realityforge/scanner/qa/RecoveryStageContractTest.kt`
 - `app/src/androidTest/java/com/realityforge/scanner/qa/FaultDocumentProvider.kt`
+- `app/src/androidTest/java/com/realityforge/scanner/qa/FaultDocumentProvider.java`
 - `tests/test_recovery_controller.py`
 - `app/src/androidTest/AndroidManifest.xml`
 
@@ -5246,6 +5267,7 @@ The common working agreement and definition of success above apply to every role
 - `gradle/dependency-locks/`
 - `tools/requirements.lock`
 - `app/src/main/assets/third-party-notices/`
+- `app/src/debug/assets/third-party-notices/`
 - `tests/test_dependency_inventory.py`
 
 **Implementation instructions:**

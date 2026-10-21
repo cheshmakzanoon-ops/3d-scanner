@@ -1,0 +1,112 @@
+{
+  "upstream_tag": "v1.56.0",
+  "github_tree_sha": "003e5005713cba55cbd3f3a423c472000b96b868",
+  "scope": "Source notice provenance only; not a resolved dependency inventory or binary composition attestation",
+  "files": [
+    {
+      "file": "upstream/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/LICENSE",
+      "sha256": "02d70b593dd8e9355dd8e1ca8d13c303bee5bcaf3065b66ff6e4f534e1e6a2c1",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/basisu/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/basisu/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/basisu/REUSE-dep5.txt",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/basisu/.reuse/dep5",
+      "sha256": "523087b2f2e184de4fd238a979f9c1321e35f028e0529cbdd95ab78be3405032",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/basisu/zstd/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/basisu/zstd/LICENSE",
+      "sha256": "2c1a7fa704df8f3a606f6fc010b8b5aaebf403f3aeec339a12048f1ba7331a0b",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/cgltf/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/cgltf/LICENSE",
+      "sha256": "f619925f80ef862497aaf8e8155ef218fa6a2190055129523ca3df9119a9ba95",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/draco/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/draco/LICENSE",
+      "sha256": "d3709b0fb4b8a94bbb1d02b8a2e484f258b0d9c5c5a01f940391f3fe662cd1a4",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/draco/AUTHORS",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/draco/AUTHORS",
+      "sha256": "7399754545fa82fbf402e3e91d50de0b63772870fd807c48dd9af25c042efb10",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/meshoptimizer/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/meshoptimizer/LICENSE",
+      "sha256": "063805e3b8e24ceab4c5dea358b03245ee41c31be87cf65c61d836636cb494bb",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/robin-map/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/robin-map/LICENSE",
+      "sha256": "ee5db94aaa0398f12870270ef815d0efc64818caf68f06535d5754d2c4f99120",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/stb/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/stb/LICENSE",
+      "sha256": "296bf9398cd1c82620d19cd623db6b880e31a266df7183141d49e486fc30c8da",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/smol-v/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/smol-v/LICENSE",
+      "sha256": "9cea538cc1ee6680f4d13e212bfef5b581cd5d873cbedf6dc07699dbe7e69651",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/vkmemalloc/LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/vkmemalloc/LICENSE.txt",
+      "sha256": "cdb520614db3ec62e667ece01e64e6afa21948fa51e85e748b1494597a7be907",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/third_party/spirv-headers/LICENSE",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/spirv-headers/LICENSE",
+      "sha256": "9b243f6f0bf44e295ff411a0f7b7642d1d0dff7cdc42507e9f7206f439e51b5a",
+      "transformation": "none"
+    },
+    {
+      "file": "upstream/filament/src/materials/fsr/license.txt",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/filament/src/materials/fsr/license.txt",
+      "sha256": "db089274ce766da70f5b7d791029c3486f9f9e27c8c79c652689603d3192e802",
+      "transformation": "none"
+    },
+    {
+      "file": "MikkTSpace-COPYRIGHT.txt",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/mikktspace/src/mikktspace.c",
+      "source_sha256": "4d2538c27d28fd9404f93d172434d14758665d4d6619d36bee9bb2a49fb1411c",
+      "sha256": "9a3664f63138b7efe62f58b589c20cac2517f92e8e6e21b9901de483896a7247",
+      "transformation": "exact first 22 lines (copyright/license header)"
+    },
+    {
+      "file": "BasisUniversal-COPYRIGHT.txt",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/third_party/basisu/transcoder/basisu_transcoder.cpp",
+      "source_sha256": "672bbf5b43fa04c61b676ab77420efb7bf4a89c33837d53daf8f64a05fcf1383",
+      "sha256": "42919630682e9fe394ec8452b8412aa7e6f21e04f5b24b757c6f8e770f5e459b",
+      "transformation": "exact first 14 lines (copyright/license header)"
+    },
+    {
+      "file": "VulkanHeaders-COPYRIGHT.txt",
+      "source": "https://raw.githubusercontent.com/google/filament/v1.56.0/libs/bluevk/include/vulkan/vulkan_core.h",
+      "source_sha256": "b4082dd1c5b7deab6520f8c662ed9bb7ea5e3cccde534f1a5ea15fa3e6b5ad31",
+      "sha256": "64713d4418b83a2b9a479aa305961bfdc08be8402ecaf9fd65010c1c1bc11c3b",
+      "transformation": "exact first 8 lines (copyright/license header)"
+    }
+  ]
+}
