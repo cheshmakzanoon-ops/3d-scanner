@@ -38,6 +38,8 @@ class SessionReliabilityTest {
         .digest(file.readBytes()).joinToString("") { "%02x".format(it) }
 
     @Test fun syntheticPhotographsCompleteTheActualImportReconstructReopenExportPath() = runBlocking {
+        val diagnostic = DiagnosticDeadlineContinuation.parse(
+            InstrumentationRegistry.getArguments().getString(DiagnosticDeadlineContinuation.ARGUMENT))
         val app = instrumentation.targetContext.applicationContext as RealityForgeApplication
         val repository = app.repository
         val id = repository.create("Synthetic complete session ${UUID.randomUUID()}")
@@ -67,7 +69,8 @@ class SessionReliabilityTest {
                     model.select(id)
                     model.reconstruct(32.88)
                 }
-                awaitIdle(model,180000)
+                diagnostic.run(initialWait = { awaitIdle(model,180000) },
+                    continuedWait = { limit -> awaitIdle(model,limit) }, functionalChecks = {
                 val result = requireNotNull(model.preview.value) { "Full pipeline failed: ${model.notice.value}" }
                 assertTrue(result.toString().take(500), result.getInt("pointCount") >= 30)
                 val texture = result.optJSONObject("texturePreview")
@@ -115,6 +118,10 @@ class SessionReliabilityTest {
                 val signature = android.os.ParcelFileDescriptor.AutoCloseInputStream(verify).use { it.readBytes() }
                 assertArrayEquals("Emulator screenshot capture failed",
                     byteArrayOf(137.toByte(),80,78,71,13,10,26,10), signature)
+                }, event = { marker ->
+                    android.util.Log.i("RealityForgeSessionDiagnostic",
+                        "$marker schema=1 rfDiagnosticContinuation=true normalWaitMillis=180000 additionalWaitMillis=600000 originalDeadlineRemainsFailure=true")
+                })
             }
         } catch (failure: Throwable) {
             primaryFailure = failure
@@ -254,6 +261,7 @@ class SessionReliabilityTest {
         val latest = execution.progress.value?.progress
         val feature = latest?.featureWork
         val pair = latest?.pairWork
-        assertFalse("Operation exceeded test deadline: ${model.progress.value}; featureWork=$feature; pairWork=$pair",model.busy.value)
+        if (model.busy.value) throw OperationDeadlineExceeded(maxMillis,
+            "Operation exceeded test deadline: ${model.progress.value}; featureWork=$feature; pairWork=$pair")
     }
 }
