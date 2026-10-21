@@ -508,3 +508,36 @@ being implemented to collect bounded functional-completion evidence after a type
 deadline miss. The ordinary180-second gate must remain FAIL even if diagnostic
 continuation finishes; default behavior, application deadlines and CI acceptance
 are unchanged. No such diagnostic has executed at this checkpoint.
+
+### Test-only functional continuation candidate (10:17 UTC)
+
+Following the endpoint candidate's actual180-second deadline failure, a test-only
+opt-in diagnostic is under validation. `rfDiagnosticContinuation` defaults off;
+only the exact strings `true` and `false` are accepted. Only a typed failure from
+the initial180-second reconstruction wait can trigger an additional600-second
+wait. This780-second reconstruction-wait budget does not include imports,
+functional assertions or cleanup, which retain their existing behavior and bounds.
+No production timeout, feature budget or normal CI acceptance gate changes.
+
+The original deadline assertion remains the final JUnit failure even if every
+existing geometry, repository reopen, SAF byte-hash, original-preservation and
+GPU/screenshot assertion subsequently completes. A distinct diagnostic completion
+marker is emitted only after those assertions. Later failure or cancellation is
+suppressed onto the original deadline; owned-worker cancel/join and leased cleanup
+remain in place. A marker is not a passing180-second session or physical-quality
+evidence. Exact source, APK hashes and explicit argument must accompany any run.
+
+The pure Kotlin helper passes12 host JUnit tests, including default-off, strict
+parsing, typed-deadline selection, original-failure identity and secondary-error
+preservation. Seven Python diagnostic/pair contracts pass. Actual Gradle compile,
+Android helper execution and any diagnostic continuation outcome are pending.
+
+The corrected suspend-capable diagnostic helper now passes12 direct host JVM
+regressions (including real suspension and close-failure suppression) and7 Python
+contracts. Actual AndroidTest compilation and the full debug validation command
+succeed, with zero lint Error/Fatal issues; unchanged application JVM results are
+reused rather than described as newly executed tests. Diagnostic execution and its
+new coherent APK-pair checks remain pending. The paused-emulator/1GiB-build
+experiment did not preserve the guest: its process was killed, with cause not
+proven from available memory data. Builds and live guests are separated again;
+this experiment is not a memory-safety success.
