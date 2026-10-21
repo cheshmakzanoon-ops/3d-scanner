@@ -951,3 +951,19 @@ or assertion changes; diagnostic contents are not published.
 No Android runtime/full scan or physical quality qualification is implied. See
 [separate red/green evidence](../../reports/cloud-sift-observer-primary.json). The
 previously delivered engineering APK predates this correction.
+
+### Current engineering APK includes SIFT changes (15:22 UTC)
+
+Normal optimized APK frome67e65e8 includes the shared SIFT boundary and observer
+error-preservation correction. QA retention remains OFF and signing remains test
+only. Build2m31s and signature/offline/backup/16KB ZIP/all16ELF checks pass. APK
+SHA256 `5ea0eb4053e4d59dcafa87c14b6ca1cfb86d33e048a8452f1249caab30cca572`
+(106,220,465 bytes). Root independently verified DEX content differs from prior
+a1806643, beyond signing/ZIP metadata changes.
+
+Verified three-part ZIP and cross-platform instructions were delivered privately,
+superseding the previous engineering download. Same package/version19/test cert;
+installation/data preservation remain untested. Do not uninstall/delete scans.
+No Android scan-to-export or physical quality qualification is implied. See
+[APK evidence](../../reports/cloud-sift-engineering-apk.json) and
+[assembly instructions](ENGINEERING_APK_E67E65E8.md).
