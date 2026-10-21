@@ -165,6 +165,75 @@ class ProviderImportDeviceTest {
         }
     }
 
+    @Test fun reimportDoesNotCallDamagedOriginalADuplicateOrSilentlyRepairIt() = runBlocking {
+        for (damage in listOf("missing", "missing-directory", "same-size-corrupt")) withFixture { _, database, repository, _ ->
+            val project = repository.create("Damaged duplicate: $damage")
+            val source = providerUri("pattern-png")
+            repository.importBatch(ImportRequest(UUID.randomUUID().toString(), project, 0, listOf(ImportSource(source.toString()))))
+            val row = database.dao().photos(project).single()
+            val original = repository.photoFile(row)
+            if (damage.startsWith("missing")) { check(original.delete()); if (damage == "missing-directory") check(original.parentFile!!.delete()) }
+            else original.writeBytes(ByteArray(row.bytes.toInt()))
+            val result = repository.importBatch(ImportRequest(UUID.randomUUID().toString(), project, 1,
+                listOf(ImportSource(source.toString()), ImportSource(source.toString()))))
+            assertEquals(1, result.integrityFailureCount); assertEquals(0, result.duplicateCount)
+            assertEquals(0, result.importedCount); assertEquals(0, result.pendingCount); assertEquals(1, result.rejectedCount)
+            assertEquals(1L, database.dao().project(project)?.revision); assertEquals(listOf(row), database.dao().photos(project))
+            if (damage.startsWith("missing")) assertFalse(original.exists()) else assertArrayEquals(ByteArray(row.bytes.toInt()), original.readBytes())
+            if (damage == "missing-directory") assertFalse(original.parentFile!!.exists())
+            assertFalse(repository.directory(project).listFiles().orEmpty().any { it.name.endsWith(".journal") })
+        }
+    }
+
+    @Test fun catchPathDuplicateAlsoVerifiesExistingOriginalWithoutOverwrite() = runBlocking {
+        withFixture { context, database, baseRepository, _ ->
+            val project = baseRepository.create("Catch-path duplicate")
+            val source = providerUri("pattern-png")
+            baseRepository.importBatch(ImportRequest(UUID.randomUUID().toString(), project, 0, listOf(ImportSource(source.toString()))))
+            val actual = database.dao()
+            val existing = actual.photos(project).single()
+            val original = baseRepository.photoFile(existing)
+            original.writeBytes(ByteArray(existing.bytes.toInt()))
+            val hideInitialLookup = AtomicBoolean(true)
+            val injected = object : ScanDao by actual {
+                override suspend fun photoByHash(projectId: String, sha256: String): ScanPhoto? =
+                    if (hideInitialLookup.getAndSet(false)) null else actual.photoByHash(projectId, sha256)
+                override suspend fun addPhotoExpected(photo: ScanPhoto, expectedRevision: Long): Long =
+                    throw IOException("Injected conflicting publication")
+            }
+            val repository = ProjectRepository(context, injected, database = database)
+            val result = repository.importBatch(ImportRequest(UUID.randomUUID().toString(), project, 1, listOf(ImportSource(source.toString()))))
+            assertEquals(1, result.integrityFailureCount); assertEquals(0, result.importedCount); assertEquals(0, result.duplicateCount)
+            assertEquals(1L, actual.project(project)?.revision); assertEquals(listOf(existing), actual.photos(project))
+            assertArrayEquals(ByteArray(existing.bytes.toInt()), original.readBytes())
+            assertEquals(listOf(original.name), original.parentFile!!.listFiles().orEmpty().map { it.name })
+        }
+    }
+
+    @Test fun lostCommitReplyWithDamagedDestinationRetainsReceiptAndDoesNotClaimImported() = runBlocking {
+        for (damage in listOf("missing", "same-size-corrupt")) withFixture { context, database, baseRepository, _ ->
+            val actual = database.dao()
+            val injected = object : ScanDao by actual {
+                override suspend fun addPhotoExpected(photo: ScanPhoto, expectedRevision: Long): Long {
+                    actual.addPhotoExpected(photo, expectedRevision)
+                    val original = baseRepository.photoFile(photo)
+                    if (damage == "missing") check(original.delete()) else original.writeBytes(ByteArray(photo.bytes.toInt()))
+                    throw IOException("Lost commit reply with damaged original")
+                }
+            }
+            val repository = ProjectRepository(context, injected, database = database)
+            val project = repository.create("Lost reply: $damage")
+            val result = repository.importBatch(ImportRequest(UUID.randomUUID().toString(), project, 0,
+                listOf(ImportSource(providerUri("pattern-png").toString()))))
+            assertEquals(0, result.importedCount); assertEquals(1, result.pendingCount)
+            assertEquals(1L, actual.project(project)?.revision)
+            assertTrue(repository.directory(project).listFiles().orEmpty().any { it.name.endsWith(".journal") })
+            assertFalse(repository.recoverProjectStorage(project))
+            assertEquals("RECOVERY_REQUIRED", actual.project(project)?.state)
+            assertTrue(repository.directory(project).listFiles().orEmpty().any { it.name.endsWith(".journal") })
+        }
+    }
+
     private suspend fun withFixture(block: suspend (Context, ScanDatabase, ProjectRepository, String) -> Unit) {
         val base = InstrumentationRegistry.getInstrumentation().targetContext
         val root = File(base.cacheDir, "a011-import-${UUID.randomUUID()}").apply { check(mkdir()) }

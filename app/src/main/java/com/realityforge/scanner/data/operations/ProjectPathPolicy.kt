@@ -41,11 +41,11 @@ class ProjectPathPolicy(rootDirectory: File) {
         return candidate
     }
 
-    fun photoFile(photo: ScanPhoto): File {
+    fun photoFile(photo: ScanPhoto, createDirectories: Boolean = true): File {
         requireCanonicalUuid(photo.id, "photo identifier")
         requireCanonicalUuid(photo.projectId, "project identifier")
         require(photo.filename == "${photo.id}.image") { "Invalid original photograph filename." }
-        return ownedChild(originalsDirectory(photo.projectId), photo.filename)
+        return ownedChild(originalsDirectory(photo.projectId, createDirectories), photo.filename)
     }
 
     fun newOriginalFiles(projectId: String, photoId: String): Pair<File, File> {

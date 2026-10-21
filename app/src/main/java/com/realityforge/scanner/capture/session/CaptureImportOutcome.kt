@@ -9,6 +9,7 @@ internal fun ImportPublicationResult.toCaptureCommitOutcome(expectedRevision: Lo
         else CaptureCommitOutcome.Uncertain("Capture publication revision could not be verified; reopen the project.")
     is ImportPublicationResult.Duplicate -> if (revision == expectedRevision) CaptureCommitOutcome.Duplicate(revision)
         else CaptureCommitOutcome.Uncertain("Duplicate publication revision changed; reopen the project.")
+    is ImportPublicationResult.OriginalIntegrityFailure -> CaptureCommitOutcome.Uncertain(message)
     is ImportPublicationResult.PendingRecovery -> CaptureCommitOutcome.Uncertain(message)
     is ImportPublicationResult.Rejected -> CaptureCommitOutcome.Rejected(message)
 }

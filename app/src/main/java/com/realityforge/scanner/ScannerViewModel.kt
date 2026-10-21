@@ -618,13 +618,15 @@ class ScannerViewModel(
                 clearVisiblePreview(request.project.projectId)
                 publishMessage(
                     "import.completed",
-                    "$imported imported; $duplicates duplicates; $rejected rejected; ${result.pendingCount} awaiting recovery." +
-                        if (result.pendingCount > 0) " Reopen this project to reconcile the pending photograph before importing again."
+                    "$imported imported; $duplicates duplicates; $rejected rejected; ${result.pendingCount} awaiting recovery; ${result.integrityFailureCount} original integrity failures." +
+                        if (result.integrityFailureCount > 0) " An existing saved original needs repair. Keep your source photographs. No automatic repair was performed; you can import known-good originals into a new project."
+                        else if (result.pendingCount > 0) " Reopen this project to reconcile the pending photograph before importing again."
                         else if (rejected > 0) " $lastError" else "",
                     mapOf(
                         "imported" to imported.toString(),
                         "duplicates" to duplicates.toString(),
                         "rejected" to rejected.toString(),
+                        "integrityFailures" to result.integrityFailureCount.toString(),
                     ),
                 )
             } catch (_: CancellationException) {

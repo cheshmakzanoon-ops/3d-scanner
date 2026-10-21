@@ -113,6 +113,7 @@ class ImportService(
                         }
                         is ImportPublicationResult.Rejected -> Unit
                         is ImportPublicationResult.PendingRecovery -> Unit
+                        is ImportPublicationResult.OriginalIntegrityFailure -> Unit
                     }
                     result
                 } catch (cancelled: CancellationException) {
@@ -131,13 +132,16 @@ class ImportService(
                     temporary.delete()
                 }
                 outcomes += ImportPhotoResult(index, source.uri, outcome)
-                if (outcome is ImportPublicationResult.PendingRecovery) {
-                    // The current revision is uncertain. Do not open another source, assume a
-                    // commit, or retry a publication until its durable journal has been resolved.
+                if (outcome is ImportPublicationResult.PendingRecovery || outcome is ImportPublicationResult.OriginalIntegrityFailure) {
+                    // Stop at either journal-backed uncertainty or a known damaged existing original.
+                    // Never open remaining sources or imply they succeeded. Integrity failures need
+                    // explicit repair/new-project import, not merely journal recovery or reopening.
                     for (remaining in index + 1 until sources.size) {
                         outcomes += ImportPhotoResult(remaining, sources[remaining].uri,
-                            ImportPublicationResult.Rejected("BATCH_PAUSED_FOR_RECOVERY",
-                                "Not attempted: an earlier photograph needs recovery. Resolve it, then select the remaining photographs again.",
+                            ImportPublicationResult.Rejected(if (outcome is ImportPublicationResult.OriginalIntegrityFailure) "BATCH_PAUSED_FOR_INTEGRITY" else "BATCH_PAUSED_FOR_RECOVERY",
+                                if (outcome is ImportPublicationResult.OriginalIntegrityFailure)
+                                    "Not attempted: an existing saved original needs repair. Keep your source photographs; no automatic repair was performed."
+                                else "Not attempted: an earlier photograph needs recovery. Resolve it, then select the remaining photographs again.",
                                 revision))
                     }
                     break
