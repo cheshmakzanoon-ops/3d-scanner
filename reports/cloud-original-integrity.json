@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T12:00:13Z",
+  "base_commit": "54376315ef9d6b6a828aa4c1d697f2fcf54afb0e",
+  "source_sha256": {
+    "app/src/androidTest/java/com/realityforge/scanner/agents/a011/ProviderImportDeviceTest.kt": "fa7cbf0228253a50183f12179514f5e78a3d6208a45d69af19530fc6b9263cf8",
+    "app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt": "45932c307e52d91402711dabf6981254f49000be3b25e8971433b292e2d94480",
+    "app/src/main/java/com/realityforge/scanner/capture/session/CaptureImportOutcome.kt": "56f6d48ed943b29427a2efc16623a0614ed1c58affa987c2143910ef43b791ed",
+    "app/src/main/java/com/realityforge/scanner/data/importing/ImportContracts.kt": "67554af0fd320da49baa0525cbcfd0152733fa5d9b8127dc63b209b687c9dfcf",
+    "app/src/main/java/com/realityforge/scanner/data/importing/ImportService.kt": "728a2dd986f8055855c7aedfd206fceb8bff257cdfa0bae3843c8d9792f95ef6",
+    "app/src/main/java/com/realityforge/scanner/data/operations/ProjectPathPolicy.kt": "63e921c9f1737a3496bf65b510bcc75bff6af2e7ca99b3f837bedf8d8850ffc9",
+    "app/src/main/java/com/realityforge/scanner/data/publication/JournaledOriginalPublicationPort.kt": "1a90568a50a7bb8674e5a9b154ecec2d10abfbb562ebb8e1ddc4778db2ff1594",
+    "app/src/main/java/com/realityforge/scanner/data/publication/OriginalFileIntegrity.kt": "9867efb6344e0f289795624dd828df895d3804112bfa76d016ff487c5c0f34fa",
+    "app/src/test/java/com/realityforge/scanner/agents/a011/ImportServiceTest.kt": "bcc3c0c335633657c436a2bdc8def40042149b7a863e05b02e8abcc0ea9918bc",
+    "app/src/test/java/com/realityforge/scanner/data/publication/OriginalFileIntegrityTest.kt": "7ac4d8926b6b0874efc60adf7f4ac027332c84c1cbfe30606f82b42b208b52e2"
+  },
+  "behavior": [
+    "Both database duplicate paths verify bounded owned regular original bytes and SHA256",
+    "Failed original validation returns distinct OriginalIntegrityFailure, not false duplicate or fabricated journal recovery",
+    "No repair, overwrite, directory creation or original deletion on failed duplicate verification",
+    "Integrity failure stops remaining source opens, counts separately, preserves capture source and blocks its session",
+    "Lost-commit-reply success verifies destination before removing genuine journal; failed verification retains journal and reports PendingRecovery"
+  ],
+  "validation": {
+    "focused_actual_gradle_jvm": 14,
+    "full_actual_gradle_jvm": 722,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "android_test_compile": "PASS including provider fault injections",
+    "lint_severities": {
+      "Warning": 92,
+      "Hint": 3
+    },
+    "independent_standalone_host_tests": 14
+  },
+  "runtime": {
+    "provider_fault_device_tests": "NOT_RUN",
+    "new_apk": "NOT_RUN"
+  },
+  "limits": [
+    "No automatic in-place original repair is implemented or promised",
+    "Known-good external originals may be imported into a new project; incoming capture cache remains subject to eviction and existing pruning",
+    "Host verifier tests do not execute the Room publication adapter; provider fixtures compiled but have not run",
+    "No physical quality, full-session, API35 or production-signing gate is closed by this increment"
+  ]
+}

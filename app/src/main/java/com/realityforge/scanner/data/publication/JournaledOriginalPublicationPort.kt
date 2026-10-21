@@ -32,7 +32,7 @@ class JournaledOriginalPublicationPort(
         if (project.revision != staged.expectedRevision) return@withContext ImportPublicationResult.Rejected(
             "REVISION_CHANGED", "The capture project changed; review the input selection.", project.revision)
         dao.photoByHash(staged.projectId, staged.sha256)?.let {
-            return@withContext ImportPublicationResult.Duplicate(it.id, project.revision)
+            return@withContext duplicateOrIntegrityFailure(it, project.revision)
         }
         if (project.state in setOf("DELETING", "DELETING_PHOTO")) return@withContext ImportPublicationResult.Rejected(
             "PROJECT_DELETING", "Project deletion is pending.", project.revision)
@@ -77,7 +77,8 @@ class JournaledOriginalPublicationPort(
                     val actual = dao.photoByHash(staged.projectId, photo.sha256)
                     val confirmedRevision = dao.project(staged.projectId)?.revision ?: staged.expectedRevision
                     if (actual?.id == photo.id) {
-                        check(actual.filename == photo.filename && actual.bytes == photo.bytes)
+                        check(actual.filename == photo.filename && actual.bytes == photo.bytes &&
+                            originalMatches(destination, photo.sha256, photo.bytes))
                         journal.delete()
                         ImportPublicationResult.Imported(photo.id, confirmedRevision)
                     } else {
@@ -86,7 +87,7 @@ class JournaledOriginalPublicationPort(
                             "Uncommitted original requires recovery."
                         }
                         check(!journal.exists() || journal.delete())
-                        if (actual != null) ImportPublicationResult.Duplicate(actual.id, confirmedRevision)
+                        if (actual != null) duplicateOrIntegrityFailure(actual, confirmedRevision)
                         else ImportPublicationResult.Rejected("PUBLICATION_ABORTED",
                             "The photograph was not committed. Its staged publication was rolled back; retry importing it.",
                             confirmedRevision)
@@ -160,6 +161,14 @@ class JournaledOriginalPublicationPort(
         }
     }
 
+    private fun duplicateOrIntegrityFailure(photo: ScanPhoto, revision: Long): ImportPublicationResult {
+        val verified = try { originalMatches(paths.photoFile(photo, createDirectories = false), photo.sha256, photo.bytes) }
+            catch (_: Exception) { false }
+        return if (verified) ImportPublicationResult.Duplicate(photo.id, revision)
+        else ImportPublicationResult.OriginalIntegrityFailure(photo.id,
+            "An existing saved original is missing, changed or unreadable and needs repair. Keep your source photographs; no automatic repair was performed. You can import known-good originals into a new project.", revision)
+    }
+
     private fun removeUncommittedOriginal(file: File, expectedHash: String, expectedBytes: Long): Boolean {
         if (!file.exists()) return true
         paths.requireOwnedFile(file)
@@ -168,20 +177,7 @@ class JournaledOriginalPublicationPort(
 
     private fun originalMatches(file: File, expectedHash: String, expectedBytes: Long): Boolean {
         paths.requireOwnedFile(file)
-        if (!java.nio.file.Files.isRegularFile(file.toPath(), java.nio.file.LinkOption.NOFOLLOW_LINKS) ||
-            expectedBytes !in 1..ImportBudgets().maxPhotoBytes || file.length() != expectedBytes) return false
-        val actual = file.inputStream().use { input ->
-            val digest = MessageDigest.getInstance("SHA-256"); val buffer = ByteArray(65536)
-            var observed = 0L
-            while (true) {
-                val count = input.read(buffer); if (count < 0) break
-                if (count <= 0 || count > expectedBytes - observed) return false
-                observed += count; digest.update(buffer, 0, count)
-            }
-            if (observed != expectedBytes) return false
-            hex(digest.digest())
-        }
-        return actual == expectedHash
+        return OriginalFileIntegrity.matches(file, expectedHash, expectedBytes, ImportBudgets().maxPhotoBytes)
     }
 
     private fun encode(photo: ScanPhoto, expectedRevision: Long) = JSONObject()

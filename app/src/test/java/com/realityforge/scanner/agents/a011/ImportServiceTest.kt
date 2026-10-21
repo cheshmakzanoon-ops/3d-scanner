@@ -181,6 +181,22 @@ class ImportServiceTest {
         assertEquals("original", retained.readText())
     }
 
+    @Test fun integrityFailureStopsBatchWithoutFalseSuccessOrOpeningRemainingSource() = runBlocking {
+        var opened = 0
+        val external = temporary.newFile().apply { writeText("known-good-source") }
+        val service = ImportService(ImportSourceAccess { opened++; external.inputStream() },
+            ImportInspector { _, _ -> info }, ImportPublicationPort { staged ->
+                ImportPublicationResult.OriginalIntegrityFailure("existing", "Existing original needs repair; no automatic repair.", staged.expectedRevision)
+            }, temporary.newFolder())
+        val result = service.import(ImportRequest(UUID.randomUUID().toString(), project, 7,
+            listOf(ImportSource("first"), ImportSource("must-not-open"))))
+        assertEquals(1, opened); assertEquals(7L, result.finalRevision)
+        assertEquals(0, result.importedCount); assertEquals(0, result.duplicateCount); assertEquals(0, result.pendingCount)
+        assertEquals(1, result.integrityFailureCount); assertEquals(1, result.rejectedCount)
+        assertEquals("BATCH_PAUSED_FOR_INTEGRITY", (result.photos.last().outcome as ImportPublicationResult.Rejected).code)
+        assertEquals("known-good-source", external.readText())
+    }
+
     private fun request(source: String) = ImportRequest(UUID.randomUUID().toString(), project, 0,
         listOf(ImportSource(source)))
     private fun sha(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes)

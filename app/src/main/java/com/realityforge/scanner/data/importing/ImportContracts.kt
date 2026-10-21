@@ -96,6 +96,9 @@ data class StagedImport(
 sealed interface ImportPublicationResult {
     data class Imported(val photoId: String, val committedRevision: Long) : ImportPublicationResult
     data class Duplicate(val photoId: String, val revision: Long) : ImportPublicationResult
+    /** Existing row is present but its original cannot be verified. No repair/publication occurred,
+     * and no journal-backed recovery ownership is implied. Keep the external source for repair. */
+    data class OriginalIntegrityFailure(val photoId: String, val message: String, val revision: Long) : ImportPublicationResult
     data class Rejected(val code: String, val message: String, val revision: Long) : ImportPublicationResult
     /** A durable journal owns these bytes, but publication could not be confirmed or rolled back.
      * [revision] is the last confirmed revision, not a claim about the current database state. */
@@ -135,6 +138,7 @@ data class ImportBatchResult(
     val importedCount: Int get() = photos.count { it.outcome is ImportPublicationResult.Imported }
     val duplicateCount: Int get() = photos.count { it.outcome is ImportPublicationResult.Duplicate }
     val rejectedCount: Int get() = photos.count { it.outcome is ImportPublicationResult.Rejected }
+    val integrityFailureCount: Int get() = photos.count { it.outcome is ImportPublicationResult.OriginalIntegrityFailure }
     val pendingCount: Int get() = photos.count { it.outcome is ImportPublicationResult.PendingRecovery }
 }
 

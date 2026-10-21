@@ -671,3 +671,21 @@ Before this increment, source `427167ff` also passed 1,067 broad Python tests,
 with three optional skips subsequently executed successfully (real JNI, Kotlin
 parser and software Vulkan dispatch). See [host evidence](../../reports/cloud-post-ui-host.json);
 that run is not mislabeled as execution of this later capture patch.
+
+### Fail-closed duplicate-original integrity (12:00 UTC)
+
+Both duplicate lookup paths now validate the owned existing original's regular-file
+status, bounded length and SHA-256. Missing/corrupt originals produce a separate
+integrity failure, not a false duplicate or fabricated journal-backed recovery.
+No original is overwritten/deleted or missing directory recreated. Remaining batch
+sources are not opened; capture sources are retained with the same cache limitations.
+Messaging explicitly says no automatic repair occurred and offers new-project
+import for known-good external originals, not a promise that reopening repairs it.
+
+The lost-commit-reply branch also verifies destination bytes before removing its
+receipt or returning success. Failed verification retains its genuine journal and
+reports pending recovery. Actual focused Gradle tests pass 14/14 and unrestricted
+JVM tests pass 722/722, with zero failures/errors/skips. Provider fault-injection
+Android tests compile; lint has zero Error/Fatal findings. Provider device tests
+remain NOT_RUN, and host verifier tests do not execute Room. See
+[the integrity report](../../reports/cloud-original-integrity.json).
