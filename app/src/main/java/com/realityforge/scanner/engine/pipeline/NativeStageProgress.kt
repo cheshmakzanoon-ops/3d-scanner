@@ -3,6 +3,8 @@ package com.realityforge.scanner.engine.pipeline
 import com.realityforge.scanner.engine.NativeCore
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
@@ -22,6 +24,7 @@ internal suspend fun <T> withNativeStageProgress(
     require(token > 0) { "Missing scoped native operation token" }
     ensureActive()
     val finished = AtomicBoolean(false)
+    val stageScope = this
     // UNDISPATCHED installs the cancellation finally before the synchronous JNI call can block.
     val reporter = launch(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {
         try {
@@ -37,7 +40,17 @@ internal suspend fun <T> withNativeStageProgress(
                 if (completed !in 0L..Int.MAX_VALUE.toLong() || total !in -1L..Int.MAX_VALUE.toLong() ||
                     (total >= 0 && completed > total)) continue
                 lastSequence = value[6]
-                onProgress(labels[stage], completed.toInt(), if (total < 0) 0 else total.toInt())
+                try {
+                    onProgress(labels[stage], completed.toInt(), if (total < 0) 0 else total.toInt())
+                    // Also observe callbacks that cancel their own reporter and then return.
+                    ensureActive()
+                } catch (cancelled: CancellationException) {
+                    // launch treats child cancellation as normal completion. A callback-originated
+                    // cancellation must cancel this stage, not permit publication of its result.
+                    // Once block() finishes, reporter unwind belongs to normal stage teardown.
+                    if (!finished.get() && stageScope.isActive) stageScope.cancel(cancelled)
+                    throw cancelled
+                }
             }
         } finally {
             if (!finished.get()) NativeCore.cancelReconstruction(token)

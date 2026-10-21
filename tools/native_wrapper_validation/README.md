@@ -1,6 +1,6 @@
 # Opt-in native wrapper validation (Linux host JVM)
 
-Runs **three new host-only tests** against current production Kotlin wrappers and explicitly supplied
+Runs **seven host-only wrapper tests** against current production Kotlin wrappers and explicitly supplied
 prebuilt JNI/native libraries. No Gradle, installation, download, native compilation, emulator, or
 production source change is performed. It does not execute `SparsePipeline.run` end to end.
 
@@ -63,7 +63,7 @@ an alternate engine basename. This is still not a fully hermetic dynamic-loader/
   work is joined before token release, preserving primary errors when cleanup also fails.
 
 The existing `FinalSparseExecutionDeviceTest.kt` is compiled solely to reuse its synthetic fixture;
-its five tests are NOT selected. Runner selects exactly the three `ProductionWrapperHostTest` tests.
+its five tests are NOT selected. Runner selects exactly the seven `ProductionWrapperHostTest` tests.
 Test-only barriers leave the wrapper scope open for its 100ms reporter. They do not measure native
 latency or prove interruption of an already-running kernel. Synthetic observations are not photos.
 
@@ -71,3 +71,12 @@ Excluded: Android NDK/Bionic/ART execution, Android org.json behavior, Room/repo
 decode/EXIF/color, Bitmap/Mat ownership, OpenCV/SIFT/matching, DensePreview, mesh/texture/export file
 flows, full pipeline persistence/reuse, UI/GPU, physical camera geometry and device resource quality.
 Use result labels that keep these host-only boundaries explicit.
+
+## Callback cancellation correctness
+Callback-originated CancellationException and reporter self-cancel-and-return cancel the owning stage
+before result publication, preserving the original cancellation object. A post-callback ensureActive
+observes self-cancellation. The existing finished flag is the teardown boundary: cancellation caught
+after block completion is reporter cleanup, not a new stage failure. Regressions also verify normal
+suspended-callback shutdown preserves successful results/lease reuse and actual JNI input failure
+remains primary when racing callback cancellation. These are lifecycle/correctness checks, not
+in-flight kernel interruption or performance measurements.

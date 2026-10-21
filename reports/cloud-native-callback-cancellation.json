@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T13:42:07.784656+00:00",
+  "base_commit": "e50ba0591ad990151c084002511a57f58d7610db",
+  "red_green": {
+    "schema": 1,
+    "status": "isolated red/green confirmed; shared repository unmodified",
+    "baseCommit": "e50ba0591ad990151c084002511a57f58d7610db",
+    "red": {
+      "compileExit": 0,
+      "runExit": 1,
+      "tests": 4,
+      "failures": 1,
+      "failure": "Expected identical callback CancellationException, received null after real native lease cancellation",
+      "sourceRecoveredAndReceiptHashVerified": true
+    },
+    "green": {
+      "compileExit": 0,
+      "runExit": 0,
+      "tests": 7,
+      "failures": 0,
+      "assertions": [
+        "callback CE exact identity/no publication",
+        "callback self-cancel-return exact identity/no publication",
+        "normal callback teardown success and reusable native lease",
+        "actual JNI primary failure identity survives callback cancellation race",
+        "existing3 real native wrapper tests"
+      ]
+    },
+    "hashes": {
+      "fix.patch": "88f8ecc9c3bfa03700b5248ccc098b60132567b35e05b031d2b1c68a1d700181",
+      "red-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "red-run.log": "fe496ec19b54e1dccadb7db37e71e294eb8b88b9626d0beb0bd4a87ffdfed4b3",
+      "green-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "green-run.log": "7da76e8db12762eb74ee136e0e482be42da358b9888805d766d5878f97241daf",
+      "red/compiled-inputs.json": "2d3e0fa9ef6a21f24dc18bd34332d04f16280f018bee4ff1d316aca13dc17702",
+      "green/compiled-inputs.json": "d4d305bd1ea54ec5b0c6765d200d43e3f625c33c0ce919ffdbcbc7ec39edc759",
+      "green/run-receipt.json": "df28dd9fdfd4727e98fe282030a645d87a96f01e30f44c7aca4932a90992ee0b",
+      "NativeStageProgress.baseline.kt": "45b1a1aeb1d53d544d6dffd65c6499988b7495d48be33189f4e82f169a626707",
+      "ProductionWrapperHostTest.red.kt": "383397d8dffc37f5b875bccdac4b032950d984eba87e683279e55050b57278d5"
+    },
+    "limits": [
+      "host synthetic fixture only",
+      "native lease cancellation on subsequent call, not active-kernel interruption",
+      "finished flag defines teardown boundary",
+      "no Android/decoder/OpenCV/full-pipeline evidence"
+    ]
+  },
+  "shared_execution": {
+    "schema": 1,
+    "status": "shared-source portable host wrapper validation passed",
+    "baseCommit": "e50ba0591ad990151c084002511a57f58d7610db",
+    "sourceState": "reviewed cancellation fix applied, not committed at invocation",
+    "compileExitCode": 0,
+    "runExitCode": 0,
+    "tests": 7,
+    "failures": 0,
+    "prePostHashAndNativeMappingChecks": "passed",
+    "reviewedPatchSha256": "88f8ecc9c3bfa03700b5248ccc098b60132567b35e05b031d2b1c68a1d700181",
+    "hashes": {
+      "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "run.log": "7da76e8db12762eb74ee136e0e482be42da358b9888805d766d5878f97241daf",
+      "work/dependencies.json": "f734ee6388f0f8b33299d647ea3502f6ae039ed6d0dbdb87b4cc1802faa8e137",
+      "work/compiled-inputs.json": "a6147e0586f3cf6801f14172398160ba013e7e3b8500ea52c8b6177293c751ac",
+      "work/run-receipt.json": "a5b26e5cfbf5cd73c181ce8b8c6c609f8f28248fe2107a2767d75c432d82984d"
+    },
+    "productionSourceSha256": "91e8a14863ee90700342e6c54c05adb09466c30e016a3685fd7c4caabdf1f317",
+    "scope": "synthetic host/JNI callback lifecycle and cancellation correctness; not full Android pipeline or native in-flight interruption",
+    "priorProofs": "isolated red4/1 and green7/0 preserved separately"
+  },
+  "validation": {
+    "ordinary_jvm_passed": 722,
+    "host_room_passed": 7,
+    "android_test_compilation": "PASS",
+    "lint": "PASS",
+    "python_broad_passed": 1080,
+    "python_broad_failed": 1,
+    "security_module_retry": "...........................                                              [100%]\n27 passed in 12.68s",
+    "aggregate_all_tests_passed_after_retry": true,
+    "python_skipped_optional": 3,
+    "python_subtests": 6,
+    "python_seconds": 146.01,
+    "optional_executed_passed": 3,
+    "optional_seconds": 17.07
+  },
+  "initial_broad_run": "1080 passed; one failure because changed production source manifest was not regenerated yet. Regenerated staged manifest and reran full suite. Second run had one security dependency-audit failure: scanner returned incomplete/non-JSON output, correctly classified NOT_RUN. Whole security module rerun recorded separately; no source/assertion weakening.",
+  "log_sha256": {
+    "android-native-cancellation-gates.log": "29cb10d6873e055b4ffa84d670eaed4dcd9d05f6b44ffa4d45875b6319299523",
+    "scanner-native-cancellation-full-python.log": "c793d9c5757814aac6bf45b31e43be6fd088004d201eaf7e6ce5e192aa6cd0df",
+    "scanner-native-cancellation-full-python-final.log": "660d9255ce399faabcf6e88f3402269b6fb0fb145a065c5dc093c26335c54da9",
+    "scanner-native-cancellation-optional.log": "a4a8a0a31c01ced788db6747beea3655b59ad736577a662872cf6a53cfe8835b",
+    "scanner-native-cancellation-security-retry.log": "e96bd75ff283862ec4bf832ef879ecafab9f13093cc285152f4b178cba553ea1"
+  },
+  "release_scope": "No APK rebuilt for this commit; delivered engineering APK predates this fix. No emulator or physical-device execution."
+}

@@ -784,3 +784,24 @@ interruption, photo decode/OpenCV, full SparsePipeline, physical scan quality or
 release qualification. Observed hashes are not native build attestation. See the
 [native-wrapper report](../../reports/cloud-native-wrapper-integration.json) and
 [portable harness instructions](../../tools/native_wrapper_validation/README.md).
+
+### Callback cancellation cannot publish a completed native result (13:40 UTC)
+
+A real JNI regression reproduced a production bug: a progress reporter child could
+throw CancellationException, cancel its native lease, yet let its parent stage
+return success. The narrow fix propagates callback cancellation to the owning stage
+before teardown, including callback self-cancel-and-return, without treating normal
+reporter shutdown as failure. Existing finished-state boundary remains explicit.
+
+Baseline: four tests, one assertion failure (success instead of cancellation).
+Fixed and freshly integrated: seven native-wrapper tests pass, preserving exact
+cancellation/native-error identity, preventing publication and allowing normal
+shutdown followed by reuse of the same lease. Ordinary JVM722, HOST Room7,
+AndroidTest compilation and lint pass. Python1,081 plus six subtests and all three
+optional native/parser/software-Vulkan checks pass. An initial manifest-only failure
+was corrected by regenerating checksums and rerunning the complete suite.
+
+These are host synthetic observations and subsequent-call token checks, not
+in-flight native interruption or Android end-to-end success. The delivered APK
+predates this source fix; no replacement APK/device qualification is implied.
+See [red/green and integrated evidence](../../reports/cloud-native-callback-cancellation.json).

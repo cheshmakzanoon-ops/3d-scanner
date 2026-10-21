@@ -17,5 +17,5 @@ fun main(args:Array<String>) {
     val result=org.junit.runner.JUnitCore.runClasses(com.realityforge.scanner.engine.ProductionWrapperHostTest::class.java)
     result.failures.forEach { System.err.println(it.trace) }
     println("New production-wrapper host JNI tests: ${result.runCount}, failures: ${result.failureCount}")
-    check(result.runCount==3 && result.wasSuccessful())
+    check(result.runCount==7 && result.wasSuccessful())
 }
