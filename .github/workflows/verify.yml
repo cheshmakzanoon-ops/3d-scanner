@@ -7,7 +7,9 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: verify-${{ github.event.pull_request.number || github.ref }}
+  # One-time migration away from the obsolete non-cancellable finalizer group.
+  # Keep this key stable: never use a per-run/SHA key to multiply eligible runs.
+  group: verify-v2-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   native:
