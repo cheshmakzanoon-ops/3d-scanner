@@ -1,0 +1,60 @@
+{
+  "schema": 1,
+  "scope": "Python geometry QA tooling only; no Android/native reconstruction change",
+  "baselineCommit": "b8955ded6333e4e07068dfece3a20649822f85a0",
+  "problem": "Indexed vertex links were not audited: two closed tetrahedra touching only at one vertex could be labeled watertight despite a disconnected link.",
+  "change": "Audit each active vertex link as a connected simple cycle or boundary path; report nonmanifold_vertices and include it in manifold/watertight labels. No coordinate welding. Existing crossing algorithm and budget unchanged.",
+  "baselineMetricsSha256": "bd4ab2f66263b7246aa8827902b0c40ccf20db2cabdcdcdd004e3a9d3125e275",
+  "metricsSha256": "c4b0ca8bac0757645718586c842671e9bed416d7c0e41ae54bf8553fe85d5bf0",
+  "testsSha256": "be2b86156df20eab692f2a6559e6b3b92bde451e14b7ca2256d32912672cfe85",
+  "red": {
+    "status": "EXPECTED_FAILURE",
+    "testsFailed": 1,
+    "deselected": 14,
+    "logSha256": "eed33ca0637ab2b82a52c78f57dcc99d33700d7a7c407af44c5a51801b1812d1"
+  },
+  "focused": {
+    "status": "PASS",
+    "testsPassed": 100,
+    "logSha256": "500f8ce070ecea1f7b7a86dd50577c87f37a9cb0f0a02cd5ac3dea3298f3881f"
+  },
+  "fullPythonSuite": {
+    "status": "PASS",
+    "firstRun": {
+      "status": "FAILED",
+      "failed": 2,
+      "passed": 1379,
+      "skipped": 3,
+      "subtestsPassed": 6,
+      "seconds": 141.79,
+      "cause": "Current strict relief evaluator still pinned previous metric source; two exact-evaluator tests rejected the changed dependency.",
+      "logSha256": "039e42ed1008f1a29e01d3a803dab68078ff81e35241f5b012cf196a38f9e921"
+    },
+    "latestRun": {
+      "status": "PASS",
+      "passed": 1382,
+      "skipped": 3,
+      "subtestsPassed": 6,
+      "warnings": 1,
+      "seconds": 134.67,
+      "logSha256": "233e36cdac1fbac84d47651d5ba804543de8431dbbd061d8085ac8df300234ff",
+      "scope": "Final metric/evaluator/test code, before report-only result update; optional skips remain skips."
+    }
+  },
+  "limits": [
+    "Historical geometry reports retain their original metric version and are not rewritten.",
+    "Topology checks do not establish geometric accuracy, physical scan quality, or completeness.",
+    "Intersection budget status remains explicit; an unexecuted crossing audit is not a clean result."
+  ],
+  "reliefEvaluatorDependency": {
+    "previousEvaluatorSha256": "04e99a1946e2716ad55a9c51eea8ab2fcf9de33c93ff01fedcb11fddf2f85a80",
+    "currentEvaluatorSha256": "95b1a8a067e334965539b9ae65b2a6fa7a5f13d9212bb513587cbec06f65a834",
+    "currentTestsSha256": "040f3179dcd856be777e7be265305f60384e05371b94cb9fb1d52f394f87ca59",
+    "reason": "Current strict evaluator dependency pin updated to reviewed vertex-link metric; historical receipts unchanged; mutated-dependency negative test retained."
+  },
+  "focusedMetricsAndRelief": {
+    "status": "PASS",
+    "testsPassed": 107,
+    "logSha256": "b85ea1833c9ca4bf009aba941a450ebab27d8631cb6910e97ae13a6ffa52d2ce"
+  }
+}
