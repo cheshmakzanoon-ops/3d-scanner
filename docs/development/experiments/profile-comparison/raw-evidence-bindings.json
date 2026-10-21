@@ -1,0 +1,76 @@
+{
+  "sourceCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+  "comparisonManifestSha256": "da10de7937dbbb955072e70d2b1dcc25de07dba61d0c8a996194846df2bada1d",
+  "alignmentCheckpoint": {
+    "bytes": 107260,
+    "sha256": "e51c08de181486c7850523abac84fbf85242933d18bf8eae8b7e0a7f5f07683a"
+  },
+  "baselineCaptureManifestSha256": "7bfacca9525493d686b6aaf9e14a817517eafc78fed515ff7959023704fabb0a",
+  "profiles": [
+    {
+      "profile": "Compatibility",
+      "artifacts": {
+        "mesh.ply": {
+          "bytes": 594607,
+          "sha256": "e727e840ec3fd3efc324af97a3c2a59dca3c48f37f2dbf3133baae0e42b85919"
+        },
+        "mesh.glb": {
+          "bytes": 242980,
+          "sha256": "360c88c89b416429da06689c5247524d4484cfe55b9b8ec5e17f04f10609b9df"
+        },
+        "textured.glb": {
+          "bytes": 1399732,
+          "sha256": "40464c481619d7b9378e78392efbc631d31e5b40ee364ae796cd8aa33daff4e6"
+        },
+        "texture.png": {
+          "bytes": 1117577,
+          "sha256": "321942b199594924ea6efa3b8009c3589e8c8bdb9381a47d2c3748aa59f937fb"
+        },
+        "surface-v2.rfmesh": {
+          "sha256": "fdc472244054f6a3373d8a338c5a28c7cbc420ef5c966fb7bec404ddee21703b",
+          "bytes": 1184989
+        },
+        "direct-result.json": {
+          "bytes": 1158319,
+          "sha256": "9f28b62e0f1ee2d3aec2abc2a774e0b80f5024990446f8adc3f20677c2b5a795"
+        }
+      },
+      "surfaceCheckpointStatus": "CAPTURED"
+    },
+    {
+      "profile": "VerifiedRefinedCompact",
+      "artifacts": {
+        "mesh.ply": {
+          "bytes": 338174,
+          "sha256": "249f59239ff8e9d991b5a4bb2ef6630e3a21e3f09727c3099df8bf5dd84da8a8"
+        },
+        "mesh.glb": {
+          "bytes": 138108,
+          "sha256": "95c8309a62d5223479cb4817537f223e0cf76c2ed31566dc3fc659af7dadcae3"
+        },
+        "textured.glb": {
+          "bytes": 1416768,
+          "sha256": "5a499346dbf991a9546a0dedf4b3cff650ad59c0648e838fb178249a4e1fa3c1"
+        },
+        "texture.png": {
+          "bytes": 1019054,
+          "sha256": "b0e133d7dc0cd06459ab0a7546b1232a977a085619f9b293ff25bb93d0eb2141"
+        },
+        "direct-result.json": {
+          "bytes": 730384,
+          "sha256": "16d9d9fb4010a8909ac6d9cd679f707720418b2c354965bb77762731f1d47277"
+        }
+      },
+      "surfaceCheckpointStatus": "NOT_AVAILABLE_BY_REFINED_POLICY"
+    }
+  ],
+  "externalOnly": [
+    "exact full direct-result JSON",
+    "comparison selector track arrays",
+    "exact full measurements JSON",
+    "PLY/GLB/texture/checkpoints",
+    "machine config/runtime provenance closure"
+  ],
+  "sourceAndRuntimePreHashesSha256": "eaee41395b05ee9c0cbd3aff7145e5f271249cb0040aacb95bf28c3fff4117d3",
+  "sourceAndRuntimePostHashesSha256": "eaee41395b05ee9c0cbd3aff7145e5f271249cb0040aacb95bf28c3fff4117d3"
+}

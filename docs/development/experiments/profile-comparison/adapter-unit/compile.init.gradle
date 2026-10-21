@@ -1,0 +1,4 @@
+allprojects { afterEvaluate { if (path == ':app') {
+ android.sourceSets.test.java.srcDir('/tmp/rf-relief-profile-pair-draft')
+ android.sourceSets.test.java.srcDir('/tmp/rf-relief-profile-pair-unit-draft')
+} } }

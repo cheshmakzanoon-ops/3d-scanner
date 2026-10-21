@@ -1,0 +1,12 @@
+{
+  "originalPath": "/tmp/rf-relief-standard-visual-v2/coverage-bound.py",
+  "originalSha256": "fb9c61d8ce20b9d97094b9e167f1417d9853333eb8bbfe5184dfded11c473b66",
+  "changes": [
+    "Function arguments replace capture paths and calibration lookup",
+    "Caller separately hashes truth and imported surface_z",
+    "Empty depth residual returns null rather than undefined quantile",
+    "Reporting only; unchanged projection, rasterization, integer centers, mask, 45-step intersection"
+  ],
+  "algorithmSliceStart": "points=scale*",
+  "algorithmSliceEnd": "# Native counters"
+}

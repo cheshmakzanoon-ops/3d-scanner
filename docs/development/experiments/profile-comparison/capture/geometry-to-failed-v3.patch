@@ -1,0 +1,73 @@
+--- a/SparsePipelineQualityCaptureHostTest.kt
++++ b/SparsePipelineQualityCaptureHostTest.kt
+@@ -340,22 +340,14 @@
+                 }
+                 val identity = outcome.getJSONObject("payload").getJSONObject("dense").getString("depthCheckpointIdentity")
+                 require(identity.matches(Regex("[0-9a-f]{64}")))
+-                val checkpointAvailable = outcome.getJSONObject("payload").getJSONObject("dense").getBoolean("surfaceCheckpointAvailable")
+-                val profileCheckpoint = File(directory,".depth-checkpoints-m18/$identity/surface-v2.rfmesh")
+-                if (profileName == "Compatibility") {
+-                    require(checkpointAvailable)
+-                    artifactEntries.put("surface-v2.rfmesh",captureOwnedCheckpoint(directory,profileCheckpoint,File(destination,"surface-v2.rfmesh")))
+-                } else {
+-                    require(profileName == "VerifiedRefinedCompact" && !checkpointAvailable)
+-                    require(!Files.exists(profileCheckpoint.toPath(),LinkOption.NOFOLLOW_LINKS))
+-                }
++                artifactEntries.put("surface-v2.rfmesh",captureOwnedCheckpoint(directory,
++                    File(directory,".depth-checkpoints-m18/$identity/surface-v2.rfmesh"),File(destination,"surface-v2.rfmesh")))
+                 val payloadFile = File(destination,"direct-result.json"); payloadFile.writeText(outcome.toString())
+                 require(payloadFile.length() in 1..32L*1024*1024)
+                 artifactEntries.put("direct-result.json",JSONObject().put("bytes",payloadFile.length()).put("sha256",sha(payloadFile)))
+-                profiles.put(JSONObject().put("profile",profileName).put("artifacts",artifactEntries)
+-                    .put("surfaceCheckpointStatus",if (checkpointAvailable) "CAPTURED" else "NOT_AVAILABLE_BY_REFINED_POLICY"))
+-            }
+-            pairManifest.put("profiles",profiles).put("schema",2).put("qualification","GEOMETRY_TEXTURE_CAPTURE_ONLY_NOT_REFINED_CACHE_QUALIFICATION")
++                profiles.put(JSONObject().put("profile",profileName).put("artifacts",artifactEntries))
++            }
++            pairManifest.put("profiles",profiles)
+             val pairManifestFile=File(pairCapture,"comparison.json");pairManifestFile.writeText(pairManifest.toString())
+             require(pairManifestFile.length() in 1..4L*1024*1024)
+ 
+--- a/VerifiedProfilePair.kt
++++ b/VerifiedProfilePair.kt
+@@ -119,10 +119,7 @@
+             require(dense.getInt("depthCheckpointResumed") == 0)
+             require(payload.has("mesh")) { "${profile.name}: mesh rejected: ${payload.optString("meshError")}; see actual diagnostic payload" }
+             require(payload.has("texture")) { "${profile.name}: texture rejected: ${payload.optString("textureError")}; see actual diagnostic payload" }
+-            if (profile == DensePreviewProfile.Compatibility) require(dense.getBoolean("surfaceCheckpointAvailable"))
+-            else require(!dense.getBoolean("surfaceCheckpointAvailable") && !dense.getBoolean("surfaceCheckpointWritten") && dense.getInt("depthCheckpointWritten") == 0) {
+-                "Refined checkpoint policy differs from original uncached refinement contract"
+-            }
++            require(dense.getBoolean("surfaceCheckpointAvailable")) { "${profile.name}: surface checkpoint unavailable; see actual diagnostic payload" }
+             outcomes.add(JSONObject().put("profile",profile.name).put("artifactKey",key)
+                 .put("denseStageIdentity",selectedSnapshot.identity(PipelineStage.DENSE).digest)
+                 .put("textureStageIdentity",selectedSnapshot.identity(PipelineStage.TEXTURE).digest)
+--- a/validate.py
++++ b/validate.py
+@@ -171,16 +171,13 @@
+    pair=args.output/'profile-comparison';mp=pair/'comparison.json'
+    require(mp.is_file() and not mp.is_symlink() and 0<mp.stat().st_size<=4*1024*1024,'Missing bounded direct profile comparison')
+    m=json.loads(mp.read_text());require(m['baselineCaptureManifestSha256']==capture_checks['manifestSha256'],'Wrong baseline binding')
+-   require(m['schema']==2 and m['qualification']=='GEOMETRY_TEXTURE_CAPTURE_ONLY_NOT_REFINED_CACHE_QUALIFICATION','Wrong geometry experiment scope')
+    expected={'Compatibility','VerifiedRefinedCompact'}
+    require({p.name for p in pair.iterdir()}==expected|{'comparison.json','alignment.rfac'},'Unexpected pair inventory')
+    ap=pair/'alignment.rfac';ae=m['alignmentCheckpoint'];require(ap.is_file() and not ap.is_symlink() and 0<ap.stat().st_size<=16*1024*1024 and ap.stat().st_size==ae['bytes'] and sha(ap)==ae['sha256']==m['alignmentAdapter']['alignmentCheckpointSha256'],'Alignment capture mismatch')
+    require(len(m['profiles'])==2 and {x['profile'] for x in m['profiles']}==expected,'Missing profile')
+    for entry in m['profiles']:
+     folder=pair/entry['profile'];require(folder.is_dir() and not folder.is_symlink(),'Unsafe profile directory')
+-    names={'mesh.ply','mesh.glb','textured.glb','texture.png','direct-result.json'}
+-    if entry['profile']=='Compatibility':names.add('surface-v2.rfmesh')
+-    require(entry['surfaceCheckpointStatus']==('CAPTURED' if entry['profile']=='Compatibility' else 'NOT_AVAILABLE_BY_REFINED_POLICY'),'Wrong profile checkpoint status')
++    names={'mesh.ply','mesh.glb','textured.glb','texture.png','surface-v2.rfmesh','direct-result.json'}
+     require(set(entry['artifacts'])==names and {p.name for p in folder.iterdir()}==names,'Wrong profile artifact inventory')
+     for n,e in entry['artifacts'].items():
+      p=folder/n;require(p.is_file() and not p.is_symlink() and 0<p.stat().st_size<=(12 if n=='surface-v2.rfmesh' else 32)*1024*1024,'Unsafe profile artifact')
+@@ -190,7 +187,7 @@
+   except Exception as e:errors.append({'profileComparisonError':repr(e)})
+   all_checks=status=='EXIT_0'  and not errors and before==after and post_commit==args.expected_commit and post_status=='' and compiled_unchanged and junit_ok
+   (args.output/'post-compiled-hashes.json').write_text(json.dumps(compiled_checks,indent=2))
+-  receipt={'outcome':'PENDING_RESTORATION' if all_checks else 'FAILED','junit':junit,'postcheckErrors':errors,'postCommit':post_commit,'postGitStatus':post_status,'compiledInputsUnchanged':compiled_unchanged,'status':status,'durationSeconds':time.time()-start,'commit':args.expected_commit,'tree':safe_cmd('git','rev-parse','HEAD^{tree}'),'inputHashesUnchanged':before==after,'command':command,'classHashes':class_hashes,'scope':'HOST same-selection profile geometry/texture capture only; refined surface checkpoint unavailable by existing policy, not cache/controller/shipping qualification','restoration':'PENDING'}
++  receipt={'outcome':'PENDING_RESTORATION' if all_checks else 'FAILED','junit':junit,'postcheckErrors':errors,'postCommit':post_commit,'postGitStatus':post_status,'compiledInputsUnchanged':compiled_unchanged,'status':status,'durationSeconds':time.time()-start,'commit':args.expected_commit,'tree':safe_cmd('git','rev-parse','HEAD^{tree}'),'inputHashesUnchanged':before==after,'command':command,'classHashes':class_hashes,'scope':'HOST actual baseline core plus direct DensePreview same-selection profile bundle experiment; equal COMPACT preset, not identical work, controller or refined shipping qualification','restoration':'PENDING'}
+   receipt['qualityCapture']=capture_checks
+   receipt['profileComparison']=pair_checks
+   receipt_path=args.output/'receipt.json';write_receipt(receipt_path,receipt)
