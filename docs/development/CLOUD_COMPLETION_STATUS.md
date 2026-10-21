@@ -650,3 +650,24 @@ made. The standalone experimental batch probe and six parser tests are retained
 for reproduction, explicitly NOT integrated into readiness or authorization to
 install; the full batched gate draft was not promoted. Nine readiness parser tests
 also pass. See [the exact artifact and closed-evidence report](../../reports/cloud-instrumentation-presentation-recovery.json).
+
+### Capture source ownership and duplicate outcomes (11:53 UTC)
+
+Only a confirmed newly copied private original authorizes best-effort CameraX
+staging cleanup, after optional guidance and exact pending-photo ownership checks.
+Generic publishers retain their previous ownership contract. Duplicates are now
+explicit non-error outcomes without a count/revision advance or accepted-photo
+guidance. Uncertain publication retains temporary bytes and blocks further capture
+across lifecycle/checkpoint restoration. Cleanup failure cannot undo accepted save.
+
+Focused actual Gradle tests pass 25/25; unrestricted JVM tests pass 716/716 with
+no failures/errors/skips. AndroidTest compilation and lint pass; new nullable-file
+test warnings were removed without production changes. CameraX/device checks and
+APK regeneration remain NOT_RUN. Retained uncertain/duplicate files remain cache,
+subject to OS eviction and existing age-prune; this is not durable recovery storage.
+See [capture evidence](../../reports/cloud-capture-ownership.json).
+
+Before this increment, source `427167ff` also passed 1,067 broad Python tests,
+with three optional skips subsequently executed successfully (real JNI, Kotlin
+parser and software Vulkan dispatch). See [host evidence](../../reports/cloud-post-ui-host.json);
+that run is not mislabeled as execution of this later capture patch.

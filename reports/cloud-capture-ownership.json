@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T11:53:25Z",
+  "base_commit": "427167ffdc17d0910e39736ea54722969d3fc546",
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt": "8c27d0e3b9214ce8656228ca17201f4042ed433d85c4c0f68ac6a99bee5ef567",
+    "app/src/main/java/com/realityforge/scanner/capture/session/CaptureImportOutcome.kt": "56a46edf4ea57848d8fe8e387e3abd7966a1a03cb7aaa0f8e540ec431f2d57a1",
+    "app/src/main/java/com/realityforge/scanner/capture/session/CapturePublicationCompletion.kt": "5897d49d4c485168d1d24059f22132ee70e3e03da344a6852e3f152bd24a2bef",
+    "app/src/main/java/com/realityforge/scanner/capture/session/CaptureSession.kt": "45e7f159a66202d994c69bb97c8860e3a62c24890f5ab9de7ce935fe7b9aa41c",
+    "app/src/main/java/com/realityforge/scanner/ui/CameraScreen.kt": "45db78baa6bcb8a3ddaa988dd205b5f987ef7fbc6131c08a2cb1a87629a9fbd9",
+    "app/src/main/res/values/agent_014.xml": "57e77c97092ce89848237c0a5bc634eb2546a290aba11041f4fff0353bc3f929",
+    "app/src/test/java/com/realityforge/scanner/agents/a014/CaptureSessionControllerTest.kt": "107ab5e9f085b9e9ce69f808bc60fb6f0c568ec0d2cf33452ae79b3e816aa644",
+    "app/src/test/java/com/realityforge/scanner/capture/session/CapturePublicationCompletionTest.kt": "88d55191c52f3ccb8b9be8069ed549c5b0384308ee67dc90f2d1450de055eb35"
+  },
+  "behavior": [
+    "Only Imported(expectedRevision+1) attests independent copied original",
+    "Owned capture staging cleanup occurs after optional guidance and exact pending-photo acceptance",
+    "Cleanup failure does not downgrade accepted publication",
+    "Duplicate keeps revision/count unchanged and skips accepted-photo guidance",
+    "Uncertain publication retains staging, cancels pending camera request and blocks session across lifecycle/checkpoint restoration",
+    "Generic publisher-owned Accepted retains prior ownership contract"
+  ],
+  "validation": {
+    "focused_actual_gradle_jvm": 25,
+    "full_actual_gradle_jvm": 716,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "android_test_compile": "PASS",
+    "lint_severities": {
+      "Warning": 92,
+      "Hint": 3
+    },
+    "independent_standalone_host_tests": 25
+  },
+  "runtime": {
+    "camera_device_tests": "NOT_RUN",
+    "apk_regeneration": "NOT_RUN"
+  },
+  "limits": [
+    "Duplicate detection here alone is not original-file integrity proof; its source is not deleted",
+    "Uncertain and duplicate retained bytes remain in cache, subject to OS eviction and existing24-hour age-prune; not a durable recovery guarantee",
+    "No CameraX device behavior, physical reconstruction quality or complete-session qualification is established"
+  ]
+}

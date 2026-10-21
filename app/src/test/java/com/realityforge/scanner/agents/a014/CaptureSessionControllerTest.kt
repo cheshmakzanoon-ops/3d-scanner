@@ -164,7 +164,7 @@ class CaptureSessionControllerTest {
     }
 
     @Test
-    fun nonAdvancingCommittedRevisionIsRejectedAndCleaned() {
+    fun nonAdvancingCommittedRevisionIsUncertainAndRetained() {
         val controller = controller(projectId = "project-a", revision = 6)
         controller.markReady()
         val attempt = requireNotNull(controller.beginCapture())
@@ -172,9 +172,12 @@ class CaptureSessionControllerTest {
         controller.onImageSaved(attempt, metadata())
 
         assertFalse(controller.onCommit(attempt.captureToken, CaptureCommitOutcome.Accepted(6)))
-        assertFalse(attempt.stagedFile.exists())
+        assertTrue(attempt.stagedFile.exists())
         assertEquals(6L, controller.state.value.expectedRevision)
         assertEquals(0, controller.state.value.savedCount)
+        assertTrue(controller.state.value.requiresRecovery)
+        controller.markReady(); controller.markBinding(); controller.markReady()
+        assertEquals(CaptureSessionPhase.UNAVAILABLE, controller.state.value.phase)
     }
 
     @Test
@@ -213,8 +216,8 @@ class CaptureSessionControllerTest {
         val recent = store.create("abandoned-recent", "recent-shot")
         recent.writeText("recent")
         val now = 200_000L
-        assertTrue(old.parentFile.setLastModified(1_000L))
-        assertTrue(recent.parentFile.setLastModified(199_500L))
+        assertTrue(requireNotNull(old.parentFile).setLastModified(1_000L))
+        assertTrue(requireNotNull(recent.parentFile).setLastModified(199_500L))
 
         assertEquals(
             1,
@@ -242,7 +245,7 @@ class CaptureSessionControllerTest {
         val removed = store.discardSessionsExcept(
             activeSessionToken = replacement.identity.sessionToken,
             minimumAgeMillis = 60_000L,
-            nowEpochMillis = delayed.stagedFile.parentFile.lastModified() + 1_000L,
+            nowEpochMillis = requireNotNull(delayed.stagedFile.parentFile).lastModified() + 1_000L,
         )
 
         assertEquals(0, removed)
