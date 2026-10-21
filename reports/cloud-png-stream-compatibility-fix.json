@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T18:14:11.573229+00:00",
+  "base_commit": "0cb3583dfe146e340a5c4611f3eb019e4dd54105",
+  "classification": "PNG_COMPRESSED_INPUT_PROGRESS_COMPATIBILITY_FIX",
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/viewer/PhotographicGlb.kt": "19f0541ed5149a541e1903e67bc4f2a54d22ab0359fddd090d84990aa9cbf243",
+    "app/src/test/java/com/realityforge/scanner/viewer/PngStreamValidationTest.kt": "e920b42027f8eb0ac58b1fb5c630b17490e38da3dfc5b91244412b7fbedeae66"
+  },
+  "fix": "Accept zero output only when compressed input bytes consumed or stream finished; explicitly reject dictionary requests; all other bounds remain unchanged",
+  "criteria_retained": [
+    "dictionary rejection",
+    "truncated stream/checksum rejection",
+    "trailing bytes/chunks/concatenated stream rejection",
+    "exact expansion size",
+    "row filter range",
+    "cancellation identity during chunk parsing",
+    "bounded dimensions/chunk count and chunk CRC",
+    "reject inflater stalls without output, completion or measured input consumption"
+  ],
+  "native_fixture": {
+    "executableSha256": "aff89fbd6c0c6832a83d0ca97bbc6841be0503d4f760a3496c5b11eb767e3870",
+    "observedSourceHashes": {
+      "reconstruction/include/realityforge/texture_png.hpp": "dfbb38af173e730c4bfc0808816671b19fddf50bcd216f898526ffe582f07a7e",
+      "reconstruction/tests/texture_png_test.cpp": "46ed2a7c3d152c2a6c2d275d4472f24a684bd1000e0edc75a0552e6665d5c765"
+    },
+    "provenanceLimit": "Existing prebuilt test binary and current source snapshots; hashes alone are not rebuild attestation. No native rebuild performed.",
+    "outputs": {
+      "native.png": "6629d57d5bf1d7c8064c38f297d838de28a576c7866c9cad028c4f6f407d73ad",
+      "native-stored.png": "6dab5ca3f9b64a875068e3bb71e51577ae218c11573973c85104446be53b2229"
+    },
+    "idatLengths": {
+      "production": [
+        2,
+        665
+      ],
+      "storedReference": [
+        2,
+        45306,
+        4
+      ]
+    },
+    "decodedByteCount": 45301
+  },
+  "jdk_progress_probe": {
+    "sourceSha256": "b1feb15bca36d6ae8f736c5ab97156d79303626069b98ce536ba055f7ee90ffd",
+    "logSha256": "6bd89b4fcbc5925f2e6e7004355f24b38d2718cf3a86610092a7f3d2c767b203",
+    "observed": "2-byte first IDAT consumed, 0 output, remaining0, needsInput true, finished false, dictionary false"
+  },
+  "standalone_production_parser": {
+    "red": {
+      "tests": 10,
+      "failures": 3,
+      "failedCases": [
+        "actual native production",
+        "every-byte fragmentation",
+        "header-only IDAT"
+      ],
+      "receiptSha256": "112f2b9f3ef6bb425908ba23bef4c7d21fb1c300eb0b86298574c8af077a79b3",
+      "logSha256": "629d3c70a6a03e1309343ad5f12a11795ed202d6849f0386b3643e8439ff0d61"
+    },
+    "green": {
+      "tests": 10,
+      "failures": 0,
+      "embeddedNativeFixtureBytes": 736,
+      "receiptSha256": "f417530753c8d5ac59e266c70662b54c70dcc0e67cc7fdf2acd9eaaaf1489b82",
+      "logSha256": "7da41896336e66eee513e68022d9a039b66ba63a3dc7cdc44379eabd0378b21b"
+    },
+    "limits": {
+      "compileSeconds": 120,
+      "runSeconds": 30,
+      "compilerMiB": 384,
+      "runtimeMiB": 256,
+      "activeProcessors": 2
+    },
+    "raw_validation_sha256": "dfb4356be9b05eaf86a9d44b4ca140c371a9977876ef3bc249b96bfc8548b0c8",
+    "patch_sha256": "a335d1523e24b40cb631baf81979767ee21e6d4a717e6eddebc2c7f67eaa6cf1"
+  },
+  "actual_gradle_red": {
+    "status": "EXPECTED_FAILURE",
+    "counts": {
+      "tests": 10,
+      "failures": 3,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failed_cases": [
+      "acceptsEveryByteFragmentation",
+      "acceptsHeaderOnlyChunk",
+      "acceptsActualNativeProductionPng"
+    ],
+    "xml_sha256": "ae86cf36c8ad98a423bd92d2175534a59b9223c1b6ace4620bfe43e429b07195",
+    "log_sha256": "29553c0847a478443b2a8aef0e2693219b973373d058cd9280503ed131c5e518",
+    "pre_hash_inventory_sha256": "1a15e334cdbb1f025f011c7a6a37bcca2062e44b8409893eb9f714255a7e643c",
+    "post_hash_inventory_sha256": "1a15e334cdbb1f025f011c7a6a37bcca2062e44b8409893eb9f714255a7e643c"
+  },
+  "full_core_before_parser_fix": {
+    "status": "FAILED",
+    "counts": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "observed_before_validation_failure": {
+      "sparse_outcome": "global_typed_ba_admitted12",
+      "cameras": 3,
+      "sparse_points": 904,
+      "dense_points": 6851,
+      "triangles": 6726,
+      "dense_status": "ready",
+      "mesh_status": "ready",
+      "texture_status": "ready"
+    },
+    "failure": "PhotographicGlb rejected compressed PNG stream during artifact validation. Ready metadata alone did not pass the full gate.",
+    "raw_receipt_sha256": "1b22493dbe2f5dbeb6dfe28d8945ee190dee0deb1e6edb97182e2afc507960ae",
+    "xml_sha256": "5106d9c39eb263a78e6c3757d39b0655bcded8dbd3631fb35213fa749aeaf385",
+    "log_sha256": "481bfc66b8b21128cae70a2977cdb792b63a50bbabd10977b435de9d27d6798e",
+    "original_png_bytes": "Deleted by fixture cleanup; no byte-identity claim with the independently captured native encoder fixture."
+  },
+  "delivery": {
+    "delivered_engineering_apk_source": "c11234b5",
+    "contains_depth_inventory_fix": false,
+    "contains_png_stream_fix": false,
+    "replacement": "PENDING"
+  },
+  "limits": [
+    "The final ten parser tests are unconditional; no optional fixture property or skipped test.",
+    "Cancellation identity regression exercises PNG chunk parsing, not an in-inflate cancellation point.",
+    "Existing native encoder test binary/source hashes are observed provenance, not a new native rebuild attestation.",
+    "HOST core uses a restricted opaque Utils Bitmap bridge and does not qualify physical Android hardware, controller/service admission or completed publication."
+  ],
+  "gates": {
+    "focused_gradle_green": {
+      "status": "PASS",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ordinary_jvm": {
+      "status": "PASS",
+      "tests": 748,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "host": {
+      "status": "PASS",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android_test_compilation": "PASS",
+    "lint": "PASS",
+    "broad_python": {
+      "status": "PASS_ON_UNCHANGED_RETRY",
+      "passed": 1200,
+      "skipped": 3,
+      "subtests_passed": 6,
+      "seconds": 145.24,
+      "prior_run": {
+        "failed": 1,
+        "passed": 1199,
+        "cause": "pip-audit request read timeout while establishing proxy tunnel targeting PyPI; empty stdout caused secondary JSONDecodeError. Not evidence of a general outage."
+      },
+      "focused_retry": {
+        "passed": 1,
+        "seconds": 11.93
+      },
+      "assertions_or_timeout_changed": false,
+      "log_sha256": {
+        "scanner-png-stream-python.log": "9630a5e13b8cefd7c9e6274ce0bf709781b90a7daa7776efa1c01bae0e8c5090",
+        "scanner-png-security-retry.log": "c3842ca63c853f42f32e1b1dd0b9dd395b06f8c18c158e759d3b72d3014f2e55",
+        "scanner-png-stream-python-retry.log": "90d895399c8562e0f0536ae1685db13e05c1b0c00a87ea4043c25fdb21ebd015"
+      }
+    },
+    "unchanged_full_core_retry": "NOT_RUN"
+  },
+  "green_evidence_sha256": {
+    "counts.json": "afbb61a0f5b06f4f84dc1808e78a5f341a68945758ea17be860b932231ddf91f",
+    "focused.log": "d12bb10f99fb0988a815c6419b235e1e59e3a3968f61636b69eebd700ede2aca",
+    "full.log": "6b3bcb12bd5672cee3e52537f202420056057e6f2f500ab0d07062749aeef081",
+    "SHA256SUMS": "ec8a8bb5f17b6882d4ff24a630bb67f3cd5455e7edd258cf01450306127b7987"
+  }
+}

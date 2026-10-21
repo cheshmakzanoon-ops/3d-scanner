@@ -275,8 +275,10 @@ object PhotographicGlb {
                 inflater.setInput(png, range.first, range.last - range.first + 1)
                 while (!inflater.needsInput() && !inflater.finished()) {
                     if (cancelled()) throw CancellationException("Model load cancelled.")
+                    val consumedBefore = inflater.bytesRead
                     val count = inflater.inflate(scratch)
-                    require(count > 0 || inflater.finished()) { "Invalid PNG compressed stream." }
+                    require(!inflater.needsDictionary() &&
+                        (count > 0 || inflater.finished() || inflater.bytesRead > consumedBefore)) { "Invalid PNG compressed stream." }
                     require(produced + count <= expected) { "PNG decompression exceeds image dimensions." }
                     for (i in 0 until count) if ((produced + i) % rowBytes == 0L)
                         require((scratch[i].toInt() and 255) <= 4) { "Invalid PNG row filter." }
