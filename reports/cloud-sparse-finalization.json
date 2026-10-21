@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "status": "integrated and Android compilation/lint/JVM verified; device qualification pending",
+  "productionPhotoLimit": 12,
+  "policy": "complete-source-window-typed-ba-admitted12-v2",
+  "sourceSha256": {
+    "app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt": "6397350e15fe7180c70c920f42f627905bd94f477088d0d8362f3aad0eb3a451",
+    "app/src/main/java/com/realityforge/scanner/engine/BoundedSparseCoordinator.kt": "2e5cc5b0cca97b7d77d0bb4013b22bc2c6870e07e42952514a5c9bcb6d41289d",
+    "app/src/main/java/com/realityforge/scanner/engine/FinalSparseExecution.kt": "305bfed8441256c361b79c94b8a3b42a2bf97a6e078a48fb62b79f26b5031778",
+    "app/src/main/java/com/realityforge/scanner/engine/FinalSparsePublication.kt": "216dbde6704ac5a987fa1bdbae5fb9c6ce69a19d6e5b3cb2df7c17bea5fcdd97",
+    "app/src/main/java/com/realityforge/scanner/engine/TypedBundleAdapter.kt": "5d3062fa4515afe7ea79e3e38b7e442803bf9e9e9b610cd7184ec4de8b5c2ade"
+  },
+  "validation": {
+    "pureJvm": {
+      "passed": 4
+    },
+    "actualHostJni": {
+      "passed": 5,
+      "syntheticCameras": 12,
+      "tracks": 48,
+      "originalObservations": 576,
+      "windows": 1,
+      "maxXYZError": 6.720247073882841e-06,
+      "numericalMocks": false
+    },
+    "existingCoordinatorRegression": {
+      "pureJvmPassed": 14,
+      "actualHostJniPassed": 4
+    },
+    "fullSparsePipelineDirectKotlinCompile": {
+      "passed": true,
+      "compiler": "Kotlin2.1.21; JDK17; Android36 SDK; existing built app classes/OpenCV; max384MiB",
+      "gradleUsed": false
+    },
+    "staticSourceContracts": {
+      "passed": 2,
+      "runtimeEvidence": false
+    },
+    "activeCheckoutSourceContracts": {
+      "passed": 40,
+      "sourceManifest": "regenerated separately before commit",
+      "runtimeEvidence": false
+    },
+    "actualGradle": {
+      "jvmPassed": 662,
+      "jvmFailed": 0,
+      "jvmSkipped": 0,
+      "lintErrors": 0,
+      "androidTestKotlinCompiled": true,
+      "instrumentationExecuted": false
+    },
+    "hostRegression": {
+      "nativeCtestsPassed": 45,
+      "pythonPassed": 988,
+      "pythonSkipped": 3,
+      "sourceManifestVerifiedSeparately": true
+    }
+  },
+  "remainingGates": [
+    "Full Android build/lint/instrumentation after authorized integration",
+    "Production photograph runtime, cancellation, dense/checkpoint reuse on emulator",
+    "Physical camera/handset quality and resource qualification"
+  ],
+  "claims": [
+    "No physical-camera evidence",
+    "No whole-object/surface completeness evidence",
+    "No production30-camera admission",
+    "No frontier fields fabricated"
+  ]
+}

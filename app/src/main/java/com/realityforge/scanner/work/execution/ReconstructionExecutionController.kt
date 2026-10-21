@@ -236,6 +236,15 @@ class ReconstructionExecutionController(
                     }
                     }).apply {
                         diagnosticRecorder = diagnostics
+                        onFeatureWork = { sample ->
+                            // Synchronous native-entry/exit and cancellation callbacks only publish
+                            // a bounded immutable snapshot; no database IO or paths on this hook.
+                            if (runningJobId.get() == acquired.snapshot.jobId && runningAttempt.get() == acquired.snapshot.attempt) {
+                                mutableProgress.value = ExecutionProgress(acquired.snapshot.jobId.value,
+                                    input.projectId, acquired.snapshot.attempt,
+                                    SparsePipeline.Progress(sample.stageLabel, sample.completedPhotos, sample.photoCount, sample))
+                            }
+                        }
                         onDiagnosticProgress = { measured ->
                             ensureActive()
                             check(measured.scope.jobId == acquired.snapshot.jobId.value &&

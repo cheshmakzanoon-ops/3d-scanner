@@ -119,14 +119,41 @@ def test_bundle_adjustment_engine_and_jni_have_true_joint_contract():
     assert "out.cameras=std::move(candidateCameras)" in engine
     assert "cameraStep" in engine and "point.touched" in engine
     assert "Java_com_realityforge_scanner_engine_NativeCore_bundleAdjust" in jni
-    assert "nativeCall(nativeToken, progress) { NativeCore.bundleAdjustCancellable(" in kotlin
+    execution=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/FinalSparseExecution.kt").read_text()
+    coordinator=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/BoundedSparseCoordinator.kt").read_text()
+    assert "FinalSparseExecution.execute(sourcePhotoIds, views, stableTracks" in kotlin
+    assert "graph.stableSnapshot(sourcePhotoIds)" in kotlin
+    assert "NativeCore.bundleAdjustProblemCancellable(input.cameraRows" in kotlin
+    assert "TypedBundleAdapter.validateResult(input,joint)" in execution
+    assert "views.size in 3..12" in execution
+    assert "checkpoint = { sparseContext.ensureActive() }" in kotlin
+    assert "view.xy[key*2]" in coordinator and "view.xy[key*2+1]" in coordinator
+    assert "pixelRows[pixelOffset++]=o.px" in coordinator and "pixelRows[pixelOffset++]=o.py" in coordinator
+    adapter=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/TypedBundleAdapter.kt").read_text()
+    assert "view.xy[2*key]" in adapter and "view.xy[2*key+1]" in adapter
+    assert "pose_and_baseline" in adapter
     assert "Java_com_realityforge_scanner_engine_NativeCore_bundleAdjustCancellable" in jni
     typed = jni.split("Java_com_realityforge_scanner_engine_NativeCore_bundleAdjustProblemCancellable(", 1)[1].split('extern "C"', 1)[0]
     assert "withOperation(env,token" in typed and "rf::jni::bundleProblemJson(" in typed
     assert "models!=(cameras/12)*11" in typed and "photos!=cameras/12" in typed
     assert "strings(groupIds,groups,1024)" in typed and "strings(sourceTrackIds,tracks,64)" in typed
     assert "bundleAdjustmentFailure" in kotlin
-    assert "robustCostAfter" in kotlin
+    assert "robustCostAfter" in execution
+
+
+def test_sparse_publication_is_staged_before_fallible_progress_and_reference_swap():
+    # This is a source contract only; actual helper/JNI fault injection lives in Android/JVM tests.
+    pipeline=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt").read_text()
+    publication=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/FinalSparsePublication.kt").read_text()
+    block=pipeline.split("val staged = FinalSparsePublication.prepare",1)[1].split("} catch (cancelled:",1)[0]
+    before,after=block.split("output = staged.output",1)
+    assert "progress(Progress(" in before and "coroutineContext.ensureActive()" in before
+    assert "measured(ScanStage.BUNDLE_ADJUSTMENT, 1" in before
+    assert "cameraArray = staged.cameras" in after and "checkpointObservations = stagedObservations" in after
+    assert "progress(" not in after and "measured(" not in after
+    assert "JSONObject(original.toString())" in publication and "JSONArray(originalCameras.toString())" in publication
+    assert "result.input.photoIds.indexOf(sourcePhotoIds[camera])" in publication
+    assert "verified_anchor_fallback" in pipeline
 
 
 def test_dense_source_is_bounded_cpu_reference_and_preserves_sparse_fallback():
@@ -215,7 +242,10 @@ def test_incremental_registration_uses_shared_triangulation_and_verified_landmar
     assert "nativeFrontier.triangulate,nativeFrontier.register" in pipeline
     assert "NativeCore.reconstructMultiviewCancellable(" in bridge and "NativeCore.registerCameraCancellable(" in bridge
     assert "ProductionEngineCompatibility.VALUE" in identity and "pipelineSnapshot.engineVersion" in pipeline
-    assert ".take(66)" in pipeline
+    assert "check(it.size <= AdmittedPairPlan.MAX_PAIRS)" in pipeline
+    assert "AdmittedPairPlan.build(summaries)" in pipeline
+    assert "candidates.associateWith { savedMatches.getValue(it) }" in pipeline
+    assert '"summarySimilarityIsGeometricEvidence", false' in pipeline
 
 
 def test_track_snapshot_enforces_native_observation_bound():

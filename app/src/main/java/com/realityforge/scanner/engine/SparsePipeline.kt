@@ -1,8 +1,15 @@
 package com.realityforge.scanner.engine
 
+import com.realityforge.scanner.engine.features.FeatureCancellationSignal
+import com.realityforge.scanner.engine.features.FeatureWorkPhase
+import com.realityforge.scanner.engine.features.FeatureWorkSnapshot
+import com.realityforge.scanner.engine.features.FeatureWorkTiming
+import com.realityforge.scanner.engine.features.NativeFeatureCallEvent
 import com.realityforge.scanner.engine.features.FeatureExtractor
 import com.realityforge.scanner.engine.features.FeatureFrame
 import com.realityforge.scanner.engine.matching.FeatureMatcher
+import com.realityforge.scanner.engine.matching.AdmittedPairPlan
+import com.realityforge.scanner.engine.matching.PhotoFeatureSummary
 import com.realityforge.scanner.engine.matching.PairCandidate
 import com.realityforge.scanner.imaging.AndroidImageDecoder
 
@@ -56,7 +63,9 @@ class SparsePipeline(
     private val artifactBinding: com.realityforge.scanner.engine.artifacts.ArtifactBinding? = null,
     private val checkpoints: PipelineCheckpointSink = PipelineCheckpointSink {},
 ) {
-    data class Progress(val stage: String, val completed: Int, val total: Int)
+    data class Progress(val stage: String, val completed: Int, val total: Int,
+        val featureWork: FeatureWorkSnapshot? = null)
+    internal var onFeatureWork: (FeatureWorkSnapshot) -> Unit = {}
     internal var diagnosticRecorder: RuntimeDiagnosticRecorder? = null
     internal var onDiagnosticProgress: suspend (StageProgress) -> Unit = {}
     internal var activeDiagnosticStage: ScanStage = ScanStage.IMPORT
@@ -207,6 +216,7 @@ class SparsePipeline(
         activeDiagnosticStage = ScanStage.STORAGE
         artifacts.prepared()
         val alignmentCache = SparseAlignmentCache(directory)
+        val featureWorkSamples = ArrayList<FeatureWorkSnapshot>(photos.size)
         val cachedAlignment = alignmentCache.load(artifacts.plan)
         val output = if (cachedAlignment != null) {
             progress(Progress("Reusing verified sparse alignment", 1, 1))
@@ -231,27 +241,31 @@ class SparsePipeline(
         val cache = File(directory, "features").apply { check(isDirectory || mkdirs()) }
         check(!java.nio.file.Files.isSymbolicLink(cache.toPath())) { "Feature cache cannot be a symbolic link." }
         val matchCache = FeatureMatchCache(directory, pipelineSnapshot.identity(PipelineStage.MATCHING), photos.size)
-        val savedMatches = matchCache.load().orEmpty().toMutableMap()
+        val matchingContext = coroutineContext
+        val savedMatches = matchCache.load { matchingContext.ensureActive() }.orEmpty().toMutableMap()
         var checkpointObservations = emptyMap<Int, List<TrackObservation>>()
-        // At most 66 pairs for twelve photos; cache key IDs, never image pixels/descriptors.
-        val featurePairCache = HashMap<Pair<Int, Int>, FeaturePairs>()
+        // Registration only consumes the complete persisted schedule below. No hidden
+        // matching or additional unbounded pair cache can escape that durable boundary.
         suspend fun featurePairs(a: Int, b: Int): FeaturePairs {
+            coroutineContext.ensureActive()
             require(a in photos.indices && b in photos.indices && a != b)
             val key = minOf(a,b) to maxOf(a,b)
-            val pair = featurePairCache[key] ?: savedMatches[key]?.let { FeaturePairs(it.firstKeys, it.secondKeys) }
-                ?: loadFrame(photos[key.first],cache).use { left ->
-                loadFrame(photos[key.second],cache).use { right ->
-                    val match = matches(left,right)
-                    FeaturePairs(match.firstKeys,match.secondKeys)
-                }
-            }.also { featurePairCache[key] = it }
+            val record = savedMatches.getValue(key)
+            val pair = FeaturePairs(record.firstKeys, record.secondKeys)
             return if(a == key.first) pair else pair.reversed()
         }
+        val summaries = ArrayList<PhotoFeatureSummary>(photos.size)
         for ((index, photo) in photos.withIndex()) {
             coroutineContext.ensureActive()
             measured(ScanStage.FEATURE_EXTRACTION, index, photos.size, ProgressUnit.PHOTOS)
             progress(Progress("Detecting SIFT features", index, photos.size))
-            loadFrame(photo, cache).close()
+            val timing = FeatureWorkTiming(index + 1, photos.size, changed = onFeatureWork)
+            loadFrame(photo, cache, timing).use { frame ->
+                val descriptors = FloatArray(frame.features.count * 128)
+                frame.features.withDescriptors { if (descriptors.isNotEmpty()) it.get(0, 0, descriptors) }
+                summaries.add(PhotoFeatureSummary.siftMean(photo.id, descriptors))
+            }
+            featureWorkSamples.add(timing.snapshot())
         }
         progress(Progress("Detecting SIFT features", photos.size, photos.size))
         measured(ScanStage.FEATURE_EXTRACTION, photos.size, photos.size, ProgressUnit.PHOTOS)
@@ -264,10 +278,17 @@ class SparsePipeline(
         diagnosticRecorder?.outcome(ScanStage.FEATURE_EXTRACTION, StageOutcome.SUCCEEDED)
         activeDiagnosticStage = ScanStage.MATCHING
         artifacts.starting(ArtifactStage.MATCHES)
-        // Compare local neighbors for the initial pair; extra cameras are registered against its tracked points.
-        val candidates = buildList {
-            for (gap in 1..3) for (i in 0 until photos.size - gap) add(i to i + gap)
-        }.take(24)
+        // Summary similarity schedules work, never proves overlap. Every admitted pair is
+        // considered, including summary-zero/orthogonal fallbacks; no import-order truncation.
+        val planningContext = coroutineContext
+        val candidatePlan = AdmittedPairPlan.build(summaries) { planningContext.ensureActive() }
+        val photoIndex = photos.withIndex().associate { it.value.id to it.index }
+        val candidates = candidatePlan.pairs.map { pair ->
+            val first = photoIndex.getValue(pair.firstPhotoId)
+            val second = photoIndex.getValue(pair.secondPhotoId)
+            minOf(first, second) to maxOf(first, second)
+        }
+        val verifiedPairIds = linkedSetOf<Pair<String, String>>()
         var best: JSONObject? = null
         var bestScore = -1.0
         var anchorPair: Pair<Int, Int>? = null
@@ -287,6 +308,7 @@ class SparsePipeline(
                     val result = com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(nativeCall(nativeToken, progress) { NativeCore.reconstructCancellable(rows.rows, 1.5 / min(fA, fB), nativeToken) })
                     coroutineContext.ensureActive()
                     if (!result.has("error")) {
+                        verifiedPairIds.add(minOf(first.id, second.id) to maxOf(first.id, second.id))
                         val score = result.getInt("pointCount") * min(result.getDouble("medianParallaxDegrees"), 8.0) /
                             (1.0 + result.getDouble("medianErrorNormalized") * (fA + fB) / 2)
                         if (score > bestScore) {
@@ -304,9 +326,11 @@ class SparsePipeline(
         }
         progress(Progress("Verifying overlapping photo pairs", candidates.size, candidates.size))
         measured(ScanStage.MATCHING, candidates.size, candidates.size, ProgressUnit.PAIRS)
-        val matchFiles = matchCache.save(savedMatches.filterKeys { it in candidates })
+        // Persist every considered pair, not just the winning anchor. These are reciprocal
+        // correspondences; native geometry is reverified when this checkpoint is resumed.
+        val matchFiles = matchCache.save(candidates.associateWith { savedMatches.getValue(it) }) { matchingContext.ensureActive() }
         artifacts.record(ArtifactStage.MATCHES, matchFiles, "bounded-reciprocal-match-graph")
-        val output = best ?: reject(ScanStage.MATCHING, ScanFailureCode.INSUFFICIENT_OVERLAP,
+        var output = best ?: reject(ScanStage.MATCHING, ScanFailureCode.INSUFFICIENT_OVERLAP,
             RecoveryAction.RECAPTURE_OVERLAP, "scan.failure.insufficient_overlap")
         diagnosticRecorder?.outcome(ScanStage.MATCHING, StageOutcome.SUCCEEDED)
         activeDiagnosticStage = ScanStage.CAMERA_REGISTRATION
@@ -320,7 +344,7 @@ class SparsePipeline(
             track to listOf(TrackObservation(0, pairTracks.firstKeys[track], pairTracks.rows[track * 7], pairTracks.rows[track * 7 + 1]),
                 TrackObservation(1, pairTracks.secondKeys[track], pairTracks.rows[track * 7 + 2], pairTracks.rows[track * 7 + 3]))
         }
-        val cameraArray = JSONArray()
+        var cameraArray = JSONArray()
         cameraArray.put(JSONObject().put("photoId", photos[selected.first].id).put("rotation", JSONArray(listOf(1,0,0,0,1,0,0,0,1)))
             .put("translation", JSONArray(listOf(0,0,0))).put("kind", "anchor"))
         cameraArray.put(JSONObject().put("photoId", photos[selected.second].id).put("rotation", output.getJSONArray("rotation"))
@@ -341,8 +365,12 @@ class SparsePipeline(
                 loadFrame(third, cache).use { c ->
                     val fC = min(c.projection.fx, c.projection.fy)
                     // Require a cycle-consistent third keypoint match to BOTH anchor views.
-                    val ac = matches(a, c).destinationBySource()
-                    val bc = matches(b, c).destinationBySource()
+                    val ac = featurePairs(selected.first, candidateIndex).let { rows ->
+                        rows.first.indices.associate { rows.first[it] to rows.second[it] }
+                    }
+                    val bc = featurePairs(selected.second, candidateIndex).let { rows ->
+                        rows.first.indices.associate { rows.first[it] to rows.second[it] }
+                    }
                     val packed = ArrayList<Double>()
                     for (i in 0 until anchorPoints.length()) {
                         val point = anchorPoints.getJSONArray(i)
@@ -420,7 +448,7 @@ class SparsePipeline(
             }
         }
         // M03: Build a shared observation graph across *registered* views, including points not seen
-        // by both anchors. The native optimizer fixes the first two cameras to preserve gauge.
+        // by both anchors. Final typed BA fixes the first pose and baseline length, not the second pose.
         measured(ScanStage.CAMERA_REGISTRATION, cameraArray.length(), photos.size, ProgressUnit.CAMERAS)
         measured(ScanStage.SPARSE_GEOMETRY, 0, 1, ProgressUnit.STEPS)
         var geometryWarning = "M03 sparse multi-view triangulation did not produce an acceptable result; retained the verified M02 anchor cloud. No dense mesh or textures."
@@ -452,17 +480,26 @@ class SparsePipeline(
                 for (i in views.indices) for (j in i + 1 until views.size) {
                     add(i to j)
                 }
-            }.take(66)
+            }.also { check(it.size <= AdmittedPairPlan.MAX_PAIRS) }
             for ((step, pair) in graphPairs.withIndex()) {
                 coroutineContext.ensureActive()
                 progress(Progress("Verifying cross-camera feature tracks", step, graphPairs.size))
                 val correspondence = featurePairs(registeredPhotoIndices[pair.first],registeredPhotoIndices[pair.second])
                 for (k in correspondence.first.indices) {
+                    if (k % 256 == 0) coroutineContext.ensureActive()
                     graph.add(pair.first,correspondence.first[k],pair.second,correspondence.second[k])
                 }
             }
             progress(Progress("Verifying cross-camera feature tracks", graphPairs.size, graphPairs.size))
-            val graphGroups = graph.snapshot()
+            // Full accepted graph, never the capped legacy native snapshot or last frontier window.
+            check(graph.matchedTrackCount() <= 15000) { "Complete sparse track budget exceeded" }
+            val sourcePhotoIds = registeredPhotoIndices.map { photos[it].id }
+            val stableTracks = graph.stableSnapshot(sourcePhotoIds)
+            output.put("finalSparseInputTracks", stableTracks.tracks.size)
+                .put("finalSparseInputObservations", stableTracks.tracks.sumOf { it.observations.size })
+            val graphGroups = stableTracks.tracks.map { track -> track.observations.associate { source ->
+                sourcePhotoIds.indexOf(source.photo).also { check(it >= 0) } to source.keypoint
+            } }
             val graphObservations = graphGroups.map { group -> group.map { (camera, key) ->
                 val normalized = views[camera].normalized(key)
                 TrackObservation(camera, key, normalized.first, normalized.second)
@@ -472,124 +509,74 @@ class SparsePipeline(
                 val group = anchorGroups[pairTracks.firstKeys[track]]
                 if (group != null && graphGroups[group][1] == pairTracks.secondKeys[track]) graphObservations[group] else anchor
             }
-            val observations = graph.packedRows()
             output.put("multiViewCandidateTracks", graph.matchedTrackCount())
             output.put("multiViewAcceptedEdges", graph.acceptedEdges)
             output.put("multiViewRejectedEdges", graph.rejectedEdges)
-            if (observations.size >= 14) {
-                val poses = DoubleArray(views.size * 12) { i ->
-                    val camera = views[i / 12]
-                    if (i % 12 < 9) camera.rotation[i % 12] else camera.translation[i % 12 - 9]
-                }
-                progress(Progress("Triangulating and refining sparse geometry", 0, 1))
-                val threshold = 3.0 / views.minOf { it.focalPixels }
-                val refined = com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(nativeCall(nativeToken, progress) { NativeCore.reconstructMultiviewCancellable(poses, observations, threshold, 12,nativeToken) })
-                coroutineContext.ensureActive()
-                if (!refined.has("error") &&
-                    refined.optInt("pointCount", 0) >= (output.getInt("pointCount") * .85).toInt() &&
-                    refined.getDouble("medianErrorAfterNormalized") < threshold * 2) {
-                    // Joint BA starts ONLY from geometrically accepted M03 sparse tracks.
-                    // It uses the same observation graph, holds both anchor cameras fixed,
-                    // and publishes nothing unless the robust objective improves.
-                    var selectedGeometry = refined
-                    var jointAccepted = false
-                    if (cameraArray.length() >= 3 && refined.getJSONArray("points").length() >= 24) {
-                        try {
-                            coroutineContext.ensureActive()
-                            progress(Progress("Joint camera and point bundle adjustment", 0, 1))
-                            measured(ScanStage.BUNDLE_ADJUSTMENT, 0, 1, ProgressUnit.STEPS)
-                            val cameraRows = refined.getJSONArray("cameras")
-                            val baCameras = DoubleArray(cameraRows.length() * 12) { i ->
-                                val pose = cameraRows.getJSONObject(i / 12)
-                                if (i % 12 < 9) pose.getJSONArray("rotation").getDouble(i % 12)
-                                else pose.getJSONArray("translation").getDouble(i % 12 - 9)
-                            }
-                            val seeds = refined.getJSONArray("points")
-                            val baPoints = DoubleArray(seeds.length() * 7) { i ->
-                                val row = seeds.getJSONArray(i / 7)
-                                if (i % 7 == 0) row.getDouble(8)
-                                else row.getDouble(i % 7 - 1)
-                            }
-                            val joint = com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(nativeCall(nativeToken, progress) { NativeCore.bundleAdjustCancellable(baCameras, baPoints, observations, threshold, 15,nativeToken) })
-                            coroutineContext.ensureActive()
-                            val acceptable = !joint.has("error") &&
-                                joint.optInt("pointCount") >= (seeds.length() * 0.90).toInt() &&
-                                joint.optDouble("robustCostAfter", Double.POSITIVE_INFINITY) <=
-                                    joint.optDouble("robustCostBefore", 0.0) + 1e-12 &&
-                                joint.optDouble("medianErrorAfterNormalized", Double.POSITIVE_INFINITY) <= threshold * 2 &&
-                                joint.optDouble("medianErrorAfterNormalized", Double.POSITIVE_INFINITY) <=
-                                    refined.getDouble("medianErrorAfterNormalized") * 1.2 + 1e-8
-                            if (acceptable) {
-                                selectedGeometry = joint
-                                jointAccepted = true
-                                output.put("bundleAdjustment", JSONObject()
-                                    .put("solver", "coupled_huber_schur_lm")
-                                    .put("anchorCamerasFixed", 2)
-                                    .put("attemptedIterations", joint.getInt("iterations"))
-                                    .put("acceptedSteps", joint.getInt("acceptedSteps"))
-                                    .put("inputObservations", joint.getInt("inputObservations"))
-                                    .put("usableObservations", joint.getInt("usableObservations"))
-                                    .put("rejectedObservations", joint.getInt("rejectedObservations"))
-                                    .put("robustCostBefore", joint.getDouble("robustCostBefore"))
-                                    .put("robustCostAfter", joint.getDouble("robustCostAfter"))
-                                    .put("medianBeforeNormalized", joint.getDouble("medianErrorBeforeNormalized"))
-                                    .put("medianAfterNormalized", joint.getDouble("medianErrorAfterNormalized")))
-                            } else {
-                                output.put("bundleAdjustmentFailure", if (joint.has("error"))
-                                    joint.getString("error") else "Joint BA quality gate rejected result")
-                            }
-                        } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
-                        catch (failure: Exception) {
-            rethrowOperationalFailure(failure)
-                            output.put("bundleAdjustmentFailure", failure.message ?: "Joint BA failed")
+            val threshold = 3.0 / views.minOf { it.focalPixels }
+            val sparseContext = coroutineContext
+            val frontier = NativeFrontierGeometry.forOperation(nativeToken)
+            progress(Progress("Validating complete sparse tracks and optimizing camera poses", 0, 1))
+            measured(ScanStage.BUNDLE_ADJUSTMENT, 0, 1, ProgressUnit.STEPS)
+            val coordinated = nativeCall(nativeToken, progress) {
+                FinalSparseExecution.execute(sourcePhotoIds, views, stableTracks,
+                    if (activeProfile != null) requireNotNull(
+                        com.realityforge.scanner.engine.pipeline.ProductionPipelineSnapshot.calibrationSha256(calibrationFile)) else null,
+                    threshold, kotlin.math.ceil(output.getInt("pointCount") * .85).toInt(),
+                    checkpoint = { sparseContext.ensureActive() },
+                    onSeedReceipt = { output.put("finalSparseAccounting", FinalSparseExecution.accounting(it)) },
+                    triangulate = { window ->
+                        frontier.triangulate(window.cameraRows, window.normalizedRows, threshold).map { point ->
+                            require(point.track in window.globalTrackIds.indices)
+                            BoundedSparseCoordinator.Candidate(window.globalTrackIds[point.track],
+                                point.xyz[0], point.xyz[1], point.xyz[2])
                         }
-                        progress(Progress("Joint camera and point bundle adjustment", 1, 1))
-                        measured(ScanStage.BUNDLE_ADJUSTMENT, 1, 1, ProgressUnit.STEPS)
-                    } else {
-                        output.put("bundleAdjustmentFailure", "Joint BA requires at least 3 registered cameras and 24 sparse points")
-                    }
-                    val newPoints = selectedGeometry.getJSONArray("points")
-                    checkpointObservations = (0 until newPoints.length()).associate { index ->
-                        val track = newPoints.getJSONArray(index).getInt(8)
-                        track to graphObservations[track]
-                    }
-                    val newCameras = selectedGeometry.getJSONArray("cameras")
-                    check(newCameras.length() == cameraArray.length())
-                    for (camera in 0 until cameraArray.length()) {
-                        val original = cameraArray.getJSONObject(camera)
-                        val corrected = newCameras.getJSONObject(camera)
-                        original.put("rotation", corrected.getJSONArray("rotation"))
-                            .put("translation", corrected.getJSONArray("translation"))
-                            .put("gaugeFixed", camera < 2)
-                    }
-                    val parallax = (0 until newPoints.length()).map { newPoints.getJSONArray(it).getDouble(7) }.sorted()
-                    output.put("schema", if (jointAccepted) 6 else 3).put("points", newPoints)
-                        .put("pointCount", newPoints.length())
-                        .put("medianParallaxDegrees", parallax[parallax.size / 2])
-                        .put("medianErrorNormalized", selectedGeometry.getDouble("medianErrorAfterNormalized"))
-                        .put("multiViewStats", JSONObject()
-                            .put("optimization", "gauge_fixed_alternating_sparse")
-                            .put("initialTracks", refined.getInt("inputTracks"))
-                            .put("rejectedTracks", refined.getInt("rejectedTracks"))
-                            .put("iterations", refined.getInt("iterations"))
-                            .put("medianBeforeNormalized", refined.getDouble("medianErrorBeforeNormalized"))
-                            .put("medianAfterNormalized", refined.getDouble("medianErrorAfterNormalized")))
-                    geometryWarning = if (jointAccepted) "M06 coupled robust sparse bundle adjustment optimized all registered camera poses (except both fixed anchors) and existing sparse points. Still no dense surface, texture or measured scale." else "M03 sparse multi-view geometry retained; joint optimization unavailable or rejected. Still no dense surface, texture or measured scale."
-                } else {
-                    geometryWarning = if (refined.has("error"))
-                        "M03 multi-view refinement rejected: ${refined.getString("error")}. Retained M02 anchor geometry."
-                    else "M03 multi-view quality gate rejected geometry; retained the M02 anchor point cloud."
-                }
+                    },
+                    bundle = { input ->
+                        com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(
+                            NativeCore.bundleAdjustProblemCancellable(input.cameraRows, input.seedRows,
+                                input.pixelRows, input.intrinsicRows, input.groupIds, input.photoIds,
+                                input.sourceTrackIds, input.measured, false, threshold, 15, nativeToken))
+                    })
             }
+            coroutineContext.ensureActive()
+            val staged = FinalSparsePublication.prepare(output, cameraArray, sourcePhotoIds,
+                views, stableTracks, coordinated, checkpoint = { sparseContext.ensureActive() })
+            val stagedObservations = staged.observations.mapValues { (_, observations) -> observations.map {
+                TrackObservation(it.camera, it.key, it.nx, it.ny)
+            } }
+            // All callbacks/serialization and provenance checks precede the atomic reference swap.
+            // A failure here leaves verified anchor points, poses and observations untouched.
+            measured(ScanStage.BUNDLE_ADJUSTMENT, 1, 1, ProgressUnit.STEPS)
             progress(Progress("Triangulating and refining sparse geometry", 1, 1))
+            coroutineContext.ensureActive()
+            output = staged.output
+            cameraArray = staged.cameras
+            checkpointObservations = stagedObservations
+            geometryWarning = "Complete admitted sparse tracks were validated against original observations and jointly optimized with fixed first pose, baseline length and lens models. Still no dense surface, texture or measured scale."
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
         catch (failure: Exception) {
             rethrowOperationalFailure(failure)
-            geometryWarning = "Multi-view geometry unavailable: ${failure.message ?: "invalid observations"}. Retained the M02 anchor point cloud."
+            output.put("finalSparseOutcome", "verified_anchor_fallback")
+                .put("finalSparseFailure", failure.message ?: "Invalid complete sparse observations")
+                .put("bundleAdjustmentFailure", failure.message ?: "Global sparse finalization failed")
+            geometryWarning = "Complete sparse finalization unavailable: ${failure.message ?: "invalid observations"}. Retained the verified M02 anchor point cloud; no global sparse result was published."
         }
         output.put("cameras", cameraArray).put("registeredCameras", cameraArray.length())
             .put("cameraRegistrationFailures", cameraFailures).put("pairsExamined", candidates.size)
             .put("failedPairs", failures).put("warning", geometryWarning)
+        val registeredIds = (0 until cameraArray.length()).map { cameraArray.getJSONObject(it).getString("photoId") }.toSet()
+        output.put("overlapDiagnostics", JSONObject()
+            .put("policy", "summary-ranked-exhaustive-admitted12-v1")
+            .put("candidatePairs", candidates.size)
+            .put("summaryRetrievedPairs", candidatePlan.retrieval.pairs.size)
+            .put("fallbackPairs", candidates.size - candidatePlan.retrieval.pairs.size)
+            .put("summaryCandidateComponents", JSONArray(candidatePlan.retrieval.candidateComponents.map { JSONArray(it) }))
+            .put("zeroSummaryPhotoIds", JSONArray(candidatePlan.retrieval.zeroEvidencePhotos))
+            .put("duplicateSummaryGroups", JSONArray(candidatePlan.retrieval.duplicateSummaryGroups.map { JSONArray(it) }))
+            .put("geometricallyVerifiedPairs", verifiedPairIds.size)
+            .put("geometricallyVerifiedComponents", JSONArray(candidatePlan.verifiedComponents(verifiedPairIds).map { JSONArray(it) }))
+            .put("unregisteredPhotoIds", JSONArray(candidatePlan.photoIds.filter { it !in registeredIds }))
+            .put("summarySimilarityIsGeometricEvidence", false))
         val checkpointCameras = (0 until cameraArray.length()).map { index ->
             val camera = cameraArray.getJSONObject(index)
             val photo = photos.single { it.id == camera.getString("photoId") }
@@ -746,6 +733,20 @@ class SparsePipeline(
         }
         diagnosticRecorder?.outcome(ScanStage.EXPORT, StageOutcome.SUCCEEDED)
         output.put("scanDiagnostics", ScanQualityReport.build(output, photos.size, diagnosticRecorder?.snapshot()))
+        // Additive operational evidence, separate from scan quality/coverage and its schema.
+        output.put("featureWorkDiagnostics", JSONObject().put("schema", 1)
+            .put("alignmentReused", cachedAlignment != null)
+            .put("samples", JSONArray(featureWorkSamples.map { sample -> JSONObject()
+                .put("photoNumber", sample.photoNumber).put("photoCount", sample.photoCount)
+                .put("phase", sample.phase.name).put("cacheHit", sample.cacheHit ?: JSONObject.NULL)
+                .put("elapsedMillis", sample.elapsedMillis)
+                .put("nativeStartedAfterMillis", sample.nativeStartedAfterMillis ?: JSONObject.NULL)
+                .put("nativeFinishedAfterMillis", sample.nativeFinishedAfterMillis ?: JSONObject.NULL)
+                .put("nativeElapsedMillis", sample.nativeElapsedMillis ?: JSONObject.NULL)
+                .put("nativeCallInterruptible", sample.nativeCallInterruptible)
+                .put("cancellationObserved", sample.cancellationObserved)
+                .put("cancellationObservedToCleanupMillis", sample.cancellationObservedToCleanupMillis ?: JSONObject.NULL)
+            })))
         repository.writeAtomic(File(directory, "$artifactKey.json"), output.toString())
         com.realityforge.scanner.engine.pipeline.PipelineDownstreamCheckpoints.record(artifacts, output, artifactKey)
         output
@@ -818,13 +819,32 @@ class SparsePipeline(
             .put("stageOutcomes", outcomes)
     }
 
-    private suspend fun loadFrame(photo: ScanPhoto, cache: File): Frame {
+    private suspend fun loadFrame(photo: ScanPhoto, cache: File, timing: FeatureWorkTiming? = null): Frame {
+        val signal = timing?.let { FeatureCancellationSignal(coroutineContext[kotlinx.coroutines.Job], it) }
+        var outcome = FeatureWorkPhase.FAILED
+        try {
+            timing?.begin()
+            val frame = loadFrameInternal(photo, cache, timing)
+            outcome = FeatureWorkPhase.READY
+            return frame
+        } catch (cancelled: java.util.concurrent.CancellationException) {
+            timing?.cancellationObserved()
+            outcome = FeatureWorkPhase.CANCELLED
+            throw cancelled
+        } finally {
+            signal?.close()
+            timing?.finish(outcome)
+        }
+    }
+
+    private suspend fun loadFrameInternal(photo: ScanPhoto, cache: File, timing: FeatureWorkTiming?): Frame {
         val job = coroutineContext[kotlinx.coroutines.Job]
         val cancelled = { job?.isActive == false }
         coroutineContext.ensureActive()
         val settings = extractor.settings.identity(decoderIdentity)
         val store = SparseFeatureCache(cache)
         val record = store.load(photo.sha256)
+        timing?.cacheResult(record != null)
         if (record != null) {
             var descriptors: Mat? = null
             try {
@@ -840,11 +860,17 @@ class SparsePipeline(
                 return frame
             } finally { descriptors?.release() }
         }
-        val features = extractor.extract(photo.id, photo.sha256, repository.photoFile(photo),
-            decoderIdentity, { width, height -> lens(photo, width, height) }, cancelled)
+        val features = extractor.extractObserved(photo.id, photo.sha256, repository.photoFile(photo),
+            decoderIdentity, { width, height -> lens(photo, width, height) }, cancelled) { event ->
+                when (event) {
+                    NativeFeatureCallEvent.STARTED -> timing?.nativeStarted()
+                    NativeFeatureCallEvent.FINISHED -> timing?.nativeFinished()
+                }
+            }
         try {
             val values = FloatArray(features.count * 128)
             features.withDescriptors { if (values.isNotEmpty()) it.get(0, 0, values) }
+            timing?.cacheWriteStarted()
             check(store.store(photo.sha256, features.width, features.height,
                 features.coordinates(), features.colors(), values)) {
                 "Cannot persist verified feature checkpoint; free storage and retry."
