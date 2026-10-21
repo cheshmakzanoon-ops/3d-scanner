@@ -1,0 +1,653 @@
+{
+  "status": "GEOMETRY_TEXTURE_MEASURE_ONLY_NOT_CACHE_OR_QUALITY_PASS",
+  "qualification": "GEOMETRY_TEXTURE_CAPTURE_ONLY_NOT_REFINED_CACHE_QUALIFICATION",
+  "refinedCacheQualification": "NOT_QUALIFIED_BY_THIS_GEOMETRY_ONLY_EXPERIMENT; prior full-cache failures remain failures",
+  "scope": "direct DensePreview profile bundle comparison, same actual alignment/selection/COMPACT; not full controller or shipping qualification",
+  "alignmentCheckpoint": {
+    "bytes": 107260,
+    "sha256": "e51c08de181486c7850523abac84fbf85242933d18bf8eae8b7e0a7f5f07683a"
+  },
+  "gauge": {
+    "method": "fixed view01 accepted camera plus positive view01-view02 baseline; no surface fit",
+    "scale": 0.6419501538279652,
+    "referenceBaselineSyntheticUnits": 0.6419501538281613,
+    "estimatedBaseline": 1.0000000000003055
+  },
+  "limitations": [
+    "New explicit adapter; no fabricated result.json or strict-evaluator pass",
+    "Profile bundle comparison, not single-parameter attribution or controller/shipping qualification",
+    "Projection coverage is not 3D completeness; wrong-depth covered pixels remain covered and depth residual is separate",
+    "Synthetic analytic intended truth, not physical accuracy; ray iteration/JPEG error not independently quantified",
+    "No geometry changes, filtering, welding or outlier removal; all native JSON fields retained including topologyIncomplete",
+    "Topology self-intersection budget remains 5000; NOT_RUN_BUDGET is unknown, not clean",
+    "Mesh surface sample uses existing fixed4096 area-weighted seed84001; vertical error is not Euclidean distance",
+    "RFAC reader checks framing and parses cameras, not full production semantic acceptance; requires successful restored harness receipt"
+  ],
+  "rawMeasurementsSha256": "ecdfb159d233b4af72036dfe27050be54913889618fd3c2b9bec1a9e35e9dbd1",
+  "decision": "HOLD_CURRENT_DEFAULT",
+  "profiles": {
+    "Compatibility": {
+      "surfaceCheckpointStatus": "CAPTURED",
+      "artifacts": {
+        "mesh.ply": {
+          "bytes": 594607,
+          "sha256": "e727e840ec3fd3efc324af97a3c2a59dca3c48f37f2dbf3133baae0e42b85919"
+        },
+        "mesh.glb": {
+          "bytes": 242980,
+          "sha256": "360c88c89b416429da06689c5247524d4484cfe55b9b8ec5e17f04f10609b9df"
+        },
+        "textured.glb": {
+          "bytes": 1399732,
+          "sha256": "40464c481619d7b9378e78392efbc631d31e5b40ee364ae796cd8aa33daff4e6"
+        },
+        "texture.png": {
+          "bytes": 1117577,
+          "sha256": "321942b199594924ea6efa3b8009c3589e8c8bdb9381a47d2c3748aa59f937fb"
+        },
+        "surface-v2.rfmesh": {
+          "sha256": "fdc472244054f6a3373d8a338c5a28c7cbc420ef5c966fb7bec404ddee21703b",
+          "bytes": 1184989
+        },
+        "direct-result.json": {
+          "bytes": 1158319,
+          "sha256": "9f28b62e0f1ee2d3aec2abc2a774e0b80f5024990446f8adc3f20677c2b5a795"
+        }
+      },
+      "vertices": 5749,
+      "triangles": 6738,
+      "topology": {
+        "representation": "open_or_defective_triangle_surface",
+        "components": 177,
+        "boundary_edges": 4873,
+        "nonmanifold_edges": 171,
+        "inconsistent_winding_edges": 0,
+        "duplicate_triangles": 0,
+        "degenerate_triangles": 0,
+        "self_intersection_pairs": null,
+        "self_intersections_status": "NOT_RUN_BUDGET",
+        "watertight_topology": false
+      },
+      "projected": {
+        "truthPixels": 294723,
+        "meshVisiblePixels": 143318,
+        "meshVisibleInsideTruthPixels": 137979,
+        "truthUncoveredPixels": 156744,
+        "meshVisibleOutsideTruthPixels": 5339,
+        "visibleTruthImageCoverage": 0.4681650227501756,
+        "depthResidualAtCoveredTruthPixelsSyntheticUnits": {
+          "p50": 0.015536083455781835,
+          "p90": 0.03723774618510855,
+          "p95": 0.04685733185075813,
+          "p99": 0.0702059837190033,
+          "max": 0.20347763040955869
+        },
+        "whollyOutsideViewportTriangles": 0,
+        "zeroProjectedAreaTriangles": 0
+      },
+      "surface": {
+        "sampleCount": 4096,
+        "inDomainSamples": 3988,
+        "outOfDomainSamples": 108,
+        "verticalResidualInDomainSyntheticUnits": {
+          "p50": 0.013344739775140058,
+          "p90": 0.03622110481374411,
+          "p95": 0.046556057127939664,
+          "max": 0.14314635664580333
+        },
+        "allSamplesAnalyticExtrapolationResidual": {
+          "p50": 0.01350933888335204,
+          "p90": 0.03663739833812407,
+          "p95": 0.047474655587200876,
+          "max": 0.14314635664580333
+        }
+      },
+      "nativeResultScalarsAndArrayBindings": {
+        "profile": "Compatibility",
+        "artifactKey": "sparse-m16-r3-31241ccf62dd7a0e",
+        "denseStageIdentity": "a7dad93c104a0477ac770f5a44a64945e92f0cf7aaf95809f50f9c9e599d2bfa",
+        "textureStageIdentity": "a0f6fba561ef914119a6d232d92cbda31b3cf57dfade19079821785fb00fb515",
+        "denseSettings": "native-reference-depth-v1|planes-56|resource=resource-geometry-v1|depth=256|views=6|samples=50000|native-threads=1|min-edge=32|grid-border=8|strides=3:8|depth-bytes=4|luminance-bytes=4|luminance-views=4|camera-subset=anchors-distributed-v1|host-profile=Compatibility|cpu-compatibility-v1|discontinuityAwareConsistency=false|robustSourceAggregation=false",
+        "textureSettings": "photographic-atlas-v1|resource=resource-appearance-v1|texture-edge=512|atlas-pixels=4500000|many-views-edge=640|few-views-edge=768|view-threshold=4|atlas-padding=6|atlas-columns=2:3|host-profile=Compatibility|legacy-camera-atlas|gutter3|facing.12|depthTolerance.075",
+        "payload": {
+          "dense": {
+            "schema": 7,
+            "representation": "dense_points",
+            "technique": "bounded_cpu_plane_sweep_zncc",
+            "scale": "arbitrary",
+            "triangleCount": 0,
+            "textured": false,
+            "pointCount": 6851,
+            "sampledPixels": 15438,
+            "photometricPixels": 7350,
+            "consistentPixels": 6867,
+            "medianConfidence": 0.95714753866,
+            "points": {
+              "omittedArrayLength": 6851,
+              "canonicalJsonSha256": "e33f3cccb7cf085d82a756d50a39171def45c30ab767401fc2e8ed6e32708d46"
+            },
+            "sourceViewIndices": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "b2a03ce9ad120ea9e5c851bb7b9e962491675fd5110e7b997f63c594a70c85cb"
+            },
+            "consistentPixelsPerView": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "33ceaeaca8b504a3c7f821ba67e69955eda02e63d2145445bbbc5014302cbdb9"
+            },
+            "resumedDepthMaps": 0,
+            "writtenDepthMaps": 3,
+            "resumedDepthTiles": 0,
+            "recomputedDepthTiles": 36,
+            "writtenDepthTiles": 36,
+            "rejectedDepthTiles": 0,
+            "coarseDepthMaps": 0,
+            "propagatedHypotheses": 0,
+            "sparsePriorTiles": 0,
+            "normalHypothesesEvaluated": 0,
+            "normalRefinedPixels": 0,
+            "normalSupportPairs": 0,
+            "normalRejectedPairs": 0,
+            "normalUnknownPairs": 0,
+            "completedTiles": 36,
+            "totalTiles": 36,
+            "admittedWorkingSetBytes": 17932160,
+            "peakLuminanceBytes": 0,
+            "verifiedSampleCount": 6867,
+            "pointExportLimitReached": false,
+            "sourcePhotos": 3,
+            "rectifiedWidth": 256,
+            "rectifiedHeight": 192,
+            "depthPlanes": 56,
+            "pixelStride": 3,
+            "selectedCameraIndices": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "17ec4a6509c8e1681c3f81939cee9e81077491e151d569ad0cc6f03196201818"
+            },
+            "selectedPhotoIds": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "f35905a92396bbdf5d34c91d60ef596fd07cfea107ecdbf6cd5c6274a5835516"
+            },
+            "excludedRegisteredCameraCount": 0,
+            "selectionMethod": "verified_sparse_tracks",
+            "selectionPolicyVersion": "verified-track-cover-connected-8x3-v1",
+            "executionProfile": "Compatibility",
+            "executedSourceViewIndices": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "b2a03ce9ad120ea9e5c851bb7b9e962491675fd5110e7b997f63c594a70c85cb"
+            },
+            "executedSourcePhotoIds": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "4a910194f3437011d1f9e6f90091f8d4b2956eb693e07db2d1350f32bb37c696"
+            },
+            "rectifierProducerVersion": "upright-rgba-v2|opaque-four-neighbour|invalid-border",
+            "rectifiedLevelIdentities": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "5a9e37e19f78efad2c9f3597cec2215d27374fca30770a1db9f714bdab4065c4"
+            },
+            "approvedSourceAdjacencyApplied": false,
+            "depthInputIdentity": "6ca869d1b3b7a7152744fefd3372a149c38ec7736c4a771232fcd1c20212eeb7",
+            "refinementInputIdentity": null,
+            "coarseInputWidth": 0,
+            "coarseInputHeight": 0,
+            "sparsePriorObservationCount": 0,
+            "sparsePriorBoundPolicy": "normalized-threshold-over-measured-sine-parallax-v1; algorithmic bound, not physical sigma",
+            "candidateSourcePhotoIds": {
+              "fc2692cd-fb82-4af7-808e-e024f0da7cf0": {
+                "omittedArrayLength": 2,
+                "canonicalJsonSha256": "b128afc5494546d182f9277f3349eda326b9af0a8ebdbf7537469b5429409703"
+              },
+              "3a7b2f6b-36f7-4355-881e-b93596b615c5": {
+                "omittedArrayLength": 2,
+                "canonicalJsonSha256": "6929740c59f93b52125666b2ce24e87c1432999dfd1ec3385c0c4c9672ffc4df"
+              },
+              "6292941e-a943-4074-8fe1-a29fc7b446c3": {
+                "omittedArrayLength": 2,
+                "canonicalJsonSha256": "95d733b028989cd6176c14097968d85bac304f1a554f5613e2008e8ab7c2a7f3"
+              }
+            },
+            "selectionExclusions": {},
+            "rectificationConvention": "rf-xright-ydown-zforward-w2c-pixel-centres-v2",
+            "workload": {
+              "memoryTier": "compact",
+              "depthEdgeLimit": 256,
+              "textureEdgeLimit": 512,
+              "sampledGridLimit": 50000,
+              "resourceSelectionVersion": 1,
+              "resourceSelectionIdentity": "8a02fab69e7769c47cd85f492b36b4cd263e560d241db6ffa77f91d6dd184eb4",
+              "nativeThreads": 1,
+              "plannedGridSamples": 15438,
+              "packedDepthBytes": 589824,
+              "maximumCachedLuminanceBytes": 589824,
+              "memoryMeasurement": "allocation bounds only; not process RSS"
+            },
+            "nearDepthInAnchorUnits": 4.4728603525017,
+            "farDepthInAnchorUnits": 9.093850475555358,
+            "depthCheckpointSchema": 18,
+            "depthCheckpointIdentity": "6ca869d1b3b7a7152744fefd3372a149c38ec7736c4a771232fcd1c20212eeb7",
+            "surfaceCheckpointAvailable": true,
+            "surfaceCheckpointWritten": true,
+            "geometryReused": false,
+            "depthCheckpointResumed": 0,
+            "depthCheckpointWritten": 3,
+            "photographsRectified": true,
+            "calibrationProfileApplied": false,
+            "refinedIntrinsicsApplied": false,
+            "limitations": "Bounded CPU stereo with optional actual photographic UV atlas. Open mesh, arbitrary scale, no global appearance or completeness guarantee"
+          },
+          "geometryReused": false,
+          "mesh": {
+            "schema": 8,
+            "representation": "observed_open_triangle_mesh",
+            "scale": "arbitrary",
+            "textured": false,
+            "watertight": false,
+            "material": "vertex_colors",
+            "vertexCount": 5749,
+            "triangleCount": 6738,
+            "inputSamples": 6867,
+            "acceptedSamples": 6865,
+            "fusedObservations": 275,
+            "rejectedCells": 11745,
+            "rejectedTriangles": 150,
+            "medianConfidence": 0.968352735,
+            "fusionVersion": 6,
+            "boundaryEdges": 4873,
+            "nonmanifoldEdges": 171,
+            "intersections": 6162,
+            "topologyIncomplete": false,
+            "vertices": {
+              "omittedArrayLength": 5749,
+              "canonicalJsonSha256": "8c25b3fd208549808a30fcba5b9f34e444456a45b68607680e38f972e85212c0"
+            },
+            "triangles": {
+              "omittedArrayLength": 6738,
+              "canonicalJsonSha256": "f55c1c1b205665e8c3520c111bb63ffa2fc901a6ba329ead14f0c9eb33a8748e"
+            }
+          },
+          "texture": {
+            "schema": 10,
+            "representation": "camera_ranked_photographic_atlas",
+            "textured": true,
+            "watertight": false,
+            "scale": "arbitrary",
+            "atlasWidth": 1036,
+            "atlasHeight": 780,
+            "atlasFormat": "image/png",
+            "textureEngineVersion": "rf-atlas-v2-groups-zlib-radiometry3",
+            "maximumUvStretch": 0,
+            "compactCharts": false,
+            "supportedTexels": 0,
+            "unsupportedTexels": 0,
+            "chartCount": 3,
+            "blendedTexels": 0,
+            "texelsPerArbitraryUnit": 0,
+            "atlasUtilization": 0,
+            "meanBlendResidual": 0,
+            "uvVertexCount": 6245,
+            "triangleCount": 6738,
+            "inputTriangles": 6738,
+            "skippedTriangles": 0,
+            "viewSwitchEdges": 429,
+            "viewSwitchEdgesBefore": 559,
+            "reassignedFaces": 86,
+            "exposurePairs": 3,
+            "exposureSamples": 5337,
+            "overlapMedianLogErrorBefore": 0.06693686746,
+            "overlapMedianLogErrorAfter": 0.06677983378,
+            "uvOrigin": "upper_left",
+            "faceCoverage": 1,
+            "medianFacing": 0.8084015723,
+            "cameraTriangleCounts": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "92c1c965515ce8636f93487cb1e7b873efc8a2df2ba38ecec829b4af00dacfc1"
+            },
+            "exposureCorrectionAccepted": true,
+            "exposureHeldOutSamples": 1068,
+            "exposureHeldOutLogErrorBefore": 0.06855247025,
+            "exposureHeldOutLogErrorAfter": 0.06780550945,
+            "exposureChannelAccepted": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "e5b9a37d4601777b92e68e2f556d3ca1cb67f8085802a7022b1c179541a33658"
+            },
+            "exposureHeldOutChannelLogErrorBefore": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "945464645a30cbdf515344c9ead77065b0e4e6b2fffda04ffaf84e5008a549fc"
+            },
+            "exposureHeldOutChannelLogErrorAfter": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "92dbab382edc2fd1c480c020d5fdc3fa38d2b8801b94c78085398a65a76fd012"
+            },
+            "cameraColorSupported": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "e0e62f8b945fb2e0586e847e946d4b954d732c46755b0670bb141c4224ab2e21"
+            },
+            "cameraColorSupportFraction": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "9e07ab64261fb6803c6572f7b5c3098ea68fb45873128af820d42a2262eb900b"
+            },
+            "cameraColorGains": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "04d62cc45bbd04648e87473ce965e87353c7d432e4e49f6c66a2096a73752f15"
+            },
+            "textureInputIdentity": "c6c2fe959ca83999f31e0d5a9cd487aaf186f4e0c953566be8a4fbcd6211cc47"
+          }
+        }
+      }
+    },
+    "VerifiedRefinedCompact": {
+      "surfaceCheckpointStatus": "NOT_AVAILABLE_BY_REFINED_POLICY",
+      "artifacts": {
+        "mesh.ply": {
+          "bytes": 338174,
+          "sha256": "249f59239ff8e9d991b5a4bb2ef6630e3a21e3f09727c3099df8bf5dd84da8a8"
+        },
+        "mesh.glb": {
+          "bytes": 138108,
+          "sha256": "95c8309a62d5223479cb4817537f223e0cf76c2ed31566dc3fc659af7dadcae3"
+        },
+        "textured.glb": {
+          "bytes": 1416768,
+          "sha256": "5a499346dbf991a9546a0dedf4b3cff650ad59c0648e838fb178249a4e1fa3c1"
+        },
+        "texture.png": {
+          "bytes": 1019054,
+          "sha256": "b0e133d7dc0cd06459ab0a7546b1232a977a085619f9b293ff25bb93d0eb2141"
+        },
+        "direct-result.json": {
+          "bytes": 730384,
+          "sha256": "16d9d9fb4010a8909ac6d9cd679f707720418b2c354965bb77762731f1d47277"
+        }
+      },
+      "vertices": 3319,
+      "triangles": 3669,
+      "topology": {
+        "representation": "open_or_defective_triangle_surface",
+        "components": 133,
+        "boundary_edges": 3004,
+        "nonmanifold_edges": 127,
+        "inconsistent_winding_edges": 1,
+        "duplicate_triangles": 0,
+        "degenerate_triangles": 0,
+        "self_intersection_pairs": 2698,
+        "self_intersections_status": "PASS_CHECK_EXECUTED",
+        "watertight_topology": false
+      },
+      "projected": {
+        "truthPixels": 294723,
+        "meshVisiblePixels": 88135,
+        "meshVisibleInsideTruthPixels": 87639,
+        "truthUncoveredPixels": 207084,
+        "meshVisibleOutsideTruthPixels": 496,
+        "visibleTruthImageCoverage": 0.2973605724697428,
+        "depthResidualAtCoveredTruthPixelsSyntheticUnits": {
+          "p50": 0.01304917082658763,
+          "p90": 0.031084146607225093,
+          "p95": 0.03895171895938407,
+          "p99": 0.0565695777278051,
+          "max": 0.13144552341577231
+        },
+        "whollyOutsideViewportTriangles": 0,
+        "zeroProjectedAreaTriangles": 0
+      },
+      "surface": {
+        "sampleCount": 4096,
+        "inDomainSamples": 4087,
+        "outOfDomainSamples": 9,
+        "verticalResidualInDomainSyntheticUnits": {
+          "p50": 0.011800256584900026,
+          "p90": 0.03207816593564159,
+          "p95": 0.03995888238257449,
+          "max": 0.11274678676631655
+        },
+        "allSamplesAnalyticExtrapolationResidual": {
+          "p50": 0.011802348280295583,
+          "p90": 0.03205714242585267,
+          "p95": 0.03991778217609632,
+          "max": 0.11274678676631655
+        }
+      },
+      "nativeResultScalarsAndArrayBindings": {
+        "profile": "VerifiedRefinedCompact",
+        "artifactKey": "sparse-m16-r3-1c475f94699ceb04",
+        "denseStageIdentity": "ddaa3db5e54c315fb08f50a484b99d4584b3689f81d29ddffce21ac37daacc12",
+        "textureStageIdentity": "b9a26eb81e791e40e2072f2dde595a45472ac3fa0b03f6953ade6636fb96d3e2",
+        "denseSettings": "native-reference-depth-v1|planes-56|resource=resource-geometry-v1|depth=256|views=6|samples=50000|native-threads=1|min-edge=32|grid-border=8|strides=3:8|depth-bytes=4|luminance-bytes=4|luminance-views=4|camera-subset=anchors-distributed-v1|host-profile=VerifiedRefinedCompact|cpu-refined-v3|local6|normal3|strict1|normalConsistency1|angle35|robustSourceAggregation=false",
+        "textureSettings": "photographic-atlas-v1|resource=resource-appearance-v1|texture-edge=512|atlas-pixels=4500000|many-views-edge=640|few-views-edge=768|view-threshold=4|atlas-padding=6|atlas-columns=2:3|host-profile=VerifiedRefinedCompact|compact2048|maxUvStretch=.02|maxPixels4.5M|gutter3|texels128|facing.12|depthTolerance.075",
+        "payload": {
+          "dense": {
+            "schema": 7,
+            "representation": "dense_points",
+            "technique": "bounded_cpu_plane_sweep_zncc",
+            "scale": "arbitrary",
+            "triangleCount": 0,
+            "textured": false,
+            "pointCount": 4574,
+            "sampledPixels": 15438,
+            "photometricPixels": 7154,
+            "consistentPixels": 4580,
+            "medianConfidence": 0.71593612432,
+            "points": {
+              "omittedArrayLength": 4574,
+              "canonicalJsonSha256": "07cf25d7e851dc0f5169be32c17bea40037e36c0b1e085cc2d1ab991e2f0d086"
+            },
+            "sourceViewIndices": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "b2a03ce9ad120ea9e5c851bb7b9e962491675fd5110e7b997f63c594a70c85cb"
+            },
+            "consistentPixelsPerView": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "ca40020cbfb4a6e922b375e7d2f3996904c7922cea7342a3a696b146830ea7fe"
+            },
+            "resumedDepthMaps": 0,
+            "writtenDepthMaps": 0,
+            "resumedDepthTiles": 0,
+            "recomputedDepthTiles": 36,
+            "writtenDepthTiles": 36,
+            "rejectedDepthTiles": 0,
+            "coarseDepthMaps": 3,
+            "propagatedHypotheses": 649,
+            "sparsePriorTiles": 36,
+            "normalHypothesesEvaluated": 7749,
+            "normalRefinedPixels": 72,
+            "normalSupportPairs": 870,
+            "normalRejectedPairs": 10,
+            "normalUnknownPairs": 6002,
+            "completedTiles": 36,
+            "totalTiles": 36,
+            "admittedWorkingSetBytes": 34494688,
+            "peakLuminanceBytes": 0,
+            "verifiedSampleCount": 4580,
+            "pointExportLimitReached": false,
+            "sourcePhotos": 3,
+            "rectifiedWidth": 256,
+            "rectifiedHeight": 192,
+            "depthPlanes": 56,
+            "pixelStride": 3,
+            "selectedCameraIndices": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "17ec4a6509c8e1681c3f81939cee9e81077491e151d569ad0cc6f03196201818"
+            },
+            "selectedPhotoIds": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "f35905a92396bbdf5d34c91d60ef596fd07cfea107ecdbf6cd5c6274a5835516"
+            },
+            "excludedRegisteredCameraCount": 0,
+            "selectionMethod": "verified_sparse_tracks",
+            "selectionPolicyVersion": "verified-track-cover-connected-8x3-v1",
+            "executionProfile": "VerifiedRefinedCompact",
+            "executedSourceViewIndices": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "b2a03ce9ad120ea9e5c851bb7b9e962491675fd5110e7b997f63c594a70c85cb"
+            },
+            "executedSourcePhotoIds": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "4a910194f3437011d1f9e6f90091f8d4b2956eb693e07db2d1350f32bb37c696"
+            },
+            "rectifierProducerVersion": "upright-rgba-v2|opaque-four-neighbour|invalid-border",
+            "rectifiedLevelIdentities": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "5a9e37e19f78efad2c9f3597cec2215d27374fca30770a1db9f714bdab4065c4"
+            },
+            "approvedSourceAdjacencyApplied": true,
+            "depthInputIdentity": "2e1c7eaa65426753bcd46d8817c081d4dab23a21c4fd0ff517e809670d5316ca",
+            "refinementInputIdentity": "2e1c7eaa65426753bcd46d8817c081d4dab23a21c4fd0ff517e809670d5316ca",
+            "coarseInputWidth": 128,
+            "coarseInputHeight": 96,
+            "sparsePriorObservationCount": 2117,
+            "sparsePriorBoundPolicy": "normalized-threshold-over-measured-sine-parallax-v1; algorithmic bound, not physical sigma",
+            "candidateSourcePhotoIds": {
+              "fc2692cd-fb82-4af7-808e-e024f0da7cf0": {
+                "omittedArrayLength": 2,
+                "canonicalJsonSha256": "b128afc5494546d182f9277f3349eda326b9af0a8ebdbf7537469b5429409703"
+              },
+              "3a7b2f6b-36f7-4355-881e-b93596b615c5": {
+                "omittedArrayLength": 2,
+                "canonicalJsonSha256": "6929740c59f93b52125666b2ce24e87c1432999dfd1ec3385c0c4c9672ffc4df"
+              },
+              "6292941e-a943-4074-8fe1-a29fc7b446c3": {
+                "omittedArrayLength": 2,
+                "canonicalJsonSha256": "95d733b028989cd6176c14097968d85bac304f1a554f5613e2008e8ab7c2a7f3"
+              }
+            },
+            "selectionExclusions": {},
+            "rectificationConvention": "rf-xright-ydown-zforward-w2c-pixel-centres-v2",
+            "workload": {
+              "memoryTier": "compact",
+              "depthEdgeLimit": 256,
+              "textureEdgeLimit": 512,
+              "sampledGridLimit": 50000,
+              "resourceSelectionVersion": 1,
+              "resourceSelectionIdentity": "8a02fab69e7769c47cd85f492b36b4cd263e560d241db6ffa77f91d6dd184eb4",
+              "nativeThreads": 1,
+              "plannedGridSamples": 15438,
+              "packedDepthBytes": 589824,
+              "maximumCachedLuminanceBytes": 589824,
+              "memoryMeasurement": "allocation bounds only; not process RSS"
+            },
+            "nearDepthInAnchorUnits": 4.4728603525017,
+            "farDepthInAnchorUnits": 9.093850475555358,
+            "depthCheckpointSchema": 18,
+            "depthCheckpointIdentity": "2e1c7eaa65426753bcd46d8817c081d4dab23a21c4fd0ff517e809670d5316ca",
+            "surfaceCheckpointAvailable": false,
+            "surfaceCheckpointWritten": false,
+            "geometryReused": false,
+            "depthCheckpointResumed": 0,
+            "depthCheckpointWritten": 0,
+            "photographsRectified": true,
+            "calibrationProfileApplied": false,
+            "refinedIntrinsicsApplied": false,
+            "limitations": "Bounded CPU stereo with optional actual photographic UV atlas. Open mesh, arbitrary scale, no global appearance or completeness guarantee"
+          },
+          "geometryReused": false,
+          "mesh": {
+            "schema": 8,
+            "representation": "observed_open_triangle_mesh",
+            "scale": "arbitrary",
+            "textured": false,
+            "watertight": false,
+            "material": "vertex_colors",
+            "vertexCount": 3319,
+            "triangleCount": 3669,
+            "inputSamples": 4580,
+            "acceptedSamples": 4578,
+            "fusedObservations": 250,
+            "rejectedCells": 13332,
+            "rejectedTriangles": 45,
+            "medianConfidence": 0.7283998728,
+            "fusionVersion": 6,
+            "boundaryEdges": 3004,
+            "nonmanifoldEdges": 127,
+            "intersections": 2698,
+            "topologyIncomplete": false,
+            "vertices": {
+              "omittedArrayLength": 3319,
+              "canonicalJsonSha256": "1fc6ebd1190ffd798955b0e01af60030aabf3c46888e428b0ae0e10c5ec867cd"
+            },
+            "triangles": {
+              "omittedArrayLength": 3669,
+              "canonicalJsonSha256": "2f96b86f47589ae6723a71f7644f0154fe89fa5eff1a7f8daf9b7aff8876fbaa"
+            }
+          },
+          "texture": {
+            "schema": 10,
+            "representation": "compact_visible_photographic_atlas",
+            "textured": true,
+            "watertight": false,
+            "scale": "arbitrary",
+            "atlasWidth": 2048,
+            "atlasHeight": 298,
+            "atlasFormat": "image/png",
+            "textureEngineVersion": "rf-atlas-v2-groups-zlib-radiometry3",
+            "maximumUvStretch": 0.01992192849,
+            "compactCharts": true,
+            "supportedTexels": 85736,
+            "unsupportedTexels": 7,
+            "chartCount": 2416,
+            "blendedTexels": 81171,
+            "texelsPerArbitraryUnit": 73.42850447,
+            "atlasUtilization": 0.1404808096,
+            "meanBlendResidual": 0.008550975084,
+            "uvVertexCount": 11007,
+            "triangleCount": 3669,
+            "inputTriangles": 3669,
+            "skippedTriangles": 0,
+            "viewSwitchEdges": null,
+            "viewSwitchEdgesBefore": null,
+            "reassignedFaces": null,
+            "exposurePairs": 3,
+            "exposureSamples": 3101,
+            "overlapMedianLogErrorBefore": 0.06482095902,
+            "overlapMedianLogErrorAfter": 0.06467590551,
+            "uvOrigin": "upper_left",
+            "faceCoverage": 1,
+            "medianFacing": 0.8324228234,
+            "cameraTriangleCounts": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "6d43d70197c3da16506aa6ac09e7882183d1642ea60cf6645b427eff9dca8e40"
+            },
+            "exposureCorrectionAccepted": true,
+            "exposureHeldOutSamples": 622,
+            "exposureHeldOutLogErrorBefore": 0.06240531108,
+            "exposureHeldOutLogErrorAfter": 0.06237663996,
+            "exposureChannelAccepted": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "02e449eb61268c7909802c393ce9dd57c1d74e3973052a7f191d715a15f81e77"
+            },
+            "exposureHeldOutChannelLogErrorBefore": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "b5aa61e164f5303ff891087d9fbd89649cf7fe5b5404e726a432511211849aed"
+            },
+            "exposureHeldOutChannelLogErrorAfter": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "39cbae5d966e5fc5a6d0bd2adb8509652bb0eb46db01968dd9b6188ae6362871"
+            },
+            "cameraColorSupported": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "e0e62f8b945fb2e0586e847e946d4b954d732c46755b0670bb141c4224ab2e21"
+            },
+            "cameraColorSupportFraction": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "9e07ab64261fb6803c6572f7b5c3098ea68fb45873128af820d42a2262eb900b"
+            },
+            "cameraColorGains": {
+              "omittedArrayLength": 3,
+              "canonicalJsonSha256": "e72dfea0b6b6ea4aec9c54533ed56a66052004fff2e210c096bbfa3bcad5f1cf"
+            },
+            "textureInputIdentity": "6a6b6d25181f86c790fe59fcc00aedcfc21b36e43654b1d33be572c4716b375a"
+          }
+        }
+      }
+    }
+  },
+  "differenceArrayBinding": {
+    "omittedArrayLength": 78,
+    "canonicalJsonSha256": "6c115c5ddce9e9c681afbec8a13a114806c591aeec95f200ea9e37b3cf0f6a75"
+  },
+  "interpretation": [
+    "Coverage falls 46.8165% to 29.7361%; residual p95 improves only on changed covered populations, not common-pixel or completeness proof.",
+    "Native mesh intersections 6162 to 2698, topologyIncomplete false in BOTH actual profiles. This is different from earlier STANDARD experiment topologyIncomplete=true.",
+    "External topology Compatibility self_intersection_pairs=null/NOT_RUN_BUDGET, refined2698; PASS_CHECK_EXECUTED means check executed, NOT no intersections.",
+    "Both open/defective, nonmanifold and not watertight. No quality PASS. Refined cache deliberately unavailable, not cache qualified.",
+    "No source geometry/camera/source-array differences were normalized in raw report. Archive omissions are explicit hash-bound summaries only."
+  ]
+}

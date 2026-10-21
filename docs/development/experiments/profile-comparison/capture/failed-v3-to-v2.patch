@@ -1,0 +1,25 @@
+--- a/VerifiedProfilePair.kt
++++ b/VerifiedProfilePair.kt
+@@ -105,11 +105,6 @@
+                     surfaceCheckpoint = null, selection = input.selection, executionProfile = profile,
+                     acceptedSparseSupport = input.support, sparseThresholdNormalized = input.threshold).payload
+             } // Both real tokens remain parent-owned until the entire worker has stopped.
+-            // Diagnostic only: preserve actual return in JUnit XML even if quality gates reject it.
+-            val diagnostic = JSONObject().put("profile",profile.name).put("artifactKey",key)
+-                .put("scope","actual direct API return; not quality PASS").put("payload",payload).toString()
+-            require(diagnostic.toByteArray(Charsets.UTF_8).size in 1..(4*1024*1024))
+-            println("PROFILE_DIAGNOSTIC $diagnostic")
+             val dense = payload.getJSONObject("dense")
+             require(dense.getString("executionProfile") == profile.name && !dense.getBoolean("geometryReused"))
+             require(dense.getInt("rectifiedWidth") == 256 && dense.getInt("rectifiedHeight") == 192)
+@@ -117,9 +112,7 @@
+             require(dense.getJSONObject("workload").getString("memoryTier") == "compact")
+             require(dense.getJSONArray("selectedPhotoIds").toString() == JSONArray(input.selection.referencePhotoIds).toString())
+             require(dense.getInt("depthCheckpointResumed") == 0)
+-            require(payload.has("mesh")) { "${profile.name}: mesh rejected: ${payload.optString("meshError")}; see actual diagnostic payload" }
+-            require(payload.has("texture")) { "${profile.name}: texture rejected: ${payload.optString("textureError")}; see actual diagnostic payload" }
+-            require(dense.getBoolean("surfaceCheckpointAvailable")) { "${profile.name}: surface checkpoint unavailable; see actual diagnostic payload" }
++            require(payload.has("mesh") && payload.has("texture") && dense.getBoolean("surfaceCheckpointAvailable"))
+             outcomes.add(JSONObject().put("profile",profile.name).put("artifactKey",key)
+                 .put("denseStageIdentity",selectedSnapshot.identity(PipelineStage.DENSE).digest)
+                 .put("textureStageIdentity",selectedSnapshot.identity(PipelineStage.TEXTURE).digest)

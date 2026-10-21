@@ -1,0 +1,246 @@
+[
+  {
+    "label": "compile",
+    "rawReceiptSha256": "b7b05f5a92a1411fae79dd5ca3063faa9e6da894684829fe1c1ead3c246a6c06",
+    "extracted": {
+      "outcome": "PASS",
+      "scope": "COMPILE_ONLY_NOT_TESTED_OR_RUNTIME_QUALIFIED",
+      "seconds": 53.76720633599325,
+      "expectedCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postGitStatus": "",
+      "inputsUnchanged": true,
+      "compileExit": 0,
+      "restorationExit": 0,
+      "restored": true
+    },
+    "junit": []
+  },
+  {
+    "label": "unit",
+    "rawReceiptSha256": "7da22a964766323296afcdbd94f240b1e652b2a39bc0fe28a5f77c9edea64796",
+    "extracted": {
+      "outcome": "PASS",
+      "scope": "14 external adapter-only artificial fixture tests; no native solver or full profile runtime qualification",
+      "seconds": 63.134069125997485,
+      "expectedCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postGitStatus": "",
+      "inputsUnchanged": true,
+      "compileExit": 0,
+      "restorationExit": 0,
+      "restored": true
+    },
+    "junit": [
+      {
+        "xmlSha256": "2e89dbd5a5dcc13402f61fea342629ebf26460528341ce02f2fd8bdd80e4a8de",
+        "name": "com.realityforge.scanner.hostintegration.VerifiedProfilePairAdapterTest",
+        "tests": "14",
+        "skipped": "0",
+        "failures": [],
+        "errors": "0",
+        "timestamp": "2026-10-21T21:25:15.471Z",
+        "time": "6.65"
+      }
+    ]
+  },
+  {
+    "label": "pair",
+    "rawReceiptSha256": "047fb2fa4a0d7219c12e3fcde07a85892342b33251a694301f49575910d30be1",
+    "extracted": {
+      "outcome": "FAILED",
+      "status": "EXIT_1",
+      "scope": "HOST actual baseline core plus direct DensePreview same-selection profile bundle experiment; equal COMPACT preset, not identical work, controller or refined shipping qualification",
+      "durationSeconds": 46.203147172927856,
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postGitStatus": "",
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "postcheckErrors": [
+        {
+          "qualityCaptureError": "ValueError('Missing/unsafe quality capture')"
+        },
+        {
+          "profileComparisonError": "ValueError('Missing bounded direct profile comparison')"
+        }
+      ]
+    },
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "fullBoundInputsUnchanged": true,
+      "restored": true
+    },
+    "junit": [
+      {
+        "xmlSha256": "67a2833ffe7befe3b071c4aeb28f09d334a9e14cf0f0c24318805d498ba5b1ae",
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": [
+          {
+            "message": "java.lang.AssertionError: expected:<1> but was:<RUNNING>",
+            "type": "java.lang.AssertionError"
+          }
+        ],
+        "errors": "0",
+        "timestamp": "2026-10-21T21:27:39.505Z",
+        "time": "10.882"
+      }
+    ]
+  },
+  {
+    "label": "pair-v2",
+    "rawReceiptSha256": "c313f7a01fae789d2c8e526bb42cd0779e0901ad36f4b78901374a938fc7b443",
+    "extracted": {
+      "outcome": "FAILED",
+      "status": "EXIT_1",
+      "scope": "HOST actual baseline core plus direct DensePreview same-selection profile bundle experiment; equal COMPACT preset, not identical work, controller or refined shipping qualification",
+      "durationSeconds": 51.28093647956848,
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postGitStatus": "",
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "postcheckErrors": [
+        {
+          "qualityCaptureError": "ValueError('Missing/unsafe quality capture')"
+        },
+        {
+          "profileComparisonError": "ValueError('Missing bounded direct profile comparison')"
+        }
+      ]
+    },
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "fullBoundInputsUnchanged": true,
+      "restored": true
+    },
+    "junit": [
+      {
+        "xmlSha256": "d19c335f8e89d823c8b4b703035f89cc9b344b5bb4cdc3c50923e35593a58e14",
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": [
+          {
+            "message": "java.lang.IllegalArgumentException: Failed requirement.",
+            "type": "java.lang.IllegalArgumentException"
+          }
+        ],
+        "errors": "0",
+        "timestamp": "2026-10-21T21:31:01.364Z",
+        "time": "16.504"
+      }
+    ]
+  },
+  {
+    "label": "pair-v3",
+    "rawReceiptSha256": "8a3f4094d719ae9074465892a0a48e6c9a4447ece75228c9a04b2dfd82612a78",
+    "extracted": {
+      "outcome": "FAILED",
+      "status": "EXIT_1",
+      "scope": "HOST actual baseline core plus direct DensePreview same-selection profile bundle experiment; equal COMPACT preset, not identical work, controller or refined shipping qualification",
+      "durationSeconds": 53.528523683547974,
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postGitStatus": "",
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "postcheckErrors": [
+        {
+          "qualityCaptureError": "ValueError('Missing/unsafe quality capture')"
+        },
+        {
+          "profileComparisonError": "ValueError('Missing bounded direct profile comparison')"
+        }
+      ]
+    },
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "fullBoundInputsUnchanged": true,
+      "restored": true
+    },
+    "junit": [
+      {
+        "xmlSha256": "11da308be9bad13ecf39a75aee62c60f89d463f1150a9654a14a8a4bc35b3491",
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": [
+          {
+            "message": "java.lang.IllegalArgumentException: VerifiedRefinedCompact: surface checkpoint unavailable; see actual diagnostic payload",
+            "type": "java.lang.IllegalArgumentException"
+          }
+        ],
+        "errors": "0",
+        "timestamp": "2026-10-21T21:33:49.823Z",
+        "time": "15.877"
+      }
+    ]
+  },
+  {
+    "label": "geometry",
+    "rawReceiptSha256": "c4dee291d0ea3eefbbc2bc61cafcef9ace1e81cbf6cd75758da147368efd7017",
+    "extracted": {
+      "outcome": "PASS",
+      "status": "EXIT_0",
+      "scope": "HOST same-selection profile geometry/texture capture only; refined surface checkpoint unavailable by existing policy, not cache/controller/shipping qualification",
+      "durationSeconds": 49.298712968826294,
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "postGitStatus": "",
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "postcheckErrors": []
+    },
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "fullBoundInputsUnchanged": true,
+      "restored": true
+    },
+    "junit": [
+      {
+        "xmlSha256": "de7624489a99e29bc758749830c747551731a18625544170947ae19611cc35bb",
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": [],
+        "errors": "0",
+        "timestamp": "2026-10-21T21:37:34.625Z",
+        "time": "15.918"
+      }
+    ]
+  },
+  {
+    "label": "geometry-measurements",
+    "rawReceiptSha256": "5b0617caeb03d8a09abe272d7459d3fafa2e0fc40b68e3f1c9ecad846e74dd9d",
+    "extracted": {
+      "status": "GEOMETRY_TEXTURE_MEASURE_ONLY_NOT_CACHE_OR_QUALITY_PASS",
+      "seconds": 14.028133928994066,
+      "inputsUnchanged": true,
+      "exitCode": 0,
+      "reportSha256": "ecdfb159d233b4af72036dfe27050be54913889618fd3c2b9bec1a9e35e9dbd1",
+      "wallCpuSeconds": 60,
+      "addressSpaceBytes": 1073741824,
+      "threads": 1
+    },
+    "junit": []
+  }
+]

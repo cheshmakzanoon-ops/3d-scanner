@@ -1,0 +1,30 @@
+import groovy.json.JsonOutput
+import java.security.MessageDigest
+allprojects { afterEvaluate { if (path == ':app') {
+ android.sourceSets.test.java.srcDir('/tmp/rf-relief-profile-pair-draft')
+ android.sourceSets.test.java.srcDir('/tmp/rf-relief-profile-pair-unit-draft')
+ tasks.register('verifiedProfilePairAdapterProbe', org.gradle.api.tasks.testing.Test) {
+  def host=tasks.getByName('hostIntegrationTest')
+  testClassesDirs=host.testClassesDirs; classpath=host.classpath
+  dependsOn(host.taskDependencies.getDependencies(host))
+  setExcludes([])
+  include '**/VerifiedProfilePairAdapterTest.class'
+  filter { includeTestsMatching 'com.realityforge.scanner.hostintegration.VerifiedProfilePairAdapterTest';failOnNoMatchingTests=true }
+  maxParallelForks=1;forkEvery=1;maxHeapSize='1g';timeout=java.time.Duration.ofMinutes(5)
+  systemProperty 'robolectric.offline','true'
+  systemProperty 'robolectric.usePreinstrumentedJars','false'
+  systemProperty 'robolectric.dependency.dir',new File(project.buildDir,'robolectric-sdk').absolutePath
+  jvmArgs '--add-opens=java.base/java.io=ALL-UNNAMED','-XX:ActiveProcessorCount=2'
+  def cleanEnv=new LinkedHashMap(System.getenv())
+  ['JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS'].each {cleanEnv.remove(it)}
+  cleanEnv.keySet().findAll {it.startsWith('LD_')}.each {cleanEnv.remove(it)}
+  environment=cleanEnv
+  reports.junitXml.outputLocation=file('/tmp/android-relief-profile-unit-evidence/xml')
+  reports.html.outputLocation=file('/tmp/android-relief-profile-unit-evidence/html')
+  doFirst {
+   def sha={byte[] b -> MessageDigest.getInstance('SHA-256').digest(b).encodeHex().toString()}
+   def cp=classpath.files.collect { f -> [path:f.absolutePath,sha256:f.isFile()?sha(f.bytes):null,files:f.isDirectory()?project.fileTree(f).files.sort {it.absolutePath}.collect { c -> [path:c.absolutePath,sha256:sha(c.bytes)] }:[]] }
+   new File('/tmp/android-relief-profile-unit-evidence/actual-classpath.json').text=JsonOutput.prettyPrint(JsonOutput.toJson(cp))
+  }
+ }
+} } }

@@ -1,0 +1,20 @@
+--- a/SparsePipelineQualityCaptureHostTest.kt
++++ b/SparsePipelineQualityCaptureHostTest.kt
+@@ -220,7 +220,7 @@
+             assertArtifacts()
+             fixture.assertOriginalsAndNoResult()
+             // Fresh direct API experiment while the legitimate job lease remains RUNNING.
+-            assertEquals(com.realityforge.scanner.data.jobs.ReconstructionJobState.RUNNING, requireNotNull(jobs.snapshot(job.jobId)).state)
++            assertEquals(ReconstructionJobState.RUNNING, requireNotNull(jobs.snapshot(job.jobId)).state)
+             val restoredForPair = requireNotNull(SparseAlignmentCache(directory).load(plan))
+             val pairInputs = VerifiedProfilePair.inputs(restoredForPair, fixture.database.dao().photos(fixture.project))
+             val baselineFiles = directory.walkTopDown().filter { it.isFile }.toList()
+@@ -269,7 +269,7 @@
+             for (owned in ownedPairTokens) { check(NativeCore.finishReconstruction(owned)); finishedDirectTokens.add(owned) }
+             baselineHashes.forEach { (path, hash) -> assertEquals("Baseline file changed: $path", hash, sha(File(path))) }
+             assertCache(); assertArtifacts(); fixture.assertOriginalsAndNoResult()
+-            assertEquals(com.realityforge.scanner.data.jobs.ReconstructionJobState.RUNNING, requireNotNull(jobs.snapshot(job.jobId)).state)
++            assertEquals(ReconstructionJobState.RUNNING, requireNotNull(jobs.snapshot(job.jobId)).state)
+             jobs.relinquish(lease, "HOST_DIRECT_PROFILE_PAIR_UNPUBLISHED", System.currentTimeMillis()); settleLease = null
+             fixture.reopen()
+             assertCache()
