@@ -1,0 +1,33 @@
+{
+  "expectedCommit": "789d604e6c4c62a2d41559d8164c071e9ebc5f35",
+  "postCommit": "789d604e6c4c62a2d41559d8164c071e9ebc5f35",
+  "postGitStatus": "",
+  "originalFiveArtifactManifestSha256": "9ea72561a29fd54cb69d9cc8fa6a63176f003de5a90ae1a10ed5a71486ee5aad",
+  "derivedGeometryManifestSha256": "8b560cf7cdb7ea147601c26d84259fde29c35be4f18d1bf5ed3f5a9b363c2dd7",
+  "scope": "STANDARD same-view synthetic projection only; native topologyIncomplete remains true; not3D completeness or quality PASS",
+  "status": "MEASURE_ONLY_NOT_QUALITY_PASS",
+  "outcomes": [
+    {
+      "exitCode": 0,
+      "error": null,
+      "seconds": 3.4793359659961425
+    },
+    {
+      "exitCode": 0,
+      "error": null,
+      "seconds": 2.273843068003771
+    }
+  ],
+  "inputsUnchanged": true,
+  "perProcessWallCpuSeconds": 60,
+  "perProcessAddressSpaceBytes": 1073741824,
+  "threads": 1,
+  "outputs": {
+    "receipt.json": "ec1a05f2101e272f363b3c5acdfc212e3f19b6fb7d87c36dc203cd77083000c7",
+    "relief-photo-vs-mesh.png": "9053424327ce5f547fca2c2c38a6fb2eec6dda5a6b41ac0237482c4d077b8448",
+    "coverage.json": "4ff925e0e1eef7427078a705da50cc591f309259781bb66a9110b2bf7efc1c86"
+  },
+  "rawReceiptSha256": "4483c11d60a98f608ed386719d13663f5bb41757babdc6e112d4dcfea7c5a742",
+  "recipeSha256": "59f1d6b5e4a43d1b032a6ca39e3e22bdd7a1a6241a8f6c7b22fd58e2005d3d25",
+  "pinnedInputCount": 603
+}
