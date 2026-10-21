@@ -1,6 +1,6 @@
 # Opt-in native wrapper validation (Linux host JVM)
 
-Runs **seven host-only wrapper tests** against current production Kotlin wrappers and explicitly supplied
+Runs **thirteen host-only wrapper tests** against current production Kotlin wrappers and explicitly supplied
 prebuilt JNI/native libraries. No Gradle, installation, download, native compilation, emulator, or
 production source change is performed. It does not execute `SparsePipeline.run` end to end.
 
@@ -63,7 +63,8 @@ an alternate engine basename. This is still not a fully hermetic dynamic-loader/
   work is joined before token release, preserving primary errors when cleanup also fails.
 
 The existing `FinalSparseExecutionDeviceTest.kt` is compiled solely to reuse its synthetic fixture;
-its five tests are NOT selected. Runner selects exactly the seven `ProductionWrapperHostTest` tests.
+its five tests are NOT selected. Runner selects seven `ProductionWrapperHostTest` tests plus six
+`ReconstructionAttemptCleanupHostTest` tests (thirteen total).
 Test-only barriers leave the wrapper scope open for its 100ms reporter. They do not measure native
 latency or prove interruption of an already-running kernel. Synthetic observations are not photos.
 
@@ -80,3 +81,17 @@ after block completion is reporter cleanup, not a new stage failure. Regressions
 suspended-callback shutdown preserves successful results/lease reuse and actual JNI input failure
 remains primary when racing callback cancellation. These are lifecycle/correctness checks, not
 in-flight kernel interruption or performance measurements.
+
+## Attempt cleanup coverage
+The production `withReconstructionAttemptCleanup` helper surrounds the controller body and its
+existing error handlers; it preserves handled-failure return semantics and the actual escaping
+exception (including a handler failure). Teardown runs non-cancellably, joins the heartbeat before
+releasing the native token/reservation, and continues independent cleanup after storage/diagnostic
+errors. A genuinely failed join with a still-live heartbeat retains ownership rather than releasing
+resources in use. Native finish failure is reported; automatic recovery from it is not claimed.
+
+Six host tests execute this helper with actual JNI token allocation/finish, including 24 cancelled
+cycles (beyond the 16 live-token cap), storage/diagnostic faults, original/handler error identity,
+cleanup-only failure, and genuine live-heartbeat join failure. Three Python source-contract tests
+check controller wiring separately. Direct controller compilation is not controller runtime proof:
+these tests do NOT execute the Android controller, Room job handlers or real storage-reservation DAO.

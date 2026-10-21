@@ -149,6 +149,19 @@ class ReconstructionExecutionController(
         var executingPipeline: SparsePipeline? = null
         fun recordFailure(failure: Throwable): ScanFailure? = diagnostics?.recordFailure(
             executingPipeline?.activeDiagnosticStage ?: ScanStage.STORAGE, failure)
+        withReconstructionAttemptCleanup(
+            heartbeat = { heartbeat },
+            finishNative = {
+                if (token > 0) {
+                    check(NativeCore.finishReconstruction(token)) { "Native reconstruction token was already finished" }
+                    nativeToken.compareAndSet(token, 0L)
+                }
+            },
+            releaseReservation = { repository.storageBudget?.release(reservation) },
+            clearProgress = { mutableProgress.value = null; mutableDiagnosticProgress.value = null },
+            closeDiagnostics = { diagnostics?.close() },
+            clearRunning = { runningJobId.compareAndSet(acquired.snapshot.jobId, null) },
+        ) {
         try {
             emit(acquired.snapshot)
             diagnostics = RuntimeDiagnosticRecorder(DiagnosticScope(acquired.snapshot.jobId.value,
@@ -363,17 +376,7 @@ class ReconstructionExecutionController(
                 repository.dao.state(input.projectId, input.projectRevision, if (paused) "INTERRUPTED" else "FAILED",
                     failure.message.orEmpty().take(500))
             }
-        } finally {
-            withContext(NonCancellable) { repository.storageBudget?.release(reservation) }
-            heartbeat?.cancelAndJoin()
-            if (token > 0) {
-                nativeToken.compareAndSet(token, 0L)
-                NativeCore.finishReconstruction(token)
-            }
-            mutableProgress.value = null
-            mutableDiagnosticProgress.value = null
-            diagnostics?.close()
-            runningJobId.compareAndSet(acquired.snapshot.jobId, null)
+        }
         }
     }
 

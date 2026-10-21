@@ -125,7 +125,9 @@ def main(argv=None):
         cp.append(str(found[0].resolve(strict=True)))
     sources = [repo / 'app/src/main/java/com/realityforge/scanner/engine' / n for n in SOURCES]
     sources += [repo / 'app/src/androidTest/java/com/realityforge/scanner/engine/FinalSparseExecutionDeviceTest.kt',
-                home / 'ProductionWrapperHostTest.kt', home / 'HostRunner.kt']
+                home / 'ProductionWrapperHostTest.kt', home / 'HostRunner.kt',
+                repo / 'app/src/main/java/com/realityforge/scanner/work/execution/ReconstructionAttemptCleanup.kt',
+                home / 'ReconstructionAttemptCleanupHostTest.kt']
     def inputs():
         check_manifest(manifest, repo, engine, shim)
         return {'artifactManifest': sha(manifest_path), 'nativeSources': native_sources(repo),
@@ -167,7 +169,7 @@ def main(argv=None):
                         'HostRunnerKt', str(shim), str(engine)], check=True, timeout=90, env=env)
         if inputs() != before or tree_hashes(output) != receipt['classes']:
             raise ValueError('Inputs/output changed during execution')
-        atomic_json(work / 'run-receipt.json', {'status': 'passed', 'newTests': 7,
+        atomic_json(work / 'run-receipt.json', {'status': 'passed', 'newTests': 13,
                     'compiledReceiptSha256': sha(receipt_path), 'inputs': before,
                     'scope': 'host wrappers with synthetic observations; no in-flight interruption or Android claim'})
 

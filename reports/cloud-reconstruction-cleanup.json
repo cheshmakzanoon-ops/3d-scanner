@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "base_commit": "37c6e991f96c29bddf35f1a1983cd71505940f7e",
+  "recorded_utc": "2026-10-21T13:53:39.891705+00:00",
+  "isolated_red_green": {
+    "schema": 1,
+    "status": "isolated cleanup correction validated; shared source unchanged",
+    "baseCommit": "40e9330a9d7652074dbd331a2ca17ac3de68ffed",
+    "baseline": {
+      "scope": "extracted original finally ordering with same helper-shaped callbacks; NOT full controller execution",
+      "compileExit": 0,
+      "runExit": 1,
+      "tests": 1,
+      "failures": 1,
+      "failure": "Native token cleanup skipped by cancelled-context heartbeat join",
+      "safeProbe": "one actual JNI token, fallback finalized, no intentional registry exhaustion"
+    },
+    "sameProbeFixed": {
+      "compileExit": 0,
+      "runExit": 0,
+      "tests": 1,
+      "failures": 0
+    },
+    "hostSuite": {
+      "compileExit": 0,
+      "runExit": 0,
+      "tests": 13,
+      "failures": 0,
+      "newCleanupTests": 6,
+      "cancelledTokenCycles": 24,
+      "liveTokenCapacity": 16
+    },
+    "controllerCompile": {
+      "exit": 0,
+      "scope": "current controller plus helper direct Kotlin compile against cached Android signatures/app dependencies, not runtime"
+    },
+    "structuralTests": {
+      "passed": 3,
+      "scope": "controller handler wrapping and cleanup action/CAS ordering"
+    },
+    "limits": [
+      "helper runtime only, no Android controller or Room job execution",
+      "actual escaping errors preserved; handled failures remain handled",
+      "genuine joinfailure retains ownership; no automatic recovery claim",
+      "no native rebuild, dependency install, Gradle or emulator"
+    ],
+    "hashes": {
+      "fix.patch": "b63ed79bebec075cc0e78ef3cb3a7426f3a42e7bf076af46077c0f45b1204954",
+      "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "run.log": "3938aff5d0ddab88beaf9f51933a3a86a116c1a44e7c6416327609966db3cc9b",
+      "work/compiled-inputs.json": "9a4612e30e93dfb129dc7cf4bb973ef41bc661ec9c9934c433bad87f8ab42957",
+      "work/run-receipt.json": "22ac443a12af268de3ba34e563d44151e916461f642ddb7f0f4cedaf673485c1",
+      "controller-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "controller-compile-receipt.json": "03ad2dcc58f4e7af48d30923c9d0e835c9b9f2162e9e17434ba2cf181a318f5a",
+      "static-tests.log": "e0a6ea218ea5d725ce7272da8d68d45a029e489423e03af6960c7bff0f7fe414",
+      "baseline/compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "baseline/run.log": "c7e1052a320f35a2181b6247ba679fe4f97d5b51475d50844e6985ff87b66ef7",
+      "baseline/work/compiled-inputs.json": "53519ffa2352e9da5b819e4f835465f787220fd93eb53ca9b86840824421fa0c",
+      "probe-green/compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "probe-green/run.log": "7140f6e9f98f835b697d620cb4754b7d44ce4271dac38bd6045faf25140126e2",
+      "probe-green/work/compiled-inputs.json": "64b82e83b6ff116db3dea00559b8f391c091fc7df4074800dbc46e3763b7cb79",
+      "probe-green/work/run-receipt.json": "801b85cd0d616d8d8ba4baef036e89966746abc2e7124b2af112c7c9d708a8e1"
+    }
+  },
+  "shared_execution": {
+    "schema": 1,
+    "status": "shared-source cleanup helper and native wrapper validation passed",
+    "baseCommit": "37c6e991f96c29bddf35f1a1983cd71505940f7e",
+    "sourceState": "reviewed cleanup patch applied, not committed at invocation",
+    "compileExitCode": 0,
+    "runExitCode": 0,
+    "tests": 13,
+    "failures": 0,
+    "cleanupTests": 6,
+    "cancelledRealTokenCycles": 24,
+    "prePostInputOutputHashes": "passed",
+    "exactNativeMappings": "passed",
+    "reviewedPatchSha256": "b63ed79bebec075cc0e78ef3cb3a7426f3a42e7bf076af46077c0f45b1204954",
+    "hashes": {
+      "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "run.log": "3938aff5d0ddab88beaf9f51933a3a86a116c1a44e7c6416327609966db3cc9b",
+      "work/dependencies.json": "769150e5e2215d0a0629f871722480d71b3aa5cbf91462c527287cec9f8c3282",
+      "work/compiled-inputs.json": "ff4f21cebb86be78f95c56cee8947463c9a0e6bdd01d5ce4c471eecabf309b13",
+      "work/run-receipt.json": "edec9b464ca560ebf8e010dc9bf36ad2c2e1e022c263cf6f5c23887e629fcb00"
+    },
+    "productionSources": {
+      "ReconstructionAttemptCleanup.kt": "8c4662bbd149f582195a96722776f07041e8d38d925b7b9fe60032c1017e31fa",
+      "ReconstructionExecutionController.kt": "c355add67a2eac305576bc0e7faedf53c376236df004d59feb8a8279b82da441"
+    },
+    "scope": "Production cleanup helper executes with real host JNI tokens; Android controller/Room paths not runtime-tested. Controller direct compile and static wiring are separate evidence. No native in-flight interruption or device quality claim.",
+    "priorProofs": "Isolated extracted-old-order baseline1/1, identical fixed probe1/0 and full helper13/0 retained separately"
+  },
+  "base_identity_note": "Isolated receipt names the local callback-fix commit40e9330a before GitHub publication; its tree is identical to remote37c6e991. Shared receipt names verified remote head.",
+  "validation": {
+    "ordinary_jvm_passed": 722,
+    "host_room_passed": 7,
+    "android_test_compilation": "PASS",
+    "lint": "PASS on standalone retry",
+    "python_passed": 1084,
+    "python_skipped_optional": 3,
+    "python_subtests": 6,
+    "python_seconds": 138.96,
+    "optional_executed_passed": 3
+  },
+  "interrupted_gate": "Initial Gradle daemon disappeared during lint after JVM/HOST/AndroidTest compilation. Cause unknown. Lint alone retried successfully; no test assertion failure and no emulator active. Not a single uninterrupted Gradle run.",
+  "log_sha256": {
+    "android-reconstruction-cleanup-gates.log": "972d9d96eb58b4caa442219266ae138618d97703cce10c39d98a270d90519c51",
+    "android-reconstruction-cleanup-lint-retry.log": "1bbc67455c8f192dbd82aa67e7b74bce59b052904e7b1dbe821e26ec31031621",
+    "android-cleanup-daemon-failure.log": "df95b2f44fae26ad9538ab4ea5cbbf0ee9055d93439d16505f2d68c316744025",
+    "scanner-cleanup-full-python.log": "af9f32da333ebdc3036226450026e35f1bd819a581e0424cdcbdf029ed2af77f",
+    "scanner-cleanup-optional.log": "55a897dfd038eaf33fc55441b49651be08f73e56cb0769c1cc4f05d432783159"
+  },
+  "limitations": [
+    "Production helper with real host native tokens, not full Android controller/Room reconstruction runtime",
+    "No native kernel interruption proof",
+    "If genuine heartbeat join failure leaves it live, ownership retained; no automatic recovery claim",
+    "Native finish failure retains atomic handle; other independent cleanup attempted; no automatic retry claim",
+    "Delivered engineering APK predates this fix; new APK build is a subsequent step"
+  ]
+}

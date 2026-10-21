@@ -805,3 +805,28 @@ These are host synthetic observations and subsequent-call token checks, not
 in-flight native interruption or Android end-to-end success. The delivered APK
 predates this source fix; no replacement APK/device qualification is implied.
 See [red/green and integrated evidence](../../reports/cloud-native-callback-cancellation.json).
+
+### Reconstruction cancellation releases native ownership (13:53 UTC)
+
+The controller previously joined its heartbeat in an already-cancelled context,
+which could skip native token finalization and running/progress cleanup. A storage
+release failure could likewise bypass the tail. The extracted old ordering fails a
+single real-token regression; the identical probe passes with the production helper.
+
+The new helper surrounds existing body/handlers, performs cleanup non-cancellably,
+joins heartbeat before releasing token/reservation, preserves actual escaping errors
+and still attempts independent cleanup after a cleanup error. Already handled job
+failures remain handled. A genuinely live heartbeat after failed join retains
+ownership rather than permitting unsafe release. Native finish precedes atomic
+handle clearing. No automatic recovery from genuine cleanup failure is claimed.
+
+Fresh shared HOST execution passes13 tests, including24 cancelled-owner real-token
+cycles beyond the16-live-operation registry limit. This is helper runtime evidence,
+not a full Android controller execution. Three structural checks and integrated
+Android compilation cover controller wiring. JVM722 and HOST Room7 pass; lint passes
+on a separate retry after the first Gradle daemon disappeared for unknown reasons.
+The full Python suite passes1,084 plus six subtests, and all three optional host
+checks execute successfully. No emulator was started.
+
+See [cleanup evidence](../../reports/cloud-reconstruction-cleanup.json). The delivered
+APK predates these source fixes; an updated normal engineering build follows.
