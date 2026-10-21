@@ -128,3 +128,61 @@ GitHub main publication was verified by fetching commit `6e4c2e88` and comparing
 its complete tree to the local runtime-fix checkpoint. Redundant delivered local
 APK/ZIP/source archives were removed only after verification; active source,
 build tools, unintegrated work and runtime evidence were retained.
+
+## Integrated sparse finalization and observability increment (06:11 UTC)
+
+The next candidate considers every admitted photo pair (maximum66), persists and
+reuses the complete considered pair schedule, and distinguishes summary similarity
+from native geometric connectivity. Matching-cache format and geometry policy
+identities changed, so incompatible results cannot be reused silently.
+
+Final sparse processing now consumes the complete accepted stable-track snapshot.
+The production2–12-photo admission remains unchanged; final global BA requires at
+least3 registered cameras. A shared fixed-pose triangulation window supplies seeds
+validated against every original source observation, followed by fixed-intrinsic
+typed BA with a pose-and-baseline gauge. Camera IDs, original distorted pixels,
+source-track IDs, rejection accounting and output/checkpoint camera ordering are
+validated. Invalid/disconnected geometry cannot masquerade as successful global BA.
+
+Publication is prepared on deep-cloned JSON/cameras and source observations.
+Fallible progress/validation completes before switching to the new geometry;
+late failure leaves the verified anchor fallback unchanged and honestly labeled.
+Primitive row/seed buffers avoid large boxed packing intermediates.
+
+Ordinal-only feature diagnostics expose cache/native-call phases and monotonic
+elapsed/cancellation-cleanup timings without filenames or content identifiers.
+OpenCV SIFT remains explicitly noninterruptible during its synchronous call;
+existing cancellation checks clean up afterward. No timeouts or quality limits
+were relaxed. Both resource tiers already request one OpenCV thread.
+
+Integrated source matches tested draft bytes. Four focused finalization JVM tests,
+five actual production host-JNI tests, and the18 existing coordinator regressions
+passed independently. The12-camera synthetic fixture preserves576 observations;
+late-publication fault injection preserves original poses/point JSON/observations.
+Full SparsePipeline direct Kotlin compilation and40 active source contracts passed.
+These do not replace the pending actual Gradle/lint/Android instrumentation gates.
+See reports/cloud-sparse-finalization.json. Synthetic30-camera coordinator tests
+are experimental finalization evidence only, not production photo admission or
+physical-object quality evidence.
+
+The optimized baseline installed after recovery from emulator system-service ANRs,
+but both targeted instrumentation launches failed before executing tests:
+AndroidJUnitRunner referenced androidx.tracing.Trace, which target-app R8 removed
+while the separate test APK still called it. This is a real release-test packaging
+failure, not attributed to emulator slowness. A narrow keep rule preserves only
+that class and its three observed runner entry points, with optimization retained.
+A focused configuration regression was added; runtime verification remains pending.
+The45-target native CTest suite passes again after the Kotlin integration.
+
+### Actual integrated compilation gates (06:19 UTC)
+
+The complete next-candidate Gradle run passed:662/662 JVM tests with no failures or
+skips, Android lint with no Error/Fatal issues, and instrumented-test Kotlin
+compilation. The broad Python suite passes988 tests, with3 skips and the manifest
+case excluded during edits; manifest verification and the full42 focused
+source/configuration contracts pass separately. An initial Python invocation used
+the compiler environment rather than the pinned QA environment, so missing Trimesh
+was corrected by using the installed QA interpreter, not by skipping export tests.
+The README's explicit two-to-twelve disclosure now retains the runbook invariant.
+Release packaging and actual Android instrumentation of this increment remain
+pending. No physical capture, whole-object quality or larger-input claim is made.

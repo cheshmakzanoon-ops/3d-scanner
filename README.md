@@ -46,7 +46,7 @@ lens calibration, CPU multi-view stereo, conservative open triangle meshes,
 photographic UV atlases, bounded exposure correction, local GLES3 viewing,
 revision-safe reopen/export and original-photo capture bundles.
 
-Supported reconstruction input remains **2–12 photographs**; dense processing uses at
+Supported reconstruction input is **two to twelve photographs (2–12)**; dense processing uses at
 most **eight registered views**. Standard depth images are at most **384px**
 on their longest edge. Photo-atlas sources are capped at 640px for five to eight
 standard views, 768px for smaller standard jobs, or 512px on compact jobs.

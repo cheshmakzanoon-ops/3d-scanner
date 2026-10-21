@@ -250,6 +250,8 @@ class SessionReliabilityTest {
     private fun awaitIdle(model: ScannerViewModel, maxMillis: Long) {
         val deadline = SystemClock.elapsedRealtime()+maxMillis
         while (model.busy.value && SystemClock.elapsedRealtime()<deadline) Thread.sleep(50)
-        assertFalse("Operation exceeded test deadline: ${model.progress.value}",model.busy.value)
+        val execution = (instrumentation.targetContext.applicationContext as RealityForgeApplication).compositionRoot.execution
+        val feature = execution.progress.value?.progress?.featureWork
+        assertFalse("Operation exceeded test deadline: ${model.progress.value}; featureWork=$feature",model.busy.value)
     }
 }
