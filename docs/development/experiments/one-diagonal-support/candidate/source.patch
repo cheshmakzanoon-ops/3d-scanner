@@ -1,0 +1,18 @@
+--- a/reconstruction/include/realityforge/surface_evidence.hpp
++++ b/reconstruction/include/realityforge/surface_evidence.hpp
+@@ -163,10 +163,15 @@
+     std::vector<NormalObservation> points;
+     points.reserve(9);
+     Vec3 query{};
++    // Experimental observation-only branch: omit at most one unavailable diagonal.
++    // The complete-nine path and all observed-depth/confidence checks stay unchanged.
++    bool missingDiagonal=false;
+     for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
+         cancellation::checkpoint();
+         const int u=x+dx*step,v=y+dy*step;const auto id=static_cast<std::size_t>(v)*map.width+u;
+         const double depth=map.depth[id];
++        if(depth==0&&dx!=0&&dy!=0&&!missingDiagonal&&
++           std::isfinite(map.confidence[id])&&map.confidence[id]>=0&&map.confidence[id]<=1){missingDiagonal=true;continue;}
+         if(!std::isfinite(depth)||depth<=0||std::abs(depth-z)/z>maxRelativeJump){unknown.validity=NormalValidity::Discontinuity;return unknown;}
+         auto p=multiply(inverse,Vec3{(u-view.cx)*depth/view.fx-view.pose.translation.x,(v-view.cy)*depth/view.fy-view.pose.translation.y,depth-view.pose.translation.z});
+         points.push_back({p,camera,id});if(dx==0&&dy==0)query=p;

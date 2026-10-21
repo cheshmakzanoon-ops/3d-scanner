@@ -1,0 +1,16 @@
+{
+  "baseCommit": "142bb0baebcea71662714e64aa635f08f4b1fd75",
+  "basePath": "docs/development/experiments/profile-comparison/measurement",
+  "baseSha256": {
+    "projection.py": "c39a80cf7498214a8c4f9f7bd8f0fd3eaafdd39fdade5134d2798fdbd48197e2",
+    "measure.py": "8d8d7fc103651b7b66ab2290edd736d818f9010f95100676a53c69b241c54132",
+    "run.py": "61d1c47c1917c884e6d464ea7e6a9231d5d8e8733430babca00478b098bbdf1f"
+  },
+  "directFuserSha256": {
+    "projection.py": "170101b9df4cd936b3629f4f2930aa1eb4baa20dd5162670257d4622f546030a",
+    "measure.py": "0bac377f2fca0083a23d16ca216c480c058607a272031b7db2a2b422bb6afaf2",
+    "run.py": "d5b3dac5980a6e8abfdcf81a16886aac19b74b9542e1d1f2b24e6a456bcc2c0e"
+  },
+  "originalSourcePinsFileSha256": "b74ac89757295ff90f2f0f3b69e6f76ef3c03b863aafc7e74fe88513bd60fd33",
+  "actualConfigSha256": "3d517404e9181305bcf0d94c7f5a402649757bd9d7450d02380bb28a184c422a"
+}

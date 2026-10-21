@@ -1,0 +1,201 @@
+--- a/projection.py
++++ b/projection.py
+@@ -36,4 +36,5 @@
+  truth_count=int(truth.sum());mesh_count=int(visible.sum());matched=int(intersection.sum())
+  err=np.abs(depth[intersection]-distance[intersection])
+  def quantiles(x):return None if not len(x) else {k:float(v) for k,v in zip(['p50','p90','p95','p99','max'],np.quantile(x,[.5,.9,.95,.99,1]))}
+- return dict(truthPixels=truth_count,meshVisiblePixels=mesh_count,meshVisibleInsideTruthPixels=matched,truthUncoveredPixels=truth_count-matched,meshVisibleOutsideTruthPixels=mesh_count-matched,visibleTruthImageCoverage=matched/truth_count,depthResidualAtCoveredTruthPixelsSyntheticUnits=quantiles(err),whollyOutsideViewportTriangles=outside,zeroProjectedAreaTriangles=degenerate)
++ report=dict(truthPixels=truth_count,meshVisiblePixels=mesh_count,meshVisibleInsideTruthPixels=matched,truthUncoveredPixels=truth_count-matched,meshVisibleOutsideTruthPixels=mesh_count-matched,visibleTruthImageCoverage=matched/truth_count,depthResidualAtCoveredTruthPixelsSyntheticUnits=quantiles(err),whollyOutsideViewportTriangles=outside,zeroProjectedAreaTriangles=degenerate)
++ return report,depth,truth,distance
+--- a/measure.py
++++ b/measure.py
+@@ -1,81 +1,68 @@
+-"""Explicit actual-profile adapter. Does NOT invoke or impersonate strict core evaluator."""
++"""Same frozen real fuser snapshot, standalone native JSON; no fake coordinator result."""
+ import argparse,json,pathlib,hashlib,sys
+-if not __debug__:raise RuntimeError('Optimized Python disables integrity assertions; refused')
++if not __debug__:raise RuntimeError('Optimized Python refused')
+ import numpy as np
+-from alignment import cameras
+ from projection import projection
+ P=pathlib.Path
+ sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
++def summary(a):return None if not len(a) else dict(zip(['p50','p90','p95','p99','max'],map(float,np.quantile(a,[.5,.9,.95,.99,1]))))
+ def read(p):
+  assert p.is_file() and not p.is_symlink() and 0<p.stat().st_size<=32*1024*1024
+- return p.read_bytes()
+-def verify(p,e):
+- b=read(p);assert len(b)==e['bytes'] and hashlib.sha256(b).hexdigest()==e['sha256']
+-def diff(a,b,path=''):
+- if isinstance(a,dict) and isinstance(b,dict):
+-  return sum([diff(a.get(k),b.get(k),path+'/'+k) for k in sorted(a.keys()|b.keys())],[])
+- return [] if a==b else [dict(path=path,Compatibility=a,VerifiedRefinedCompact=b)]
+-def summary(a):return None if not len(a) else dict(zip(['p50','p90','p95','max'],map(float,np.quantile(a,[.5,.9,.95,1]))))
++ return json.loads(p.read_bytes())
+ def main():
+- ap=argparse.ArgumentParser();ap.add_argument('--repo',type=P,required=True);ap.add_argument('--evidence',type=P,required=True);ap.add_argument('--receipt-sha256',required=True);ap.add_argument('--comparison-sha256',required=True);ap.add_argument('--output',type=P,required=True);args=ap.parse_args()
+- repo=args.repo;ev=args.evidence;pair=ev/'profile-comparison';cap=ev/'quality-capture'
+- assert not args.output.exists()
+- rp=ev/'receipt.json';assert sha(rp)==args.receipt_sha256
+- receipt=json.loads(read(rp));assert receipt['outcome']=='PASS' and receipt['status']=='EXIT_0' and receipt['restoration']['restored'] is True
+- mp=pair/'comparison.json';assert sha(mp)==args.comparison_sha256
+- m=json.loads(read(mp));assert m['synthetic'] is True and m['schema']==2
+- assert m['qualification']=='GEOMETRY_TEXTURE_CAPTURE_ONLY_NOT_REFINED_CACHE_QUALIFICATION'
+- assert sha(cap/'capture.json')==m['baselineCaptureManifestSha256']
+- cm=json.loads(read(cap/'capture.json'))
+- for n,e in cm['artifacts'].items():assert P(n).name==n;verify(cap/n,e)
+- verify(pair/'alignment.rfac',m['alignmentCheckpoint']);assert sha(pair/'alignment.rfac')==m['alignmentAdapter']['alignmentCheckpointSha256']
++ ap=argparse.ArgumentParser();ap.add_argument('--config',type=P,required=True);ap.add_argument('--config-sha256',required=True);ap.add_argument('--output',type=P,required=True);a=ap.parse_args();assert sha(a.config)==a.config_sha256 and not a.output.exists();c=read(a.config)
++ assert c['schema']==1 and c['scope']=='DIRECT_FUSER_FIXED_SNAPSHOT_ONE_MISSING_DIAGONAL_8_OF_9_MEASURE_ONLY'
++ repo=P(c['repo']);pins=c['inputSha256']
++ for p,h in pins.items():assert sha(P(p))==h,p
++ def pinned(path):
++  p=P(path);assert str(p) in pins;return p
++ host=read(pinned(c['hostReceipt']));assert host['outcome']=='PASS' and host['status']=='EXIT_0' and host['restoration']['restored'] is True
++ stagec=read(pinned(c['baselineReceipt']));assert stagec['status']=='EXACT_ORIGINAL_REPLAY_TELEMETRY_MEASURE_ONLY'
++ candidate=read(pinned(c['candidateReceipt']));assert candidate['status']==c['candidateTerminalStatus']
++ assert c['candidateTerminalStatus']=='EXPERIMENT_ONLY_ONE_MISSING_DIAGONAL_REPLAY_READY_NOT_QUALITY_ACCEPTED' and c['candidateOutputPrefix']=='candidate/'
++ for command in candidate['commands']:assert command['returnCode']==0 and command['timedOut'] is False and not command['remainingGroupMembers'] and command['cleanupError'] is None
++ snapshot=pinned(c['snapshot']);assert sha(snapshot)=='d1b605dffddb9488e77ff2f16706f3cf0f2d4161e3239d03f51648d5290b71c0'
++ assert stagec['depthIdentity']==c['depthIdentity']=='9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995'
++ assert candidate['inputSha256'][str(snapshot)]==sha(snapshot)
++ cap=pinned(c['captureManifest']);m=read(cap);result=read(pinned(c['captureResult']));assert m['synthetic'] is True and m['artifactKey']==result['artifactKey']
++ assert m['artifacts']['result.json']['sha256']==sha(P(c['captureResult']))
++ assert m['nativeTrace']['artifacts']['input.rffuse']['sha256']==sha(snapshot)
+  sys.path.insert(0,str(repo))
+  from tools.relief_quality_validation.evaluate import PINS,FIXTURES
+  from tools.make_fixture import surface_z
+  from tools.qa.geometry_quality.__main__ import load
+  from tools.qa.geometry_quality.metrics import topology,surface_samples
+  for n,h in PINS.items():assert sha(repo/n)==h
+- byhash={h:n for n,h in FIXTURES.items()}
+  for n,h in FIXTURES.items():assert sha(repo/'benchmarks/fixtures/relief'/n)==h
+- mapping={p['photoId']:byhash[p['sha256']] for p in cm['photos']};assert len(mapping)==3 and set(mapping.values())==set(FIXTURES)
+- cams,decode=cameras(read(pair/'alignment.rfac'));assert [c['photoId'] for c in cams]==m['alignmentAdapter']['photoOrder']
++ byhash={v:k for k,v in FIXTURES.items()};mapping={p['photoId']:byhash[p['sha256']] for p in m['photos']};assert len(mapping)==3 and set(mapping.values())==set(FIXTURES)
+  poses={}
+- for c in cams:
+-  r=np.array(c['rotation']).reshape(3,3);t=np.array(c['translation']);assert np.allclose(r@r.T,np.eye(3),atol=1e-6,rtol=0) and abs(np.linalg.det(r)-1)<1e-6
+-  poses[mapping[c['photoId']]]=(r,t,-r.T@t)
+- r,t,c0=poses['view-01.jpg'];c1=poses['view-02.jpg'][2]
+- truth=json.loads(read(repo/'benchmarks/fixtures/relief/calibration.json'));ref={c['image']:c for c in truth['cameras']}
++ for cam in result['cameras']:
++  r=np.array(cam['rotation']).reshape(3,3);t=np.array(cam['translation']);assert np.allclose(r@r.T,np.eye(3),atol=1e-6,rtol=0) and abs(np.linalg.det(r)-1)<1e-6
++  poses[mapping[cam['photoId']]]=(r,t,-r.T@t)
++ assert len(poses)==len(result['cameras'])==3
++ r,t,c0=poses['view-01.jpg'];c1=poses['view-02.jpg'][2];truth=read(repo/'benchmarks/fixtures/relief/calibration.json');ref={x['image']:x for x in truth['cameras']}
+  assert np.array_equal(ref['view-01.jpg']['R'],np.eye(3)) and np.array_equal(ref['view-01.jpg']['t'],np.zeros(3))
+- baseline=float(np.linalg.norm(np.array(ref['view-02.jpg']['center'])-ref['view-01.jpg']['center']));estimated=float(np.linalg.norm(c1-c0));assert estimated>0
+- scale=baseline/estimated;results={};full={}
+- assert {p['profile'] for p in m['profiles']}=={'Compatibility','VerifiedRefinedCompact'} and len(m['profiles'])==2
+- for entry in m['profiles']:
+-  name=entry['profile'];folder=pair/name
+-  required={'mesh.ply','mesh.glb','textured.glb','texture.png','direct-result.json'}
+-  if name=='Compatibility':
+-   assert entry['surfaceCheckpointStatus']=='CAPTURED';required.add('surface-v2.rfmesh')
++ baseline=float(np.linalg.norm(np.array(ref['view-02.jpg']['center'])-ref['view-01.jpg']['center']));estimated=float(np.linalg.norm(c1-c0));assert estimated>0;scale=baseline/estimated
++ results={};depths={};masks={};distances={}
++ for name in ['original','candidate']:
++  paths=c['meshes'][name];ply=pinned(paths['ply']);jp=pinned(paths['json']);bits=pinned(paths['bits']);native=read(jp)
++  assert native['schema']==8 and native['topologyIncomplete'] is False and isinstance(native['intersections'],int) and native['intersections']>=0
++  # Complete native count is mandatory; never reinterpret external budget status as complete.
++  if name=='original':
++   assert native['triangleCount']==6741 and native['intersections']==6190 and sha(ply)==m['artifacts']['mesh.ply']['sha256']
++   for key,path in [('mesh.ply',ply),('mesh.json',jp),('mesh.bits',bits)]:assert sha(path)==stagec['outputSha256']['original/'+key]
+   else:
+-   assert entry['surfaceCheckpointStatus']=='NOT_AVAILABLE_BY_REFINED_POLICY'
+-   assert not (folder/'surface-v2.rfmesh').exists() and not (folder/'surface-v2.rfmesh').is_symlink()
+-  assert set(entry['artifacts'])==required and {x.name for x in folder.iterdir()}==required
+-  for n,e in entry['artifacts'].items():verify(folder/n,e)
+-  direct=json.loads(read(folder/'direct-result.json'));assert direct['profile']==name
+-  full[name]=direct;dense=direct['payload']['dense'];assert dense['executionProfile']==name and dense['geometryReused'] is False
+-  assert 'mesh' in direct['payload'] and 'texture' in direct['payload']
+-  if name=='Compatibility':assert dense['surfaceCheckpointAvailable'] is True
+-  else:assert dense['surfaceCheckpointAvailable'] is False and dense['surfaceCheckpointWritten'] is False and dense['depthCheckpointWritten']==0
+-  assert dense['selectedPhotoIds']==m['alignmentAdapter']['referencePhotoIds']
+-  assert [dense[k] for k in ['rectifiedWidth','rectifiedHeight','pixelStride','depthPlanes']]==[256,192,3,56]
+-  assert dense['workload']['memoryTier']=='compact' and dense['depthCheckpointResumed']==0
+-  v,f=load(folder/'mesh.ply');assert 0<len(v)<=200000 and 0<len(f)<=200000
+-  lines=(folder/'mesh.ply').read_text().splitlines();end=lines.index('end_header');rawv=np.array([list(map(float,s.split())) for s in lines[end+1:end+1+len(v)]]);assert np.array_equal(rawv[:,:3],v)
+-  assert len(lines[end+1+len(v):])==len(f)
+-  rawf=np.column_stack([np.full(len(f),3),f]);aligned=scale*(v@r.T+t)
+-  sample=surface_samples(aligned,f,count=4096);inside=(abs(sample[:,0])<1.72)&(abs(sample[:,1])<1.35);res=np.abs(sample[:,2]-surface_z(sample[:,0],sample[:,1]))
+-  top=topology(v,f) # Default intersection_budget=5000, NEVER relaxed.
+-  results[name]=dict(surfaceCheckpointStatus=entry['surfaceCheckpointStatus'],artifacts=entry['artifacts'],vertices=len(v),triangles=len(f),topology=top,fullNativeResult=direct,projected=projection(rawv,rawf,r,t,scale,ref['view-01.jpg']['K'],surface_z),surface=dict(sampleCount=len(sample),inDomainSamples=int(inside.sum()),outOfDomainSamples=int((~inside).sum()),verticalResidualInDomainSyntheticUnits=summary(res[inside]),allSamplesAnalyticExtrapolationResidual=summary(res)))
+- assert full['Compatibility']['payload']['dense']['executedSourcePhotoIds']==full['VerifiedRefinedCompact']['payload']['dense']['executedSourcePhotoIds']
+- report=dict(status='GEOMETRY_TEXTURE_MEASURE_ONLY_NOT_CACHE_OR_QUALITY_PASS',qualification=m['qualification'],refinedCacheQualification='NOT_QUALIFIED_BY_THIS_GEOMETRY_ONLY_EXPERIMENT; prior full-cache failures remain failures',scope=m['scope'],alignmentCheckpoint=m['alignmentCheckpoint'],alignmentDecode=decode,actualCameras=cams,photoHashMapping=cm['photos'],gauge=dict(method='fixed view01 accepted camera plus positive view01-view02 baseline; no surface fit',scale=scale,referenceBaselineSyntheticUnits=baseline,estimatedBaseline=estimated),profiles=results,fullJsonDifferences=diff(full['Compatibility'],full['VerifiedRefinedCompact']),limitations=['New explicit adapter; no fabricated result.json or strict-evaluator pass','Profile bundle comparison, not single-parameter attribution or controller/shipping qualification','Projection coverage is not 3D completeness; wrong-depth covered pixels remain covered and depth residual is separate','Synthetic analytic intended truth, not physical accuracy; ray iteration/JPEG error not independently quantified','No geometry changes, filtering, welding or outlier removal; all native JSON fields retained including topologyIncomplete','Topology self-intersection budget remains 5000; NOT_RUN_BUDGET is unknown, not clean','Mesh surface sample uses existing fixed4096 area-weighted seed84001; vertical error is not Euclidean distance','RFAC reader checks framing and parses cameras, not full production semantic acceptance; requires successful restored harness receipt'])
+- args.output.write_text(json.dumps(report,indent=2,allow_nan=False)+'\n')
+- print(json.dumps(dict(status=report['status'],reportSha256=sha(args.output))))
++   for key,path in [('mesh.ply',ply),('mesh.json',jp),('mesh.bits',bits)]:assert sha(path)==candidate['outputSha256'][c['candidateOutputPrefix']+key]
++  v,f=load(ply);assert 0<len(v)<=200000 and 0<len(f)<=200000 and len(v)==native['vertexCount'] and len(f)==native['triangleCount']
++  lines=ply.read_text().splitlines();end=lines.index('end_header');rawv=np.array([list(map(float,s.split())) for s in lines[end+1:end+1+len(v)]]);assert np.array_equal(rawv[:,:3],v) and len(lines[end+1+len(v):])==len(f)
++  rawf=np.column_stack([np.full(len(f),3),f]);aligned=scale*(v@r.T+t);samples=surface_samples(aligned,f,count=4096);inside=(abs(samples[:,0])<1.72)&(abs(samples[:,1])<1.35);res=np.abs(samples[:,2]-surface_z(samples[:,0],samples[:,1]))
++  projected,depths[name],masks[name],distances[name]=projection(rawv,rawf,r,t,scale,ref['view-01.jpg']['K'],surface_z)
++  results[name]=dict(rawArtifacts={key:dict(path=str(path),sha256=sha(path)) for key,path in [('mesh.ply',ply),('mesh.json',jp),('mesh.bits',bits)]},fullNativeMeshJson=native,vertices=len(v),triangles=len(f),externalTopology=topology(v,f),projected=projected,surface=dict(sampleCount=4096,inDomainSamples=int(inside.sum()),outOfDomainSamples=int((~inside).sum()),verticalResidualInDomainSyntheticUnits=summary(res[inside]),allSamplesAnalyticExtrapolationResidual=summary(res)))
++ assert np.array_equal(masks['original'],masks['candidate']) and np.array_equal(distances['original'],distances['candidate'])
++ truthmask=masks['original'];visible={n:np.isfinite(d)&truthmask for n,d in depths.items()};common=visible['original']&visible['candidate'];union=visible['original']|visible['candidate'];count=int(common.sum());assert count>0
++ errors={n:np.abs(depths[n][common]-distances[n][common]) for n in depths}
++ sameSupport=dict(rule='Exact truth AND finite original depth AND finite candidate depth, no residual threshold/filter',commonTruthPixels=count,unionCoveredTruthPixels=int(union.sum()),lostTruthPixels=int((visible['original']&~visible['candidate']).sum()),gainedTruthPixels=int((visible['candidate']&~visible['original']).sum()),depthResidualAtIdenticalCommonTruthPixelsSyntheticUnits={n:summary(e) for n,e in errors.items()},pairedAbsoluteResidualChangeCandidateMinusOriginal=summary(errors['candidate']-errors['original']),strictlyImprovedPixels=int((errors['candidate']<errors['original']).sum()),strictlyWorsenedPixels=int((errors['candidate']>errors['original']).sum()),unchangedPixels=int((errors['candidate']==errors['original']).sum()))
++ report=dict(status='DIRECT_FUSER_MEASURE_ONLY_NOT_QUALITY_PASS',scope=c['scope'],lineage='trace-v2 snapshot d1b605 / StageC exact original replay; NOT profile-pair baseline 6162',configSha256=a.config_sha256,inputSha256=pins,gauge=dict(method='fixed actual original capture view01 pose plus positive baseline view01-view02; no surface fitting',scale=scale,referenceBaselineSyntheticUnits=baseline,estimatedBaseline=estimated),actualOriginalCameras=result['cameras'],photoHashMapping=m['photos'],meshes=results,commonSupport=sameSupport,limitations=['Posthoc synthetic comparison only; one native fuser change, not Android/full-controller/cache/shipping qualification','Projected image coverage is not 3D completeness; sample populations differ except explicit common-support report','Common support is intersection selected by BOTH outputs, not independent held-out evaluation; keep lost/gained pixels visible','No changed truth, filtering, welding, smoothing or near-plane clipping substitution','Raw native complete topology count required; external default5000face intersection budget remains unchanged and may report unknown','Surface vertical residual is not Euclidean distance; synthetic truth/render discretization not independently quantified'])
++ for p,h in pins.items():assert sha(P(p))==h
++ a.output.write_text(json.dumps(report,indent=2,allow_nan=False)+'\n');print(json.dumps(dict(status=report['status'],reportSha256=sha(a.output))))
+ if __name__=='__main__':main()
+--- a/run.py
++++ b/run.py
+@@ -1,40 +1,30 @@
+-"""Owner-authorized bounded read-only measurement; writes only fresh --output directory."""
+-import argparse,pathlib,os,sys,hashlib,json,subprocess,resource,time
+-if not __debug__:raise RuntimeError('Optimized Python disables integrity assertions; refused')
++"""Posthoc only. No native/Gradle execution; fresh output, 60s/1GiB single-thread bounds."""
++import argparse,pathlib,json,hashlib,subprocess,resource,time,os,sys
++if not __debug__:raise RuntimeError('Optimized Python refused')
+ P=pathlib.Path
+ sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+ def main():
+- ap=argparse.ArgumentParser();ap.add_argument('--repo',type=P,required=True);ap.add_argument('--evidence',type=P,required=True);ap.add_argument('--python',type=P,required=True);ap.add_argument('--commit',required=True);ap.add_argument('--receipt-sha256',required=True);ap.add_argument('--comparison-sha256',required=True);ap.add_argument('--output',type=P,required=True);a=ap.parse_args();here=P(__file__).resolve().parent
+- assert not a.output.exists() and not a.output.is_symlink()
+- for key in ['PYTHONPATH','PYTHONHOME','LD_PRELOAD','LD_LIBRARY_PATH']:assert not os.environ.get(key),'Injected runtime '+key
+- git=lambda *s:subprocess.check_output(['git',*s],cwd=a.repo,text=True).strip()
++ ap=argparse.ArgumentParser();ap.add_argument('--config',type=P,required=True);ap.add_argument('--config-sha256',required=True);ap.add_argument('--python',type=P,required=True);ap.add_argument('--commit',required=True);ap.add_argument('--output',type=P,required=True);a=ap.parse_args();here=P(__file__).resolve().parent
++ assert sha(a.config)==a.config_sha256 and not a.output.exists() and not a.output.is_symlink();c=json.loads(a.config.read_text());repo=P(c['repo'])
++ for k in ['PYTHONHOME','PYTHONPATH','LD_PRELOAD','LD_LIBRARY_PATH']:assert not os.environ.get(k),'Injected '+k
++ git=lambda *s:subprocess.check_output(['git',*s],cwd=repo,text=True).strip()
+  assert git('rev-parse','HEAD')==a.commit and not git('status','--porcelain')
+- assert sha(a.evidence/'receipt.json')==a.receipt_sha256
+- receipt=json.loads((a.evidence/'receipt.json').read_text());assert receipt['outcome']=='PASS' and receipt['status']=='EXIT_0' and receipt['restoration']['restored']
+- assert sha(a.evidence/'profile-comparison/comparison.json')==a.comparison_sha256
+- comparison=json.loads((a.evidence/'profile-comparison/comparison.json').read_text())
+- assert comparison['schema']==2 and comparison['qualification']=='GEOMETRY_TEXTURE_CAPTURE_ONLY_NOT_REFINED_CACHE_QUALIFICATION'
+- pins=json.loads((here/'source-pins.json').read_text())
++ pins=json.loads((here/'source-pins.json').read_text());pins.update(c['inputSha256'])
+  for p,h in pins.items():assert sha(P(p))==h,p
+- files=set(P(p) for p in pins)|{here/'source-pins.json',a.evidence/'receipt.json',a.python.resolve(),a.python.parent.parent/'pyvenv.cfg'}
+- for d in [a.evidence/'profile-comparison',a.evidence/'quality-capture']:
+-  files.update(p for p in d.rglob('*') if p.is_file())
++ files=set(P(p) for p in pins)|{here/'source-pins.json',a.config,a.python.resolve(),a.python.parent.parent/'pyvenv.cfg'}
+  site=list((a.python.parent.parent/'lib').glob('python*/site-packages'));assert len(site)==1
+  for name in ['numpy','numpy.libs','cv2','opencv_python.libs','PIL','pillow.libs']:
+   files.update(p for p in (site[0]/name).rglob('*') if p.is_file() and (p.suffix in ['.py','.so'] or '.so.' in p.name))
+- for p in files:assert p.is_file() and not p.is_symlink(),str(p)
+- before={str(p):sha(p) for p in sorted(files)}
+- a.output.mkdir();(a.output/'pre-hashes.json').write_text(json.dumps(before,indent=2)+'\n')
+- env={k:v for k,v in os.environ.items() if not k.startswith(('PYTHON','LD_'))};env.update(OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1',PYTHONDONTWRITEBYTECODE='1')
+- cache=a.output/'empty-pycache';cache.mkdir();env['PYTHONPYCACHEPREFIX']=str(cache.resolve())
+- cmd=[str(a.python),'-B','-X','pycache_prefix='+str(cache.resolve()),str(here/'measure.py'),'--repo',str(a.repo),'--evidence',str(a.evidence),'--receipt-sha256',a.receipt_sha256,'--comparison-sha256',a.comparison_sha256,'--output',str(a.output/'measurements.json')]
++ for p in files:assert p.is_file() and not p.is_symlink()
++ before={str(p):sha(p) for p in sorted(files)};a.output.mkdir();(a.output/'pre-hashes.json').write_text(json.dumps(before,indent=2)+'\n');cache=a.output/'empty-pycache';cache.mkdir()
++ env={k:v for k,v in os.environ.items() if not k.startswith(('PYTHON','LD_'))};env.update(PYTHONPYCACHEPREFIX=str(cache.resolve()),PYTHONDONTWRITEBYTECODE='1',OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',NUMEXPR_NUM_THREADS='1')
++ cmd=[str(a.python),'-B','-X','pycache_prefix='+str(cache.resolve()),str(here/'measure.py'),'--config',str(a.config),'--config-sha256',a.config_sha256,'--output',str(a.output/'measurements.json')]
+  def limits():resource.setrlimit(resource.RLIMIT_AS,(1024**3,1024**3));resource.setrlimit(resource.RLIMIT_CPU,(60,60))
+  start=time.monotonic();code=None;error=None
+  try:
+   with (a.output/'execution.log').open('x') as f:code=subprocess.run(cmd,stdout=f,stderr=subprocess.STDOUT,env=env,preexec_fn=limits,timeout=60).returncode
+  except Exception as e:error=repr(e)
+- after={str(p):sha(p) if p.is_file() else None for p in sorted(files)};(a.output/'post-hashes.json').write_text(json.dumps(after,indent=2)+'\n')
+- ok=code==0 and before==after and git('rev-parse','HEAD')==a.commit and not git('status','--porcelain')
+- result=dict(status='GEOMETRY_TEXTURE_MEASURE_ONLY_NOT_CACHE_OR_QUALITY_PASS' if ok else 'FAILED',command=cmd,exitCode=code,error=error,inputsUnchanged=before==after,seconds=time.monotonic()-start,wallCpuSeconds=60,addressSpaceBytes=1024**3,threads=1,reportSha256=sha(a.output/'measurements.json') if (a.output/'measurements.json').exists() else None)
+- (a.output/'receipt.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result));return 0 if ok else 1
++ after={str(p):sha(p) if p.is_file() else None for p in sorted(files)};(a.output/'post-hashes.json').write_text(json.dumps(after,indent=2)+'\n');ok=code==0 and before==after and git('rev-parse','HEAD')==a.commit and not git('status','--porcelain')
++ receipt=dict(status='DIRECT_FUSER_MEASURE_ONLY_NOT_QUALITY_PASS' if ok else 'FAILED',command=cmd,configSha256=a.config_sha256,exitCode=code,error=error,inputsUnchanged=before==after,seconds=time.monotonic()-start,wallCpuSeconds=60,addressSpaceBytes=1024**3,threads=1,reportSha256=sha(a.output/'measurements.json') if (a.output/'measurements.json').exists() else None)
++ (a.output/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(receipt));return 0 if ok else 1
+ if __name__=='__main__':sys.exit(main())

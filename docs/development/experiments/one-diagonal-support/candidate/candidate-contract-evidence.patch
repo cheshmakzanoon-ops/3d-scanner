@@ -1,0 +1,11 @@
+--- a/reconstruction/tests/surface_evidence_test.cpp
++++ b/reconstruction/tests/surface_evidence_test.cpp
+@@ -151,7 +151,7 @@
+         const auto normal=rf::estimateDepthNeighborhoodNormal(tilted,slanted,30,30,3);
+         if(normal.validity!=rf::NormalValidity::Supported||normal.supportingObservationIds.size()!=9)throw std::runtime_error("validated slanted neighbors were truncated by a frontoparallel radius");
+         check(normal.uncertainty.conditioning>=.02&&normal.direction.x*-std::sin(radians)+normal.direction.z*-std::cos(radians)>.99999);
+-        slanted.depth[27*64+27]=0;check(rf::estimateDepthNeighborhoodNormal(tilted,slanted,30,30,3).validity==rf::NormalValidity::Discontinuity);
++        slanted.depth[27*64+27]=0;{const auto experimental=rf::estimateDepthNeighborhoodNormal(tilted,slanted,30,30,3);check(experimental.validity==rf::NormalValidity::Supported&&experimental.supportingObservationIds.size()==8);}
+         slanted.depth[27*64+27]=static_cast<float>(6*scale);check(rf::estimateDepthNeighborhoodNormal(tilted,slanted,30,30,3).validity==rf::NormalValidity::Discontinuity);
+     }
+     auto curved=plane;for(auto& p:curved)p.position.z+=.1*(p.position.x*p.position.x+p.position.y*p.position.y);auto curvature=rf::estimateObservedNormal(curved,{0,0,2});check(curvature.validity==rf::NormalValidity::Supported&&curvature.direction.z<-.999&&curvature.uncertainty.planeResidual>n.uncertainty.planeResidual);

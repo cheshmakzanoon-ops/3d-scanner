@@ -1,0 +1,251 @@
+{
+  "status": "DIRECT_FUSER_MEASURE_ONLY_NOT_QUALITY_PASS",
+  "scope": "DIRECT_FUSER_FIXED_SNAPSHOT_ONE_MISSING_DIAGONAL_8_OF_9_MEASURE_ONLY",
+  "lineage": "trace-v2 snapshot d1b605 / StageC exact original replay; NOT profile-pair baseline 6162",
+  "gauge": {
+    "method": "fixed actual original capture view01 pose plus positive baseline view01-view02; no surface fitting",
+    "scale": 0.6419501538279652,
+    "referenceBaselineSyntheticUnits": 0.6419501538281613,
+    "estimatedBaseline": 1.0000000000003055
+  },
+  "commonSupport": {
+    "rule": "Exact truth AND finite original depth AND finite candidate depth, no residual threshold/filter",
+    "commonTruthPixels": 137719,
+    "unionCoveredTruthPixels": 138040,
+    "lostTruthPixels": 260,
+    "gainedTruthPixels": 61,
+    "depthResidualAtIdenticalCommonTruthPixelsSyntheticUnits": {
+      "original": {
+        "p50": 0.015540741656309365,
+        "p90": 0.03723664367627357,
+        "p95": 0.046827311382442435,
+        "p99": 0.07021760231157342,
+        "max": 0.20347763040955869
+      },
+      "candidate": {
+        "p50": 0.015404013606187483,
+        "p90": 0.03705596990494442,
+        "p95": 0.04665260063365626,
+        "p99": 0.06968658467823542,
+        "max": 0.20347763040955869
+      }
+    },
+    "pairedAbsoluteResidualChangeCandidateMinusOriginal": {
+      "p50": 0.0,
+      "p90": 0.0,
+      "p95": 0.00042144820220570926,
+      "p99": 0.0032950330159503254,
+      "max": 0.031200130890212563
+    },
+    "strictlyImprovedPixels": 15533,
+    "strictlyWorsenedPixels": 10282,
+    "unchangedPixels": 111904
+  },
+  "limitations": [
+    "Posthoc synthetic comparison only; one native fuser change, not Android/full-controller/cache/shipping qualification",
+    "Projected image coverage is not 3D completeness; sample populations differ except explicit common-support report",
+    "Common support is intersection selected by BOTH outputs, not independent held-out evaluation; keep lost/gained pixels visible",
+    "No changed truth, filtering, welding, smoothing or near-plane clipping substitution",
+    "Raw native complete topology count required; external default5000face intersection budget remains unchanged and may report unknown",
+    "Surface vertical residual is not Euclidean distance; synthetic truth/render discretization not independently quantified"
+  ],
+  "decision": "REJECT_CANDIDATE_KEEP_PRODUCTION_UNCHANGED",
+  "rawMeasurementsSha256": "1b88269e466538e070df026e5689d5e48a7c674a591d1fc13783b40bca272be2",
+  "rawReceiptSha256": "896e8116234f78f795cb0f91a8c303186945707967a89ec160fa3af469c9594e",
+  "runtime": {
+    "status": "DIRECT_FUSER_MEASURE_ONLY_NOT_QUALITY_PASS",
+    "exitCode": 0,
+    "inputsUnchanged": true,
+    "seconds": 4.552576107002096,
+    "wallCpuSeconds": 60,
+    "addressSpaceBytes": 1073741824,
+    "threads": 1,
+    "configSha256": "3d517404e9181305bcf0d94c7f5a402649757bd9d7450d02380bb28a184c422a"
+  },
+  "meshes": {
+    "original": {
+      "vertices": 5753,
+      "triangles": 6741,
+      "externalTopology": {
+        "representation": "open_or_defective_triangle_surface",
+        "components": 177,
+        "boundary_edges": 4873,
+        "nonmanifold_edges": 166,
+        "inconsistent_winding_edges": 0,
+        "duplicate_triangles": 0,
+        "degenerate_triangles": 0,
+        "self_intersection_pairs": null,
+        "self_intersections_status": "NOT_RUN_BUDGET",
+        "watertight_topology": false
+      },
+      "projected": {
+        "truthPixels": 294723,
+        "meshVisiblePixels": 143318,
+        "meshVisibleInsideTruthPixels": 137979,
+        "truthUncoveredPixels": 156744,
+        "meshVisibleOutsideTruthPixels": 5339,
+        "visibleTruthImageCoverage": 0.4681650227501756,
+        "depthResidualAtCoveredTruthPixelsSyntheticUnits": {
+          "p50": 0.01553731738767361,
+          "p90": 0.03723774618510855,
+          "p95": 0.04685733185075813,
+          "p99": 0.0702059837190033,
+          "max": 0.20347763040955869
+        },
+        "whollyOutsideViewportTriangles": 0,
+        "zeroProjectedAreaTriangles": 0
+      },
+      "surface": {
+        "sampleCount": 4096,
+        "inDomainSamples": 3994,
+        "outOfDomainSamples": 102,
+        "verticalResidualInDomainSyntheticUnits": {
+          "p50": 0.013383817964103706,
+          "p90": 0.03588932756061479,
+          "p95": 0.045535001349103196,
+          "p99": 0.06703492864234716,
+          "max": 0.1373505574731082
+        },
+        "allSamplesAnalyticExtrapolationResidual": {
+          "p50": 0.013521690534932684,
+          "p90": 0.03663701275353026,
+          "p95": 0.04703136436663291,
+          "p99": 0.07040619627704153,
+          "max": 0.1373505574731082
+        }
+      },
+      "rawArtifactsSha256": {
+        "mesh.ply": "3cca78d665131c49090c66266c93050d55d713873916839e5b47b60e9e71e54e",
+        "mesh.json": "07ee52441db4b3fa5c7bd4b516f51fcb53529a7bffa02695c666bcd15b160671",
+        "mesh.bits": "89c920a435dfcb4edd6efdf04c94eb5ae51e2c60dd2e78018082cc4b24bf3fc2"
+      },
+      "nativeMeshScalars": {
+        "schema": 8,
+        "representation": "observed_open_triangle_mesh",
+        "scale": "arbitrary",
+        "textured": false,
+        "watertight": false,
+        "material": "vertex_colors",
+        "vertexCount": 5753,
+        "triangleCount": 6741,
+        "inputSamples": 6867,
+        "acceptedSamples": 6865,
+        "fusedObservations": 271,
+        "rejectedCells": 11745,
+        "rejectedTriangles": 147,
+        "medianConfidence": 0.9683709741,
+        "fusionVersion": 6,
+        "boundaryEdges": 4873,
+        "nonmanifoldEdges": 166,
+        "intersections": 6190,
+        "topologyIncomplete": false
+      },
+      "omittedNativeArrays": {
+        "vertices": {
+          "length": 5753,
+          "canonicalJsonSha256": "c0150436d69d27484efb0f9de06be8f2df9297dfa25dc7a4d30fb362300dde44"
+        },
+        "triangles": {
+          "length": 6741,
+          "canonicalJsonSha256": "0a05924a47a7b87764407df60fd574c5821d85cc516c2fa2971fc787f3a167fd"
+        }
+      }
+    },
+    "candidate": {
+      "vertices": 5624,
+      "triangles": 6711,
+      "externalTopology": {
+        "representation": "open_or_defective_triangle_surface",
+        "components": 164,
+        "boundary_edges": 4876,
+        "nonmanifold_edges": 257,
+        "inconsistent_winding_edges": 0,
+        "duplicate_triangles": 0,
+        "degenerate_triangles": 0,
+        "self_intersection_pairs": null,
+        "self_intersections_status": "NOT_RUN_BUDGET",
+        "watertight_topology": false
+      },
+      "projected": {
+        "truthPixels": 294723,
+        "meshVisiblePixels": 143110,
+        "meshVisibleInsideTruthPixels": 137780,
+        "truthUncoveredPixels": 156943,
+        "meshVisibleOutsideTruthPixels": 5330,
+        "visibleTruthImageCoverage": 0.4674898124679784,
+        "depthResidualAtCoveredTruthPixelsSyntheticUnits": {
+          "p50": 0.015405920610687796,
+          "p90": 0.03708099853154234,
+          "p95": 0.04674117316352925,
+          "p99": 0.06979238746911987,
+          "max": 0.20347763040955869
+        },
+        "whollyOutsideViewportTriangles": 0,
+        "zeroProjectedAreaTriangles": 0
+      },
+      "surface": {
+        "sampleCount": 4096,
+        "inDomainSamples": 4000,
+        "outOfDomainSamples": 96,
+        "verticalResidualInDomainSyntheticUnits": {
+          "p50": 0.013478815070198769,
+          "p90": 0.03557768523117035,
+          "p95": 0.04565032416285537,
+          "p99": 0.06966794284904324,
+          "max": 0.1373505574731082
+        },
+        "allSamplesAnalyticExtrapolationResidual": {
+          "p50": 0.013487117887125866,
+          "p90": 0.035984866030643214,
+          "p95": 0.046185425061709307,
+          "p99": 0.07186731172490386,
+          "max": 0.1373505574731082
+        }
+      },
+      "rawArtifactsSha256": {
+        "mesh.ply": "30af90312e207ed2c921dd378cfc8f8af1d1e97736f1027bcc22f6621c582e2c",
+        "mesh.json": "f58234cbc704042442b99cc166d289f1e9060627fa6fc2e29094993f42c889f0",
+        "mesh.bits": "90606ce0946331746e295cc0a88b3b5c572eafd6e27a8ceffcc1668a9c822a9a"
+      },
+      "nativeMeshScalars": {
+        "schema": 8,
+        "representation": "observed_open_triangle_mesh",
+        "scale": "arbitrary",
+        "textured": false,
+        "watertight": false,
+        "material": "vertex_colors",
+        "vertexCount": 5624,
+        "triangleCount": 6711,
+        "inputSamples": 6867,
+        "acceptedSamples": 6865,
+        "fusedObservations": 400,
+        "rejectedCells": 11745,
+        "rejectedTriangles": 177,
+        "medianConfidence": 0.9686306119,
+        "fusionVersion": 6,
+        "boundaryEdges": 4876,
+        "nonmanifoldEdges": 257,
+        "intersections": 5742,
+        "topologyIncomplete": false
+      },
+      "omittedNativeArrays": {
+        "vertices": {
+          "length": 5624,
+          "canonicalJsonSha256": "fb0054ba3a5372a884d3a910251bf5dea34a8d66ae54ed53be811bb3b7dfb7fd"
+        },
+        "triangles": {
+          "length": 6711,
+          "canonicalJsonSha256": "ba5c0ecc86a6541a29b11d0f5c3c15e907a287a09d8b92ca2223e656f79db373"
+        }
+      }
+    }
+  },
+  "interpretation": [
+    "Nonmanifold edges worsen166 to257; boundary edges4873 to4876; root rejected candidate despite lower native intersections6190 to5742.",
+    "Coverage falls46.8165% to46.7490%:260lost and61gained truth pixels. Native and external topology stay open/defective.",
+    "On137719identical common truth pixels, residualp95 improves0.04682731 to0.04665260. Common population is conditioned on BOTH outputs, not independentheldout evidence.",
+    "15533common pixels strictly improve,10282worsen,111904unchanged. Paired median absolute-residual change is0; p95change+0.000421448.",
+    "Both external full intersection checks are NOT_RUN_BUDGET. Raw native topologyIncomplete=false both; complete native counts are not quality PASS.",
+    "This actual baseline5753vertices6741faces6190intersections is trace-v2/StageC, NOT profile-pairCompatibility6162 baseline."
+  ]
+}

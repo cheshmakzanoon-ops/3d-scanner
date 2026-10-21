@@ -1,0 +1,13 @@
+{
+  "snapshotSha256": "d1b605dffddb9488e77ff2f16706f3cf0f2d4161e3239d03f51648d5290b71c0",
+  "depthIdentity": "9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995",
+  "hostReceiptSha256": "a5ee120949045159ae579fe157037217d5b63bd39dbbdbea338914ccd0e5214b",
+  "stageCOriginalReceiptSha256": "10c7ba41cda11b88d89dceb237bf115a44f2cd254f73414aa51da0058a92be80",
+  "candidateReceiptSha256": "27de2d10a935339add0a0f1b03ee505a7c3b6ccdc8e4131eca2c4105095e9b8e",
+  "captureManifestSha256": "44fde57708c857b22e07c4494e3aa1b199217b592bc9ede26ff3c96266f2aa5d",
+  "actualCameraResultSha256": "43cb5ccbdcb9be63abd67c2d1d73a57f7c3eb89506919bd3f00485140fc95574",
+  "measurementPreHashesSha256": "da137b8b1ae4e03256134de35f8215b0761b30eb16da1016546165798775a01f",
+  "measurementPostHashesSha256": "da137b8b1ae4e03256134de35f8215b0761b30eb16da1016546165798775a01f",
+  "candidateTerminalStatus": "EXPERIMENT_ONLY_ONE_MISSING_DIAGONAL_REPLAY_READY_NOT_QUALITY_ACCEPTED",
+  "rawArtifactLocationPolicy": "Exact full native JSON/geometry/config/host paths remain external and immutable; this sanitized aggregate is not substitute raw evidence"
+}
