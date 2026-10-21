@@ -1,0 +1,39 @@
+--- a/NativeMapsEvidence.kt
++++ b/NativeMapsEvidence.kt
+@@ -71,6 +71,27 @@
+         val values = line.trim().split(Regex("\\s+"))
+         require(values.size == 5) { "Unexpected proc uid fields" }
+         return values[2].toLong()
++    }
++    private fun currentJvmPid(): Long {
++        // Android API compilation omits ProcessHandle; this kernel file is the actual host JVM.
++        val raw = File("/proc/self/status").inputStream().use { input ->
++            val out = java.io.ByteArrayOutputStream()
++            val buffer = ByteArray(4096)
++            while (true) {
++                val n = input.read(buffer)
++                if (n < 0) break
++                require(n > 0 && out.size() + n <= 64 * 1024) { "proc status byte bound" }
++                out.write(buffer, 0, n)
++            }
++            out.toByteArray()
++        }
++        val lines = String(raw, Charsets.UTF_8).lineSequence().filter { it.startsWith("Pid:") }.toList()
++        require(lines.size == 1) { "Expected one current-process Pid field" }
++        val fields = lines.single().trim().split(Regex("\\s+"))
++        require(fields.size == 2 && fields[1].matches(Regex("[0-9]+"))) { "Invalid proc Pid field" }
++        val pid = fields[1].toLong()
++        require(pid in 1..Int.MAX_VALUE.toLong()) { "Current-process Pid out of range" }
++        return pid
+     }
+     private fun stamp(path: Path, directory: SecureDirectoryStream<Path>, uid: Long): Stamp {
+         val anchored = requireNotNull(directory.getFileAttributeView(path.fileName, PosixFileAttributeView::class.java, NOFOLLOW)).readAttributes()
+@@ -187,7 +208,7 @@
+                 .put("inode", library.stamp.ino).put("uid", library.stamp.uid).put("linkCount", library.stamp.links).put("segments", segments))
+         }
+         val evidence = JSONObject().put("schema", 1).put("status", "VERIFIED_ACTUAL_JVM_NATIVE_MAPPINGS")
+-            .put("source", "/proc/self/maps").put("jvmPid", ProcessHandle.current().pid()).put("uid", uid)
++            .put("source", "/proc/self/maps").put("jvmPid", currentJvmPid()).put("uid", uid)
+             .put("procMapsBeforeSha256", firstMaps.sha256).put("procMapsAfterSha256", secondMaps.sha256)
+             .put("relevantMappingsStable", true).put("nativeFilesPrePostStable", true).put("loaderEnvironmentOverrides", false)
+             .put("libraries", groups)

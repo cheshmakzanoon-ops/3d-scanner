@@ -1,0 +1,580 @@
+--- /dev/null
++++ b/NativeMapsEvidence.kt
+@@ -0,0 +1,219 @@
++package com.realityforge.scanner.hostintegration
++
++import java.io.File
++import java.nio.ByteBuffer
++import java.nio.channels.SeekableByteChannel
++import java.nio.file.Files
++import java.nio.file.LinkOption
++import java.nio.file.OpenOption
++import java.nio.file.Path
++import java.nio.file.Paths
++import java.nio.file.SecureDirectoryStream
++import java.nio.file.StandardOpenOption
++import java.nio.file.attribute.PosixFileAttributeView
++import java.nio.file.attribute.PosixFileAttributes
++import java.nio.file.attribute.PosixFilePermissions
++import java.security.MessageDigest
++import org.json.JSONArray
++import org.json.JSONObject
++
++/** External HOST evidence only. No Android/native-core call and no library load. */
++internal object NativeMapsEvidence {
++    private const val ENGINE = "/tmp/relief-fusion-trace-stagea-v2-evidence/build/librealityforge.so"
++    private const val ENGINE_SHA = "1b03206aa399fbeeabb333a5292a639322676f659d939009f53ee90f7bd8204d"
++    private const val SHIM = "/tmp/relief-fusion-trace-stageb-shim-evidence/librealityforge_jni.so"
++    private const val SHIM_SHA = "4bb81674e351d9338c4337630c19fddad9c6b5cfee86735aad493896acdb6747"
++    private const val MAX_LIBRARY = 128L * 1024 * 1024
++    private const val MAX_MAPS = 8 * 1024 * 1024
++    private const val MAX_OUTPUT = 256 * 1024
++    private val NOFOLLOW = LinkOption.NOFOLLOW_LINKS
++
++    private data class Stamp(
++        val dev: Long, val ino: Long, val links: Long, val uid: Long,
++        val size: Long, val modified: String, val changed: String, val key: String
++    )
++    private data class Library(val path: Path, val sha256: String, val stamp: Stamp)
++    private data class Segment(
++        val start: String, val end: String, val permissions: String, val offset: String,
++        val major: Long, val minor: Long, val inode: Long, val path: String
++    ) {
++        fun json() = JSONObject().put("start", start).put("end", end)
++            .put("permissions", permissions).put("offset", offset)
++            .put("deviceMajor", major).put("deviceMinor", minor).put("inode", inode).put("path", path)
++    }
++    private data class Maps(val sha256: String, val segments: List<Segment>)
++
++    private fun canonical(file: File): Path {
++        val path = file.toPath()
++        require(path.isAbsolute && path.normalize() == path && path.fileName != null) { "Absolute canonical path required" }
++        require(file.path == path.toString() && file.canonicalFile.toPath() == path) { "Path aliases are forbidden" }
++        return path
++    }
++    private fun parent(path: Path): SecureDirectoryStream<Path> {
++        require(path.isAbsolute && path.normalize() == path) { "Canonical path required" }
++        var current = Files.newDirectoryStream(path.root).let {
++            if (it !is SecureDirectoryStream<*>) { it.close(); error("SecureDirectoryStream unavailable") }
++            @Suppress("UNCHECKED_CAST")
++            (it as SecureDirectoryStream<Path>)
++        }
++        try {
++            for (part in path.parent) {
++                val next = current.newDirectoryStream(part, NOFOLLOW)
++                current.close()
++                current = next
++            }
++            return current
++        } catch (failure: Throwable) { current.close(); throw failure }
++    }
++    private fun effectiveUid(): Long {
++        // proc/self deliberately denotes this JVM, not an externally supplied filesystem path.
++        val line = File("/proc/self/status").useLines { rows -> rows.first { it.startsWith("Uid:") } }
++        val values = line.trim().split(Regex("\\s+"))
++        require(values.size == 5) { "Unexpected proc uid fields" }
++        return values[2].toLong()
++    }
++    private fun currentJvmPid(): Long {
++        // Android API compilation omits ProcessHandle; this kernel file is the actual host JVM.
++        val raw = File("/proc/self/status").inputStream().use { input ->
++            val out = java.io.ByteArrayOutputStream()
++            val buffer = ByteArray(4096)
++            while (true) {
++                val n = input.read(buffer)
++                if (n < 0) break
++                require(n > 0 && out.size() + n <= 64 * 1024) { "proc status byte bound" }
++                out.write(buffer, 0, n)
++            }
++            out.toByteArray()
++        }
++        val lines = String(raw, Charsets.UTF_8).lineSequence().filter { it.startsWith("Pid:") }.toList()
++        require(lines.size == 1) { "Expected one current-process Pid field" }
++        val fields = lines.single().trim().split(Regex("\\s+"))
++        require(fields.size == 2 && fields[1].matches(Regex("[0-9]+"))) { "Invalid proc Pid field" }
++        val pid = fields[1].toLong()
++        require(pid in 1..Int.MAX_VALUE.toLong()) { "Current-process Pid out of range" }
++        return pid
++    }
++    private fun stamp(path: Path, directory: SecureDirectoryStream<Path>, uid: Long): Stamp {
++        val anchored = requireNotNull(directory.getFileAttributeView(path.fileName, PosixFileAttributeView::class.java, NOFOLLOW)).readAttributes()
++        require(anchored.isRegularFile && !anchored.isSymbolicLink) { "Expected regular NOFOLLOW file" }
++        val attributes = Files.readAttributes(path, "unix:dev,ino,nlink,uid,size,lastModifiedTime,ctime,fileKey,isRegularFile", NOFOLLOW)
++        require(attributes["isRegularFile"] == true && attributes["fileKey"].toString() == anchored.fileKey().toString()) { "Anchored/path file identity differs" }
++        fun number(key: String) = (attributes.getValue(key) as Number).toLong()
++        val value = Stamp(number("dev"), number("ino"), number("nlink"), number("uid"), number("size"),
++            attributes.getValue("lastModifiedTime").toString(), attributes.getValue("ctime").toString(), attributes.getValue("fileKey").toString())
++        require(value.uid == uid && value.links == 1L && value.size in 1..MAX_LIBRARY && anchored.size() == value.size) { "File owner/link/size guard" }
++        require(canonical(path.toFile()) == path) { "File path changed" }
++        return value
++    }
++    private fun hash(channel: SeekableByteChannel, expectedBytes: Long): String {
++        val digest = MessageDigest.getInstance("SHA-256")
++        val buffer = ByteBuffer.allocate(64 * 1024)
++        var total = 0L
++        while (true) {
++            buffer.clear()
++            val n = channel.read(buffer)
++            if (n < 0) break
++            require(n > 0) { "Unexpected empty library read" }
++            total += n
++            require(total <= expectedBytes && total <= MAX_LIBRARY) { "Library changed while reading" }
++            digest.update(buffer.array(), 0, n)
++        }
++        require(total == expectedBytes) { "Library truncated" }
++        return hex(digest.digest())
++    }
++    private fun verify(file: File, expectedPath: String, expectedHash: String, uid: Long): Library {
++        val path = canonical(file)
++        require(path.toString() == expectedPath) { "Unexpected native library path" }
++        return parent(path).use { dir ->
++            val before = stamp(path, dir, uid)
++            val options: Set<OpenOption> = setOf(StandardOpenOption.READ, NOFOLLOW)
++            val digest = dir.newByteChannel(path.fileName, options).use { hash(it, before.size) }
++            val after = stamp(path, dir, uid)
++            require(before == after && digest == expectedHash) { "Native library changed or SHA mismatch" }
++            Library(path, digest, after)
++        }
++    }
++    private fun major(dev: Long): Long = ((dev ushr 8) and 0xfffL) or ((dev ushr 32) and 0xfffff000L)
++    private fun minor(dev: Long): Long = (dev and 0xffL) or ((dev ushr 12) and 0xffffff00L)
++    private fun hex(bytes: ByteArray) = bytes.joinToString("") { "%02x".format(it.toInt() and 255) }
++    private fun readMaps(expected: List<Library>): Maps {
++        val raw = File("/proc/self/maps").inputStream().use { input ->
++            val out = java.io.ByteArrayOutputStream()
++            val buffer = ByteArray(64 * 1024)
++            while (true) { val n = input.read(buffer); if (n < 0) break; require(n > 0 && out.size() + n <= MAX_MAPS) { "proc maps bound" }; out.write(buffer, 0, n) }
++            out.toByteArray()
++        }
++        val found = mutableListOf<Segment>()
++        val regex = Regex("^([0-9a-fA-F]+)-([0-9a-fA-F]+)\\s+([r-][w-][x-][ps])\\s+([0-9a-fA-F]+)\\s+([0-9a-fA-F]+):([0-9a-fA-F]+)\\s+([0-9]+)(?:\\s+(.*))?$")
++        for (line in String(raw, Charsets.UTF_8).lineSequence().filter { it.isNotBlank() }) {
++            val match = requireNotNull(regex.matchEntire(line)) { "Malformed proc maps line" }
++            val mapped = match.groupValues[8]
++            if (!mapped.substringAfterLast('/').startsWith("librealityforge")) continue
++            require(mapped.startsWith('/') && !mapped.contains('\\') && !mapped.any { it.isWhitespace() }) { "Escaped/deleted/ambiguous native mapping" }
++            val library = requireNotNull(expected.singleOrNull { it.path.toString() == mapped }) { "Unexpected duplicate/fallback native mapping: $mapped" }
++            val segment = Segment(match.groupValues[1], match.groupValues[2], match.groupValues[3], match.groupValues[4],
++                match.groupValues[5].toLong(16), match.groupValues[6].toLong(16), match.groupValues[7].toLong(), mapped)
++            require(segment.inode == library.stamp.ino && segment.major == major(library.stamp.dev) && segment.minor == minor(library.stamp.dev)) { "Mapped device/inode differs from verified file" }
++            require(java.lang.Long.compareUnsigned(java.lang.Long.parseUnsignedLong(segment.start, 16), java.lang.Long.parseUnsignedLong(segment.end, 16)) < 0) { "Invalid mapping address range" }
++            found += segment
++        }
++        for (library in expected) {
++            val segments = found.filter { it.path == library.path.toString() }
++            require(segments.isNotEmpty() && segments.any { it.permissions[2] == 'x' }) { "Expected executable native mapping absent" }
++            require(segments.map { Triple(it.major, it.minor, it.inode) }.toSet().size == 1) { "Multiple mapped native file identities" }
++            val executableOffsets = segments.filter { it.permissions[2] == 'x' }.map { it.offset.toLong(16) }
++            require(executableOffsets.toSet().size == executableOffsets.size) { "Duplicate executable image mapping" }
++        }
++        return Maps(hex(MessageDigest.getInstance("SHA-256").digest(raw)), found)
++    }
++    private fun writeFresh(output: File, bytes: ByteArray, uid: Long) {
++        require(bytes.size in 1..MAX_OUTPUT) { "Native maps output bound" }
++        val path = canonical(output)
++        parent(path).use { dir ->
++            val attrs: PosixFileAttributes = requireNotNull(dir.getFileAttributeView(PosixFileAttributeView::class.java)).readAttributes()
++            val unix = Files.readAttributes(path.parent, "unix:uid,fileKey", NOFOLLOW)
++            require((unix.getValue("uid") as Number).toLong() == uid && unix["fileKey"].toString() == attrs.fileKey().toString() &&
++                attrs.permissions() == PosixFilePermissions.fromString("rwx------")) { "Output parent must be owned0700" }
++            val options: Set<OpenOption> = setOf(StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW, NOFOLLOW)
++            dir.newByteChannel(path.fileName, options, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"))).use { channel ->
++                val buffer = ByteBuffer.wrap(bytes)
++                while (buffer.hasRemaining()) require(channel.write(buffer) > 0) { "Maps evidence write stalled" }
++            }
++            val before = stamp(path, dir, uid)
++            require(before.size == bytes.size.toLong()) { "Maps evidence size differs" }
++            val actual = dir.newByteChannel(path.fileName, setOf<OpenOption>(StandardOpenOption.READ, NOFOLLOW)).use { hash(it, before.size) }
++            val after = stamp(path, dir, uid)
++            require(before == after && actual == hex(MessageDigest.getInstance("SHA-256").digest(bytes))) { "Maps evidence verification failed" }
++        }
++    }
++    fun writeSnapshot(output: File, engine: File, shim: File): JSONObject {
++        require(System.getenv().keys.none { it.startsWith("LD_") }) { "Dynamic-loader environment overrides forbidden" }
++        val uid = effectiveUid()
++        val before = listOf(verify(engine, ENGINE, ENGINE_SHA, uid), verify(shim, SHIM, SHIM_SHA, uid))
++        require(before.map { it.stamp.dev to it.stamp.ino }.toSet().size == 2) { "Engine and JNI must be distinct files" }
++        val firstMaps = readMaps(before)
++        val intermediate = listOf(verify(engine, ENGINE, ENGINE_SHA, uid), verify(shim, SHIM, SHIM_SHA, uid))
++        require(before == intermediate) { "Mapped native file identities changed" }
++        val secondMaps = readMaps(intermediate)
++        val after = listOf(verify(engine, ENGINE, ENGINE_SHA, uid), verify(shim, SHIM, SHIM_SHA, uid))
++        require(before == after) { "Mapped native files changed after maps read" }
++        require(firstMaps.segments == secondMaps.segments) { "Native mappings changed during evidence read" }
++        val groups = JSONArray()
++        after.forEachIndexed { index, library ->
++            val segments = JSONArray()
++            secondMaps.segments.filter { it.path == library.path.toString() }.forEach { segments.put(it.json()) }
++            groups.put(JSONObject().put("role", if (index == 0) "engine" else "jni").put("path", library.path.toString())
++                .put("sha256", library.sha256).put("bytes", library.stamp.size).put("device", library.stamp.dev)
++                .put("deviceMajor", major(library.stamp.dev)).put("deviceMinor", minor(library.stamp.dev))
++                .put("inode", library.stamp.ino).put("uid", library.stamp.uid).put("linkCount", library.stamp.links).put("segments", segments))
++        }
++        val evidence = JSONObject().put("schema", 1).put("status", "VERIFIED_ACTUAL_JVM_NATIVE_MAPPINGS")
++            .put("source", "/proc/self/maps").put("jvmPid", currentJvmPid()).put("uid", uid)
++            .put("procMapsBeforeSha256", firstMaps.sha256).put("procMapsAfterSha256", secondMaps.sha256)
++            .put("relevantMappingsStable", true).put("nativeFilesPrePostStable", true).put("loaderEnvironmentOverrides", false)
++            .put("libraries", groups)
++            .put("scope", "Actual current host JVM mappings only; not Android-device or algorithm-quality evidence")
++        writeFresh(output, evidence.toString().toByteArray(Charsets.UTF_8), uid)
++        return evidence
++    }
++}
+--- a/SandboxNativeLoaderTokenHostTest.kt
++++ b/SandboxNativeLoaderTokenHostTest.kt
+@@ -23,8 +23,8 @@
+ class SandboxNativeLoaderTokenHostTest {
+     @Test(timeout = 120_000) fun actualLoadersAndOwnedTokenLifecycleUseVerifiedLibraries() {
+         val openCv = verified("opencv", "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1")
+-        val shim = verified("shim", "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce")
+-        val engine = verified("engine", "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b")
++        val shim = verified("shim", "4bb81674e351d9338c4337630c19fddad9c6b5cfee86735aad493896acdb6747")
++        val engine = verified("engine", "1b03206aa399fbeeabb333a5292a639322676f659d939009f53ee90f7bd8204d")
+         val aliases = File(required("aliasDir")).canonicalFile
+         assertEquals(aliases.path, System.getProperty("java.library.path"))
+         assertEquals(openCv, File(aliases, "libopencv_java4.so").canonicalFile)
+@@ -80,8 +80,8 @@
+         try { NativeCore.pollNativeProgress(token); fail("Finished token must be rejected") }
+         catch (_: IllegalArgumentException) { /* actual JNI boundary rejection */ }
+         verified("opencv", "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1")
+-        verified("shim", "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce")
+-        verified("engine", "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b")
++        verified("shim", "4bb81674e351d9338c4337630c19fddad9c6b5cfee86735aad493896acdb6747")
++        verified("engine", "1b03206aa399fbeeabb333a5292a639322676f659d939009f53ee90f7bd8204d")
+     }
+     private fun required(key: String) = requireNotNull(System.getProperty("rf.loader.$key"))
+     private fun sha(bytes: ByteArray) = MessageDigest.getInstance("SHA-256").digest(bytes)
+--- a/SparsePipelineQualityCaptureHostTest.kt
++++ b/SparsePipelineQualityCaptureHostTest.kt
+@@ -26,6 +26,10 @@
+ import com.realityforge.scanner.work.execution.ReconstructionExecutionController
+ import hostadapter.OpaqueBitmapBridge
+ import java.io.File
++import java.nio.file.Files
++import java.nio.file.LinkOption
++import java.nio.file.StandardOpenOption
++import java.nio.file.attribute.BasicFileAttributes
+ import java.security.MessageDigest
+ import java.util.UUID
+ import java.util.concurrent.CopyOnWriteArrayList
+@@ -49,6 +53,14 @@
+     @Test(timeout = 180_000) fun realThreePhotoCoordinatorReturnsValidatedDenseMeshTextureAndExports() = runBlocking(Dispatchers.IO) {
+         // Exact previously reviewed loader assertions, executed inside THIS narrow same-owner sandbox.
+         SandboxNativeLoaderTokenHostTest().actualLoadersAndOwnedTokenLifecycleUseVerifiedLibraries()
++        val traceRoot = File(requireNotNull(System.getProperty("rf.trace.output")))
++        val traceEngine = File(requireNotNull(System.getProperty("rf.loader.engine")))
++        val traceShim = File(requireNotNull(System.getProperty("rf.loader.shim")))
++        require(System.getenv("RF_TRACE_COUNTS") == null)
++        require(System.getenv("RF_TRACE_SNAPSHOT") == File(traceRoot,"input.rffuse").absolutePath)
++        require(System.getenv("RF_TRACE_CAPTURE_MESH_BITS") == File(traceRoot,"live-mesh.bits").absolutePath)
++        val beforeMaps = NativeMapsEvidence.writeSnapshot(File(traceRoot,"before-core-maps.json"),traceEngine,traceShim)
++
+         assertSame(javaClass.classLoader, OpaqueBitmapBridge::class.java.classLoader)
+         assertSame(javaClass.classLoader, org.opencv.core.Mat::class.java.classLoader)
+         OpaqueBitmapBridge.reset()
+@@ -232,12 +244,40 @@
+                 assertEquals(source.length(),target.length());assertEquals(before,sha(target));assertEquals(before,sha(source))
+                 entries.put(name,JSONObject().put("sha256",before).put("bytes",target.length()))
+             }
++            // The solver worker and native owner have already completed/closed above.
++            assertTrue(requireNotNull(worker).isCompleted)
++            assertEquals(0L, token)
++            val densePreview = result.getJSONObject("densePreview")
++            require(densePreview.getBoolean("surfaceCheckpointAvailable"))
++            val depthIdentity = densePreview.getString("depthCheckpointIdentity")
++            require(depthIdentity.matches(Regex("[0-9a-f]{64}")))
++            val checkpoint = File(directory, ".depth-checkpoints-m18/$depthIdentity/surface-v2.rfmesh")
++            entries.put("surface-v2.rfmesh", captureOwnedCheckpoint(directory, checkpoint, File(capture, "surface-v2.rfmesh")))
+             val identities=org.json.JSONArray()
+             fixture.database.dao().photos(fixture.project).forEach { photo ->
+                 identities.put(JSONObject().put("photoId",photo.id).put("sha256",photo.sha256))
+             }
++            val afterMaps = NativeMapsEvidence.writeSnapshot(File(traceRoot,"after-core-maps.json"),traceEngine,traceShim)
++            val traceArtifacts = JSONObject()
++            for (name in listOf("input.rffuse","live-mesh.bits")) {
++                val file = File(traceRoot,name)
++                val attrs = strictPath(file,true)
++                require(attrs.size() in 1..(12L*1024*1024))
++                require(Files.getAttribute(file.toPath(),"unix:uid",LinkOption.NOFOLLOW_LINKS) ==
++                    Files.getAttribute(traceRoot.toPath(),"unix:uid",LinkOption.NOFOLLOW_LINKS))
++                require((Files.getAttribute(file.toPath(),"unix:nlink",LinkOption.NOFOLLOW_LINKS) as Number).toLong() == 1L)
++                val beforeHash = boundedCheckpointHash(file,12L*1024*1024)
++                require(attrs.fileKey() == strictPath(file,true).fileKey() && attrs.size() == file.length())
++                require(beforeHash == boundedCheckpointHash(file,12L*1024*1024))
++                traceArtifacts.put(name,JSONObject().put("bytes",attrs.size()).put("sha256",beforeHash))
++            }
++            require(densePreview.getInt("pixelStride") == 3)
++            val nativeTrace = JSONObject().put("artifacts",traceArtifacts).put("depthCheckpointIdentity",depthIdentity)
++                .put("pixelStride",3).put("engineSha256",sha(traceEngine)).put("jniSha256",sha(traceShim))
++                .put("loadedLibraries",JSONObject().put("beforeCore",beforeMaps).put("afterCore",afterMaps))
+             File(capture,"capture.json").writeText(JSONObject().put("schema",1).put("synthetic",true)
+                 .put("artifacts",entries).put("photos",identities).put("artifactKey",key)
++                .put("depthCheckpointIdentity",depthIdentity).put("nativeTrace",nativeTrace)
+                 .put("scope","post-return evidence only; not solver input").toString())
+         } catch (failure: Throwable) { primary = failure; throw failure }
+         finally {
+@@ -256,6 +296,80 @@
+             primary?.let { throw it }
+         }
+     }
++    /** Reject symlinks in EVERY existing ancestor; synthetic owned paths only. */
++    private fun strictPath(file: File, regular: Boolean): BasicFileAttributes {
++        val path = file.toPath().toAbsolutePath().normalize()
++        require(path == file.canonicalFile.toPath()) { "Noncanonical evidence path" }
++        var current = requireNotNull(path.root)
++        for (part in path) {
++            current = current.resolve(part)
++            val attrs = Files.readAttributes(current, BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
++            require(!attrs.isSymbolicLink)
++            require(if (current == path && regular) attrs.isRegularFile else attrs.isDirectory)
++        }
++        return Files.readAttributes(path, BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
++    }
++    private fun boundedCheckpointHash(file: File, maximum: Long): String {
++        require(strictPath(file, true).size() in 1..maximum)
++        val digest = MessageDigest.getInstance("SHA-256")
++        var bytes = 0L
++        Files.newInputStream(file.toPath(), StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS).use { input ->
++            val buffer = ByteArray(8192)
++            while (true) {
++                val count = input.read(buffer)
++                if (count < 0) break
++                bytes += count
++                require(bytes <= maximum)
++                digest.update(buffer, 0, count)
++            }
++        }
++        require(bytes > 0)
++        return digest.digest().joinToString("") { "%02x".format(it) }
++    }
++    private fun captureOwnedCheckpoint(root: File, source: File, target: File): JSONObject {
++        val maximum = 12L * 1024 * 1024
++        strictPath(root, false)
++        val sourcePath = source.toPath().toAbsolutePath().normalize()
++        require(sourcePath.startsWith(root.canonicalFile.toPath()) && sourcePath != root.canonicalFile.toPath())
++        val before = strictPath(source, true)
++        require(before.size() in 1..maximum)
++        strictPath(target.parentFile, false)
++        require(!Files.exists(target.toPath(), LinkOption.NOFOLLOW_LINKS))
++        val beforeHash = boundedCheckpointHash(source, maximum)
++        val digest = MessageDigest.getInstance("SHA-256")
++        var copied = 0L
++        Files.newInputStream(sourcePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS).use { input ->
++            Files.newOutputStream(target.toPath(), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE,
++                LinkOption.NOFOLLOW_LINKS).use { output ->
++                val buffer = ByteArray(8192)
++                while (true) {
++                    val count = input.read(buffer)
++                    if (count < 0) break
++                    copied += count
++                    require(copied <= maximum && copied <= before.size())
++                    digest.update(buffer, 0, count)
++                    output.write(buffer, 0, count)
++                }
++            }
++        }
++        val after = strictPath(source, true)
++        val destination = strictPath(target, true)
++        require(before.fileKey() != null && before.fileKey() == after.fileKey())
++        require(before.size() == after.size() && before.lastModifiedTime() == after.lastModifiedTime())
++        require(copied == before.size() && destination.size() == copied)
++        val copiedHash = digest.digest().joinToString("") { "%02x".format(it) }
++        assertEquals(beforeHash, copiedHash)
++        assertEquals(beforeHash, boundedCheckpointHash(source, maximum))
++        assertEquals(beforeHash, boundedCheckpointHash(target, maximum))
++        strictPath(source, true).also { final ->
++            require(final.fileKey() == before.fileKey() && final.size() == before.size() && final.lastModifiedTime() == before.lastModifiedTime())
++        }
++        strictPath(target, true).also { final ->
++            require(final.fileKey() == destination.fileKey() && final.size() == destination.size() && final.lastModifiedTime() == destination.lastModifiedTime())
++        }
++        return JSONObject().put("sha256", copiedHash).put("bytes", copied)
++    }
++
+     /** Test-only reader for the exact dense point writer; never relax the production sparse validator. */
+     private fun validateDensePly(file: File, expectedCount: Int) {
+         require(expectedCount in 1..2_000_000 && file.length() in 1..(32L * 1024 * 1024))
+--- a/probe.init.gradle
++++ b/probe.init.gradle
+@@ -19,6 +19,7 @@
+   systemProperty 'robolectric.dependency.dir',cfg.sdk
+   jvmArgs '--add-opens=java.base/java.io=ALL-UNNAMED', '-XX:ActiveProcessorCount=2'
+   systemProperty 'rf.decoder.fixtureDir',cfg.fixtureDir
++  systemProperty 'rf.trace.output',new File(cfg.output,'native-trace').absolutePath
+   systemProperty 'rf.quality.output',new File(cfg.output,'quality-capture').absolutePath
+   systemProperty 'java.library.path',cfg.aliasDir
+   cfg.native.each { k,v -> systemProperty "rf.loader.${k}",v.path }
+@@ -27,6 +28,9 @@
+   def cleanEnv=new LinkedHashMap(System.getenv())
+   ['JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS'].each {cleanEnv.remove(it)}
+   cleanEnv.keySet().findAll {it.startsWith('LD_')}.each {cleanEnv.remove(it)}
++  cleanEnv.remove('RF_TRACE_COUNTS')
++  cleanEnv.put('RF_TRACE_SNAPSHOT',new File(cfg.output,'native-trace/input.rffuse').absolutePath)
++  cleanEnv.put('RF_TRACE_CAPTURE_MESH_BITS',new File(cfg.output,'native-trace/live-mesh.bits').absolutePath)
+   environment=cleanEnv
+   reports.junitXml.outputLocation=file("${cfg.output}/xml")
+   reports.html.outputLocation=file("${cfg.output}/html")
+@@ -43,8 +47,8 @@
+     else if(f.isDirectory()) cfg.classHashes.each {n,h ->def c=new File(f,n.replace('.','/')+'.class');if(c.isFile()) owners[n] << [path:c.absolutePath,sha256:sha(c.bytes)]}
+    }
+    def probes=[]
+-   testClassesDirs.files.each { d -> if(d.isDirectory()) project.fileTree(d).matching { include '**/SandboxNativeLoaderRunner*.class'; include '**/SandboxNativeLoaderTokenHostTest*.class'; include '**/SparsePipelineQualityCaptureHostTest*.class'; include '**/SparsePrefixRunner*.class'; include '**/hostadapter/OpaqueBitmapBridge*.class' }.files.each {f ->probes << [path:f.absolutePath,sha256:sha(f.bytes)]} }
+-   ['SandboxNativeLoaderRunner','SandboxNativeLoaderTokenHostTest','SparsePipelineQualityCaptureHostTest','SparsePrefixRunner','OpaqueBitmapBridge'].each {n -> assert probes.any {new File(it.path).name==n+'.class'} : 'Compiled temporary class missing: '+n}
++   testClassesDirs.files.each { d -> if(d.isDirectory()) project.fileTree(d).matching { include '**/SandboxNativeLoaderRunner*.class'; include '**/SandboxNativeLoaderTokenHostTest*.class'; include '**/SparsePipelineQualityCaptureHostTest*.class'; include '**/SparsePrefixRunner*.class'; include '**/NativeMapsEvidence*.class'; include '**/hostadapter/OpaqueBitmapBridge*.class' }.files.each {f ->probes << [path:f.absolutePath,sha256:sha(f.bytes)]} }
++   ['SandboxNativeLoaderRunner','SandboxNativeLoaderTokenHostTest','SparsePipelineQualityCaptureHostTest','SparsePrefixRunner','OpaqueBitmapBridge','NativeMapsEvidence'].each {n -> assert probes.any {new File(it.path).name==n+'.class'} : 'Compiled temporary class missing: '+n}
+    new File("${cfg.output}/compiled-probes.json").text=JsonOutput.prettyPrint(JsonOutput.toJson(probes))
+    new File("${cfg.output}/actual-classpath.json").text=JsonOutput.prettyPrint(JsonOutput.toJson([task:path,classpath:cp,owners:owners,jvmArgs:allJvmArgs,environmentRemoved:['LD_*','JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS']]))
+    cfg.classHashes.each {n,h -> assert owners[n].size()==1 && owners[n][0].sha256==h : "Unexpected class owner ${n}: ${owners[n]}"}
+--- a/validate.py
++++ b/validate.py
+@@ -4,8 +4,8 @@
+ import xml.etree.ElementTree as ET
+ P=pathlib.Path
+ SOURCE=P(__file__).resolve().parent; INIT=SOURCE/'probe.init.gradle'
+-SOURCE_NAMES=['SandboxNativeLoaderRunner.kt','SandboxNativeLoaderTokenHostTest.kt','OpaqueBitmapBridge.kt','SparsePipelineQualityCaptureHostTest.kt','SparsePrefixRunner.kt']
+-NATIVE_PINS={'opencv': 'e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1', 'shim': '427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce', 'engine': '4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b'}
++SOURCE_NAMES=['SandboxNativeLoaderRunner.kt','SandboxNativeLoaderTokenHostTest.kt','OpaqueBitmapBridge.kt','SparsePipelineQualityCaptureHostTest.kt','SparsePrefixRunner.kt','NativeMapsEvidence.kt']
++NATIVE_PINS={'opencv': 'e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1', 'shim': '4bb81674e351d9338c4337630c19fddad9c6b5cfee86735aad493896acdb6747', 'engine': '1b03206aa399fbeeabb333a5292a639322676f659d939009f53ee90f7bd8204d'}
+ def validate_native_pins(native):
+  require({k:v["sha256"] for k,v in native.items()}==NATIVE_PINS,"Unreviewed native capability; locations are configurable, identities are not")
+ def require(ok,message):
+@@ -31,14 +31,41 @@
+  with P(p).open('rb') as f:
+   for b in iter(lambda:f.read(1048576),b''):d.update(b)
+  return d.hexdigest()
++def live_group(pgid):
++ live=[]
++ for entry in P('/proc').iterdir():
++  if not entry.name.isdecimal():continue
++  try:
++   # comm may contain spaces/parentheses; fields after its final ')' start at state.
++   fields=(entry/'stat').read_text().rsplit(')',1)[1].split()
++   if int(fields[2])==pgid and fields[0] not in ['Z','X']:live.append(int(entry.name))
++  except FileNotFoundError:continue
++  except ProcessLookupError:continue
++ return live
++
++def drain(proc):
++ for sig,seconds in [(signal.SIGTERM,15),(signal.SIGKILL,15)]:
++  if not live_group(proc.pid):return True
++  try:os.killpg(proc.pid,sig)
++  except ProcessLookupError:pass
++  deadline=time.monotonic()+seconds
++  while time.monotonic()<deadline:
++   proc.poll()
++   if not live_group(proc.pid):return True
++   time.sleep(.1)
++ return not live_group(proc.pid)
++
+ def wait_bounded(proc,timeout=600):
+- try:return 'EXIT_'+str(proc.wait(timeout=timeout))
+- except subprocess.TimeoutExpired:
+-  os.killpg(proc.pid,signal.SIGTERM)
+-  try:proc.wait(timeout=15)
+-  except subprocess.TimeoutExpired:
+-   os.killpg(proc.pid,signal.SIGKILL);proc.wait(timeout=15)
+-  return 'OUTER_TIMEOUT_'+str(timeout)+'S'
++ status='NOT_RUN'
++ try:
++  try:status='EXIT_'+str(proc.wait(timeout=timeout))
++  except subprocess.TimeoutExpired:status='OUTER_TIMEOUT_'+str(timeout)+'S'
++  except Exception as e:status='WAIT_ERROR_'+repr(e)
++ finally:
++  try:stopped=drain(proc)
++  except Exception:stopped=False
++  if not stopped:status='GROUP_NOT_DRAINED_'+status
++ return status
+ def junit_pass(suites):
+  return bool(suites) and sum(int(x.get('tests',0)) for x in suites)==1 and all(int(x.get(k,0))==0 for x in suites for k in ['failures','errors','skipped'])
+ def write_receipt(path,value):
+@@ -62,7 +89,7 @@
+  require(cmd('bash','-c','source "$1"; readlink -f "$(command -v java)"','env-check',str(ENV))==str(JAVA.resolve()),'Environment selects a different JDK')
+  assert cmd('git','rev-parse','HEAD')==args.expected_commit
+  assert not cmd('git','status','--porcelain'), 'Clean published source required'
+- args.output.mkdir(parents=True,exist_ok=False); alias=args.output/'aliases';alias.mkdir()
++ args.output.mkdir(parents=True,exist_ok=False); (args.output/'native-trace').mkdir(mode=0o700); alias=args.output/'aliases';alias.mkdir()
+  for k,(p,h) in NATIVE.items():assert sha(p)==h
+  (alias/'libopencv_java4.so').symlink_to(NATIVE['opencv'][0]);(alias/'librealityforge.so').symlink_to(NATIVE['shim'][0])
+  expected_sources={n:sha(SOURCE/n) for n in SOURCE_NAMES}
+@@ -88,7 +115,7 @@
+  assert 'Shared library: [librealityforge.so]' in dynamic and 'Library runpath: ['+str(NATIVE['engine'][0].parent)+']' in dynamic
+  exports=cmd('nm','-D',str(NATIVE['shim'][0]));(args.output/'shim-exports.txt').write_text(exports)
+  for n in ['beginReconstruction','pollNativeProgress','cancelReconstruction','finishReconstruction']:assert 'Java_com_realityforge_scanner_engine_NativeCore_'+n in exports
+- command=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict -I "$3" -PloaderProbeConfig="$4" :app:sparsePipelineQualityCaptureProbe --tests com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest','probe',str(ENV),str(GRADLE),str(INIT),str(cfgpath)]
++ command=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict -PcandidateSigning=test -PrealityForgeTestBuildType=debug -PrealityForgeInstrumentationQa=false -I "$3" -PloaderProbeConfig="$4" :app:sparsePipelineQualityCaptureProbe --tests com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest','probe',str(ENV),str(GRADLE),str(INIT),str(cfgpath)]
+  env=dict(os.environ)
+  for k in ['JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS']:env.pop(k,None)
+  status='NOT_RUN';start=time.time()
+@@ -128,31 +155,61 @@
+   try:
+    capture=args.output/'quality-capture';manifest=capture/'capture.json'
+    require(manifest.is_file() and not manifest.is_symlink() and manifest.stat().st_size<=65536,'Missing/unsafe quality capture')
+-   metadata=json.loads(manifest.read_text());names={'result.json','sparse.ply','dense.ply','mesh.ply'}
++   metadata=json.loads(manifest.read_text());names={'result.json','sparse.ply','dense.ply','mesh.ply','surface-v2.rfmesh'}
++   require(re.fullmatch(r'[0-9a-f]{64}',metadata['depthCheckpointIdentity']) is not None,'Invalid checkpoint identity')
++   result=json.loads((capture/'result.json').read_text())
++   require(result['densePreview']['depthCheckpointIdentity']==metadata['depthCheckpointIdentity'] and result['densePreview']['surfaceCheckpointAvailable'] is True,'Checkpoint identity mismatch')
+    require(set(metadata['artifacts'])==names and {p.name for p in capture.iterdir()}==names|{'capture.json'},'Wrong quality capture inventory')
+    for name,entry in metadata['artifacts'].items():
+     artifact=capture/name
+-    require(artifact.is_file() and not artifact.is_symlink() and 0<artifact.stat().st_size<=32*1024*1024,'Invalid captured artifact')
++    require(artifact.is_file() and not artifact.is_symlink() and 0<artifact.stat().st_size<=(12 if name=='surface-v2.rfmesh' else 32)*1024*1024,'Invalid captured artifact')
+     require(artifact.stat().st_size==entry['bytes'] and sha(artifact)==entry['sha256'],'Captured artifact integrity failure')
+-   capture_checks={'manifestSha256':sha(manifest),'artifacts':metadata['artifacts']}
++   capture_checks={'manifestSha256':sha(manifest),'artifacts':metadata['artifacts'],'depthCheckpointIdentity':metadata['depthCheckpointIdentity']}
+   except Exception as e:errors.append({'qualityCaptureError':repr(e)})
+-  all_checks=status=='EXIT_0' and not errors and before==after and post_commit==args.expected_commit and post_status=='' and compiled_unchanged and junit_ok
++  trace_checks={}
++  try:
++   trace=metadata['nativeTrace'];root=args.output/'native-trace'
++   require(trace['depthCheckpointIdentity']==metadata['depthCheckpointIdentity'] and trace['pixelStride']==3,'Trace checkpoint binding mismatch')
++   require(trace['engineSha256']==NATIVE_PINS['engine'] and trace['jniSha256']==NATIVE_PINS['shim'],'Trace native mismatch')
++   require(set(trace['artifacts'])=={'input.rffuse','live-mesh.bits'},'Wrong trace artifacts')
++   require({p.name for p in root.iterdir()}=={'input.rffuse','live-mesh.bits','before-core-maps.json','after-core-maps.json'},'Wrong trace inventory')
++   for name,e in trace['artifacts'].items():
++    file=root/name;st=file.lstat()
++    require(file.is_file() and not file.is_symlink() and st.st_uid==os.getuid() and st.st_nlink==1 and 0<st.st_size<=12*1024*1024,'Unsafe native trace')
++    require(st.st_size==e['bytes'] and sha(file)==e['sha256'],'Trace file hash mismatch')
++   for label,name in [('beforeCore','before-core-maps.json'),('afterCore','after-core-maps.json')]:
++    file=root/name;require(file.is_file() and not file.is_symlink() and file.stat().st_size<=1024*1024,'Unsafe map receipt')
++    require(json.loads(file.read_text())==trace['loadedLibraries'][label],'Map receipt binding mismatch')
++   bm=trace['loadedLibraries']['beforeCore'];am=trace['loadedLibraries']['afterCore']
++   require(bm['jvmPid']==am['jvmPid'] and bm['libraries']==am['libraries'],'Loaded native identity changed across core')
++   for m in [bm,am]:
++    require(m['status']=='VERIFIED_ACTUAL_JVM_NATIVE_MAPPINGS' and m['relevantMappingsStable'] is True and m['nativeFilesPrePostStable'] is True,'Mappings not verified')
++   trace_checks=trace
++  except Exception as e:errors.append({'nativeTraceError':repr(e)})
++  all_checks=status=='EXIT_0'  and not errors and before==after and post_commit==args.expected_commit and post_status=='' and compiled_unchanged and junit_ok
+   (args.output/'post-compiled-hashes.json').write_text(json.dumps(compiled_checks,indent=2))
+-  receipt={'outcome':'PENDING_RESTORATION' if all_checks else 'FAILED','junit':junit,'postcheckErrors':errors,'postCommit':post_commit,'postGitStatus':post_status,'compiledInputsUnchanged':compiled_unchanged,'status':status,'durationSeconds':time.time()-start,'commit':args.expected_commit,'tree':safe_cmd('git','rev-parse','HEAD^{tree}'),'inputHashesUnchanged':before==after,'command':command,'classHashes':class_hashes,'scope':'HOST actual three-photo SparsePipeline core with explicit Utils opaque bridge; not controller/resource/Android qualification','restoration':'PENDING'}
++  receipt={'outcome':'PENDING_RESTORATION' if all_checks else 'FAILED','junit':junit,'postcheckErrors':errors,'postCommit':post_commit,'postGitStatus':post_status,'compiledInputsUnchanged':compiled_unchanged,'status':status,'durationSeconds':time.time()-start,'commit':args.expected_commit,'tree':safe_cmd('git','rev-parse','HEAD^{tree}'),'inputHashesUnchanged':before==after,'command':command,'classHashes':class_hashes,'scope':'HOST COMPACT trace-engine snapshot and live raw mesh capture; private instrumented engine, no replay equivalence or shipping qualification','restoration':'PENDING'}
+   receipt['qualityCapture']=capture_checks
++  receipt['nativeTrace']=trace_checks
+   receipt_path=args.output/'receipt.json';write_receipt(receipt_path,receipt)
+   # Preserve test evidence before normal compilation removes invocation-only probe classes.
+-  restore=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict :app:compileDebugUnitTestKotlin','restore',str(ENV),str(GRADLE)]
++  restore=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict -PcandidateSigning=test -PrealityForgeTestBuildType=debug -PrealityForgeInstrumentationQa=false :app:compileDebugUnitTestKotlin','restore',str(ENV),str(GRADLE)]
+   restoration={'command':restore,'status':'NOT_RUN'}
+   try:
+-   with (args.output/'restoration.log').open('w') as log:
+-    rp=subprocess.Popen(restore,cwd=REPO,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+-    restoration['status']=wait_bounded(rp)
+-   restoration['remainingProbeClasses']=[str(p) for p in (REPO/'app/build').rglob('*.class') if p.name.startswith(('SandboxNativeLoader','SparsePipelineQualityCaptureHostTest','SparsePrefixRunner','OpaqueBitmapBridge'))]
++   if status.startswith('GROUP_NOT_DRAINED_'):
++    restoration['status']='BLOCKED_PRIOR_PROCESS_GROUP_STILL_LIVE'
++   else:
++    with (args.output/'restoration.log').open('w') as log:
++     rp=subprocess.Popen(restore,cwd=REPO,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
++     restoration['status']=wait_bounded(rp)
++   restoration['remainingProbeClasses']=[str(p) for p in (REPO/'app/build').rglob('*.class') if p.name.startswith(('SandboxNativeLoader','SparsePipelineQualityCaptureHostTest','SparsePrefixRunner','OpaqueBitmapBridge','NativeMapsEvidence'))]
+    restoration['commit']=safe_cmd('git','rev-parse','HEAD');restoration['gitStatus']=safe_cmd('git','status','--porcelain')
+    tracked=[REPO/x for x in safe_cmd('git','ls-files').splitlines() if (REPO/x).is_file()]
+    restoration['trackedHashesUnchanged']=all(safe_sha(p)==before.get(str(p)) for p in tracked)
+-   restoration['restored']=restoration['status']=='EXIT_0' and not restoration['remainingProbeClasses'] and restoration['commit']==args.expected_commit and restoration['gitStatus']=='' and restoration['trackedHashesUnchanged']
++   final_bound={str(p):safe_sha(p) for p in bound}
++   (args.output/'post-restoration-bound-hashes.json').write_text(json.dumps(final_bound,indent=2))
++   restoration['fullBoundInputsUnchanged']=before==final_bound
++   restoration['restored']=restoration['status']=='EXIT_0' and not restoration['remainingProbeClasses'] and restoration['commit']==args.expected_commit and restoration['gitStatus']=='' and restoration['trackedHashesUnchanged'] and restoration['fullBoundInputsUnchanged']
+   except Exception as e:restoration.update(restored=False,error=repr(e))
+   receipt['restoration']=restoration
+   if not restoration.get('restored') or errors:all_checks=False;receipt['outcome']='FAILED'
