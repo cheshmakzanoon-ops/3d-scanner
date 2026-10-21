@@ -162,10 +162,25 @@ class ProductionCheckpointFilesTest {
         assertThrows(IllegalArgumentException::class.java) { ProductionPipelineSnapshot.calibrationSha256(directory) }
     }
 
-    private data class SurfaceFixture(val root: File, val input: PipelineInputSnapshot, val sparse: JSONObject)
+    @Test fun nativeTilesDoNotInvalidateCompleteReferenceCheckpointInventory() = runBlocking {
+        val fixture = surfaceFixture(extraTiles = 40)
+        val restored = PipelineSurfaceCache(fixture.root).load(PipelineArtifactSession.identityPlan(fixture.input,
+            ArtifactProvenanceFixtures.binding()), fixture.sparse)
+        assertNotNull(restored)
+        assertEquals(listOf("ref-0.bin", "ref-1.bin"), fixture.depthReferences.map { File(it).name })
+    }
+
+    @Test fun completeReferencesUnderSymlinkParentAreNotAccepted() {
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking { surfaceFixture(symlinkDepthParent = true) }
+        }
+    }
+
+    private data class SurfaceFixture(val root: File, val input: PipelineInputSnapshot, val sparse: JSONObject,
+        val depthReferences: List<String>)
 
     /** Opaque synthetic native payloads test the Kotlin reference gate only; native decoder tests use real RF mesh bytes. */
-    private suspend fun surfaceFixture(available: Boolean = true): SurfaceFixture {
+    private suspend fun surfaceFixture(available: Boolean = true, extraTiles: Int = 0, symlinkDepthParent: Boolean = false): SurfaceFixture {
         // Each fixture gets isolation while retaining the production project-directory identity.
         val root = File(temporary.newFolder(), "project-9").apply { check(mkdirs()) }
         val input = input()
@@ -218,8 +233,17 @@ class ProductionCheckpointFilesTest {
         file("$key.json", preview.toString().toByteArray())
         for (extension in listOf("dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png")) file("$key.$extension")
         for (name in listOf("ref-0.bin", "ref-1.bin", "surface-v2.rfmesh")) file(".depth-checkpoints-m18/$depthIdentity/$name")
+        repeat(extraTiles) { index -> file(".depth-checkpoints-m18/$depthIdentity/tile-0-$index.bin") }
+        file(".depth-checkpoints-m18/$depthIdentity/ref-0.bin.partial")
+        if (symlinkDepthParent) {
+            val base = File(root, ".depth-checkpoints-m18")
+            val outside = File(root.parentFile, "outside-depth")
+            check(base.renameTo(outside))
+            java.nio.file.Files.createSymbolicLink(base.toPath(), outside.toPath())
+        }
         PipelineDownstreamCheckpoints.record(session, preview, key)
-        return SurfaceFixture(root, input, sparse)
+        return SurfaceFixture(root, input, sparse, requireNotNull(session.manifest(ArtifactStage.DENSE_DEPTH))
+            .artifacts.filter { it.representation == RepresentationKind.DEPTH_MAP_SET }.map { it.relativePath })
     }
 
     private fun input() = PipelineInputSnapshot("project-9", 7, listOf(

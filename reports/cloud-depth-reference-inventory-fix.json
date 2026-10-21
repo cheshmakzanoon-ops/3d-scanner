@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T18:03:55.763976+00:00",
+  "base_commit": "75411af36dfc6259adda9d1b98b44cdd51a2b7c5",
+  "classification": "BOUNDED_NATIVE_DEPTH_REFERENCE_INVENTORY_FIX",
+  "cause": "The Kotlin downstream checkpoint recorder capped all directory entries at 32 before selecting complete reference maps. Legitimate native tile checkpoints exceeded that unrelated limit.",
+  "change": {
+    "complete_reference_names": [
+      "ref-0.bin",
+      "ref-1.bin",
+      "ref-2.bin",
+      "ref-3.bin",
+      "ref-4.bin",
+      "ref-5.bin",
+      "ref-6.bin",
+      "ref-7.bin"
+    ],
+    "selection": "Eight direct canonical path probes; no directory enumeration. Only optional regular files with NOFOLLOW_LINKS are selected.",
+    "native_bound": "MAX_DENSE_VIEWS = 8; native complete-map load/store reject index >= 8.",
+    "zero_complete_references": "Valid for optional checkpoint persistence and refined tile-only work.",
+    "excluded": "Tiles, partial files, surface files, noncanonical and out-of-range reference names are not selected.",
+    "security": "Leaf and identity-directory symlinks are not followed. Existing session all-ancestor symlink rejection and owned-path hashing remain enforced.",
+    "unchanged": "Native binary parsing, identity, CRC and payload validation; stage quality criteria and artifact reuse validation."
+  },
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/engine/pipeline/NativeDepthReferences.kt": "fe0f321c67d5f937a4a46c3666f22cb27bee3cc3bf5348b69bb1433252d27225",
+    "app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineDownstreamCheckpoints.kt": "7f4a5eb33a3d9b5c7e12e224e4c73c57e6f78c1aa58eb9a525c51d6ef9b74780",
+    "app/src/test/java/com/realityforge/scanner/engine/pipeline/NativeDepthReferencesTest.kt": "32a7e0f9cda84818b59a4873a3e1376024ce9e0e8423dc2a2c8e66ec480f578c",
+    "app/src/test/java/com/realityforge/scanner/agents/a009/ProductionCheckpointFilesTest.kt": "bb4d33196d159a4ab9b7b962f3f987bdaa4a24feb6d89e85de4371295883e5ec",
+    "tests/test_native_depth_reference_contract.py": "26b4ed719b2e042e78744d32901e9f6cba02d4bc55d2278fa09dc9446baba49b"
+  },
+  "validation": {
+    "actual_old_production_regression": {
+      "status": "EXPECTED_FAILURE",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "scope": "Actual old production recorder exercised by the new session regression; not a copied old algorithm.",
+      "xml_sha256": "827de88919722d3ac185ea606b61a0a9be9225708f38d77c721faa007124a199",
+      "log_sha256": "b07e3a8ac83e91841894d5e0083fafe2131fca144fac44496eab3e8ca1452007"
+    },
+    "focused_jvm": {
+      "status": "PASS",
+      "counts": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "ordinary_jvm": {
+      "status": "PASS",
+      "counts": {
+        "tests": 738,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "host": {
+      "status": "PASS",
+      "counts": {
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "android_test_compilation": "PASS",
+    "lint": "PASS",
+    "broad_python": {
+      "status": "PASS",
+      "passed": 1200,
+      "skipped": 3,
+      "subtests_passed": 6,
+      "seconds": 149.74,
+      "log_sha256": "210c580aa6cc81ff3925401144926fd91011ffc8ae0bd7f78c747954683ba2c5"
+    },
+    "full_core_after_fix": "NOT_RUN"
+  },
+  "full_core_baseline": {
+    "status": "FAILED",
+    "counts": {
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "failure": "Production downstream checkpoint directory inventory exceeded its 32-entry cap before core return.",
+    "raw_receipt_sha256": "002df8542363e6121caf41b99a6e32b6d718b36a3a7eaf248fdbe59c600905c4",
+    "log_sha256": "1f3d9fbbc9ac4e9ac84b379b0a89d76234f5c4fb3ccaf51eb31aef564cadb506",
+    "not_claimed": "No successful dense/mesh/texture return or current-project publication is established by this baseline."
+  },
+  "raw_evidence_sha256": {
+    "green_counts": "3d7814f991c6ac7046b9093e11d844775237d9ccc44e1b5deebe04c7574b8543",
+    "green_focused_log": "61ff812f1c686bae8fb515d676fb0692b57790900311c3e93cf1a16867446312",
+    "green_full_log": "6c6fb6eba6cadd75649694120ca17a2b3b0197bef0bedfa7d504c0f7f38025b3",
+    "green_output_hash_inventory": "0a7cae151e3b56132ac5169ef82f9cd4465327d00ff54ee7d74add0f72b71a35",
+    "green_source_diff": "286c40834dd95cffc0b05d748a9084a00bda5ab66aee76db2b03e2a2d6a52fb3",
+    "red_pre_hashes": "9a91ca473bed6eef05ac938cd7fa7a90fa8a782e6807845527a4feb133b162dd",
+    "red_post_hashes": "9a91ca473bed6eef05ac938cd7fa7a90fa8a782e6807845527a4feb133b162dd"
+  },
+  "delivery": {
+    "previous_engineering_apk_source": "c11234b5",
+    "previous_apk_contains_fix": false,
+    "replacement_apk": "PENDING"
+  },
+  "limits": [
+    "HOST execution uses the explicitly restricted opaque Utils Bitmap bridge, not AndroidBitmap native interoperability.",
+    "No physical-device, controller/service admission, full scan-to-publication or physical-quality qualification.",
+    "Seven focused JVM cases include opaque synthetic checkpoint payloads; they do not replace native binary-decoder validation."
+  ]
+}
