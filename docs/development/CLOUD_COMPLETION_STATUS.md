@@ -765,3 +765,22 @@ skips), plus three subtests. All three optional native/JNI, parser and software
 Vulkan gates then execute and pass. These are host/static tests, not device or
 phone-GPU qualification. The prior failure and corrected evidence are retained in
 [the dependency-contract report](../../reports/cloud-test-dependency-contract.json).
+
+### Portable production-wrapper native integration (13:25 UTC)
+
+A fresh portable compile/run passes exactly three new HOST JNI tests: real native
+registration/triangulation and typed bundle adjustment through production wrappers,
+offside final-sparse publication preserving anchors, progress cleanup/quiescence,
+actual owner cancellation rejecting a subsequent native call, and exact callback
+error propagation without publication. Source, native inputs, dependencies, compiled
+classes and runtime receipts are hash-bound before and after execution.
+
+The full Python regression passes 1,081 tests plus six subtests; all three optional
+native/parser/software-Vulkan checks also execute and pass separately. The portable
+helper's nine tests are included in the regular suite. No app production code changed.
+
+This is synthetic host glibc/JDK evidence, NOT Android ABI/ART, in-flight kernel
+interruption, photo decode/OpenCV, full SparsePipeline, physical scan quality or
+release qualification. Observed hashes are not native build attestation. See the
+[native-wrapper report](../../reports/cloud-native-wrapper-integration.json) and
+[portable harness instructions](../../tools/native_wrapper_validation/README.md).

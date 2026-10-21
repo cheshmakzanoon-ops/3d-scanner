@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "status": "portable host invocation passed",
+  "baseCommit": "071a4f713eb876fb992da07f0205b9f1625e397a",
+  "sourceState": "Reviewed portable source additions applied by owner but not yet committed at execution",
+  "compileExitCode": 0,
+  "runExitCode": 0,
+  "newTests": 3,
+  "failures": 0,
+  "nativeMappingCheck": "exact validated engine preloaded then shim; both paths observed; no alternate engine basename",
+  "prePostHashes": "passed for sources, native artifacts/observed closure, entire app-class tree, runtime/compiler/JDK executable+release, generated class output",
+  "hashes": {
+    "artifacts.json": "239e168d76e3b8535069cc1945e45f8e7a67b758641cd6bd15da88b078171fae",
+    "invoke.sh": "8132e0d4cf6feed4b94ca41d64dc7c20a398cac63a56fc111186ef33a90cf127",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run.log": "1a89e54272e41df7f3a3a501aeec140750be78082e4e4ce4288e169e7a6b6d7e",
+    "work/dependencies.json": "2d058b2eaacdb417605ae01f2dc40a980c34a8c9c481243f1c0cc2555d7b30b0",
+    "work/compiled-inputs.json": "691f6d0e1de0f4d7cc29ed337593749ff85b922faa7dcf1909111984df8c0acf",
+    "work/run-receipt.json": "bb9aca3b6103ef0a71a655ec8aba3163f54b5e0f9925e1a34877da680c68694f"
+  },
+  "historicalProof": "Original isolated3-pass proof remains separate and untouched; this receipt is a new invocation of portable helper",
+  "limitations": [
+    "synthetic observations",
+    "subsequent-call native cancellation, not in-flight kernel interruption",
+    "host glibc/JDK, not Android ABI/ART",
+    "no full SparsePipeline or image/decode/OpenCV/device validation"
+  ],
+  "sourceFiles": {
+    "tools/native_wrapper_validation/HostRunner.kt": "52c23ad9aca733e2632258111ab4ff722cdd958ff51a46f7d6a4e421d7df462c",
+    "tools/native_wrapper_validation/README.md": "11659505b047e0cff0ea036369535d0681927b3b691671645fea6df794d5757f",
+    "tools/native_wrapper_validation/validate.py": "d6c6b3b834e6484f756b818250c5565df75d761fd56fd4f242e997e6c8c8a036",
+    "tools/native_wrapper_validation/ProductionWrapperHostTest.kt": "ca2e57ed704255d67b7c2f5399c9471ba0d2ad65d09dde776a7f9fa8e752abad"
+  },
+  "published_source_sha256": {
+    "tools/native_wrapper_validation/HostRunner.kt": "52c23ad9aca733e2632258111ab4ff722cdd958ff51a46f7d6a4e421d7df462c",
+    "tools/native_wrapper_validation/ProductionWrapperHostTest.kt": "ca2e57ed704255d67b7c2f5399c9471ba0d2ad65d09dde776a7f9fa8e752abad",
+    "tools/native_wrapper_validation/validate.py": "d6c6b3b834e6484f756b818250c5565df75d761fd56fd4f242e997e6c8c8a036",
+    "tools/native_wrapper_validation/README.md": "11659505b047e0cff0ea036369535d0681927b3b691671645fea6df794d5757f",
+    "tests/test_native_wrapper_validation_helper.py": "fc23c13125eaf70e9561fd3f94de4973fcc6eb16dfff2e8c5596d6ec4c7d13eb"
+  },
+  "recorded_utc": "2026-10-21T13:26:01.830947+00:00",
+  "documentation_note": "README helper-test command updated after runtime execution to point to regular tests/ location; executable harness sources unchanged.",
+  "regression": {
+    "python_passed": 1081,
+    "optional_skipped_in_broad_run": 3,
+    "subtests_passed": 6,
+    "seconds": 137.94,
+    "optional_executed_passed": 3,
+    "optional_seconds": 16.06,
+    "helper_passed": 9
+  },
+  "regression_log_sha256": {
+    "scanner-native-wrapper-full-python.log": "c405e0b16d14c8dd50506a575075610060936535e04329c11ce568e6c75c5f8c",
+    "scanner-native-wrapper-optional.log": "8adb56ee83d92cc087908ab86e5909117cc6e6588d860518d713da4d353ae590"
+  },
+  "artifact_policy": "No binaries, private dependency paths or machine-specific invocation script published; hashes retain evidence identity. Observed artifact manifest is not a build attestation."
+}
