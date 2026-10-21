@@ -1,5 +1,7 @@
 package com.realityforge.scanner.engine.features
 
+import com.realityforge.scanner.export.LegacyPlyValidation
+import com.realityforge.scanner.engine.NativeCore
 import com.realityforge.scanner.engine.LensProjection
 import com.realityforge.scanner.engine.matching.*
 import java.io.File
@@ -82,6 +84,21 @@ class ProductionFrontendHostTest {
     assertEquals(source.argb ushr 16 and 255,p.getInt(3));assertEquals(source.argb ushr 8 and 255,p.getInt(4));assertEquals(source.argb and 255,p.getInt(5))
     assertTrue(p.getDouble(2)>0);assertTrue(rotation[6]*p.getDouble(0)+rotation[7]*p.getDouble(1)+rotation[8]*p.getDouble(2)+translation[2]>0)
    }
+   // Explicit test-side adaptation of SparsePipeline's inline six-column packing, not coordinator execution.
+   val packed=DoubleArray(points.length()*6){i->points.getJSONArray(i/6).getDouble(i%6)}
+   val ply=File(requireNotNull(System.getProperty("ply.output")))
+   NativeCore.exportPointCloud(packed,ply.path,false,NativeCore.SPARSE_POINTS)
+   val lines=ply.readLines(Charsets.US_ASCII);val end=lines.indexOf("end_header")
+   assertEquals(listOf("ply","format ascii 1.0","comment RealityForge sparse_points; arbitrary scale; x-right y-down z-forward","comment representation sparse_points","element vertex ${points.length()}","property float x","property float y","property float z","property uchar red","property uchar green","property uchar blue","end_header"),lines.take(end+1))
+   assertEquals(points.length(),lines.size-end-1)
+   for(i in 0 until points.length()) {
+    val row=lines[end+1+i].split(' ');assertEquals(6,row.size)
+    for(j in 0..2)assertEquals(packed[i*6+j],row[j].toDouble(),max(1e-8,abs(packed[i*6+j])*1e-8))
+    for(j in 3..5)assertEquals(packed[i*6+j].toInt(),row[j].toInt())
+   }
+   val plyHash=MessageDigest.getInstance("SHA-256").digest(ply.readBytes()).joinToString(""){"%02x".format(it)}
+   println(JSONObject().put("case","frontend_native_sparse_ply").put("points",points.length()).put("sha256",plyHash).put("header",lines.take(end+1)).put("coordinatesAndColorsVerified",true))
+   LegacyPlyValidation.validate(ply,false)
    println(JSONObject().put("case","relief_acceptance").put("firstFeatures",a.count).put("secondFeatures",b.count).put("tentative",tentative.count).put("points",points.length()).put("rotationErrorDegrees",rotationError).put("translationDirectionDot",directionDot).put("medianErrorNormalized",median).put("scale","arbitrary"))
   }}
  }

@@ -20,7 +20,11 @@ internal object LegacyPlyValidation {
             require(line() == "ply" && line() == "format ascii 1.0")
             val provenance = line()
             require(provenance.startsWith("comment RealityForge "))
-            require(if (surface) provenance.contains("observed open surface") else provenance.contains("sparse reconstruction"))
+            if (!surface && provenance == "comment RealityForge sparse_points; arbitrary scale; x-right y-down z-forward") {
+                require(line() == "comment representation sparse_points")
+            } else {
+                require(if (surface) provenance.contains("observed open surface") else provenance.contains("sparse reconstruction"))
+            }
             val vertices = line().removePrefix("element vertex ").toInt()
             require(vertices in 1..2_000_000)
             for (property in listOf("x", "y", "z")) require(line() == "property float $property")

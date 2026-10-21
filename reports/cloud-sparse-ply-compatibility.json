@@ -1,0 +1,421 @@
+{
+  "schema": 1,
+  "base_commit": "3db1aa0a0b0bbf5c6004afce3216471380c36254",
+  "recorded_utc": "2026-10-21T15:51:40.525317+00:00",
+  "native_writer_red_green": {
+    "aarSha256": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+    "classification": "HOST_SYNTHETIC_FRONTEND_NATIVE_SPARSE_PLY_INTEROPERABILITY",
+    "files": {
+      "app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt": "4ab8ea4352830b28378d151418a93ce2e84dd7d7ed5dca022450e2c50f5c856c",
+      "app/src/test/java/com/realityforge/scanner/export/LegacyPlyValidationTest.kt": "3c5e4885c5db0a7794fe191b7e285a3eb451f7763444d08cadcd6e00c3d4822b",
+      "tests/test_frontend_integration_validation_helper.py": "917ea2ed94ee10ca9d6919687a86d121ded6764492ab61631531b1aa3ca6e05f",
+      "tools/frontend_integration_validation/HostRunner.kt": "87d5fdd8018cfffd806a8773c938a8c16d28f56fe6dcaa015313b00ec8e6b748",
+      "tools/frontend_integration_validation/ProductionFrontendHostTest.kt": "df5de68fe0be353ca7f011f4481721edd2eafc79d6381b5bef16d919ca0f48a5",
+      "tools/frontend_integration_validation/README.md": "667c66f458450ce8ac6351f28b6d1e0bbd045e8919eb129a2502ad9b23c2686c",
+      "tools/frontend_integration_validation/validate.py": "96ea58970c49b3e657a5093a64e0c35e7b59660060a2e24b13f401bc378ea3b3"
+    },
+    "fixtureHashes": {
+      "calibration.json": "284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593",
+      "view-01.jpg": "66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c",
+      "view-02.jpg": "c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b"
+    },
+    "green": {
+      "classOutputHashes": {
+        "HostRunnerKt.class": "60addad890979c36420aec70b3d91b18169f14cea37f86f04840d24c71ffa4d3",
+        "META-INF/main.kotlin_module": "7ee2bc25a9adedd5fda774506dda4899cbaf08d317e92580c71454421ac20f50",
+        "com/realityforge/scanner/engine/LensProfile.class": "5e802ad1c0b470f09998bb9c1b90a18b5647a5310363a9e7a389d8824f49c87b",
+        "com/realityforge/scanner/engine/LensProjection$Companion.class": "9dd1bebd5cf9f4c3fe81007ca535720bcc4b9bc24d5ac39d8d3f85cbeb87fbd2",
+        "com/realityforge/scanner/engine/LensProjection.class": "891dd3968a82a494a39b1fb1feff61c57b8da52f4942d5ed8c867a7012851e73",
+        "com/realityforge/scanner/engine/NativeCore.class": "37e1692f02fc6b442a39402231330bf1640b77d364ffd88c90e8eea1c662ea88",
+        "com/realityforge/scanner/engine/features/ExtractorSettings.class": "cd7be72db02f2b53d990b612f1ba7e00f09fda0f3f4188e55f7c6a060d59b425",
+        "com/realityforge/scanner/engine/features/FeatureFrame.class": "ddb5178632d490869dbec68ede99d3d5a45aa9fef20ae3815b07dd5395ad51aa",
+        "com/realityforge/scanner/engine/features/FeatureFrameKt.class": "aff39366d64b326e7bdb0fce53730f5cee74d913f42713208122fa8d206819e5",
+        "com/realityforge/scanner/engine/features/GrayFeatureExtractionKt.class": "0119991d6b8a1da00a33989cd74b858ad577bd42baea0e407468baa0c5565dee",
+        "com/realityforge/scanner/engine/features/NativeFeatureCallEvent.class": "a84ee73f8bc4d46d27f7c2ca5698cce0b665557c6f77817df7a4726116ff8b05",
+        "com/realityforge/scanner/engine/features/ProductionFrontendHostTest$frame$1.class": "4d9f549b21d18028442abd5ee373346ed22b870468ab902063f18384f7b51099",
+        "com/realityforge/scanner/engine/features/ProductionFrontendHostTest.class": "d44d89f6c2782ae9c175020274a4719132260a3dd06cf9566c240dad01fabe89",
+        "com/realityforge/scanner/engine/matching/FeatureCorrespondence.class": "3a07b150a1f7001ca99ddde769cebf57e43eb04ea390c3d2e03c4b65bcb02f44",
+        "com/realityforge/scanner/engine/matching/FeatureMatcher.class": "4dd2615ab4fc4df3a836fe20592d4b7f11251d8df21567b6ff3b97a8f6704c7b",
+        "com/realityforge/scanner/engine/matching/GeometricVerification$Accepted.class": "95785ebec9640d8f081a657229dc3f6d6d1660e45a685c0fc95703b46239eb1c",
+        "com/realityforge/scanner/engine/matching/GeometricVerification$Rejected.class": "2cc7dd259184fbbee23debbaeefbbd78296bb0e80f9877b93afb24fabb510835",
+        "com/realityforge/scanner/engine/matching/GeometricVerification.class": "2373c06b89ab1025f2981699141b4f15136bbf5d69944e53d0e4b001cb542057",
+        "com/realityforge/scanner/engine/matching/PairCancellationSignal.class": "2e913b8c8c88d08eaec9b1d82073432fd82476981220e518906e33b8653b82c9",
+        "com/realityforge/scanner/engine/matching/PairCandidate.class": "cc06aeb08ad8d6e6475393b2ac44374d62836e0123887cba99511e51029be8ff",
+        "com/realityforge/scanner/engine/matching/PairMatchDirection.class": "a9a7dd22b8c8146fe0bb6d747cf240e9bb2aebf31ed6869089954bf39fcda61b",
+        "com/realityforge/scanner/engine/matching/PairWorkPhase.class": "9b5150e6851c85eb5b303102b98eaf58d576f23ee969cbf3d999c8db3357d943",
+        "com/realityforge/scanner/engine/matching/PairWorkSnapshot$WhenMappings.class": "d94d7b7021654ae97aa427bd2a40a977aea3b6b7481d1b440fbf7862832d2724",
+        "com/realityforge/scanner/engine/matching/PairWorkSnapshot.class": "8b200fc4d216b0ecca3f2ba128ab79a6a9f6410c6719360c02c130252636aa74",
+        "com/realityforge/scanner/engine/matching/PairWorkTiming$1.class": "9518dc59d4859b4e9d3d511ec7f033b1b02831e033cfc12fbe734c7d2e1c4e37",
+        "com/realityforge/scanner/engine/matching/PairWorkTiming$WhenMappings.class": "560741f87f9bccff8cb69a18e0a64219182031a5c861b134ac0534ed0a173ee4",
+        "com/realityforge/scanner/engine/matching/PairWorkTiming.class": "393d32e105dc936a1ae910b928d6d911aa63c375f0559774baa5fb618a98c2a4",
+        "com/realityforge/scanner/engine/matching/PairWorkTimingKt.class": "34737e881370ec3b39b8bb81e242619204920f60cdcb8d2636a17531073a3e30",
+        "com/realityforge/scanner/engine/matching/PhotoFeatureSummary$Companion.class": "e7ff49258e73b633bc1da33644c14af6fed95d33f077a22695d9775ae36ff512",
+        "com/realityforge/scanner/engine/matching/PhotoFeatureSummary.class": "2a28c6a9f0a6389e58673d6aa6d0bd96f16eb37ded77a2a753fbb8a87eb9f77b",
+        "com/realityforge/scanner/engine/matching/TentativeMatches.class": "66bea4a713e66e6e7e17a9128b3cdc85162a3b45cd606ffe4b3c2c12c67c9314",
+        "com/realityforge/scanner/engine/matching/VerifiedMatches.class": "98a3714560f645ef6a0ae4a51cf6218f612617827422ff3c26be5af446fac8c7",
+        "com/realityforge/scanner/export/LegacyPlyValidation.class": "1d07ddbea2ea3d9010c369b46a881b9ca34ebeba45e5d1b9407e20ba12b95ac8",
+        "com/realityforge/scanner/export/LegacyPlyValidationTest.class": "979a1478c085bdb7506b01fa1780a6868d3e2f9cbeda5917e7f8242ed56f68fa"
+      },
+      "compileLimits": {
+        "heap": "384m",
+        "processors": 2,
+        "seconds": 120
+      },
+      "compileReceiptSha256": "19e6260beebfbb90fb270607a3992548ca783de063e7733ec69eee47c827e36f",
+      "exitCode": 0,
+      "failures": 0,
+      "observations": [
+        {
+          "case": "frontend_native_sparse_ply",
+          "coordinatesAndColorsVerified": true,
+          "header": [
+            "ply",
+            "format ascii 1.0",
+            "comment RealityForge sparse_points; arbitrary scale; x-right y-down z-forward",
+            "comment representation sparse_points",
+            "element vertex 524",
+            "property float x",
+            "property float y",
+            "property float z",
+            "property uchar red",
+            "property uchar green",
+            "property uchar blue",
+            "end_header"
+          ],
+          "points": 524,
+          "sha256": "0e0ac985c765215ce9e0960e8c5fa505fabec365443d27d8e7ddfd804212b035"
+        },
+        {
+          "case": "relief_acceptance",
+          "firstFeatures": 1536,
+          "medianErrorNormalized": 0.000170100629042,
+          "points": 524,
+          "rotationErrorDegrees": 0.024056115816793223,
+          "scale": "arbitrary",
+          "secondFeatures": 1530,
+          "tentative": 530,
+          "translationDirectionDot": 0.9999132592566791
+        },
+        {
+          "case": "same_view_native_rejection",
+          "reason": "Rotation-only or unobservable baseline",
+          "tentative": 1536
+        }
+      ],
+      "plySha256": "0e0ac985c765215ce9e0960e8c5fa505fabec365443d27d8e7ddfd804212b035",
+      "runLimits": {
+        "heap": "256m",
+        "opencvThreads": 2,
+        "processors": 2,
+        "seconds": 90
+      },
+      "runLogSha256": "4f9a8f3547fc59b5710891f09fdf042255c3f047e436e2c816c4b76fb15bcaa9",
+      "runReceiptSha256": "348d4faa9c2a867735a9ddacc2aafe078298af384b9b7837121916f5674843b3",
+      "sourceHashes": {
+        "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": "d3a41776840c5fcb69ffb82807b736dbff88e84c1be20f053e1e10f3a7fabc86",
+        "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt": "7a084f9c362002b0fc31d38c148124e9d3d661f37b637926aba077fba01842ba",
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt": "9b8d1c7fd3c4cff852c1c42ab84a35aa334bbd9376431fd8d4eb47948fb8f1b4",
+        "app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt": "c69940032cb6acb0500a6cee86157d17cd24a99762bc67c681cd7d7f45d01a8b",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/FeatureMatcher.kt": "91a4241c7e3d6d01a905aaac07a19c6128632eb98d17fc10de2a0c1f98e2fde8",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt": "1652324c649a2b55d5be478f10c835b69fb56d1bb0e05780739f5990a91877c7",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/PairWorkTiming.kt": "9da42868555be179a9825be3e1886db89a4bd6c4cf26a0bd8275ccb2ec21a274",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt": "a641a4191bd25c1af6784590d99ca2bd313b82bb8cc20ac1e71f09ed61e513ec",
+        "app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt": "4ab8ea4352830b28378d151418a93ce2e84dd7d7ed5dca022450e2c50f5c856c",
+        "app/src/test/java/com/realityforge/scanner/export/LegacyPlyValidationTest.kt": "3c5e4885c5db0a7794fe191b7e285a3eb451f7763444d08cadcd6e00c3d4822b",
+        "tools/frontend_integration_validation/HostRunner.kt": "87d5fdd8018cfffd806a8773c938a8c16d28f56fe6dcaa015313b00ec8e6b748",
+        "tools/frontend_integration_validation/ProductionFrontendHostTest.kt": "df5de68fe0be353ca7f011f4481721edd2eafc79d6381b5bef16d919ca0f48a5"
+      },
+      "successReceipt": true,
+      "tests": 6
+    },
+    "helperTests": {
+      "classification": "mocked fail-closed orchestration, not JNI coverage",
+      "passed": 24
+    },
+    "nativeArtifacts": {
+      "engine": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b",
+      "shim": "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce"
+    },
+    "opencvNativeSha256": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+    "patchSha256": "56c747ec469a1e19af934c48a59d71f25c7c4364482faf08032a9c77234d1861",
+    "red": {
+      "classOutputHashes": {
+        "HostRunnerKt.class": "b24c2860b1d4ba6544608bbd8f4c1daf57231f90603876eaab95d64d32a07197",
+        "META-INF/main.kotlin_module": "7ee2bc25a9adedd5fda774506dda4899cbaf08d317e92580c71454421ac20f50",
+        "com/realityforge/scanner/engine/LensProfile.class": "5e802ad1c0b470f09998bb9c1b90a18b5647a5310363a9e7a389d8824f49c87b",
+        "com/realityforge/scanner/engine/LensProjection$Companion.class": "9dd1bebd5cf9f4c3fe81007ca535720bcc4b9bc24d5ac39d8d3f85cbeb87fbd2",
+        "com/realityforge/scanner/engine/LensProjection.class": "891dd3968a82a494a39b1fb1feff61c57b8da52f4942d5ed8c867a7012851e73",
+        "com/realityforge/scanner/engine/NativeCore.class": "37e1692f02fc6b442a39402231330bf1640b77d364ffd88c90e8eea1c662ea88",
+        "com/realityforge/scanner/engine/features/ExtractorSettings.class": "cd7be72db02f2b53d990b612f1ba7e00f09fda0f3f4188e55f7c6a060d59b425",
+        "com/realityforge/scanner/engine/features/FeatureFrame.class": "ddb5178632d490869dbec68ede99d3d5a45aa9fef20ae3815b07dd5395ad51aa",
+        "com/realityforge/scanner/engine/features/FeatureFrameKt.class": "aff39366d64b326e7bdb0fce53730f5cee74d913f42713208122fa8d206819e5",
+        "com/realityforge/scanner/engine/features/GrayFeatureExtractionKt.class": "0119991d6b8a1da00a33989cd74b858ad577bd42baea0e407468baa0c5565dee",
+        "com/realityforge/scanner/engine/features/NativeFeatureCallEvent.class": "a84ee73f8bc4d46d27f7c2ca5698cce0b665557c6f77817df7a4726116ff8b05",
+        "com/realityforge/scanner/engine/features/ProductionFrontendHostTest$frame$1.class": "4d9f549b21d18028442abd5ee373346ed22b870468ab902063f18384f7b51099",
+        "com/realityforge/scanner/engine/features/ProductionFrontendHostTest.class": "d44d89f6c2782ae9c175020274a4719132260a3dd06cf9566c240dad01fabe89",
+        "com/realityforge/scanner/engine/matching/FeatureCorrespondence.class": "3a07b150a1f7001ca99ddde769cebf57e43eb04ea390c3d2e03c4b65bcb02f44",
+        "com/realityforge/scanner/engine/matching/FeatureMatcher.class": "4dd2615ab4fc4df3a836fe20592d4b7f11251d8df21567b6ff3b97a8f6704c7b",
+        "com/realityforge/scanner/engine/matching/GeometricVerification$Accepted.class": "95785ebec9640d8f081a657229dc3f6d6d1660e45a685c0fc95703b46239eb1c",
+        "com/realityforge/scanner/engine/matching/GeometricVerification$Rejected.class": "2cc7dd259184fbbee23debbaeefbbd78296bb0e80f9877b93afb24fabb510835",
+        "com/realityforge/scanner/engine/matching/GeometricVerification.class": "2373c06b89ab1025f2981699141b4f15136bbf5d69944e53d0e4b001cb542057",
+        "com/realityforge/scanner/engine/matching/PairCancellationSignal.class": "2e913b8c8c88d08eaec9b1d82073432fd82476981220e518906e33b8653b82c9",
+        "com/realityforge/scanner/engine/matching/PairCandidate.class": "cc06aeb08ad8d6e6475393b2ac44374d62836e0123887cba99511e51029be8ff",
+        "com/realityforge/scanner/engine/matching/PairMatchDirection.class": "a9a7dd22b8c8146fe0bb6d747cf240e9bb2aebf31ed6869089954bf39fcda61b",
+        "com/realityforge/scanner/engine/matching/PairWorkPhase.class": "9b5150e6851c85eb5b303102b98eaf58d576f23ee969cbf3d999c8db3357d943",
+        "com/realityforge/scanner/engine/matching/PairWorkSnapshot$WhenMappings.class": "d94d7b7021654ae97aa427bd2a40a977aea3b6b7481d1b440fbf7862832d2724",
+        "com/realityforge/scanner/engine/matching/PairWorkSnapshot.class": "8b200fc4d216b0ecca3f2ba128ab79a6a9f6410c6719360c02c130252636aa74",
+        "com/realityforge/scanner/engine/matching/PairWorkTiming$1.class": "9518dc59d4859b4e9d3d511ec7f033b1b02831e033cfc12fbe734c7d2e1c4e37",
+        "com/realityforge/scanner/engine/matching/PairWorkTiming$WhenMappings.class": "560741f87f9bccff8cb69a18e0a64219182031a5c861b134ac0534ed0a173ee4",
+        "com/realityforge/scanner/engine/matching/PairWorkTiming.class": "393d32e105dc936a1ae910b928d6d911aa63c375f0559774baa5fb618a98c2a4",
+        "com/realityforge/scanner/engine/matching/PairWorkTimingKt.class": "34737e881370ec3b39b8bb81e242619204920f60cdcb8d2636a17531073a3e30",
+        "com/realityforge/scanner/engine/matching/PhotoFeatureSummary$Companion.class": "e7ff49258e73b633bc1da33644c14af6fed95d33f077a22695d9775ae36ff512",
+        "com/realityforge/scanner/engine/matching/PhotoFeatureSummary.class": "2a28c6a9f0a6389e58673d6aa6d0bd96f16eb37ded77a2a753fbb8a87eb9f77b",
+        "com/realityforge/scanner/engine/matching/TentativeMatches.class": "66bea4a713e66e6e7e17a9128b3cdc85162a3b45cd606ffe4b3c2c12c67c9314",
+        "com/realityforge/scanner/engine/matching/VerifiedMatches.class": "98a3714560f645ef6a0ae4a51cf6218f612617827422ff3c26be5af446fac8c7",
+        "com/realityforge/scanner/export/LegacyPlyValidation.class": "4126c36394259b91b41aab8e8c40787abc200407bbdf3463789753732fec41a1"
+      },
+      "compileLimits": {
+        "heap": "384m",
+        "processors": 2,
+        "seconds": 120
+      },
+      "compileReceiptSha256": "ceda2a1e4709b7d7659a45b9082acbf7f71b46a71bdec78967ff4480f6517708",
+      "exitCode": 1,
+      "failures": 1,
+      "observations": [
+        {
+          "case": "frontend_native_sparse_ply",
+          "coordinatesAndColorsVerified": true,
+          "header": [
+            "ply",
+            "format ascii 1.0",
+            "comment RealityForge sparse_points; arbitrary scale; x-right y-down z-forward",
+            "comment representation sparse_points",
+            "element vertex 524",
+            "property float x",
+            "property float y",
+            "property float z",
+            "property uchar red",
+            "property uchar green",
+            "property uchar blue",
+            "end_header"
+          ],
+          "points": 524,
+          "sha256": "0e0ac985c765215ce9e0960e8c5fa505fabec365443d27d8e7ddfd804212b035"
+        },
+        {
+          "case": "same_view_native_rejection",
+          "reason": "Rotation-only or unobservable baseline",
+          "tentative": 1536
+        }
+      ],
+      "plySha256": "0e0ac985c765215ce9e0960e8c5fa505fabec365443d27d8e7ddfd804212b035",
+      "primary": "IllegalArgumentException at LegacyPlyValidation.kt:23",
+      "runLimits": {
+        "heap": "256m",
+        "opencvThreads": 2,
+        "processors": 2,
+        "seconds": 90
+      },
+      "runLogSha256": "b9acd7060e67e704f1e2967fe954a0a2fea5aa4acc0338485637b30564233987",
+      "sourceHashes": {
+        "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": "d3a41776840c5fcb69ffb82807b736dbff88e84c1be20f053e1e10f3a7fabc86",
+        "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt": "7a084f9c362002b0fc31d38c148124e9d3d661f37b637926aba077fba01842ba",
+        "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt": "9b8d1c7fd3c4cff852c1c42ab84a35aa334bbd9376431fd8d4eb47948fb8f1b4",
+        "app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt": "c69940032cb6acb0500a6cee86157d17cd24a99762bc67c681cd7d7f45d01a8b",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/FeatureMatcher.kt": "91a4241c7e3d6d01a905aaac07a19c6128632eb98d17fc10de2a0c1f98e2fde8",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt": "1652324c649a2b55d5be478f10c835b69fb56d1bb0e05780739f5990a91877c7",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/PairWorkTiming.kt": "9da42868555be179a9825be3e1886db89a4bd6c4cf26a0bd8275ccb2ec21a274",
+        "app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt": "a641a4191bd25c1af6784590d99ca2bd313b82bb8cc20ac1e71f09ed61e513ec",
+        "app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt": "020c56538415595615f7ab1652985ef12a04eb429a1053b16926206eda4fe973",
+        "tools/frontend_integration_validation/HostRunner.kt": "9486f632d2cfada7cb4d6103050b17041dbb10cb0032a52232f2d83c79cacad1",
+        "tools/frontend_integration_validation/ProductionFrontendHostTest.kt": "df5de68fe0be353ca7f011f4481721edd2eafc79d6381b5bef16d919ca0f48a5"
+      },
+      "successReceipt": false,
+      "tests": 2
+    },
+    "schema": 1,
+    "scope": [
+      "Actual production grayscale extraction, matching, verification, native point export and Kotlin PLY validator",
+      "Six-column packing is test-side adaptation, not production SparsePipeline execution",
+      "UI RepositoryExportSource callpath assessed statically; direct BoundSafExportService transfer is separate",
+      "No Android decoding, repository option runtime, publication, full scanner, dense surface or physical quality claim",
+      "Existing pinned host artifacts; no new native build or Android equivalence"
+    ]
+  },
+  "fresh_shared_native_writer_proof": {
+    "aarSha256": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+    "boundaries": [
+      "Synthetic fixture ImageIO ingress, not Android decoder",
+      "Six-column packing is explicit test-side adaptation, not SparsePipeline execution",
+      "No repository option enumeration, publication or SAF runtime coverage",
+      "No full scanner, physical quality, metric scale or Android-equivalence claim",
+      "Existing native artifacts; observed hashes not a new native build attestation"
+    ],
+    "classOutputHashes": {
+      "HostRunnerKt.class": "60addad890979c36420aec70b3d91b18169f14cea37f86f04840d24c71ffa4d3",
+      "META-INF/main.kotlin_module": "7ee2bc25a9adedd5fda774506dda4899cbaf08d317e92580c71454421ac20f50",
+      "com/realityforge/scanner/engine/LensProfile.class": "5e802ad1c0b470f09998bb9c1b90a18b5647a5310363a9e7a389d8824f49c87b",
+      "com/realityforge/scanner/engine/LensProjection$Companion.class": "9dd1bebd5cf9f4c3fe81007ca535720bcc4b9bc24d5ac39d8d3f85cbeb87fbd2",
+      "com/realityforge/scanner/engine/LensProjection.class": "891dd3968a82a494a39b1fb1feff61c57b8da52f4942d5ed8c867a7012851e73",
+      "com/realityforge/scanner/engine/NativeCore.class": "37e1692f02fc6b442a39402231330bf1640b77d364ffd88c90e8eea1c662ea88",
+      "com/realityforge/scanner/engine/features/ExtractorSettings.class": "cd7be72db02f2b53d990b612f1ba7e00f09fda0f3f4188e55f7c6a060d59b425",
+      "com/realityforge/scanner/engine/features/FeatureFrame.class": "ddb5178632d490869dbec68ede99d3d5a45aa9fef20ae3815b07dd5395ad51aa",
+      "com/realityforge/scanner/engine/features/FeatureFrameKt.class": "aff39366d64b326e7bdb0fce53730f5cee74d913f42713208122fa8d206819e5",
+      "com/realityforge/scanner/engine/features/GrayFeatureExtractionKt.class": "0119991d6b8a1da00a33989cd74b858ad577bd42baea0e407468baa0c5565dee",
+      "com/realityforge/scanner/engine/features/NativeFeatureCallEvent.class": "a84ee73f8bc4d46d27f7c2ca5698cce0b665557c6f77817df7a4726116ff8b05",
+      "com/realityforge/scanner/engine/features/ProductionFrontendHostTest$frame$1.class": "4d9f549b21d18028442abd5ee373346ed22b870468ab902063f18384f7b51099",
+      "com/realityforge/scanner/engine/features/ProductionFrontendHostTest.class": "d44d89f6c2782ae9c175020274a4719132260a3dd06cf9566c240dad01fabe89",
+      "com/realityforge/scanner/engine/matching/FeatureCorrespondence.class": "3a07b150a1f7001ca99ddde769cebf57e43eb04ea390c3d2e03c4b65bcb02f44",
+      "com/realityforge/scanner/engine/matching/FeatureMatcher.class": "4dd2615ab4fc4df3a836fe20592d4b7f11251d8df21567b6ff3b97a8f6704c7b",
+      "com/realityforge/scanner/engine/matching/GeometricVerification$Accepted.class": "95785ebec9640d8f081a657229dc3f6d6d1660e45a685c0fc95703b46239eb1c",
+      "com/realityforge/scanner/engine/matching/GeometricVerification$Rejected.class": "2cc7dd259184fbbee23debbaeefbbd78296bb0e80f9877b93afb24fabb510835",
+      "com/realityforge/scanner/engine/matching/GeometricVerification.class": "2373c06b89ab1025f2981699141b4f15136bbf5d69944e53d0e4b001cb542057",
+      "com/realityforge/scanner/engine/matching/PairCancellationSignal.class": "2e913b8c8c88d08eaec9b1d82073432fd82476981220e518906e33b8653b82c9",
+      "com/realityforge/scanner/engine/matching/PairCandidate.class": "cc06aeb08ad8d6e6475393b2ac44374d62836e0123887cba99511e51029be8ff",
+      "com/realityforge/scanner/engine/matching/PairMatchDirection.class": "a9a7dd22b8c8146fe0bb6d747cf240e9bb2aebf31ed6869089954bf39fcda61b",
+      "com/realityforge/scanner/engine/matching/PairWorkPhase.class": "9b5150e6851c85eb5b303102b98eaf58d576f23ee969cbf3d999c8db3357d943",
+      "com/realityforge/scanner/engine/matching/PairWorkSnapshot$WhenMappings.class": "d94d7b7021654ae97aa427bd2a40a977aea3b6b7481d1b440fbf7862832d2724",
+      "com/realityforge/scanner/engine/matching/PairWorkSnapshot.class": "8b200fc4d216b0ecca3f2ba128ab79a6a9f6410c6719360c02c130252636aa74",
+      "com/realityforge/scanner/engine/matching/PairWorkTiming$1.class": "9518dc59d4859b4e9d3d511ec7f033b1b02831e033cfc12fbe734c7d2e1c4e37",
+      "com/realityforge/scanner/engine/matching/PairWorkTiming$WhenMappings.class": "560741f87f9bccff8cb69a18e0a64219182031a5c861b134ac0534ed0a173ee4",
+      "com/realityforge/scanner/engine/matching/PairWorkTiming.class": "393d32e105dc936a1ae910b928d6d911aa63c375f0559774baa5fb618a98c2a4",
+      "com/realityforge/scanner/engine/matching/PairWorkTimingKt.class": "34737e881370ec3b39b8bb81e242619204920f60cdcb8d2636a17531073a3e30",
+      "com/realityforge/scanner/engine/matching/PhotoFeatureSummary$Companion.class": "e7ff49258e73b633bc1da33644c14af6fed95d33f077a22695d9775ae36ff512",
+      "com/realityforge/scanner/engine/matching/PhotoFeatureSummary.class": "2a28c6a9f0a6389e58673d6aa6d0bd96f16eb37ded77a2a753fbb8a87eb9f77b",
+      "com/realityforge/scanner/engine/matching/TentativeMatches.class": "66bea4a713e66e6e7e17a9128b3cdc85162a3b45cd606ffe4b3c2c12c67c9314",
+      "com/realityforge/scanner/engine/matching/VerifiedMatches.class": "98a3714560f645ef6a0ae4a51cf6218f612617827422ff3c26be5af446fac8c7",
+      "com/realityforge/scanner/export/LegacyPlyValidation.class": "1d07ddbea2ea3d9010c369b46a881b9ca34ebeba45e5d1b9407e20ba12b95ac8",
+      "com/realityforge/scanner/export/LegacyPlyValidationTest.class": "979a1478c085bdb7506b01fa1780a6868d3e2f9cbeda5917e7f8242ed56f68fa"
+    },
+    "classification": "HOST_SYNTHETIC_FRONTEND_NATIVE_SPARSE_PLY_INTEROPERABILITY_SHARED",
+    "compileLimits": {
+      "heap": "384m",
+      "processors": 2,
+      "seconds": 120
+    },
+    "compileReceiptSha256": "ca02d2aeec4f6211d77f9619ffb69e1f9750508f2deaa82ac774d60e23e73059",
+    "failures": 0,
+    "fixtureHashes": {
+      "calibration.json": "284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593",
+      "view-01.jpg": "66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c",
+      "view-02.jpg": "c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b"
+    },
+    "helperSha256": "96ea58970c49b3e657a5093a64e0c35e7b59660060a2e24b13f401bc378ea3b3",
+    "isolatedRedGreenReportSha256": "1edb1d1918ed188bdaf2eac1303f5fce465793f89839dd187ee2489d0e277dbd",
+    "nativeArtifacts": {
+      "engine": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b",
+      "shim": "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce"
+    },
+    "observations": [
+      {
+        "case": "frontend_native_sparse_ply",
+        "coordinatesAndColorsVerified": true,
+        "header": [
+          "ply",
+          "format ascii 1.0",
+          "comment RealityForge sparse_points; arbitrary scale; x-right y-down z-forward",
+          "comment representation sparse_points",
+          "element vertex 524",
+          "property float x",
+          "property float y",
+          "property float z",
+          "property uchar red",
+          "property uchar green",
+          "property uchar blue",
+          "end_header"
+        ],
+        "points": 524,
+        "sha256": "0e0ac985c765215ce9e0960e8c5fa505fabec365443d27d8e7ddfd804212b035"
+      },
+      {
+        "case": "relief_acceptance",
+        "firstFeatures": 1536,
+        "medianErrorNormalized": 0.000170100629042,
+        "points": 524,
+        "rotationErrorDegrees": 0.024056115816793223,
+        "scale": "arbitrary",
+        "secondFeatures": 1530,
+        "tentative": 530,
+        "translationDirectionDot": 0.9999132592566791
+      },
+      {
+        "case": "same_view_native_rejection",
+        "reason": "Rotation-only or unobservable baseline",
+        "tentative": 1536
+      }
+    ],
+    "opencvNativeSha256": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+    "plySha256": "0e0ac985c765215ce9e0960e8c5fa505fabec365443d27d8e7ddfd804212b035",
+    "runLimits": {
+      "heap": "256m",
+      "opencvThreads": 2,
+      "processors": 2,
+      "seconds": 90
+    },
+    "runLogSha256": "4f9a8f3547fc59b5710891f09fdf042255c3f047e436e2c816c4b76fb15bcaa9",
+    "runReceiptSha256": "1e2195ef54e01956e0d495fc097a6627ebc98e20ff92e20f544e3b6742aed82d",
+    "schema": 1,
+    "sourceHashes": {
+      "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": "d3a41776840c5fcb69ffb82807b736dbff88e84c1be20f053e1e10f3a7fabc86",
+      "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt": "7a084f9c362002b0fc31d38c148124e9d3d661f37b637926aba077fba01842ba",
+      "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt": "9b8d1c7fd3c4cff852c1c42ab84a35aa334bbd9376431fd8d4eb47948fb8f1b4",
+      "app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt": "c69940032cb6acb0500a6cee86157d17cd24a99762bc67c681cd7d7f45d01a8b",
+      "app/src/main/java/com/realityforge/scanner/engine/matching/FeatureMatcher.kt": "91a4241c7e3d6d01a905aaac07a19c6128632eb98d17fc10de2a0c1f98e2fde8",
+      "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt": "1652324c649a2b55d5be478f10c835b69fb56d1bb0e05780739f5990a91877c7",
+      "app/src/main/java/com/realityforge/scanner/engine/matching/PairWorkTiming.kt": "9da42868555be179a9825be3e1886db89a4bd6c4cf26a0bd8275ccb2ec21a274",
+      "app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt": "a641a4191bd25c1af6784590d99ca2bd313b82bb8cc20ac1e71f09ed61e513ec",
+      "app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt": "4ab8ea4352830b28378d151418a93ce2e84dd7d7ed5dca022450e2c50f5c856c",
+      "app/src/test/java/com/realityforge/scanner/export/LegacyPlyValidationTest.kt": "3c5e4885c5db0a7794fe191b7e285a3eb451f7763444d08cadcd6e00c3d4822b",
+      "tools/frontend_integration_validation/HostRunner.kt": "87d5fdd8018cfffd806a8773c938a8c16d28f56fe6dcaa015313b00ec8e6b748",
+      "tools/frontend_integration_validation/ProductionFrontendHostTest.kt": "df5de68fe0be353ca7f011f4481721edd2eafc79d6381b5bef16d919ca0f48a5"
+    },
+    "status": "PASS",
+    "tests": 6
+  },
+  "repository_export_host": {
+    "tests_passed": 2,
+    "source_sha256": "68d8b333e3d1d59d46e3c80eba362340cc6be979d449aab166c01121352de0d0",
+    "preserved_later_xml_sha256": "55086dc4c506756528eea4dad0dc26eadce830469a19f1945940129857095c56",
+    "preserved_later_xml_attributes": {
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.421",
+      "timestamp": "2026-10-21T15:44:46.476Z"
+    },
+    "scope": "Real Room lease/publication/current-artifact routing/export materialization+validation+reopen; synthetic producer bytes, not native reconstruction or SAF transport",
+    "initial_fixture_compile_error": "lateinit inline JobId forbidden; replaced with delegated notNull, no assertion/production behavior weakening",
+    "focused_xml_note": "Focused2PASS7.273s attributes observed by owner; raw XML overwritten by subsequent full run. Preserved later XML is not relabeled focused."
+  },
+  "full_validation": {
+    "ordinary_jvm_passed": 726,
+    "host_room_controller_export_passed": 12,
+    "android_test_compilation": "PASS",
+    "lint": "PASS",
+    "gradle_seconds": 177,
+    "python_passed": 1144,
+    "python_subtests": 6,
+    "python_optional_skipped": 3,
+    "python_seconds": 153.56,
+    "optional_executed_passed": 3,
+    "optional_seconds": 17.36,
+    "frontend_helper_tests_passed": 24
+  },
+  "log_sha256": {
+    "android-sparse-export-focused.log": "112a84a0bb83ced1020a797036575f568edb8d1b8a8a8ac9e4236718727cca03",
+    "android-sparse-export-fixed-focused.log": "0530bdc023e585e972e591f44910cc9057372d43fe7d023bc2d5dbffc10c10da",
+    "android-sparse-export-full-gates.log": "82a4c4b09443622fa557d134d832295e4a42023c7e501af733a5c3a549822837",
+    "scanner-sparse-ply-full-python.log": "f685f76451e919962de8fb0e953ceb8d0035647376e9bdf09faa413e2e4268c0",
+    "scanner-sparse-ply-optional.log": "49c453704f0efaccfd262d2e6f85aedfd3dae92027bbbbbf8afc8e6ffe6edb1b"
+  },
+  "impact": "Current sparse PLY was filtered from RepositoryExportSource.available because native writer header differed from legacy-only validator; not proof every direct verified-byte SAF transfer failed.",
+  "fix_scope": "Exact current sparse two-line provenance admitted; legacy and surface grammar/body limits unchanged.",
+  "limits": [
+    "Native frontend uses synthetic JPEG fixture ingress with explicit test-side six-column point packing",
+    "Repository HOST tests use real verified publication and synthetic one-point producer fixtures",
+    "No Android runtime/full scan/physical quality/SAF-provider qualification",
+    "Delivered e67e65e8 APK predates this PLY fix"
+  ]
+}

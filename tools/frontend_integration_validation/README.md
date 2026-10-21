@@ -1,6 +1,6 @@
 # Production frontend integration — HOST only
 
-Two tests connect **current production** grayscale SIFT core, FeatureFrame ownership, reciprocal chunked FeatureMatcher and FeatureMatcher.verify to actual scanner pose/triangulation JNI. No correspondences or native results are injected. Source compiles afresh, not against cached app classes.
+Two frontend tests connect **current production** grayscale SIFT core, FeatureFrame ownership, reciprocal chunked FeatureMatcher and FeatureMatcher.verify to actual scanner pose/triangulation JNI. No correspondences or native results are injected. Source compiles afresh, not against cached app classes.
 
 ## Explicit ingress and fixture boundary
 
@@ -12,6 +12,12 @@ Use committed `benchmarks/fixtures/relief/view-01.jpg`, `view-02.jpg` and `calib
 - Negative: independently extract the same JPEG under two photo IDs; require at least20 tentative matches, then exact native-origin rejection `Rotation-only or unobservable baseline`. This rules out the Kotlin insufficient-match shortcut and rejects a visually matchable but unobservable baseline.
 
 The pose criteria are intentionally tolerant of feature localization, JPEG decode differences and robust estimation:2degrees rotation and~11.5degrees translation direction. They were selected before execution and must not be silently relaxed after a failure. The pixel-derived normalized threshold matches the existing Android matcher test. Run output reports actual feature/match/point counts and pose/error metrics rather than asserting a historical Python result's exact counts.
+
+## Sparse PLY interoperability
+
+The positive case also packs the accepted points into six-column XYZ/RGB rows using **explicit test-side adaptation** of SparsePipeline's inline conversion, then invokes actual `NativeCore.exportPointCloud(...SPARSE_POINTS)` and production `LegacyPlyValidation`. It verifies the exact typed sparse header, vertex count, coordinates within the writer's nine-significant-digit precision and exact RGB values. The emitted file remains in the external work directory; output reports its SHA-256. This covers native writer/validator compatibility, not SparsePipeline's packing execution, repository option enumeration, publication, or SAF transfer.
+
+Four additional ordinary JVM tests cover exact current sparse metadata, retained legacy sparse support, wrong/missing/conflicting metadata, bounded strict bodies/properties, and retained surface validation. Six tests run in total. No general PLY parser support is added.
 
 ## Reproduction
 

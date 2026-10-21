@@ -989,3 +989,26 @@ so currente67e65e8 engineering APK remains the latest app snapshot. This is not
 Android ingestion, full SparsePipeline, dense/texture/export workflow, real captured
 photo quality or device qualification. See [integration evidence](../../reports/cloud-production-frontend-host.json)
 and [portable harness](../../tools/frontend_integration_validation/README.md).
+
+### Current sparse PLY writer and export option interoperate (15:51 UTC)
+
+Actual frontend-derived524 sparse points exported through NativeCore produced a
+valid typed sparse PLY, but the legacy-only app validator rejected its header.
+RepositoryExportSource therefore omitted that PLY option. The narrow fix accepts
+only the current exact sparse provenance plus mandatory representation comment;
+legacy/surface parsing and body limits are unchanged. Red and green native PLY
+bytes are identical. Fresh combined gate passes6 tests (two native frontend/writer
+cases plus four parser compatibility tests); helper24 tests pass.
+
+Two actual HOST Room tests also pass: a real job lease and verified publication
+commit produce current export identity, sparse option, exact materialization and
+validation, preserved after database reopen. Verified but malformed/dense content
+is not advertised. Synthetic producer fixtures are explicit; this is not native
+reconstruction inside Room or SAF-provider qualification. Initial fixture inline
+JobId compilation failure was corrected without changing assertions.
+
+Full ordinary JVM726, HOST Room/controller/export12, AndroidTest compilation and
+lint pass. Broad Python1,144 plus six subtests and all three optional host gates
+pass. See [native/host evidence](../../reports/cloud-sparse-ply-compatibility.json)
+and [repository test details](HOST_SPARSE_PLY_EXPORT.md). Current delivered APK
+e67e65e8 predates this correction.

@@ -17,7 +17,9 @@ def setup(tmp_path,monkeypatch):
  repo=tmp_path/'repo';repo.mkdir()
  for rel in m.SOURCES:
   p=repo/'app/src/main/java/com/realityforge/scanner/engine'/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('production source')
- java=tmp_path/'jdk/bin/java';java.parent.mkdir(parents=True);java.write_text('java');(java.parent.parent/'release').write_text('jdk release')
+ for rel in ['app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt','app/src/test/java/com/realityforge/scanner/export/LegacyPlyValidationTest.kt']:
+  p=repo/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('PLY source')
+ java=tmp_path/'jdk/bin/java' ;java.parent.mkdir(parents=True);java.write_text('java');(java.parent.parent/'release').write_text('jdk release')
  cap=tmp_path/'cap';(cap/'build/lib').mkdir(parents=True);(cap/'smoke').mkdir()
  native=cap/'build/lib/libopencv_java4120.so';native.write_bytes(b'native')
  aar=tmp_path/'opencv.aar'
@@ -62,12 +64,14 @@ def test_success_receipts_and_fresh_outputs(setup):
  m.main(['run',*args]);assert json.loads((w/'run-receipt.json').read_text())['status']=='PASS'
  m.main(['compile',*args]);assert not (w/'run-receipt.json').exists();assert json.loads((w/'compile-receipt.json').read_text())['output']!=first
 
-@pytest.mark.parametrize('kind',['missing','native','source','runtime','classpath','output','aar_extracted','linkage','linkage_file','linkage_classes','fixture','calibration','generator','engine','shim','scanner_source','scanner_history'])
+@pytest.mark.parametrize('kind',['missing','native','source','ply_validator','ply_tests','runtime','classpath','output','aar_extracted','linkage','linkage_file','linkage_classes','fixture','calibration','generator','engine','shim','scanner_source','scanner_history'])
 def test_mutated_inputs_or_outputs_reject_stale_run(setup,kind):
  m,args,w,repo,cap,cp,calls,_=setup;m.main(['compile',*args]);m.main(['run',*args]);before=len(calls)
  if kind=='missing':(cap/'build/lib/libopencv_java4120.so').unlink()
  elif kind=='native':(cap/'build/lib/libopencv_java4120.so').write_text('changed')
  elif kind=='source':(repo/'app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt').write_text('changed')
+ elif kind=='ply_validator':(repo/'app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt').write_text('changed')
+ elif kind=='ply_tests':(repo/'app/src/test/java/com/realityforge/scanner/export/LegacyPlyValidationTest.kt').write_text('changed')
  elif kind=='runtime':Path(cp[1].read_text()).write_text('changed')
  elif kind=='classpath':cp[1].write_text(cp[1].read_text()+'\n')
  elif kind=='output':(Path(json.loads((w/'compile-receipt.json').read_text())['output'])/'HostRunnerKt.class').write_text('changed')
