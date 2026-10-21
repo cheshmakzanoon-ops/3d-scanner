@@ -108,3 +108,23 @@ cancels its own active job, waits boundedly for shutdown, and retains the origin
 failure with cleanup failures suppressed. No lease protection or timeout acceptance
 was weakened. An optimized test-signed release app/test build is underway; the
 complete scan and export device reruns remain pending, not passed.
+
+## Optimized test-signed packaging checkpoint (05:58 UTC)
+
+Both the release application and release instrumented-test APK now build together
+with R8 and strict dependency verification enabled. Release-test dependency locks
+were missing configuration memberships: regeneration adds only those memberships,
+with no dependency coordinate/version additions, removals or changes. Three
+resolver-candidate `.module` metadata checksums were verified against official
+repository bytes/published checksums; this does not approve dependency downgrades.
+The final strict assembleRelease + assembleReleaseAndroidTest rerun succeeded.
+
+Actual shrunk DEX inspection retains NativeAssetExports.writeObserved and the
+typed NativeCore bundle-adjustment native signatures. These are packaging checks,
+not proof of a completed scan; optimized emulator reruns remain pending. Test
+signing is not production-signing qualification.
+
+GitHub main publication was verified by fetching commit `6e4c2e88` and comparing
+its complete tree to the local runtime-fix checkpoint. Redundant delivered local
+APK/ZIP/source archives were removed only after verification; active source,
+build tools, unintegrated work and runtime evidence were retained.

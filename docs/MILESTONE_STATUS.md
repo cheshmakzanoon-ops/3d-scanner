@@ -1,7 +1,18 @@
-# Current source status — M19
+# Source status — integrated engineering preview
+
+See the [cloud validation ledger](development/CLOUD_COMPLETION_STATUS.md) for
+current integration and exact-candidate evidence. The integrated source includes
+service-owned durable reconstruction jobs, revision-bound publication/checkpoint
+handling and library/curation/recovery/export routes. These are source-level
+capabilities, not a blanket runtime pass. Supported reconstruction input remains
+2–12 photographs, with at most eight registered dense views. Complete-session and
+studio qualification, physical-object geometry/texture/resource evidence and
+production signing remain open.
+
+## Historical M19 campaign baseline
 
 Version0.19.0-m19; campaign base `ad3029193f304c70931b94ea7a0df90b69d84b07`.
-The current code includes M17 operation cancellation, M18 per-reference depth
+The baseline code includes M17 operation cancellation, M18 per-reference depth
 checkpoints and M19 persisted scan diagnostics. Sparse work remains12-photo and
 depth8-view bounded; see [README](../README.md) and [architecture](ARCHITECTURE.md).
 Physical complete-object geometry/texture/resource evidence, release signing and
@@ -18,8 +29,8 @@ The 081–100 campaign adds executable native/fuzz/corpus/quality/device/export/
 packaging/security/dependency/qualification tooling. The integrated host suite
 requires095's pinned QA-only installation rather than the original scientific
 requirements alone; see [BUILDING](BUILDING.md#integrated-campaign-qa). Tooling
-delivery does not establish the unimplemented/unwired001–080 runtime paths or
-physical evidence. The final integration applicability keeps all18 required gates
+delivery alone does not establish runtime wiring or physical evidence; later
+integration and verification are recorded in the cloud ledger. The final integration applicability keeps all18 required gates
 open until their own exact-candidate records pass. Current physical/reference/
 held-out/signing/beta prerequisites remain unavailable, and known failed assets or
 sanitizer checks must stay visible in their independent reports.
@@ -82,7 +93,7 @@ commit-specific Android CI result; no physical-device or full-object completion
 claim is made. See M15_ADAPTIVE_ANDROID.md and M16_INCREMENTAL_REGISTRATION.md.
 
 
-## M17 — CPU-native cancellation (operation scoped)
+## Historical M17 — CPU-native cancellation (operation scoped)
 
 - Added independent, nonrecycled JNI operation handles backed by atomics and
   shared lifetime guards. The caller can signal an active native depth/mesh/

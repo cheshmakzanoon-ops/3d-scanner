@@ -1,7 +1,15 @@
 # RealityForge — offline Android photo-to-3D scanner
 
-**Current engineering increment: M19, version 0.19.0-m19. Not a completed
-consumer product or a guarantee of high-quality complete-object scanning.**
+**Engineering preview based on M19, version 0.19.0-m19, with subsequent
+cloud integration. Not a completed consumer product or a guarantee of
+high-quality complete-object scanning.**
+
+Current integration and commit-specific checks are tracked in the
+[cloud validation ledger](docs/development/CLOUD_COMPLETION_STATUS.md).
+The integrated source includes service-owned durable reconstruction jobs,
+identity-bound checkpoints, library/curation/recovery routes and observed
+OBJ ZIP/STL export. Source wiring is not proof that every workflow passes on a
+device; complete-session, studio and physical-quality qualification remain open.
 
 Capture/import photographs, estimate calibrated camera positions, reconstruct
 observed surfaces, export photograph-textured GLB models, and inspect them in
@@ -38,7 +46,7 @@ lens calibration, CPU multi-view stereo, conservative open triangle meshes,
 photographic UV atlases, bounded exposure correction, local GLES3 viewing,
 revision-safe reopen/export and original-photo capture bundles.
 
-Sparse analysis is limited to **twelve photographs**; dense processing uses at
+Supported reconstruction input remains **2–12 photographs**; dense processing uses at
 most **eight registered views**. Standard depth images are at most **384px**
 on their longest edge. Photo-atlas sources are capped at 640px for five to eight
 standard views, 768px for smaller standard jobs, or 512px on compact jobs.
@@ -46,11 +54,13 @@ The atlas budget is 4.5 million pixels. These are enforced limits, not claimed
 physical-phone RSS, battery, speed, accuracy or object-completeness measurements.
 
 Geometry is unscaled, may have holes, disconnected/overlapping patches and visible
-seams, and is not guaranteed manifold or watertight. M17 depth/mesh/texture JNI
-calls support cooperative cancellation; sparse JNI calls stop at Kotlin stage
-boundaries. M18 caches accepted per-reference depth only. There is no full-resolution GPU
-reconstruction, production Filament studio, tested release signing, store-ready
-AAB or validated complete-object performance on physical ARM64 phones.
+seams, and is not guaranteed manifold or watertight. Integrated sparse and
+depth/mesh/texture JNI paths use operation-scoped cooperative cancellation.
+Persisted jobs and validated checkpoints support bounded restart/reuse; they do
+not establish interruption recovery at every possible pipeline boundary.
+There is no validated full-resolution GPU reconstruction, production-qualified
+Filament studio, production release signing, store-ready AAB or complete-object
+performance on physical ARM64 phones.
 
 ## Build and tests
 
@@ -112,7 +122,7 @@ Native algorithms are in `reconstruction/`, Android in
 Historical milestone documents remain available. Green builds and isolated
 benchmarks are not evidence of flawless performance or commercial readiness.
 
-## M18 — Offline depth checkpoint recovery
+## Historical M18 — Offline depth checkpoint recovery
 
 Completed per-camera depth maps now survive app cancellation or process
 termination in private, checksum-verified, exact-input-identity-bound files.
@@ -122,7 +132,7 @@ regenerated and checked, and no partial output becomes a finished model.
 See [M18 checkpoints](docs/M18_DEPTH_CHECKPOINTS.md). The app remains an
 engineering prototype, not a fully validated real-world object scanner.
 
-## M19 — Scan evidence and honest quality guidance
+## Historical M19 — Scan evidence and honest quality guidance
 
 The local app now persists a revision-bound `scanDiagnostics` object alongside
 its actual sparse/dense/mesh/UV artifact. A distinct UI card reports how many
