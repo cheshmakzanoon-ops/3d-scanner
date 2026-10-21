@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T12:39:05Z",
+  "base_commit": "b6b55e4fce2ae1a98c6268e3c61bfede00095d5b",
+  "source_sha256": {
+    ".github/workflows/verify.yml": "b13c20105bf08cfd42b4eb7998bb3f883bb94beaeee8a9354689abc4ddd3daca",
+    "app/build.gradle.kts": "7f6fcd88f8ae7b408ce6e3cbdee365cfdf377f4aaf8cd2f788673be5867c90a4",
+    "app/gradle.lockfile": "b02d66238a969efc1608706bbc5119571d8436b5fa35cce2dc95abcf27f16011",
+    "app/src/test/java/com/realityforge/scanner/hostintegration/RoomHostSmokeTest.kt": "38a9a1691a530eb919fd9016c163562af92938be3e48cd8567b34f1f7a0110e9",
+    "app/src/test/java/com/realityforge/scanner/hostintegration/RoomImportHostTest.kt": "56a320c2689404b05e307250e33e2f4151e4ddd7e267310aa37c9031ab31ea80",
+    "docs/development/ENGINEERING_APK_08ABCEFC.md": "434cb1b7dcccbb6dda145e0ca201c8e6e17567fb0b8b90a4a4e81b67ada3b727",
+    "docs/development/HOST_ROOM_INTEGRATION.md": "9f410bd5c012609640def1b0785c47cbb97f90794b9949b00eb0589862422d1b",
+    "gradle/verification-metadata.xml": "ddd4c36d6108ec1dc9c94a62caa946eac8a08ff2dec7eeba90a9e82c22b576eb",
+    "tests/test_host_room_build_contract.py": "903dcc01031fb3494bcc6f81db51844b9079d96a8b564ba0055e351a29c1a5e1"
+  },
+  "ordinary_jvm": {
+    "passed": 722,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "host_android_integration": {
+    "passed": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "smoke_seconds": 6.197,
+    "import_test_class_seconds": 0.804,
+    "framework": "Robolectric4.14.1 / Android35 android-all15-robolectric-12650502",
+    "framework_sha256": "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b",
+    "sqlite": "NATIVE host AOSP SQLite, real generated Room DAOs",
+    "scenarios": [
+      "Expected-revision publication and database reopen",
+      "Exact imported bytes, duplicate and fixed project destination",
+      "Before-commit abort, lost commit reply and unavailable readback recovery",
+      "Synthetic cancellation exception during streaming cleanup",
+      "No-journal missing/same-size-corrupt duplicate rejects without later source opening",
+      "Damaged committed original retains journal and fails recovery closed"
+    ],
+    "synthetic_boundaries": [
+      "ImportInspector and input bytes are synthetic",
+      "No repository facade/storage-budget wiring or external provider permission path"
+    ]
+  },
+  "portable_gate": {
+    "task": ":app:hostIntegrationTest",
+    "ordinary_task": ":app:testDebugUnitTest",
+    "offline_resolver": true,
+    "preinstrumented_jars": false,
+    "sdk_configuration": "robolectricSdk, locked and nontransitive",
+    "max_forks": 1,
+    "heap": "1g",
+    "task_timeout_minutes": 5,
+    "method_timeout_seconds": 120,
+    "actual_negative_guards": [
+      "Tampered staged SDK rejected",
+      "Missing staged SDK rejected",
+      "Out-of-package Robolectric source rejected"
+    ],
+    "ordinary_task_executed_by_host_task": false,
+    "native_build_tasks_executed": false
+  },
+  "dependency_isolation": {
+    "release_inventory_byte_identical": true,
+    "release_inventory_sha256": "2d7ddabcbffb3bc8c6e88dd78d2f6d36070f9d455e13e1eb142b4c2482a4e427",
+    "existing_verification_hashes_removed_or_changed": 0,
+    "new_official_verified_checksum_entries": 52,
+    "ordinary_unit_lock_changes_confined_to": [
+      "debugUnitTestCompileClasspath",
+      "debugUnitTestRuntimeClasspath",
+      "releaseUnitTestCompileClasspath",
+      "releaseUnitTestRuntimeClasspath"
+    ],
+    "additional_sdk_lock_configuration": "robolectricSdk"
+  },
+  "other_validation": {
+    "android_test_compile": "PASS",
+    "lint_severities": {
+      "Warning": 92,
+      "Hint": 3
+    },
+    "python_wiring_ci_package_tests_passed": 86
+  },
+  "limits": [
+    "HOST integration is not Android guest/device qualification",
+    "No camera/decoder/EXIF/app JNI/GPU/physical quality/permission Binder/power-loss/release evidence",
+    "Synthetic cancellation exception is not actual Job cancellation or process death",
+    "Normal engineering APK source08abcefc remains separately recorded; no new APK installation claim"
+  ],
+  "log_sha256": {
+    "android-host-portable-smoke.log": "b6fdc05185cb6a5ab774823b4c4c66256cbf1555b81451724d5fd8e6621fdd51",
+    "android-host-fault-suite.log": "2b422625578b02e1058e3fb345e29e9cdde9d2c8d1a8fb5927a6051177e28c0c",
+    "android-host-integration-full-gates.log": "60652b66dfe3ec6a447c6ebe18dfab66e6f5a42a3b6e114e00efac6cd9f8b217",
+    "android-host-reject-tampered-sdk.log": "be2840c1069622cf6041c5c070baeb21e3449c91597a2396cf06ca808b2d6a1d",
+    "android-host-reject-missing-sdk.log": "f155061509476e2cccb7dc674879b3e2397f6438bcdff942acd19d5764f149c7",
+    "android-host-reject-classification.log": "ac39784a0dfdf7d5553d32ee329a06f98a6dc9ee7345835e1d6a7e0aba49fa1c"
+  }
+}

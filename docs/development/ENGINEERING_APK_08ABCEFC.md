@@ -13,6 +13,12 @@ Then right-click the assembled .zip and choose Extract All. The extracted .apk i
 Alternatively, an archive tool supporting split ZIP streams can open .001 with the other parts beside it.
 Do not try to install a numbered ZIP part itself.
 
+macOS/Linux: open Terminal in the folder with all three numbered parts and run:
+
+cat realityforge-08abcefc-engineering.zip.001 realityforge-08abcefc-engineering.zip.002 realityforge-08abcefc-engineering.zip.003 > realityforge-08abcefc-engineering.zip
+
+Then extract the assembled ZIP using your normal archive app. This requires no new tool installation.
+
 APK SHA-256:
 aa2312324619dae5699d0f2e5364cacf94c83f41cc7facd55bfa6f2dc9a6f84d
 APK bytes: 106220465
