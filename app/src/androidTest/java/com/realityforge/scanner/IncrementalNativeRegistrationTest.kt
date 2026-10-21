@@ -42,9 +42,9 @@ class IncrementalNativeRegistrationTest {
         }
         val anchor0=RegisteredFrame(0,templates[0])
         val anchor1=RegisteredFrame(1,templates[1].copy(translation=doubleArrayOf(-.45,0.0,0.0)))
-        val token=NativeCore.beginReconstruction()
-        try {
-        val geometry=NativeFrontierGeometry.forOperation(token)
+        val directory=java.nio.file.Files.createTempDirectory("registration-frontier-jni").toFile()
+        val stage="a".repeat(64)
+        val photoIds=physicalOrder.map {"synthetic-physical-$it"}
         val matchCalls=mutableSetOf<Pair<Int,Int>>()
         val matcher:suspend (Int,Int)->FeaturePairs = { a,b ->
                 matchCalls.add(a to b)
@@ -54,16 +54,50 @@ class IncrementalNativeRegistrationTest {
                 }
                 FeaturePairs(shared.map { it.first }.toIntArray(),shared.map { it.second }.toIntArray())
             }
-        var checkpoint:com.realityforge.scanner.engine.registration.RegistrationFrontier?=null
-        val photoIds=physicalOrder.map {"synthetic-physical-$it"}
-        val result=IncrementalRegistration.grow(templates,listOf(anchor0,anchor1),matcher,
-            geometry.triangulate,geometry.register,photoIds=photoIds,checkpoint={checkpoint=it})
-        val persisted=com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(requireNotNull(checkpoint).encode())
-        val resumed=IncrementalRegistration.grow(templates,listOf(anchor0,anchor1),matcher,
-            geometry.triangulate,geometry.register,photoIds=photoIds,resume=persisted)
-        assertEquals(result.cameras.map {it.photo},resumed.cameras.map {it.photo})
-        assertEquals(result.unregistered,resumed.unregistered)
-        for(i in result.cameras.indices){assertArrayEquals(result.cameras[i].view.translation,resumed.cameras[i].view.translation,0.0)}
+        // First operation is cancelled only AFTER an actual unknown pose is solved
+        // and its checkpoint has been atomically persisted to the real private store.
+        val firstToken=NativeCore.beginReconstruction()
+        try {
+            val geometry=NativeFrontierGeometry.forOperation(firstToken)
+            try {
+                AdmittedRegistrationSession.grow(directory,stage,photoIds,templates,listOf(anchor0,anchor1),matcher,
+                    geometry.triangulate,geometry.register,checkpointEvent={frontier,durable ->
+                        assertTrue("Private checkpoint must be durable in this fixture",durable)
+                        if(frontier.cameras.size==3) {
+                            assertTrue(NativeCore.cancelReconstruction(firstToken))
+                            throw java.util.concurrent.CancellationException("cancel after accepted persisted camera")
+                        }
+                    })
+                fail("Mid-growth cancellation was swallowed")
+            } catch(expected:java.util.concurrent.CancellationException) {
+                assertEquals("cancel after accepted persisted camera",expected.message)
+            }
+        } finally { assertTrue(NativeCore.finishReconstruction(firstToken)) }
+        val disk=com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore(directory)
+        val persisted=com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(requireNotNull(disk.load(stage){false}))
+        assertEquals(3,persisted.cameras.size)
+        assertEquals(photoIds.take(2),persisted.cameras.take(2).map {it.photoId})
+        assertFalse(persisted.photoIds.any {it in listOf("0","1","2")})
+        assertNull(disk.load("b".repeat(64)){false})
+        // Cold reload with a NEW native lease and shuffled caller ordering. Only
+        // the two original anchor poses are supplied, never other ground truth.
+        val reorder=listOf(5,3,1,4,0,2)
+        val reorderedIds=reorder.map {photoIds[it]};val reorderedTemplates=reorder.map {templates[it]}
+        val reorderedInitial=listOf(anchor0,anchor1).map { RegisteredFrame(reorder.indexOf(it.photo),it.view) }
+        val secondToken=NativeCore.beginReconstruction()
+        try {
+        val geometry=NativeFrontierGeometry.forOperation(secondToken)
+        val session=AdmittedRegistrationSession.grow(directory,stage,reorderedIds,reorderedTemplates,reorderedInitial,
+            {a,b -> matcher(reorder[a],reorder[b])},geometry.triangulate,geometry.register)
+        assertEquals("restored",session.resumeStatus);assertEquals(3,session.restoredCameraCount)
+        assertTrue(session.persistedCheckpoints>0);assertEquals(0,session.failedCheckpointWrites)
+        for(saved in persisted.cameras) {
+            val recovered=session.growth.cameras.single { reorderedIds[it.photo]==saved.photoId }
+            assertArrayEquals(saved.rotation.toDoubleArray(),recovered.view.rotation,0.0)
+            assertArrayEquals(saved.translation.toDoubleArray(),recovered.view.translation,0.0)
+        }
+        val result=RegistrationGrowth(session.growth.cameras.map { RegisteredFrame(reorder[it.photo],it.view) },
+            session.growth.attempts.map { it.copy(photo=reorder[it.photo]) },session.growth.unregistered.map {reorder[it]})
         assertEquals("Only the deliberately disconnected camera should remain",listOf(5),result.unregistered)
         assertEquals(listOf(0,1,4,3,2),result.cameras.map { it.photo })
         assertTrue(result.attempts.any { it.photo==2 && !it.accepted })
@@ -81,7 +115,23 @@ class IncrementalNativeRegistrationTest {
             for(k in 0..8) assertEquals(if(k%4==0)1.0 else 0.0,camera.view.rotation[k],.003)
         }
         assertTrue(matchCalls.isNotEmpty())
+        assertTrue(matchCalls.map { minOf(it.first,it.second) to maxOf(it.first,it.second) }.distinct().size<=15)
+        // Build the COMPLETE graph afresh from accepted poses, never the last frontier's window snapshot.
+        val accepted=result.cameras;val full=MultiViewTrackGraph(accepted.map {it.view})
+        for(a in accepted.indices)for(b in a+1 until accepted.size) {
+            val pairs=matcher(accepted[a].photo,accepted[b].photo)
+            for(k in pairs.first.indices)full.add(a,pairs.first[k],b,pairs.second[k])
+        }
+        val acceptedIds=accepted.map {photoIds[it.photo]};val snapshot=full.stableSnapshot(acceptedIds)
+        val final=FinalSparseExecution.execute(acceptedIds,accepted.map {it.view},snapshot,null,3.0/f,100,
+            triangulate={window -> geometry.triangulate(window.cameraRows,window.normalizedRows,3.0/f).map { point ->
+                BoundedSparseCoordinator.Candidate(window.globalTrackIds[point.track],point.xyz[0],point.xyz[1],point.xyz[2]) } },
+            bundle={input -> org.json.JSONObject(NativeCore.bundleAdjustProblemCancellable(input.cameraRows,input.seedRows,
+                input.pixelRows,input.intrinsicRows,input.groupIds,input.photoIds,input.sourceTrackIds,false,false,3.0/f,15,secondToken))})
+        assertEquals(5,final.geometry.getInt("registeredCameras"));assertEquals(210,final.receipt.seeds.size)
+        assertEquals(630,final.receipt.inputObservations);assertEquals(630,final.receipt.acceptedObservations)
+        assertEquals(210,final.geometry.getInt("pointCount"))
         println("M16 analytical visibility-chain: cameras=${result.cameras.size}, disconnected=${result.unregistered.size}, maxTranslationError=$maxTranslationError; not a physical scan")
-        } finally { assertTrue(NativeCore.finishReconstruction(token)) }
+        } finally { assertTrue(NativeCore.finishReconstruction(secondToken));directory.deleteRecursively() }
     }
 }

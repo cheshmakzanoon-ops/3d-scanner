@@ -400,7 +400,9 @@ class SparsePipeline(
         progress(Progress("Registering additional camera poses", outstanding.size, outstanding.size))
         // Extend from newly triangulated landmarks, not just the original anchor intersection.
         // Failure leaves every accepted M02 pose and original photograph intact.
-        if (cameraArray.length() < photos.size) {
+        // Also persist/validate an already complete >=3-camera frontier. A two-photo
+        // anchor-only capture has no incremental session and claims no frontier evidence.
+        if (photos.size >= 3) {
             try {
                 val templates=photos.map { photo -> loadFrame(photo,cache).use { frame ->
                     SparseView(frame.width,frame.height,min(frame.projection.fx,frame.projection.fy),
@@ -417,16 +419,23 @@ class SparsePipeline(
                         translation=DoubleArray(3) { camera.getJSONArray("translation").getDouble(it) }))
                 }
                 val nativeFrontier = NativeFrontierGeometry.forOperation(nativeToken)
-                val growth=IncrementalRegistration.grow(templates,initial,::featurePairs,
-                    nativeFrontier.triangulate,nativeFrontier.register) { stage,done,total ->
-                    progress(Progress(stage,done,total))
-                }
+                val session=AdmittedRegistrationSession.grow(directory,fingerprint,photos.map { it.id },
+                    templates,initial,::featurePairs,nativeFrontier.triangulate,nativeFrontier.register,
+                    progress={stage,done,total -> progress(Progress(stage,done,total))})
+                val growth=session.growth
                 coroutineContext.ensureActive()
-                for (camera in growth.cameras.drop(initial.size)) {
-                    cameraArray.put(JSONObject().put("photoId",photos[camera.photo].id)
+                // Resume can restore cameras missing from this attempt's initial PnP pass.
+                // Match validated source IDs, never assume a growth-list prefix length.
+                for (camera in growth.cameras) {
+                    val photoId=photos[camera.photo].id
+                    val existing=(0 until cameraArray.length()).firstOrNull {
+                        cameraArray.getJSONObject(it).getString("photoId")==photoId
+                    }
+                    val accepted=JSONObject().put("photoId",photoId)
                         .put("rotation",JSONArray(camera.view.rotation.toList()))
                         .put("translation",JSONArray(camera.view.translation.toList()))
-                        .put("kind","incremental"))
+                        .put("kind",if(existing!=null)cameraArray.getJSONObject(existing).optString("kind","registered") else "incremental")
+                    if(existing!=null)cameraArray.put(existing,accepted) else cameraArray.put(accepted)
                 }
                 val attempts=JSONArray()
                 for(attempt in growth.attempts) attempts.put(JSONObject()
@@ -434,7 +443,13 @@ class SparsePipeline(
                     .put("candidateTracks",attempt.tracks).put("accepted",attempt.accepted).put("reason",attempt.reason))
                 output.put("incrementalRegistration",JSONObject().put("initialCameraCount",initial.size)
                     .put("addedCameraCount",growth.cameras.size-initial.size).put("attempts",attempts)
-                    .put("remainingPhotoIds",JSONArray(growth.unregistered.map { photos[it].id })))
+                    .put("remainingPhotoIds",JSONArray(growth.unregistered.map { photos[it].id }))
+                    .put("frontierResumeStatus",session.resumeStatus)
+                    .put("restoredCameraCount",session.restoredCameraCount)
+                    .put("durableFrontierWrites",session.persistedCheckpoints)
+                    .put("failedFrontierWrites",session.failedCheckpointWrites)
+                    .put("frontierDurability",if(session.failedCheckpointWrites==0 && session.persistedCheckpoints>0) "saved" else "not_guaranteed")
+                    .put("frontierIsCompletedAlignment",false))
                 // Superseded anchor-only failures must not be shown for newly aligned photographs.
                 val remaining=JSONArray()
                 for(photo in growth.unregistered) remaining.put(JSONObject().put("photoId",photos[photo].id)

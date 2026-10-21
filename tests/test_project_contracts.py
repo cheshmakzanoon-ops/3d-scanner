@@ -234,7 +234,13 @@ def test_incremental_registration_uses_shared_triangulation_and_verified_landmar
     assert "identities.size < 2" in source and "frequencies[it.first] == 1" in source
     assert "validatePose(" in source and "projectedError(" in source
     assert "NativeCore.reconstructMultiview" in bridge and "NativeCore.registerCamera" in bridge
-    assert "IncrementalRegistration.grow(" in pipeline and "incrementalRegistrationFailure" in pipeline
+    session=(folder/"AdmittedRegistrationSession.kt").read_text()
+    assert "AdmittedRegistrationSession.grow(directory,fingerprint,photos.map { it.id }" in pipeline
+    assert "IncrementalRegistration.grow(templates,anchors" in session and "incrementalRegistrationFailure" in pipeline
+    assert "SparseFrontierCheckpointStore(projectDirectory)" in session
+    assert "pairBudget=photoIds.size*(photoIds.size-1)/2" in session and "templates.size in 2..12" in session
+    assert "if (photos.size >= 3)" in pipeline and "growth.cameras.drop(initial.size)" not in pipeline
+    assert "frontierIsCompletedAlignment" in pipeline and '"not_guaranteed"' in pipeline
     identity=(folder/"pipeline/ProductionPipelineSnapshot.kt").read_text()
     compatibility=(folder/"pipeline/ProductionEngineCompatibility.kt").read_text()
     assert "m20-integrated-production-1" in compatibility and "native-cancellable-v2" in compatibility

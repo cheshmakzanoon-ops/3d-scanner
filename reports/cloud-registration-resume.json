@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "status": "integrated; actual Android compile/lint/JVM gates passed; device qualification pending",
+  "productionLimit": 12,
+  "sparsePolicy": "complete-source-window-typed-ba-frontier-admitted12-v3",
+  "sourceSha256": {
+    "app/src/main/java/com/realityforge/scanner/engine/AdmittedRegistrationSession.kt": "e55f0a4829f75d68bec0af335b380184c10a6a990acb4f73ec86d2d64c8761eb",
+    "app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt": "80da2a456fc3f04e488a643b5c5de0265d98740376ed5dc99d8b845cad5e9e9d",
+    "app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt": "ab643c2c3be0678f445d11fdf058fc62ecce4d4a2ad8e0fe85107c88a34640fe"
+  },
+  "validation": {
+    "pureJvmPassed": 2,
+    "actualHostJniPassed": 1,
+    "implementation": "Exact existing IncrementalNativeRegistrationTest body with only AndroidJUnit4 runner annotation removed for host; actual native triangulation and PnP, actual private checkpoint store, no ground-truth unknown poses passed to solver",
+    "visibilityChain": {
+      "inputPhotos": 6,
+      "registered": 5,
+      "disconnected": 1,
+      "maxTranslationError": 1.3186600000825166e-06,
+      "cancelAfterDurableAcceptedCameraCount": 3,
+      "coldResumeCallerOrderChanged": true,
+      "newNativeTokenOnResume": true,
+      "restoredPosesBitExact": true,
+      "finalFullGraphTracks": 210,
+      "finalOriginalObservations": 630,
+      "finalAcceptedTracks": 210
+    },
+    "completeSetRegression": "3 already accepted cameras cold-reload with real durable store; native callbacks forbidden",
+    "failureRegressions": [
+      "stale feature identity",
+      "corrupt payload",
+      "accepted-pose conflict",
+      "unavailable store explicitly non-durable"
+    ],
+    "directFullSparsePipelineKotlinCompile": {
+      "passed": true,
+      "gradle": false,
+      "maxHeapMiB": 384
+    },
+    "sourceContracts": {
+      "passed": 1,
+      "runtimeEvidence": false
+    },
+    "actualGradle": {
+      "jvmPassed": 664,
+      "jvmFailures": 0,
+      "jvmSkipped": 0,
+      "lintErrors": 0,
+      "androidTestKotlinCompiled": true,
+      "instrumentationExecutedForThisIncrement": false
+    }
+  },
+  "remainingGates": [
+    "Full Android build and instrumented pipeline checkpoint cancellation/reuse",
+    "Real photographs and physical-device qualification"
+  ],
+  "claims": [
+    "No production cap increase",
+    "No descriptors persisted",
+    "Frontier is not completed alignment",
+    "Latest frontier track snapshot not used as full final graph",
+    "No physical-camera accuracy or completeness claim"
+  ]
+}

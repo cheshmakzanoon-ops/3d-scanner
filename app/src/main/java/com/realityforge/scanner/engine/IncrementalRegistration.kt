@@ -43,6 +43,24 @@ internal data class RegistrationGrowth(
  * Does not estimate intrinsics, invent unseen features, or alter the first two camera poses.
  */
 internal object IncrementalRegistration {
+    /** Stable across caller ordering; binds every original keypoint and lens model.
+     * Public only within this module so the durable wrapper can reject stale bytes before work. */
+    internal fun inputIdentity(templates:List<SparseView>,photoIds:List<String>,checkpoint:()->Unit={}):String {
+        require(templates.size==photoIds.size && templates.size in 2..250 && photoIds.distinct().size==photoIds.size)
+        val digest=MessageDigest.getInstance("SHA-256");digest.update("registration-frontier-v2".toByteArray())
+        val coordinate=ByteBuffer.allocate(4)
+        for(index in templates.indices.sortedBy {photoIds[it]}) {
+            checkpoint();digest.update(photoIds[index].toByteArray());digest.update(0.toByte());val view=templates[index]
+            digest.update(ByteBuffer.allocate(20).putInt(view.width).putInt(view.height).putDouble(view.focalPixels).putInt(view.colors.size).array())
+            for((offset,value) in view.xy.withIndex()) {
+                if(offset%1024==0)checkpoint()
+                coordinate.clear();coordinate.putFloat(value);digest.update(coordinate.array())
+            }
+            digest.update(view.projection.toString().toByteArray())
+        }
+        return digest.digest().joinToString(""){"%02x".format(it)}
+    }
+
     private data class Landmark(val xyz: DoubleArray, val features: Map<Int, Int>)
 
     private fun projectedError(view: SparseView, xyz: DoubleArray, image: Pair<Double, Double>): Double {
@@ -132,14 +150,8 @@ internal object IncrementalRegistration {
         require(pairBudget in 1..1000000)
         require(initial.map { it.photo }.toSet().size == initial.size &&
             initial.all { it.photo in templates.indices })
-        val digest=MessageDigest.getInstance("SHA-256");digest.update("registration-frontier-v2".toByteArray())
-        for(index in templates.indices.sortedBy {photoIds[it]}){
-            digest.update(photoIds[index].toByteArray());digest.update(0.toByte());val view=templates[index]
-            digest.update(ByteBuffer.allocate(20).putInt(view.width).putInt(view.height).putDouble(view.focalPixels).putInt(view.colors.size).array())
-            for(value in view.xy)digest.update(ByteBuffer.allocate(4).putFloat(value).array())
-            digest.update(view.projection.toString().toByteArray())
-        }
-        val identity=digest.digest().joinToString(""){"%02x".format(it)}
+        val identityContext=coroutineContext
+        val identity=inputIdentity(templates,photoIds) { identityContext.ensureActive() }
         if(resume!=null)require(resume.inputIdentity==identity && resume.photoIds.toSet()==photoIds.toSet()) { "Stale registration frontier" }
         val cameras=(resume?.cameras?.map { c -> val photo=photoIds.indexOf(c.photoId);RegisteredFrame(photo,templates[photo].copy(rotation=c.rotation.toDoubleArray(),translation=c.translation.toDoubleArray())) }?:initial).toMutableList()
         for(anchor in initial){val recovered=cameras.firstOrNull {it.photo==anchor.photo};require(recovered!=null && recovered.view.rotation.contentEquals(anchor.view.rotation) && recovered.view.translation.contentEquals(anchor.view.translation)) { "Resume changed anchor frame" }}
