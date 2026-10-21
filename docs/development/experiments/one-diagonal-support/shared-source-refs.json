@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "basePublishedCommit": "142bb0baebcea71662714e64aa635f08f4b1fd75",
+  "commonFiles": {
+    "snapshot.hpp": {
+      "repoRelativePath": "docs/development/experiments/fusion-telemetry/diagnostic/snapshot.hpp",
+      "sha256": "ef8c086dd0d74967feba8a93b6f744be93273ba97fb5c72dad6783c66cbb1aa7"
+    },
+    "replay.cpp": {
+      "repoRelativePath": "docs/development/experiments/fusion-telemetry/diagnostic/replay.cpp",
+      "sha256": "481ccffe7d15971b1a6151adb53df006ac8ace24be3b7306b2ed185149e25645"
+    },
+    "secure.py": {
+      "repoRelativePath": "docs/development/experiments/fusion-telemetry/shim/secure.py",
+      "sha256": "3c0708c803679a9a6380782a0f1376ec0ca07fdb480e67c57e74272fd09475b3"
+    }
+  }
+}

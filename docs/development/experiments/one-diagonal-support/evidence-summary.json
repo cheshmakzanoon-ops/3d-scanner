@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "decision": "REJECT_FOR_DEFAULT_HOLD_PRODUCTION_UNCHANGED",
+  "lineage": "Same trace-v2 actual snapshot; original6190 intersections, not older6137/6176 or profilepair6162.",
+  "snapshotSha256": "d1b605dffddb9488e77ff2f16706f3cf0f2d4161e3239d03f51648d5290b71c0",
+  "neighborhood": {
+    "receiptSha256": "01d3ebe396bd528f2cf1dfd80c23d970bdf620d0f68a6216be2c50d805875f57",
+    "rawRowsSha256": "a37c9f958d216b95e4dbedbc42762b6ad316d06b02d65d42848de74d4a06fd75",
+    "elapsedSeconds": 4.088122868008213,
+    "all556NamedInputPinsUnchanged": true,
+    "aggregates": {
+      "sampleCount": 6867,
+      "perSampleOriginalNormalValidityParity": true,
+      "normalValidity": [
+        1014,
+        0,
+        5349,
+        504,
+        0
+      ],
+      "originalEarlyReturns": {
+        "boundary": 0,
+        "center_unavailable": 0,
+        "neighbor_nonfinite": 0,
+        "neighbor_nonpositive": 5306,
+        "neighbor_jump": 43,
+        "confidence_unavailable": 0
+      },
+      "availability_centerPresent_missingCardinals_missingDiagonals_count": [
+        [
+          1,
+          0,
+          0,
+          1529
+        ],
+        [
+          1,
+          0,
+          1,
+          1025
+        ],
+        [
+          1,
+          0,
+          2,
+          256
+        ],
+        [
+          1,
+          0,
+          3,
+          16
+        ],
+        [
+          1,
+          0,
+          4,
+          1
+        ],
+        [
+          1,
+          1,
+          0,
+          531
+        ],
+        [
+          1,
+          1,
+          1,
+          1098
+        ],
+        [
+          1,
+          1,
+          2,
+          758
+        ],
+        [
+          1,
+          1,
+          3,
+          136
+        ],
+        [
+          1,
+          1,
+          4,
+          10
+        ],
+        [
+          1,
+          2,
+          0,
+          104
+        ],
+        [
+          1,
+          2,
+          1,
+          393
+        ],
+        [
+          1,
+          2,
+          2,
+          536
+        ],
+        [
+          1,
+          2,
+          3,
+          220
+        ],
+        [
+          1,
+          2,
+          4,
+          26
+        ],
+        [
+          1,
+          3,
+          0,
+          7
+        ],
+        [
+          1,
+          3,
+          1,
+          31
+        ],
+        [
+          1,
+          3,
+          2,
+          90
+        ],
+        [
+          1,
+          3,
+          3,
+          57
+        ],
+        [
+          1,
+          3,
+          4,
+          20
+        ],
+        [
+          1,
+          4,
+          1,
+          1
+        ],
+        [
+          1,
+          4,
+          2,
+          8
+        ],
+        [
+          1,
+          4,
+          3,
+          8
+        ],
+        [
+          1,
+          4,
+          4,
+          6
+        ]
+      ],
+      "centerCardinalsPresent_missingDiagonals_allObservedConfidenceAndJumpPass": {
+        "1": 1005,
+        "2": 254,
+        "3": 15,
+        "4": 1
+      },
+      "sameSubset_missingDiagonals_originalOutcome_count": [
+        [
+          1,
+          5,
+          1005
+        ],
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          2,
+          5,
+          253
+        ],
+        [
+          3,
+          5,
+          15
+        ],
+        [
+          4,
+          5,
+          1
+        ]
+      ],
+      "allObservedNoncenterJumpDistribution": {
+        "count": 41731,
+        "min": 0,
+        "p50": 0.00681629604948857,
+        "p90": 0.022057108573008955,
+        "p95": 0.028845962452985596,
+        "p99": 0.05005366377918656,
+        "max": 0.3684946407913257,
+        "aboveOriginalThreshold": 105,
+        "originalThreshold": 0.08
+      }
+    }
+  },
+  "candidate": {
+    "receiptSha256": "27de2d10a935339add0a0f1b03ee505a7c3b6ccdc8e4131eca2c4105095e9b8e",
+    "elapsedSeconds": 53.77255585200328,
+    "all570NamedInputPinsUnchanged": true,
+    "engineSha256": "7b85201b7501cdc9a238b660f3f63a7d5a5726b74c49bcbc25775d098780905f",
+    "supportSummary": {
+      "schema": 1,
+      "completeNineBitIdentical": 1529,
+      "eligibleOneDiagonal": 1005,
+      "additionalSupportedNormals": 524,
+      "originalValidityCounts": [
+        1014,
+        0,
+        5349,
+        504,
+        0
+      ],
+      "candidateValidityCounts": [
+        1538,
+        1,
+        4344,
+        984,
+        0
+      ]
+    },
+    "supportRawSha256": "3a5fd2ec6ce9c9d3969d36e1d4c454215d62c07b9d2f39491597931d0f208b4b",
+    "syntheticGuards": {
+      "status": "PASS_CANDIDATE_SYNTHETIC_GUARDS_ONLY",
+      "productionChanged": false,
+      "originalSuitePassClaim": false,
+      "tests": [
+        "complete_nine_flat_exact_bits",
+        "complete_nine_slanted_exact_bits",
+        "complete_nine_weighted_exact_bits",
+        "complete_nine_zero_confidence_exact_bits",
+        "complete_nine_observed_jump_exact_bits",
+        "each_single_zero_diagonal_eight_real_support_ids",
+        "missing_center_or_cardinal_rejected",
+        "missing_cardinal_plus_diagonal_rejected",
+        "every_pair_missing_diagonals_rejected",
+        "four_missing_diagonals_rejected",
+        "nonfinite_or_negative_observed_depth_rejected",
+        "nonzero_invalid_diagonal_never_treated_as_missing",
+        "malformed_missing_diagonal_confidence_rejected",
+        "observed_diagonal_jump_rejected",
+        "observable_cardinal_occlusion_jump_rejected",
+        "zero_observed_confidence_rejected",
+        "nonfinite_observed_confidence_original_error",
+        "ill_conditioned_eight_point_fit_rejected",
+        "observed_alternating_thin_depth_layers_rejected",
+        "unavailable_only_edge_is_not_observable_no_rejection_claim"
+      ],
+      "limitations": [
+        "The unchanged original evidence suite intentionally expects a missing diagonal to reject; this candidate changes that policy and does not claim that suite passes.",
+        "An edge existing only in the unavailable diagonal is unobservable from the same eight plane samples.",
+        "These are synthetic guard tests, not geometry-quality evidence or production approval."
+      ]
+    },
+    "unchangedDownstreamTests": [
+      "rf_surface_tests",
+      "rf_surface_fusion_tests"
+    ],
+    "experimentalEvidenceContract": "One missing-diagonal rejection assertion changed only in separate candidate-contract test; all other original assertions retained. Not unchanged original evidence-suite PASS.",
+    "mesh": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 5624,
+      "triangleCount": 6711,
+      "inputSamples": 6867,
+      "acceptedSamples": 6865,
+      "fusedObservations": 400,
+      "rejectedCells": 11745,
+      "rejectedTriangles": 177,
+      "medianConfidence": 0.9686306119,
+      "fusionVersion": 6,
+      "boundaryEdges": 4876,
+      "nonmanifoldEdges": 257,
+      "intersections": 5742,
+      "topologyIncomplete": false
+    },
+    "meshArtifactSha256": {
+      "mesh.json": "f58234cbc704042442b99cc166d289f1e9060627fa6fc2e29094993f42c889f0",
+      "mesh.ply": "30af90312e207ed2c921dd378cfc8f8af1d1e97736f1027bcc22f6621c582e2c",
+      "mesh.bits": "90606ce0946331746e295cc0a88b3b5c572eafd6e27a8ceffcc1668a9c822a9a"
+    }
+  },
+  "measurementRawSha256": "1b88269e466538e070df026e5689d5e48a7c674a591d1fc13783b40bca272be2"
+}

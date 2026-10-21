@@ -1,0 +1,11 @@
+{
+  "baselineHeader": "reconstruction/include/realityforge/surface_evidence.hpp",
+  "baselineHeaderSha256": "8082ee701dcad38ee937125a582eadab6dc88638876714cb64d7ef456775f875",
+  "candidateHeaderSha256": "89b5b76c8a8ddbd1199af782b97bd6dbfe6ac8385c766f7eb02ef5a91e23344f",
+  "patchSha256": "4419ce3c728b5f5125ff96ad950a80155985c428b562ad0d2e521e79575aa0a8",
+  "baselineAdapterSha256": "dc52f541e6db515bd674e4d7548534e360d30ba412690e7e1441738dda08082c",
+  "originalEvidenceTest": "reconstruction/tests/surface_evidence_test.cpp",
+  "originalEvidenceTestSha256": "abbaefce7442e281270c4823a39e3a0858dee5027eb35f64ecbeda9add1503da",
+  "candidateContractEvidenceTestSha256": "a1896897ebc28c28f44d9732d6d006d1590e9aa9b7281e7ba7830c63ee740035",
+  "candidateContractEvidencePatchSha256": "139a6562b0c339161085bf4c982befce84a4b9b9cb5554b6a60caa46278ab960"
+}
