@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "decision": "HOLD_NOT_SHIPPING_REJECTED_FOR_TOPOLOGY_REGRESSION",
+  "productionChanged": false,
+  "defaultGatesChanged": false,
+  "runtimeEvidence": "Actual paired HOST core captures and bounded evaluations; not physical-device qualification",
+  "patches": {
+    "cache-integration.patch": "8668303a704474ececd60a5c345a643740d9985854eab01857fa268f425129a7",
+    "three-corner.patch": "04c06274687e976fde3ca4fd7b0a5d58afe3b11fdfdf78c8b42bc8d0a7f67d86"
+  },
+  "rawSanitizedReportSha256": {
+    "native-unit": "bb71107a69eeae74e2d6329926f1e3e8592c3623df78a8fd7dbc5279a6335cc7",
+    "native-capability": "fb4ef233edc83cc8eed8fd001d1f5959ca25fb5d689f60fc25067a647cde68c3",
+    "cache-unit": "845050be4458127b278737f7ccd82a6323d0fe5f4e647a1b9a2d7515af357bd5",
+    "crossings": "52c40226143fcc1b7df97d8616287ace80c8abfd8010e4b3d9eb5db9750c9c40",
+    "added-faces": "20c8113c6e75f2752d65bfa6a57b3143080dd89ac602d21c32b8c7e4b1484040"
+  },
+  "runs": {
+    "baseline": {
+      "captureReceiptSha256": "d9df08c291ee4a690b7da3bd6292adbc8e6af516b059985fe6a5be243b0e37b5",
+      "captureManifestSha256": "a2f8fa9b47c0f962fc3f1009be933b7f1bcfc7fbc2fd6039fc56f3f696908a9a",
+      "captureTest": {
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-21T20:06:08.801Z",
+        "time": "11.519"
+      },
+      "sourceCommit": "d954ff21b633897eca63ac56cc6183e3b81c16f1",
+      "status": "EXIT_0",
+      "inputsUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "postGitStatus": "",
+      "measurementReceiptSha256": "675e379971a69d69380ee42605a0c8e29e7dbb24b44d56956b7bcd886b339ee7",
+      "measurementSha256": "5ec5e0504ab15a1eba430f0bb751b3ff1cd33a396c3fe5b7aedafe4e1a571850",
+      "visualReceiptSha256": "45cf6f907d585eaa5072063fc37e4917879e94c6a97a3134f1e8077bc5758ca7",
+      "coverageSha256": "377918ace9dd338dd6202d69a43847be3db9c92d810b6b45bea92ae20ae1ebec",
+      "renderPngSha256": "828d7317b1dce8f91b3b3cc3c6a84b2cdff87e64380d0c68cc1a3e49bc04c066"
+    },
+    "candidate": {
+      "captureReceiptSha256": "7e22c8eecda1648779af3833f56a1023d9d8382f8b4a4b901b5bf10661804386",
+      "captureManifestSha256": "86815582413c325befe7325edab0d6f80075b18829e40c4f43967f429c8dadb8",
+      "captureTest": {
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-21T20:07:59.133Z",
+        "time": "11.051"
+      },
+      "sourceCommit": "d954ff21b633897eca63ac56cc6183e3b81c16f1",
+      "status": "EXIT_0",
+      "inputsUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "postGitStatus": "",
+      "measurementReceiptSha256": "eac0808dd8756882be6ccd05caae692890e9735ef59f0ef3fcaf48321c9d5d4f",
+      "measurementSha256": "4cb194257a937039a2bd5344d4449bbaa44d0a32c21ed137d7a1c2437bde736a",
+      "visualReceiptSha256": "626cef1c3f56bdbe4f35c8e5c83c6443560ec161a6ef911f1b5f16ccd9b21b79",
+      "coverageSha256": "01e018c86309e3be416addb19f0cb6e276eab72274321a7094167ea2d9e71182",
+      "renderPngSha256": "4ddfd033e56dde9d4383677e8822ccda8b6715f8d86004af7a8f37b4a96af1dd"
+    }
+  },
+  "comparison": {
+    "baselineTriangles": 6726,
+    "candidateTriangles": 8896,
+    "allBaselineTrianglesRetained": true,
+    "addedTriangles": 2170,
+    "strictCrossingsBaseline": 6176,
+    "strictCrossingsCandidate": 9643,
+    "addedStrictCrossings": 3467,
+    "addedCrossingsOldAdded": 2714,
+    "addedCrossingsAddedAdded": 753,
+    "coplanarCrossings": 0
+  },
+  "limitations": [
+    "Image projection coverage is not 3D completeness or physical quality.",
+    "Both baseline and candidate have existing topology defects; candidate worsens strict noncoplanar crossings.",
+    "Current capture used original shared source plus separately pinned candidate native capability, not a shipping APK.",
+    "Cache integration patch was separately native-tested; Kotlin not run. Neither patch is applied.",
+    "One pair only. Random imported UUIDs/native ordering can produce numerical or topology jitter; historical captures are distinct.",
+    "No new runtime is claimed for source packaging or portable command adaptations.",
+    "No binary inputs, native binaries, images, or private machine paths are distributed."
+  ]
+}

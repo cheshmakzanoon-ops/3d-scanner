@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "elapsedSeconds": 3.205169329987257,
+  "limits": {
+    "totalSeconds": 60,
+    "perProcessAddressSpaceBytes": 2147483648,
+    "compilerJobs": 1
+  },
+  "capturedOriginalCounter": {
+    "baseline": 6176,
+    "candidate": 9643
+  },
+  "recomputedCountersMatch": true,
+  "classification": {
+    "baseline": {
+      "intersections": 6176,
+      "ambiguousPairs": 33516,
+      "implicatedFaces": 4770,
+      "intersectionCandidates": 716605,
+      "budgetExceeded": false,
+      "tolerance": 7.374430461167544e-10,
+      "classes": {
+        "old-old/shared0/noncoplanar-crossing": 5706,
+        "old-old/shared1/noncoplanar-crossing": 470
+      }
+    },
+    "candidate": {
+      "intersections": 9643,
+      "ambiguousPairs": 46060,
+      "implicatedFaces": 6772,
+      "intersectionCandidates": 1247942,
+      "budgetExceeded": false,
+      "tolerance": 7.374430461167544e-10,
+      "classes": {
+        "added-added/shared0/noncoplanar-crossing": 753,
+        "old-added/shared0/noncoplanar-crossing": 2711,
+        "old-added/shared1/noncoplanar-crossing": 3,
+        "old-old/shared0/noncoplanar-crossing": 5706,
+        "old-old/shared1/noncoplanar-crossing": 470
+      }
+    }
+  },
+  "scope": "Exact production analyzer header on declared float PLY parsed as float then widened to Vec3 double; exported-coordinate analysis, not recomputed raw depth geometry.",
+  "receiptSha256": "db74611ad692689f734fa77ad49bcd5a9b1cf922ce4a96e89e511650380a92ef",
+  "sourceSha256": "3251db5ab0fb041ab0bec44c746e20c11164bce0fbf09b23343b37b8b3042a5e",
+  "runnerSha256": "af502797b52babf5211921b4495b6117a28ea0d11c574ae65398bff4df085819",
+  "productionHeaderSha256": "041d4441273e533f34f6583b17a6bde8f14c5ae6dddf2c92e12b107c1e919997",
+  "plySha256": {
+    "baseline": "a68de8194c87bc378033787f6c3e1da8f846ddb7970559d516526470187a7b68",
+    "candidate": "e72b351809e61b239a61a735278bef8c608fe055271523558fc5e6f23096a93b"
+  },
+  "outputs": {
+    "analyze": "ae2039a0d6a989aed41c18f8933a965119d1b3a64f3ee9da5f10fbd19ae2b019",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "classification.log": "94537d37af8a8ac9f2bfff6d1c49bda1f61fc3f7649158797aca21e98121b5a0"
+  },
+  "conclusion": "Coverage improvement carries an actual strict triangle-crossing regression under unchanged production diagnostics, not coplanar overlaps or tolerance-band contacts. No production integration recommended on coverage alone."
+}

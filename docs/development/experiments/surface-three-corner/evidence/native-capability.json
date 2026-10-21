@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "status": "BUILD_LINKAGE_PASS_NOT_RUNTIME_TESTED",
+  "receiptSha256": "c0e143ea7bd87e4a3bd35f474599f98e07e3aafa545e28fcbaa16a27fb392580",
+  "recipeSha256": "1ac3339a309b1c502562e57af32a541e2f45ace5120e7b1481c8f2abbf2938da",
+  "commandsSha256": "ec1bd067a7aa467c7c4a73c584f30e672773f766769378a09f28ea600085a04b",
+  "consumedFilesSha256": "94a10bc18d122ad04cd6a95248c5fd5b967c03288e0530619c8f015863d93758",
+  "elapsedSeconds": 4.331671013002051,
+  "limits": {
+    "totalSeconds": 120,
+    "parallelCompilerJobs": 1,
+    "perProcessAddressSpaceBytes": 4294967296
+  },
+  "inputsUnchanged": true,
+  "results": {
+    "red": {
+      "engineSha256": "bd57b0c7a2c12005766a2c34cae29053bb3fd52040298690777edbf012757d7f",
+      "shimSha256": "60f20412069054b3b979145f159411a9a09089d84a85f90386cc23a92fa10808",
+      "jniExportCount": 28,
+      "jniExportsIdenticalToOriginal": true,
+      "relocationsResolved": true
+    },
+    "green": {
+      "engineSha256": "a0122e4e6bd2d15ba0f7809efaa29eec4b08cd89bdb1457287a28330b66548b4",
+      "shimSha256": "6e26597485086a9fcca073102891361c937639ee7973af96b5c544c2f2a7b3cf",
+      "jniExportCount": 28,
+      "jniExportsIdenticalToOriginal": true,
+      "relocationsResolved": true
+    }
+  },
+  "limitations": [
+    "Build and dynamic linkage verification only; no Java runtime or paired photographic capture in this receipt.",
+    "Existing baseline native artifacts were not overwritten.",
+    "Fresh source copies share identical build flags; source delta is reviewed surface.cpp only.",
+    "Candidate is measurement-only until cache invalidation and quality evaluation pass."
+  ]
+}

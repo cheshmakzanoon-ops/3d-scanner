@@ -1208,3 +1208,9 @@ Broad regressions for the relief measurement package pass 1,295 Python tests and
 ### Capture-fixed engineering APK
 
 Source 09e87946 normal optimized, QA-retention-disabled, test-signed APK includes all published production fixes. Package/signature/offline permissions/backup/16 KB ZIP and all 16 ELF checks pass. Only DEX changed from the prior ae756 APK; same package/version/test certificate. Three matching parts and assembly instructions were accepted in private chat, superseding earlier sets. Installation and upgrade remain untested; preserve existing scans. See [artifact receipt](../../reports/cloud-capture-fixed-engineering-apk.json) and [instructions](ENGINEERING_APK_09E87946.md).
+
+## Three-existing-corner meshing experiment — HOLD, not shipping
+
+The isolated paired synthetic-relief HOST captures both passed their unchanged core assertions, but the candidate is rejected for topology regression: view01 projected truth-domain coverage improved from 46.8165% to 57.2168%, while strict noncoplanar triangle crossings rose from 6,176 to 9,643 (+3,467). Covered-pixel depth p95 also rose from 0.0468573 to 0.0488787 synthetic units. Both baseline and candidate already have geometry defects; no completeness/physical-quality PASS is claimed.
+
+The source and cache-identity patches are archived **unapplied** under `docs/development/experiments/surface-three-corner/`, together with sanitized paired capture, measurement, native-unit, capability and crossing evidence. No production algorithm/default gate/APK was changed by this experiment. The portable coverage CLI adaptation is syntax-checked only; exact native diagnostic source and prior measured results are preserved. Historical baseline/native artifacts remain distinct from this fresh pair. See the archive README and report for exact hashes, limitations and bounded reproduction guidance.

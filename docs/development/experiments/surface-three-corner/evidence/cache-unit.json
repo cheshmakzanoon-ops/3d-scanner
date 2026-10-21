@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "status": "NATIVE_TESTS_PASS_KOTLIN_NOT_RUN",
+  "patchSha256": "8668303a704474ececd60a5c345a643740d9985854eab01857fa268f425129a7",
+  "receiptSha256": "46c99c74f88280ab8402abb428118e864ad145a50fe4c968a93a4dff071893d8",
+  "recipeSha256": "a64e24a2b9504e47f2cda484ddcaaa65a5b4cd181bc8e8df079ef0c9115f9f12",
+  "pinsSha256": "0fd8c1056a98c4fb08aeebc84027aafab6ad452511419d66364ce9b805391c3a",
+  "elapsedSeconds": 42.600774987993645,
+  "testExitCodes": {
+    "rf_surface_tests": 0,
+    "rf_surface_fusion_tests": 0,
+    "rf_surface_checkpoint_tests": 0
+  },
+  "caseCounts": {
+    "surface": 13,
+    "surfaceCheckpoint": 12,
+    "surfaceFusion": "one executable; no aggregate case count emitted"
+  },
+  "inputsUnchanged": true,
+  "outputs": {
+    "build/librealityforge.so": "f872aa36cc8d3e2b16f3b457deb63aae540bbdfafc50bd3e5c039a41cd484a3f",
+    "build/rf_surface_tests": "caede5cfcb1740b4e2ff7531f94f20c3296522a66a691d4dcf6bbb4a6c7d86a7",
+    "configure.log": "d330ed3f14434bc6ca3046441333e5c6f19ed8dede5c2565310963eb152f37ad",
+    "build.log": "812842d9317bb85ae745557768485aa0f44eea1c694420ef96674c11cbee87ae",
+    "rf_surface_tests.log": "f6df95abce4c756e3d01ec42abc29181bc7e8ddd682eaa4cde608b6e064de441",
+    "rf_surface_fusion_tests.log": "9fdd2e1d235b610156712e7723b86c6b47af17e7777258a836bfbb6e4396212f",
+    "rf_surface_checkpoint_tests.log": "7fe87cd6a86ca9737046b00bc638373fe87a4399d459e87eed6a06256852b3eb",
+    "build/rf_surface_fusion_tests": "d4ec42218b5d671733b08b4b130f8e0b9432386bc71a2cbfa1b43fa6067c8020",
+    "build/rf_surface_checkpoint_tests": "d5911eb6cc33b3e98100d253bed67a894f62ce416c2737c23c6a7c6e6edc1244",
+    "build/CMakeCache.txt": "e28b349c182c4b10523a3d1440ad606bc4eb92f3c8d0aa9f022386f64e7329af"
+  },
+  "limitations": [
+    "Kotlin identity runtime regression not executed.",
+    "Paired photographic quality comparison remains a separate gate.",
+    "No shared sources or immutable measurement capabilities modified.",
+    "Native checkpoint schema remains v2; algorithm identity and diagnostic report are v7."
+  ]
+}
