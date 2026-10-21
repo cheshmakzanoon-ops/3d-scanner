@@ -138,4 +138,37 @@ class ProductionExtractorHostTest {
             assertFalse(gray.empty());run(gray).close()
         }finally{gray.release()}
     }
+    @Test fun realNativeFailureStillEmitsFinishedAndRemainsDiagnosable() {
+        val gray=texture();val events=ArrayList<NativeFeatureCallEvent>()
+        try {
+            // Deliberate synchronous ownership fault injection: empty live Mat header before JNI.
+            // No concurrent mutation, freed Java/native header, or simulated SIFT exception.
+            val failure=assertThrows(CvException::class.java){run(gray,observe={event->
+                events.add(event)
+                if(event==NativeFeatureCallEvent.STARTED)gray.release()
+            })}
+            assertTrue(failure.message.orEmpty().contains("image is empty"))
+            assertEquals(NativeFeatureCallEvent.values().toList(),events)
+            assertTrue(failure.suppressed.isEmpty())
+        }finally{gray.release()}
+    }
+    @Test fun finishedObserverFailureIsSuppressedBehindRealNativeFailure() {
+        val gray=texture();val events=ArrayList<NativeFeatureCallEvent>()
+        val secondary=IllegalStateException("distinct FINISHED observer failure")
+        try {
+            val failure=assertThrows(CvException::class.java){run(gray,observe={event->
+                events.add(event)
+                when(event){
+                    NativeFeatureCallEvent.STARTED->gray.release()
+                    NativeFeatureCallEvent.FINISHED->throw secondary
+                }
+            })}
+            assertTrue(failure.message.orEmpty().contains("image is empty"))
+            assertEquals(NativeFeatureCallEvent.values().toList(),events)
+            assertEquals(1,failure.suppressed.size)
+            assertSame(secondary,failure.suppressed.single())
+            // The native throwable is observed only after unwinding: no identity claim for it.
+        }finally{gray.release()}
+    }
+
 }

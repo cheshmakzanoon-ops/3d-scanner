@@ -31,3 +31,18 @@ Existing observer exception semantics intentionally remain: STARTED throw emits
 no FINISHED; FINISHED throw in finally can replace a native exception. This draft
 does not claim observers are best-effort or native memory bounds are measured.
 Host synthetic Mat tests cover core only, not Android decode or physical quality.
+
+## Separate observer error-preservation correction
+
+A subsequent focused correction records the native kernel failure before invoking
+FINISHED. If FINISHED also throws, that secondary error is attached as suppressed
+without replacing the native failure. If the kernel succeeds, observer failure
+still propagates unchanged. STARTED stays outside the kernel try, so its failure
+still emits no FINISHED. Cancellation checks and cache identity are unchanged.
+
+The regression deliberately releases borrowed gray in STARTED to trigger SIFT's
+explicit empty-image CvException, then throws from FINISHED. This is invalid-owner
+fault injection, not valid caller behavior or in-flight interruption. Assertions
+cover native exception class/diagnostic and exact suppressed observer identity,
+not identity of an unobserved native Throwable. Pure-refactor evidence remains a
+historical snapshot before this separately tested correction.

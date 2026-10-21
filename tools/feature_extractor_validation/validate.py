@@ -76,6 +76,6 @@ def main(argv=None):
   cmd=[str(java),'-Xmx256m','-XX:ActiveProcessorCount=2','-cp',str(output)+os.pathsep+cp,'HostRunnerKt',str(lib)]
   with (work/'run.log').open('w') as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,env=env,timeout=90,check=True)
   if inputs()!=before or receipt['classes']!=hashes(output) or sha(extracted)!=before['aarClasses']:raise ValueError('Inputs or outputs changed during run')
-  write(work/'run-receipt.json',{'inputs':before,'classes':receipt['classes'],'compileReceipt':sha(work/'compile-receipt.json'),'runLog':sha(work/'run.log'),'status':'PASS','expectedTests':8,'limits':{'seconds':90,'heap':'256m','processors':2,'opencvThreads':2}})
+  write(work/'run-receipt.json',{'inputs':before,'classes':receipt['classes'],'compileReceipt':sha(work/'compile-receipt.json'),'runLog':sha(work/'run.log'),'status':'PASS','expectedTests':10,'limits':{'seconds':90,'heap':'256m','processors':2,'opencvThreads':2}})
  print(a.mode+' PASS')
 if __name__=='__main__':main()

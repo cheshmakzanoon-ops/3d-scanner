@@ -931,3 +931,23 @@ physical scan quality. Existing FINISHED-observer exception masking is intention
 unchanged for this refactor; a separate regression/fix is pending. The delivered
 APK predates this source change. See [SIFT evidence](../../reports/cloud-production-sift-host.json)
 and [behavioral boundaries](SIFT_EXTRACTION_BOUNDARY.md).
+
+### Preserve native SIFT errors when observation also fails (15:14 UTC)
+
+A separate actual-JNI regression reproduced FINISHED observer masking: deliberately
+emptying the borrowed Mat in STARTED triggers SIFT's explicit empty-image native
+error, but a second observer exception previously replaced it. Baseline10 tests
+had1 failure; the narrow fix passes10/10 and attaches the observer error as
+suppressed while retaining native CvException/diagnostic. STARTED failure and
+successful-kernel observer-failure semantics, cancellation and cache identity stay
+unchanged. This is labeled invalid-owner fault injection, not normal caller use.
+
+Fresh shared SIFT10 and matcher8 native tests pass. Ordinary JVM722, HOST
+Room/controller10, AndroidTest compilation and lint pass. Broad Python1,120 plus
+six subtests and all three optional host gates pass. The broad run used a reviewed
+private observer for exact public dependency-audit fixtures, without argument/result
+or assertion changes; diagnostic contents are not published.
+
+No Android runtime/full scan or physical quality qualification is implied. See
+[separate red/green evidence](../../reports/cloud-sift-observer-primary.json). The
+previously delivered engineering APK predates this correction.
