@@ -40,7 +40,7 @@ def test_offline_sdk_resolver_and_both_byte_identity_checks_are_wired():
     assert "digest(staged) == expected" in guard
     assert "== listOf(canonical)" in guard
     assert "outputs." not in guard  # guard must run even if SDK staging is up-to-date
-    assert "dependsOn(verifyHostIntegrationSdk)" in build
+    assert "dependsOn(verifyHostIntegrationSdk, verifyHostDecoderOracle)" in build
     assert "/tmp/" not in build
 
 
@@ -88,3 +88,35 @@ def test_robolectric_lock_memberships_never_enter_apk_or_instrumentation():
         found.append(coordinate)
     assert f"org.robolectric:android-all:{SDK_VERSION}" in found
     assert "org.robolectric:robolectric:4.14.1" in found
+
+
+def test_decoder_oracle_is_generated_only_for_host_with_bounded_pinned_inputs():
+    import hashlib
+    build = BUILD.read_text()
+    generator = ROOT / "tools/GenerateDecoderOracle.java"
+    digest = hashlib.sha256(generator.read_bytes()).hexdigest()
+    assert f'val decoderOracleSourceSha256 = "{digest}"' in build
+    assert 'JavaLanguageVersion.of(17)' in build
+    assert '"-Xmx256m", "-Djava.awt.headless=true"' in build
+    assert 'timeout.set(Duration.ofSeconds(120))' in build
+    assert 'outputs.dir(decoderOracleDirectory)' in build
+    assert 'withPropertyName("decoderFixtureJpegs")' in build
+    assert 'withPropertyName("generatorSource")' in build
+    assert 'withPropertyName("oracleJavaExecutable")' in build
+    assert 'withPropertyName("decoderOraclePixels")' in build
+    assert 'output.canonicalFile == output.absoluteFile.normalize()' in build
+    assert 'Files.isSymbolicLink(it.toPath())' in build
+    assert 'check(decoderSha(reference) == hash)' in build
+    assert 'check(reference.length() == 78L' in build
+    assert 'check(lines[0] == "generatorSha256=$decoderOracleSourceSha256")' in build
+    host = build.split('tasks.register<Test>("hostIntegrationTest") {', 1)[1]
+    assert 'dependsOn(verifyHostIntegrationSdk, verifyHostDecoderOracle)' in host
+    assert 'jvmArgs("--add-opens=java.base/java.io=ALL-UNNAMED")' in host
+    assert 'systemProperty("rf.decoder.oracleManifestSha256"' in host
+    ordinary = build.split('tasks.withType<Test>().configureEach {', 1)[1].split('// Independent JDK pixel oracle:', 1)[0]
+    assert 'generateHostDecoderOracle' not in ordinary and 'add-opens' not in ordinary
+    test = (ROOT / "app/src/test/java/com/realityforge/scanner/hostintegration/NativeGraphicsDecoderHostProbeTest.kt").read_text()
+    assert 'java.awt' not in test and 'javax.imageio' not in test
+    assert 'meanAbsoluteChannelError <= 12.0' in test
+    assert '@GraphicsMode(GraphicsMode.Mode.NATIVE)' in test
+    assert 'AndroidImageDecoder.decodeBlocking(request)' in test

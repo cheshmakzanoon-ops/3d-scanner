@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T16:38:30.041330+00:00",
+  "base_commit": "ec4d1cbf7a9381efa85d517f84778e1fbc894951",
+  "source_sha256": {
+    "app/build.gradle.kts": "0c0d5c2b4f316e5c01d82cf6a077a554ec7fbb6ae2a90c4bd8dcf6fc303066dc",
+    "tools/GenerateDecoderOracle.java": "43270ecd69a0e59ceabff1a65e039bc38f92c692fa4ffd77f15939ca14d916ff",
+    "app/src/test/java/com/realityforge/scanner/hostintegration/NativeGraphicsDecoderHostProbeTest.kt": "6902a765f5807043db7339c2a213f08ca3a0da28320ae5ac7f6c64a74cbe8329",
+    "tests/test_host_room_build_contract.py": "0005f4a137389ace994c01a13d9fa4a62dd1c6724c51dfef40b0edf19b9c9139",
+    "app/src/main/java/com/realityforge/scanner/imaging/AndroidImageDecoder.kt": "c75d0239295a3e6249ac4629561ee5ce791bf705ef6aa3e3cf5873f64ef95e16"
+  },
+  "production_decoder_changed": false,
+  "ordinary_jvm": 731,
+  "host_integration": 14,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "android_test_compilation": "PASS",
+  "lint": "PASS",
+  "full_gate_seconds": 198,
+  "python": {
+    "passed": 1146,
+    "skipped_optional": 3,
+    "subtests_passed": 6,
+    "log_sha256": "20392c8717b2bd0eee933ffad48358f1afe6d7676f8c2d951988799e1a3e9df1",
+    "initial_run": {
+      "passed": 1145,
+      "failed": 1,
+      "skipped_optional": 3,
+      "subtests_passed": 6,
+      "reason": "Source-manifest contract failed because changed files had not yet been staged and manifest regenerated; original run preserved. Regenerated staged-blob manifest before full rerun.",
+      "log_sha256": "fc6cfb4ed5003de27b3d59352407c2ddc971e25e2c95b868f32011c5eb271309"
+    }
+  },
+  "host_decoder": {
+    "fixtures": "Three committed opaque synthetic relief JPEGs, 800x600",
+    "framework": "Robolectric 4.14.1 API35 native software graphics",
+    "sdk_sha256": "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b",
+    "oracle_manifest_sha256": "821a26380007765c36f7f9b7e8df114aba348814ee0181822580486dfb915743",
+    "oracle": "Independent JDK17 ImageIO decode and bilinear resampling; never production decoder input",
+    "fixed_mean_absolute_rgb_error_bound": 12.0,
+    "checks": [
+      "JPEG MIME and dimensions",
+      "Opaque nonblank spatially correct pixels at max edges 1600/256/512",
+      "Planned sample size and returned Bitmap allocation bounds",
+      "Actual EXIF90 rotation on private copy",
+      "Committed source hashes unchanged",
+      "Owned Bitmap recycled after close"
+    ],
+    "memory_limit_scope": "Bitmap allocation accounting, not measured whole-process RSS or phone resource qualification",
+    "process_only_module_open": "java.base/java.io=ALL-UNNAMED"
+  },
+  "task_isolation": {
+    "ordinary_graph_excludes_host_sdk_and_oracle": true,
+    "host_graph_excludes_ordinary_test_execution": true,
+    "dependencies_and_release_sources_unchanged": true,
+    "unchanged_generator_and_host_up_to_date": true,
+    "always_run_oracle_verifier": true,
+    "direct_generated_tamper_rejected": true,
+    "normal_invocation_regenerated_exact_bytes": true,
+    "host_after_identical_regeneration": "UP-TO-DATE"
+  },
+  "invalidation": {
+    "path": "app/build/host-decoder-oracle/view-02.jpg.800x600.rgb",
+    "beforeSha256": "71451934189651993fcb2a85e35451b9c82382c3f8715b3bfbf263ca40a98d30",
+    "tamperedSha256": "fa809a67af394c9bb4245e0f5983e9a0f2c838f8c512c641c09e84286a72b4c7",
+    "afterSha256": "71451934189651993fcb2a85e35451b9c82382c3f8715b3bfbf263ca40a98d30",
+    "generatorReran": true,
+    "verifierExecuted": true,
+    "hostTestUpToDate": true
+  },
+  "attempt_history": [
+    {
+      "attempt": "initial",
+      "outcome": "Kotlin compile failed: JDK desktop APIs not in Android compile API; zero tests executed",
+      "receipt_sha256": "902c01beee6934f218e1f31d469e42b3bcb3af38d814e757616307dc4df7850a"
+    },
+    {
+      "attempt": "v2",
+      "outcome": "Two tests failed at Robolectric FileDescriptor reflection infrastructure; no pixel capability conclusion",
+      "receipt_sha256": "30f55839f3badd9034ce82296fde22dd8417fd0def31371adc710b44fcca6a74"
+    },
+    {
+      "attempt": "v3",
+      "outcome": "Same production decoder and fixed checks; independent JDK oracle and isolated java.io module opening; 2/2 passed",
+      "receipt_sha256": "985e7d50a5ec2d488e5380f200d57381959d8a662c3f7e462ebd18007d286225"
+    }
+  ],
+  "permanent_private_receipt_sha256": "265162bcf59f3f93ac3b6c60e8cfe9eb0077c96f881f1fd118f51743b434947c",
+  "evidence_sha256": {
+    "android-decoder-permanent-full.log": "38fca2bb2ee314cffed7acb880a24a5082f004d9b1164e886a37ffcf3f033eec",
+    "android-decoder-permanent-unchanged.log": "970a4915269f33fe61929f713efc29270b164b36c38de0e2fe6364d75ec6067b",
+    "android-decoder-permanent-regeneration.log": "ecec25fb21fc5103ce4c2f2eb21df533f3b01868bd58ec974e81c3c058fa8eb5",
+    "android-decoder-permanent-reject-tamper.log": "fba55eb9bb26e6e6cde39e419a2f67e73b2526c654d810ece0ecc31eca7f15cf",
+    "android-decoder-permanent-restored-verify.log": "ed0f7dd45982068a9f576dab072c6f4af6ea012c3c41a011e9d4d6e22b13a511",
+    "android-decoder-permanent-ordinary-dry.log": "5e2f6e73c02ae045d45ed4b2b69c4c73cde0a790abffb4c0f5f08675c7b9c709",
+    "android-decoder-permanent-host-dry.log": "9ea50fc71696e9362966316583e83561ebb8d2c17d8452e70cc305c09f095d38",
+    "TEST-com.realityforge.scanner.hostintegration.NativeGraphicsDecoderHostProbeTest.xml": "f8141a7b9378764259a75b5868e89290e378cc7ee53392c6e8c2252b9bc78783"
+  },
+  "limits": [
+    "HOST software graphics only; no phone/hardware/permission qualification",
+    "No complete reconstruction or scan-to-export journey",
+    "No production signing, installation or migration validation",
+    "No app behavior change or need for another APK: delivered source c11234b5 remains production-code snapshot"
+  ]
+}

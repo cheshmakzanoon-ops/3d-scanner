@@ -62,3 +62,41 @@ The third admission test injects a different running identity after the actual f
 then joins the worker and verifies cleanup preserves that identity. This is deliberate fencing
 coverage, not evidence of naturally overlapping workers. The paired normal-cleanup assertion
 regresses a boxed inline JobId identity-CAS bug; value-aware atomic cleanup must clear the equal ID.
+
+
+## Native-graphics decoder integration (HOST only)
+
+The normal `:app:hostIntegrationTest` gate also exercises the unchanged production
+`AndroidImageDecoder` with API35 Robolectric native software graphics and the three
+committed opaque synthetic relief JPEGs. It checks JPEG MIME/dimensions, full-raster
+opacity/nonblank contrast, planned sampling and scaled dimensions at edges1600/256/512,
+source hashes, bitmap recycling and pixel-position agreement. A private EXIF copy
+checks the actual90-degree transform without changing committed inputs.
+
+`generateHostDecoderOracle` selects a JDK17 toolchain (not an Android compile API)
+and uses standalone `tools/GenerateDecoderOracle.java` to generate independent
+ImageIO/bilinear RGB references. It has a256MiB heap and120-second task bound.
+Exact three JPEGs, reviewed generator source, Java executable and runtime version
+are task inputs; about6.53MB of references live only in `app/build/host-decoder-oracle`,
+never APK assets or committed binaries. Invalidation recreates only that dedicated
+output directory, rejecting aliased paths/symlinks before cleanup. No new packages
+or downloads are required when the pinned test dependencies and JDK17 are cached.
+
+An always-run verifier checks pinned input/source identity and all generated output
+hashes and lengths. The manifest records generator SHA, JDK runtime and RGB layout;
+each reference header also binds source SHA and dimensions. The HOST test receives
+the verified manifest hash, rejects incomplete/changed references, and compares
+actual decoder pixels to references with the original fixed mean absolute RGB error
+bound of12.0. References never replace production decoded pixels. The HOST process
+alone opens `java.base/java.io` for pinned Robolectric's FileDescriptorInterceptor;
+no ordinary JVM gate, production module or release dependency graph is changed.
+
+Provenance: the first temporary probe failed Android Kotlin compilation because
+AWT/ImageIO are not Android APIs. Moving only the independent oracle to standalone
+JDK compilation fixed that boundary. The next run reached Robolectric but failed
+FileDescriptor reflection access before pixel assertions. The narrowly scoped java.io
+opening then yielded actual2/2 passing prerequisite tests in6.03seconds. These failures
+remain infrastructure evidence, not hidden retries or successful decoder assertions.
+Permanent task wiring requires its own actual gate result; static contracts are not
+framework execution. This is HOST software decode/transform evidence, not Android
+hardware decode, permissions, GPU, full reconstruction or device qualification.
