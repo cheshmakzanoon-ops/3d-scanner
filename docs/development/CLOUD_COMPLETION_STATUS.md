@@ -1073,3 +1073,27 @@ The delivered c11234b5 engineering APK still contains the old inventory bug; its
 replacement is pending. See [sanitized evidence](../../reports/cloud-depth-reference-inventory-fix.json).
 
 Broad Python validation for this fix subsequently passed 1,200 tests and six subtests; three optional checks were skipped. The unchanged full-core retry and replacement APK remain pending.
+
+### PNG input-progress compatibility correction
+
+After the depth-reference inventory fix, the unchanged full-core HOST experiment
+returned global typed BA with 3 cameras, 904 sparse points, 6,851 dense points and
+6,726 triangles, with dense/mesh/texture marked ready. The gate nevertheless failed
+actual photographic-artifact validation: the PNG reader rejected a legal header-only
+IDAT chunk that consumed input without producing pixels. Ready metadata is not a
+validation pass; the deleted full-core PNG is not claimed byte-identical to the
+independently captured native encoder fixture.
+
+The narrow parser correction permits zero output only when compressed input
+advances or the stream finishes, explicitly rejects dictionary requests, and
+retains stall, checksum, truncation, trailing-data, expansion and filter guards.
+Ten unconditional tests use an exact hash-bound native PNG plus constructed stream
+variants. Fresh standalone production-parser tests show red 10/3 and green 10/0;
+actual Gradle old-production tests independently show 10 tests, 3 failures and no
+skips. Focused Gradle green10, ordinary JVM748, HOST14, AndroidTest compilation and lint pass. Broad Python first passed1,199 with one audit request timeout; the unchanged focused retry passed, then the full retry passed1,200 tests and six subtests (three optional skips). The original failure is preserved; no security assertions or timeouts were relaxed. The unchanged full-core retry after this correction is NOT_RUN.
+
+The delivered c11234b5 APK contains neither the inventory nor PNG correction;
+replacement remains pending. No physical-device, controller/admission or completed
+publication qualification is claimed.
+
+See [evidence](../../reports/cloud-png-stream-compatibility-fix.json).
