@@ -31,7 +31,7 @@ def main(argv=None):
   if not result or any(not x.is_file() for x in result):raise ValueError('Invalid jar classpath')
   return result
  compiler=jars(a.compiler_classpath);runtime=jars(a.runtime_classpath)
- sources=[repo/'app/src/main/java/com/realityforge/scanner/engine'/r for r in SOURCES]+[here/'ProductionFrontendHostTest.kt',here/'HostRunner.kt']
+ sources=[repo/'app/src/main/java/com/realityforge/scanner/engine'/r for r in SOURCES]+[repo/'app/src/main/java/com/realityforge/scanner/export/LegacyPlyValidation.kt']+[repo/'app/src/test/java/com/realityforge/scanner/export/LegacyPlyValidationTest.kt']+[here/'ProductionFrontendHostTest.kt',here/'HostRunner.kt']
  lib=cap/'build/lib/libopencv_java4120.so'
  native=a.native_dir.resolve(strict=True);engine=native/'librealityforge.so';shim=a.shim.resolve(strict=True)
  fixtures=repo/'benchmarks/fixtures/relief'
@@ -94,9 +94,9 @@ def main(argv=None):
   receipt=json.loads((work/'compile-receipt.json').read_text());output=Path(receipt['output']).resolve(strict=True)
   if output.parent!=work or not output.name.startswith('classes-'):raise ValueError('Invalid output path')
   if receipt['inputs']!=before or receipt['classes']!=hashes(output):raise ValueError('Stale compile receipt')
-  cmd=[str(java),'-Xmx256m','-XX:ActiveProcessorCount=2','-Djava.library.path='+str(native),'-cp',str(output)+os.pathsep+cp,'HostRunnerKt',str(lib),str(engine),str(shim),str(fixtures)]
+  cmd=[str(java),'-Xmx256m','-XX:ActiveProcessorCount=2','-Dply.output='+str(work/'frontend-sparse.ply'),'-Djava.library.path='+str(native),'-cp',str(output)+os.pathsep+cp,'HostRunnerKt',str(lib),str(engine),str(shim),str(fixtures)]
   with (work/'run.log').open('w') as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,env=env,timeout=90,check=True)
   if inputs()!=before or receipt['classes']!=hashes(output) or sha(extracted)!=before['aarClasses']:raise ValueError('Inputs or outputs changed during run')
-  write(work/'run-receipt.json',{'inputs':before,'classes':receipt['classes'],'compileReceipt':sha(work/'compile-receipt.json'),'runLog':sha(work/'run.log'),'status':'PASS','expectedTests':2,'limits':{'seconds':90,'heap':'256m','processors':2,'opencvThreads':2}})
+  write(work/'run-receipt.json',{'inputs':before,'classes':receipt['classes'],'compileReceipt':sha(work/'compile-receipt.json'),'runLog':sha(work/'run.log'),'status':'PASS','expectedTests':6,'limits':{'seconds':90,'heap':'256m','processors':2,'opencvThreads':2}})
  print(a.mode+' PASS')
 if __name__=='__main__':main()
