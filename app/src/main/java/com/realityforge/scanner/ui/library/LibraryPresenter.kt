@@ -21,7 +21,7 @@ class LibraryPresenter(private val service:ProjectLibraryService,private val fai
     private var activeFilter=LibraryFilter.ALL
     suspend fun refresh(search:String="",sort:LibrarySort=LibrarySort.NEWEST,filter:LibraryFilter=LibraryFilter.ALL) {
         activeFilter=filter
-        query=ServiceQuery(search=search.take(200),order=when(sort) { LibrarySort.NEWEST->LibraryOrder.NEWEST; LibrarySort.OLDEST->LibraryOrder.OLDEST; LibrarySort.NAME->LibraryOrder.NAME_ASC },states=when(filter) { LibraryFilter.NEEDS_ATTENTION->setOf("INTERRUPTED","FAILED","ERROR"); else->emptySet() },limit=100)
+        query=ServiceQuery(search=search.take(200),order=when(sort) { LibrarySort.NEWEST->LibraryOrder.NEWEST; LibrarySort.OLDEST->LibraryOrder.OLDEST; LibrarySort.NAME->LibraryOrder.NAME_ASC },states=when(filter) { LibraryFilter.NEEDS_ATTENTION->LibraryQuery.attentionStates; else->emptySet() },limit=100)
         load(query,filter)
     }
     suspend fun reload() { query=query.copy(offset=0);load(query) }

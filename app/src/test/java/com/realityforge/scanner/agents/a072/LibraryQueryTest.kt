@@ -14,6 +14,15 @@ class LibraryQueryTest {
         assertEquals(listOf("c","b"), LibraryQuery.apply(projects,"",LibrarySort.NEWEST,LibraryFilter.NEEDS_ATTENTION).map { it.id })
         assertEquals(3, projects.size)
     }
+    @Test fun needsAttentionIncludesRecoveryAndExistingFailuresButNotOtherStatesOrTombstones() {
+        val states = listOf("INTERRUPTED", "FAILED", "ERROR", "RECOVERY_REQUIRED", "NEW", "READY",
+            "PROCESSING", "COMPLETE", "DELETING", "DELETED", "DELETING_PHOTO")
+        val rows = states.mapIndexed { index, state ->
+            LibraryProject(state, "Item $index", index.toLong(), 0, state, "", false)
+        }
+        val selected = LibraryQuery.apply(rows, "", LibrarySort.NEWEST, LibraryFilter.NEEDS_ATTENTION)
+        assertEquals(listOf("RECOVERY_REQUIRED", "ERROR", "FAILED", "INTERRUPTED"), selected.map { it.state })
+    }
     @Test fun queryIsIndependentOfTurkishDeviceLocale() {
         val old=Locale.getDefault()
         try { Locale.setDefault(Locale.forLanguageTag("tr-TR")); assertEquals(2,LibraryQuery.apply(projects,"ALPHA",LibrarySort.NAME,LibraryFilter.ALL).size) }

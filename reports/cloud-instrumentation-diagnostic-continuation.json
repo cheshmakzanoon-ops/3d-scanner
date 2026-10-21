@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T10:52:26Z",
+  "published_source": {
+    "commit": "b7efe9539bed66991a1738c48802ff7c82fb4077",
+    "tree": "474b04de66868216d443dcf73572e4f8c6160d11",
+    "content_fingerprint_sha256": "2940b5cadbdf370a9d4d767a91a23f9e209eceb52dc70ccc5987722c93668c7a"
+  },
+  "previous_candidate_report": "cloud-instrumentation-endpoint.json",
+  "purpose": "Test-only opt-in bounded functional continuation, never a passing default deadline gate.",
+  "qaRetention": true,
+  "production_equivalence": false,
+  "artifacts": {
+    "application": {
+      "name": "app-release-qa-retained.apk",
+      "sha256": "5f8ce57b49673e3a17f8867a9fec572c745f54bfc27f71f59734c5c04beccd81"
+    },
+    "instrumentation": {
+      "name": "app-release-qa-retained-androidTest.apk",
+      "sha256": "658ac493b77cb4647697812821912cb91a60b5c7a0aa8fdbae5d163170668a16"
+    }
+  },
+  "static_linkage": {
+    "status": "PASS_WITH_DOCUMENTED_EXCLUSIONS",
+    "unexpected_diagnostics": 0,
+    "documented_exclusion_count": 13,
+    "accepted_diagnostics": [
+      "Missing class java.beans.BeanInfo (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.IntrospectionException (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.Introspector (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.PropertyDescriptor (referenced from: org.hamcrest.Condition$Step org.hamcrest.beans.HasPropertyWithValue.WITH_READ_METHOD and 13 other contexts)",
+      "Missing class javax.lang.model.element.Modifier (referenced from: javax.lang.model.element.Modifier[] com.google.errorprone.annotations.IncompatibleModifiers.value() and 1 other context)",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle))",
+      "Missing method java.beans.BeanInfo java.beans.Introspector.getBeanInfo(java.lang.Class, java.lang.Class) (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.beans.PropertyDescriptor[] java.beans.BeanInfo.getPropertyDescriptors() (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getDisplayName() (referenced from: void org.hamcrest.beans.SamePropertyValuesAs$PropertyMatcher.<init>(java.beans.PropertyDescriptor, java.lang.Object) and 1 other context)",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getName() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)",
+      "Missing method java.lang.reflect.Method java.beans.PropertyDescriptor.getReadMethod() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)"
+    ],
+    "platform_qualification_limit": "Compile SDK36 public APIs plus actual API35 hidden Instrumentation declarations; not API35 runtime availability or device-safety proof.",
+    "receipt_name": "linkage.json",
+    "receipt_sha256": "846703c940ea9af1cfd91518b89a84f0c6aa61c20a74877346423fc2716f29e0"
+  },
+  "provenance": {
+    "r8_sha256": "1448d5476096c1c4e3bf05b8372948ac7c00d76dc38b4a4eb744b360a888b65c",
+    "checker_sha256": "89427e00b5b29947682d99e21eb5d52988ce22081a14dbd0fdca9c72b7cb4207",
+    "generation_manifest_sha256": "bc191e63646b57a548a334d8136e74033e2cf2cd039045f755eb0920f1c07d63",
+    "rules_sha256": "9a0b9cad5393522b6f9e0147a29349a7d31ed0bdd967ac514fefc1239bd32592"
+  },
+  "host_validation": {
+    "pure_helper_junit_passed": 12,
+    "python_diagnostic_and_pair_contracts_passed": 7,
+    "actual_gradle_compile_and_lint": "PASS after correcting test-only suspend callback signatures",
+    "normalized_export": "PASS",
+    "optimized_qa_pair_assembly": "PASS",
+    "assembly_seconds": 35
+  },
+  "diagnostic_contract": {
+    "argument": "rfDiagnosticContinuation",
+    "default": "false",
+    "accepted_values": [
+      "true",
+      "false"
+    ],
+    "normal_wait_seconds": 180,
+    "additional_wait_seconds": 600,
+    "reconstruction_wait_budget_seconds": 780,
+    "budget_caveat": "Imports, existing functional assertions and cleanup are outside the reconstruction-wait budget.",
+    "eligibility": "Only typed initial180-second OperationDeadlineExceeded.",
+    "final_junit_on_missed_normal_deadline": "FAIL with exact original assertion, even if diagnostic functional checks finish.",
+    "later_failures": "Suppressed onto original; owned-worker cancellation/join and leased cleanup remain active.",
+    "completion_marker": "DIAGNOSTIC_FUNCTIONAL_COMPLETION",
+    "completion_scope": "All unchanged geometry/reopen/SAF byte hash/original-preservation/GPU screenshot assertions; marker precedes cleanup and is not full-test or physical-quality qualification."
+  },
+  "runtime": {
+    "status": "BLOCKED_INFRASTRUCTURE",
+    "runtime_executed": false,
+    "planned_api_level": 30,
+    "planned_instrumentation_arguments": {
+      "rfDiagnosticContinuation": "true"
+    },
+    "helper_device_tests": "NOT_RUN",
+    "diagnostic_functional_completion": "NOT_RUN",
+    "api_level": 30,
+    "tests_executed": 0,
+    "installations_attempted": 0,
+    "infrastructure_failure": "API30 framework repeatedly restarted before installation readiness (observed system_server PIDs516,1445,2631,3637,4630). Bounded600-second readiness gate returned NOT_STABLE, exit124.",
+    "guest_disposition": "Supervisor exited0 after requested console shutdown; no immediate relaunch.",
+    "prior_evidence_limit": "Does not alter endpoint candidate actual five matcher passes and one unchanged full-session deadline failure.",
+    "evidence_logs": [
+      {
+        "name": "readiness-result.txt",
+        "sha256": "a600e3a3e70646b7b72d3f447ac2f76baad53325d4f3bbacd6dce6842e3528cf"
+      },
+      {
+        "name": "stability.log",
+        "sha256": "a69c59c3f7a3ccf6684dea33f339558b09dc27bd8b462ae7a4dc74a0a19524ec"
+      },
+      {
+        "name": "framework-logcat.txt",
+        "sha256": "acfefe88386b16ccd10f3000104e51d30c3d9d65b197636948dccbd590581bd6"
+      },
+      {
+        "name": "live-logcat.txt",
+        "sha256": "8c2c7e67fabd19114c1de2c243d338d24c11fafba8c41bcd48b29489a99fe70b"
+      },
+      {
+        "name": "host-resource-snapshot.txt",
+        "sha256": "66e6caee2b1c40a3873bd153e528d671f46ef7b6c1aa7fe629e74a5c7a86bdfe"
+      },
+      {
+        "name": "guest-lifecycle.txt",
+        "sha256": "3fa4f370a8680547ed3e03b919da09f989d031a37c15be8042945d453bee1a13"
+      },
+      {
+        "name": "kernel-console.log",
+        "sha256": "904d7019aa571c91601d3ce39e5720c4afa27daaa4e1839cc9d540afa4e9ae92"
+      },
+      {
+        "name": "app-code-comparison-hashes.json",
+        "sha256": "b7ceebfd584820a51ce9a71aad20dd31a9a93aa3f90073d2b47de96ab9162b46"
+      },
+      {
+        "name": "package-validation.json",
+        "sha256": "1e1b8ddddb95ab9cfcea0e2815b6d356f47522ebb296e675db6ea0019c8bf728"
+      }
+    ],
+    "framework_investigation": {
+      "observed_chain": [
+        {
+          "event": "Network-stack process PID863 ANR while executing TetheringService",
+          "evidence": "framework-logcat.txt:9034-9037"
+        },
+        {
+          "event": "ActivityManager kills network-stack process for background ANR",
+          "evidence": "framework-logcat.txt:9095-9097"
+        },
+        {
+          "event": "ConnectivityModuleConnector reports Lost network stack and throws IllegalStateException in system_server main",
+          "evidence": "framework-logcat.txt:9159-9174"
+        },
+        {
+          "event": "Same service-ANR to system-process-fatal chain repeats with subsequent servers",
+          "evidence": "live-logcat.txt:15572-15676 and22176-22394"
+        }
+      ],
+      "successful_endpoint_comparison": {
+        "report": "cloud-instrumentation-endpoint.json",
+        "network_stack_connected_evidence": "endpoint live-logcat.txt:7830",
+        "other_startup_anrs_evidence": "endpoint live-logcat.txt:8206,8594,8721 (SystemUI, phone, IME)",
+        "lost_network_stack_or_system_process_fatal_matches": 0,
+        "limit": "Successful endpoint boot demonstrates startup ANRs alone do not imply server loss. It does not prove CPU count caused either outcome."
+      },
+      "resource_observations": {
+        "qemu_cpu_percent": 110,
+        "qemu_rss_kib": 3276832,
+        "host_mem_available_kib": 2927220,
+        "evidence": "host-resource-snapshot.txt:6,21",
+        "guest_memory_psi": "Zero in the first network-stack ANR snapshot; framework-logcat.txt:9039-9040",
+        "oom_kill_signature_found": false,
+        "limit": "Point-in-time observations do not exclude transient pressure or prove TCG scheduling contention. No kernel/watchdog deadlock is established."
+      },
+      "readiness_observation": "Failed server1445 reported NetworkStackClient connected at live-logcat.txt:14434 before its pending service ANR caused fatal loss. Connection or service enumeration alone is insufficient; existing90-second stability gate appropriately withheld installation."
+    },
+    "next_permitted_experiment": {
+      "status": "PROPOSED_NOT_RUN",
+      "change": "Only emulator virtual CPU count from2 to1 (-cores 1), retain same official API30 image,2048MiB RAM,SwiftShader,acceloff,cold/no-snapshot policy and APK pair.",
+      "rationale": "A bounded one-variable TCG scheduling experiment, not a proven fix or guaranteed acceleration.",
+      "preserved_limits": "Existing90-second stable-readiness window and600-second total readiness budget; no watchdog, ANR, security, network-stack or application timeout changes.",
+      "stricter_readiness": "Require unchanged nonempty system_server and network-stack PIDs, current-boot network-stack connection, package/activity services responsive, and no new network-stack service timeout, bg-ANR kill or system-process fatal throughout the existing90-second window.",
+      "stop_condition": "If critical restart repeats or existing readiness budget expires, stop before installation and record infrastructure failure; no blind repeated launches.",
+      "host_isolation": "No Gradle/R8/host benchmarks during boot/test; do not pause guest alongside memory-heavy builds.",
+      "documentation": [
+        "https://developer.android.com/studio/run/managing-avds",
+        "https://www.qemu.org/docs/master/devel/multi-thread-tcg.html",
+        "https://developer.android.com/studio/run/emulator-acceleration"
+      ]
+    }
+  },
+  "open_gates": [
+    "Actual Android helper tests and diagnostic continuation outcome",
+    "Passing unchanged180-second full-session gate",
+    "API35 qualification",
+    "Default production APK independent qualification",
+    "Physical object geometry/texture/resource evidence",
+    "Production signing"
+  ],
+  "executable_payload_comparison": {
+    "status": "IDENTICAL_EXECUTABLE_ENTRIES",
+    "baseline_apk_sha256": "01be2b609da15b8e501d50450b8350e5c526ca3e4912cb2f5bdfb3f300f41c7e",
+    "candidate_apk_sha256": "5f8ce57b49673e3a17f8867a9fec572c745f54bfc27f71f59734c5c04beccd81",
+    "entry_count": 17,
+    "entry_sha256": {
+      "classes.dex": "df1712d59b125ba5dae41762d9015d408f062dfe50056c727380c2431bf96ac5",
+      "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+      "lib/arm64-v8a/libc++_shared.so": "4397241b4bd20a8e579bfb41d21107857e12985f6a01ca0c2a5f83380d1270b4",
+      "lib/arm64-v8a/libfilament-jni.so": "d75914906f58575b70012edc4848fad5981d57de4a776d6486cdfabbf1c90da4",
+      "lib/arm64-v8a/libgltfio-jni.so": "d0646ee3858dc865bc861529ce817fe4a667806c36a5c1fab67d7e2f1fcd9a2b",
+      "lib/arm64-v8a/libimage_processing_util_jni.so": "3e0071afcdc7e321f839e196d266014182f18d0988e4455acc9857a085b2184e",
+      "lib/arm64-v8a/libopencv_java4.so": "144bbc9ad0b0bac4ba58f7d53198aead64379e5314f68200968c703d2c1c14ab",
+      "lib/arm64-v8a/librealityforge.so": "eac59f7a4632be61c7887e6cdf05435264f85e4374248b73a6532d3082da752a",
+      "lib/arm64-v8a/libsurface_util_jni.so": "ee3f0d56f81cc0a301db32dc4fd51274c3216733b4c40172768e38bc5049a265",
+      "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+      "lib/x86_64/libc++_shared.so": "db9609240e60ca18b816a5e95a6bbc784e799261efbd5b30c8e2e03b540b3fa8",
+      "lib/x86_64/libfilament-jni.so": "793bdf047f514d6d942840e08ba3e02e8dcb197f31fe9e0760c7cef1ff46dfa3",
+      "lib/x86_64/libgltfio-jni.so": "0d1241dd5b3ecaad9eefd5b2c4bd6bb750b2713a9e970355490ede504af77961",
+      "lib/x86_64/libimage_processing_util_jni.so": "676e3e280c10dcb9b71ef5bb727552610dc73c7ec85af54c7c898f82785c33d7",
+      "lib/x86_64/libopencv_java4.so": "373e5a25a92bf6a683fecf4d9c73adaf478c04efad10171d865dcf78b242709a",
+      "lib/x86_64/librealityforge.so": "03c92cc5effbb70564bb0a6cca7b40ad9cd7dee3af6344f6d65beeec5a0b7304",
+      "lib/x86_64/libsurface_util_jni.so": "cd425e10a365fb3695e53f1e46227d44d89f14854da4f1258ef079c80c752339"
+    },
+    "scope": "DEX and native libraries only; not complete APK identity or normal shipping APK equivalence.",
+    "evidence_name": "app-code-comparison-hashes.json"
+  }
+}

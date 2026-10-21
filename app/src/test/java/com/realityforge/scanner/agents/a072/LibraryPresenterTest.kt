@@ -44,6 +44,46 @@ class LibraryPresenterTest {
             assertEquals(listOf(0,100),port.queries.map { it.offset });assertTrue(port.queries.all { it.limit==100 })
         } finally { dir.deleteRecursively() }
     }
+    @Test fun needsAttentionServicePredicateMatchesUiFilterAndExcludesTombstones()=runBlocking {
+        val states=listOf("INTERRUPTED","FAILED","ERROR","RECOVERY_REQUIRED","NEW","READY",
+            "PROCESSING","COMPLETE","DELETING","DELETED","DELETING_PHOTO")
+        val projects=states.mapIndexed { index,state->
+            val id=UUID.randomUUID().toString();id to ScanProject(id,"Item $index",index.toLong(),state=state)
+        }.toMap().toMutableMap()
+        val port=TestLibraryPort(projects,mutableMapOf());val dir=Files.createTempDirectory("library-attention").toFile()
+        try {
+            val presenter=LibraryPresenter(ProjectLibraryService(port,dir)) { "failed" }
+            presenter.refresh(filter=LibraryFilter.NEEDS_ATTENTION)
+            assertEquals(setOf("INTERRUPTED","FAILED","ERROR","RECOVERY_REQUIRED"),port.queries.single().states)
+            assertEquals(listOf("RECOVERY_REQUIRED","ERROR","FAILED","INTERRUPTED"),presenter.state.value.projects.map { it.state })
+            val locallyFiltered=com.realityforge.scanner.ui.library.LibraryQuery.apply(
+                projects.values.map { LibraryProject.from(it) },"",LibrarySort.NEWEST,LibraryFilter.NEEDS_ATTENTION)
+            assertEquals(locallyFiltered.map { it.id },presenter.state.value.projects.map { it.id })
+            presenter.refresh(filter=LibraryFilter.ALL)
+            assertTrue(port.queries.last().states.isEmpty())
+            presenter.refresh(filter=LibraryFilter.RESULTS)
+            assertTrue(port.queries.last().states.isEmpty())
+        } finally { dir.deleteRecursively() }
+    }
+    @Test fun recoveryAttentionPredicateSurvivesPaginationAndReload()=runBlocking {
+        val projects=(0..100).associate { index->
+            val id=UUID.randomUUID().toString();id to ScanProject(id,"Item $index",index.toLong(),state="RECOVERY_REQUIRED")
+        }.toMutableMap()
+        val port=TestLibraryPort(projects,mutableMapOf());val dir=Files.createTempDirectory("library-attention-pages").toFile()
+        try {
+            val presenter=LibraryPresenter(ProjectLibraryService(port,dir)) { "failed" }
+            presenter.refresh(filter=LibraryFilter.NEEDS_ATTENTION)
+            assertEquals(100,presenter.state.value.projects.size)
+            assertTrue(presenter.state.value.canLoadMore)
+            presenter.loadMore()
+            assertEquals(101,presenter.state.value.projects.size)
+            assertFalse(presenter.state.value.canLoadMore)
+            presenter.reload()
+            assertEquals(100,presenter.state.value.projects.size)
+            assertEquals(listOf(0,100,0),port.queries.map { it.offset })
+            assertTrue(port.queries.all { it.states==setOf("INTERRUPTED","FAILED","ERROR","RECOVERY_REQUIRED") })
+        } finally { dir.deleteRecursively() }
+    }
     @Test fun cancelledOldPageCannotClearNewSearchLoadingState()=runBlocking {
         val projects=(0..149).associate { val id=UUID.randomUUID().toString();id to ScanProject(id,"Item$it",it.toLong()) }.toMutableMap()
         val port=TestLibraryPort(projects,mutableMapOf());val dir=Files.createTempDirectory("library-cancel").toFile()
