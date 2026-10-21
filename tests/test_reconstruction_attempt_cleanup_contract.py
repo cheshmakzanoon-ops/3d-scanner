@@ -24,7 +24,8 @@ def test_native_handle_is_cleared_only_after_successful_finish_and_tail_is_indep
     assert wiring.index('check(NativeCore.finishReconstruction(token))') < wiring.index('nativeToken.compareAndSet(token, 0L)')
     for action in ['releaseReservation =', 'clearProgress =', 'closeDiagnostics =', 'clearRunning =']:
         assert action in wiring
-    assert 'runningJobId.compareAndSet(acquired.snapshot.jobId, null)' in wiring
+    assert 'runningJobId.updateAndGet { current -> if (current == acquired.snapshot.jobId) null else current }' in wiring
+    assert 'runningJobId.compareAndSet(acquired.snapshot.jobId, null)' not in wiring
 
 
 def test_cleanup_scope_preserves_actual_escaping_error_and_live_heartbeat_ownership():

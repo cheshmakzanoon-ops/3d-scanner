@@ -84,6 +84,8 @@ class ReconstructionExecutionController(
         PipelineJobCheckpointValidator(repository))
 
     suspend fun enqueue(projectId: String, revision: Long, operationId: String, focal35: Double): JobSnapshot = withContext(Dispatchers.IO) {
+        // Execution capabilities require canonical UUIDs; the general durable store allows safe IDs.
+        requireCanonicalUuid(operationId, "operation identifier")
         awaitRecovery()
         require(focal35.isFinite() && focal35 in 10.0..200.0)
         val input = repository.inputSnapshot(projectId)
@@ -134,15 +136,9 @@ class ReconstructionExecutionController(
         var completed: JobSnapshot? = null
         var lease = acquired.lease
         val input = acquired.snapshot.input
-        val access = ProjectOperationRequest(input.projectId, input.requestId, ProjectOperationKind.RECONSTRUCT,
-            input.projectRevision, ProjectJobIdentity(acquired.snapshot.jobId.value, lease.token))
         suspend fun emit(snapshot: JobSnapshot) { mutableCurrent.value = snapshot; onUpdate(snapshot) }
-        val reservation = ReservationToken(input.requestId, input.projectId, input.projectRevision)
-        val resources = ResourceCheckpointGate(context, repository.storageBudget, reservation)
-        val resourceMutex = Mutex()
+        var cleanupReservation: ReservationToken? = null
         val resourceFailure = java.util.concurrent.atomic.AtomicReference<ResourceCheckpointPause?>(null)
-        var resourcePlan: WorkloadPlan? = null
-        suspend fun checkResources() = resourceMutex.withLock { resources.check(requireNotNull(resourcePlan)) }
         var heartbeat: Job? = null
         var token = 0L
         var diagnostics: RuntimeDiagnosticRecorder? = null
@@ -157,12 +153,25 @@ class ReconstructionExecutionController(
                     nativeToken.compareAndSet(token, 0L)
                 }
             },
-            releaseReservation = { repository.storageBudget?.release(reservation) },
+            releaseReservation = { cleanupReservation?.let { repository.storageBudget?.release(it) } },
             clearProgress = { mutableProgress.value = null; mutableDiagnosticProgress.value = null },
             closeDiagnostics = { diagnostics?.close() },
-            clearRunning = { runningJobId.compareAndSet(acquired.snapshot.jobId, null) },
+            clearRunning = {
+                // JobId is an inline value class: separate boxes cannot be identity-CAS expected values.
+                runningJobId.updateAndGet { current -> if (current == acquired.snapshot.jobId) null else current }
+            },
         ) {
         try {
+            // Persisted safe-ID jobs can be valid store records but incompatible execution inputs.
+            // Validate under the existing failure handler so their acquired lease is settled.
+            val access = ProjectOperationRequest(input.projectId, input.requestId, ProjectOperationKind.RECONSTRUCT,
+                input.projectRevision, ProjectJobIdentity(acquired.snapshot.jobId.value, lease.token))
+            val reservation = ReservationToken(input.requestId, input.projectId, input.projectRevision)
+                .also { cleanupReservation = it }
+            val resources = ResourceCheckpointGate(context, repository.storageBudget, reservation)
+            val resourceMutex = Mutex()
+            var resourcePlan: WorkloadPlan? = null
+            suspend fun checkResources() = resourceMutex.withLock { resources.check(requireNotNull(resourcePlan)) }
             emit(acquired.snapshot)
             diagnostics = RuntimeDiagnosticRecorder(DiagnosticScope(acquired.snapshot.jobId.value,
                 Math.toIntExact(acquired.snapshot.attempt), input.projectRevision))

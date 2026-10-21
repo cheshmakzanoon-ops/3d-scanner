@@ -846,3 +846,27 @@ installation/data migration remain untested. Do not uninstall or delete existing
 scans. This is not a production-signed or device-qualified release. See
 [APK evidence](../../reports/cloud-cleanup-engineering-apk.json) and
 [assembly instructions](ENGINEERING_APK_442C97EC.md).
+
+### Actual controller/Room admission and value-aware running cleanup (14:18 UTC)
+
+Production enqueue now rejects noncanonical operation UUIDs before recovery/queue
+writes. The generic durable job store still accepts its existing safe-ID contract.
+Persisted execution-incompatible IDs now enter the controller's handled cleanup
+boundary and settle to FAILED/INVALID_INPUT without leaving a RUNNING lease.
+
+Actual HOST controller/Room tests exposed an additional bug: boxed inline JobId
+values were compared using reference-identity CAS, so equal job IDs did not clear
+the running marker. Value-aware atomic update fixes this while retaining a different
+replacement identity. The initial failing null assertion remains unchanged.
+Focused red2/1 (admission fix already present) became green3/0. The third test
+deliberately injects a replacement identity; it does not claim concurrent workers.
+
+Full gates pass: ordinary JVM722, HOST controller/Room/import10, AndroidTest
+compilation and lint. Python1,086 plus six subtests pass, and all three optional
+host native/parser/software-Vulkan checks execute successfully. These tests use
+actual controller/Room behavior but stop before photo decoding/native reconstruction;
+canonical enqueue service behavior is shadowed, not device-qualified.
+
+See [controller admission evidence](../../reports/cloud-controller-admission.json).
+The privately delivered APK from442c97ec predates this fix; no new APK runtime
+claim is implied.

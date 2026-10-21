@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "classification": "HOST_ROBOLECTRIC_CONTROLLER_ROOM_ADMISSION",
+  "base_head": "05239503a498b3c73a5c7699e19317ebecb0d51e",
+  "source_state": "Reviewed admission plus atomic-identity correction applied; uncommitted during focused run.",
+  "patches": {
+    "admission_sha256": "4e632e4f98edabe57e99912402d7d6b33fb82ac20a124fd9a7d1eeac63b6977e",
+    "atomic_identity_incremental_sha256": "2a0b2bc268f9432da1a2f23e9025da56a05da9199f21431b9099ac58608b5136"
+  },
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/work/execution/ReconstructionExecutionController.kt": "3c8b6a6590f6d05c0ef834e4ad7f3a04d2dd66ef7b9d9603ca57e99c6193f000",
+    "app/src/main/java/com/realityforge/scanner/work/execution/ReconstructionAttemptCleanup.kt": "8c4662bbd149f582195a96722776f07041e8d38d925b7b9fe60032c1017e31fa",
+    "app/src/test/java/com/realityforge/scanner/hostintegration/ReconstructionAdmissionHostTest.kt": "f6d25ffdf1553047a056392bfb13cd1ede526c879b8ddf3181ad4df22072c3e3",
+    "tests/test_reconstruction_admission_contract.py": "3732b021a1c6dd0226125ab6e8b326428fb12b23e077c282c3957d678506362c",
+    "tests/test_reconstruction_attempt_cleanup_contract.py": "7c28f4c9386ac575943d8dfef95a975a548cbde8d19894445a67e21fa91fca18",
+    "app/build.gradle.kts": "7f6fcd88f8ae7b408ce6e3cbdee365cfdf377f4aaf8cd2f788673be5867c90a4"
+  },
+  "red": {
+    "tests": 2,
+    "failures": 1,
+    "errors": 0,
+    "runtime_seconds": 6.606,
+    "timestamp": "2026-10-21T14:05:59.708Z",
+    "files": {
+      "gradle.log": "c56034263609d1a166a283f6874004b58149856af8b38bc3c9a0e5331741eb9e",
+      "result.xml": "67ef26c7e2538aa56c5f6d92749ca487faf178d3123e041db66822843b76c87b",
+      "runOne.bytecode.txt": "0f4df64881fec29d687c13125ec49d9efe4a42217d8dbf85de71f72a9d5c90dc"
+    },
+    "cases": [
+      {
+        "name": "publicEnqueueRejectsNoncanonicalOperationBeforeCreatingDurableJob",
+        "status": "PASS"
+      },
+      {
+        "name": "persistedSafeIdsFailInsideControllerWithoutOrphanRunningLease",
+        "status": "FAIL"
+      }
+    ]
+  },
+  "green": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "runtime_seconds": 5.979,
+    "timestamp": "2026-10-21T14:11:42.279Z",
+    "files": {
+      "gradle.log": "6669640d01aa76060c5cf2dbe1fe8d64ac710dc2769e27030312e7d051ded96f",
+      "result.xml": "cf9d6b9545dcf26542ac66c3181d827f0dc5ff6744e89662ac0c683036c4d0b4"
+    },
+    "cases": [
+      {
+        "name": "completedAttemptCleanupPreservesDifferentRunningJobIdentity",
+        "status": "PASS"
+      },
+      {
+        "name": "publicEnqueueRejectsNoncanonicalOperationBeforeCreatingDurableJob",
+        "status": "PASS"
+      },
+      {
+        "name": "persistedSafeIdsFailInsideControllerWithoutOrphanRunningLease",
+        "status": "PASS"
+      }
+    ]
+  },
+  "configured_limits": {
+    "gradle_host_task_timeout_seconds": 300,
+    "host_forks": 1,
+    "host_fork_max_heap": "1g",
+    "junit_per_test_timeout_seconds": 120,
+    "host_body_timeout_seconds": 90,
+    "worker_join_timeout_seconds": 30,
+    "fixture_scope_join_timeout_seconds": 10,
+    "external_launcher_timeout": "not independently observed"
+  },
+  "task_selector": ":app:hostIntegrationTest --tests com.realityforge.scanner.hostintegration.ReconstructionAdmissionHostTest",
+  "evidence": [
+    "Actual production enqueue rejects noncanonical operation IDs before durable row creation; canonical UUID enqueue follows service-request path.",
+    "Generic durable store still accepts safe non-UUID IDs. Actual controller settles their acquired lease to FAILED/INVALID_INPUT without native allocation or reservation.",
+    "Initial focused run exposed boxed-inline JobId identity CAS bug after joined worker; initial runningJobId-null assertion remains unchanged in passing rerun.",
+    "Atomic value comparison clears matching identity; deliberate FAILED-callback replacement identity injection verifies cleanup retains different owner."
+  ],
+  "boundaries": [
+    "No full SparsePipeline/decode/JNI reconstruction executed by these tests.",
+    "No emulator/device/physical scan quality claim.",
+    "Replacement owner is test-injected; not evidence of naturally overlapping workers.",
+    "Baseline red already includes admission constructor-scope fix: it reproduces atomic identity cleanup failure, not the original pre-handler admission bug.",
+    "Full gates are separately owned and not included in focused result."
+  ],
+  "recorded_utc": "2026-10-21T14:18:12.428566+00:00",
+  "full_validation": {
+    "ordinary_jvm_passed": 722,
+    "host_controller_room_import_passed": 10,
+    "android_test_compilation": "PASS",
+    "lint": "PASS",
+    "gradle_seconds": 192,
+    "python_passed": 1086,
+    "python_skipped_optional": 3,
+    "python_subtests": 6,
+    "python_seconds": 145.16,
+    "optional_executed_passed": 3,
+    "optional_seconds": 18.67
+  },
+  "full_log_sha256": {
+    "android-admission-fixed-full.log": "5e69d184484d9d7d2f0d82d26f7ccbdfb2da440147a165fbf25e299e7eaa9856",
+    "scanner-admission-full-python.log": "f12dd67568d8ec4754f7748ba7c2f034e5f83113eafcdcf11356ea82d513e8b1",
+    "scanner-admission-optional.log": "4ebc552f6caf795d49110c29db44e1591d0f95084df5892c2e86a52ac0f4ec3a"
+  },
+  "delivered_apk": "Current private engineering APK source442c97ec predates admission and value-aware running identity corrections; not rebuilt in this commit."
+}
