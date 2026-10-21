@@ -1012,3 +1012,22 @@ lint pass. Broad Python1,144 plus six subtests and all three optional host gates
 pass. See [native/host evidence](../../reports/cloud-sparse-ply-compatibility.json)
 and [repository test details](HOST_SPARSE_PLY_EXPORT.md). Current delivered APK
 e67e65e8 predates this correction.
+
+### Reject malformed PLY declarations and float overflow (16:06 UTC)
+
+Separate parser regressions showed bare numeric vertex/face lines and finite-Double
+values overflowing declared float32 were accepted. Baseline9 tests had4 failures;
+the narrow fix passes9/9. It requires exact element prefixes and finiteness in
+both numeric types while preserving decimal rounding, underflow, finite maximum,
+legacy/current sparse and surface positives. Provenance behavior is unchanged.
+
+Fresh combined frontend/parser gate passes11 tests with the same native524-point
+PLY hash and unchanged geometry criteria. Helper25, ordinary JVM731, HOST
+Room/controller/export12, AndroidTest compilation and lint pass. Full raw JVM/HOST
+XML was preserved before another run. Broad Python1,145 plus six subtests and all
+three optional host checks pass.
+
+This is defensive malformed-byte validation, not another demonstrated current
+writer defect: native sparse coordinates are already bounded below float overflow.
+See [hardening evidence](../../reports/cloud-ply-validation-hardening.json). The
+current engineering APK predates the PLY corrections; updated packaging follows.
