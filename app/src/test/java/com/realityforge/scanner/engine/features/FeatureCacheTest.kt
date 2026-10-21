@@ -6,6 +6,12 @@ import java.io.File
 class FeatureCacheTest {
     private val identity=FeatureCacheIdentity("a".repeat(64),"decoder-v2","sift3500-v2","4.12.0")
     private fun record(id:FeatureCacheIdentity=identity)=CachedFeatures(id,100,80,floatArrayOf(1.2f,3.4f,50f,60f),intArrayOf(7,8),FloatArray(256){it%128.toFloat()})
+    @Test fun descriptorDomainIsExactlyFiniteInclusiveFloatEndpoints() {
+        fun descriptor(value:Float)=CachedFeatures(identity,32,32,floatArrayOf(1f,1f),intArrayOf(1),FloatArray(128){value})
+        for(value in listOf(0f,Math.nextDown(512f),512f)) assertEquals(value,descriptor(value).descriptors()[0],0f)
+        for(value in listOf(Math.nextUp(512f),-Float.MIN_VALUE,Float.NaN,Float.POSITIVE_INFINITY,Float.NEGATIVE_INFINITY))
+            assertThrows(IllegalArgumentException::class.java){descriptor(value)}
+    }
     @Test fun metadataRejectsMalformedUnicodeAndExcessiveEncodedLength() {
         for(value in listOf("\uD800","\uD801","x".repeat(4097),"\u00e9".repeat(2049)))
             assertThrows(IllegalArgumentException::class.java){identity.copy(decoderTransform=value)}

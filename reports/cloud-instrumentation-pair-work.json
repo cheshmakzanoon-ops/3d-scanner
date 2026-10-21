@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "recorded_utc": "2026-10-21T09:11:46Z",
+  "recorded_utc": "2026-10-21T09:34:02Z",
   "published_source": {
     "commit": "9e1ad7dd7ffb4ea11e74a9c9d4f1ad541c6b8bcb",
     "tree": "520b6bf1cfd30f799f9195fedc17abe13c63804a",
@@ -135,8 +135,8 @@
     }
   },
   "runtime": {
-    "status": "API35_BLOCKED_INFRASTRUCTURE_API30_PENDING",
-    "runtime_executed": false,
+    "status": "API35_BLOCKED_API30_THREE_PASS_ONE_FAIL",
+    "runtime_executed": true,
     "required_sequence": [
       "Complete FeatureMatcherTest class",
       "Complete SparseReverseMatcherDifferentialTest class",
@@ -193,9 +193,46 @@
       {
         "api_level": 30,
         "system_image": "Official AOSP/default x86_64 revision 11",
-        "status": "NOT_RUN",
-        "tests_executed": 0,
-        "purpose": "Supplementary same-pair runtime check, not a substitute for API35 qualification."
+        "status": "MATCHER_PASS_DIFFERENTIAL_PARTIAL_FAIL",
+        "tests_executed": 4,
+        "purpose": "Supplementary same-pair runtime check, not a substitute for API35 qualification.",
+        "tests_passed": 3,
+        "tests_failed": 1,
+        "groups": [
+          {
+            "log": "feature-matcher.log",
+            "sha256": "f64986b93548523d08aa8337e7fdbbc951a42b46f0e8ff266a2a60f5c84ee8b3",
+            "class": "com.realityforge.scanner.engine.matching.FeatureMatcherTest",
+            "methods": [
+              "repeatedInvalidAndEmptyDescriptorInputsAreExplicit",
+              "boundedMatcherExactlyMatchesWholePairReferenceOnSyntheticPhotographs"
+            ],
+            "duration_seconds": 287.353,
+            "status": "PASS"
+          },
+          {
+            "log": "sparse-reverse-differential.log",
+            "sha256": "e344e2de0095bc8d2e571a9b1b7d123899906afe9fd19688eaa60a819ead7335",
+            "class": "com.realityforge.scanner.engine.matching.SparseReverseMatcherDifferentialTest",
+            "methods": [
+              "bothDirectionsObserveCancellationAfterNativeBlockAndReleaseBorrowedFrames",
+              "exactReciprocalIdentityAndOrderForRandomUnequalEmptyDuplicatesTiesAndRatioBoundary"
+            ],
+            "duration_seconds": 89.373,
+            "status": "ONE_PASS_ONE_FAIL"
+          }
+        ],
+        "failure": {
+          "method": "exactReciprocalIdentityAndOrderForRandomUnequalEmptyDuplicatesTiesAndRatioBoundary",
+          "exception": "IllegalArgumentException: Nonfinite or invalid SIFT descriptors",
+          "test_source_line": 60,
+          "finding": "Duplicate descriptor endpoint 512f is rejected by existing CV_32F checkRange upper-exclusive Double successor bound; real host OpenCV reproduction confirms float rounding. Cache format contract is inclusive 0f..512f. No sparse-reverse result inequality was reported.",
+          "fix_status": "Proposed exact Float successor upper-exclusive bound; not built or device verified."
+        },
+        "full_session": {
+          "status": "NOT_RUN",
+          "reason": "Held after differential failure; deadline remains unchanged."
+        }
       }
     ]
   },

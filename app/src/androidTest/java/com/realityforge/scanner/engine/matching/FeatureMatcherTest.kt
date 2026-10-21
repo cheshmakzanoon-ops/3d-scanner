@@ -14,6 +14,26 @@ import java.security.MessageDigest
 import java.util.concurrent.CancellationException
 
 class FeatureMatcherTest {
+    @Test fun descriptorRangeIncludes512ButRejectsItsFloatSuccessorAndNonfiniteValues() {
+        assertTrue(OpenCVLoader.initLocal())
+        val projection=LensProjection.estimated(32,32,32.0)
+        fun frame(id:String,value:Float):com.realityforge.scanner.engine.features.FeatureFrame {
+            val mat=org.opencv.core.Mat(4,128,org.opencv.core.CvType.CV_32F).apply{put(0,0,FloatArray(4*128){value})}
+            return com.realityforge.scanner.engine.features.FeatureFrame(id,"0".repeat(64),"range-test","range-test",32,32,
+                FloatArray(8){1f},IntArray(4),mat,projection)
+        }
+        val matcher=FeatureMatcher();val candidate=PairCandidate("a","b",0.0,"range-test")
+        frame("a",0f).use { a ->
+            for(value in listOf(0f,Math.nextDown(512f),512f)) frame("b",value).use { b ->
+                assertEquals("Inclusive valid endpoint $value",0,matcher.match(a,b,candidate).count)
+            }
+            for(value in listOf(Math.nextUp(512f),-Float.MIN_VALUE,Float.NaN,Float.POSITIVE_INFINITY,Float.NEGATIVE_INFINITY))
+                frame("b",value).use { b ->
+                    assertThrows("Reject invalid descriptor $value",IllegalArgumentException::class.java) { matcher.match(a,b,candidate) }
+                }
+        }
+    }
+
     @Test fun repeatedInvalidAndEmptyDescriptorInputsAreExplicit() {
         assertTrue(OpenCVLoader.initLocal())
         val projection=LensProjection.estimated(32,32,32.0)

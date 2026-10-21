@@ -460,3 +460,28 @@ migration is not an automatic retry strategy. This does not cancel the old run o
 prove a runner will start. The interpretation follows GitHub's documented
 [concurrency-group behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency).
 The updated cancellation/workflow and adversarial evidence suite passes58 tests.
+
+### Supplementary API30 matching checkpoint and endpoint fix (09:35 UTC)
+
+For source `9e1ad7dd` and its unchanged APK pair, the complete FeatureMatcherTest
+class passes2 tests in287.353 seconds. SparseReverseMatcherDifferentialTest
+passes its cancellation/ownership test but fails its exact-equivalence test
+before comparison at the all-512f descriptor fixture:1 pass/1 failure in89.373
+seconds. The full session is held, not passed. API35 remains infrastructure-blocked.
+
+The failure exposes an existing validator endpoint error: OpenCV's CV_32F
+exclusive upper bound rounds `Math.nextUp(512.0)` back to512f, rejecting the
+valid inclusive endpoint already admitted by the cache contract. A real host
+OpenCV reproduction confirms that the smallest Float successor widened to Double
+admits512f but still rejects its next Float successor, negatives and nonfinite
+values. The pending source fix changes only this bound and adds explicit endpoint
+regressions; it does not remove the failing fixture or relax the intended domain.
+The revised fix has not yet been built or qualified on Android. The published
+API30 three-pass/one-failure evidence remains attached to its original candidate.
+
+The endpoint correction passes the actual full debug gate:677 JVM tests with
+zero failures/errors/skips, AndroidTest Kotlin compilation, and lint with zero
+Error/Fatal issues. The persisted real OpenCV host regression passes all eight
+boundary cases; the focused Python file passes5 tests. Previous candidate API30
+results remain3 passes/1 endpoint failure; the corrected APK must be rebuilt and
+run before claiming that device failure is fixed.
