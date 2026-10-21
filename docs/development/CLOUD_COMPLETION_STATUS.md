@@ -316,3 +316,55 @@ QA-disabled assembly's dry-run includes neither normalization nor QA verificatio
 Fresh schema2 generation passes with1,067 retained types and the same finite rule
 hash; actual scoped transformation records22 inputs and3 exact JPMS exclusions.
 Full rebuilt APK-pair linkage and Android execution are still pending.
+
+### Normalized QA packaged-pair static gate (08:09 UTC)
+
+Published source `8f7bba29d3126219115fb49ecfa215e03fa92c11` (tree
+`9a8558aaacd83ad85842271b650b59418a284571`) now builds the coherent QA pair
+and passes packaged-pair static linkage with **PASS_WITH_DOCUMENTED_EXCLUSIONS**:
+13 precisely reviewed diagnostics, no unexpected missing references. The two
+stale lambda EnclosingMethod references no longer appear. This does not mean a
+zero-missing graph or device-safety qualification. Portable hashes and the full
+exclusion inventory are in [the QA report](../../reports/cloud-instrumentation-qa.json).
+
+The frozen application SHA-256 is
+`47568597b5525498e2f9cfe9f65b7572e8bd411793513fd87c20551c296af806`;
+the instrumentation APK SHA-256 is
+`7a670c4f855489f3748e3df5119dbe3bb118b762b6d295ba4430959a243b5a78`.
+These are explicitly QA-retained artifacts, not equivalent to the normal shipping
+APK. Application optimization remains enabled. Only two pinned AndroidTest
+classfile EnclosingMethod method_index fields change from `000c` to `0000`;
+executable bytes and enclosing class owners remain unchanged. The actual scoped
+input merge inventories three exact Java9 module descriptor exclusions.
+
+The 89 focused host tests plus three subtests, real normalized Gradle export,
+missing/stale app/test shrink/package rejection gates and coherent optimized
+assembly pass. Static platform resolution uses compileSDK36 public APIs plus
+actual API35 hidden Instrumentation declarations; it is not API35 runtime
+availability proof. Exact-pair Android execution is **NOT_RUN / pending** at this
+checkpoint. Physical quality/resource evidence, full journey qualification and
+production signing remain open.
+
+### Exact QA pair Android runtime checkpoint (08:29 UTC)
+
+The same frozen pair now executes on the official API35 `aosp_atd` x86_64
+revision1 image: emulator37.2.12, two logical CPUs, 2048 MiB RAM, SwiftShader,
+no KVM acceleration and no snapshot. Eight targeted tests pass: runner/JNI1,
+native canonical-path OBJ/STL/cancellation export1, original-failure-preserving
+cleanup1, camera poses2, fenced commands1 and durable checkpoint/lease recovery2.
+The earlier Trace/LazyKt startup failures do not recur on this exact QA pair.
+
+The full synthetic import/reconstruct/reopen/export session **fails**: its
+unchanged180-second operation deadline expires while verifying overlapping
+photo pairs (0/3). Instrumentation reports205.824 seconds and one failure. The
+original assertion is preserved rather than masked by cleanup. This does not
+establish complete-session or export-journey success; the cause remains unresolved
+and must not be attributed solely to emulator speed without further evidence.
+
+Before any tests, an initial guest network-stack/system-server restart disrupted
+installation. A bounded staged installation retry after system-server recovery
+succeeded for both APKs. This infrastructure incident is recorded separately
+from the later application pipeline timeout. The portable QA report includes
+individual test methods, counts, timings and evidence-log hashes. No normal
+shipping APK, physical handset, geometry/texture quality or production-signing
+qualification follows from these targeted passes.
