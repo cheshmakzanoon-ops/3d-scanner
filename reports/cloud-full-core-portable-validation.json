@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "scope": "Opt-in actual three-photo full-core and publication-service HOST integration with explicit opaque-only Bitmap/Mat bridge; not physical-device, Android GPU, controller or resource-admission qualification",
+  "sourceSnapshot": "b1bfc2a58a6dcd8e9c9a6f14fbe4248466e9993c",
+  "packageRuntimeStatus": "PASS_BOTH_MODES_BEFORE_REPOSITORY_INTEGRATION",
+  "integratedFilesByteIdenticalToExercisedExternalPackage": true,
+  "integratedFilesSha256": {
+    "tests/test_full_core_validation_helper.py": "2871ba134995641917fe67fea7999fc58890de13a0bc7972f7b7d085af8cd1b6",
+    "tools/full_core_validation/NATIVE_BUILD.md": "8ad74488667faa6d92eb2b626fd3f4a12316bb2c557760ebb38003d477c95880",
+    "tools/full_core_validation/README.md": "0fccea4858915014c99d42897337413213d9ae0ad917dd9eef7f60cc30b133dd",
+    "tools/full_core_validation/core/OpaqueBitmapBridge.kt": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+    "tools/full_core_validation/core/SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+    "tools/full_core_validation/core/SandboxNativeLoaderTokenHostTest.kt": "f7f24cebe26059a50573a3fdf19e0a6115ab3e3607d98bd1b8cecd51f734429a",
+    "tools/full_core_validation/core/SparsePipelineFullCoreHostTest.kt": "157927f1a84acdbb9454d6fa67fe18643ff6a059a19a06f62b36a8335fff1b7c",
+    "tools/full_core_validation/core/SparsePrefixRunner.kt": "016869b9da27f37407d962be272b7b502119c79db0a19b25927545deaab8a9ed",
+    "tools/full_core_validation/core/probe.init.gradle": "f66d01a0af165de529b8bc1c787d7f3e4b373f0c698656a073f623830a4f6104",
+    "tools/full_core_validation/core/validate.py": "9235b23ba7549d54e6d0ce412fddec345ce1094c1393fc9c3001020259216a08",
+    "tools/full_core_validation/publication/OpaqueBitmapBridge.kt": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+    "tools/full_core_validation/publication/SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+    "tools/full_core_validation/publication/SandboxNativeLoaderTokenHostTest.kt": "363496144376ac17f8ad993c698dd92328c7141ca87b6de69fa924dfa7d6065f",
+    "tools/full_core_validation/publication/SparsePipelinePublicationHostTest.kt": "7266368576dfb86e76afe83137af3c94f7098e0df9a345563192d00ebf8db5be",
+    "tools/full_core_validation/publication/SparsePrefixRunner.kt": "f27a8c99d9d336af7a3a88e3d513c5f7479bbb83811aee83b21af9d49b217cbb",
+    "tools/full_core_validation/publication/probe.init.gradle": "898cf5d1884f181841555b7cdd19154451efbd896d43f044c5be2eae007df79a",
+    "tools/full_core_validation/publication/validate.py": "3b553fa9a3798b758a35aeb70a890df51a8d62ddb33b9269d32c2cde506d61d7"
+  },
+  "reviewedPatchSha256": "6fc27db8987b28ae2ee71414476732811ef94560e864a4d180ec3349273571c9",
+  "runs": [
+    {
+      "mode": "core",
+      "outcome": "PASS",
+      "commit": "b1bfc2a58a6dcd8e9c9a6f14fbe4248466e9993c",
+      "tree": "d761c8647406c63698f36ffd472cfb6b3699ee24",
+      "receiptSha256": "f2b2a1bf2dca1d628d8d82f6b8de9a990b672b8c9f4aa3d0ee55d5851f4b077a",
+      "junitXmlSha256": "44c7f4d39a60b6992291c3c9b19736a1398047a562833506964f801a5e63aff7",
+      "junit": {
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineFullCoreHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-21T18:47:47.757Z",
+        "time": "12.835"
+      },
+      "counts": {
+        "cameras": 3,
+        "sparsePoints": 904,
+        "densePoints": 6851,
+        "triangles": 6734
+      },
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "remainingProbeClasses": [],
+      "restorationTrackedHashesUnchanged": true,
+      "configurationSha256": "e54eedf8da6589116782c82febe5dbd2d6cbe19bf20dbf0d9ff36ff2a68478b1",
+      "provenanceClosureFileCount": 447,
+      "allProvenanceClosureHashesUnchanged": true,
+      "nativeInputHashes": {
+        "opencv": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+        "shim": "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce",
+        "engine": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b"
+      },
+      "nativeOwnerClassHashes": {
+        "org.opencv.android.OpenCVLoader": "35fc4b0878a47b17050e59a85745b35fa99841499175b16a1c1012ffff219527",
+        "org.opencv.android.StaticHelper": "c89a8683dcfdafdaf6507149364135217f0cb8f94a48c66f9405fd909a1038c5",
+        "org.opencv.core.Core": "f27b34125899a62847ba02faf1c4338cf08a277603fb503fd71ba1e027f1052a",
+        "org.opencv.core.Mat": "24072333aefbbfaf2e018bc33c9b3c4bacf486f9f870a4e341060d260b05ade1",
+        "com.realityforge.scanner.engine.NativeCore": "7704191a82744042ce3e93a6c1b2c9e2da4943b019a77775b7568a4aa53c3040"
+      }
+    },
+    {
+      "mode": "publication",
+      "outcome": "PASS",
+      "commit": "b1bfc2a58a6dcd8e9c9a6f14fbe4248466e9993c",
+      "tree": "d761c8647406c63698f36ffd472cfb6b3699ee24",
+      "receiptSha256": "002ecbadb540feda9f3ee778ba3f9c5facc3cc1569862229d431297d6bfa71a1",
+      "junitXmlSha256": "d433a33f09d0b8f61d56186c7edabee0c4c2b06e639a5f76efff05c7df251222",
+      "junit": {
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelinePublicationHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-21T18:49:10.786Z",
+        "time": "12.969"
+      },
+      "counts": {
+        "cameras": 3,
+        "sparsePoints": 904,
+        "densePoints": 6851,
+        "triangles": 6736
+      },
+      "inputHashesUnchanged": true,
+      "compiledInputsUnchanged": true,
+      "restored": true,
+      "remainingProbeClasses": [],
+      "restorationTrackedHashesUnchanged": true,
+      "configurationSha256": "59a8c1a938995d569b2f4a8c7fb3c5617bcb259983cfdea662a9bb1827b218eb",
+      "provenanceClosureFileCount": 447,
+      "allProvenanceClosureHashesUnchanged": true,
+      "nativeInputHashes": {
+        "opencv": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+        "shim": "519a3d15329520211d1d67756fe619308453e35445b349f2c162362b941af9ea",
+        "engine": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b"
+      },
+      "nativeOwnerClassHashes": {
+        "org.opencv.android.OpenCVLoader": "35fc4b0878a47b17050e59a85745b35fa99841499175b16a1c1012ffff219527",
+        "org.opencv.android.StaticHelper": "c89a8683dcfdafdaf6507149364135217f0cb8f94a48c66f9405fd909a1038c5",
+        "org.opencv.core.Core": "f27b34125899a62847ba02faf1c4338cf08a277603fb503fd71ba1e027f1052a",
+        "org.opencv.core.Mat": "24072333aefbbfaf2e018bc33c9b3c4bacf486f9f870a4e341060d260b05ade1",
+        "com.realityforge.scanner.engine.NativeCore": "7704191a82744042ce3e93a6c1b2c9e2da4943b019a77775b7568a4aa53c3040",
+        "com.realityforge.scanner.export.NativeAssetExports": "60438039094ab5c4b86f1ddc75fa8f6cd6c9c62c019c4411d760a885b81df1bc"
+      }
+    }
+  ],
+  "assertionBoundaries": {
+    "core": "Normal COMPACT SparsePipeline return, all3 cameras/global typed BA, ready dense/mesh/texture, real cache/manifest/artifact validation and database reopen; no current result publication",
+    "publication": "All9 artifact declarations published with real lease and verified identity/digests/job/result pointer; database reopen;7 direct exports exact materialized bytes and validation with flat-file fallback fenced out; appended-byte negative",
+    "notCovered": [
+      "Production controller execution or resource admission",
+      "Physical calibration, capture quality, device permissions or GPU",
+      "Incremental added-camera registration (initial3, added0)",
+      "Dedicated derived-format export materialization/validation",
+      "Bitwise deterministic mesh geometry across runs"
+    ]
+  },
+  "priorEvidence": "reports/cloud-full-core-integration.json retains original depth-inventory and PNG defects, first missing HOST JNI capability failure, and earlier successful external runs. Portable mesh counts6734/6736 differ from earlier6741/6732 observations; not a deterministic mesh claim.",
+  "helperWiringTests": {
+    "status": "PASS",
+    "tests": 59,
+    "seconds": 0.1,
+    "scope": "Mocked/static Python contracts only; no Gradle/JVM/native execution"
+  },
+  "broadPython": {
+    "status": "PASS",
+    "passed": 1259,
+    "skipped": 3,
+    "subtests_passed": 6,
+    "seconds": 148.81,
+    "logSha256": "985dcd999f0726172b5a442a82ea97798d048a8e47875664f9d2711e727e8e3b"
+  },
+  "defaultGates": "No default Gradle/CI wiring changed; explicit opt-in only. No new production behavior changes."
+}
