@@ -1,0 +1,569 @@
+{
+  "source_commit": "b0bc275d4269f043949e52c2da67f49ed2e86e78",
+  "scope": "Existing portable 011-018 and pure 020 JVM tests; actual sources and pinned dependencies, no Android or Room substitutions",
+  "toolchain": [
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler-embeddable/2.1.21/kotlin-compiler-embeddable-2.1.21.jar",
+      "file": "kotlin-compiler-embeddable-2.1.21.jar",
+      "bytes": 56958642,
+      "sha256": "67a2e3673765f097725608cc7c843b0d8fdd94bd9af41327211361614aa57d49"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-stdlib/2.1.21/kotlin-stdlib-2.1.21.jar",
+      "file": "kotlin-stdlib-2.1.21.jar",
+      "bytes": 1724058,
+      "sha256": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-script-runtime:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-script-runtime/2.1.21/kotlin-script-runtime-2.1.21.jar",
+      "file": "kotlin-script-runtime-2.1.21.jar",
+      "bytes": 43365,
+      "sha256": "d8221f445854f30ac92c248d543609e0ecb5d85bb5ba34c043684b013cb5b897"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-reflect:1.6.10",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-reflect/1.6.10/kotlin-reflect-1.6.10.jar",
+      "file": "kotlin-reflect-1.6.10.jar",
+      "bytes": 3038560,
+      "sha256": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin:kotlin-daemon-embeddable:2.1.21",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-daemon-embeddable/2.1.21/kotlin-daemon-embeddable-2.1.21.jar",
+      "file": "kotlin-daemon-embeddable-2.1.21.jar",
+      "bytes": 345429,
+      "sha256": "9401effd82de8606df3289308a275cc1d3573768665ca5edd09dc319c71715f4"
+    },
+    {
+      "coordinate": "org.jetbrains.intellij.deps:trove4j:1.0.20200330",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/intellij/deps/trove4j/1.0.20200330/trove4j-1.0.20200330.jar",
+      "file": "trove4j-1.0.20200330.jar",
+      "bytes": 572985,
+      "sha256": "c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.8.0/kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.8.0.jar",
+      "bytes": 1548360,
+      "sha256": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.10.2/kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "file": "kotlinx-coroutines-core-jvm-1.10.2.jar",
+      "bytes": 1479317,
+      "sha256": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd"
+    },
+    {
+      "coordinate": "org.jetbrains:annotations:13.0",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/13.0/annotations-13.0.jar",
+      "file": "annotations-13.0.jar",
+      "bytes": 17536,
+      "sha256": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478"
+    },
+    {
+      "coordinate": "org.json:json:20250517",
+      "url": "https://repo.maven.apache.org/maven2/org/json/json/20250517/json-20250517.jar",
+      "file": "json-20250517.jar",
+      "bytes": 82710,
+      "sha256": "3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796"
+    },
+    {
+      "coordinate": "junit:junit:4.13.2",
+      "url": "https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar",
+      "file": "junit-4.13.2.jar",
+      "bytes": 384581,
+      "sha256": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3"
+    },
+    {
+      "coordinate": "org.hamcrest:hamcrest-core:1.3",
+      "url": "https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+      "file": "hamcrest-core-1.3.jar",
+      "bytes": 45024,
+      "sha256": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9"
+    }
+  ],
+  "dependency_hashes_verified": true,
+  "excluded_android_scope": [
+    "agents/a017/SavedPhotoGuidanceSessionTest.kt",
+    "agents/a019/*",
+    "agents/a020/GlobalCacheInventoryServiceTest.kt",
+    "agents/a020/CacheDescriptorBindingsTest.kt"
+  ],
+  "files": [
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureAnalysisBudget.kt",
+      "sha256": "a691105d00bf2e3677d2be5d591d431995bbd3aebb23b26b3d67e9bee66004e4"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityAnalyzer.kt",
+      "sha256": "2c9b833745f3e1a75f54b5d1b5beaf3a4b670ffbb447644c2c8c51acab5eaa44"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityEstimator.kt",
+      "sha256": "8c681923a1f0e7a5adcd874ee79c4b7505fdaa3007413ee3f531fb1ebc2208cb"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityModels.kt",
+      "sha256": "aa55b748941c3cc8b1076319916ab89607482fc88d2a2d3705a5954fa3087143"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityThresholds.kt",
+      "sha256": "8eef06032c6e7bc35df4dc5bf0266629822807c9eb6abc0caf550d7d7c3038e8"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/analysis/LumaFrame.kt",
+      "sha256": "414715c73f0396a21759d83659f2f967a7cd7a1997d559a6f213cfb8bfb0ea40"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/analysis/RetainedCaptureQualityThresholds.kt",
+      "sha256": "f0dcf811a2c8e7ce2c03f63e8853e6bb921091419894d67af330fa2cd9ad3e57"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/controls/CameraCapabilityInterpreter.kt",
+      "sha256": "9e6a1a4c3d7d3bb65788b8c8be65358acbaa5737f08074520b283ff2475d946b"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/controls/CameraOpticsController.kt",
+      "sha256": "8302d91a30835e27887e5aea8052b43ddcbec9a947de2a96e91112d9c7ce3bd5"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/controls/CameraOpticsModels.kt",
+      "sha256": "c09893537bd30bc2e2c179653a290f2d805c563aa0aa7a265c07a8cb860a56cb"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/controls/CameraOpticsUiModel.kt",
+      "sha256": "5162070086ee87da65485a60687a687ee816596cc9592a45a6a49b1adada25eb"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/controls/CaptureOpticsContinuity.kt",
+      "sha256": "c21418744e47e7ae4771055c880fa52d2445b80d6c66b18edc537bab5b51ee08"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/controls/OpticalControlBackend.kt",
+      "sha256": "f704deb5413594eef8801b26fb045084057dba917220d8b0ce26b0efe3374fb4"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/guidance/CaptureGuidanceEngine.kt",
+      "sha256": "187f57f1a23d0430b6022203c52a7182daa7b9b2bd522af6e8fba186631da07d"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/guidance/GuidanceMatcher.kt",
+      "sha256": "b62090282b19f0081a3ec9a877887d5f6ef4702294845a1b9e0d56acb34793f6"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/guidance/GuidanceModels.kt",
+      "sha256": "42aeb2848eb1a2d5136c6013ec4b30e04155fe80515bc594d9ecf41f34df4e58"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/guidance/PipelineGuidanceAdapter.kt",
+      "sha256": "9a2c052b00315a623ac465c10034f1bee95cdd245602664f99ccccee67a850f4"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+      "sha256": "f2170cb12a2ce1704f2419ff5042735296191b1e7288b343267a4ce2c76c833f"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadataCodec.kt",
+      "sha256": "bb77c67b9131e0a02d132f1a6e2368fa00d9e73ce9543375c300cbe625a74100"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureOpticsMetadataAdapter.kt",
+      "sha256": "fe1b000ae79ed4da6480b23850834b11b68da23829edd64f8c263dffd3550f37"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/metadata/LensCompatibility.kt",
+      "sha256": "f4164c8efc199ad76fc6f42fc9709a776fb4988e74afe539893b7b979f6833d0"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/permissions/CameraPermissionPolicy.kt",
+      "sha256": "f6864d731831e20ac666be75ef62f92c9ed522d4824e899b95132fdd172480b8"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/session/CaptureAdapter.kt",
+      "sha256": "30bb2b05d87019d50473fbcc3dd6159de30ac46328e1e1b875644e549e1cf3ff"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/capture/session/CaptureSession.kt",
+      "sha256": "cfb897227346550d496d658e7afe1f28b7ecbe00faaf696486797980f2d685be"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/importing/ImportContracts.kt",
+      "sha256": "5c88bf9ee64fd19f17f83d5ba7f6aeb740fb36e7e67f71fb6bb3ff7a60439b88"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/importing/ImportService.kt",
+      "sha256": "896d1e26f3686b8437f666709ea49e6c195edb97704fa08e505b7c2476289d3c"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CuratedPhotoState.kt",
+      "sha256": "5b21c3d9deb023443b23ae7bfca591025af3dff700df9ac7506cde42d3e94557"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CurationCommands.kt",
+      "sha256": "f3e92e8ffd134b7b7a945fce1844b9130f872d1cfa192a4ec9fc511f81f09ebe"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CurationCoreTypes.kt",
+      "sha256": "3a54fcef4b20f5d8cd133a145dd340e0140f47b0b6eababb3c115ec91ca95c70"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CurationExecution.kt",
+      "sha256": "c0d1171327bd66e6ea0e8bd0019d3e7f3f1466bc703a6acb6d46e8674244cbf9"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CurationReducer.kt",
+      "sha256": "81c3de74ec7f384bc10349dc52e7021619904baf529d9276fddcef3c84fdf117"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CurationSelection.kt",
+      "sha256": "8a2c087a2153a7a590af78652231807b10437a4bf57031ea22462ff96bfb5457"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CurationUndo.kt",
+      "sha256": "84439435add590cbe229d69e81b3e041074479a0df915eed1c36eb26089306a6"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/CurationValidation.kt",
+      "sha256": "1af23d3d20fe64aa0413370d9b05b46cf3e0f478a2040a3fbb071f8c944b3da0"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/PersistedPhotoCuration.kt",
+      "sha256": "303c633cffaf8512ec177916bea8c3f479481c2db2671cc2fac527ca79fad2e3"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationRecordCodec.kt",
+      "sha256": "f92a0fb9ee844ce13e19cf4a73d80213a2618e1c21613145ececbb6f666cc5a7"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationService.kt",
+      "sha256": "44db3aeb6870a94561a4755ed9fa3964a657e58fe022a24a482d701671ec1ede"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationStore.kt",
+      "sha256": "dd23810e845fd08e08194fe700235034f114d1014c4811e6b34fa034f21589c4"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/curation/SelectedPhotoState.kt",
+      "sha256": "df9ca02c387311a8b76de376bf8e17beec001eea400dae435b6a779db92e4bcd"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/imaging/ImageContracts.kt",
+      "sha256": "49902dab83c99dad19f7f59aa5c56a78f4857e90c1838fa65f17c3c90a0934a8"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/cachegc/CacheCollector.kt",
+      "sha256": "cdc6f170515f318bb83ffe23d427f84d3031e7b8d1d00277c6c7b1d6063ee8e6"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/cachegc/CacheGcContracts.kt",
+      "sha256": "079d3754cc328d80d9645d5370346037049cb1712b400a8d3f8c3dd22d93de30"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/cachegc/CacheInventory.kt",
+      "sha256": "7872a9aaada033ea43cf7b169d97ab166d87367d90dd84326ac6a66c7e2666de"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/cachegc/CacheRetentionPlanner.kt",
+      "sha256": "54281cad83c000810c813511d1f725c3abc98a84ec06d9c14d242e6b0cc99061"
+    },
+    {
+      "path": "app/src/main/java/com/realityforge/scanner/data/cachegc/CacheReuseValidator.kt",
+      "sha256": "289f0202f682c7e0b8407b9bcbdfd1a16da9669c4cb2dfa91f7f0f41a9581b1d"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a011/CaptureSettingsFieldsTest.kt",
+      "sha256": "02d640b78ff4799f5ace0b757892f1e14dfc953d50a7d440227dc64fdae795b9"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a011/ImportServiceTest.kt",
+      "sha256": "71f199af613a4d18c63d4d64c6df266ef8907e6a5d5c676fe16b20f7894ae939"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a012/ImageContractsTest.kt",
+      "sha256": "d94d786ade8629c18152c89eed97459aeeccb6882c227456892dc4cdd9959ff1"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a013/CaptureMetadataIdentityTest.kt",
+      "sha256": "22e6725417958c6ec06b5a62f6c65c97f6476d1672f7b532ef80fc8a253cadcf"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a014/CameraPermissionPolicyTest.kt",
+      "sha256": "5d9d62df26314f44630bf0e64b8e1422c561b0e907209dcba485d02a669b5f7d"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a014/CaptureSessionControllerTest.kt",
+      "sha256": "b207933f587c9dc400b176fffc383c68e0a8a80e058175ecd7c072d0433abbc0"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a015/CameraCapabilityInterpreterTest.kt",
+      "sha256": "1a30ae674fb53642f71f9f6299c219bd07b11f57298dca1099dbbdf9d3111481"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a015/CameraOpticsControllerTest.kt",
+      "sha256": "7d254b05813eec5673df4b694781e7684d28cfd1a98fb765826831ae1e3873bc"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a015/CameraOpticsUiModelTest.kt",
+      "sha256": "3a8083a8e83b0ac174465765971c397b6c1907f2856dfc7c2c241fe10ad37374"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a015/CaptureOpticsContinuityTest.kt",
+      "sha256": "b84ffece5946f887101d68249057eb79dd3444f286be0f0bf57aae5e11261687"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a016/AnalyzerAdmissionTest.kt",
+      "sha256": "eb5eb4d7c62e5dabd6b15de10846e107315fe997fbe1b8dbc9d33e1c9f685d9f"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a016/CaptureQualityEstimatorTest.kt",
+      "sha256": "fa2945cac1e90c1481d4be8ab7b22405b7d33c7dbcd1772aeb9cdcb42436d212"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a016/CaptureQualityStreamAnalyzerTest.kt",
+      "sha256": "77ad75dba790c7c545a231b327361d8848659843635c57b2c50eba25d51ce5c1"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a016/CaptureQualityThresholdDeriverTest.kt",
+      "sha256": "5727bc5ed1211bebcb8d03de5c57d7d77fb58472e96610d8c56373614cab97fc"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a016/RetainedCaptureQualityThresholdsTest.kt",
+      "sha256": "3a2028590ea25512ecaf68521ba655fd08fd11c370cc9b4ef5c7bec8649b0f10"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a017/CaptureGuidanceEngineTest.kt",
+      "sha256": "54e77d4bcb861f8f5d9cb3ff5c715c3845eba0d40a386db8cf4fcfb8dc48e3fe"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a017/GuidanceMatcherContractTest.kt",
+      "sha256": "d5dbbbf9fe5eb5124f56f0bfb48dade99d8a402e915ca7e17e1b37bf4056ddae"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/CurationTestSupport.kt",
+      "sha256": "928da536d0c1fc1426cbd94b080f4a4baaa22a435ea7a529d14fd880f2263038"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationCancellationTest.kt",
+      "sha256": "6afdb252ddff6919df2c14e238b9f31804496fdaeaada793673cdc5e99113c23"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationConcurrencyTest.kt",
+      "sha256": "0e218327ef25d73e7d0021a0acee8b54c3fcadd5ad9bb0d391b5cf2757b2a539"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationExcludedOrderTest.kt",
+      "sha256": "1dc62ffc25c1505347f796dfa1e500b07cc0f8c3f2eefe2cb70a5a25853326ed"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationPersistenceTest.kt",
+      "sha256": "8412232055dd8b2cda6f229e11cdeccb12dfda39ac05242d91d9271a1298b253"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRandomizedTest.kt",
+      "sha256": "d5cb317998354ee137e7f8db200017c3b0a9a0ce6f01fd77e378a1f5d11f8feb"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRemovalTest.kt",
+      "sha256": "12af606b8c9092b7708c35b6dac9e359feab82bd101cd01384cd283bfeb32601"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRevisionSemanticsTest.kt",
+      "sha256": "9a0e1fb448841d4f4cc67a499e124bb63db887741e48ecdca0e27ec70e9b4175"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationSelectionTest.kt",
+      "sha256": "17c65d45c97e5cc7f761412744833b24cda0b76fec74c5baee3a3bfeb901e360"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationStateValidationTest.kt",
+      "sha256": "cc7bff05e5161f95ab1cedb4b51b0d27e4c1fe47de3e0442974da03ab5f09ce4"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationUndoIdentityTest.kt",
+      "sha256": "dcd1da71ce611456c17cd76487b92da17d1e1aadc1b96559cdd89d1bc629fa06"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationUndoTest.kt",
+      "sha256": "010bf99600eddc75511ff79cf71dfd6cee550a9d1d256cc04e3a2cb791e1d3f5"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a020/BoundedDirectoryInventoryTest.kt",
+      "sha256": "72f28f8363b6f73910876b3dc3666e512abc7d9cb7fecb3eb30994b80ea5c4d3"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a020/CacheCollectorRecoveryTest.kt",
+      "sha256": "3cc22a809e80fe9ccf8a557585cfc60c762b72850e3d5afa71f39a732b99de73"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a020/CacheGcTestSupport.kt",
+      "sha256": "1c87501ef498a7732d6b74f50e68b517f1df1aab56676722fefb166d9b5e0d0a"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a020/CacheInventoryPlannerTest.kt",
+      "sha256": "13b75b184c09c5a41509fbb183e56caab80607211eecc62f590ea2df20739d26"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a020/CacheMultiRevisionTest.kt",
+      "sha256": "fe1a97f0bbd400024fbe561bc7353b089147805f89106f0e91cb246f2703ac74"
+    },
+    {
+      "path": "app/src/test/java/com/realityforge/scanner/agents/a020/CacheReuseValidatorTest.kt",
+      "sha256": "1b20cd2c56478f622eb1ee4a8202f1a6f7bcfc5829afe55b1d11e9c154c60537"
+    }
+  ],
+  "compiler_command": [
+    "java",
+    "-Xmx512m",
+    "-Djava.io.tmpdir=/dev/shm/scanner-jvm-011-020/run-02/tmp",
+    "-cp",
+    "/dev/shm/scanner-jvm-checks/annotations-13.0.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/kotlin-compiler-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-daemon-embeddable-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-reflect-1.6.10.jar:/dev/shm/scanner-jvm-checks/kotlin-script-runtime-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.8.0.jar:/dev/shm/scanner-jvm-checks/trove4j-1.0.20200330.jar",
+    "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
+    "-no-stdlib",
+    "-no-reflect",
+    "-jvm-target",
+    "17",
+    "-classpath",
+    "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+    "-d",
+    "/dev/shm/scanner-jvm-011-020/run-02/classes",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureAnalysisBudget.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityAnalyzer.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityEstimator.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityModels.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/analysis/CaptureQualityThresholds.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/analysis/LumaFrame.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/analysis/RetainedCaptureQualityThresholds.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/controls/CameraCapabilityInterpreter.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/controls/CameraOpticsController.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/controls/CameraOpticsModels.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/controls/CameraOpticsUiModel.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/controls/CaptureOpticsContinuity.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/controls/OpticalControlBackend.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/guidance/CaptureGuidanceEngine.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/guidance/GuidanceMatcher.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/guidance/GuidanceModels.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/guidance/PipelineGuidanceAdapter.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadata.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureMetadataCodec.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/metadata/CaptureOpticsMetadataAdapter.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/metadata/LensCompatibility.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/permissions/CameraPermissionPolicy.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/session/CaptureAdapter.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/capture/session/CaptureSession.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/importing/ImportContracts.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/importing/ImportService.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CuratedPhotoState.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CurationCommands.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CurationCoreTypes.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CurationExecution.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CurationReducer.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CurationSelection.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CurationUndo.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/CurationValidation.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/PersistedPhotoCuration.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationRecordCodec.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationService.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/PhotoCurationStore.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/curation/SelectedPhotoState.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/imaging/ImageContracts.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/cachegc/CacheCollector.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/cachegc/CacheGcContracts.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/cachegc/CacheInventory.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/cachegc/CacheRetentionPlanner.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/main/java/com/realityforge/scanner/data/cachegc/CacheReuseValidator.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a011/CaptureSettingsFieldsTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a011/ImportServiceTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a012/ImageContractsTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a013/CaptureMetadataIdentityTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a014/CameraPermissionPolicyTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a014/CaptureSessionControllerTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a015/CameraCapabilityInterpreterTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a015/CameraOpticsControllerTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a015/CameraOpticsUiModelTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a015/CaptureOpticsContinuityTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a016/AnalyzerAdmissionTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a016/CaptureQualityEstimatorTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a016/CaptureQualityStreamAnalyzerTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a016/CaptureQualityThresholdDeriverTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a016/RetainedCaptureQualityThresholdsTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a017/CaptureGuidanceEngineTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a017/GuidanceMatcherContractTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/CurationTestSupport.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationCancellationTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationConcurrencyTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationExcludedOrderTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationPersistenceTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRandomizedTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRemovalTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationRevisionSemanticsTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationSelectionTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationStateValidationTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationUndoIdentityTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a018/PhotoCurationUndoTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/BoundedDirectoryInventoryTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/CacheCollectorRecoveryTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/CacheGcTestSupport.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/CacheInventoryPlannerTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/CacheMultiRevisionTest.kt",
+    "/workspace/scratch/16a420565b0d/3d-scanner/app/src/test/java/com/realityforge/scanner/agents/a020/CacheReuseValidatorTest.kt"
+  ],
+  "runtime_classpath": "/dev/shm/scanner-jvm-checks/kotlin-stdlib-2.1.21.jar:/dev/shm/scanner-jvm-checks/kotlinx-coroutines-core-jvm-1.10.2.jar:/dev/shm/scanner-jvm-checks/json-20250517.jar:/dev/shm/scanner-jvm-checks/junit-4.13.2.jar:/dev/shm/scanner-jvm-checks/hamcrest-core-1.3.jar:/dev/shm/scanner-jvm-checks/annotations-13.0.jar",
+  "test_classes": [
+    "com.realityforge.scanner.agents.a011.CaptureSettingsFieldsTest",
+    "com.realityforge.scanner.agents.a011.ImportServiceTest",
+    "com.realityforge.scanner.agents.a012.ImageContractsTest",
+    "com.realityforge.scanner.agents.a013.CaptureMetadataIdentityTest",
+    "com.realityforge.scanner.agents.a014.CameraPermissionPolicyTest",
+    "com.realityforge.scanner.agents.a014.CaptureSessionControllerTest",
+    "com.realityforge.scanner.agents.a015.CameraCapabilityInterpreterTest",
+    "com.realityforge.scanner.agents.a015.CameraOpticsControllerTest",
+    "com.realityforge.scanner.agents.a015.CameraOpticsUiModelTest",
+    "com.realityforge.scanner.agents.a015.CaptureOpticsContinuityTest",
+    "com.realityforge.scanner.agents.a016.AnalyzerAdmissionTest",
+    "com.realityforge.scanner.agents.a016.CaptureQualityEstimatorTest",
+    "com.realityforge.scanner.agents.a016.CaptureQualityStreamAnalyzerTest",
+    "com.realityforge.scanner.agents.a016.CaptureQualityThresholdDeriverTest",
+    "com.realityforge.scanner.agents.a016.RetainedCaptureQualityThresholdsTest",
+    "com.realityforge.scanner.agents.a017.CaptureGuidanceEngineTest",
+    "com.realityforge.scanner.agents.a017.GuidanceMatcherContractTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationCancellationTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationConcurrencyTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationExcludedOrderTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationPersistenceTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationRandomizedTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationRemovalTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationRevisionSemanticsTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationSelectionTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationStateValidationTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationUndoIdentityTest",
+    "com.realityforge.scanner.agents.a018.PhotoCurationUndoTest",
+    "com.realityforge.scanner.agents.a020.BoundedDirectoryInventoryTest",
+    "com.realityforge.scanner.agents.a020.CacheCollectorRecoveryTest",
+    "com.realityforge.scanner.agents.a020.CacheInventoryPlannerTest",
+    "com.realityforge.scanner.agents.a020.CacheMultiRevisionTest",
+    "com.realityforge.scanner.agents.a020.CacheReuseValidatorTest"
+  ],
+  "junit_exit_code": 0,
+  "source_files_unchanged": true,
+  "published_code_candidate": "aad8e1d5754491d8f0e6a0aca96a9f1f02f53ba6",
+  "selected_file_bytes_match_local_candidate": "54ae92a822693b439452cf53852bc4c30150002a",
+  "tests_passed": 128,
+  "test_classes_count": 33,
+  "logs": {
+    "compile.log": {
+      "captured_sha256": "e1819b5f2ced4890a2c18c0f49b8296c4b311c0d9d17a5ce09378eaa4939d440",
+      "stored_sha256": "7570075b05785b3994bb7959047634b2ff4d461b7c836f280057df6dc00e1178",
+      "normalization": "Trailing line whitespace and blank final lines normalized; diagnostic and result content unchanged; original captured hashes retained."
+    },
+    "junit.log": {
+      "captured_sha256": "822d093fbbbccc327b75ba21965aac4641dd3e0092d5fbf29e47746f3e640e3d",
+      "stored_sha256": "a4826bea82299751615e60ecb1ee622c1ea9adb21dedffd90479bfc1a5cb0a9e",
+      "normalization": "Trailing line whitespace and blank final lines normalized; diagnostic and result content unchanged; original captured hashes retained."
+    }
+  }
+}

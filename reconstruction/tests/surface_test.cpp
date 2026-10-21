@@ -3,6 +3,9 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <fstream>
+#include <limits>
+#include <cstdio>
 #include <random>
 #include <stdexcept>
 #include <string>
@@ -118,6 +121,38 @@ int main(){
         expectError([&]{rf::fuseDepthSurfaces(images,r);});
         r.verifiedSamples[0].supportingViews=2;r.verifiedSamples[0].camera=100;
         expectError([&]{rf::fuseDepthSurfaces(images,r);});
+    });
+    test("surface serialization rejects malformed numeric data and indices",[]{
+        rf::SurfaceMesh good;
+        good.vertices={{{0,0,5},{0,0,-1},{1,2,3},.9f,2},
+                       {{1,0,5},{0,0,-1},{1,2,3},.9f,2},
+                       {{0,1,5},{0,0,-1},{1,2,3},.9f,2}};
+        good.triangles={{0,1,2,0}};good.medianConfidence=.9f;
+        require(rf::surfaceJson({}).find("\"triangleCount\":0")!=std::string::npos,
+                "Empty diagnostic mesh must remain serializable");
+        require(rf::surfaceJson(good).find("\"triangleCount\":1")!=std::string::npos,
+                "Valid surface was rejected");
+        const auto rejected=[&](const rf::SurfaceMesh& invalid){
+            expectError([&]{rf::surfaceJson(invalid);});
+            // Validation failure must not truncate an existing completed export.
+            for(bool glb:{false,true}){
+                const std::string path=glb?"rf-preserved-validation.glb":"rf-preserved-validation.ply";
+                {std::ofstream output(path,std::ios::binary);output<<"original completed result";}
+                expectError([&]{if(glb)rf::writeSurfaceGlb(invalid,path);else rf::writeSurfacePly(invalid,path);});
+                std::ifstream input(path,std::ios::binary);
+                const std::string content((std::istreambuf_iterator<char>(input)),{});
+                require(content=="original completed result","Invalid mesh destroyed completed export");
+                input.close();std::remove(path.c_str());
+            }
+        };
+        auto bad=good;bad.medianConfidence=std::numeric_limits<float>::quiet_NaN();rejected(bad);
+        bad=good;bad.vertices[0].confidence=std::numeric_limits<float>::infinity();rejected(bad);
+        bad=good;bad.vertices[0].confidence=-.1f;rejected(bad);
+        bad=good;bad.vertices[0].confidence=1.1f;rejected(bad);
+        bad=good;bad.vertices[0].xyz.x=std::numeric_limits<double>::quiet_NaN();rejected(bad);
+        bad=good;bad.vertices[0].normal.x=std::numeric_limits<double>::max();rejected(bad);
+        bad=good;bad.triangles[0].c=3;rejected(bad);
+        bad=good;bad.triangles[0].c=0;rejected(bad);
     });
     test("invalid C ABI produces JSON error",[]{
         char* result=rf_surface_json(nullptr,104,76,nullptr,2,3,7,32,3,nullptr,nullptr);

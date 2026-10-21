@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "buildSource": {
+    "tested_overlay_sha": "1befa8d5983583e8112e0a5ed0bad31114adc835",
+    "091_source_sha": "f4302a0c109e8f36a7b2fc14997f51b78a24ccaf",
+    "095_source_sha": "c2f775796913a35c65f22c6210641eaa95805432",
+    "note": "Dependency source overlays in disposable combined checkout only; pure004commit contains no095/091 files"
+  },
+  "sourceEvidence": "/workspace/campaign/evidence/004/followup",
+  "sourceEvidenceSha256": {
+    "debug-resolved.json": "3a50b1a5bcd512cb5a3050f7fc97252ab00e8ca4ca9c69b80f03ec7588f4dc44",
+    "debug-tests-resolved.json": "b3db14fd5b463d675f5da555deb4bc640eb360b36a5cc58b2f23262047250380",
+    "release-resolved.json": "094c8b1548f0099ee4cb6c198e1c5fadced7d18a8297480ebfa3eb3baaec8d67",
+    "release-tests-resolved.json": "1e46c892012e8988a4ae1ca1eebe0362732519357d0462e92b7588e348157c90",
+    "generated-lock-record.json": "22913723273d4debf1d6ade728ae6fa944d925eac1cafed975cd20ff7b1b7bde",
+    "module-lock-final.lockfile": "2e0c7164d7f5b7ea07feadb2a913a887fb945ca3440168a078193d270df3f472",
+    "source-locked-build.json": "66666c4b731b619e5ccff5e765e66543b3f9b8bca5830a6a5a8e874340434b3e",
+    "debug-build.log": "e63c2b53684fabe7cf4ee0c5d94be907b3795197a5239a274c69d3ddca5bd86a"
+  },
+  "lock": {
+    "status": "PASS",
+    "module_lock_sha256": "2e0c7164d7f5b7ea07feadb2a913a887fb945ca3440168a078193d270df3f472",
+    "module_lock_bytes": 45280,
+    "all_existing_release_lock_entries_preserved": true,
+    "configurations": [
+      "debugAndroidTestCompileClasspath",
+      "debugAndroidTestRuntimeClasspath",
+      "debugCompileClasspath",
+      "debugRuntimeClasspath",
+      "debugUnitTestCompileClasspath",
+      "debugUnitTestRuntimeClasspath",
+      "kspDebugKotlinProcessorClasspath",
+      "kspReleaseKotlinProcessorClasspath",
+      "releaseAndroidTestCompileClasspath",
+      "releaseAndroidTestRuntimeClasspath",
+      "releaseCompileClasspath",
+      "releaseRuntimeClasspath",
+      "releaseUnitTestCompileClasspath",
+      "releaseUnitTestRuntimeClasspath"
+    ],
+    "locked_coordinates": 172,
+    "new_coordinates": [
+      "androidx.compose.material:material-android:1.8.2",
+      "androidx.compose.material:material:1.8.2",
+      "androidx.compose.ui:ui-tooling-android:1.8.2",
+      "androidx.compose.ui:ui-tooling-data-android:1.8.2",
+      "androidx.compose.ui:ui-tooling-data:1.8.2",
+      "androidx.compose.ui:ui-tooling:1.8.2"
+    ],
+    "jvm": {
+      "tests": 35,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exports": {
+      "debug": {
+        "path": "/workspace/campaign/evidence/004/followup/debug-resolved.json",
+        "sha256": "3a50b1a5bcd512cb5a3050f7fc97252ab00e8ca4ca9c69b80f03ec7588f4dc44",
+        "configurations": [
+          {
+            "configuration": "debugRuntimeClasspath",
+            "modules": 129,
+            "artifacts": 94
+          },
+          {
+            "configuration": "debugCompileClasspath",
+            "modules": 101,
+            "artifacts": 64
+          },
+          {
+            "configuration": "kspDebugKotlinProcessorClasspath",
+            "modules": 38,
+            "artifacts": 30
+          }
+        ]
+      },
+      "debug-tests": {
+        "path": "/workspace/campaign/evidence/004/followup/debug-tests-resolved.json",
+        "sha256": "b3db14fd5b463d675f5da555deb4bc640eb360b36a5cc58b2f23262047250380",
+        "configurations": [
+          {
+            "configuration": "debugAndroidTestRuntimeClasspath",
+            "modules": 44,
+            "artifacts": 30
+          },
+          {
+            "configuration": "debugAndroidTestCompileClasspath",
+            "modules": 114,
+            "artifacts": 76
+          },
+          {
+            "configuration": "debugUnitTestRuntimeClasspath",
+            "modules": 131,
+            "artifacts": 96
+          },
+          {
+            "configuration": "debugUnitTestCompileClasspath",
+            "modules": 103,
+            "artifacts": 66
+          }
+        ]
+      },
+      "release": {
+        "path": "/workspace/campaign/evidence/004/followup/release-resolved.json",
+        "sha256": "094c8b1548f0099ee4cb6c198e1c5fadced7d18a8297480ebfa3eb3baaec8d67",
+        "configurations": [
+          {
+            "configuration": "releaseRuntimeClasspath",
+            "modules": 123,
+            "artifacts": 91
+          },
+          {
+            "configuration": "releaseCompileClasspath",
+            "modules": 97,
+            "artifacts": 62
+          },
+          {
+            "configuration": "kspReleaseKotlinProcessorClasspath",
+            "modules": 38,
+            "artifacts": 30
+          }
+        ]
+      },
+      "release-tests": {
+        "path": "/workspace/campaign/evidence/004/followup/release-tests-resolved.json",
+        "sha256": "1e46c892012e8988a4ae1ca1eebe0362732519357d0462e92b7588e348157c90",
+        "configurations": [
+          {
+            "configuration": "releaseAndroidTestRuntimeClasspath",
+            "modules": 44,
+            "artifacts": 30
+          },
+          {
+            "configuration": "releaseAndroidTestCompileClasspath",
+            "modules": 110,
+            "artifacts": 74
+          },
+          {
+            "configuration": "releaseUnitTestRuntimeClasspath",
+            "modules": 125,
+            "artifacts": 93
+          },
+          {
+            "configuration": "releaseUnitTestCompileClasspath",
+            "modules": 99,
+            "artifacts": 64
+          }
+        ]
+      }
+    }
+  },
+  "shippingReleaseRuntimeModules": 123,
+  "debugRuntimeModules": 129,
+  "note": "Actual debug and release property variants resolve independently; common notices preserve exact bytes. Debug packages must use debug variant inventory/assets. Compilation and instrumentation evidence remain distinct."
+}

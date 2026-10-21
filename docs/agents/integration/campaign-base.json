@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+  "requested_agents": [
+    "081",
+    "082",
+    "083",
+    "084",
+    "085",
+    "086",
+    "087",
+    "088",
+    "089",
+    "090",
+    "091",
+    "092",
+    "093",
+    "094",
+    "095",
+    "096",
+    "097",
+    "098",
+    "099",
+    "100"
+  ],
+  "integration_branch": "agents/100-integration-lead",
+  "main_updated": false,
+  "prior_work_preserved": true
+}

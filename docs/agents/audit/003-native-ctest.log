@@ -1,0 +1,282 @@
+Start testing: Oct 20 11:31 CST
+----------------------------------------------------------
+1/12 Testing: native_core
+1/12 Test: native_core
+Command: "/tmp/scanner-audit-native-001/rf_native_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_core" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+PASS identity
+PASS transpose multiplication
+PASS triangulation known point
+PASS behind-camera rejection
+PASS quality uniform
+PASS quality texture
+PASS quality bad buffer
+PASS quality padded stride
+PASS clean two-view recovery
+PASS noisy outlier robust recovery
+PASS deterministic result
+PASS too few matches
+PASS nan rejection
+PASS invalid threshold
+PASS constant-feature rejection
+PASS empty GLB rejected
+PASS M02 calibrated third-camera PnP
+PASS M02 invalid PnP rejected
+PASS M02 C ABI invalid camera buffer
+PASS C ABI invalid input
+
+20 passed; 0 failed
+<end of output>
+Test time =   0.53 sec
+----------------------------------------------------------
+Test Passed.
+"native_core" end time: Oct 20 11:31 CST
+"native_core" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/12 Testing: native_multiview
+2/12 Test: native_multiview
+Command: "/tmp/scanner-audit-native-001/rf_multiview_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_multiview" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+third tx -1.79165 target -1.8 before 0.00218151 after 0.000199384 count 320
+PASS triple-view new points + gauge and noise reduction
+PASS intermittent feature mismatches do not create false geometry
+PASS no invented geometry from pure rotation
+PASS invalid duplicate camera track rejected
+PASS nonintegral ABI indexes and invalid color rejected
+5 multiview native cases passed
+<end of output>
+Test time =   0.12 sec
+----------------------------------------------------------
+Test Passed.
+"native_multiview" end time: Oct 20 11:31 CST
+"native_multiview" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/12 Testing: native_bundle_adjustment
+3/12 Test: native_bundle_adjustment
+Command: "/tmp/scanner-audit-native-001/rf_bundle_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_bundle_adjustment" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+M06 initial median 0.0079147 final 0.000178617 initial robust cost 0.0488893 final 1.98827e-05
+PASS global Schur LM reduces reprojection error and improves independently noisy poses
+PASS outlying feature matches are excluded from coupled BA
+PASS already perfect geometry is not made worse
+PASS singular gauge and conflicting observations rejected
+PASS NaN, unreasonable camera and wrong settings rejected
+PASS C interface rejects nonintegral track indices
+6 bundle adjustment cases passed
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"native_bundle_adjustment" end time: Oct 20 11:31 CST
+"native_bundle_adjustment" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/12 Testing: native_dense_mvs
+4/12 Test: native_dense_mvs
+Command: "/tmp/scanner-audit-native-001/rf_dense_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_dense_mvs" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+found 4669 candidate=4689 reciprocal=4676 confidence=0.992499
+median depth=4.96855 ground truth 5
+PASS plane sweep derives dense geometry from overlapping rendered images
+PASS uniform image contains no invented surface
+PASS occluded view does not corrupt nonoccluded geometry
+PASS coincident camera centers explicitly rejected
+PASS invalid or mismatched buffers rejected
+PASS C ABI invalid input returns explicit JSON error
+PASS deterministic input produces stable point cloud
+7 CPU dense MVS cases passed
+<end of output>
+Test time =   3.46 sec
+----------------------------------------------------------
+Test Passed.
+"native_dense_mvs" end time: Oct 20 11:31 CST
+"native_dense_mvs" time elapsed: 00:00:03
+----------------------------------------------------------
+
+5/12 Testing: native_surface_mesh
+5/12 Test: native_surface_mesh
+Command: "/tmp/scanner-audit-native-001/rf_surface_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_surface_mesh" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+confirmed=4676 vertices=2570 faces=7125 fused=2101
+PASS confirmed depth samples produce genuine indexed triangles
+PASS textureless inputs produce zero triangle faces
+PASS occluded input retains only confirmed geometry
+PASS depth-step barrier prevents triangles across measured discontinuity
+PASS reject malformed source depth maps and unverified samples
+PASS invalid C ABI produces JSON error
+PASS deterministic fusion
+7 surface meshing cases passed
+<end of output>
+Test time =   5.11 sec
+----------------------------------------------------------
+Test Passed.
+"native_surface_mesh" end time: Oct 20 11:31 CST
+"native_surface_mesh" time elapsed: 00:00:05
+----------------------------------------------------------
+
+6/12 Testing: native_texture_atlas
+6/12 Test: native_texture_atlas
+Command: "/tmp/scanner-audit-native-001/rf_texture_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_texture_atlas" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+triangles=2237 coverage=1 atlas=428x316
+PASS photo atlas creates indexed UV mesh
+PASS masked images are rejected as texture choices
+PASS camera mismatch is rejected
+PASS occlusion mask does not invent textures
+PASS atlas deterministic
+PASS invalid C ABI safe JSON error
+PASS untextured stereo produces no faked UV mesh
+7 texture cases passed
+<end of output>
+Test time =   2.22 sec
+----------------------------------------------------------
+Test Passed.
+"native_texture_atlas" end time: Oct 20 11:31 CST
+"native_texture_atlas" time elapsed: 00:00:02
+----------------------------------------------------------
+
+7/12 Testing: native_photometric
+7/12 Test: native_photometric
+Command: "/tmp/scanner-audit-native-001/rf_photometric_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_photometric" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+PASS linear-sRGB byte roundtrip
+PASS robust RGB exposure recovery with outliers
+PASS disconnected and under-supported views stay identity
+PASS gain limits and invalid samples
+PASS fronto-parallel mesh retains every visible triangle
+PASS glTF UV origin matches asymmetric top-down pixels
+seam edges 82 -> 68
+PASS view coherence reduces seams without dropping faces
+PASS mask and backface exclusions survive smoothing
+8 photometric/UV regression cases passed
+<end of output>
+Test time =   0.08 sec
+----------------------------------------------------------
+Test Passed.
+"native_photometric" end time: Oct 20 11:31 CST
+"native_photometric" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/12 Testing: native_stereo_warp
+8/12 Test: native_stereo_warp
+Command: "/tmp/scanner-audit-native-001/rf_stereo_warp_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_stereo_warp" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+PASS 10000 independent camera projections, identity and NaN gates; max pixel error 4.91127e-11
+<end of output>
+Test time =   0.24 sec
+----------------------------------------------------------
+Test Passed.
+"native_stereo_warp" end time: Oct 20 11:31 CST
+"native_stereo_warp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: native_dense_selection
+9/12 Test: native_dense_selection
+Command: "/tmp/scanner-audit-native-001/rf_dense_selection_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_dense_selection" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+PASS eight-view source lists are bounded, distinct and deterministic
+PASS a disjoint eighth camera has no supported source frusta
+PASS opposing cameras cannot be mistaken for nearby source views
+PASS small batches retain all original pair candidates
+PASS oversized and nonfinite source plans rejected
+PASS eight uniform inputs cannot invent depth and only cache four luminance planes
+PASS eight rendered buffers fuse and texture without losing source seven
+PASS exposure solve spans eight cameras without a four-camera fixed-array overflow
+8 bounded multi-camera cases passed
+<end of output>
+Test time =   3.12 sec
+----------------------------------------------------------
+Test Passed.
+"native_dense_selection" end time: Oct 20 11:31 CST
+"native_dense_selection" time elapsed: 00:00:03
+----------------------------------------------------------
+
+10/12 Testing: native_cancellation
+10/12 Test: native_cancellation
+Command: "/tmp/scanner-audit-native-001/rf_cancellation_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_cancellation" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+PASS cancelled operation fails before allocating per-view image buffers
+PASS nested scopes restore caller's previous cancellation state
+PASS native C ABI reports cancellation without a partial JSON result
+PASS operation cancellation is isolated per thread and registry owner
+PASS long-running dense scan observes cancellation while computing
+5 cancellation regressions passed
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"native_cancellation" end time: Oct 20 11:31 CST
+"native_cancellation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: native_depth_checkpoint
+11/12 Test: native_depth_checkpoint
+Command: "/tmp/scanner-audit-native-001/rf_depth_checkpoint_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_depth_checkpoint" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+PASS complete reference map is saved with a strict content checksum
+PASS identity change never reuses stale geometry
+PASS wrong-size, truncated and corrupted files are cache misses
+PASS completed depth maps replay exactly without repeating photometric search
+PASS cancelled operations cannot replace accepted reference checkpoints
+PASS invalid directory or non-SHA identities are rejected
+6 depth checkpoint cases passed
+<end of output>
+Test time =   0.42 sec
+----------------------------------------------------------
+Test Passed.
+"native_depth_checkpoint" end time: Oct 20 11:31 CST
+"native_depth_checkpoint" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/12 Testing: native_boundary_contract
+12/12 Test: native_boundary_contract
+Command: "/tmp/scanner-audit-native-001/rf_boundary_tests"
+Directory: /tmp/scanner-audit-native-001
+"native_boundary_contract" start time: Oct 20 11:31 CST
+Output:
+----------------------------------------------------------
+7 allocation-failure boundaries and point representation exports passed
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"native_boundary_contract" end time: Oct 20 11:31 CST
+"native_boundary_contract" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 20 11:31 CST

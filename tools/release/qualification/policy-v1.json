@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "version": "initial-release-v1",
+  "max_age_hours": 168,
+  "minimum_physical_scenes": 2,
+  "minimum_physical_devices": 1,
+  "gates": [
+    {"id": "feature_wiring", "agent": "100"},
+    {"id": "native", "agent": "081"},
+    {"id": "android_build", "agent": "091"},
+    {"id": "instrumentation", "agent": "092"},
+    {"id": "capture", "agent": "086", "physical": true, "per_scene": true, "per_device": true},
+    {"id": "geometry", "agent": "084", "physical": true, "per_scene": true, "per_device": true},
+    {"id": "texture", "agent": "085", "physical": true, "per_scene": true, "per_device": true},
+    {"id": "resources", "agent": "087", "physical": true, "per_scene": true, "per_device": true},
+    {"id": "journey", "agent": "099", "physical": true, "per_scene": true, "per_device": true},
+    {"id": "offline", "agent": "089", "physical": true, "per_scene": true, "per_device": true},
+    {"id": "recovery", "agent": "088", "physical": true, "per_scene": true, "per_device": true},
+    {"id": "accessibility", "agent": "093", "physical": true, "per_device": true},
+    {"id": "interoperability", "agent": "090", "per_scene": true},
+    {"id": "security", "agent": "096"},
+    {"id": "dependencies", "agent": "095"},
+    {"id": "release_package", "agent": "091"},
+    {"id": "signing", "agent": "091"},
+    {"id": "external_beta", "agent": "099", "physical": true, "per_scene": true, "per_device": true}
+  ]
+}

@@ -10,7 +10,7 @@ import pytest
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
 from native_api import NativeEngine
-from benchmark_surface_middlebury import run as run_real
+from benchmark_surface_middlebury import run as run_real, projected_surface_coverage
 
 
 def test_uniform_photographs_do_not_generate_false_mesh(tmp_path):
@@ -39,12 +39,19 @@ def test_real_photographs_generate_indexed_open_surfaces():
     assert not result['groundTruthUsedForOptimization']
     assert result['meshTriangleCount']>1000
     assert result['meshVertexCount']>400
-    assert result['fusedObservations']>50
+    # Welding count is an algorithm diagnostic, not a quality/completeness score.
+    # Stricter observed-normal/visibility gates may correctly retain separate vertices.
+    assert 0 <= result['fusedObservations'] <= result['acceptedSurfaceSamples']
+    assert result['acceptedSurfaceSamples']/result['verifiedDepthSamples'] >= .99
+    # Motorcycle-specific baseline: 28.48% covered / 27.21% accurate-covered
+    # of 343,274 eligible left-image pixels; not whole-object completeness.
+    assert result['groundTruthPixelCoverage'] >= .28
+    assert result['groundTruthAccuratePixelCoverage5pct'] >= .27
     assert result['groundTruthMatchedMeshVertices']>1000
-    assert result['disparityAbsoluteErrorPxP50']<2.0
-    assert result['disparityAbsoluteErrorPxP90']<10.0
+    assert result['disparityAbsoluteErrorPxP50']<1.0
+    assert result['disparityAbsoluteErrorPxP90']<3.0
     assert result['depthRelativeErrorP50']<.1
-    assert result['depthRelativeErrorP90']<.20
+    assert result['depthRelativeErrorP90']<.05
     assert result['maximumFaceRelativeDepthJump']<.081
     assert not result['photographicUvTextures'] and not result['meshWatertight']
 
@@ -97,3 +104,37 @@ def test_android_mesh_is_shown_and_exportable_without_network_calls():
     assert 'mesh.glb' in repo and 'mesh.ply' in repo
     assert 'triangle mesh' in screen.lower() or 'verified triangles' in screen
     assert 'drawPath(path' in viewer
+
+
+def test_projected_coverage_uses_fixed_pixels_and_frontmost_surface():
+    # Analytic synthetic square, all 25 image pixel centers lie on z=2.
+    xyz=np.array([[0,0,2],[.8,0,2],[.8,.8,2],[0,.8,2]],float)
+    triangles=np.array([[0,1,2],[0,2,3]])
+    truth=np.full((5,5),5.,float)  # focal 10 / disparity 5 = depth 2
+    result=projected_surface_coverage(xyz,triangles,truth,10.,0.,0.,0.)
+    assert result['groundTruthEligiblePixels']==25
+    assert result['groundTruthCoveredPixels']==25
+    assert result['groundTruthAccurateCoveredPixels5pct']==25
+    duplicated=projected_surface_coverage(xyz,np.tile(triangles,(3,1)),truth,10.,0.,0.,0.)
+    assert duplicated==result, 'Overlapping duplicate faces must not inflate coverage'
+    # A wrong foreground square occludes the correct one; do not choose GT-best depth.
+    foreground=np.concatenate([xyz,xyz*.5])
+    occluded=projected_surface_coverage(foreground,np.concatenate([triangles,triangles+4]),truth,10.,0.,0.,0.)
+    assert occluded['groundTruthCoveredPixels']==25
+    assert occluded['groundTruthAccurateCoveredPixels5pct']==0
+    truth[0,0]=np.nan;truth[0,1]=0
+    masked=projected_surface_coverage(xyz,triangles,truth,10.,0.,0.,0.)
+    assert masked['groundTruthEligiblePixels']==23
+    assert masked['groundTruthAccurateCoveredPixels5pct']==23
+
+
+def test_projected_coverage_preserves_holes_and_uses_perspective_depth():
+    xyz=np.array([[0,0,2],[.8,0,2],[.8,.8,2],[0,.8,2]],float)
+    truth=np.full((5,5),5.,float)
+    partial=projected_surface_coverage(xyz,np.array([[0,1,2]]),truth,10.,0.,0.,0.)
+    assert partial['groundTruthCoveredPixels']==15  # no invented second triangle
+    # The center has inverse depth (.25/1 + .25/2 + .5/4), hence depth 2.
+    sloped=np.array([[0,0,1],[.8,0,2],[0,1.6,4]],float)
+    only_center=np.zeros((5,5));only_center[2,1]=5.
+    result=projected_surface_coverage(sloped,np.array([[0,1,2]]),only_center,10.,0.,0.,0.)
+    assert result['groundTruthAccurateCoveredPixels5pct']==1

@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.withGroovyBuilder
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -36,6 +37,7 @@ android {
     testOptions { unitTests.isIncludeAndroidResources = true }
     // Synthetic photographic regression fixtures are test APK assets, never release assets.
     sourceSets.getByName("androidTest").assets.srcDir("../benchmarks/fixtures")
+    sourceSets.getByName("androidTest").assets.srcDir("schemas")
     lint { abortOnError = true }
 }
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
@@ -58,9 +60,75 @@ dependencies {
     implementation("androidx.camera:camera-view:1.4.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("org.opencv:opencv:4.12.0")
+    implementation("com.google.android.filament:filament-android:1.56.0")
+    implementation("com.google.android.filament:gltfio-android:1.56.0")
     testImplementation("junit:junit:4.13.2")
+    // Android's mockable JSONObject throws in local tests; exercise the real JSON codec.
+    testImplementation("org.json:json:20250517")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.05.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.room:room-testing:2.7.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
+
+// Consume095 approved module graph locks in ordinary Gradle builds, including CI.
+// Managed names match095 export.gradle at c2f775796913a35c65f22c6210641eaa95805432.
+val lockedAndroidConfigurations = setOf(
+    "releaseRuntimeClasspath",
+    "releaseCompileClasspath",
+    "kspReleaseKotlinProcessorClasspath",
+    "releaseAndroidTestRuntimeClasspath",
+    "releaseAndroidTestCompileClasspath",
+    "releaseUnitTestRuntimeClasspath",
+    "releaseUnitTestCompileClasspath",
+    "debugRuntimeClasspath",
+    "debugCompileClasspath",
+    "kspDebugKotlinProcessorClasspath",
+    "debugAndroidTestRuntimeClasspath",
+    "debugAndroidTestCompileClasspath",
+    "debugUnitTestRuntimeClasspath",
+    "debugUnitTestCompileClasspath"
+)
+configurations.configureEach {
+    if (name in lockedAndroidConfigurations) resolutionStrategy.activateDependencyLocking()
+}
+
+// Inline convention from gradle/release-validation.gradle.kts (AGP lint applied-script UAST workaround)
+// Inline via render_convention.py into :app (AGP8.11 lint crashes on applied Kotlin scripts). GroovyBuilder avoids Android plugin classloader duplication in applied Kotlin scripts.
+@Suppress("UNCHECKED_CAST")
+fun Any.dsl(name: String): Any = withGroovyBuilder { getProperty(name) } ?: error("Missing Android DSL property $name")
+fun Any.setDsl(name: String, value: Any?) { withGroovyBuilder { setProperty(name, value) } }
+val candidateAndroid = extensions.getByName("android")
+@Suppress("UNCHECKED_CAST")
+val candidateSigning = candidateAndroid.dsl("signingConfigs") as NamedDomainObjectContainer<Any>
+val candidateMode = providers.gradleProperty("candidateSigning").orElse("test").get()
+require(candidateMode in setOf("test", "production")) { "candidateSigning must be test or production" }
+val candidateSigner = if (candidateMode == "test") candidateSigning.getByName("debug") else {
+    val required = listOf("RF_RELEASE_STORE_FILE", "RF_RELEASE_STORE_PASSWORD", "RF_RELEASE_KEY_ALIAS", "RF_RELEASE_KEY_PASSWORD")
+    require(required.all { !System.getenv(it).isNullOrBlank() }) {
+        "BLOCKED_EXTERNAL: production signing credentials must be injected externally"
+    }
+    candidateSigning.maybeCreate("externalCandidate").apply {
+        setDsl("storeFile", file(System.getenv("RF_RELEASE_STORE_FILE")))
+        setDsl("storePassword", System.getenv("RF_RELEASE_STORE_PASSWORD"))
+        setDsl("keyAlias", System.getenv("RF_RELEASE_KEY_ALIAS"))
+        setDsl("keyPassword", System.getenv("RF_RELEASE_KEY_PASSWORD"))
+    }
+}
+@Suppress("UNCHECKED_CAST")
+val candidateTypes = candidateAndroid.dsl("buildTypes") as NamedDomainObjectContainer<Any>
+candidateTypes.getByName("release").apply {
+    setDsl("debuggable", false)
+    setDsl("minifyEnabled", true)
+    setDsl("shrinkResources", true)
+    setDsl("signingConfig", candidateSigner)
+    dsl("ndk").setDsl("debugSymbolLevel", "FULL")
+}
+val candidateTestBuildType = providers.gradleProperty("realityForgeTestBuildType").orElse("debug").get()
+require(candidateTestBuildType in setOf("debug", "release")) { "realityForgeTestBuildType must be debug or release" }
+candidateAndroid.setDsl("testBuildType", candidateTestBuildType)
+
+// AndroidX test tracing retains these annotations; provide actual classes for test R8.
+dependencies { add("androidTestCompileOnly", "com.google.errorprone:error_prone_annotations:2.26.1") }

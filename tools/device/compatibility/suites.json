@@ -1,0 +1,79 @@
+{
+  "schema": "realityforge.android-suite-scopes.v1",
+  "scopes": {
+    "debug": {
+      "description": "Ordinary debug compatibility tests with controller-only, physical and minified-release contracts excluded explicitly.",
+      "requiredPassedSelectors": [
+        "com.realityforge.scanner.SessionReliabilityTest#syntheticPhotographsCompleteTheActualImportReconstructReopenExportPath",
+        "com.realityforge.scanner.qa.CompatibilityContractTest#installedNativeLibrariesRunOnMeasuredPageSize"
+      ],
+      "excludedGates": [
+        {
+          "gate": "physical_capture",
+          "selector": "com.realityforge.scanner.qa.PhysicalCaptureContractTest",
+          "reason": "Requires an authorized physical ARM64 project, selected camera and Agent086 capture protocol."
+        },
+        {
+          "gate": "external_recovery",
+          "selector": "com.realityforge.scanner.qa.RecoveryStageContractTest#externalProcessBoundary",
+          "reason": "Requires Agent088 external kill/relaunch controller, a fresh nonce and stage/phase arguments."
+        },
+        {
+          "gate": "physical_resource_profile",
+          "selector": "com.realityforge.scanner.agents.a087.ResourceProbeContractTest#profileOperatorSelectedDisposableProject",
+          "reason": "Requires an authorized disposable workload project and Agent087 physical resource protocol."
+        },
+        {
+          "gate": "offline_radios_journey",
+          "selector": "com.realityforge.scanner.qa.OfflinePrivacyJourneyTest#explicitOfflineSyntheticImportReconstructionInspectionReopenExportJourney",
+          "reason": "Requires Agent089 external controller to verify disabled radios before supplying offlinePrivacy=true."
+        },
+        {
+          "gate": "minified_release",
+          "selector": "com.realityforge.scanner.qa.ReleaseNativeContractTest",
+          "reason": "Requires the non-debuggable minified release app and matching release test APK; use release scope."
+        },
+        {
+          "gate": "dedicated_candidate_journey",
+          "selector": "com.realityforge.scanner.qa.ReleaseJourneyTest",
+          "reason": "Requires the Agent099 dedicated controller to verify candidate source/APK/installed-package and physical-bundle identities and its separate rf099_evidence metadata sequence."
+        }
+      ]
+    },
+    "release": {
+      "description": "Ordinary release compatibility tests plus the required minified-release native contract; specialist controllers remain separate.",
+      "requiredPassedSelectors": [
+        "com.realityforge.scanner.SessionReliabilityTest#syntheticPhotographsCompleteTheActualImportReconstructReopenExportPath",
+        "com.realityforge.scanner.qa.CompatibilityContractTest#installedNativeLibrariesRunOnMeasuredPageSize",
+        "com.realityforge.scanner.qa.ReleaseNativeContractTest#installedCandidateIsMinifiedReleaseAndNativeExportsReopen"
+      ],
+      "excludedGates": [
+        {
+          "gate": "physical_capture",
+          "selector": "com.realityforge.scanner.qa.PhysicalCaptureContractTest",
+          "reason": "Requires an authorized physical ARM64 project, selected camera and Agent086 capture protocol."
+        },
+        {
+          "gate": "external_recovery",
+          "selector": "com.realityforge.scanner.qa.RecoveryStageContractTest#externalProcessBoundary",
+          "reason": "Requires Agent088 external kill/relaunch controller and compatible non-debuggable process hooks."
+        },
+        {
+          "gate": "physical_resource_profile",
+          "selector": "com.realityforge.scanner.agents.a087.ResourceProbeContractTest",
+          "reason": "The probe is intentionally absent from release; physical workload and counters require the reviewed Agent087 protocol or supported release measurement alternatives."
+        },
+        {
+          "gate": "offline_radios_journey",
+          "selector": "com.realityforge.scanner.qa.OfflinePrivacyJourneyTest#explicitOfflineSyntheticImportReconstructionInspectionReopenExportJourney",
+          "reason": "Requires Agent089 external controller to verify disabled radios before supplying offlinePrivacy=true."
+        },
+        {
+          "gate": "dedicated_candidate_journey",
+          "selector": "com.realityforge.scanner.qa.ReleaseJourneyTest",
+          "reason": "Requires the Agent099 dedicated controller to verify candidate source/APK/installed-package and physical-bundle identities and its separate rf099_evidence metadata sequence."
+        }
+      ]
+    }
+  }
+}

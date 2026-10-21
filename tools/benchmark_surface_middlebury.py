@@ -15,6 +15,50 @@ from benchmark_middlebury import load_middlebury,FOCAL_PIXELS,CX_LEFT,CX_RIGHT,C
 from native_api import NativeEngine
 
 
+
+def projected_surface_coverage(vertices:np.ndarray, triangles:np.ndarray, truth:np.ndarray,
+        focal:float, cx:float, cy:float, disparity_offset:float)->dict:
+    """Evaluate a fixed GT pixel grid, not vertex counts that change with welding.
+
+    Rasterize only existing triangles at original-image pixel centers. Perspective
+    correct inverse-depth interpolation and a nearest-surface z-buffer prevent
+    overlapping faces from inflating coverage. GT is consulted only afterwards.
+    This measures the left stereo image, not unseen sides or whole-object coverage.
+    """
+    height,width=truth.shape
+    xyz=vertices[:,:3]
+    uv=xyz[:,:2]/xyz[:,2,None]*focal+np.array([cx,cy])
+    zbuffer=np.full((height,width),np.inf)
+    for ids in triangles:
+        a,b,c=uv[ids];z=xyz[ids,2]
+        if not np.all(z>0):continue
+        lo=np.maximum(0,np.ceil(np.min([a,b,c],axis=0)).astype(int))
+        hi=np.minimum([width-1,height-1],np.floor(np.max([a,b,c],axis=0)).astype(int))
+        if np.any(hi<lo):continue
+        denominator=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1])
+        if abs(denominator)<1e-12:continue
+        x,y=np.meshgrid(np.arange(lo[0],hi[0]+1),np.arange(lo[1],hi[1]+1))
+        u=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/denominator
+        v=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/denominator
+        w=1-u-v
+        inside=(u>=-1e-12)&(v>=-1e-12)&(w>=-1e-12)
+        inverse_depth=u/z[0]+v/z[1]+w/z[2]
+        candidate=np.full(inverse_depth.shape,np.inf)
+        np.divide(1.,inverse_depth,out=candidate,where=inside&(inverse_depth>0))
+        target=zbuffer[lo[1]:hi[1]+1,lo[0]:hi[0]+1]
+        np.minimum(target,candidate,out=target)
+    valid=np.isfinite(truth)&(truth>0)&((truth+disparity_offset)>0)
+    covered=valid&np.isfinite(zbuffer)
+    gt_depth=focal/(truth[covered]+disparity_offset)
+    accurate=int(np.count_nonzero(np.abs(zbuffer[covered]-gt_depth)/gt_depth<.05))
+    eligible=int(np.count_nonzero(valid));covered_count=int(np.count_nonzero(covered))
+    if not eligible:raise AssertionError('No valid independently measured pixel grid')
+    return {'groundTruthEligiblePixels':eligible,'groundTruthCoveredPixels':covered_count,
+        'groundTruthAccurateCoveredPixels5pct':accurate,
+        'groundTruthPixelCoverage':covered_count/eligible,
+        'groundTruthAccuratePixelCoverage5pct':accurate/eligible}
+
+
 def run(size:int=228,planes:int=64,glb:Path|None=None,ply:Path|None=None)->dict:
     left,right,truth=load_middlebury()
     height,width=left.shape[:2];ow=size;oh=round(height*ow/width)
@@ -24,8 +68,9 @@ def run(size:int=228,planes:int=64,glb:Path|None=None,ply:Path|None=None)->dict:
         rgb=cv2.resize(source,(ow,oh),interpolation=cv2.INTER_AREA)
         rgba=np.concatenate([rgb,np.full((oh,ow,1),255,np.uint8)],axis=-1)
         images.append(rgba)
+    # Match the pixel-centre transform of the area-resized photographs.
     cameras=np.asarray([[1,0,0,0,1,0,0,0,1,-float(i),0,0,
-            FOCAL_PIXELS*rx,FOCAL_PIXELS*ry,cx*rx,CY*ry]
+            FOCAL_PIXELS*rx,FOCAL_PIXELS*ry,(cx+.5)*rx-.5,(CY+.5)*ry-.5]
         for i,cx in enumerate((CX_LEFT,CX_RIGHT))],dtype=np.float64)
     native=NativeEngine().surface(np.asarray(images),cameras,6.,80.,planes,3,glb=glb,ply=ply)
     if 'meshError' in native:raise AssertionError('Real-photo surface gate rejected: '+native['meshError'])
@@ -49,7 +94,8 @@ def run(size:int=228,planes:int=64,glb:Path|None=None,ply:Path|None=None)->dict:
     triangle_depths=zp[triangles]
     max_relative_jump=np.max(triangle_depths,axis=1)-np.min(triangle_depths,axis=1)
     max_relative_jump/=np.maximum(np.max(triangle_depths,axis=1),1e-8)
-    return {'schema':8,'dataset':'Middlebury 2014 Motorcycle (real rectified stereo)',
+    coverage=projected_surface_coverage(vertices,triangles,truth,FOCAL_PIXELS,CX_LEFT,CY,CX_RIGHT-CX_LEFT)
+    return {**coverage,'schema':8,'dataset':'Middlebury 2014 Motorcycle (real rectified stereo)',
         'realPhotographs':True,'cameraCount':2,'sourceImageDimensions':[width,height],
         'downsampledDimensions':[ow,oh],
         'calibration':'published rectified intrinsics, arbitrary unit baseline',
@@ -70,7 +116,7 @@ def run(size:int=228,planes:int=64,glb:Path|None=None,ply:Path|None=None)->dict:
             'Open camera-visible surfaces, no filled holes or unobserved backside',
             'Vertex colors are sampled; no photographic UV texture atlas',
             'Baseline scale arbitrary; cannot claim dimensions in millimeters',
-            'Ground truth covers only independently evaluated vertices']}
+            'Vertex errors and fixed-pixel coverage evaluate only the left stereo image, not whole-object completeness']}
 
 
 def main():

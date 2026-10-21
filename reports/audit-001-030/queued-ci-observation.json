@@ -1,0 +1,23 @@
+{
+  "observed_at_utc": "2026-10-20 06:28:24 UTC",
+  "head": "aad8e1d5754491d8f0e6a0aca96a9f1f02f53ba6",
+  "run_id": 39377251764,
+  "jobs": [
+    {
+      "id": 118478058960,
+      "name": "native",
+      "status": "queued",
+      "conclusion": null,
+      "runner_id": 0,
+      "steps": []
+    },
+    {
+      "id": 118478059007,
+      "name": "android",
+      "status": "queued",
+      "conclusion": null,
+      "runner_id": 0,
+      "steps": []
+    }
+  ]
+}

@@ -1,0 +1,361 @@
+{
+  "type": "restricted",
+  "presets": [
+    "package_managers"
+  ],
+  "egress_rules": [
+    {
+      "host": "download.blender.org"
+    }
+  ],
+  "preset_egress_rules": [
+    {
+      "host": "github.com"
+    },
+    {
+      "host": "codeload.github.com"
+    },
+    {
+      "host": "github-cloud.githubusercontent.com"
+    },
+    {
+      "host": "github-cloud.s3.amazonaws.com"
+    },
+    {
+      "host": "lfs.github.com"
+    },
+    {
+      "host": "release-assets.githubusercontent.com"
+    },
+    {
+      "host": "git.chatgpt-team.site"
+    },
+    {
+      "host": "eu.git.chatgpt-team.site"
+    },
+    {
+      "host": "us.git.chatgpt-team.site"
+    },
+    {
+      "host": "git.chatgpt.site"
+    },
+    {
+      "host": "eu.git.chatgpt.site"
+    },
+    {
+      "host": "us.git.chatgpt.site"
+    },
+    {
+      "host": "git.appgardenapps.dev"
+    },
+    {
+      "host": "eu.git.appgardenapps.dev"
+    },
+    {
+      "host": "us.git.appgardenapps.dev"
+    },
+    {
+      "host": "git.appgardenapps.com"
+    },
+    {
+      "host": "pypi.org"
+    },
+    {
+      "host": "files.pythonhosted.org"
+    },
+    {
+      "host": "download.pytorch.org"
+    },
+    {
+      "host": "download-r2.pytorch.org"
+    },
+    {
+      "host": "registry.npmjs.org"
+    },
+    {
+      "host": "registry.yarnpkg.com"
+    },
+    {
+      "host": "buf.build"
+    },
+    {
+      "host": "crates.io"
+    },
+    {
+      "host": "index.crates.io"
+    },
+    {
+      "host": "static.crates.io"
+    },
+    {
+      "host": "static.rust-lang.org"
+    },
+    {
+      "host": "proxy.golang.org"
+    },
+    {
+      "host": "sum.golang.org"
+    },
+    {
+      "host": "dl.google.com"
+    },
+    {
+      "host": "repo.maven.apache.org"
+    },
+    {
+      "host": "repo1.maven.org"
+    },
+    {
+      "host": "plugins.gradle.org"
+    },
+    {
+      "host": "plugins-artifacts.gradle.org"
+    },
+    {
+      "host": "services.gradle.org"
+    },
+    {
+      "host": "downloads.gradle.org"
+    },
+    {
+      "host": "bcr.bazel.build"
+    },
+    {
+      "host": "mirror.bazel.build"
+    },
+    {
+      "host": "pkgconfig.freedesktop.org"
+    },
+    {
+      "host": "cpan.metacpan.org"
+    },
+    {
+      "host": "archive.ubuntu.com"
+    },
+    {
+      "host": "security.ubuntu.com"
+    },
+    {
+      "host": "ports.ubuntu.com"
+    },
+    {
+      "host": "ppa.launchpadcontent.net"
+    },
+    {
+      "host": "packages.microsoft.com"
+    },
+    {
+      "host": "apt.buildkite.com"
+    },
+    {
+      "host": "developer.download.nvidia.com"
+    },
+    {
+      "host": "deb.nodesource.com"
+    },
+    {
+      "host": "deb.debian.org"
+    },
+    {
+      "host": "security.debian.org"
+    },
+    {
+      "host": "apt.llvm.org"
+    },
+    {
+      "host": "bitbucket.org"
+    },
+    {
+      "host": "cpan.org"
+    },
+    {
+      "host": "auth.docker.io"
+    },
+    {
+      "host": "production.cloudfront.docker.com"
+    },
+    {
+      "host": "dot.net"
+    },
+    {
+      "host": "gcr.io"
+    },
+    {
+      "host": "ghcr.io"
+    },
+    {
+      "host": "gitlab.com"
+    },
+    {
+      "host": "goproxy.io"
+    },
+    {
+      "host": "hex.pm"
+    },
+    {
+      "host": "jcenter.bintray.com"
+    },
+    {
+      "host": "mcr.microsoft.com"
+    },
+    {
+      "host": "nodejs.org"
+    },
+    {
+      "host": "nuget.org"
+    },
+    {
+      "host": "packagecloud.io"
+    },
+    {
+      "host": "ppa.launchpad.net"
+    },
+    {
+      "host": "pub.dev"
+    },
+    {
+      "host": "pypi.python.org"
+    },
+    {
+      "host": "quay.io"
+    },
+    {
+      "host": "registry-1.docker.io"
+    },
+    {
+      "host": "rubygems.org"
+    },
+    {
+      "host": "sourceforge.net"
+    },
+    {
+      "host": "aka.ms"
+    },
+    {
+      "host": "api.nuget.org"
+    },
+    {
+      "host": "archive.apache.org"
+    },
+    {
+      "host": "azuresearch-usnc.nuget.org"
+    },
+    {
+      "host": "azuresearch-ussc.nuget.org"
+    },
+    {
+      "host": "builds.dotnet.microsoft.com"
+    },
+    {
+      "host": "builds.hex.pm"
+    },
+    {
+      "host": "cache.ruby-lang.org"
+    },
+    {
+      "host": "cdn.cocoapods.org"
+    },
+    {
+      "host": "cdn.jsdelivr.net"
+    },
+    {
+      "host": "cdn.quay.io"
+    },
+    {
+      "host": "cdn01.quay.io"
+    },
+    {
+      "host": "cdn02.quay.io"
+    },
+    {
+      "host": "cdn03.quay.io"
+    },
+    {
+      "host": "cdn04.quay.io"
+    },
+    {
+      "host": "cdn05.quay.io"
+    },
+    {
+      "host": "cdn06.quay.io"
+    },
+    {
+      "host": "conda.anaconda.org"
+    },
+    {
+      "host": "d3fo0g5hm7lbuv.cloudfront.net"
+    },
+    {
+      "host": "dl.k8s.io"
+    },
+    {
+      "host": "dlcdn.apache.org"
+    },
+    {
+      "host": "download.eclipse.org"
+    },
+    {
+      "host": "download.oracle.com"
+    },
+    {
+      "host": "download.swift.org"
+    },
+    {
+      "host": "downloads.haskell.org"
+    },
+    {
+      "host": "downloads.sourceforge.net"
+    },
+    {
+      "host": "get-ghcup.haskell.org"
+    },
+    {
+      "host": "get.rvm.io"
+    },
+    {
+      "host": "globalcdn.nuget.org"
+    },
+    {
+      "host": "go.dev"
+    },
+    {
+      "host": "hackage.haskell.org"
+    },
+    {
+      "host": "pkg-containers.githubusercontent.com"
+    },
+    {
+      "host": "pkgs.k8s.io"
+    },
+    {
+      "host": "prod-cdn.packages.k8s.io"
+    },
+    {
+      "host": "raw.githubusercontent.com"
+    },
+    {
+      "host": "registry.bower.io"
+    },
+    {
+      "host": "registry.terraform.io"
+    },
+    {
+      "host": "releases.bazel.build"
+    },
+    {
+      "host": "releases.hashicorp.com"
+    },
+    {
+      "host": "repo.anaconda.com"
+    },
+    {
+      "host": "repo.hex.pm"
+    },
+    {
+      "host": "repo.packagist.org"
+    },
+    {
+      "host": "sh.rustup.rs"
+    }
+  ]
+}

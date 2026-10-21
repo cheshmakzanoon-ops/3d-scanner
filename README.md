@@ -1,6 +1,6 @@
 # RealityForge — offline Android photo-to-3D scanner
 
-**Current engineering increment: M17, version 0.17.0-m17. Not a completed
+**Current engineering increment: M19, version 0.19.0-m19. Not a completed
 consumer product or a guarantee of high-quality complete-object scanning.**
 
 Capture/import photographs, estimate calibrated camera positions, reconstruct
@@ -9,7 +9,7 @@ the local GPU viewer. No account, analytics, cloud reconstruction, or runtime
 internet permission is included. Originals stay in app-private storage until
 the project is deleted; export important captures before uninstalling.
 
-## Latest work
+## Historical M13–M17 increments
 
 - **M13:** optimized plane-sweep projection kernels with numerical regressions.
 - **M14:** bounded eight-camera native depth, fusion and photographic atlas;
@@ -46,8 +46,9 @@ The atlas budget is 4.5 million pixels. These are enforced limits, not claimed
 physical-phone RSS, battery, speed, accuracy or object-completeness measurements.
 
 Geometry is unscaled, may have holes, disconnected/overlapping patches and visible
-seams, and is not guaranteed manifold or watertight. Native computation remains
-noninterruptible inside individual JNI calls. There is no full-resolution GPU
+seams, and is not guaranteed manifold or watertight. M17 depth/mesh/texture JNI
+calls support cooperative cancellation; sparse JNI calls stop at Kotlin stage
+boundaries. M18 caches accepted per-reference depth only. There is no full-resolution GPU
 reconstruction, production Filament studio, tested release signing, store-ready
 AAB or validated complete-object performance on physical ARM64 phones.
 
@@ -58,9 +59,9 @@ internet; scanning in the app does not. Gradle 8.13, API 36, NDK 28.2.13676358,
 CMake and Java 17 are pinned in the build setup.
 
 ```sh
-./gradlew :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
 cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror
-cmake --build build/host --parallel 2
+cmake --build build/host --parallel 1
 ctest --test-dir build/host --output-on-failure
 python -m pytest tests -q
 ```
@@ -71,6 +72,30 @@ session and real Middlebury stereo benchmarks. The new M16 visibility-chain test
 uses synthetic analytic features with withheld camera poses; it does not replace
 physical captures. Check the workflow for the exact commit before claiming its
 Android build or device tests passed. Source contracts are not runtime evidence.
+
+The integrated 081–100 host suite also needs the independent format validators
+and security scanners. Use the pinned QA-only installer and activation described
+in [the campaign QA runbook](docs/BUILDING.md#integrated-campaign-qa).
+The baseline scientific requirements alone do not supply those tools. Ordinary
+debug/release compatibility instrumentation leaves dedicated controller and
+physical gates explicitly unrun.
+
+## Evidence and campaign workflow
+
+The immutable audited baseline is `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42`;
+[Actions run38488820626](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/38488820626)
+records11 CTest targets,117 pytest checks and32 API35 emulator tests. These counts
+are historical evidence for that SHA, not a result for later agent branches.
+The campaign base is `ad3029193f304c70931b94ea7a0df90b69d84b07`. A branch receipt
+under `docs/agents/status/` describes only its own verified source and gates.
+Agent100 freezes integrated candidate source/artifact hashes before acceptance.
+Missing physical complete-object, resource, signing and license gates stay open.
+Do not treat a remote branch or successful build as integrated app behavior.
+
+Follow [AGENTS](AGENTS.md), the exact numbered role and the shared mechanical
+source-manifest protocol in the execution plan. Stage owned source/tests/receipt
+first; regenerate the entire manifest from staged Git blobs, stage it and verify.
+Never merge another role into a worker branch;100 handles integration and conflicts.
 
 ## Engineering records
 

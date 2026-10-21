@@ -198,13 +198,17 @@ class NativeSmokeTest {
             assertTrue(first>0L&&second>first)
             assertTrue(NativeCore.cancelReconstruction(first))
             assertFalse(NativeCore.cancelReconstruction(-1))
-            val stopped=JSONObject(NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
-                3.0,7.0,24,3,glb.path,ply.path,first))
-            assertEquals("Reconstruction cancelled",stopped.getString("error"))
-            val stoppedTexture=JSONObject(NativeCore.reconstructTexturedSurfaceCancellable(
-                rgba,w,h,rgba,w,h,camera,3.0,7.0,24,3,
-                glb.path,ply.path,photo.path,png.path,first))
-            assertEquals("Reconstruction cancelled",stoppedTexture.getString("error"))
+            try {
+                NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
+                    3.0,7.0,24,3,glb.path,ply.path,first)
+                fail("Cancelled surface operation returned ordinary JSON")
+            } catch(expected: java.util.concurrent.CancellationException) { }
+            try {
+                NativeCore.reconstructTexturedSurfaceCancellable(
+                    rgba,w,h,rgba,w,h,camera,3.0,7.0,24,3,
+                    glb.path,ply.path,photo.path,png.path,first)
+                fail("Cancelled texture operation returned ordinary JSON")
+            } catch(expected: java.util.concurrent.CancellationException) { }
             assertFalse(glb.exists()||ply.exists()||photo.exists()||png.exists())
             val healthy=JSONObject(NativeCore.reconstructSurfaceCancellable(rgba,w,h,camera,
                 3.0,7.0,24,3,glb.path,ply.path,second))
@@ -221,6 +225,63 @@ class NativeSmokeTest {
                 3.0,7.0,24,3,glb.path,ply.path,first)
             fail("Finished lease was accepted")
         }catch(expected: IllegalArgumentException){ }
+    }
+    @Test fun sparseOperationLeasesExposeVersionedProgressAndTypedCancellation() {
+        repeat(24) {
+            val token=NativeCore.beginReconstruction()
+            try {
+                val state=NativeCore.pollNativeProgress(token)
+                assertEquals(7,state.size);assertEquals(1L,state[0]);assertEquals(-1L,state[5])
+                assertTrue(NativeCore.cancelReconstruction(token))
+                try {
+                    NativeCore.reconstructCancellable(DoubleArray(20*7),.002,token)
+                    fail("Cancelled sparse operation returned ordinary JSON")
+                } catch(expected: java.util.concurrent.CancellationException) { }
+            } finally { assertTrue(NativeCore.finishReconstruction(token)) }
+            try { NativeCore.pollNativeProgress(token);fail("Finished progress handle accepted") }
+            catch(expected: IllegalArgumentException) { }
+        }
+        try { NativeCore.reconstruct(DoubleArray(20*7){Double.NaN},.002);fail("Nonfinite geometry accepted") }
+        catch(expected: IllegalArgumentException) { }
+    }
+    @Test fun refinedDepthUsesActualCoarsePhotographsWithNoFabricatedPoints() {
+        val w=64;val h=64;val cw=32;val ch=32
+        fun rgba(width: Int,height: Int)=ByteArray(2*width*height*4){if(it%4==3)255.toByte() else 128.toByte()}
+        val full=rgba(w,h);val coarse=rgba(cw,ch)
+        fun cameras(width: Int,height: Int)=DoubleArray(32).also { rows ->
+            repeat(2){camera -> val base=camera*16;rows[base]=1.0;rows[base+4]=1.0;rows[base+8]=1.0
+                rows[base+9]=-camera*.5;rows[base+12]=84.0*width/w;rows[base+13]=84.0*height/h
+                rows[base+14]=(31.5+.5)*width/w-.5;rows[base+15]=(31.5+.5)*height/h-.5 }
+        }
+        val fullCameras=cameras(w,h);val coarseCameras=cameras(cw,ch)
+        val digest=java.security.MessageDigest.getInstance("SHA-256")
+        digest.update(full);digest.update(coarse)
+        (fullCameras+coarseCameras).forEach { value -> digest.update(java.nio.ByteBuffer.allocate(8).putDouble(value).array()) }
+        val identity=digest.digest().joinToString(""){"%02x".format(it.toInt() and 255)}
+        val token=NativeCore.beginReconstruction()
+        try {
+            val result=JSONObject(NativeCore.reconstructDenseRefinedCancellable(full,w,h,fullCameras,
+                3.0,7.0,24,3,doubleArrayOf(),coarse,cw,ch,coarseCameras,identity,token))
+            assertFalse(result.toString(),result.has("error"));assertEquals(2,result.getInt("coarseDepthMaps"))
+            assertEquals(0,result.getInt("pointCount")) // Uniform photographs must not create geometry.
+            assertEquals(result.getInt("totalTiles"),result.getInt("completedTiles"))
+            assertTrue(NativeCore.pollNativeProgress(token)[6]>0L)
+            val directory=File(InstrumentationRegistry.getInstrumentation().targetContext.cacheDir,"refined-jni-$token").apply{mkdirs()}
+            val meshGlb=File(directory,"mesh.glb");val meshPly=File(directory,"mesh.ply")
+            val photoGlb=File(directory,"photo.glb");val atlas=File(directory,"atlas.png")
+            val pipeline=JSONObject(NativeCore.reconstructTexturedSurfaceRefinedCheckpointed(full,w,h,full,w,h,fullCameras,
+                3.0,7.0,24,3,meshGlb.path,meshPly.path,photoGlb.path,atlas.path,doubleArrayOf(),coarse,cw,ch,
+                coarseCameras,identity,intArrayOf(1,1,1,0),true,token,File(directory,"depth").path,identity))
+            assertFalse(pipeline.toString(),pipeline.has("error"));assertTrue(pipeline.has("meshError"))
+            val dense=pipeline.getJSONObject("dense");assertEquals(2,dense.getInt("coarseDepthMaps"))
+            assertEquals(0,dense.getInt("pointCount"));assertEquals("[[1],[0]]",dense.getJSONArray("sourceViewIndices").toString())
+            assertFalse(photoGlb.exists());assertFalse(atlas.exists())
+            val points=doubleArrayOf(0.0,0.0,1.0,128.0,140.0,180.0,1.0,0.0,1.0,140.0,150.0,160.0,0.0,1.0,1.0,100.0,120.0,130.0)
+            val densePly=File(directory,"dense.ply");val denseGlb=File(directory,"dense.glb")
+            NativeCore.exportPointsTyped(points,densePly.path,false,true);NativeCore.exportPointsTyped(points,denseGlb.path,true,true)
+            assertTrue(densePly.readText().contains("comment representation dense_points"))
+            assertTrue(String(denseGlb.readBytes(),Charsets.ISO_8859_1).contains("\"representation\":\"dense_points\""))
+        } finally { assertTrue(NativeCore.finishReconstruction(token)) }
     }
     @Test fun bundledOpenCvInitializesWithoutDownload() { assertTrue(OpenCVLoader.initLocal()) }
     @Test fun mergedApkHasNoInternetPermission() {

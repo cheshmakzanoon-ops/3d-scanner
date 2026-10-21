@@ -3,10 +3,14 @@ package com.realityforge.scanner
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.data.ProjectRepository
 import com.realityforge.scanner.data.ScanDatabase
+import com.realityforge.scanner.data.archives.ProjectCaptureArchiveService
+import com.realityforge.scanner.data.archives.ScanDaoArchiveProjectStore
+import com.realityforge.scanner.data.operations.ProjectPathPolicy
 import com.realityforge.scanner.engine.NativeCore
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
@@ -27,6 +31,7 @@ class OfflineCaptureBundleTest {
         val database = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
         val repository = ProjectRepository(context, database.dao())
         val project = repository.create("Offline capture contract")
+        var restored: String? = null
         val temporary = mutableListOf<File>()
         try {
             for (seed in 1..3) {
@@ -56,7 +61,8 @@ class OfflineCaptureBundleTest {
                 }
             }
             val manifest = JSONObject(requireNotNull(entries["session.json"]).toString(Charsets.UTF_8))
-            assertEquals(1,manifest.getInt("schema"))
+            assertEquals(2,manifest.getInt("schema"))
+            assertEquals(BuildConfig.VERSION_NAME, manifest.getString("engineVersion"))
             assertFalse(manifest.getBoolean("physicalCaptureVerified"))
             assertFalse(manifest.getBoolean("calibrationIncluded"))
             val photos = manifest.getJSONArray("photos")
@@ -72,8 +78,26 @@ class OfflineCaptureBundleTest {
             val key = "sparse-m04-r2-0123456789abcdef"
             assertEquals("$key.glb", repository.artifact(project,key,"glb").name)
             assertEquals("$key.json", repository.artifact(project,key,"json").name)
+            val paths = ProjectPathPolicy(requireNotNull(repository.directory(project).parentFile))
+            val archiveService = ProjectCaptureArchiveService(ScanDaoArchiveProjectStore(database.dao()) { newProject, newPhotos ->
+                database.withTransaction {
+                    database.dao().insert(newProject)
+                    newPhotos.forEach { database.dao().insert(it) }
+                }
+            }, paths, BuildConfig.VERSION_NAME)
+            restored = archiveService.restore(written.toByteArray().inputStream())
+            assertNotEquals(project, restored)
+            val originalRows = database.dao().photos(project)
+            val restoredRows = database.dao().photos(requireNotNull(restored))
+            assertEquals(originalRows.map { it.sha256 }, restoredRows.map { it.sha256 })
+            assertTrue(originalRows.map { it.id }.intersect(restoredRows.map { it.id }.toSet()).isEmpty())
+            restoredRows.forEachIndexed { index, row ->
+                assertArrayEquals(paths.photoFile(originalRows[index]).readBytes(), paths.photoFile(row).readBytes())
+            }
+            assertTrue(archiveService.recover().failures.isEmpty())
         } finally {
             temporary.forEach { it.delete() }
+            restored?.let { repository.delete(it) }
             repository.delete(project)
             database.close()
         }

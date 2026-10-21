@@ -1,0 +1,258 @@
+"""Pinned external scanners, redacted output and fail-closed scanner execution.
+
+Exit 0 PASS, 1 findings/FAIL, 2 unavailable/NOT_RUN. Never print scanned source.
+"""
+import argparse
+from datetime import date
+from collections import Counter
+import hashlib
+import json
+import re
+from pathlib import Path
+import subprocess
+import tempfile
+
+PINS = {'bandit': '1.8.6', 'detect-secrets': '1.5.0', 'pip-audit': '2.9.0'}
+
+
+def file_sha256(path):
+    with path.open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def regular_input(path):
+    if any(parent.is_symlink() for parent in (path, *path.parents)) or not path.is_file():
+        raise ValueError('input must be a regular file without symlink ancestors')
+    return path.resolve()
+
+
+def run_json(argv, accepted=(0, 1), timeout=180, cwd=None):
+    run = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, cwd=cwd)
+    if run.returncode not in accepted:
+        raise RuntimeError('scanner failed, exit ' + str(run.returncode))
+    return json.loads(run.stdout)
+
+
+
+def source_path(root, name):
+    candidate = Path(name)
+    candidate = candidate if candidate.is_absolute() else root / candidate
+    resolved = candidate.resolve()
+    if candidate.is_symlink() or not resolved.is_relative_to(root.resolve()) or not resolved.is_file():
+        raise ValueError('finding source escapes scan scope or is not regular')
+    return resolved
+
+
+def source_identity(root):
+    """Bind actual selected file bytes; cache files are never source inputs."""
+    rows = []
+    for path in sorted(root.rglob('*')):
+        if any(part in ('.git', '__pycache__') for part in path.relative_to(root).parts):
+            continue
+        if path.is_symlink():
+            raise ValueError('scan scope contains a symlink')
+        if path.is_file():
+            rows.append([path.relative_to(root).as_posix(), file_sha256(path)])
+    revision = subprocess.run(['git', '-C', str(root), 'rev-parse', 'HEAD'], capture_output=True, text=True, timeout=10)
+    dirty = None
+    if revision.returncode == 0:
+        dirty = bool(subprocess.check_output(['git', '-C', str(root), 'status', '--porcelain'], text=True, timeout=10))
+    return {'source_sha': revision.stdout.strip() if revision.returncode == 0 else None,
+            'source_dirty': dirty, 'source_files_sha256': hashlib.sha256(json.dumps(rows, separators=(',', ':')).encode()).hexdigest(),
+            'source_files_count': len(rows)}
+
+
+def finding_counts(raw, active, suppressed):
+    def counts(rows):
+        return dict(sorted(Counter(f["scanner"] + ':' + f['rule'] + ':' + f.get('severity', 'UNCLASSIFIED') for f in rows).items()))
+    return {'raw': len(raw), 'active': len(active), 'suppressed': len(suppressed),
+            'raw_by_rule': counts(raw), 'active_by_rule': counts(active), 'suppressed_by_rule': counts(suppressed)}
+
+
+def requirements_closure(path):
+    """Flatten bounded local includes: pip-audit --disable-pip omits them."""
+    base = path.absolute().parent.resolve()
+    files, lines, packages, visiting = {}, [], {}, set()
+    def visit(candidate):
+        if any(parent.is_symlink() for parent in (candidate, *candidate.parents)):
+            raise ValueError('requirements symlink is unsupported')
+        candidate = source_path(base, candidate)
+        if candidate in visiting:
+            raise ValueError('requirements include cycle')
+        if candidate in files:
+            raise ValueError('repeated requirements include')
+        remaining = 4 * 1024 * 1024 - sum(len(row) for row in files.values())
+        if len(files) >= 64:
+            raise ValueError('requirements closure budget exceeded')
+        with candidate.open('rb') as stream:
+            data = stream.read(remaining + 1)
+        if len(data) > remaining:
+            raise ValueError('requirements closure budget exceeded')
+        files[candidate] = data
+        visiting.add(candidate)
+        pending = ''
+        for line in data.decode('utf-8').splitlines():
+            line = line.split('#', 1)[0].strip()
+            pending += line[:-1] + ' ' if line.endswith('\\') else line
+            if line.endswith('\\'):
+                continue
+            line, pending = pending.strip(), ''
+            if not line:
+                continue
+            include = re.fullmatch(r'(?:-r\s*|--requirement(?:\s+|=))(.+)', line)
+            if include:
+                name = Path(include[1])
+                if name.is_absolute():
+                    raise ValueError('absolute requirements include')
+                visit(candidate.parent / name)
+                continue
+            pin = re.fullmatch(r'([A-Za-z0-9][A-Za-z0-9._-]*)(?:\[[A-Za-z0-9,._-]+\])?==([A-Za-z0-9][A-Za-z0-9.!+_-]*)(?:\s+--hash=sha256:[0-9a-f]{64})*', line)
+            if not pin:
+                raise ValueError('requirements must contain explicit version pins')
+            name = re.sub('[-_.]+', '-', pin[1]).lower()
+            if name in packages:
+                raise ValueError('duplicate requirement pin')
+            packages[name] = pin[2]
+            lines.append(line)
+        if pending:
+            raise ValueError('incomplete requirement continuation')
+        visiting.remove(candidate)
+    visit(path.absolute())
+    if not packages:
+        raise ValueError('requirements contains no package pins')
+    return '\n'.join(lines) + '\n', {str(p): hashlib.sha256(data).hexdigest() for p, data in files.items()}, packages
+
+def read_policy(path, expected_sha=None):
+    with path.open('rb') as stream:
+        policy_bytes = stream.read(4 * 1024 * 1024 + 1)
+    if len(policy_bytes) > 4 * 1024 * 1024 or (expected_sha is not None and hashlib.sha256(policy_bytes).hexdigest() != expected_sha):
+        raise ValueError('suppression policy changed or exceeds budget')
+    return json.loads(policy_bytes), hashlib.sha256(policy_bytes).hexdigest()
+
+
+def apply_suppressions(report, root, path, expected_sha=None):
+    apply_policy(report, root, read_policy(path, expected_sha)[0])
+
+
+def apply_policy(report, root, entries):
+    if entries.get('schema') != 1 or not isinstance(entries.get('entries'), list):
+        raise ValueError('invalid suppression policy')
+    active, suppressed = [], []
+    for finding in report['findings']:
+        source = source_path(root, finding['path']) if finding['scanner'] in ('bandit', 'detect-secrets') else None
+        digest = 'sha256:' + file_sha256(source) if source else None
+        matches = [entry for entry in entries['entries'] if all(entry.get(key) == finding.get(key) for key in ('scanner', 'path', 'line', 'rule')) and entry.get('source_sha256') == digest and all('sha256:' + file_sha256(source_path(root, name)) == expected for name, expected in entry.get('context_sha256', {}).items())]
+        if matches:
+            if len(matches) != 1 or not isinstance(matches[0].get('justification'), str) or len(matches[0]['justification']) < 30 or date.fromisoformat(matches[0]['expires']) < date.today():
+                raise ValueError('invalid/expired suppression')
+            suppressed.append({**finding, 'justification': matches[0]['justification'], 'expires': matches[0]['expires']})
+        else:
+            active.append(finding)
+    report['findings'], report['suppressed'] = active, suppressed
+    for check, scanner in [('static', 'bandit'), ('secrets', 'detect-secrets'), ('dependencies', 'pip-audit')]:
+        if check in report['checks'] and report['checks'][check] != 'NOT_RUN':
+            report['checks'][check] = 'FAIL' if any(f['scanner'] == scanner for f in active) else 'PASS'
+
+
+def scan(root, python, requirements=None, suppressions=None, expected_source=None):
+    report = {'schema': 1, 'status': 'NOT_RUN', 'tools': PINS, 'findings': [], 'checks': {}}
+    try:
+        root = root.resolve()
+        if not root.is_dir():
+            raise ValueError('scan scope must be a directory')
+        original = source_identity(root)
+        report.update(original, scan_root=str(root))
+        if expected_source is not None and (not re.fullmatch('[0-9a-f]{40}', expected_source) or original['source_sha'] != expected_source or original['source_dirty'] is not False):
+            raise ValueError('candidate source differs or is dirty')
+        driver = Path(__file__).resolve()
+        report['scanner_source_sha256'] = file_sha256(driver)
+        if suppressions:
+            policy_source = regular_input(suppressions.absolute())
+            policy_entries, policy_digest = read_policy(suppressions)
+        input_hashes = {str(driver): report['scanner_source_sha256']}
+        if suppressions:
+            input_hashes[str(policy_source)] = policy_digest
+        if requirements:
+            flattened, closure_hashes, expected_packages = requirements_closure(requirements)
+            report['requirements_files_sha256'] = closure_hashes
+            report['requirements_packages_count'] = len(expected_packages)
+        if suppressions:
+            report['suppressions_sha256'] = policy_digest
+        # Verify exact installed distributions through the selected isolated Python.
+        code = 'import importlib.metadata,json; print(json.dumps({n:importlib.metadata.version(n) for n in '+repr(list(PINS))+'}))'
+        if run_json([str(python), '-c', code], accepted=(0,)) != PINS:
+            raise RuntimeError('unexpected scanner version')
+        bandit = run_json([str(python), '-m', 'bandit', '-r', str(root), '-f', 'json', '-q'])
+        if bandit.get('errors'):
+            raise RuntimeError('Bandit could not analyze all selected files')
+        for issue in bandit.get('results', []):
+            report['findings'].append({'scanner': 'bandit', 'path': source_path(root, issue['filename']).relative_to(root).as_posix(), 'line': issue['line_number'], 'rule': issue['test_id'], 'severity': issue['issue_severity']})
+        report['checks']['static'] = 'FAIL' if bandit.get('results') else 'PASS'
+        secrets = run_json([str(python), '-m', 'detect_secrets', 'scan', '--all-files', '--no-verify', '.'], accepted=(0,), cwd=root.resolve())
+        secret_count = 0
+        for path, issues in secrets.get('results', {}).items():
+            for issue in issues:
+                secret_count += 1
+                report['findings'].append({'scanner': 'detect-secrets', 'path': path, 'line': issue['line_number'], 'rule': issue['type']})
+        report['checks']['secrets'] = 'FAIL' if secret_count else 'PASS'
+        report['checks']['dependencies'] = 'NOT_RUN'
+        if requirements:
+            report['requirements_sha256'] = closure_hashes[str(requirements.resolve())]
+            # Pinned requirements only: --disable-pip prevents environment mutation.
+            with tempfile.TemporaryDirectory(prefix='rf-audit-cache-') as cache:
+                audit_input = Path(cache) / 'resolved-input.txt'
+                audit_input.write_text(flattened)
+                dependencies = run_json([str(python), '-m', 'pip_audit', '--disable-pip', '--no-deps', '--cache-dir', cache, '--progress-spinner', 'off', '-r', str(audit_input), '-f', 'json'])
+            count = 0
+            actual_packages = {}
+            for dep in dependencies['dependencies']:
+                if 'skip_reason' in dep:
+                    raise RuntimeError('dependency was not audited')
+                name = re.sub('[-_.]+', '-', dep['name']).lower()
+                if name in actual_packages:
+                    raise RuntimeError('dependency was audited more than once')
+                actual_packages[name] = dep['version']
+                for vuln in dep['vulns']:
+                    count += 1
+                    report['findings'].append({'scanner': 'pip-audit', 'package': dep['name'], 'version': dep['version'], 'rule': vuln['id'], 'fix_versions': vuln.get('fix_versions', [])})
+            if actual_packages != expected_packages:
+                raise RuntimeError('dependency audit omitted or changed selected pins')
+            report['checks']['dependencies'] = 'FAIL' if count else 'PASS'
+        report['raw_findings'] = [dict(f) for f in report['findings']]
+        report['suppressed'] = []
+        if suppressions:
+            if regular_input(suppressions.absolute()) != policy_source:
+                raise ValueError('suppression policy route/bytes changed before application')
+            apply_policy(report, root, policy_entries)
+        report['finding_counts'] = finding_counts(report['raw_findings'], report['findings'], report['suppressed'])
+        if (source_identity(root) != original
+                or (suppressions and regular_input(suppressions.absolute()) != policy_source)
+                or any(file_sha256(Path(name)) != digest for name, digest in input_hashes.items())
+                or (requirements and requirements_closure(requirements) != (flattened, closure_hashes, expected_packages))):
+            raise ValueError('source or policy/requirements changed during scan')
+        report['status'] = 'FAIL' if report['findings'] else 'PASS' if requirements else 'NOT_RUN'
+    except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
+        report['error'] = type(error).__name__ + ': scanner unavailable, failed, or incomplete'
+    raw = report.get('raw_findings', report['findings'])
+    report['finding_counts'] = finding_counts(raw, report['findings'], report.get('suppressed', []))
+    return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('root', type=Path)
+    parser.add_argument('--scanner-python', type=Path, required=True)
+    parser.add_argument('--requirements', type=Path)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--suppressions', type=Path)
+    parser.add_argument('--source-sha', help='Require this exact clean Git candidate and stable scanned bytes')
+    args = parser.parse_args()
+    report = scan(args.root, args.scanner_python, args.requirements, args.suppressions, args.source_sha)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({'status': report['status'], 'checks': report['checks'], 'finding_count': len(report['findings'])}))
+    return {'PASS': 0, 'FAIL': 1, 'NOT_RUN': 2}[report['status']]
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

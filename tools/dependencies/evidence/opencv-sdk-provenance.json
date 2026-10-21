@@ -1,0 +1,174 @@
+{
+  "url": "https://github.com/opencv/opencv/releases/download/4.12.0/opencv-4.12.0-android-sdk.zip",
+  "archiveSha256": "fd7f2332331b4eb8b67e55137281cfb16823c9399d90deb9cfa3476783b99e35",
+  "mavenAarSha256": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+  "records": [
+    {
+      "path": "OpenCV-4.12.0-SDK-LICENSE",
+      "archivePath": "OpenCV-android-sdk/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ittnotify-GPL-2.0-only.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ittnotify-GPL-2.0-only.txt",
+      "sha256": "cbe0f9505c5ca02ee34bfca453df31a98e31e6d56afcdf8ab0f87f4c94f1181b"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libopenjp2-README.md",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libopenjp2-README.md",
+      "sha256": "cc0090eb6abfbea7d44351851d04bcfcfeb9181eac9fcb8b2d108091b5eefc24"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ippiw-EULA.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ippiw-EULA.txt",
+      "sha256": "c1bf7165226036081d5cbe4baca565eb5e817fe56b9cf1ac7247688feb32b3e4"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-openexr-AUTHORS.ilmbase",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/openexr-AUTHORS.ilmbase",
+      "sha256": "3d01213ed07453794228b95e41fd5897bad65e1342ebfdefbe52311d6e1adcb4"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ippicv-readme.htm",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ippicv-readme.htm",
+      "sha256": "60872339f83f97b5d102f68b43df8fa968e8b618a3ef69a0e6307d1e755251c1"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-tbb-README.md",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/tbb-README.md",
+      "sha256": "9504c62f0e01a7ea5d15f7fcf2d52ec24acef60078ad10f0c55d63d68218fbe2"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-protobuf-LICENSE",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/protobuf-LICENSE",
+      "sha256": "6e5e117324afd944dcf67f36cf329843bc1a92229a8cd9bb573d7a83130fea7d"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ippicv-EULA.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ippicv-EULA.txt",
+      "sha256": "c1bf7165226036081d5cbe4baca565eb5e817fe56b9cf1ac7247688feb32b3e4"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libjpeg-turbo-README.md",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libjpeg-turbo-README.md",
+      "sha256": "c553459fc4ea1f69526f0edf0c8ff6c4002fda5b76094abefabdc3de1ee62c10"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ippiw-support.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ippiw-support.txt",
+      "sha256": "ae29fd797424fcd465b3b8f09fc30b5145c512b3763f6172edf71780203c6912"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-SoftFloat-COPYING.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/SoftFloat-COPYING.txt",
+      "sha256": "0c5b08365136da52639d777f1ebfc03988b0169d80655c90c59f1b3fa3e526a2"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-openexr-LICENSE",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/openexr-LICENSE",
+      "sha256": "14eba5f05238f57c77e94f0ebd29a0b3736ba0456ff990cda16e21b6903ac453"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ippicv-third-party-programs.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ippicv-third-party-programs.txt",
+      "sha256": "152d84b967b38395b7b1d52fd515a397f6cab429832001b210812a9c5c8ea2c5"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ade-LICENSE",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ade-LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-cpufeatures-LICENSE",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/cpufeatures-LICENSE",
+      "sha256": "c870d52f42a8f93023b99a85fe68d02637d6b04e5f35bbcd7f98759adb4e4d49"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libjpeg-turbo-README.ijg",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libjpeg-turbo-README.ijg",
+      "sha256": "75815e3bf6484201a3c3d17a1bbf10f2e8e3237f84df10a2357ea896db2a81d6"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-mscr-chi_table_LICENSE.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/mscr-chi_table_LICENSE.txt",
+      "sha256": "676858659f4115246b41f2f44dcfbf17db52c6b1755f1102b78a87062dff0c07"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-vasot-LICENSE.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/vasot-LICENSE.txt",
+      "sha256": "a9c8a68807d39b6810d593008f02e7835a8f8280781e5ce9b544a7fb973bb79e"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libtiff-COPYRIGHT",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libtiff-COPYRIGHT",
+      "sha256": "fbd6fed7938541d2c809c0826225fc85e551fdbfa8732b10f0c87e0847acafd7"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-cpufeatures-README.md",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/cpufeatures-README.md",
+      "sha256": "66da62d48c88cdb5f124626bb9be1598203a7ecdfe2c4a306a94d1f962b39fc5"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libopenjp2-LICENSE",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libopenjp2-LICENSE",
+      "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-openexr-AUTHORS.openexr",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/openexr-AUTHORS.openexr",
+      "sha256": "35560b29d013ceea33c66e8a0dfa4fc41768302e441c49bf98a3cffffbc17bde"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ippiw-third-party-programs.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ippiw-third-party-programs.txt",
+      "sha256": "152d84b967b38395b7b1d52fd515a397f6cab429832001b210812a9c5c8ea2c5"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libpng-LICENSE",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libpng-LICENSE",
+      "sha256": "7317e078e2d3b5d7ba5a6159e650945153262b44b76f6700f8e9edb261c5143e"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libjpeg-turbo-LICENSE.md",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libjpeg-turbo-LICENSE.md",
+      "sha256": "96f5b328adbb78eeaaec6980d73fd558cb1e4d62560ed615646bc3cf5e532430"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-flatbuffers-LICENSE.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/flatbuffers-LICENSE.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-protobuf-README.md",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/protobuf-README.md",
+      "sha256": "aa924b1ceb243a25b4ff4a0360dc124a58d22633e9f6de02167d162b86968324"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-ittnotify-BSD-3-Clause.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/ittnotify-BSD-3-Clause.txt",
+      "sha256": "cf48cdd9ed87c2031b68fb1b9f4cfb55d00dcf815b21a30bf8304aa1e5e6f76a"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-libpng-README",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/libpng-README",
+      "sha256": "2323427631a134663e4c9e0f14fc76933180e6d9c2196b5377507f6e8ff7d7ab"
+    },
+    {
+      "path": "OpenCV-4.12.0-SDK-tbb-LICENSE.txt",
+      "archivePath": "OpenCV-android-sdk/sdk/etc/licenses/tbb-LICENSE.txt",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+    },
+    {
+      "abi": "arm64-v8a",
+      "sdkLibrarySha256": "144bbc9ad0b0bac4ba58f7d53198aead64379e5314f68200968c703d2c1c14ab",
+      "aarLibrarySha256": "144bbc9ad0b0bac4ba58f7d53198aead64379e5314f68200968c703d2c1c14ab",
+      "identical": true
+    },
+    {
+      "abi": "x86_64",
+      "sdkLibrarySha256": "373e5a25a92bf6a683fecf4d9c73adaf478c04efad10171d865dcf78b242709a",
+      "aarLibrarySha256": "373e5a25a92bf6a683fecf4d9c73adaf478c04efad10171d865dcf78b242709a",
+      "identical": true
+    }
+  ]
+}

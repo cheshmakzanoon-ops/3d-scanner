@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Explicit ADB shell bootstrap grants only this provider to the fixed app;
+             DUMP is held by shell, unlike signature-only MANAGE_DOCUMENTS. -->
+        <receiver android:name="com.realityforge.scanner.qa.FaultDocumentProvider$GrantReceiver"
+            android:exported="true" android:permission="android.permission.DUMP" />
+        <!-- Synthetic, bounded fixtures only; installed in test APK, never main APK. -->
+        <provider android:name="com.realityforge.scanner.qa.FaultDocumentProvider"
+            android:authorities="com.realityforge.scanner.test.faults"
+            android:exported="true" android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER" /></intent-filter>
+        </provider>
+        <provider android:name="com.realityforge.scanner.agents.a011.FixturePhotoProvider"
+            android:authorities="com.realityforge.scanner.test.a011.photo-fixture"
+            android:exported="true" android:grantUriPermissions="true" />
+        <!-- Distinct fixture for the typed SAF transfer matrix, never in the app APK. -->
+        <provider android:name="com.realityforge.scanner.qa.SharedFaultDocumentProvider"
+            android:authorities="com.realityforge.scanner.test.shared.fault-documents"
+            android:exported="true" android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter><action android:name="android.content.action.DOCUMENTS_PROVIDER" /></intent-filter>
+        </provider>
+        <receiver android:name="com.realityforge.scanner.qa.SharedFaultDocumentProvider$ControlReceiver"
+            android:exported="true" android:permission="android.permission.DUMP" />
+    </application>
+</manifest>

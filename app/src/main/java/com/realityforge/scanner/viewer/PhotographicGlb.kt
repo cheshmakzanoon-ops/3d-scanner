@@ -6,11 +6,16 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.zip.CRC32
+import java.util.zip.Inflater
+import java.nio.charset.CodingErrorAction
+import java.util.concurrent.CancellationException
+import com.realityforge.scanner.viewer.loading.GlbStructure
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.sqrt
 
 /** Validated subset emitted by RealityForge, not a general-purpose glTF importer. */
+@ConsistentCopyVisibility
 data class PhotographicAsset internal constructor(
     val positions: FloatArray, val uv: FloatArray, val indices: IntArray,
     val png: ByteArray, val imageWidth: Int, val imageHeight: Int,
@@ -24,7 +29,9 @@ object PhotographicGlb {
     private const val MAX_VERTICES = 240_000
     private const val MAX_INDICES = 240_000
 
-    fun read(file: File): PhotographicAsset {
+    fun read(file: File): PhotographicAsset = read(file) { false }
+
+    fun read(file: File, cancelled: () -> Boolean): PhotographicAsset {
         require(file.isFile && file.length() in 28L..MAX_FILE_BYTES.toLong()) { "Model file exceeds the preview budget or is missing." }
         // Bound the read itself: a replaced/growing file must not bypass the size check.
         val bytes = file.inputStream().use { input ->
@@ -33,17 +40,22 @@ object PhotographicGlb {
             val data = ByteArray(expected)
             var offset = 0
             while (offset < data.size) {
-                val count = input.read(data, offset, data.size - offset)
+                if (cancelled()) throw CancellationException("Model load cancelled.")
+                val count = input.read(data, offset, minOf(65536, data.size - offset))
                 require(count > 0) { "Truncated GLB file." }
                 offset += count
             }
             require(input.read() == -1) { "GLB changed while loading." }
             data
         }
-        return decode(bytes)
+        return decode(bytes, cancelled)
     }
 
-    fun decode(bytes: ByteArray): PhotographicAsset {
+    fun decode(bytes: ByteArray): PhotographicAsset = decode(bytes) { false }
+
+    fun decode(bytes: ByteArray, cancelled: () -> Boolean): PhotographicAsset {
+        if (cancelled()) throw CancellationException("Model load cancelled.")
+        GlbStructure.validate(bytes, 4, cancelled)
         require(bytes.size in 28..MAX_FILE_BYTES) { "Invalid GLB size." }
         val b = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
         fun uint(offset: Int): Long = b.getInt(offset).toLong() and 0xffffffffL
@@ -56,13 +68,14 @@ object PhotographicGlb {
         require(binSize % 4 == 0L && uint(binHeader + 4) == 0x004e4942L)
         val binStart = binHeader + 8
         require(binStart.toLong() + binSize == bytes.size.toLong()) { "Unexpected/truncated GLB chunks." }
-        val json = bytes.copyOfRange(20, binHeader).toString(Charsets.UTF_8)
+        val json = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+            .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes, 20, jsonSize.toInt())).toString()
         checkJsonDepth(json)
         val tokener = JSONTokener(json)
         val root = tokener.nextValue() as? JSONObject ?: error("Expected GLB object.")
         require(tokener.nextClean() == '\u0000') { "Trailing JSON data." }
         require(root.getJSONObject("asset").getString("version") == "2.0")
-        require(!root.has("extensionsRequired") || root.getJSONArray("extensionsRequired").length() == 0)
+        // Required/used extensions were checked by the shared structural validator.
         for (key in listOf("animations", "skins", "extensions")) require(!root.has(key)) { "Unsupported model feature: $key" }
         val buffer = single(root, "buffers")
         require(!buffer.has("uri")) { "External model data is not permitted." }
@@ -128,6 +141,7 @@ object PhotographicGlb {
         val lo = FloatArray(3) { Float.POSITIVE_INFINITY }
         val hi = FloatArray(3) { Float.NEGATIVE_INFINITY }
         for (i in 0 until pos.count) {
+            if (i % 1024 == 0 && cancelled()) throw CancellationException("Model load cancelled.")
             for (j in 0..2) {
                 val value = b.getFloat(pos.offset + i * pos.stride + j * 4)
                 require(value.isFinite() && abs(value) <= 1e9f) { "Invalid model coordinate." }
@@ -135,6 +149,10 @@ object PhotographicGlb {
                 lo[j] = minOf(lo[j], value); hi[j] = maxOf(hi[j], value)
                 require(b.getFloat(normal.offset + i * normal.stride + j * 4).isFinite())
             }
+            val nx = b.getFloat(normal.offset + i * normal.stride).toDouble()
+            val ny = b.getFloat(normal.offset + i * normal.stride + 4).toDouble()
+            val nz = b.getFloat(normal.offset + i * normal.stride + 8).toDouble()
+            require(abs(nx * nx + ny * ny + nz * nz - 1.0) <= 1e-3) { "Invalid model normal." }
             for (j in 0..1) {
                 val value = b.getFloat(tex.offset + i * tex.stride + j * 4)
                 require(value.isFinite() && value in 0f..1f) { "Invalid atlas coordinate." }
@@ -142,6 +160,7 @@ object PhotographicGlb {
             }
         }
         val indices = IntArray(ind.count) { i ->
+            if (i % 1024 == 0 && cancelled()) throw CancellationException("Model load cancelled.")
             val at = ind.offset + i * ind.stride
             val value = when (ind.component) {
                 5121 -> (b.get(at).toInt() and 255).toLong()
@@ -155,13 +174,21 @@ object PhotographicGlb {
         val radius = sqrt((0..2).sumOf { val d = hi[it].toDouble() - lo[it]; d * d }).times(.5).toFloat()
         require(radius.isFinite() && radius > 1e-12f) { "Model has no measurable extent." }
         val material = single(root, "materials")
-        require(material.optBoolean("doubleSided", false) && !material.has("extensions"))
+        require(material.optBoolean("doubleSided", false))
+        if (material.has("extensions")) {
+            val extensions = material.getJSONObject("extensions")
+            require(extensions.keys().asSequence().all { it == "KHR_materials_unlit" })
+            require(extensions.getJSONObject("KHR_materials_unlit").length() == 0)
+        }
+        for (key in listOf("normalTexture", "occlusionTexture", "emissiveTexture", "emissiveFactor"))
+            require(!material.has(key)) { "Unsupported material feature: $key" }
         val mode = material.optString("alphaMode", "OPAQUE")
         require(mode == "MASK" || mode == "OPAQUE")
         val cutoff = if (mode == "MASK") material.optDouble("alphaCutoff", .5) else 0.0
         require(cutoff.isFinite() && cutoff in 0.0..1.0)
         val pbr = material.getJSONObject("pbrMetallicRoughness")
-        require(!pbr.has("baseColorFactor") && !pbr.has("extensions"))
+        require(!pbr.has("baseColorFactor") && !pbr.has("extensions") && !pbr.has("metallicRoughnessTexture"))
+        require(pbr.optDouble("metallicFactor", 1.0) == 0.0 && pbr.optDouble("roughnessFactor", 1.0) == 1.0)
         val baseTexture = pbr.getJSONObject("baseColorTexture")
         require(integer(baseTexture, "index", 0) == 0 && integer(baseTexture, "texCoord", 0, 0) == 0 && !baseTexture.has("extensions"))
         val texture = single(root, "textures")
@@ -174,7 +201,7 @@ object PhotographicGlb {
         val imageView = view(integer(image, "bufferView", views.length() - 1))
         require(imageView.stride == 0 && imageView.size <= 20 * 1024 * 1024)
         val png = bytes.copyOfRange(imageView.offset, imageView.offset + imageView.size)
-        val (width, height) = validatePng(png)
+        val (width, height) = validatePng(png, cancelled)
         return PhotographicAsset(positions, uv, indices, png, width, height, cutoff.toFloat(), center, radius)
     }
 
@@ -201,16 +228,19 @@ object PhotographicGlb {
         }
         require(depth == 0 && !quoted)
     }
-    private fun validatePng(png: ByteArray): Pair<Int, Int> {
+    internal fun validatePng(png: ByteArray, cancelled: () -> Boolean = { false }): Pair<Int, Int> {
         require(png.size >= 57 && png.copyOfRange(0, 8).contentEquals(byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10)))
         val b = ByteBuffer.wrap(png).order(ByteOrder.BIG_ENDIAN)
-        var at = 8; var width = 0; var height = 0; var idat = false; var end = false; var chunks = 0
+        var at = 8; var width = 0; var height = 0; var idat = false; var afterIdat = false; var end = false; var chunks = 0; var channels = 0
+        val dataRanges = mutableListOf<IntRange>()
         while (at < png.size) {
+            if (cancelled()) throw CancellationException("Model load cancelled.")
             require(++chunks <= 10000 && at.toLong() + 12 <= png.size)
             val length = b.getInt(at).toLong() and 0xffffffffL
             require(length <= png.size && at + 12L + length <= png.size)
             val n = length.toInt()
             val type = String(png, at + 4, 4, Charsets.US_ASCII)
+            require(type.all { it in 'A'..'Z' || it in 'a'..'z' } && (png[at+6].toInt() and 32) == 0) { "Invalid PNG chunk type." }
             val crc = CRC32().apply { update(png, at + 4, n + 4) }.value
             require(crc == (b.getInt(at + 8 + n).toLong() and 0xffffffffL)) { "Corrupt PNG checksum." }
             if (at == 8) {
@@ -218,15 +248,44 @@ object PhotographicGlb {
                 width = b.getInt(at + 8); height = b.getInt(at + 12)
                 require(width in 1..4096 && height in 1..4096 && width.toLong() * height <= MAX_IMAGE_PIXELS) { "Texture exceeds preview budget." }
                 require(png[at+16].toInt() == 8 && png[at+17].toInt() in listOf(2,6))
+                channels = if (png[at+17].toInt() == 6) 4 else 3
                 require(png[at+18].toInt() == 0 && png[at+19].toInt() == 0 && png[at+20].toInt() == 0)
             } else when (type) {
-                "IDAT" -> { require(n > 0); idat = true }
+                "IDAT" -> { require(n > 0 && !afterIdat); idat = true; dataRanges.add((at + 8) until (at + 8 + n)) }
                 "IEND" -> { require(n == 0 && idat && at + 12 == png.size); end = true }
-                else -> require(type !in listOf("IHDR", "acTL", "fcTL", "fdAT") && (png[at+4].toInt() and 32) != 0) { "Unsupported PNG chunk." }
+                else -> {
+                    require(type !in listOf("IHDR", "acTL", "fcTL", "fdAT") && (png[at+4].toInt() and 32) != 0) { "Unsupported PNG chunk." }
+                    if (idat) afterIdat = true
+                }
             }
             at += n + 12
         }
         require(end)
+        // Validate the compressed stream with one bounded scratch buffer, before
+        // BitmapFactory can allocate. Exactly one filter byte + row pixels is
+        // accepted per row; excess expansion and invalid filter types fail closed.
+        val rowBytes = width * channels + 1
+        val expected = rowBytes.toLong() * height
+        val scratch = ByteArray(16384)
+        val inflater = Inflater()
+        var produced = 0L
+        try {
+            for (range in dataRanges) {
+                require(!inflater.finished()) { "Trailing PNG compressed data." }
+                inflater.setInput(png, range.first, range.last - range.first + 1)
+                while (!inflater.needsInput() && !inflater.finished()) {
+                    if (cancelled()) throw CancellationException("Model load cancelled.")
+                    val count = inflater.inflate(scratch)
+                    require(count > 0 || inflater.finished()) { "Invalid PNG compressed stream." }
+                    require(produced + count <= expected) { "PNG decompression exceeds image dimensions." }
+                    for (i in 0 until count) if ((produced + i) % rowBytes == 0L)
+                        require((scratch[i].toInt() and 255) <= 4) { "Invalid PNG row filter." }
+                    produced += count
+                }
+                require(inflater.remaining == 0) { "Trailing PNG compressed data." }
+            }
+            require(inflater.finished() && produced == expected) { "Truncated PNG pixel data." }
+        } finally { inflater.end() }
         return width to height
     }
 }

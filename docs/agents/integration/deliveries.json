@@ -1,0 +1,645 @@
+{
+  "schema": 1,
+  "deliveries": [
+    {
+      "agent": "083",
+      "source_sha": "085b6c738a0fd9501c8f3f1e2d7f4d1660539e21",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "3926fa7969e0b76142a463abeb13bd47c27e8a0f",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "090",
+      "source_sha": "401cf77dce27a849a8a48d7c16fb7d7911f2f330",
+      "branch": "agents/090-export-interoperability-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "b00f66276bd22d4bb0fdf4c38bd30cd9e47d2a35",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "2f76d31c1308e2505f00eff40e20331a495e4ba9",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "084",
+      "source_sha": "4cc6f123b38027921e477eda9c243d7c0c1b4ed8",
+      "branch": "agents/084-full-object-geometry-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "083",
+      "source_sha": "eb95eb05d75a77d7236cd68bc32dacf4acb4825b",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "de7b8a4fd808aa4426f3a764c04378f90d485cd4",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "f841d75322a87964c5ddfdc2a03dab9f3fb48c7f",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "098",
+      "source_sha": "fdaad37edbcb55ae3544337a200a2e2dc3091329",
+      "branch": "agents/098-current-documentation-runbook",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "086",
+      "source_sha": "edf7729e10c1cb1e2b8078a6d4d912f2adc7014b",
+      "branch": "agents/086-physical-arm64-capture-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "ee146ab8e93b599a1a198e21a40d3a1c2870a88f",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "8191966e1081eb6c1540b2017393c76f8c1c852a",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "eee224368ed47ee940c3f95ee9b157e705d86706",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "9f957ea2a740c56673a8a1f66d914de4bbf048ee",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "085",
+      "source_sha": "e88a374f4f9aaf8a5104354f4747778b372e2465",
+      "branch": "agents/085-photographic-texture-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "082",
+      "source_sha": "6cc3465926186f0db10e58e2d3e30db638cbe2fe",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "081",
+      "source_sha": "39e90e534ed414ccb9dc152e64709a45f1f28bcc",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "90c5346001b42a049a803e57471098da92665fa1",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "d9a9ba6231784cf53e044d039108934eeff55c32",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "097",
+      "source_sha": "644bd7f7becfa94de278573557d2c235d666a4fb",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "bd87f4fa02639f7a4f565064e6792cfe03c40b92",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "087",
+      "source_sha": "3382536db6b58d1be7730076f893d80807085c77",
+      "branch": "agents/087-physical-resource-profiling",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "099",
+      "source_sha": "d1523fda382dda499f210f49d2727a7b918c0ec6",
+      "branch": "agents/099-release-candidate-journey-qualification",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "097",
+      "source_sha": "a1b01715ac0da1784db0369b6b4c05df81529339",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "ccb86336e70efed8cc71f27424b6621f24c3de5b",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "082",
+      "source_sha": "496bb92396e341b8153736ff4cfccbc0281269d7",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "0e5d9415c168c46a21899450dcd82c84886095f8",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "3b8da57874a5ae2fd9ddeb127acc85f587ba289f",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "090",
+      "source_sha": "50d224e7cfbcb3b5d17df006da723560fb38b962",
+      "branch": "agents/090-export-interoperability-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "138c2f1e63fb28f8114899b52ca5a326eb7d62f6",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "6e4cbee9d47beebf6978164f5a87b618aec08c56",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "098",
+      "source_sha": "3b987458a7382c1abbfb605b795e9d9b3c5a1054",
+      "branch": "agents/098-current-documentation-runbook",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "64cdbb37fef14b436ecd23d8e1902e14d772575d",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "1a741bc7ffc6618b0a001ffbe217ef65c16c0db4",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "c4fba025847aa8da0563bf37acc73a2d83516fcb",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "099",
+      "source_sha": "0eb889184d1b8d622734ba64532be293b02a5c53",
+      "branch": "agents/099-release-candidate-journey-qualification",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "e21bfdc5144497a85dbcf0bd003a336417ed3084",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "cc665a39942738a0812d1b3e6f2a221194d8e078",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "fcd33714a5eed0fb16b5c0eaef5143d93090e2e5",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "099",
+      "source_sha": "392890f07b12947234b83fa8a4ebed281962ba24",
+      "branch": "agents/099-release-candidate-journey-qualification",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "b3bd4d173c7d525a8dff919207239223b6080bdb",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "098",
+      "source_sha": "db2405d48f7e1e0dc08e6e251d7b217e678b2423",
+      "branch": "agents/098-current-documentation-runbook",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "ae45b3905bd00be05637676102fe777a19413e9c",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "082",
+      "source_sha": "5c4d5113de3cac49753a21e218e9174708ba93a4",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "084",
+      "source_sha": "82c219dfee132f19a70a3b235b64550ffe144129",
+      "branch": "agents/084-full-object-geometry-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "085",
+      "source_sha": "89f8b585618b7a977879cf772dd1531b37f2fd2b",
+      "branch": "agents/085-photographic-texture-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "086",
+      "source_sha": "d79926797c19d0bb8d5479da0a91c740edf4e08a",
+      "branch": "agents/086-physical-arm64-capture-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "089",
+      "source_sha": "164a1faab6c993c0da3d4dda77e238b3af5978b4",
+      "branch": "agents/089-runtime-offline-privacy",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "304ef7d4631b40cf3d155507d3a2165b25b92af6",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "3e779375b06e97b84fe594a785195d72196e72b5",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "094",
+      "source_sha": "4f9bc76c42c96f571ba885975b23bd204f148ef3",
+      "branch": "agents/094-source-provenance-reproducibility",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "a9ab00942b90cad654b8ba75fdc3496a9fbc10f1",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "081",
+      "source_sha": "670ab781177d189d9bc40ea83cbbea9c3164b892",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "754f2892902eb18ece95c6bc1bfde0d4a20861af",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "093",
+      "source_sha": "01215c7bc58701f33710c2b2c7fd8fbb2a48355b",
+      "branch": "agents/093-parallel-branch-ci-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "5436086c1c2d3e950f03bd003db7ff5bc3286800",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "67008ae4d25a56a0bb6d64244d3ace2213d230e1",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "6eb6e8cfb949f6098352002b7412cd64cb9e3676",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "03d67713abef22595cd3d4d2cf86e24170745f56",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "206167fa41d92b6a10611df2d3a6a8493baac710",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "361c3214982c650d0eeb538f49e30916dcf5ccad",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "083",
+      "source_sha": "7e3bca11a307b170c399fdc85bcf2fdcfb8dfea6",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "8e506f7271cada1f6182ce14ac5a2d68b13fdc6e",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "083",
+      "source_sha": "72747f26f431f0ea1849b617d58e92e473a89702",
+      "branch": "agents/083-licensed-benchmark-corpus",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "090",
+      "source_sha": "75655308901646a4f00f639c48a39bc45657dbfb",
+      "branch": "agents/090-export-interoperability-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "612213f8b1b147ead8574dc8dab01b9d4104e9b2",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "53d21e8c1e2bc1aa2e9b5da0be1170b463e67dce",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "e73a5ecd7fc3c0bffbb207619630ec95b43c4c69",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "081",
+      "source_sha": "0d2374b43a80cba10b22e97886a158b60949475d",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "082",
+      "source_sha": "cea97b60370bed60f3a9f2e23cc092201c262a7c",
+      "branch": "agents/082-native-jni-parser-fuzzing",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "3133e455ef37463ce4ff03e7098d0f5331684535",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "084",
+      "source_sha": "a6751721f063db8daee08b72f19cd3f5cc8f2f14",
+      "branch": "agents/084-full-object-geometry-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "0c5720ba01fc0573ace139c93afd99f8c6204e3d",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "085",
+      "source_sha": "52758dc7f51dcbc1eb9b76cd7e6f1c19da45bf1f",
+      "branch": "agents/085-photographic-texture-quality",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "057",
+      "source_sha": "49f42ab82a92651f46d92ea329192a9226e23129",
+      "branch": "agents/057-photographic-atlas-pipeline",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "a87f2b923d5ea3bd2b225f75d59be84b8661fdb6",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "adcfb4964b885c2c139eec7b96bf3a15d1997de6",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "f4302a0c109e8f36a7b2fc14997f51b78a24ccaf",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "c2f775796913a35c65f22c6210641eaa95805432",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "7f1bc03a9d31a9bb6a36046366629ae07967f662",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "77b58ccdbf03c8f40b0dfc21ce445c942088ec2a",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "091",
+      "source_sha": "18027d31bd08651baeadf2763c637129171d4387",
+      "branch": "agents/091-release-package-validation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "092",
+      "source_sha": "187b00f77b9adb4b4adc5cc949a7f8d9ae7548da",
+      "branch": "agents/092-android-compatibility-matrix",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "004",
+      "source_sha": "99eb293423560e8bcd9bacbc8e82cb33fc7634bf",
+      "branch": "agents/004-build-foundation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "096",
+      "source_sha": "c0b70cafcbe67839ba0d366721f1ef7d9ade387d",
+      "branch": "agents/096-security-hostile-input-assurance",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "081",
+      "source_sha": "444ada9422b5c308283b9c34aa21fcfaba50b4d9",
+      "branch": "agents/081-host-numerical-sanitizers",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "088",
+      "source_sha": "e1ccd5d77872107d078db04488526b00d7f9cf3b",
+      "branch": "agents/088-failure-recovery-instrumentation",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "097",
+      "source_sha": "7a8d211ece836faa4859ffd10e737764c2216d12",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "27c5adac94c963f487bf6bea59edaa96fda58650",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "097",
+      "source_sha": "86bafc3d570cf1bafaaf3940e2c11e1c970c294e",
+      "branch": "agents/097-startup-viewer-macrobenchmarks",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    },
+    {
+      "agent": "095",
+      "source_sha": "3883b3f0951e07d3a99bca4a71996995c5e04f14",
+      "branch": "agents/095-dependency-notices-sbom",
+      "campaign_base": "ad3029193f304c70931b94ea7a0df90b69d84b07",
+      "ownership": "PASS"
+    }
+  ]
+}
