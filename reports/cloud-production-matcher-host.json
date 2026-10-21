@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "classification": "PRODUCTION_KOTLIN_MATCHER_HOST_JNI",
+  "base_head": "f18ff5c5b3621843dbed2a331569c1b8ad8c0d92",
+  "status": "PASS",
+  "tests": 8,
+  "failures": 0,
+  "native_version": "4.12.0",
+  "opencv_threads": 2,
+  "limits": {
+    "heap": "256m",
+    "opencvThreads": 2,
+    "processors": 2,
+    "seconds": 90
+  },
+  "compile_limits": {
+    "heap": "384m",
+    "processors": 2,
+    "seconds": 120
+  },
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": "d3a41776840c5fcb69ffb82807b736dbff88e84c1be20f053e1e10f3a7fabc86",
+    "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt": "7a084f9c362002b0fc31d38c148124e9d3d661f37b637926aba077fba01842ba",
+    "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt": "9b8d1c7fd3c4cff852c1c42ab84a35aa334bbd9376431fd8d4eb47948fb8f1b4",
+    "app/src/main/java/com/realityforge/scanner/engine/matching/FeatureMatcher.kt": "91a4241c7e3d6d01a905aaac07a19c6128632eb98d17fc10de2a0c1f98e2fde8",
+    "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt": "1652324c649a2b55d5be478f10c835b69fb56d1bb0e05780739f5990a91877c7",
+    "app/src/main/java/com/realityforge/scanner/engine/matching/PairWorkTiming.kt": "9da42868555be179a9825be3e1886db89a4bd6c4cf26a0bd8275ccb2ec21a274",
+    "app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt": "a641a4191bd25c1af6784590d99ca2bd313b82bb8cc20ac1e71f09ed61e513ec",
+    "tools/feature_matcher_validation/HostRunner.kt": "fee322baf052623d75bb256d913f7634dc915252fa1afa3505296ef049f9e89e",
+    "tools/feature_matcher_validation/ProductionMatcherHostTest.kt": "dbce58660297111e2613f542a58d8e498180a69d1a37feeca7cc80ac397f7b22"
+  },
+  "helper_sha256": "7682e7b66308eeaf7e3f417fbed5fe2411384b110d280fb7d32a1d36984fb554",
+  "compiler_jars_sha256": {
+    "trove4j-1.0.20200330.jar": "c5fd725bffab51846bf3c77db1383c60aaaebfe1b7fe2f00d23fe1b7df0a439d",
+    "kotlin-compiler-embeddable-2.1.21.jar": "67a2e3673765f097725608cc7c843b0d8fdd94bd9af41327211361614aa57d49",
+    "kotlin-daemon-embeddable-2.1.21.jar": "9401effd82de8606df3289308a275cc1d3573768665ca5edd09dc319c71715f4",
+    "kotlin-reflect-1.6.10.jar": "3277ac102ae17aad10a55abec75ff5696c8d109790396434b496e75087854203",
+    "kotlin-script-runtime-2.1.21.jar": "d8221f445854f30ac92c248d543609e0ecb5d85bb5ba34c043684b013cb5b897",
+    "kotlin-stdlib-2.1.21.jar": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8",
+    "kotlinx-coroutines-core-jvm-1.8.0.jar": "9860906a1937490bf5f3b06d2f0e10ef451e65b95b269f22daf68a3d1f5065c5",
+    "annotations-13.0.jar": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478"
+  },
+  "runtime_jars_sha256": {
+    "hamcrest-core-1.3.jar": "66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9",
+    "kotlin-stdlib-2.1.21.jar": "263bdc679e1f62012db7b091796279b6d71cf36f4797a98ff1ace05835f201c8",
+    "kotlinx-coroutines-core-jvm-1.10.2.jar": "5ca175b38df331fd64155b35cd8cae1251fa9ee369709b36d42e0a288ccce3fd",
+    "annotations-13.0.jar": "ace2a10dc8e2d5fd34925ecac03e4988b2c0f851650c94b8cef49ba1bd111478",
+    "json-20250517.jar": "3ea61b2a06e31edf1c91134fe9106b0ebb16628be169f3db75bc7a2b06b45796",
+    "junit-4.13.2.jar": "8e495b634469d64fb8acfa3495a065cbacc8a0fff55ce1e31007be4c16dc57d3"
+  },
+  "aar_sha256": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+  "aar_classes_sha256": "60b7be2b59393bc1689b840d7b60fd75b811bb06477bdd03abee6fbc17afa5cf",
+  "native_sha256": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+  "capability_receipt_sha256": "d139a4a943842364285e34977182a50a07b167397ee14fdd5ef8eccc98a1d796",
+  "proof_sha256": {
+    "compile-receipt.json": "5232ca3e1b8ae5ec5b4b243f72c2fb21e59b14052dbb9b9aebfd089ced948603",
+    "run-receipt.json": "db70038cc4a37116d3cc8bc60622b54b97959776aad3f36ce9e4ce2cf82b90e3",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "run.log": "ee385b0c159303e7538a6b44f5b19333f66a23fc4d1c9c22b49d8ee9fc8cad07"
+  },
+  "class_outputs_sha256": {
+    "HostRunnerKt.class": "3e5cc1794b3e979ad51c5d9b5518b09c59c0bb8d964030720b3f1dd2eb3b0517",
+    "META-INF/main.kotlin_module": "c181d1fdd08e178094823990c24f0ceef3c54099f32f001a2f8690511f0b4e78",
+    "com/realityforge/scanner/engine/LensProfile.class": "5e802ad1c0b470f09998bb9c1b90a18b5647a5310363a9e7a389d8824f49c87b",
+    "com/realityforge/scanner/engine/LensProjection$Companion.class": "9dd1bebd5cf9f4c3fe81007ca535720bcc4b9bc24d5ac39d8d3f85cbeb87fbd2",
+    "com/realityforge/scanner/engine/LensProjection.class": "891dd3968a82a494a39b1fb1feff61c57b8da52f4942d5ed8c867a7012851e73",
+    "com/realityforge/scanner/engine/NativeCore.class": "37e1692f02fc6b442a39402231330bf1640b77d364ffd88c90e8eea1c662ea88",
+    "com/realityforge/scanner/engine/features/FeatureFrame.class": "ddb5178632d490869dbec68ede99d3d5a45aa9fef20ae3815b07dd5395ad51aa",
+    "com/realityforge/scanner/engine/features/FeatureFrameKt.class": "aff39366d64b326e7bdb0fce53730f5cee74d913f42713208122fa8d206819e5",
+    "com/realityforge/scanner/engine/matching/FeatureCorrespondence.class": "3a07b150a1f7001ca99ddde769cebf57e43eb04ea390c3d2e03c4b65bcb02f44",
+    "com/realityforge/scanner/engine/matching/FeatureMatcher.class": "4dd2615ab4fc4df3a836fe20592d4b7f11251d8df21567b6ff3b97a8f6704c7b",
+    "com/realityforge/scanner/engine/matching/GeometricVerification$Accepted.class": "95785ebec9640d8f081a657229dc3f6d6d1660e45a685c0fc95703b46239eb1c",
+    "com/realityforge/scanner/engine/matching/GeometricVerification$Rejected.class": "2cc7dd259184fbbee23debbaeefbbd78296bb0e80f9877b93afb24fabb510835",
+    "com/realityforge/scanner/engine/matching/GeometricVerification.class": "2373c06b89ab1025f2981699141b4f15136bbf5d69944e53d0e4b001cb542057",
+    "com/realityforge/scanner/engine/matching/PairCancellationSignal.class": "2e913b8c8c88d08eaec9b1d82073432fd82476981220e518906e33b8653b82c9",
+    "com/realityforge/scanner/engine/matching/PairCandidate.class": "cc06aeb08ad8d6e6475393b2ac44374d62836e0123887cba99511e51029be8ff",
+    "com/realityforge/scanner/engine/matching/PairMatchDirection.class": "a9a7dd22b8c8146fe0bb6d747cf240e9bb2aebf31ed6869089954bf39fcda61b",
+    "com/realityforge/scanner/engine/matching/PairWorkPhase.class": "9b5150e6851c85eb5b303102b98eaf58d576f23ee969cbf3d999c8db3357d943",
+    "com/realityforge/scanner/engine/matching/PairWorkSnapshot$WhenMappings.class": "d94d7b7021654ae97aa427bd2a40a977aea3b6b7481d1b440fbf7862832d2724",
+    "com/realityforge/scanner/engine/matching/PairWorkSnapshot.class": "8b200fc4d216b0ecca3f2ba128ab79a6a9f6410c6719360c02c130252636aa74",
+    "com/realityforge/scanner/engine/matching/PairWorkTiming$1.class": "9518dc59d4859b4e9d3d511ec7f033b1b02831e033cfc12fbe734c7d2e1c4e37",
+    "com/realityforge/scanner/engine/matching/PairWorkTiming$WhenMappings.class": "560741f87f9bccff8cb69a18e0a64219182031a5c861b134ac0534ed0a173ee4",
+    "com/realityforge/scanner/engine/matching/PairWorkTiming.class": "393d32e105dc936a1ae910b928d6d911aa63c375f0559774baa5fb618a98c2a4",
+    "com/realityforge/scanner/engine/matching/PairWorkTimingKt.class": "34737e881370ec3b39b8bb81e242619204920f60cdcb8d2636a17531073a3e30",
+    "com/realityforge/scanner/engine/matching/PhotoFeatureSummary$Companion.class": "e7ff49258e73b633bc1da33644c14af6fed95d33f077a22695d9775ae36ff512",
+    "com/realityforge/scanner/engine/matching/PhotoFeatureSummary.class": "2a28c6a9f0a6389e58673d6aa6d0bd96f16eb37ded77a2a753fbb8a87eb9f77b",
+    "com/realityforge/scanner/engine/matching/ProductionMatcherHostTest.class": "63dca96bf928dabccfe4e4715f1c20278ea74b49210e2091d4a9add9d4e2cfe8",
+    "com/realityforge/scanner/engine/matching/TentativeMatches.class": "66bea4a713e66e6e7e17a9128b3cdc85162a3b45cd606ffe4b3c2c12c67c9314",
+    "com/realityforge/scanner/engine/matching/VerifiedMatches.class": "98a3714560f645ef6a0ae4a51cf6218f612617827422ff3c26be5af446fac8c7"
+  },
+  "invocation_sha256": "5a1500430d096699892f4d7ae941c4d295234696caa57db9dffc8c9441d4de73",
+  "claims": [
+    "Production source compiled afresh; no cached app classes.",
+    "Current AAR classes with official-source Linux JNI; generated Java JAR absent from compiler/runtime classpaths.",
+    "Ordered full correspondence payload differential against whole-pair actual BFMatcher for unequal descriptors/block sizes1,2,17,256.",
+    "Cancellation exact identity and observer exceptions at both directions entry/return plus borrowed descriptor reuse."
+  ],
+  "excluded": [
+    "Synthetic descriptors, no physical-photo quality evidence.",
+    "No Bitmap, decoder, FeatureExtractor, full SparsePipeline or Android device qualification.",
+    "No in-flight native kernel interruption claim.",
+    "Native kNN primary failure racing observer secondary exception not exercised.",
+    "verify exercised only <20 early rejection; scanner geometry JNI not loaded."
+  ],
+  "helper_tests": {
+    "passed": 12,
+    "scope": "Root independently ran shared helper Python tests; separate from this8-test JNI receipt."
+  },
+  "source_state": "Reviewed harness applied to shared repository; fresh shared-helper execution before publication.",
+  "prior_isolated_report_sha256": "ddffbd3306908f0ec515d513bede5f65268d7e84fab490b9f40aa31c4e064834",
+  "recorded_utc": "2026-10-21T14:48:23.020181+00:00",
+  "full_validation": {
+    "python_passed": 1098,
+    "python_skipped_optional": 3,
+    "python_subtests": 6,
+    "python_seconds": 147.88,
+    "optional_executed_passed": 3,
+    "optional_seconds": 17.04,
+    "helper_tests_passed": 12
+  },
+  "full_log_sha256": {
+    "scanner-matcher-full-python.log": "c3344f618f8a41d9aba252f0554242f879dad8f77e49e436e277e0665b80c5c8",
+    "scanner-matcher-optional.log": "ad33c01a834370e25b66afeae023386b6660a8998785a3c48cb74922a1087458"
+  },
+  "production_code_changed": false,
+  "capability_build": {
+    "schema": 1,
+    "classification": "HOST_OPENCV_JAVA_JNI_CAPABILITY_ONLY",
+    "official_source": {
+      "repository": "https://github.com/opencv/opencv",
+      "tag": "4.12.0",
+      "tag_object": "cbee6841638edb6fbc8110df7cd52bb8e3d66211",
+      "commit": "49486f61fb25722cbcf586b7f4320921d46fb38e",
+      "archive_url": "https://github.com/opencv/opencv/archive/49486f61fb25722cbcf586b7f4320921d46fb38e.tar.gz",
+      "license": "Apache-2.0",
+      "archive_hash_observed_not_published_attestation": true,
+      "original_source_files_pre_post_unchanged": true,
+      "build_generated_additions": [
+        "modules/python/src2/__pycache__/hdr_parser.cpython-313.pyc"
+      ]
+    },
+    "build": {
+      "exit_code": 0,
+      "elapsed_seconds": 275.03,
+      "stop_reason": null,
+      "free_disk_bytes": 9084882944,
+      "source_manifest_sha256": "7de720cac28d6e3561edbf032f22f56547ec169fcbab72faece3558099a1c25a",
+      "log_sha256": "bc75f183ca562339c265f996306fcfffbac236c99dba117411927ab7089d2768"
+    },
+    "build_command": "cmake --build build --target opencv_java --parallel 2",
+    "limits": {
+      "jobs": 2,
+      "build_seconds": 2700,
+      "minimum_initial_free_disk_bytes": 4294967296,
+      "stop_below_free_disk_bytes": 2147483648,
+      "smoke_compile_seconds": 60,
+      "smoke_run_seconds": 60,
+      "smoke_jvm_heap": "256m",
+      "smoke_jvm_active_processors": 2
+    },
+    "modules": [
+      "core",
+      "imgproc",
+      "features2d",
+      "java"
+    ],
+    "initial_configure": "Fail-closed hook rejected ADE before fetch; explicit gapi/ADE disable resolved. Failed log retained.",
+    "dependency_downloads": 0,
+    "linkage": {
+      "aar_native_method_declarations_equal_to_generated": true,
+      "native_declarations_export_resolved": 361,
+      "java_version": "4.12.0",
+      "native_version": "4.12.0",
+      "runtime_used_current_aar_classes_only": true,
+      "generated_jar_used_only_for_signature_comparison": true,
+      "exact_library_mapping_verified": true
+    },
+    "smoke": "PASS Mat allocation/put/get/release and BFMatcher knnMatch against unchanged AAR classes",
+    "sha256": {
+      "source.tar.gz": "8f00b42869ab2836be36090f6631ae4c38ba59171e22a69a8e0f92f8ef1771d4",
+      "source/LICENSE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "source-reference.txt": "f242e5d997af6aacc5a40b3c4fbcec92d60baecb8e08b9543e73d8a6f9c61685",
+      "source-files.sha256.json": "7de720cac28d6e3561edbf032f22f56547ec169fcbab72faece3558099a1c25a",
+      "configure.sh": "b1d122970f080524da8d8ea9ab8400bba9877ba2521b4cc2d6ab7e322e18e119",
+      "configure.log": "296694e7178af5a99c66f0a9e1a199a54a05ffc2963ebdfd9e8890d3ed5b3054",
+      "configure-attempt1.log": "100872c6339bc401f472eb0cfd743c8ba482d1209bce6540c7d3b67d66649ced",
+      "configure-attempt2.log": "7cf71f701c29ec9529f747b8e021cd7879f1b539b9390f81ea79bb3e7000a02f",
+      "hooks/OPENCV_DOWNLOAD_PRE.cmake": "9c9b913ae007ef5c4f8dda8a58d658cdb4808cce8f2bb0fe59bc7d5323044117",
+      "build/CMakeCache.txt": "c3597b7b4b195644b699a18fa2ffa30f7a2add3122649422d57817a70fb28aa0",
+      "build/CMakeDownloadLog.txt": "9300a82d1d14ff23e928592f9857c5f1d26f8275bd2d9bd395b3ec2c9f09325e",
+      "build-bounded.py": "64e32161c233c9dd67b95748dd2e57e67d85455cd823d1f258e48239a0e15c4c",
+      "build-result.json": "d61d585a8e96a9170481f52ab20e385c53a24592d725d51141dac3d9cd60bee7",
+      "build.log": "bc75f183ca562339c265f996306fcfffbac236c99dba117411927ab7089d2768",
+      "build/lib/libopencv_java4120.so": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+      "build/bin/opencv-4120.jar": "32879ae48d09d0986b0c5ba1776e37dc68740e9e921187b4d34f2616e72b5666",
+      "verify-api.py": "9631f7a2a73ffce18f83880172a289c88717da795b0e82cf25eeefadf1b37a96",
+      "smoke/aar-classes.jar": "60b7be2b59393bc1689b840d7b60fd75b811bb06477bdd03abee6fbc17afa5cf",
+      "smoke/aar-input.json": "dc762ee30b34ce506e73bed8a78f06a23fc15fd7f87bb20854a43271c785cc06",
+      "smoke/MatcherSmoke.java": "f1b55fe435ab18a01a7508e3c96c1744b25fc125642086018c6f82e38dea9deb",
+      "smoke/classes/MatcherSmoke.class": "4704b00caf9702c876280750f8843d04c84fb1b85afe85cc9648dc7ef65ce465",
+      "smoke/api-linkage.json": "5b5a3954a5c1fec19e2daf02615568daec7a30d615080da5ccdcb85dc096571b",
+      "smoke/symbol-linkage.json": "17c7458fe2c386f5dd2cd7325f6c4dcbd6b96faeff3dd55d8fe9085c0a0baf77",
+      "smoke/exported-symbols.txt": "99f2da65786567e02d039d1efa7e7f170a573535828237abeaeafb59c32788eb",
+      "smoke/ldd.txt": "b456e6e67c87a4170de022aab1a0b77041ec8f7aa1c63a07c06524f0b06fbd96",
+      "smoke/run.log": "7d2d0a1d91d30cf46b2b31fe8c912287d43abca11b833d40d26e4468f3ada85d"
+    },
+    "scope_limits": [
+      "Production FeatureMatcher has not yet been executed in this capability step.",
+      "No production dependencies or source changed. No system install, Gradle, emulator or Python matcher.",
+      "Linux GCC/SSE3 build with IPP/OpenCL disabled is not Android build or device qualification.",
+      "Dynamic Linux system dependencies are inspected but not hermetically bundled.",
+      "No Android Bitmap conversion, decoder or full SparsePipeline coverage."
+    ]
+  }
+}

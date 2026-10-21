@@ -885,3 +885,28 @@ request admission handling. Package/version19/test certificate are unchanged, bu
 installation/data migration and complete scan-to-export remain untested. See
 [APK evidence](../../reports/cloud-admission-engineering-apk.json) and
 [assembly instructions](ENGINEERING_APK_A1806643.md).
+
+### Exact-version production matcher HOST JNI gate (14:48 UTC)
+
+Official OpenCV4.12 source was pinned and built outside the repository with only
+core/imgproc/features2d/java. The app's unchanged AAR Java classes, not the generated
+Linux jar, loaded the exact matching native library. All361 matcher-relevant native
+declarations matched/exported; real Mat/BF smoke passed. A fail-closed hook rejected
+an initial implicit ADE download before fetch; successful configuration fetched no
+dependencies. Source/build/symbol/receipt hashes are preserved.
+
+Current production matcher/frame/lens sources compile afresh without cached app
+classes. Eight HOST native tests pass, including whole-pair BF differential ordered
+payload across unequal descriptors/block sizes, reverse-row remapping, ratio/tie/
+range boundaries, cancellation/observer identity and descriptor reuse. The shared
+portable helper was freshly rerun with pre/post input/output hashes and exact native
+mappings. Its12 orchestration tests pass. Broad Python1,098 plus six subtests pass;
+all three optional host gates also execute and pass. No app production code changed.
+
+This is synthetic-descriptor Linux JNI coverage, not Android feature extraction,
+Bitmap decode, full pipeline, physical photo quality or device performance. Scanner
+geometry JNI is not loaded here; verification only tests its small-input rejection.
+Source hashes are observed provenance, not an independent publisher attestation,
+and system library dependencies are not fully hermetic. See
+[matcher evidence](../../reports/cloud-production-matcher-host.json) and
+[portable instructions](../../tools/feature_matcher_validation/README.md).
