@@ -10,6 +10,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.pow
 
 /** Unlit photographic inspection: no invented lighting, texture flips, or geometry edits. */
 class PhotographicRenderer(
@@ -31,6 +32,8 @@ class PhotographicRenderer(
     private var program = 0
     private var vao = 0
     private var texture = 0
+    private var encodeOutput = true
+    private val background = floatArrayOf(.055f, .065f, .075f)
     private val buffers = IntArray(2)
     private val projection = FloatArray(16)
     private val view = FloatArray(16)
@@ -59,6 +62,7 @@ class PhotographicRenderer(
         // EGL context loss invalidates old names. Never delete old names in a NEW context.
         program = 0; vao = 0; texture = 0; buffers.fill(0); failure = null
         try {
+            configureOutputEncoding()
             program = link(VERTEX_SHADER, FRAGMENT_SHADER)
             val names = IntArray(1)
             GLES30.glGenVertexArrays(1, names, 0); vao = names[0]
@@ -93,12 +97,17 @@ class PhotographicRenderer(
             val bitmap = requireNotNull(BitmapFactory.decodeByteArray(asset.png, 0, asset.png.size, options)) { "Cannot decode embedded PNG." }
             try {
                 require(bitmap.width == asset.imageWidth && bitmap.height == asset.imageHeight)
+                require(bitmap.config == Bitmap.Config.ARGB_8888 && (!bitmap.hasAlpha() || !bitmap.isPremultiplied)) {
+                    "Atlas must decode to straight-alpha RGBA8."
+                }
                 GLES30.glGenTextures(1, names, 0); texture = names[0]
                 GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture)
                 GLES30.glPixelStorei(GLES30.GL_UNPACK_ALIGNMENT, 1)
                 // Upload rows unchanged. glTF v=0 samples the PNG's FIRST (top) row.
-                // Sampling/output remain encoded sRGB for this explicitly UNLIT diagnostic.
-                GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0)
+                // Decode RGB before filtering; alpha stays linear. Immutable storage is rebuilt
+                // with each new texture/context, without an additional full-image staging copy.
+                GLES30.glTexStorage2D(GLES30.GL_TEXTURE_2D, 1, GLES30.GL_SRGB8_ALPHA8, bitmap.width, bitmap.height)
+                GLUtils.texSubImage2D(GLES30.GL_TEXTURE_2D, 0, 0, 0, bitmap, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE)
                 GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR)
                 GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR)
                 GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, GLES30.GL_CLAMP_TO_EDGE)
@@ -113,11 +122,12 @@ class PhotographicRenderer(
         this.width = width.coerceAtLeast(1); this.height = height.coerceAtLeast(1)
         try {
             RenderBudget().admitViewport(estimatedModelGpuBytes,this.width,this.height)
+            configureOutputEncoding()
             GLES30.glViewport(0,0,this.width,this.height)
         } catch (e: Exception) { failed(e) }
     }
     override fun onDrawFrame(gl: GL10?) {
-        GLES30.glClearColor(.055f, .065f, .075f, 1f)
+        GLES30.glClearColor(background[0], background[1], background[2], 1f)
         GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT or GLES30.GL_DEPTH_BUFFER_BIT)
         if (program == 0 || failure != null) return
         try {
@@ -135,6 +145,7 @@ class PhotographicRenderer(
             Matrix.multiplyMM(mv, 0, view, 0, model, 0)
             Matrix.multiplyMM(mvp, 0, projection, 0, mv, 0)
             GLES30.glUniformMatrix4fv(GLES30.glGetUniformLocation(program, "uMvp"), 1, false, mvp, 0)
+            GLES30.glUniform1i(GLES30.glGetUniformLocation(program, "uEncodeOutput"), if (encodeOutput) 1 else 0)
             GLES30.glUniform1f(GLES30.glGetUniformLocation(program, "uCutoff"), asset.alphaCutoff)
             GLES30.glUniform1i(GLES30.glGetUniformLocation(program, "uAtlas"), 0)
             GLES30.glActiveTexture(GLES30.GL_TEXTURE0)
@@ -145,6 +156,28 @@ class PhotographicRenderer(
             check(GLES30.glGetError() == GLES30.GL_NO_ERROR) { "GPU draw failed." }
             framesDrawn++
         } catch (e: Exception) { failed(e) }
+    }
+    private fun configureOutputEncoding() {
+        // GLSurfaceView owns the default framebuffer. Query the actual surface instead
+        // of assuming a window colorspace; GLES encodes writes to sRGB attachments.
+        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0)
+        val encoding = IntArray(1)
+        GLES30.glGetFramebufferAttachmentParameteriv(
+            GLES30.GL_FRAMEBUFFER, GLES30.GL_BACK,
+            GLES30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING, encoding, 0,
+        )
+        check(GLES30.glGetError() == GLES30.GL_NO_ERROR) { "Cannot query framebuffer color encoding." }
+        encodeOutput = when (encoding[0]) {
+            GLES30.GL_LINEAR -> true
+            GLES30.GL_SRGB -> false
+            else -> error("Unsupported framebuffer color encoding.")
+        }
+        // Preserve the existing encoded backdrop on both output attachment types.
+        val encoded = floatArrayOf(.055f, .065f, .075f)
+        for (i in encoded.indices) background[i] = if (encodeOutput) encoded[i] else {
+            val c = encoded[i]
+            if (c <= .04045f) c / 12.92f else ((c + .055f) / 1.055f).pow(2.4f)
+        }
     }
     private fun failed(e: Exception) {
         failure = e.message ?: "Photographic renderer failed."
@@ -194,12 +227,17 @@ class PhotographicRenderer(
             precision highp float;
             uniform sampler2D uAtlas;
             uniform float uCutoff;
+            uniform bool uEncodeOutput;
             in vec2 vUv;
             out vec4 result;
+            vec3 encodeSrgb(vec3 c) {
+                return mix(1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055,
+                           12.92 * c, lessThanEqual(c, vec3(0.0031308)));
+            }
             void main() {
                 vec4 color = texture(uAtlas, vUv);
                 if (color.a < uCutoff) discard;
-                result = vec4(color.rgb, 1.0);
+                result = vec4(uEncodeOutput ? encodeSrgb(color.rgb) : color.rgb, 1.0);
             }
         """.trimIndent()
     }

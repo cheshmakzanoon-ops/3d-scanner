@@ -1,0 +1,13 @@
+{
+  "baseline": {
+    "renderer_sha256": "c34ec1b5591780185a134e3a6905fef87f2fe1cb947bbe69f8cffb1d769c2f67",
+    "fragment_sha256": "53b9a7db5f377a81f2cce076cf28c49fa9f642a1a58805d2de9b4af17652d0d3",
+    "git_commit": "368c473c5ade4764572a33b3b93a3fff0db6561f",
+    "git_blob": "72c2c05ee4484995fa74d1748b102c7a6ea0221a"
+  },
+  "applied": {
+    "renderer_sha256": "c7ae7818e92a3bfa33bcb19f69f3e621189da3d09db86b41e9b98f2baff901c6",
+    "fragment_sha256": "471d030597010d792ee892a9922ead72221a14ab09c79f0dd6b371cb736701ae",
+    "status": "Working-tree correction on baseline commit; not committed at capture"
+  }
+}

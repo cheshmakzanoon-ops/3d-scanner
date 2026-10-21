@@ -1,0 +1,112 @@
+{
+  "status": "PASS",
+  "scope": "GLES fallback photographic sRGB filtering; no geometry or Filament change",
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/viewer/PhotographicRenderer.kt": "c7ae7818e92a3bfa33bcb19f69f3e621189da3d09db86b41e9b98f2baff901c6",
+    "app/src/androidTest/java/com/realityforge/scanner/PhotographicViewerTest.kt": "60816fb521a855946e47e28bda82ca9fb002402a63355c3e2ce156ffb15dcb77",
+    "tests/test_photographic_color_contract.py": "9838ee11975917cb65a2c923f8b1a9cabae30fec050f934634d64dd41c0fccd8"
+  },
+  "gradle": {
+    "command": [
+      "gradle",
+      "--offline",
+      "--no-daemon",
+      "--max-workers=1",
+      "--no-parallel",
+      "-Dorg.gradle.jvmargs=-Xmx1g -Dfile.encoding=UTF-8",
+      ":app:testDebugUnitTest",
+      ":app:hostIntegrationTest",
+      ":app:compileDebugAndroidTestKotlin",
+      ":app:lintDebug"
+    ],
+    "exit": 0,
+    "timed_out": false,
+    "elapsed_seconds": 220.40281268701074,
+    "live_descendants_after_drain": 0
+  },
+  "jvm": {
+    "testDebugUnitTest": {
+      "tests": 768,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "hostIntegrationTest": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint_issue_severities": {
+    "Warning": 91,
+    "Hint": 3
+  },
+  "host_source_math": {
+    "baseline": {
+      "pass": 3,
+      "fail": 3
+    },
+    "applied": {
+      "pass": 6,
+      "fail": 0
+    }
+  },
+  "software_gles": {
+    "baseline_midpoint": 128,
+    "corrected_midpoint": 188,
+    "controls_passed": 16,
+    "environment": {
+      "egl": "1.5",
+      "vendor": "Mesa",
+      "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+      "version": "OpenGL ES 3.2 Mesa 25.0.7-2+deb13u1",
+      "baseline_fragment_sha256": "53b9a7db5f377a81f2cce076cf28c49fa9f642a1a58805d2de9b4af17652d0d3",
+      "applied_production_fragment_sha256": "471d030597010d792ee892a9922ead72221a14ab09c79f0dd6b371cb736701ae",
+      "default_framebuffer_encoding": "0x2601"
+    }
+  },
+  "android_instrumentation": "NOT_RUN",
+  "apk_rebuild": "NOT_RUN",
+  "physical_device": "NOT_RUN",
+  "commit_push": "NOT_DONE",
+  "lint_issues_unchanged_from_preceding_heartbeat_gate": true,
+  "evidence_kind": "Synthetic desktop Mesa software GLES + Android compile/JVM/HOST/lint; no Android GPU runtime or physical scan quality claim",
+  "source_contract_red": {
+    "tests": 6,
+    "math_pass": 3,
+    "wiring_fail": 3,
+    "exit": 1,
+    "raw_log_sha256": "cd43eb45840d555e92c57a9c817e2322c1e6a9377a0dac34c1df3d9d239cd2e6",
+    "raw_log_status": "Retained locally; omitted from public package because failure traces contain original machine paths and full source dumps"
+  },
+  "source_contract_green": {
+    "tests": 6,
+    "pass": 6,
+    "exit": 0,
+    "raw_log_sha256": "fb6a01a1792e874ba264e0fe286936fd1247c578663568e2b5c8f9ecbc3b9aa4"
+  },
+  "original_explicit_gles_red": {
+    "exit": 1,
+    "observed_midpoint": 128,
+    "required_midpoint": 188,
+    "raw_stderr_sha256": "583c01e1024263e6ae4a655e72115f5abe932a79b79adb073206a8834396a6bc"
+  },
+  "historical_executed_scripts": {
+    "check_original.py": "342394ef36b4a672963bc399f23bd655749001349c09fce02b21099263adcccb",
+    "check_applied.py": "18dcd5d7bfa38526b9cbffa846341133ebc9a1539bbb5af4657d8d5841db995f",
+    "note": "Byte-identical execution evidence; includes historical local scratch/source paths, not configuration for future runs"
+  },
+  "portable_adapter_replay": {
+    "status": "PASS",
+    "controls_passed": 16,
+    "exit": 0,
+    "script_sha256": "6a0f6cfc4ac88c89514ac9e44f4405a4fe18c4bbf9c1d91df2887f0a6075df1d",
+    "note": "Separately executed path-plumbing adaptation with guard-only successor rejecting optimized Python before EGL setup; unchanged control thresholds, no tuning",
+    "optimized_python_guard": {
+      "status": "PASS",
+      "exit": 1,
+      "expected_error": "Run without Python -O or PYTHONOPTIMIZE: EGL setup and checks require assertions."
+    }
+  }
+}

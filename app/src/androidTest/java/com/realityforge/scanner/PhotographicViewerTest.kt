@@ -50,16 +50,16 @@ class PhotographicViewerTest {
                 .putInt(bin.size).putInt(0x004e4942).put(bin).array()
         }
     }
-    private fun fixture(mask: Boolean = false): Fixture {
+    private fun fixture(mask: Boolean = false, palette: IntArray? = null, constantUv: Boolean = false): Fixture {
         val bitmap = Bitmap.createBitmap(8, 8, Bitmap.Config.ARGB_8888)
-        val colors = intArrayOf(if (mask) Color.TRANSPARENT else Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
+        val colors = palette ?: intArrayOf(if (mask) Color.TRANSPARENT else Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW)
         for (y in 0..7) for (x in 0..7) bitmap.setPixel(x, y, colors[(y / 4) * 2 + x / 4])
         val png = ByteArrayOutputStream().also { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }.toByteArray()
         bitmap.recycle()
         val bin = ByteBuffer.allocate(152 + png.size).order(ByteOrder.LITTLE_ENDIAN)
         for (v in floatArrayOf(-1f,1f,0f, -1f,-1f,0f, 1f,1f,0f, 1f,-1f,0f)) bin.putFloat(v)
         repeat(4) { bin.putFloat(0f).putFloat(0f).putFloat(1f) }
-        for (v in floatArrayOf(0f,0f,0f,1f,1f,0f,1f,1f)) bin.putFloat(v)
+        for (v in floatArrayOf(0f,0f,0f,1f,1f,0f,1f,1f)) bin.putFloat(if (constantUv) .5f else v)
         for (v in intArrayOf(0,1,2,2,1,3)) bin.putInt(v)
         bin.put(png)
         val json = JSONObject("""{
@@ -142,6 +142,40 @@ class PhotographicViewerTest {
             assertColor(pixel(48,80), 255,0,0)
             renderer.releaseGlResources(); renderer.releaseGlResources()
             assertEquals(GLES30.GL_NO_ERROR, GLES30.glGetError())
+        }
+    }
+    @Test fun photographicFilteringUsesLinearLightAndEncodesOnceAfterContextLoss() {
+        // Synthetic constant-UV fixture samples exactly between opaque black/white texels.
+        // Saturated quadrant interiors cannot detect the encoded-space filtering defect.
+        val cases = listOf(
+            intArrayOf(Color.BLACK, Color.WHITE, Color.BLACK, Color.WHITE) to 188,
+            IntArray(4) { Color.rgb(128, 128, 128) } to 128,
+            IntArray(4) { Color.argb(128, 128, 128, 128) } to 128,
+        )
+        for ((palette, expected) in cases) {
+            val renderer = PhotographicRenderer(PhotographicGlb.decode(fixture(palette = palette, constantUv = true).pack()))
+            repeat(2) { pass ->
+                EglSurface().use {
+                    renderer.onSurfaceCreated(null, null)
+                    renderer.onSurfaceChanged(null, 128, 128); renderer.onDrawFrame(null)
+                    assertNull(renderer.failure)
+                    val actual = pixel(64, 64)
+                    for (channel in 0..2) assertTrue("Expected $expected, got ${actual[channel]}", kotlin.math.abs(actual[channel] - expected) <= 2)
+                    if (pass == 1) renderer.releaseGlResources()
+                    // First close deliberately loses context without explicit deletion.
+                }
+            }
+        }
+        val masked = PhotographicRenderer(PhotographicGlb.decode(fixture(
+            palette = IntArray(4) { Color.argb(127, 128, 128, 128) }, constantUv = true,
+        ).pack()))
+        EglSurface().use {
+            masked.onSurfaceCreated(null, null)
+            masked.onSurfaceChanged(null, 128, 128); masked.onDrawFrame(null)
+            assertNull(masked.failure)
+            val actual = pixel(64, 64)
+            assertTrue(actual[0] < 30 && actual[1] < 30 && actual[2] < 30)
+            masked.releaseGlResources()
         }
     }
     @Test fun maskedPixelsStayEmptyAndContextLossReuploadsTheAtlas() {

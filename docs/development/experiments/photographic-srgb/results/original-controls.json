@@ -1,0 +1,223 @@
+{
+  "environment": {
+    "egl": "1.5",
+    "vendor": "Mesa",
+    "renderer": "llvmpipe (LLVM 19.1.7, 256 bits)",
+    "version": "OpenGL ES 3.2 Mesa 25.0.7-2+deb13u1",
+    "production_fragment_sha256": "53b9a7db5f377a81f2cce076cf28c49fa9f642a1a58805d2de9b4af17652d0d3",
+    "default_framebuffer_encoding": "0x2601"
+  },
+  "results": [
+    {
+      "case": "RED original encoded interpolation",
+      "actual": [
+        128,
+        128,
+        128,
+        255
+      ],
+      "expected": [
+        128,
+        128,
+        128,
+        255
+      ]
+    },
+    {
+      "case": "GREEN corrected linear filtering/manual output encoding",
+      "actual": [
+        188,
+        188,
+        188,
+        255
+      ],
+      "expected": [
+        188,
+        188,
+        188,
+        255
+      ]
+    },
+    {
+      "case": "solid gray no double encoding",
+      "actual": [
+        128,
+        128,
+        128,
+        255
+      ],
+      "expected": [
+        128,
+        128,
+        128,
+        255
+      ]
+    },
+    {
+      "case": "negative control encode without sRGB upload",
+      "actual": [
+        188,
+        188,
+        188,
+        255
+      ],
+      "expected": [
+        188,
+        188,
+        188,
+        255
+      ]
+    },
+    {
+      "case": "negative control double encoding on SRGB framebuffer",
+      "actual": [
+        188,
+        188,
+        188,
+        255
+      ],
+      "expected": [
+        188,
+        188,
+        188,
+        255
+      ]
+    },
+    {
+      "case": "negative control missing output encoding",
+      "actual": [
+        55,
+        55,
+        55,
+        255
+      ],
+      "expected": [
+        55,
+        55,
+        55,
+        255
+      ]
+    },
+    {
+      "case": "SRGB framebuffer hardware encoding once",
+      "actual": [
+        187,
+        187,
+        187,
+        255
+      ],
+      "expected": [
+        188,
+        188,
+        188,
+        255
+      ]
+    },
+    {
+      "case": "SRGB framebuffer solid gray once",
+      "actual": [
+        128,
+        128,
+        128,
+        255
+      ],
+      "expected": [
+        128,
+        128,
+        128,
+        255
+      ]
+    },
+    {
+      "case": "transparent discarded",
+      "actual": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "alpha 127 below cutoff",
+      "actual": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "alpha 128 above cutoff straight RGB retained",
+      "actual": [
+        128,
+        128,
+        128,
+        255
+      ],
+      "expected": [
+        128,
+        128,
+        128,
+        255
+      ]
+    },
+    {
+      "case": "alpha linear half interpolation kept at cutoff",
+      "actual": [
+        128,
+        128,
+        128,
+        255
+      ],
+      "expected": [
+        128,
+        128,
+        128,
+        255
+      ]
+    },
+    {
+      "case": "alpha linear half interpolation discarded above cutoff",
+      "actual": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "opaque mode cutoff zero retains transparent RGB",
+      "actual": [
+        128,
+        128,
+        128,
+        255
+      ],
+      "expected": [
+        128,
+        128,
+        128,
+        255
+      ]
+    }
+  ],
+  "status": "PASS: expected RED reproduced, proposed correction GREEN; desktop Mesa only"
+}
