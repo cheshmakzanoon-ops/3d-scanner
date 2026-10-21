@@ -241,3 +241,17 @@ execution; that gate remains open. The separate optimized APK instrumentation
 harness still has cross-APK optimizer linkage failures and is being addressed with
 explicit, bounded QA retention/linkage checking rather than repeated speculative
 keeps or disabled minification.
+
+## Android test dependency ABI alignment (07:04 UTC)
+
+Original-bytecode analysis found a real test dependency mismatch: Espresso3.5.0
+called an AndroidX Test ViewCapture method removed from the resolved1.6-generation
+API. Espresso core/idling now explicitly use3.6.1, matching runner1.6.2/ext-junit1.2.1;
+the missing ViewCapture call no longer appears in tracing. The already-reviewed
+error_prone_annotations2.26.1 pin is test runtime rather than compile-only to avoid
+consistent-resolution mismatch. These are AndroidTest-only changes: no application
+runtime configuration or other dependency version changed. Obsolete test-only
+transitive memberships were removed; new artifacts were independently verified
+against official repository bytes/published checksums. Both debug and release
+instrumented-test compilation/classpath export pass. Runtime linkage/device
+qualification still requires the separately reviewed QA-retention build.

@@ -67,6 +67,8 @@ dependencies {
     testImplementation("org.json:json:20250517")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
+    // Align the screenshot API with Test core 1.6.x; Compose pulls older Espresso.
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2025.05.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.room:room-testing:2.7.1")
@@ -130,5 +132,5 @@ val candidateTestBuildType = providers.gradleProperty("realityForgeTestBuildType
 require(candidateTestBuildType in setOf("debug", "release")) { "realityForgeTestBuildType must be debug or release" }
 candidateAndroid.setDsl("testBuildType", candidateTestBuildType)
 
-// AndroidX test tracing retains these annotations; provide actual classes for test R8.
-dependencies { add("androidTestCompileOnly", "com.google.errorprone:error_prone_annotations:2.26.1") }
+// AndroidX test tracing retains these annotations; keep the reviewed version in the test APK.
+dependencies { add("androidTestImplementation", "com.google.errorprone:error_prone_annotations:2.26.1") }

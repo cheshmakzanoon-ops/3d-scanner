@@ -4471,5 +4471,21 @@
             <sha256 value="505008736a6cfab649f81db603eee3b2f828f5d877712a38939efdd5f1fc5170" origin="Verified against official repository published checksum and HTTPS artifact"/>
          </artifact>
       </component>
+      <component group="androidx.test.espresso" name="espresso-core" version="3.6.1">
+         <artifact name="espresso-core-3.6.1.pom">
+            <sha256 value="da9426b4af8e2c8d0fbcb28d1397868d92d5e07e1d3d88e37a9cee0f5ac2b764" origin="Verified against official repository published checksum and HTTPS artifact"/>
+         </artifact>
+         <artifact name="espresso-core-3.6.1.aar">
+            <sha256 value="2495daa4d35cc0e6e6de4566d53a6e04cc13c316fe32c1a7ede13571ff11ffdd" origin="Verified against official repository published checksum and HTTPS artifact"/>
+         </artifact>
+      </component>
+      <component group="androidx.test.espresso" name="espresso-idling-resource" version="3.6.1">
+         <artifact name="espresso-idling-resource-3.6.1.pom">
+            <sha256 value="8dcb942e951ab2954e74003ddfcd4f899d26537d04be9209e10518069810645f" origin="Verified against official repository published checksum and HTTPS artifact"/>
+         </artifact>
+         <artifact name="espresso-idling-resource-3.6.1.aar">
+            <sha256 value="bc63a8780f1c707724e389f530cb2e1a6847da97f6a8114604c002aba2fd86ca" origin="Verified against official repository published checksum and HTTPS artifact"/>
+         </artifact>
+      </component>
    </components>
 </verification-metadata>

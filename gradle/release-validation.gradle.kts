@@ -33,5 +33,5 @@ val candidateTestBuildType = providers.gradleProperty("realityForgeTestBuildType
 require(candidateTestBuildType in setOf("debug", "release")) { "realityForgeTestBuildType must be debug or release" }
 candidateAndroid.setDsl("testBuildType", candidateTestBuildType)
 
-// AndroidX test tracing retains these annotations; provide actual classes for test R8.
-dependencies { add("androidTestCompileOnly", "com.google.errorprone:error_prone_annotations:2.26.1") }
+// AndroidX test tracing retains these annotations; keep the reviewed version in the test APK.
+dependencies { add("androidTestImplementation", "com.google.errorprone:error_prone_annotations:2.26.1") }
