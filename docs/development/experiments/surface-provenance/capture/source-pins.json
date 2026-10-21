@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "e8cc27a86d67e7962261f139d624e1ce809a296a",
+  "baseDirectory": "tools/relief_quality_validation",
+  "patchSha256": "98ccfd8e1c9a39b94abcf98d24a1d210a9013a4a8a0923057457c8e3930f2e9f",
+  "baseHashes": {
+    "SparsePipelineQualityCaptureHostTest.kt": "056a6894293a1e8a6e8e3d310c203e900bcc8cd777d4e5161d3335aa84e5b36d",
+    "validate.py": "2ba5c7a36c430934d2358aaf3077693a4a37d5da9016216f6649445fe57f9975",
+    "OpaqueBitmapBridge.kt": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+    "SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+    "SandboxNativeLoaderTokenHostTest.kt": "f7f24cebe26059a50573a3fdf19e0a6115ab3e3607d98bd1b8cecd51f734429a",
+    "SparsePrefixRunner.kt": "016869b9da27f37407d962be272b7b502119c79db0a19b25927545deaab8a9ed",
+    "probe.init.gradle": "4f724496bb1ef978ce4fd8a72aaabf29781f18dcc39bf08c0b4c111adfbe38d4"
+  },
+  "patchedHashes": {
+    "SparsePipelineQualityCaptureHostTest.kt": "70d4f474b7051d3fbfd588c4572cc102a028acfb260d6e0172401b2aa63011b7",
+    "validate.py": "d52b17f91bdeea3dd08cd6d7555d892d98618bfbe7256b9a116b1c757430195e"
+  },
+  "unchangedFiles": [
+    "OpaqueBitmapBridge.kt",
+    "SandboxNativeLoaderRunner.kt",
+    "SandboxNativeLoaderTokenHostTest.kt",
+    "SparsePrefixRunner.kt",
+    "probe.init.gradle"
+  ],
+  "nativePins": {
+    "opencv": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+    "shim": "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce",
+    "engine": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b"
+  }
+}

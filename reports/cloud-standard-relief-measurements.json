@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "status": "MEASURE_ONLY_NOT_QUALITY_PASS",
+  "synthetic": true,
+  "metricScaleClaim": false,
+  "captureManifestSha256": "8b560cf7cdb7ea147601c26d84259fde29c35be4f18d1bf5ed3f5a9b363c2dd7",
+  "artifacts": {
+    "result.json": {
+      "sha256": "bc4f9ec3e3ecf6ae35603361361a0c9bf026ac6c4489588b0dfbf12c89f4ed82",
+      "bytes": 2961417
+    },
+    "sparse.ply": {
+      "sha256": "619400861d5cb9af30e9318157c712434edc911b4829bc0de9dac638fac35492",
+      "bytes": 41885
+    },
+    "dense.ply": {
+      "sha256": "891775ef041ff2de21edbd9b57503ca6e532a269367e0c6692590a214692b78c",
+      "bytes": 741990
+    },
+    "mesh.ply": {
+      "sha256": "bfd8ec897e36539876c867e79eaa43e593830ad8023c1e67dc0c530c6d58652a",
+      "bytes": 1455796
+    }
+  },
+  "truthInputSha256": {
+    "tools/make_fixture.py": "c3660732f2fbccf68efd6d5452fdb1701427ce060c076f6d5558c500497783f9",
+    "benchmarks/fixtures/relief/calibration.json": "284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593",
+    "tools/qa/geometry_quality/metrics.py": "bd4ab2f66263b7246aa8827902b0c40ccf20db2cabdcdcdd004e3a9d3125e275",
+    "tests/test_pipeline.py": "26d4a548f9bc4ba79be4dc8942738e83f7224face99d2955b5d06b220ad205fd",
+    "tools/qa/geometry_quality/__main__.py": "8bc2987aba5e5d554d1db58b61f412c6cdf2604e819e5b45bf7662c5a8b9773d",
+    "tools/qa/geometry_quality/glb.py": "f0272ecf74149702e79b002878bce4f57169a37744ed8213acd125541208824a",
+    "benchmarks/fixtures/relief/view-01.jpg": "66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c",
+    "benchmarks/fixtures/relief/view-02.jpg": "c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b",
+    "benchmarks/fixtures/relief/view-03.jpg": "a0d386746c2a8f47840058613bc89aa3c4a8095995288fa936d368ad67fe6c0f"
+  },
+  "evaluatorSha256": "04e99a1946e2716ad55a9c51eea8ab2fcf9de33c93ff01fedcb11fddf2f85a80",
+  "gauge": {
+    "method": "fixed view01 estimated pose plus positive view01-view02 baseline scale only; no fitted surface or all-camera alignment",
+    "scale": 0.6419501538284019,
+    "referenceBaselineSyntheticUnits": 0.6419501538281613,
+    "estimatedBaseline": 0.9999999999996253
+  },
+  "cameras": {
+    "view-01.jpg": {
+      "rotationErrorDegrees": 0.0,
+      "translationDirectionDot": null,
+      "centerErrorSyntheticUnits": 0.0,
+      "translationErrorSyntheticUnits": 0.0,
+      "referenceCameraUsedToFixGauge": true
+    },
+    "view-02.jpg": {
+      "rotationErrorDegrees": 0.025771215500781992,
+      "translationDirectionDot": 0.9999989212448632,
+      "centerErrorSyntheticUnits": 0.0009263676033832573,
+      "translationErrorSyntheticUnits": 0.0009429262875376991,
+      "referenceCameraUsedToFixGauge": false
+    },
+    "view-03.jpg": {
+      "rotationErrorDegrees": 0.007695746866617766,
+      "translationDirectionDot": 0.9999986234852503,
+      "centerErrorSyntheticUnits": 0.0011931969148127337,
+      "translationErrorSyntheticUnits": 0.0011820676449253386,
+      "referenceCameraUsedToFixGauge": false
+    }
+  },
+  "surfaceMeasurements": {
+    "sparse.ply": {
+      "vertices": 904,
+      "triangles": 0,
+      "sampleCount": 904,
+      "sampleRule": "all output vertices",
+      "invalidSampleCount": 0,
+      "inDomainSamples": 902,
+      "outOfDomainSamples": 2,
+      "inDomainFraction": 0.9977876106194691,
+      "verticalResidualInDomainSyntheticUnits": {
+        "p50": 0.010099056086043667,
+        "p90": 0.019742187724117243,
+        "p95": 0.026645889493163377,
+        "max": 0.2683115389972306
+      },
+      "allSamplesAnalyticExtrapolationResidual": {
+        "p50": 0.010099056086043667,
+        "p90": 0.01973243706237291,
+        "p95": 0.026613195958749485,
+        "max": 0.2683115389972306
+      },
+      "notCompleteness": true
+    },
+    "dense.ply": {
+      "vertices": 16029,
+      "triangles": 0,
+      "sampleCount": 16029,
+      "sampleRule": "all output vertices",
+      "invalidSampleCount": 0,
+      "inDomainSamples": 15538,
+      "outOfDomainSamples": 491,
+      "inDomainFraction": 0.9693680204629109,
+      "verticalResidualInDomainSyntheticUnits": {
+        "p50": 0.012529171117530158,
+        "p90": 0.033801036315184434,
+        "p95": 0.04472354437318788,
+        "max": 0.21817345744254713
+      },
+      "allSamplesAnalyticExtrapolationResidual": {
+        "p50": 0.012658520308638899,
+        "p90": 0.034590770739022864,
+        "p95": 0.04594268208247971,
+        "max": 0.2217725079323456
+      },
+      "notCompleteness": true
+    },
+    "mesh.ply": {
+      "vertices": 13621,
+      "triangles": 17613,
+      "sampleCount": 4096,
+      "sampleRule": "fixed4096 area-weighted seed84001",
+      "invalidSampleCount": 0,
+      "inDomainSamples": 4028,
+      "outOfDomainSamples": 68,
+      "inDomainFraction": 0.9833984375,
+      "verticalResidualInDomainSyntheticUnits": {
+        "p50": 0.01066132367541961,
+        "p90": 0.02645236900901305,
+        "p95": 0.03383056566234589,
+        "max": 0.08108644777458629
+      },
+      "allSamplesAnalyticExtrapolationResidual": {
+        "p50": 0.010670177963515437,
+        "p90": 0.026532229155757037,
+        "p95": 0.03382472968537542,
+        "max": 0.08108644777458629
+      },
+      "notCompleteness": true
+    }
+  },
+  "existingTwoViewRegressionReference": {
+    "source": "tests/test_pipeline.py",
+    "rotationDegreesMax": 1.0,
+    "translationDirectionDotMin": 0.995,
+    "sparseVerticalMedianMax": 0.08,
+    "sparseVerticalP90Max": 0.16,
+    "appliedAsGate": false,
+    "reason": "Full-core uses selected anchor/global typed BA/different image front end; dense/mesh distributions have no matching prior thresholds. Descriptive comparison only."
+  },
+  "limitations": [
+    "Vertical graph residual is not Euclidean point-to-surface distance",
+    "Domain fraction measures output support, not visible-reference completeness",
+    "Generator analytic surface is intended synthetic truth;45-step ray iteration/JPEG/interpolation discretization not independently quantified here",
+    "No held-out photo reprojection or physical accuracy",
+    "Camera view01 gauge and view01-view02 baseline chosen for alignment cannot independently validate absolute pose/scale"
+  ]
+}

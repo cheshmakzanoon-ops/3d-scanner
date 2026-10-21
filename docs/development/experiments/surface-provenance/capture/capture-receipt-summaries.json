@@ -1,0 +1,126 @@
+{
+  "COMPACT": {
+    "captureReceiptSha256": "912d91c83692af55f61e952b624b30d97dfd1306e686bb8896e3a30ea86b2681",
+    "sourceCommit": "e8cc27a86d67e7962261f139d624e1ce809a296a",
+    "outcome": "PASS",
+    "status": "EXIT_0",
+    "junit": [
+      {
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "time": "11.04"
+      }
+    ],
+    "inputHashesUnchanged": true,
+    "compiledInputsUnchanged": true,
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "e8cc27a86d67e7962261f139d624e1ce809a296a",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "restored": true
+    },
+    "capture": {
+      "manifestSha256": "0aeb12ec569a3b8195256ad04eda8ed1242c3c5e0704f16688558d5c8d8eb3f7",
+      "artifacts": {
+        "result.json": {
+          "sha256": "1b311be9e6fc5bd4909c1181a42bd505029337f0cc38e8cc2f8ae85dd01a2810",
+          "bytes": 1387028
+        },
+        "sparse.ply": {
+          "sha256": "2e044979dce6b23dc549a1d124716db23b054c3c6dcbf5d17eda564b8d6ac280",
+          "bytes": 41885
+        },
+        "dense.ply": {
+          "sha256": "c7926def4a18a371eefd36238c804d27c1508fb4f853ea0befda72f2fedeff7c",
+          "bytes": 316688
+        },
+        "mesh.ply": {
+          "sha256": "290e3216bcfacb3ac45ee6247e2ce194df37cb7db62901523bc30d421c84330e",
+          "bytes": 594261
+        },
+        "surface-v2.rfmesh": {
+          "sha256": "fd0efdc9190c254c7a36e591aaed95db59110ae36539b622b10ce5ac96c90dbc",
+          "bytes": 1184769
+        }
+      },
+      "depthCheckpointIdentity": "61bcb704b31947582fc6a392a80a01bc205a8c167101e0cfddcf798c36fa4166"
+    },
+    "nativeReportedTopology": {
+      "vertexCount": 5746,
+      "triangleCount": 6734,
+      "boundaryEdges": 4873,
+      "nonmanifoldEdges": 172,
+      "intersections": 6137,
+      "topologyIncomplete": false
+    },
+    "qualityStatus": "MEASURE_ONLY_NOT_QUALITY_PASS",
+    "scope": "HOST actual three-photo SparsePipeline core with explicit Utils opaque bridge; not controller/resource/Android qualification"
+  },
+  "STANDARD": {
+    "captureReceiptSha256": "d398cb765ccf93cf1b9d98d9443afb3caad091225c73e022e5971095afe8d0d4",
+    "sourceCommit": "e8cc27a86d67e7962261f139d624e1ce809a296a",
+    "outcome": "PASS",
+    "status": "EXIT_0",
+    "junit": [
+      {
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "time": "14.146"
+      }
+    ],
+    "inputHashesUnchanged": true,
+    "compiledInputsUnchanged": true,
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "e8cc27a86d67e7962261f139d624e1ce809a296a",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "restored": true
+    },
+    "capture": {
+      "manifestSha256": "9ea72561a29fd54cb69d9cc8fa6a63176f003de5a90ae1a10ed5a71486ee5aad",
+      "artifacts": {
+        "result.json": {
+          "sha256": "bc4f9ec3e3ecf6ae35603361361a0c9bf026ac6c4489588b0dfbf12c89f4ed82",
+          "bytes": 2961417
+        },
+        "sparse.ply": {
+          "sha256": "619400861d5cb9af30e9318157c712434edc911b4829bc0de9dac638fac35492",
+          "bytes": 41885
+        },
+        "dense.ply": {
+          "sha256": "891775ef041ff2de21edbd9b57503ca6e532a269367e0c6692590a214692b78c",
+          "bytes": 741990
+        },
+        "mesh.ply": {
+          "sha256": "bfd8ec897e36539876c867e79eaa43e593830ad8023c1e67dc0c530c6d58652a",
+          "bytes": 1455796
+        },
+        "surface-v2.rfmesh": {
+          "sha256": "835968d3e751325df6aba952454ad5666c372562a921561e7b7895f5a0dfcbbb",
+          "bytes": 2815423
+        }
+      },
+      "depthCheckpointIdentity": "ffb0e2f8994ff912ee07fac640ee51942edc5e189b03b5bf2e263f4b23a4b048"
+    },
+    "nativeReportedTopology": {
+      "vertexCount": 13621,
+      "triangleCount": 17613,
+      "boundaryEdges": 10709,
+      "nonmanifoldEdges": 599,
+      "intersections": 10645,
+      "topologyIncomplete": true
+    },
+    "qualityStatus": "MEASURE_ONLY_NOT_QUALITY_PASS",
+    "scope": "HOST STANDARD preset-only comparison, actual three-photo SparsePipeline core with explicit Utils opaque bridge; not production policy change or controller/resource/Android qualification",
+    "independentCoverageAndErrorMeasurements": "NOT_RUN",
+    "topologyCaveat": "Native intersections count is incomplete; do not compare as exhaustive or claim qualified quality comparison."
+  }
+}

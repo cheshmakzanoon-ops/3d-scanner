@@ -1,0 +1,157 @@
+--- a/SparsePipelineQualityCaptureHostTest.kt
++++ b/SparsePipelineQualityCaptureHostTest.kt
+@@ -26,6 +26,10 @@
+ import com.realityforge.scanner.work.execution.ReconstructionExecutionController
+ import hostadapter.OpaqueBitmapBridge
+ import java.io.File
++import java.nio.file.Files
++import java.nio.file.LinkOption
++import java.nio.file.StandardOpenOption
++import java.nio.file.attribute.BasicFileAttributes
+ import java.security.MessageDigest
+ import java.util.UUID
+ import java.util.concurrent.CopyOnWriteArrayList
+@@ -232,12 +236,22 @@
+                 assertEquals(source.length(),target.length());assertEquals(before,sha(target));assertEquals(before,sha(source))
+                 entries.put(name,JSONObject().put("sha256",before).put("bytes",target.length()))
+             }
++            // The solver worker and native owner have already completed/closed above.
++            assertTrue(requireNotNull(worker).isCompleted)
++            assertEquals(0L, token)
++            val densePreview = result.getJSONObject("densePreview")
++            require(densePreview.getBoolean("surfaceCheckpointAvailable"))
++            val depthIdentity = densePreview.getString("depthCheckpointIdentity")
++            require(depthIdentity.matches(Regex("[0-9a-f]{64}")))
++            val checkpoint = File(directory, ".depth-checkpoints-m18/$depthIdentity/surface-v2.rfmesh")
++            entries.put("surface-v2.rfmesh", captureOwnedCheckpoint(directory, checkpoint, File(capture, "surface-v2.rfmesh")))
+             val identities=org.json.JSONArray()
+             fixture.database.dao().photos(fixture.project).forEach { photo ->
+                 identities.put(JSONObject().put("photoId",photo.id).put("sha256",photo.sha256))
+             }
+             File(capture,"capture.json").writeText(JSONObject().put("schema",1).put("synthetic",true)
+                 .put("artifacts",entries).put("photos",identities).put("artifactKey",key)
++                .put("depthCheckpointIdentity",depthIdentity)
+                 .put("scope","post-return evidence only; not solver input").toString())
+         } catch (failure: Throwable) { primary = failure; throw failure }
+         finally {
+@@ -256,6 +270,80 @@
+             primary?.let { throw it }
+         }
+     }
++    /** Reject symlinks in EVERY existing ancestor; synthetic owned paths only. */
++    private fun strictPath(file: File, regular: Boolean): BasicFileAttributes {
++        val path = file.toPath().toAbsolutePath().normalize()
++        require(path == file.canonicalFile.toPath()) { "Noncanonical evidence path" }
++        var current = requireNotNull(path.root)
++        for (part in path) {
++            current = current.resolve(part)
++            val attrs = Files.readAttributes(current, BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
++            require(!attrs.isSymbolicLink)
++            require(if (current == path && regular) attrs.isRegularFile else attrs.isDirectory)
++        }
++        return Files.readAttributes(path, BasicFileAttributes::class.java, LinkOption.NOFOLLOW_LINKS)
++    }
++    private fun boundedCheckpointHash(file: File, maximum: Long): String {
++        require(strictPath(file, true).size() in 1..maximum)
++        val digest = MessageDigest.getInstance("SHA-256")
++        var bytes = 0L
++        Files.newInputStream(file.toPath(), StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS).use { input ->
++            val buffer = ByteArray(8192)
++            while (true) {
++                val count = input.read(buffer)
++                if (count < 0) break
++                bytes += count
++                require(bytes <= maximum)
++                digest.update(buffer, 0, count)
++            }
++        }
++        require(bytes > 0)
++        return digest.digest().joinToString("") { "%02x".format(it) }
++    }
++    private fun captureOwnedCheckpoint(root: File, source: File, target: File): JSONObject {
++        val maximum = 12L * 1024 * 1024
++        strictPath(root, false)
++        val sourcePath = source.toPath().toAbsolutePath().normalize()
++        require(sourcePath.startsWith(root.canonicalFile.toPath()) && sourcePath != root.canonicalFile.toPath())
++        val before = strictPath(source, true)
++        require(before.size() in 1..maximum)
++        strictPath(target.parentFile, false)
++        require(!Files.exists(target.toPath(), LinkOption.NOFOLLOW_LINKS))
++        val beforeHash = boundedCheckpointHash(source, maximum)
++        val digest = MessageDigest.getInstance("SHA-256")
++        var copied = 0L
++        Files.newInputStream(sourcePath, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS).use { input ->
++            Files.newOutputStream(target.toPath(), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE,
++                LinkOption.NOFOLLOW_LINKS).use { output ->
++                val buffer = ByteArray(8192)
++                while (true) {
++                    val count = input.read(buffer)
++                    if (count < 0) break
++                    copied += count
++                    require(copied <= maximum && copied <= before.size())
++                    digest.update(buffer, 0, count)
++                    output.write(buffer, 0, count)
++                }
++            }
++        }
++        val after = strictPath(source, true)
++        val destination = strictPath(target, true)
++        require(before.fileKey() != null && before.fileKey() == after.fileKey())
++        require(before.size() == after.size() && before.lastModifiedTime() == after.lastModifiedTime())
++        require(copied == before.size() && destination.size() == copied)
++        val copiedHash = digest.digest().joinToString("") { "%02x".format(it) }
++        assertEquals(beforeHash, copiedHash)
++        assertEquals(beforeHash, boundedCheckpointHash(source, maximum))
++        assertEquals(beforeHash, boundedCheckpointHash(target, maximum))
++        strictPath(source, true).also { final ->
++            require(final.fileKey() == before.fileKey() && final.size() == before.size() && final.lastModifiedTime() == before.lastModifiedTime())
++        }
++        strictPath(target, true).also { final ->
++            require(final.fileKey() == destination.fileKey() && final.size() == destination.size() && final.lastModifiedTime() == destination.lastModifiedTime())
++        }
++        return JSONObject().put("sha256", copiedHash).put("bytes", copied)
++    }
++
+     /** Test-only reader for the exact dense point writer; never relax the production sparse validator. */
+     private fun validateDensePly(file: File, expectedCount: Int) {
+         require(expectedCount in 1..2_000_000 && file.length() in 1..(32L * 1024 * 1024))
+--- a/validate.py
++++ b/validate.py
+@@ -88,7 +88,7 @@
+  assert 'Shared library: [librealityforge.so]' in dynamic and 'Library runpath: ['+str(NATIVE['engine'][0].parent)+']' in dynamic
+  exports=cmd('nm','-D',str(NATIVE['shim'][0]));(args.output/'shim-exports.txt').write_text(exports)
+  for n in ['beginReconstruction','pollNativeProgress','cancelReconstruction','finishReconstruction']:assert 'Java_com_realityforge_scanner_engine_NativeCore_'+n in exports
+- command=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict -I "$3" -PloaderProbeConfig="$4" :app:sparsePipelineQualityCaptureProbe --tests com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest','probe',str(ENV),str(GRADLE),str(INIT),str(cfgpath)]
++ command=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict -PcandidateSigning=test -PrealityForgeTestBuildType=debug -PrealityForgeInstrumentationQa=false -I "$3" -PloaderProbeConfig="$4" :app:sparsePipelineQualityCaptureProbe --tests com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest','probe',str(ENV),str(GRADLE),str(INIT),str(cfgpath)]
+  env=dict(os.environ)
+  for k in ['JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS']:env.pop(k,None)
+  status='NOT_RUN';start=time.time()
+@@ -128,13 +128,16 @@
+   try:
+    capture=args.output/'quality-capture';manifest=capture/'capture.json'
+    require(manifest.is_file() and not manifest.is_symlink() and manifest.stat().st_size<=65536,'Missing/unsafe quality capture')
+-   metadata=json.loads(manifest.read_text());names={'result.json','sparse.ply','dense.ply','mesh.ply'}
++   metadata=json.loads(manifest.read_text());names={'result.json','sparse.ply','dense.ply','mesh.ply','surface-v2.rfmesh'}
++   require(re.fullmatch(r'[0-9a-f]{64}',metadata['depthCheckpointIdentity']) is not None,'Invalid checkpoint identity')
++   result=json.loads((capture/'result.json').read_text())
++   require(result['densePreview']['depthCheckpointIdentity']==metadata['depthCheckpointIdentity'] and result['densePreview']['surfaceCheckpointAvailable'] is True,'Checkpoint identity mismatch')
+    require(set(metadata['artifacts'])==names and {p.name for p in capture.iterdir()}==names|{'capture.json'},'Wrong quality capture inventory')
+    for name,entry in metadata['artifacts'].items():
+     artifact=capture/name
+-    require(artifact.is_file() and not artifact.is_symlink() and 0<artifact.stat().st_size<=32*1024*1024,'Invalid captured artifact')
++    require(artifact.is_file() and not artifact.is_symlink() and 0<artifact.stat().st_size<=(12 if name=='surface-v2.rfmesh' else 32)*1024*1024,'Invalid captured artifact')
+     require(artifact.stat().st_size==entry['bytes'] and sha(artifact)==entry['sha256'],'Captured artifact integrity failure')
+-   capture_checks={'manifestSha256':sha(manifest),'artifacts':metadata['artifacts']}
++   capture_checks={'manifestSha256':sha(manifest),'artifacts':metadata['artifacts'],'depthCheckpointIdentity':metadata['depthCheckpointIdentity']}
+   except Exception as e:errors.append({'qualityCaptureError':repr(e)})
+   all_checks=status=='EXIT_0' and not errors and before==after and post_commit==args.expected_commit and post_status=='' and compiled_unchanged and junit_ok
+   (args.output/'post-compiled-hashes.json').write_text(json.dumps(compiled_checks,indent=2))
+@@ -142,7 +145,7 @@
+   receipt['qualityCapture']=capture_checks
+   receipt_path=args.output/'receipt.json';write_receipt(receipt_path,receipt)
+   # Preserve test evidence before normal compilation removes invocation-only probe classes.
+-  restore=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict :app:compileDebugUnitTestKotlin','restore',str(ENV),str(GRADLE)]
++  restore=['bash','-c','source "$1"; exec "$2" --no-daemon --max-workers=1 --no-parallel -Dorg.gradle.jvmargs="-Xmx1g -XX:ActiveProcessorCount=2 -Dfile.encoding=UTF-8" --offline --dependency-verification strict -PcandidateSigning=test -PrealityForgeTestBuildType=debug -PrealityForgeInstrumentationQa=false :app:compileDebugUnitTestKotlin','restore',str(ENV),str(GRADLE)]
+   restoration={'command':restore,'status':'NOT_RUN'}
+   try:
+    with (args.output/'restoration.log').open('w') as log:

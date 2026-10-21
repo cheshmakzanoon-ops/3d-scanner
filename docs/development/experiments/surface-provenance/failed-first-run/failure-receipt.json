@@ -1,0 +1,20 @@
+{
+  "status": "FAIL_CLOSED_EXTERNAL_DECODER_SCHEMA_WIDTH_BUG",
+  "processExitCode": 1,
+  "failure": "confidence bound",
+  "provenanceInterpreted": false,
+  "independentExportedIntersections": 6137,
+  "all97InputHashesUnchanged": true,
+  "sourceEvidence": "DenseResult.medianConfidence double; surface_checkpoint.cpp393 reads in.real(); external draft wrongly read in.single()",
+  "outputHashes": {
+    "decode.log": "2065b694f235b62480990776709248c700649da53751b62613cc5dcc4dbb8183",
+    "linkage.log": "e8a909394fb58460f41c9f3f9d843dcacda3e882c507bb2214130bd195b6a3f4",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "decode": "59144b84f795ce108f2d250e862b6332d4cbc15489ad86969cdecf17ddea32b8",
+    "independent-exported-classification.log": "6ec21820bc562cec5e4375028f42e50c3a08f7415152c78141096963f1503eb1",
+    "linkage-exported.log": "1dd90a8e5d69038423a595a6093b2c3523930cc0f29c1b7c8dc5be06f08b5ce4",
+    "compile-exported.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exported-analyze": "87b328e0a9772a5247ce2fd261f8424e6f3690e202bb454b4ef01994025c0cb9",
+    "inputs.json": "de93324b6e77407c356db8f3d96d6abc4d503346209f421c4515e61918e412a1"
+  }
+}

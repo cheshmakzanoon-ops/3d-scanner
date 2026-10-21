@@ -1,0 +1,9 @@
+# Fresh-baseline surface provenance evidence
+
+External diagnostic only; no production changes. Read FINDINGS.md for results and limitations. `raw-evidence-reference.json` identifies the externally preserved original indexed provenance and exact crossing pair IDs by SHA; those repetitive lists are omitted from this minimal archive. `receipt-summary.json` is a compact sanitized summary, not a byte-identical replacement for the raw host receipt whose SHA is recorded. The failed-first-run folder summarizes the caught external schema-width bug and preserves its failure log/receipt; diagnostic/decode.cpp contains the independently reviewed correction.
+
+The synthetic photograph capture stays outside this package. To reproduce, obtain the exact five captured artifacts and manifest identified in FINDINGS.md; use canonical local paths in diagnostic/config.template.json, original immutable native engine/JNI, pinned native sources and resolved toolchain. The runner currently expects the JNI at its original external host path; relocating it requires a reviewed runner/config revision, not a silent fallback. Native archive contains no binary or regenerated geometry.
+
+Original reviewed limits: two sequential GCC compiles (60seconds each), each analysis60seconds,2GiB process address-space,300second aggregate subprocess budget;12MiB checkpoint. Original result and PLY geometry equality and ordered intersection-pair equality are mandatory. Seven negative guards remain in the runner. Do not remove an incomplete-topology gate to run larger presets.
+
+`capture/` contains the reviewed fifth-checkpoint patch against the published capture harness plus base/patched/native source pins and sanitized terminal receipt summaries. It does not replace the full447-class offline provenance/restore receipts. All labels are native source-camera indexes, not guessed photograph names.

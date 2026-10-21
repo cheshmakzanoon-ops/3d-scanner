@@ -1,0 +1,7 @@
+{
+  "rawTraceSha256": "4dcbe0d4b568991d63c0758e55207799b1f6415a151841c70e4ea463bd03401f",
+  "rawReceiptSha256": "0f514f56945841c354ddd3f70ed55e7f91fdcddac53216890134fc840d738340",
+  "rawTraceExternalLocation": "/tmp/relief-checkpoint-provenance-replicate-v2-evidence/classified/trace.json",
+  "rawReceiptExternalLocation": "/tmp/relief-checkpoint-provenance-replicate-v2-evidence/receipt.json",
+  "reasonRawListsOmitted": "Large repeated source-camera, observation and pair lists remain external; verified aggregate receipt and reproduction source are archived."
+}
