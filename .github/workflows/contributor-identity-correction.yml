@@ -1,0 +1,141 @@
+# DRAFT ONLY. Publish only after review and authorization. No remote changes made by drafting.
+# Put this workflow ONLY on ops/contributor-identity-correction-e188704, not main.
+# After verified success only, operator may clean up this bounded execution branch; retain recovery refs.
+name: Correct automation attribution without source changes
+on:
+  push:
+    branches: [ops/contributor-identity-correction-e188704]
+permissions:
+  contents: write
+concurrency:
+  group: contributor-identity-correction-main
+  cancel-in-progress: false
+jobs:
+  correct:
+    if: github.repository == 'cheshmakzanoon-ops/3d-scanner' && github.event_name == 'push' && github.event.deleted == false && github.ref == 'refs/heads/ops/contributor-identity-correction-e188704' && (github.actor == 'cheshmakzanoon-ops' || github.actor == 'azerish25-ux')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          ref: e188704ddb4aa6a1a9cace8bf48efeb3910690f9
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Freeze original main and create offline snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected=e188704ddb4aa6a1a9cace8bf48efeb3910690f9
+          test "$(git rev-parse HEAD)" = "$expected"
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$expected"
+          test "$(git rev-list --parents -n1 "$GITHUB_SHA")" = "$GITHUB_SHA $expected"
+          test "$(git diff-tree --no-commit-id --name-status -r "$expected" "$GITHUB_SHA")" = $'A\t.github/workflows/contributor-identity-correction.yml'
+          mkdir /tmp/contributor-identity-correction
+          git init --bare /tmp/contributor-identity-correction/rewrite.git
+          git -C /tmp/contributor-identity-correction/rewrite.git fetch "$GITHUB_WORKSPACE" "$expected:refs/heads/main"
+          git -C /tmp/contributor-identity-correction/rewrite.git symbolic-ref HEAD refs/heads/main
+          git -C /tmp/contributor-identity-correction/rewrite.git bundle create /tmp/contributor-identity-correction/original.bundle --all
+      - name: Rewrite only exact audited automation identities and verify every commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/contributor-identity-correction/rewrite.py <<'AUDITED_PY'
+          #!/usr/bin/env python3
+          """OFFLINE ONLY: preserve raw commit bytes except exact automation identities and parent OIDs.
+          Signature header bytes remain unchanged; signatures on rewritten commits are invalid.
+          Never push this mirror wholesale: it contains local remote-tracking refs.
+          """
+          import subprocess, pathlib, json, collections, re
+          if not __debug__: raise RuntimeError("Verification requires Python assertions enabled")
+          ROOT=pathlib.Path(__file__).resolve().parent
+          REPO=ROOT/'rewrite.git'
+          assert str(REPO).startswith('/tmp/')
+          def git(*args, data=None):
+              return subprocess.check_output(['git','-C',str(REPO),*args], input=data)
+          assert git('rev-parse','--is-bare-repository').strip()==b'true'
+          AUTOMATION={b'Agent 002 <agent002@users.noreply.github.com>',b'Agent 014 <agent-014@users.noreply.github.com>',b'Agent 027 <agent-027@users.noreply.github.com>',b'RealityForge Agent 010 <agent-010@users.noreply.github.com>',b'agent-017 <agent-017@users.noreply.github.com>',b'agent-026 <agent-026@users.noreply.github.com>'}
+          TARGET=b'cheshmakzanoon-ops <cheshmakzanoon@gmail.com>'
+          OWNERS={b'Sh. Azeri <azerish25@gmail.com>',TARGET,b'cheshmakzanoon-ops <318354914+cheshmakzanoon-ops@users.noreply.github.com>'}
+          refs={}
+          for row in git('for-each-ref','--format=%(refname) %(objectname) %(symref)').decode().splitlines():
+              parts=row.split()
+              if len(parts)==2: refs[parts[0]]=parts[1]
+          assert refs['refs/heads/main']=='e188704ddb4aa6a1a9cace8bf48efeb3910690f9', 'Original snapshot mismatch or already rewritten'
+          commits=git('rev-list','--reverse','--topo-order','--all').decode().splitlines()
+          mapping={}; identity_changes=[]; signatures=[]; before=collections.Counter(); after=collections.Counter()
+          def parse(raw):
+              header,sep,message=raw.partition(b'\n\n'); assert sep
+              return header.split(b'\n'),message
+          for old in commits:
+              raw=git('cat-file','commit',old); lines,message=parse(raw); newlines=[]; changed=False
+              for line in lines:
+                  if line.startswith(b'parent '):
+                      line=b'parent '+mapping[line[7:].decode()].encode()
+                  elif line.startswith((b'author ',b'committer ')):
+                      kind,identity_date=line.split(b' ',1)
+                      match=re.fullmatch(rb'(.* <[^>]*>)( -?\d+ [+-]\d{4})',identity_date); assert match, line
+                      identity,date=match.groups()
+                      assert identity in AUTOMATION|OWNERS|{b'GitHub <noreply@github.com>'}, identity
+                      if kind==b'author':
+                          assert identity!=b'GitHub <noreply@github.com>'
+                          before[identity.decode()]+=1
+                      if identity in AUTOMATION:
+                          identity=TARGET; changed=True
+                      if kind==b'author': after[identity.decode()]+=1
+                      line=kind+b' '+identity+date
+                  newlines.append(line)
+              newraw=b'\n'.join(newlines)+b'\n\n'+message
+              new=git('hash-object','-t','commit','-w','--stdin',data=newraw).decode().strip()
+              mapping[old]=new
+              if changed: identity_changes.append(old)
+              if any(l.startswith(b'gpgsig ') for l in lines): signatures.append({'old':old,'new':new,'signature_invalidated':old!=new})
+              # Strict independent verification of graph, trees, dates, messages and all other headers.
+              got=git('cat-file','commit',new); verified,msg=parse(got)
+              assert msg==message and len(verified)==len(lines)
+              for prior,post in zip(lines,verified):
+                  if prior.startswith(b'parent '): assert post==b'parent '+mapping[prior[7:].decode()].encode()
+                  elif prior.startswith((b'author ',b'committer ')):
+                      expected=prior
+                      for identity in AUTOMATION:
+                          prefix=prior.split(b' ',1)[0]+b' '+identity+b' '
+                          if prior.startswith(prefix): expected=prior.split(b' ',1)[0]+b' '+TARGET+b' '+prior[len(prefix):]
+                      assert post==expected
+                  else: assert prior==post
+          (ROOT/'commit-map.json').write_text(json.dumps(mapping,indent=2)+'\n')
+          newrefs={r:mapping[oid] for r,oid in refs.items()}
+          (ROOT/'refs-before.json').write_text(json.dumps(refs,indent=2)+'\n')
+          (ROOT/'refs-after.json').write_text(json.dumps(newrefs,indent=2)+'\n')
+          commands='start\n'+''.join(f'update {r} {newrefs[r]} {oid}\n' for r,oid in refs.items())+'prepare\ncommit\n'
+          git('update-ref','--stdin',data=commands.encode())
+          assert len(git('rev-list','--all').splitlines())==len(commits)
+          assert git('rev-parse','refs/heads/main^{tree}')==git('rev-parse',refs['refs/heads/main']+'^{tree}')
+          report={'commits_verified':len(commits),'identity_changed_commits':len(identity_changes),'hash_changed_commits':sum(a!=b for a,b in mapping.items()),'refs_total':len(refs),'refs_changed':sum(refs[r]!=newrefs[r] for r in refs),'main_old':refs['refs/heads/main'],'main_new':newrefs['refs/heads/main'],'authors_before':dict(before),'authors_after':dict(after),'signatures':signatures,'identity_changed_original_commits':identity_changes,'all_commit_trees_messages_dates_other_headers_preserved':True,'ordered_parent_graph_preserved':True}
+          (ROOT/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
+          print(json.dumps(report,indent=2))
+          AUDITED_PY
+          python3 /tmp/contributor-identity-correction/rewrite.py
+          test "$(git -C /tmp/contributor-identity-correction/rewrite.git rev-parse main)" = 3bc614f3d87d3ad147e37fde53943f5255d00bdc
+          git -C /tmp/contributor-identity-correction/rewrite.git fsck --full
+      - name: Preserve recovery ref, then update only main with exact lease
+        shell: bash
+        run: |
+          set -euo pipefail
+          old=e188704ddb4aa6a1a9cace8bf48efeb3910690f9
+          new=3bc614f3d87d3ad147e37fde53943f5255d00bdc
+          recovery=refs/heads/archive/contributor-identity-before-e188704-20261021
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$old"
+          existing="$(git ls-remote origin "$recovery" | cut -f1)"
+          if [ -z "$existing" ]; then
+            git push --force-with-lease="$recovery:" origin "$old:$recovery"
+          else
+            test "$existing" = "$old"
+          fi
+          test "$(git ls-remote origin "$recovery" | cut -f1)" = "$old"
+          git fetch /tmp/contributor-identity-correction/rewrite.git refs/heads/main
+          test "$(git rev-parse FETCH_HEAD)" = "$new"
+          test "$(git rev-parse "$old^{tree}")" = "$(git rev-parse "$new^{tree}")"
+          git diff --exit-code "$old" "$new" --
+          git push --force-with-lease="refs/heads/main:$old" origin "$new:refs/heads/main"
+          test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$new"
+          test "$(git ls-remote origin "$recovery" | cut -f1)" = "$old"
+          echo "Main attribution corrected with identical source tree; recovery preserved." >> "$GITHUB_STEP_SUMMARY"
