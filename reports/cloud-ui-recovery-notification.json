@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T11:01:06Z",
+  "base_commit": "b7efe9539bed66991a1738c48802ff7c82fb4077",
+  "fixes": [
+    "Include RECOVERY_REQUIRED consistently in service and UI attention filters, preserving deletion tombstone exclusions",
+    "Submit reconstruction independently before optional notification permission; permission callbacks cannot submit or replay jobs"
+  ],
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/ui/ScannerNavigationApp.kt": "7e397e1d850e2461a5b2ad0bbbc361db42d7256900bee9ba87f07baffb3ca2de",
+    "app/src/main/java/com/realityforge/scanner/ui/navigation/ReconstructionNotificationRequest.kt": "617488182bd5ab7818c1398939099050579a801ba0753b66dc4e0638c0dc31ee",
+    "app/src/main/java/com/realityforge/scanner/ui/library/LibraryPresenter.kt": "e66c3254ea1cb32c27c214cdcb670ba1b4de561b96c311049382247f49efb5b2",
+    "app/src/main/java/com/realityforge/scanner/ui/library/LibraryState.kt": "0db2651654e99dd1c7e6866be4acacf54ad5c60d08360a46025aa326b79b7c39",
+    "app/src/test/java/com/realityforge/scanner/ui/navigation/ReconstructionNotificationRequestTest.kt": "2d1ee849d905201a98a839eeccfa7d37b60cf021d996448ccda9e0883af49b51",
+    "app/src/test/java/com/realityforge/scanner/agents/a072/LibraryPresenterTest.kt": "2df690281cbadc5ea36e63dfe5c96d3df5c1509a286e9bab438da1d589a99d19",
+    "app/src/test/java/com/realityforge/scanner/agents/a072/LibraryQueryTest.kt": "64ee9213c68d43f9cc68df1f7bb35c2700d4edcb3aee4a3a43fbc32047d4a316"
+  },
+  "validation": {
+    "focused_jvm": {
+      "passed": 21,
+      "failures": 0,
+      "skipped": 0
+    },
+    "full_jvm": {
+      "passed": 690,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android_test_kotlin_compile": "PASS",
+    "lint": {
+      "errors": 0,
+      "fatal": 0,
+      "warnings": 92,
+      "hints": 3
+    },
+    "independent_static_review": "No material blockers found"
+  },
+  "limits": [
+    "Helper tests are not actual Compose/activity recreation evidence",
+    "API33+ permission rotation/grant/deny/dismiss, delayed admission and double-tap device scenarios NOT_RUN",
+    "No new APK built for this source increment",
+    "Full-session and physical quality gates remain open"
+  ]
+}

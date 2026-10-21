@@ -29,6 +29,8 @@ sealed interface LibraryAction {
     data object LoadMore : LibraryAction
 }
 object LibraryQuery {
+    // Shared by the service query and the local UI filter; deletion tombstones stay excluded.
+    internal val attentionStates: Set<String> = setOf("INTERRUPTED", "FAILED", "ERROR", "RECOVERY_REQUIRED")
     fun validName(value: String): Boolean = value.trim().isNotEmpty() && value.codePointCount(0,value.length) <= 80 && value.none { it.isISOControl() }
     fun capName(value:String):String = value.substring(0,value.offsetByCodePoints(0,minOf(81,value.codePointCount(0,value.length))))
     fun apply(projects: List<LibraryProject>, query: String, sort: LibrarySort, filter: LibraryFilter): List<LibraryProject> {
@@ -37,7 +39,7 @@ object LibraryQuery {
             project.name.lowercase(Locale.ROOT).contains(normalized) && when (filter) {
                 LibraryFilter.ALL -> true
                 LibraryFilter.RESULTS -> project.hasCurrentResult
-                LibraryFilter.NEEDS_ATTENTION -> project.state in setOf("INTERRUPTED", "FAILED", "ERROR")
+                LibraryFilter.NEEDS_ATTENTION -> project.state in attentionStates
             }
         }
         return when (sort) {

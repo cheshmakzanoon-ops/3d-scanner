@@ -45,14 +45,10 @@ fun ScannerApp(model: ScannerViewModel, features: ScannerFeatureServices? = null
     val installed = remember(model, context) { installedScannerFeatures(model, context) }
     val services = features ?: installed
     val commands = remember(model, context) { ProjectCommandAdapter(model.compositionRoot, context) }
-    var awaitingNotification by remember { mutableStateOf<Pair<ReviewAction.Command,
-        com.realityforge.scanner.data.curation.ReconstructionSelectionLease>?>(null) }
     val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        val requested = awaitingNotification
-        awaitingNotification = null
-        if (requested != null) {
-            services.reconstructSelection?.invoke(requested.first, requested.second)
-            if (!granted) model.notice.value = "Processing can continue. Notifications are disabled; reopen the app to inspect its saved job."
+        // Results can be redelivered after recreation; they must never submit reconstruction.
+        ReconstructionNotificationRequest.permissionMessage(granted)?.let {
+            if (model.notice.value == null) model.notice.value = it
         }
     }
     val scope = rememberCoroutineScope()
@@ -243,12 +239,26 @@ fun ScannerApp(model: ScannerViewModel, features: ScannerFeatureServices? = null
                                         else -> Unit
                                     }
                                 }, onReconstruct = { command, lease ->
-                                    if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
-                                            Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                                        awaitingNotification = command to lease
-                                        notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                    } else services.reconstructSelection?.invoke(command, lease)
-                                    route = "processing"
+                                    // A curation admission may finish after navigation or another tap.
+                                    if (route == "review" && !model.busy.value &&
+                                        model.scannerState.value.pendingRequests.isEmpty() &&
+                                        model.pendingArchiveRestoreId.value == null &&
+                                        command.projectId == model.selectedId.value &&
+                                        command.revision == model.selectedProject.value?.revision) {
+                                        ReconstructionNotificationRequest.submit(
+                                            reconstruct = services.reconstructSelection?.let { submit ->
+                                                { submit(command, lease) }
+                                            },
+                                            inspectJobs = { route = "processing" },
+                                            requestNotifications = {
+                                                if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
+                                                        Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                                    notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                                }
+                                            },
+                                            notify = { if (model.notice.value == null) model.notice.value = it },
+                                        )
+                                    }
                                 }, modifier = Modifier.weight(1f), fallbackFocal35mm = prefs.preferences.fallbackFocal35mm)
                                 Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                                     TextButton(onClick = { route = "processing" }) { Text("Saved processing job") }

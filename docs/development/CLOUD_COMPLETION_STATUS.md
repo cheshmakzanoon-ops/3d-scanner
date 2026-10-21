@@ -541,3 +541,63 @@ new coherent APK-pair checks remain pending. The paused-emulator/1GiB-build
 experiment did not preserve the guest: its process was killed, with cause not
 proven from available memory data. Builds and live guests are separated again;
 this experiment is not a memory-safety success.
+
+### Diagnostic candidate infrastructure stop (10:52 UTC)
+
+Published diagnostic source `b7efe9539bed66991a1738c48802ff7c82fb4077` compiles
+after correcting the test-only suspend callback signatures. Its coherent QA pair
+passes static linkage with13 documented exclusions; all17 application DEX/native
+entries are byte-identical to the endpoint candidate, with both APK and per-entry
+hashes inventoried. This is not complete-APK or shipping-build equivalence.
+
+The fresh API30 guest repeatedly restarted its framework before stable installation
+readiness. The bounded600-second gate ended NOT_STABLE (exit124): **zero installs,
+zero helper tests and zero diagnostic session tests executed**. The supervisor
+exited0 after requested console shutdown; no immediate relaunch is underway.
+The diagnostic runtime gate is **BLOCKED_INFRASTRUCTURE**, and both helper Android
+execution and functional continuation remain **NOT_RUN**. The previous endpoint
+candidate's five actual matcher passes and one180-second full-session failure
+remain unchanged. Closed evidence hashes and exact planned argument are in
+[the diagnostic report](../../reports/cloud-instrumentation-diagnostic-continuation.json).
+
+Closed-log investigation identifies the concrete restart chain: network-stack
+TetheringService ANR (`framework-logcat.txt:9034–9037`), ActivityManager background
+ANR kill (`9095–9097`), then ConnectivityModuleConnector's fatal
+`IllegalStateException: Lost network stack` in system_server (`9159–9174`). The
+same chain repeats in `live-logcat.txt:15572–15676` and `22176–22394`. In contrast,
+the successful endpoint guest logs network-stack connection at line7830 and
+SystemUI/phone/IME startup ANRs, but no matching lost-network-stack/system-process
+fatal. The failed guest also briefly connected its network stack before a pending
+service ANR killed it; connection/service enumeration alone is not readiness.
+
+One host snapshot shows QEMU110% CPU,3,276,832KiB RSS and2,927,220KiB available
+host memory; the first service-ANR memory-PSI snapshot is zero. No OOM-kill
+signature was found. These observations do not prove a CPU/TCG or OOM root cause,
+exclude transient pressure, or establish a watchdog deadlock.
+
+The proposed next experiment changes only the supported virtual CPU count from
+two to one, retaining the same API30 image,2048MiB RAM,SwiftShader and unaccelerated
+cold-boot configuration. CPU count is an [official AVD configuration option](https://developer.android.com/studio/run/managing-avds);
+[QEMU documents TCG vCPU synchronization](https://www.qemu.org/docs/master/devel/multi-thread-tcg.html),
+but neither source proves one core will improve this guest. Preserve the existing
+90-second stable-readiness window and600-second total budget; strengthen its
+predicate with stable server/network-stack PIDs and no new critical service
+timeout, ANR kill or system-process fatal. No watchdog/security/network-stack or
+application timeout changes are proposed. Stop before installation on renewed
+critical failure or budget expiry. This experiment is **PROPOSED / NOT_RUN**.
+
+### Recovery visibility and notification-independent admission (11:01 UTC)
+
+The library service query and local attention predicate now share the same states,
+including `RECOVERY_REQUIRED`; deletion tombstones remain excluded. Reconstruction
+submission precedes optional notification permission. Its result callback cannot
+own or replay a submission, and existing project/revision/admission fences remain.
+The processing destination still reads persisted jobs, not an assumed acceptance.
+
+Actual focused JVM checks pass 21/21 and the unrestricted suite passes 690/690,
+with no failures, errors or skips. AndroidTest Kotlin compilation succeeds; lint
+has zero Error/Fatal findings (92 warnings and 3 hints remain). Independent static
+review found no material blocker. Actual API33+ permission-dialog recreation,
+delayed admission and double-tap scenarios remain NOT_RUN; helper tests are not
+device-equivalence proof. No new APK was generated for this increment. See
+[the source-hashed UI report](../../reports/cloud-ui-recovery-notification.json).
