@@ -1140,3 +1140,31 @@ Notification command attempt fence — actual Room/controller RED reproduced 1 t
 See [evidence](../../reports/cloud-notification-attempt-fence.json).
 
 Notification fix broad regressions subsequently pass1,259 Python tests and six subtests, with three optional skips.
+
+
+### Actual notification-to-native token isolation
+
+A separate opt-in HOST test now exercises the actual Room/controller notification
+transaction with two real JNI handles: stale-attempt and other-job actions preserve
+both handles, while a valid current action cancels only its matching handle. One
+test passes with zero failures/errors/skips in 6.414 seconds on source ae756d79.
+The cancellation oracle observes the real native entrypoint checkpoint before
+invalid-row validation; pollNativeProgress has no cancellation field. No running
+reconstruction kernel, controller worker or Service lifecycle is qualified.
+
+Actual job/attempt/token ownership is assigned by explicitly limited test reflection.
+Scope shutdown precedes token finish and fixture cleanup. All 447 native provenance
+entries and source/compiled/runtime hashes remain unchanged; normal compilation
+restores cleanly. The reusable package retains byte-identical executed Kotlin,
+runner, wrapper and init files, with no default gate or production behavior change.
+Mocked/static helper checks pass 30 tests; broad Python validation for packaging
+is pending.
+
+See [opt-in tool](../../tools/notification_native_validation/README.md) and
+[sanitized evidence](../../reports/cloud-notification-native-validation.json).
+
+### Notification-fixed engineering APK
+
+Normaloptimized QA=false test-signed sourceae756d79 APK is built and verified. Package/signature/offlinepermissions/backup/16KBZIP+16ELF checks pass; only DEXchanged from515APK, mappedservice dispatch andtransaction present. Samepackage/version/testcertificate; in-placeinstall nottested. Threeverifiedparts andinstructions acceptedinprivatechat, superseding515parts; never mixsets. See [receipt](../../reports/cloud-notification-fixed-engineering-apk.json) and [instructions](ENGINEERING_APK_AE756D79.md).
+
+Broad regressions for notification-native validation pass 1,289 Python tests and six subtests, with three optional skips.

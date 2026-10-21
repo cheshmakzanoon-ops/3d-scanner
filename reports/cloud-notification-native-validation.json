@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "scope": "Actual Room/controller notification transaction and original JNI cancellation-entrypoint isolation; reflected ownership fixture, no kernel/worker/service/device qualification",
+  "sourceCommit": "ae756d79a4880b735a40bfa1ac536ba64d11a5e0",
+  "sourceTree": "8d9988cf660e147d550b2d2e6eccda456f5884ac",
+  "outcome": "PASS",
+  "junit": {
+    "name": "com.realityforge.scanner.hostintegration.NotificationNativeTokenHostTest",
+    "tests": "1",
+    "skipped": "0",
+    "failures": "0",
+    "errors": "0",
+    "timestamp": "2026-10-21T19:14:50.579Z",
+    "time": "6.414"
+  },
+  "receiptSha256": "e3033b498b5d808940797ecd1c6208b08ff16c81592f3e6ae9aba436a9b8d8fb",
+  "junitXmlSha256": "314b912fe3c3e21084003d0ad91307c9c0ffc5b64f94bd9389f85b20f4f939aa",
+  "observations": {
+    "twoRealNativeHandles": true,
+    "staleAttemptRejectedBothUncancelled": true,
+    "otherQueuedJobCancelledBothNativeHandlesUncancelled": true,
+    "validCurrentJobCancelledOnlyCurrentNativeHandle": true,
+    "sentinelRemainedUncancelled": true
+  },
+  "oracle": "reconstructCancellable(empty rows,0.01,real token): actual cancellation checkpoint precedes row validation; uncancelled throws exact row-validation IllegalArgumentException, cancelled throws CancellationException. No geometry kernel runs. pollNativeProgress checks schema/liveness only, not a cancellation flag.",
+  "fixtureBoundary": "Real Room enqueue/acquire/pause/resume creates attempts1 and2. Reflection sets only actual running job/attempt/native-token ownership; no worker is started. Scope joins before token finish/file cleanup.",
+  "inputHashesUnchanged": true,
+  "compiledInputsUnchanged": true,
+  "restored": true,
+  "remainingProbeClasses": [],
+  "nativeProvenanceFileCount": 447,
+  "fullNativeProvenanceUnchanged": true,
+  "nativeInputHashes": {
+    "opencv": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+    "shim": "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce",
+    "engine": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b"
+  },
+  "nativeOwnerClassHashes": {
+    "org.opencv.android.OpenCVLoader": "35fc4b0878a47b17050e59a85745b35fa99841499175b16a1c1012ffff219527",
+    "org.opencv.android.StaticHelper": "c89a8683dcfdafdaf6507149364135217f0cb8f94a48c66f9405fd909a1038c5",
+    "org.opencv.core.Core": "f27b34125899a62847ba02faf1c4338cf08a277603fb503fd71ba1e027f1052a",
+    "org.opencv.core.Mat": "24072333aefbbfaf2e018bc33c9b3c4bacf486f9f870a4e341060d260b05ade1",
+    "com.realityforge.scanner.engine.NativeCore": "7704191a82744042ce3e93a6c1b2c9e2da4943b019a77775b7568a4aa53c3040"
+  },
+  "packageExecutableFilesByteIdenticalToExercisedSource": true,
+  "packageExecutableSha256": {
+    "tools/notification_native_validation/NotificationNativeTokenHostTest.kt": "a5e0afe0d0fd6320752405839db6773c8589a3b74147a28a5de1867d45e578df",
+    "tools/notification_native_validation/SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+    "tools/notification_native_validation/validate.py": "d43d1c5a0c55b1b7bf7d140a20ebcccbebf5274f000f83dccd14169283cfc2d1",
+    "tools/notification_native_validation/probe.init.gradle": "30b04d49ce7f41753b2e077a6ce6f1f2404a286cafe47b016f3fe4a79abfa50c"
+  },
+  "helperWiringTests": {
+    "status": "PASS",
+    "scope": "Mocked/static contracts only; not native runtime evidence",
+    "tests": 30,
+    "seconds": 0.07
+  },
+  "broadPython": {
+    "status": "PASS",
+    "passed": 1289,
+    "skipped": 3,
+    "subtestsPassed": 6,
+    "seconds": 147.41,
+    "logSha256": "d4d4ea14265f98746af117760a443cbce66fb0992292e6d95160bb4feaa7c3bb"
+  },
+  "notProven": [
+    "In-flight reconstruction kernel interruption",
+    "Controller worker or Service scheduling/lifecycle",
+    "Concurrent token-owner swap while transaction suspends",
+    "Physical-device, permissions, GPU or resource admission"
+  ],
+  "productionChanges": "None in this package; production notification attempt-fence correction has separate report."
+}
