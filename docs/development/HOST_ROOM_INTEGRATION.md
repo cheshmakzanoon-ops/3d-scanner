@@ -43,3 +43,22 @@ source SHA and exact gate separately from any device evidence.
 
 Build outputs can be removed after results are verified and source is committed
 and pushed; never commit downloaded jars, compiled tests or machine paths.
+
+## Early reconstruction admission
+
+The admission HOST tests use the actual reconstruction controller, repository, and generated Room
+DAOs. They reject noncanonical production operation identifiers before durable enqueue, retain
+canonical UUID enqueue behavior, and verify that generic-store-safe but execution-incompatible
+persisted request IDs fail without retaining a RUNNING lease or attempt state. These inputs are
+valid under the general durable-job contract, not necessarily corrupted records.
+
+The fixture explicitly drives Robolectric's paused main looper for controller notification recovery
+and stops/joins its private process-lifetime scope through test-only reflection before closing Room.
+No controller algorithm is mocked and no production shutdown API is added. These early-failure tests
+do not decode images, allocate a reconstruction native token, run the scanner pipeline, or provide
+service/device qualification. Startup/framework failures remain HOST infrastructure failures.
+
+The third admission test injects a different running identity after the actual failure callback,
+then joins the worker and verifies cleanup preserves that identity. This is deliberate fencing
+coverage, not evidence of naturally overlapping workers. The paired normal-cleanup assertion
+regresses a boxed inline JobId identity-CAS bug; value-aware atomic cleanup must clear the equal ID.
