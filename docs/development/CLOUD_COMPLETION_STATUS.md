@@ -967,3 +967,25 @@ installation/data preservation remain untested. Do not uninstall/delete scans.
 No Android scan-to-export or physical quality qualification is implied. See
 [APK evidence](../../reports/cloud-sift-engineering-apk.json) and
 [assembly instructions](ENGINEERING_APK_E67E65E8.md).
+
+### Synthetic image-to-pose production integration (15:30 UTC)
+
+Two HOST tests now connect actual production extraction, matching and geometric
+verification through both verified native libraries. JDK ImageIO is explicit
+fixture ingress, followed by RGBA/grayscale conversion; it is NOT Android decoding.
+Committed nonplanar synthetic relief JPEGs and calibration are hash-bound. No
+perfect correspondences are injected and no Python reconstruction is substituted.
+
+Fresh shared run:1,536/1,530 extracted features yield530 reciprocal matches and524
+accepted sparse points. Rotation error0.024056degrees, translation-direction
+dot0.99991326 and median normalized reprojection error0.00017010 pass the original
+unchanged criteria. Scale remains arbitrary. Independently extracting the same
+image under distinct IDs produces1,536 tentative matches, reaches native geometry
+and correctly rejects an unobservable baseline—not the small-input shortcut.
+
+Both tests pass;22 helper guards and broad Python1,142 plus six subtests pass. All
+three optional host checks execute successfully. No production app code changed,
+so currente67e65e8 engineering APK remains the latest app snapshot. This is not
+Android ingestion, full SparsePipeline, dense/texture/export workflow, real captured
+photo quality or device qualification. See [integration evidence](../../reports/cloud-production-frontend-host.json)
+and [portable harness](../../tools/frontend_integration_validation/README.md).
