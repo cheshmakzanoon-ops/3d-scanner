@@ -4456,5 +4456,20 @@
             <sha256 value="3c492255c10c7f9b4df6083631934e17638f7f567ae3c8ea4849b79ef43e8bbd" origin="Verified against official repository published checksum and HTTPS artifact"/>
          </artifact>
       </component>
+      <component group="androidx.compose.foundation" name="foundation" version="1.7.0">
+         <artifact name="foundation-1.7.0.module">
+            <sha256 value="8462ad30b9671fb6afd6c757c9b0830f66bb13ff0ca4d28e554e7b151a1c7291" origin="Verified against official repository published checksum and HTTPS artifact"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlinx" name="kotlinx-coroutines-test" version="1.7.3">
+         <artifact name="kotlinx-coroutines-test-1.7.3.module">
+            <sha256 value="8c453215b4671a458fa4f2026e70b40807b7cf8d40605d028e522acc2747372c" origin="Verified against official repository published checksum and HTTPS artifact"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlinx" name="kotlinx-coroutines-test-jvm" version="1.7.3">
+         <artifact name="kotlinx-coroutines-test-jvm-1.7.3.module">
+            <sha256 value="505008736a6cfab649f81db603eee3b2f828f5d877712a38939efdd5f1fc5170" origin="Verified against official repository published checksum and HTTPS artifact"/>
+         </artifact>
+      </component>
    </components>
 </verification-metadata>

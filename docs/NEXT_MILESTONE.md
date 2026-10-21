@@ -1,9 +1,11 @@
 # Next integrated-candidate gates after M19
 
-Current source is0.19.0-m19. The campaign implements081–100 evidence and assurance
-on isolated numbered branches;100 integrates tested dependencies. Existing001–080
-remote deliveries require review, runtime wiring and actual candidate verification.
-Do not raise limits or claim a feature from a contract/document alone.
+The current engineering preview retains version 0.19.0-m19 with subsequent
+integration tracked in the [cloud validation ledger](development/CLOUD_COMPLETION_STATUS.md).
+Historical numbered-branch receipts do not certify the combined candidate.
+Integrated paths still require commit-specific runtime and quality qualification.
+Supported reconstruction input remains 2–12 photographs; do not raise limits or
+claim a feature from a contract/document alone.
 
 Required next evidence: immutable candidate source/APK/AAB hashes, actual native
 and Android compile/lint/JVM/instrumentation, installed offline end-to-end journey,
@@ -19,9 +21,12 @@ All18 candidate gates remain required. An ordinary compatibility suite excludes
 specialist controllers explicitly and cannot close full instrumentation, capture,
 recovery, offline radios, physical profiles or release journey requirements.
 
-The existing source supports operation-scoped dense cancellation and per-reference
-depth reuse, not durable every-stage background/session resumption. Unknown surfaces
-stay unknown, scale stays arbitrary without measurement, and open patches stay open.
+The integrated source now includes service-owned durable reconstruction jobs,
+operation-scoped sparse/dense cancellation and identity-validated checkpoints,
+including per-reference depth reuse. This does not establish recovery at every
+interruption boundary or successful completion of every installed-app workflow;
+those checks remain explicit gates in the cloud ledger. Unknown surfaces stay
+unknown, scale stays arbitrary without measurement, and open patches stay open.
 
 ## Historical next gate after M12 — complete-session reliability and measured scan quality
 
