@@ -910,3 +910,24 @@ Source hashes are observed provenance, not an independent publisher attestation,
 and system library dependencies are not fully hermetic. See
 [matcher evidence](../../reports/cloud-production-matcher-host.json) and
 [portable instructions](../../tools/feature_matcher_validation/README.md).
+
+### Shared production SIFT core and adapter compilation (15:02 UTC)
+
+The Android extractor now delegates its existing SIFT/frame policy to an internal
+borrowed-gray core. Public synchronization/signatures, cache identity, parameters,
+keypoint order, color sampling, clone ownership and cancellation cadence remain
+unchanged. Android decoding/projection/color conversion and bitmap lifetime stay
+in the adapter. Working Mat allocation timing changes are explicitly documented.
+
+Separate37-declaration SIFT linkage proof extends the immutable OpenCV capability.
+Fresh shared native suites pass8 SIFT and8 matcher tests, using exact AAR classes,
+synthetic Mats, bounded execution and pre/post input/output hashes.22 new helper
+guard tests pass. Android adapter/AndroidTest compilation, ordinary JVM722,
+HOST Room/controller10 and lint pass. Broad Python1,120 plus six subtests and all
+three optional host checks pass.
+
+This does not qualify Android decoding/EXIF/color behavior, full reconstruction or
+physical scan quality. Existing FINISHED-observer exception masking is intentionally
+unchanged for this refactor; a separate regression/fix is pending. The delivered
+APK predates this source change. See [SIFT evidence](../../reports/cloud-production-sift-host.json)
+and [behavioral boundaries](SIFT_EXTRACTION_BOUNDARY.md).
