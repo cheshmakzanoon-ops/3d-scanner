@@ -1,0 +1,52 @@
+{
+  "opencv": "4.12.0",
+  "threads": 1,
+  "checks": 530,
+  "cases": 106,
+  "comparison": "exact ordered forward/reverse identities AND both nearest distances",
+  "syntheticHostOnly": true,
+  "timingScope": "Python/OpenCV host model including NumPy block gather; excludes Kotlin per-row Mat JNI gather overhead. Not Android implementation runtime.",
+  "pairs": [
+    {
+      "pair": [
+        1,
+        2
+      ],
+      "matches": 530,
+      "oldDistanceEvaluations": 4700160,
+      "sparseDistanceEvaluations": 3204096,
+      "reduction": 0.3183006535947712,
+      "oldMs": 99.02894500191906,
+      "sparseMs": 63.944507000996964
+    },
+    {
+      "pair": [
+        1,
+        3
+      ],
+      "matches": 559,
+      "oldDistanceEvaluations": 4675584,
+      "sparseDistanceEvaluations": 3245568,
+      "reduction": 0.30584756898817345,
+      "oldMs": 92.50469999824418,
+      "sparseMs": 75.18314899789402
+    },
+    {
+      "pair": [
+        2,
+        3
+      ],
+      "matches": 376,
+      "oldDistanceEvaluations": 4657320,
+      "sparseDistanceEvaluations": 2942190,
+      "reduction": 0.36826544021024965,
+      "oldMs": 124.43187600001693,
+      "sparseMs": 64.05949100008002
+    }
+  ],
+  "featureCounts": [
+    1536,
+    1530,
+    1522
+  ]
+}

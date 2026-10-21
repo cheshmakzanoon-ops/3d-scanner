@@ -16,40 +16,74 @@ import java.util.concurrent.CancellationException
 class FeatureMatcher(val ratio:Double=.67,val blockSize:Int=256) {
     init {require(ratio.isFinite() && ratio in .1.. .95 && blockSize in 1..1024)}
     val settingsIdentity get()="rf-bf-l2-reciprocal-v2:ratio=$ratio:opencv=${Core.VERSION}"
-    fun match(first:FeatureFrame,second:FeatureFrame,candidate:PairCandidate,cancelled:()->Boolean={false}):TentativeMatches {
+    // Preserve trailing-lambda and explicit fourth-argument cancellation callers.
+    fun match(first:FeatureFrame,second:FeatureFrame,candidate:PairCandidate,cancelled:()->Boolean={false}):TentativeMatches =
+        match(first,second,candidate,null,cancelled)
+    fun match(first:FeatureFrame,second:FeatureFrame,candidate:PairCandidate,
+        work:((PairMatchDirection,Int,Int,Int,Boolean)->Unit)?,
+        cancelled:()->Boolean={false}):TentativeMatches {
         require(first.photoId==candidate.firstPhotoId && second.photoId==candidate.secondPhotoId)
         fun checkCancelled(){if(cancelled())throw CancellationException("Feature matching cancelled")}
+        fun report(direction:PairMatchDirection,start:Int,end:Int,total:Int,running:Boolean) {
+            try { work?.invoke(direction,start,end,total,running) }
+            catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: RuntimeException) { /* Diagnostics cannot change matching or mask cleanup. */ }
+        }
         checkCancelled()
         if(first.count<2 || second.count<2)return TentativeMatches(first.photoId,second.photoId,emptyList(),settingsIdentity)
         return first.withDescriptors{a->second.withDescriptors{b->
             validate(a,first.count);validate(b,second.count)
             var matcher:BFMatcher?=null
-            val reverse=IntArray(second.count){-1};val out=ArrayList<FeatureCorrespondence>()
+            val reverse=IntArray(second.count){-1};val forward=IntArray(first.count){-1}
+            val needed=BooleanArray(second.count);val out=ArrayList<FeatureCorrespondence>()
             val colors=first.colors()
-            fun eachAccepted(query:Mat,train:Mat,accept:(Int,Int)->Unit) {
-                for(start in 0 until query.rows() step blockSize) {
+            fun eachAccepted(query:Mat,train:Mat,direction:PairMatchDirection,selected:IntArray?=null,accept:(Int,Int)->Unit) {
+                val queryCount=selected?.size ?: query.rows()
+                for(start in 0 until queryCount step blockSize) {
                     checkCancelled()
-                    val end=minOf(start+blockSize,query.rows())
+                    val end=minOf(start+blockSize,queryCount)
                     val rows=ArrayList<MatOfDMatch>()
                     var part:Mat?=null
                     try {
-                        val queryBlock=query.rowRange(start,end)
+                        val queryBlock=if(selected==null) query.rowRange(start,end)
+                            else Mat(end-start,query.cols(),query.type())
                         part=queryBlock
-                        requireNotNull(matcher).knnMatch(queryBlock,train,rows,2);checkCancelled()
+                        if(selected!=null) for(offset in 0 until end-start) {
+                            checkCancelled()
+                            val source=query.row(selected[start+offset])
+                            try {
+                                val destination=queryBlock.row(offset)
+                                try { source.copyTo(destination) } finally { destination.release() }
+                            } finally { source.release() }
+                        }
+                        // The callback marks entry/return, not an interruptible native call.
+                        report(direction,start,end,queryCount,true)
+                        var nativeFailure: Throwable? = null
+                        try { requireNotNull(matcher).knnMatch(queryBlock,train,rows,2) }
+                        catch (failure: Throwable) { nativeFailure = failure; throw failure }
+                        finally { preservePairFailure(nativeFailure) { report(direction,start,end,queryCount,false) } }
+                        checkCancelled()
                         for(row in rows){
                             val pair=row.toArray()
                             if(pair.size<2)continue
                             val x=pair[0];val y=pair[1]
                             require(x.queryIdx in 0 until end-start && x.trainIdx in 0 until train.rows())
-                            if(x.distance.isFinite() && y.distance.isFinite() && x.distance>=0 && x.distance<ratio*y.distance)accept(start+x.queryIdx,x.trainIdx)
+                            if(x.distance.isFinite() && y.distance.isFinite() && x.distance>=0 && x.distance<ratio*y.distance)accept(selected?.get(start+x.queryIdx) ?: (start+x.queryIdx),x.trainIdx)
                         }
                     }finally{rows.forEach{it.release()};part?.release()}
                 }
             }
             try {
                 matcher=BFMatcher.create(Core.NORM_L2,false)
-                eachAccepted(b,a){j,i->reverse[j]=i}
-                eachAccepted(a,b){i,j->if(reverse[j]==i){
+                // Only reverse queries targeted by a forward ratio survivor can be reciprocal.
+                // Both directions retain the COMPLETE train set and the original strict ratio.
+                eachAccepted(a,b,PairMatchDirection.FORWARD){i,j->forward[i]=j;needed[j]=true}
+                val selected=needed.indices.filter{needed[it]}.toIntArray()
+                eachAccepted(b,a,PairMatchDirection.REVERSE,selected){j,i->reverse[j]=i}
+                for(i in forward.indices) {
+                    if(i%blockSize==0)checkCancelled()
+                    val j=forward[i]
+                    if(j>=0 && reverse[j]==i){
                     val ar=runCatching{first.normalized(i)}.getOrNull()
                     val br=runCatching{second.normalized(j)}.getOrNull()
                     if(ar!=null && br!=null)out.add(FeatureCorrespondence(i,j,ar.first,ar.second,br.first,br.second,colors[i]))

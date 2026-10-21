@@ -1,6 +1,11 @@
 package com.realityforge.scanner.engine
 
 import com.realityforge.scanner.engine.features.FeatureCancellationSignal
+import com.realityforge.scanner.engine.matching.PairWorkSnapshot
+import com.realityforge.scanner.engine.matching.PairWorkTiming
+import com.realityforge.scanner.engine.matching.PairWorkPhase
+import com.realityforge.scanner.engine.matching.preservePairFailure
+import com.realityforge.scanner.engine.matching.PairCancellationSignal
 import com.realityforge.scanner.engine.features.FeatureWorkPhase
 import com.realityforge.scanner.engine.features.FeatureWorkSnapshot
 import com.realityforge.scanner.engine.features.FeatureWorkTiming
@@ -64,7 +69,8 @@ class SparsePipeline(
     private val checkpoints: PipelineCheckpointSink = PipelineCheckpointSink {},
 ) {
     data class Progress(val stage: String, val completed: Int, val total: Int,
-        val featureWork: FeatureWorkSnapshot? = null)
+        val featureWork: FeatureWorkSnapshot? = null, val pairWork: PairWorkSnapshot? = null)
+    internal var onPairWork: (PairWorkSnapshot) -> Unit = {}
     internal var onFeatureWork: (FeatureWorkSnapshot) -> Unit = {}
     internal var diagnosticRecorder: RuntimeDiagnosticRecorder? = null
     internal var onDiagnosticProgress: suspend (StageProgress) -> Unit = {}
@@ -92,7 +98,7 @@ class SparsePipeline(
         val size: Int get() = firstKeys.size
         fun destinationBySource(): Map<Int, Int> = firstKeys.indices.associate { firstKeys[it] to secondKeys[it] }
     }
-    private class Frame(val features: FeatureFrame) : Closeable {
+    private class Frame(val features: FeatureFrame, val cacheHit: Boolean = false) : Closeable {
         val width = features.width
         val height = features.height
         val xy = features.coordinates()
@@ -299,30 +305,56 @@ class SparsePipeline(
             measured(ScanStage.MATCHING, index, candidates.size, ProgressUnit.PAIRS)
             progress(Progress("Verifying overlapping photo pairs", index, candidates.size))
             val first = photos[pair.first]; val second = photos[pair.second]
-            loadFrame(first, cache).use { a -> loadFrame(second, cache).use { b ->
-                val fA = min(a.projection.fx, a.projection.fy)
-                val fB = min(b.projection.fx, b.projection.fy)
-                val rows = savedMatches[pair]?.let { PairMatches(it.rows, it.firstKeys, it.secondKeys) }
-                    ?: matches(a, b).also { savedMatches[pair] = FeatureMatchRecord(it.rows, it.firstKeys, it.secondKeys) }
-                if (rows.size >= 20) {
-                    val result = com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(nativeCall(nativeToken, progress) { NativeCore.reconstructCancellable(rows.rows, 1.5 / min(fA, fB), nativeToken) })
-                    coroutineContext.ensureActive()
-                    if (!result.has("error")) {
-                        verifiedPairIds.add(minOf(first.id, second.id) to maxOf(first.id, second.id))
-                        val score = result.getInt("pointCount") * min(result.getDouble("medianParallaxDegrees"), 8.0) /
-                            (1.0 + result.getDouble("medianErrorNormalized") * (fA + fB) / 2)
-                        if (score > bestScore) {
-                            result.put("firstPhotoId", first.id).put("secondPhotoId", second.id)
-                            result.put("firstFocalPixels", fA).put("secondFocalPixels", fB)
-                            result.put("calibration", if (activeProfile == null) "Estimated pinhole (no measured lens distortion)" else "Local checkerboard Brown-Conrady correction; RMS ${activeProfile!!.reprojectionRmsPixels} px")
-                            result.put("assumedFocal35mm", assumedFocal35)
-                            result.put("metadataFocalAvailable", first.focal35mm != null && second.focal35mm != null)
-                            best = result; bestScore = score
-                            anchorPair = pair; anchorMatches = rows
-                        }
-                    } else failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", result.getString("error")))
-                } else failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", "Fewer than 20 reciprocal SIFT matches"))
-            } }
+            val timing = PairWorkTiming(index + 1, candidates.size, changed = onPairWork)
+            val signal = PairCancellationSignal(coroutineContext[kotlinx.coroutines.Job], timing)
+            var pairOutcome = PairWorkPhase.FAILED
+            var pairFailure: Throwable? = null
+            try {
+                timing.begin()
+                loadFrame(first, cache).use { a ->
+                    timing.frameLoaded(true, a.cacheHit, a.features.count)
+                    timing.phase(PairWorkPhase.LOAD_SECOND)
+                    loadFrame(second, cache).use { b ->
+                    timing.frameLoaded(false, b.cacheHit, b.features.count)
+                    timing.phase(PairWorkPhase.MATCHING)
+                    val fA = min(a.projection.fx, a.projection.fy)
+                    val fB = min(b.projection.fx, b.projection.fy)
+                    timing.matchCache(savedMatches.containsKey(pair))
+                    val rows = savedMatches[pair]?.let { PairMatches(it.rows, it.firstKeys, it.secondKeys) }
+                        ?: matches(a, b, timing).also { savedMatches[pair] = FeatureMatchRecord(it.rows, it.firstKeys, it.secondKeys) }
+                    if (rows.size >= 20) {
+                        timing.phase(PairWorkPhase.GEOMETRY)
+                        val result = com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(nativeCall(nativeToken,
+                            { update -> progress(update.copy(pairWork = timing.snapshot())) }) { NativeCore.reconstructCancellable(rows.rows, 1.5 / min(fA, fB), nativeToken) })
+                        coroutineContext.ensureActive()
+                        if (!result.has("error")) {
+                            verifiedPairIds.add(minOf(first.id, second.id) to maxOf(first.id, second.id))
+                            val score = result.getInt("pointCount") * min(result.getDouble("medianParallaxDegrees"), 8.0) /
+                                (1.0 + result.getDouble("medianErrorNormalized") * (fA + fB) / 2)
+                            if (score > bestScore) {
+                                result.put("firstPhotoId", first.id).put("secondPhotoId", second.id)
+                                result.put("firstFocalPixels", fA).put("secondFocalPixels", fB)
+                                result.put("calibration", if (activeProfile == null) "Estimated pinhole (no measured lens distortion)" else "Local checkerboard Brown-Conrady correction; RMS ${activeProfile!!.reprojectionRmsPixels} px")
+                                result.put("assumedFocal35mm", assumedFocal35)
+                                result.put("metadataFocalAvailable", first.focal35mm != null && second.focal35mm != null)
+                                best = result; bestScore = score
+                                anchorPair = pair; anchorMatches = rows
+                            }
+                        } else failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", result.getString("error")))
+                    } else failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", "Fewer than 20 reciprocal SIFT matches"))
+                } }
+                pairOutcome = PairWorkPhase.READY
+            } catch (failure: Throwable) {
+                pairFailure = failure
+                if (failure is java.util.concurrent.CancellationException) {
+                    pairOutcome = PairWorkPhase.CANCELLED
+                    preservePairFailure(failure) { timing.cancellationObserved() }
+                }
+                throw failure
+            } finally {
+                signal.close()
+                preservePairFailure(pairFailure) { timing.finish(pairOutcome) }
+            }
         }
         progress(Progress("Verifying overlapping photo pairs", candidates.size, candidates.size))
         measured(ScanStage.MATCHING, candidates.size, candidates.size, ProgressUnit.PAIRS)
@@ -870,7 +902,7 @@ class SparsePipeline(
                 val features = FeatureFrame(photo.id, photo.sha256, decoderIdentity, settings,
                     record.width, record.height, record.coordinates(), record.colors(), owned,
                     lens(photo, record.width, record.height))
-                val frame = Frame(features)
+                val frame = Frame(features, cacheHit = true)
                 descriptors = null
                 return frame
             } finally { descriptors?.release() }
@@ -895,13 +927,14 @@ class SparsePipeline(
         } catch (failure: Throwable) { features.close(); throw failure }
     }
 
-    private suspend fun matches(a: Frame, b: Frame): PairMatches {
+    private suspend fun matches(a: Frame, b: Frame, timing: PairWorkTiming? = null): PairMatches {
         val job = coroutineContext[kotlinx.coroutines.Job]
         val canonical = a.features.photoId < b.features.photoId
         val first = if (canonical) a.features else b.features
         val second = if (canonical) b.features else a.features
         val tentative = matcher.match(first, second,
-            PairCandidate(first.photoId, second.photoId, 0.0, "coordinator-request-not-verified-overlap")) {
+            PairCandidate(first.photoId, second.photoId, 0.0, "coordinator-request-not-verified-overlap"),
+            work = { direction, start, end, total, running -> timing?.block(direction, start, end, total, running) }) {
                 job?.isActive == false
             }
         val rows = DoubleArray(tentative.count * 7)

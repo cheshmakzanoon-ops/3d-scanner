@@ -368,3 +368,40 @@ from the later application pipeline timeout. The portable QA report includes
 individual test methods, counts, timings and evidence-log hashes. No normal
 shipping APK, physical handset, geometry/texture quality or production-signing
 qualification follows from these targeted passes.
+
+## Pair-verification diagnostics and exact work reduction (08:38 UTC)
+
+The last actual full-session failure identified only pair0/3, a label emitted
+before feature-cache loading, descriptor matching and native geometry. It does not
+prove which substage consumed the deadline or establish a deadlock. New bounded
+ordinal-only snapshots distinguish load/cache outcomes, descriptor counts,
+forward/reverse matching blocks, native-wrapper entry and cancellation/cleanup.
+No filenames or photo IDs are included. Durations are sampled at boundaries,
+not a continuously ticking clock; synchronous OpenCV blocks remain noninterruptible.
+Diagnostics preserve original failures and parent cancellation, and the existing
+180-second session deadline is unchanged.
+
+The exact reciprocal matcher now searches forward first and reverse-queries only
+second-image descriptors named by a forward strict-ratio survivor. Both directions
+still search their full training descriptor sets, use the same L2 distance and
+strict ratio, and return the original ascending first-image identities. Omitted
+reverse queries cannot survive reciprocity. Bounded gathered matrices/views are
+released on cancellation/failure; old positional and trailing cancellation call
+forms remain supported. Cache/settings identity is unchanged because output
+semantics are unchanged, not because quality was reduced.
+
+Host model differential checks pass530 comparisons across random/unequal/empty,
+duplicate/tied descriptors, strict-ratio boundaries and five block sizes. On the
+three labeled synthetic fixtures, distance work falls30.6–36.8%. These Python/OpenCV
+host timings exclude Kotlin per-row JNI gathering overhead and are not Android
+latency evidence. See reports/cloud-sparse-reverse-host.json and reproducible
+`tools/check_sparse_reverse_matching.py`. Direct timing JVM tests pass12 cases;
+focused source contracts pass3; root's combined host QA selection passes70 tests
+and3 subtests. Actual Gradle and new actual-Kotlin Android differential checks
+remain pending, and must precede another complete-session attempt.
+
+The integrated increment now passes actual Gradle validation:676 JVM tests with
+zero failures/errors/skips, lint with zero Error/Fatal issues, and AndroidTest
+Kotlin compilation. The exact-candidate QA APK rebuild and actual Android matcher
+differential/cancellation/session gates remain pending; host speed is not promoted
+to a device-performance claim.

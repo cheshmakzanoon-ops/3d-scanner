@@ -26,6 +26,21 @@ class FeatureMatcherTest {
         try {
             val matcher=FeatureMatcher();val candidate=PairCandidate("a","b",1.0,"test-only")
             assertEquals(0,matcher.match(a,b,candidate).count)
+            // Both original cancellation call forms remain source-compatible.
+            assertThrows(CancellationException::class.java) { matcher.match(a,b,candidate,{true}) }
+            assertThrows(CancellationException::class.java) { matcher.match(a,b,candidate){true} }
+            for (cancelAtEntry in listOf(true,false)) {
+                val cancellation=CancellationException("observer cancellation")
+                val caught=assertThrows(CancellationException::class.java) {
+                    matcher.match(a,b,candidate,work={_,_,_,_,running->
+                        if(running==cancelAtEntry)throw cancellation
+                    })
+                }
+                assertSame(cancellation,caught)
+                // Borrowed descriptors and native temporary owners survive either observer boundary.
+                assertEquals(0,matcher.match(a,b,candidate).count)
+            }
+            assertEquals(0,matcher.match(a,b,candidate,work={_,_,_,_,_->throw IllegalStateException("diagnostic only")}).count)
             assertEquals(0,matcher.match(a,empty,candidate).count)
             assertThrows(IllegalArgumentException::class.java){matcher.match(a,bad,candidate)}
             assertTrue(matcher.verify(matcher.match(a,b,candidate),.001) is GeometricVerification.Rejected)
