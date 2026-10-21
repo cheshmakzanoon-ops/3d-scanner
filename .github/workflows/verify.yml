@@ -157,7 +157,8 @@ jobs:
           path: ${{ runner.temp }}/rf-ci/device/runner/
           if-no-files-found: error
   candidate-evidence:
-    if: always()
+    # Preserve failure auditing without keeping superseded runs alive.
+    if: ${{ !cancelled() }}
     needs: [native, android, device]
     runs-on: ubuntu-24.04
     timeout-minutes: 10

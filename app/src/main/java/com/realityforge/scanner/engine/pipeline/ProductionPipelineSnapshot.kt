@@ -31,7 +31,7 @@ object ProductionPipelineSnapshot {
         settings = PipelineStageSettings(
             features = com.realityforge.scanner.engine.features.SparseFeatureCache.STAGE_SETTINGS,
             matching = "rf-bf-l2-reciprocal-v2|ratio-.67|opencv-4.12.0|summary-ranked-exhaustive-admitted12-v1|pair-cache-v3|ray-focal35=$assumedFocal35",
-            sparse = "incremental-frontier-v1|complete-source-window-typed-ba-admitted12-v2|assumed-focal35=$assumedFocal35",
+            sparse = "incremental-frontier-v1|complete-source-window-typed-ba-frontier-admitted12-v3|assumed-focal35=$assumedFocal35",
             dense = "native-reference-depth-v1|planes-56|resource=${resources.geometryIdentityText}",
             surface = "observed-open-mesh-v1|quality-gated",
             texture = "photographic-atlas-v1|resource=${resources.appearanceIdentityText}",

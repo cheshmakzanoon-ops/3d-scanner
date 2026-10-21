@@ -197,3 +197,47 @@ length callbacks from its actual ASCII data and asserts the UTF-length call whil
 retaining allocation-failure/release checks. Production JNI code was not changed.
 See reports/cloud-optional-host-gates.json. This does not substitute for Android
 instrumentation, phone GPU performance, or physical scan-quality evidence.
+
+## Durable admitted-camera registration increment (06:30 UTC)
+
+The next candidate uses the existing bounded atomic frontier store with real photo
+IDs and sparse-stage identity. Exact source-feature/lens identity, original ordered
+two-anchor gauge and overlapping accepted poses must agree before reuse. Recovered
+and newly accepted poses merge by photo ID rather than list position; stale,
+corrupt or conflicting frontiers cannot replace fresh geometry. Failed optional
+checkpoint writes are explicitly non-durable. Cancellation propagates, and the
+frontier is never advertised as completed alignment or complete track coverage.
+
+All>=3-photo captures use this path, including already registered sets; two-photo
+captures make no frontier claim. The pair budget remains at most66 and production
+admission stays2–12. Finalization still rebuilds the full accepted track graph.
+The changed registration policy has a new sparse-stage identity.
+
+Independent tests passed2 JVM cases and the extended existing real host-JNI
+six-photo limited-overlap fixture. Cancellation after the third saved camera,
+fresh-store reload with reordered input/new token, and exact pose preservation
+produce5 registered cameras and1 correctly disconnected camera. The rebuilt full
+track graph then finalizes210 tracks/630 original observations. Complete-set
+persistence is separately checked with native callbacks forbidden. Full drafted
+pipeline direct Kotlin compilation passes; actual integrated Gradle/device gates
+remain pending. See reports/cloud-registration-resume.json. No physical-photo or
+handset qualification is implied.
+
+### CI cancellation repair
+
+The candidate-evidence job now uses `!cancelled()` rather than unconditional
+`always()`. Failed native/Android/device jobs still reach the evidence audit, whose
+all-jobs-success assertion and exact-artifact verifier remain unchanged. Cancelled
+superseded runs no longer intentionally retain their finalizer/concurrency slot.
+Existing queued runs retain their original workflow and need separate cancellation;
+changing source does not retroactively release them. The focused workflow contract
+and adversarial evidence-validation suite pass57 tests.
+
+The integrated registration increment now passes the actual full Gradle debug
+validation run:664/664 JVM tests without failures or skips, Android lint without
+Error/Fatal issues, and AndroidTest Kotlin compilation.54 source/runbook contracts
+and the source manifest pass. This is not actual Android registration-resume
+execution; that gate remains open. The separate optimized APK instrumentation
+harness still has cross-APK optimizer linkage failures and is being addressed with
+explicit, bounded QA retention/linkage checking rather than repeated speculative
+keeps or disabled minification.
