@@ -1,0 +1,175 @@
+{
+  "sourceCommit": "515f1435a497dd1734c51ef46f26e8f4ef136950",
+  "sourceTree": "a91b282f3bce6f9e9b2c522aa652a24e50c4e6fd",
+  "artifact": "app-release.apk",
+  "sha256": "b13a9c150fea93b1421d1cd9863a5b0ee6a8ec7331b1792c01e6c649af0b1e56",
+  "size": 106220465,
+  "flags": [
+    "--offline",
+    "--dependency-verification strict",
+    "-PcandidateSigning=test",
+    "-PrealityForgeInstrumentationQa=false",
+    ":app:assembleRelease"
+  ],
+  "qaRetention": false,
+  "qaTasksExecuted": false,
+  "productionSigned": false,
+  "deviceQualified": false,
+  "runtimeExecuted": false,
+  "packageValidation": {
+    "applicationId": "com.realityforge.scanner",
+    "versionCode": "19",
+    "versionName": "0.19.0-m19",
+    "permissions": [
+      "android.permission.CAMERA",
+      "android.permission.FOREGROUND_SERVICE",
+      "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+      "android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING",
+      "android.permission.POST_NOTIFICATIONS",
+      "com.realityforge.scanner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "schemaVersion": 1,
+    "artifact": "app-release.apk",
+    "sha256": "b13a9c150fea93b1421d1cd9863a5b0ee6a8ec7331b1792c01e6c649af0b1e56",
+    "size": 106220465,
+    "signingMode": "test",
+    "signerCertificateSha256": [
+      "dc839f96ad8245392c2f25227e10c3342a5aeee809bad9f4e5e2fd7a8cdcd466"
+    ],
+    "releaseFlagsChecked": true,
+    "zipAlignment16k": true,
+    "backupExclusionsChecked": true,
+    "elfLibrariesChecked": [
+      {
+        "path": "lib/arm64-v8a/libandroidx.graphics.path.so",
+        "sha256": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6"
+      },
+      {
+        "path": "lib/arm64-v8a/libc++_shared.so",
+        "sha256": "4397241b4bd20a8e579bfb41d21107857e12985f6a01ca0c2a5f83380d1270b4"
+      },
+      {
+        "path": "lib/arm64-v8a/libfilament-jni.so",
+        "sha256": "d75914906f58575b70012edc4848fad5981d57de4a776d6486cdfabbf1c90da4"
+      },
+      {
+        "path": "lib/arm64-v8a/libgltfio-jni.so",
+        "sha256": "d0646ee3858dc865bc861529ce817fe4a667806c36a5c1fab67d7e2f1fcd9a2b"
+      },
+      {
+        "path": "lib/arm64-v8a/libimage_processing_util_jni.so",
+        "sha256": "3e0071afcdc7e321f839e196d266014182f18d0988e4455acc9857a085b2184e"
+      },
+      {
+        "path": "lib/arm64-v8a/libopencv_java4.so",
+        "sha256": "144bbc9ad0b0bac4ba58f7d53198aead64379e5314f68200968c703d2c1c14ab"
+      },
+      {
+        "path": "lib/arm64-v8a/librealityforge.so",
+        "sha256": "eac59f7a4632be61c7887e6cdf05435264f85e4374248b73a6532d3082da752a"
+      },
+      {
+        "path": "lib/arm64-v8a/libsurface_util_jni.so",
+        "sha256": "ee3f0d56f81cc0a301db32dc4fd51274c3216733b4c40172768e38bc5049a265"
+      },
+      {
+        "path": "lib/x86_64/libandroidx.graphics.path.so",
+        "sha256": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0"
+      },
+      {
+        "path": "lib/x86_64/libc++_shared.so",
+        "sha256": "db9609240e60ca18b816a5e95a6bbc784e799261efbd5b30c8e2e03b540b3fa8"
+      },
+      {
+        "path": "lib/x86_64/libfilament-jni.so",
+        "sha256": "793bdf047f514d6d942840e08ba3e02e8dcb197f31fe9e0760c7cef1ff46dfa3"
+      },
+      {
+        "path": "lib/x86_64/libgltfio-jni.so",
+        "sha256": "0d1241dd5b3ecaad9eefd5b2c4bd6bb750b2713a9e970355490ede504af77961"
+      },
+      {
+        "path": "lib/x86_64/libimage_processing_util_jni.so",
+        "sha256": "676e3e280c10dcb9b71ef5bb727552610dc73c7ec85af54c7c898f82785c33d7"
+      },
+      {
+        "path": "lib/x86_64/libopencv_java4.so",
+        "sha256": "373e5a25a92bf6a683fecf4d9c73adaf478c04efad10171d865dcf78b242709a"
+      },
+      {
+        "path": "lib/x86_64/librealityforge.so",
+        "sha256": "03c92cc5effbb70564bb0a6cca7b40ad9cd7dee3af6344f6d65beeec5a0b7304"
+      },
+      {
+        "path": "lib/x86_64/libsurface_util_jni.so",
+        "sha256": "cd425e10a365fb3695e53f1e46227d44d89f14854da4f1258ef079c80c752339"
+      }
+    ]
+  },
+  "samePackageVersionCertificateAsPrior": true,
+  "inPlaceUpdateExpected": true,
+  "actualUpgradeTested": false,
+  "priorApkSha256": "e2a8b83a5e488cc066f08c80646bab88b0287fdc4ba7409b8ecac8e3d55b296d",
+  "changedDexOrNativeEntries": [
+    "classes.dex"
+  ],
+  "entryHashes": {
+    "classes.dex": "3a3b973873fcaedb01c61a324ba41b384b00669132b89f075643540af5309c4c",
+    "lib/arm64-v8a/libandroidx.graphics.path.so": "41e9a793c43a0f4fddb19e33f346bace464f30f888ba7b9eaf96294ea115bfb6",
+    "lib/arm64-v8a/libc++_shared.so": "4397241b4bd20a8e579bfb41d21107857e12985f6a01ca0c2a5f83380d1270b4",
+    "lib/arm64-v8a/libfilament-jni.so": "d75914906f58575b70012edc4848fad5981d57de4a776d6486cdfabbf1c90da4",
+    "lib/arm64-v8a/libgltfio-jni.so": "d0646ee3858dc865bc861529ce817fe4a667806c36a5c1fab67d7e2f1fcd9a2b",
+    "lib/arm64-v8a/libimage_processing_util_jni.so": "3e0071afcdc7e321f839e196d266014182f18d0988e4455acc9857a085b2184e",
+    "lib/arm64-v8a/libopencv_java4.so": "144bbc9ad0b0bac4ba58f7d53198aead64379e5314f68200968c703d2c1c14ab",
+    "lib/arm64-v8a/librealityforge.so": "eac59f7a4632be61c7887e6cdf05435264f85e4374248b73a6532d3082da752a",
+    "lib/arm64-v8a/libsurface_util_jni.so": "ee3f0d56f81cc0a301db32dc4fd51274c3216733b4c40172768e38bc5049a265",
+    "lib/x86_64/libandroidx.graphics.path.so": "4e56c996f13670e70082658de7880c4020eabf4f25e43387f88ed78a713fc9f0",
+    "lib/x86_64/libc++_shared.so": "db9609240e60ca18b816a5e95a6bbc784e799261efbd5b30c8e2e03b540b3fa8",
+    "lib/x86_64/libfilament-jni.so": "793bdf047f514d6d942840e08ba3e02e8dcb197f31fe9e0760c7cef1ff46dfa3",
+    "lib/x86_64/libgltfio-jni.so": "0d1241dd5b3ecaad9eefd5b2c4bd6bb750b2713a9e970355490ede504af77961",
+    "lib/x86_64/libimage_processing_util_jni.so": "676e3e280c10dcb9b71ef5bb727552610dc73c7ec85af54c7c898f82785c33d7",
+    "lib/x86_64/libopencv_java4.so": "373e5a25a92bf6a683fecf4d9c73adaf478c04efad10171d865dcf78b242709a",
+    "lib/x86_64/librealityforge.so": "03c92cc5effbb70564bb0a6cca7b40ad9cd7dee3af6344f6d65beeec5a0b7304",
+    "lib/x86_64/libsurface_util_jni.so": "cd425e10a365fb3695e53f1e46227d44d89f14854da4f1258ef079c80c752339"
+  },
+  "r8ConfigurationSha256": "b229f2d75d6d603cecaeb3a941058786577f0553b091a9bdf1e742421bf8ff40",
+  "fixedMethodDexEvidence": {
+    "file": "fixed-methods-dexdump.txt",
+    "sha256": "56ed877e9e2d29859b992e971cc5142bf732c3b957bdb1465407e7c56e5af754",
+    "mappingSha256": "ee9e602e9f5ae3fdb90062cee2c70f3480371b446c0f9cb5cdefb49ee56a9fda",
+    "depthSelectorOwner": "e3.q",
+    "pngValidatorOwner": "i2.l",
+    "observed": [
+      "Inflater.getBytesRead calls bracketing inflate",
+      "Inflater.needsDictionary",
+      "fixed ref- lookup/isRegularFile/NOFOLLOW_LINKS"
+    ]
+  },
+  "sourceCleanAfterBuild": true,
+  "download": {
+    "source_commit": "515f1435a497dd1734c51ef46f26e8f4ef136950",
+    "apk_sha256": "b13a9c150fea93b1421d1cd9863a5b0ee6a8ec7331b1792c01e6c649af0b1e56",
+    "apk_bytes": 106220465,
+    "zip_sha256": "f76a78ab2f8665555372e9f6a8c2166404cd1e35032630700405eb684c753210",
+    "zip_bytes": 46296964,
+    "parts": [
+      {
+        "name": "realityforge-515f1435-engineering.zip.001",
+        "bytes": 18874368,
+        "sha256": "95936b304e32afce08d246ed1072a2f6b88662ad061b2bf493f414a530359084"
+      },
+      {
+        "name": "realityforge-515f1435-engineering.zip.002",
+        "bytes": 18874368,
+        "sha256": "850c5f27789707bb7a798e4e55a4fd7a26d674e067d3e7a46c1987f42a21aa68"
+      },
+      {
+        "name": "realityforge-515f1435-engineering.zip.003",
+        "bytes": 8548228,
+        "sha256": "526c30ed0f02d35732ef99570aebe977f021fde644037d663cc28333abe846f5"
+      }
+    ]
+  },
+  "delivery": "Three hash-verified parts and assembly instructions accepted in private chat; user download/install not confirmed.",
+  "rawReceiptSha256": "f91260055a08086ed4ba5a935b62de39f6a077621ffeb1ed09383c29bd121a48"
+}
