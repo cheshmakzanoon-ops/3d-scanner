@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T12:48:41Z",
+  "base_commit": "cbd323b0e6a10b1e5606b854631a836dd64da9bc",
+  "test_source_sha256": "9fe4c05dab2622c3c630f622bf75d10cb5c82b7254d221fd202f1cbef5baa104",
+  "test_source": "app/src/test/java/com/realityforge/scanner/hostintegration/RoomImportHostTest.kt",
+  "host_suites": [
+    {
+      "class": "com.realityforge.scanner.hostintegration.RoomHostSmokeTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 6.409,
+      "test_names": [
+        "expectedRevisionPublicationPersistsAcrossDatabaseReopen"
+      ]
+    },
+    {
+      "class": "com.realityforge.scanner.hostintegration.RoomImportHostTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": 0.825,
+      "test_names": [
+        "damagedCommittedOriginalRemainsPendingAcrossReopenAndRecovery",
+        "damagedDuplicateWithoutJournalStopsBeforeOpeningLaterSources",
+        "publicationFaultsReconcileAgainstRealRoomAfterReopen",
+        "callerJobCancellationAfterActualCommitRetainsDurablePublication",
+        "cancellationDuringStreamingLeavesNoRoomRowsOriginalsOrStaging",
+        "exactBytesDuplicateAndFixedDestinationPersistAcrossReopen"
+      ]
+    }
+  ],
+  "ordinary_jvm_passed": 722,
+  "android_test_compile": "CURRENT_PASS",
+  "lint": "PASS, zero Error/Fatal",
+  "new_evidence": [
+    "Actual async Job cancellation initiated only after real Room DAO commit barrier",
+    "Cancelled caller does not receive successful result; timeout explicitly rejected as cancellation evidence",
+    "Owned worker is joined before reopening database and checking committed row/original hash, clean journal/staging and idempotent recovery",
+    "Missing originals-directory duplicate failure does not silently recreate the directory"
+  ],
+  "bounds": {
+    "controlled_wait_join_seconds": 10,
+    "method_timeout_seconds": 120,
+    "host_task_timeout_minutes": 5,
+    "note": "Structured scope may wait for a pathological NonCancellable child beyond an inner join timeout; outer method/task bounds remain infrastructure limits"
+  },
+  "limits": [
+    "HOST native SQLite and host filesystem, not process death/device/power-loss qualification",
+    "Synthetic source bytes/inspector remain; no decoder/JNI/GPU/facade evidence",
+    "Production app code and release dependency graph unchanged from prior increment"
+  ],
+  "log_sha256": {
+    "android-host-cancellation.log": "8558faa9a5345a9053ea922c669813c31edb6d920a103788e953f9d0ff4d042d",
+    "android-host-cancellation-full.log": "bfefd846395fb704f79356f460e4e18bf50399e11603399b8eb3a891abd9976d"
+  },
+  "verified_sdk_deduplication": {
+    "reclaimed_allocated_bytes": 184872960,
+    "preserved_bytes_sha256": "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b",
+    "method": "Obsolete raw duplicate replaced atomically by symlink to verified canonical Gradle artifact; old consumers still resolve identical bytes"
+  }
+}

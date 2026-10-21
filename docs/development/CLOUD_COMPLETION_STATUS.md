@@ -733,3 +733,19 @@ cancellation is not yet an actual structured Job cancellation test. See
 [HOST evidence](../../reports/cloud-host-room-integration.json) and
 [portable instructions](HOST_ROOM_INTEGRATION.md). The privately delivered APK
 instructions now also include built-in macOS/Linux assembly, in addition to Windows.
+
+### Actual caller cancellation after Room commit (12:48 UTC)
+
+The separate HOST gate now passes 7/7 tests. A new structured async Job is cancelled
+only after real Room commit is observed; a controlled reply barrier permits the
+production NonCancellable publication section to finish. The cancelled caller does
+not receive a successful result, and timeout is explicitly rejected as cancellation
+evidence. After worker cleanup, database reopen confirms the committed row, exact
+original bytes/hash, clean staging/journal and idempotent recovery. The duplicate
+integrity test also covers a missing originals directory without recreating it.
+
+Ordinary JVM tests remain 722/722 passing; AndroidTest compilation is current and
+lint passes. This is actual HOST coroutine cancellation, not process death, device
+or power-loss durability. Inner waits/joins are bounded, with method120s/task5min
+infrastructure bounds retained. No production code or release dependency changed.
+See [cancellation evidence](../../reports/cloud-host-commit-cancellation.json).
