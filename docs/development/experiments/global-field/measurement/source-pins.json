@@ -1,0 +1,25 @@
+{
+  "baseCommit": "1101e8166e6b0ec32c587e71514de8ace68547d9",
+  "basePath": "docs/development/experiments/profile-comparison/measurement",
+  "sourceFiles": {
+    "measure.py": {
+      "baseSha256": "8d8d7fc103651b7b66ab2290edd736d818f9010f95100676a53c69b241c54132",
+      "experimentalAdapterSha256": "3c714c715c1b715b835ac69772823f0e67a49f43dd8363dda4940cd2c28d65a9"
+    },
+    "projection.py": {
+      "baseSha256": "c39a80cf7498214a8c4f9f7bd8f0fd3eaafdd39fdade5134d2798fdbd48197e2",
+      "experimentalAdapterSha256": "124634a5a11882ebc459ed6c18aa2bf447378350ef691d94edf84bc1568cc499"
+    },
+    "run.py": {
+      "baseSha256": "61d1c47c1917c884e6d464ea7e6a9231d5d8e8733430babca00478b098bbdf1f",
+      "experimentalAdapterSha256": "4d4d0430055921b3935e960691c71ba3efae92e0c36d81415f795c26a624bb2e"
+    }
+  },
+  "currentRepositorySources": {
+    "tools/qa/geometry_quality/metrics.py": "c4b0ca8bac0757645718586c842671e9bed416d7c0e41ae54bf8553fe85d5bf0",
+    "tools/relief_quality_validation/evaluate.py": "95b1a8a067e334965539b9ae65b2a6fa7a5f13d9212bb513587cbec06f65a834",
+    "tools/make_fixture.py": "c3660732f2fbccf68efd6d5452fdb1701427ce060c076f6d5558c500497783f9",
+    "tools/qa/geometry_quality/__main__.py": "8bc2987aba5e5d554d1db58b61f412c6cdf2604e819e5b45bf7662c5a8b9773d"
+  },
+  "externalFullSourceInventorySha256": "ee91c0314064c9858068cfc58695c0078483a7502136b83ad1686946fc47f14c"
+}

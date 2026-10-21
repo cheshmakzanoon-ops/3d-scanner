@@ -1,0 +1,46 @@
+--- v4/verify_witness.py
++++ v3/verify_witness.py
+@@ -1,8 +1,6 @@
+ """Independent exact-input witness and directed-edge audit. No geometry repair."""
+ import struct,json,hashlib,sys,math
+ from pathlib import Path
+-from fractions import Fraction
+-from itertools import permutations
+ 
+ def need(x,s):
+  if not x:raise ValueError(s)
+@@ -12,25 +10,12 @@
+ def length(a):return math.sqrt(dot(a,a))
+ def camera(v,p):return tuple(dot(v['r'][3*i:3*i+3],p)+v['t'][i] for i in range(3))
+ def projected_contains(triangle,uv):
+- # Exact signs for the represented IEEE-754 projected coordinates, not an
+- # epsilon or an enlarged source triangle. Full predicate avoids an unproven
+- # floating error threshold. IEEE float conversion has bounded integer size.
+- triangle=[tuple(Fraction.from_float(x) for x in p) for p in triangle]
+- uv=tuple(Fraction.from_float(x) for x in uv)
+  orient=lambda a,b,c:(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);area=orient(*triangle)
+  if area==0:return False
+  return all(orient(triangle[k],triangle[(k+1)%3],uv)*(1 if area>0 else -1)>=0 for k in range(3))
+ def selftest():
+  triangle=[(0.,0.),(1.,0.),(0.,1.)];need(projected_contains(triangle,(.2,.2)),'inside');need(not projected_contains(triangle,(.8,.8)),'outside');need(not projected_contains([(0.,0.),(1.,0.),(2.,0.)],(.5,0.)),'degenerate')
+  face=[(.1,.1),(.9,.1),(.1,1.2)];centroid=tuple(sum(p[k] for p in face)/3 for k in range(2));need(projected_contains(triangle,centroid) and not all(projected_contains(triangle,p) for p in face),'centroid-only false positive guard');need(all(projected_contains(list(reversed(triangle)),p)==projected_contains(triangle,p) for p in face),'source winding invariant')
+- # Preserve the original decimal near-boundary case. Its exact binary
+- # coordinates sum to slightly more than one: it is OUTSIDE, in all6orders.
+- for order in permutations(triangle):
+-  need(not projected_contains(order,(.9,.1)),'original near-boundary exact outside')
+-  need(projected_contains(order,(.75,.25)),'binary-exact edge inclusive')
+-  need(projected_contains(order,(0.,0.)),'binary-exact vertex inclusive')
+-  need(projected_contains(order,(.2,.2)),'all permutations interior')
+-  need(not projected_contains(order,(.8,.8)),'all permutations exterior')
+  print('independent witness primitive guards PASS')
+ class Reader:
+  def __init__(self,b):self.b=b;self.o=0
+@@ -69,7 +54,7 @@
+    need(projected_contains(triangle,uv),'wholeface projected containment')
+   for a,b in zip(f[1:],f[2:]+f[1:2]):key=(min(a,b),max(a,b));count,balance=edge_counts.get(key,(0,0));edge_counts[key]=(count+1,balance+(1 if a<b else -1))
+  boundary=sum(c==1 for c,b in edge_counts.values());nonmanifold=sum(c>2 for c,b in edge_counts.values());winding=sum(c==2 and b!=0 for c,b in edge_counts.values());need((boundary,nonmanifold,winding)==(p['boundaryEdges'],p['nonmanifoldEdges'],p['windingConflictEdges']),'independent directed edge parity')
+- report={'status':'INDEPENDENT_WHOLE_FACE_WITNESS_PASS','facesChecked':nf,'sourcePatchesChecked':len(patches),'boundaryEdges':boundary,'nonmanifoldEdges':nonmanifold,'windingConflictEdges':winding,'strictFloatingBoundaryPolicy':'Exact rational 2D orientation on represented projected IEEE coordinates; inclusive exact boundary, no tolerance enlargement. Plane slab remains strict double arithmetic.','notQualityAcceptance':True}
++ report={'status':'INDEPENDENT_WHOLE_FACE_WITNESS_PASS','facesChecked':nf,'sourcePatchesChecked':len(patches),'boundaryEdges':boundary,'nonmanifoldEdges':nonmanifold,'windingConflictEdges':winding,'strictFloatingBoundaryPolicy':'No tolerance enlargement. Boundary disagreement fails verification, not geometry repair.','notQualityAcceptance':True}
+  with open(sys.argv[3],'x') as out:json.dump(report,out,indent=2);out.write('\n')
+  print(report['status'])
+ if __name__=='__main__':

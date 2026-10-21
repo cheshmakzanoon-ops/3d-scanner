@@ -1,0 +1,61 @@
+{
+  "status": "EXPERIMENTAL_GLOBAL_FIELD_FAIL_CLOSED",
+  "error": "independent-witness-primitive-guards exit 1",
+  "receiptSha256": "f86699b1079640c6811ade12c82445963833d1de471595146378701df2b06c42",
+  "elapsedSeconds": 7.097348148003221,
+  "allKnownInputsUnchanged": true,
+  "knownPinCount": 410,
+  "commands": [
+    {
+      "name": "compile-tests",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "linkage-tests",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "compile-replay",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "linkage-replay",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "synthetic-guards",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "independent-witness-primitive-guards",
+      "returnCode": 1,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    }
+  ],
+  "actualReplayExecuted": false,
+  "sourceHashes": {
+    "global_field.hpp": "933eca1e1a43eb06f26cc9279b3367ba1c5b2aa75cf6a0be370f34035f48668a",
+    "replay.cpp": "44da5feacd12173af2f5f430fac168133092d4461879beb94eedc1f5117cae0a",
+    "tests.cpp": "fe65290efbca29eb03864c0a205d6eb421a7dabe9dcba34feada36ab91d6c023",
+    "runner.py": "946fc770bfb2e3aa6fecc8f61d75cfd027f92b7fa2405115e76aad3d7037adfb",
+    "verify_witness.py": "bd0bf70b2ec47f2f51c10131bfa9f795e81101b916c92c4e44e6439933aec4d1"
+  },
+  "configSha256": "7f20d5313863e9eae7a3a43ca3e0d67dafac4d9d6d235f9cdc529a2b8189de64"
+}

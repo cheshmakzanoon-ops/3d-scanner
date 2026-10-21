@@ -113,9 +113,9 @@ internal object PreviewUiSummary {
     private val DENSE_FLAGS = listOf("textured", "photographsRectified", "calibrationProfileApplied",
         "surfaceCheckpointAvailable", "surfaceCheckpointWritten", "geometryReused", "textureReused")
     private val MESH_COUNTS = listOf("schema", "vertexCount", "triangleCount", "boundaryEdges", "nonManifoldEdges",
-        "connectedComponents", "selfIntersections")
+        "connectedComponents", "selfIntersections", "nonmanifoldEdges", "intersections")
     private val MESH_NUMBERS = emptyList<String>()
-    private val MESH_FLAGS = listOf("textured", "watertight")
+    private val MESH_FLAGS = listOf("textured", "watertight", "topologyIncomplete")
     private val TEXTURE_COUNTS = listOf("schema", "atlasWidth", "atlasHeight", "triangleCount", "inputTriangles",
         "viewSwitchEdgesBefore", "viewSwitchEdges", "exposureSamples")
     private val TEXTURE_NUMBERS = listOf("faceCoverage")

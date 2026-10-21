@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "baselineCommit": "1101e8166e6b0ec32c587e71514de8ace68547d9",
+  "scope": "Android topology evidence reporting and reopening only; native geometry unchanged",
+  "capturedProducerEvidence": {
+    "resultSha256": "43cb5ccbdcb9be63abd67c2d1d73a57f7c3eb89506919bd3f00485140fc95574",
+    "nativeSchema": 8,
+    "nonmanifoldEdges": 166,
+    "intersections": 6190,
+    "topologyIncomplete": false,
+    "oldReportNonManifoldEdges": null,
+    "oldReportSelfIntersections": null
+  },
+  "change": [
+    "Accept native count names and legacy aliases only when bounded integral and nonconflicting.",
+    "Preserve nullable topologyIncomplete through report, import and preview projection; absent remains unknown.",
+    "Verified watertight requires explicit topologyIncomplete=false and measured zero supported defect counts.",
+    "Preserve rejection of contradictory historical verified claims before downgrading missing-completeness reports."
+  ],
+  "sourceSha256": {
+    "app/src/main/java/com/realityforge/scanner/data/reopening/PreviewUiSummary.kt": "70953fbb7ccecd0b162c57f278d7ff2058b4711d400323dc2ff57a3651cee43a",
+    "app/src/main/java/com/realityforge/scanner/engine/ScanQualityEvidence.kt": "889103e9cbc97ec4ef7c134257f26bdb76d97cdb533d634847deec5a276efd1e",
+    "app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt": "3a559628c39ce5a96a5763bcf7d872558e47e45efb119b215fa641f3db41060b",
+    "app/src/main/java/com/realityforge/scanner/engine/diagnostics/ScanEvidence.kt": "388748886e49015ff9af0093e38760b10261f463d26ef2c0af67636e798306d2",
+    "app/src/test/java/com/realityforge/scanner/engine/ScanQualityTopologyReportTest.kt": "46b44bed50384d62344d0c6ab0d4d04d07b6314aa3d8cfb50a1abf2c03ca7a59"
+  },
+  "red": {
+    "status": "EXPECTED_FAILURE",
+    "logSha256": "63ebdc0e9806e3d796e20509248ccea539ad1746a17f83bb90ab6ce547c95034"
+  },
+  "focused": {
+    "status": "PASS",
+    "tests": 21,
+    "logSha256": "241beaaf62669b394a4272a593b659f39cf96321e34b289b80d9fd938434dd1e"
+  },
+  "androidBroad": {
+    "status": "PASS",
+    "counts": {
+      "testDebugUnitTest": {
+        "suites": 141,
+        "tests": 768,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "hostIntegrationTest": {
+        "suites": 6,
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "lint": {
+        "issues": 94,
+        "severities": {
+          "Warning": 91,
+          "Hint": 3
+        }
+      }
+    },
+    "androidTestKotlinCompilation": "PASS",
+    "logSha256": "cfe0d8edaba18f0a846559ee6dabbaf4e8a17b106c8759a8a21db22dee3ab319",
+    "sourcePreSha256": "fbb9ecbe2c84e0f47347cbf19844de33ceca90f3ab69d8129145e2a68d7c3692",
+    "sourcePostSha256": "fbb9ecbe2c84e0f47347cbf19844de33ceca90f3ab69d8129145e2a68d7c3692"
+  },
+  "pythonSuite": {
+    "status": "PASS",
+    "passed": 1382,
+    "skipped": 3,
+    "warnings": 1,
+    "subtestsPassed": 6,
+    "seconds": 138.22,
+    "logSha256": "15a3207f38e7a6c95f260ecb6b823e9fac64847f954b10a2cc5f3b08f08b061e",
+    "scope": "Final code and staged archive before report-only result update."
+  },
+  "limits": [
+    "No Android device install, camera, physical scan quality or upgrade qualification claimed.",
+    "HOST integration is not emulator or physical-device execution.",
+    "Native geometry algorithm and native vertex-level audit capabilities unchanged.",
+    "Optional missing historical evidence is not reconstructed or certified."
+  ]
+}
