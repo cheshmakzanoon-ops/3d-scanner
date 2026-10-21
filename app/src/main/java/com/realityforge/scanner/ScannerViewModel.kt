@@ -19,6 +19,10 @@ import com.realityforge.scanner.domain.OperationContext
 import com.realityforge.scanner.domain.OperationKind
 import com.realityforge.scanner.domain.OperationProgress
 import com.realityforge.scanner.domain.PendingRequestState
+import com.realityforge.scanner.domain.PresentationReadFence
+import com.realityforge.scanner.domain.observePresentationReads
+import com.realityforge.scanner.domain.refreshPresentationAfterOperation
+import com.realityforge.scanner.domain.PresentationReadIdentity
 import com.realityforge.scanner.domain.PresentationMessage
 import com.realityforge.scanner.domain.PreviewState
 import com.realityforge.scanner.domain.ProjectRevision
@@ -43,6 +47,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -156,22 +161,17 @@ class ScannerViewModel(
 
     init {
         restorePendingRequests()
+        // Restore presentation without selecting again: saved picker requests retain their generation.
+        selectedId.value?.let { reloadSelectedPresentation(it) }
         viewModelScope.launch {
             root.execution.current.collect { job ->
                 val processing = job?.state == com.realityforge.scanner.data.jobs.ReconstructionJobState.RUNNING ||
                     job?.state == com.realityforge.scanner.data.jobs.ReconstructionJobState.QUEUED
                 if (coordinator.activeOperation() == null) busy.value = processing
                 if (job?.state == com.realityforge.scanner.data.jobs.ReconstructionJobState.COMPLETED && selectedId.value == job.input.projectId) {
-                    val source = ProjectRevision(job.input.projectId, job.input.projectRevision)
-                    val saved = withContext(dispatchers.io) {
-                        runCatching { repository.currentPreview(source.projectId)?.let(
-                            com.realityforge.scanner.data.reopening.PreviewUiSummary::fromValidated) }.getOrNull()
-                    }
-                    if (selectedId.value == source.projectId && saved != null &&
-                        saved.optLong("revision", -1) == source.revision && selectedProject.value?.revision == source.revision) {
-                        preview.value = saved
-                        typedPreview.value = PreviewState.Ready(source, saved.getString("artifactKey"), representationOf(saved))
-                    }
+                    // Completion is only a refresh trigger. Read the current full identity through
+                    // the same fence as reopen/import rather than publishing an older job's JSON.
+                    reloadSelectedPresentation(job.input.projectId)
                 }
                 if (!processing && coordinator.activeOperation() == null) progress.value = null
             }
@@ -234,6 +234,9 @@ class ScannerViewModel(
         if (coordinator.finish(context.operationId)) {
             activeOperation.value = null
             busy.value = false
+            // operationStarted cancelled the observer. Restart even when a completed-job event
+            // arrived before admission finished, and marshal IO-owned export completion to main.
+            viewModelScope.refreshPresentationAfterOperation({ selectedId.value }, ::reloadSelectedPresentation)
         }
     }
 
@@ -469,68 +472,108 @@ class ScannerViewModel(
     fun select(id: String?) {
         if (coordinator.activeOperation() != null) return
         previewTask?.cancel()
-        val generation = advanceSelectionGeneration()
+        advanceSelectionGeneration()
         savedStateHandle[KEY_SELECTED_PROJECT] = id
         selectedId.value = id
         preview.value = null
         typedPreview.value = PreviewState.None
         calibrationStatus.value = if (id == null) "" else "Reading lens profile..."
         typedCalibration.value = if (id == null) CalibrationState.None else CalibrationState.Loading(id)
-        if (id != null) {
-            val initial = projects.value.firstOrNull { it.id == id }
-            if (initial != null) typedPreview.value = PreviewState.Loading(ProjectRevision(id, initial.revision))
-            previewTask = viewModelScope.launch {
-                try {
-                    recovery.await()
-                    val loaded = withContext(dispatchers.io) {
-                        val project = requireNotNull(repository.dao.project(id)) { "Project no longer exists." }
-                        val calibration = runCatching { LensCalibration.read(repository, id) }
-                        val status = calibration.fold(
-                            { profile ->
-                                if (profile == null) {
-                                    "No calibration: estimated pinhole" to CalibrationState.Estimated(id)
-                                } else {
-                                    "Calibrated: ${profile.acceptedViews} board views · RMS ${"%.2f".format(profile.reprojectionRmsPixels)} px" to
-                                        CalibrationState.Calibrated(id, profile.acceptedViews, profile.reprojectionRmsPixels)
-                                }
-                            },
-                            { error ->
-                                "Calibration unreadable: ${error.message}; recalibrate this project" to
-                                    CalibrationState.Invalid(id, error.message.orEmpty())
-                            },
-                        )
-                        Triple(project, status, repository.currentPreview(id)?.let(
-                            com.realityforge.scanner.data.reopening.PreviewUiSummary::fromValidated))
-                    }
-                    ensureActive()
-                    // Main-thread publication cannot race another UI operation's reservation.
-                    if (selectedId.value == id && selectionGeneration == generation && coordinator.activeOperation() == null) {
-                        calibrationStatus.value = loaded.second.first
-                        typedCalibration.value = loaded.second.second
-                        preview.value = loaded.third
-                        typedPreview.value = loaded.third?.let { json ->
-                            PreviewState.Ready(
-                                project = ProjectRevision(id, loaded.first.revision),
-                                artifactKey = json.optString("artifactKey"),
-                                representation = representationOf(json),
-                            )
-                        } ?: PreviewState.None
-                    }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    if (selectedId.value == id && selectionGeneration == generation) {
-                        preview.value = null
-                        typedPreview.value = PreviewState.Failed(id, e.message.orEmpty())
-                        publishMessage(
-                            "preview.open_failed",
-                            "Saved preview could not be opened: ${e.message}. Original photographs are unchanged.",
-                        )
+        if (id != null) reloadSelectedPresentation(id)
+    }
+
+    private fun ScanProject.presentationIdentity() = PresentationReadIdentity(
+        id, revision, resultKey, resultRevision, state)
+
+    /** Read-only refresh: never changes selection generation or consumes a restored external request. */
+    private fun reloadSelectedPresentation(id: String) {
+        if (selectedId.value != id || coordinator.activeOperation() != null) return
+        previewTask?.cancel()
+        val generation = selectionGeneration
+        calibrationStatus.value = "Reading lens profile..."
+        typedCalibration.value = CalibrationState.Loading(id)
+        previewTask = viewModelScope.launch {
+            try {
+                recovery.await()
+            } catch (cancelled: CancellationException) { throw cancelled
+            } catch (error: Exception) {
+                if (selectedId.value == id && selectionGeneration == generation && coordinator.activeOperation() == null) {
+                    preview.value = null
+                    typedPreview.value = PreviewState.Failed(id, error.message.orEmpty())
+                    calibrationStatus.value = "Project recovery could not finish."
+                    typedCalibration.value = CalibrationState.None
+                    publishMessage("preview.recovery_failed",
+                        "Saved presentation could not be read: ${error.message}. Original photographs are unchanged.")
+                }
+                return@launch
+            }
+            // Room may still be emitting the preceding revision when an import finishes. Observe
+            // identities, not just the first emission, so the settled revision gets its own read.
+            selectedProject.map { it?.presentationIdentity() }.observePresentationReads(onBoundary = { observed ->
+                if (selectedId.value == id && selectionGeneration == generation && coordinator.activeOperation() == null) {
+                    // Do not leave compatibility consumers holding the preceding result while IO
+                    // suspends, nor retain a calibrated label after the selected row disappears.
+                    preview.value = null
+                    typedPreview.value = PreviewState.None
+                    if (observed == null) {
+                        calibrationStatus.value = "Selected project is unavailable."
+                        typedCalibration.value = CalibrationState.None
+                    } else {
+                        calibrationStatus.value = "Reading lens profile..."
+                        typedCalibration.value = CalibrationState.Loading(id)
                     }
                 }
-            }
+            }) { observed ->
+                    if (observed.projectId != id) return@observePresentationReads
+                    val fence = PresentationReadFence(generation, observed)
+                    if (!presentationReadIsCurrent(fence)) return@observePresentationReads
+                    try {
+                        typedPreview.value = PreviewState.Loading(ProjectRevision(id, observed.revision))
+                        val loaded = withContext(dispatchers.io) {
+                            val project = requireNotNull(repository.dao.project(id)) { "Project no longer exists." }
+                            if (project.presentationIdentity() != observed) return@withContext null
+                            val calibration = try {
+                                val profile = LensCalibration.read(repository, id)
+                                if (profile == null) "No calibration: estimated pinhole" to CalibrationState.Estimated(id)
+                                else "Calibrated: ${profile.acceptedViews} board views · RMS ${"%.2f".format(profile.reprojectionRmsPixels)} px" to
+                                    CalibrationState.Calibrated(id, profile.acceptedViews, profile.reprojectionRmsPixels)
+                            } catch (cancelled: CancellationException) { throw cancelled
+                            } catch (error: Exception) {
+                                "Calibration unreadable: ${error.message}; recalibrate this project" to
+                                    CalibrationState.Invalid(id, error.message.orEmpty())
+                            }
+                            val summary = repository.currentPreview(id)?.let(
+                                com.realityforge.scanner.data.reopening.PreviewUiSummary::fromValidated)
+                            if (repository.dao.project(id)?.presentationIdentity() != observed) return@withContext null
+                            calibration to summary
+                        } ?: return@observePresentationReads
+                        ensureActive()
+                        // Same selection generation AND full result identity after suspended IO.
+                        if (presentationReadIsCurrent(fence)) {
+                            calibrationStatus.value = loaded.first.first
+                            typedCalibration.value = loaded.first.second
+                            preview.value = loaded.second
+                            typedPreview.value = loaded.second?.let { json ->
+                                PreviewState.Ready(ProjectRevision(id, observed.revision),
+                                    json.optString("artifactKey"), representationOf(json))
+                            } ?: PreviewState.None
+                        }
+                    } catch (cancelled: CancellationException) { throw cancelled
+                    } catch (error: Exception) {
+                        if (presentationReadIsCurrent(fence)) {
+                            preview.value = null
+                            typedPreview.value = PreviewState.Failed(id, error.message.orEmpty())
+                            publishMessage("preview.open_failed",
+                                "Saved preview could not be opened: ${error.message}. Original photographs are unchanged.")
+                        }
+                    }
+                }
         }
     }
+
+    private fun presentationReadIsCurrent(fence: PresentationReadFence) =
+        fence.isCurrent(selectionGeneration, selectedId.value, selectedProject.value?.presentationIdentity(),
+            coordinator.activeOperation() != null)
 
     private fun representationOf(json: JSONObject): String = when {
         json.optJSONObject("texturePreview") != null || json.optJSONObject("texturedPreview") != null -> "photographic_mesh"

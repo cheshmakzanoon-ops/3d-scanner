@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T11:14:51Z",
+  "base_commit": "4335d116fb93654fd92d2aa41e96db33b466ae36",
+  "source_sha256": {
+    "app/src/main/java/com/realityforge/scanner/ScannerViewModel.kt": "b5bfc36726c81ab00ba2b09233c72b5be3f4a18be6fbd4dcc71e78ac188e070f",
+    "app/src/main/java/com/realityforge/scanner/domain/PresentationReadFence.kt": "9baf4f5ddb18175717d1d9b316960fcb2108b451cf5d490a2c85bb64979ab1a1",
+    "app/src/main/java/com/realityforge/scanner/domain/PresentationReadObserver.kt": "c507dcb5b1f366bed193613dbb3287c889503161339326512a24715f52c525b1",
+    "app/src/test/java/com/realityforge/scanner/domain/PresentationReadFenceTest.kt": "c85691fffab2825b13e4a2ea6e6328e179a8d1f7d3589ff9a3f9e27d03e487e7",
+    "app/src/test/java/com/realityforge/scanner/domain/PresentationReadObserverTest.kt": "5c0dd738ca2495c68dd3220fdd57d9d8d517795e9d3c718d1d0ba93911edb633",
+    "app/src/androidTest/java/com/realityforge/scanner/PresentationRecoveryDeviceTest.kt": "d8e695dafebef74cdeeae371079d5e2a7e1b93a060c1995cf39c23452731ce32"
+  },
+  "behavior": [
+    "Read-only restoration preserves selection generation and pending external requests",
+    "Nullable full project/result identities clear compatibility and typed presentation before suspended reads",
+    "Publication checks selection generation, project, revision, result key/revision, state, operation admission and before/after database identity",
+    "Completed jobs trigger shared reload rather than independently publishing potentially older results",
+    "Successful direct-operation completion restarts observation on owner dispatcher using current selected ID",
+    "Cancellation propagates; recovery failures are contained and fenced"
+  ],
+  "validation": {
+    "focused_actual_gradle_jvm": 12,
+    "full_actual_gradle_jvm": 702,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "android_test_compile": "PASS including five new device regressions",
+    "lint_severities": {
+      "Warning": 92,
+      "Hint": 3
+    },
+    "independent_review": "No remaining static blockers; standalone12 tests independently rerun"
+  },
+  "runtime": {
+    "new_device_tests": 5,
+    "executed": 0,
+    "status": "NOT_RUN",
+    "scope": "Synthetic presentation fixtures and direct SavedStateHandle restoration, not reconstruction or actual OS process-kill qualification"
+  },
+  "limitations": [
+    "No new APK or full-session pass established by these host tests",
+    "Actual Android restoration/import/deletion tests remain pending",
+    "Physical reconstruction quality, API35 and production signing gates remain open"
+  ]
+}

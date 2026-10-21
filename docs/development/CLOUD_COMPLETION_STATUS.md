@@ -601,3 +601,21 @@ review found no material blocker. Actual API33+ permission-dialog recreation,
 delayed admission and double-tap scenarios remain NOT_RUN; helper tests are not
 device-equivalence proof. No new APK was generated for this increment. See
 [the source-hashed UI report](../../reports/cloud-ui-recovery-notification.json).
+
+### Identity-fenced presentation recovery (11:14 UTC)
+
+Saved selection now restores calibration and preview without advancing picker
+selection generation. Direct-operation completion restarts read-only observation,
+so duplicate/rejected-only imports no longer leave an unchanged result hidden.
+Null or changed full result identities clear compatibility and typed presentation
+before suspended reads; publication checks current selection, generation, revision,
+result identity and state. Completed-job notifications use the same reader rather
+than a competing raw JSON publisher. Recovery exceptions are contained, cancellation
+propagates, and operation completion is marshalled to the ViewModel owner dispatcher.
+
+Actual Gradle focused tests pass 12/12; the unrestricted JVM suite passes 702/702
+with no failures, errors or skips. AndroidTest compilation includes five new
+synthetic presentation regressions. Lint has zero Error/Fatal findings. Independent
+review and a separate standalone test rerun pass. These five Android tests remain
+NOT_RUN; direct SavedStateHandle fixtures are not OS process-kill evidence and no
+reconstruction-quality claim follows. See the [source-hashed report](../../reports/cloud-presentation-recovery.json).
