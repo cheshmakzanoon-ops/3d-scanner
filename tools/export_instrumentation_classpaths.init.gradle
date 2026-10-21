@@ -1,0 +1,59 @@
+// Explicit two-phase QA workflow. Run with QA=true, test signing and release test variant.
+// Does not add dependencies or alter application source/signing/permissions.
+gradle.projectsEvaluated {
+    def app = gradle.rootProject.project(':app')
+    def fingerprint = {
+        def captured = new ByteArrayOutputStream()
+        app.exec {
+            commandLine 'python3', gradle.rootProject.file('tools/instrumentation_abi.py'),
+                'source-hash', '--root', gradle.rootProject.projectDir
+            standardOutput = captured
+        }
+        def value = captured.toString('UTF-8').trim()
+        if (!(value ==~ /[0-9a-f]{64}/)) throw new GradleException('Invalid source fingerprint')
+        value
+    }
+    def beforeCompile = null
+    gradle.taskGraph.whenReady { graph ->
+        if (graph.hasTask(':app:exportInstrumentationQaClasspaths')) beforeCompile = fingerprint()
+    }
+    app.tasks.register('exportInstrumentationQaClasspaths') {
+        dependsOn(app.tasks.named('compileReleaseJavaWithJavac'),
+                  app.tasks.named('compileReleaseAndroidTestJavaWithJavac'),
+                  app.tasks.named('normalizeQaMonitorMetadata'))
+        doLast {
+            def result = [:]
+            ['app':'releaseRuntimeClasspath', 'test':'releaseAndroidTestRuntimeClasspath'].each { key, name ->
+                def view = app.configurations.getByName(name).incoming.artifactView {
+                    attributes { attribute(org.gradle.api.artifacts.type.ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE, 'android-classes-jar') }
+                }
+                result[key] = view.files.files.collect { it.absolutePath }
+            }
+            result.app += [
+                app.layout.buildDirectory.dir('tmp/kotlin-classes/release').get().asFile.absolutePath,
+                app.layout.buildDirectory.dir('intermediates/javac/release/compileReleaseJavaWithJavac/classes').get().asFile.absolutePath,
+                app.layout.buildDirectory.file('intermediates/compile_and_runtime_not_namespaced_r_class_jar/release/processReleaseResources/R.jar').get().asFile.absolutePath,
+            ]
+            result.test += [
+                app.layout.buildDirectory.dir('tmp/kotlin-classes/releaseAndroidTest').get().asFile.absolutePath,
+                app.layout.buildDirectory.dir('intermediates/javac/releaseAndroidTest/compileReleaseAndroidTestJavaWithJavac/classes').get().asFile.absolutePath,
+                app.layout.buildDirectory.file('intermediates/compile_and_runtime_not_namespaced_r_class_jar/releaseAndroidTest/processReleaseAndroidTestResources/R.jar').get().asFile.absolutePath,
+            ]
+            result.app = result.app.unique().sort()
+            result.original_test_classpaths = result.test.unique().sort()
+            def normalization = app.tasks.named('normalizeQaMonitorMetadata').get()
+            result.test = [normalization.outputClasses.get().asFile.absolutePath]
+            result.metadata_receipt = normalization.normalizationReceipt.get().asFile.absolutePath
+            result.source_sha256 = fingerprint()
+            if (beforeCompile == null || beforeCompile != result.source_sha256) {
+                throw new GradleException('Source/config changed during pre-shrink compilation; repeat export')
+            }
+            result.before_compile_source_sha256 = beforeCompile
+            def output = app.layout.buildDirectory.file('generated/instrumentation-qa/classpaths.json').get().asFile
+            if (output.canonicalFile != output.absoluteFile) throw new GradleException('QA export aliases/symlinks are not allowed')
+            output.parentFile.mkdirs()
+            output.text = groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(result)) + '\n'
+            println "QA original-bytecode classpaths: ${output}"
+        }
+    }
+}
