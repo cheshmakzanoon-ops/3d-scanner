@@ -1,0 +1,17 @@
+AndroidX Test monitor 1.7.2 test fixtures
+
+The two base64-encoded original classfiles in test_instrumentation_qa_metadata.py
+are derived from androidx.test:monitor:1.7.2, published by Google, whose source
+files bear the following notices:
+
+TestOutputEmitter.java: Copyright (C) 2018 The Android Open Source Project
+Checks.java: Copyright (C) 2014 The Android Open Source Project
+
+Licensed under the Apache License, Version 2.0. A copy is supplied in
+LICENSE-monitor-fixtures.txt. The original class bytes are unchanged; the tests
+exercise a separately documented two-byte metadata correction.
+
+Official artifact:
+https://dl.google.com/dl/android/maven2/androidx/test/monitor/1.7.2/monitor-1.7.2.aar
+Official source:
+https://dl.google.com/dl/android/maven2/androidx/test/monitor/1.7.2/monitor-1.7.2-sources.jar

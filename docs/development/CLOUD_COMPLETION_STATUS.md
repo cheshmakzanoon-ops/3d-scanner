@@ -255,3 +255,64 @@ transitive memberships were removed; new artifacts were independently verified
 against official repository bytes/published checksums. Both debug and release
 instrumented-test compilation/classpath export pass. Runtime linkage/device
 qualification still requires the separately reviewed QA-retention build.
+
+## Explicit QA instrumentation linkage gate (07:42 UTC)
+
+The latest published source is `4f5307d949d5f8aba25520bc03b1455e84c4cdad`.
+An opt-in, test-signed release QA path is under validation. It derives a finite
+cross-APK retention surface from original compiled inputs and checks the frozen
+app/test APK pair using the pinned R8 tool, with source/input/rule hashes and
+reviewed framework-only compatibility exclusions. It does not disable application
+minification, change release security flags, or establish equivalence with the
+normal shipping APK. See `INSTRUMENTATION_QA_RETENTION.md` for the exact boundary.
+
+Successful assembly and package audit have not yet established final linkage:
+the current frozen pair fails on two AndroidX anonymous-class EnclosingMethod
+metadata references after R8 lambda rewriting. Exact member retention rules were
+consumed but did not repair the references. No additional AndroidX exception was
+added, no success receipt was emitted, and this pair has not been installed or
+executed. A narrowly scoped QA-test input metadata normalization is being tested;
+its outcome must be recorded separately, not inferred from the proposed fix.
+
+The previously observed release runner crashes executed zero tests. The earlier
+debug smoke results remain limited to their recorded cases and do not substitute
+for release instrumentation, complete scan-session execution, physical-device
+accuracy/thermal testing, or production signing. GitHub verification remains
+queued/pending; source publication is not evidence of passing remote CI.
+
+A controlled replay using the same four original monitor classes and pinned
+R8 8.11.18 reproduces exactly the two missing metadata methods in release mode
+with the AndroidTest no-shrinking/no-optimization configuration; debug mode passes
+that isolated reference check. This identifies a compiler-mode cause, not an
+application runtime pass. The proposed input-only normalization follows the
+[JVM EnclosingMethod specification](https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-4.html#jvms-4.7.7)
+and [JDK-8348584](https://bugs.openjdk.org/browse/JDK-8348584): anonymous classes
+within static field initializer lambdas retain the enclosing class but have zero
+method_index. The workaround is custom and QA-only, not an official R8 patch.
+
+### QA normalization integration checkpoint (08:01 UTC)
+
+The metadata-only repair now passes the isolated release reference check with no
+missing-reference diagnostics. The integrated focused suite passes89 tests and3
+subtests; the duplicate-ZIP warning comes from an intentional rejection fixture.
+Independent review confirmed the exact two original class hashes, unchanged
+executable bytes, deterministic complete-output reconstruction and original
+class-set comparison. Only the exact Java9 JPMS module descriptor path is omitted,
+with every original descriptor hash inventoried; other META-INF classfiles reject.
+Apache-2.0 attribution accompanies the embedded AndroidX regression class fixtures.
+
+Actual Gradle QA-mode classpath export succeeds using the public AndroidTest
+ScopedArtifact transform. The application component is not transformed. Both
+application/test shrink and package tasks are wired to verify hash-bound receipts;
+actual negative guard runs, regenerated rules and full paired-APK linkage remain
+pending at this checkpoint. No emulator results are implied by these host checks.
+
+The actual negative Gradle gates now pass: missing manifest blocks the application
+minify and test-package entrypoints at verifyQaInstrumentationRetention; a stale
+source fingerprint blocks test minify at the same verifier before shrinking.
+The original generated manifest was restored and verifies successfully. Invalid
+QA flags, debug-test mode and production-signing combinations reject; normal
+QA-disabled assembly's dry-run includes neither normalization nor QA verification.
+Fresh schema2 generation passes with1,067 retained types and the same finite rule
+hash; actual scoped transformation records22 inputs and3 exact JPMS exclusions.
+Full rebuilt APK-pair linkage and Android execution are still pending.
