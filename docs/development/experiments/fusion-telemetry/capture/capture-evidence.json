@@ -1,0 +1,100 @@
+[
+  {
+    "stage": "compile-failure",
+    "originalReceiptSha256": "6faf2b896fbfd3e8fd743f43a0a2b97a1bf94345602639b89707ca437536f21e",
+    "outcome": "FAILED",
+    "terminalStatus": "EXIT_1",
+    "durationSeconds": 27.0417001247406,
+    "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+    "inputHashesUnchanged": true,
+    "compiledInputsUnchanged": false,
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "fullBoundInputsUnchanged": true,
+      "restored": true
+    },
+    "junit": [],
+    "reason": "NativeMapsEvidence.kt190 ProcessHandle unavailable to Android compilation; no JVM/core/trace capture ran. Fixed by actual bounded /proc/self/status Pid parse, same evidence schema."
+  },
+  {
+    "stage": "capture-pass",
+    "originalReceiptSha256": "a5ee120949045159ae579fe157037217d5b63bd39dbbdbea338914ccd0e5214b",
+    "outcome": "PASS",
+    "terminalStatus": "EXIT_0",
+    "durationSeconds": 48.817026138305664,
+    "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+    "inputHashesUnchanged": true,
+    "compiledInputsUnchanged": true,
+    "restoration": {
+      "status": "EXIT_0",
+      "remainingProbeClasses": [],
+      "commit": "124deebbccb341cb04af9676a2385b79953d65ab",
+      "gitStatus": "",
+      "trackedHashesUnchanged": true,
+      "fullBoundInputsUnchanged": true,
+      "restored": true
+    },
+    "junit": [
+      {
+        "name": "com.realityforge.scanner.hostintegration.SparsePipelineQualityCaptureHostTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "time": "12.82"
+      }
+    ],
+    "qualityCapture": {
+      "manifestSha256": "44fde57708c857b22e07c4494e3aa1b199217b592bc9ede26ff3c96266f2aa5d",
+      "artifacts": {
+        "result.json": {
+          "sha256": "43cb5ccbdcb9be63abd67c2d1d73a57f7c3eb89506919bd3f00485140fc95574",
+          "bytes": 1387803
+        },
+        "sparse.ply": {
+          "sha256": "735347c7c28c8263ca5879e158c58629d77854c08654cd115f6f259e6d1e9aa0",
+          "bytes": 41885
+        },
+        "dense.ply": {
+          "sha256": "5c6ca2c5ab367525d0b86d4ac8a16c93bb9bb3cc575c36b675d834397dd500fc",
+          "bytes": 316689
+        },
+        "mesh.ply": {
+          "sha256": "3cca78d665131c49090c66266c93050d55d713873916839e5b47b60e9e71e54e",
+          "bytes": 595003
+        },
+        "surface-v2.rfmesh": {
+          "sha256": "2d03ca3fed20e000ce5bf989fe77c5050bbbbecf6465b4eea029c6a59b0b2cb7",
+          "bytes": 1185252
+        }
+      },
+      "depthCheckpointIdentity": "9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995"
+    },
+    "nativeTrace": {
+      "artifacts": {
+        "input.rffuse": {
+          "bytes": 2442878,
+          "sha256": "d1b605dffddb9488e77ff2f16706f3cf0f2d4161e3239d03f51648d5290b71c0"
+        },
+        "live-mesh.bits": {
+          "bytes": 512322,
+          "sha256": "89c920a435dfcb4edd6efdf04c94eb5ae51e2c60dd2e78018082cc4b24bf3fc2"
+        }
+      },
+      "depthCheckpointIdentity": "9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995",
+      "pixelStride": 3,
+      "engineSha256": "1b03206aa399fbeeabb333a5292a639322676f659d939009f53ee90f7bd8204d",
+      "jniSha256": "4bb81674e351d9338c4337630c19fddad9c6b5cfee86735aad493896acdb6747",
+      "loadedLibrariesVerifiedBeforeAfter": true,
+      "mapsReceiptsSha256": {
+        "before-core-maps.json": "5dadc2c7127e147b776aa08857916928420a7aa2bcd59bf9d3671177c480b762",
+        "after-core-maps.json": "26a47a0132f5db4c66d7873eba8ac044cee545aed37d5a62877664ae83f1767b"
+      }
+    },
+    "scope": "Private trace engine actual HOST capture only. No replay equivalence or native counter findings asserted by this gate."
+  }
+]

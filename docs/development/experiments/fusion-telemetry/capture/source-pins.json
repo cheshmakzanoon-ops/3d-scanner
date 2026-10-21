@@ -1,0 +1,41 @@
+{
+  "baseCommit": "124deebbccb341cb04af9676a2385b79953d65ab",
+  "baseDirectory": "tools/relief_quality_validation",
+  "files": {
+    "NativeMapsEvidence.kt": {
+      "baseSha256": null,
+      "capturedSourceSha256": "0b867cc8cef9072fbeba2e9c471087ab4f52bffaa446abc92a895b339414a0e0"
+    },
+    "OpaqueBitmapBridge.kt": {
+      "baseSha256": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+      "capturedSourceSha256": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee"
+    },
+    "SandboxNativeLoaderRunner.kt": {
+      "baseSha256": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+      "capturedSourceSha256": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7"
+    },
+    "SandboxNativeLoaderTokenHostTest.kt": {
+      "baseSha256": "f7f24cebe26059a50573a3fdf19e0a6115ab3e3607d98bd1b8cecd51f734429a",
+      "capturedSourceSha256": "0f1d23f96daf9605bbde8bd69bf3667d9f0a366919c49a4c005b9ee4e50004a3"
+    },
+    "SparsePipelineQualityCaptureHostTest.kt": {
+      "baseSha256": "056a6894293a1e8a6e8e3d310c203e900bcc8cd777d4e5161d3335aa84e5b36d",
+      "capturedSourceSha256": "5bdbfe47b181e27ed48c039ed9cfee947392cd4572c248eddcc7f8f969316839"
+    },
+    "SparsePrefixRunner.kt": {
+      "baseSha256": "016869b9da27f37407d962be272b7b502119c79db0a19b25927545deaab8a9ed",
+      "capturedSourceSha256": "016869b9da27f37407d962be272b7b502119c79db0a19b25927545deaab8a9ed"
+    },
+    "probe.init.gradle": {
+      "baseSha256": "4f724496bb1ef978ce4fd8a72aaabf29781f18dcc39bf08c0b4c111adfbe38d4",
+      "capturedSourceSha256": "99c855c948d4344273d861752216beae502c08216c138445c349fc7352761606"
+    },
+    "validate.py": {
+      "baseSha256": "2ba5c7a36c430934d2358aaf3077693a4a37d5da9016216f6649445fe57f9975",
+      "capturedSourceSha256": "a44050ed60bc33b1ac48abad1151d24b4901e85e83d980f60be0d08c663d2e1e"
+    }
+  },
+  "failedHelperSha256": "a75f9792b9786616f0ebbd2673b8957b121895439d73376536f386490df6f6c6",
+  "privateConfigSha256": "7b14f8c095e71175448c921bb6d55f4e39b84e9c66e4689b43129c20995e330a",
+  "frozenManifestSha256": "c216667fd497a83e24925f3ae5481b77af85f3a7d0b86d87103d53ca951adb0f"
+}

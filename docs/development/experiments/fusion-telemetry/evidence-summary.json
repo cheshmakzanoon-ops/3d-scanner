@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "scope": "Same actual frozen COMPACT host input; measure-only original-fuser telemetry, not a production change or quality improvement.",
+  "stageA": {
+    "status": "PASS",
+    "receiptSha256": "d80924b1b03323a1cd21335deac9eed1a4b0bd5d84c5da19724b3a70089049aa",
+    "elapsedSeconds": 50.47324268400553,
+    "originalNativeTests": 3,
+    "snapshotGuardCases": 37,
+    "comparisonGuardCases": 10,
+    "tracedEngineSha256": "1b03206aa399fbeeabb333a5292a639322676f659d939009f53ee90f7bd8204d"
+  },
+  "shim": {
+    "status": "BUILD_LINKAGE_PASS_NOT_JVM_TESTED",
+    "receiptSha256": "3c9c86539559bbd77cb5e98ec4706cb8bdf3dfd7113155e6132f2f9e304a6dfa",
+    "sha256": "4bb81674e351d9338c4337630c19fddad9c6b5cfee86735aad493896acdb6747",
+    "compilerDependencies": 362,
+    "jniExports": 28,
+    "scope": "Named tools/source/compiler headers; not complete linker/OS dependency closure."
+  },
+  "stageC": {
+    "status": "EXACT_ORIGINAL_REPLAY_TELEMETRY_MEASURE_ONLY",
+    "receiptSha256": "10c7ba41cda11b88d89dceb237bf115a44f2cd254f73414aa51da0058a92be80",
+    "elapsedSeconds": 6.360057015001075,
+    "all550InputPinsUnchanged": true,
+    "depthIdentity": "9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995",
+    "rawCountsSha256": "84e35acddd42ca5c25cead004f7d6576502f4eab9d7eaa89fb1442d23041a274",
+    "threeWayRawMeshPlyFullJsonEquality": true,
+    "originalRawMeshSha256": "89c920a435dfcb4edd6efdf04c94eb5ae51e2c60dd2e78018082cc4b24bf3fc2",
+    "originalPlySha256": "3cca78d665131c49090c66266c93050d55d713873916839e5b47b60e9e71e54e",
+    "originalMeshJsonSha256": "07ee52441db4b3fa5c7bd4b516f51fcb53529a7bffa02695c666bcd15b160671"
+  },
+  "mesh": {
+    "schema": 8,
+    "representation": "observed_open_triangle_mesh",
+    "scale": "arbitrary",
+    "textured": false,
+    "watertight": false,
+    "material": "vertex_colors",
+    "vertexCount": 5753,
+    "triangleCount": 6741,
+    "inputSamples": 6867,
+    "acceptedSamples": 6865,
+    "fusedObservations": 271,
+    "rejectedCells": 11745,
+    "rejectedTriangles": 147,
+    "medianConfidence": 0.9683709741,
+    "fusionVersion": 6,
+    "boundaryEdges": 4873,
+    "nonmanifoldEdges": 166,
+    "intersections": 6190,
+    "topologyIncomplete": false
+  },
+  "counts": {
+    "schema": 1,
+    "status": "UNVERIFIED_UNTIL_ORIGINAL_RAW_MESH_EQUALITY",
+    "candidateVisits": 69094,
+    "candidatePassedAllGates": 276,
+    "candidateFirstReject": {
+      "same_camera": 26673,
+      "incoming_normal": 34991,
+      "accumulator_normal": 2408,
+      "incompatible_normal": 970,
+      "not_closer": 603,
+      "incoming_radius": 2358,
+      "accumulator_radius": 138,
+      "incoming_visible_average": 35,
+      "proposed_incoming_anchor": 176,
+      "proposed_incoming_visible": 2,
+      "original_pair": 454,
+      "anchor_sees_sample": 5,
+      "sample_sees_anchor": 3,
+      "proposed_prior_anchor": 0,
+      "proposed_prior_visible": 2
+    },
+    "samplesWithAnyReject": {
+      "same_camera": 5902,
+      "incoming_normal": 5643,
+      "accumulator_normal": 886,
+      "incompatible_normal": 418,
+      "not_closer": 200,
+      "incoming_radius": 719,
+      "accumulator_radius": 87,
+      "incoming_visible_average": 34,
+      "proposed_incoming_anchor": 152,
+      "proposed_incoming_visible": 2,
+      "original_pair": 360,
+      "anchor_sees_sample": 5,
+      "sample_sees_anchor": 3,
+      "proposed_prior_anchor": 0,
+      "proposed_prior_visible": 2
+    },
+    "normalEarlyReturn": {
+      "boundary": 0,
+      "center_unavailable": 0,
+      "neighbor_nonfinite": 0,
+      "neighbor_nonpositive": 5306,
+      "neighbor_jump": 43,
+      "confidence_unavailable": 0
+    },
+    "normalValiditySupportedSparseDiscontinuityIllConditionedInvalid": [
+      1014,
+      0,
+      5349,
+      504,
+      0
+    ],
+    "unitNormalRejected": 0,
+    "planeBoundRejected": 0,
+    "finalNormalSupported": 1014,
+    "outcomeUnprocessedLowConfidenceDuplicatePixelVertexBudgetFusedNewAccumulator": [
+      0,
+      2,
+      0,
+      0,
+      271,
+      6594
+    ]
+  },
+  "sampleAggregates": {
+    "rows": 6867,
+    "supportedNormalAndFused": 271,
+    "supportedNormalAndNewAccumulator": 743,
+    "unsupportedNormalAndNewAccumulator": 5851,
+    "unsupportedNormalAndLowConfidence": 2
+  },
+  "preservedFailedAttempt": {
+    "stage": "StageA v1",
+    "reason": "-Werror misleading-indentation in two snapshot mesh loops; no guard tests ran. V2 added only braces/newlines; original failure retained.",
+    "receiptSha256": "e8fffbab471305771a7297c8e2f0ae6f2b55a94ccaeb1e404b7798adadb11301"
+  }
+}

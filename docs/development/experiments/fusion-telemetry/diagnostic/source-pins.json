@@ -1,0 +1,6 @@
+{
+  "reconstruction/src/surface.cpp": "21d047cd29e35e1172c328e1cccef1065bb4736873cd6a9ccb10aaa5a3fed0f0",
+  "reconstruction/include/realityforge/surface_evidence.hpp": "8082ee701dcad38ee937125a582eadab6dc88638876714cb64d7ef456775f875",
+  "patchedSurfaceSha256": "9e41710e423b1193db706c4e54d93195e8b82f47e98c359c5aee56dbf74a3a08",
+  "patchedEvidenceSha256": "75eca4c6ca683e6991e16e1a725df607b20334969cfbc1c402533ae00fd7cc9c"
+}

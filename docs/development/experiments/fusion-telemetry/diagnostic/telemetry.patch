@@ -1,0 +1,152 @@
+--- a/reconstruction/src/surface.cpp
++++ b/reconstruction/src/surface.cpp
+@@ -1,5 +1,6 @@
+ #include "realityforge/c_abi_support.hpp"
+ #include "realityforge/surface.hpp"
++#include "telemetry.hpp"
+ #include "realityforge/surface_checkpoint.hpp"
+ #include "realityforge/cancellation.hpp"
+ #include "realityforge/surface_fusion.hpp"
+@@ -141,6 +142,7 @@
+     }
+     SurfaceMesh mesh;mesh.inputSamples=dense.verifiedSamples.size();
+     if(dense.verifiedSamples.empty())return mesh;
++    trace_test::Scope trace(views,dense,s);
+     std::vector<PreparedSource> prepared(dense.verifiedSamples.size());std::size_t validationIndex=0;
+     std::unordered_set<std::size_t> sourcePixels;
+     for(auto& p:dense.verifiedSamples){
+@@ -158,13 +160,17 @@
+     progress::begin(progress::Stage::Surface,0,0,2*prepared.size());
+     for(std::size_t i=0;i<prepared.size();++i){
+         const auto& sample=dense.verifiedSamples[i];auto& source=prepared[i];
++        trace.normalBegin(i);
+         const auto evidence=estimateDepthNeighborhoodNormal(views[sample.camera],dense.maps[sample.camera],sample.x,sample.y,s.pixelStride,s.maximumRelativeDepthJump);
+         source.supported=evidence.validity==NormalValidity::Supported&&surface_fusion::unitNormal(evidence.direction,source.normal);
++        trace.normalResult(static_cast<unsigned>(evidence.validity),source.supported);
+         source.bound=source.frontRadius;
+         if(source.supported){
+             const auto bound=surface_fusion::planePixelEnclosingRadius(views[sample.camera],sample,source.normal,source.frontRadius,s.pixelStride);
++            trace.normalBound(bound.has_value());
+             source.supported=bound.has_value();if(bound)source.bound=*bound;
+         }
++        trace.normalFinal(source.supported);
+         progress::advance(i+1);
+     }
+     const auto visibleIn=[&](std::size_t camera,Vec3 point){
+@@ -186,12 +192,13 @@
+     std::sort(sampleOrder.begin(),sampleOrder.end(),[&](auto a,auto b){const auto& p=dense.verifiedSamples[a];const auto& q=dense.verifiedSamples[b];return std::tie(p.xyz.x,p.xyz.y,p.xyz.z,p.camera,p.y,p.x)<std::tie(q.xyz.x,q.xyz.y,q.xyz.z,q.camera,q.y,q.x);});
+     std::size_t processed=0;
+     for(auto sourceId:sampleOrder){
++        trace.beginSample(sourceId);
+         const auto& sample=dense.verifiedSamples[sourceId];
+         progress::advance(prepared.size()+processed++);
+         const auto& source=prepared[sourceId];const bool normalSupported=source.supported;
+-        if(sample.confidence<s.minimumConfidence)continue;
++        if(sample.confidence<s.minimumConfidence){trace.outcome(trace_test::Outcome::LowConfidence);continue;}
+         const std::size_t pixel=static_cast<std::size_t>(sample.y)*width+sample.x;
+-        if(imageVertices[sample.camera][pixel]>=0)continue;
++        if(imageVertices[sample.camera][pixel]>=0){trace.outcome(trace_test::Outcome::DuplicatePixel);continue;}
+         const double fusionRadius=source.bound;
+         const double w=std::max(.005f,sample.confidence)*sample.supportingViews;
+         std::int64_t best=-1;double minDist=INFINITY;std::size_t candidateVisits=0;
+@@ -202,31 +209,34 @@
+                 const auto it=cells.find({key.x+dx,key.y+dy,key.z+dz});
+                 if(it==cells.end())continue;
+                 for(auto index:it->second){
++                    trace.visited();
+                     if(++candidateVisits>s.maxFusionCandidates)throw Error("Surface fusion spatial candidate budget exceeded");
+                     if((candidateVisits&63u)==0)cancellation::checkpoint();
+                     const auto& a=accum[index];
+-                    if(a.viewMask & (1u<<sample.camera))continue;
+-                    if(!normalSupported||!a.supportedNormal||!surface_fusion::compatibleNormal(a.weightedNormal,source.normal))continue;
++                    if(trace.rejectIf(trace_test::Reject::SameCamera,a.viewMask & (1u<<sample.camera)))continue;
++                    if(trace.rejectIf(trace_test::Reject::IncomingNormal,!normalSupported)||trace.rejectIf(trace_test::Reject::AccumulatorNormal,!a.supportedNormal)||trace.rejectIf(trace_test::Reject::IncompatibleNormal,!surface_fusion::compatibleNormal(a.weightedNormal,source.normal)))continue;
+                     const auto avg=mul(a.weightedPosition,1./a.weight);
+                     const double d=norm(sub(avg,sample.xyz));
+-                    if(d>=minDist||d>fusionRadius||d>a.fusionRadius)continue;
+-                    if(!visibleIn(sample.camera,avg))continue;
++                    if(trace.rejectIf(trace_test::Reject::NotCloser,d>=minDist)||trace.rejectIf(trace_test::Reject::IncomingRadius,d>fusionRadius)||trace.rejectIf(trace_test::Reject::AccumulatorRadius,d>a.fusionRadius))continue;
++                    if(trace.rejectIf(trace_test::Reject::IncomingVisibleAverage,!visibleIn(sample.camera,avg)))continue;
+                     const auto proposed=mul(add(a.weightedPosition,mul(sample.xyz,w)),1./(a.weight+w));
+-                    bool admissible=surface_fusion::originalAnchorMetric(views[sample.camera],sample,source.normal,source.frontRadius,source.bound,proposed,s.pixelStride)&&visibleIn(sample.camera,proposed);
++                    bool admissible=trace.require(trace_test::Reject::ProposedIncomingAnchor,surface_fusion::originalAnchorMetric(views[sample.camera],sample,source.normal,source.frontRadius,source.bound,proposed,s.pixelStride))&&trace.require(trace_test::Reject::ProposedIncomingVisible,visibleIn(sample.camera,proposed));
+                     for(std::size_t member=0;member<a.sourceCount&&admissible;++member){
+                         const auto anchorId=a.sourceIds[member];const auto& anchor=dense.verifiedSamples[anchorId];const auto& evidence=prepared[anchorId];
+-                        admissible=surface_fusion::originalPairMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,
+-                            views[sample.camera],sample,source.normal,source.frontRadius,source.bound,s.pixelStride)&&
+-                            visibleIn(anchor.camera,sample.xyz)&&visibleIn(sample.camera,anchor.xyz)&&
+-                            surface_fusion::originalAnchorMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,proposed,s.pixelStride)&&visibleIn(anchor.camera,proposed);
++                        admissible=trace.require(trace_test::Reject::OriginalPair,surface_fusion::originalPairMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,
++                            views[sample.camera],sample,source.normal,source.frontRadius,source.bound,s.pixelStride))&&
++                            trace.require(trace_test::Reject::AnchorSeesSample,visibleIn(anchor.camera,sample.xyz))&&trace.require(trace_test::Reject::SampleSeesAnchor,visibleIn(sample.camera,anchor.xyz))&&
++                            trace.require(trace_test::Reject::ProposedPriorAnchor,surface_fusion::originalAnchorMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,proposed,s.pixelStride))&&trace.require(trace_test::Reject::ProposedPriorVisible,visibleIn(anchor.camera,proposed));
+                     }
+                     if(!admissible)continue;
++                    trace.passed();
+                     best=index;minDist=d;
+                 }
+             }
+         }
+         std::uint32_t assigned{};
+         if(best>=0){
++            trace.outcome(trace_test::Outcome::Fused);
+             assigned=static_cast<std::uint32_t>(best);
+             auto& a=accum[assigned];a.weightedPosition=add(a.weightedPosition,mul(sample.xyz,w));
+             for(int k=0;k<3;++k)a.weightedColor[k]+=w*sample.color[k];
+@@ -253,7 +263,8 @@
+             }
+             ++mesh.fusedObservations;
+         } else {
+-            if(accum.size()>=s.maxVertices)continue;
++            if(accum.size()>=s.maxVertices){trace.outcome(trace_test::Outcome::VertexBudget);continue;}
++            trace.outcome(trace_test::Outcome::NewAccumulator);
+             assigned=static_cast<std::uint32_t>(accum.size());
+             Accum a;a.weightedPosition=mul(sample.xyz,w);a.weight=w;a.fusionRadius=fusionRadius;a.sourceIds[0]=static_cast<std::uint32_t>(sourceId);a.sourceCount=1;
+             a.radiusLevel=surface_fusion::radiusLevel(fusionRadius);a.cell=voxel(sample.xyz,surface_fusion::radiusCellSize(a.radiusLevel));
+@@ -364,6 +375,7 @@
+     std::vector<float> scores;scores.reserve(mesh.vertices.size());
+     for(auto& v:mesh.vertices)scores.push_back(v.confidence);
+     mesh.medianConfidence=median(scores);
++    trace.finish(mesh);
+     return mesh;
+ }
+ std::string surfaceJson(const SurfaceMesh& m){
+--- a/reconstruction/include/realityforge/surface_evidence.hpp
++++ b/reconstruction/include/realityforge/surface_evidence.hpp
+@@ -1,5 +1,6 @@
+ #pragma once
+ #include "realityforge/surface.hpp"
++#include "telemetry.hpp"
+ #include "realityforge/cancellation.hpp"
+ #include <algorithm>
+ #include <array>
+@@ -155,9 +156,9 @@
+     const auto orth=multiply(view.pose.rotation,transpose(view.pose.rotation));
+     for(int i=0;i<9;++i)if(std::abs(orth[i]-(i%4==0?1.:0.))>1e-5)throw Error("Normal pose is not orthonormal");
+     if(std::abs(determinant(view.pose.rotation)-1)>1e-5)throw Error("Normal pose has invalid orientation");
+-    if(x<step||y<step||x>=map.width-step||y>=map.height-step)return unknown;
++    if(x<step||y<step||x>=map.width-step||y>=map.height-step){trace_test::normalEarly(trace_test::NormalEarly::Boundary);return unknown;}
+     const double z=map.depth[static_cast<std::size_t>(y)*map.width+x];
+-    if(!std::isfinite(z)||z<=0)return unknown;
++    if(!std::isfinite(z)||z<=0){trace_test::normalEarly(trace_test::NormalEarly::CenterUnavailable);return unknown;}
+     const auto inverse=transpose(view.pose.rotation);
+     const auto camera=multiply(inverse,Vec3{-view.pose.translation.x,-view.pose.translation.y,-view.pose.translation.z});
+     std::vector<NormalObservation> points;
+@@ -167,7 +168,7 @@
+         cancellation::checkpoint();
+         const int u=x+dx*step,v=y+dy*step;const auto id=static_cast<std::size_t>(v)*map.width+u;
+         const double depth=map.depth[id];
+-        if(!std::isfinite(depth)||depth<=0||std::abs(depth-z)/z>maxRelativeJump){unknown.validity=NormalValidity::Discontinuity;return unknown;}
++        if(trace_test::normalRejectIf(trace_test::NormalEarly::NeighborNonfinite,!std::isfinite(depth))||trace_test::normalRejectIf(trace_test::NormalEarly::NeighborNonpositive,depth<=0)||trace_test::normalRejectIf(trace_test::NormalEarly::NeighborJump,std::abs(depth-z)/z>maxRelativeJump)){unknown.validity=NormalValidity::Discontinuity;return unknown;}
+         auto p=multiply(inverse,Vec3{(u-view.cx)*depth/view.fx-view.pose.translation.x,(v-view.cy)*depth/view.fy-view.pose.translation.y,depth-view.pose.translation.z});
+         points.push_back({p,camera,id});if(dx==0&&dy==0)query=p;
+     }
+@@ -181,7 +182,7 @@
+         unavailableConfidence=unavailableConfidence||confidence==0;
+         point.weight=confidence;
+     }
+-    if(unavailableConfidence)return unknown;
++    if(unavailableConfidence){trace_test::normalEarly(trace_test::NormalEarly::ConfidenceUnavailable);return unknown;}
+     // All nine camera-grid neighbors have already passed the finite depth and
+     // discontinuity gates. A frontoparallel footprint cannot bound their world
+     // distances on a slanted surface; retain the actual validated neighborhood.
