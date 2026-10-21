@@ -870,3 +870,18 @@ canonical enqueue service behavior is shadowed, not device-qualified.
 See [controller admission evidence](../../reports/cloud-controller-admission.json).
 The privately delivered APK from442c97ec predates this fix; no new APK runtime
 claim is implied.
+
+### Engineering APK includes admission/identity fixes (14:24 UTC)
+
+The latest private engineering APK is built froma1806643 and supersedes the442c97ec
+download. Normal optimization, QA retention OFF and test signing remain unchanged.
+Build2m29s and signature/offline/backup/16KB ZIP/all16ELF checks pass. APK SHA256:
+`cee7ccd79c26548875d9a50a3bc808ab34676f15e1adf4378f8ce5bb3c1f9ef6`
+(106,220,465 bytes). Verified three-part ZIP and cross-platform assembly instructions
+were delivered privately; binaries are not in Git source.
+
+This includes the value-aware running-job cleanup correction and incompatible
+request admission handling. Package/version19/test certificate are unchanged, but
+installation/data migration and complete scan-to-export remain untested. See
+[APK evidence](../../reports/cloud-admission-engineering-apk.json) and
+[assembly instructions](ENGINEERING_APK_A1806643.md).
