@@ -14,8 +14,9 @@ fun main(args:Array<String>) {
     check(loaded.filter { File(it).name==engine.name }.all { it==engine.path }) {
         "Unexpected alternate host engine loaded"
     }
-    val result=org.junit.runner.JUnitCore.runClasses(com.realityforge.scanner.engine.ProductionWrapperHostTest::class.java)
+    val result=org.junit.runner.JUnitCore.runClasses(com.realityforge.scanner.engine.ProductionWrapperHostTest::class.java,
+        com.realityforge.scanner.work.execution.ReconstructionAttemptCleanupHostTest::class.java)
     result.failures.forEach { System.err.println(it.trace) }
     println("New production-wrapper host JNI tests: ${result.runCount}, failures: ${result.failureCount}")
-    check(result.runCount==7 && result.wasSuccessful())
+    check(result.runCount==13 && result.wasSuccessful())
 }
