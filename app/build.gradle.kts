@@ -1,3 +1,4 @@
+import java.nio.file.Files
 import java.security.MessageDigest
 import java.time.Duration
 import org.gradle.kotlin.dsl.withGroovyBuilder
@@ -290,16 +291,105 @@ tasks.withType<Test>().configureEach {
     }
     if (name != "hostIntegrationTest") exclude("**/hostintegration/**")
 }
+// Independent JDK pixel oracle: HOST test input only, never an Android asset or decoder replacement.
+val decoderOracleSource = rootProject.file("tools/GenerateDecoderOracle.java")
+val decoderOracleSourceSha256 = "43270ecd69a0e59ceabff1a65e039bc38f92c692fa4ffd77f15939ca14d916ff"
+val decoderFixtureDirectory = rootProject.file("benchmarks/fixtures/relief")
+val decoderFixtureHashes = linkedMapOf(
+    "view-01.jpg" to "66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c",
+    "view-02.jpg" to "c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b",
+    "view-03.jpg" to "a0d386746c2a8f47840058613bc89aa3c4a8095995288fa936d368ad67fe6c0f",
+)
+val decoderOracleDirectory = layout.buildDirectory.dir("host-decoder-oracle")
+val decoderJava = extensions.getByType<org.gradle.jvm.toolchain.JavaToolchainService>().launcherFor {
+    languageVersion.set(org.gradle.jvm.toolchain.JavaLanguageVersion.of(17))
+}
+fun decoderSha(file: File): String = MessageDigest.getInstance("SHA-256").digest(file.readBytes())
+    .joinToString("") { "%02x".format(it.toInt() and 255) }
+fun verifyDecoderOracleInputs() {
+    check(decoderOracleSource.length() in 1..65536 && decoderSha(decoderOracleSource) == decoderOracleSourceSha256)
+    decoderFixtureHashes.forEach { (name, hash) ->
+        val source = decoderFixtureDirectory.resolve(name)
+        check(source.length() in 1..1048576 && decoderSha(source) == hash) { "Decoder fixture bytes changed: $name" }
+    }
+}
+val generateHostDecoderOracle = tasks.register<Exec>("generateHostDecoderOracle") {
+    group = "verification"
+    description = "Generate independent HOST-only ImageIO reference pixels with JDK 17."
+    inputs.file(decoderOracleSource).withPropertyName("generatorSource").withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.files(decoderFixtureHashes.keys.map { decoderFixtureDirectory.resolve(it) })
+        .withPropertyName("decoderFixtureJpegs").withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file(decoderJava.map { it.executablePath }).withPropertyName("oracleJavaExecutable")
+    inputs.property("oracleJavaRuntime", decoderJava.map { it.metadata.javaRuntimeVersion })
+    outputs.dir(decoderOracleDirectory)
+    timeout.set(Duration.ofSeconds(120))
+    doFirst {
+        verifyDecoderOracleInputs()
+        val output = decoderOracleDirectory.get().asFile
+        check(output == layout.buildDirectory.dir("host-decoder-oracle").get().asFile)
+        check(output.canonicalFile == output.absoluteFile.normalize()) { "Oracle output may not be a symlink or aliased path." }
+        // Recreate only this task's generated directory; reject symlink descendants before deletion.
+        if (output.exists()) {
+            check(output.isDirectory)
+            check(output.walkTopDown().none { Files.isSymbolicLink(it.toPath()) })
+            check(output.deleteRecursively()) { "Could not clean generated HOST oracle output." }
+        }
+        check(output.parentFile.isDirectory || output.parentFile.mkdirs())
+        commandLine(decoderJava.get().executablePath.asFile, "-Xmx256m", "-Djava.awt.headless=true",
+            decoderOracleSource, decoderFixtureDirectory, output, decoderOracleSource)
+    }
+}
+// Always verify even if generation/Test is up-to-date; no successful stale/tampered oracle evidence.
+val verifyHostDecoderOracle = tasks.register("verifyHostDecoderOracle") {
+    dependsOn(generateHostDecoderOracle)
+    doLast {
+        verifyDecoderOracleInputs()
+        val directory = decoderOracleDirectory.get().asFile
+        check(directory.canonicalFile == directory.absoluteFile.normalize())
+        val manifest = directory.resolve("SHA256SUMS")
+        check(!Files.isSymbolicLink(manifest.toPath()))
+        check(manifest.isFile && manifest.length() in 1..4096)
+        val lines = manifest.readLines()
+        check(lines.size == 12)
+        check(lines[0] == "generatorSha256=$decoderOracleSourceSha256")
+        check(lines[1] == "javaRuntime=${decoderJava.get().metadata.javaRuntimeVersion}")
+        check(lines[2] == "layout=RGB8-row-major")
+        val expectedNames = decoderFixtureHashes.keys.flatMap { name ->
+            listOf(800 to 600, 256 to 192, 512 to 384).map { (w, h) -> "$name.${w}x${h}.rgb" }
+        }.toSet()
+        val entries = lines.drop(3).map { it.split("  ") }
+        check(entries.all { it.size == 2 && it[0].matches(Regex("[0-9a-f]{64}")) })
+        check(entries.map { it[1] }.toSet() == expectedNames)
+        check(directory.listFiles().orEmpty().map { it.name }.toSet() == expectedNames + "SHA256SUMS")
+        entries.forEach { (hash, name) ->
+            val reference = directory.resolve(name)
+            check(!Files.isSymbolicLink(reference.toPath()))
+            val size = name.substringAfter(".jpg.").substringBefore(".rgb").split("x").map { it.toInt() }
+            check(reference.length() == 78L + size[0].toLong() * size[1] * 3)
+            check(decoderSha(reference) == hash)
+        }
+    }
+}
+
 tasks.register<Test>("hostIntegrationTest") {
     group = "verification"
-    description = "HOST-only Room/import integration; not Android device qualification."
+    description = "HOST-only Room, import, export and decoder integration; not Android device qualification."
     // Read the task itself, not a mapped TaskProvider: mapped providers carry the
     // ordinary Test as a producer and would accidentally execute both gates.
     val ordinary = tasks.named<Test>("testDebugUnitTest").get()
     testClassesDirs = ordinary.testClassesDirs
     classpath = ordinary.classpath
     dependsOn(ordinary.taskDependencies.getDependencies(ordinary))
-    dependsOn(verifyHostIntegrationSdk)
+    dependsOn(verifyHostIntegrationSdk, verifyHostDecoderOracle)
+    inputs.dir(decoderOracleDirectory).withPropertyName("decoderOraclePixels").withPathSensitivity(PathSensitivity.RELATIVE)
+    systemProperty("rf.decoder.fixtureDir", decoderFixtureDirectory.absolutePath)
+    systemProperty("rf.decoder.oracleDir", decoderOracleDirectory.get().asFile.absolutePath)
+    systemProperty("rf.decoder.oracleGeneratorSha256", decoderOracleSourceSha256)
+    // Pinned Robolectric FileDescriptorInterceptor requires this observed JDK17 reflection boundary.
+    jvmArgs("--add-opens=java.base/java.io=ALL-UNNAMED")
+    doFirst {
+        systemProperty("rf.decoder.oracleManifestSha256", decoderSha(decoderOracleDirectory.get().file("SHA256SUMS").asFile))
+    }
     include("**/hostintegration/**")
     filter {
         includeTestsMatching("com.realityforge.scanner.hostintegration.*")
