@@ -1,0 +1,84 @@
+{
+  "status": "DIAGNOSTIC_PROVENANCE_PASS_NOT_NATIVE_CACHE_LOAD",
+  "replicateLabel": "fresh-baseline-surface-capture-20261021",
+  "publishedCommit": "e8cc27a86d67e7962261f139d624e1ce809a296a",
+  "depthCheckpointIdentity": "61bcb704b31947582fc6a392a80a01bc205a8c167101e0cfddcf798c36fa4166",
+  "rawReceiptSha256": "0f514f56945841c354ddd3f70ed55e7f91fdcddac53216890134fc840d738340",
+  "elapsedSeconds": 8.365456593004637,
+  "old6176PairLineageRecovered": false,
+  "negativeGuards": [
+    "bad-trailer",
+    "oversized-vertices",
+    "invalid-face-index",
+    "wrong-algorithm",
+    "wrong-depth-identity",
+    "altered-ply-rejected",
+    "altered-json-rejected"
+  ],
+  "traceSummary": {
+    "schema": 2,
+    "triangleOffset": 994606,
+    "cameraCount": 3,
+    "intersections": 6137,
+    "ambiguousPairs": 33885,
+    "intersectionCandidates": 718870,
+    "classes": {
+      "between/camera0-1/shared0/fusedCorners0": 1088,
+      "between/camera0-1/shared0/fusedCorners1": 481,
+      "between/camera0-1/shared0/fusedCorners2": 219,
+      "between/camera0-1/shared0/fusedCorners3": 54,
+      "between/camera0-1/shared0/fusedCorners4": 3,
+      "between/camera0-1/shared1/fusedCorners2": 106,
+      "between/camera0-1/shared1/fusedCorners3": 54,
+      "between/camera0-1/shared1/fusedCorners4": 18,
+      "between/camera0-1/shared1/fusedCorners5": 7,
+      "between/camera0-2/shared0/fusedCorners0": 1442,
+      "between/camera0-2/shared0/fusedCorners1": 497,
+      "between/camera0-2/shared0/fusedCorners2": 188,
+      "between/camera0-2/shared0/fusedCorners3": 56,
+      "between/camera0-2/shared0/fusedCorners4": 9,
+      "between/camera0-2/shared1/fusedCorners2": 147,
+      "between/camera0-2/shared1/fusedCorners3": 56,
+      "between/camera0-2/shared1/fusedCorners4": 25,
+      "between/camera0-2/shared1/fusedCorners5": 4,
+      "between/camera1-2/shared0/fusedCorners0": 914,
+      "between/camera1-2/shared0/fusedCorners1": 443,
+      "between/camera1-2/shared0/fusedCorners2": 210,
+      "between/camera1-2/shared0/fusedCorners3": 31,
+      "between/camera1-2/shared0/fusedCorners4": 7,
+      "between/camera1-2/shared0/fusedCorners5": 2,
+      "between/camera1-2/shared1/fusedCorners2": 50,
+      "between/camera1-2/shared1/fusedCorners3": 20,
+      "between/camera1-2/shared1/fusedCorners4": 5,
+      "between/camera1-2/shared1/fusedCorners5": 1
+    },
+    "vertexObservationCameraHistogram": {
+      "1": 5487,
+      "2": 240,
+      "3": 19
+    },
+    "sampleNormalSupportingViewsHistogram": {
+      "0": 6867
+    }
+  },
+  "independentExportedSummary": {
+    "intersections": 6137,
+    "ambiguousPairs": 33885,
+    "implicatedFaces": 4768,
+    "intersectionCandidates": 718870,
+    "budgetExceeded": false,
+    "tolerance": 7.374430461167544e-10,
+    "classes": {
+      "old-old/shared0/noncoplanar-crossing": 5644,
+      "old-old/shared1/noncoplanar-crossing": 493
+    }
+  },
+  "limitations": [
+    "Missing native input RGBA and original reference depth maps: geometryIdentity/mapIdentity not independently recomputed.",
+    "Exact native serialization matched both captured PLY and complete meshPreview JSON before reporting provenance; analysis uses PLY float parsing, not checkpoint doubles.",
+    "Stored sample normalSupport histogram is not the recomputed fusion neighborhood-normal evidence; the latter is not stored in this checkpoint.",
+    "This fresh baseline replicate is not the old6176 paired-run artifact; counts are not transferred between runs and jitter cause is not established.",
+    "No source geometry or thresholds changed."
+  ],
+  "inputPinsUnchanged": true
+}
