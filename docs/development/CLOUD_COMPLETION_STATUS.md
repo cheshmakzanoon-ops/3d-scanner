@@ -443,3 +443,20 @@ run and the source-manifest check is deselected because it is verified separatel
 at commit. All three skipped optional gates then pass with their configured real
 dependencies in15.39 seconds. The duplicate-ZIP warning is the intentional
 rejection fixture. These host results do not close either Android runtime gate.
+
+## One-time Verify concurrency-group migration (09:32 UTC)
+
+The old run39552262898 still holds the original Verify concurrency group with its
+pre-fix unconditional evidence finalizer queued and no assigned runner. New Verify
+runs remain pending with no jobs; independent export/native workflows also remain
+queued, so a separate runner-scheduling delay of unknown cause is still observable.
+
+Verify now uses one fixed `verify-v2-<pull-request-or-ref>` group. This removes the
+known obsolete-group dependency for future runs while preserving per-ref
+supersession, cancel-in-progress, all three required jobs, the cancellable evidence
+finalizer and its exact-artifact/all-jobs-success acceptance checks. No permissions,
+runner labels, timeouts or test gates change. The key is not per-SHA/run; repeated
+migration is not an automatic retry strategy. This does not cancel the old run or
+prove a runner will start. The interpretation follows GitHub's documented
+[concurrency-group behavior](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency).
+The updated cancellation/workflow and adversarial evidence suite passes58 tests.
