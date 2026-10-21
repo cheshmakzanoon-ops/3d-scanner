@@ -17,7 +17,7 @@ The pose criteria are intentionally tolerant of feature localization, JPEG decod
 
 The positive case also packs the accepted points into six-column XYZ/RGB rows using **explicit test-side adaptation** of SparsePipeline's inline conversion, then invokes actual `NativeCore.exportPointCloud(...SPARSE_POINTS)` and production `LegacyPlyValidation`. It verifies the exact typed sparse header, vertex count, coordinates within the writer's nine-significant-digit precision and exact RGB values. The emitted file remains in the external work directory; output reports its SHA-256. This covers native writer/validator compatibility, not SparsePipeline's packing execution, repository option enumeration, publication, or SAF transfer.
 
-Four additional ordinary JVM tests cover exact current sparse metadata, retained legacy sparse support, wrong/missing/conflicting metadata, bounded strict bodies/properties, and retained surface validation. Six tests run in total. No general PLY parser support is added.
+Four additional ordinary JVM tests cover exact current sparse metadata, retained legacy sparse support, wrong/missing/conflicting metadata, bounded strict bodies/properties, and retained surface validation. Five further malformed-byte tests require exact element count prefixes and float-representable coordinates/normals while retaining decimal rounding, underflow and finite Float boundaries. Eleven tests run in total. No general PLY parser support is added.
 
 ## Reproduction
 

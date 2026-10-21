@@ -25,14 +25,20 @@ internal object LegacyPlyValidation {
             } else {
                 require(if (surface) provenance.contains("observed open surface") else provenance.contains("sparse reconstruction"))
             }
-            val vertices = line().removePrefix("element vertex ").toInt()
+            fun elementCount(kind: String): Int {
+                val declaration = line()
+                val prefix = "element $kind "
+                require(declaration.startsWith(prefix))
+                return declaration.removePrefix(prefix).toInt()
+            }
+            val vertices = elementCount("vertex")
             require(vertices in 1..2_000_000)
             for (property in listOf("x", "y", "z")) require(line() == "property float $property")
             if (surface) for (property in listOf("nx", "ny", "nz")) require(line() == "property float $property")
             for (property in listOf("red", "green", "blue")) require(line() == "property uchar $property")
             var faces = 0
             if (surface) {
-                faces = line().removePrefix("element face ").toInt(); require(faces in 1..4_000_000)
+                faces = elementCount("face"); require(faces in 1..4_000_000)
                 require(line() == "property list uchar int vertex_indices")
             }
             require(line() == "end_header")
@@ -40,7 +46,10 @@ internal object LegacyPlyValidation {
                 val fields = line().trim().split(Regex(" +"))
                 val floatCount = if (surface) 6 else 3
                 require(fields.size == floatCount + 3)
-                for (i in 0 until floatCount) require(fields[i].toDouble().isFinite())
+                for (i in 0 until floatCount) {
+                    val value = fields[i].toDouble()
+                    require(value.isFinite() && value.toFloat().isFinite())
+                }
                 for (i in floatCount until fields.size) require(fields[i].toInt() in 0..255)
             }
             repeat(faces) {

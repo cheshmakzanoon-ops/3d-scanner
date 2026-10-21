@@ -12,8 +12,8 @@ fun main(args:Array<String>) {
   check(loaded.filter{File(it).name.startsWith("libopencv")||File(it).name.startsWith("librealityforge")}.toSet()==required){"Unexpected native provider"}
  }
  maps()
- val result=org.junit.runner.JUnitCore.runClasses(com.realityforge.scanner.engine.features.ProductionFrontendHostTest::class.java,com.realityforge.scanner.export.LegacyPlyValidationTest::class.java)
+ val result=org.junit.runner.JUnitCore.runClasses(com.realityforge.scanner.engine.features.ProductionFrontendHostTest::class.java,com.realityforge.scanner.export.LegacyPlyValidationTest::class.java,com.realityforge.scanner.export.LegacyPlyHardeningTest::class.java)
  result.failures.forEach{System.err.println(it.trace)}
  println("Production frontend HOST integration: ${result.runCount}, failures: ${result.failureCount}; OpenCV=${Core.getVersionString()}")
- maps();check(result.runCount==6&&result.wasSuccessful())
+ maps();check(result.runCount==11&&result.wasSuccessful())
 }
