@@ -619,3 +619,34 @@ synthetic presentation regressions. Lint has zero Error/Fatal findings. Independ
 review and a separate standalone test rerun pass. These five Android tests remain
 NOT_RUN; direct SavedStateHandle fixtures are not OS process-kill evidence and no
 reconstruction-quality claim follows. See the [source-hashed report](../../reports/cloud-presentation-recovery.json).
+
+### Presentation recovery QA pair: static pass, one-core runtime blocked (11:36 UTC)
+
+Published application source `055f988c` produced a coherent optimized QA-retained
+pair: app `d413052c878f05712d70a577770d4212b6b8c18beb0bbd055484bb68f66165a9`,
+test `b7802c0616233897bce02934d915aa3f804b454ba95b2fd589be5826aa45120a`.
+The packaged static gate passes with exactly13 documented exclusions and1079
+retained types; package validation passes. This is not normal shipping equivalence
+or API30/35 runtime-availability proof. Actual host validation remains702 JVM
+passes, including12 focused presentation tests, AndroidTest compilation and
+zero Error/Fatal lint findings.
+
+The authorized API30 one-core TCG experiment failed the unchanged90-second
+stability/600-second overall readiness gate (last observation600.006s, exit124).
+Boot completion first appeared at420.960s, but sequential service probes took
+roughly42–56s and repeatedly exceeded the30-second sampling-gap guard. Observed
+nonempty PIDs remained system_server550/networkstack1044; missing/null command
+results do not prove process death or restart. Readiness records contained no
+critical framework events; seven initial LOG_UNAVAILABLE observations correctly
+failed closed until the capture appeared. A separately authorized single batched diagnostic also failed:
+host deadline25.005s, only boot1 completed (2.96 guest seconds), next PID probe
+incomplete. This did not establish responsive readiness or fix the issue.
+No CPU/OOM causal claim follows. Guest closed at11:35:37 UTC, supervisor exit0.
+
+Zero APKs were installed and zero tests ran: all five presentation device tests,
+12 continuation helper tests, and the opt-in full session remain NOT_RUN. No
+watchdog/security/default180-second deadline changes or further boot retry were
+made. The standalone experimental batch probe and six parser tests are retained
+for reproduction, explicitly NOT integrated into readiness or authorization to
+install; the full batched gate draft was not promoted. Nine readiness parser tests
+also pass. See [the exact artifact and closed-evidence report](../../reports/cloud-instrumentation-presentation-recovery.json).

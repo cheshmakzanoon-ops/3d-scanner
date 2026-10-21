@@ -1,0 +1,291 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T11:36:52.840935+00:00",
+  "published_source": {
+    "commit": "055f988caa7e162a40ba5ea4258277985602ac2a",
+    "tree": "446929cfc22184f085749068b7e6af178f90a686",
+    "content_fingerprint_sha256": "08b89033fc130314d8f246814d0a5b83bea5ad751974a6e4d8e39a9140d0e3c1"
+  },
+  "readiness_tool_source_commit": "5c2cd18c45b18beb8e019823d950a001f95dceec",
+  "previous_candidate_report": "cloud-instrumentation-diagnostic-continuation.json",
+  "qaRetention": true,
+  "production_equivalence": false,
+  "artifacts": {
+    "application": {
+      "name": "app-release-qa-retained.apk",
+      "sha256": "d413052c878f05712d70a577770d4212b6b8c18beb0bbd055484bb68f66165a9"
+    },
+    "instrumentation": {
+      "name": "app-release-qa-retained-androidTest.apk",
+      "sha256": "b7802c0616233897bce02934d915aa3f804b454ba95b2fd589be5826aa45120a"
+    }
+  },
+  "static_linkage": {
+    "status": "PASS_WITH_DOCUMENTED_EXCLUSIONS",
+    "documented_exclusion_count": 13,
+    "unexpected_diagnostics": 0,
+    "accepted_diagnostics": [
+      "Missing class java.beans.BeanInfo (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.IntrospectionException (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.Introspector (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.PropertyDescriptor (referenced from: org.hamcrest.Condition$Step org.hamcrest.beans.HasPropertyWithValue.WITH_READ_METHOD and 13 other contexts)",
+      "Missing class javax.lang.model.element.Modifier (referenced from: javax.lang.model.element.Modifier[] com.google.errorprone.annotations.IncompatibleModifiers.value() and 1 other context)",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle))",
+      "Missing method java.beans.BeanInfo java.beans.Introspector.getBeanInfo(java.lang.Class, java.lang.Class) (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.beans.PropertyDescriptor[] java.beans.BeanInfo.getPropertyDescriptors() (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getDisplayName() (referenced from: void org.hamcrest.beans.SamePropertyValuesAs$PropertyMatcher.<init>(java.beans.PropertyDescriptor, java.lang.Object) and 1 other context)",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getName() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)",
+      "Missing method java.lang.reflect.Method java.beans.PropertyDescriptor.getReadMethod() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)"
+    ],
+    "platform_qualification_limit": "Compile SDK36 public APIs plus actual API35 hidden Instrumentation declarations; not API35 runtime availability or device-safety proof.",
+    "retained_types": 1079,
+    "receipt_name": "linkage.json",
+    "receipt_sha256": "6c7be6fd5e5f9af03a24e2fc36cfaed25f4619da5d6fc8385abc2732f737f9b6"
+  },
+  "provenance": {
+    "r8_sha256": "1448d5476096c1c4e3bf05b8372948ac7c00d76dc38b4a4eb744b360a888b65c",
+    "checker_sha256": "89427e00b5b29947682d99e21eb5d52988ce22081a14dbd0fdca9c72b7cb4207",
+    "generation_manifest_sha256": "c6a1e3872c281ef006826199d005a2fd00f2bf993549150aeaa76dcd21726c88",
+    "rules_sha256": "16896b9083a2127e3f7965b7c695c5c9a25b5fe529d190b6236df1ede8935ecc"
+  },
+  "metadata_normalization": {
+    "class_changes": [
+      {
+        "after_hex": "0000",
+        "after_sha256": "646dcf73069cdb7bff5b379d32b88ad2fcf9b9fe1c2763a1b17d5f90d4b30fdc",
+        "before_hex": "000c",
+        "before_sha256": "cadaf2750969b978d060109bc20932b545a91dd54d2a3f7c533ea23d71a0ce45",
+        "class": "androidx/test/internal/platform/util/TestOutputEmitter$1.class",
+        "descriptor": "()Landroidx/test/internal/platform/util/TestOutputHandler;",
+        "method": "lambda$static$0",
+        "offset": 1243,
+        "owner": "androidx/test/internal/platform/util/TestOutputEmitter"
+      },
+      {
+        "after_hex": "0000",
+        "after_sha256": "ea0300c4f3e6f17c289cb6d225ad4f48083688b3e707f1a1f1a9c45325bf0f4b",
+        "before_hex": "000c",
+        "before_sha256": "4730062f582788f36b20ace3cfdf5e9bdaefe2ff4fb0ad0d6d200bb526d96f09",
+        "class": "androidx/test/internal/util/Checks$ThreadCheckerSingleton$1.class",
+        "descriptor": "()Landroidx/test/internal/platform/ThreadChecker;",
+        "method": "lambda$static$0",
+        "offset": 1392,
+        "owner": "androidx/test/internal/util/Checks$ThreadCheckerSingleton"
+      }
+    ],
+    "excluded_entries": [
+      {
+        "entry": "META-INF/versions/9/module-info.class",
+        "input": "error_prone_annotations-2.26.1.jar",
+        "reason": "Java 9 JPMS descriptor, not Android program bytecode",
+        "sha256": "0663995c153e52574f5a21a69b6c09eed272f87697d1e38b2eb33ccf9fdb778a"
+      },
+      {
+        "entry": "META-INF/versions/9/module-info.class",
+        "input": "kotlinx-coroutines-test-jvm-1.10.2.jar",
+        "reason": "Java 9 JPMS descriptor, not Android program bytecode",
+        "sha256": "65b85ec38c2e2305def190bda546844786788a7e136eada543cbde7c09225946"
+      },
+      {
+        "entry": "META-INF/versions/9/module-info.class",
+        "input": "kotlinx-serialization-json-jvm-1.7.3.jar",
+        "reason": "Java 9 JPMS descriptor, not Android program bytecode",
+        "sha256": "2137a0c3e23481a9e72c626af1d96054a735087ef13b57dd94bed6967ed8066b"
+      }
+    ],
+    "output": "classes.jar",
+    "output_sha256": "df97dd9c2549afa58e09ce35850e64494118d5b341222427481137326c92926c",
+    "receipt": "metadata.json",
+    "receipt_sha256": "1a5d8511a9dcb27c22991cb5a7b5da8649b3dc72f4e29821dbd855567a3d4dea"
+  },
+  "validation": {
+    "full_actual_gradle_jvm_passed": 702,
+    "focused_actual_gradle_jvm_passed": 12,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "android_test_compile": "PASS",
+    "lint_error_fatal": 0,
+    "qa_export": "PASS",
+    "coherent_qa_assembly": "PASS, 2m20s",
+    "package_validation": "PASS",
+    "readiness_parser_tests": 9,
+    "experimental_batch_parser_tests": 6
+  },
+  "runtime": {
+    "status": "BLOCKED_INFRASTRUCTURE",
+    "apk_installs": 0,
+    "tests_executed": 0,
+    "presentation_recovery_device_tests": {
+      "planned": 5,
+      "executed": 0,
+      "status": "NOT_RUN"
+    },
+    "diagnostic_continuation_helper_tests": {
+      "planned": 12,
+      "executed": 0,
+      "status": "NOT_RUN"
+    },
+    "full_session": {
+      "executed": 0,
+      "status": "NOT_RUN",
+      "planned_argument": "rfDiagnosticContinuation=true",
+      "default_deadline_seconds": 180,
+      "diagnostic_extra_seconds": 600,
+      "original_deadline_remains_final_failure": true
+    },
+    "environment": {
+      "image": "Official Android API30 AOSP/default x86_64 rev11",
+      "emulator_version": "37.2.12",
+      "virtual_cpus": 1,
+      "memory_mib": 2048,
+      "acceleration": "off (TCG)",
+      "graphics": "swiftshader",
+      "snapshot": "disabled",
+      "host_concurrent_gradle": false
+    },
+    "readiness": {
+      "status": "NOT_STABLE",
+      "exit_code": 124,
+      "overall_budget_seconds": 600,
+      "last_observation_seconds": 600.006,
+      "required_stable_window_seconds": 90,
+      "maximum_probe_gap_seconds": 30,
+      "boot_completed_first_observed_seconds": 420.96,
+      "observed_nonempty_system_server_pids": [
+        "550"
+      ],
+      "observed_nonempty_networkstack_pids": [
+        "1044"
+      ],
+      "interpretation": "Sequential probes timed out or failed, yielding null fields; null is not evidence of a process restart. Probe gaps over30s correctly reset stability. Boot completion alone did not satisfy readiness.",
+      "critical_framework_events_in_readiness_records": 0,
+      "initial_log_unavailable_records": 7,
+      "initial_log_unavailable_elapsed_seconds": [
+        0.013,
+        5.027,
+        10.047,
+        15.062,
+        20.076,
+        25.091,
+        30.107
+      ]
+    },
+    "single_batch_diagnostic": {
+      "status": "host_snapshot_timeout",
+      "complete": false,
+      "elapsed_seconds": 25.005193877994316,
+      "completed_fields": {
+        "boot": {
+          "status": "ok",
+          "exit_code": 0,
+          "duration_seconds": 2.9599999999999227,
+          "output": "1",
+          "value": "1"
+        }
+      },
+      "pending": "system_before",
+      "interpretation": "One authorized diagnostic snapshot only, not another readiness attempt. Boot1 completed in2.96 guest seconds, then system PID probe lacked an end frame before host25s deadline. No usable responsiveness or restart was established. Batching alone did not fix the observed problem. Guest timeout requests cannot prove timely scheduling or cleanup."
+    },
+    "shutdown": {
+      "status": "CLOSED",
+      "utc": "2026-10-21T11:35:37Z",
+      "supervisor_exit_code": 0,
+      "qemu_shutdown_signal": "SIGUSR1 reported during requested console shutdown",
+      "further_boot_retry": false
+    }
+  },
+  "experimental_reproduction": {
+    "tool": "tools/android_runtime_batch_probe.py",
+    "role": "Experimental single read-only diagnostic, NOT readiness gate or installation permission",
+    "executed_draft_sha256": "52e9bf899396f701b4ebc34ce0ca4dff955f308471b34805c434791c43628630",
+    "published_tool_sha256": "0e86267694301036df3718243e23fb6f138504221a66ffe0f4eb163134bc86e7",
+    "difference": "Only module docstring clarifies experimental status and guest-timeout limitation; executable logic unchanged. Full batched-readiness integration draft was NOT promoted."
+  },
+  "evidence": {
+    "batch-snapshot-timing.txt": {
+      "sha256": "b05a69cc0f13142765f50d5ed51cdcb194f10aca86ca5faec361e1de50f419ce",
+      "bytes": 65
+    },
+    "batch-snapshot.json": {
+      "sha256": "2748c7eea13a6dca88a1027b7ee3e410ad2ce167869bdf1b277d00d56b2fbf0c",
+      "bytes": 577
+    },
+    "batch-snapshot.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "closed-evidence.sha256": {
+      "sha256": "ffe878513db2d61e604d94ad9c8f0843ec7c30fb4f46938859b78aa28af7a135",
+      "bytes": 850
+    },
+    "final-framework-logcat.txt": {
+      "sha256": "5a943aa02df27e06e8bc3f36084b89c076532fd911ca7058da3980dfe4bb1ea9",
+      "bytes": 18589
+    },
+    "final-host-resources.txt": {
+      "sha256": "fc9b8e8a30f48c9c31338bfced9d305b3f9a30e44732e0760e0a3fa562b643dd",
+      "bytes": 6834
+    },
+    "framework-logcat.txt": {
+      "sha256": "cd6f694d5d871bf0691cf4be582a60e456d1f6904f24877c318037350b7d8d13",
+      "bytes": 48073
+    },
+    "guest-lifecycle.txt": {
+      "sha256": "08db3da7fcc5fbf18717044361f09858ed6c8aa6b6c0157e3a1720808b89a3a1",
+      "bytes": 298
+    },
+    "host-resource-snapshot.txt": {
+      "sha256": "68229c2c4bce92cce54df08ba421606e3825fa73e117aa2de852eaa4e7deb672",
+      "bytes": 6834
+    },
+    "kernel-console.log": {
+      "sha256": "0686cb9f3de59227abf7c05d16ea5af98d4a05dc25441720610fae6199e36a32",
+      "bytes": 438337
+    },
+    "live-logcat.txt": {
+      "sha256": "b1d9720d2b89db5744bf032113c64d78909b651a25d74d1e093a3fc550fe6ab8",
+      "bytes": 2074828
+    },
+    "package-validation.json": {
+      "sha256": "865dd6757281cf321900186754750e48a6147d09a05e0ef702ca3bffa5198307",
+      "bytes": 3210
+    },
+    "package-validation.log": {
+      "sha256": "865dd6757281cf321900186754750e48a6147d09a05e0ef702ca3bffa5198307",
+      "bytes": 3210
+    },
+    "readiness-install.log": {
+      "sha256": "fb75b2507bdc85aa32df3892cf6200cc5e1b6aead90ee4c029b53b4fa0934fa6",
+      "bytes": 29
+    },
+    "readiness.exit": {
+      "sha256": "ca2ebdf97d7469496b1f4b78958f9dc8447efdcb623953fee7b6996b762f6fff",
+      "bytes": 4
+    },
+    "readiness.jsonl": {
+      "sha256": "ac175c029ff476ab126c49ef2424db6e187e8f2cac4b4c8b57962ea942c4ab04",
+      "bytes": 7853
+    },
+    "readiness.sha256": {
+      "sha256": "d3b4418573886e2aeda808750d7e441c18e2e78b128bfe3c020569cafbc465d8",
+      "bytes": 117
+    },
+    "stop-requested.txt": {
+      "sha256": "56744d0d89e0e7cdfb2e6a0530ebac0bc018553038f718d7cb11ae8582518267",
+      "bytes": 29
+    },
+    "toybox-timeout-help.txt": {
+      "sha256": "06e850c62890e9c59b1a8f36306d0592b657bb0b89e19820cc1c4b4288c963c5",
+      "bytes": 560
+    }
+  },
+  "limits": [
+    "No Android test executed on this source/pair; prior candidate passes are not transferred.",
+    "No proof CPU contention, memory exhaustion or application defect caused the infrastructure failure.",
+    "No watchdog, ANR, security or application timeout was relaxed.",
+    "Default180s full-session and functional-completion gates remain open; physical quality and production signing remain unqualified."
+  ]
+}
