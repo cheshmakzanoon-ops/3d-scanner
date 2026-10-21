@@ -282,6 +282,9 @@ class CaptureSessionController(
         ),
     )
     private var pending: PendingCapture? = null
+    // In-flight capture/publication retains ownership while availability may change independently.
+    private var idlePhase = mutableState.value.phase
+    private var idleMessage: String? = null
 
     init {
         require(initialCheckpoint.expectedRevision >= identity.initialRevision) {
@@ -301,9 +304,8 @@ class CaptureSessionController(
     fun markReady() = transitionIdle(phase = CaptureSessionPhase.READY, message = null)
 
     fun markPaused() = synchronized(lock) {
-        val current = mutableState.value
-        if (current.phase in setOf(CaptureSessionPhase.READY, CaptureSessionPhase.BINDING)) {
-            mutableState.value = current.copy(phase = CaptureSessionPhase.PAUSED)
+        if (idlePhase in setOf(CaptureSessionPhase.READY, CaptureSessionPhase.BINDING)) {
+            transitionIdle(CaptureSessionPhase.PAUSED, null)
         }
     }
 
@@ -411,10 +413,10 @@ class CaptureSessionController(
             phase = if (current.phase == CaptureSessionPhase.CLOSED) {
                 CaptureSessionPhase.CLOSED
             } else {
-                CaptureSessionPhase.READY
+                idlePhase
             },
             inFlightCaptureToken = null,
-            message = message.ifBlank { "The photograph could not be saved." },
+            message = idleMessage ?: message.ifBlank { "The photograph could not be saved." },
         )
         true
     }
@@ -447,12 +449,12 @@ class CaptureSessionController(
                     phase = if (current.phase == CaptureSessionPhase.CLOSED) {
                         CaptureSessionPhase.CLOSED
                     } else {
-                        CaptureSessionPhase.READY
+                        idlePhase
                     },
                     expectedRevision = outcome.committedRevision,
                     savedCount = current.savedCount + 1,
                     inFlightCaptureToken = null,
-                    message = null,
+                    message = idleMessage,
                 )
             }
 
@@ -461,9 +463,9 @@ class CaptureSessionController(
                 val coherent = outcome.revision == active.attempt.expectedRevision
                 mutableState.value = current.copy(
                     phase = if (current.phase == CaptureSessionPhase.CLOSED) CaptureSessionPhase.CLOSED
-                        else if (coherent) CaptureSessionPhase.READY else CaptureSessionPhase.UNAVAILABLE,
+                        else if (coherent) idlePhase else CaptureSessionPhase.UNAVAILABLE,
                     requiresRecovery = !coherent, inFlightCaptureToken = null,
-                    message = if (coherent) "Photograph already listed in this project; no new photo was added."
+                    message = if (coherent) idleMessage ?: "Photograph already listed in this project; no new photo was added."
                         else "Duplicate publication revision changed. Reopen the project before capturing again.",
                 )
                 // Preserve the source: duplicate detection does not verify the existing file bytes.
@@ -484,10 +486,10 @@ class CaptureSessionController(
                     phase = if (current.phase == CaptureSessionPhase.CLOSED) {
                         CaptureSessionPhase.CLOSED
                     } else {
-                        CaptureSessionPhase.READY
+                        idlePhase
                     },
                     inFlightCaptureToken = null,
-                    message = outcome.reason,
+                    message = idleMessage ?: outcome.reason,
                 )
             }
         }
@@ -520,18 +522,20 @@ class CaptureSessionController(
             phase = if (current.phase == CaptureSessionPhase.CLOSED) {
                 CaptureSessionPhase.CLOSED
             } else {
-                CaptureSessionPhase.READY
+                idlePhase
             },
             inFlightCaptureToken = null,
-            message = message,
+            message = idleMessage ?: message,
         )
         true
     }
 
     private fun transitionIdle(phase: CaptureSessionPhase, message: String?) = synchronized(lock) {
         val current = mutableState.value
-        if (current.phase != CaptureSessionPhase.CLOSED && !current.requiresRecovery && pending == null) {
-            mutableState.value = current.copy(phase = phase, message = message)
+        if (current.phase != CaptureSessionPhase.CLOSED && !current.requiresRecovery) {
+            idlePhase = phase
+            idleMessage = message
+            if (pending == null) mutableState.value = current.copy(phase = phase, message = message)
         }
     }
 

@@ -1168,3 +1168,11 @@ See [opt-in tool](../../tools/notification_native_validation/README.md) and
 Normaloptimized QA=false test-signed sourceae756d79 APK is built and verified. Package/signature/offlinepermissions/backup/16KBZIP+16ELF checks pass; only DEXchanged from515APK, mappedservice dispatch andtransaction present. Samepackage/version/testcertificate; in-placeinstall nottested. Threeverifiedparts andinstructions acceptedinprivatechat, superseding515parts; never mixsets. See [receipt](../../reports/cloud-notification-fixed-engineering-apk.json) and [instructions](ENGINEERING_APK_AE756D79.md).
 
 Broad regressions for notification-native validation pass 1,289 Python tests and six subtests, with three optional skips.
+
+### Capture availability during pending saves
+
+Capture availability during pending work — actual production-controller/filesystem RED: 10 tests, 7 failures, 0 errors/skips (0.091 s), unchanged production. Pending lifecycle/permission/rebind availability was discarded, and later completion returned READY; a rebind error could disappear while capture remained disabled by the independent adapter guard. Reviewed correction keeps latest idle availability/message separately without changing in-flight ownership, exactly-once publication, revision/count or staging cleanup contracts; CLOSED and recovery-required states stay terminal. Focused GREEN, full JVM/HOST, AndroidTest compilation, lint and broad Python are PENDING. This is feedback/readiness correctness, not camera permission bypass, lost-original proof or device qualification. Replacement APK containing this change remains pending.
+
+Subsequent actual focused10, ordinary758 and HOST17 tests pass with zero failures/errors/skips; AndroidTest compilation and lint pass. Broad Python remains pending. See [evidence](../../reports/cloud-capture-availability-fix.json).
+
+Capture-availability broad regressions subsequently pass 1,289 Python tests and six subtests, with three optional skips.

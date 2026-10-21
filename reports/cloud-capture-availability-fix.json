@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "status": "ANDROID_AND_BROAD_REGRESSIONS_PASS",
+  "baseCommit": "bbdaf3906fd209422a2a4328b03e01bbe8d389f7",
+  "issue": "Environment availability transitions were discarded during pending capture/publication; callbacks then restored READY and cleared unavailable feedback.",
+  "uiImpact": "A camera rebind failure while committing could leave a blank preview and disabled capture without the explanatory message after completion. Lifecycle pause and permission-wait availability could also be lost.",
+  "scopeLimits": [
+    "Pure production CaptureSessionController with private filesystem fixtures, not CameraX or device execution.",
+    "Independent UI permission handling and adapter checks still gate camera access; no permission bypass is claimed.",
+    "No lost durable original or data-loss claim. Test files are staging fixtures, not imported originals."
+  ],
+  "red": {
+    "tests": 10,
+    "failures": 7,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 0.091,
+    "exitCode": 1,
+    "productionUnchanged": true,
+    "failuresObserved": [
+      {
+        "name": "availabilityDuringCaptureDoesNotDropAcceptedPublication",
+        "message": "java.lang.AssertionError: expected:<PAUSED> but was:<READY>"
+      },
+      {
+        "name": "committingRejectionRestoresLatestAvailability",
+        "message": "java.lang.AssertionError: expected:<PAUSED> but was:<READY>"
+      },
+      {
+        "name": "duplicatePublicationRetainsSourceAndLatestAvailability",
+        "message": "java.lang.AssertionError: expected:<UNAVAILABLE> but was:<READY>"
+      },
+      {
+        "name": "laterDenialWinsOverEarlierReady",
+        "message": "java.lang.AssertionError: expected:<WAITING_FOR_PERMISSION> but was:<READY>"
+      },
+      {
+        "name": "committingSuccessRestoresLatestAvailability",
+        "message": "java.lang.AssertionError: expected:<PAUSED> but was:<READY>"
+      },
+      {
+        "name": "safeAbandonRestoresLatestAvailability",
+        "message": "java.lang.AssertionError: expected:<PAUSED> but was:<READY>"
+      },
+      {
+        "name": "capturingErrorRestoresLatestAvailability",
+        "message": "java.lang.AssertionError: expected:<PAUSED> but was:<READY>"
+      }
+    ],
+    "interpretation": "Looped tests stop at their first failing case on RED; this is not proof that every restriction variant ran before failure."
+  },
+  "fix": {
+    "patchSha256": "9695a4bb8c29b746daa30c98190d794b6eb214275592d47811a4780ae57b3e65",
+    "sourceSha256": {
+      "app/src/main/java/com/realityforge/scanner/capture/session/CaptureSession.kt": "53e44923067c67c66e905bd2096db17f89dbc2047d5f9b56ab64cf0482efc861",
+      "app/src/test/java/com/realityforge/scanner/agents/a014/CaptureAvailabilityTest.kt": "8e8dfe611d165668f844d354f6f9bd022b16d66d6b27303b3611373677a70f6c"
+    },
+    "semantics": [
+      "Track latest idle availability and message under the existing controller lock while retaining in-flight phase and ownership.",
+      "Capture completion/error/rejection/coherent duplicate/safe abandonment restores latest availability, not unconditional READY.",
+      "Later explicit readiness can supersede earlier restrictions; pause preserves existing denial/unavailable priority.",
+      "Closed and recovery-required states remain terminal.",
+      "Exactly-once publication delivery/settlement, revision/count updates, accepted publisher-owned staging retention and existing rejected/failed partial cleanup policy remain unchanged."
+    ]
+  },
+  "validation": {
+    "focusedJvm": {
+      "status": "PASS",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ordinaryJvm": {
+      "status": "PASS",
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "host": {
+      "status": "PASS",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidTestCompilation": "PASS",
+    "lint": "PASS",
+    "broadPython": {
+      "status": "PASS",
+      "passed": 1289,
+      "skipped": 3,
+      "subtestsPassed": 6,
+      "seconds": 153.48,
+      "logSha256": "8ad9857eb5f5f3ac45207cc9d82e993d6c37e1fb447bcb988554459106808caf"
+    }
+  },
+  "evidenceSha256": {
+    "gradle.log": "c7180b74f10fcc4b46e8ef63385f909b27adbac8552d0cd48a81a7537aab3cbf",
+    "head.txt": "faa2c4eaafd14080f02f5943f7b97edfaaf8c46723363c4f89ea94f27510ed80",
+    "production-after.sha256": "bd4ae78944ed0ccfe1a1379cb20ed011543fe67c26b502941fd0022b7723355a",
+    "production-before.sha256": "bd4ae78944ed0ccfe1a1379cb20ed011543fe67c26b502941fd0022b7723355a",
+    "result.json": "2095c370c280ffacb97333f60feff49b7df4af855c51a0daf5369210838e1286",
+    "test.sha256": "b1cdd1d302b91320262fff4c776da405534d7bc070ff0e237097535eb50bd22a",
+    "xml/TEST-com.realityforge.scanner.agents.a014.CaptureAvailabilityTest.xml": "1d215ace39648c4004ec752fa5c17bd29f18fb631df47b348bb2cc88370a523e",
+    "xml/binary/output.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "xml/binary/output.bin.idx": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+    "xml/binary/results.bin": "4a81e22667d560284bd47000a1f8eba978ef3b657c7221128f5ec7911c5f2ebd"
+  },
+  "delivery": {
+    "replacementContainingFix": "PENDING",
+    "note": "Previously delivered APK predates this narrow capture availability correction; no blanket unsafe-app claim."
+  },
+  "greenEvidenceSha256": {
+    "counts.json": "02705305c4940a64dbf5645bc4d7e8bdc87ff49bdfbec7f49480d4aec903ac5c",
+    "focused.log": "f9a1770f10f78b5452de6dad1a6fb9ccba1da303a03317134ca5ebbf85ca0849",
+    "full.log": "0a20c93174eb8f212eca990fabb6b3f1f240bcb16a57b888afb02b22a5789894",
+    "SHA256SUMS": "aff4a22c239b2cf2a39dd50b6c3a35919e38c5206ffeca7429655b457a5ccb41"
+  }
+}
