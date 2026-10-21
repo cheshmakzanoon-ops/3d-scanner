@@ -44,8 +44,17 @@ internal fun extractGrayFeatures(
         val mask=Mat().also{resources.add(it)}
         sift=SIFT.create(settings.maxFeatures)
         observe?.invoke(NativeFeatureCallEvent.STARTED)
+        var nativeFailure:Throwable?=null
         try { sift.detectAndCompute(gray,mask,keys,desc) }
-        finally { observe?.invoke(NativeFeatureCallEvent.FINISHED) }
+        catch(failure:Throwable) { nativeFailure=failure; throw failure }
+        finally {
+            try { observe?.invoke(NativeFeatureCallEvent.FINISHED) }
+            catch(observerFailure:Throwable) {
+                val primary=nativeFailure
+                if(primary==null)throw observerFailure
+                if(observerFailure!==primary)primary.addSuppressed(observerFailure)
+            }
+        }
         checkCancelled()
         val all=keys.toArray(); val count=minOf(all.size,settings.maxFeatures)
         val xy=FloatArray(count*2); val colors=IntArray(count)

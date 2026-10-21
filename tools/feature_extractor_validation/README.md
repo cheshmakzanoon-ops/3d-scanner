@@ -2,7 +2,7 @@
 
 This bounded helper compiles the actual Android-free production
 `GrayFeatureExtraction.kt`, `FeatureFrame.kt`, and `LensGeometry.kt` from source,
-then executes eight tests against the app AAR's Java classes and a separately
+then executes ten tests against the app AAR's Java classes and a separately
 verified official OpenCV 4.12.0 Linux JNI library. It does not reuse cached app
 classes or replace SIFT. See the sibling feature matcher helper's `OPENCV_BUILD.md`
 for native capability provenance and prerequisites.
@@ -37,6 +37,11 @@ The internal core borrows its image and sampler synchronously. It assumes the
 adapter has validated metadata and performed preconversion cancellation checks;
 it does not add a new cancellation polling point. Setting cancellation in STARTED
 or FINISHED tests postkernel cancellation semantics, not a timed asynchronous
-request inside JNI. Existing observer behavior is unchanged: STARTED failure
-emits no FINISHED, and FINISHED failure can replace a native exception. Neither
-callback is best-effort.
+request inside JNI. STARTED failure emits no FINISHED. FINISHED failure after successful native
+work still propagates unchanged; when native work already failed, that primary
+exception survives and a distinct FINISHED failure is attached as suppressed.
+Neither callback is best-effort. Two fault-injection tests deliberately release
+the borrowed gray Mat synchronously in STARTED to provoke an actual SIFT
+empty-image failure; this is invalid-owner test injection, not supported caller
+behavior or concurrent memory mutation. Tests check the native exception class
+and diagnostic plus suppressed observer identity, not unobserved native identity.
