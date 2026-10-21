@@ -1132,3 +1132,11 @@ See [portable tool](../../tools/full_core_validation/README.md) and
 [sanitized portable evidence](../../reports/cloud-full-core-portable-validation.json).
 
 Broad Python for the portable package subsequently passed1,259 tests and six subtests; three optional tests skipped.
+
+### Notification command attempt fence
+
+Notification command attempt fence — actual Room/controller RED reproduced 1 test / 1 failure / 0 skips (6.359 s): a CANCEL authorized for queued attempt 0 cancelled subsequently acquired attempt 1. The reviewed fix reauthorizes identity and current action state inside the mutation transaction, retains same-attempt renewal usability and other-job presentation ownership, and signals only a captured matching native token. Focused GREEN3, ordinary JVM748, full HOST17, AndroidTest compilation and lint pass. Broad Python remains pending. Native signaling is source-reviewed, not exercised by these HOST cases; actual Service scheduling/notification delivery/device behavior is not claimed. The delivered APK from 515f1435 predates this fix; replacement is pending, without a blanket unsafe-app claim. Raw RED and exact source hashes are retained in the sanitized report.
+
+See [evidence](../../reports/cloud-notification-attempt-fence.json).
+
+Notification fix broad regressions subsequently pass1,259 Python tests and six subtests, with three optional skips.

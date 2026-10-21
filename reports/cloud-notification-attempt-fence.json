@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "status": "ANDROID_AND_BROAD_REGRESSIONS_PASS",
+  "baseCommit": "6f950537c90c389968ffd478c9db1721ecf6d261",
+  "issue": "A notification authorized for one persisted job attempt could mutate a newer attempt because service dispatch passed only JobId after authorization.",
+  "reproduction": {
+    "scope": "Actual Room and ReconstructionExecutionController calls matching the service dispatch sequence, not execution of Android Service scheduling or Intent decoding.",
+    "sequence": [
+      "Enqueue attempt 0 and authorize its CANCEL notification.",
+      "Acquire the actual Room job lease, creating attempt 1.",
+      "Invoke the original controller.cancel(JobId) after authorization.",
+      "Require replacement attempt to remain RUNNING with its original lease."
+    ],
+    "actual": "CANCELLED instead of RUNNING",
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 6.359,
+    "productionInventoryUnchanged": true,
+    "testInventoryUnchanged": true
+  },
+  "fix": {
+    "patchSha256": "67f374bff5f36765fecf71d2c722015d8221a9d96e88f386d6394cc44914adc6",
+    "semantics": [
+      "Reauthorize the original notification identity and current allowed state in the same Room transaction as the mutation.",
+      "Use the transaction-current attempt and stateVersion with existing commandIfCurrent; harmless same-attempt progress or lease renewal does not invalidate identity.",
+      "For pause/cancel, capture only an exact matching operation token with equal token reads around job/attempt reads; never cancel the generic current worker.",
+      "Preserve existing pause/cancel presentation ownership when another job runs.",
+      "Service schedules resume drain only after accepted dispatch; controller adds no duplicate foreground-service start."
+    ],
+    "sourceSha256": {
+      "app/src/main/java/com/realityforge/scanner/work/execution/ReconstructionExecutionController.kt": "2c43595aa37fdf6bbacb44a912209e5f0e669999a0ebafcad81eb26cecf86c62",
+      "app/src/main/java/com/realityforge/scanner/work/execution/ReconstructionService.kt": "4772472a5a738348f416d0e2c51d69462aa83731d194105e31f01c072b1d6796",
+      "app/src/test/java/com/realityforge/scanner/hostintegration/NotificationCommandRaceHostTest.kt": "b8eb11076391c6556362a2bef444531830762896401dda5021446286ffc455fd"
+    }
+  },
+  "greenCases": [
+    "Reject an old authorized notification after a new attempt acquires the lease.",
+    "Accept current pause/resume/cancel after same-attempt lease renewal.",
+    "Cancel another queued job without replacing running-job presentation or lease; reflection sets presentation ownership only, not a native token."
+  ],
+  "gates": {
+    "focusedHost3": {
+      "status": "PASS",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ordinaryJvm": {
+      "status": "PASS",
+      "tests": 748,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "fullHost": {
+      "status": "PASS",
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidTestCompilation": "PASS",
+    "lint": "PASS",
+    "broadPython": {
+      "status": "PASS",
+      "passed": 1259,
+      "skipped": 3,
+      "subtestsPassed": 6,
+      "seconds": 147.36,
+      "logSha256": "1907f82e3519ec676639b8df7cfbe975b5294a7270d21bf34fb84e8f42bbab00"
+    }
+  },
+  "limits": [
+    "Native exact-token signaling is source-reviewed only; these HOST tests do not launch a JNI kernel.",
+    "Actual Android Service scheduling, PendingIntent delivery, device notification interaction and physical-device behavior remain untested by this regression.",
+    "No generic job-store semantics or unrelated UI command path is changed."
+  ],
+  "delivery": {
+    "existingApkSource": "515f1435a497dd1734c51ef46f26e8f4ef136950",
+    "containsNotificationRaceFix": false,
+    "replacement": "PENDING",
+    "interpretation": "The delivered APK predates this narrow race fix; this is not a blanket unsafe-app claim."
+  },
+  "evidenceSha256": {
+    "red/exit.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "red/test-post.txt": "5127bd5ac6f8374bb8e13525d9ef08a8849bd84fc3c053306efa4dccfde2a5dc",
+    "red/production-post.txt": "f6c9fef2a0f71a273d16fa83b1fe25c12221ac8e8e27e267d3e24b731b5b11ed",
+    "red/TEST-com.realityforge.scanner.hostintegration.NotificationCommandRaceHostTest.xml": "b51091c227d6c4fbe459397aeb356f98d8c158b7a403c98024145dd1dccb5613",
+    "red/gradle.log": "705d22e01f6ca0ca719b9bda3892e88c9dd83b32c201aad33fa26b4de264c7e4",
+    "red/test-pre.txt": "5127bd5ac6f8374bb8e13525d9ef08a8849bd84fc3c053306efa4dccfde2a5dc",
+    "red/production-pre.txt": "f6c9fef2a0f71a273d16fa83b1fe25c12221ac8e8e27e267d3e24b731b5b11ed"
+  },
+  "redTestSha256": "9761cdc5f3e96f289a1d36225b99c29afa98a8b5169da4896a387ebe4b119059",
+  "greenEvidenceSha256": {
+    "counts.json": "39513f3c5616f5e92b549501e90534c6309aecbdf75443b6c00751e1b77d3183",
+    "focused.log": "1748157f760633c8aab398b15e2e294a577e590bfc3ee50256c3b7203f798e30",
+    "full.log": "354efc94e15d6361dffbb3c5f3ab61d73414986daeedd812636e1c7574cc1d8f",
+    "SHA256SUMS": "448e47057960f52a0e484d7923b73e5ccb36d19cef5f7f3863be317ff01c5580"
+  }
+}

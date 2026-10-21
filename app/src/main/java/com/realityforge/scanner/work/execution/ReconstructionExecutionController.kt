@@ -11,6 +11,7 @@ import com.realityforge.scanner.data.operations.*
 import com.realityforge.scanner.data.publication.*
 import com.realityforge.scanner.data.storagebudget.*
 import com.realityforge.scanner.processing.resources.*
+import com.realityforge.scanner.processing.notifications.toNotification
 import com.realityforge.scanner.engine.DenseWorkload
 import com.realityforge.scanner.engine.LensCalibration
 import com.realityforge.scanner.engine.NativeCore
@@ -425,6 +426,45 @@ class ReconstructionExecutionController(
                 return false
             }
         }
+        return true
+    }
+
+    /** Notification identity is checked in the same transaction that mutates the job. */
+    suspend fun dispatchNotificationAction(action: com.realityforge.scanner.processing.notifications.JobNotificationAction): Boolean {
+        awaitRecovery()
+        val id = JobId(action.identity.jobId)
+        var capturedToken = 0L
+        val result = database.withTransaction {
+            val current = jobs.snapshot(id) ?: return@withTransaction null
+            if (com.realityforge.scanner.processing.notifications.JobNotificationActionAuthorizer()
+                    .authorize(action, current.toNotification()) !is
+                    com.realityforge.scanner.processing.notifications.JobActionAuthorization.Allowed)
+                return@withTransaction null
+            val command = when (action.type) {
+                com.realityforge.scanner.processing.notifications.JobNotificationActionType.PAUSE -> FencedJobCommand.PAUSE
+                com.realityforge.scanner.processing.notifications.JobNotificationActionType.CANCEL -> FencedJobCommand.CANCEL
+                com.realityforge.scanner.processing.notifications.JobNotificationActionType.RESUME ->
+                    if (current.state == ReconstructionJobState.FAILED) FencedJobCommand.RETRY else FencedJobCommand.RESUME
+                com.realityforge.scanner.processing.notifications.JobNotificationActionType.OPEN -> return@withTransaction null
+            }
+            if (command == FencedJobCommand.PAUSE || command == FencedJobCommand.CANCEL) {
+                // Check the operation token on both sides of its job/attempt ownership reads.
+                // A later worker must never be signalled after this transaction suspends.
+                val candidate = nativeToken.get()
+                if (candidate > 0 && runningJobId.get() == id && runningAttempt.get() == current.attempt &&
+                    nativeToken.get() == candidate) capturedToken = candidate
+            }
+            jobs.commandIfCurrent(id, current.input.projectId, current.input.projectRevision,
+                current.attempt, current.stateVersion, command, System.currentTimeMillis())
+        } ?: return false
+        if (action.type == com.realityforge.scanner.processing.notifications.JobNotificationActionType.RESUME ||
+            currentJobId() == id || runningJobId.get() == null) mutableCurrent.value = result.snapshot
+        if (capturedToken > 0) {
+            try { NativeCore.cancelReconstruction(capturedToken) }
+            catch (_: IllegalArgumentException) { /* Exact operation already finished. */ }
+            catch (_: IllegalStateException) { /* Exact operation already finished. */ }
+        }
+        // The already-foreground service owns drain/start scheduling for successful RESUME.
         return true
     }
 
