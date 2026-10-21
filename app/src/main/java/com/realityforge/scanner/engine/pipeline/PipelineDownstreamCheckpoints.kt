@@ -32,15 +32,8 @@ object PipelineDownstreamCheckpoints {
             val depthIdentity = depth.optString("depthCheckpointIdentity")
             if (depthIdentity.matches(Regex("[0-9a-f]{64}"))) {
                 val directory = File(File(root, ".depth-checkpoints-m18"), depthIdentity)
-                if (Files.isDirectory(directory.toPath(), LinkOption.NOFOLLOW_LINKS)) {
-                    val files = Files.newDirectoryStream(directory.toPath()).use { it.asSequence().take(33).toList() }
-                    require(files.size <= 32) { "Depth checkpoint inventory exceeds its supported bound." }
-                    for (path in files.sortedBy { it.fileName.toString() }) {
-                        if (path.fileName.toString().matches(Regex("ref-[0-9]+\\.bin")) &&
-                            Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS))
-                            depthFiles += PipelineStageFile(path.toFile(), RepresentationKind.DEPTH_MAP_SET)
-                    }
-                }
+                for (file in completeNativeDepthReferences(directory))
+                    depthFiles += PipelineStageFile(file, RepresentationKind.DEPTH_MAP_SET)
             }
         }
         session.record(ArtifactStage.DENSE_DEPTH, depthFiles, "reciprocal-depth-and-strict-preview-v2", denseReady)

@@ -1053,3 +1053,23 @@ A repeatable opt-in gate now executes real original import/inspection/native qua
 The portable two-photo run passes one test in7.708seconds with524points and expected verified-anchor fallback (global refinement requires3views). A separate strict three-photo experiment passes in8.287seconds with904points, all3cameras and global typed BA. Its incremental receipt starts with3cameras and adds0; it is not added-camera-frontier proof and is not silently included in the packaged two-photo gate. Earlier engine-ID and state-enum fixture failures remain recorded. All runs restore normal compilation and preserve unchanged source/runtime identities.
 
 Mocked helper guards28 and broad Python1,198 plus six subtests pass (three optional checks skipped in that run). Production source remains unchanged. Dense/mesh/texture, controller publication/admission and physical-device qualification remain open. See [tool](../../tools/sparse_prefix_validation/README.md) and [evidence](../../reports/cloud-sparse-prefix-integration.json).
+
+### Native depth-reference inventory correction (18:03 UTC)
+
+An actual three-photo full-core HOST attempt failed before return because the
+downstream recorder capped all checkpoint-directory entries at32, including valid
+native tiles. The fix probes only the eight canonical complete reference paths
+(ref-0.bin through ref-7.bin), matching the native reference bound. Tiles and
+partials are never accepted as complete maps; zero optional complete maps remains
+valid. Existing symlink/owned-path checks and native binary validation are unchanged.
+
+The new real-session regression fails on old production code. Fixed focused JVM7,
+ordinary JVM738, HOST14, AndroidTest compilation and lint pass. Broad Python is
+**pending**; the unchanged full-core retry after this fix is **NOT_RUN**. Neither
+this regression gate nor the failed baseline establishes successful dense/mesh/
+texture return, controller publication or physical-device quality.
+
+The delivered c11234b5 engineering APK still contains the old inventory bug; its
+replacement is pending. See [sanitized evidence](../../reports/cloud-depth-reference-inventory-fix.json).
+
+Broad Python validation for this fix subsequently passed 1,200 tests and six subtests; three optional checks were skipped. The unchanged full-core retry and replacement APK remain pending.
