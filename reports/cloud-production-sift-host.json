@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "base_commit": "96dfe721cfb051572f1e6c587f7ac0e2ddd87acf",
+  "recorded_utc": "2026-10-21T15:03:55.525466+00:00",
+  "host_native_evidence": {
+    "additionalSiftLinkageNativeDeclarations": 37,
+    "cachedAppClassesUsed": false,
+    "claimsExcluded": [
+      "Android decoding/Bitmap/color conversion/EXIF",
+      "Android adapter compilation",
+      "full reconstruction pipeline",
+      "captured photographs",
+      "physical quality/resource qualification"
+    ],
+    "classification": "SHARED_PRODUCTION_SIFT_AND_MATCHER_HOST_JNI_ONLY",
+    "executionStatus": "ALL_BOUNDED_PROCESSES_EXITED_SUCCESSFULLY",
+    "freshCompiledSources": true,
+    "generatedOpenCvJarOnRuntimeClasspath": false,
+    "productionAndroidAdapterCompiled": false,
+    "runs": {
+      "productionMatcher": {
+        "aarClassesSha256": "60b7be2b59393bc1689b840d7b60fd75b811bb06477bdd03abee6fbc17afa5cf",
+        "aarSha256": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+        "actualTests": 8,
+        "baseCapabilityReceiptSha256": "d139a4a943842364285e34977182a50a07b167397ee14fdd5ef8eccc98a1d796",
+        "compileReceiptSha256": "a7c2b79f9f2ef446a39545b8e6176b6416257f3d95aa0854f7da31142b2d3312",
+        "compiledOutputs": 28,
+        "failures": 0,
+        "helperSha256": "7682e7b66308eeaf7e3f417fbed5fe2411384b110d280fb7d32a1d36984fb554",
+        "limits": {
+          "heap": "256m",
+          "opencvThreads": 2,
+          "processors": 2,
+          "seconds": 90
+        },
+        "nativeSha256": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+        "runLogSha256": "ee385b0c159303e7538a6b44f5b19333f66a23fc4d1c9c22b49d8ee9fc8cad07",
+        "runReceiptSha256": "fc288ade065752f6957ba857052c9dc2e19c7a3ff67965d70fb293b91d7dc2af",
+        "sourceSha256": {
+          "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": "d3a41776840c5fcb69ffb82807b736dbff88e84c1be20f053e1e10f3a7fabc86",
+          "app/src/main/java/com/realityforge/scanner/engine/NativeCore.kt": "7a084f9c362002b0fc31d38c148124e9d3d661f37b637926aba077fba01842ba",
+          "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt": "9b8d1c7fd3c4cff852c1c42ab84a35aa334bbd9376431fd8d4eb47948fb8f1b4",
+          "app/src/main/java/com/realityforge/scanner/engine/matching/FeatureMatcher.kt": "91a4241c7e3d6d01a905aaac07a19c6128632eb98d17fc10de2a0c1f98e2fde8",
+          "app/src/main/java/com/realityforge/scanner/engine/matching/PairCandidate.kt": "1652324c649a2b55d5be478f10c835b69fb56d1bb0e05780739f5990a91877c7",
+          "app/src/main/java/com/realityforge/scanner/engine/matching/PairWorkTiming.kt": "9da42868555be179a9825be3e1886db89a4bd6c4cf26a0bd8275ccb2ec21a274",
+          "app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt": "a641a4191bd25c1af6784590d99ca2bd313b82bb8cc20ac1e71f09ed61e513ec",
+          "tools/feature_matcher_validation/HostRunner.kt": "fee322baf052623d75bb256d913f7634dc915252fa1afa3505296ef049f9e89e",
+          "tools/feature_matcher_validation/ProductionMatcherHostTest.kt": "dbce58660297111e2613f542a58d8e498180a69d1a37feeca7cc80ac397f7b22"
+        }
+      },
+      "productionSiftCore": {
+        "aarClassesSha256": "60b7be2b59393bc1689b840d7b60fd75b811bb06477bdd03abee6fbc17afa5cf",
+        "aarSha256": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+        "actualTests": 8,
+        "baseCapabilityReceiptSha256": "d139a4a943842364285e34977182a50a07b167397ee14fdd5ef8eccc98a1d796",
+        "compileReceiptSha256": "b59bcf1cb32648decffac999d11ac14dd87996859187bbc43e7b252714d75216",
+        "compiledOutputs": 13,
+        "failures": 0,
+        "helperSha256": "cc887ce0c2aac6262714b500d8c47d2bd84b0bcfafa2638a5154f830058c77d3",
+        "limits": {
+          "heap": "256m",
+          "opencvThreads": 2,
+          "processors": 2,
+          "seconds": 90
+        },
+        "nativeSha256": "e573a54e917ca142706d37537058009000c0df9157bc46cb66fbfec5a522d2d1",
+        "runLogSha256": "4117e640584be90ef9f86b4461110216dd7f7f46c14ab0674608b9e752713fa1",
+        "runReceiptSha256": "4893addeaf842c8ed520efc0f106e09fc8f91e15495b27fbeaad5e8cf9c1aabe",
+        "siftLinkageReceiptSha256": "a89725bded1aaa1ef42ec3a8eb1e3d6d891c361477d10441f008427db89bb431",
+        "sourceSha256": {
+          "app/src/main/java/com/realityforge/scanner/engine/LensGeometry.kt": "d3a41776840c5fcb69ffb82807b736dbff88e84c1be20f053e1e10f3a7fabc86",
+          "app/src/main/java/com/realityforge/scanner/engine/features/FeatureFrame.kt": "9b8d1c7fd3c4cff852c1c42ab84a35aa334bbd9376431fd8d4eb47948fb8f1b4",
+          "app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt": "bc5cdc099b95426b7b9af2bc17a2011940913a5c990f288a5adb35c59e496a9b",
+          "tools/feature_extractor_validation/HostRunner.kt": "4beffaf76a6b5fdb62086e0f6e30b697cc5761f2e2aa4690d0b8a1e2896fac76",
+          "tools/feature_extractor_validation/ProductionExtractorHostTest.kt": "0758e81e1f7ac0f1637744cecc4171537f02f38e4bad7fc9a3a83d5d37d6ebee"
+        }
+      }
+    },
+    "schema": 1,
+    "sourceFiles": {
+      "app/src/main/java/com/realityforge/scanner/engine/features/FeatureExtractor.kt": "d6e6f22e53efc3c258bccae59d5a0200b23bcc44349586f7fd0064d25b683cdb",
+      "app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt": "bc5cdc099b95426b7b9af2bc17a2011940913a5c990f288a5adb35c59e496a9b",
+      "tests/test_feature_extractor_linkage_helper.py": "c7b2b44fd36bc0e31402859232df093112237dc230748cd61b47694fbfebba19",
+      "tests/test_feature_extractor_validation_helper.py": "fe155942d4799b2e0e1380484f60055a2fd59ba66d73b76434dd632975bdc4c5",
+      "tools/feature_extractor_validation/HostRunner.kt": "4beffaf76a6b5fdb62086e0f6e30b697cc5761f2e2aa4690d0b8a1e2896fac76",
+      "tools/feature_extractor_validation/ProductionExtractorHostTest.kt": "0758e81e1f7ac0f1637744cecc4171537f02f38e4bad7fc9a3a83d5d37d6ebee",
+      "tools/feature_extractor_validation/README.md": "026c63e7b7d1b3e6b5cf9719eac6ffaee9c6f6d4930792fdb21a453fed170054",
+      "tools/feature_extractor_validation/validate.py": "cc887ce0c2aac6262714b500d8c47d2bd84b0bcfafa2638a5154f830058c77d3",
+      "tools/feature_extractor_validation/verify_linkage.py": "0763c8c789f1f2e9d00d00ba43e3fb408f545f19f4f16a11d6f9f57616f61fc8"
+    },
+    "sourcePatchSha256": "33861883e3ee12bf5471ea277f2a5cef09467fff29f43596ffd47f97cb7760ba",
+    "syntheticInputs": true
+  },
+  "subsequent_android_build_validation": {
+    "ordinary_jvm_passed": 722,
+    "host_room_controller_passed": 10,
+    "android_adapter_compilation": "PASS",
+    "android_test_compilation": "PASS",
+    "lint": "PASS",
+    "gradle_seconds": 209
+  },
+  "regression": {
+    "python_broad_passed": 1119,
+    "python_broad_failed": 1,
+    "security_module_retry": "...........................                                              [100%]\n27 passed in 10.16s",
+    "aggregate_all_tests_passed_after_retry": true,
+    "python_subtests": 6,
+    "python_optional_skipped": 3,
+    "python_seconds": 158.36,
+    "optional_executed_passed": 3,
+    "optional_seconds": 20.65,
+    "new_python_guard_tests": 22
+  },
+  "log_sha256": {
+    "android-sift-seam-gates.log": "21323970cf6ca8f5ebefe21dfbaee212a86488a277a307ff7587349a6358f6f6",
+    "scanner-sift-seam-full-python.log": "022357b51b1039ad7031adda7a309113d1a31f98938b4e00d93cc25ae0184a1a",
+    "scanner-sift-seam-optional.log": "7f5498092de6bb8b9779dc506c4a7488412607bb9b393890bdb3d150a17c50e6",
+    "scanner-sift-seam-security-retry.log": "1987d4608829bf4720917f3afbcbcc7cab4eb7d0e5f85c375ef6ebe21dd6e1c3"
+  },
+  "regression_note": "One security dependency-audit check returned incomplete/non-JSON output and was correctly NOT_RUN. Whole security module passed retry; no cause such as network failure inferred without evidence.",
+  "semantics": [
+    "Public synchronized API/settings qualified names/cache identity unchanged",
+    "Same SIFT parameters, output order, pixel truncation/clamp, descriptor clone transfer and cancellation callback cadence",
+    "Gray Mat borrowed; adapter owns RGBA/gray/bitmap, bitmap lives until all sampling completes",
+    "Internal gray type/dimension admission is guaranteed by Android adapter; lower dimension1 retains late tiny-image FeatureFrame validation",
+    "Working keys/descriptor/mask allocations move after conversion; allocation failure ordering can differ",
+    "Existing observer masking semantics deliberately preserved here; separate regression/fix remains pending"
+  ],
+  "limits": [
+    "HOST synthetic Mat evidence, not Android decoder/EXIF/color correctness",
+    "Adapter compiles but Android runtime/full scan-to-export remains unqualified",
+    "No physical scan quality, resource/performance guarantee or in-flight cancellation claim",
+    "Delivered APK sourcea1806643 predates this refactor"
+  ]
+}
