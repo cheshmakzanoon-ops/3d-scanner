@@ -16,6 +16,15 @@ import java.security.MessageDigest
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
@@ -130,13 +139,71 @@ class RoomImportHostTest {
         }
     }
 
+    @Test(timeout = 120_000) fun callerJobCancellationAfterActualCommitRetainsDurablePublication() = runBlocking {
+        withFixture { f ->
+            val committed = CompletableDeferred<Long>()
+            val allowCommitReply = CompletableDeferred<Unit>()
+            val actual = f.dao
+            val injected = object : ScanDao by actual {
+                override suspend fun addPhotoExpected(photo: ScanPhoto, expectedRevision: Long): Long {
+                    val revision = actual.addPhotoExpected(photo, expectedRevision)
+                    committed.complete(revision)
+                    // Pause only after real Room committed. Production publication owns NonCancellable.
+                    withTimeout(10_000) { allowCommitReply.await() }
+                    return revision
+                }
+            }
+            coroutineScope {
+                val worker = async(Dispatchers.Default) { f.import(dao = injected) }
+                var primary: Throwable? = null
+                try {
+                    assertEquals(1L, withTimeout(10_000) { committed.await() })
+                    assertEquals(1L, actual.project(f.project)?.revision)
+                    assertEquals(1, actual.photos(f.project).size)
+                    worker.cancel(CancellationException("Cancel actual import Job after durable commit"))
+                    assertTrue(worker.isCancelled)
+                    allowCommitReply.complete(Unit)
+                    try {
+                        withTimeout(10_000) { worker.await() }
+                        fail("The cancelled caller must not receive a successful return")
+                    } catch (cancelled: CancellationException) {
+                        assertFalse("Await timeout is not caller cancellation evidence", cancelled is TimeoutCancellationException)
+                        // Caller cancellation and the committed database outcome are distinct facts.
+                    }
+                } catch (failure: Throwable) {
+                    primary = failure
+                    throw failure
+                } finally {
+                    allowCommitReply.complete(Unit)
+                    try {
+                        withContext(NonCancellable) { withTimeout(10_000) { worker.cancelAndJoin() } }
+                    } catch (cleanup: Throwable) {
+                        if (primary != null) { if (primary !== cleanup) primary.addSuppressed(cleanup) } else throw cleanup
+                    }
+                }
+            }
+            f.reopen()
+            assertEquals(1L, f.dao.project(f.project)?.revision)
+            val row = f.dao.photos(f.project).single()
+            assertEquals(sha(f.bytes("first")), row.sha256)
+            assertArrayEquals(f.bytes("first"), f.paths.photoFile(row).readBytes())
+            f.assertClean()
+            f.recover()
+            assertEquals(listOf(row), f.dao.photos(f.project))
+            f.assertClean()
+        }
+    }
+
     @Test(timeout = 120_000) fun damagedDuplicateWithoutJournalStopsBeforeOpeningLaterSources() = runBlocking {
-        for (damage in listOf("missing", "same-size-corrupt")) withFixture { f ->
+        for (damage in listOf("missing", "missing-directory", "same-size-corrupt")) withFixture { f ->
             assertEquals(1, f.import().importedCount)
             f.assertClean()
             val row = f.dao.photos(f.project).single()
             val destination = f.paths.photoFile(row)
-            if (damage == "missing") check(destination.delete())
+            if (damage.startsWith("missing")) {
+                check(destination.delete())
+                if (damage == "missing-directory") check(destination.parentFile!!.delete())
+            }
             else destination.writeBytes(ByteArray(row.bytes.toInt()))
             f.opened.clear()
             val result = f.import(sources = listOf("first", "second"))
@@ -151,8 +218,9 @@ class RoomImportHostTest {
             f.assertClean()
             f.reopen()
             assertEquals(listOf(row), f.dao.photos(f.project))
-            if (damage == "missing") assertFalse(destination.exists())
+            if (damage.startsWith("missing")) assertFalse(destination.exists())
             else assertArrayEquals(ByteArray(row.bytes.toInt()), destination.readBytes())
+            if (damage == "missing-directory") assertFalse(destination.parentFile!!.exists())
         }
     }
 
