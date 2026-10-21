@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "base_commit": "3f6fabdd9e8937c1ab650bf9b66b109fa9c0d4c9",
+  "recorded_utc": "2026-10-21T13:10:17Z",
+  "source_sha256": {
+    "tests/test_android_test_dependency_alignment.py": "6dfdca0b59c4cac05eae50dc27db06e81be278a8f2228eb35da666595cde5741",
+    "tests/test_host_room_build_contract.py": "8f30a00a2313811ab1e2fdb4ce3116c96d88460815de9b62db238217c1015875"
+  },
+  "diagnosis": "Prior full run had1 failed/1070 passed: old assertion required espresso-idling-resource exclusively in AndroidTest, but official Robolectric4.14.1 runtime variant declares exact3.6.1 idling AAR in unit-test runtime. No production dependency leak was observed.",
+  "correction": [
+    "Allow only debug/release UnitTestRuntime memberships additionally for espresso-idling-resource3.6.1",
+    "espresso-core remains AndroidTest-only; no unit compile/APK scope broadened",
+    "Keep AndroidTest/KSP annotations2.26.1 and exact four UnitTest annotations2.28.0 separation",
+    "New assertion forbids all org.robolectric locked artifacts from APK and instrumentation configurations; framework SDK remains isolated"
+  ],
+  "validation": {
+    "focused_python_passed": 6,
+    "full_python_passed": 1072,
+    "full_python_skipped": 3,
+    "full_python_failures": 0,
+    "subtests_passed": 3,
+    "full_seconds": 140.96,
+    "optional_native_parser_vulkan_executed_passed": 3,
+    "optional_seconds": 16.4,
+    "independent_review": "Narrow correction accepted, focused6 tests independently passed"
+  },
+  "production_changes": false,
+  "limits": [
+    "Static dependency contracts are not Android runtime qualification",
+    "Optional Vulkan is software host execution, not phone GPU evidence"
+  ],
+  "log_sha256": {
+    "scanner-host-integration-full-python.log": "dfe6c1e5978f28fedee985c70e410c5c20c788f1d100b383d7935fc466360778",
+    "scanner-host-dependency-contract-full.log": "ce42266ea52b9e215cfb368b94ab1e39b57f45f2e449d0919692f68d222498bb",
+    "scanner-host-dependency-contract-optional.log": "55a897dfd038eaf33fc55441b49651be08f73e56cb0769c1cc4f05d432783159"
+  },
+  "official_module_evidence": {
+    "coordinate": "org.robolectric:robolectric:4.14.1",
+    "artifact": "robolectric-4.14.1.module",
+    "sha256": "cc223907e19a2cd8d434e0981bf2d604b849d90aea182783c5c7e1a40fc6e398",
+    "declarations": [
+      {
+        "variant": "runtimeElements",
+        "dependency": {
+          "group": "androidx.test.espresso",
+          "module": "espresso-idling-resource",
+          "version": {
+            "requires": "3.6.1"
+          },
+          "excludes": [
+            {
+              "group": "*",
+              "module": "*"
+            }
+          ],
+          "thirdPartyCompatibility": {
+            "artifactSelector": {
+              "name": "espresso-idling-resource",
+              "type": "aar",
+              "extension": "aar"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

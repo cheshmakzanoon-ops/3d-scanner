@@ -749,3 +749,19 @@ lint passes. This is actual HOST coroutine cancellation, not process death, devi
 or power-loss durability. Inner waits/joins are bounded, with method120s/task5min
 infrastructure bounds retained. No production code or release dependency changed.
 See [cancellation evidence](../../reports/cloud-host-commit-cancellation.json).
+
+### Full regression and exact test-only dependency correction (13:10 UTC)
+
+The broader run exposed one outdated assertion: Robolectric4.14.1's verified
+runtime metadata adds Espresso idling-resource3.6.1 to unit-test runtime, while the
+older check allowed AndroidTest only. The correction allows exactly those two unit
+runtime memberships for idling-resource, not espresso-core, unit compile or APK
+scopes. Annotation versions remain separately constrained, and all Robolectric
+locked entries are explicitly forbidden from APK/instrumentation configurations.
+No production dependency or behavior changed.
+
+After independent review, the full Python suite passes 1,072 tests (three optional
+skips), plus three subtests. All three optional native/JNI, parser and software
+Vulkan gates then execute and pass. These are host/static tests, not device or
+phone-GPU qualification. The prior failure and corrected evidence are retained in
+[the dependency-contract report](../../reports/cloud-test-dependency-contract.json).
