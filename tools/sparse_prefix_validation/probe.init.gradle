@@ -1,0 +1,52 @@
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+import java.security.MessageDigest
+import java.util.zip.ZipFile
+allprojects { afterEvaluate { if (path == ':app') {
+ def cfg = new JsonSlurper().parse(new File(project.property('loaderProbeConfig').toString()))
+ android.sourceSets.test.java.srcDir(cfg.sources)
+ tasks.register('sparsePipelinePrefixProbe', org.gradle.api.tasks.testing.Test) {
+  def host=tasks.getByName('hostIntegrationTest')
+  testClassesDirs=host.testClassesDirs
+  classpath=host.classpath.filter { it.absolutePath != cfg.dropOpenCvRuntime }
+  dependsOn(host.taskDependencies.getDependencies(host))
+  setExcludes([]) // Dedicated temporary task; ordinary tasks retain HOST exclusion.
+  include '**/SparsePipelinePrefixHostTest.class'
+  filter { includeTestsMatching 'com.realityforge.scanner.hostintegration.SparsePipelinePrefixHostTest'; failOnNoMatchingTests=true }
+  maxParallelForks=1; forkEvery=1; maxHeapSize='1g'; timeout=java.time.Duration.ofMinutes(5)
+  systemProperty 'robolectric.offline','true'
+  systemProperty 'robolectric.usePreinstrumentedJars','false'
+  systemProperty 'robolectric.dependency.dir',cfg.sdk
+  jvmArgs '--add-opens=java.base/java.io=ALL-UNNAMED', '-XX:ActiveProcessorCount=2'
+  systemProperty 'rf.decoder.fixtureDir',cfg.fixtureDir
+  systemProperty 'java.library.path',cfg.aliasDir
+  cfg.native.each { k,v -> systemProperty "rf.loader.${k}",v.path }
+  systemProperty 'rf.loader.aliasDir',cfg.aliasDir
+  cfg.classHashes.each { k,v -> systemProperty "rf.loader.classSha.${k}",v }
+  def cleanEnv=new LinkedHashMap(System.getenv())
+  ['JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS'].each {cleanEnv.remove(it)}
+  cleanEnv.keySet().findAll {it.startsWith('LD_')}.each {cleanEnv.remove(it)}
+  environment=cleanEnv
+  reports.junitXml.outputLocation=file("${cfg.output}/xml")
+  reports.html.outputLocation=file("${cfg.output}/html")
+  doFirst {
+   def sha={byte[] b -> MessageDigest.getInstance('SHA-256').digest(b).encodeHex().toString()}
+   cfg.native.each {k,v -> assert sha(new File(v.path).bytes)==v.sha256}
+   cfg.fixtureHashes.each {n,h -> assert sha(new File(cfg.fixtureDir,n).bytes)==h}
+   def owners=[:].withDefault {[]}; def cp=[]
+   classpath.files.each {f ->
+    cp << [path:f.absolutePath,directory:f.isDirectory(),sha256:f.isFile()?sha(f.bytes):null,files:f.isDirectory()?project.fileTree(f).files.sort {it.absolutePath}.collect {c -> [path:c.absolutePath,sha256:sha(c.bytes)]}:[]]
+    if(f.isFile() && f.name.endsWith('.jar')) { new ZipFile(f).withCloseable {z ->
+     cfg.classHashes.each {n,h -> def e=z.getEntry(n.replace('.','/')+'.class');if(e) owners[n] << [path:f.absolutePath,sha256:sha(z.getInputStream(e).bytes)] }
+    }}
+    else if(f.isDirectory()) cfg.classHashes.each {n,h ->def c=new File(f,n.replace('.','/')+'.class');if(c.isFile()) owners[n] << [path:c.absolutePath,sha256:sha(c.bytes)]}
+   }
+   def probes=[]
+   testClassesDirs.files.each { d -> if(d.isDirectory()) project.fileTree(d).matching { include '**/SandboxNativeLoaderRunner*.class'; include '**/SandboxNativeLoaderTokenHostTest*.class'; include '**/SparsePipelinePrefixHostTest*.class'; include '**/SparsePrefixRunner*.class'; include '**/hostadapter/OpaqueBitmapBridge*.class' }.files.each {f ->probes << [path:f.absolutePath,sha256:sha(f.bytes)]} }
+   ['SandboxNativeLoaderRunner','SandboxNativeLoaderTokenHostTest','SparsePipelinePrefixHostTest','SparsePrefixRunner','OpaqueBitmapBridge'].each {n -> assert probes.any {new File(it.path).name==n+'.class'} : 'Compiled temporary class missing: '+n}
+   new File("${cfg.output}/compiled-probes.json").text=JsonOutput.prettyPrint(JsonOutput.toJson(probes))
+   new File("${cfg.output}/actual-classpath.json").text=JsonOutput.prettyPrint(JsonOutput.toJson([task:path,classpath:cp,owners:owners,jvmArgs:allJvmArgs,environmentRemoved:['LD_*','JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS']]))
+   cfg.classHashes.each {n,h -> assert owners[n].size()==1 && owners[n][0].sha256==h : "Unexpected class owner ${n}: ${owners[n]}"}
+  }
+ }
+} } }

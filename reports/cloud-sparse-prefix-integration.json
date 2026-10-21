@@ -1,0 +1,199 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T17:37:36.073848+00:00",
+  "base_commit": "99f661962790c66089850a2faa7b1811b081cf08",
+  "production_sources_changed": false,
+  "source_sha256": {
+    "tools/sparse_prefix_validation/OpaqueBitmapBridge.kt": "ee8d139fc67a9c8cf4dce585510b639dd165a7f109aba97214256359aad0e1ee",
+    "tools/sparse_prefix_validation/README.md": "7d8357d9df6a3e3a9f4ea546c7c79c60364e4ee7d894c68e33a7d86f02409274",
+    "tools/sparse_prefix_validation/SandboxNativeLoaderRunner.kt": "e119aaee069bf09dec92deb3ecd48acd7e60b9eee5c363309a18b3b260d52af7",
+    "tools/sparse_prefix_validation/SandboxNativeLoaderTokenHostTest.kt": "f7f24cebe26059a50573a3fdf19e0a6115ab3e3607d98bd1b8cecd51f734429a",
+    "tools/sparse_prefix_validation/SparsePipelinePrefixHostTest.kt": "30f86dd17473e49c3591a8cf2ab7d270696f80725ff74e5df00126f83bd0a5f5",
+    "tools/sparse_prefix_validation/SparsePrefixRunner.kt": "016869b9da27f37407d962be272b7b502119c79db0a19b25927545deaab8a9ed",
+    "tools/sparse_prefix_validation/probe.init.gradle": "09bbbde455116428dac611a09d1d8be15116ac82b3c44ae81ac62c98ee6b35f4",
+    "tools/sparse_prefix_validation/validate.py": "fc926028a1f180d758ab500cbc3a34bf74488d06b5f4c15f812bf07fae428335",
+    "tests/test_sparse_prefix_validation_helper.py": "ff189ee8db1bab45ce485709e84fa75c5dd299ec98fa773afbb0988667b8607b"
+  },
+  "portable_execution": "External reviewed package against clean baseline; integrated files verified byte-identical to exercised candidate",
+  "runs": {
+    "native_loader": {
+      "outcome": "PASS",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "test_seconds": 5.44,
+      "source_commit": "99f661962790c66089850a2faa7b1811b081cf08",
+      "source_tree": "01b2b8d0abfa25238f6972fbf22875bddca75158",
+      "input_hashes_unchanged": true,
+      "compiled_inputs_unchanged": true,
+      "restored": true,
+      "temporary_classes_absent": true,
+      "receipt_sha256": "894ea60f250f07e428f0de8d32ebe8f618e737be7d51ec174db1af7c918d556f",
+      "xml_sha256": "e7527b3b6762f293b8aa55544301fb090e4873133b5ca234694e4072852b7049",
+      "log_sha256": "fefc3265b438eae94942f4e457ccb48424ae7d0d5c5f3799dcdc23169cecf6aa",
+      "observations": []
+    },
+    "initial_fixture_failure": {
+      "outcome": "FAILED",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "test_seconds": 6.946,
+      "source_commit": "99f661962790c66089850a2faa7b1811b081cf08",
+      "source_tree": "01b2b8d0abfa25238f6972fbf22875bddca75158",
+      "input_hashes_unchanged": true,
+      "compiled_inputs_unchanged": true,
+      "restored": true,
+      "temporary_classes_absent": true,
+      "receipt_sha256": "4df9da92a7596b864d1a38176945fc448e784c87a52232b0c672cd9111a327fe",
+      "xml_sha256": "a9c2b5f4492f60ae1c1ef6d54cd82249d9bcc51ec672c1f5d7910e2b357093c2",
+      "log_sha256": "563659266ae2a46042f81fcb53ed66800d9a61f4fc882c376e32678333a1d354",
+      "observations": []
+    },
+    "state_assertion_failure": {
+      "outcome": "FAILED",
+      "tests": 1,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "test_seconds": 7.585,
+      "source_commit": "99f661962790c66089850a2faa7b1811b081cf08",
+      "source_tree": "01b2b8d0abfa25238f6972fbf22875bddca75158",
+      "input_hashes_unchanged": true,
+      "compiled_inputs_unchanged": true,
+      "restored": true,
+      "temporary_classes_absent": true,
+      "receipt_sha256": "847b4bd36acd7d39714abf8ea9d0e6b19d9081e013fc381d2da26bd95c6548bd",
+      "xml_sha256": "b11c1ad64831ab5e0f42c3be136c54438314c38f064e64368f8f05d91a801f15",
+      "log_sha256": "9a9aef7c294b70995a613b077a5935a5ea36136324536b56b33dffda90cc199b",
+      "observations": [
+        "HOST_PREFIX_SPARSE outcome=verified_anchor_fallback bundleAdjustment=false points=524",
+        "HOST_PREFIX_SPARSE outcome=verified_anchor_fallback bundleAdjustment=false points=524"
+      ]
+    },
+    "two_photo_v3": {
+      "outcome": "PASS",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "test_seconds": 7.837,
+      "source_commit": "99f661962790c66089850a2faa7b1811b081cf08",
+      "source_tree": "01b2b8d0abfa25238f6972fbf22875bddca75158",
+      "input_hashes_unchanged": true,
+      "compiled_inputs_unchanged": true,
+      "restored": true,
+      "temporary_classes_absent": true,
+      "receipt_sha256": "365db7bd355847b40da0f2461b1d789271d0680ee917eb1b09c18c0089a5a0b6",
+      "xml_sha256": "1398eed065e310b7c46937e0d2514f4889fc34e64f4f9d79d20e723edb220be5",
+      "log_sha256": "8ac27b46e6780c3da357a55a8e189a48df705429d7a631442abc6b38d439fe84",
+      "observations": [
+        "HOST_PREFIX_SPARSE outcome=verified_anchor_fallback bundleAdjustment=false points=524",
+        "HOST_PREFIX_SPARSE refinementFailure=Failed requirement.",
+        "HOST_PREFIX_SPARSE outcome=verified_anchor_fallback bundleAdjustment=false points=524",
+        "HOST_PREFIX_SPARSE refinementFailure=Failed requirement."
+      ]
+    },
+    "three_photo_experiment": {
+      "outcome": "PASS",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "test_seconds": 8.287,
+      "source_commit": "99f661962790c66089850a2faa7b1811b081cf08",
+      "source_tree": "01b2b8d0abfa25238f6972fbf22875bddca75158",
+      "input_hashes_unchanged": true,
+      "compiled_inputs_unchanged": true,
+      "restored": true,
+      "temporary_classes_absent": true,
+      "receipt_sha256": "30c11c5276a284edaeb040743013ce2daf57c35a22d11026368c9bc07d21cf0d",
+      "xml_sha256": "9c6a4971d74f2639ae52e9e64ad78db7b5d772f43ee13b8ec7d6ef9a7a2cc5ec",
+      "log_sha256": "e4699675d0138a2d628091e9d69b17326e2bdb62049e8bd6da85d58477fdd048",
+      "observations": [
+        "HOST_THREE_PHOTO_PREFIX outcome=global_typed_ba_admitted12 bundleAdjustment=true points=904 cameras=3",
+        "HOST_THREE_PHOTO_PREFIX refinementFailure=none cameraFailures=[]",
+        "HOST_THREE_PHOTO_PREFIX incrementalRegistration={\"initialCameraCount\":3,\"addedCameraCount\":0,\"attempts\":[],\"remainingPhotoIds\":[],\"frontierResumeStatus\":\"absent\",\"restoredCameraCount\":0,\"durableFrontierWrites\":2,\"failedFrontierWrites\":0,\"frontierDurability\":\"saved\",\"frontierIsCompletedAlignment\":false} incrementalFailure=none",
+        "HOST_THREE_PHOTO_PREFIX outcome=global_typed_ba_admitted12 bundleAdjustment=true points=904 cameras=3",
+        "HOST_THREE_PHOTO_PREFIX refinementFailure=none cameraFailures=[]",
+        "HOST_THREE_PHOTO_PREFIX incrementalRegistration={\"initialCameraCount\":3,\"addedCameraCount\":0,\"attempts\":[],\"remainingPhotoIds\":[],\"frontierResumeStatus\":\"absent\",\"restoredCameraCount\":0,\"durableFrontierWrites\":2,\"failedFrontierWrites\":0,\"frontierDurability\":\"saved\",\"frontierIsCompletedAlignment\":false} incrementalFailure=none"
+      ]
+    },
+    "portable_two_photo": {
+      "outcome": "PASS",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "test_seconds": 7.708,
+      "source_commit": "99f661962790c66089850a2faa7b1811b081cf08",
+      "source_tree": "01b2b8d0abfa25238f6972fbf22875bddca75158",
+      "input_hashes_unchanged": true,
+      "compiled_inputs_unchanged": true,
+      "restored": true,
+      "temporary_classes_absent": true,
+      "receipt_sha256": "7489deac2e45c3cda3718941efb95702070461a20016dc0d6685b9b78292de6b",
+      "xml_sha256": "19686fd6e19bec27f920af1fe00c8398ac546432a23fdac7c104bd5bf42ed089",
+      "log_sha256": "0ab513d22b7d33cfa560c1567ca6c6c942c9624a5f2e0ef065e970f45a1135a9",
+      "observations": [
+        "HOST_PREFIX_SPARSE outcome=verified_anchor_fallback bundleAdjustment=false points=524",
+        "HOST_PREFIX_SPARSE refinementFailure=Failed requirement.",
+        "HOST_PREFIX_SPARSE outcome=verified_anchor_fallback bundleAdjustment=false points=524",
+        "HOST_PREFIX_SPARSE refinementFailure=Failed requirement."
+      ]
+    }
+  },
+  "python": {
+    "passed": 1198,
+    "optional_skipped": 3,
+    "subtests_passed": 6,
+    "log_sha256": "845941472c781d65ab2c640fe6e9eae9fe5a9749ff9fe38e764bdf75d66989ef"
+  },
+  "mocked_helper_guards": 28,
+  "history": [
+    "Initial fixture incorrectly passed algorithm fingerprint as bounded runner engineVersion; corrected to actual controller constant without production changes.",
+    "Second attempt reached valid sparse/cache observations but compared domain PAUSED enum to legacy numeric constant; corrected exact enum qualification.",
+    "Failures preserved; two-photo fallback remains expected because final global BA requires at least three registered views."
+  ],
+  "measured_two_photo": {
+    "sparse_points": 524,
+    "outcome": "verified_anchor_fallback",
+    "bundle_adjustment": false
+  },
+  "measured_three_photo": {
+    "sparse_points": 904,
+    "registered_cameras": 3,
+    "outcome": "global_typed_ba_admitted12",
+    "bundle_adjustment": true,
+    "incremental_initial_cameras": 3,
+    "incremental_added_cameras": 0,
+    "packaged_as_two_photo_regression": false
+  },
+  "fixture_model": {
+    "synthetic": true,
+    "focal35_assumption": 32.88262763223158,
+    "focal_pixels": 760.0,
+    "measured_physical_calibration": false,
+    "ground_truth_poses_or_points_injected": false
+  },
+  "checks": [
+    "Real original inspection, decode and native quality, journal publication, Room revisions",
+    "Real job/project lease and SPARSE checkpoint acceptance",
+    "Unchanged production coordinator features, matching and native geometry",
+    "Worker cancelled only after accepted SPARSE, joined before token release",
+    "Verified alignment cache before and after database reopen",
+    "Original bytes preserved; PAUSED at SPARSE; no DENSE entry or current result publication",
+    "Fresh same-sandbox original native owners; real OpenCV initLocal and JNI tokens",
+    "Complete posthash checks and normal compilation restoration"
+  ],
+  "limits": [
+    "HOST native software graphics and explicit opaque-only Utils bridge, not AndroidBitmap native interop",
+    "Sparse prefix intentionally stopped; no dense/mesh/texture/full scanner qualification",
+    "Three-photo experiment separate from packaged two-photo regression",
+    "No incremental-added-camera claim from initial3/added0 observation",
+    "No controller/service admission, physical resource observations, device/GPU/physical quality/metric scale validation",
+    "No production signing/install/migration or new APK; current c112 production snapshot unchanged"
+  ]
+}
