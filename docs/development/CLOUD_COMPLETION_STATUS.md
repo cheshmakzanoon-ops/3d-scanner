@@ -830,3 +830,19 @@ checks execute successfully. No emulator was started.
 
 See [cleanup evidence](../../reports/cloud-reconstruction-cleanup.json). The delivered
 APK predates these source fixes; an updated normal engineering build follows.
+
+### Updated engineering APK delivered (14:00 UTC)
+
+Normal optimized release build from442c97ec now contains callback cancellation and
+native-operation cleanup fixes. QA retention is OFF; test signing remains explicit.
+Build completed in2m28s; signature, offline permissions, backup exclusion and16KB
+ZIP/all16 native ELF checks pass. APK SHA256 is
+`705ea127088b8a0186235aa20c39d0adce1bcad5ee7124c1dac1fd47a2098725`
+(106,220,465 bytes). Three verified split ZIP parts and Windows/macOS/Linux assembly
+instructions were delivered privately. No binary is committed to source.
+
+Package/version19/test certificate match the prior engineering build, but in-place
+installation/data migration remain untested. Do not uninstall or delete existing
+scans. This is not a production-signed or device-qualified release. See
+[APK evidence](../../reports/cloud-cleanup-engineering-apk.json) and
+[assembly instructions](ENGINEERING_APK_442C97EC.md).
