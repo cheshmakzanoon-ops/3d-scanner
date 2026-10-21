@@ -64,10 +64,25 @@ def test_evaluator_fail_closed(evaluator,capture,tmp_path,monkeypatch,failure):
  assert not output.exists()
 
 def test_exercised_source_identity_and_capture_order():
- expected={'SparsePipelineQualityCaptureHostTest.kt':'056a6894293a1e8a6e8e3d310c203e900bcc8cd777d4e5161d3335aa84e5b36d','evaluate.py':'04e99a1946e2716ad55a9c51eea8ab2fcf9de33c93ff01fedcb11fddf2f85a80','validate.py':'2ba5c7a36c430934d2358aaf3077693a4a37d5da9016216f6649445fe57f9975','probe.init.gradle':'4f724496bb1ef978ce4fd8a72aaabf29781f18dcc39bf08c0b4c111adfbe38d4'}
+ expected={'SparsePipelineQualityCaptureHostTest.kt':'056a6894293a1e8a6e8e3d310c203e900bcc8cd777d4e5161d3335aa84e5b36d','evaluate.py':'95b1a8a067e334965539b9ae65b2a6fa7a5f13d9212bb513587cbec06f65a834','validate.py':'2ba5c7a36c430934d2358aaf3077693a4a37d5da9016216f6649445fe57f9975','probe.init.gradle':'4f724496bb1ef978ce4fd8a72aaabf29781f18dcc39bf08c0b4c111adfbe38d4'}
  for name,h in expected.items():assert hashlib.sha256((TOOL/name).read_bytes()).hexdigest()==h
  s=(TOOL/'SparsePipelineQualityCaptureHostTest.kt').read_text()
  assert s.index('fixture.reopen()')<s.index('val capture=')
  assert s.index('assertArtifacts()')<s.index('val capture=')
  assert 'source.copyTo(target,overwrite=false)' in s
  assert 'MEASURE_ONLY_NOT_QUALITY_PASS' in (TOOL/'evaluate.py').read_text()
+
+
+def test_evaluator_rejects_modified_metrics_dependency(evaluator,capture,tmp_path,monkeypatch):
+ folder,manifest,_=capture();output=tmp_path/'measured.json'
+ repo=tmp_path/'modified-source'
+ names=set(evaluator.PINS)|{'benchmarks/fixtures/relief/'+name for name in evaluator.FIXTURES}
+ for name in names:
+  target=repo/name;target.parent.mkdir(parents=True,exist_ok=True)
+  target.write_bytes((REPO/name).read_bytes())
+ dependency=repo/'tools/qa/geometry_quality/metrics.py'
+ dependency.write_bytes(dependency.read_bytes()+b'\n# unauthorized dependency change\n')
+ monkeypatch.setattr(sys.modules[__name__],'REPO',repo)
+ with pytest.raises(ValueError,match=r'Truth/provenance input changed: tools/qa/geometry_quality/metrics\.py'):
+  invoke(evaluator,folder,manifest,output,monkeypatch)
+ assert not output.exists()

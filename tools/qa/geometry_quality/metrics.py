@@ -119,6 +119,45 @@ def _coplanar_overlap(a,b,normal):
     return area>1e-12
 
 
+def _nonmanifold_vertices(faces, edges):
+    """Exact indexed links, O(faces) storage/work; no coordinate welding.
+
+    Each incident triangle contributes its opposite edge to the vertex link.
+    A manifold link is one simple cycle (interior) or one simple path whose
+    endpoints are exactly the two boundary neighbors. Repeated-index faces
+    invalidate all their vertices; duplicate link edges are never collapsed.
+    Geometric zero area with distinct indices is audited separately.
+    """
+    links={};invalid=set()
+    for a,b,c in faces:
+        if len({a,b,c})!=3:
+            invalid.update((a,b,c))
+            continue
+        for center,i,j in ((a,b,c),(b,c,a),(c,a,b)):
+            link=links.setdefault(center,Counter())
+            link[tuple(sorted((i,j)))]+=1
+    for center,link in links.items():
+        if center in invalid:continue
+        if any(n!=1 for n in link.values()):
+            invalid.add(center);continue
+        neighbors={}
+        for i,j in link:
+            neighbors.setdefault(i,set()).add(j)
+            neighbors.setdefault(j,set()).add(i)
+        boundary={i for i in neighbors if edges[tuple(sorted((center,i)))]==1}
+        endpoints={i for i,adjacent in neighbors.items() if len(adjacent)==1}
+        if (any(len(adjacent) not in (1,2) for adjacent in neighbors.values()) or
+                (boundary and (len(boundary)!=2 or endpoints!=boundary)) or
+                (not boundary and endpoints)):
+            invalid.add(center);continue
+        unseen=set(neighbors);stack=[unseen.pop()]
+        while stack:
+            for i in neighbors[stack.pop()]:
+                if i in unseen:unseen.remove(i);stack.append(i)
+        if unseen:invalid.add(center)
+    return len(invalid)
+
+
 def topology(vertices, faces, intersection_budget=5000):
     v,f=mesh(vertices,faces)
     if not len(f):return {'representation':'points','self_intersections_status':'NOT_APPLICABLE','components':len(v)}
@@ -150,12 +189,14 @@ def topology(vertices, faces, intersection_budget=5000):
                 hit=_coplanar_overlap(a,b,normal) if coplanar else any(_segment_triangle(x[k],x[(k+1)%3],y) for x,y in ((a,b),(b,a)) for k in range(3))
                 intersections+=int(hit)
     boundary=sum(n==1 for n in edges.values());nonmanifold=sum(n>2 for n in edges.values())
+    nonmanifold_vertices=_nonmanifold_vertices(f,edges)
     winding=sum(n==2 and (directions[(i,j)]==2 or directions[(j,i)]==2) for (i,j),n in edges.items())
-    return {'representation':'closed_manifold_candidate' if not(boundary or nonmanifold or degenerate or duplicates or winding or intersections) else 'open_or_defective_triangle_surface',
+    return {'representation':'closed_manifold_candidate' if not(boundary or nonmanifold or nonmanifold_vertices or degenerate or duplicates or winding or intersections) else 'open_or_defective_triangle_surface',
             'components':components,'boundary_edges':boundary,'nonmanifold_edges':nonmanifold,'inconsistent_winding_edges':winding,
+            'nonmanifold_vertices':nonmanifold_vertices,
             'duplicate_triangles':duplicates,'degenerate_triangles':degenerate,'self_intersection_pairs':intersections,
             'self_intersections_status':'PASS_CHECK_EXECUTED' if intersections is not None else 'NOT_RUN_BUDGET',
-            'watertight_topology':not(boundary or nonmanifold or degenerate or duplicates or winding)}
+            'watertight_topology':not(boundary or nonmanifold or nonmanifold_vertices or degenerate or duplicates or winding)}
 
 
 def camera_metrics(imported_ids, registered_ids, estimated_centers=None, reference_centers=None, alignment=None, estimated_rotations=None, reference_rotations=None):

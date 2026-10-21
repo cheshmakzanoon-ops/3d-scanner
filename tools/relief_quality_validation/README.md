@@ -28,6 +28,10 @@ python evaluate.py --repo "$REPO" --capture "$FRESH_EVIDENCE/quality-capture" \
 
 Source review preceded the separately authorized actual capture/evaluator run. Native/Android/physical claims remain limited exactly as in accepted full-core test. This opt-in source package changes no production algorithms or default gates.
 
+## Current evaluator dependency version
+
+The current evaluator pins geometry metrics SHA `c4b0ca8bac0757645718586c842671e9bed416d7c0e41ae54bf8553fe85d5bf0`, which adds indexed vertex-link auditing. All before/after source-provenance guards remain enforced. This is a new evaluator source identity, not a rerun or recertification of the historical measurements below; their original evaluator/helper hashes and receipts remain historical. The area sampler and this evaluator's measure-only behavior are unchanged.
+
 ## Recorded run and portable execution
 
 Source09e879462474ca00f2cae1c236036beff47fde54: actual capture1/1 passed in11.623seconds, strict artifact/cache/reopen assertions retained, source/runtime unchanged and normal compilation restored. Actual post-hoc evaluator completed in0.745seconds under1GiB address space/60sCPU/60swall/singlethread bounds, status MEASURE_ONLY_NOT_QUALITY_PASS. Captured raw assets are external evidence, not committed binaries. Exact evaluator SHA04e99a1946e2716ad55a9c51eea8ab2fcf9de33c93ff01fedcb11fddf2f85a80 and capture main056a6894293a1e8a6e8e3d310c203e900bcc8cd777d4e5161d3335aa84e5b36d are retained unchanged.

@@ -1,0 +1,23 @@
+{
+  "sharedSources": {
+    "snapshot.hpp": {
+      "archive": "../fusion-telemetry/diagnostic/snapshot.hpp",
+      "sha256": "ef8c086dd0d74967feba8a93b6f744be93273ba97fb5c72dad6783c66cbb1aa7"
+    },
+    "secure.py": {
+      "archive": "../fusion-telemetry/shim/secure.py",
+      "sha256": "3c0708c803679a9a6380782a0f1376ec0ca07fdb480e67c57e74272fd09475b3"
+    }
+  },
+  "privateReviewedRecipe": {
+    "manifestSha256": "631d22406db83e7342e9371028d260edf3e66730bf6eb324963ac15fd30e1180",
+    "configSha256": "b1627778cd7f05aabf8c3049a297bb02a4c18c1404fc1efd944121cca61504ad"
+  },
+  "copiedSources": {
+    "inspect.py": "1dc87dfaf0e498dcefe89cdba1455268777f4d5e55beefdcb1648a8f0cdf6367",
+    "test_inspect.py": "b59c79a627eb784deb6ee427e09a0bd53f3558159982f4fcc66fa975e58fe3e8",
+    "topology_filter.cpp": "de25e9dd1be6650328d54e6a2190281a271a6340c14889229d5452ed4c1bcc1f",
+    "classify.py": "7b0beb5b764d2a455be079d468f899cafd432dd482f2eb28bd4a7e648883a201",
+    "run.py": "e98d7b41030d6edc9268dbdeba04102f5b67cf0ab956dbc839dc721a1e32f0d6"
+  }
+}

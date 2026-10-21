@@ -1,0 +1,546 @@
+{
+  "status": "STRUCTURAL_EDGE_PROVENANCE_MEASURE_ONLY",
+  "noGeometryMutation": true,
+  "noCrossingClassification": true,
+  "elapsedSeconds": 4.514900231995853,
+  "meshes": {
+    "original": {
+      "aggregates": {
+        "edgeCount": 12408,
+        "boundaryEdges": 4873,
+        "nonmanifoldEdges": 166,
+        "sameCameraNonmanifoldEdges": 0,
+        "mixedCameraNonmanifoldEdges": 166,
+        "edgeIncidenceHistogram": {
+          "1": 4873,
+          "2": 7369,
+          "3": 57,
+          "4": 105,
+          "5": 3,
+          "6": 1
+        },
+        "nonmanifoldSourceCameraMultisetHistogram": [
+          {
+            "key": [
+              0,
+              0,
+              1,
+              1,
+              2,
+              2
+            ],
+            "count": 1
+          },
+          {
+            "key": [
+              0,
+              0,
+              1,
+              1,
+              2
+            ],
+            "count": 1
+          },
+          {
+            "key": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "count": 47
+          },
+          {
+            "key": [
+              0,
+              0,
+              1,
+              2,
+              2
+            ],
+            "count": 2
+          },
+          {
+            "key": [
+              0,
+              0,
+              1
+            ],
+            "count": 16
+          },
+          {
+            "key": [
+              0,
+              0,
+              2,
+              2
+            ],
+            "count": 44
+          },
+          {
+            "key": [
+              0,
+              0,
+              2
+            ],
+            "count": 36
+          },
+          {
+            "key": [
+              0,
+              1,
+              1
+            ],
+            "count": 1
+          },
+          {
+            "key": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "count": 14
+          },
+          {
+            "key": [
+              1,
+              1,
+              2
+            ],
+            "count": 4
+          }
+        ],
+        "nonmanifoldEndpointObservationCameraSetHistogram": [
+          {
+            "key": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                1,
+                2
+              ]
+            ],
+            "count": 4
+          },
+          {
+            "key": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "count": 7
+          },
+          {
+            "key": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "count": 3
+          },
+          {
+            "key": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1,
+                2
+              ]
+            ],
+            "count": 11
+          },
+          {
+            "key": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "count": 53
+          },
+          {
+            "key": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "count": 73
+          },
+          {
+            "key": [
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "count": 15
+          }
+        ],
+        "faceCountPerNativeCamera": {
+          "0": 2500,
+          "1": 2063,
+          "2": 2178
+        },
+        "vertexCount": 5753,
+        "triangleCount": 6741,
+        "observationCount": 6024,
+        "excludedNativeDegenerateFaces": 0,
+        "includedIncidentFaces": 6741,
+        "nativeCameraRefs": [
+          0,
+          1,
+          2
+        ]
+      },
+      "rawEdgeRowsSha256": "1f000bec043367d87c11aa345c1aadb044ef1e128a1462005cd1985965e1e2a8",
+      "nativeEligibilityProofSha256": "5cf0d0d1d9b2cbdfe5700510dff4471e097eacea0e3fa8fe52af4734d654e21e"
+    },
+    "candidate": {
+      "aggregates": {
+        "edgeCount": 12301,
+        "boundaryEdges": 4876,
+        "nonmanifoldEdges": 257,
+        "sameCameraNonmanifoldEdges": 0,
+        "mixedCameraNonmanifoldEdges": 257,
+        "edgeIncidenceHistogram": {
+          "1": 4876,
+          "2": 7168,
+          "3": 109,
+          "4": 146,
+          "5": 2
+        },
+        "nonmanifoldSourceCameraMultisetHistogram": [
+          {
+            "key": [
+              0,
+              0,
+              1,
+              1,
+              2
+            ],
+            "count": 2
+          },
+          {
+            "key": [
+              0,
+              0,
+              1,
+              1
+            ],
+            "count": 58
+          },
+          {
+            "key": [
+              0,
+              0,
+              1,
+              2
+            ],
+            "count": 2
+          },
+          {
+            "key": [
+              0,
+              0,
+              1
+            ],
+            "count": 41
+          },
+          {
+            "key": [
+              0,
+              0,
+              2,
+              2
+            ],
+            "count": 65
+          },
+          {
+            "key": [
+              0,
+              0,
+              2
+            ],
+            "count": 55
+          },
+          {
+            "key": [
+              1,
+              1,
+              2,
+              2
+            ],
+            "count": 21
+          },
+          {
+            "key": [
+              1,
+              1,
+              2
+            ],
+            "count": 12
+          },
+          {
+            "key": [
+              1,
+              2,
+              2
+            ],
+            "count": 1
+          }
+        ],
+        "nonmanifoldEndpointObservationCameraSetHistogram": [
+          {
+            "key": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                1,
+                2
+              ]
+            ],
+            "count": 7
+          },
+          {
+            "key": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "count": 21
+          },
+          {
+            "key": [
+              [
+                0,
+                1,
+                2
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "count": 12
+          },
+          {
+            "key": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1,
+                2
+              ]
+            ],
+            "count": 21
+          },
+          {
+            "key": [
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "count": 77
+          },
+          {
+            "key": [
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "count": 98
+          },
+          {
+            "key": [
+              [
+                1,
+                2
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "count": 21
+          }
+        ],
+        "faceCountPerNativeCamera": {
+          "0": 2498,
+          "1": 2048,
+          "2": 2165
+        },
+        "vertexCount": 5624,
+        "triangleCount": 6711,
+        "observationCount": 6024,
+        "excludedNativeDegenerateFaces": 0,
+        "includedIncidentFaces": 6711,
+        "nativeCameraRefs": [
+          0,
+          1,
+          2
+        ]
+      },
+      "rawEdgeRowsSha256": "dbf72c982617766d79eff77b4b15b5bca61e44a2cfaa0cf43fc5cb5854b09e81",
+      "nativeEligibilityProofSha256": "e73067b887852388915cfdebf82dbfbc5625f40f3bff353671034cd632ec0cf5"
+    }
+  },
+  "scope": "Native zero-intersection-budget run supplies exact face eligibility and edge totals only. It does not replace earlier complete crossing diagnostics. Camera refs are native references, not guessed photo IDs.",
+  "rawReceiptSha256": "6dfc58eae3ecc7bf52613b889343bf6723254f44295f23445758914ba5767d05",
+  "namedInputCountExcludingConfig": 584,
+  "commands": [
+    {
+      "name": "structural-guard-tests",
+      "timeoutSeconds": 30,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "compile",
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "linkage",
+      "timeoutSeconds": 15,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "original-native-eligibility",
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "original-classify",
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "candidate-native-eligibility",
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "candidate-classify",
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    }
+  ],
+  "outputSha256": {
+    "candidate-classify.log": "3a325874a8ec0f730f487a27b60e358f8b97b80b11edec4d0ced1a2e349d67cb",
+    "candidate-edges.json": "dbf72c982617766d79eff77b4b15b5bca61e44a2cfaa0cf43fc5cb5854b09e81",
+    "candidate-native-eligibility.log": "09cbd00dc40e568964187a1c89cd847c9ca351bf5f68c4126c6dcaee468659ca",
+    "candidate-native-eligibility.json": "e73067b887852388915cfdebf82dbfbc5625f40f3bff353671034cd632ec0cf5",
+    "original-classify.log": "3a325874a8ec0f730f487a27b60e358f8b97b80b11edec4d0ced1a2e349d67cb",
+    "original-edges.json": "1f000bec043367d87c11aa345c1aadb044ef1e128a1462005cd1985965e1e2a8",
+    "original-native-eligibility.log": "09cbd00dc40e568964187a1c89cd847c9ca351bf5f68c4126c6dcaee468659ca",
+    "original-native-eligibility.json": "5cf0d0d1d9b2cbdfe5700510dff4471e097eacea0e3fa8fe52af4734d654e21e",
+    "linkage.log": "ac0af0f7d3674a4ef09e592cb4eb8dcc0f689e204e581d9a5e42a503cec62f09",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-edge-eligibility": "f89e12e55abc035c34a8b13ba87dc715067d7e37de52554d17ed0c352a31f052",
+    "structural-guard-tests.log": "49fb278bc8cd5e02964f73b2223e80801ee36139e9a24b020b5348c585cfdabd"
+  },
+  "guardTests": {
+    "status": "PASS_STRUCTURAL_GUARD_FIXTURES_ONLY",
+    "tests": [
+      "one_boundary",
+      "two_face_manifold",
+      "same_camera_nonmanifold",
+      "mixed_camera_nonmanifold",
+      "trailing",
+      "truncated",
+      "wrong_order",
+      "wrong_topology",
+      "wrong_join",
+      "exclusion_negative",
+      "exclusion_out_of_range",
+      "exclusion_duplicate_list",
+      "exclusion_bool",
+      "exclusion_missing",
+      "explicit_exclusion_preserves_original_face_ids"
+    ],
+    "count": 15
+  },
+  "lineage": {
+    "native-trace/input.rffuse": "d1b605dffddb9488e77ff2f16706f3cf0f2d4161e3239d03f51648d5290b71c0",
+    "original/mesh.bits": "89c920a435dfcb4edd6efdf04c94eb5ae51e2c60dd2e78018082cc4b24bf3fc2",
+    "original/mesh.json": "07ee52441db4b3fa5c7bd4b516f51fcb53529a7bffa02695c666bcd15b160671",
+    "candidate/mesh.bits": "90606ce0946331746e295cc0a88b3b5c572eafd6e27a8ceffcc1668a9c822a9a",
+    "candidate/mesh.json": "f58234cbc704042442b99cc166d289f1e9060627fa6fc2e29094993f42c889f0"
+  }
+}

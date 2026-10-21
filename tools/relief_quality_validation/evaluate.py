@@ -3,7 +3,7 @@
 import argparse,hashlib,json,pathlib,sys
 import numpy as np
 P=pathlib.Path
-PINS={'tools/make_fixture.py':'c3660732f2fbccf68efd6d5452fdb1701427ce060c076f6d5558c500497783f9','benchmarks/fixtures/relief/calibration.json':'284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593','tools/qa/geometry_quality/metrics.py':'bd4ab2f66263b7246aa8827902b0c40ccf20db2cabdcdcdd004e3a9d3125e275','tests/test_pipeline.py':'26d4a548f9bc4ba79be4dc8942738e83f7224face99d2955b5d06b220ad205fd'}
+PINS={'tools/make_fixture.py':'c3660732f2fbccf68efd6d5452fdb1701427ce060c076f6d5558c500497783f9','benchmarks/fixtures/relief/calibration.json':'284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593','tools/qa/geometry_quality/metrics.py':'c4b0ca8bac0757645718586c842671e9bed416d7c0e41ae54bf8553fe85d5bf0','tests/test_pipeline.py':'26d4a548f9bc4ba79be4dc8942738e83f7224face99d2955b5d06b220ad205fd'}
 PINS.update({'tools/qa/geometry_quality/__main__.py': '8bc2987aba5e5d554d1db58b61f412c6cdf2604e819e5b45bf7662c5a8b9773d', 'tools/qa/geometry_quality/glb.py': 'f0272ecf74149702e79b002878bce4f57169a37744ed8213acd125541208824a'})
 FIXTURES={'view-01.jpg':'66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c','view-02.jpg':'c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b','view-03.jpg':'a0d386746c2a8f47840058613bc89aa3c4a8095995288fa936d368ad67fe6c0f'}
 def require(ok,message):
