@@ -1,0 +1,11 @@
+--- v4/runner.py
++++ v3/runner.py
+@@ -27,7 +27,7 @@
+ 
+ def main():
+  ap=argparse.ArgumentParser();ap.add_argument('--config',required=True);ap.add_argument('--work',required=True);a=ap.parse_args();cfgpath=safe(a.config);c=json.loads(secure_bytes(cfgpath));work=Path(a.work)
+- need(work.is_absolute() and work.parent==Path('/tmp') and work.name.startswith('relief-global-field-v4-evidence') and not work.exists(),'fresh external /tmp work path required');work.mkdir(mode=0o700)
++ need(work.is_absolute() and work.parent==Path('/tmp') and work.name.startswith('relief-global-field-v3-evidence') and not work.exists(),'fresh external /tmp work path required');work.mkdir(mode=0o700)
+  pins={str(cfgpath):digest(cfgpath)};commands=[];start=time.monotonic()
+  try:
+   for path,sha in c['inputSha256'].items():need(digest(safe(path))==sha,'input pin '+path);pins[path]=sha

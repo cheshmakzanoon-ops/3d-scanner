@@ -58,6 +58,32 @@ internal object ScanQualityReport {
         return value
     }
 
+    /** Topology counters are JSON integers, never coerced strings, fractions or wrapped longs. */
+    private fun topologyCount(obj: JSONObject?, key: String): Int? {
+        if (obj == null || !obj.has(key) || obj.isNull(key)) return null
+        val raw = obj.get(key)
+        require(raw is Int || raw is Long) { "$key must be a JSON integer." }
+        val value = (raw as Number).toLong()
+        require(value in 0..Int.MAX_VALUE.toLong()) { "$key is outside the supported count range." }
+        return value.toInt()
+    }
+
+    private fun topologyAlias(obj: JSONObject?, native: String, legacy: String): Int? {
+        val current = topologyCount(obj, native)
+        val old = topologyCount(obj, legacy)
+        require(current == null || old == null || current == old) {
+            "Conflicting topology aliases: $native and $legacy."
+        }
+        return current ?: old
+    }
+
+    private fun topologyIncomplete(obj: JSONObject?): Boolean? {
+        if (obj == null || !obj.has("topologyIncomplete") || obj.isNull("topologyIncomplete")) return null
+        val value = obj.get("topologyIncomplete")
+        require(value is Boolean) { "topologyIncomplete must be a JSON boolean." }
+        return value
+    }
+
     private fun nullableString(obj: JSONObject, key: String): String? =
         if (!obj.has(key) || obj.isNull(key)) null else obj.getString(key)
 
@@ -85,11 +111,15 @@ internal object ScanQualityReport {
             }
         }
         val failures = runtimeFailures(runtime, legacyFailures(result))
+        val boundaryEdges = topologyCount(mesh, "boundaryEdges")
+        val nonManifoldEdges = topologyAlias(mesh, "nonmanifoldEdges", "nonManifoldEdges")
+        val selfIntersections = topologyAlias(mesh, "intersections", "selfIntersections")
+        val incomplete = topologyIncomplete(mesh)
         val topologyKind = when {
             mesh == null || mesh.optInt("triangleCount", 0) == 0 -> TopologyKind.UNKNOWN
             mesh.optBoolean("watertight", false) &&
-                nonnegativeIntOrNull(mesh, "boundaryEdges") == 0 &&
-                nonnegativeIntOrNull(mesh, "nonManifoldEdges") == 0 -> TopologyKind.VERIFIED_WATERTIGHT
+                incomplete == false && boundaryEdges == 0 &&
+                nonManifoldEdges == 0 && selfIntersections == 0 -> TopologyKind.VERIFIED_WATERTIGHT
             else -> TopologyKind.OBSERVED_OPEN_SURFACE
         }
         val scaleKind = scaleKind(result, dense, mesh)
@@ -110,10 +140,11 @@ internal object ScanQualityReport {
             visibilityEvaluatedFaces = nonnegativeIntOrNull(texture, "inputTriangles"),
             visibilitySupportedFaces = nonnegativeIntOrNull(texture, "triangleCount"),
             topologyKind = topologyKind,
-            topologyBoundaryEdges = nonnegativeIntOrNull(mesh, "boundaryEdges"),
-            topologyNonManifoldEdges = nonnegativeIntOrNull(mesh, "nonManifoldEdges"),
-            topologyConnectedComponents = nonnegativeIntOrNull(mesh, "connectedComponents"),
-            topologySelfIntersections = nonnegativeIntOrNull(mesh, "selfIntersections"),
+            topologyBoundaryEdges = boundaryEdges,
+            topologyNonManifoldEdges = nonManifoldEdges,
+            topologyConnectedComponents = topologyCount(mesh, "connectedComponents"),
+            topologySelfIntersections = selfIntersections,
+            topologyIncomplete = incomplete,
             scaleKind = scaleKind,
             physicalUnit = nullableString(result, "physicalUnit"),
             scaleReferenceValue = finitePositiveOrNull(result, "scaleReferenceValue"),
@@ -409,7 +440,8 @@ internal object ScanQualityReport {
             .putNullable("boundaryEdges", topology.boundaryEdges)
             .putNullable("nonManifoldEdges", topology.nonManifoldEdges)
             .putNullable("connectedComponents", topology.connectedComponents)
-            .putNullable("selfIntersections", topology.selfIntersections))
+            .putNullable("selfIntersections", topology.selfIntersections)
+            .putNullable("topologyIncomplete", topology.topologyIncomplete))
         .put("units", JSONObject()
             .put("scaleKind", units.scaleKind.wireName)
             .putNullable("physicalUnit", units.physicalUnit)
@@ -716,7 +748,7 @@ internal object ScanQualityReport {
         result += EvidenceCondition.UNOBSERVED_SURFACES_UNKNOWN
         set(EvidenceCondition.VISIBILITY_EVIDENCE_UNKNOWN,
             visibility.evaluatedFaces == null || visibility.supportedFaces == null)
-        set(EvidenceCondition.TOPOLOGY_EVIDENCE_UNKNOWN, topology.kind == TopologyKind.UNKNOWN)
+        set(EvidenceCondition.TOPOLOGY_EVIDENCE_UNKNOWN, topology.kind == TopologyKind.UNKNOWN || topology.topologyIncomplete != false)
         set(EvidenceCondition.CALIBRATION_ASSUMPTION_UNVERIFIED,
             calibration.kind == CalibrationKind.UNKNOWN ||
                 calibration.kind == CalibrationKind.FIXED_INTRINSICS_NO_PROFILE)
@@ -760,14 +792,32 @@ internal object ScanQualityReport {
         return evidence
     }
 
-    private fun parseTopology(obj: JSONObject): TopologyEvidence = TopologyEvidence(
-        kind = TopologyKind.fromWire(obj.getString("kind"))
-            ?: throw IllegalArgumentException("Unknown topology kind."),
-        boundaryEdges = optionalInt(obj, "boundaryEdges"),
-        nonManifoldEdges = optionalInt(obj, "nonManifoldEdges"),
-        connectedComponents = optionalInt(obj, "connectedComponents"),
-        selfIntersections = optionalInt(obj, "selfIntersections"),
-    )
+    private fun parseTopology(obj: JSONObject): TopologyEvidence {
+        val reportedKind = TopologyKind.fromWire(obj.getString("kind"))
+            ?: throw IllegalArgumentException("Unknown topology kind.")
+        val incomplete = topologyIncomplete(obj)
+        val boundaryEdges = topologyCount(obj, "boundaryEdges")
+        val nonManifoldEdges = topologyCount(obj, "nonManifoldEdges")
+        val selfIntersections = topologyCount(obj, "selfIntersections")
+        if (reportedKind == TopologyKind.VERIFIED_WATERTIGHT) {
+            require(boundaryEdges == 0 && nonManifoldEdges == 0 &&
+                (selfIntersections == null || selfIntersections == 0)) {
+                "Reported watertight evidence contradicts its defect counts."
+            }
+        }
+        // Old reports lack completeness evidence. Keep them readable, not newly verified.
+        val kind = if (reportedKind == TopologyKind.VERIFIED_WATERTIGHT && incomplete == null) {
+            TopologyKind.OBSERVED_OPEN_SURFACE
+        } else reportedKind
+        return TopologyEvidence(
+            kind = kind,
+            boundaryEdges = boundaryEdges,
+            nonManifoldEdges = nonManifoldEdges,
+            connectedComponents = topologyCount(obj, "connectedComponents"),
+            selfIntersections = selfIntersections,
+            topologyIncomplete = incomplete,
+        )
+    }
 
     private fun parseUnits(obj: JSONObject): UnitEvidence = UnitEvidence(
         scaleKind = ScaleKind.fromWire(obj.getString("scaleKind"))

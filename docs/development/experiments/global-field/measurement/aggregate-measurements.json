@@ -1,0 +1,284 @@
+{
+  "schema": 1,
+  "decision": "REJECT_CANDIDATE_PRESERVE_PRODUCTION",
+  "status": "EXPERIMENTAL_GLOBAL_FIELD_MEASURE_ONLY_NOT_QUALITY_PASS",
+  "rawMeasurementsSha256": "eefcec824122e6d7eb54d7add245a839308f30fe90c51403683d53842b80f410",
+  "rawReceiptSha256": "9e6cbe5626536c7363d9a63cf1f70d7a77425add0577f4eaaa8cfce93e9ed7a6",
+  "scope": "EXPERIMENTAL_GLOBAL_FIELD_V4_FIXED_SNAPSHOT_MEASURE_ONLY",
+  "lineage": "trace-v2 snapshot d1b605 / StageC exact original replay; NOT profile-pair baseline 6162",
+  "gauge": {
+    "method": "fixed actual original capture view01 pose plus positive baseline view01-view02; no surface fitting",
+    "scale": 0.6419501538279652,
+    "referenceBaselineSyntheticUnits": 0.6419501538281613,
+    "estimatedBaseline": 1.0000000000003055
+  },
+  "meshes": {
+    "original": {
+      "rawArtifacts": {
+        "mesh.ply": {
+          "sha256": "3cca78d665131c49090c66266c93050d55d713873916839e5b47b60e9e71e54e"
+        },
+        "mesh.json": {
+          "sha256": "07ee52441db4b3fa5c7bd4b516f51fcb53529a7bffa02695c666bcd15b160671"
+        },
+        "mesh.bits": {
+          "sha256": "89c920a435dfcb4edd6efdf04c94eb5ae51e2c60dd2e78018082cc4b24bf3fc2"
+        }
+      },
+      "fullNativeMeshJson": {
+        "schema": 8,
+        "representation": "observed_open_triangle_mesh",
+        "scale": "arbitrary",
+        "textured": false,
+        "watertight": false,
+        "material": "vertex_colors",
+        "vertexCount": 5753,
+        "triangleCount": 6741,
+        "inputSamples": 6867,
+        "acceptedSamples": 6865,
+        "fusedObservations": 271,
+        "rejectedCells": 11745,
+        "rejectedTriangles": 147,
+        "medianConfidence": 0.9683709741,
+        "fusionVersion": 6,
+        "boundaryEdges": 4873,
+        "nonmanifoldEdges": 166,
+        "intersections": 6190,
+        "topologyIncomplete": false,
+        "vertices": {
+          "omittedArrayLength": 5753,
+          "canonicalCompactJsonSha256": "c0150436d69d27484efb0f9de06be8f2df9297dfa25dc7a4d30fb362300dde44"
+        },
+        "triangles": {
+          "omittedArrayLength": 6741,
+          "canonicalCompactJsonSha256": "0a05924a47a7b87764407df60fd574c5821d85cc516c2fa2971fc787f3a167fd"
+        }
+      },
+      "nativeAuditStatus": "COMPLETE_EXISTING_BASELINE_6190",
+      "representation": "original_SurfaceMesh_native_output",
+      "vertices": 5753,
+      "triangles": 6741,
+      "externalTopology": {
+        "representation": "open_or_defective_triangle_surface",
+        "components": 177,
+        "boundary_edges": 4873,
+        "nonmanifold_edges": 166,
+        "inconsistent_winding_edges": 0,
+        "nonmanifold_vertices": 369,
+        "duplicate_triangles": 0,
+        "degenerate_triangles": 0,
+        "self_intersection_pairs": null,
+        "self_intersections_status": "NOT_RUN_BUDGET",
+        "watertight_topology": false
+      },
+      "projected": {
+        "truthPixels": 294723,
+        "meshVisiblePixels": 143318,
+        "meshVisibleInsideTruthPixels": 137979,
+        "truthUncoveredPixels": 156744,
+        "meshVisibleOutsideTruthPixels": 5339,
+        "visibleTruthImageCoverage": 0.4681650227501756,
+        "depthResidualAtCoveredTruthPixelsSyntheticUnits": {
+          "p50": 0.01553731738767361,
+          "p90": 0.03723774618510855,
+          "p95": 0.04685733185075813,
+          "p99": 0.0702059837190033,
+          "max": 0.20347763040955869
+        },
+        "whollyOutsideViewportTriangles": 0,
+        "zeroProjectedAreaTriangles": 0
+      },
+      "surface": {
+        "sampleCount": 4096,
+        "inDomainSamples": 3994,
+        "outOfDomainSamples": 102,
+        "verticalResidualInDomainSyntheticUnits": {
+          "p50": 0.013383817964103706,
+          "p90": 0.03588932756061479,
+          "p95": 0.045535001349103196,
+          "p99": 0.06703492864234716,
+          "max": 0.1373505574731082
+        },
+        "allSamplesAnalyticExtrapolationResidual": {
+          "p50": 0.013521690534932684,
+          "p90": 0.03663701275353026,
+          "p95": 0.04703136436663291,
+          "p99": 0.07040619627704153,
+          "max": 0.1373505574731082
+        }
+      }
+    },
+    "candidate": {
+      "rawArtifacts": {
+        "experimental.ply": {
+          "sha256": "f51e6a2b281114049886bbf07e3eb236a5eaecfacf8456936826917b210fa185"
+        },
+        "provenance.json": {
+          "sha256": "b0d406fd806d4dc732489b58646ed29bfbc6a67d04be99bc48563a2a6df7d6d8"
+        },
+        "SUCCESS": {
+          "sha256": "160a0896e960a37e2d2323b079bc156895211326e4572689bea0544bc5e24587"
+        }
+      },
+      "fullNativeMeshJson": null,
+      "nativeAuditStatus": "NOT_AVAILABLE_NOT_CALCULATED",
+      "representation": "experimental_interpolated_observed_patch_global_field_v1",
+      "vertices": 44,
+      "triangles": 24,
+      "externalTopology": {
+        "representation": "open_or_defective_triangle_surface",
+        "components": 10,
+        "boundary_edges": 44,
+        "nonmanifold_edges": 0,
+        "inconsistent_winding_edges": 0,
+        "nonmanifold_vertices": 1,
+        "duplicate_triangles": 0,
+        "degenerate_triangles": 0,
+        "self_intersection_pairs": 0,
+        "self_intersections_status": "PASS_CHECK_EXECUTED",
+        "watertight_topology": false
+      },
+      "projected": {
+        "truthPixels": 294723,
+        "meshVisiblePixels": 46,
+        "meshVisibleInsideTruthPixels": 46,
+        "truthUncoveredPixels": 294677,
+        "meshVisibleOutsideTruthPixels": 0,
+        "visibleTruthImageCoverage": 0.00015607875869884602,
+        "depthResidualAtCoveredTruthPixelsSyntheticUnits": {
+          "p50": 0.016861823383712338,
+          "p90": 0.04294994188410772,
+          "p95": 0.04530970808053536,
+          "p99": 0.04789482385449543,
+          "max": 0.04897781439711846
+        },
+        "whollyOutsideViewportTriangles": 0,
+        "zeroProjectedAreaTriangles": 0
+      },
+      "surface": {
+        "sampleCount": 4096,
+        "inDomainSamples": 4096,
+        "outOfDomainSamples": 0,
+        "verticalResidualInDomainSyntheticUnits": {
+          "p50": 0.013511557790927498,
+          "p90": 0.040733472005548776,
+          "p95": 0.04385291694059257,
+          "p99": 0.04765217224770564,
+          "max": 0.049735050546270365
+        },
+        "allSamplesAnalyticExtrapolationResidual": {
+          "p50": 0.013511557790927498,
+          "p90": 0.040733472005548776,
+          "p95": 0.04385291694059257,
+          "p99": 0.04765217224770564,
+          "max": 0.049735050546270365
+        }
+      }
+    }
+  },
+  "commonSupport": {
+    "rule": "Exact truth AND finite original depth AND finite candidate depth, no residual threshold/filter",
+    "commonTruthPixels": 46,
+    "unionCoveredTruthPixels": 137979,
+    "lostTruthPixels": 137933,
+    "gainedTruthPixels": 0,
+    "depthResidualAtIdenticalCommonTruthPixelsSyntheticUnits": {
+      "original": {
+        "p50": 0.01660893790667961,
+        "p90": 0.04078277723192203,
+        "p95": 0.04395740712833951,
+        "p99": 0.04709039407363624,
+        "max": 0.048541075936547884
+      },
+      "candidate": {
+        "p50": 0.016861823383712338,
+        "p90": 0.04294994188410772,
+        "p95": 0.04530970808053536,
+        "p99": 0.04789482385449543,
+        "max": 0.04897781439711846
+      }
+    },
+    "pairedAbsoluteResidualChangeCandidateMinusOriginal": {
+      "p50": 0.0018675008563493467,
+      "p90": 0.00808963964974696,
+      "p95": 0.010313829093150817,
+      "p99": 0.011100634313776902,
+      "max": 0.011179245380448677
+    },
+    "strictlyImprovedPixels": 11,
+    "strictlyWorsenedPixels": 35,
+    "unchangedPixels": 0
+  },
+  "experimentalEvidence": {
+    "fullProvenance": {
+      "representation": "experimental_interpolated_observed_patch_global_field_v1",
+      "depthIdentity": "9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995",
+      "pitch": 0.07802324859719528,
+      "truncation": 0.15604649719439057,
+      "wholeFaceSlab": 0.01950581214929882,
+      "workspaceBytes": 28070872,
+      "stackAllowanceBytes": 65536,
+      "operations": 2587862,
+      "nodes": 10860,
+      "cells": 24246,
+      "conflictNodes": 4903,
+      "rejectedFaces": 114,
+      "vertices": 44,
+      "faces": 24,
+      "boundaryEdges": 44,
+      "nonmanifoldEdges": 0,
+      "windingConflictEdges": 0,
+      "observedPatches": {
+        "omittedArrayLength": 6782,
+        "canonicalCompactJsonSha256": "414a1c953fdf12d6fa3fc80b75ed984dedf593066ec3bc65117f7ddcf334a523"
+      },
+      "faceWitnessPatch": {
+        "omittedArrayLength": 24,
+        "canonicalCompactJsonSha256": "6de40ab0e2352c70cef595412816920af98b9d6c05205484ea82b7523f7ac275"
+      }
+    },
+    "independentWitness": {
+      "status": "INDEPENDENT_WHOLE_FACE_WITNESS_PASS",
+      "facesChecked": 24,
+      "sourcePatchesChecked": 6782,
+      "boundaryEdges": 44,
+      "nonmanifoldEdges": 0,
+      "windingConflictEdges": 0,
+      "strictFloatingBoundaryPolicy": "Exact rational 2D orientation on represented projected IEEE coordinates; inclusive exact boundary, no tolerance enlargement. Plane slab remains strict double arithmetic.",
+      "notQualityAcceptance": true
+    },
+    "receiptLimitations": [
+      "No general plane/grid invariance: exact-zero endpoints unsupported and fail closed.",
+      "Observed-patch oriented signed-distance field, not projective camera-z TSDF.",
+      "Whole-face witness admits bounded proximity, not exact source-plane coincidence.",
+      "Independent witness verified; paired quality metrics including vertex-link manifoldness, winding, crossing/coverage and completeness still required before quality interpretation.",
+      "Faces oriented toward tetra scalar gradient; independent directed-edge diagnostics reported, no topology guarantee.",
+      "Workspace scratch is not process RSS. Named pins do not claim full OS/linker closure."
+    ],
+    "receiptElapsedSeconds": 7.714559977001045,
+    "timeScope": "Receipt total includes compile/link/tests/two replays/two verifiers; NOT candidate runtime",
+    "storageScope": "workspaceBytes plus stackAllowanceBytes exclude input and Python verifier; NOT process RSS",
+    "candidateNativeAudit": null,
+    "externalIntersectionBudget": 5000
+  },
+  "limitations": [
+    "Posthoc synthetic comparison only; NEW experimental interpolated global field, not original SurfaceMesh/raw bits/native JSON; not Android/full-controller/cache/shipping qualification",
+    "Projected image coverage is not 3D completeness; sample populations differ except explicit common-support report",
+    "Common support is intersection selected by BOTH outputs, not independent held-out evaluation; keep lost/gained pixels visible",
+    "No changed truth, filtering, welding, smoothing or near-plane clipping substitution",
+    "Existing baseline native6190 separate; candidate native audit unavailable. External default5000face crossing budget unchanged: original unknown, candidate computed. Neither executed status nor topology label means quality PASS",
+    "Surface vertical residual is not Euclidean distance; synthetic truth/render discretization not independently quantified"
+  ],
+  "measurementRun": {
+    "status": "EXPERIMENTAL_GLOBAL_FIELD_MEASURE_ONLY_NOT_QUALITY_PASS",
+    "configSha256": "fb09f62a2e7a29818c6c7d67f07044e86d680b1b2e8597e49f71608a3eca0e6a",
+    "exitCode": 0,
+    "error": null,
+    "inputsUnchanged": true,
+    "seconds": 3.713102137000533,
+    "wallCpuSeconds": 60,
+    "addressSpaceBytes": 1073741824,
+    "threads": 1,
+    "reportSha256": "eefcec824122e6d7eb54d7add245a839308f30fe90c51403683d53842b80f410"
+  }
+}

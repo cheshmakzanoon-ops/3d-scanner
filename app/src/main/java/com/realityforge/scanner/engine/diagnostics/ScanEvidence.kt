@@ -71,13 +71,16 @@ internal data class TopologyEvidence(
     val nonManifoldEdges: Int? = null,
     val connectedComponents: Int? = null,
     val selfIntersections: Int? = null,
+    /** null means historical/absent evidence, true means bounded checks were incomplete. */
+    val topologyIncomplete: Boolean? = null,
 ) {
     init {
         listOf(boundaryEdges, nonManifoldEdges, connectedComponents, selfIntersections)
             .filterNotNull().forEach { require(it >= 0) }
         if (kind == TopologyKind.VERIFIED_WATERTIGHT) {
-            require(boundaryEdges == 0 && nonManifoldEdges == 0) {
-                "Watertight evidence requires measured zero boundary and nonmanifold edges."
+            require(topologyIncomplete == false && boundaryEdges == 0 &&
+                nonManifoldEdges == 0 && selfIntersections == 0) {
+                "Watertight evidence requires complete checks and measured zero defect counts."
             }
         }
     }

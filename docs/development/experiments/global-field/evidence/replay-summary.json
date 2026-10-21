@@ -1,0 +1,119 @@
+{
+  "status": "EXPERIMENTAL_GLOBAL_FIELD_REPLAY_ONLY_NOT_QUALITY_ACCEPTANCE",
+  "receiptSha256": "f0e6aa2ac88713dd1dd44822a6bd614b97f36570a64b43f72bd14bfc28a9da83",
+  "depthIdentity": "9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995",
+  "elapsedSeconds": 7.714559977001045,
+  "elapsedScope": "compile/link/tests/two replays/two independent verifiers; NOT candidate runtime",
+  "inputPinCount": 415,
+  "allInputsUnchanged": true,
+  "exactRepeat": true,
+  "candidate": {
+    "representation": "experimental_interpolated_observed_patch_global_field_v1",
+    "depthIdentity": "9fb072db88498574d07b6125101f2454a1d4343b209944fe8de983b17f0f0995",
+    "pitch": 0.07802324859719528,
+    "truncation": 0.15604649719439057,
+    "wholeFaceSlab": 0.01950581214929882,
+    "workspaceBytes": 28070872,
+    "stackAllowanceBytes": 65536,
+    "operations": 2587862,
+    "nodes": 10860,
+    "cells": 24246,
+    "conflictNodes": 4903,
+    "rejectedFaces": 114,
+    "vertices": 44,
+    "faces": 24,
+    "boundaryEdges": 44,
+    "nonmanifoldEdges": 0,
+    "windingConflictEdges": 0
+  },
+  "independentWitness": {
+    "status": "INDEPENDENT_WHOLE_FACE_WITNESS_PASS",
+    "facesChecked": 24,
+    "sourcePatchesChecked": 6782,
+    "boundaryEdges": 44,
+    "nonmanifoldEdges": 0,
+    "windingConflictEdges": 0,
+    "strictFloatingBoundaryPolicy": "Exact rational 2D orientation on represented projected IEEE coordinates; inclusive exact boundary, no tolerance enlargement. Plane slab remains strict double arithmetic.",
+    "notQualityAcceptance": true
+  },
+  "commands": [
+    {
+      "name": "compile-tests",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "linkage-tests",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "compile-replay",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "linkage-replay",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "synthetic-guards",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "independent-witness-primitive-guards",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "replay-candidate",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "replay-repeat",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "independent-witness-candidate",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "independent-witness-repeat",
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    }
+  ],
+  "limitations": [
+    "No general plane/grid invariance: exact-zero endpoints unsupported and fail closed.",
+    "Observed-patch oriented signed-distance field, not projective camera-z TSDF.",
+    "Whole-face witness admits bounded proximity, not exact source-plane coincidence.",
+    "Independent witness verified; paired quality metrics including vertex-link manifoldness, winding, crossing/coverage and completeness still required before quality interpretation.",
+    "Faces oriented toward tetra scalar gradient; independent directed-edge diagnostics reported, no topology guarantee.",
+    "Workspace scratch is not process RSS. Named pins do not claim full OS/linker closure."
+  ]
+}

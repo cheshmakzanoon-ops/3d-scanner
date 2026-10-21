@@ -36,6 +36,7 @@ internal data class ScanQualityInputs(
     val topologyNonManifoldEdges: Int? = null,
     val topologyConnectedComponents: Int? = null,
     val topologySelfIntersections: Int? = null,
+    val topologyIncomplete: Boolean? = null,
     val scaleKind: ScaleKind = ScaleKind.UNKNOWN,
     val physicalUnit: String? = null,
     val scaleReferenceValue: Double? = null,
@@ -173,6 +174,7 @@ internal object ScanQualityEvidence {
             nonManifoldEdges = data.topologyNonManifoldEdges,
             connectedComponents = data.topologyConnectedComponents,
             selfIntersections = data.topologySelfIntersections,
+            topologyIncomplete = data.topologyIncomplete,
         )
         val units = UnitEvidence(data.scaleKind, data.physicalUnit, data.scaleReferenceValue)
         val calibration = CalibrationEvidence(
@@ -227,7 +229,7 @@ internal object ScanQualityEvidence {
         if (visibility.evaluatedFaces == null || visibility.supportedFaces == null) {
             conditions += EvidenceCondition.VISIBILITY_EVIDENCE_UNKNOWN
         }
-        if (topology.kind == TopologyKind.UNKNOWN) conditions += EvidenceCondition.TOPOLOGY_EVIDENCE_UNKNOWN
+        if (topology.kind == TopologyKind.UNKNOWN || topology.topologyIncomplete != false) conditions += EvidenceCondition.TOPOLOGY_EVIDENCE_UNKNOWN
         if (calibration.kind == CalibrationKind.UNKNOWN ||
             calibration.kind == CalibrationKind.FIXED_INTRINSICS_NO_PROFILE) {
             conditions += EvidenceCondition.CALIBRATION_ASSUMPTION_UNVERIFIED

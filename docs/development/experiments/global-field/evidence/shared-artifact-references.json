@@ -1,0 +1,22 @@
+{
+  "snapshot": {
+    "logicalName": "immutable same-capture input.rffuse",
+    "sha256": "d1b605dffddb9488e77ff2f16706f3cf0f2d4161e3239d03f51648d5290b71c0"
+  },
+  "decoder": {
+    "logicalName": "reviewed StageC snapshot.hpp",
+    "sha256": "ef8c086dd0d74967feba8a93b6f744be93273ba97fb5c72dad6783c66cbb1aa7"
+  },
+  "originalEngine": {
+    "logicalName": "unchanged original native engine",
+    "sha256": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b"
+  },
+  "v4Config": {
+    "logicalName": "private exact 414-input-pin execution config",
+    "sha256": "01d18b7a7fa5814046a4274690462ad63af5e972a61bf21bb373e192b551e26c"
+  },
+  "measurementConfig": {
+    "logicalName": "private reviewed measurement config",
+    "sha256": "fb09f62a2e7a29818c6c7d67f07044e86d680b1b2e8597e49f71608a3eca0e6a"
+  }
+}
