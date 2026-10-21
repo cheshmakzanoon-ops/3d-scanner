@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "recordedUtc": "2026-10-21T23:33:36Z",
+  "status": "HOST_REGRESSION_FIXED",
+  "baselineCommit": "e188704ddb4aa6a1a9cace8bf48efeb3910690f9",
+  "candidateIdentity": {
+    "kind": "uncommitted patch on baseline; commit assignment remains integration-owned",
+    "controllerPath": "app/src/main/java/com/realityforge/scanner/work/execution/ReconstructionExecutionController.kt",
+    "controllerBaselineSha256": "2c43595aa37fdf6bbacb44a912209e5f0e669999a0ebafcad81eb26cecf86c62",
+    "controllerFixedSha256": "69c34a36251352d7da7f8440cd4927155d6f4810f8b0ae032b9a06ba293b78dc",
+    "testPath": "app/src/test/java/com/realityforge/scanner/hostintegration/ReconstructionHeartbeatPauseHostTest.kt",
+    "testSha256": "e0966c53620227771c60511bd4e7a86619add12cc625a260a1ddfab08a40cb2b",
+    "reviewedPatchSha256": "1e0c51c11be10ec619d9382d075ed6ff561400a5d4b426442c03ec28ced24cf8"
+  },
+  "finding": {
+    "cause": "Heartbeat launch threw ResourceCheckpointPause as a non-cancellation child failure. runOne coroutineScope rethrew it outside inner cancellation/failure handlers after PAUSED persistence and cleanup, reaching the worker exception handler.",
+    "fix": "Record the resource pause and signal the existing native token as before, then cancel only the runOne attempt scope using CancellationException with the pause cause and return from heartbeat. Existing durable settlement and cleanup remain authoritative."
+  },
+  "method": {
+    "framework": "Robolectric API35 HOST; actual production controller, Room, repository, resource observer and cleanup",
+    "stimulus": "Delegating ScanDao suspends the second photos read before JNI; framework resource shadows are initially healthy then thermal status becomes severe (3). The production 10-second heartbeat runs unchanged.",
+    "failureObservation": "Test-only reflection augments the existing controller scope context with CoroutineExceptionHandler; same supervisor Job and dispatcher are retained.",
+    "assertions": [
+      "PAUSED with RESOURCE_PAUSED outcome",
+      "lease absent",
+      "project INTERRUPTED and no result published",
+      "storage reservations empty",
+      "progress cleared",
+      "native token zero",
+      "running job identity cleared",
+      "no otherwise uncaught worker exception"
+    ],
+    "testIdenticalAcrossRedGreen": true
+  },
+  "red": {
+    "tests": 1,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "elapsedSeconds": 16.516,
+    "startedUtc": "2026-10-21T23:25:12.034Z",
+    "xmlSha256": "38e5e2898d020a32319294ebf7fe82cb366b586fcefadb28c9e999c741e55a90",
+    "status": "EXPECTED_REGRESSION_FAILURE",
+    "assertion": "Resource pause escaped the worker after durable PAUSED and cleanup; expected null, observed ResourceCheckpointPause: thermal",
+    "productionBaselineHashesVerified": true,
+    "logSha256": "9c4ec3a0a8dcfb18a65325173cc496e0c5bb1c81ffda017a19d63270f6f0b243"
+  },
+  "green": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsedSeconds": 16.026,
+    "startedUtc": "2026-10-21T23:26:36.413Z",
+    "xmlSha256": "b61aebf890163dc832ce46775c6950806804ca4a134fc7473104e1dbf940ae28",
+    "status": "PASS",
+    "productionAndTestHashesVerified": true,
+    "logSha256": "cf3b4765e98cb40abe57eb748abfcb2d7ed23d12e3a82cdd1a9ced08980663da",
+    "supervisionReceiptSha256": "a1e7b9efcf39ac4aa548cebc62bbb3c8302f86be9552db251321523f181a3b5d",
+    "supervision": {
+      "exitCode": 0,
+      "timedOut": false,
+      "remainingChildren": 0
+    }
+  },
+  "broaderValidation": {
+    "ordinaryJvm": {
+      "tests": 768,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml_files": 141
+    },
+    "hostIntegration": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xml_files": 7
+    },
+    "androidTestKotlinCompilation": "COMPLETED; compilation only, instrumentation NOT_RUN",
+    "initialCombinedInvocation": {
+      "status": "FAILED_INFRASTRUCTURE",
+      "exitCode": 1,
+      "timedOut": false,
+      "failure": "Gradle daemon disappeared during lintAnalyzeDebug after ordinary/HOST tests and AndroidTest Kotlin compilation completed.",
+      "residualTrackedChildrenDrained": 1,
+      "remainingChildren": 0,
+      "logSha256": "32acbba394f13ff748218316f31e55081f1a886903594814442d7c267fc59084",
+      "supervisionReceiptSha256": "b3afe02327edeb6a83b841aedd0fb988a7a3a50a7cf4a6877ac090cdd90c3cbf"
+    },
+    "lintRetry": {
+      "status": "PASS",
+      "heapMiB": 1536,
+      "exitCode": 0,
+      "elapsedSeconds": 157.22842622900498,
+      "timedOut": false,
+      "remainingChildren": 0,
+      "errors": 0,
+      "warnings": 91,
+      "hints": 3,
+      "analysisTasksExecuted": [
+        "lintAnalyzeDebug",
+        "lintAnalyzeDebugAndroidTest",
+        "lintAnalyzeDebugUnitTest"
+      ],
+      "logSha256": "3c4701bc9bef863cdcb013f54e181f3a9521ced83480f293708d93a078b0e1cd",
+      "supervisionReceiptSha256": "76dcef0becb393b7f748806fe04ef948ab1d4eb86ef518fb35743471c7b55cec",
+      "reportSha256": "75f11dd128fc9b2af0251e199a3dc9f7459e1a28f804cc8477bee8a2fe85bb6c"
+    }
+  },
+  "toolchain": {
+    "jdk": 17,
+    "gradle": "8.13",
+    "dependenciesOffline": true,
+    "workers": 1,
+    "parallel": false,
+    "setupDisclosure": "Initial RED Gradle wrapper bootstrapped the official free Gradle8.13 distribution before offline dependency execution; subsequent runs used the already-installed standalone Gradle. No project configuration was changed for setup."
+  },
+  "limits": [
+    "This is pre-JNI controller resource-heartbeat HOST evidence, not a reconstructed-photo or live-native cancellation test.",
+    "Resource readings are Robolectric framework shadows, not measured handset thermal/memory/battery/storage behavior.",
+    "No foreground-service lifecycle, physical-device, emulator, APK installation, process-death, signing or release qualification is established.",
+    "No commit/push, APK rebuild, manifest regeneration or full Python gate was performed by this validation task."
+  ],
+  "finalSourceHashesVerified": true,
+  "diffCheck": "PASS"
+}

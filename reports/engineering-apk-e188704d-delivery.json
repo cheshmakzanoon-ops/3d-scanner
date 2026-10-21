@@ -1,0 +1,110 @@
+{
+  "schema": 1,
+  "artifactKind": "engineering-candidate-test-signed",
+  "sourceCommitAtBuild": "e188704ddb4aa6a1a9cace8bf48efeb3910690f9",
+  "sourceTreeAtBuild": "a01f63a900e0d920dde16cd349481e73ae298e10",
+  "sourceIdentityPolicy": "Historical build identity; do not relabel this APK after source-history changes.",
+  "apk": {
+    "filename": "realityforge-e188704d-engineering.apk",
+    "bytes": 106220465,
+    "sha256": "ee1736e82742246911add0ccddd426ab4de7449f2435322f3c6987714423b4c0"
+  },
+  "package": {
+    "applicationId": "com.realityforge.scanner",
+    "versionCode": 19,
+    "versionName": "0.19.0-m19",
+    "minSdk": 29,
+    "signingMode": "test",
+    "certificateSha256": "dc839f96ad8245392c2f25227e10c3342a5aeee809bad9f4e5e2fd7a8cdcd466"
+  },
+  "build": {
+    "optimizedRelease": true,
+    "instrumentationQaRetention": false,
+    "dependencyVerification": "strict",
+    "offline": true,
+    "sourceCleanBeforeAndAfter": true
+  },
+  "validation": {
+    "ordinaryJvm": {
+      "tests": 768,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "hostIntegration": {
+      "tests": 17,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "androidTestKotlinCompilation": "passed",
+    "lint": {
+      "errors": 0,
+      "warnings": 91,
+      "hints": 3
+    },
+    "packageGates": [
+      "signature and expected certificate",
+      "package/version identity",
+      "no network permissions",
+      "backup exclusions",
+      "16KiB ZIP alignment",
+      "16KiB ELF alignment",
+      "expected ABI/library inventory",
+      "third-party notices",
+      "exact packaged source revision"
+    ],
+    "nativeEntriesCompared": 16,
+    "nativeEntriesByteIdenticalToPreviousApk": true,
+    "totalArchiveEntries": 531,
+    "previousApkSha256": "fe26cc65f418b328953ef32580b9ac97daeed4a612997bc54fd78b9a0dffbc9b",
+    "changedArchiveEntries": [
+      "META-INF/version-control-info.textproto",
+      "assets/dexopt/baseline.prof",
+      "classes.dex"
+    ],
+    "initialValidationFailure": "Adapter expected sdkVersion but aapt2 emitted minSdkVersion; actual minimum SDK was 29.",
+    "recovery": "Strict single minimum-SDK declaration parser passed read-only on the same pinned APK; no rebuild.",
+    "supervision": "Bounded owned process groups drained; original failure evidence preserved."
+  },
+  "limits": {
+    "productionSigned": false,
+    "physicalDeviceQualified": false,
+    "upgradeTested": false,
+    "scanQualityQualified": false,
+    "newRuntimeExecutionClaimed": false
+  },
+  "delivery": {
+    "sentAtUtc": "2026-10-21T23:15:54Z",
+    "status": "three-parts-and-readme accepted by ChatGPT send tool",
+    "zip": {
+      "filename": "realityforge-e188704d-engineering.zip",
+      "bytes": 46321652,
+      "sha256": "7645cc40a12e64b92d7f8373ea8dac73a30a3b191280a1ce470e9b46431d106c"
+    },
+    "parts": [
+      {
+        "name": "realityforge-e188704d-engineering.zip.001",
+        "bytes": 18874368,
+        "sha256": "503b3e3392ccf161f2f002470497c0393fb982e70fbb4cc9e47924b82d129863"
+      },
+      {
+        "name": "realityforge-e188704d-engineering.zip.002",
+        "bytes": 18874368,
+        "sha256": "a91e5a096f5d02ba6e9d5115ec7f664153b83e4fb8d2d83053e48dc0f6ef0fd1"
+      },
+      {
+        "name": "realityforge-e188704d-engineering.zip.003",
+        "bytes": 8572916,
+        "sha256": "8909b743b15e61c5039055904a3713167d7b0316a80033fbdb0f412ba35f55fc"
+      }
+    ],
+    "readme": {
+      "filename": "JOIN-AND-INSTALL-e188704d.txt",
+      "bytes": 1865,
+      "sha256": "4b6d84f9fa3de51e9afa8d59f7bd23f950e81e7d41dd80767d064f29655d2ae5"
+    },
+    "verification": "Concatenated parts exactly match ZIP; decompressed APK and included receipt hashes verified.",
+    "singleZipAttempt": "Library upload succeeded, but attachment was explicitly rejected as over the ChatGPT upload limit; not counted as delivery."
+  }
+}

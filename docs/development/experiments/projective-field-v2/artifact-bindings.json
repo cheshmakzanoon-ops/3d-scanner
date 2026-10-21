@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "archive": "prototype/ALLOCATION_PROOF.md",
+      "historicalSource": "/tmp/relief-projective-field-v2/ALLOCATION_PROOF.md",
+      "sha256": "26c8414ff7c31812c6df92d401a3c60afff43fd54ee5e01185fb6065e27a4f76",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/verify_witness.py",
+      "historicalSource": "/tmp/relief-projective-field-v2/verify_witness.py",
+      "sha256": "af2a119da2a1579b0bef1b8552d306ca3462389857541e96dadfa7f6e2201001",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/tests.cpp",
+      "historicalSource": "/tmp/relief-projective-field-v2/tests.cpp",
+      "sha256": "e920924aded88c948d93e0fe8679b36a098c8b92a65f3f2f023054c1493be0d4",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/runner.py",
+      "historicalSource": "/tmp/relief-projective-field-v2/runner.py",
+      "sha256": "544c35152d41947dd3e097d926403ab8aae335fb0b186d1b55f311f91cc0c32e",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/replay.cpp",
+      "historicalSource": "/tmp/relief-projective-field-v2/replay.cpp",
+      "sha256": "0cb980ac73ea9e2d83741715dceaf28cf416e771e0bf6596c0252e99ec8bcdc3",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/global_field.hpp",
+      "historicalSource": "/tmp/relief-projective-field-v2/global_field.hpp",
+      "sha256": "2fb31919856b4e76e3dbc94536ec3b4f4e4d10582d8627c6b250c0eefe71928e",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/config.json",
+      "historicalSource": "/tmp/relief-projective-field-v2/config.json",
+      "sha256": "1469331c7a7b13686160fa5b21a9fa84c58e476edfd0e966ab5a19fbc29a4f8e",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/SHA256SUMS",
+      "historicalSource": "/tmp/relief-projective-field-v2/SHA256SUMS",
+      "sha256": "6de9fcd567ef5818b8d00fb125af99f5538a4f11f5d7f39e7de96e452c80702f",
+      "exactBytes": true
+    },
+    {
+      "archive": "prototype/RECIPE.md",
+      "historicalSource": "/tmp/relief-projective-field-v2/RECIPE.md",
+      "sha256": "dc211e981e212c8b18ca305873b5bfb05c88622659a8d96f3a7b0f07c205dcb2",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/SHA256SUMS",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/SHA256SUMS",
+      "sha256": "8391e5d58adff22f49c8f8ec05321de2676887dfaa2a4ae8f7acf83e10840441",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/source-pins.json",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/source-pins.json",
+      "sha256": "f1e0f850534f516fd2f40666e99acefd5ae82f5aa2005ec45fe13aa4202b32b7",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/REVIEW.md",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/REVIEW.md",
+      "sha256": "18265cbce56c14f9555ba5e594bc88654f241d36c0117fa125e505730de30fa7",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/config.json",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/config.json",
+      "sha256": "503cb38b03784e03d70f185c40e284ac52c8918f2452ede5c8e927dd14d6b4d6",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/run.py",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/run.py",
+      "sha256": "2da84f216a5e8c19d3d5ceaa2bafc3e8924c03da9516dda2b114166ba7742fe1",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/projection-geometry-only.diff",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/projection-geometry-only.diff",
+      "sha256": "83fe932cd9d8d5cef1dbbd7a7d4175639d29a7fd3be3e15a2d8a7e8f3f56f575",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/projection.py",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/projection.py",
+      "sha256": "124634a5a11882ebc459ed6c18aa2bf447378350ef691d94edf84bc1568cc499",
+      "exactBytes": true
+    },
+    {
+      "archive": "measurement-source/measure.py",
+      "historicalSource": "/tmp/relief-projective-field-v2-measure/measure.py",
+      "sha256": "bb06a64623ca2c0503d0d32ca1cc1ddbfb24e3a4621cf03172972aab8fe4ec5d",
+      "exactBytes": true
+    },
+    {
+      "archive": "replay-receipt.compact.json",
+      "historicalSource": "/tmp/relief-projective-field-v2-evidence/receipt.json",
+      "originalSha256": "8c01f8a524369921df3f22f3a5e9e695117a657deb5b601fa66c6fde277916b4",
+      "exactBytes": false,
+      "omittedArrays": [
+        {
+          "jsonPointer": "/candidate/observedPatches",
+          "omitted": true,
+          "items": 6782,
+          "canonicalJsonSha256": "414a1c953fdf12d6fa3fc80b75ed984dedf593066ec3bc65117f7ddcf334a523",
+          "encoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no trailing newline"
+        },
+        {
+          "jsonPointer": "/candidate/faceWitnessPatch",
+          "omitted": true,
+          "items": 1514,
+          "canonicalJsonSha256": "7ef55cdef6b601925a1d5c53963bb96ba06777d187d8b0e188a6a9b5ed6349f2",
+          "encoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no trailing newline"
+        }
+      ],
+      "retention": "All fields recursively identical except explicitly hashed large arrays"
+    },
+    {
+      "archive": "measurements.compact.json",
+      "historicalSource": "/tmp/relief-projective-field-v2-measurements/measurements.json",
+      "originalSha256": "d7ed9620e365fea23f46e78c175ecd10647ffc1fb64e43b7f92fd261a154beff",
+      "exactBytes": false,
+      "omittedArrays": [
+        {
+          "jsonPointer": "/meshes/original/fullNativeMeshJson/vertices",
+          "omitted": true,
+          "items": 5753,
+          "canonicalJsonSha256": "c0150436d69d27484efb0f9de06be8f2df9297dfa25dc7a4d30fb362300dde44",
+          "encoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no trailing newline"
+        },
+        {
+          "jsonPointer": "/meshes/original/fullNativeMeshJson/triangles",
+          "omitted": true,
+          "items": 6741,
+          "canonicalJsonSha256": "0a05924a47a7b87764407df60fd574c5821d85cc516c2fa2971fc787f3a167fd",
+          "encoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no trailing newline"
+        },
+        {
+          "jsonPointer": "/experimentalEvidence/fullProvenance/observedPatches",
+          "omitted": true,
+          "items": 6782,
+          "canonicalJsonSha256": "414a1c953fdf12d6fa3fc80b75ed984dedf593066ec3bc65117f7ddcf334a523",
+          "encoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no trailing newline"
+        },
+        {
+          "jsonPointer": "/experimentalEvidence/fullProvenance/faceWitnessPatch",
+          "omitted": true,
+          "items": 1514,
+          "canonicalJsonSha256": "7ef55cdef6b601925a1d5c53963bb96ba06777d187d8b0e188a6a9b5ed6349f2",
+          "encoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no trailing newline"
+        }
+      ],
+      "retention": "All fields recursively identical except explicitly hashed large arrays"
+    },
+    {
+      "archive": "measurement-receipt.json",
+      "historicalSource": "/tmp/relief-projective-field-v2-measurements/receipt.json",
+      "sha256": "43c30dcd4a462611430fa97b1494a273b72378144a3627083f0e795f8bcbcf64",
+      "exactBytes": true
+    },
+    {
+      "archive": "independent-witness.json",
+      "historicalSource": "/tmp/relief-projective-field-v2-evidence/candidate-independent-witness.json",
+      "sha256": "1491dd8ac6bb93dee53a4609dfc761e9d255e786b6473c3ab925eaf0ac3aaff8",
+      "exactBytes": true
+    },
+    {
+      "archive": "new-algorithm-counters.json",
+      "historicalSource": "/tmp/relief-projective-field-v2-evidence/candidate/counters.json",
+      "sha256": "b412e8d56c323ea7e0a78e41ff41361d827b27f41009dd21a88a524ceb25248a",
+      "exactBytes": true
+    }
+  ],
+  "measurementPins": {
+    "count": 622,
+    "preHashesSha256": "58c861b8b3185b012c5e65c813549030a13250a6896be92133d9e89d6eb5aa50",
+    "postHashesSha256": "58c861b8b3185b012c5e65c813549030a13250a6896be92133d9e89d6eb5aa50",
+    "equal": true
+  },
+  "sourceHeadAtMeasurement": "e188704ddb4aa6a1a9cace8bf48efeb3910690f9",
+  "noMeshSnapshotBinaryIncluded": true
+}

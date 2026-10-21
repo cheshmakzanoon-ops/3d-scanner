@@ -1,0 +1,25 @@
+{
+  "status": "EXPERIMENTAL_PROJECTIVE_FIELD_MEASURE_ONLY_NOT_QUALITY_PASS",
+  "command": [
+    "/workspace/scratch/6b683a119bde/qaenv/bin/python",
+    "-B",
+    "-X",
+    "pycache_prefix=/tmp/relief-projective-field-v2-measurements/empty-pycache",
+    "/tmp/relief-projective-field-v2-measure/measure.py",
+    "--config",
+    "/tmp/relief-projective-field-v2-measure/config.json",
+    "--config-sha256",
+    "503cb38b03784e03d70f185c40e284ac52c8918f2452ede5c8e927dd14d6b4d6",
+    "--output",
+    "/tmp/relief-projective-field-v2-measurements/measurements.json"
+  ],
+  "configSha256": "503cb38b03784e03d70f185c40e284ac52c8918f2452ede5c8e927dd14d6b4d6",
+  "exitCode": 0,
+  "error": null,
+  "inputsUnchanged": true,
+  "seconds": 4.166473306002445,
+  "wallCpuSeconds": 60,
+  "addressSpaceBytes": 1073741824,
+  "threads": 1,
+  "reportSha256": "d7ed9620e365fea23f46e78c175ecd10647ffc1fb64e43b7f92fd261a154beff"
+}

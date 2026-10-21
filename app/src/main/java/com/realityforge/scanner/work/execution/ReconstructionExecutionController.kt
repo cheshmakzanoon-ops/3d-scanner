@@ -187,13 +187,15 @@ class ReconstructionExecutionController(
             }
             val inputSize = repository.inputSnapshot(input.projectId).photos.size
             resourcePlan = selection.resourcePlan(inputSize)
+            val attemptScope = this
             heartbeat = launch {
                 while (isActive) {
                     delay(10_000)
                     try { checkResources() } catch (paused: ResourceCheckpointPause) {
                         resourceFailure.set(paused)
                         nativeToken.get().takeIf { it > 0 }?.let { NativeCore.cancelReconstruction(it) }
-                        throw paused
+                        attemptScope.cancel(CancellationException("Resource checkpoint pause", paused))
+                        return@launch
                     }
                     leaseMutex.withLock {
                         val renewed = jobs.renew(lease, System.currentTimeMillis(), LEASE_MILLIS)

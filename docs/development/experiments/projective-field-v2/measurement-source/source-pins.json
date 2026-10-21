@@ -1,0 +1,19 @@
+{
+  "/workspace/scratch/6b683a119bde/3d-scanner/benchmarks/fixtures/relief/calibration.json": "284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593",
+  "/workspace/scratch/6b683a119bde/3d-scanner/benchmarks/fixtures/relief/view-01.jpg": "66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c",
+  "/workspace/scratch/6b683a119bde/3d-scanner/benchmarks/fixtures/relief/view-02.jpg": "c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b",
+  "/workspace/scratch/6b683a119bde/3d-scanner/benchmarks/fixtures/relief/view-03.jpg": "a0d386746c2a8f47840058613bc89aa3c4a8095995288fa936d368ad67fe6c0f",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tests/test_pipeline.py": "26d4a548f9bc4ba79be4dc8942738e83f7224face99d2955b5d06b220ad205fd",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tools/make_fixture.py": "c3660732f2fbccf68efd6d5452fdb1701427ce060c076f6d5558c500497783f9",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tools/qa/geometry_quality/__init__.py": "3a075ef221d59d2ed80103a1730dbc33a056343c43c2be22eeaa9f53f78b1098",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tools/qa/geometry_quality/__main__.py": "8bc2987aba5e5d554d1db58b61f412c6cdf2604e819e5b45bf7662c5a8b9773d",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tools/qa/geometry_quality/baseline.py": "76e768309ae68cc27cfd319eaab487058c9c8840a40acbe488e37b73e191e303",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tools/qa/geometry_quality/glb.py": "f0272ecf74149702e79b002878bce4f57169a37744ed8213acd125541208824a",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tools/qa/geometry_quality/metrics.py": "c4b0ca8bac0757645718586c842671e9bed416d7c0e41ae54bf8553fe85d5bf0",
+  "/workspace/scratch/6b683a119bde/3d-scanner/tools/relief_quality_validation/evaluate.py": "95b1a8a067e334965539b9ae65b2a6fa7a5f13d9212bb513587cbec06f65a834",
+  "/tmp/relief-projective-field-v2-measure/REVIEW.md": "18265cbce56c14f9555ba5e594bc88654f241d36c0117fa125e505730de30fa7",
+  "/tmp/relief-projective-field-v2-measure/run.py": "2da84f216a5e8c19d3d5ceaa2bafc3e8924c03da9516dda2b114166ba7742fe1",
+  "/tmp/relief-projective-field-v2-measure/projection-geometry-only.diff": "83fe932cd9d8d5cef1dbbd7a7d4175639d29a7fd3be3e15a2d8a7e8f3f56f575",
+  "/tmp/relief-projective-field-v2-measure/projection.py": "124634a5a11882ebc459ed6c18aa2bf447378350ef691d94edf84bc1568cc499",
+  "/tmp/relief-projective-field-v2-measure/measure.py": "bb06a64623ca2c0503d0d32ca1cc1ddbfb24e3a4621cf03172972aab8fe4ec5d"
+}

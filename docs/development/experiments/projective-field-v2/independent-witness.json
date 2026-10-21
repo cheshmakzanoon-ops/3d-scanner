@@ -1,0 +1,10 @@
+{
+  "status": "INDEPENDENT_WHOLE_FACE_WITNESS_PASS",
+  "facesChecked": 1514,
+  "sourcePatchesChecked": 6782,
+  "boundaryEdges": 2668,
+  "nonmanifoldEdges": 0,
+  "windingConflictEdges": 0,
+  "strictFloatingBoundaryPolicy": "Exact rational 2D orientation on represented projected IEEE coordinates; inclusive exact boundary, no tolerance enlargement. Plane slab remains strict double arithmetic.",
+  "notQualityAcceptance": true
+}
