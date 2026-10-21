@@ -689,3 +689,21 @@ JVM tests pass 722/722, with zero failures/errors/skips. Provider fault-injectio
 Android tests compile; lint has zero Error/Fatal findings. Provider device tests
 remain NOT_RUN, and host verifier tests do not execute Room. See
 [the integrity report](../../reports/cloud-original-integrity.json).
+
+### Normal optimized engineering APK delivered (12:09 UTC)
+
+Source `08abcefc` now builds a normal optimized release APK with
+`realityForgeInstrumentationQa=false` and existing test signing. Dry-run and actual
+build contain no QA retention/generation tasks; the final R8 configuration excludes
+generated QA rules. Strict offline assembly succeeds in 2m53s. Package signature,
+permissions/offline policy, backup exclusions and 16KB ZIP/16-native-library checks
+pass. APK SHA-256 is `aa2312324619dae5699d0f2e5364cacf94c83f41cc7facd55bfa6f2dc9a6f84d`.
+
+The 106,220,465-byte APK was privately delivered in three verified split ZIP parts
+with assembly instructions. Its package, version code and test certificate match
+the retained earlier debug preview; in-place update is expected but NOT TESTED.
+Do not uninstall an existing app or delete scans. This is an engineering candidate,
+not production-signed, installed, device-qualified or a passing full-session build.
+See [normal release evidence](../../reports/cloud-normal-release-engineering.json)
+and [download instructions](ENGINEERING_APK_08ABCEFC.md). Binary APKs remain outside
+Git source history.
