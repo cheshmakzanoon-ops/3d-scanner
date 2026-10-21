@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "scope": "Exact serialized coordinate face-set comparison; no nearest-neighbor correspondence or tolerance matching",
+  "inputSha256": {
+    "baseline": "a68de8194c87bc378033787f6c3e1da8f846ddb7970559d516526470187a7b68",
+    "candidate": "e72b351809e61b239a61a735278bef8c608fe055271523558fc5e6f23096a93b"
+  },
+  "scriptSha256": "cb6dc24c30d0cedc22f40826ba00429de21a1b1e0cf71d3488f4af5ab28c42ca",
+  "baselineVertices": 5749,
+  "candidateVertices": 6424,
+  "baselineUniqueXYZ": 5749,
+  "candidateUniqueXYZ": 6424,
+  "baselineTriangles": 6726,
+  "candidateTriangles": 8896,
+  "preservedTriangles": 6726,
+  "lostTriangles": 0,
+  "addedTriangles": 2170,
+  "preservedOrientedTriangles": 6726,
+  "oldXYZMissingFromCandidate": 0,
+  "candidateXYZNotInBaselinePublishedMesh": 675,
+  "addedTrianglesByPreviouslyPublishedVertexCount": {
+    "0": 123,
+    "1": 107,
+    "2": 680,
+    "3": 1260
+  },
+  "sameXYZColorMismatchCount": 0,
+  "limitations": [
+    "New published vertices may be previously supported observations omitted by all-four rule, not newly reconstructed points; PLY alone cannot prove observation provenance.",
+    "Normals can change when incident supported faces change.",
+    "This report does not measure physical accuracy or occlusion correctness."
+  ]
+}

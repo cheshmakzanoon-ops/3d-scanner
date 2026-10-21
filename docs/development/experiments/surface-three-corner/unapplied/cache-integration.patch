@@ -1,0 +1,244 @@
+--- a/reconstruction/src/surface.cpp
++++ b/reconstruction/src/surface.cpp
+@@ -315,10 +315,18 @@
+                 const std::size_t i=static_cast<std::size_t>(y)*width+x;
+                 std::array<std::size_t,4> pix{i,i+step,i+static_cast<std::size_t>(step)*width,i+static_cast<std::size_t>(step)*width+step};
+                 std::array<std::int32_t,4> ids{grid[pix[0]],grid[pix[1]],grid[pix[2]],grid[pix[3]]};
+-                if(std::any_of(ids.begin(),ids.end(),[](auto id){return id<0;})){
+-                    ++mesh.rejectedCells;continue;
++                const auto supported=std::count_if(ids.begin(),ids.end(),[](auto id){return id>=0;});
++                if(supported<3){++mesh.rejectedCells;continue;}
++                const std::array<float,4> d{depth[pix[0]],depth[pix[1]],depth[pix[2]],depth[pix[3]]};
++                if(supported==3){
++                    // Only the half-cell bounded by three existing verified observations.
++                    // Never synthesize the missing vertex or change complete-cell diagonal choice.
++                    std::array<int,3> corners{};std::size_t count=0;
++                    for(int corner=0;corner<4;++corner)if(ids[corner]>=0)corners[count++]=corner;
++                    if(!validTriangle(cam,{ids[corners[0]],ids[corners[1]],ids[corners[2]]},
++                        {d[corners[0]],d[corners[1]],d[corners[2]]}))++mesh.rejectedTriangles;
++                    continue;
+                 }
+-                const std::array<float,4> d{depth[pix[0]],depth[pix[1]],depth[pix[2]],depth[pix[3]]};
+                 const auto& v=mesh.vertices;
+                 const auto dist=[&](int a,int b){return norm(sub(v[static_cast<std::size_t>(ids[a])].xyz,
+                                                                   v[static_cast<std::size_t>(ids[b])].xyz));};
+@@ -375,7 +383,7 @@
+      <<",\"triangleCount\":"<<m.triangles.size()<<",\"inputSamples\":"<<m.inputSamples
+      <<",\"acceptedSamples\":"<<m.acceptedSamples<<",\"fusedObservations\":"<<m.fusedObservations
+      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
+-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":6,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
++     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":7,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     for(std::size_t i=0;i<m.vertices.size();++i){
+         const auto& v=m.vertices[i];if(i)s<<',';
+         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])
+--- a/reconstruction/src/surface_checkpoint.cpp
++++ b/reconstruction/src/surface_checkpoint.cpp
+@@ -311,7 +311,7 @@
+ 
+ checkpoint::Digest algorithmIdentity(const SurfaceSettings& settings) {
+     validSettings(settings);
+-    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v6-checkpoint-v2");
++    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v7-checkpoint-v2");
+     hashInteger(digest,std::bit_cast<std::uint32_t>(settings.minimumConfidence));
+     hashReal(digest,settings.maximumRelativeDepthJump);hashReal(digest,settings.maximumEdgePixelFactor);
+     hashInteger(digest,static_cast<std::uint32_t>(settings.maxVertices));hashInteger(digest,static_cast<std::uint32_t>(settings.maxTriangles));
+--- a/reconstruction/tests/surface_test.cpp
++++ b/reconstruction/tests/surface_test.cpp
+@@ -44,10 +44,98 @@
+     }
+     return views;
+ }
++// Exact surface-admission fixtures, not fabricated output of the photographic stereo test.
++// Default production limits remain unchanged (maxVertices/maxTriangles >=10).
++struct CornerFixture {
++    std::vector<rf::DenseView> views;
++    rf::DenseResult dense;
++    CornerFixture(unsigned mask, std::array<float,4> depths={5,5,5,5}, double fx=100,double fy=100) {
++        views=fixture(2);dense.maps.resize(views.size());
++        for(std::size_t cam=0;cam<views.size();++cam){
++            views[cam].fx=fx;views[cam].fy=fy;
++            auto& map=dense.maps[cam];map.width=104;map.height=76;
++            map.depth.assign(104*76,0);map.confidence.assign(104*76,0);
++        }
++        const auto& v=views[0];
++        for(int corner=0;corner<4;++corner)if(mask&(1u<<corner)){
++            const int x=12+(corner%2)*3,y=12+(corner/2)*3;const auto d=depths[corner];
++            dense.maps[0].depth[y*104+x]=d;dense.maps[0].confidence[y*104+x]=.95f;
++            dense.verifiedSamples.push_back({{(x-v.cx)*d/v.fx,(y-v.cy)*d/v.fy,d},
++                {150,140,120},.95f,2,0,static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y)});
++        }
++    }
++};
++std::vector<std::array<int,3>> cornerFaces(const rf::SurfaceMesh& mesh,const rf::DenseView& view){
++    std::vector<std::array<int,3>> result;
++    for(const auto& face:mesh.triangles){
++        std::array<int,3> corners{};int k=0;
++        for(auto id:{face.a,face.b,face.c}){
++            require(id<mesh.vertices.size(),"Triangle exceeds output vertex bound");
++            const auto p=mesh.vertices[id].xyz;
++            const int x=static_cast<int>(std::lround(view.fx*p.x/p.z+view.cx));
++            const int y=static_cast<int>(std::lround(view.fy*p.y/p.z+view.cy));
++            require((x==12||x==15)&&(y==12||y==15),"Triangle escaped its source cell");
++            corners[k++]=(x-12)/3+2*((y-12)/3);
++        }
++        std::sort(corners.begin(),corners.end());result.push_back(corners);
++    }
++    std::sort(result.begin(),result.end());
++    require(std::adjacent_find(result.begin(),result.end())==result.end(),"Duplicate supported face emitted");
++    return result;
++}
++
+ }
+ int main(){
+     int passed=0;
+     auto test=[&](const char* name,auto fn){try{fn();++passed;std::cout<<"PASS "<<name<<'\n';}catch(const std::exception& e){std::cerr<<"FAIL "<<name<<": "<<e.what()<<'\n';throw;}};
++    test("three supported corners retain exactly their unique half cell",[]{
++        for(int missing=0;missing<4;++missing){
++            CornerFixture f(15u^(1u<<missing));
++            const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense);
++            std::array<int,3> expected{};int k=0;for(int i=0;i<4;++i)if(i!=missing)expected[k++]=i;
++            require(cornerFaces(mesh,f.views[0])==std::vector<std::array<int,3>>{expected},"Missing corner discarded supported half-cell");
++            require(mesh.vertices.size()==3&&mesh.acceptedSamples==3,"Invented or discarded supported vertices");
++        }
++    });
++    test("zero one and two supported corners never create geometry",[]{
++        for(unsigned mask=0;mask<16;++mask)if(__builtin_popcount(mask)<=2){
++            CornerFixture f(mask);const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense);
++            require(mesh.triangles.empty()&&mesh.vertices.empty(),"Insufficient corner support created geometry");
++        }
++    });
++    test("four supported corners preserve existing shortest diagonal including tie",[]{
++        for(const auto depths:{std::array<float,4>{5,5,5,5},std::array<float,4>{5,5.02f,5.02f,5}}){
++            CornerFixture f(15,depths);const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense);
++            auto distance=[&](int a,int b){const auto p=f.dense.verifiedSamples[a].xyz,q=f.dense.verifiedSamples[b].xyz;
++                return std::hypot(std::hypot(p.x-q.x,p.y-q.y),p.z-q.z);};
++            const bool diagonal03=distance(0,3)<distance(1,2);
++            std::vector<std::array<int,3>> expected=diagonal03?std::vector<std::array<int,3>>{{0,1,3},{0,2,3}}:
++                std::vector<std::array<int,3>>{{0,1,2},{1,2,3}};
++            require(cornerFaces(mesh,f.views[0])==expected,"Complete-cell diagonal changed");
++        }
++    });
++    test("partial cells retain depth edge and area rejection",[]{
++        CornerFixture jump(7,{5,5,8,5});
++        require(rf::fuseDepthSurfaces(jump.views,jump.dense).triangles.empty(),"Partial face bridged depth step");
++        CornerFixture edge(7,{5,5,5.35f,5},1000,1000);
++        require(rf::fuseDepthSurfaces(edge.views,edge.dense).triangles.empty(),"Partial face exceeded edge bound");
++        CornerFixture area(7,{5,5,5,5},10000,100);
++        require(rf::fuseDepthSurfaces(area.views,area.dense).triangles.empty(),"Partial face violated relative area guard");
++        CornerFixture duplicate(7);duplicate.dense.verifiedSamples.push_back(duplicate.dense.verifiedSamples.front());
++        expectError([&]{rf::fuseDepthSurfaces(duplicate.views,duplicate.dense);});
++    });
++    test("actual stereo occlusion never supplies hidden source pixels to mesher",[]{
++        const auto views=fixture(3,true,true);rf::DenseSettings settings;
++        settings.nearDepth=3.1;settings.farDepth=7;settings.depthPlanes=64;settings.pixelStride=3;
++        const auto dense=rf::reconstructDense(views,settings);
++        require(!dense.verifiedSamples.empty(),"Occlusion fixture produced no actual observations");
++        for(const auto& sample:dense.verifiedSamples)if(sample.camera==2)
++            require(!(sample.x>22&&sample.x<68&&sample.y>17&&sample.y<58),"Occluded reference produced a verified sample");
++        const auto mesh=rf::fuseDepthSurfaces(views,dense);
++        for(const auto& observation:mesh.observations)if(observation.camera==2)
++            require(!(observation.x>22&&observation.x<68&&observation.y>17&&observation.y<58),"Mesher fabricated occluded source support");
++        require(mesh.vertices.size()<=40000&&mesh.triangles.size()<=80000,"Production output budget exceeded");
++    });
+     test("confirmed depth samples produce genuine indexed triangles",[]{
+         const auto images=fixture();
+         rf::DenseSettings ds;ds.nearDepth=3.1;ds.farDepth=7;ds.depthPlanes=64;ds.pixelStride=2;
+--- a/reconstruction/tests/surface_checkpoint_test.cpp
++++ b/reconstruction/tests/surface_checkpoint_test.cpp
+@@ -147,6 +147,26 @@
+         require(std::filesystem::file_size(checkpoint)<rf::surface_checkpoint::MAX_FILE_BYTES,"checkpoint exceeded byte bound");
+     });
+     const auto acceptedBytes=read(checkpoint);
++    test("v7 rejects checksum-valid v6 algorithm identity without changing binary schema",[&] {
++        // Frozen v6 algorithmIdentity for meshSettings above; not a corrupt-checksum rejection.
++        constexpr std::array<std::uint8_t,32> legacyAlgorithm{0x9f,0x3d,0x33,0xbd,0x07,0xb4,0x48,0xcd,0xec,0x01,0x52,0x77,0x57,0xcc,0x1c,0xcc,0xac,0x83,0xd5,0x11,0x43,0x04,0x26,0xc8,0x63,0x87,0x4d,0x75,0x86,0xd8,0x47,0x32};
++        require(u32(acceptedBytes,8)==2,"surface checkpoint binary schema changed");
++        const auto currentAlgorithm=rf::surface_checkpoint::algorithmIdentity(meshSettings);
++        require(currentAlgorithm!=legacyAlgorithm,"three-corner fusion reused v6 algorithm identity");
++        require(std::equal(currentAlgorithm.begin(),currentAlgorithm.end(),acceptedBytes.begin()+140),
++                "algorithm digest offset does not match v2 layout");
++        auto legacy=acceptedBytes;
++        std::copy(legacyAlgorithm.begin(),legacyAlgorithm.end(),legacy.begin()+140);checksum(legacy);
++        rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
++        rf::surface_checkpoint::AcceptedSurface recovered;
++        write(checkpoint,legacy);
++        require(!rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"v6 algorithm checkpoint reused");
++        require(read(checkpoint)==legacy,"rejected old checkpoint was mutated");
++        write(checkpoint,acceptedBytes);
++        require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"current v7 checkpoint failed to resume");
++        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":7")!=std::string::npos,
++                "surface result does not report v7");
++    });
+     test("new evidence cannot exceed admitted cache memory or overwrite accepted bytes",[&] {
+         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
+         auto oversized=dense;auto largeMesh=mesh;
+--- a/app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt
++++ b/app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt
+@@ -8,7 +8,7 @@
+ 
+ /** One canonical settings declaration is shared by stage and native-input identities. */
+ internal object DenseExecutionPolicy {
+-    const val SURFACE_ENGINE = "rf-observed-open-mesh-v6-reliability-weighted-pixel-fusion"
++    const val SURFACE_ENGINE = "rf-observed-open-mesh-v7-supported-three-corner-fusion"
+     const val ATLAS_ENGINE = "rf-atlas-v2-groups-zlib-radiometry3"
+     fun depth(profile:DensePreviewProfile) = when(profile) {
+         DensePreviewProfile.Compatibility -> "cpu-compatibility-v1|discontinuityAwareConsistency=false|robustSourceAggregation=false"
+--- a/app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt
++++ b/app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt
+@@ -33,7 +33,7 @@
+             matching = "rf-bf-l2-reciprocal-v2|ratio-.67|opencv-4.12.0|summary-ranked-exhaustive-admitted12-v1|pair-cache-v3|ray-focal35=$assumedFocal35",
+             sparse = "incremental-frontier-v1|complete-source-window-typed-ba-frontier-admitted12-v3|assumed-focal35=$assumedFocal35",
+             dense = "native-reference-depth-v1|planes-56|resource=${resources.geometryIdentityText}",
+-            surface = "observed-open-mesh-v1|quality-gated",
++            surface = DenseExecutionPolicy.SURFACE_ENGINE,
+             texture = "photographic-atlas-v1|resource=${resources.appearanceIdentityText}",
+             export = "diagnostic-sparse-and-dense-glb-ply-v1",
+         ),
+--- /dev/null
++++ b/app/src/test/java/com/realityforge/scanner/engine/pipeline/SurfaceAlgorithmIdentityTest.kt
+@@ -0,0 +1,34 @@
++package com.realityforge.scanner.engine.pipeline
++
++import com.realityforge.scanner.data.ProjectInputPhoto
++import com.realityforge.scanner.data.ProjectInputSnapshot
++import com.realityforge.scanner.engine.artifacts.ArtifactBinding
++import com.realityforge.scanner.engine.artifacts.PipelineStage as ArtifactStage
++import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
++import org.junit.Assert.*
++import org.junit.Test
++
++class SurfaceAlgorithmIdentityTest {
++    @Test fun productionV7ChangesOnlySurfaceAndItsDownstreamIdentities() {
++        val input = ProjectInputSnapshot("surface-project", 4, (0..2).map { i ->
++            ProjectInputPhoto("photo-$i", sha256Utf8("jpeg-$i"), 1024, 800, 600, 35.0, 0)
++        })
++        for (resources in ResourceWorkloadSelection.entries) {
++            val current = ProductionPipelineSnapshot.create(input, sha256Utf8("calibration"), 35.0, resources)
++            assertEquals("rf-observed-open-mesh-v7-supported-three-corner-fusion", current.settings.surface)
++            assertEquals(DenseExecutionPolicy.SURFACE_ENGINE, current.settings.surface)
++            val legacy = current.copy(settings = current.settings.copy(surface = "observed-open-mesh-v1|quality-gated"))
++            val binding = ArtifactBinding(input.projectId, input.revision, "surface-job", 1)
++            val oldPlan = PipelineArtifactSession.identityPlan(legacy, binding)
++            val newPlan = PipelineArtifactSession.identityPlan(current, binding)
++            for (stage in listOf(ArtifactStage.FEATURES, ArtifactStage.MATCHES, ArtifactStage.ALIGNMENT, ArtifactStage.DENSE_DEPTH)) {
++                assertEquals("Upstream stage invalidated: $stage", oldPlan[stage].identityHash, newPlan[stage].identityHash)
++            }
++            for (stage in listOf(ArtifactStage.SURFACE, ArtifactStage.TEXTURE, ArtifactStage.LOD, ArtifactStage.EXPORT)) {
++                assertNotEquals("Old geometry can still be reused: $stage", oldPlan[stage].identityHash, newPlan[stage].identityHash)
++            }
++            assertEquals(legacy.engineVersion, current.engineVersion)
++            assertEquals(legacy.photos, current.photos)
++        }
++    }
++}
+--- a/reconstruction/tests/surface_fusion_test.cpp
++++ b/reconstruction/tests/surface_fusion_test.cpp
+@@ -80,7 +80,7 @@
+     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::infinity()},{0,0,1}),"infinite normal accepted");
+     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::quiet_NaN()},{0,0,1}),"NaN normal accepted");
+     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
+-    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":6")!=std::string::npos,"local footprint algorithm version missing");
++    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":7")!=std::string::npos,"local footprint algorithm version missing");
+     // Confidence is an admitted observation weight, not a normal-vector length.
+     // Identical supported planes must associate identically above the configured
+     // minimum confidence; changing weights must not rotate or invalidate normals.

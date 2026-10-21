@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "scope": "Isolated native supported-three-corner surface experiment, not production release or photographic quality validation",
+  "patchSha256": "04c06274687e976fde3ca4fd7b0a5d58afe3b11fdfdf78c8b42bc8d0a7f67d86",
+  "testSourceSha256": "ba410431a86f56edc616e617bcf54c2e347bb9ad463adc63a6eb567dc429633f",
+  "candidateSurfaceSourceSha256": "32d0eba63ebad2f026c794eaf18e6ef2e0eed412b01a6ff0493566d573d35456",
+  "limits": {
+    "configureSeconds": 60,
+    "buildSeconds": 600,
+    "testSeconds": 120,
+    "buildJobs": 2,
+    "perProcessAddressSpaceBytes": 4294967296
+  },
+  "runs": {
+    "red": {
+      "receiptSha256": "d03f193b2f8d994f686de2e8d34b9d74147c94d9b5a77afde684fc9858e2bee4",
+      "recipeSha256": "e64e13f31ad4b04291a7c96b9d78772e5fa7be01235f442af0ba8ed42cb637de",
+      "pinsSha256": "cceef858820315b09a1e680be6e67c790ba8755c4bb1d5e428873d5bb665dba3",
+      "status": "TEST_EXIT_-6",
+      "elapsedSeconds": 40.01090024900623,
+      "inputsUnchanged": true,
+      "outputs": {
+        "build/librealityforge.so": "bd57b0c7a2c12005766a2c34cae29053bb3fd52040298690777edbf012757d7f",
+        "build/rf_surface_tests": "35884ed496e60edc5be64455acb389e5c74624ee6a54ea10648f87b1000e8197",
+        "configure.log": "5a4cb6194f1abb4dd8bbf48817cdb1ac8be248df1347d52427fc7e3208425321",
+        "build.log": "ffa8180a5b93ba364bb5bbe2aa8f5149a18e742ad9799a69f8688b19a0acc722",
+        "test.log": "d95568b236de9ec51ca5a470fcfa030c6db449536600db6fb61027365a1898dc",
+        "build/CMakeCache.txt": "891e4788ead5bd6ac7f3713a2ed97864c10def3c9a665fe2ebb3b6b7721dd930"
+      },
+      "testExitCode": -6,
+      "completedPassingCases": 0
+    },
+    "green": {
+      "receiptSha256": "c8002eb113a0b163f5afbeb1aaef12af16a7ee4167898a5e07f0b1e77b83b871",
+      "recipeSha256": "159c0eacba7ba75e2d9ca4906b67136faa67e129c8a2940a9cf253fb4354e60e",
+      "pinsSha256": "a46a02f2ea3fec7d32fc1a7d25913dcf76923b25a1b0a0d86bc4272b80f8d952",
+      "status": "TEST_EXIT_0",
+      "elapsedSeconds": 42.51529114699224,
+      "inputsUnchanged": true,
+      "outputs": {
+        "build/librealityforge.so": "a0122e4e6bd2d15ba0f7809efaa29eec4b08cd89bdb1457287a28330b66548b4",
+        "build/rf_surface_tests": "efff4021cae4775a012d6751d7461d1f599c4229dea6b5d88d193cbbf69bffac",
+        "configure.log": "164efb9031421f9188d13492bf32fb3589f87669f11920bcc810973ebb4c95ed",
+        "build.log": "79855987cd26968887efe4abbb20c7f60343f1f68f8411fb06595f0350574c57",
+        "test.log": "f6df95abce4c756e3d01ec42abc29181bc7e8ddd682eaa4cde608b6e064de441",
+        "build/CMakeCache.txt": "b61bdc757c49bd5ca78ed8ddf3111cd073a5466ce7bfc83393fa401ded5c7da9"
+      },
+      "testExitCode": 0,
+      "completedPassingCases": 13
+    }
+  },
+  "limitations": [
+    "RED aborts at first failing assertion; later cases not exercised in RED.",
+    "Stereo alpha case checks accepted-source observation gating, not general triangle occlusion correctness.",
+    "No actual relief coverage/accuracy comparison yet.",
+    "Shipping requires native algorithm and Kotlin surface-stage cache identity invalidation.",
+    "No Android/device or physical reconstruction quality equivalence."
+  ],
+  "immutableBaseline": {
+    "librealityforge.so": "4384f676ab950a3e615d286be8d8e9e4f16e28e22fa5fda4177b39445f6c786b",
+    "librealityforge_jni.so": "427f2c8c0e21a5647064edcdbe9307265fe493c256c211e4266f979f9931fcce"
+  }
+}
