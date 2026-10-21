@@ -14,8 +14,8 @@
     <string name="a014_camera_bind_failed">The camera could not be started. Photo import remains supported.</string>
     <string name="a014_zoom_failed">The camera could not apply the requested 1× zoom. Verify the lens before continuing.</string>
     <string name="a014_capture_failed">The photograph could not be saved.</string>
-    <string name="a014_publication_cancelled">Photograph publication was cancelled; the private staging file was removed.</string>
-    <string name="a014_publication_failed">The photograph could not be added to this project.</string>
+    <string name="a014_publication_cancelled">Photograph publication could not be confirmed after cancellation. Reopen the project before capturing again.</string>
+    <string name="a014_publication_failed">Photograph publication could not be confirmed. Reopen the project before capturing again.</string>
     <string name="a014_back">Back</string>
     <string name="a014_take_photo">Take photograph</string>
     <string name="a014_saving">Saving…</string>

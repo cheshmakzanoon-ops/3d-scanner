@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.realityforge.scanner.application.OperationCoordinator
 import com.realityforge.scanner.capture.session.CapturedPhoto
 import com.realityforge.scanner.capture.session.CaptureCommitOutcome
+import com.realityforge.scanner.capture.session.toCaptureCommitOutcome
 import com.realityforge.scanner.data.importing.ImportRequest
 import com.realityforge.scanner.data.importing.ImportSource
 import com.realityforge.scanner.data.importing.ImportPublicationResult
@@ -692,30 +693,37 @@ class ScannerViewModel(
             val result = repository.importBatch(ImportRequest(context.operationId.value,
                 photo.projectId, photo.revision, listOf(ImportSource(
                     Uri.fromFile(photo.stagedFile).toString(), photo.metadata.captureMetadata, photo.metadata.fields))))
-            val outcome = result.photos.single().outcome
+            val outcome = result.photos.single().outcome.toCaptureCommitOutcome(photo.revision)
             when (outcome) {
-                is ImportPublicationResult.Imported -> {
+                is CaptureCommitOutcome.Accepted -> {
                     coordinator.advanceCapture(context, outcome.committedRevision)
                     persistPendingRequests()
                     clearVisiblePreview(photo.projectId)
-                    CaptureCommitOutcome.Accepted(outcome.committedRevision)
                 }
-                is ImportPublicationResult.Duplicate -> {
+                is CaptureCommitOutcome.Duplicate -> {
                     coordinator.advanceCapture(context, outcome.revision)
                     persistPendingRequests()
-                    CaptureCommitOutcome.Accepted(outcome.revision)
                 }
-                is ImportPublicationResult.PendingRecovery -> {
+                is CaptureCommitOutcome.Uncertain -> {
                     coordinator.cancelPending(claimed.first.requestId)
                     persistPendingRequests()
-                    CaptureCommitOutcome.Rejected(outcome.message)
+                    publishMessage("capture.publication_uncertain", outcome.reason)
                 }
-                is ImportPublicationResult.Rejected -> CaptureCommitOutcome.Rejected(outcome.message)
+                is CaptureCommitOutcome.Rejected -> Unit
             }
+            outcome
         } catch (cancelled: CancellationException) {
+            // Cancellation can arrive after the durable import committed. Do not reuse the old
+            // camera revision or turn uncertainty into permission to discard its only source.
+            coordinator.cancelPending(claimed.first.requestId)
+            persistPendingRequests()
             throw cancelled
         } catch (failure: Exception) {
-            CaptureCommitOutcome.Rejected(failure.message ?: "The photograph could not be committed.")
+            coordinator.cancelPending(claimed.first.requestId)
+            persistPendingRequests()
+            val reason = failure.message?.takeIf { it.isNotBlank() } ?: "Capture publication could not be confirmed; reopen the project."
+            publishMessage("capture.publication_uncertain", reason)
+            CaptureCommitOutcome.Uncertain(reason)
         } finally {
             finishOperation(context)
         }

@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "tested_source_commit": "427167ffdc17d0910e39736ea54722969d3fc546",
+  "tested_source_tree": "d26f8906fc6a0f4ec1f51ad9e0c567e9ba25410f",
+  "recorded_utc": "2026-10-21T11:46:28Z",
+  "broad_host": {
+    "passed": 1067,
+    "skipped": 3,
+    "failed": 0,
+    "subtests_passed": 3,
+    "seconds": 151.17,
+    "warnings": 1,
+    "warning_description": "Intentional duplicate ZIP entry fixture in metadata adversarial test"
+  },
+  "optional_execution": {
+    "passed": 3,
+    "failed": 0,
+    "seconds": 17.54,
+    "coverage": [
+      "Agent052 software Vulkan dispatch",
+      "Agent068 real Kotlin JSON parser",
+      "Agent003 actual JNI boundary"
+    ]
+  },
+  "log_hashes": {
+    "scanner-post-ui-full-host.log": "95e81d20e42754de5454da1f2fdb66b51786e44c2df30198b15189529269e57a",
+    "scanner-post-ui-optional-host.log": "4f501fb1ab44d098b1768ad51920c3e847248ee9bc5077faae1fc42b23de322b"
+  },
+  "limits": [
+    "Host evidence does not qualify Android device execution or physical reconstruction quality",
+    "Runs preceded the capture ownership patch; later source requires its own tests"
+  ]
+}

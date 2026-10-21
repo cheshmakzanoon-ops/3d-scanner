@@ -75,6 +75,7 @@ import com.realityforge.scanner.capture.permissions.CameraPermissionStatus
 import com.realityforge.scanner.capture.session.CaptureAdapter
 import com.realityforge.scanner.capture.session.CaptureCloseReason
 import com.realityforge.scanner.capture.session.CaptureCommitOutcome
+import com.realityforge.scanner.capture.session.finishCapturePublication
 import com.realityforge.scanner.capture.session.CaptureMetadataSnapshot
 import com.realityforge.scanner.capture.session.CaptureSessionCheckpoint
 import com.realityforge.scanner.capture.session.CaptureSessionController
@@ -91,7 +92,6 @@ import java.util.concurrent.Executor
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -120,6 +120,7 @@ fun CameraScreen(
         mutableStateOf(session.initialRevision)
     }
     var restoredSavedCount by rememberSaveable(session.sessionToken) { mutableStateOf(0) }
+    var restoredRequiresRecovery by rememberSaveable(session.sessionToken) { mutableStateOf(false) }
     val controller = remember(session.projectId, session.sessionToken) {
         CaptureSessionController(
             identity = session,
@@ -127,6 +128,7 @@ fun CameraScreen(
             restoredCheckpoint = CaptureSessionCheckpoint(
                 expectedRevision = maxOf(session.initialRevision, restoredExpectedRevision),
                 savedCount = restoredSavedCount,
+                requiresRecovery = restoredRequiresRecovery,
             ),
         )
     }
@@ -171,9 +173,10 @@ fun CameraScreen(
         }
     }
 
-    LaunchedEffect(state.expectedRevision, state.savedCount) {
+    LaunchedEffect(state.expectedRevision, state.savedCount, state.requiresRecovery) {
         restoredExpectedRevision = state.expectedRevision
         restoredSavedCount = state.savedCount
+        restoredRequiresRecovery = state.requiresRecovery
     }
     LaunchedEffect(session.sessionToken) {
         withContext(Dispatchers.IO) {
@@ -472,33 +475,22 @@ fun CameraScreen(
                                 val outcome = try {
                                     currentOnPhoto(decision.photo)
                                 } catch (_: CancellationException) {
-                                    CaptureCommitOutcome.Rejected(
+                                    CaptureCommitOutcome.Uncertain(
                                         context.getString(R.string.a014_publication_cancelled),
                                     )
                                 } catch (failure: Exception) {
-                                    CaptureCommitOutcome.Rejected(
-                                        failure.message
+                                    CaptureCommitOutcome.Uncertain(
+                                        failure.message?.takeIf { it.isNotBlank() }
                                             ?: context.getString(R.string.a014_publication_failed),
                                     )
                                 }
-                                if (outcome is CaptureCommitOutcome.Accepted) {
-                                    try {
+                                finishCapturePublication(decision.photo, outcome, controller, stagingStore,
+                                    acceptedGuidance = {
                                         val observation = savedGuidance.acceptedPhoto(decision.photo, qualityObservation)
-                                        if (controller.state.value.phase != CaptureSessionPhase.CLOSED) {
-                                            guidanceObservation = observation
-                                        }
-                                    } catch (_: CancellationException) {
-                                        // The original has already committed. Optional guidance cancellation
-                                        // cannot turn that accepted save into a rejected photograph.
-                                    } catch (_: LinkageError) {
+                                        if (controller.state.value.phase != CaptureSessionPhase.CLOSED) guidanceObservation = observation
+                                    }, onGuidanceFailure = {
                                         controller.reportNonFatal(context.getString(R.string.a017_guidance_unavailable))
-                                    } catch (_: Exception) {
-                                        controller.reportNonFatal(context.getString(R.string.a017_guidance_unavailable))
-                                    }
-                                }
-                                withContext(NonCancellable) {
-                                    controller.onCommit(decision.photo.captureToken, outcome)
-                                }
+                                    })
                             }
                         }
                     }

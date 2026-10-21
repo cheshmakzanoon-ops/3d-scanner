@@ -57,9 +57,20 @@ data class CapturedPhoto(
 )
 
 /** Result returned only after the publication owner has committed or rejected the photo. */
+enum class CaptureStagingDisposition { PUBLISHER_OWNED, COPIED_TO_PRIVATE_ORIGINAL }
+
 sealed interface CaptureCommitOutcome {
     /** [committedRevision] is the project revision after the photo transaction commits. */
-    data class Accepted(val committedRevision: Long) : CaptureCommitOutcome
+    data class Accepted(val committedRevision: Long,
+        val stagingDisposition: CaptureStagingDisposition = CaptureStagingDisposition.PUBLISHER_OWNED) : CaptureCommitOutcome
+
+    /** Already listed, not a newly saved shot. A database duplicate is not file-integrity proof. */
+    data class Duplicate(val revision: Long) : CaptureCommitOutcome
+
+    /** Publication could have committed. Keep temporary bytes, stop this session and reconcile. */
+    data class Uncertain(val reason: String) : CaptureCommitOutcome {
+        init { require(reason.isNotBlank()) }
+    }
 
     data class Rejected(val reason: String) : CaptureCommitOutcome {
         init {
@@ -89,6 +100,7 @@ enum class CaptureCloseReason {
 data class CaptureSessionCheckpoint(
     val expectedRevision: Long,
     val savedCount: Int,
+    val requiresRecovery: Boolean = false,
 ) {
     init {
         require(expectedRevision >= 0L) { "expectedRevision must be non-negative" }
@@ -104,10 +116,12 @@ data class CaptureSessionState(
     val inFlightCaptureToken: String? = null,
     val message: String? = null,
     val closeReason: CaptureCloseReason? = null,
+    val requiresRecovery: Boolean = false,
 ) {
     fun checkpoint(): CaptureSessionCheckpoint = CaptureSessionCheckpoint(
         expectedRevision = expectedRevision,
         savedCount = savedCount,
+        requiresRecovery = requiresRecovery,
     )
 }
 
@@ -263,6 +277,8 @@ class CaptureSessionController(
             identity = identity,
             expectedRevision = initialCheckpoint.expectedRevision,
             savedCount = initialCheckpoint.savedCount,
+            requiresRecovery = initialCheckpoint.requiresRecovery,
+            phase = if (initialCheckpoint.requiresRecovery) CaptureSessionPhase.UNAVAILABLE else CaptureSessionPhase.WAITING_FOR_PERMISSION,
         ),
     )
     private var pending: PendingCapture? = null
@@ -404,25 +420,25 @@ class CaptureSessionController(
     }
 
     /** Returns false for stale publisher completion and deletes a rejected staging file. */
-    fun onCommit(captureToken: String, outcome: CaptureCommitOutcome): Boolean = synchronized(lock) {
+    fun onCommit(captureToken: String, outcome: CaptureCommitOutcome, expectedPhoto: CapturedPhoto? = null): Boolean = synchronized(lock) {
         val active = pending
         if (active == null || !active.deliveredToPublisher || active.attempt.captureToken != captureToken) {
             return false
         }
         val current = mutableState.value
+        if (expectedPhoto != null && (expectedPhoto.projectId != identity.projectId ||
+            expectedPhoto.sessionToken != identity.sessionToken || expectedPhoto.captureToken != captureToken ||
+            expectedPhoto.revision != active.attempt.expectedRevision ||
+            expectedPhoto.stagedFile.absoluteFile != active.attempt.stagedFile.absoluteFile)) return false
         when (outcome) {
             is CaptureCommitOutcome.Accepted -> {
                 if (outcome.committedRevision <= active.attempt.expectedRevision) {
-                    stagingStore.discard(active.attempt.stagedFile)
+                    // Incoherent acceptance is not proof that another durable copy exists.
                     pending = null
                     mutableState.value = current.copy(
-                        phase = if (current.phase == CaptureSessionPhase.CLOSED) {
-                            CaptureSessionPhase.CLOSED
-                        } else {
-                            CaptureSessionPhase.READY
-                        },
-                        inFlightCaptureToken = null,
-                        message = "Capture publication returned a non-advancing revision.",
+                        phase = if (current.phase == CaptureSessionPhase.CLOSED) CaptureSessionPhase.CLOSED else CaptureSessionPhase.UNAVAILABLE,
+                        requiresRecovery = true, inFlightCaptureToken = null,
+                        message = "Capture publication could not be verified. Reopen the project before capturing again.",
                     )
                     return false
                 }
@@ -437,6 +453,27 @@ class CaptureSessionController(
                     savedCount = current.savedCount + 1,
                     inFlightCaptureToken = null,
                     message = null,
+                )
+            }
+
+            is CaptureCommitOutcome.Duplicate -> {
+                pending = null
+                val coherent = outcome.revision == active.attempt.expectedRevision
+                mutableState.value = current.copy(
+                    phase = if (current.phase == CaptureSessionPhase.CLOSED) CaptureSessionPhase.CLOSED
+                        else if (coherent) CaptureSessionPhase.READY else CaptureSessionPhase.UNAVAILABLE,
+                    requiresRecovery = !coherent, inFlightCaptureToken = null,
+                    message = if (coherent) "Photograph already listed in this project; no new photo was added."
+                        else "Duplicate publication revision changed. Reopen the project before capturing again.",
+                )
+                // Preserve the source: duplicate detection does not verify the existing file bytes.
+                return coherent
+            }
+            is CaptureCommitOutcome.Uncertain -> {
+                pending = null
+                mutableState.value = current.copy(
+                    phase = if (current.phase == CaptureSessionPhase.CLOSED) CaptureSessionPhase.CLOSED else CaptureSessionPhase.UNAVAILABLE,
+                    requiresRecovery = true, inFlightCaptureToken = null, message = outcome.reason,
                 )
             }
 
@@ -493,7 +530,7 @@ class CaptureSessionController(
 
     private fun transitionIdle(phase: CaptureSessionPhase, message: String?) = synchronized(lock) {
         val current = mutableState.value
-        if (current.phase != CaptureSessionPhase.CLOSED && pending == null) {
+        if (current.phase != CaptureSessionPhase.CLOSED && !current.requiresRecovery && pending == null) {
             mutableState.value = current.copy(phase = phase, message = message)
         }
     }
