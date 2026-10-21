@@ -485,3 +485,26 @@ Error/Fatal issues. The persisted real OpenCV host regression passes all eight
 boundary cases; the focused Python file passes5 tests. Previous candidate API30
 results remain3 passes/1 endpoint failure; the corrected APK must be rebuilt and
 run before claiming that device failure is fixed.
+
+## Corrected endpoint candidate: actual API30 results (10:15 UTC)
+
+The source67a071fa QA pair now passes all5 actual Android matcher tests:
+FeatureMatcherTest3/3 in287.704s and SparseReverseMatcherDifferentialTest2/2
+in93.129s. This includes the original512f fixture, exact endpoint-domain rejection,
+photographic whole-BF equivalence/native geometry, varied descriptors/ties/order,
+and cancellation/ownership/API regressions. See reports/cloud-instrumentation-endpoint.json
+for exact APK and log hashes. These are supplementary API30 results, not API35 or
+normal shipping APK qualification.
+
+The unchanged180-second complete-session gate FAILS (total test241.866s), this time
+while extracting features for photo2/3 in synchronous OpenCV, cacheHit=false.
+The latest snapshot's elapsed495ms marks native-call entry; it is NOT the ongoing
+native runtime. Pair verification had not begun (pairWork=null). The original
+AssertionError is retained with no suppressed cleanup exception in the captured
+log. No completed reconstruction, export journey or speed guarantee follows.
+
+A separately labeled, explicit opt-in test-only diagnostic continuation is now
+being implemented to collect bounded functional-completion evidence after a typed
+deadline miss. The ordinary180-second gate must remain FAIL even if diagnostic
+continuation finishes; default behavior, application deadlines and CI acceptance
+are unchanged. No such diagnostic has executed at this checkpoint.

@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T10:13:36Z",
+  "published_source": {
+    "commit": "67a071fabc18d7baa4acde7013c18b2cce99daa2",
+    "tree": "3e594e70ad01b919e1faca6e99b3aee988ca270a",
+    "content_fingerprint_sha256": "b4ba1bd7d21942132605c6afc8d2c59aeb62f425b7fea42ba9be3fd9ce05dd82"
+  },
+  "previous_candidate_report": "cloud-instrumentation-pair-work.json",
+  "change": "CV_32F checkRange exclusive bound uses the smallest Float successor of512 widened toDouble, matching existing finite inclusive0f..512f cache contract. Original endpoint fixture retained.",
+  "qaRetention": true,
+  "production_equivalence": false,
+  "artifacts": {
+    "application": {
+      "name": "app-release-qa-retained.apk",
+      "sha256": "01be2b609da15b8e501d50450b8350e5c526ca3e4912cb2f5bdfb3f300f41c7e"
+    },
+    "instrumentation": {
+      "name": "app-release-qa-retained-androidTest.apk",
+      "sha256": "991c506ecea45e6d465944a33787a46beb4a561d1077a1ec621afbd2b3e2a5ab"
+    }
+  },
+  "static_linkage": {
+    "status": "PASS_WITH_DOCUMENTED_EXCLUSIONS",
+    "unexpected_diagnostics": 0,
+    "documented_exclusion_count": 13,
+    "accepted_diagnostics": [
+      "Missing class java.beans.BeanInfo (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.IntrospectionException (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.Introspector (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.PropertyDescriptor (referenced from: org.hamcrest.Condition$Step org.hamcrest.beans.HasPropertyWithValue.WITH_READ_METHOD and 13 other contexts)",
+      "Missing class javax.lang.model.element.Modifier (referenced from: javax.lang.model.element.Modifier[] com.google.errorprone.annotations.IncompatibleModifiers.value() and 1 other context)",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle))",
+      "Missing method java.beans.BeanInfo java.beans.Introspector.getBeanInfo(java.lang.Class, java.lang.Class) (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.beans.PropertyDescriptor[] java.beans.BeanInfo.getPropertyDescriptors() (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getDisplayName() (referenced from: void org.hamcrest.beans.SamePropertyValuesAs$PropertyMatcher.<init>(java.beans.PropertyDescriptor, java.lang.Object) and 1 other context)",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getName() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)",
+      "Missing method java.lang.reflect.Method java.beans.PropertyDescriptor.getReadMethod() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)"
+    ],
+    "platform_qualification_limit": "Compile SDK36 public APIs plus actual API35 hidden Instrumentation declarations; not API35 runtime availability or device-safety proof.",
+    "receipt_name": "linkage.json",
+    "receipt_sha256": "eab65996677efd9b67ca065c388eeb966896beafe674dd51515cb741997d6b0a"
+  },
+  "provenance": {
+    "r8_sha256": "1448d5476096c1c4e3bf05b8372948ac7c00d76dc38b4a4eb744b360a888b65c",
+    "checker_sha256": "89427e00b5b29947682d99e21eb5d52988ce22081a14dbd0fdca9c72b7cb4207",
+    "generation_manifest_sha256": "c15ef4fef93a0353d1b63b434da4cf5dee2f80794a445a3347f49dcdf72e9cda",
+    "rules_sha256": "9a0b9cad5393522b6f9e0147a29349a7d31ed0bdd967ac514fefc1239bd32592"
+  },
+  "retained_types": 1069,
+  "host_validation": {
+    "actual_gradle_jvm_tests_passed": 677,
+    "lint": "PASS",
+    "main_and_androidtest_compile": "PASS",
+    "python_diagnostic_tests_passed": 5,
+    "real_opencv_host_endpoint_cases": 8,
+    "host_limit": "Real host OpenCV regression, not Android execution.",
+    "normalized_export": "PASS",
+    "optimized_qa_pair_assembly": "PASS",
+    "assembly_seconds": 142
+  },
+  "runtime": {
+    "status": "FIVE_PASS_FULL_SESSION_FAIL",
+    "runtime_executed": true,
+    "planned_api_level": 30,
+    "qualification_limit": "Supplementary API30 only, not API35 replacement or normal-production APK qualification.",
+    "full_session_timeout_seconds": 180,
+    "api_level": 30,
+    "tests_passed": 5,
+    "tests_failed": 1,
+    "groups": [
+      {
+        "log": "feature-matcher.log",
+        "sha256": "a016070bec434b0b50e6ddb2ada5faae60968b4f678b47e0529a4e3b9ff5e353",
+        "class": "com.realityforge.scanner.engine.matching.FeatureMatcherTest",
+        "methods": [
+          "descriptorRangeIncludes512ButRejectsItsFloatSuccessorAndNonfiniteValues",
+          "repeatedInvalidAndEmptyDescriptorInputsAreExplicit",
+          "boundedMatcherExactlyMatchesWholePairReferenceOnSyntheticPhotographs"
+        ],
+        "duration_seconds": 287.704,
+        "status": "PASS",
+        "tests_run": 3
+      },
+      {
+        "log": "sparse-reverse-differential.log",
+        "sha256": "3c3fa3ae94153ba979415f6bf85b89b1c65cefa052600014e1723c90518e00f2",
+        "class": "com.realityforge.scanner.engine.matching.SparseReverseMatcherDifferentialTest",
+        "methods": [
+          "bothDirectionsObserveCancellationAfterNativeBlockAndReleaseBorrowedFrames",
+          "exactReciprocalIdentityAndOrderForRandomUnequalEmptyDuplicatesTiesAndRatioBoundary"
+        ],
+        "duration_seconds": 93.129,
+        "status": "PASS",
+        "tests_run": 2
+      },
+      {
+        "log": "synthetic-full-session.log",
+        "sha256": "8bfad3d61c3ec82b6f1aa48da36d811619b24b016ea15b1542093a4375dc2ade",
+        "class": "com.realityforge.scanner.SessionReliabilityTest",
+        "methods": [
+          "syntheticPhotographsCompleteTheActualImportReconstructReopenExportPath"
+        ],
+        "duration_seconds": 241.866,
+        "status": "FAIL",
+        "tests_run": 1
+      }
+    ],
+    "full_session_failure": {
+      "operation_deadline_seconds": 180,
+      "stage": "Extracting image features in OpenCV",
+      "photo_number": 2,
+      "photo_count": 3,
+      "phase": "NATIVE_RUNNING",
+      "cache_hit": false,
+      "pair_work": null,
+      "last_sample_elapsed_millis": 495,
+      "sample_caveat": "495ms is the last feature native-entry boundary snapshot, not the elapsed duration of the still-running OpenCV call.",
+      "original_assertion_preserved": true,
+      "cause_attribution": "No evidence of deadlock or sole emulator-performance attribution; complete session remains unqualified."
+    }
+  },
+  "open_gates": [
+    "Endpoint regression and complete matcher differential on actual Android",
+    "Unchanged full-session execution",
+    "API35 qualification",
+    "Default production APK independent qualification",
+    "Physical geometry/texture/resource evidence",
+    "Production signing"
+  ]
+}
