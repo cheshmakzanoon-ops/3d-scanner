@@ -1105,3 +1105,30 @@ On source515f1435, the unchanged three-photo full-core gate passes1/1 in12.647se
 ### Replacement engineering APK delivered
 
 Normal optimizedQA=false source515f1435 APK includes both inventory and PNG fixes; signature/package/offlinepermissions/backup/16KBZIP+16ELF checks pass. Samepackage/version/testcertificate as prior; actual upgrade not tested. Verified3downloadparts and instructions accepted in private chat, not proof of installation. The original c112 APK is superseded. See [artifact receipt](../../reports/cloud-png-fixed-engineering-apk.json) and [assembly instructions](ENGINEERING_APK_515F1435.md).
+
+### Portable full-core/publication HOST gate exercised
+
+Both opt-in portable entrypoints now have their own actual runtime evidence on
+source `b1bfc2a58a6dcd8e9c9a6f14fbe4248466e9993c`: core passes 1/1 in 12.835 seconds
+with 6,734 triangles; publication passes 1/1 in 12.969 seconds with 6,736 triangles.
+Both report 3 cameras, 904 sparse points, 6,851 dense points and global typed BA.
+The core contract retains no current result; the publication service contract
+publishes all 9 artifacts, verifies reopened result/job identity and digests, and
+materializes/validates 7 direct exports with legacy flat-file fallback fenced out.
+These distinct mesh counts are observations, not a deterministic-output claim.
+
+Both runs pass exact source/native/compiled hash checks, all 447 explicitly listed
+native provenance closure files remain unchanged, and normal compilation restores
+cleanly with no probe classes. All 17 integrated package/test/doc files are
+byte-identical to the exercised external package. The source-only tool is opt-in;
+ordinary Gradle/CI gates acquire no new native requirement. Mocked/static Python
+helper tests pass 59 checks; broad Python validation is **pending**. No new
+production behavior change, physical-device, GPU, controller/resource-admission
+or added-camera-registration qualification is implied. Earlier production
+inventory/PNG failures and missing experimental JNI capability failure remain
+preserved in the preceding evidence; these are not erased by the later passes.
+
+See [portable tool](../../tools/full_core_validation/README.md) and
+[sanitized portable evidence](../../reports/cloud-full-core-portable-validation.json).
+
+Broad Python for the portable package subsequently passed1,259 tests and six subtests; three optional tests skipped.
