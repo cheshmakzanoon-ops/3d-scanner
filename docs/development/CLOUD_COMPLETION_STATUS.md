@@ -186,3 +186,14 @@ was corrected by using the installed QA interpreter, not by skipping export test
 The README's explicit two-to-twelve disclosure now retains the runbook invariant.
 Release packaging and actual Android instrumentation of this increment remain
 pending. No physical capture, whole-object quality or larger-input claim is made.
+
+### Previously skipped host gates executed (06:24 UTC)
+
+All three prior optional host skips now pass in one sequential invocation (3 passed,
+0 skipped): actual SDK software-Vulkan dispatch/CPU fallback, real Kotlin parser
+with pinned Android JSON, and the real JVM/JNI boundary gate. A stale test-only
+JNI function table had omitted GetStringUTFLength; the fixture now supplies both
+length callbacks from its actual ASCII data and asserts the UTF-length call while
+retaining allocation-failure/release checks. Production JNI code was not changed.
+See reports/cloud-optional-host-gates.json. This does not substitute for Android
+instrumentation, phone GPU performance, or physical scan-quality evidence.
