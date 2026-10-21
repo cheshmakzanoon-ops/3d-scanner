@@ -80,11 +80,14 @@ jobs:
           python tools/source_manifest.py verify --source HEAD
           python tools/ci/validation/evidence.py begin --gate android --source-sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID:$GITHUB_RUN_ATTEMPT" --output "$RUNNER_TEMP/rf-ci/android/start.json"
       - run: ./gradlew --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+      - name: Explicit HOST Room integration (not device qualification)
+        run: ./gradlew --no-daemon --max-workers=1 --no-parallel :app:hostIntegrationTest
       - run: python tools/check_apk.py app/build/outputs/apk/debug/app-debug.apk --sdk "$ANDROID_HOME" --report "$RUNNER_TEMP/rf-ci/android/apk-validation.json"
       - name: Validate actual JVM reports, APKs and lint evidence
         run: >-
           python tools/ci/validation/evidence.py collect --start "$RUNNER_TEMP/rf-ci/android/start.json"
           --junit 'app/build/test-results/testDebugUnitTest/TEST-*.xml'
+          --junit 'app/build/test-results/hostIntegrationTest/TEST-*.xml'
           --artifact 'app/build/outputs/apk/**/*.apk' --artifact app/build/reports/lint-results-debug.xml
           --apk-report "$RUNNER_TEMP/rf-ci/android/apk-validation.json" --output "$RUNNER_TEMP/rf-ci/android/sealed"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -103,7 +106,10 @@ jobs:
         if: always()
         with:
           name: android-build-reports-${{ github.sha }}-${{ github.run_attempt }}
-          path: app/build/reports/
+          path: |
+            app/build/reports/
+            app/build/test-results/testDebugUnitTest/
+            app/build/test-results/hostIntegrationTest/
           if-no-files-found: error
   device:
     needs: android

@@ -707,3 +707,29 @@ not production-signed, installed, device-qualified or a passing full-session bui
 See [normal release evidence](../../reports/cloud-normal-release-engineering.json)
 and [download instructions](ENGINEERING_APK_08ABCEFC.md). Binary APKs remain outside
 Git source history.
+
+### Real Room/import HOST integration gate (12:39 UTC)
+
+A portable, explicit `:app:hostIntegrationTest` now runs Android35 framework code
+under Robolectric4.14.1 with real generated Room DAOs and native host AOSP SQLite.
+The pinned framework resolves through strict Gradle verification and its own locked,
+nontransitive configuration; Robolectric's internal resolver is always offline.
+Source and staged framework bytes are rehashed, with one fork/1GiB/five-minute task
+bounds. Ordinary unit tests exclude the dedicated HOST package and do not execute
+or resolve this SDK. CI explicitly runs and collects both gates separately.
+
+Actual HOST tests pass 6/6, covering database reopen persistence, original bytes,
+duplicates, publication failure/readback/recovery, synthetic cancellation exception,
+and missing/corrupt originals. Ordinary JVM tests independently pass 722/722;
+AndroidTest compilation and lint pass, with zero Error/Fatal lint findings. Another
+86 Python wiring/CI/package checks pass. Missing/tampered staged SDK and misplaced
+HOST sources were actually rejected and restored. Release dependency inventory is
+byte-identical before/after; no prior verification hash was changed or removed.
+
+These tests deliberately use synthetic input bytes and inspector metadata. They
+are NOT camera/decoder, repository-facade/storage-budget, Binder permission, app
+JNI/GPU, physical-device, power-loss or release qualification. Synthetic thrown
+cancellation is not yet an actual structured Job cancellation test. See
+[HOST evidence](../../reports/cloud-host-room-integration.json) and
+[portable instructions](HOST_ROOM_INTEGRATION.md). The privately delivered APK
+instructions now also include built-in macOS/Linux assembly, in addition to Windows.

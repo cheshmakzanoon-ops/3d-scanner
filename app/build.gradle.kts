@@ -1,3 +1,5 @@
+import java.security.MessageDigest
+import java.time.Duration
 import org.gradle.kotlin.dsl.withGroovyBuilder
 plugins {
     id("com.android.application")
@@ -63,6 +65,8 @@ dependencies {
     implementation("com.google.android.filament:filament-android:1.56.0")
     implementation("com.google.android.filament:gltfio-android:1.56.0")
     testImplementation("junit:junit:4.13.2")
+    // HOST Room integration only; API 35 matches the reviewed cached framework.
+    testImplementation("org.robolectric:robolectric:4.14.1")
     // Android's mockable JSONObject throws in local tests; exercise the real JSON codec.
     testImplementation("org.json:json:20250517")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
@@ -215,4 +219,95 @@ if (instrumentationQa == "true") {
         "packageRelease", "packageReleaseAndroidTest") }.configureEach {
         dependsOn(verifyQaRetention)
     }
+}
+
+// Explicit HOST-only gate. The regular JVM suite never resolves a Robolectric SDK.
+val robolectricSdk = configurations.create("robolectricSdk") {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    isTransitive = false
+    resolutionStrategy.activateDependencyLocking()
+}
+dependencies { add(robolectricSdk.name, "org.robolectric:android-all:15-robolectric-12650502") }
+val hostSdkDirectory = layout.buildDirectory.dir("robolectric-sdk")
+val prepareHostIntegrationSdk = tasks.register<Sync>("prepareHostIntegrationSdk") {
+    from(robolectricSdk)
+    into(hostSdkDirectory)
+}
+// No outputs: verify source and staged bytes on every HOST invocation, even after Sync is up-to-date.
+val verifyHostIntegrationSdk = tasks.register("verifyHostIntegrationSdk") {
+    dependsOn(prepareHostIntegrationSdk)
+    doLast {
+        val canonical = "android-all-15-robolectric-12650502.jar"
+        val expected = "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b"
+        fun digest(file: File): String {
+            val hash = MessageDigest.getInstance("SHA-256")
+            file.inputStream().use { input ->
+                val buffer = ByteArray(65536)
+                while (true) {
+                    val count = input.read(buffer)
+                    if (count < 0) break
+                    if (count > 0) hash.update(buffer, 0, count)
+                }
+            }
+            return hash.digest().joinToString("") { "%02x".format(it.toInt() and 255) }
+        }
+        val source = robolectricSdk.singleFile
+        val staged = hostSdkDirectory.get().file(canonical).asFile
+        check(source.name == canonical && digest(source) == expected) { "Unexpected verified HOST SDK source." }
+        check(staged.isFile && digest(staged) == expected) { "HOST SDK staging bytes do not match the pinned framework." }
+        check(hostSdkDirectory.get().asFile.listFiles().orEmpty().map { it.name } == listOf(canonical)) {
+            "Unexpected file in the offline HOST SDK directory."
+        }
+    }
+}
+val verifyHostIntegrationClassification = tasks.register("verifyHostIntegrationClassification") {
+    val sources = fileTree("src/test") { include("**/*.kt", "**/*.java") }
+    inputs.files(sources)
+    doLast {
+        val prefix = "com.realityforge.scanner.hostintegration"
+        val hosts = sources.files.filter { it.readText().contains("org.robolectric") }
+        check(hosts.isNotEmpty()) { "The explicit HOST integration gate has no Robolectric sources." }
+        hosts.forEach { source ->
+            val text = source.readText()
+            check(source.invariantSeparatorsPath.contains("/com/realityforge/scanner/hostintegration/") &&
+                Regex("(?m)^package\\s+" + Regex.escape(prefix) + "(?:[.;\\s]|$)").containsMatchIn(text)) {
+                "Robolectric source must be classified in $prefix: $source"
+            }
+        }
+    }
+}
+tasks.withType<Test>().configureEach {
+    dependsOn(verifyHostIntegrationClassification)
+    // Enforce offline resolution even if an unclassified test slips through discovery.
+    systemProperty("robolectric.offline", "true")
+    systemProperty("robolectric.usePreinstrumentedJars", "false")
+    systemProperty("robolectric.dependency.dir", hostSdkDirectory.get().asFile.absolutePath)
+    doFirst {
+        check(!systemProperties.containsKey("robolectric-deps.properties")) {
+            "An alternate Robolectric dependency map is not permitted."
+        }
+    }
+    if (name != "hostIntegrationTest") exclude("**/hostintegration/**")
+}
+tasks.register<Test>("hostIntegrationTest") {
+    group = "verification"
+    description = "HOST-only Room/import integration; not Android device qualification."
+    // Read the task itself, not a mapped TaskProvider: mapped providers carry the
+    // ordinary Test as a producer and would accidentally execute both gates.
+    val ordinary = tasks.named<Test>("testDebugUnitTest").get()
+    testClassesDirs = ordinary.testClassesDirs
+    classpath = ordinary.classpath
+    dependsOn(ordinary.taskDependencies.getDependencies(ordinary))
+    dependsOn(verifyHostIntegrationSdk)
+    include("**/hostintegration/**")
+    filter {
+        includeTestsMatching("com.realityforge.scanner.hostintegration.*")
+        isFailOnNoMatchingTests = true
+    }
+    maxParallelForks = 1
+    maxHeapSize = "1g"
+    timeout.set(Duration.ofMinutes(5))
+    reports.junitXml.outputLocation.set(layout.buildDirectory.dir("test-results/hostIntegrationTest"))
+    reports.html.outputLocation.set(layout.buildDirectory.dir("reports/tests/hostIntegrationTest"))
 }
