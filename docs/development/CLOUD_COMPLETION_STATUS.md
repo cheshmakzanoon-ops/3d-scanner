@@ -405,3 +405,41 @@ zero failures/errors/skips, lint with zero Error/Fatal issues, and AndroidTest
 Kotlin compilation. The exact-candidate QA APK rebuild and actual Android matcher
 differential/cancellation/session gates remain pending; host speed is not promoted
 to a device-performance claim.
+
+### Pair diagnostics and exact sparse-reverse candidate (08:48 UTC)
+
+Published source `9e1ad7dd7ffb4ea11e74a9c9d4f1ad541c6b8bcb` adds bounded
+pair-phase/cache/descriptor/block timings and cancellation diagnostics without
+private identifiers. The matcher retains exact reciprocal L2/strict-ratio
+semantics and full train sets, but skips reverse queries not selected by any
+forward ratio survivor. No feature budget or180-second session deadline changes.
+Host model differential checks pass530 comparisons; their timing excludes Kotlin
+row-gather JNI overhead and is not Android speed evidence.
+
+Actual Gradle passes676 JVM tests (including12 pair-timing tests), lint and
+AndroidTest compilation. The rebuilt QA pair passes static linkage with the same
+13 documented exclusions and no unexpected references; its generated retention
+surface contains1,069 types. New artifact hashes/provenance are kept separately
+in [the pair-work report](../../reports/cloud-instrumentation-pair-work.json),
+not substituted into the previous eight-pass/one-failure receipt. The new pair's
+actual Android matcher differential and unchanged full-session checks remain
+**NOT_RUN / pending** at this checkpoint. The prior timeout is not yet proven
+resolved. QA/nonshipping and compileSDK36/API35 static-platform limits still apply.
+
+### New-pair emulator infrastructure checkpoint (09:06 UTC)
+
+The new pair has executed zero tests on API35: repeated system-server restarts
+continued during a bounded600-second readiness probe without installation load.
+This is recorded as **BLOCKED_INFRASTRUCTURE**, not an application test failure
+or a regression of the previous candidate's API35 eight-pass/one-failure record.
+A supplementary run of the same immutable APK pair on the official API30
+AOSP/default x86_64 revision11 image is authorized and remains **NOT_RUN**.
+It cannot substitute for API35 qualification. No source, APK, deadline or
+matching semantics are changed for this environment-only retry.
+
+Broad host validation of source `9e1ad7dd` additionally passes1,046 pytest cases
+and three subtests in137.91 seconds; three optional gates are skipped in that
+run and the source-manifest check is deselected because it is verified separately
+at commit. All three skipped optional gates then pass with their configured real
+dependencies in15.39 seconds. The duplicate-ZIP warning is the intentional
+rejection fixture. These host results do not close either Android runtime gate.

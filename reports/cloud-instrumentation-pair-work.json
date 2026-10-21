@@ -1,0 +1,209 @@
+{
+  "schema": 1,
+  "recorded_utc": "2026-10-21T09:11:46Z",
+  "published_source": {
+    "commit": "9e1ad7dd7ffb4ea11e74a9c9d4f1ad541c6b8bcb",
+    "tree": "520b6bf1cfd30f799f9195fedc17abe13c63804a",
+    "content_fingerprint_sha256": "4f537e3720237838cad04810af4efcb6cf9a9dad0a9be9a55e3a532d30f6d65c"
+  },
+  "previous_candidate_report": "cloud-instrumentation-qa.json",
+  "qualification": "QA-retained test-signed optimized application; not equivalent to normal shipping APK.",
+  "qaRetention": true,
+  "production_equivalence": false,
+  "artifacts": {
+    "application": {
+      "name": "app-release-qa-retained.apk",
+      "sha256": "7d8c8d29b0286d435acf32755a23bf760731c309a226d21327ba8410f5b497da"
+    },
+    "instrumentation": {
+      "name": "app-release-qa-retained-androidTest.apk",
+      "sha256": "bf9c6f6a5defff89391418cea8a40ef7fbe3dabf0d532841ecc859232cb8a6b0"
+    }
+  },
+  "static_linkage": {
+    "status": "PASS_WITH_DOCUMENTED_EXCLUSIONS",
+    "unexpected_diagnostics": 0,
+    "documented_exclusion_count": 13,
+    "accepted_diagnostics": [
+      "Missing class java.beans.BeanInfo (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.IntrospectionException (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.Introspector (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing class java.beans.PropertyDescriptor (referenced from: org.hamcrest.Condition$Step org.hamcrest.beans.HasPropertyWithValue.WITH_READ_METHOD and 13 other contexts)",
+      "Missing class javax.lang.model.element.Modifier (referenced from: javax.lang.model.element.Modifier[] com.google.errorprone.annotations.IncompatibleModifiers.value() and 1 other context)",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Activity, android.content.Intent, int, android.os.Bundle, android.os.UserHandle))",
+      "Missing method android.app.Instrumentation$ActivityResult androidx.test.internal.runner.hidden.ExposedInstrumentationApi.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle) (referenced from: android.app.Instrumentation$ActivityResult androidx.test.runner.MonitoringInstrumentation.execStartActivity(android.content.Context, android.os.IBinder, android.os.IBinder, android.app.Fragment, android.content.Intent, int, android.os.Bundle))",
+      "Missing method java.beans.BeanInfo java.beans.Introspector.getBeanInfo(java.lang.Class, java.lang.Class) (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.beans.PropertyDescriptor[] java.beans.BeanInfo.getPropertyDescriptors() (referenced from: java.beans.PropertyDescriptor[] org.hamcrest.beans.PropertyUtil.propertyDescriptorsFor(java.lang.Object, java.lang.Class))",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getDisplayName() (referenced from: void org.hamcrest.beans.SamePropertyValuesAs$PropertyMatcher.<init>(java.beans.PropertyDescriptor, java.lang.Object) and 1 other context)",
+      "Missing method java.lang.String java.beans.PropertyDescriptor.getName() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)",
+      "Missing method java.lang.reflect.Method java.beans.PropertyDescriptor.getReadMethod() (referenced from: org.hamcrest.Condition org.hamcrest.beans.HasPropertyWithValue$2.apply(java.beans.PropertyDescriptor, org.hamcrest.Description) and 1 other context)"
+    ],
+    "platform_qualification_limit": "Compile SDK36 public APIs plus actual API35 hidden Instrumentation declarations; not API35 runtime availability or device-safety proof.",
+    "receipt_name": "linkage.json",
+    "receipt_sha256": "09d52d31dbfad9c7801918583f2ffc3c83789f15700b2508384cb83be8785fe4"
+  },
+  "provenance": {
+    "r8_sha256": "1448d5476096c1c4e3bf05b8372948ac7c00d76dc38b4a4eb744b360a888b65c",
+    "checker_sha256": "89427e00b5b29947682d99e21eb5d52988ce22081a14dbd0fdca9c72b7cb4207",
+    "generation_manifest_sha256": "6d0fda4a7e078d7303942f960bd11dcbc3901240652e376dd81f035e73f66cc2",
+    "rules_sha256": "9a0b9cad5393522b6f9e0147a29349a7d31ed0bdd967ac514fefc1239bd32592"
+  },
+  "retained_types": 1069,
+  "metadata_normalization": {
+    "class_changes": [
+      {
+        "after_hex": "0000",
+        "after_sha256": "646dcf73069cdb7bff5b379d32b88ad2fcf9b9fe1c2763a1b17d5f90d4b30fdc",
+        "before_hex": "000c",
+        "before_sha256": "cadaf2750969b978d060109bc20932b545a91dd54d2a3f7c533ea23d71a0ce45",
+        "class": "androidx/test/internal/platform/util/TestOutputEmitter$1.class",
+        "descriptor": "()Landroidx/test/internal/platform/util/TestOutputHandler;",
+        "method": "lambda$static$0",
+        "offset": 1243,
+        "owner": "androidx/test/internal/platform/util/TestOutputEmitter"
+      },
+      {
+        "after_hex": "0000",
+        "after_sha256": "ea0300c4f3e6f17c289cb6d225ad4f48083688b3e707f1a1f1a9c45325bf0f4b",
+        "before_hex": "000c",
+        "before_sha256": "4730062f582788f36b20ace3cfdf5e9bdaefe2ff4fb0ad0d6d200bb526d96f09",
+        "class": "androidx/test/internal/util/Checks$ThreadCheckerSingleton$1.class",
+        "descriptor": "()Landroidx/test/internal/platform/ThreadChecker;",
+        "method": "lambda$static$0",
+        "offset": 1392,
+        "owner": "androidx/test/internal/util/Checks$ThreadCheckerSingleton"
+      }
+    ],
+    "excluded_entries": [
+      {
+        "entry": "META-INF/versions/9/module-info.class",
+        "input": "error_prone_annotations-2.26.1.jar",
+        "reason": "Java 9 JPMS descriptor, not Android program bytecode",
+        "sha256": "0663995c153e52574f5a21a69b6c09eed272f87697d1e38b2eb33ccf9fdb778a"
+      },
+      {
+        "entry": "META-INF/versions/9/module-info.class",
+        "input": "kotlinx-coroutines-test-jvm-1.10.2.jar",
+        "reason": "Java 9 JPMS descriptor, not Android program bytecode",
+        "sha256": "65b85ec38c2e2305def190bda546844786788a7e136eada543cbde7c09225946"
+      },
+      {
+        "entry": "META-INF/versions/9/module-info.class",
+        "input": "kotlinx-serialization-json-jvm-1.7.3.jar",
+        "reason": "Java 9 JPMS descriptor, not Android program bytecode",
+        "sha256": "2137a0c3e23481a9e72c626af1d96054a735087ef13b57dd94bed6967ed8066b"
+      }
+    ],
+    "output": "classes.jar",
+    "output_sha256": "3a15985574e940546c80d3fec51b97f9f01a10a12e78b1f9c621c0df48053de6",
+    "receipt": "metadata.json",
+    "receipt_sha256": "90ede2f4f0e53764a9605eea7463d37d19da6b1298a5780b35d7b330e4aa5c4b"
+  },
+  "host_validation": {
+    "actual_gradle_jvm_tests_passed": 676,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "lint": "PASS",
+    "main_and_androidtest_compile": "PASS",
+    "pair_timing_jvm_tests": 12,
+    "python_wiring_tests": 3,
+    "host_model_differential_comparisons": 530,
+    "host_model_report": "cloud-sparse-reverse-host.json",
+    "host_model_limit": "Python/OpenCV model timings exclude Kotlin per-row JNI gather overhead; not a device-performance claim.",
+    "normalized_export": "PASS",
+    "optimized_qa_pair_assembly": "PASS",
+    "assembly_seconds": 143,
+    "broad_pytest": {
+      "passed": 1046,
+      "skipped": 3,
+      "deselected": 1,
+      "subtests_passed": 3,
+      "duration_seconds": 137.91,
+      "deselection_reason": "Source checksum manifest verified separately at commit.",
+      "warning": "Intentional duplicate ZIP-entry rejection fixture.",
+      "log": "pair-work-full-host-pytest.log",
+      "sha256": "d448ecf876bd719fd0a56cb1d2e2a3896ce7e4fd138480c96780e9e123692151"
+    },
+    "configured_optional_real_gates": {
+      "passed": 3,
+      "duration_seconds": 15.39,
+      "note": "Separately executes the three optional gates skipped by the broad run with their configured real dependencies.",
+      "log": "pair-work-optional-host-gates.log",
+      "sha256": "e8d75285ddd1716f5d1273df35ed3b3a7914be3ed3ab42269865e61afdf26359"
+    }
+  },
+  "runtime": {
+    "status": "API35_BLOCKED_INFRASTRUCTURE_API30_PENDING",
+    "runtime_executed": false,
+    "required_sequence": [
+      "Complete FeatureMatcherTest class",
+      "Complete SparseReverseMatcherDifferentialTest class",
+      "Unchanged full synthetic session with 180-second operation deadline"
+    ],
+    "attempts": [
+      {
+        "api_level": 35,
+        "system_image": "Official aosp_atd x86_64 revision 1",
+        "status": "BLOCKED_INFRASTRUCTURE",
+        "tests_executed": 0,
+        "finding": "Repeated system_server restarts continued during a bounded readiness probe without installation load. No new-candidate instrumentation result exists.",
+        "stability_probe_budget_seconds": 600,
+        "log": "readiness-stability.log",
+        "qualification_limit": "Does not alter the prior candidate API35 eight-pass/one-failure record.",
+        "guest_stopped": "Graceful emulator exit 0 at 2026-10-21T09:08Z, reported by build owner.",
+        "readiness_result": "NOT_STABLE",
+        "installation": "Initial application/test exits 20/20; retry exits 224/20. Installation outcome uncertain; no instrumentation tests started.",
+        "evidence": [
+          {
+            "name": "readiness-stability-result.txt",
+            "sha256": "76564fa5489baf8db853fe0a60fb93f9575302ed322c3397b240372eff6d5ccf"
+          },
+          {
+            "name": "readiness-stability.log",
+            "sha256": "3a0572d4916be4b90be33b2ecc12651c89ffcb40d74a6615df3cc3fd4fde2733"
+          },
+          {
+            "name": "final-framework-failure-logcat.txt",
+            "sha256": "a1d57c0f2213e972bd874027088b216b32e8ebff670a044206f63098edcf4114"
+          },
+          {
+            "name": "install-app.log",
+            "sha256": "44957256134a51ede449f7781ce3c44ce17a0c2ee7169e279db49557533c12c7"
+          },
+          {
+            "name": "install-test.log",
+            "sha256": "44957256134a51ede449f7781ce3c44ce17a0c2ee7169e279db49557533c12c7"
+          },
+          {
+            "name": "install-app-retry.log",
+            "sha256": "02ce7069aaa2aec99357f90c1fc4877fc5e94026daa749526d8bd1e729366c44"
+          },
+          {
+            "name": "install-test-retry.log",
+            "sha256": "44957256134a51ede449f7781ce3c44ce17a0c2ee7169e279db49557533c12c7"
+          },
+          {
+            "name": "apk-sha256.txt",
+            "sha256": "4475b5291fd2f247f453b81af15cc94b67d184ed6ec095587b1c87b03d36e923"
+          }
+        ]
+      },
+      {
+        "api_level": 30,
+        "system_image": "Official AOSP/default x86_64 revision 11",
+        "status": "NOT_RUN",
+        "tests_executed": 0,
+        "purpose": "Supplementary same-pair runtime check, not a substitute for API35 qualification."
+      }
+    ]
+  },
+  "open_gates": [
+    "New candidate actual Android differential and full-session execution",
+    "Prior full-session pair-stage timeout not yet shown resolved",
+    "Independent default production APK qualification",
+    "Physical object geometry/texture and ARM64 resource qualification",
+    "Production signing"
+  ]
+}
