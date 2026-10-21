@@ -139,4 +139,98 @@ class ProductionWrapperHostTest {
             val after=callbacks.get();delay(250);assertEquals(after,callbacks.get())
         } catch(t:Throwable) { primary=t;throw t } finally { closeToken(token,child,primary) }
     }
+
+    @Test fun callbackOriginatedCancellationPreservesIdentityAndCannotPublishCompletedResult() = runBlocking {
+        val f=FinalSparseJniFixture();val token=NativeCore.beginReconstruction()
+        var primary:Throwable?=null;var child:Job?=null
+        val expected=CancellationException("callback-originated-cancel-probe")
+        val ready=CompletableDeferred<Unit>();val cancelled=AtomicBoolean();val published=AtomicBoolean()
+        try {
+            val failure=try {
+                withContext(Dispatchers.Default) {
+                    val result=withNativeStageProgress(token,{_,_,_-> ready.await();throw expected }) {
+                        val actual=execute(f,token);ready.complete(Unit)
+                        cancelled.set(awaitNativeCancellation(f,token));actual
+                    }
+                    val (anchor,cameras)=anchors(f)
+                    FinalSparsePublication.prepare(anchor,cameras,f.photoIds,f.views,f.snapshot,result)
+                    published.set(true)
+                }
+                null
+            } catch(t:Throwable) { t }
+            assertTrue("Callback did not cancel actual native lease",cancelled.get())
+            assertSame("Callback cancellation identity lost or swallowed",expected,failure)
+            assertFalse("Published after callback cancellation",published.get())
+        } catch(t:Throwable) { primary=t;throw t } finally { closeToken(token,child,primary) }
+    }
+
+    @Test fun callbackSelfCancellationWithoutThrowPreservesIdentityAndCannotPublish() = runBlocking {
+        val f=FinalSparseJniFixture();val token=NativeCore.beginReconstruction()
+        var primary:Throwable?=null;var child:Job?=null
+        val expected=CancellationException("callback-self-cancel-probe")
+        val ready=CompletableDeferred<Unit>();val cancelled=AtomicBoolean();val published=AtomicBoolean()
+        try {
+            val failure=try {
+                withContext(Dispatchers.Default) {
+                    val result=withNativeStageProgress(token,{_,_,_-> ready.await();currentCoroutineContext().cancel(expected) }) {
+                        val actual=execute(f,token);ready.complete(Unit)
+                        cancelled.set(awaitNativeCancellation(f,token));actual
+                    }
+                    val (anchor,cameras)=anchors(f)
+                    FinalSparsePublication.prepare(anchor,cameras,f.photoIds,f.views,f.snapshot,result)
+                    published.set(true)
+                }
+                null
+            } catch(t:Throwable) { t }
+            assertTrue(cancelled.get());assertSame(expected,failure);assertFalse(published.get())
+        } catch(t:Throwable) { primary=t;throw t } finally { closeToken(token,child,primary) }
+    }
+
+    @Test fun successfulCompletionWhileCallbackSuspendedDoesNotCancelStageOrLease() = runBlocking {
+        val f=FinalSparseJniFixture();val token=NativeCore.beginReconstruction()
+        var primary:Throwable?=null;var child:Job?=null
+        val entered=CountDownLatch(1);val stopped=AtomicBoolean()
+        try {
+            val actual=withContext(Dispatchers.Default) {
+                withNativeStageProgress(token,{_,_,_->
+                    entered.countDown()
+                    try { awaitCancellation() } finally { stopped.set(true) }
+                }) {
+                    val result=execute(f,token)
+                    assertTrue(entered.await(5,TimeUnit.SECONDS));result
+                }
+            }
+            assertEquals(48,actual.geometry.getInt("pointCount"));assertTrue(stopped.get())
+            // Successful wrapper teardown must not poison a lease needed by the next stage.
+            assertEquals(48,execute(f,token).geometry.getInt("pointCount"))
+            val (anchor,cameras)=anchors(f)
+            assertEquals(48,FinalSparsePublication.prepare(anchor,cameras,f.photoIds,f.views,f.snapshot,actual).output.getInt("pointCount"))
+        } catch(t:Throwable) { primary=t;throw t } finally { closeToken(token,child,primary) }
+    }
+
+    @Test fun nativePrimaryFailureIsNotReplacedByConcurrentCallbackCancellation() = runBlocking {
+        val f=FinalSparseJniFixture();val token=NativeCore.beginReconstruction()
+        var primary:Throwable?=null;var child:Job?=null
+        val callback=CancellationException("callback-racing-native-failure")
+        val ready=CompletableDeferred<Unit>();val nativeFailure=AtomicReference<Throwable?>()
+        val published=AtomicBoolean()
+        try {
+            val failure=try {
+                withContext(Dispatchers.Default) {
+                    withNativeStageProgress(token,{_,_,_-> ready.await();throw callback }) {
+                        execute(f,token);ready.complete(Unit)
+                        check(awaitNativeCancellation(f,token)) { "Missing callback token cancellation" }
+                        // Actual independent JNI input rejection, not a synthetic thrown error.
+                        try { NativeCore.quality(ByteArray(0),1,1) }
+                        catch(t:Throwable) { nativeFailure.set(t);throw t }
+                    }
+                    published.set(true)
+                }
+                null
+            } catch(t:Throwable) { t }
+            assertTrue("Expected actual JNI rejection",nativeFailure.get() is IllegalArgumentException)
+            assertSame("Native primary replaced",nativeFailure.get(),failure)
+            assertFalse(published.get())
+        } catch(t:Throwable) { primary=t;throw t } finally { closeToken(token,child,primary) }
+    }
 }

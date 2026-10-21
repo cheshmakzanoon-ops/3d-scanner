@@ -167,7 +167,7 @@ def main(argv=None):
                         'HostRunnerKt', str(shim), str(engine)], check=True, timeout=90, env=env)
         if inputs() != before or tree_hashes(output) != receipt['classes']:
             raise ValueError('Inputs/output changed during execution')
-        atomic_json(work / 'run-receipt.json', {'status': 'passed', 'newTests': 3,
+        atomic_json(work / 'run-receipt.json', {'status': 'passed', 'newTests': 7,
                     'compiledReceiptSha256': sha(receipt_path), 'inputs': before,
                     'scope': 'host wrappers with synthetic observations; no in-flight interruption or Android claim'})
 
