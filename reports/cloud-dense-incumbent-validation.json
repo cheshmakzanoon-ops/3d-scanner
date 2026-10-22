@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "kind": "dense-incumbent",
+  "status": "PASS_IN_RECORDED_SCOPE",
+  "sources": {
+    "published": {
+      "commit": "166b898dc262d49497a24f5018535659053fd85a",
+      "tree": "1b938a080af63676c01c97cb9e8dafefbd0ec44b"
+    },
+    "validated": {
+      "commit": "f86a581a581afed5dff0cb1e5722e8ab51a4ec0f",
+      "tree": "1b938a080af63676c01c97cb9e8dafefbd0ec44b"
+    },
+    "artifactBuild": {
+      "commit": "b95b7a5958fd285c7c22f99ac41f3048a84e760f",
+      "tree": "ea18560d43f4462a8f636458e78e05b640cf9c03"
+    }
+  },
+  "sourceBindingRoles": [
+    "published",
+    "validated",
+    "artifactBuild"
+  ],
+  "sourceBindings": {
+    "CMakeLists.txt": "7e02293b9a2b6b24d81f50ab7f2bc9cad5971d6b71bb25a4c14733d80c894498",
+    "app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt": "027540f245133659c7e867bb71075e76ec093e3a7587d6cf970d3634369b5a81",
+    "app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt": "2ba002868326b06ef54d4865fbc1b543c542586689cff9a08f42d59b6cd31762",
+    "app/src/test/java/com/realityforge/scanner/engine/pipeline/DenseExecutionPolicyTest.kt": "d612bcad6a77b5531bf776d78e777392352701143f91cfff17b6cf35e7a3afc0",
+    "reconstruction/src/dense.cpp": "04ffc0c7693b000eb54f62f961a925b3ab74125cfce95df1e82ecebc9c39fdd4",
+    "reconstruction/tests/dense_incumbent_test.cpp": "6ce21ab04fd26051aed91138f0ef7e3044edb908491dd16380362d8fcb34cf2b"
+  },
+  "artifacts": {
+    "hostEngine": {
+      "sha256": "35e7b87b4c0bdc8404ddd6137c304ad05c76a3ed2858a0f21db6d1f6f63e87fb",
+      "sourceRole": "artifactBuild",
+      "scope": "Complete host shared library built at artifactBuild; selected explicitly for the combined Python run."
+    },
+    "debugApk": {
+      "sha256": "a35cbd6dfee022e35f97232d12d2fd7dccb6144780447a5c846f40cd74c90d09",
+      "sourceRole": "artifactBuild",
+      "scope": "Validation-only debug APK, not a new release or delivery. Build commit is not the published commit.",
+      "zipEntries": {
+        "lib/arm64-v8a/librealityforge.so": "6b44a71d97cbdb7f1535245595f6740945d804ce6e1e0710923568ff5ffdd44c",
+        "lib/x86_64/librealityforge.so": "32b27405690d2fe122e97b84fc9c7f7cb7196ba66ce1e0d6d22595a773a3e965"
+      }
+    }
+  },
+  "gates": [
+    {
+      "name": "native-build",
+      "status": "PASS",
+      "counts": {
+        "buildSteps": 132
+      },
+      "scope": "Serial Release build with -Werror; sanitizer and experimental Vulkan disabled."
+    },
+    {
+      "name": "ctest",
+      "status": "PASS",
+      "counts": {
+        "passed": 46,
+        "failed": 0
+      },
+      "scope": "Artifact-build source; regression linked the actual candidate shared library."
+    },
+    {
+      "name": "python-artifact-build",
+      "status": "PASS",
+      "counts": {
+        "ordinaryPassed": 1421,
+        "subtestsPassed": 6,
+        "skipped": 0,
+        "warnings": 1
+      },
+      "scope": "Configured full host run at artifactBuild; one existing synthetic duplicate-ZIP warning."
+    },
+    {
+      "name": "python-published-tree",
+      "status": "PASS",
+      "counts": {
+        "ordinaryPassed": 1442,
+        "subtestsPassed": 6,
+        "skipped": 0,
+        "warnings": 1
+      },
+      "scope": "Full run at validated, whose entire tree equals published; exact hostEngine selected."
+    },
+    {
+      "name": "android-unit",
+      "status": "PASS",
+      "counts": {
+        "passed": 770,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "newPolicyTestsIncluded": 2
+      },
+      "scope": "Actual JVM/Kotlin tests at artifactBuild. The two policy tests are included in 770, not additional."
+    },
+    {
+      "name": "android-host-integration",
+      "status": "PASS",
+      "counts": {
+        "passed": 18,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "scope": "HOST Room integration, not fresh JNI relief reconstruction."
+    },
+    {
+      "name": "android-compilation-and-package",
+      "status": "PASS",
+      "counts": {
+        "nativeAbis": 2
+      },
+      "scope": "Instrumentation Kotlin compiled and debug APK assembled; arm64-v8a and x86_64 native libraries built. No instrumentation execution."
+    },
+    {
+      "name": "android-lint",
+      "status": "PASS",
+      "counts": {
+        "errors": 0,
+        "warnings": 77,
+        "hints": 3
+      },
+      "scope": "Offline lint: 14 dependency-update notices absent versus prior 91 warnings + 3 hints; remaining 80 issues match. Not source-warning fixes."
+    },
+    {
+      "name": "no-coarse-parity",
+      "status": "PASS",
+      "counts": {},
+      "scope": "Complete historical/candidate libraries: byte-identical deterministic fixture at local refinement 0 and 6; not full-scene or quality parity."
+    },
+    {
+      "name": "tile-cache",
+      "status": "PASS",
+      "counts": {
+        "oldComputed": 8,
+        "candidateRejectedOld": 8,
+        "candidateRecomputedOld": 8,
+        "candidateResumedOwn": 8,
+        "candidateRecomputedOwn": 0
+      },
+      "scope": "Actual complete libraries and fresh cache; old identity rejected, new identity reused."
+    }
+  ],
+  "evidence": [
+    {
+      "label": "Native and Python public-safe summary",
+      "sha256": "52415baa7ce1fe372fb4c96edd44a82c7e398d9deb376bcd760103e3deba6d02"
+    },
+    {
+      "label": "Android public-safe summary",
+      "sha256": "2f32ed84535128ac7141abd6606e42ed3d8352bcab545deefc49dc2de53c6538"
+    },
+    {
+      "label": "Lint comparison public-safe summary",
+      "sha256": "797367dc46ce231ac33001d8c2c642c84be36d2ceb9014df1de631846686dcae"
+    },
+    {
+      "label": "Combined-tree public-safe summary",
+      "sha256": "fe2e5534dd3cce4550e96b5d55d779561b3a3c80bfdb4240cffed80799121f51"
+    }
+  ],
+  "notes": [
+    "The published and validated commits have identical complete trees. artifactBuild has a different complete tree; only the six listed bindings are asserted equal across all three sources.",
+    "The configured 1421-test run supersedes an earlier 1418-pass / 3-optional-skip run at artifactBuild. The 1442-test combined run is a separate later run, not an Android rebuild.",
+    "Initial Android attempt executed unit/HOST/Kotlin/lint then lost its Gradle daemon during native build; cause unconfirmed. An intermediate supervisor attempt rejected command parsing. Final serial configure and five-task gate passed; previously executed JVM/Kotlin/lint tasks were up-to-date.",
+    "Production retains Compatibility; optional coarse proposals cannot replace the current best objective with a worse result. No default promotion or truth-threshold relaxation.",
+    "Latest delivered engineering APK remains the historical fdded23a artifact recorded in reports/engineering-apk-fdded23a-delivery.json; this debug APK does not replace it."
+  ],
+  "limitations": [
+    "No scanner-engine sanitizer runtime qualification; no Vulkan execution.",
+    "No fresh candidate HOST JNI relief reconstruction replay.",
+    "No emulator, device or physical-object qualification; no 3D accuracy, coverage or texture-quality improvement claim.",
+    "Later or separate checkpoint/provider/OpenCV/fixture repairs are excluded.",
+    "Hashes bind the recorded bytes and source identities; they are not an independent reproducible-build attestation."
+  ]
+}

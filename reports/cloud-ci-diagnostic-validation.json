@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "kind": "ci-diagnostics",
+  "status": "PASS_IN_RECORDED_SCOPE",
+  "sources": {
+    "published": {
+      "commit": "81a84a7739a5d4103d0477b4eef1fd1bc3dda55f",
+      "tree": "189250e2466b45cc635452c1ae383fa28d6d8cef"
+    },
+    "validated": {
+      "commit": "07deea4f9b2b384aecc96b00cdc15252afa5cbb4",
+      "tree": "189250e2466b45cc635452c1ae383fa28d6d8cef"
+    },
+    "artifactBuild": {
+      "commit": "b95b7a5958fd285c7c22f99ac41f3048a84e760f",
+      "tree": "ea18560d43f4462a8f636458e78e05b640cf9c03"
+    }
+  },
+  "sourceBindingRoles": [
+    "published",
+    "validated"
+  ],
+  "sourceBindings": {
+    ".github/workflows/android-compatibility.yml": "120506e853dc1e3f38a31b3986fa8abc8f41f8b1e9bf5a1e95961445ece52efc",
+    ".github/workflows/verify.yml": "aeb82c815abb17b53a607fe3622e8f6d2d0913401a357e6f659ec3eb41ba3b67",
+    "SOURCE_MANIFEST.sha256": "059ba179eafa5937be74a2fbfb366c4dc7aa725b7428e3d70654a97647a0b40a",
+    "tests/test_device_failure_logcat.py": "1149212f3d077c9e75b42851aa9a05ebda6fcbca85f4a455f6a41c8bdf4a2b9a",
+    "tools/device/compatibility/README.md": "9bec6e1f252fbb666c1cd5c0900bea276cce4f5901aad7868c530be729ccde03",
+    "tools/device/compatibility/failure_logcat.py": "81fb3fcdc23a001bf53b531250b29630d4d8d51731e2e0bc6e7d78de20e7393c",
+    "tools/device/compatibility/runner.py": "be5c07f7622c799a6c5d832744eb70c5a124fbd8cab532685ad85add80ef7469",
+    "tools/qa/lsan_diagnostic/classify.py": "aba5874cd236ef2bff504a93a9a0ebecc587079b63cc2e0777b6d360e7045ca4",
+    "tools/qa/lsan_diagnostic/probe.py": "4e34b4b37beab9a8fb6a45a44917bf5bad6e3607a19563bb88aae79be68da9d2",
+    "tools/qa/lsan_diagnostic/process_scope.py": "38aaa907a726002d67c261df0677428d6bf79b7347e256e34a235b3db5449884",
+    "tools/qa/lsan_diagnostic/run_matrix.py": "53621f758bd114f1333e4034bf3558438266d8e998694760b47558af2a5d52df",
+    "tools/qa/lsan_diagnostic/test_contract.py": "934e31a7269247afe18f9eac3cdce550b0664849bc65831238a629cc13ec7fb5"
+  },
+  "artifacts": {
+    "hostEngine": {
+      "sha256": "35e7b87b4c0bdc8404ddd6137c304ad05c76a3ed2858a0f21db6d1f6f63e87fb",
+      "sourceRole": "artifactBuild",
+      "scope": "Existing exact host engine selected for full host validation; no native rebuild in this CI-only increment."
+    }
+  },
+  "gates": [
+    {
+      "name": "focused-python",
+      "status": "PASS",
+      "counts": {
+        "ordinaryPassed": 86,
+        "subtestsPassed": 4,
+        "skipped": 0
+      },
+      "scope": "Diagnostic ownership and bounded failure-log contracts."
+    },
+    {
+      "name": "workflow-contracts",
+      "status": "PASS",
+      "counts": {
+        "ordinaryPassed": 4,
+        "skipped": 0
+      },
+      "scope": "Workflow source contracts, not hosted workflow execution."
+    },
+    {
+      "name": "workflow-yaml",
+      "status": "PASS",
+      "counts": {
+        "parsed": 3
+      },
+      "scope": "verify.yml, android-compatibility.yml, lsan-boundary-diagnostic.yml; PyYAML 6.0.3 parsing only."
+    },
+    {
+      "name": "full-host-python",
+      "status": "PASS",
+      "counts": {
+        "ordinaryPassed": 1474,
+        "subtestsPassed": 6,
+        "skipped": 0,
+        "warnings": 1
+      },
+      "scope": "Exact validated/published tree, selected hostEngine; intentional synthetic duplicate-ZIP warning."
+    },
+    {
+      "name": "owned-process-cleanup",
+      "status": "PASS",
+      "counts": {
+        "successfulRuns": 3,
+        "timeouts": 0,
+        "persistentDescendants": 0,
+        "cleanupErrors": 0
+      },
+      "scope": "Focused, workflow-contract and full-host validation receipts each exited 0 and recorded completed owned cleanup."
+    }
+  ],
+  "evidence": [
+    {
+      "label": "Full host test output",
+      "sha256": "e38709e15d255580f9cca977acbc3a64fd299f1f6942e11c2e206693d3cb3cb8"
+    },
+    {
+      "label": "Focused test output",
+      "sha256": "da5f5079a69a8b8c6f3995308e8d70df6230d24dcee161baa4461612fe316313"
+    },
+    {
+      "label": "Workflow contract output",
+      "sha256": "988344a7589dd35ded61b8e784dcd5bc43cb64ba0f19a2bda1a7ec44b380abcb"
+    },
+    {
+      "label": "YAML parsing output",
+      "sha256": "cf2ec914d9b193c6453714e81c5a013e62e68987192c6607c5e0e5900b29adda"
+    }
+  ],
+  "notes": [
+    "CI/diagnostic-only source changes; published and validated commits have identical complete trees.",
+    "The pinned observer launcher was unchanged (SHA-256 be3a9676f17cf9ae4cb613ab2eac492b4de309e71b4aaf9d8a54613a5c7de8da), but recorded zero per-audit records: relocated temporary outputs were outside its strict temporary-directory fixture matcher. No observed audit diagnostic payload is claimed. Normal scanner/test execution remained unchanged by this relocation.",
+    "86 ordinary focused passes + 4 subtests and 1474 ordinary full-suite passes + 6 subtests are distinct counts; subtests are not folded into ordinary test totals.",
+    "This increment neither rebuilt nor delivered an APK and does not advance the historical fdded23a engineering APK identity."
+  ],
+  "limitations": [
+    "No actual scanner-engine sanitizer runtime qualification or leak-freedom result; deliberate diagnostic controls are not scanner qualification.",
+    "No native rebuild, Android build, hosted CI execution, emulator/device runtime or physical 3D-quality qualification.",
+    "Zero per-audit observer records; host success does not establish observer diagnostic coverage.",
+    "Later or separate checkpoint/provider/OpenCV/fixture repairs are excluded."
+  ]
+}
