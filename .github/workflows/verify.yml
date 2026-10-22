@@ -145,7 +145,7 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          script: bash tools/run-device-tests.sh --scope debug --serial emulator-5554 --app-apk "$RUNNER_TEMP/candidate/debug/app-debug.apk" --test-apk "$RUNNER_TEMP/candidate/androidTest/debug/app-debug-androidTest.apk" --expect-api 35 --expect-abi x86_64 --output "$RUNNER_TEMP/rf-ci/device/runner"
+          script: bash tools/run-device-tests.sh --scope debug --serial emulator-5554 --retain-emulator-failure-logcat --app-apk "$RUNNER_TEMP/candidate/debug/app-debug.apk" --test-apk "$RUNNER_TEMP/candidate/androidTest/debug/app-debug-androidTest.apk" --expect-api 35 --expect-abi x86_64 --output "$RUNNER_TEMP/rf-ci/device/runner"
       - name: Validate debug compatibility scope and fresh synthetic-session screenshot
         run: >-
           python tools/ci/validation/evidence.py collect --start "$RUNNER_TEMP/rf-ci/device/start.json"

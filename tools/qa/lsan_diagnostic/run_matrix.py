@@ -8,6 +8,7 @@ import signal
 import resource
 import subprocess
 import time
+from process_scope import Scope
 
 HERE = Path(__file__).resolve().parent
 LOG_LIMIT = 4 * 1024 * 1024
@@ -15,32 +16,6 @@ LOG_LIMIT = 4 * 1024 * 1024
 
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
-def group_exists(pgid):
-    try:
-        os.killpg(pgid, 0)
-        return True
-    except ProcessLookupError:
-        return False
-
-
-def drain(process):
-    """Always terminate descendants, including after the group leader exits."""
-    survived = group_exists(process.pid)
-    for sig, grace in ((signal.SIGTERM, 1.0), (signal.SIGKILL, 2.0)):
-        try:
-            os.killpg(process.pid, sig)
-        except ProcessLookupError:
-            pass
-        until = time.monotonic() + grace
-        while time.monotonic() < until:
-            process.poll()
-            if not group_exists(process.pid):
-                break
-            time.sleep(.05)
-    process.wait(timeout=1)
-    return survived, not group_exists(process.pid)
 
 
 def child_limits():
@@ -56,13 +31,17 @@ def run(argv, env, folder, name, timeout=30):
     reason = None
     code = 127
     drained = True
+    scope = Scope()
     with log.open('xb') as stream:
         try:
             process = subprocess.Popen(list(map(str, argv)), env=env, stdout=stream,
                                        stderr=subprocess.STDOUT, start_new_session=True,
                                        preexec_fn=child_limits)
+            scope.leader = process.pid
+            scope.snapshot('launched')
             started = time.monotonic()
             while process.poll() is None:
+                scope.snapshot(None)
                 if time.monotonic() - started > timeout:
                     reason = 'TIMEOUT'
                     break
@@ -80,10 +59,12 @@ def run(argv, env, folder, name, timeout=30):
             try:
                 if process:
                     already_exited = process.poll() is not None
-                    survived, drained = drain(process)
+                    survived, drained = scope.finish(process, already_exited and reason is None)
                     code = process.returncode
                     if not drained:
                         reason = 'GROUP_DRAIN_FAILED'
+                    elif scope.escaped and reason is None:
+                        reason = 'ESCAPED_DESCENDANTS'
                     elif already_exited and survived and reason is None:
                         reason = 'ORPHAN_DESCENDANTS'
             finally:
@@ -92,7 +73,7 @@ def run(argv, env, folder, name, timeout=30):
     if log.stat().st_size >= LOG_LIMIT and reason is None:
         reason = 'LOG_LIMIT'
     return dict(exit_code=code, reason=reason, log=name, log_bytes=log.stat().st_size,
-                sha256=sha(log), group_drained=drained)
+                sha256=sha(log), group_drained=drained, process_events=scope.events, escaped_descendants=scope.escaped, cleanup_errors=scope.errors)
 
 
 def terminate(signum, frame):
@@ -138,7 +119,7 @@ def main():
             raise RuntimeError('compile_failed')
         receipt['helper_sha256'] = sha(helper)
         child = env | dict(LD_PRELOAD=args.runtime+':'+args.cxx_runtime,
-                           ASAN_OPTIONS='halt_on_error=1:detect_leaks=1:fast_unwind_on_malloc=0',
+                           ASAN_OPTIONS='halt_on_error=1:detect_leaks=1',
                            UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
                            PYTHONMALLOC='malloc', OPENBLAS_NUM_THREADS='1', OMP_NUM_THREADS='1')
         for kind in ('empty', 'numpy', 'leak', 'uaf', 'ub'):

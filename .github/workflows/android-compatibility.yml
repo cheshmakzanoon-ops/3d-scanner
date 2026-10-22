@@ -35,7 +35,7 @@ jobs:
           arch: x86_64
           target: google_apis
           disable-animations: true
-          script: bash tools/run-device-tests.sh --scope debug --serial emulator-5554 --expect-api ${{ matrix.api }} --expect-abi x86_64 --expect-page-size 4096 --output reports/device
+          script: bash tools/run-device-tests.sh --scope debug --serial emulator-5554 --retain-emulator-failure-logcat --expect-api ${{ matrix.api }} --expect-abi x86_64 --expect-page-size 4096 --output reports/device
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

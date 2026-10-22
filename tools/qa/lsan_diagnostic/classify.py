@@ -2,6 +2,7 @@
 import argparse
 import json
 import hashlib
+import re
 from pathlib import Path
 
 
@@ -35,6 +36,7 @@ def classify(folder):
     if set(rows) != expected | {('compile', None)} or rows[('compile', None)]['exit_code'] != 0:
         raise ValueError('Compile failed or case matrix incomplete')
     findings = []
+    summaries = {}
     ok = True
     for kind in ('empty', 'numpy', 'leak', 'uaf', 'ub'):
         for check in ('exit', 'observe', 'boundary'):
@@ -45,6 +47,10 @@ def classify(folder):
                               'AddressSanitizer:DEADLYSIGNAL' in text or
                               'Traceback (most recent call last)' in text)
             valid = not infrastructure
+            counts = re.findall(r'SUMMARY: AddressSanitizer: (\d+) byte\(s\) leaked in (\d+) allocation\(s\)\.', text)
+            summaries[kind+'-'+check] = [dict(bytes=int(b), allocations=int(a)) for b,a in counts]
+            if 'LeakSanitizer: detected memory leaks' in text:
+                valid &= bool(counts) and 'Too many leaks!' not in text
             if kind == 'leak':
                 valid &= bool(row and row['exit_code'] != 0 and
                               'LeakSanitizer: detected memory leaks' in text and
@@ -79,6 +85,8 @@ def classify(folder):
                   shutdown_only_baseline_reproduced=lifetime,
                   result='DIAGNOSTIC_VALID' if ok else 'INVALID_OR_FAILED_CONTROLS',
                   production_policy_authorized=False,
+                  summary_counts=summaries,
+                  reporting='No max_leaks cap; default malloc unwinding matches production gate',
                   native_engine_tested=False, findings=findings,
                   note='Runtime provenance and stack equivalence require manual review; no baseline subtraction or suppression.')
     (folder/'classification.json').write_text(json.dumps(result, indent=2)+'\n')

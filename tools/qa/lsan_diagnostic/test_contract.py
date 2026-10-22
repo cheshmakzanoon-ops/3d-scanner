@@ -15,7 +15,7 @@ class ClassifierTests(unittest.TestCase):
         for kind in ('compile', 'empty', 'numpy', 'leak', 'uaf', 'ub'):
             for check in ([None] if kind == 'compile' else ['exit', 'observe', 'boundary']):
                 text = {'compile':'', 'empty':'', 'numpy':'',
-                        'leak':'LeakSanitizer: detected memory leaks\nDirect leak of 12347 byte(s) in 1 object(s)\nlose_native_allocation faults.c:10\n',
+                        'leak':'LeakSanitizer: detected memory leaks\nDirect leak of 12347 byte(s) in 1 object(s)\nlose_native_allocation faults.c:10\nSUMMARY: AddressSanitizer: 12347 byte(s) leaked in 1 allocation(s).\n',
                         'uaf':'ERROR: AddressSanitizer: heap-use-after-free\nrf_proof_uaf faults.c:24\n',
                         'ub':'runtime error: signed integer overflow\nrf_proof_ub faults.c:28\n'}[kind]
                 name = 'compile.log' if kind == 'compile' else kind+'-'+check+'.log'
@@ -23,7 +23,8 @@ class ClassifierTests(unittest.TestCase):
                 row = dict(kind=kind, log=name, exit_code=int(kind in ('leak','uaf','ub')),
                            reason=None, group_drained=True, sha256=hashlib.sha256(text.encode()).hexdigest(),
                            log_bytes=len(text.encode()))
-                if check: row['check'] = check
+                if check:
+                    row['check'] = check
                 rows.append(row)
         return dict(schema=2,status='COMPLETE',pins_before={'synthetic':'abc'},pins_after={'synthetic':'abc'},records=rows)
 
@@ -92,3 +93,102 @@ class LogBoundTests(unittest.TestCase):
             self.assertNotEqual(row['exit_code'],0)
             self.assertLessEqual(row['log_bytes'],LOG_LIMIT)
             self.assertTrue(row['group_drained'])
+
+
+class DescendantTests(unittest.TestCase):
+    def execute_child(self, body):
+        import os,sys
+        from run_matrix import run
+        with tempfile.TemporaryDirectory() as d:
+            return run([sys.executable,'-c',body],os.environ.copy(),Path(d),'child.log',2)
+
+    def test_delayed_natural_exit(self):
+        row=self.execute_child("import os,time; p=os.fork(); time.sleep(.18) if p==0 else None; os._exit(0)")
+        self.assertIsNone(row['reason'])
+        self.assertTrue(row['group_drained'])
+        self.assertTrue(any(e['members'] for e in row['process_events'] if e['event']=='leader_exit'))
+        self.assertEqual(row['process_events'][-1]['members'],[])
+
+    def test_persistent_descendant_fails_and_reaps(self):
+        row=self.execute_child("import os,time; p=os.fork(); time.sleep(20) if p==0 else None; os._exit(0)")
+        self.assertEqual(row['reason'],'ORPHAN_DESCENDANTS')
+        self.assertTrue(row['group_drained'])
+        self.assertEqual(row['process_events'][-1]['members'],[])
+
+    def test_escaped_descendant_fails_and_reaps(self):
+        row=self.execute_child("import os,time; p=os.fork(); (os.setsid(),time.sleep(20)) if p==0 else None; os._exit(0)")
+        self.assertEqual(row['reason'],'ESCAPED_DESCENDANTS')
+        self.assertTrue(row['group_drained'])
+        self.assertEqual(row['process_events'][-1]['members'],[])
+
+
+class IdentityOwnershipTests(unittest.TestCase):
+    def test_existing_unrelated_child_rejected(self):
+        import subprocess,sys
+        from process_scope import Scope
+        child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(10)'])
+        try:
+            with self.assertRaisesRegex(RuntimeError,'unrelated children'):
+                Scope()
+            self.assertIsNone(child.poll())
+        finally:
+            child.terminate();child.wait(timeout=2)
+
+    def test_changed_start_time_never_signaled(self):
+        from unittest.mock import patch
+        import signal
+        from process_scope import Scope
+        scope=Scope()
+        with patch('process_scope.os.pidfd_open',return_value=987), \
+             patch('process_scope.identity',return_value={'start_time':222}), \
+             patch('process_scope.signal.pidfd_send_signal') as send, \
+             patch('process_scope.os.close') as close:
+            scope.send({'pid':12345,'start_time':111},signal.SIGKILL)
+            send.assert_not_called();close.assert_called_once_with(987)
+
+    def test_exited_before_pidfd_open_is_safe(self):
+        from unittest.mock import patch
+        import signal
+        from process_scope import Scope
+        scope=Scope()
+        with patch('process_scope.os.pidfd_open',side_effect=ProcessLookupError), \
+             patch('process_scope.signal.pidfd_send_signal') as send:
+            scope.send({'pid':12345,'start_time':111},signal.SIGKILL)
+            send.assert_not_called()
+
+
+class AncestryRaceTests(unittest.TestCase):
+    def test_changed_ppid_between_listing_and_identity_rejected(self):
+        from unittest.mock import patch
+        import os
+        from process_scope import Scope
+        scope=Scope()
+        with patch('process_scope.children',return_value={12345}), \
+             patch('process_scope.identity',return_value=dict(pid=12345,ppid=os.getpid()+1,
+                    pgid=12345,start_time=777,state='S',executable='unrelated')):
+            self.assertEqual(scope.snapshot('race'),[])
+            self.assertEqual(scope.known,{})
+
+    def test_reused_owned_pid_rejected(self):
+        from unittest.mock import patch
+        import os
+        from process_scope import Scope
+        scope=Scope();scope.known[(12345,111)]={}
+        with patch('process_scope.children',return_value=set()), \
+             patch('process_scope.identity',return_value=dict(pid=12345,ppid=os.getpid(),
+                    pgid=12345,start_time=222,state='S',executable='reused')):
+            self.assertEqual(scope.snapshot('race'),[])
+
+
+class SignalRaceTests(unittest.TestCase):
+    def test_exit_between_pidfd_open_and_signal_is_benign(self):
+        from unittest.mock import patch
+        import os,signal
+        from process_scope import Scope
+        scope=Scope()
+        with patch('process_scope.os.pidfd_open',return_value=987), \
+             patch('process_scope.identity',return_value={'start_time':111,'ppid':os.getpid()}), \
+             patch('process_scope.signal.pidfd_send_signal',side_effect=ProcessLookupError), \
+             patch('process_scope.os.close') as close:
+            scope.send({'pid':12345,'start_time':111},signal.SIGKILL)
+            close.assert_called_once_with(987)

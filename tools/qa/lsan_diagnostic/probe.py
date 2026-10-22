@@ -32,7 +32,7 @@ def main():
     print(json.dumps({'python': sys.version, 'executable': sys.executable,
                       'kind': args.kind, 'check': args.check,
                       'asan': os.environ.get('ASAN_OPTIONS'),
-                      'ubsan': os.environ.get('UBSAN_OPTIONS')}), flush=True)
+                      'ubsan': os.environ.get('UBSAN_OPTIONS'), 'lsan': os.environ.get('LSAN_OPTIONS')}), flush=True)
     # Function return destroys the workload's local namespace. Shared module
     # caches remain legitimate interpreter roots until interpreter finalization.
     workload(args.kind, args.helper)

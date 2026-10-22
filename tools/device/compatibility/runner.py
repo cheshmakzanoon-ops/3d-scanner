@@ -12,6 +12,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'tools'))
 from check_screenshot import validate
+from device.compatibility.failure_logcat import capture as capture_failure_logcat, utc_now
 SCREEN = '/data/local/tmp/realityforge-m12-session.png'
 SUITES = Path(__file__).with_name('suites.json')
 
@@ -135,11 +136,20 @@ def command(args, timeout=900):
     return result.stdout
 
 
-def run(args, execute=command):
+def run(args, execute=command, capture_logcat=capture_failure_logcat):
     output = args.output
     output.mkdir(parents=True, exist_ok=True)
     receipt = {'schema': 1, 'status': 'FAIL', 'runtime16kb': 'NOT_RUN', 'physicalCapture': 'NOT_RUN'}
-    selected = None
+    selected, identity = None, None
+    receipt['startedAtUtc'] = utc_now()
+    retain_logcat = getattr(args, 'retain_emulator_failure_logcat', False)
+    receipt['logcat'] = {'status': 'NOT_CAPTURED' if retain_logcat else 'NOT_REQUESTED'}
+    stale_logcat_error = None
+    try:
+        (output / 'logcat.txt').unlink(missing_ok=True)
+    except OSError as error:
+        # A stale artifact must never be labeled as a fresh successful capture.
+        stale_logcat_error = str(error)[:512]
     try:
         receipt['suite'] = suite_scope(getattr(args, 'scope', 'debug'))
         for apk in (args.app_apk, args.test_apk):
@@ -198,6 +208,22 @@ def run(args, execute=command):
             except Exception as error:
                 receipt['cleanupError'] = str(error)
                 receipt['status'] = 'FAIL'
+        if retain_logcat:
+            if receipt['status'] == 'PASS':
+                receipt['logcat']['reason'] = 'run passed; failure-only collection'
+            elif not selected or not identity or not identity['emulator'] or not re.fullmatch(r'emulator-[0-9]+', selected):
+                receipt['logcat']['reason'] = 'verified emulator serial required; no physical-device logs collected'
+            elif stale_logcat_error:
+                receipt['logcat'] = {'status': 'ERROR', 'reason': 'stale log artifact could not be removed'}
+            else:
+                try:
+                    receipt['logcat'] = capture_logcat(selected, identity['emulator'], output / 'logcat.txt')
+                except Exception as error:
+                    # Diagnostics cannot overwrite the original failure or counts.
+                    receipt['logcat'] = {'status': 'ERROR', 'error': str(error)[:512]}
+        if stale_logcat_error:
+            receipt['logcat']['staleArtifactRemovalError'] = stale_logcat_error
+        receipt['finishedAtUtc'] = utc_now()
         (output / 'compatibility.json').write_text(json.dumps(receipt, indent=2) + '\n')
     return 0 if receipt['status'] == 'PASS' else 1
 
@@ -205,6 +231,8 @@ def run(args, execute=command):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial')
+    parser.add_argument('--retain-emulator-failure-logcat', action='store_true',
+                        help='Opt in only for disposable synthetic emulators: bounded failure logs; never physical-device logs')
     parser.add_argument('--scope', choices=['debug', 'release'], default='debug',
                         help='Checked-in suite routing; excluded required specialist gates remain NOT_RUN')
     parser.add_argument('--app-apk', type=Path, default=Path('app/build/outputs/apk/debug/app-debug.apk'))
