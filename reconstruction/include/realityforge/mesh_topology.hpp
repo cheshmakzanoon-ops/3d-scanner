@@ -55,7 +55,11 @@ inline int intersect(const std::array<P,3>& a,const std::array<P,3>& b,long doub
         long double edge=0;for(int i=0;i<3;++i)edge=std::max(edge,len(sub(a[(i+1)%3],a[i])));
         const long double eps=tolerance*edge;
         const P ca{(a[0].x+a[1].x+a[2].x)/3,(a[0].y+a[1].y+a[2].y)/3,(a[0].z+a[1].z+a[2].z)/3};
-        if(inside(ca,b,axis,eps,true))return 2;
+        const P cb{(b[0].x+b[1].x+b[2].x)/3,(b[0].y+b[1].y+b[2].y)/3,(b[0].z+b[1].z+b[2].z)/3};
+        // Either face may be contained with all its vertices on the other's
+        // boundary; checking just the first centroid makes that overlap depend
+        // on face order. Strict interior tests preserve touching-only ambiguity.
+        if(inside(ca,b,axis,eps,true)||inside(cb,a,axis,eps,true))return 2;
         for(auto p:a)if(inside(p,b,axis,eps,true))return 2;
         for(auto p:b)if(inside(p,a,axis,eps,true))return 2;
         bool near=false;

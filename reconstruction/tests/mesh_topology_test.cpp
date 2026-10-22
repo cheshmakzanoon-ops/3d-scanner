@@ -13,6 +13,35 @@ int main(){
     r=rf::analyzeMeshTopology(cross);check(r.intersections.size()==1&&r.components==2);
     for(double scale:{1e-9,1e9}){auto scaled=cross;for(auto& p:scaled.vertices){p.xyz.x*=scale;p.xyz.y*=scale;p.xyz.z*=scale;}check(rf::analyzeMeshTopology(scaled).intersections.size()==1);}
     rf::SurfaceMesh overlap;overlap.vertices={v(0,0,0),v(2,0,0),v(0,2,0),v(.2,.2,0),v(.8,.2,0),v(.2,.8,0)};overlap.triangles={{0,1,2,0},{3,4,5,0}};check(rf::analyzeMeshTopology(overlap).intersections.size()==1);
+    // Positive-area containment can have every inner vertex on an outer edge.
+    // The larger triangle's centroid lies outside this small corner triangle.
+    // Face order, winding and scene units must not hide this definite overlap.
+    for(double scale:{1e-9,1.,1e9})for(int axis=0;axis<3;++axis)for(int winding=0;winding<4;++winding)for(bool swapFaces:{false,true}){
+        const auto transform=[&](double x,double y){
+            rf::SurfaceVertex out;
+            if(axis==0)out.xyz={x*scale,y*scale,0};
+            else if(axis==1)out.xyz={0,x*scale,y*scale};
+            else out.xyz={y*scale,0,x*scale};
+            return out;
+        };
+        const auto pair=[&](double innerY){
+            rf::SurfaceMesh result;
+            result.vertices={transform(0,0),transform(2,0),transform(0,2),
+                             transform(0,0),transform(1,0),transform(0,innerY)};
+            result.triangles={{0,1,2,0},{3,4,5,0}};
+            for(int i=0;i<2;++i)if(winding&(1<<i))std::swap(result.triangles[i].b,result.triangles[i].c);
+            if(swapFaces)std::swap(result.triangles[0],result.triangles[1]);
+            return result;
+        };
+        const auto contained=rf::analyzeMeshTopology(pair(1));
+        check(contained.intersections==std::vector<std::pair<std::size_t,std::size_t>>{{0,1}});
+        check(contained.ambiguousPairs.empty()&&!contained.intersectionBudgetExceeded);
+        // Shared-edge contact alone is not positive-area overlap.
+        const auto touching=rf::analyzeMeshTopology(pair(-1));
+        check(touching.intersections.empty());
+        check(touching.ambiguousPairs==std::vector<std::pair<std::size_t,std::size_t>>{{0,1}});
+        check(touching.intersectionCandidates==contained.intersectionCandidates&&!touching.intersectionBudgetExceeded);
+    }
     rf::MeshTopologySettings budget;budget.maxIntersectionCandidates=0;check(rf::analyzeMeshTopology(overlap,budget).intersectionBudgetExceeded);
     rf::SurfaceMesh adjacent;adjacent.vertices={v(-1,-1,0),v(1,-1,0),v(0,1,0),v(0,0,-1),v(0,0,1)};adjacent.triangles={{0,1,2,0},{0,3,4,1}};check(rf::analyzeMeshTopology(adjacent).intersections.size()==1);
     rf::SurfaceMesh broad;for(int i=0;i<50;++i){auto base=static_cast<std::uint32_t>(broad.vertices.size());broad.vertices.push_back(v(0,i*3,0));broad.vertices.push_back(v(1,i*3,0));broad.vertices.push_back(v(0,i*3+1,0));broad.triangles.push_back({base,base+1,base+2,0});}budget.maxIntersectionCandidates=20;check(rf::analyzeMeshTopology(broad,budget).intersectionBudgetExceeded);

@@ -76,6 +76,41 @@ int main() {
         require(std::filesystem::file_size(checkpoint)<rf::surface_checkpoint::MAX_FILE_BYTES,"checkpoint exceeded byte bound");
     });
     const auto acceptedBytes=read(checkpoint);
+    test("pre-topology-v2 cache identity cannot reuse stale intersection diagnostics",[&] {
+        // Recreate the former identity with its exact little-endian settings encoding.
+        rf::checkpoint::Sha256 legacy;
+        legacy.update("realityforge-observed-open-surface-fusion-v6-checkpoint-v2");
+        const auto integer=[&]<class T>(T value) {
+            std::array<std::uint8_t,sizeof(T)> bytes{};
+            for(std::size_t i=0;i<bytes.size();++i)bytes[i]=static_cast<std::uint8_t>(value>>(8*i));
+            legacy.update(bytes);
+        };
+        integer(std::bit_cast<std::uint32_t>(meshSettings.minimumConfidence));
+        integer(std::bit_cast<std::uint64_t>(meshSettings.maximumRelativeDepthJump));
+        integer(std::bit_cast<std::uint64_t>(meshSettings.maximumEdgePixelFactor));
+        integer(static_cast<std::uint32_t>(meshSettings.maxVertices));
+        integer(static_cast<std::uint32_t>(meshSettings.maxTriangles));
+        integer(static_cast<std::uint32_t>(meshSettings.pixelStride));
+        integer(static_cast<std::uint32_t>(meshSettings.maxVoxelOccupancy));
+        integer(static_cast<std::uint32_t>(meshSettings.maxFusionCandidates));
+        const auto oldIdentity=legacy.finish();
+        auto oldBytes=acceptedBytes;
+        // v2 header: magic + nine u32 fields + 64-byte scope + geometry digest.
+        constexpr std::size_t algorithmOffset=8+9*4+64+32;
+        std::copy(oldIdentity.begin(),oldIdentity.end(),oldBytes.begin()+algorithmOffset);
+        checksum(oldBytes);write(checkpoint,oldBytes);
+        rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
+        rf::surface_checkpoint::AcceptedSurface recovered;
+        require(!rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
+                "legacy topology diagnostic cache was reused");
+        require(oldIdentity!=rf::surface_checkpoint::algorithmIdentity(meshSettings),
+                "topology diagnostic semantics did not invalidate algorithm identity");
+        write(checkpoint,acceptedBytes);
+        require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
+                "current topology identity checkpoint was rejected");
+        require(rf::surfaceJson(mesh)==rf::surfaceJson(recovered.mesh),
+                "current topology identity changed round-trip geometry");
+    });
     test("new evidence cannot exceed admitted cache memory or overwrite accepted bytes",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
         auto oversized=dense;auto largeMesh=mesh;

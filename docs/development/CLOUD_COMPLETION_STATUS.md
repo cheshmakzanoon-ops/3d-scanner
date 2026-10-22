@@ -1445,3 +1445,25 @@ pinned NDK shader compiler, Kotlin/Android JSON cache, or Clang sanitizer compil
 An earlier run failed only for missing validator/security-tool prerequisites;
 those logs were retained and the complete suite rerun. No Android/device or
 complete release qualification is inferred from these host results.
+
+## 2026-10-22: coplanar containment diagnostics and cache invalidation
+
+Reproduced an order-dependent overlap diagnostic: a corner triangle contained in
+another triangle, with all inner vertices on the outer boundary, was reported
+ambiguous when the larger face came first but intersecting in reverse order.
+The coplanar test now examines both centroids using the existing strict-interior
+tolerance. Seventy-two combinations of face order, independent winding, plane
+and scene scale distinguish positive-area overlap from touching-only ambiguity.
+No geometry is generated/deleted and no acceptance thresholds are relaxed.
+
+Surface checkpoint algorithm identity now includes a topology-v2 revision because
+cached intersection diagnostics must not survive this semantic change. Geometry
+fusion version 6 and checkpoint layout version 2 remain unchanged. A valid-checksum
+legacy-identity checkpoint is rejected, while current identity round-trips the
+same geometry. Both regressions fail the baseline; corrected full native CTest
+passes 46/46, and 105 relevant Python tests pass. Near-tolerance general permutation
+invariance is not claimed by these well-separated regression cases.
+
+The complete canonical Python suite on this topology candidate also passed:
+1,618 tests and 11 subtests, with the same four unavailable-tool skips described
+above. No device execution or broader geometry-quality certification is implied.
