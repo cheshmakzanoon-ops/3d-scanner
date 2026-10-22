@@ -1,5 +1,6 @@
 package com.realityforge.scanner.data.reopening
 
+import com.realityforge.scanner.engine.PhotographicCoverage
 import com.realityforge.scanner.engine.ScanQualityReport
 import com.realityforge.scanner.engine.diagnostics.DiagnosticReportExpectation
 import org.json.JSONArray
@@ -108,14 +109,50 @@ object PreviewSchemaValidator {
         if (texture != null) {
             require(mesh != null) { "Photographic texture has no mesh prerequisite." }
             integer(texture, "schema", 10, 10)
-            require(string(texture, "representation") == "camera_ranked_photographic_atlas" && texture.get("textured") == true)
+            val representation = string(texture, "representation")
+            require(representation in setOf("camera_ranked_photographic_atlas", "compact_visible_photographic_atlas") &&
+                texture.get("textured") == true) { "Unsupported photographic atlas representation." }
             val width = integer(texture, "atlasWidth", 1, 4096)
             val height = integer(texture, "atlasHeight", 1, 4096)
             require(width * height <= 4_500_000) { "Photographic atlas exceeds the viewer budget." }
             integer(texture, "triangleCount", 1, triangles.size.toLong())
             number(texture, "faceCoverage", 0.0, 1.0)
-            for (key in listOf("viewSwitchEdgesBefore", "viewSwitchEdges", "exposureSamples"))
-                if (texture.has(key)) integer(texture, key, 0, 100_000_000)
+            if (representation == "compact_visible_photographic_atlas") {
+                // The native compact baker retains the observed mesh, including unsupported faces.
+                // It blends texels, not per-face camera labels: null switch counts are NOT zeros.
+                require(texture.get("compactCharts") == true && texture.get("watertight") == false &&
+                    string(texture, "scale") == "arbitrary" && string(texture, "atlasFormat") == "image/png") {
+                    "Compact atlas metadata is inconsistent."
+                }
+                require(integer(texture, "inputTriangles", 1, MAX_TRIANGLES.toLong()) == triangles.size.toLong() &&
+                    integer(texture, "triangleCount", 1, MAX_TRIANGLES.toLong()) == triangles.size.toLong()) {
+                    "Compact atlas must retain the observed mesh triangles."
+                }
+                val visibility = PhotographicCoverage.compactVisibility(texture)
+                for (key in listOf("viewSwitchEdgesBefore", "viewSwitchEdges", "reassignedFaces"))
+                    require(texture.has(key) && texture.isNull(key)) { "Compact atlas $key must be explicitly inapplicable." }
+                val supported = integer(texture, "supportedTexels", 1, width * height)
+                require(supported >= visibility.supportedFaces!!.toLong()) {
+                    "Compact supported faces exceed supported texels."
+                }
+                val unsupported = integer(texture, "unsupportedTexels", 0, width * height)
+                require(supported + unsupported <= width * height) { "Compact texel counts exceed the atlas." }
+                integer(texture, "blendedTexels", 0, supported)
+                integer(texture, "chartCount", 1, triangles.size.toLong())
+                PhotographicCoverage.requireSerializedFraction(
+                    number(texture, "atlasUtilization", 0.0, 1.0),
+                    supported.toDouble() / (width * height), "Compact atlas utilization")
+                number(texture, "maximumUvStretch", 0.0, 1e6)
+                number(texture, "texelsPerArbitraryUnit", 0.0, 1e12)
+                number(texture, "meanBlendResidual", 0.0, 1e12)
+            } else {
+                if (texture.has("compactCharts")) require(texture.get("compactCharts") == false) {
+                    "Camera-ranked atlas cannot declare compact charts."
+                }
+                for (key in listOf("viewSwitchEdgesBefore", "viewSwitchEdges"))
+                    if (texture.has(key)) integer(texture, key, 0, 100_000_000)
+            }
+            if (texture.has("exposureSamples")) integer(texture, "exposureSamples", 0, 100_000_000)
             capabilities += ScanRepresentation.PHOTOGRAPHIC_MESH
         }
         if (json.has("scanDiagnostics")) {

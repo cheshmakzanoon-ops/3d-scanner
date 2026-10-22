@@ -32,6 +32,21 @@ class PipelineServicesDeviceTest {
     private fun hash(file:File)=MessageDigest.getInstance("SHA-256").digest(file.readBytes())
         .joinToString(""){"%02x".format(it)}
 
+    private fun assertCompactCoverage(result: JSONObject) {
+        val texture = result.getJSONObject("texturePreview")
+        val input = texture.getInt("inputTriangles")
+        val supported = input - texture.getInt("skippedTriangles")
+        assertTrue(supported in 1..input)
+        assertEquals(input, texture.getInt("triangleCount"))
+        assertEquals(input, result.getJSONObject("meshPreview").getInt("triangleCount"))
+        val visibility = result.getJSONObject("scanDiagnostics").getJSONObject("evidence")
+            .getJSONObject("visibility")
+        assertEquals(input, visibility.getInt("evaluatedFaces"))
+        assertEquals(supported, visibility.getInt("supportedFaces"))
+        assertEquals(supported.toDouble() / input, visibility.getDouble("supportedFraction"), 0.0)
+        assertEquals(supported.toDouble() / input, texture.getDouble("faceCoverage"), 5e-11 + 1e-15)
+    }
+
     @Test fun actualServicesPreserveTrackIdentityRecomputeCorruptCacheAndCancelWithoutPublication() = runBlocking {
         val instrumentation=InstrumentationRegistry.getInstrumentation()
         val context=instrumentation.targetContext
@@ -83,7 +98,12 @@ class PipelineServicesDeviceTest {
             assertTrue(dense.getBoolean("approvedSourceAdjacencyApplied"))
             assertTrue(dense.getInt("consistentPixels")>=60)
             assertTrue(dense.getJSONArray("selectedPhotoIds").length() in 2..8)
-            assertTrue(result.getJSONObject("texturePreview").getInt("triangleCount")>=40)
+            val texture = result.getJSONObject("texturePreview")
+            assertTrue(texture.getInt("triangleCount")>=40)
+            assertEquals("compact_visible_photographic_atlas", texture.getString("representation"))
+            assertTrue(texture.getBoolean("compactCharts"))
+            assertTrue("Compact texel blending has no per-face switch count", texture.isNull("viewSwitchEdges"))
+            assertCompactCoverage(result)
             val key=result.getString("artifactKey")
             val completed=repository.artifact(project,key,"json")
             val completedHash=hash(completed)
@@ -162,6 +182,11 @@ class PipelineServicesDeviceTest {
             assertEquals("verified_sparse_tracks",reusedDense.getString("selectionMethod"))
             assertEquals("VerifiedRefinedCompact",reusedDense.getString("executionProfile"))
             assertTrue(reusedDense.getBoolean("approvedSourceAdjacencyApplied"))
+            val reusedTexture = reused.getJSONObject("texturePreview")
+            assertEquals("compact_visible_photographic_atlas", reusedTexture.getString("representation"))
+            assertTrue(reusedTexture.getBoolean("compactCharts"))
+            assertTrue(reusedTexture.isNull("viewSwitchEdges"))
+            assertCompactCoverage(reused)
             assertEquals(dense.getString("depthInputIdentity"),reusedDense.getString("depthInputIdentity"))
             assertEquals(dense.getJSONArray("selectedPhotoIds").toString(),reusedDense.getJSONArray("selectedPhotoIds").toString())
             for(photo in repository.dao.photos(project))assertEquals(originals.getValue(photo.id),hash(repository.photoFile(photo)))

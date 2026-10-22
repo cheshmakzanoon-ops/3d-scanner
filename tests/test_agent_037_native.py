@@ -1,7 +1,7 @@
 """Compile and execute the actual owned native regression against this checkout's library."""
 from tools.native_process import native_compile_env
 from pathlib import Path
-from tools.native_test_build import native_link_args, native_run_env
+from tools.native_test_build import native_link_args, native_run_env, native_compile_prefix
 import os
 import subprocess
 import json
@@ -11,7 +11,7 @@ import struct
 def test_agent_037_native_regression(tmp_path):
     root = Path(__file__).resolve().parents[1]
     executable = tmp_path / "initializer_degeneracy"
-    subprocess.run(["c++", "-std=c++20", "-UNDEBUG", "-Wall", "-Wextra", "-Werror", "-pthread",
+    subprocess.run([*native_compile_prefix(), "-std=c++20", "-UNDEBUG", "-Wall", "-Wextra", "-Werror", "-pthread",
                     "-I" + str(root / "reconstruction/include"),
                     str(root / "reconstruction/tests/initializer_degeneracy_test.cpp"),
                     *native_link_args(),

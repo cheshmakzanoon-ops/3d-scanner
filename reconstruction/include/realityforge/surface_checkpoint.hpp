@@ -16,7 +16,7 @@ struct AcceptedSurface {
 enum class StoreStage { None, NoScope, DepthMaps, DirectoryShape, RootOpen, ComponentShape,
     ComponentOpen, HeldStat, HeldType, DirectoryReopen, ReopenedStat, DirectoryIdentity,
     MemoryBudget, ExistingMismatch, FinalStat, TemporaryOpen, Write, FileSync, Link,
-    TemporaryUnlink, DirectorySync };
+    TemporaryUnlink, DirectorySync, Rename };
 struct StoreDiagnostic {
     StoreStage stage=StoreStage::None;
     int errorNumber=0;

@@ -1,97 +1,4 @@
-#include "realityforge/surface_checkpoint.hpp"
-#include "realityforge/texture.hpp"
-#include "realityforge/depth_checkpoint.hpp"
-#include "realityforge/cancellation.hpp"
-#include <algorithm>
-#include <array>
-#include <atomic>
-#include <bit>
-#include <chrono>
-#include <cmath>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <iterator>
-#include <limits>
-#include <random>
-#include <stdexcept>
-#include <string>
-#if defined(__linux__) || defined(__ANDROID__)
-#include <cerrno>
-#include <fcntl.h>
-#include <unistd.h>
-#endif
-
-namespace {
-constexpr char HASH[]="abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
-void require(bool value,const char* message){if(!value)throw std::runtime_error(message);}
-std::vector<std::uint8_t> read(const std::filesystem::path& path) {
-    std::ifstream stream(path,std::ios::binary);require(static_cast<bool>(stream),"missing fixture file");
-    return {std::istreambuf_iterator<char>(stream),std::istreambuf_iterator<char>()};
-}
-void write(const std::filesystem::path& path,std::span<const std::uint8_t> bytes) {
-    std::ofstream stream(path,std::ios::binary|std::ios::trunc);stream.write(reinterpret_cast<const char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
-    require(static_cast<bool>(stream),"fixture write failed");
-}
-void checksum(std::vector<std::uint8_t>& bytes) {
-    rf::checkpoint::Sha256 digest;digest.update(std::span(bytes.data(),bytes.size()-32));const auto hash=digest.finish();
-    std::copy(hash.begin(),hash.end(),bytes.end()-32);
-}
-void u32(std::vector<std::uint8_t>& bytes,std::size_t offset,std::uint32_t value) {
-    for(int i=0;i<4;++i)bytes.at(offset+static_cast<std::size_t>(i))=static_cast<std::uint8_t>(value>>(8*i));
-}
-std::uint32_t u32(std::span<const std::uint8_t> bytes,std::size_t offset) {
-    return std::uint32_t(bytes[offset])|(std::uint32_t(bytes[offset+1])<<8)|(std::uint32_t(bytes[offset+2])<<16)|(std::uint32_t(bytes[offset+3])<<24);
-}
-struct Temp {
-    std::filesystem::path project,directory;
-    Temp() {
-        project=std::filesystem::temp_directory_path()/("rf-surface-checkpoint-"+
-            std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
-        directory=project/".depth-checkpoints-m18"/HASH;std::filesystem::create_directories(directory);
-    }
-    ~Temp(){std::error_code ec;std::filesystem::remove_all(project,ec);}
-};
-
-/** Synthetic photographs of a random-colored plane at z=5; never physical scan evidence. */
-std::vector<rf::DenseView> photographs() {
-    constexpr int width=104,height=76;
-    std::mt19937 random(188);std::uniform_int_distribution<int> color(0,255);
-    std::vector<std::array<int,3>> source(256*256);for(auto& p:source)p={color(random),color(random),color(random)};
-    const auto sample=[&](double x,double y,int channel) {
-        x=std::clamp(x*31+128.,0.,254.999);y=std::clamp(y*31+128.,0.,254.999);
-        const int ix=static_cast<int>(x),iy=static_cast<int>(y);const auto dx=x-ix,dy=y-iy;
-        const auto pixel=[&](int xx,int yy){return source[static_cast<std::size_t>(iy+yy)*256+ix+xx][channel];};
-        return (1-dx)*(1-dy)*pixel(0,0)+dx*(1-dy)*pixel(1,0)+(1-dx)*dy*pixel(0,1)+dx*dy*pixel(1,1);
-    };
-    std::vector<rf::DenseView> out;
-    for(int camera=0;camera<3;++camera) {
-        rf::DenseView view;view.width=width;view.height=height;view.fx=view.fy=116;
-        view.cx=(width-1)/2.;view.cy=(height-1)/2.;view.pose={rf::identity(),{-camera*.55,0,0}};
-        view.rgba.resize(width*height*4);
-        for(int y=0;y<height;++y)for(int x=0;x<width;++x) {
-            const double worldX=(x-view.cx)*5/view.fx+camera*.55,worldY=(y-view.cy)*5/view.fy;
-            const auto pixel=static_cast<std::size_t>(y*width+x)*4;
-            for(int channel=0;channel<3;++channel)view.rgba[pixel+channel]=static_cast<std::uint8_t>(std::round(sample(worldX,worldY,channel)));
-            view.rgba[pixel+3]=255;
-        }
-        out.push_back(std::move(view));
-    }
-    return out;
-}
-struct Packed {
-    std::vector<std::uint8_t> rgba;
-    std::vector<double> cameras;
-    explicit Packed(std::span<const rf::DenseView> views) {
-        for(const auto& view:views) {
-            rgba.insert(rgba.end(),view.rgba.begin(),view.rgba.end());
-            cameras.insert(cameras.end(),view.pose.rotation.begin(),view.pose.rotation.end());
-            for(const auto value:{view.pose.translation.x,view.pose.translation.y,view.pose.translation.z,view.fx,view.fy,view.cx,view.cy})cameras.push_back(value);
-        }
-    }
-};
-std::string text(char* value){require(value!=nullptr,"native result allocation failed");std::string out(value);rf_free(value);return out;}
-}
+#include "surface_checkpoint_fixture.hpp"
 
 int main() {
     int passed=0;
@@ -302,6 +209,35 @@ int main() {
         require(read(saved)==bytes,"search-only replay modified accepted bytes");
     });
 #endif
+    test("no-replace publication permits one creator and preserves exact concurrent bytes",[&] {
+        Temp concurrent;
+        std::array<bool,2> available{},created{};
+        std::array<std::exception_ptr,2> errors{};
+        std::atomic<int> ready{0};
+        auto writer=[&](std::size_t index) {
+            try {
+                rf::depth_checkpoint::Scope scope(concurrent.directory.string(),HASH);
+                ++ready;while(ready.load()!=2)std::this_thread::yield();
+                available[index]=rf::surface_checkpoint::store(views,dense,mesh,meshSettings,&created[index]);
+            } catch(...) {errors[index]=std::current_exception();}
+        };
+        std::thread first(writer,0),second(writer,1);first.join();second.join();
+        for(const auto& error:errors)if(error)std::rethrow_exception(error);
+        require(available[0]&&available[1]&&created[0]!=created[1],
+                "concurrent identical publication was not idempotent with exactly one creator");
+        const auto published=concurrent.directory/rf::surface_checkpoint::FILENAME;
+        require(read(published)==acceptedBytes,"concurrent publication changed canonical bytes");
+        struct stat status{};
+        require(::lstat(published.c_str(),&status)==0&&S_ISREG(status.st_mode)&&status.st_nlink==1,
+                "publication is not a single-link regular inode");
+        require(std::distance(std::filesystem::directory_iterator(concurrent.directory),
+                              std::filesystem::directory_iterator{})==1,
+                "publication leaked a private temporary name");
+        rf::surface_checkpoint::StoreDiagnostic diagnostic{rf::surface_checkpoint::StoreStage::Rename,ENOSYS,-1};
+        require(rf::surface_checkpoint::diagnosticJson(diagnostic)==
+                "{\"stage\":\"rename\",\"errno\":"+std::to_string(ENOSYS)+",\"component\":-1}",
+                "rename failure diagnostic schema changed");
+    });
     test("symlink checkpoint directory ancestors and final directory fail closed",[&] {
         Temp linked;
         const auto alias=linked.project/"aliased-cache";

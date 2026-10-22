@@ -54,7 +54,10 @@ class FeatureMemoryDeviceTest {
             val extractor=FeatureExtractor()
             val projection={w:Int,h:Int->LensProjection.estimated(w,h,ImageLoader.focalPixels(w,h,35.0))}
             fun extract()=extractor.extract("benchmark",hash,source,"upright-bitmap-1600-v2",projection)
+            val threadsBeforeWarmup=org.opencv.core.Core.getNumThreads()
             extract().use{report.put("warmupFeatures",it.count).put("decodedWidth",it.width).put("decodedHeight",it.height)}
+            val threadsAfterWarmup=org.opencv.core.Core.getNumThreads()
+            report.put("openCvThreadsBeforeWarmup",threadsBeforeWarmup).put("openCvThreadsAfterWarmup",threadsAfterWarmup)
             val rssBefore=rssBytes();val heapBefore=Debug.getNativeHeapAllocatedSize()
             report.put("rssBeforeBytes",rssBefore?:JSONObject.NULL).put("nativeHeapBeforeBytes",heapBefore)
             rssPeak.set(rssBefore?:0);heapPeak.set(heapBefore);sampling.set(true)
@@ -105,7 +108,8 @@ class FeatureMemoryDeviceTest {
             assertTrue(nativeEnd.get()>=requested.get())
             extract().use{assertTrue(it.count>0)} // cancelled calls leave the extractor reusable
             val rssAfter=rssBytes()
-            report.put("rssAfterBytes",rssAfter?:JSONObject.NULL).put("nativeHeapAfterBytes",Debug.getNativeHeapAllocatedSize())
+            val heapAfter=Debug.getNativeHeapAllocatedSize()
+            report.put("rssAfterBytes",rssAfter?:JSONObject.NULL).put("nativeHeapAfterBytes",heapAfter)
             report.put("sampledPeakRssBytes",if(rssPeak.get()>0)rssPeak.get() else JSONObject.NULL)
                 .put("sampledPeakNativeHeapBytes",heapPeak.get()).put("samples",samples.get())
             assertNotNull("Process RSS counter unavailable; no resource-readiness claim",rssBefore)
@@ -116,6 +120,8 @@ class FeatureMemoryDeviceTest {
                 "rssBeforeBytes=$rssBefore sampledPeakRssBytes=${rssPeak.get()} rssDeltaBytes=$rssDelta " +
                 "rssDeltaBudgetBytes=$budget nativeHeapBeforeBytes=$heapBefore " +
                 "sampledPeakNativeHeapBytes=${heapPeak.get()} samples=${samples.get()} " +
+                "rssAfterBytes=$rssAfter nativeHeapAfterBytes=$heapAfter " +
+                "openCvThreadsBeforeWarmup=$threadsBeforeWarmup openCvThreadsAfterWarmup=$threadsAfterWarmup " +
                 "syntheticFixture=${supplied == null} iterations=$iterations", rssDelta <= budget)
         }catch(failure:Throwable){failures.put(JSONObject().put("type",failure.javaClass.name).put("message",failure.message?:""));throw failure}
         finally {

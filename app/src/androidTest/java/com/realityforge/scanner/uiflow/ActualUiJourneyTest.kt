@@ -30,6 +30,33 @@ class ActualUiJourneyTest {
     private val app get() = instrumentation.targetContext.applicationContext as RealityForgeApplication
     private val driver get() = UiJourneyDriver()
 
+    @Test fun documentRowLabelsMatchExactNamesWithoutSelectingPreviewOrPrefixCollisions() {
+        assertTrue(documentLabelMatches("normal.jpg","normal.jpg",null))
+        assertTrue(documentLabelMatches("normal.jpg",null,"normal.jpg, -1 B, Dec 31, 1969"))
+        assertFalse(documentLabelMatches("normal.jpg",null,"Preview the file normal.jpg"))
+        assertFalse(documentLabelMatches("normal.jpg",null,"normal.jpg.bak, 1 kB, today"))
+        assertFalse(documentLabelMatches("normal.jpg",null,"other-normal.jpg, 1 kB, today"))
+    }
+
+    @Test fun dialogAndSearchTextCannotSatisfyCompletedProjectNavigation() {
+        val name="UI route barrier ${UUID.randomUUID()}"
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use {
+                val ui=driver
+                ui.startAtLibrary();ui.click("Create local project");ui.setText(name)
+                ui.awaitText(name)
+                assertFalse("Dialog input is not a project review",ui.isReviewProject(name))
+                ui.click("Save");ui.awaitReview(name)
+                runBlocking { assertEquals(1,app.repository.dao.observeProjects().first().count { it.name==name }) }
+                ui.back();ui.awaitLibrary()
+                ui.setSoleLabeledText(name,"a072_search","Search projects")
+                ui.awaitText(name)
+                assertFalse("Library search is not a project review",ui.isReviewProject(name))
+                ui.openLibraryProject(name)
+            }
+        } finally { cleanup(name) }
+    }
+
     @Test fun createRotateReopenAndCancelDestructiveActionThroughVisibleControls() {
         val name = "UI journey ${UUID.randomUUID()}"
         try {
@@ -39,19 +66,21 @@ class ActualUiJourneyTest {
                 ui.click("Create local project")
                 ui.setText(name)
                 ui.click("Create", "Save")
-                ui.awaitText(name)
+                ui.awaitReview(name)
                 scenario.recreate()
-                ui.awaitText(name)
+                ui.awaitReview(name)
                 ui.screenshot("create-reopen")
                 // Back is an actual accessibility global action, not selecting a project in the controller.
                 ui.back()
-                ui.click(name)
-                ui.awaitText(name)
+                ui.openLibraryProject(name)
+                ui.awaitReview(name)
                 ui.back()
-                if (ui.hasLabel("Search projects")) ui.setSoleLabeledText(name,"a072_search","Search projects") else ui.click(name)
+                ui.awaitLibrary()
+                ui.setSoleLabeledText(name,"a072_search","Search projects")
                 ui.scrollToClick("Delete this local project", "Delete project", "Delete")
                 ui.awaitText("originals", exact = false)
                 ui.click("Cancel")
+                ui.awaitLibrary()
                 ui.awaitText(name)
                 runBlocking {
                     val project = app.repository.dao.observeProjects().first().single { it.name == name }
@@ -89,12 +118,12 @@ class ActualUiJourneyTest {
                 lateinit var model:com.realityforge.scanner.ScannerViewModel
                 scenario.onActivity {model=androidx.lifecycle.ViewModelProvider(it)[com.realityforge.scanner.ScannerViewModel::class.java]}
                 ui.startAtLibrary()
-                ui.click("Create local project"); ui.setText(name); ui.click("Create", "Save"); ui.awaitText(name)
+                ui.click("Create local project"); ui.setText(name); ui.click("Create", "Save"); ui.awaitReview(name)
                 // Import three times to avoid relying on vendor-specific multiple-selection gestures.
                 for (displayName in displayNames) {
                     ui.scrollToClick("Import photographs", "Import photos")
                     ui.documentsSelect(displayName)
-                    ui.awaitText(name)
+                    ui.awaitReview(name)
                     ui.await(30000) { runBlocking {
                         val project = app.repository.dao.observeProjects().first().singleOrNull { it.name == name }
                         project != null && app.repository.dao.photos(project.id).size >= displayNames.indexOf(displayName)+1
@@ -124,9 +153,9 @@ class ActualUiJourneyTest {
                 ui.await(30000) {!model.busy.value && model.scannerState.value.pendingRequests.isEmpty()}
                 // Current071 keeps the export catalog open after picker completion; return through its real Back action.
                 ui.back()
-                ui.awaitText(name, timeout = 30000)
+                ui.awaitReview(name, timeout = 30000)
                 scenario.recreate()
-                ui.awaitText(name)
+                ui.awaitReview(name)
                 runBlocking {
                     val completed = requireNotNull(app.repository.dao.project(project.id))
                     assertEquals(project.revision, completed.resultRevision)
@@ -143,7 +172,7 @@ class ActualUiJourneyTest {
         try {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 val ui=driver
-                ui.startAtLibrary();ui.click("Create local project");ui.setText(name);ui.click("Create","Save");ui.awaitText(name)
+                ui.startAtLibrary();ui.click("Create local project");ui.setText(name);ui.click("Create","Save");ui.awaitReview(name)
                 lateinit var model:com.realityforge.scanner.ScannerViewModel
                 scenario.onActivity { model=androidx.lifecycle.ViewModelProvider(it)[com.realityforge.scanner.ScannerViewModel::class.java] }
                 ui.scrollToClick("Import photographs","Import photos");ui.sharedProviderSelect("normal.jpg")
@@ -185,9 +214,13 @@ internal class UiJourneyDriver {
         val deadline=SystemClock.elapsedRealtime()+timeout
         while(SystemClock.elapsedRealtime()<deadline) { if(check()) return; SystemClock.sleep(150) }
         if(InstrumentationRegistry.getArguments().getString("rfPhysicalCapture")!="true") screenshot("failure")
-        throw AssertionError("Actual UI condition exceeded ${timeout}ms; tree=${tree().take(6000)}")
+        throw AssertionError("Actual UI condition exceeded ${timeout}ms; tree=${tree().take(16000)}")
     }
-    private fun tree()=nodes(instrumentation.uiAutomation.rootInActiveWindow).joinToString("\n") { "${it.viewIdResourceName}: ${it.text} / ${it.contentDescription}" }
+    private fun tree()=nodes(instrumentation.uiAutomation.rootInActiveWindow).joinToString("\n") {
+        val bounds=android.graphics.Rect().also(it::getBoundsInScreen)
+        "${it.viewIdResourceName}: ${it.text} / ${it.contentDescription} class=${it.className} " +
+            "visible=${it.isVisibleToUser} enabled=${it.isEnabled} clickable=${it.isClickable} editable=${it.isEditable} bounds=$bounds"
+    }
     private fun selectorLabels(value:String):List<String> {
         val resources=when(value) {
             "Skip","Skip guide"->listOf("a075_skip")
@@ -242,6 +275,57 @@ internal class UiJourneyDriver {
     }
     fun hasLabel(vararg labels:String):Boolean = find(*labels) != null
     fun awaitText(label:String,exact:Boolean=true,timeout:Long=20000) = await(timeout) { find(label,exact=exact)!=null }
+    /** A name in an editable dialog/search field is not a completed navigation. */
+    fun awaitReview(name:String,timeout:Long=20000) = await(timeout) { isReviewProject(name) }
+    fun isReviewProject(name:String):Boolean {
+        val root=instrumentation.uiAutomation.rootInActiveWindow
+        val all=nodes(root)
+        return root?.packageName?.toString()==instrumentation.targetContext.packageName &&
+            all.none { it.isVisibleToUser && it.viewIdResourceName?.substringAfterLast('/') in setOf("a072-name","a072-save") } &&
+            all.any { it.isVisibleToUser && it.viewIdResourceName?.substringAfterLast('/')=="a071-route-review" } &&
+            // Scaffold's TopAppBar title is outside the tagged route content subtree.
+            all.any { it.isVisibleToUser && it.text?.toString()==name && isOutsideEditableOrDialog(it) }
+    }
+    private fun isOutsideEditableOrDialog(node:AccessibilityNodeInfo):Boolean {
+        var ancestor:AccessibilityNodeInfo?=node
+        while(ancestor!=null) {
+            if(ancestor.isEditable || ancestor.className?.toString()?.endsWith("Dialog")==true ||
+                ancestor.viewIdResourceName?.substringAfterLast('/') in setOf("a072-name","a072-save")) return false
+            ancestor=ancestor.parent
+        }
+        return true
+    }
+    fun awaitLibrary() = await {
+        val root=instrumentation.uiAutomation.rootInActiveWindow
+        root?.packageName?.toString()==instrumentation.targetContext.packageName &&
+            nodes(root).any { it.isVisibleToUser && it.viewIdResourceName?.substringAfterLast('/')=="a071-route-library" } &&
+            nodes(root).none { it.isVisibleToUser && it.viewIdResourceName?.substringAfterLast('/')=="a072-save" }
+    }
+    fun openLibraryProject(name:String) {
+        awaitLibrary()
+        await {
+            val route=nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull {
+                it.viewIdResourceName?.substringAfterLast('/')=="a071-route-library"
+            } ?: return@await false
+            val cards=nodes(route).filter { it.isVisibleToUser && !it.isEditable && it.text?.toString()==name }
+                .mapNotNull { clickableWithin(it,route) }.distinct()
+            check(cards.size<=1) { "Ambiguous project card: $name" }
+            if(cards.singleOrNull()?.performAction(AccessibilityNodeInfo.ACTION_CLICK)==true) true
+            else { nodes(route).firstOrNull { it.isVisibleToUser && it.isScrollable }
+                ?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD); false }
+        }
+        awaitReview(name)
+    }
+    /** Never climb outside the owning list/route to click an unrelated container. */
+    private fun clickableWithin(node:AccessibilityNodeInfo,boundary:AccessibilityNodeInfo):AccessibilityNodeInfo? {
+        var candidate:AccessibilityNodeInfo?=node
+        while(candidate!=null && candidate!=boundary) {
+            if(candidate.isEditable) return null
+            if(candidate.isVisibleToUser && candidate.isEnabled && candidate.isClickable) return candidate
+            candidate=candidate.parent
+        }
+        return null
+    }
     private fun clickNode(value:AccessibilityNodeInfo):Boolean {
         var n=value; while(!n.isClickable && n.parent!=null) n=n.parent
         return n.isEnabled && n.performAction(AccessibilityNodeInfo.ACTION_CLICK)
@@ -374,23 +458,73 @@ internal class UiJourneyDriver {
         repeat(35) { if(nodes(instrumentation.uiAutomation.rootInActiveWindow).any { it.isEditable && "${it.text} ${it.hintText} ${it.contentDescription}".contains(label,true) }) return; scroll(); SystemClock.sleep(100) }
         error("Editable control missing: $label")
     }
-    fun documentsSelect(displayName:String) {
-        await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
-        if(!optionalClick(displayName)) {
-            optionalClick("Show roots", "Open navigation drawer")
-            optionalClick("Downloads")
-            optionalClick("RealityForgeUiFixtures")
-            scrollToClick(displayName)
+    private fun documentList():AccessibilityNodeInfo? {
+        val root=instrumentation.uiAutomation.rootInActiveWindow ?: return null
+        if(root.packageName?.toString()?.contains("documentsui")!=true) return null
+        return nodes(root).singleOrNull { it.isVisibleToUser && it.viewIdResourceName?.substringAfterLast('/')=="dir_list" }
+    }
+    private fun documentRow(displayName:String):AccessibilityNodeInfo? {
+        val list=documentList() ?: return null
+        val rows=nodes(list).filter { node -> node.isVisibleToUser &&
+            documentLabelMatches(displayName,node.text?.toString(),node.contentDescription?.toString())
+        }.mapNotNull { clickableWithin(it,list) }.distinct()
+        check(rows.size<=1) { "Ambiguous DocumentsUI row: $displayName" }
+        return rows.singleOrNull()
+    }
+    private fun selectDocumentRow(displayName:String) = await {
+        if(documentRow(displayName)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)==true) true
+        else { documentList()?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD); false }
+    }
+    private fun openDocumentsRoot(label:String) {
+        click("Show roots","Open navigation drawer")
+        await {
+            val roots=nodes(instrumentation.uiAutomation.rootInActiveWindow).firstOrNull {
+                it.isVisibleToUser && it.viewIdResourceName?.substringAfterLast('/')=="roots_list"
+            } ?: return@await false
+            val targets=nodes(roots).filter { it.isVisibleToUser && it.text?.toString()==label }
+                .mapNotNull { clickableWithin(it,roots) }.distinct()
+            check(targets.size<=1) { "Ambiguous DocumentsUI root: $label" }
+            targets.singleOrNull()?.performAction(AccessibilityNodeInfo.ACTION_CLICK)==true
         }
-        optionalClick("Select", "Open")
+        awaitDocumentDirectory(label)
+    }
+    private fun awaitDocumentDirectory(label:String) = await {
+        val all=nodes(instrumentation.uiAutomation.rootInActiveWindow)
+        documentList()!=null && all.any { node -> node.isVisibleToUser &&
+            ((node.viewIdResourceName?.substringAfterLast('/')=="breadcrumb_text" && node.text?.toString()==label) ||
+                (node.viewIdResourceName?.substringAfterLast('/')=="toolbar" &&
+                    nodes(node).any { it.isVisibleToUser && it.text?.toString()==label }))
+        }
+    }
+    private fun finishDocumentSelection() {
+        var confirmed=false
+        await {
+            val packageName=instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()
+            if(packageName==instrumentation.targetContext.packageName) true
+            else {
+                if(!confirmed && packageName?.contains("documentsui")==true) confirmed=optionalClick("Select","Open")
+                false
+            }
+        }
+    }
+    fun documentsSelect(displayName:String) {
+        awaitDocuments()
+        if(documentRow(displayName)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)!=true) {
+            openDocumentsRoot("Downloads")
+            if(documentRow(displayName)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)!=true) {
+                selectDocumentRow("RealityForgeUiFixtures")
+                awaitDocumentDirectory("RealityForgeUiFixtures")
+                selectDocumentRow(displayName)
+            }
+        }
+        finishDocumentSelection()
     }
     fun sharedProviderSelect(displayName:String) {
         require(displayName in setOf("normal.jpg","truncated.jpg","revoked.jpg"))
-        await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
-        optionalClick("Show roots","Open navigation drawer")
-        scrollToClick("Synthetic QA faults")
-        scrollToClick(displayName)
-        optionalClick("Select","Open")
+        awaitDocuments()
+        openDocumentsRoot("Synthetic QA faults")
+        selectDocumentRow(displayName)
+        finishDocumentSelection()
     }
     fun documentsSave(displayName:String) {
         await { instrumentation.uiAutomation.rootInActiveWindow?.packageName?.toString()?.contains("documentsui")==true }
@@ -421,3 +555,7 @@ internal class UiJourneyDriver {
         ParcelFileDescriptor.AutoCloseInputStream(pfd).use { it.readBytes() }
     }
 }
+
+/** DocumentsUI grid rows decorate their accessible filename with size/date metadata. */
+internal fun documentLabelMatches(displayName:String,text:String?,description:String?):Boolean =
+    text==displayName || description==displayName || description?.startsWith("$displayName,")==true

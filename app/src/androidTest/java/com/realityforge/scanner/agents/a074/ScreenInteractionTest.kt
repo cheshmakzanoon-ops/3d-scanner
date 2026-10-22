@@ -151,6 +151,10 @@ class ScreenInteractionTest {
                 await("new persisted version enables the actual button") { buttonOrNull("Pause")?.isEnabled == true }
                 click("Pause")
                 await("exactly one action for the new version") { calls.get() == 2 && returned.get() == 2 }
+                // The callback can return before Compose publishes the disabled semantics.
+                // Start the full stability window only after observing that transition.
+                await("disabled pending button for the new version") { buttonOrNull("Pause")?.isEnabled == false }
+                requireNotNull(buttonOrNull("Pause")).performAction(AccessibilityNodeInfo.ACTION_CLICK)
                 remainsPending(calls, 2)
             }
         } finally { completion.cancel() }

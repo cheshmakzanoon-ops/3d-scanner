@@ -12,8 +12,11 @@ import org.json.JSONObject
 /** Records actual solver outputs after schema/geometry acceptance and synced export writes. */
 object PipelineDownstreamCheckpoints {
     suspend fun record(session: PipelineArtifactSession, result: JSONObject, artifactKey: String) {
-        require(PreviewSchemaValidator.validate(result, session.pipeline.revision, artifactKey) is ReopenResult.Ready) {
-            "The solver output failed strict preview validation before checkpoint acceptance."
+        val validation = PreviewSchemaValidator.validate(result, session.pipeline.revision, artifactKey)
+        require(validation is ReopenResult.Ready) {
+            val invalid = validation as? ReopenResult.Invalid
+            "The solver output failed strict preview validation before checkpoint acceptance: " +
+                "${invalid?.code ?: "invalid_preview"}: ${invalid?.detail ?: "Preview was not ready."}"
         }
         val root = session.directory
         val diagnostic = PipelineStageFile(File(root, "$artifactKey.json"), RepresentationKind.DIAGNOSTIC_REPORT, "application/json")

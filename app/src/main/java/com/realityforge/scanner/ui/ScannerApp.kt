@@ -590,7 +590,7 @@ fun AuditedScannerWorkspace(model: ScannerViewModel, onBack: (() -> Unit)? = nul
                                                 style=MaterialTheme.typography.titleMedium)
                                             Text("Photographic coverage: ${"%.1f".format(texture.optDouble("faceCoverage")*100)}% of reconstructed triangles. This is not full-object completeness.",
                                                 style=MaterialTheme.typography.bodySmall)
-                                            Text("Camera-switch edges: ${texture.optInt("viewSwitchEdgesBefore")} → ${texture.optInt("viewSwitchEdges")}. Exposure observations: ${texture.optInt("exposureSamples")}.",
+                                            Text("${textureCameraSwitchSummary(texture)} Exposure observations: ${texture.optInt("exposureSamples")}.",
                                                 style=MaterialTheme.typography.bodySmall)
                                             Text("Exposure-balanced camera UV charts. Inspect the actual embedded photographic atlas separately from the vertex-color diagnostic above.",
                                                 style=MaterialTheme.typography.bodySmall)

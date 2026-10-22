@@ -13,6 +13,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#if defined(__linux__) || defined(__ANDROID__)
+#include <linux/fs.h>
+#include <sys/syscall.h>
+#endif
 
 namespace rf::surface_checkpoint {
 namespace {
@@ -373,6 +377,7 @@ std::string diagnosticJson(const StoreDiagnostic& diagnostic) {
     case StoreStage::Link:stage="link";break;
     case StoreStage::TemporaryUnlink:stage="temporary_unlink";break;
     case StoreStage::DirectorySync:stage="directory_sync";break;
+    case StoreStage::Rename:stage="rename";break;
     }
     return "{\"stage\":\""+std::string(stage)+"\",\"errno\":"+std::to_string(diagnostic.errorNumber)+
         ",\"component\":"+std::to_string(diagnostic.component)+"}";
@@ -406,13 +411,24 @@ bool store(std::span<const DenseView> views,const DenseResult& dense,const Surfa
     }
     if(::fsync(file.get())!=0)return reject(diagnostic,StoreStage::FileSync,errno);
     cancellation::checkpoint();
-    // linkat atomically creates the final name without replacing any existing accepted bytes.
-    if(::linkat(dir.get(),temporary.c_str(),dir.get(),FILENAME,0)!=0) {
-        const int linkError=errno;
-        if(linkError==EEXIST&&matchesExisting(dir.get(),bytes))return true;
-        return reject(diagnostic,StoreStage::Link,linkError);
+    // Android app SELinux policy can deny hard links to app-private files.
+    // The libc renameat2 wrapper starts at API 30; the syscall is already
+    // allowlisted for both supported app ABIs (arm64/x86_64) before minSdk 29.
+    // Never substitute an overwriting rename after a separate existence check.
+#if (defined(__linux__) || defined(__ANDROID__)) && defined(SYS_renameat2) && defined(RENAME_NOREPLACE)
+    const int published=static_cast<int>(::syscall(SYS_renameat2,dir.get(),temporary.c_str(),
+                                                  dir.get(),FILENAME,RENAME_NOREPLACE));
+#else
+    const int published=-1;errno=ENOSYS;
+#endif
+    if(published!=0) {
+        const int renameError=errno;
+        if(renameError==EEXIST&&matchesExisting(dir.get(),bytes))return true;
+        // Unsupported kernel/filesystem remains an optional-cache miss. Cleanup
+        // removes only our temporary name; no unsafe fallback or final deletion.
+        return reject(diagnostic,StoreStage::Rename,renameError);
     }
-    if(::unlinkat(dir.get(),temporary.c_str(),0)!=0)return reject(diagnostic,StoreStage::TemporaryUnlink,errno);
+    // Successful no-replace rename consumed our temporary name atomically.
     cleanup.owns=false;
     if(::fsync(dir.get())!=0)return reject(diagnostic,StoreStage::DirectorySync,errno);
     if(created)*created=true;

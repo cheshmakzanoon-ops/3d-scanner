@@ -125,7 +125,7 @@ def main():
         else:
             lib = build / 'librealityforge.so'
             record['binaries'] = [dict(path=str(p), sha256=sha(p)) for p in sorted(build.glob('rf_*tests'))] + [dict(path=str(lib), sha256=sha(lib))]
-            env['RF_NATIVE_LIBRARY'] = str(lib)
+            env.update(RF_NATIVE_LIBRARY=str(lib), RF_NATIVE_CXX=compiler, RF_NATIVE_CONFIG=name)
             python_ready = True
             if sanitize:
                 try:
@@ -135,6 +135,14 @@ def main():
                     # required runtime, or turn an absent phase into a pass.
                     record['commands'].append(dict(result='NOT_RUN', reason=str(error)))
                     python_ready = False
+            if sanitize and python_ready:
+                # Independent ordinary-exit controls retain final LSan checking.
+                # A failed control fails the configuration, never skips or waives
+                # any candidate phase. They use exactly the same environment.
+                for kind in ('empty', 'numpy'):
+                    receipt = command([sys.executable, ROOT / 'tools/qa/native_regression/python_control.py', kind],
+                                      ROOT, folder, 'python-baseline-' + kind, env, min(args.timeout, 30))
+                    record['commands'].append(receipt)
             python_steps = [('numerical', [sys.executable, ROOT / 'tools/qa/native_regression/numerical.py', '--output', folder / 'numerical.json']),
                             ('pytest', [sys.executable, '-m', 'pytest', 'tests', '-q', '--junitxml=' + str(folder / 'pytest.xml')]),
                             ('bundle-three-view', [sys.executable, 'tools/bundle_three_view.py'])]

@@ -44,14 +44,14 @@ class InterruptionUiJourneyTest {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 val driver=ui
                 driver.startAtLibrary()
-                create(driver,names[0]);driver.back();driver.awaitText("Create local project")
+                create(driver,names[0]);driver.back();driver.awaitLibrary()
                 create(driver,names[1]);bind(scenario)
                 val project=project(names[1]);val other=project(names[0]);val initialRevision=project.revision
                 val requestIds=mutableListOf<String>()
 
                 driver.scrollToClick("Import photographs","Import photos");driver.awaitDocuments()
                 val cancelled=pending(driver,project.id,initialRevision);requestIds+=cancelled.requestId.value
-                driver.back();driver.awaitText(names[1]);awaitSettled(driver,project.id,0)
+                driver.back();driver.awaitReview(names[1]);awaitSettled(driver,project.id,0)
                 assertEquals(initialRevision,revision(project.id));assertTrue(hashes(project.id).isEmpty())
 
                 driver.scrollToClick("Import photographs","Import photos");driver.awaitDocuments()
@@ -59,14 +59,14 @@ class InterruptionUiJourneyTest {
                 // Recreate the initiating Activity while real DocumentsUI still owns the foreground.
                 scenario.recreate();bind(scenario);driver.awaitDocuments()
                 assertEquals(first,pending(driver,project.id,initialRevision))
-                driver.sharedProviderSelect("normal.jpg");driver.awaitText(names[1]);awaitSettled(driver,project.id,1)
+                driver.sharedProviderSelect("normal.jpg");driver.awaitReview(names[1]);awaitSettled(driver,project.id,1)
                 val originals=hashes(project.id);val importedRevision=revision(project.id)
                 val expected=instrumentation.context.assets.open("relief/view-01.jpg").use { digest(it.readBytes()) }
                 assertEquals(setOf(expected),originals.values.toSet());assertEquals(initialRevision+1,importedRevision)
 
                 driver.scrollToClick("Import photographs","Import photos");driver.awaitDocuments()
                 requestIds+=pending(driver,project.id,importedRevision).requestId.value
-                driver.sharedProviderSelect("normal.jpg");driver.awaitText(names[1]);awaitSettled(driver,project.id,1)
+                driver.sharedProviderSelect("normal.jpg");driver.awaitReview(names[1]);awaitSettled(driver,project.id,1)
                 assertEquals("Repeated source must not duplicate publication",originals,hashes(project.id))
                 assertEquals(importedRevision,revision(project.id))
 
@@ -74,7 +74,7 @@ class InterruptionUiJourneyTest {
                 second=syntheticDownload(displayName,"relief/view-02.jpg")
                 driver.scrollToClick("Import photographs","Import photos");driver.awaitDocuments()
                 requestIds+=pending(driver,project.id,importedRevision).requestId.value
-                driver.documentsSelect(displayName);driver.awaitText(names[1]);awaitSettled(driver,project.id,2)
+                driver.documentsSelect(displayName);driver.awaitReview(names[1]);awaitSettled(driver,project.id,2)
                 val changed=hashes(project.id)
                 val secondHash=instrumentation.context.assets.open("relief/view-02.jpg").use { digest(it.readBytes()) }
                 assertEquals(setOf(expected,secondHash),changed.values.toSet())
@@ -84,7 +84,7 @@ class InterruptionUiJourneyTest {
                 assertEquals(other.revision,revision(other.id));assertTrue(hashes(other.id).isEmpty())
                 assertEquals(4,requestIds.toSet().size)
                 requestIds.forEach { assertEquals(it,UUID.fromString(it).toString()) }
-                scenario.recreate();bind(scenario);driver.awaitText(names[1])
+                scenario.recreate();bind(scenario);driver.awaitReview(names[1])
                 assertEquals(changed,hashes(project.id));assertEquals(project.id,model.selectedId.value)
                 driver.screenshot("picker-repeat-changed-input")
                 val evidence=JSONObject().put("synthetic",true).put("project_id",project.id)
@@ -104,12 +104,12 @@ class InterruptionUiJourneyTest {
                 val before=project(name)
                 driver.scrollToClick("Import photographs","Import photos");driver.awaitDocuments()
                 pending(driver,before.id,before.revision)
-                driver.sharedProviderSelect("normal.jpg");driver.awaitText(name);awaitSettled(driver,before.id,1)
+                driver.sharedProviderSelect("normal.jpg");driver.awaitReview(name);awaitSettled(driver,before.id,1)
                 val original=hashes(before.id);val revision=revision(before.id)
-                driver.homeAndReturn();driver.awaitText(name)
+                driver.homeAndReturn();driver.awaitReview(name)
                 assertEquals(before.id,model.selectedId.value);assertEquals(original,hashes(before.id))
-                scenario.recreate();bind(scenario);driver.awaitText(name)
-                driver.back();driver.awaitText("Create local project");driver.click(name);driver.awaitText(name)
+                scenario.recreate();bind(scenario);driver.awaitReview(name)
+                driver.back();driver.awaitLibrary();driver.openLibraryProject(name);driver.awaitReview(name)
                 assertEquals(before.id,model.selectedId.value);assertEquals(revision,revision(before.id))
                 assertEquals(original,hashes(before.id));assertTrue(model.scannerState.value.pendingRequests.isEmpty())
                 driver.screenshot("background-return-reopen")
@@ -133,7 +133,7 @@ class InterruptionUiJourneyTest {
                 val before=project(name)
                 driver.scrollToClick("Import photographs","Import photos");driver.awaitDocuments()
                 pending(driver,before.id,before.revision)
-                driver.sharedProviderSelect("normal.jpg");driver.awaitText(name);awaitSettled(driver,before.id,1)
+                driver.sharedProviderSelect("normal.jpg");driver.awaitReview(name);awaitSettled(driver,before.id,1)
                 val original=hashes(before.id);val revision=revision(before.id)
                 check(instrumentation.uiAutomation.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)) {"Actual lock action was refused"}
                 driver.await {keyguard.isKeyguardLocked && !power.isInteractive}
@@ -143,10 +143,10 @@ class InterruptionUiJourneyTest {
                 shell("input keyevent 224");shell("wm dismiss-keyguard")
                 driver.await {power.isInteractive && !keyguard.isKeyguardLocked}
                 val unlockedAt=SystemClock.elapsedRealtime()
-                driver.homeAndReturn();driver.awaitText(name)
+                driver.homeAndReturn();driver.awaitReview(name)
                 assertEquals(before.id,model.selectedId.value);assertEquals(revision,revision(before.id))
                 assertEquals(original,hashes(before.id));assertTrue(model.scannerState.value.pendingRequests.isEmpty())
-                scenario.recreate();bind(scenario);driver.awaitText(name)
+                scenario.recreate();bind(scenario);driver.awaitReview(name)
                 assertEquals(before.id,model.selectedId.value);assertEquals(original,hashes(before.id))
                 driver.screenshot("nonsecure-lock-wake-return")
                 instrumentation.addResults(Bundle().apply {putString("rfScreenLockJourneyEvidence",JSONObject()
@@ -170,7 +170,7 @@ class InterruptionUiJourneyTest {
             require(!Regex("exception|error:|unknown command",RegexOption.IGNORE_CASE).containsMatchIn(output)) {"External wake/unlock command failed: $output"}
         }
     }
-    private fun create(driver:UiJourneyDriver,name:String) {driver.click("Create local project");driver.setText(name);driver.click("Create","Save");driver.awaitText(name)}
+    private fun create(driver:UiJourneyDriver,name:String) {driver.click("Create local project");driver.setText(name);driver.click("Create","Save");driver.awaitReview(name)}
     private fun project(name:String)=runBlocking {app.repository.dao.observeProjects().first().single {it.name==name}}
     private fun revision(id:String)=runBlocking {requireNotNull(app.repository.dao.project(id)).revision}
     private fun pending(driver:UiJourneyDriver,id:String,revision:Long):PendingRequestState {

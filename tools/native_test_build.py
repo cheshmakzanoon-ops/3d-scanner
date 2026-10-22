@@ -43,6 +43,30 @@ def _selected_library() -> Path:
     return library
 
 
+def native_compile_prefix() -> list[str]:
+    """Compile fixtures with the matrix's compiler and sanitizer runtime ABI.
+
+    A runtime preload instruments the compiler process, not its generated code.
+    These explicit driver flags instrument and link the fixture itself instead.
+    Clang uses its shared ASan runtime to match the Python runner's preload;
+    linking the default static runtime would introduce a second ASan instance.
+    """
+    config = os.environ.get('RF_NATIVE_CONFIG')
+    compiler = os.environ.get('RF_NATIVE_CXX')
+    if config is None and compiler is None:
+        return ['c++']
+    if config not in ('gcc-release', 'clang-release', 'gcc-sanitize', 'clang-sanitize'):
+        raise RuntimeError('Missing or unsupported RF_NATIVE_CONFIG for native fixture')
+    if not compiler:
+        raise RuntimeError('RF_NATIVE_CXX is required for a matrix native fixture')
+    prefix = [compiler]
+    if config.endswith('-sanitize'):
+        prefix += ['-fsanitize=address,undefined,float-cast-overflow', '-fno-omit-frame-pointer']
+        if config.startswith('clang-'):
+            prefix.append('-shared-libasan')
+    return prefix
+
+
 def native_link_args() -> list[str]:
     library = _selected_library()
     # Separate linker arguments preserve spaces and commas in build paths.

@@ -100,6 +100,9 @@ internal object ScanQualityReport {
         val dense = result.optJSONObject("densePreview")
         val mesh = result.optJSONObject("meshPreview")
         val texture = result.optJSONObject("texturePreview")
+        val compactVisibility = texture?.takeIf {
+            it.optString("representation") == "compact_visible_photographic_atlas"
+        }?.let(PhotographicCoverage::compactVisibility)
         val fraction = texture?.let {
             finiteNonnegative(it, "faceCoverage")?.takeIf { coverage -> coverage <= 1 }
         }
@@ -137,8 +140,10 @@ internal object ScanQualityReport {
             meshVertices = mesh?.optInt("vertexCount") ?: 0,
             meshTriangles = mesh?.optInt("triangleCount") ?: 0,
             photographicFaceFraction = fraction,
-            visibilityEvaluatedFaces = nonnegativeIntOrNull(texture, "inputTriangles"),
-            visibilitySupportedFaces = nonnegativeIntOrNull(texture, "triangleCount"),
+            visibilityEvaluatedFaces = compactVisibility?.evaluatedFaces
+                ?: nonnegativeIntOrNull(texture, "inputTriangles"),
+            visibilitySupportedFaces = compactVisibility?.supportedFaces
+                ?: nonnegativeIntOrNull(texture, "triangleCount"),
             topologyKind = topologyKind,
             topologyBoundaryEdges = boundaryEdges,
             topologyNonManifoldEdges = nonManifoldEdges,

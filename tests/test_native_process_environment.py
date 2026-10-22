@@ -75,7 +75,11 @@ def test_direct_cpp_compilers_have_explicit_tool_boundary():
                     and node.args and isinstance(node.args[0], ast.List) and node.args[0].elts):
                 continue
             first = node.args[0].elts[0]
-            if not isinstance(first, ast.Constant) or first.value not in ('c++', 'g++', 'clang++', 'gcc', 'cc', 'clang'):
+            literal_compiler = isinstance(first, ast.Constant) and first.value in ('c++', 'g++', 'clang++', 'gcc', 'cc', 'clang')
+            selected_compiler = (isinstance(first, ast.Starred) and isinstance(first.value, ast.Call)
+                                 and isinstance(first.value.func, ast.Name)
+                                 and first.value.func.id == 'native_compile_prefix')
+            if not (literal_compiler or selected_compiler):
                 continue
             env = next((k.value for k in node.keywords if k.arg == 'env'), None)
             assert isinstance(env, ast.Call) and isinstance(env.func, ast.Name) and env.func.id == 'native_compile_env', path

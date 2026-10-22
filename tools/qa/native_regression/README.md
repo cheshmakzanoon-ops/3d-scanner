@@ -27,12 +27,23 @@ Both Python preloads must exist before any Python native phase is launched; a
 missing runtime records NOT_RUN and fails the configuration. Compiler discovery,
 build tools and direct C++ fixture compilations remove LD_PRELOAD/LD_AUDIT only
 from their own child environments: these injections instrument the compiler, not
-its output. Native test executions retain sanitizer runtime injection and strict
+its output. Candidate-linked C++ fixtures use the selected matrix compiler and
+explicit matching ASan/UBSan/float-cast-overflow compile/link flags. Clang fixtures
+link its shared ASan runtime, matching the Python preload rather than introducing
+a second static ASan runtime. Native test executions retain sanitizer runtime injection and strict
 leak/error options. The host-tool boundary does not qualify or waive CPython,
 NumPy, JVM or other child-process shutdown leaks.
 No leak suppressions or sanitizer retry-to-pass policy is installed. CPython/NumPy
 process-exit leak reports remain failures and require a separately retained minimal
 third-party reproduction; the runner never turns them into passing receipts.
+Before each sanitized Python phase group, two independent ordinary-exit controls
+run the same interpreter with an empty workload and with only NumPy imported.
+Each uses the exact candidate-phase environment and at most 30 seconds (or the
+configured command deadline if shorter). Logs retain Python executable/build
+identity, Py_DEBUG status, NumPy module/extension provenance, sanitizer options
+and loaded-library evidence. Neither control imports or loads the scanner.
+Any control failure remains a failed command/configuration; existing numerical,
+pytest and benchmark phases still run. No early leak check replaces finalization.
 Use a fresh evidence directory for each invocation; old receipts are immutable.
 
 `evidence.json` uses `realityforge.native-regression.v1`: source SHA and dirty flag,

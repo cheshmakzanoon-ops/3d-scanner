@@ -1326,3 +1326,63 @@ now reports a fixed failure stage, errno and numeric component only, not paths;
 its assertion and resource bounds remain strict. The exact Java-RNG fixture
 passes on host, which does not establish Android filesystem behavior. Physical
 performance, capture, whole-object quality and production signing remain open.
+
+## 2026-10-22: repair observed Android checkpoint and compact-atlas failures
+
+Exact `967865f9807ab1f3ec76af7924d23e25853b181e` CI passed Android build/JVM/lint,
+benchmark APK audits, both release native configurations, and all 46 CTests in
+both sanitizer configurations. Its emulator ran 226 tests with ten failures;
+image-decoding and all six library DAO/command ownership cases passed. PRs 2 and
+5 were closed as integrated separately; issue 19 was closed with those receipts.
+PR 9 remains open pending the corrected service runtime. Sanitized Python remains
+failed: GCC 70 failures/1,453 passes and Clang 80 failures/1,443 passes. These are
+not waived by successful native CTests. Local release APK/lint also passed for
+967865f, with test-signed APK SHA-256
+`82d85d2c0eff79b4d51d3cc3521b337e072c053fd0a0af727c8dc35a242a49a4`.
+
+The new device diagnostic pinpointed surface publication at `link`, errno 13.
+[AOSP untrusted-app policy forbids hard links](https://android.googlesource.com/platform/system/sepolicy/+/fa3eb773ce45c9c1a38a579f31799ffc00b85952/private/app_neverallows.te).
+Use guarded `renameat2(RENAME_NOREPLACE)` through the syscall interface rather than
+an API-30-only libc symbol. Preserve held-directory/no-follow identity, file and
+directory sync, cancellation, exact-existing validation and atomic no-replacement.
+Unsupported primitives remain explicit cache misses; no overwriting fallback.
+Regressions exercise simultaneous identical publishers and ENOSYS/EINVAL/EOPNOTSUPP
+without changing depth bytes or leaving temporary/final files on failed publication.
+API-29/OEM runtime qualification remains separate from header/allowlist evidence.
+
+The explicit compact native atlas was rejected by the saved-preview adapter, which
+only recognized camera-ranked atlases. Add a strict compact schema path, retaining
+mesh prerequisites, bounds, typed counts and explicitly inapplicable switch metrics.
+Compact geometry retains unsupported faces: derive visibility from input minus
+skipped faces, not retained triangle count. An unchanged native two-photo payload
+now reports 4,032 supported faces of 4,040 retained triangles; this is observed-face
+support, not whole-object completeness. Keep count/ratio validation consistent with
+the producer's decimal precision, and do not display null metrics as measured zeros.
+
+UI test drivers now await completed routes, exclude editable-name false positives,
+scroll to project cards and match decorated DocumentsUI rows only within their lists.
+Repeated-dispatch assertions wait for the actual disabled semantics transition.
+The unchanged 96 MiB feature-memory probe gains after-values/thread diagnostics;
+no extraction-memory fix or physical-memory pass is claimed.
+
+Native fixtures now compile/link with the selected matrix compiler and matching
+sanitizer flags/runtime. Compiler-only children do not inherit runtime preloads;
+candidate execution retains them. Independent empty/NumPy ordinary-exit controls
+retain final LSan detection, provenance and failures without skipping existing gates.
+Local LSan controls are invalid under ptrace supervision, not clean; hosted controls
+must establish the remaining Python/NumPy lifecycle failures independently.
+
+Local combined validation: **46/46 native CTests**, **1,584 Python tests and 11
+subtests**, **804 JVM unit tests**, and **18 separately classified HOST integration
+tests** passed. The one Python skip is the unavailable host Clang compile/link
+control, not a passed sanitizer run. Actual JDK 17 debug app/instrumentation builds
+and lint passed, including the final fresh/reused coverage assertions (zero lint
+errors, 86 warnings, three hints). The actual app passed signature, native inventory,
+backup and 16 KB ZIP/ELF alignment checks; installed 16 KB runtime remains NOT_RUN.
+
+Local APK SHA-256: app
+`43234f163dbddfde2296196f1b645114753e39cddb9cc8dae1099e90435e68df`;
+instrumentation
+`fbb2921d9cbff5150318ad32b69b6ffd92e6c6fb3583a3c7bae0537dbc3212cf`.
+Exact-commit hosted device/sanitizer checks remain required. No physical capture,
+production-signing or release-readiness claim is made.
