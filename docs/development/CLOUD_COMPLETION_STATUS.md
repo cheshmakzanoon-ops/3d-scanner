@@ -1386,3 +1386,18 @@ instrumentation
 `fbb2921d9cbff5150318ad32b69b6ffd92e6c6fb3583a3c7bae0537dbc3212cf`.
 Exact-commit hosted device/sanitizer checks remain required. No physical capture,
 production-signing or release-readiness claim is made.
+
+## 2026-10-22: read-only emulator acceleration prerequisite
+
+Replaced the Verify device job's world-writable KVM udev rule and privileged reload
+with a read-only check of the runner's existing read/write access to `/dev/kvm`.
+Missing access fails explicitly before emulator launch; this change does not grant
+permissions or certify emulator availability. Runner access setup, if necessary,
+remains a separate authorized operation.
+
+Fresh targeted validation: six workflow/KVM/Python-dependency tests passed. No
+Android, native or installed-device execution was performed for this CI-only
+change. A restarted cloud workspace no longer contained the earlier unpublished
+79-file candidate; its historical local results do not validate this smaller
+commit or establish that the lost candidate was published. Recovery/reimplementation
+of that candidate remains separate work.
