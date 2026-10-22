@@ -10,6 +10,7 @@ interface ProjectCreationService {
 }
 
 interface PhotoImportService {
+    /** True means published; false means an existing verified duplicate. Failures must throw. */
     suspend fun importPhoto(projectId: String, uri: Uri): Boolean
 }
 

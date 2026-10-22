@@ -24,7 +24,7 @@ class BoundPhotoImportService(
     override suspend fun importPhoto(projectId: String, uri: Uri): Boolean {
         val revision = requireNotNull(dao.project(projectId)).revision
         return import(ImportRequest(UUID.randomUUID().toString(), projectId, revision,
-            listOf(ImportSource(uri.toString())))).importedCount == 1
+            listOf(ImportSource(uri.toString())))).photos.single().outcome.toSinglePhotoImportResult()
     }
 
     suspend fun import(request: ImportRequest, progress: suspend (ImportProgress) -> Unit = {}): ImportBatchResult {

@@ -109,7 +109,14 @@ class FeatureMemoryDeviceTest {
             report.put("sampledPeakRssBytes",if(rssPeak.get()>0)rssPeak.get() else JSONObject.NULL)
                 .put("sampledPeakNativeHeapBytes",heapPeak.get()).put("samples",samples.get())
             assertNotNull("Process RSS counter unavailable; no resource-readiness claim",rssBefore)
-            assertTrue("Sampled RSS delta exceeded the explicitly configured probe budget",rssPeak.get()-requireNotNull(rssBefore)<=budget)
+            val rssDelta = rssPeak.get() - requireNotNull(rssBefore)
+            // Keep measured values in the JUnit failure transcript as well as the cache receipt:
+            // a bounded failure logcat tail may no longer contain this early-suite probe.
+            assertTrue("Sampled RSS delta exceeded the explicitly configured probe budget: " +
+                "rssBeforeBytes=$rssBefore sampledPeakRssBytes=${rssPeak.get()} rssDeltaBytes=$rssDelta " +
+                "rssDeltaBudgetBytes=$budget nativeHeapBeforeBytes=$heapBefore " +
+                "sampledPeakNativeHeapBytes=${heapPeak.get()} samples=${samples.get()} " +
+                "syntheticFixture=${supplied == null} iterations=$iterations", rssDelta <= budget)
         }catch(failure:Throwable){failures.put(JSONObject().put("type",failure.javaClass.name).put("message",failure.message?:""));throw failure}
         finally {
             sampling.set(false);sampler?.interrupt();sampler?.join(2000)

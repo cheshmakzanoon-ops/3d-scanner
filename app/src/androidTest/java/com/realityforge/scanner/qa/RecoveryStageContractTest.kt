@@ -45,9 +45,17 @@ class RecoveryStageContractTest {
         try {
             assertTrue(repository.importPhoto(id, uri("normal")))
             val before = repository.dao.photos(id).associate { it.id to hash(repository.photoFile(it)) }
+            val revision = requireNotNull(repository.dao.project(id)).revision
             for(mode in listOf("truncated", "revoked")) {
                 val failure = runCatching { repository.importPhoto(id,uri(mode)) }.exceptionOrNull()
-                assertNotNull("Fault $mode was accepted",failure)
+                assertTrue("Fault $mode must remain an explicit import rejection: $failure",
+                    failure is com.realityforge.scanner.data.operations.PhotoImportFailureException)
+                val outcome = (failure as com.realityforge.scanner.data.operations.PhotoImportFailureException).outcome
+                assertTrue(outcome is com.realityforge.scanner.data.importing.ImportPublicationResult.Rejected)
+                val rejected = outcome as com.realityforge.scanner.data.importing.ImportPublicationResult.Rejected
+                assertEquals(if (mode == "revoked") "SOURCE_PERMISSION_LOST" else "IMPORT_REJECTED", rejected.code)
+                assertEquals(revision, rejected.revision)
+                assertEquals(revision, requireNotNull(repository.dao.project(id)).revision)
                 assertEquals(before,repository.dao.photos(id).associate { it.id to hash(repository.photoFile(it)) })
                 assertFalse(repository.directory(id).walkTopDown().any { it.name.endsWith(".partial") })
             }

@@ -141,7 +141,8 @@ fun ScannerApp(model: ScannerViewModel, features: ScannerFeatureServices? = null
                     if (route != "library") TextButton(onClick = { back() }, modifier = Modifier.testTag("a071-back")) { Text("Back") }
                 }, actions = {
                     TextButton(onClick = { menu = true }, modifier = Modifier.testTag("a071-open-menu")) { Text("More") }
-                    DropdownMenu(menu, { menu = false }) {
+                    // Popup owns a separate semantics root; Scaffold properties do not cross it.
+                    DropdownMenu(menu, { menu = false }, modifier = Modifier.semantics { testTagsAsResourceId = true }) {
                         DropdownMenuItem(text = { Text("Capture guide") }, onClick = { menu = false; route = "onboarding" }, modifier = Modifier.testTag("a071-open-help"))
                         DropdownMenuItem(text = { Text("Settings") }, onClick = { menu = false; route = "settings" }, modifier = Modifier.testTag("a071-open-settings"))
                         DropdownMenuItem(text = { Text("Storage and recovery") }, onClick = { menu = false; workspace = true })

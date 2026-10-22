@@ -1,4 +1,5 @@
 """Execute native edits with canonical C10 source, including reflected UV geometry."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 import os
 import subprocess
@@ -17,7 +18,7 @@ def test_native_edit_materialization(tmp_path):
         str(root / "reconstruction/src/asset_edit.cpp"), str(provider / "reconstruction/src/asset_model.cpp"),
         str(provider / "reconstruction/src/glb_export.cpp"),
         str(root / "reconstruction/tests/agent_066_asset_edit.cpp"), "-lz", "-o", str(executable),
-    ], check=True)
+    ], check=True, env=native_compile_env())
     output = tmp_path / "metric-edit.glb"
     subprocess.run([str(executable), str(output)], check=True)
     data = output.read_bytes()

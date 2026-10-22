@@ -471,7 +471,9 @@ class ScannerViewModel(
     }
 
     fun select(id: String?) {
-        if (coordinator.activeOperation() != null) return
+        // Service-owned reconstruction outlives the UI coordinator operation. Keep selection
+        // callbacks subject to the same busy gate as visible navigation and destructive actions.
+        if (busy.value || coordinator.activeOperation() != null) return
         previewTask?.cancel()
         advanceSelectionGeneration()
         savedStateHandle[KEY_SELECTED_PROJECT] = id

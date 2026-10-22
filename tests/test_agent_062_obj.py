@@ -1,4 +1,5 @@
 """Behavioral OBJ/MTL importer independent of the C++ writer; analytic fixtures."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 import os
 import subprocess
@@ -23,7 +24,7 @@ def test_obj_package_geometry_texture_and_failures(tmp_path):
         str(ROOT / "reconstruction/src/obj_export.cpp"),
         str(canonical / "reconstruction/src/asset_model.cpp"),
         str(ROOT / "reconstruction/tests/agent_062_obj_test.cpp"), "-lz", "-o", str(executable),
-    ], check=True)
+    ], check=True, env=native_compile_env())
     # Explicitly synthetic asymmetric checker: top red/green, bottom blue/white.
     checker = np.array([[[0, 0, 255], [0, 255, 0]], [[255, 0, 0], [255, 255, 255]]], dtype=np.uint8)
     source = tmp_path / "checker.png"

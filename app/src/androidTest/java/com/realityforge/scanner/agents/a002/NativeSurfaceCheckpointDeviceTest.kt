@@ -33,7 +33,15 @@ class NativeSurfaceCheckpointDeviceTest {
                 File(root, "initial.photo.glb.partial").path, File(root, "initial.photo.png.partial").path,
                 token, directory.path, identity))
             assertFalse(initial.has("error"))
-            assertTrue(initial.getBoolean("surfaceCheckpointWritten"))
+            // Keep the durability gate strict, but retain enough bounded device evidence
+            // to distinguish missing depth maps, path rejection and publication failure.
+            val denseDiagnostics=initial.getJSONObject("dense")
+            val checkpointEvidence="available=${initial.optBoolean("surfaceCheckpointAvailable")}, " +
+                "writtenDepthMaps=${denseDiagnostics.optInt("writtenDepthMaps",-1)}, " +
+                "resumedDepthMaps=${denseDiagnostics.optInt("resumedDepthMaps",-1)}, " +
+                "directory=${directory.path}, canonical=${directory.canonicalPath}, " +
+                "files=${directory.listFiles()?.take(16)?.map { "${it.name}:${it.length()}" }}"
+            assertTrue(checkpointEvidence,initial.getBoolean("surfaceCheckpointWritten"))
             assertTrue(initial.getJSONObject("mesh").getInt("triangleCount") >= 40)
             val mesh = File(directory, "surface-v2.rfmesh")
             assertTrue(mesh.length() in 1..12L * 1024 * 1024)

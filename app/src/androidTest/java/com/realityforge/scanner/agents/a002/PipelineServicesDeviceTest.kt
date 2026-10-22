@@ -61,10 +61,11 @@ class PipelineServicesDeviceTest {
             val registration=result.getJSONObject("incrementalRegistration")
             val sparseStage=result.getJSONObject("pipeline").getJSONObject("stageIdentities")
                 .getJSONObject("sparse").getString("digest")
-            assertEquals(sparseStage,registration.getString("checkpointStageIdentity"))
-            assertTrue("Actual production growth must publish a resumable frontier",registration.getBoolean("checkpointPublished"))
-            assertFalse("New project cannot claim a cache hit",registration.getBoolean("checkpointResumed"))
-            assertTrue(registration.getInt("verifiedNeighborPairs")>0)
+            assertEquals("New project cannot claim a frontier cache hit","absent",registration.getString("frontierResumeStatus"))
+            assertTrue("Actual production growth must publish a resumable frontier",registration.getInt("durableFrontierWrites")>0)
+            assertEquals(0,registration.getInt("failedFrontierWrites"))
+            assertFalse(registration.getBoolean("frontierIsCompletedAlignment"))
+            assertTrue(result.getJSONObject("overlapDiagnostics").getInt("geometricallyVerifiedPairs")>0)
             val frontierStore=SparseFrontierCheckpointStore(repository.directory(project))
             val frontierBytes=requireNotNull(frontierStore.load(sparseStage) {false})
             val frontier=RegistrationFrontier.decode(frontierBytes)
@@ -104,6 +105,13 @@ class PipelineServicesDeviceTest {
             assertEquals("Cancelled run replaced completed artifact",completedHash,hash(completed))
             assertArrayEquals("Pre-cancelled run must not replace the validated frontier",frontierBytes,
                 requireNotNull(frontierStore.load(sparseStage) {false}))
+            // Force the partial-frontier recovery path, not the newer complete-alignment
+            // fast path. Only derived alignment checkpoints in this test-owned project
+            // are removed; completed outputs, originals and frontier bytes stay intact.
+            val alignmentFiles=requireNotNull(repository.directory(project).listFiles())
+                .filter { it.name.startsWith("alignment-") && it.extension=="rfac" }
+            assertTrue("Expected a real completed alignment checkpoint",alignmentFiles.isNotEmpty())
+            alignmentFiles.forEach { assertTrue(it.delete()) }
             val lateToken=NativeCore.beginReconstruction()
             var observedLateCheckpoint=false
             try {
@@ -115,11 +123,13 @@ class PipelineServicesDeviceTest {
                         val replay=JSONObject(attempt.readText())
                         assertNotEquals("Publication attempt must not overwrite the prior key",key,replay.getString("artifactKey"))
                         val resumedRegistration=replay.getJSONObject("incrementalRegistration")
-                        assertEquals(sparseStage,resumedRegistration.getString("checkpointStageIdentity"))
-                        assertTrue("Actual production growth must consume its persisted frontier",resumedRegistration.getBoolean("checkpointResumed"))
-                        assertTrue(resumedRegistration.getBoolean("checkpointPublished"))
-                        assertEquals(frontier.photoIds.toSet(),(0 until resumedRegistration.getJSONArray("sourcePhotoIds").length())
-                            .map {resumedRegistration.getJSONArray("sourcePhotoIds").getString(it)}.toSet())
+                        assertFalse("Complete alignment must not mask frontier recovery",replay.optBoolean("alignmentReused"))
+                        assertEquals("Actual production growth must consume its persisted frontier","restored",resumedRegistration.getString("frontierResumeStatus"))
+                        assertTrue(resumedRegistration.getInt("durableFrontierWrites")>0)
+                        assertEquals(0,resumedRegistration.getInt("failedFrontierWrites"))
+                        val resumedFrontier=RegistrationFrontier.decode(requireNotNull(frontierStore.load(sparseStage) {false}))
+                        assertEquals(frontier.inputIdentity,resumedFrontier.inputIdentity)
+                        assertEquals(frontier.photoIds.toSet(),resumedFrontier.photoIds.toSet())
                         val resumed=replay.getJSONObject("densePreview")
                         assertEquals(dense.getString("depthInputIdentity"),resumed.getString("depthInputIdentity"))
                         assertTrue("Actual fine tiles must resume despite a fresh publication attempt",resumed.getInt("resumedDepthTiles")>0)

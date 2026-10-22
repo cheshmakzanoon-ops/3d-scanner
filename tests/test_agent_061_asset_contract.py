@@ -1,4 +1,5 @@
 """Compile real canonical writers; independently decode asymmetric synthetic GLBs."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 import json
 import struct
@@ -24,7 +25,7 @@ def outputs(tmp_path_factory):
     exe = folder / 'writer'
     subprocess.run(['g++', '-std=c++20', '-Wall', '-Wextra', '-Wpedantic', '-Werror', '-I', str(ROOT/'reconstruction/include'),
                     str(ROOT/'reconstruction/src/asset_model.cpp'), str(ROOT/'reconstruction/src/glb_export.cpp'),
-                    str(ROOT/'reconstruction/tests/agent_061_asset_test.cpp'), '-lz', '-o', str(exe)], check=True)
+                    str(ROOT/'reconstruction/tests/agent_061_asset_test.cpp'), '-lz', '-o', str(exe)], check=True, env=native_compile_env())
     subprocess.run([str(exe), str(folder), str(image)], check=True)
     return folder
 

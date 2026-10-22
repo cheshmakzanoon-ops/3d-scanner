@@ -7,6 +7,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.engine.DensePreview
 import com.realityforge.scanner.engine.DenseWorkload
 import com.realityforge.scanner.engine.LensProfile
+import com.realityforge.scanner.engine.pipeline.ProductionPipelineSnapshot
+import com.realityforge.scanner.engine.pipeline.sha256Utf8
+import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
 import com.realityforge.scanner.engine.NativeCore
 import com.realityforge.scanner.viewer.PhotographicGlb
 import kotlinx.coroutines.runBlocking
@@ -57,7 +60,14 @@ class AdaptiveDensePipelineTest {
             val stages=mutableListOf<String>()
             val token=NativeCore.beginReconstruction()
             val result=try {
-                DensePreview.reconstruct(repo,id,key,photos,cameras,points,35.0,profile,token) { stage,_,_ -> stages.add(stage) }
+                // This fixture deliberately exercises all eight views. The compatibility
+                // adapter defaults to COMPACT (six); select STANDARD explicitly rather
+                // than weakening either the resource policy or the eight-view assertions.
+                val snapshot=ProductionPipelineSnapshot.create(repo.inputSnapshot(id),
+                    sha256Utf8(com.realityforge.scanner.engine.LensCalibration.json(profile)),
+                    35.0,ResourceWorkloadSelection.STANDARD)
+                DensePreview.reconstructTyped(repo,id,key,photos,cameras,points,35.0,profile,token,
+                    snapshot,resourceSelection=ResourceWorkloadSelection.STANDARD) { stage,_,_ -> stages.add(stage) }.payload
             } finally { assertTrue(NativeCore.finishReconstruction(token)) }
             val dense=result.getJSONObject("dense")
             assertEquals(8,dense.getInt("sourcePhotos"))

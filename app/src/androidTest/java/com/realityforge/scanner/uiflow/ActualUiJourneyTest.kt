@@ -246,7 +246,7 @@ internal class UiJourneyDriver {
         var n=value; while(!n.isClickable && n.parent!=null) n=n.parent
         return n.isEnabled && n.performAction(AccessibilityNodeInfo.ACTION_CLICK)
     }
-    fun click(vararg labels:String) { var n:AccessibilityNodeInfo?=null; await { n=find(*labels); n!=null }; check(clickNode(requireNotNull(n))) { "Control lacks enabled click action: ${labels.toList()}" } }
+    fun click(vararg labels:String) = awaitEnabledClick(*labels)
     fun awaitEnabledClick(vararg labels:String, timeout:Long=20000) {
         var control:AccessibilityNodeInfo?=null
         await(timeout) {
@@ -288,16 +288,27 @@ internal class UiJourneyDriver {
     }
     fun optionalClick(vararg labels:String):Boolean = find(*labels)?.let { clickNode(it) } ?: false
     fun setText(value:String,labelContains:String?=null) {
-        var field:AccessibilityNodeInfo?=null
-        val labels=labelContains?.let(::selectorLabels).orEmpty()
-        await {
-            val editable=nodes(instrumentation.uiAutomation.rootInActiveWindow).filter {it.isEditable && it.isEnabled && it.isVisibleToUser}
-            field=if(labelContains==null) editable.firstOrNull {it.viewIdResourceName?.substringAfterLast('/')=="a072-name"} ?: editable.singleOrNull()
-                else editable.firstOrNull {field->labels.any {"${field.text} ${field.hintText} ${field.contentDescription}".contains(it,true)}}
-            field!=null
+        val labels=labelContains?.let(::selectorLabels)
+            ?: listOf(localizedString("a072_name", "Project name"))
+        fun field(): AccessibilityNodeInfo? {
+            val root = instrumentation.uiAutomation.rootInActiveWindow ?: return null
+            val editable = nodes(root).filter { it.isEditable && it.isEnabled && it.isVisibleToUser }
+            // Do not type into the library's Search while the create dialog is opening.
+            // The DocumentsUI save dialog has its own independently owned filename field.
+            if (labelContains == null && root.packageName?.toString()?.contains("documentsui") == true)
+                return editable.singleOrNull()
+            return editable.singleOrNull { candidate ->
+                (labelContains == null && candidate.viewIdResourceName?.substringAfterLast('/') == "a072-name") ||
+                    nodes(candidate).any { labelNode -> labels.any { label ->
+                        listOf(labelNode.text, labelNode.hintText, labelNode.contentDescription)
+                            .any { it?.toString()?.contains(label, true) == true }
+                    } }
+            }
         }
         val args=Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,value) }
-        check(requireNotNull(field).performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,args))
+        // A disappearing accessibility node may reject an action; reacquire it before retrying.
+        await { field()?.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,args) == true }
+        await { field()?.text?.toString() == value }
     }
     private fun localizedString(name:String,fallback:String):String {
         val context=instrumentation.targetContext

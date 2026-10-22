@@ -37,6 +37,16 @@
           "gate": "dedicated_candidate_journey",
           "selector": "com.realityforge.scanner.qa.ReleaseJourneyTest",
           "reason": "Requires the Agent099 dedicated controller to verify candidate source/APK/installed-package and physical-bundle identities and its separate rf099_evidence metadata sequence."
+        },
+        {
+          "gate": "physical_capture_ui",
+          "selector": "com.realityforge.scanner.uiflow.PhysicalCaptureJourneyTest",
+          "reason": "Requires tools/android-ui-e2e/run.py --scenario physical_capture with an authorized physical scene, operator receipt, verified non-emulator identity and host CAMERA reset."
+        },
+        {
+          "gate": "camera_permission_ui",
+          "selector": "com.realityforge.scanner.uiflow.CameraPermissionJourneyTest",
+          "reason": "Requires tools/android-ui-e2e/run.py --scenario permission_denial_regrant to revoke CAMERA and clear permission flags before starting a dedicated instrumentation process."
         }
       ]
     },
@@ -72,6 +82,16 @@
           "gate": "dedicated_candidate_journey",
           "selector": "com.realityforge.scanner.qa.ReleaseJourneyTest",
           "reason": "Requires the Agent099 dedicated controller to verify candidate source/APK/installed-package and physical-bundle identities and its separate rf099_evidence metadata sequence."
+        },
+        {
+          "gate": "physical_capture_ui",
+          "selector": "com.realityforge.scanner.uiflow.PhysicalCaptureJourneyTest",
+          "reason": "Requires tools/android-ui-e2e/run.py --scenario physical_capture with an authorized physical scene, operator receipt, verified non-emulator identity and host CAMERA reset."
+        },
+        {
+          "gate": "camera_permission_ui",
+          "selector": "com.realityforge.scanner.uiflow.CameraPermissionJourneyTest",
+          "reason": "Requires tools/android-ui-e2e/run.py --scenario permission_denial_regrant to revoke CAMERA and clear permission flags before starting a dedicated instrumentation process."
         }
       ]
     }

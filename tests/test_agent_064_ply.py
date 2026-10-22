@@ -1,4 +1,5 @@
 """Small independent typed PLY reader, separate from all serializer logic."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 import os
 import struct
@@ -61,7 +62,7 @@ def test_ply_variants_independent_roundtrip_and_rejection(tmp_path):
         "-I" + str(ROOT / "reconstruction/include"), "-I" + str(canonical / "reconstruction/include"),
         str(ROOT / "reconstruction/src/ply_export.cpp"), str(canonical / "reconstruction/src/asset_model.cpp"),
         str(ROOT / "reconstruction/tests/agent_064_ply_test.cpp"), "-lz", "-o", str(executable),
-    ], check=True)
+    ], check=True, env=native_compile_env())
     subprocess.run([str(executable), str(tmp_path)], check=True)
     for filename in ("dense.ply", "sparse.ply", "surface.ply", "surface-ascii.ply"):
         values, comments = read_ply(tmp_path / filename)

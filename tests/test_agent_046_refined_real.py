@@ -1,4 +1,5 @@
 """Real rectified stereo qualification; truth is evaluation-only, not solver input."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 from tools.native_test_build import native_link_args, native_run_env
 import ctypes,hashlib,json,struct,subprocess,sys,time
@@ -63,7 +64,7 @@ def test_refined_pyramid_real_stereo_retains_declared_accuracy_and_support(tmp_p
     fixture=tmp_path/'photographs.bin'
     fixture.write_bytes(struct.pack('<5I',outw,outh,2,cw,ch)+cameras.tobytes()+rgba.tobytes()+coarse_cameras.tobytes()+coarse.tobytes())
     executable=tmp_path/'real-profile'
-    subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Werror','-I'+str(ROOT/'reconstruction/include'),str(ROOT/'reconstruction/tests/agent_046_real_profile.cpp'),*native_link_args(),'-o',str(executable)],check=True)
+    subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Werror','-I'+str(ROOT/'reconstruction/include'),str(ROOT/'reconstruction/tests/agent_046_real_profile.cpp'),*native_link_args(),'-o',str(executable)],check=True, env=native_compile_env())
     def profile(name):
         return json.loads(subprocess.check_output([str(executable),str(fixture),name,hashlib.sha256(fixture.read_bytes()).hexdigest()],env=native_run_env(),timeout=120))
     nonstrict=profile('refined');strict=profile('strict')

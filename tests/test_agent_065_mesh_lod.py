@@ -1,4 +1,5 @@
 """Compile and execute the real LOD module with the declared C10 dependency."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 import os
 import subprocess
@@ -26,7 +27,7 @@ def test_constrained_lod_runtime(tmp_path):
         str(provider / "reconstruction/src/glb_export.cpp"),
         str(root / "reconstruction/tests/agent_065_mesh_lod.cpp"),
         *extra, "-lz", "-o", str(executable),
-    ], check=True)
+    ], check=True, env=native_compile_env())
     output = tmp_path / "lod.glb"
     subprocess.run([str(executable), str(output)], check=True)
     data = output.read_bytes()

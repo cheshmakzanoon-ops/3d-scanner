@@ -9,7 +9,7 @@ python tools/qa/native_regression/run.py --output /tmp/rf-native-evidence
 
 `--gcc` and `--clang` accept exact compiler paths. The default four configurations
 are GCC/Clang Release and GCC/Clang Debug ASan+UBSan, isolated in the evidence
-folder. Each compiles the actual native library, executes all eleven existing
+folder. Each compiles the actual native library, executes all registered
 CTests, ten seeded analytic numerical scenes with repeated exact determinism,
 the complete Python suite, synthetic photograph joint BA, and all five existing
 gated stereo/coverage/dense/surface/texture benchmarks. No old report is read as
@@ -23,6 +23,13 @@ kill the entire process group. ASan shadow memory prevents meaningful virtual
 address limits; CTest and process deadlines bound this trusted regression suite.
 ASan/UBSan halt on errors, and leak detection stays enabled. Sanitized Python uses
 its host ASan and libstdc++ runtime preloads and PYTHONMALLOC=malloc; CTest remains independent.
+Both Python preloads must exist before any Python native phase is launched; a
+missing runtime records NOT_RUN and fails the configuration. Compiler discovery,
+build tools and direct C++ fixture compilations remove LD_PRELOAD/LD_AUDIT only
+from their own child environments: these injections instrument the compiler, not
+its output. Native test executions retain sanitizer runtime injection and strict
+leak/error options. The host-tool boundary does not qualify or waive CPython,
+NumPy, JVM or other child-process shutdown leaks.
 No leak suppressions or sanitizer retry-to-pass policy is installed. CPython/NumPy
 process-exit leak reports remain failures and require a separately retained minimal
 third-party reproduction; the runner never turns them into passing receipts.

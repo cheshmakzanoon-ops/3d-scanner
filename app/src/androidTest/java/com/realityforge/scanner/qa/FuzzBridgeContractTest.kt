@@ -3,7 +3,6 @@ package com.realityforge.scanner.qa
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.engine.NativeCore
-import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,10 +27,15 @@ class FuzzBridgeContractTest {
     }
 
     @Test fun nonfiniteArgumentsProduceSupportedErrorsAndNoOutput() {
-        val rows = DoubleArray(20 * 7) { Double.NaN }
-        for (threshold in listOf(Double.NaN, Double.POSITIVE_INFINITY, -1.0, 0.0)) {
-            val result = JSONObject(NativeCore.reconstruct(rows, threshold))
-            assertTrue(result.toString(), result.has("error"))
+        // Malformed buffers and invalid scalar arguments are typed JNI boundary errors,
+        // not algorithm failures encoded in a successful JSON response. Exercise both
+        // independently so a bad buffer cannot mask missing threshold validation.
+        for (value in listOf(Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY)) {
+            rejected { NativeCore.reconstruct(DoubleArray(20 * 7) { value }, .002) }
+        }
+        val finiteRows = DoubleArray(20 * 7)
+        for (threshold in listOf(Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, -1.0, 0.0, 1.01)) {
+            rejected { NativeCore.reconstruct(finiteRows, threshold) }
         }
         val path = File(InstrumentationRegistry.getInstrumentation().targetContext.cacheDir, "synthetic-invalid-export.glb")
         path.delete()

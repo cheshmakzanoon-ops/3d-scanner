@@ -155,6 +155,49 @@ class SessionReliabilityTest {
         }
     }
 
+    @Test fun busySelectionRejectsBothClearingAndSwitchingButIdleSelectionWorks() = runBlocking {
+        val app = instrumentation.targetContext.applicationContext as RealityForgeApplication
+        withTimeout(30_000) {
+            app.compositionRoot.execution.awaitRecovery()
+            app.compositionRoot.execution.awaitWorkerStopped()
+        }
+        val repository = app.repository
+        val first = repository.create("Synthetic selection guard first")
+        val second = repository.create("Synthetic selection guard second")
+        var primaryFailure: Throwable? = null
+        try {
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                lateinit var model: ScannerViewModel
+                scenario.onActivity { model = ViewModelProvider(it)[ScannerViewModel::class.java] }
+                withTimeout(30_000) { model.busy.first { !it } }
+                scenario.onActivity {
+                    model.select(first)
+                    assertEquals(first, model.selectedId.value)
+                    model.busy.value = true
+                    try {
+                        model.select(null)
+                        assertEquals("Busy selection must not clear", first, model.selectedId.value)
+                        model.select(second)
+                        assertEquals("Busy selection must not switch projects", first, model.selectedId.value)
+                        model.deleteSelected()
+                        assertEquals(first, model.selectedId.value)
+                    } finally { model.busy.value = false }
+                    model.select(second)
+                    assertEquals("Idle selection must still switch", second, model.selectedId.value)
+                    model.select(null)
+                    assertNull("Idle selection must still clear", model.selectedId.value)
+                }
+                assertNotNull(repository.dao.project(first))
+                assertNotNull(repository.dao.project(second))
+            }
+        } catch (failure: Throwable) {
+            primaryFailure = failure
+            throw failure
+        } finally {
+            cleanupPreservingFailure(primaryFailure, { repository.delete(first) }, { repository.delete(second) })
+        }
+    }
+
     @Test fun completedPreviewRejectsMismatchedFractionalOrStaleRevision() = runBlocking {
         withRepository { repository, id ->
             val key = "sparse-m10-r0-0123456789abcdef"
@@ -174,7 +217,16 @@ class SessionReliabilityTest {
             repository.writeAtomic(file,valid.toString())
             repository.dao.invalidate(id)
             assertNull(repository.currentPreview(id))
-            assertEquals(0,repository.dao.complete(id,0,key,"Must not publish outdated result"))
+            val invalidated = requireNotNull(repository.dao.project(id))
+            assertEquals(1L, invalidated.revision)
+            try {
+                repository.dao.complete(id,0,key,"Must not publish outdated result")
+                fail("Coordinated publication accepted a stale revision")
+            } catch (_: com.realityforge.scanner.data.operations.StaleProjectRevisionException) {
+                // The coordinated DAO rejects before touching the raw Room publication query.
+            }
+            assertEquals(invalidated, repository.dao.project(id))
+            assertNull(repository.currentPreview(id))
         }
     }
     @Test fun oversizedDeeplyNestedAndTruncatedPreviewFailWithoutLosingOriginals() = runBlocking {

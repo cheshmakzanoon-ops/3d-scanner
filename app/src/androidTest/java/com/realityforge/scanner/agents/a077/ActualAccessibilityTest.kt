@@ -143,6 +143,12 @@ class ActualAccessibilityTest {
         return if (id != 0) listOf(context.getString(id)) else standaloneLabels.toList()
     }
 
+    private fun fieldHasLabel(node: AccessibilityNodeInfo, label: String): Boolean =
+        node.contentDescription?.toString() == label || node.hintText?.toString() == label ||
+            (0 until minOf(node.childCount, 32)).any { index -> node.getChild(index)?.let { child ->
+                !child.isEditable && (child.contentDescription?.toString() == label || child.text?.toString() == label)
+            } == true }
+
     private fun named(node: AccessibilityNodeInfo, labels: List<String>): Boolean =
         node.isVisibleToUser && labels.any {
             node.text?.toString() == it || node.contentDescription?.toString() == it
@@ -234,13 +240,14 @@ class ActualAccessibilityTest {
                 await {
                     field = find { node -> node.isVisibleToUser && node.isEditable &&
                         (nameLabels.isEmpty() || nameLabels.any {
-                            node.contentDescription?.toString() == it || node.hintText?.toString() == it
+                            fieldHasLabel(node, it)
                         }) }
                     field != null
                 }
                 val input = requireNotNull(field)
                 val labels = (input.text?.toString().orEmpty() + input.contentDescription?.toString().orEmpty() + input.hintText?.toString().orEmpty())
-                assertTrue("Project-name field must expose a label or hint", labels.isNotBlank())
+                assertTrue("Project-name field must expose an associated label or hint",
+                    labels.isNotBlank() || nameLabels.any { fieldHasLabel(input, it) })
                 val args = Bundle().apply { putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, name) }
                 assertTrue(input.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args))
                 clickLabel(*labels("a072_save", "Create", "Save").toTypedArray())

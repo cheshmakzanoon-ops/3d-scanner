@@ -86,8 +86,9 @@ class ScreenInteractionTest {
     private fun buttonOrNull(text: String): AccessibilityNodeInfo? {
         var value = fixtureNodes().firstOrNull { it.text?.toString() == text } ?: return null
         repeat(32) {
-            if (value.className?.toString() == "android.widget.Button" ||
-                value.actionList.any { it.id == AccessibilityNodeInfo.ACTION_CLICK }) return value
+            // A virtual role-only Button child is not the action owner. Disabled
+            // Compose buttons retain isClickable but omit ACTION_CLICK.
+            if (value.isClickable) return value
             if (value.viewIdResourceName == fixtureId || value.contentDescription?.toString() == fixtureId) return null
             value = value.parent ?: return null
         }

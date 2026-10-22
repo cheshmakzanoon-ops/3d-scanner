@@ -1,4 +1,5 @@
 """Independent binary STL reader exercises scaling, normals and failure paths."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 import os
 import struct
@@ -20,7 +21,7 @@ def test_binary_stl_independent_import_and_rejections(tmp_path):
         "-I" + str(ROOT / "reconstruction/include"), "-I" + str(canonical / "reconstruction/include"),
         str(ROOT / "reconstruction/src/stl_export.cpp"), str(canonical / "reconstruction/src/asset_model.cpp"),
         str(ROOT / "reconstruction/tests/agent_063_stl_test.cpp"), "-lz", "-o", str(executable),
-    ], check=True)
+    ], check=True, env=native_compile_env())
     output = tmp_path / "asymmetric.stl"
     subprocess.run([str(executable), str(output)], check=True)
     data = output.read_bytes()

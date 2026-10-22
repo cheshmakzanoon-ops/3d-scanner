@@ -69,9 +69,13 @@ class OfflinePrivacyJourneyTest {
         } finally {
             originals.forEach { it.delete() }
             exported.delete()
-            repository.delete(project)
-            repository.delete(other)
-            database.close()
+            // The assertion path already deleted project. Repository deletion is deliberately
+            // revision-bound, not an idempotent cleanup API; do not mask success with Missing.
+            try {
+                if (repository.dao.project(project) != null) repository.delete(project)
+            } finally {
+                try { repository.delete(other) } finally { database.close() }
+            }
         }
     }
 

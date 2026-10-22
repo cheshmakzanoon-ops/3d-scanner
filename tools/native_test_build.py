@@ -9,6 +9,7 @@ import re
 import subprocess
 from pathlib import Path
 from tools.native_api import library_path
+from tools.native_process import native_compile_env
 
 
 def _selected_library() -> Path:
@@ -24,9 +25,7 @@ def _selected_library() -> Path:
     # aliases that would load a different file from this candidate's directory.
     # readelf does not execute the native library: isolate this tool invocation
     # from injected runtimes, without changing the native process environment.
-    tool_environment = dict(os.environ)
-    for name in ('LD_PRELOAD', 'LD_AUDIT'):
-        tool_environment.pop(name, None)
+    tool_environment = native_compile_env()
     tool_environment['LC_ALL'] = 'C'
     dynamic = subprocess.check_output(
         ['readelf', '--dynamic', str(library)], text=True, env=tool_environment)

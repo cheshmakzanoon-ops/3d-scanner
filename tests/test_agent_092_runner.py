@@ -143,7 +143,7 @@ def test_missing_failed_or_embedded_completion_cannot_qualify(text):
 
 def test_debug_suite_excludes_only_named_specialist_contracts_and_routes_release_separately():
     debug=m.suite_scope('debug');release=m.suite_scope('release')
-    assert {row['gate'] for row in debug['excludedGates']}=={'physical_capture','external_recovery','physical_resource_profile','offline_radios_journey','minified_release','dedicated_candidate_journey'}
+    assert {row['gate'] for row in debug['excludedGates']}=={'physical_capture','external_recovery','physical_resource_profile','offline_radios_journey','minified_release','dedicated_candidate_journey','physical_capture_ui','camera_permission_ui'}
     assert 'com.realityforge.scanner.qa.ReleaseNativeContractTest' in debug['notClass']
     assert 'com.realityforge.scanner.qa.ReleaseNativeContractTest' not in release['notClass']
     assert any(s.startswith('com.realityforge.scanner.qa.ReleaseNativeContractTest#') for s in release['requiredPassedSelectors'])
@@ -182,7 +182,7 @@ def test_release_scope_requires_actual_minified_release_contract_and_keeps_physi
     with pytest.raises(ValueError,match='ReleaseNativeContractTest'):
         m.scoped_counts(transcript((0,0)),release)
     assert m.scoped_counts(transcript((0,)*len(required),required),release)['passed']==3
-    assert {row['gate']:row['status'] for row in release['excludedGates']}=={'physical_capture':'NOT_RUN','external_recovery':'NOT_RUN','physical_resource_profile':'NOT_RUN','offline_radios_journey':'NOT_RUN','dedicated_candidate_journey':'NOT_RUN'}
+    assert {row['gate']:row['status'] for row in release['excludedGates']}=={'physical_capture':'NOT_RUN','external_recovery':'NOT_RUN','physical_resource_profile':'NOT_RUN','offline_radios_journey':'NOT_RUN','dedicated_candidate_journey':'NOT_RUN','physical_capture_ui':'NOT_RUN','camera_permission_ui':'NOT_RUN'}
 
 
 def test_dedicated_candidate_metadata_is_excluded_without_relaxing_junit_accounting():
@@ -196,3 +196,24 @@ def test_dedicated_candidate_metadata_is_excluded_without_relaxing_junit_account
     text=metadata+transcript((0,0))
     with pytest.raises(ValueError,match='Incomplete raw instrumentation'):m.instrumentation_counts(text)
     with pytest.raises(ValueError,match='Incomplete raw instrumentation'):m.scoped_counts(text,m.suite_scope('debug'))
+
+
+@pytest.mark.parametrize('scope_name', ['debug', 'release'])
+@pytest.mark.parametrize('selector', [
+    'com.realityforge.scanner.uiflow.PhysicalCaptureJourneyTest#capturesWithRealCameraAndReopensTheSameOriginal',
+    'com.realityforge.scanner.uiflow.CameraPermissionJourneyTest#deniedThenGrantedCameraFlowKeepsTheInitiatingProjectAndOriginals',
+])
+@pytest.mark.parametrize('code', [0, -3, -4])
+def test_controller_owned_ui_gates_cannot_qualify_ordinary_scope(scope_name, selector, code):
+    scope = m.suite_scope(scope_name)
+    required = scope['requiredPassedSelectors']
+    with pytest.raises(ValueError, match='excluded specialist'):
+        m.scoped_counts(transcript((0,) * len(required) + (code,), required + [selector]), scope)
+
+
+def test_ordinary_ui_and_memory_checks_remain_discoverable():
+    for name in ('debug', 'release'):
+        scope = m.suite_scope(name)
+        for owner in ('uiflow.ActualUiJourneyTest', 'uiflow.InterruptionUiJourneyTest',
+                      'agents.a032.FeatureMemoryDeviceTest', 'agents.a071.NavigationLifecycleDeviceTest'):
+            assert not any(selector.startswith('com.realityforge.scanner.' + owner) for selector in scope['notClass'])

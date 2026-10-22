@@ -58,7 +58,18 @@ class DesignSystemDeviceTest {
     private fun namedNodes(tag: String): List<AccessibilityNodeInfo> =
         descendants(fixtureRoot(tag)).filter {
             it.isVisibleToUser && (it.text?.toString() == label || it.contentDescription?.toString() == label)
-        }
+        }.mapNotNull { labelNode ->
+            // Android Compose exposes the text child and toggle action separately.
+            // Resolve only its nearest checkable owner inside this exact fixture.
+            var node: AccessibilityNodeInfo? = labelNode
+            var owner: AccessibilityNodeInfo? = null
+            repeat(16) {
+                val current = node ?: return@repeat
+                if (current.isCheckable && current.isClickable) { owner = current; node = null }
+                else node = if (tagged(current, tag)) null else current.parent
+            }
+            owner
+        }.distinct()
 
     /** The only text included is this test's fixed synthetic label; field values are omitted. */
     private fun failWithTree(message: String): Nothing {

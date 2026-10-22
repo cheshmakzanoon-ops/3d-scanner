@@ -1224,3 +1224,44 @@ A separate legitimate STANDARD preset capture passes core assertions/restoration
 ### STANDARD projected coverage measurement
 
 The unchanged STANDARD preset covers 154,829 of 294,723 known synthetic view-01 surface pixels (52.5337%). The rendered mesh covers 4,272 pixels outside that known domain. Covered-pixel vertical camera-depth p95 is 0.0358911 synthetic units; geometry/gauge/math were not changed. This is a different output population from COMPACT, not a physical-accuracy or 3D-completeness claim. Native topology remains incomplete, so its crossing count is not exhaustive. Both bounded coverage/render processes exited0 with unchanged pinned inputs. See [coverage](../../reports/cloud-standard-relief-coverage.json) and [execution receipt](../../reports/cloud-standard-relief-visual-validation.json).
+
+## Hosted device bootstrap and failure-driven repairs (22 October 2026)
+
+Published `38599c2538830a00982f7b1eecfb9b9f30c6e2dc` reached actual
+API35/x86_64/4KB instrumentation: **222 tests, 23 failures**. Android build,
+unit tests and lint passed; source export passed. This resolves the earlier
+provider/bootstrap failure, not installed-app qualification. Exact failing
+selectors and stacks are retained in [the device report](../../reports/device-repair/38599-failures.json).
+See [Verify](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39737427641)
+and [native matrix](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39737427642).
+
+The follow-on changes preserve rejected/pending/integrity import outcomes instead
+of reporting them as an ordinary duplicate; only a verified duplicate returns
+false. Busy session selection now follows the same lock as visible navigation.
+Regression fixtures preserve stale-revision rejection and avoid double deletion.
+UI tests identify associated editable/action nodes, wait for the actual create
+dialog rather than typing into Search, and scroll only the identified fixture.
+Popup test tags propagate from their separate semantics root. Eight-view tests
+explicitly request STANDARD; JNI fuzz tests require typed rejection; frontier
+recovery tests invalidate only their derived complete-alignment cache.
+
+Physical-capture and permission-denial journeys are explicitly routed to their
+dedicated controllers and remain NOT_RUN in the ordinary compatibility suite.
+They are neither passes nor ignored failures. Ordinary UI and memory tests remain
+selected. **Surface checkpoint writing and feature-memory budget failures remain
+open**: added bounded diagnostics do not relax either assertion. Follow-on Android
+compilation and installed instrumentation must establish the repaired behavior.
+
+Both release native configurations passed. Both sanitized CTest runs passed
+46/46, but their Python suites failed (118 failures, 1,371 passes, two skips,
+five errors and 11 passing subtests). Compiler subprocesses inherited ASan
+preloads; final Python/NumPy shutdown also produced leak reports. Compiler-only
+environment isolation now removes runtime injection while retaining native
+execution checks. Missing sanitizer preloads fail closed. Eighteen focused
+host boundary tests and 139 device-runner/evidence/controller host checks passed.
+This is a partial causal repair: full sanitizer qualification remains open,
+with no leak suppression, detector disabling or native-boundary waiver.
+
+The Verify candidate-evidence guard failed because required jobs failed; native
+and device sealed uploads also had no sealed directory. No release-ready APK,
+physical-device quality, 16KB runtime or complete-object geometry claim follows.

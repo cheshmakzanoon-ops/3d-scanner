@@ -1,4 +1,5 @@
 """Real packaged shader execution on the SDK software Vulkan ICD, not phone evidence."""
+from tools.native_process import native_compile_env
 from pathlib import Path
 import os
 import subprocess
@@ -19,7 +20,7 @@ def test_vulkan_contract_and_actual_software_dispatch(tmp_path):
     words=[int(word,16) for word in re.findall(r'0x[0-9a-fA-F]+',(root/'reconstruction/src/vulkan/cost_reduce_spv.hpp').read_text())]
     assert struct.pack('<'+'I'*len(words),*words)==shader.read_bytes(), 'Packaged shader differs from reproducible source'
     exe=tmp_path/'vulkan-test'
-    subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Wpedantic','-Werror','-I'+str(root/'reconstruction/include'),'-idirafter',str(headers),str(root/'reconstruction/tests/vulkan_depth_contract_test.cpp'),str(root/'reconstruction/src/vulkan/vulkan_depth.cpp'),str(root/'reconstruction/src/cancellation.cpp'),'-l:libvulkan.so.1','-o',str(exe)],check=True)
+    subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Wpedantic','-Werror','-I'+str(root/'reconstruction/include'),'-idirafter',str(headers),str(root/'reconstruction/tests/vulkan_depth_contract_test.cpp'),str(root/'reconstruction/src/vulkan/vulkan_depth.cpp'),str(root/'reconstruction/src/cancellation.cpp'),'-l:libvulkan.so.1','-o',str(exe)],check=True, env=native_compile_env())
     env=os.environ.copy()
     icd=sdk/'emulator/lib64/vulkan/lvp_icd.json'
     if icd.exists():

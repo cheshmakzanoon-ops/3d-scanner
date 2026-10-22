@@ -103,10 +103,21 @@ class ScreenInteractionTest {
         }
     }
 
+    // Compose exports a merging text field's description as a virtual child.
+    // Only inspect that editable owner's subtree, never an unrelated screen label.
+    private fun exposesLabel(node: AccessibilityNodeInfo, label: String): Boolean {
+        if (node.contentDescription?.toString() == label || node.hintText?.toString() == label) return true
+        return (0 until minOf(node.childCount, 32)).any { index ->
+            node.getChild(index)?.let { child ->
+                !child.isEditable && (child.contentDescription?.toString() == label || child.text?.toString() == label)
+            } == true
+        }
+    }
+
     private fun editableNode(label: String): AccessibilityNodeInfo =
         awaitNode("No visible editable node exposes the required localized description: $label") {
             activeNodes().firstOrNull {
-                it.isVisibleToUser && it.isEditable && it.contentDescription?.toString() == label
+                it.isVisibleToUser && it.isEditable && exposesLabel(it, label)
             }
         }
 
@@ -154,7 +165,7 @@ class ScreenInteractionTest {
             awaitFixture(fixture)
             val searchLabel = context.getString(R.string.a072_search)
             val search = editableNode(searchLabel)
-            assertEquals(searchLabel, search.contentDescription?.toString())
+            assertTrue(exposesLabel(search, searchLabel))
             val searchInput = Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "Synthetic search fixture")
             }
@@ -165,7 +176,7 @@ class ScreenInteractionTest {
             click(context.getString(R.string.a072_create))
             val nameLabel = context.getString(R.string.a072_name)
             val name = editableNode(nameLabel)
-            assertEquals(nameLabel, name.contentDescription?.toString())
+            assertTrue(exposesLabel(name, nameLabel))
             val nameInput = Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "Synthetic project fixture")
             }
