@@ -55,7 +55,8 @@ def run(baseline: Path, current: Path, repeats: int = 5) -> dict:
             outputs[j]=engines[j].surface(images,cameras,6.,80.,64,3)
             if i: times[j].append(time.perf_counter()-started)
     old,new=outputs
-    assert old is not None and new is not None
+    if not (old is not None and new is not None):
+        raise AssertionError
     deltas={}
     for kind,key in [('dense','points'),('mesh','vertices'),('mesh','triangles')]:
         a,b=np.asarray(old[kind][key],float),np.asarray(new[kind][key],float)

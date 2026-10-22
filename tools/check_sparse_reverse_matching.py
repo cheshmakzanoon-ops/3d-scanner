@@ -49,7 +49,8 @@ for name,a,b,ratio in cases:
     baseline,_=match(a,b,ratio,4096,False)
     for block in [1,2,17,128,256]:
         old,_=match(a,b,ratio,block,False);new,_=match(a,b,ratio,block,True)
-        assert old==baseline==new,(name,block,old,new)
+        if not (old==baseline==new):
+            raise AssertionError((name,block,old,new))
         checks+=1
 report={'opencv':cv2.__version__,'threads':cv2.getNumThreads(),'checks':checks,'cases':len(cases),'comparison':'exact ordered forward/reverse identities AND both nearest distances','syntheticHostOnly':True,'timingScope':'Python/OpenCV host model including NumPy block gather; excludes Kotlin per-row Mat JNI gather overhead. Not Android implementation runtime.','pairs':[]}
 repository=pathlib.Path(__file__).resolve().parents[1]
@@ -59,7 +60,9 @@ for i in range(1,4):
     im=cv2.imread(str(root/f'view-0{i}.jpg')); kp,d=sift.detectAndCompute(cv2.cvtColor(im,cv2.COLOR_BGR2GRAY),None);desc.append(d[:3500])
 report['featureCounts']=[len(x) for x in desc]
 for i,j in [(0,1),(0,2),(1,2)]:
-    a,b=desc[i],desc[j];old,w0=match(a,b);new,w1=match(a,b,sparse=True);assert old==new
+    a,b=desc[i],desc[j];old,w0=match(a,b);new,w1=match(a,b,sparse=True)
+    if not old==new:
+        raise AssertionError
     times={}
     for sparse in [False,True]:
         samples=[]

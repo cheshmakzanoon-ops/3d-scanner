@@ -1401,3 +1401,14 @@ change. A restarted cloud workspace no longer contained the earlier unpublished
 79-file candidate; its historical local results do not validate this smaller
 commit or establish that the lost candidate was published. Recovery/reimplementation
 of that candidate remains separate work.
+
+## 2026-10-22: optimization-safe benchmark acceptance checks
+
+Reimplemented eleven benchmark/precondition checks as explicit `AssertionError`
+branches so Python `-O` and `-OO` cannot remove them. Original thresholds,
+evaluation order, tuple diagnostics and NaN rejection are preserved across
+Middlebury surface acceptance, stereo-kernel output presence and sparse matching
+identity checks. New tests execute 67 isolated production-AST/CLI cases in each
+of three interpreter modes (201 cases total; three pytest tests). These synthetic
+checks do not certify native reconstruction, real-image quality or Android runtime.
+Fresh combined focused run: 26 tests passed, plus Python compilation checks.

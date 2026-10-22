@@ -77,8 +77,10 @@ def run(size:int=228,planes:int=64,glb:Path|None=None,ply:Path|None=None)->dict:
     mesh=native['mesh']; dense=native['dense']
     vertices=np.asarray(mesh['vertices'],dtype=np.float64).reshape(-1,11)
     triangles=np.asarray(mesh['triangles'],dtype=np.int64).reshape(-1,3)
-    assert len(vertices)>0 and len(triangles)>0
-    assert np.all((triangles>=0)&(triangles<len(vertices)))
+    if not (len(vertices)>0 and len(triangles)>0):
+        raise AssertionError
+    if not (np.all((triangles>=0)&(triangles<len(vertices)))):
+        raise AssertionError
     zp=vertices[:,2]
     xpix=np.rint(vertices[:,0]*FOCAL_PIXELS/zp+CX_LEFT).astype(int)
     ypix=np.rint(vertices[:,1]*FOCAL_PIXELS/zp+CY).astype(int)
@@ -128,12 +130,18 @@ def main():
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(result,indent=2,sort_keys=True)+'\n')
     if args.gate:
-        assert result['meshTriangleCount']>=100
-        assert result['meshVertexCount']>=80
-        assert result['groundTruthMatchedMeshVertices']>=50
-        assert result['disparityAbsoluteErrorPxP50']<5
-        assert result['depthRelativeErrorP50']<.20
-        assert result['maximumFaceRelativeDepthJump']<=.081
+        if not (result['meshTriangleCount']>=100):
+            raise AssertionError
+        if not (result['meshVertexCount']>=80):
+            raise AssertionError
+        if not (result['groundTruthMatchedMeshVertices']>=50):
+            raise AssertionError
+        if not (result['disparityAbsoluteErrorPxP50']<5):
+            raise AssertionError
+        if not (result['depthRelativeErrorP50']<.20):
+            raise AssertionError
+        if not (result['maximumFaceRelativeDepthJump']<=.081):
+            raise AssertionError
     print(json.dumps(result,indent=2))
 
 if __name__=='__main__':main()
