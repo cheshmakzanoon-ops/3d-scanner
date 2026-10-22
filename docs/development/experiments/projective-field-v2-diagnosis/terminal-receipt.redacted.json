@@ -1,0 +1,349 @@
+{
+  "status": "EVIDENCE_ONLY_DIAGNOSIS_COMPLETE_EXACT_V2_PARITY_NOT_QUALITY_ACCEPTANCE",
+  "parityArtifacts": [
+    "experimental.ply",
+    "provenance.json",
+    "counters.json",
+    "SUCCESS"
+  ],
+  "all424OriginalPinsRetained": true,
+  "elapsedSeconds": 11.78886980500829,
+  "commands": [
+    {
+      "name": "compile-observer-tests",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 16,
+        "canonicalJsonSha256": "509d8409f50fa1c4cd3ae1035446182424ee3a4978969552581a309224da273c",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "linkage-observer-tests",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 3,
+        "canonicalJsonSha256": "9a36c82abdfb7862a1e4537b66c23fe9a2e33dbe21633ddbfaca45e40fabfe56",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 15,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "compile-observer",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 16,
+        "canonicalJsonSha256": "4f152e84528588ceccf2e537419056b7c2e4d12ed89ecb56370ad48de3f3050c",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "linkage-observer",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 3,
+        "canonicalJsonSha256": "bb007a24c5a5d0b6067f8a9130044281aaf3d966d0119d689c09a51054b66c1a",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 15,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "original-parity",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 4,
+        "canonicalJsonSha256": "72417b836c270eeb220a3ab08211dfc8141c68227afb3891bf5c98087505c87d",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 65,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "synthetic-observer-guards",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 1,
+        "canonicalJsonSha256": "3f19a9ce4c62289cce22da59dcf408e7635d081f72dd68491c42c96a925d891f",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "synthetic-indexed-fan-guards",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 6,
+        "canonicalJsonSha256": "89566401aa12aa1eb5df6e862d536bd7b1d0891aa9ff6eb12abfacfbc0711494",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 15,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "diagnostic",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 4,
+        "canonicalJsonSha256": "dc04e67e836c1965c31a37779d2253c5b34f7b5ad8b78358e65308ccebba154d",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 124,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    },
+    {
+      "name": "indexed-stage-audit",
+      "argv": {
+        "privateCompleteValueWithheld": true,
+        "entries": 7,
+        "canonicalJsonSha256": "33dbc63d88a10e45c462eb2668ed97c29dff44236d11dab12c753c2c89cb01b8",
+        "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+      },
+      "timeoutSeconds": 60,
+      "returnCode": 0,
+      "timedOut": false,
+      "remainingGroupMembers": [],
+      "cleanupError": null
+    }
+  ],
+  "inputSha256": {
+    "privateCompleteValueWithheld": true,
+    "entries": 1066,
+    "canonicalJsonSha256": "7ee8e134551a6a3336da4b27d4d01888a3cb598b882c5677ccb8601057102e34",
+    "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+  },
+  "outputSha256": {
+    "indexed-stage-audit.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stage-audit.json": "ff651a5f2b90f8afa9568694ddcec62520fe8be95905fa119770b288ebdcba7e",
+    "diagnostic.log": "3865df28417b584d4ed3fcb152b8cf7cbc7eba19bb11e223fcbca47b6142fdce",
+    "synthetic-indexed-fan-guards.log": "5bea10acdd3b1cb9af18eca57dc8043bf0d632a9aae1e4cf84d59e501be141c0",
+    "synthetic-observer-guards.log": "d0d9e71ac65244171de192590dfb15f4b5ae2db3a80d3b305749e111f5684a79",
+    "original-parity.log": "040f8e5108a7011951df0e22e7f6e3574b665b948bb007aef64c21d329fb5eca",
+    "linkage-observer.log": "df2e3b35bf0025f44720fa908bc4360ab4d3e9b853b63c8afe5e166fb282fd2a",
+    "compile-observer.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "observer": "aef27841b34ef9d1f3073b796cd45b703d85df3cd87f4bdf3fdc3f78aed6f258",
+    "linkage-observer-tests.log": "aacf08fab54253c0ef15b6bf81d25500b1907ae8ea1d8b8b3d23403ff512f78f",
+    "compile-observer-tests.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "observer-tests": "d053a0d5a726df1daace43143971cb8979d9dd61f0e13b607792fbb8a49d3310",
+    "diagnostic/rejected-face-witness-search.json": "c3efcf6cf3d019ecb4cc5e2230a284f8c0bcb5e3b30f442fa8f2f59a64e704a2",
+    "diagnostic/diagnostic.json": "a67eb9625f12c332b5fa1cc7a7439c3b902756e8033da6da5f0dbefcaafba101",
+    "diagnostic/post-witness.ply": "b75b1fb7e4118a357738217b606b4bffc8a9ca2a7e2888a22e9d0d2fbbff07a4",
+    "diagnostic/pre-witness.ply": "52f76eca32e67cd6434f768af8b096eb3fbbaf2d080c988567b126aa3cedba30",
+    "original-parity/SUCCESS": "160a0896e960a37e2d2323b079bc156895211326e4572689bea0544bc5e24587",
+    "original-parity/counters.json": "b412e8d56c323ea7e0a78e41ff41361d827b27f41009dd21a88a524ceb25248a",
+    "original-parity/provenance.json": "da70d9c072e3e7904051d58fe186d0c24d718846d07868391b8ded90c5217d34",
+    "original-parity/experimental.ply": "0536c3a684b505e5d8a7e77e94a1c7f985e05f1e878e70a04660bf542e16f076",
+    "diagnostic/authoritative/SUCCESS": "160a0896e960a37e2d2323b079bc156895211326e4572689bea0544bc5e24587",
+    "diagnostic/authoritative/counters.json": "b412e8d56c323ea7e0a78e41ff41361d827b27f41009dd21a88a524ceb25248a",
+    "diagnostic/authoritative/provenance.json": "da70d9c072e3e7904051d58fe186d0c24d718846d07868391b8ded90c5217d34",
+    "diagnostic/authoritative/experimental.ply": "0536c3a684b505e5d8a7e77e94a1c7f985e05f1e878e70a04660bf542e16f076"
+  },
+  "diagnostic": {
+    "status": "DIAGNOSTIC_COMPLETE_REQUIRES_EXTERNAL_PARITY",
+    "singlePatchSearch": "COMPLETE_EXACT_V2_PREDICATE_NOT_GEOMETRIC_TRUTH",
+    "scratchBytes": 39164024,
+    "stackAllowanceBytes": 65536,
+    "allocationVisits": 787878,
+    "uniqueProposedNodes": 42180,
+    "uniqueEligibleNodes": 7198,
+    "uniqueIneligibleNodes": 34982,
+    "uniqueMixedNearSignNodes": 407,
+    "searchLimitedFaces": 99,
+    "noSinglePatchWitnessFaces": 5395,
+    "patchTrials": 36899124,
+    "witnessPredicates": 36999509,
+    "observerOperations": 1297471,
+    "preGradientZero": 0,
+    "proposedFaces": 7008,
+    "postAreaFaces": 7008,
+    "acceptedFaces": 1514,
+    "uniqueCameraUnknownBehindNearFront": [
+      89588,
+      13109,
+      13914,
+      9929
+    ],
+    "uniqueNearMaskCardinality": [
+      34982,
+      2593,
+      2494,
+      2111,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "uniqueVoteMaskCardinality": [
+      29825,
+      4465,
+      4292,
+      3598,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "incompleteCubeKnownTetraCornerHistogram": [
+      17014,
+      31296,
+      20064,
+      14456,
+      4824
+    ],
+    "completeCubeKnownTetraCornerHistogram": [
+      0,
+      0,
+      0,
+      0,
+      9666
+    ],
+    "zeroTetraIncompleteComplete": [
+      0,
+      0
+    ],
+    "oneSignTetraIncompleteComplete": [
+      2963,
+      4362
+    ],
+    "crossingTetraIncompleteComplete": [
+      1861,
+      5304
+    ]
+  },
+  "stageAudit": {
+    "status": "INDEXED_STAGE_AUDIT_COMPLETE_NOT_QUALITY_ACCEPTANCE",
+    "preWitness": {
+      "representation": "open_or_defective_triangle_surface",
+      "components": 86,
+      "boundary_edges": 2870,
+      "nonmanifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "nonmanifold_vertices": 43,
+      "duplicate_triangles": 0,
+      "degenerate_triangles": 0,
+      "self_intersection_pairs": null,
+      "self_intersections_status": "NOT_RUN_BUDGET",
+      "watertight_topology": false
+    },
+    "postWitness": {
+      "representation": "open_or_defective_triangle_surface",
+      "components": 521,
+      "boundary_edges": 2668,
+      "nonmanifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "nonmanifold_vertices": 107,
+      "duplicate_triangles": 0,
+      "degenerate_triangles": 0,
+      "self_intersection_pairs": 0,
+      "self_intersections_status": "PASS_CHECK_EXECUTED",
+      "watertight_topology": false
+    },
+    "stableIdTransitions": [
+      {
+        "nonmanifoldBefore": 0,
+        "nonmanifoldAfter": 0,
+        "presentAfter": 0,
+        "lostIncidentFaces": 1,
+        "vertices": 2359
+      },
+      {
+        "nonmanifoldBefore": 0,
+        "nonmanifoldAfter": 0,
+        "presentAfter": 1,
+        "lostIncidentFaces": 0,
+        "vertices": 362
+      },
+      {
+        "nonmanifoldBefore": 0,
+        "nonmanifoldAfter": 0,
+        "presentAfter": 1,
+        "lostIncidentFaces": 1,
+        "vertices": 2118
+      },
+      {
+        "nonmanifoldBefore": 0,
+        "nonmanifoldAfter": 1,
+        "presentAfter": 1,
+        "lostIncidentFaces": 1,
+        "vertices": 105
+      },
+      {
+        "nonmanifoldBefore": 1,
+        "nonmanifoldAfter": 0,
+        "presentAfter": 0,
+        "lostIncidentFaces": 1,
+        "vertices": 20
+      },
+      {
+        "nonmanifoldBefore": 1,
+        "nonmanifoldAfter": 0,
+        "presentAfter": 1,
+        "lostIncidentFaces": 1,
+        "vertices": 21
+      },
+      {
+        "nonmanifoldBefore": 1,
+        "nonmanifoldAfter": 1,
+        "presentAfter": 1,
+        "lostIncidentFaces": 0,
+        "vertices": 1
+      },
+      {
+        "nonmanifoldBefore": 1,
+        "nonmanifoldAfter": 1,
+        "presentAfter": 1,
+        "lostIncidentFaces": 1,
+        "vertices": 1
+      }
+    ],
+    "newlyNonmanifoldRetainedVertices": 105,
+    "resolvedNonmanifoldRetainedVertices": 21,
+    "removedVertices": 2379,
+    "limitations": [
+      "Same indexed edges, no coordinate welding; pre and post differ only by original face filtering.",
+      "Link-status transitions are association with filtering, not recovered coverage or repair proof.",
+      "Crossing default5000-face budget status retained; separate native6190 not compared."
+    ]
+  },
+  "limitations": [
+    "Counterfactual four-corner eligibility is counts only, not new extracted geometry or recovered coverage.",
+    "Exhaustive witness search is exact implemented single-patch predicate, not physical absence of surface evidence.",
+    "Indexed link transitions are associated with original filtering, not a universal causal repair proof.",
+    "Diagnostic scratch budget64MiB is separate from original32MiB; neither is process RSS.",
+    "No changed truth, thresholds, field integration, source masks or production output."
+  ],
+  "originalRawArtifactSha256": "977dcde8b86dca130d27580992e181e8514eaa9bf73db218a12c228319b3d0dd",
+  "publicRedaction": "Complete private inventories withheld; not an exact full receipt copy."
+}

@@ -1,0 +1,17 @@
+{
+  "status": "EVIDENCE_ONLY_DIAGNOSIS_FAIL_CLOSED_COUNTS_UNKNOWN",
+  "errorType": "ValueError",
+  "error": "nonempty input",
+  "elapsedSeconds": 0.35049560001061764,
+  "commands": [],
+  "postInputChecks": {
+    "privateCompleteValueWithheld": true,
+    "entries": 432,
+    "canonicalJsonSha256": "5e4e5f22042ccd74ef99355cb72174525b052fae142bfa4417079f06f1627b81",
+    "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+  },
+  "allKnownInputsUnchanged": true,
+  "candidateNotAccepted": true,
+  "originalRawArtifactSha256": "4ded2587b2025d4c302ec3f96b8967c7177a11d9a725bdbae813fac40af7583d",
+  "publicRedaction": "Complete private inventories withheld; not an exact full receipt copy."
+}

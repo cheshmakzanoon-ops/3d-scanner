@@ -1,0 +1,31 @@
+{
+  "allFourArtifactsByteIdentical": true,
+  "sha256": {
+    "experimental.ply": {
+      "originalCandidate": "0536c3a684b505e5d8a7e77e94a1c7f985e05f1e878e70a04660bf542e16f076",
+      "originalRepeat": "0536c3a684b505e5d8a7e77e94a1c7f985e05f1e878e70a04660bf542e16f076",
+      "observerOriginalParity": "0536c3a684b505e5d8a7e77e94a1c7f985e05f1e878e70a04660bf542e16f076",
+      "observerAuthoritative": "0536c3a684b505e5d8a7e77e94a1c7f985e05f1e878e70a04660bf542e16f076"
+    },
+    "provenance.json": {
+      "originalCandidate": "da70d9c072e3e7904051d58fe186d0c24d718846d07868391b8ded90c5217d34",
+      "originalRepeat": "da70d9c072e3e7904051d58fe186d0c24d718846d07868391b8ded90c5217d34",
+      "observerOriginalParity": "da70d9c072e3e7904051d58fe186d0c24d718846d07868391b8ded90c5217d34",
+      "observerAuthoritative": "da70d9c072e3e7904051d58fe186d0c24d718846d07868391b8ded90c5217d34"
+    },
+    "counters.json": {
+      "originalCandidate": "b412e8d56c323ea7e0a78e41ff41361d827b27f41009dd21a88a524ceb25248a",
+      "originalRepeat": "b412e8d56c323ea7e0a78e41ff41361d827b27f41009dd21a88a524ceb25248a",
+      "observerOriginalParity": "b412e8d56c323ea7e0a78e41ff41361d827b27f41009dd21a88a524ceb25248a",
+      "observerAuthoritative": "b412e8d56c323ea7e0a78e41ff41361d827b27f41009dd21a88a524ceb25248a"
+    },
+    "SUCCESS": {
+      "originalCandidate": "160a0896e960a37e2d2323b079bc156895211326e4572689bea0544bc5e24587",
+      "originalRepeat": "160a0896e960a37e2d2323b079bc156895211326e4572689bea0544bc5e24587",
+      "observerOriginalParity": "160a0896e960a37e2d2323b079bc156895211326e4572689bea0544bc5e24587",
+      "observerAuthoritative": "160a0896e960a37e2d2323b079bc156895211326e4572689bea0544bc5e24587"
+    }
+  },
+  "rawIndexedVertexAndAcceptedFaceWitnessParity": "Checked internally by observer; failure prevents diagnostic completion",
+  "noNewCandidateOrTruthProjection": true
+}

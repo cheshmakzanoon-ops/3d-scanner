@@ -1,0 +1,30 @@
+{
+  "status": "PUBLIC_REDACTED_METADATA_NOT_EXECUTABLE_CONFIG",
+  "privateCompleteConfigWithheld": true,
+  "originalRawArtifactSha256": "ee649e9debe9aedcde380d5e103082ec340c11473234bcfeb42cab7fd9193ff0",
+  "completeConfigCanonicalSha256": "8ae8566c465e56205799e01dba9345b8f3ba0a115c99984baf88cf79991cfe22",
+  "inputSha256": {
+    "privateCompleteValueWithheld": true,
+    "entries": 1065,
+    "canonicalJsonSha256": "99ecb13dd0b8900f6ce04e858cfb3be4a208fe2e07dc113a2556afac7b8280ff",
+    "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+  },
+  "emptyDependencies": {
+    "privateCompleteValueWithheld": true,
+    "entries": 16,
+    "canonicalJsonSha256": "bd44ce07cdefc91b3512ae3c8550927995afb72d13d62d1fa4f8d205ae1ca30f",
+    "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+  },
+  "limits": {
+    "aggregateWallSeconds": 300,
+    "diagnosticScratchMiB": 64,
+    "originalScratchMiB": 32,
+    "patchTrials": 40000000,
+    "vertexWitnessPredicates": 120000000,
+    "observerOperations": 100000000,
+    "allocationVisits": 1000000,
+    "maxVertices": 40000,
+    "maxFaces": 80000
+  },
+  "portability": "Private complete paths, tools, dependency inventory and exact replay config deliberately withheld. Not a runnable replacement config."
+}

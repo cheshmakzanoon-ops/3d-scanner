@@ -1,0 +1,95 @@
+{
+  "status": "INDEXED_STAGE_AUDIT_COMPLETE_NOT_QUALITY_ACCEPTANCE",
+  "preWitness": {
+    "representation": "open_or_defective_triangle_surface",
+    "components": 86,
+    "boundary_edges": 2870,
+    "nonmanifold_edges": 0,
+    "inconsistent_winding_edges": 0,
+    "nonmanifold_vertices": 43,
+    "duplicate_triangles": 0,
+    "degenerate_triangles": 0,
+    "self_intersection_pairs": null,
+    "self_intersections_status": "NOT_RUN_BUDGET",
+    "watertight_topology": false
+  },
+  "postWitness": {
+    "representation": "open_or_defective_triangle_surface",
+    "components": 521,
+    "boundary_edges": 2668,
+    "nonmanifold_edges": 0,
+    "inconsistent_winding_edges": 0,
+    "nonmanifold_vertices": 107,
+    "duplicate_triangles": 0,
+    "degenerate_triangles": 0,
+    "self_intersection_pairs": 0,
+    "self_intersections_status": "PASS_CHECK_EXECUTED",
+    "watertight_topology": false
+  },
+  "stableIdTransitions": [
+    {
+      "nonmanifoldBefore": 0,
+      "nonmanifoldAfter": 0,
+      "presentAfter": 0,
+      "lostIncidentFaces": 1,
+      "vertices": 2359
+    },
+    {
+      "nonmanifoldBefore": 0,
+      "nonmanifoldAfter": 0,
+      "presentAfter": 1,
+      "lostIncidentFaces": 0,
+      "vertices": 362
+    },
+    {
+      "nonmanifoldBefore": 0,
+      "nonmanifoldAfter": 0,
+      "presentAfter": 1,
+      "lostIncidentFaces": 1,
+      "vertices": 2118
+    },
+    {
+      "nonmanifoldBefore": 0,
+      "nonmanifoldAfter": 1,
+      "presentAfter": 1,
+      "lostIncidentFaces": 1,
+      "vertices": 105
+    },
+    {
+      "nonmanifoldBefore": 1,
+      "nonmanifoldAfter": 0,
+      "presentAfter": 0,
+      "lostIncidentFaces": 1,
+      "vertices": 20
+    },
+    {
+      "nonmanifoldBefore": 1,
+      "nonmanifoldAfter": 0,
+      "presentAfter": 1,
+      "lostIncidentFaces": 1,
+      "vertices": 21
+    },
+    {
+      "nonmanifoldBefore": 1,
+      "nonmanifoldAfter": 1,
+      "presentAfter": 1,
+      "lostIncidentFaces": 0,
+      "vertices": 1
+    },
+    {
+      "nonmanifoldBefore": 1,
+      "nonmanifoldAfter": 1,
+      "presentAfter": 1,
+      "lostIncidentFaces": 1,
+      "vertices": 1
+    }
+  ],
+  "newlyNonmanifoldRetainedVertices": 105,
+  "resolvedNonmanifoldRetainedVertices": 21,
+  "removedVertices": 2379,
+  "limitations": [
+    "Same indexed edges, no coordinate welding; pre and post differ only by original face filtering.",
+    "Link-status transitions are association with filtering, not recovered coverage or repair proof.",
+    "Crossing default5000-face budget status retained; separate native6190 not compared."
+  ]
+}

@@ -244,6 +244,11 @@ def collect(start_path, output, xml_patterns=(), artifact_patterns=(), native=No
         if apk_report is None or len([path for path in files if path.suffix == ".apk"]) != 2:
             raise EvidenceError("Android gate requires built APKs and APK validation report")
         report = load(fresh(apk_report, start["started_ns"]))
+        permissions = report.get("permissions")
+        if (not isinstance(permissions, list)
+                or any(not isinstance(name, str) or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+", name) for name in permissions)
+                or {"android.permission.INTERNET", "android.permission.ACCESS_NETWORK_STATE"}.intersection(permissions)):
+            raise EvidenceError("APK permission evidence missing, malformed or unsafe")
         if report.get("internetPermission") is not False or report.get("zipAlignment16k") is not True or not report.get("elfLibrariesChecked"):
             raise EvidenceError("APK privacy/alignment validation failed")
         files.append(Path(apk_report))

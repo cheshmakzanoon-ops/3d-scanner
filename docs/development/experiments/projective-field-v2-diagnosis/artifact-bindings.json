@@ -1,0 +1,103 @@
+{
+  "schema": 2,
+  "publicRedactedSuccessor": true,
+  "privateEvidenceUnchanged": true,
+  "originalUnredactedArchiveManifestSha256": "9b520447754932c900f01d6acd5bed5d11b6a0fe987610fa761d5dfbeb977cf9",
+  "files": [
+    {
+      "publicArtifact": "source/observer.hpp",
+      "originalRawArtifactSha256": "b810bc4c3f09d42839d48a1fd11c3d31235a67f0ad15238067643e16dec15186",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "source/copied_predicates.inc",
+      "originalRawArtifactSha256": "1a67dc16db290187aa7c3a98736a6212dbbaae06e59402b79473a8acb961fbaa",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "source/serialize.hpp",
+      "originalRawArtifactSha256": "9389f43e3c7aa1b34a11b17501fd1b9d82bc729223b0d2a40a4c207a713a5cf2",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "source/diagnose.cpp",
+      "originalRawArtifactSha256": "077a57ee3a11069a191e728fab15848c523202853b8c6b78fd629f12a32f22e9",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "source/tests.cpp",
+      "originalRawArtifactSha256": "cb92d5ef5533a704b6a7ad2eb13ca013447c26b004dc310b0d33b47e20c5e49e",
+      "exactBytes": false,
+      "redaction": "Host-specific path literals replaced by configurable placeholders; executed private source unchanged. Public variant not executed."
+    },
+    {
+      "publicArtifact": "source/audit.py",
+      "originalRawArtifactSha256": "4736db75e27e9dfa58da480e60d47aad248202e6d0a21e932d70b7918ac2957b",
+      "exactBytes": false,
+      "redaction": "Host-specific path literals replaced by configurable placeholders; executed private source unchanged. Public variant not executed."
+    },
+    {
+      "publicArtifact": "source/runner.py",
+      "originalRawArtifactSha256": "5a8edc9b20173be3aabe45f651e1aac617f6ed5552221934cfd2e9c507e579c9",
+      "exactBytes": false,
+      "redaction": "Host-specific path literals replaced by configurable placeholders; executed private source unchanged. Public variant not executed."
+    },
+    {
+      "publicArtifact": "source/config.json",
+      "originalRawArtifactSha256": "ee649e9debe9aedcde380d5e103082ec340c11473234bcfeb42cab7fd9193ff0",
+      "exactBytes": false,
+      "redaction": "Entire complete config replaced by count/hash metadata and declared limits; no dependency names or paths retained."
+    },
+    {
+      "publicArtifact": "terminal-receipt.redacted.json",
+      "originalRawArtifactSha256": "977dcde8b86dca130d27580992e181e8514eaa9bf73db218a12c228319b3d0dd",
+      "exactBytes": false,
+      "redaction": "Only repetitive private pin map and command argv values replaced by counts/canonical hashes; provenance labels added."
+    },
+    {
+      "publicArtifact": "failure-v2/failure-receipt.redacted.json",
+      "originalRawArtifactSha256": "4ded2587b2025d4c302ec3f96b8967c7177a11d9a725bdbae813fac40af7583d",
+      "exactBytes": false,
+      "redaction": "Only repetitive private pin map and command argv values replaced by counts/canonical hashes; provenance labels added."
+    },
+    {
+      "publicArtifact": "failure-v2/full-post-failure-pins.redacted.json",
+      "originalRawArtifactSha256": "59ac533bde55f6e8d5fb272f823409a4494f8fbc61115a4d4e3b6baac4d4760a",
+      "exactBytes": false,
+      "redaction": "Only repetitive private pin map and command argv values replaced by counts/canonical hashes; provenance labels added."
+    },
+    {
+      "publicArtifact": "diagnostic.json",
+      "originalRawArtifactSha256": "a67eb9625f12c332b5fa1cc7a7439c3b902756e8033da6da5f0dbefcaafba101",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "indexed-stage-audit.json",
+      "originalRawArtifactSha256": "ff651a5f2b90f8afa9568694ddcec62520fe8be95905fa119770b288ebdcba7e",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "byte-parity.json",
+      "originalRawArtifactSha256": "9174820cbf453c2d773b68c1c309d23547345f86708c9859cfaab1e52f3f368f",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "synthetic-observer-guards.log",
+      "originalRawArtifactSha256": "d0d9e71ac65244171de192590dfb15f4b5ae2db3a80d3b305749e111f5684a79",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "synthetic-indexed-fan-guards.log",
+      "originalRawArtifactSha256": "5bea10acdd3b1cb9af18eca57dc8043bf0d632a9aae1e4cf84d59e501be141c0",
+      "exactBytes": true
+    },
+    {
+      "publicArtifact": "original-plan.md",
+      "originalRawArtifactSha256": "9a5f858c2b7fd3a0084a30bb4e1635582de0de857ff08f54fd3330ea96cd13f5",
+      "exactBytes": true
+    }
+  ],
+  "withheldInventoryPolicy": "No complete absolute filesystem/toolchain/dependency maps or reconstruction patches. Counts and canonical hashes are commitments only, not portable manifests.",
+  "originalHeaderSha256": "2fb31919856b4e76e3dbc94536ec3b4f4e4d10582d8627c6b250c0eefe71928e",
+  "inputSnapshotSha256": "d1b605dffddb9488e77ff2f16706f3cf0f2d4161e3239d03f51648d5290b71c0"
+}

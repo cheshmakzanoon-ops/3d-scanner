@@ -105,7 +105,7 @@ def android_files(candidate):
     execution = candidate[2]
     app = write(execution / 'android' / 'app-debug.apk', 'synthetic application fixture')
     test = write(execution / 'android' / 'app-debug-androidTest.apk', 'synthetic instrumentation fixture')
-    report = dump(execution / 'android' / 'apk-validation.json', dict(internetPermission=False, zipAlignment16k=True, elfLibrariesChecked=['lib/x86_64/lib.so']))
+    report = dump(execution / 'android' / 'apk-validation.json', dict(permissions=['android.permission.CAMERA'], internetPermission=False, zipAlignment16k=True, elfLibrariesChecked=['lib/x86_64/lib.so']))
     return app, test, report
 
 

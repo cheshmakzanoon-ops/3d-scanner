@@ -12,7 +12,9 @@ def sha256(path):
 def manifest_policy(xml, release=False):
     root=ET.fromstring(xml); app=root.find('application')
     if app is None: raise ValueError('Missing application')
-    permissions={p.get(A+'name') for p in root.findall('uses-permission')}
+    permissions={p.get(A+'name') for p in root if p.tag in ('uses-permission', 'uses-permission-sdk-23')}
+    if any(not isinstance(name, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)+', name) for name in permissions):
+        raise ValueError('Malformed permission declaration')
     if permissions & FORBIDDEN: raise ValueError('Unexpected network permission')
     for key in ('allowBackup','fullBackupContent','usesCleartextTraffic'):
         if app.get(A+key)!='false': raise ValueError('Unsafe application '+key)
@@ -21,7 +23,8 @@ def manifest_policy(xml, release=False):
         raise ValueError('Release is debuggable or testOnly')
     if root.get('package')!='com.realityforge.scanner': raise ValueError('Unexpected application ID')
     return {'applicationId':root.get('package'),'versionCode':root.get(A+'versionCode'),
-            'versionName':root.get(A+'versionName'),'permissions':sorted(permissions)}
+            'versionName':root.get(A+'versionName'),'permissions':sorted(permissions),
+            'internetPermission':'android.permission.INTERNET' in permissions}
 def elf_alignment(data):
     if len(data)<64 or data[:4]!=b'\x7fELF' or data[4]!=2 or data[5]!=1: raise ValueError('Need little-endian ELF64')
     if len(data)<64: raise ValueError('Truncated ELF')

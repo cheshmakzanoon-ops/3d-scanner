@@ -1,0 +1,14 @@
+{
+  "status": "READ_ONLY_FULL_POST_FAILURE_PIN_AUDIT",
+  "count": 1057,
+  "allMatch": true,
+  "doesNotAlterOriginalFailureReceipt": true,
+  "checks": {
+    "privateCompleteValueWithheld": true,
+    "entries": 1057,
+    "canonicalJsonSha256": "b45dde0016896423d492b20fe346163e53ee20a10540b62348c1d9323c73fd3a",
+    "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+  },
+  "originalRawArtifactSha256": "59ac533bde55f6e8d5fb272f823409a4494f8fbc61115a4d4e3b6baac4d4760a",
+  "publicRedaction": "Complete private inventories withheld; not an exact full receipt copy."
+}

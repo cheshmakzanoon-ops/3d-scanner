@@ -1,0 +1,28 @@
+{
+  "status": "PRIVATE_SOURCE_AND_REVERSE_PATCHES_WITHHELD",
+  "files": [
+    {
+      "role": "runner.py",
+      "originalRawArtifactSha256": "bd89b3fec6baf2dc5577751e189d1d822cb42877ad312976f2d0effa8b97c123"
+    },
+    {
+      "role": "config.json",
+      "originalRawArtifactSha256": "a7b660fca5b5a73d56471ab4eb62072fb3f2d181965ae12bb45e534951ea5479"
+    },
+    {
+      "role": "README.md",
+      "originalRawArtifactSha256": "c312bc0892f60b3c169a51ddd42f8a813fd63ca587f5442cce5a1ec7071c4170"
+    },
+    {
+      "role": "SHA256SUMS",
+      "originalRawArtifactSha256": "968cff65b725cabf982d22fe07ccc07353febfc25d835102e3a223adc1a7c32b"
+    }
+  ],
+  "privateConfigPinMap": {
+    "privateCompleteValueWithheld": true,
+    "entries": 1056,
+    "canonicalJsonSha256": "74d56dc8a8388b9fd2190445328b692c563a3fb32a42b5fbd3f5e5dbfe852c98",
+    "canonicalEncoding": "UTF-8 JSON sort_keys=True separators=(comma,colon), no newline"
+  },
+  "reason": "No reverse configuration patch or dependency inventory is public; hashes bind unchanged private historical evidence."
+}

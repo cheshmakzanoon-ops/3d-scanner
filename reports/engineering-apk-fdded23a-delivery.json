@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "artifactKind": "test-signed engineering candidate",
+  "sourceCommitAtBuild": "fdded23aed856229c679ba4c968160545007c32a",
+  "sourceTreeAtBuild": "c0584e100da2e1ec8f6cfb29f65bbec0678f0e0c",
+  "sourceIdentityPolicy": "Historical APK build identity: never relabel after repository history changes.",
+  "apk": {
+    "filename": "realityforge-fdded23a-engineering.apk",
+    "sha256": "d28504761984c6a31e7fa0919651423ac57982d636f4428c9fe0298b0f2ab473",
+    "bytes": 106220465
+  },
+  "package": {
+    "applicationId": "com.realityforge.scanner",
+    "versionCode": 19,
+    "versionName": "0.19.0-m19",
+    "minSdk": 29,
+    "testCertificateSha256": "dc839f96ad8245392c2f25227e10c3342a5aeee809bad9f4e5e2fd7a8cdcd466"
+  },
+  "build": {
+    "optimizedRelease": true,
+    "qaRetention": false,
+    "offline": true,
+    "dependencyVerification": "strict",
+    "sourceCleanPrePost": true
+  },
+  "validation": {
+    "ordinaryJvmTestsPassed": 768,
+    "hostIntegrationTestsPassed": 18,
+    "pythonTestsPassed": 1388,
+    "pythonSubtestsPassed": 6,
+    "pythonOptionalSkips": 3,
+    "androidTestKotlinCompilation": "passed",
+    "lint": "passed",
+    "mesaSoftwareControlsPassed": 16,
+    "packageGates": [
+      "identity and test certificate",
+      "no network permissions",
+      "backup exclusions",
+      "16KiB ZIP and ELF alignment",
+      "ABI/native inventory",
+      "third-party notices",
+      "exact VCS revision"
+    ],
+    "nativeEntriesByteIdentical": 16,
+    "priorApkSha256": "ee1736e82742246911add0ccddd426ab4de7449f2435322f3c6987714423b4c0",
+    "totalArchiveEntries": 531,
+    "changedEntries": [
+      "META-INF/version-control-info.textproto",
+      "assets/dexopt/baseline.prof",
+      "classes.dex"
+    ],
+    "ownedProcessGroupsDrained": true
+  },
+  "notRun": [
+    "physical-device qualification",
+    "Android GPU controls",
+    "new Android runtime qualification",
+    "installation/upgrade/data migration"
+  ],
+  "productionSigned": false,
+  "scanQualityQualified": false,
+  "delivery": {
+    "acceptedAtUtc": "2026-10-22T00:04:34Z",
+    "status": "ChatGPT send tool accepted three numbered ZIP parts and join/install README",
+    "userDownloadOrInstallationVerified": false,
+    "zip": {
+      "filename": "realityforge-fdded23a-engineering.zip",
+      "bytes": 46322510,
+      "sha256": "1b3b403d3d9f09fe7da39c73c25939a5ff5fd5dd18a7b63d92c235aa7576be94"
+    },
+    "parts": [
+      {
+        "filename": "realityforge-fdded23a-engineering.zip.001",
+        "bytes": 18874368,
+        "sha256": "1e5cbb2cd57abf057c5ca8ef3508818941aec7e3f7599efff07b0a00510cb769"
+      },
+      {
+        "filename": "realityforge-fdded23a-engineering.zip.002",
+        "bytes": 18874368,
+        "sha256": "d17f45db670d6e7ca4f3f7241a963230ccb34bbe8e58bce3272e1eed8853a957"
+      },
+      {
+        "filename": "realityforge-fdded23a-engineering.zip.003",
+        "bytes": 8573774,
+        "sha256": "2812763ec718afe0f3aea499e3606cad1df62e5185e0dbfda2abda608866d9d5"
+      }
+    ],
+    "readme": {
+      "filename": "JOIN-AND-INSTALL-fdded23a.txt",
+      "bytes": 1806,
+      "sha256": "dcc81275d0090bf76571bec0b2e07bb4f0c81539cfd94404714b13e7dc929184"
+    },
+    "concatenationAndDecompressedMembersVerified": true
+  }
+}
