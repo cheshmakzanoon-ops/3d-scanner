@@ -1,5 +1,6 @@
 """Actual host JVM/JNI boundary execution plus injected allocation failure."""
 from pathlib import Path
+from tools.native_test_build import native_link_args, native_run_env
 import os
 import shutil
 import subprocess
@@ -84,13 +85,11 @@ def test_actual_jvm_native_boundary(tmp_path):
     if not javac: pytest.skip('JDK compiler unavailable; actual JVM JNI gate NOT_RUN')
     jdk=Path(javac).resolve().parents[1]
     includes=['-I'+str(root/'reconstruction/include'),'-I'+str(jdk/'include'),'-I'+str(jdk/'include/linux')]
-    native=Path(os.environ.get('RF_NATIVE_LIBRARY',root/'build/host/librealityforge.so'))
-    assert native.is_file(), 'Build actual native library before JNI validation'
     probe=tmp_path/'guard-probe'
     subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Wpedantic','-Werror',*includes,str(root/'reconstruction/tests/agent_003_jni_boundary_test.cpp'),'-o',str(probe)],check=True)
     subprocess.run([str(probe)],check=True,timeout=20)
     library=tmp_path/'libagent003_jni.so'
-    subprocess.run(['g++','-std=c++20','-fPIC','-shared','-pthread','-Wall','-Wextra','-Wpedantic','-Werror',*includes,str(root/'reconstruction/src/jni.cpp'),'-L'+str(native.parent),'-Wl,-rpath,'+str(native.parent),'-lrealityforge','-o',str(library)],check=True)
+    subprocess.run(['g++','-std=c++20','-fPIC','-shared','-pthread','-Wall','-Wextra','-Wpedantic','-Werror',*includes,str(root/'reconstruction/src/jni.cpp'),*native_link_args(),'-o',str(library)],check=True)
     source=tmp_path/'com/realityforge/scanner/engine/NativeCore.java';source.parent.mkdir(parents=True);source.write_text(JAVA)
     subprocess.run([javac,'-d',str(tmp_path),str(source)],check=True)
-    subprocess.run([str(jdk/'bin/java'),'-Dnative.library='+str(library),'-Dprobe.directory='+str(tmp_path),'-cp',str(tmp_path),'com.realityforge.scanner.engine.NativeCore'],check=True,timeout=60)
+    subprocess.run([str(jdk/'bin/java'),'-Dnative.library='+str(library),'-Dprobe.directory='+str(tmp_path),'-cp',str(tmp_path),'com.realityforge.scanner.engine.NativeCore'],env=native_run_env(),check=True,timeout=60)

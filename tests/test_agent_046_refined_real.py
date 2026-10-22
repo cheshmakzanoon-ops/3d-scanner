@@ -1,5 +1,6 @@
 """Real rectified stereo qualification; truth is evaluation-only, not solver input."""
 from pathlib import Path
+from tools.native_test_build import native_link_args, native_run_env
 import ctypes,hashlib,json,struct,subprocess,sys,time
 import cv2
 import numpy as np
@@ -62,9 +63,9 @@ def test_refined_pyramid_real_stereo_retains_declared_accuracy_and_support(tmp_p
     fixture=tmp_path/'photographs.bin'
     fixture.write_bytes(struct.pack('<5I',outw,outh,2,cw,ch)+cameras.tobytes()+rgba.tobytes()+coarse_cameras.tobytes()+coarse.tobytes())
     executable=tmp_path/'real-profile'
-    subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Werror','-I'+str(ROOT/'reconstruction/include'),str(ROOT/'reconstruction/tests/agent_046_real_profile.cpp'),'-L'+str(ROOT/'build/host'),'-lrealityforge','-Wl,-rpath,'+str(ROOT/'build/host'),'-o',str(executable)],check=True)
+    subprocess.run(['g++','-std=c++20','-Wall','-Wextra','-Werror','-I'+str(ROOT/'reconstruction/include'),str(ROOT/'reconstruction/tests/agent_046_real_profile.cpp'),*native_link_args(),'-o',str(executable)],check=True)
     def profile(name):
-        return json.loads(subprocess.check_output([str(executable),str(fixture),name,hashlib.sha256(fixture.read_bytes()).hexdigest()],timeout=120))
+        return json.loads(subprocess.check_output([str(executable),str(fixture),name,hashlib.sha256(fixture.read_bytes()).hexdigest()],env=native_run_env(),timeout=120))
     nonstrict=profile('refined');strict=profile('strict')
     old=evaluate(baseline);new=evaluate(refined);legacy=evaluate(nonstrict);conservative=evaluate(strict)
     report={'dataset':'Middlebury2014 Motorcycle, real rectified stereo','truth_used_by_solver':False,'source_calibration':'published benchmark intrinsics, arbitrary unit baseline; known poses','pixel_center_mapping':'OpenCV resize: (pixel+.5)*scale-.5 on initial and coarse levels','input_sha256':identity.decode(),'profile':'cpu-refined-v3|local6|strict1|normal3|normalConsistency1|angle35|robust0','physical_device':False,'baseline':old,'refined_without_strict':legacy,'strict_without_refinement':conservative,'refined':new,'baseline_seconds':baseline_seconds,'refined_seconds':refined_seconds,'coarse_depth_maps':refined['coarseDepthMaps'],'propagated_hypotheses':refined['propagatedHypotheses'],'normal_hypotheses_evaluated':refined['normalHypothesesEvaluated'],'normal_refined_pixels':refined['normalRefinedPixels'],'normal_support_pairs':refined['normalSupportPairs'],'normal_rejected_pairs':refined['normalRejectedPairs'],'normal_unknown_pairs':refined['normalUnknownPairs'],'admitted_working_set_bytes':refined['admittedWorkingSetBytes'],'declared_tradeoff':'Non-strict refinement retains >=90% truth-supported points and p50<=1.25*baseline+0.15px. Conservative strict profiles retain >=60% and >=1000 truth points; p50<=1.10*baseline+0.05px,p90<=0.95*baseline+0.10px. All profiles retain absolute stereo gates. Gates declared before strict/normal admission; wall times observational under shared cloud CPU.'}

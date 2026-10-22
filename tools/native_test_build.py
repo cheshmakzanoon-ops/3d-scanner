@@ -1,0 +1,60 @@
+"""Bind Linux release probes to the selected library under ordinary ELF lookup.
+
+Arbitrary LD_PRELOAD/LD_AUDIT symbol interposition is outside this guarantee.
+Native execution preserves loader injection, including legitimate ASan preload;
+its sanitizer lifecycle/process policy is owned by the native CI runner.
+"""
+import os
+import re
+import subprocess
+from pathlib import Path
+from tools.native_api import library_path
+
+
+def _selected_library() -> Path:
+    # A missing explicit override must never fall back to an older host build.
+    library = library_path().resolve(strict=True)
+    if not library.is_file():
+        raise FileNotFoundError(f"Native library is not a file: {library}")
+    # ELF expands '$' loader tokens, while LD_LIBRARY_PATH treats ':' and ';'
+    # as separators. These paths cannot be represented by this literal binding.
+    if any(character in str(library) for character in ('$', ':', ';')):
+        raise ValueError(f"Unsupported loader token or separator in native library path: {library}")
+    # Absolute linking still records an ELF SONAME when one is present. Refuse
+    # aliases that would load a different file from this candidate's directory.
+    # readelf does not execute the native library: isolate this tool invocation
+    # from injected runtimes, without changing the native process environment.
+    tool_environment = dict(os.environ)
+    for name in ('LD_PRELOAD', 'LD_AUDIT'):
+        tool_environment.pop(name, None)
+    tool_environment['LC_ALL'] = 'C'
+    dynamic = subprocess.check_output(
+        ['readelf', '--dynamic', str(library)], text=True, env=tool_environment)
+    soname_lines = [line for line in dynamic.splitlines() if '(SONAME)' in line]
+    if soname_lines:
+        match = re.search(r'\[([^\]\n]*)\]', soname_lines[0])
+        if len(soname_lines) != 1 or not match:
+            raise ValueError(f"Cannot validate native library SONAME: {library}")
+        soname = match.group(1)
+        if not soname or any(character in soname for character in ('/', '\\', '$', ':', ';')) or soname in ('.', '..'):
+            raise ValueError(f"Unsafe native library SONAME: {soname!r}")
+        alias = library.parent / soname
+        if not alias.is_file() or alias.resolve(strict=True) != library:
+            raise ValueError(f"Native library SONAME {soname!r} does not resolve to selected file: {library}")
+    return library
+
+
+def native_link_args() -> list[str]:
+    library = _selected_library()
+    # Separate linker arguments preserve spaces and commas in build paths.
+    return [str(library), '-Xlinker', '-rpath', '-Xlinker', str(library.parent)]
+
+
+def native_run_env() -> dict[str, str]:
+    # ELF SONAME lookup can otherwise prefer an inherited, stale host build over
+    # RUNPATH. Keep dependency search paths, but give this candidate precedence.
+    parent = str(_selected_library().parent)
+    environment = dict(os.environ)
+    previous = environment.get('LD_LIBRARY_PATH')
+    environment['LD_LIBRARY_PATH'] = parent + (os.pathsep + previous if previous else '')
+    return environment

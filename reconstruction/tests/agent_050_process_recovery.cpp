@@ -19,6 +19,15 @@ int notifyFd=-1;unsigned stoppedStage=0;bool failStorageWrite=false;
 void require(bool v,const char* m){if(!v)throw std::runtime_error(m);}
 constexpr auto HASH="abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
 struct Temp{std::filesystem::path dir=std::filesystem::temp_directory_path()/("rf-process-cache-"+std::to_string(::getpid())+"-"+std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));Temp(){std::filesystem::create_directory(dir);}~Temp(){std::error_code ec;std::filesystem::remove_all(dir,ec);}};
+// Child barriers must be completely delivered before proceeding. EINTR is
+// retryable; a zero-length/failed write is a child failure, not a ready signal.
+void writeBarrier(int fd,const char* bytes,std::size_t count){
+ while(count>0){const auto written=::write(fd,bytes,count);
+  if(written<0){if(errno==EINTR)continue;::_exit(91);}
+  if(written==0)::_exit(91);
+  bytes+=written;count-=static_cast<std::size_t>(written);
+ }
+}
 void waitOkay(pid_t child){int status=0;require(::waitpid(child,&status,0)==child&&WIFEXITED(status)&&WEXITSTATUS(status)==0,"cache subprocess failed");}
 rf::DenseDepthMap patch(float z=4){return {32,48,std::vector<float>(32*48,z),std::vector<float>(32*48,.8f)};}
 rf::DenseDepthMap map(float z=4){return {64,48,std::vector<float>(64*48,z),std::vector<float>(64*48,.8f)};}
@@ -30,7 +39,7 @@ extern "C" ssize_t write(int fd,const void* bytes,std::size_t count){
  return static_cast<ssize_t>(::syscall(SYS_write,fd,bytes,count));
 }
 extern "C" void rf_depth_checkpoint_test_stage(unsigned stage){
- if(notifyFd>=0&&stage==stoppedStage){char c='R';if(::write(notifyFd,&c,1)!=1)::_exit(91);for(;;)::pause();}
+ if(notifyFd>=0&&stage==stoppedStage){char c='R';writeBarrier(notifyFd,&c,1);for(;;)::pause();}
 }
 struct ChildPool {std::vector<pid_t> pids;void track(pid_t p){if(p>0)pids.push_back(p);}~ChildPool(){for(auto p:pids){int status=0;if(::waitpid(p,&status,WNOHANG)==0){::kill(p,SIGKILL);(void)::waitpid(p,&status,0);}}}};
 int main(){ChildPool pool;try{
@@ -82,7 +91,7 @@ int main(){ChildPool pool;try{
  if(reader==0){::close(readerPipe[0]);notifyFd=readerPipe[1];stoppedStage=3;rf::depth_checkpoint::Scope scope(budget.dir.string(),HASH);auto output=map(0);(void)rf::depth_checkpoint::load(existing,output);::_exit(95);}
  ::close(readerPipe[1]);pollfd readerReady{readerPipe[0],POLLIN,0};require(::poll(&readerReady,1,10000)>0,"actual reader did not acquire lease");char readerSignal=0;require(::read(readerPipe[0],&readerSignal,1)==1,"reader lease signal absent");::close(readerPipe[0]);
  int signalPipe[2];require(::pipe(signalPipe)==0,"writer signal pipe failed");pid_t writer=::fork();pool.track(writer);require(writer>=0,"writer fork failed");
- if(writer==0){::close(signalPipe[0]);char c='W';(void)::write(signalPipe[1],&c,1);rf::depth_checkpoint::Scope scope(budget.dir.string(),HASH,96+64*48*8);::_exit(rf::depth_checkpoint::store(2,map(7))?0:94);}
+ if(writer==0){::close(signalPipe[0]);char c='W';writeBarrier(signalPipe[1],&c,1);rf::depth_checkpoint::Scope scope(budget.dir.string(),HASH,96+64*48*8);::_exit(rf::depth_checkpoint::store(2,map(7))?0:94);}
  ::close(signalPipe[1]);char started=0;require(::read(signalPipe[0],&started,1)==1&&started=='W',"writer did not start");::close(signalPipe[0]);
  // Lock acquisition, not a timing delay, is the deterministic assertion.
  int competing=::open(budget.dir.c_str(),O_RDONLY|O_DIRECTORY);require(competing>=0&&::flock(competing,LOCK_EX|LOCK_NB)!=0,"exclusive writer ignored actual reader lease");::close(competing);

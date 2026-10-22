@@ -1,4 +1,5 @@
 from pathlib import Path
+from tools.native_test_build import native_link_args, native_run_env
 import subprocess
 import cv2
 import numpy as np
@@ -23,9 +24,8 @@ def test_actual_occlusion_masks_and_missing_depth(tmp_path):
 
 def test_c_abi_allocation_failure_does_not_escape(tmp_path):
     root=Path(__file__).resolve().parents[1];binary=tmp_path/'abi'
-    library=root/'build/host'
-    subprocess.run(['c++','-std=c++20','-I',str(root/'reconstruction/include'),str(root/'reconstruction/tests/agent_057_c_abi_failure.cpp'),'-L',str(library),'-Wl,-rpath,'+str(library),'-lrealityforge','-o',str(binary)],check=True)
-    subprocess.run([str(binary)],check=True)
+    subprocess.run(['c++','-std=c++20','-I',str(root/'reconstruction/include'),str(root/'reconstruction/tests/agent_057_c_abi_failure.cpp'),*native_link_args(),'-o',str(binary)],check=True)
+    subprocess.run([str(binary)],env=native_run_env(),check=True)
 
 def test_compact_camera_input_preserves_original_resampling_rays(monkeypatch, tmp_path):
     import sys
