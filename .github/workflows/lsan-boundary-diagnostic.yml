@@ -30,7 +30,8 @@ jobs:
       - name: Install official host compiler packages
         run: sudo apt-get update && sudo apt-get install -y gcc g++ clang libclang-rt-dev
       - name: Install existing hashed dependency resolution
-        run: python -m pip install --require-hashes --only-binary=:all: -r tools/requirements.lock
+        run: |
+          python -m pip install --require-hashes --only-binary=:all: -r tools/requirements.lock
       - name: Validate synthetic classifier and process contracts
         run: cd tools/qa/lsan_diagnostic && python -m unittest -v test_contract
       - name: Run bounded lifecycle proof (not production policy)
