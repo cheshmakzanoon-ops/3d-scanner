@@ -11,6 +11,8 @@ import java.security.MessageDigest
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -106,6 +108,26 @@ class ProjectDuplicationTest {
         }
     }
 
+    @Test fun cancellationAtAtomicPublicationRetainsTheCommittedIndependentOriginals() = runBlocking {
+        fixture { root, port ->
+            coroutineScope {
+                lateinit var copy: kotlinx.coroutines.Deferred<String>
+                port.onPublished = { copy.cancel() }
+                copy = async {
+                    ProjectLibraryService(port, root, { Long.MAX_VALUE }, 0)
+                        .duplicate(port.project.id, 7, "committed before cancellation")
+                }
+                try { copy.await(); fail("Cancellation expected") }
+                catch (_: CancellationException) { }
+                val copied = requireNotNull(port.publishedPhotos)
+                val paths = ProjectPathPolicy(root)
+                assertEquals(port.photos.map { it.sha256 }, copied.map { hash(paths.photoFile(it)) })
+                assertEquals(0, port.aborted)
+                assertOriginals(root, port)
+            }
+        }
+    }
+
     @Test fun missingStorageAndSymlinkedOriginalsNeverPublish() = runBlocking {
         fixture { root, port ->
             try { ProjectLibraryService(port, root, { 0 }, 0).duplicate(port.project.id, 7, "copy"); fail("Preflight expected") }
@@ -149,6 +171,7 @@ class ProjectDuplicationTest {
         var publishedPhotos: List<ScanPhoto>? = null
         var aborted = 0
         var failAfterPublication = false
+        var onPublished: (() -> Unit)? = null
         override suspend fun summaries(query: LibraryQuery) = emptyList<ProjectSummary>()
         override suspend fun rename(id: String, expectedRevision: Long, name: String) = false
         override suspend fun snapshot(id: String) = (project to photos).takeIf { id == project.id }
@@ -160,6 +183,7 @@ class ProjectDuplicationTest {
         override suspend fun publishDuplicate(newId: String, sourceId: String, sourceRevision: Long, photos: List<ScanPhoto>): Boolean {
             check(newId == reservedId && sourceRevision == project.revision)
             publishedPhotos = photos.toList()
+            onPublished?.invoke()
             if (failAfterPublication) error("Lost reply after atomic commit")
             return true
         }

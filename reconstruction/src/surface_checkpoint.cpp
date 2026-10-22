@@ -50,10 +50,17 @@ public:
 private:int value_;
 };
 
-FileDescriptor directory(const depth_checkpoint::Scope& scope) {
+bool reject(StoreDiagnostic* diagnostic,StoreStage stage,int errorNumber=0,int component=-1) {
+    if(diagnostic)*diagnostic={stage,errorNumber,component};
+    return false;
+}
+FileDescriptor directory(const depth_checkpoint::Scope& scope,StoreDiagnostic* diagnostic=nullptr) {
+    const auto fail=[&](StoreStage stage,int errorNumber=0,int component=-1){
+        reject(diagnostic,stage,errorNumber,component);return FileDescriptor{};
+    };
     const std::filesystem::path path(scope.directory());
     if(scope.directory().find('\0')!=std::string::npos||!path.is_absolute()||path.lexically_normal()!=path||path.filename()!=scope.identity())
-        return FileDescriptor{};
+        return fail(StoreStage::DirectoryShape);
 #if (defined(__linux__) || defined(__ANDROID__)) && defined(O_PATH)
     // Android app-data ancestors may be searchable but not readable. Traverse
     // with path-only FDs, retaining no-follow checks on every single component.
@@ -62,21 +69,25 @@ FileDescriptor directory(const depth_checkpoint::Scope& scope) {
     constexpr int traversalAccess=O_RDONLY;
 #endif
     FileDescriptor current(::open("/",traversalAccess|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC));
-    if(!current)return FileDescriptor{};
+    if(!current)return fail(StoreStage::RootOpen,errno);
+    int componentIndex=0;
     for(const auto& component:path.relative_path()) {
-        if(component.empty()||component=="."||component=="..")return FileDescriptor{};
+        if(component.empty()||component=="."||component=="..")return fail(StoreStage::ComponentShape,0,componentIndex);
         FileDescriptor next(::openat(current.get(),component.c_str(),traversalAccess|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC));
-        if(!next)return FileDescriptor{};
-        current=std::move(next);
+        if(!next)return fail(StoreStage::ComponentOpen,errno,componentIndex);
+        current=std::move(next);++componentIndex;
     }
 #if (defined(__linux__) || defined(__ANDROID__)) && defined(O_PATH)
     // O_PATH cannot fsync. Reopen the held final inode, never the original path
     // (which could have been replaced), and require read access for durability.
     struct stat held{},reopened{};
-    if(::fstat(current.get(),&held)!=0||!S_ISDIR(held.st_mode))return FileDescriptor{};
+    if(::fstat(current.get(),&held)!=0)return fail(StoreStage::HeldStat,errno);
+    if(!S_ISDIR(held.st_mode))return fail(StoreStage::HeldType);
     FileDescriptor readable(::openat(current.get(),".",O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC));
-    if(!readable||::fstat(readable.get(),&reopened)!=0||!S_ISDIR(reopened.st_mode)||
-       held.st_dev!=reopened.st_dev||held.st_ino!=reopened.st_ino)return FileDescriptor{};
+    if(!readable)return fail(StoreStage::DirectoryReopen,errno);
+    if(::fstat(readable.get(),&reopened)!=0)return fail(StoreStage::ReopenedStat,errno);
+    if(!S_ISDIR(reopened.st_mode)||held.st_dev!=reopened.st_dev||held.st_ino!=reopened.st_ino)
+        return fail(StoreStage::DirectoryIdentity);
     return readable;
 #else
     return current;
@@ -338,38 +349,72 @@ checkpoint::Digest algorithmIdentity(const SurfaceSettings& settings) {
     hashInteger(digest,static_cast<std::uint32_t>(settings.maxFusionCandidates));return digest.finish();
 }
 
-bool store(std::span<const DenseView> views,const DenseResult& dense,const SurfaceMesh& mesh,const SurfaceSettings& settings,bool* created) {
+std::string diagnosticJson(const StoreDiagnostic& diagnostic) {
+    const char* stage="unknown";
+    switch(diagnostic.stage) {
+    case StoreStage::None:stage="none";break;
+    case StoreStage::NoScope:stage="no_scope";break;
+    case StoreStage::DepthMaps:stage="depth_maps";break;
+    case StoreStage::DirectoryShape:stage="directory_shape";break;
+    case StoreStage::RootOpen:stage="root_open";break;
+    case StoreStage::ComponentShape:stage="component_shape";break;
+    case StoreStage::ComponentOpen:stage="component_open";break;
+    case StoreStage::HeldStat:stage="held_stat";break;
+    case StoreStage::HeldType:stage="held_type";break;
+    case StoreStage::DirectoryReopen:stage="directory_reopen";break;
+    case StoreStage::ReopenedStat:stage="reopened_stat";break;
+    case StoreStage::DirectoryIdentity:stage="directory_identity";break;
+    case StoreStage::MemoryBudget:stage="memory_budget";break;
+    case StoreStage::ExistingMismatch:stage="existing_mismatch";break;
+    case StoreStage::FinalStat:stage="final_stat";break;
+    case StoreStage::TemporaryOpen:stage="temporary_open";break;
+    case StoreStage::Write:stage="write";break;
+    case StoreStage::FileSync:stage="file_sync";break;
+    case StoreStage::Link:stage="link";break;
+    case StoreStage::TemporaryUnlink:stage="temporary_unlink";break;
+    case StoreStage::DirectorySync:stage="directory_sync";break;
+    }
+    return "{\"stage\":\""+std::string(stage)+"\",\"errno\":"+std::to_string(diagnostic.errorNumber)+
+        ",\"component\":"+std::to_string(diagnostic.component)+"}";
+}
+
+bool store(std::span<const DenseView> views,const DenseResult& dense,const SurfaceMesh& mesh,const SurfaceSettings& settings,bool* created,StoreDiagnostic* diagnostic) {
+    if(diagnostic)*diagnostic={};
     if(created)*created=false;
-    const auto* scope=depth_checkpoint::current();if(!scope)return false;
+    const auto* scope=depth_checkpoint::current();if(!scope)return reject(diagnostic,StoreStage::NoScope);
     cancellation::checkpoint();
-    if(dense.resumedDepthMaps+dense.writtenDepthMaps!=views.size())return false;
-    auto dir=directory(*scope);if(!dir)return false;
-    if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),mesh.triangles.size(),mesh.observations.size()))return false;
+    if(dense.resumedDepthMaps+dense.writtenDepthMaps!=views.size())return reject(diagnostic,StoreStage::DepthMaps);
+    auto dir=directory(*scope,diagnostic);if(!dir)return false;
+    if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),mesh.triangles.size(),mesh.observations.size()))return reject(diagnostic,StoreStage::MemoryBudget);
     const auto bytes=encode(*scope,views,dense,mesh,settings);
     struct stat existing{};
-    if(::fstatat(dir.get(),FILENAME,&existing,AT_SYMLINK_NOFOLLOW)==0)return matchesExisting(dir.get(),bytes);
-    if(errno!=ENOENT)return false;
+    if(::fstatat(dir.get(),FILENAME,&existing,AT_SYMLINK_NOFOLLOW)==0)
+        return matchesExisting(dir.get(),bytes)||reject(diagnostic,StoreStage::ExistingMismatch);
+    if(errno!=ENOENT)return reject(diagnostic,StoreStage::FinalStat,errno);
     const auto temporary=std::string(FILENAME)+".partial-"+std::to_string(::getpid())+"-"+
         std::to_string(nextTemporary.fetch_add(1,std::memory_order_relaxed));
     FileDescriptor file(::openat(dir.get(),temporary.c_str(),O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC,0600));
-    if(!file)return false;
+    if(!file)return reject(diagnostic,StoreStage::TemporaryOpen,errno);
     struct Cleanup {int dir;const std::string& name;bool owns=true;~Cleanup(){if(owns)::unlinkat(dir,name.c_str(),0);}} cleanup{dir.get(),temporary};
     std::size_t offset=0;
     while(offset<bytes.size()) {
         cancellation::checkpoint();
         const auto count=::write(file.get(),bytes.data()+offset,std::min(BLOCK,bytes.size()-offset));
         if(count<0&&errno==EINTR)continue;
-        if(count<=0)return false;
+        if(count<=0)return reject(diagnostic,StoreStage::Write,count<0?errno:0);
         offset+=static_cast<std::size_t>(count);
     }
-    if(::fsync(file.get())!=0)return false;
+    if(::fsync(file.get())!=0)return reject(diagnostic,StoreStage::FileSync,errno);
     cancellation::checkpoint();
     // linkat atomically creates the final name without replacing any existing accepted bytes.
-    if(::linkat(dir.get(),temporary.c_str(),dir.get(),FILENAME,0)!=0)
-        return errno==EEXIST&&matchesExisting(dir.get(),bytes);
-    if(::unlinkat(dir.get(),temporary.c_str(),0)!=0)return false;
+    if(::linkat(dir.get(),temporary.c_str(),dir.get(),FILENAME,0)!=0) {
+        const int linkError=errno;
+        if(linkError==EEXIST&&matchesExisting(dir.get(),bytes))return true;
+        return reject(diagnostic,StoreStage::Link,linkError);
+    }
+    if(::unlinkat(dir.get(),temporary.c_str(),0)!=0)return reject(diagnostic,StoreStage::TemporaryUnlink,errno);
     cleanup.owns=false;
-    if(::fsync(dir.get())!=0)return false;
+    if(::fsync(dir.get())!=0)return reject(diagnostic,StoreStage::DirectorySync,errno);
     if(created)*created=true;
     return true;
 }

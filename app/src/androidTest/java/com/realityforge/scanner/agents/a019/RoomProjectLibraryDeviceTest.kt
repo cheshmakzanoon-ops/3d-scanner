@@ -38,6 +38,10 @@ class RoomProjectLibraryDeviceTest {
             val result = ProjectLibraryService(port, root, { Long.MAX_VALUE }, 0).duplicate(source.id, source.revision, "Independent")
             val originals = database.dao().photos(source.id)
             val copied = database.dao().photos(result)
+            val duplicate = requireNotNull(database.dao().project(result))
+            assertNull(duplicate.resultKey)
+            assertNull(duplicate.resultRevision)
+            assertFalse(port.summaries(LibraryQuery()).single { it.id == result }.hasCurrentResult)
             assertEquals(originals.map { it.sha256 }, copied.map { it.sha256 })
             assertTrue(copied.all { it.captureSessionId == null && it.captureSequence == null })
             assertTrue(copied.none { copy -> originals.any { original -> original.id == copy.id } })
@@ -45,6 +49,10 @@ class RoomProjectLibraryDeviceTest {
             assertEquals("PUBLISHED", reservation.phase)
             val provenance = JSONObject(requireNotNull(reservation.photoProvenanceJson))
             assertEquals(source.id, provenance.getString("sourceProjectId"))
+            assertEquals("PRESERVED_FROM_ORIGINAL", provenance.getString("photoMetadataPolicy"))
+            assertEquals("NOT_COPIED_REQUIRES_REVALIDATION", provenance.getString("projectCalibrationPolicy"))
+            assertEquals("NOT_REUSED_NEW_PROJECT_IDENTITY", provenance.getString("derivedResultPolicy"))
+            assertFalse(File(File(root, result), "camera-calibration-v1.json").exists())
             assertEquals(originals.size, provenance.getJSONArray("photos").length())
             database.dao().deleteProject(source.id)
             File(root, source.id).deleteRecursively()
@@ -58,6 +66,35 @@ class RoomProjectLibraryDeviceTest {
                 })
                 assertEquals(copied.size, reopened.dao().photos(result).size)
             } finally { reopened.close() }
+        }
+    }
+
+    @Test fun publicationRejectsOriginalIdentitiesThatRepositoryCannotReopen() = runBlocking {
+        withFixture { database, root, _ ->
+            val source = insertSource(database, root)
+            val port = RoomProjectLibraryPort(database, root)
+            val sourcePhotos = database.dao().photos(source.id)
+            for (invalidId in listOf(false, true)) {
+                val target = UUID.randomUUID().toString()
+                assertTrue(port.reserveDuplicate(source.id, source.revision, target, "invalid identity"))
+                val originals = File(File(root, target), "originals").apply { mkdirs() }
+                val proposal = sourcePhotos.mapIndexed { index, photo ->
+                    val id = if (invalidId) "not-a-uuid-$index" else UUID.randomUUID().toString()
+                    val filename = if (invalidId) "$id.image" else "mismatched-$index.image"
+                    File(File(File(root, source.id), "originals"), photo.filename)
+                        .copyTo(File(originals, filename))
+                    photo.copy(id = id, projectId = target, filename = filename,
+                        captureSessionId = null, captureSequence = null)
+                }
+                assertFalse(runCatching {
+                    port.publishDuplicate(target, source.id, source.revision, proposal)
+                }.getOrDefault(false))
+                assertNull(database.dao().project(target))
+                assertTrue(database.dao().photos(target).isEmpty())
+                assertEquals("STAGED", database.libraryDao().reservation(target)?.phase)
+            }
+            assertEquals(2, port.recoverAbandoned())
+            assertEquals(sourcePhotos, database.dao().photos(source.id))
         }
     }
 
@@ -110,7 +147,8 @@ class RoomProjectLibraryDeviceTest {
     }
 
     private suspend fun insertSource(database: ScanDatabase, root: File): ScanProject {
-        val project = ScanProject(UUID.randomUUID().toString(), "Source", 1_000, revision = 7)
+        val project = ScanProject(UUID.randomUUID().toString(), "Source", 1_000, revision = 7,
+            resultRevision = 7, resultKey = "source-engine-specific-result")
         database.dao().insert(project)
         val originals = File(File(root, project.id), "originals").apply { mkdirs() }
         for (index in 0..1) {

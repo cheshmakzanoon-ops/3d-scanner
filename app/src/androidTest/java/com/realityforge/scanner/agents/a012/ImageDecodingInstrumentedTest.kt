@@ -20,6 +20,8 @@ import com.realityforge.scanner.imaging.OrientationEvidence
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -180,6 +182,71 @@ class ImageDecodingInstrumentedTest {
                 assertEquals(ExifOrientation.NORMAL, owner.info.orientation)
                 assertEquals(OrientationEvidence.MALFORMED, owner.info.orientationEvidence)
                 assertTrue(ImageDecodeWarning.EXIF_ORIENTATION_MALFORMED in owner.info.warnings)
+            }
+        } finally {
+            folder.deleteRecursively()
+        }
+    }
+
+    @Test
+    fun physicallyPresentWrongTypeOrientationIsMalformedNotAbsentAndKeepsPixels() {
+        val folder = File(context.cacheDir, "agent-012-wrong-type").apply {
+            deleteRecursively()
+            mkdirs()
+        }
+        try {
+            val original = File(folder, "original.jpg")
+            writeSixBlockImage(original, Bitmap.CompressFormat.JPEG)
+            val originalHash = sha256(original)
+            assertEquals(null, rawJpegOrientation(original))
+            for (little in listOf(true, false)) {
+                // Independently construct APP1/TIFF bytes, never use AndroidX's
+                // writer: it would normalize the deliberately incompatible type.
+                val order = if (little) ByteOrder.LITTLE_ENDIAN else ByteOrder.BIG_ENDIAN
+                val tiff = ByteBuffer.allocate(26).order(order).apply {
+                    put(if (little) byteArrayOf(73, 73) else byteArrayOf(77, 77))
+                    putShort(42); putInt(8); putShort(1)
+                    putShort(0x0112); putShort(2) // orientation stored as ASCII, not SHORT
+                    putInt(2); put(byteArrayOf(57, 0, 0, 0)); putInt(0)
+                }.array()
+                // Independent field oracle proves the physical tag is present.
+                val oracle = ByteBuffer.wrap(tiff).order(order)
+                assertEquals(0x0112, oracle.getShort(10).toInt())
+                assertEquals(2, oracle.getShort(12).toInt())
+                assertEquals(2, oracle.getInt(14))
+                val payload = byteArrayOf(69, 120, 105, 102, 0, 0) + tiff
+                val length = payload.size + 2
+                val app1 = byteArrayOf(-1, -31, (length ushr 8).toByte(), length.toByte()) + payload
+                check(original.length() in 4..1_048_576)
+                val encoded = original.readBytes()
+                check(encoded[0] == (-1).toByte() && encoded[1] == (-40).toByte())
+                val malformed = File(folder, "ascii-$little.jpg")
+                malformed.writeBytes(encoded.copyOfRange(0, 2) + app1 + encoded.copyOfRange(2, encoded.size))
+                val hashBefore = sha256(malformed)
+                // ExifInterface discards the incompatible field and inserts0;
+                // the decoder must not mistake this for physical absence.
+                val exif = ExifInterface(malformed)
+                assertEquals("0", exif.getAttribute(ExifInterface.TAG_ORIENTATION))
+                val range = exif.getAttributeRange(ExifInterface.TAG_ORIENTATION)
+                assertTrue(range == null || range[0] < 0)
+                val owner = AndroidImageDecoder.decodeBlocking(DecodeRequest(malformed, maxEdge = 512))
+                val bitmap = owner.borrowBitmap()
+                try {
+                    assertEquals(OrientationEvidence.MALFORMED, owner.info.orientationEvidence)
+                    assertEquals(ExifOrientation.NORMAL, owner.info.orientation)
+                    assertTrue(ImageDecodeWarning.EXIF_ORIENTATION_MALFORMED in owner.info.warnings)
+                    assertFalse(ImageDecodeWarning.EXIF_ORIENTATION_ABSENT in owner.info.warnings)
+                    assertEquals(240, bitmap.width)
+                    assertEquals(160, bitmap.height)
+                    for (row in 0..1) for (column in 0..2) {
+                        assertColorNear(blockColors[row * 3 + column], bitmap.getPixel(column * 80 + 40, row * 80 + 40), 45)
+                    }
+                } finally {
+                    owner.close()
+                }
+                assertTrue(bitmap.isRecycled)
+                assertEquals(hashBefore, sha256(malformed))
+                assertEquals(originalHash, sha256(original))
             }
         } finally {
             folder.deleteRecursively()

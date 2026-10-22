@@ -12,6 +12,18 @@ struct AcceptedSurface {
     SurfaceSettings settings;
 };
 
+// Fixed codes and numeric syscall evidence only: never expose paths or user content.
+enum class StoreStage { None, NoScope, DepthMaps, DirectoryShape, RootOpen, ComponentShape,
+    ComponentOpen, HeldStat, HeldType, DirectoryReopen, ReopenedStat, DirectoryIdentity,
+    MemoryBudget, ExistingMismatch, FinalStat, TemporaryOpen, Write, FileSync, Link,
+    TemporaryUnlink, DirectorySync };
+struct StoreDiagnostic {
+    StoreStage stage=StoreStage::None;
+    int errorNumber=0;
+    int component=-1; // zero-based relative path component, -1 when not applicable
+};
+std::string diagnosticJson(const StoreDiagnostic& diagnostic);
+
 /** Exact rectified dimensions, camera geometry and source pixels; texture settings are excluded. */
 checkpoint::Digest geometryIdentity(std::span<const DenseView> views);
 checkpoint::Digest algorithmIdentity(const SurfaceSettings& settings);
@@ -22,7 +34,7 @@ checkpoint::Digest algorithmIdentity(const SurfaceSettings& settings);
  * The final file is atomically created, checksummed, bounded and never overwrites accepted bytes.
  */
 bool store(std::span<const DenseView> views,const DenseResult& dense,const SurfaceMesh& mesh,
-    const SurfaceSettings& settings,bool* created = nullptr);
+    const SurfaceSettings& settings,bool* created = nullptr,StoreDiagnostic* diagnostic = nullptr);
 
 /**
  * Read a full accepted mesh and its matching original depth maps. A miss does not run any solver.

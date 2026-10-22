@@ -184,6 +184,41 @@ class ScreenInteractionTest {
         }
     }
 
+    @Test fun copyingExposesProgressAndCancellationWithoutEnablingOtherMutations() {
+        val context = instrumentation.targetContext
+        val cancels = java.util.concurrent.atomic.AtomicInteger()
+        val actions = java.util.concurrent.CopyOnWriteArrayList<LibraryAction>()
+        val fixture = "a072-copy-fixture-${UUID.randomUUID()}"
+        val cancelling = androidx.compose.runtime.mutableStateOf(false)
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity -> activity.setContent {
+                androidx.compose.material3.MaterialTheme {
+                    LibraryScreen(LibraryUiState(emptyList(), busy = true,
+                        copyingBytes = 65_536, totalCopyBytes = 131_072), actions::add,
+                        modifier = Modifier.testTag(fixture).semantics { testTagsAsResourceId = true },
+                        onCancelCopy = if (cancelling.value) null else ({
+                            cancelling.value = true
+                            cancels.incrementAndGet()
+                            Unit
+                        }))
+                }
+            } }
+            awaitFixture(fixture)
+            awaitNode("Copy byte progress was not visible") {
+                activeNodes().firstOrNull { tagged(it, "a072-copy-progress") && it.isVisibleToUser }
+            }
+            assertFalse(awaitNode("Create control missing") {
+                activeNodes().firstOrNull { tagged(it, "a072-create") }
+            }.isEnabled)
+            click(context.getString(R.string.a072_cancel))
+            awaitNode("Copy cancellation was not disabled while cleanup is pending") {
+                activeNodes().firstOrNull { tagged(it, "a072-cancel-copy") && !it.isEnabled }
+            }
+            assertEquals(1, cancels.get())
+            assertTrue(actions.isEmpty())
+        }
+    }
+
     @Test fun realControlsDispatchBoundActions() {
         val context = instrumentation.targetContext
         val actions = java.util.concurrent.CopyOnWriteArrayList<LibraryAction>()

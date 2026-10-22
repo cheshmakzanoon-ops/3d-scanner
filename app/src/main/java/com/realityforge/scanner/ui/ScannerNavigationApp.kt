@@ -168,8 +168,15 @@ fun ScannerApp(model: ScannerViewModel, features: ScannerFeatureServices? = null
                     "library" -> {
                         val presenter = remember(services.library) { LibraryPresenter(requireNotNull(services.library)) { it.message ?: "Cannot read project library." } }
                         val library by presenter.state.collectAsStateWithLifecycle()
+                        var copyJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+                        var copyProgress by remember { mutableStateOf<Pair<Long, Long>?>(null) }
+                        var copyCancelling by remember { mutableStateOf(false) }
+                        // A removed/recreated route cannot leave an unowned copy running.
+                        // Cancel only this command, never the ViewModel's current/global task.
+                        DisposableEffect(model) { onDispose { copyJob?.cancel() } }
                         LaunchedEffect(projects) { presenter.reload() }
-                        LibraryScreen(library.copy(busy = !mutable, canRestoreArchive = true), onAction = { action ->
+                        LibraryScreen(library.copy(busy = !mutable || copyJob != null, canRestoreArchive = true,
+                            copyingBytes = copyProgress?.first, totalCopyBytes = copyProgress?.second), onAction = { action ->
                             when (action) {
                                 is LibraryAction.Create -> if (mutable) { openCreated = true; model.create(action.name) }
                                 is LibraryAction.Open -> if (mutable) { model.select(action.projectId); route = "review" }
@@ -181,18 +188,37 @@ fun ScannerApp(model: ScannerViewModel, features: ScannerFeatureServices? = null
                                         commands.rename(source, action.name)
                                     }
                                 }
-                                is LibraryAction.Duplicate -> if (mutable) {
+                                is LibraryAction.Duplicate -> if (mutable && copyJob == null) {
+                                    val name = action.name ?: library.projects.first { it.id == action.projectId }.name
                                     model.select(action.projectId)
-                                    model.projectCommand { source ->
+                                    copyProgress = 0L to 0L
+                                    copyCancelling = false
+                                    val job = model.projectCommand { source ->
                                         check(source == ProjectRevision(action.projectId, action.revision)) { "Project changed." }
-                                        commands.duplicate(source, action.name ?: projects.first { it.id == action.projectId }.name)
+                                        commands.duplicate(source, name) { copied, total -> copyProgress = copied to total }
+                                    }
+                                    copyJob = job
+                                    if (job == null) copyProgress = null
+                                    else job.invokeOnCompletion {
+                                        if (copyJob === job) {
+                                            copyProgress = null
+                                            copyJob = null
+                                            copyCancelling = false
+                                        }
                                     }
                                 }
                                 LibraryAction.RestoreArchive -> if (mutable) { openCreated = true; restoreArchive() }
                                 LibraryAction.Retry -> scope.launch { presenter.reload() }
                                 LibraryAction.LoadMore -> scope.launch { presenter.loadMore() }
                             }
-                        }, modifier = modifier, onQueryChange = { query, sort, filter -> scope.launch { presenter.refresh(query, sort, filter) } })
+                        }, modifier = modifier, onQueryChange = { query, sort, filter -> scope.launch { presenter.refresh(query, sort, filter) } },
+                            onCancelCopy = if (copyJob != null && !copyCancelling) ({
+                                copyCancelling = true
+                                copyJob?.cancel()
+                                // Publication is atomic and may already have committed. Do not
+                                // claim cancellation rolled back a successfully published project.
+                                Unit
+                            }) else null)
                     }
                     "studio" -> StudioRoute(preview, model, modifier) { route = "export" }
                     "export" -> selected?.let { id ->

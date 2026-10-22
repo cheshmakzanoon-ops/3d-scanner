@@ -119,9 +119,26 @@ int main() {
     dense.verifiedSamples.front().worldNormal={0,0,-1};
     dense.verifiedSamples.front().normalConfidence=.75f;
     dense.verifiedSamples.front().normalSupportingViews=2;
+    test("store diagnostics are bounded and reset for each call",[&] {
+        using namespace rf::surface_checkpoint;
+        StoreDiagnostic diagnostic{StoreStage::Write,123,456};bool created=true;
+        require(!store(views,dense,mesh,meshSettings,&created,&diagnostic)&&!created,
+                "unscoped checkpoint unexpectedly succeeded");
+        require(diagnosticJson(diagnostic)=="{\"stage\":\"no_scope\",\"errno\":0,\"component\":-1}",
+                "unscoped diagnostic leaked stale evidence");
+        rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
+        auto incomplete=dense;incomplete.writtenDepthMaps=0;incomplete.resumedDepthMaps=0;
+        require(!store(views,incomplete,mesh,meshSettings,&created,&diagnostic)&&!created,
+                "incomplete depth publication accepted");
+        require(diagnostic.stage==StoreStage::DepthMaps&&diagnostic.errorNumber==0&&diagnostic.component==-1,
+                "depth publication diagnostic incorrect");
+    });
     test("accepted full mesh and actual dense evidence round-trip bit-for-bit",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
-        require(rf::surface_checkpoint::store(views,dense,mesh,meshSettings),"valid observed mesh checkpoint was not written");
+        rf::surface_checkpoint::StoreDiagnostic diagnostic{rf::surface_checkpoint::StoreStage::Write,123,456};
+        require(rf::surface_checkpoint::store(views,dense,mesh,meshSettings,nullptr,&diagnostic),"valid observed mesh checkpoint was not written");
+        require(rf::surface_checkpoint::diagnosticJson(diagnostic)=="{\"stage\":\"none\",\"errno\":0,\"component\":-1}",
+                "successful store retained stale diagnostic");
         rf::surface_checkpoint::AcceptedSurface recovered;
         require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"valid observed mesh checkpoint was rejected");
         require(rf::surfaceJson(mesh)==rf::surfaceJson(recovered.mesh),"accepted positions/normals/colors/confidence changed");
@@ -292,7 +309,16 @@ int main() {
         {
             rf::depth_checkpoint::Scope scope((alias/HASH).string(),HASH);
             rf::surface_checkpoint::AcceptedSurface unused;
-            require(!rf::surface_checkpoint::store(views,dense,mesh,meshSettings),"symbolic cache ancestor accepted for writing");
+            rf::surface_checkpoint::StoreDiagnostic diagnostic;
+            require(!rf::surface_checkpoint::store(views,dense,mesh,meshSettings,nullptr,&diagnostic),"symbolic cache ancestor accepted for writing");
+            const auto relative=alias.relative_path();
+            const int aliasIndex=static_cast<int>(std::distance(relative.begin(),relative.end()))-1;
+            require(diagnostic.stage==rf::surface_checkpoint::StoreStage::ComponentOpen&&
+                    diagnostic.errorNumber!=0&&diagnostic.component==aliasIndex,
+                    "symlink traversal rejection lost syscall or component evidence");
+            const auto evidence=rf::surface_checkpoint::diagnosticJson(diagnostic);
+            require(evidence.find(alias.string())==std::string::npos&&evidence.size()<100,
+                    "store diagnostic contains a path or is unbounded");
             require(!rf::surface_checkpoint::load((alias/HASH/rf::surface_checkpoint::FILENAME).string(),views,unused),
                     "symbolic cache ancestor accepted for reading");
         }

@@ -618,9 +618,12 @@ static char* texturedSurfaceResponse(
             if(mesh_ply_path&&*mesh_ply_path)rf::writeSurfacePly(mesh,mesh_ply_path);
             response+=",\"mesh\":"+rf::surfaceJson(mesh);
             bool checkpointWritten=false;
-            const bool checkpointAvailable=rf::surface_checkpoint::store(views,dense,mesh,s,&checkpointWritten);
+            rf::surface_checkpoint::StoreDiagnostic checkpointDiagnostic;
+            const bool checkpointAvailable=rf::surface_checkpoint::store(views,dense,mesh,s,&checkpointWritten,&checkpointDiagnostic);
             response+=",\"surfaceCheckpointAvailable\":"+std::string(checkpointAvailable?"true":"false")+
                 ",\"surfaceCheckpointWritten\":"+std::string(checkpointWritten?"true":"false");
+            if(!checkpointAvailable)response+=",\"surfaceCheckpointDiagnostic\":"+
+                rf::surface_checkpoint::diagnosticJson(checkpointDiagnostic);
             try{
                 rf::TextureSettings textureSettings;textureSettings.compactCharts=compactCharts;
                 textureSettings.depthSampleStride=pixel_stride;textureSettings.depthSampleOrigin=ds.patchRadius+1;

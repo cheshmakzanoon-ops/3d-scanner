@@ -1265,3 +1265,64 @@ with no leak suppression, detector disabling or native-boundary waiver.
 The Verify candidate-evidence guard failed because required jobs failed; native
 and device sealed uploads also had no sealed directory. No release-ready APK,
 physical-device quality, 16KB runtime or complete-object geometry claim follows.
+
+## 2026-10-22: restore missing PR integrations without old attribution/history
+
+Reviewed open PRs [2](https://github.com/cheshmakzanoon-ops/3d-scanner/pull/2),
+[5](https://github.com/cheshmakzanoon-ops/3d-scanner/pull/5), and
+[9](https://github.com/cheshmakzanoon-ops/3d-scanner/pull/9) against parent
+`3dc25adcd1c1c2d225e4843ccaa21ed05c54a0ff`. Their core work was largely integrated,
+but each retained a real missing integration. Port the useful changes onto modern
+main; do not merge obsolete orchestration, environment-specific helper scripts,
+or old author metadata back into the corrected history.
+
+- **PR 2:** reconnect the benchmark module and optimized target convention;
+  consume its three target lock configurations in ordinary builds; explicitly use
+  the documented JDK 17 compiler. Actual target/driver resolution verifies against
+  the existing approved inventories, without new dependency-verification hashes.
+  Every previously locked configuration is preserved. CI now builds/audits the
+  actual benchmark APK pair and requires that job before candidate acceptance.
+- **PR 5:** independently prove missing physical orientation metadata with bounded
+  JPEG/PNG/WebP parsing. Discarded malformed metadata and unsupported absence proofs
+  no longer become false ABSENT evidence. Preserve bitmap ownership and originals;
+  add wrong-type JPEG device fixtures and bounded parser JVM regressions.
+- **PR 9:** restore verified dense selection/support from independently validated
+  alignment observations on both fresh and reused paths. Enforce per-camera,
+  anisotropic three-pixel residuals and bind changed policies into cache identity.
+  Refined execution remains explicit opt-in; the normal worker remains compatible.
+- **Issue [19](https://github.com/cheshmakzanoon-ops/3d-scanner/issues/19):** enforce
+  canonical destination photo identity before atomic publication; show active-copy
+  progress/cancel in the real library route; cancel only its own operation; retain
+  committed copies when cancellation races publication. Record calibration and
+  derived-result non-reuse policies; cover real ViewModel/route ownership and DAO
+  boundaries. Existing bounded paging/lease/recovery integration remains intact.
+
+Executed locally: **46/46 release native CTests**, **791 JVM unit tests**, and
+**18 separately classified HOST integration tests**, all passing. Actual Android
+production and instrumentation sources compile. Host integration uses the pinned
+JDK 17 and verified offline framework/oracle, not a mocked device-pass claim.
+The full Python rerun passed **1,524 tests and 11 subtests**; its one optional
+parser skip passed separately with the real host Android JSON artifact. Actual
+JDK 17 app/test APK builds and lint passed (zero errors, 86 warnings, three hints).
+The test-signed app passed native inventory, signature, backup exclusions and
+16 KB ZIP/ELF alignment checks; this is not 16 KB installed-runtime qualification.
+Benchmark target/driver APKs built and passed actual manifest, R8 mapping, fixture
+byte and signing checks. Ordinary dependency-lock acceptance and an incompatible
+lock negative control both behaved as required, without the export activation
+script. A missing implicit driver Build Tools 35 dependency was repaired by
+pinning the same reviewed 36.0.0 tools as the app.
+
+Local APK SHA-256: app `86671c3d411768f88bbc9d04564f5551bbe984aed1fb38be45977443122f42c0`;
+Android test `33454f22cb6c50a9b5cddb953dd75a497c0cac939d2982283834b37a6d89d1bf`;
+benchmark target `bfed4ad0ee7773cdc65beae5a73a5981ca858e0e8f56ed15b9d602343b0ab1c1`;
+benchmark driver `d7aca75421d0042cc52ec87be50eea2059e6579fd810fe4bd8bd2ff514316e08`.
+Installed-device validation remains pending; later CI receipts must establish
+their own exact source and APK identities. Physical benchmark execution is NOT_RUN.
+
+The preceding exact main CI still failed: 221 device tests / 11 failures;
+Clang-sanitized Python 80 failures / 1,438 passes / 2 skips, and GCC-sanitized
+Python timeout. These are not waived by PR repair. Surface checkpoint evidence
+now reports a fixed failure stage, errno and numeric component only, not paths;
+its assertion and resource bounds remain strict. The exact Java-RNG fixture
+passes on host, which does not establish Android filesystem behavior. Physical
+performance, capture, whole-object quality and production signing remain open.

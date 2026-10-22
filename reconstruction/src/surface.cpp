@@ -469,9 +469,12 @@ extern "C" char* rf_surface_json(const std::uint8_t* rgba,int width,int height,
             if(ply_path&&*ply_path)rf::writeSurfacePly(mesh,ply_path);
             response+=",\"mesh\":"+rf::surfaceJson(mesh);
             bool checkpointWritten=false;
-            const bool checkpointAvailable=rf::surface_checkpoint::store(views,dense,mesh,settings,&checkpointWritten);
+            rf::surface_checkpoint::StoreDiagnostic checkpointDiagnostic;
+            const bool checkpointAvailable=rf::surface_checkpoint::store(views,dense,mesh,settings,&checkpointWritten,&checkpointDiagnostic);
             response+=",\"surfaceCheckpointAvailable\":"+std::string(checkpointAvailable?"true":"false")+
                 ",\"surfaceCheckpointWritten\":"+std::string(checkpointWritten?"true":"false");
+            if(!checkpointAvailable)response+=",\"surfaceCheckpointDiagnostic\":"+
+                rf::surface_checkpoint::diagnosticJson(checkpointDiagnostic);
         }catch(const rf::cancellation::Cancelled&){throw;}
         catch(const std::bad_alloc&){throw;}
     catch(const std::exception& e){

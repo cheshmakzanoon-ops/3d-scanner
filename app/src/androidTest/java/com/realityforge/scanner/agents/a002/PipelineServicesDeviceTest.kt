@@ -9,6 +9,7 @@ import com.realityforge.scanner.data.ScanDatabase
 import com.realityforge.scanner.engine.LensCalibration
 import com.realityforge.scanner.engine.LensProfile
 import com.realityforge.scanner.engine.NativeCore
+import com.realityforge.scanner.engine.pipeline.DensePreviewProfile
 import com.realityforge.scanner.engine.pipeline.ProductionEngineCompatibility
 import com.realityforge.scanner.engine.SparsePipeline
 import com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore
@@ -54,7 +55,8 @@ class PipelineServicesDeviceTest {
             repository.writeAtomic(LensCalibration.file(repository,project),LensCalibration.json(profile))
             val originals=repository.dao.photos(project).associate {it.id to hash(repository.photoFile(it))}
             val token=NativeCore.beginReconstruction()
-            val result=try { SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT).run(project,32.88,token) {} }
+            val result=try { SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT,
+                    executionProfile = DensePreviewProfile.VerifiedRefinedCompact).run(project,32.88,token) {} }
                 finally {NativeCore.finishReconstruction(token)}
             assertTrue(result.toString().take(500),result.getInt("pointCount")>=30)
             assertEquals(ProductionEngineCompatibility.VALUE,result.getString("engineVersion"))
@@ -77,6 +79,8 @@ class PipelineServicesDeviceTest {
             assertEquals("Surface producer must match the stage policy",6,result.getJSONObject("meshPreview").getInt("fusionVersion"))
             val dense=result.getJSONObject("densePreview")
             assertEquals("verified_sparse_tracks",dense.getString("selectionMethod"))
+            assertEquals("VerifiedRefinedCompact",dense.getString("executionProfile"))
+            assertTrue(dense.getBoolean("approvedSourceAdjacencyApplied"))
             assertTrue(dense.getInt("consistentPixels")>=60)
             assertTrue(dense.getJSONArray("selectedPhotoIds").length() in 2..8)
             assertTrue(result.getJSONObject("texturePreview").getInt("triangleCount")>=40)
@@ -96,7 +100,8 @@ class PipelineServicesDeviceTest {
             val cancelled=NativeCore.beginReconstruction()
             assertTrue(NativeCore.cancelReconstruction(cancelled))
             try {
-                SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT).run(project,32.88,cancelled) {}
+                SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT,
+                    executionProfile = DensePreviewProfile.VerifiedRefinedCompact).run(project,32.88,cancelled) {}
                 fail("A cancelled native lease published a result")
             } catch(expected:CancellationException) {
                 // Actual extraction runs before pair verification and repairs this strict cache miss.
@@ -115,7 +120,8 @@ class PipelineServicesDeviceTest {
             val lateToken=NativeCore.beginReconstruction()
             var observedLateCheckpoint=false
             try {
-                SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT).run(project,32.88,lateToken) { progress ->
+                SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT,
+                    executionProfile = DensePreviewProfile.VerifiedRefinedCompact).run(project,32.88,lateToken) { progress ->
                     if(progress.stage=="Saving diagnostic exports" && progress.completed==0) {
                         val attempt=requireNotNull(repository.directory(project).listFiles()).single {
                             it.name.startsWith("sparse-m16-r") && it.extension=="json" && it.name!="$key.json"
@@ -145,6 +151,19 @@ class PipelineServicesDeviceTest {
             val remaining=requireNotNull(repository.directory(project).listFiles()).filter {it.name.startsWith("sparse-m16-r")}
             assertEquals(priorAssets.keys,remaining.map {it.name}.toSet())
             assertEquals(key,requireNotNull(repository.currentPreview(project)).getString("artifactKey"))
+            // Exercise the complete-alignment path too: it must forward the same verified
+            // support/profile, not silently drop back to compatibility after cache restore.
+            val reuseToken=NativeCore.beginReconstruction()
+            val reused=try { SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT,
+                executionProfile = DensePreviewProfile.VerifiedRefinedCompact).run(project,32.88,reuseToken) {} }
+                finally { NativeCore.finishReconstruction(reuseToken) }
+            assertTrue(reused.getBoolean("alignmentReused"))
+            val reusedDense=reused.getJSONObject("densePreview")
+            assertEquals("verified_sparse_tracks",reusedDense.getString("selectionMethod"))
+            assertEquals("VerifiedRefinedCompact",reusedDense.getString("executionProfile"))
+            assertTrue(reusedDense.getBoolean("approvedSourceAdjacencyApplied"))
+            assertEquals(dense.getString("depthInputIdentity"),reusedDense.getString("depthInputIdentity"))
+            assertEquals(dense.getJSONArray("selectedPhotoIds").toString(),reusedDense.getJSONArray("selectedPhotoIds").toString())
             for(photo in repository.dao.photos(project))assertEquals(originals.getValue(photo.id),hash(repository.photoFile(photo)))
         } finally {
             temporary.forEach {it.delete()}

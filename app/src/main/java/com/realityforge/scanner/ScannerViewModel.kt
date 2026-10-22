@@ -430,10 +430,11 @@ class ScannerViewModel(
     }
 
     /** Bind the selected project before dispatching any UI-initiated library or curation mutation. */
-    fun projectCommand(allowPendingPhotoDeletion: Boolean = false, action: suspend (ProjectRevision) -> String) {
-        val source = selectedSource() ?: return
-        val context = reserveOperation(OperationKind.EDIT_PROJECT, source) ?: return
-        task = viewModelScope.launch {
+    fun projectCommand(allowPendingPhotoDeletion: Boolean = false, action: suspend (ProjectRevision) -> String): Job? {
+        val source = selectedSource() ?: return null
+        val context = reserveOperation(OperationKind.EDIT_PROJECT, source) ?: return null
+        // Enter try/finally before exposing the cancellation handle, including while recovery waits.
+        val command = viewModelScope.launch(start = kotlinx.coroutines.CoroutineStart.UNDISPATCHED) {
             try {
                 recovery.await()
                 val message = withContext(dispatchers.io) {
@@ -450,6 +451,8 @@ class ScannerViewModel(
             }
             if (selectedId.value == source.projectId) select(source.projectId)
         }
+        task = command
+        return command
     }
 
     fun create(name: String) {

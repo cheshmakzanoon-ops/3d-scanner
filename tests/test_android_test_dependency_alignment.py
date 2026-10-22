@@ -31,6 +31,9 @@ def test_espresso_capture_api_and_annotation_pin_are_test_only():
         assert {'debugAndroidTestRuntimeClasspath', 'releaseAndroidTestRuntimeClasspath'} <= locks[key]
     annotations = locks['com.google.errorprone:error_prone_annotations:2.26.1']
     assert {'debugAndroidTestRuntimeClasspath', 'releaseAndroidTestRuntimeClasspath'} <= annotations
-    assert annotations <= android_tests | {'kspDebugKotlinProcessorClasspath', 'kspReleaseKotlinProcessorClasspath'}
+    assert annotations <= android_tests | {
+        'kspDebugKotlinProcessorClasspath', 'kspReleaseKotlinProcessorClasspath',
+        'kspBenchmarkKotlinProcessorClasspath',
+    }
     host_annotations = locks['com.google.errorprone:error_prone_annotations:2.28.0']
     assert host_annotations == unit_runtime | {'debugUnitTestCompileClasspath', 'releaseUnitTestCompileClasspath'}

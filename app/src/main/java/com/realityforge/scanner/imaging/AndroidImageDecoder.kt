@@ -84,7 +84,7 @@ object AndroidImageDecoder {
 
     fun decodeBlocking(request: DecodeRequest): OwnedImage {
         val bounds = inspect(request)
-        val orientationRead = if (request.applyExifOrientation) readOrientation(request.file)
+        val orientationRead = if (request.applyExifOrientation) readOrientation(request.file, bounds.format)
             else OrientationRead(ExifOrientation.NORMAL, OrientationEvidence.ABSENT, emptySet())
         val plan = DecodePlanner.plan(bounds, orientationRead.orientation, request)
         var decoded: Bitmap? = null
@@ -189,32 +189,30 @@ object AndroidImageDecoder {
         }
     }
 
-    private fun readOrientation(file: File): OrientationRead = try {
+    private fun readOrientation(file: File, format: ImageFormat): OrientationRead = try {
         val exif = ExifInterface(file)
         val attribute = exif.getAttribute(ExifInterface.TAG_ORIENTATION)
         val range = exif.getAttributeRange(ExifInterface.TAG_ORIENTATION)
-        // AndroidX1.4.1 inserts undefined0 for an absent orientation. That
-        // compatibility value has no physical byte offset; hasAttribute also
-        // sees it. A freshly parsed stored0 has a real range and is malformed.
-        // Valid derived HEIF rotations may also lack a range, so retain1..8.
         val value = attribute?.trim()?.toIntOrNull()
-        val synthesizedAbsent = value == ExifInterface.ORIENTATION_UNDEFINED &&
-            (range == null || range[0] < 0)
-        if ((attribute == null && range == null) || synthesizedAbsent) {
+        val orientation = value?.let(ExifOrientation::fromExifValue)
+        if (orientation != null) {
+            // Valid derived HEIF rotations can lack a physical TIFF byte range.
+            OrientationRead(orientation, OrientationEvidence.PRESENT, emptySet())
+        } else {
+            // AndroidX synthesizes undefined0 both for genuinely missing tags and
+            // discarded malformed entries (e.g. incompatible ASCII storage). Its
+            // attribute/range API alone cannot prove absence. Only the bounded
+            // independent container reader may do that; uncertainty is not absence.
+            val synthetic = (attribute == null && range == null) ||
+                (value == ExifInterface.ORIENTATION_UNDEFINED && (range == null || range[0] < 0))
+            val absent = synthetic && PhysicalOrientationPresence.read(file, format) ==
+                PhysicalOrientationPresence.Evidence.ABSENT
             OrientationRead(
                 ExifOrientation.NORMAL,
-                OrientationEvidence.ABSENT,
-                setOf(ImageDecodeWarning.EXIF_ORIENTATION_ABSENT),
+                if (absent) OrientationEvidence.ABSENT else OrientationEvidence.MALFORMED,
+                setOf(if (absent) ImageDecodeWarning.EXIF_ORIENTATION_ABSENT
+                    else ImageDecodeWarning.EXIF_ORIENTATION_MALFORMED),
             )
-        } else {
-            val orientation = value?.let(ExifOrientation::fromExifValue)
-            if (orientation == null) {
-                OrientationRead(
-                    ExifOrientation.NORMAL,
-                    OrientationEvidence.MALFORMED,
-                    setOf(ImageDecodeWarning.EXIF_ORIENTATION_MALFORMED),
-                )
-            } else OrientationRead(orientation, OrientationEvidence.PRESENT, emptySet())
         }
     } catch (_: IOException) {
         OrientationRead(

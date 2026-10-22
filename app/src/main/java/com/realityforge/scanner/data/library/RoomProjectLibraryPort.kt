@@ -142,6 +142,11 @@ class RoomProjectLibraryPort(
             message = "Independent copy of ${source.name}; originals and selection preserved."), photos)
         check(library.published(newId, JSONObject().put("schemaVersion", 1)
             .put("sourceProjectId", sourceId).put("sourceRevision", sourceRevision)
+            // Original-photo capture/optical metadata is retained, not promoted to a
+            // validated project calibration. Project-bound profiles/results are not copied.
+            .put("photoMetadataPolicy", "PRESERVED_FROM_ORIGINAL")
+            .put("projectCalibrationPolicy", "NOT_COPIED_REQUIRES_REVALIDATION")
+            .put("derivedResultPolicy", "NOT_REUSED_NEW_PROJECT_IDENTITY")
             .put("photos", provenance).toString()) == 1)
         true
       }
@@ -155,8 +160,12 @@ class RoomProjectLibraryPort(
         return try {
             for (photo in photos) {
                 coroutineContext.ensureActive()
+                // Publication must satisfy the same identity contract as repository reopening.
+                // A merely safe basename can otherwise publish a READY project whose originals
+                // ProjectPathPolicy.photoFile will refuse to open.
+                requireUuid(photo.id)
                 require(photo.projectId == newId && photo.bytes in 1..150L * 1024 * 1024 &&
-                    photo.filename.matches(Regex("[a-zA-Z0-9_-]+\\.image")))
+                    photo.filename == "${photo.id}.image")
                 val file = File(originals, photo.filename)
                 if (!Files.isRegularFile(file.toPath(), LinkOption.NOFOLLOW_LINKS) ||
                     file.canonicalFile.parentFile != originals || file.length() != photo.bytes) return false

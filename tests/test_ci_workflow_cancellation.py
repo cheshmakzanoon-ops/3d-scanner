@@ -9,7 +9,7 @@ def test_candidate_evidence_audits_failure_but_is_cancellable():
     finalizer = workflow.split("  candidate-evidence:\n", 1)[1]
     assert "    if: ${{ !cancelled() }}\n" in finalizer
     assert "    if: always()" not in finalizer
-    assert "    needs: [native, android, device]" in finalizer
+    assert "    needs: [native, android, device, benchmark-build]" in finalizer
     assert 'all(x["result"] == "success"' in finalizer
     assert "Required job failed, skipped or cancelled" in finalizer
     assert "evidence.py verify --directory" in finalizer

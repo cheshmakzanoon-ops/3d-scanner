@@ -37,10 +37,11 @@ class NativeSurfaceCheckpointDeviceTest {
             // to distinguish missing depth maps, path rejection and publication failure.
             val denseDiagnostics=initial.getJSONObject("dense")
             val checkpointEvidence="available=${initial.optBoolean("surfaceCheckpointAvailable")}, " +
+                "diagnostic=${initial.optJSONObject("surfaceCheckpointDiagnostic")}, " +
                 "writtenDepthMaps=${denseDiagnostics.optInt("writtenDepthMaps",-1)}, " +
                 "resumedDepthMaps=${denseDiagnostics.optInt("resumedDepthMaps",-1)}, " +
-                "directory=${directory.path}, canonical=${directory.canonicalPath}, " +
-                "files=${directory.listFiles()?.take(16)?.map { "${it.name}:${it.length()}" }}"
+                "fileCount=${directory.listFiles()?.size}, " +
+                "surfaceBytes=${File(directory, "surface-v2.rfmesh").length()}"
             assertTrue(checkpointEvidence,initial.getBoolean("surfaceCheckpointWritten"))
             assertTrue(initial.getJSONObject("mesh").getInt("triangleCount") >= 40)
             val mesh = File(directory, "surface-v2.rfmesh")

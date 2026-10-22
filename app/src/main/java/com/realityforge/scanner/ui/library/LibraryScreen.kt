@@ -20,7 +20,8 @@ import java.util.Date
 
 /** Host owns persistence and operation admission. Only supported commands are offered. */
 @Composable
-fun LibraryScreen(state: LibraryUiState, onAction: (LibraryAction) -> Unit, modifier: Modifier = Modifier, onQueryChange:((String,LibrarySort,LibraryFilter)->Unit)?=null) {
+fun LibraryScreen(state: LibraryUiState, onAction: (LibraryAction) -> Unit, modifier: Modifier = Modifier, onQueryChange:((String,LibrarySort,LibraryFilter)->Unit)?=null,
+    onCancelCopy: (() -> Unit)? = null) {
     var query by rememberSaveable { mutableStateOf("") }
     var sort by rememberSaveable { mutableStateOf(LibrarySort.NEWEST) }
     var filter by rememberSaveable { mutableStateOf(LibraryFilter.ALL) }
@@ -31,11 +32,22 @@ fun LibraryScreen(state: LibraryUiState, onAction: (LibraryAction) -> Unit, modi
     var name by rememberSaveable { mutableStateOf("") }
     val visible = remember(state.projects, query, sort, filter) { LibraryQuery.apply(state.projects, query, sort, filter) }
     val listState = rememberLazyListState()
+    LaunchedEffect(state.copyingBytes != null) {
+        // Duplicate is launched from a card below the filters. Bring its scoped progress and
+        // cancel control into view rather than leaving them above the retained scroll position.
+        if (state.copyingBytes != null) listState.scrollToItem(0)
+    }
     val searchLabel = stringResource(R.string.a072_search)
     val nameLabel = stringResource(R.string.a072_name)
     LazyColumn(state = listState, modifier = modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Text(stringResource(R.string.a072_library), style = MaterialTheme.typography.headlineMedium)
+            if (state.copyingBytes != null && state.totalCopyBytes != null) {
+                Text(stringResource(R.string.a072_copy_progress, state.copyingBytes, state.totalCopyBytes),
+                    modifier = Modifier.testTag("a072-copy-progress"))
+                TextButton(enabled = onCancelCopy != null, onClick = { onCancelCopy?.invoke() },
+                    modifier = Modifier.testTag("a072-cancel-copy")) { Text(stringResource(R.string.a072_cancel)) }
+            }
             Button(enabled = !state.busy, onClick = { name = ""; create = true },modifier=Modifier.testTag("a072-create")) { Text(stringResource(R.string.a072_create)) }
             OutlinedTextField(query, { query = it.take(200);onQueryChange?.invoke(query,sort,filter) }, label = { Text(searchLabel) }, modifier = Modifier.fillMaxWidth().semantics { contentDescription = searchLabel }, singleLine = true)
             Column {
@@ -47,7 +59,6 @@ fun LibraryScreen(state: LibraryUiState, onAction: (LibraryAction) -> Unit, modi
             if (state.canRestoreArchive) OutlinedButton(enabled = !state.busy, onClick = { onAction(LibraryAction.RestoreArchive) }) { Text(stringResource(R.string.a072_restore)) }
         }
         if (state.loading) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
-        if(state.copyingBytes!=null && state.totalCopyBytes!=null) item { Text(stringResource(R.string.a072_copy_progress,state.copyingBytes,state.totalCopyBytes)) }
         state.error?.let { error -> item { Text(error, color = MaterialTheme.colorScheme.error); TextButton(onClick = { onAction(LibraryAction.Retry) }, enabled = !state.busy) { Text(stringResource(R.string.a072_retry)) } } }
         if (!state.loading && visible.isEmpty()) item { Text(stringResource(R.string.a072_empty)) }
         items(visible, key = { it.id }) { project ->

@@ -67,6 +67,8 @@ class SparsePipeline(
         com.realityforge.scanner.processing.resources.ResourceWorkloadSelection.COMPACT,
     private val artifactBinding: com.realityforge.scanner.engine.artifacts.ArtifactBinding? = null,
     private val checkpoints: PipelineCheckpointSink = PipelineCheckpointSink {},
+    private val executionProfile: com.realityforge.scanner.engine.pipeline.DensePreviewProfile =
+        com.realityforge.scanner.engine.pipeline.DensePreviewProfile.Compatibility,
 ) {
     data class Progress(val stage: String, val completed: Int, val total: Int,
         val featureWork: FeatureWorkSnapshot? = null, val pairWork: PairWorkSnapshot? = null)
@@ -212,7 +214,7 @@ class SparsePipeline(
         val calibrationFile = LensCalibration.file(repository, projectId)
         val pipelineSnapshot = com.realityforge.scanner.engine.pipeline.ProductionPipelineSnapshot.create(
             selected, com.realityforge.scanner.engine.pipeline.ProductionPipelineSnapshot.calibrationSha256(calibrationFile),
-            assumedFocal35, resourceSelection)
+            assumedFocal35, resourceSelection, executionProfile)
         val pipelineTrace = PipelineAdapterTrace(pipelineSnapshot)
         val fingerprint = pipelineSnapshot.identity(PipelineStage.SPARSE).digest
         val artifactKey = "sparse-m16-r$revision-${sha256Utf8(fingerprint + "|" + java.util.UUID.randomUUID()).take(16)}"
@@ -224,6 +226,7 @@ class SparsePipeline(
         val alignmentCache = SparseAlignmentCache(directory)
         val featureWorkSamples = ArrayList<FeatureWorkSnapshot>(photos.size)
         val cachedAlignment = alignmentCache.load(artifacts.plan)
+        var acceptedAlignment = cachedAlignment?.checkpoint
         val output = if (cachedAlignment != null) {
             progress(Progress("Reusing verified sparse alignment", 1, 1))
             artifacts.reuse(ArtifactStage.FEATURES, requireNotNull(cachedAlignment.parents[ArtifactStage.FEATURES]))
@@ -639,6 +642,7 @@ class SparsePipeline(
         artifacts.record(ArtifactStage.ALIGNMENT, saved, "positive-depth-reprojection-and-connected-tracks",
             evidenceHash = fullCheckpoint.acceptance.evidenceHash)
         pipelineTrace.completed(PipelineStage.SPARSE, saved.first().file.name)
+        acceptedAlignment = fullCheckpoint
         output
         }
         val cameraArray = output.getJSONArray("cameras")
@@ -662,10 +666,17 @@ class SparsePipeline(
             coroutineContext.ensureActive()
             measured(ScanStage.DENSE_DEPTH, 0, 1, ProgressUnit.STEPS)
             progress(Progress("Estimating stereo depth, meshing and projecting photographs", 0, 1))
+            val denseContext = coroutineContext
+            val verifiedDense = com.realityforge.scanner.engine.pipeline.VerifiedDenseAlignment.prepare(
+                artifacts.plan, output, requireNotNull(acceptedAlignment), resourceSelection.maximumViews,
+                checkActive = { denseContext.ensureActive() })
             val typedSurface = DensePreview.reconstructTyped(
                 repository, projectId, artifactKey, photos, cameraArray,
                 output.getJSONArray("points"), assumedFocal35, activeProfile, nativeToken,
                 pipelineSnapshot, resourceSelection = resourceSelection,
+                selection = verifiedDense.selection, executionProfile = executionProfile,
+                acceptedSparseSupport = verifiedDense.support,
+                sparseThresholdNormalized = verifiedDense.thresholdNormalized,
                 surfaceCheckpoint = com.realityforge.scanner.engine.pipeline.PipelineSurfaceCache(directory).load(artifacts.plan, output),
             ) { stage, done, total -> progress(Progress(stage, done, total)) }
             typedSurface.outcomes.forEach(pipelineTrace::record)

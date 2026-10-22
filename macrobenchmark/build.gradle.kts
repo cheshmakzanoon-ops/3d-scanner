@@ -5,6 +5,7 @@ plugins {
 android {
     namespace = "com.realityforge.scanner.macrobenchmark"
     compileSdk = 36
+    buildToolsVersion = "36.0.0"
     defaultConfig {
         minSdk = 29
         targetSdk = 36
@@ -22,6 +23,7 @@ android {
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
 }
+kotlin { jvmToolchain(17) }
 dependencies {
     implementation("androidx.benchmark:benchmark-macro-junit4:1.3.4")
     implementation("androidx.test.uiautomator:uiautomator:2.3.0")

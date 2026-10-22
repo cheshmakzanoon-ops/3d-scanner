@@ -5,3 +5,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "RealityForge"
 include(":app")
+include(":macrobenchmark")
