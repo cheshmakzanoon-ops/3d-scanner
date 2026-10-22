@@ -223,6 +223,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     // objective. Preserve all established robust=false checkpoint bytes.
     if(settings.robustSourceAggregation&&settings.localRefinementIterations)
         settingsText<<"|robust-local-objective-v2";
+    if(inputs&&!inputs->coarseViews.empty())settingsText<<"|coarse-incumbent-objective-v1";
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
     settingsText<<"|sources:";for(std::size_t ref=0;ref<result.sourceViews.size();++ref){settingsText<<ref<<':';for(auto source:result.sourceViews[ref])settingsText<<source<<',';settingsText<<';';}
     const auto solverIdentity=settingsText.str();
@@ -305,6 +306,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             double margin=runnerUp-costs[best];
             if(margin<settings.minUniqueness)continue;
             double inverse=refinement::parabolicInverseDepth(costs,planes,static_cast<std::size_t>(best));
+            double selectedCost=-1.;
             if(settings.localRefinementIterations){
                 auto refined=refinement::local(planes[best-1],1./inverse,planes[best+1],settings.localRefinementIterations,[&](double depth){
                     cancellation::checkpoint();
@@ -317,16 +319,23 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                     for(std::size_t src=0;src<sources.size();++src){const double corr=ncc(grayscale[src],warps[src],x,y,depth,reference,r);if(corr>-.999)sourceCosts[src]={1.-corr,static_cast<std::size_t>((2*r+1)*(2*r+1)),true};}
                     return matching::aggregate(std::span<const matching::Cost>(sourceCosts).first(sources.size()),true).cost;
                 });
-                if(refined.valid&&refined.cost<=costs[best])inverse=1./refined.depth;
+                if(refined.valid&&refined.cost<=costs[best]){inverse=1./refined.depth;selectedCost=refined.cost;}
             }
             if(!coarseMaps.empty()){
+                // Compare coarse proposals with the currently selected depth,
+                // not the stale discrete-plane cost before local refinement.
+                if(selectedCost<0){
+                    std::array<matching::Cost,7> selectedCosts{};
+                    for(std::size_t src=0;src<sources.size();++src){const double corr=ncc(grayscale[src],warps[src],x,y,1./inverse,reference,r);if(corr>-.999)selectedCosts[src]={1.-corr,static_cast<std::size_t>((2*r+1)*(2*r+1)),true};}
+                    selectedCost=matching::aggregate(std::span<const matching::Cost>(selectedCosts).first(sources.size()),settings.robustSourceAggregation).cost;
+                }
                 const auto& coarse=coarseMaps[ref];const double sx=double(coarse.width)/w,sy=double(coarse.height)/h;
                 const double proposal=refinement::propagate(coarse,(x+.5)*sx-.5,(y+.5)*sy-.5,settings.depthConsistencyFraction,step,r+1);
                 if(proposal>=settings.nearDepth&&proposal<=settings.farDepth){
                     std::array<matching::Cost,7> proposedCosts{};
                     for(std::size_t src=0;src<sources.size();++src){const double corr=ncc(grayscale[src],warps[src],x,y,proposal,reference,r);if(corr>-.999)proposedCosts[src]={1.-corr,static_cast<std::size_t>((2*r+1)*(2*r+1)),true};}
                     const auto proposed=matching::aggregate(std::span<const matching::Cost>(proposedCosts).first(sources.size()),settings.robustSourceAggregation);
-                    if(proposed.valid&&proposed.cost<=costs[best]){inverse=1./proposal;++result.propagatedHypotheses;}
+                    if(proposed.valid&&proposed.cost<=costs[best]&&proposed.cost<=selectedCost){inverse=1./proposal;selectedCost=proposed.cost;++result.propagatedHypotheses;}
                 }
             }
             if(settings.normalRefinementIterations&&!coarseMaps.empty()&&inverse>0){

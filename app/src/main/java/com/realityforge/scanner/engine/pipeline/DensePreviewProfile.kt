@@ -12,8 +12,13 @@ internal object DenseExecutionPolicy {
     const val ATLAS_ENGINE = "rf-atlas-v2-groups-zlib-radiometry3"
     fun depth(profile:DensePreviewProfile) = when(profile) {
         DensePreviewProfile.Compatibility -> "cpu-compatibility-v1|discontinuityAwareConsistency=false|robustSourceAggregation=false"
-        DensePreviewProfile.VerifiedRefinedCompact -> "cpu-refined-v3|local6|normal3|strict1|normalConsistency1|angle35|robustSourceAggregation=false"
+        DensePreviewProfile.VerifiedRefinedCompact -> "cpu-refined-v4|local6|normal3|strict1|normalConsistency1|angle35|robustSourceAggregation=false"
     }
+    // Refined whole-result reuse is not qualified. It must reach the current
+    // depth identity before any geometry reuse, rather than bypassing it.
+    fun supportsCompleteTextureReuse(profile:DensePreviewProfile) =
+        profile == DensePreviewProfile.Compatibility
+
     fun texture(profile:DensePreviewProfile) = when(profile) {
         DensePreviewProfile.Compatibility -> "legacy-camera-atlas|gutter3|facing.12|depthTolerance.075"
         DensePreviewProfile.VerifiedRefinedCompact -> "compact2048|maxUvStretch=.02|maxPixels4.5M|gutter3|texels128|facing.12|depthTolerance.075"

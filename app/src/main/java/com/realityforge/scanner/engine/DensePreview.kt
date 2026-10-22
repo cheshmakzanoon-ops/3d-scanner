@@ -124,7 +124,7 @@ internal object DensePreview {
         }
         // The selector has verified the complete C8 dependency closure and exact current sparse
         // frame. An unchanged appearance/export job needs no image decoding or native geometry.
-        if (surfaceCheckpoint?.completeTexture != null) {
+        if (DenseExecutionPolicy.supportsCompleteTextureReuse(executionProfile) && surfaceCheckpoint?.completeTexture != null) {
             return reuseCompleteResult(repository.directory(projectId), artifactKey, surfaceCheckpoint,
                 pipelineSnapshot, onProgress)
         }
