@@ -1,6 +1,7 @@
 package com.realityforge.scanner
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.engine.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -42,7 +43,12 @@ class IncrementalNativeRegistrationTest {
         }
         val anchor0=RegisteredFrame(0,templates[0])
         val anchor1=RegisteredFrame(1,templates[1].copy(translation=doubleArrayOf(-.45,0.0,0.0)))
-        val directory=java.nio.file.Files.createTempDirectory("registration-frontier-jni").toFile()
+        // Canonicalize the trusted app-owned root, not an arbitrary checkpoint input.
+        val cache=InstrumentationRegistry.getInstrumentation().targetContext.cacheDir.canonicalFile
+        val directory=java.nio.file.Files.createTempDirectory(cache.toPath(),"registration-frontier-jni").toFile()
+        var primaryFailure:Throwable?=null
+        try {
+        assertEquals("Fixture checkpoint root must already be canonical",directory.canonicalFile,directory)
         val stage="a".repeat(64)
         val photoIds=physicalOrder.map {"synthetic-physical-$it"}
         val matchCalls=mutableSetOf<Pair<Int,Int>>()
@@ -132,6 +138,13 @@ class IncrementalNativeRegistrationTest {
         assertEquals(630,final.receipt.inputObservations);assertEquals(630,final.receipt.acceptedObservations)
         assertEquals(210,final.geometry.getInt("pointCount"))
         println("M16 analytical visibility-chain: cameras=${result.cameras.size}, disconnected=${result.unregistered.size}, maxTranslationError=$maxTranslationError; not a physical scan")
-        } finally { assertTrue(NativeCore.finishReconstruction(secondToken));directory.deleteRecursively() }
+        } finally { assertTrue(NativeCore.finishReconstruction(secondToken)) }
+        } catch (failure:Throwable) { primaryFailure=failure;throw failure }
+        finally {
+            if (!directory.deleteRecursively()) {
+                val cleanup=AssertionError("Could not remove owned synthetic registration checkpoint directory")
+                if (primaryFailure==null) throw cleanup else primaryFailure.addSuppressed(cleanup)
+            }
+        }
     }
 }

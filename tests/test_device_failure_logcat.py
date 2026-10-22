@@ -1,5 +1,8 @@
 """Host-only bounded subprocess/adb fakes. Never device-runtime evidence."""
 import hashlib
+import ctypes
+from contextlib import contextmanager, nullcontext
+import os
 import importlib.util
 import json
 from pathlib import Path
@@ -25,10 +28,57 @@ def spawn_python(source, commands, processes):
     return spawn
 
 
-def run_capture(tmp_path, source, **limits):
+def subreaper_state():
+    libc = ctypes.CDLL(None, use_errno=True)
+    state = ctypes.c_int()
+    if libc.prctl(37, ctypes.byref(state), 0, 0, 0) != 0:
+        raise OSError(ctypes.get_errno(), 'cannot read test subreaper state')
+    return libc, state.value
+
+
+@contextmanager
+def owned_orphan_client(processes):
+    # These two fixtures deliberately orphan a client descendant. Reap their
+    # own children rather than leaving zombies for an outer CI subreaper.
+    scope_spec = importlib.util.spec_from_file_location(
+        'logcat_fixture_scope', ROOT / 'tools/qa/lsan_diagnostic/process_scope.py')
+    module = importlib.util.module_from_spec(scope_spec)
+    scope_spec.loader.exec_module(module)
+    libc, previous = subreaper_state()
+    if module.children(os.getpid()):
+        raise RuntimeError('test already owns unrelated children')
+    scope = None
+    try:
+        scope = module.Scope()
+        yield scope
+    finally:
+        persistent = False
+        if processes:
+            if scope is None or len(processes) != 1:
+                raise RuntimeError('unexpected test client ownership')
+            process = processes[0]
+            scope.leader = process.pid
+            persistent, drained = scope.finish(
+                process, allow_natural=process.poll() is not None)
+            if not drained or scope.errors or process.poll() is None:
+                raise RuntimeError('test client cleanup unverified')
+        if module.children(os.getpid()):
+            raise RuntimeError('test children remain; retain subreaper ownership')
+        # Restore only after actual child enumeration/reaping confirms drain.
+        if libc.prctl(36, previous, 0, 0, 0) != 0:
+            raise OSError(ctypes.get_errno(), 'cannot restore test subreaper state')
+        if subreaper_state()[1] != previous:
+            raise RuntimeError('test subreaper restoration unverified')
+        if persistent or (scope is not None and scope.escaped):
+            raise RuntimeError('unexpected surviving or escaped test client')
+
+
+def run_capture(tmp_path, source, *, owned_orphans=False, **limits):
     commands, processes = [], []
-    result = logcat.capture('emulator-5554', True, tmp_path / 'logcat.txt',
-                            popen=spawn_python(source, commands, processes), **limits)
+    ownership = owned_orphan_client(processes) if owned_orphans else nullcontext()
+    with ownership:
+        result = logcat.capture('emulator-5554', True, tmp_path / 'logcat.txt',
+                               popen=spawn_python(source, commands, processes), **limits)
     return result, commands, processes
 
 
@@ -80,7 +130,7 @@ def test_inherited_pipe_from_stalled_child_is_deadline_bounded(tmp_path):
     # forever on EOF or leave that newly-created client group running.
     result, _, processes = run_capture(tmp_path,
         "import os,time; child=os.fork(); print('parent/child fixture',flush=True); "
-        "time.sleep(60) if child == 0 else None", timeout=0.5)
+        "time.sleep(60) if child == 0 else None", timeout=0.5, owned_orphans=True)
     assert result['status'] == 'TIMED_OUT'
     assert processes[0].poll() is not None and result['retainedBytes'] > 0
 
@@ -90,7 +140,7 @@ def test_descendant_without_inherited_pipe_is_still_terminated(tmp_path):
     result, _, processes = run_capture(tmp_path,
         "import os,time\nchild=os.fork()\n"
         "if child == 0:\n os.close(1); os.close(2); time.sleep(60)\n"
-        "else:\n print('child='+str(child),flush=True)\n")
+        "else:\n print('child='+str(child),flush=True)\n", owned_orphans=True)
     assert result['status'] == 'CAPTURED' and result['residualGroupTerminated'] is True
     assert processes[0].poll() == 0
 
@@ -261,3 +311,33 @@ def test_existing_always_uploads_include_diagnostics_and_opt_in_is_emulator_only
         uploads = [step for step in steps if step.get('uses','').startswith('actions/upload-artifact@') and step['with'].get('path') == path]
         assert len(uploads) == 1 and uploads[0]['if'] == 'always()'
         assert steps.index(uploads[0]) > steps.index(emulators[0])
+
+
+@pytest.mark.parametrize('escaped', [False, True])
+def test_owned_orphan_fixture_rejects_residual_and_restores_state(escaped):
+    previous = subreaper_state()[1]
+    processes = []
+    with pytest.raises(RuntimeError, match='unexpected surviving or escaped'):
+        with owned_orphan_client(processes) as scope:
+            code = ("import os,time\nchild=os.fork()\n"
+                    "if child == 0:\n " + ("os.setsid(); " if escaped else "") +
+                    "time.sleep(60)\n")
+            process = subprocess.Popen([sys.executable, '-c', code], start_new_session=True)
+            processes.append(process)
+            assert process.wait(timeout=2) == 0
+    assert scope.escaped is escaped
+    assert not scope.errors and scope.snapshot('test_final') == []
+    assert subreaper_state()[1] == previous
+
+
+def test_owned_orphan_fixture_natural_drain_restores_state():
+    previous = subreaper_state()[1]
+    processes = []
+    with owned_orphan_client(processes) as scope:
+        process = subprocess.Popen([sys.executable, '-c',
+            "import os,time\nchild=os.fork()\nif child == 0: time.sleep(0.05)"],
+            start_new_session=True)
+        processes.append(process)
+        assert process.wait(timeout=2) == 0
+    assert not scope.escaped and not scope.errors and scope.snapshot('test_final') == []
+    assert subreaper_state()[1] == previous

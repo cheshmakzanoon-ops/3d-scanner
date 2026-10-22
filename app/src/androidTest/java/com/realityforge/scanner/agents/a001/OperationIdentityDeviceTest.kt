@@ -1,7 +1,5 @@
 package com.realityforge.scanner.agents.a001
 
-import android.net.Uri
-import android.os.SystemClock
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -9,14 +7,23 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.MainActivity
 import com.realityforge.scanner.RealityForgeApplication
 import com.realityforge.scanner.ScannerViewModel
+import com.realityforge.scanner.engine.NativeCore
+import com.realityforge.scanner.qa.DeviceOperationAwait
+import com.realityforge.scanner.qa.SharedFaultDocumentFixtures
+import com.realityforge.scanner.qa.SyntheticPreviewFixtures
+import com.realityforge.scanner.viewer.loading.GlbStructure
 import java.io.File
 import java.util.concurrent.atomic.AtomicReference
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import org.json.JSONArray
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -85,15 +92,27 @@ class OperationIdentityDeviceTest {
         val first = newProject("Agent 001 export source")
         val second = newProject("Agent 001 export unrelated")
         val key = "sparse-m19-r0-0123456789abcdef"
-        val expected = ByteArray(4096) { index -> (index * 31).toByte() }
-        application.repository.artifact(first, key, "glb").writeBytes(expected)
+        // A valid explicitly synthetic legacy sparse result, not arbitrary bytes named .glb.
+        val points = JSONArray((0 until 512).map { index ->
+            JSONArray(listOf(index * .01, (index % 13) * .02, 3.0, index % 256, 64, 192))
+        })
+        val preview = SyntheticPreviewFixtures.sparsePreview(key,0)
+            .put("points",points).put("pointCount",points.length())
+        val source = application.repository.artifact(first,key,"glb")
+        NativeCore.exportPointCloud(DoubleArray(points.length()*6) { index ->
+            points.getJSONArray(index/6).getDouble(index%6)
+        },source.path,true,NativeCore.SPARSE_POINTS)
+        assertEquals(points.length(),GlbStructure.validate(source,expectedPrimitiveMode=0).vertexCount)
+        val expected = source.readBytes()
+        assertTrue("Exact-byte transfer must still cover at least the old 4 KiB payload",expected.size>=4096)
+        application.repository.writeAtomic(application.repository.artifact(first,key,"json"),preview.toString())
         assertEquals(
             1,
             application.repository.dao.complete(first, 0, key, "Agent 001 bound export fixture"),
         )
-        val destination = File.createTempFile("a001-export-", ".glb", instrumentation.targetContext.cacheDir)
-        destination.delete()
-
+        assertEquals(key,requireNotNull(application.repository.currentPreview(first)).getString("artifactKey"))
+        val destination = SharedFaultDocumentFixtures.createUri(application)
+        var exportFailure: Throwable? = null
         try {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 var model = modelFrom(scenario)
@@ -107,18 +126,27 @@ class OperationIdentityDeviceTest {
                 scenario.recreate()
                 model = modelFrom(scenario)
                 awaitProjects(model, first, second)
-                scenario.onActivity {
-                    model.select(second)
-                    model.completeArtifactExport(request.get(), Uri.fromFile(destination))
+                DeviceOperationAwait.verifiedArtifactExport(model) {
+                    scenario.onActivity {
+                        model.select(second)
+                        model.completeArtifactExport(request.get(), destination)
+                    }
                 }
-                awaitIdle(model)
 
-                assertArrayEquals(expected, destination.readBytes())
+                assertArrayEquals(expected, SharedFaultDocumentFixtures.read(application,destination))
+                assertArrayEquals("Export cannot alter the bound source",expected,source.readBytes())
                 assertNotNull(application.repository.dao.project(first))
                 assertEquals(0L, requireNotNull(application.repository.dao.project(second)).revision)
             }
+        } catch (failure: Throwable) {
+            exportFailure = failure
+            throw failure
         } finally {
-            destination.delete()
+            try { SharedFaultDocumentFixtures.cleanup(application,destination) }
+            catch (cleanup: Throwable) {
+                val primary = exportFailure
+                if (primary == null) throw cleanup else primary.addSuppressed(cleanup)
+            }
         }
     }
 
@@ -139,27 +167,15 @@ class OperationIdentityDeviceTest {
         return requireNotNull(reference.get())
     }
 
-    private fun awaitProjects(model: ScannerViewModel, vararg ids: String) {
-        awaitCondition("projects were not observed") {
-            ids.all { id -> model.projects.value.any { it.id == id } }
-        }
+    private suspend fun awaitProjects(model: ScannerViewModel, vararg ids: String) = withTimeout(30_000) {
+        model.projects.first { rows -> ids.all { id -> rows.any { it.id == id } } }
     }
 
-    private fun awaitProjectResult(model: ScannerViewModel, id: String, key: String) {
-        awaitCondition("completed project result was not observed") {
-            model.projects.value.any { it.id == id && it.resultKey == key }
-        }
+    private suspend fun awaitProjectResult(model: ScannerViewModel, id: String, key: String) = withTimeout(30_000) {
+        model.projects.first { rows -> rows.any { it.id == id && it.resultKey == key && it.resultRevision == it.revision } }
     }
 
-    private fun awaitIdle(model: ScannerViewModel) {
-        awaitCondition("operation exceeded test deadline: ${model.progress.value}") {
-            !model.busy.value
-        }
-    }
-
-    private fun awaitCondition(message: String, condition: () -> Boolean) {
-        val deadline = SystemClock.elapsedRealtime() + 30_000
-        while (!condition() && SystemClock.elapsedRealtime() < deadline) Thread.sleep(25)
-        if (!condition()) throw AssertionError(message)
+    private suspend fun awaitIdle(model: ScannerViewModel) = withTimeout(30_000) {
+        model.busy.first { !it }
     }
 }

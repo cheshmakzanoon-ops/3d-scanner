@@ -21,8 +21,8 @@ def test_continuation_is_test_only_explicit_and_default_off():
 
 def test_same_full_checks_precede_completion_and_cleanup_remains_owned():
     session = (BASE / 'SessionReliabilityTest.kt').read_text()
-    assert 'initialWait = { awaitIdle(model,180000) }' in session
-    assert 'continuedWait = { limit -> awaitIdle(model,limit) }' in session
+    assert 'initialWait = { awaitReconstruction(model,id,revision,180000) }' in session
+    assert 'continuedWait = { limit -> awaitReconstruction(model,id,revision,limit) }' in session
     begin = session.index('diagnostic.run(initialWait')
     end = session.index('}, event = { marker ->', begin)
     checks = session[begin:end]
@@ -32,7 +32,32 @@ def test_same_full_checks_precede_completion_and_cleanup_remains_owned():
     assert 'cleanupPreservingFailure(primaryFailure' in session
     assert 'execution.awaitWorkerStopped()' in session
     assert 'repository.delete(id)' in session
-    assert 'if (model.busy.value) throw OperationDeadlineExceeded(maxMillis' in session
+    wait = session[session.index('private suspend fun awaitReconstruction('):]
+    for token in (
+        'withTimeout(maxMillis) {',
+        'job?.takeIf { it.input.projectId == projectId && it.input.projectRevision == revision }',
+        'val started = requireNotNull(admission.first)',
+        'execution.jobs.observe(started.jobId).filterNotNull().first',
+        'it.state.isTerminal || it.state == ReconstructionJobState.PAUSED',
+        'ReconstructionJobState.COMPLETED, finished.state)',
+        'assertEquals(projectId, finished.input.projectId)',
+        'assertEquals(revision, finished.input.projectRevision)',
+        'assertEquals(revision, row.resultRevision)',
+        'val key = requireNotNull(row.resultKey)',
+        'model.preview.filterNotNull().first { it.optLong("revision",-1) == revision && it.optString("artifactKey") == key }',
+        'model.busy.first { !it }',
+        'catch (deadline: TimeoutCancellationException)',
+        'throw OperationDeadlineExceeded(maxMillis,',
+        '.also { it.addSuppressed(deadline) }',
+    ):
+        assert token in wait
+    assert wait.index('ReconstructionJobState.COMPLETED, finished.state)') < wait.index('execution.awaitWorkerStopped()')
+    assert wait.index('execution.awaitWorkerStopped()') < wait.index('model.repository.dao.project(projectId)')
+    assert wait.index('assertEquals(revision, row.resultRevision)') < wait.index('model.preview.filterNotNull()')
+    cleanup = session[session.index('cleanupPreservingFailure(primaryFailure,'):]
+    assert 'if (job?.input?.projectId == id)' in cleanup
+    assert 'execution.cancel(job.jobId)' in cleanup
+    assert cleanup.index('execution.awaitWorkerStopped()') < cleanup.index('repository.delete(id)')
     helper = (BASE / 'DiagnosticDeadlineContinuation.kt').read_text()
     assert helper.index('continuedWait(ADDITIONAL_WAIT_MILLIS)') < helper.index('event("DIAGNOSTIC_FUNCTIONAL_COMPLETION")')
     assert 'functionalChecks()\n            // The caller' in helper

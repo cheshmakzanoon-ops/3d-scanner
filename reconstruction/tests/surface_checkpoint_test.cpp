@@ -16,6 +16,11 @@
 #include <random>
 #include <stdexcept>
 #include <string>
+#if defined(__linux__) || defined(__ANDROID__)
+#include <cerrno>
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 namespace {
 constexpr char HASH[]="abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789";
@@ -244,6 +249,63 @@ int main() {
         require(!rf::surface_checkpoint::load(checkpoint.string(),views,unused),"modified depth CRC bypassed full accepted-map identity");
         require(rf::depth_checkpoint::store(0,dense.maps[0]),"cannot restore depth fixture");
         require(read(checkpoint)==acceptedBytes,"depth mismatch modified accepted mesh");
+    });
+#if (defined(__linux__) || defined(__ANDROID__)) && defined(O_PATH)
+    test("accepted geometry persists and reopens beneath an execute-only private ancestor",[&] {
+        Temp privateCache;
+        struct RestorePermissions {
+            std::filesystem::path path;
+            std::filesystem::perms original;
+            ~RestorePermissions(){std::error_code ec;std::filesystem::permissions(path,original,ec);}
+        } restore{privateCache.project,std::filesystem::status(privateCache.project).permissions()};
+        std::filesystem::permissions(privateCache.project,std::filesystem::perms::owner_exec);
+        // Prove this process really lacks ancestor read access; privileged runs
+        // cannot qualify the Android search-only-ancestor regression.
+        errno=0;
+        const int ancestor=::open(privateCache.project.c_str(),O_RDONLY|O_DIRECTORY|O_CLOEXEC);
+        const int openError=errno;
+        if(ancestor>=0)::close(ancestor);
+        require(ancestor<0&&openError==EACCES,"permission regression requires an unprivileged process with a genuinely unreadable ancestor");
+        rf::depth_checkpoint::Scope scope(privateCache.directory.string(),HASH);
+        for(std::size_t i=0;i<dense.maps.size();++i)
+            require(rf::depth_checkpoint::store(i,dense.maps[i]),"depth maps failed beneath searchable ancestor");
+        bool created=false;
+        require(rf::surface_checkpoint::store(views,dense,mesh,meshSettings,&created)&&created,
+                "accepted geometry failed beneath searchable ancestor");
+        const auto saved=privateCache.directory/rf::surface_checkpoint::FILENAME;
+        const auto bytes=read(saved);
+        require(bytes==acceptedBytes,"search-only ancestor changed accepted checkpoint bytes");
+        rf::surface_checkpoint::AcceptedSurface recovered;
+        require(rf::surface_checkpoint::load(saved.string(),views,recovered),
+                "accepted geometry could not reopen beneath searchable ancestor");
+        require(rf::surfaceJson(recovered.mesh)==rf::surfaceJson(mesh),"search-only replay changed accepted mesh");
+        created=true;
+        require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&created)&&!created,
+                "search-only replay replaced accepted bytes");
+        require(read(saved)==bytes,"search-only replay modified accepted bytes");
+    });
+#endif
+    test("symlink checkpoint directory ancestors and final directory fail closed",[&] {
+        Temp linked;
+        const auto alias=linked.project/"aliased-cache";
+        std::filesystem::create_directory_symlink(temporary.directory.parent_path(),alias);
+        {
+            rf::depth_checkpoint::Scope scope((alias/HASH).string(),HASH);
+            rf::surface_checkpoint::AcceptedSurface unused;
+            require(!rf::surface_checkpoint::store(views,dense,mesh,meshSettings),"symbolic cache ancestor accepted for writing");
+            require(!rf::surface_checkpoint::load((alias/HASH/rf::surface_checkpoint::FILENAME).string(),views,unused),
+                    "symbolic cache ancestor accepted for reading");
+        }
+        std::filesystem::remove(linked.directory);
+        std::filesystem::create_directory_symlink(temporary.directory,linked.directory);
+        {
+            rf::depth_checkpoint::Scope scope(linked.directory.string(),HASH);
+            rf::surface_checkpoint::AcceptedSurface unused;
+            require(!rf::surface_checkpoint::store(views,dense,mesh,meshSettings),"symbolic final cache directory accepted for writing");
+            require(!rf::surface_checkpoint::load((linked.directory/rf::surface_checkpoint::FILENAME).string(),views,unused),
+                    "symbolic final cache directory accepted for reading");
+        }
+        require(read(checkpoint)==acceptedBytes,"symbolic directory access changed accepted bytes");
     });
     test("symlink escape and preexisting unknown files preserve all referenced bytes",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);rf::surface_checkpoint::AcceptedSurface unused;

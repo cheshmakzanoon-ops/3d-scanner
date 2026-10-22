@@ -14,8 +14,9 @@ def test_diagnostics_do_not_change_exact_matching_or_timeout():
     assert 'finally { preservePairFailure(nativeFailure) { report(direction,start,end,queryCount,false) } }' in matcher
     assert 'catch (_: RuntimeException)' in matcher
     test = read('app/src/androidTest/java/com/realityforge/scanner/SessionReliabilityTest.kt')
-    assert 'awaitIdle(model,180000)' in test
-    assert 'pairWork=$pair' in test
+    assert 'initialWait = { awaitReconstruction(model,id,revision,180000) }' in test
+    assert 'continuedWait = { limit -> awaitReconstruction(model,id,revision,limit) }' in test
+    assert 'featureWork=${latest?.featureWork}; pairWork=${latest?.pairWork}' in test
 
 def test_pair_progress_owns_cancellation_and_reaches_attempt_fenced_observer():
     pipeline = read('app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt')

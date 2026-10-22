@@ -54,15 +54,33 @@ FileDescriptor directory(const depth_checkpoint::Scope& scope) {
     const std::filesystem::path path(scope.directory());
     if(scope.directory().find('\0')!=std::string::npos||!path.is_absolute()||path.lexically_normal()!=path||path.filename()!=scope.identity())
         return FileDescriptor{};
-    FileDescriptor current(::open("/",O_RDONLY|O_DIRECTORY|O_CLOEXEC));
+#if (defined(__linux__) || defined(__ANDROID__)) && defined(O_PATH)
+    // Android app-data ancestors may be searchable but not readable. Traverse
+    // with path-only FDs, retaining no-follow checks on every single component.
+    constexpr int traversalAccess=O_PATH;
+#else
+    constexpr int traversalAccess=O_RDONLY;
+#endif
+    FileDescriptor current(::open("/",traversalAccess|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC));
     if(!current)return FileDescriptor{};
     for(const auto& component:path.relative_path()) {
         if(component.empty()||component=="."||component=="..")return FileDescriptor{};
-        FileDescriptor next(::openat(current.get(),component.c_str(),O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC));
+        FileDescriptor next(::openat(current.get(),component.c_str(),traversalAccess|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC));
         if(!next)return FileDescriptor{};
         current=std::move(next);
     }
+#if (defined(__linux__) || defined(__ANDROID__)) && defined(O_PATH)
+    // O_PATH cannot fsync. Reopen the held final inode, never the original path
+    // (which could have been replaced), and require read access for durability.
+    struct stat held{},reopened{};
+    if(::fstat(current.get(),&held)!=0||!S_ISDIR(held.st_mode))return FileDescriptor{};
+    FileDescriptor readable(::openat(current.get(),".",O_RDONLY|O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC));
+    if(!readable||::fstat(readable.get(),&reopened)!=0||!S_ISDIR(reopened.st_mode)||
+       held.st_dev!=reopened.st_dev||held.st_ino!=reopened.st_ino)return FileDescriptor{};
+    return readable;
+#else
     return current;
+#endif
 }
 
 void hashBytes(checkpoint::Sha256& digest,std::span<const std::uint8_t> bytes) {

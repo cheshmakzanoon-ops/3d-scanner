@@ -9,6 +9,7 @@ import com.realityforge.scanner.data.ScanDatabase
 import com.realityforge.scanner.engine.LensCalibration
 import com.realityforge.scanner.engine.LensProfile
 import com.realityforge.scanner.engine.NativeCore
+import com.realityforge.scanner.engine.pipeline.ProductionEngineCompatibility
 import com.realityforge.scanner.engine.SparsePipeline
 import com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore
 import com.realityforge.scanner.engine.registration.RegistrationFrontier
@@ -56,7 +57,7 @@ class PipelineServicesDeviceTest {
             val result=try { SparsePipeline(repository, resourceSelection = ResourceWorkloadSelection.COMPACT).run(project,32.88,token) {} }
                 finally {NativeCore.finishReconstruction(token)}
             assertTrue(result.toString().take(500),result.getInt("pointCount")>=30)
-            assertEquals("m20-agent31-60-v2",result.getString("engineVersion"))
+            assertEquals(ProductionEngineCompatibility.VALUE,result.getString("engineVersion"))
             val registration=result.getJSONObject("incrementalRegistration")
             val sparseStage=result.getJSONObject("pipeline").getJSONObject("stageIdentities")
                 .getJSONObject("sparse").getString("digest")

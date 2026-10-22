@@ -16,7 +16,8 @@ import com.realityforge.scanner.data.safexport.TransferOutcome
 import com.realityforge.scanner.domain.BoundExternalRequest
 import com.realityforge.scanner.domain.ProjectRevision
 import com.realityforge.scanner.domain.RequestId
-import com.realityforge.scanner.qa.SharedFaultDocumentProvider as FaultDocumentProvider
+import com.realityforge.scanner.qa.SharedFaultDocumentFixtures as FaultDocumentProvider
+import com.realityforge.scanner.qa.SharedFaultDocumentProvider.Mode
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
@@ -137,7 +138,7 @@ class BoundSafExportIntegrationDeviceTest {
         }
 
         fun destination(initial: ByteArray = ByteArray(0)): Uri =
-            FaultDocumentProvider.createUri(app, FaultDocumentProvider.Mode.EXACT, initial).also { destinations += it }
+            FaultDocumentProvider.createUri(app, Mode.EXACT, initial).also { destinations += it }
 
         suspend fun originals(project: String): List<Original> = root.repository.dao.photos(project)
             .map { Original(it, root.repository.photoFile(it).readBytes()) }

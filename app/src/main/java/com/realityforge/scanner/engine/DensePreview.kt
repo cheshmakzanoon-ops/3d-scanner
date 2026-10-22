@@ -151,6 +151,9 @@ internal object DensePreview {
         }
         val width = dimensions.first; val height = dimensions.second
         val workload = DenseWorkload.plan(width, height, chosen.size, resourceSelection)
+        // Direct adapter callers do not pass through SparsePipeline's loader. Keep this
+        // offline boundary explicit rather than relying on another test/job to load JNI.
+        check(org.opencv.android.OpenCVLoader.initLocal()) { "Bundled OpenCV could not be initialized for dense reconstruction." }
         org.opencv.core.Core.setNumThreads(workload.nativeThreads)
         val cameraRows = DoubleArray(chosen.size * 16)
         val rectified = ByteArray(workload.packedDepthBytes.toInt())

@@ -5,7 +5,7 @@ import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.data.safexport.*
-import com.realityforge.scanner.qa.SharedFaultDocumentProvider as FaultDocumentProvider
+import com.realityforge.scanner.qa.SharedFaultDocumentFixtures as FaultDocumentProvider
 import com.realityforge.scanner.qa.SharedFaultDocumentProvider.Mode
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*

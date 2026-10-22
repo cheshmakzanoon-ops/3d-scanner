@@ -18,8 +18,16 @@ import com.realityforge.scanner.data.ScanDatabase
 import com.realityforge.scanner.engine.LensCalibration
 import com.realityforge.scanner.engine.LensProfile
 import com.realityforge.scanner.viewer.PhotographicGlb
-import com.realityforge.scanner.qa.SharedFaultDocumentProvider as FaultDocumentProvider
+import com.realityforge.scanner.qa.SharedFaultDocumentFixtures as FaultDocumentProvider
+import com.realityforge.scanner.data.jobs.ReconstructionJobState
+import com.realityforge.scanner.qa.DeviceOperationAwait
+import com.realityforge.scanner.qa.SyntheticPreviewFixtures
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -42,6 +50,7 @@ class SessionReliabilityTest {
             InstrumentationRegistry.getArguments().getString(DiagnosticDeadlineContinuation.ARGUMENT))
         val app = instrumentation.targetContext.applicationContext as RealityForgeApplication
         val repository = app.repository
+        withTimeout(30_000) { app.compositionRoot.execution.awaitRecovery(); app.compositionRoot.execution.awaitWorkerStopped() }
         val id = repository.create("Synthetic complete session ${UUID.randomUUID()}")
         val temporary = mutableListOf<File>()
         var primaryFailure: Throwable? = null
@@ -64,13 +73,12 @@ class SessionReliabilityTest {
             val original = repository.dao.photos(id).associate { it.id to hash(repository.photoFile(it)) }
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 lateinit var model: ScannerViewModel
-                scenario.onActivity {
-                    model = ViewModelProvider(it)[ScannerViewModel::class.java]
-                    model.select(id)
-                    model.reconstruct(32.88)
-                }
-                diagnostic.run(initialWait = { awaitIdle(model,180000) },
-                    continuedWait = { limit -> awaitIdle(model,limit) }, functionalChecks = {
+                scenario.onActivity { model = ViewModelProvider(it)[ScannerViewModel::class.java] }
+                val revision = requireNotNull(repository.dao.project(id)).revision
+                withTimeout(30_000) { model.projects.first { rows -> rows.any { it.id == id && it.revision == revision } } }
+                scenario.onActivity { model.select(id); model.reconstruct(32.88) }
+                diagnostic.run(initialWait = { awaitReconstruction(model,id,revision,180000) },
+                    continuedWait = { limit -> awaitReconstruction(model,id,revision,limit) }, functionalChecks = {
                 val result = requireNotNull(model.preview.value) { "Full pipeline failed: ${model.notice.value}" }
                 assertTrue(result.toString().take(500), result.getInt("pointCount") >= 30)
                 val texture = result.optJSONObject("texturePreview")
@@ -86,11 +94,12 @@ class SessionReliabilityTest {
                 assertEquals(result.getInt("pointCount"),reopened.getInt("pointCount"))
                 val destination = FaultDocumentProvider.createUri(app)
                 try {
-                    scenario.onActivity {
-                        val requestId = requireNotNull(model.beginArtifactExportRequest("textured.glb"))
-                        model.completeArtifactExport(requestId, destination)
+                    DeviceOperationAwait.verifiedArtifactExport(model) {
+                        scenario.onActivity {
+                            val requestId = requireNotNull(model.beginArtifactExportRequest("textured.glb"))
+                            model.completeArtifactExport(requestId, destination)
+                        }
                     }
-                    awaitIdle(model,30000)
                     assertEquals("SAF export must preserve exact model bytes",hash(artifact),FaultDocumentProvider.hash(app,destination))
                 } finally { FaultDocumentProvider.cleanup(app,destination) }
                 for (photo in repository.dao.photos(id)) assertEquals(original[photo.id],hash(repository.photoFile(photo)))
@@ -150,11 +159,12 @@ class SessionReliabilityTest {
         withRepository { repository, id ->
             val key = "sparse-m10-r0-0123456789abcdef"
             val file = repository.artifact(id,key,"json")
-            val valid = JSONObject().put("artifactKey",key).put("revision",0)
+            val valid = SyntheticPreviewFixtures.sparsePreview(key,0)
             repository.writeAtomic(file,valid.toString())
             assertEquals(1,repository.dao.complete(id,0,key,"Synthetic metadata contract"))
             assertNotNull(repository.currentPreview(id))
             for (invalid in listOf(
+                JSONObject().put("artifactKey",key).put("revision",0),
                 JSONObject(valid.toString()).put("revision",0.5),
                 JSONObject(valid.toString()).put("revision","0"),
                 JSONObject(valid.toString()).put("artifactKey","sparse-m10-r0-ffffffffffffffff"))) {
@@ -254,14 +264,33 @@ class SessionReliabilityTest {
         }
         throw AssertionError("Actual reconstructed model did not produce a photographic GPU frame")
     }
-    private fun awaitIdle(model: ScannerViewModel, maxMillis: Long) {
-        val deadline = SystemClock.elapsedRealtime()+maxMillis
-        while (model.busy.value && SystemClock.elapsedRealtime()<deadline) Thread.sleep(50)
+    private suspend fun awaitReconstruction(model: ScannerViewModel, projectId: String, revision: Long, maxMillis: Long) {
         val execution = (instrumentation.targetContext.applicationContext as RealityForgeApplication).compositionRoot.execution
-        val latest = execution.progress.value?.progress
-        val feature = latest?.featureWork
-        val pair = latest?.pairWork
-        if (model.busy.value) throw OperationDeadlineExceeded(maxMillis,
-            "Operation exceeded test deadline: ${model.progress.value}; featureWork=$feature; pairWork=$pair")
+        try {
+            withTimeout(maxMillis) {
+                val admission = combine(execution.current, model.scannerState) { job, state ->
+                    job?.takeIf { it.input.projectId == projectId && it.input.projectRevision == revision } to state.message
+                }.first { (job, message) -> job != null || message?.code in setOf(
+                    "reconstruction.start_failed", "project.not_loaded", "project.none_selected", "operation.pending_request") }
+                val started = requireNotNull(admission.first) { "Pipeline was not admitted: ${admission.second}" }
+                val finished = execution.jobs.observe(started.jobId).filterNotNull().first {
+                    it.state.isTerminal || it.state == ReconstructionJobState.PAUSED
+                }
+                assertEquals("Bound job did not complete: ${finished.outcomeCode}", ReconstructionJobState.COMPLETED, finished.state)
+                assertEquals(projectId, finished.input.projectId)
+                assertEquals(revision, finished.input.projectRevision)
+                execution.awaitWorkerStopped()
+                val row = requireNotNull(model.repository.dao.project(projectId))
+                assertEquals(revision, row.resultRevision)
+                val key = requireNotNull(row.resultKey)
+                model.preview.filterNotNull().first { it.optLong("revision",-1) == revision && it.optString("artifactKey") == key }
+                model.busy.first { !it }
+            }
+        } catch (deadline: TimeoutCancellationException) {
+            val latest = execution.progress.value?.progress
+            throw OperationDeadlineExceeded(maxMillis,
+                "Bound reconstruction exceeded test deadline: ${model.progress.value}; job=${execution.current.value}; " +
+                    "featureWork=${latest?.featureWork}; pairWork=${latest?.pairWork}").also { it.addSuppressed(deadline) }
+        }
     }
 }

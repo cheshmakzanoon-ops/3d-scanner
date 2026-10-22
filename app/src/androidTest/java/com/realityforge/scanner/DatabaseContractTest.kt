@@ -13,17 +13,26 @@ import com.realityforge.scanner.data.ScanArtifactEntity
 import com.realityforge.scanner.data.ScanDatabase
 import com.realityforge.scanner.data.ScanPhoto
 import com.realityforge.scanner.data.ScanProject
+import com.realityforge.scanner.data.operations.AtomicProjectFileWriterImpl
+import com.realityforge.scanner.data.operations.ProjectPathPolicy
+import com.realityforge.scanner.data.reopening.ReopenResult
+import com.realityforge.scanner.data.reopening.ValidatedPreviewReopeningService
+import com.realityforge.scanner.qa.SyntheticPreviewFixtures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
+import java.nio.file.Files
+import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
 class DatabaseContractTest {
@@ -31,20 +40,84 @@ class DatabaseContractTest {
     fun revisionInvalidationAndCascade() = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val db = Room.inMemoryDatabaseBuilder(context, ScanDatabase::class.java).build()
+        var fixtureRoot: File? = null
+        var primaryFailure: Throwable? = null
         try {
+            // This test owns only its generated cache root, never the application's
+            // shared projects directory or a globally named "test" project.
+            val ownedRoot = Files.createTempDirectory(context.cacheDir.canonicalFile.toPath(),
+                "database-retained-preview-").toFile().also { fixtureRoot = it }
+            val paths = ProjectPathPolicy(ownedRoot)
             val dao = db.dao()
-            dao.insert(ScanProject("test", "Fixture", 0))
-            dao.addPhoto(photo(id = "p1", projectId = "test", sha256 = "abc", addedAt = 0))
-            assertEquals(1L, dao.project("test")!!.revision)
-            assertEquals(0, dao.complete("test", 0, "key", "stale result"))
-            assertEquals(1, dao.complete("test", 1, "key", "current result"))
+            // The same strict reader used by ProjectRepository.defaultServices().
+            val reader = ValidatedPreviewReopeningService(dao, paths)
+            val id = UUID.randomUUID().toString()
+            dao.insert(ScanProject(id, "Synthetic retained-result fixture", 0))
+            dao.addPhoto(photo(id = UUID.randomUUID().toString(), projectId = id, sha256 = "abc", addedAt = 0))
+            assertEquals(1L, requireNotNull(dao.project(id)).revision)
+            assertEquals(0, dao.complete(id, 0, "sparse-m10-r0-0123456789abcdef", "stale result"))
 
-            dao.addPhoto(photo(id = "p2", projectId = "test", sha256 = "def", addedAt = 1))
-            assertNull(dao.project("test")!!.resultRevision)
-            dao.deleteProject("test")
-            assertTrue(dao.photos("test").isEmpty())
+            val key = "sparse-m10-r1-0123456789abcdef"
+            val savedPreview = paths.artifact(id, key, "json")
+            AtomicProjectFileWriterImpl(paths).write(savedPreview,
+                SyntheticPreviewFixtures.sparsePreview(key, 1L).toString())
+            val acceptedBytes = savedPreview.readBytes()
+            assertEquals(1, dao.complete(id, 1, key, "Synthetic current sparse result"))
+            assertEquals(key, requireNotNull(reader.currentPreview(id)).getString("artifactKey"))
+            val current = reader.reopen(id)
+            assertTrue("Valid synthetic preview must reopen as current: $current", current is ReopenResult.Ready)
+            val currentModel = (current as ReopenResult.Ready).model
+            assertFalse(currentModel.previousResult)
+            assertEquals(1L, currentModel.revision)
+            assertEquals(key, currentModel.artifactKey)
+
+            dao.addPhoto(photo(id = UUID.randomUUID().toString(), projectId = id, sha256 = "def", addedAt = 1))
+            val invalidated = requireNotNull(dao.project(id))
+            assertEquals(2L, invalidated.revision)
+            assertEquals("READY", invalidated.state)
+            assertEquals(1L, requireNotNull(invalidated.resultRevision))
+            assertEquals(key, invalidated.resultKey)
+            assertNull(reader.currentPreview(id))
+            assertEquals(ReopenResult.Missing, reader.reopen(id))
+
+            val previous = reader.reopen(id, previous = true)
+            assertTrue("Retained result must be explicitly reopenable as previous: $previous", previous is ReopenResult.Ready)
+            val previousModel = (previous as ReopenResult.Ready).model
+            assertTrue(previousModel.previousResult)
+            assertEquals(1L, previousModel.revision)
+            assertEquals(key, previousModel.artifactKey)
+            assertEquals(currentModel.sparsePoints, previousModel.sparsePoints)
+            assertArrayEquals("Input edits must retain completed preview bytes", acceptedBytes, savedPreview.readBytes())
+
+            // A late completion for revision 1 cannot replace the retained identity
+            // or make that output current at revision 2.
+            assertEquals(0, dao.complete(id, 1, "sparse-m10-r1-fedcba9876543210", "late stale completion"))
+            val afterStaleCompletion = requireNotNull(dao.project(id))
+            assertEquals(invalidated, afterStaleCompletion)
+            assertNull(reader.currentPreview(id))
+            assertEquals(previous, reader.reopen(id, previous = true))
+            assertArrayEquals(acceptedBytes, savedPreview.readBytes())
+            assertEquals(2, dao.photos(id).size)
+            dao.deleteProject(id)
+            assertNull(dao.project(id))
+            assertTrue(dao.photos(id).isEmpty())
+            assertEquals(ReopenResult.Missing, reader.reopen(id, previous = true))
+        } catch (failure: Throwable) {
+            primaryFailure = failure
+            throw failure
         } finally {
-            db.close()
+            val cleanupFailures = mutableListOf<Throwable>()
+            runCatching { db.close() }.exceptionOrNull()?.let(cleanupFailures::add)
+            runCatching {
+                fixtureRoot?.let { check(!it.exists() || it.deleteRecursively()) { "Cannot remove owned database fixture" } }
+            }.exceptionOrNull()?.let(cleanupFailures::add)
+            val primary = primaryFailure
+            if (primary != null) cleanupFailures.forEach(primary::addSuppressed)
+            else if (cleanupFailures.isNotEmpty()) {
+                val first = cleanupFailures.first()
+                cleanupFailures.drop(1).forEach(first::addSuppressed)
+                throw first
+            }
         }
     }
 
