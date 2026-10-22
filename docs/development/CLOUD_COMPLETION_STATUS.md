@@ -1467,3 +1467,54 @@ invariance is not claimed by these well-separated regression cases.
 The complete canonical Python suite on this topology candidate also passed:
 1,618 tests and 11 subtests, with the same four unavailable-tool skips described
 above. No device execution or broader geometry-quality certification is implied.
+
+## 2026-10-22: interpreter-only leak experiment and safe failure evidence
+
+Added a narrowly scoped push/manual CPython release/Py_DEBUG comparison, not a replacement for
+required scanner gates. Both arms use the same pinned official 3.12.15 source,
+NumPy 2.2.6 wheel, GCC13 runtime and sanitized environment. Ordinary final-exit
+empty/NumPy cells are accompanied by standalone and ctypes-loaded planted-leak
+controls. Missing positive detection, fatal errors, cancellation, timeout or
+truncated evidence invalidate the experiment. Source/compiler/runtime/build
+metadata and bounded logs are retained. No suppressions, early checks or custom
+finalization are used. Twenty-one synthetic orchestration tests pass; controls
+compile locally but hosted measurements remain NOT_RUN. Local LSan cannot run
+under this execution context's ptrace, so no local leak result is claimed.
+
+The process runner defers cancellation through ownership assignment, observes
+exited leaders with WNOWAIT until group cleanup, and preserves cleanup-error
+metadata. ctypes explicitly declares the planted function's void signature.
+
+Security-tool failures now retain only allowlisted tool/reason/exit metadata,
+stream character counts and bounded numeric leak-summary markers. Raw source,
+streams, arguments, paths, environment and exception messages are never copied.
+Accepted exit codes, exception types, scanner scope, suppression policy and
+qualification decisions remain unchanged. Forty-one focused tests pass, including
+fourteen new failure/privacy cases. Five existing assertions explicitly expose
+only bounded metadata; an intentional-failure JUnit probe confirms all five still
+fail and retain the reason without private report content.
+
+For prior main 01e8ada, hosted Android build/lint/APK audit and 822 JVM/HOST tests
+passed; device execution stopped before emulator launch at the read-only KVM
+prerequisite. Both sanitized native builds passed 46 CTest targets, but overall
+sanitizer matrix qualification failed. Empty Python leaked 213,822 bytes in 4,060
+allocations and NumPy-only controls 388,384 bytes in 7,184, with no scanner mappings.
+Each sanitized pytest run had 80 failures: 52 explicitly carried final-leak evidence;
+28 lacked sufficient child diagnostics and are not classified as external failures.
+No scanner/body ASan/UBSan marker was found in retained sections, but incomplete
+child diagnostics limit that observation. The remaining Verify-native job is
+tracked separately; these facts are not a complete release qualification.
+
+The full pending diagnostic/evidence candidate passed 1,632 canonical Python
+tests and 11 subtests, with four explicitly unavailable-tool skips; all 21
+separate synthetic experiment tests also passed. Hosted runtime measurements of
+the new experiment remain NOT_RUN. Verify run 39869658956 for prior 01e8ada is
+now terminal failure: native qualification, device KVM prerequisite and dependent
+candidate evidence did not pass. No failed gate is waived by this additive work.
+
+The diagnostic trigger is limited to its own workflow/helper files on main, plus
+manual dispatch. Unrelated pushes do not launch this separate experiment. The
+existing required workflows and their gate criteria are unchanged.
+
+The final scoped-trigger contract raises the synthetic orchestration total to
+22 passing tests. YAML event/permission structure and shell syntax also pass.

@@ -1,0 +1,38 @@
+name: CPython release vs Py_DEBUG LSan diagnostic
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/python-lsan-comparison.yml
+      - tools/qa/python_lsan_comparison/**
+permissions:
+  contents: read
+concurrency:
+  group: python-lsan-comparison-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install official GCC 13 build prerequisites
+        run: |
+          timeout --signal=TERM --kill-after=10s 120s sudo apt-get update
+          timeout --signal=TERM --kill-after=10s 180s sudo apt-get install -y gcc-13 g++-13 make curl xz-utils libffi-dev zlib1g-dev libssl-dev
+      - name: Synthetic orchestration contract tests (not leak evidence)
+        run: python3 -m unittest discover -s tools/qa/python_lsan_comparison -p 'test_*.py' -v
+      - name: Compare same-source ordinary final exit (not scanner qualification)
+        env:
+          DIAGNOSTIC_SOURCE_SHA: ${{ github.sha }}
+        run: python3 tools/qa/python_lsan_comparison/run.py --output "$RUNNER_TEMP/python-lsan-comparison"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: python-lsan-comparison-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/python-lsan-comparison/evidence/
+          if-no-files-found: error
+          retention-days: 7

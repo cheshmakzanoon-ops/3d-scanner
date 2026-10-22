@@ -27,10 +27,32 @@ def regular_input(path):
 
 
 def run_json(argv, accepted=(0, 1), timeout=180, cwd=None):
-    run = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, cwd=cwd)
-    if run.returncode not in accepted:
-        raise RuntimeError('scanner failed, exit ' + str(run.returncode))
-    return json.loads(run.stdout)
+    # Scanner streams can contain source and credentials: retain only fixed-schema
+    # metadata, never argv, exception text, or arbitrary stdout/stderr excerpts.
+    tool = 'version-probe' if len(argv) > 1 and argv[1] == '-c' else 'scanner'
+    if len(argv) > 2 and argv[1] == '-m' and argv[2] in ('bandit', 'detect_secrets', 'pip_audit'):
+        tool = argv[2]
+    evidence = {'tool': tool}
+    try:
+        evidence['reason'] = 'execution-error'
+        run = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, cwd=cwd)
+        evidence.update(exit_code=run.returncode, stdout_chars=len(run.stdout), stderr_chars=len(run.stderr))
+        # Only recognize the numeric final leak summary in a bounded tail. This
+        # records an observed marker, not a root-cause or external-failure claim.
+        summary = re.search(r'^SUMMARY: (?:AddressSanitizer|LeakSanitizer): ([0-9]{1,20}) byte\(s\) leaked in ([0-9]{1,20}) allocation\(s\)\.$',
+                            run.stderr[-4096:], re.MULTILINE)
+        if summary:
+            evidence['leak_summary'] = {'bytes': int(summary[1]), 'allocations': int(summary[2])}
+        evidence['reason'] = 'nonaccepted-exit'
+        if run.returncode not in accepted:
+            raise RuntimeError('scanner failed, exit ' + str(run.returncode))
+        evidence['reason'] = 'invalid-json'
+        return json.loads(run.stdout)
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
+        if isinstance(error, subprocess.TimeoutExpired):
+            evidence['reason'] = 'timeout'
+        error.scanner_failure = evidence
+        raise
 
 
 
@@ -233,6 +255,8 @@ def scan(root, python, requirements=None, suppressions=None, expected_source=Non
         report['status'] = 'FAIL' if report['findings'] else 'PASS' if requirements else 'NOT_RUN'
     except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
         report['error'] = type(error).__name__ + ': scanner unavailable, failed, or incomplete'
+        if hasattr(error, 'scanner_failure'):
+            report['scanner_failure'] = error.scanner_failure
     raw = report.get('raw_findings', report['findings'])
     report['finding_counts'] = finding_counts(raw, report['findings'], report.get('suppressed', []))
     return report
