@@ -4,6 +4,7 @@
 #endif
 #include <cassert>
 #include <iostream>
+#include <limits>
 int main(){
  rf::DenseDepthMap m{8,8,std::vector<float>(64,0),std::vector<float>(64,0)};
  for(int y=1;y<8;y+=2)for(int x=1;x<8;x+=2){m.depth[y*8+x]=5+.01*x+.02*y;m.confidence[y*8+x]=.8;}
@@ -27,6 +28,17 @@ int main(){
  auto normal=rf::consistency::estimateNormal(camera,tilted,25,25,2,1);assert(normal.valid);
  const double scale=std::hypot(worldNormal.x,worldNormal.y,worldNormal.z);
  assert(std::abs(normal.cameraNormal.x-worldNormal.x/scale)<1e-5&&std::abs(normal.cameraNormal.y-worldNormal.y/scale)<1e-5);
+ // The same observed plane must retain its normal when arbitrary SfM scale
+ // changes. An absolute cross-product area cutoff used to reject small units.
+ for(double sceneScale:{1e-30,1e-20,1e-6,1e-3,1.,1e6,1e20,1e30}){
+  const auto scaledMap=plane(worldNormal,4*sceneScale);
+  const auto scaledNormal=rf::consistency::estimateNormal(camera,scaledMap,25,25,2,1);
+  assert(scaledNormal.valid);
+  const double dot=scaledNormal.cameraNormal.x*normal.cameraNormal.x+
+      scaledNormal.cameraNormal.y*normal.cameraNormal.y+scaledNormal.cameraNormal.z*normal.cameraNormal.z;
+  assert(dot>1-1e-9);
+  assert(std::abs(scaledNormal.confidence-normal.confidence)<1e-8);
+ }
  auto source=camera;const double angle=.35;source.pose.rotation={std::cos(angle),0,std::sin(angle),0,1,0,-std::sin(angle),0,std::cos(angle)};
  auto sourceMap=plane({std::cos(angle)*worldNormal.x+std::sin(angle)*worldNormal.z,worldNormal.y,-std::sin(angle)*worldNormal.x+std::cos(angle)*worldNormal.z},4);
  auto sourceNormal=rf::consistency::estimateNormal(source,sourceMap,25,25,2,1);assert(sourceNormal.valid);
@@ -41,6 +53,21 @@ int main(){
  tilted.depth[25*51+27]=0;assert(!rf::consistency::estimateNormal(camera,tilted,25,25,2,1).valid);
  assert(!rf::consistency::estimateNormal(camera,sourceMap,1,1,2,1).valid);
  assert(rf::consistency::verifyNormals({},camera.pose,normal,camera.pose).classification==V::Unknown);
+ // Missing or non-finite observed evidence stays unknown after normalization.
+ for(float bad:{0.f,-1.f,std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::infinity()}){
+  for(int index:{25*51+25,25*51+27}){
+   auto invalidMap=plane(worldNormal,4);invalidMap.depth[index]=bad;
+   assert(!rf::consistency::estimateNormal(camera,invalidMap,25,25,2,1).valid);
+  }
+ }
+ // Degenerate angular footprints are still rejected in dimensionless units.
+ auto collapsed=camera;collapsed.fx=1e200;collapsed.fy=1e200;
+ const auto flat=plane({0,0,1},4);
+ assert(!rf::consistency::estimateNormal(collapsed,flat,25,25,2,1).valid);
+ auto overflow=camera;overflow.fx=1e-300;overflow.fy=1e-300;
+ assert(!rf::consistency::estimateNormal(overflow,flat,25,25,2,1).valid);
+ // Normal settings participate in dense input identity, preventing stale reuse.
+ static_assert(rf::consistency::NORMAL_SETTINGS_VERSION==2);
  auto invalid=camera;invalid.fx=0;assert(!rf::consistency::estimateNormal(invalid,sourceMap,25,25,2,1).valid);
  auto enormous=normal;enormous.cameraNormal={1e300,1e300,1e300};assert(rf::consistency::verifyNormals(enormous,camera.pose,normal,camera.pose).classification==V::Unknown);
  auto invalidPose=camera.pose;invalidPose.rotation[0]=2;assert(rf::consistency::verifyNormals(normal,invalidPose,normal,camera.pose).classification==V::Unknown);

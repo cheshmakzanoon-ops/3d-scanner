@@ -1412,3 +1412,36 @@ identity checks. New tests execute 67 isolated production-AST/CLI cases in each
 of three interpreter modes (201 cases total; three pytest tests). These synthetic
 checks do not certify native reconstruction, real-image quality or Android runtime.
 Fresh combined focused run: 26 tests passed, plus Python compilation checks.
+
+## 2026-10-22: scale-invariant observed normals and bounded SDK acquisition
+
+Fixed a reproduced normal-estimation defect: absolute cross-product area depended
+on arbitrary SfM world units, rejecting identical observed planes at small scales.
+Coordinates now share a center-depth normalization before products; the area
+cutoff is dimensionless. Normal settings version 2 invalidates older dense cache
+identities. Eight scene scales from 1e-30 to 1e30 and missing/nonfinite/degenerate
+observations are covered. Independent baseline CTest failed the new regression;
+the corrected Release GCC 14.2 -Werror build passed all 46 CTest targets. Focused
+UBSan passed; focused ASan/LSan was blocked by LSan's unsupported ptrace execution,
+not waived. The optimized-Python real Middlebury surface gate passed unchanged
+thresholds: 3,365 vertices, 4,040 triangles, 0.291004 left-image ground-truth coverage,
+0.434116 px median disparity error and 0.00625599 median relative depth error.
+These partial two-view metrics do not establish whole-object or device quality.
+
+The SDK helper preserves the four existing pins, retrying only exit 1 plus the
+observed `Error reading Zip content from a SeekableByteChannel.` diagnostic.
+At most three attempts use 300-second deadlines and 5/10-second backoff. It does
+not delete packages/caches, accept licenses or retry application tests. Owned
+process groups are cleaned up even after leader exit, with WNOWAIT reserving the
+leader PID until signaling completes. Forwarding is bounded to one 64 KiB chunk,
+uses a separate Linux nonblocking descriptor and remains cancellable when the
+helper's stdout consumer stops reading. Thirty-three fresh SDK tests passed;
+real hosted acquisition and Android/device checks remain separately required.
+
+Fresh combined canonical Python validation after restoring the hash-pinned QA
+packages, Khronos validator and official Blender 4.3.2: 1,618 passed, 4 skipped,
+11 subtests, no failures/errors. Skips explicitly require unavailable javac JNI,
+pinned NDK shader compiler, Kotlin/Android JSON cache, or Clang sanitizer compiler.
+An earlier run failed only for missing validator/security-tool prerequisites;
+those logs were retained and the complete suite rerun. No Android/device or
+complete release qualification is inferred from these host results.

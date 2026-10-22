@@ -40,7 +40,7 @@ inline Verification verify(const Sample& sample,double predictedDepth,double rep
     if(error>relativeTolerance)return {predictedDepth>sample.depth?Visibility::Occluded:Visibility::Inconsistent,error,reprojectionError};
     return {reprojectionError<=pixelTolerance?Visibility::Supported:Visibility::Inconsistent,error,reprojectionError};
 }
-inline constexpr unsigned NORMAL_SETTINGS_VERSION=1;
+inline constexpr unsigned NORMAL_SETTINGS_VERSION=2;
 struct SurfaceNormal { Vec3 cameraNormal{}; double confidence{}; bool valid{}; };
 // A normal needs four independent neighboring observations, continuous depth,
 // and agreement between two local triangles. Missing/unstable evidence remains
@@ -50,11 +50,16 @@ inline SurfaceNormal estimateNormal(const DenseView& camera,const DenseDepthMap&
     if(camera.width!=map.width||camera.height!=map.height||!std::isfinite(camera.fx)||!std::isfinite(camera.fy)||
        !std::isfinite(camera.cx)||!std::isfinite(camera.cy)||camera.fx<=0||camera.fy<=0||step<1||step>8)return {};
     const std::array<double,5> xs{x,x-step,x+step,x,x},ys{y,y,y,y-step,y+step};
-    std::array<Vec3,5> p{};double lo=1e300,hi=0,confidence=1;
+    std::array<Vec3,5> p{};double lo=1e300,hi=0,confidence=1,centerDepth=0;
     for(std::size_t k=0;k<5;++k){const auto sampled=sampleDepth(map,xs[k],ys[k],step,origin,maximumRelativeSpread);
         if(sampled.classification!=Visibility::Supported||sampled.confidence<=0)return {};
         lo=std::min(lo,sampled.depth);hi=std::max(hi,sampled.depth);confidence=std::min(confidence,sampled.confidence);
-        p[k]={((xs[k]-camera.cx)/camera.fx)*sampled.depth,((ys[k]-camera.cy)/camera.fy)*sampled.depth,sampled.depth};}
+        // A common scale leaves the normal unchanged, while making the area
+        // degeneracy test independent of arbitrary SfM world units. Normalize
+        // before coordinate products/cross products, not after they underflow.
+        if(k==0)centerDepth=sampled.depth;
+        const double relativeDepth=sampled.depth/centerDepth;
+        p[k]={((xs[k]-camera.cx)/camera.fx)*relativeDepth,((ys[k]-camera.cy)/camera.fy)*relativeDepth,relativeDepth};}
     if((hi-lo)/hi>maximumRelativeSpread)return {};
     const auto sub=[](Vec3 a,Vec3 b){return Vec3{a.x-b.x,a.y-b.y,a.z-b.z};};
     const auto cross=[](Vec3 a,Vec3 b){return Vec3{a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};};
