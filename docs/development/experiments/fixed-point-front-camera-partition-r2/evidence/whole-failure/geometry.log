@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/workspace/shared/fixed-point-front-camera-partition-r2/source/geometry_arm.py", line 51, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/workspace/shared/fixed-point-front-camera-partition-r2/source/geometry_arm.py", line 44, in main
+    faces,proofs,summary=reconstruct(ledger,cfg);ledger.verify();verify(run,pins);account=publish_mesh(out,ledger,faces,proofs,identity,summary);account.update(inputHashesUnchanged=True,frontComplete=True,quality='NOT_YET_EVALUATED',scope='ORACLE_CAMERA_COMPONENT_NOT_IMAGE_DERIVED_REGISTRATION')
+                         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/shared/fixed-point-front-camera-partition-r2/source/front.py", line 111, in reconstruct
+    if not status[i] and attempt(i):drain()
+                         ^^^^^^^^^^
+  File "/workspace/shared/fixed-point-front-camera-partition-r2/source/front.py", line 92, in attempt
+    cert=ledger.candidate_certificate(t)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/shared/fixed-point-front-camera-partition-r2/source/ledger_adapter.py", line 162, in candidate_certificate
+    result=apply_normal_constraints(closed_certificate(records,self.edges,self.B),compat);result.update(pointIds=list(ids),orientationSign=sign,enumeratedSourceTriangles=[r['id'] for r in records]);return result
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/shared/fixed-point-front-camera-partition-r2/source/closed_certificate.py", line 42, in closed_certificate
+    B.clip();da=evaluate(line,a,B);db=evaluate(line,b,B)
+    ^^^^^^^^
+  File "/workspace/shared/fixed-point-front-camera-partition-r2/source/exact_geometry.py", line 16, in clip
+    if self.used_clips>self.clips:raise Refusal('SUPPORT_WORK_BUDGET')
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+exact_geometry.Refusal: SUPPORT_WORK_BUDGET

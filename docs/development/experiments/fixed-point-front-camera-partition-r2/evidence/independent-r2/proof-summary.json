@@ -1,0 +1,24 @@
+{
+  "status": "EXACT_OLD_NEW_INDEX_SETS_EQUAL",
+  "allViews": 8,
+  "queries": 192,
+  "sourceTriangles": 15726,
+  "partitionCounts": [
+    1584,
+    1936,
+    2083,
+    2167,
+    2151,
+    2104,
+    1998,
+    1703
+  ],
+  "partitionConstructionVisits": 15734,
+  "optimizedValidationVisitsIncludingQueryChecks": 377616,
+  "originalValidationVisits": 3019392,
+  "savedVisits": 2626042,
+  "prefixLedgerVisits": 232525,
+  "totalProofVisits": 3649183,
+  "inputHashesUnchanged": true,
+  "scope": "separate equivalence proof only; no front or mesh; whole successor still has one unchanged 5M shared cap"
+}

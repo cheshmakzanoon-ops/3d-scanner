@@ -1,0 +1,10 @@
+{
+  "error": "Refusal",
+  "reason": "SUPPORT_WORK_BUDGET",
+  "geometry": "NOT_PUBLISHED",
+  "quality": "NO_GO_INCOMPLETE_ARM",
+  "sharedWork": {
+    "clips": 5000001,
+    "balls": 48033
+  }
+}

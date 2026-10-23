@@ -1,0 +1,3450 @@
+{
+  "status": "EXACT_OLD_NEW_INDEX_SETS_EQUAL",
+  "allViews": 8,
+  "queries": 192,
+  "sourceTriangles": 15726,
+  "partitionCounts": [
+    1584,
+    1936,
+    2083,
+    2167,
+    2151,
+    2104,
+    1998,
+    1703
+  ],
+  "partitionConstructionVisits": 15734,
+  "optimizedValidationVisitsIncludingQueryChecks": 377616,
+  "originalValidationVisits": 3019392,
+  "savedVisits": 2626042,
+  "prefixLedgerVisits": 232525,
+  "totalProofVisits": 3649183,
+  "inputHashesUnchanged": true,
+  "scope": "separate equivalence proof only; no front or mesh; whole successor still has one unchanged 5M shared cap",
+  "matches": [
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 0,
+      "matchingCompactIds": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "matchingOriginalAttemptIds": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 1,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 2,
+      "matchingCompactIds": [
+        3520,
+        3521,
+        3522,
+        3523,
+        3524,
+        3525
+      ],
+      "matchingOriginalAttemptIds": [
+        3526,
+        3527,
+        3528,
+        3529,
+        3530,
+        3531
+      ]
+    },
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 3,
+      "matchingCompactIds": [
+        5605
+      ],
+      "matchingOriginalAttemptIds": [
+        5614
+      ]
+    },
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 4,
+      "matchingCompactIds": [
+        7772,
+        7773,
+        7774,
+        7775
+      ],
+      "matchingOriginalAttemptIds": [
+        7788,
+        7789,
+        7790,
+        7791
+      ]
+    },
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 5,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 6,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 0,
+      "sourceOriginalAttemptId": 0,
+      "camera": 7,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 0,
+      "matchingCompactIds": [
+        725,
+        726,
+        727,
+        728,
+        729,
+        790,
+        791,
+        792,
+        793,
+        794,
+        854,
+        855,
+        856,
+        857
+      ],
+      "matchingOriginalAttemptIds": [
+        725,
+        726,
+        727,
+        728,
+        729,
+        790,
+        791,
+        792,
+        793,
+        794,
+        854,
+        855,
+        856,
+        857
+      ]
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 1,
+      "matchingCompactIds": [
+        2542,
+        2543,
+        2544,
+        2545,
+        2618,
+        2619,
+        2620,
+        2621
+      ],
+      "matchingOriginalAttemptIds": [
+        2548,
+        2549,
+        2550,
+        2551,
+        2624,
+        2625,
+        2626,
+        2627
+      ]
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 2,
+      "matchingCompactIds": [
+        4557,
+        4558,
+        4559,
+        4560,
+        4561,
+        4562,
+        4633,
+        4634,
+        4635,
+        4636,
+        4637,
+        4638
+      ],
+      "matchingOriginalAttemptIds": [
+        4566,
+        4567,
+        4568,
+        4569,
+        4570,
+        4571,
+        4642,
+        4643,
+        4644,
+        4645,
+        4646,
+        4647
+      ]
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 3,
+      "matchingCompactIds": [
+        6682,
+        6683,
+        6684,
+        6685,
+        6686,
+        6687,
+        6770,
+        6771,
+        6772,
+        6773,
+        6774,
+        6775
+      ],
+      "matchingOriginalAttemptIds": [
+        6698,
+        6699,
+        6700,
+        6701,
+        6702,
+        6703,
+        6786,
+        6787,
+        6788,
+        6789,
+        6790,
+        6791
+      ]
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 4,
+      "matchingCompactIds": [
+        8757,
+        8758,
+        8759,
+        8760,
+        8839,
+        8840,
+        8841,
+        8842
+      ],
+      "matchingOriginalAttemptIds": [
+        8782,
+        8783,
+        8784,
+        8785,
+        8864,
+        8865,
+        8866,
+        8867
+      ]
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 5,
+      "matchingCompactIds": [
+        10885,
+        10886,
+        10887,
+        10888,
+        10969,
+        10970,
+        10971,
+        10972
+      ],
+      "matchingOriginalAttemptIds": [
+        10914,
+        10915,
+        10916,
+        10917,
+        10998,
+        10999,
+        11000,
+        11001
+      ]
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 6,
+      "matchingCompactIds": [
+        12851,
+        12852,
+        12853,
+        12854,
+        12929,
+        12930,
+        12931,
+        12932
+      ],
+      "matchingOriginalAttemptIds": [
+        12882,
+        12883,
+        12884,
+        12885,
+        12960,
+        12961,
+        12962,
+        12963
+      ]
+    },
+    {
+      "sourceCompactId": 792,
+      "sourceOriginalAttemptId": 792,
+      "camera": 7,
+      "matchingCompactIds": [
+        14689,
+        14690,
+        14749,
+        14750,
+        14751,
+        14752
+      ],
+      "matchingOriginalAttemptIds": [
+        14726,
+        14727,
+        14786,
+        14787,
+        14788,
+        14789
+      ]
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 0,
+      "matchingCompactIds": [
+        1572,
+        1573,
+        1574,
+        1575,
+        1576,
+        1577,
+        1580,
+        1581,
+        1582,
+        1583
+      ],
+      "matchingOriginalAttemptIds": [
+        1574,
+        1575,
+        1576,
+        1577,
+        1578,
+        1579,
+        1582,
+        1583,
+        1584,
+        1585
+      ]
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 1,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 2,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 3,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 4,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 5,
+      "matchingCompactIds": [
+        11833,
+        11834
+      ],
+      "matchingOriginalAttemptIds": [
+        11862,
+        11863
+      ]
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 6,
+      "matchingCompactIds": [
+        13663,
+        13664,
+        13665,
+        13666
+      ],
+      "matchingOriginalAttemptIds": [
+        13696,
+        13697,
+        13698,
+        13699
+      ]
+    },
+    {
+      "sourceCompactId": 1583,
+      "sourceOriginalAttemptId": 1585,
+      "camera": 7,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 0,
+      "matchingCompactIds": [
+        10,
+        11
+      ],
+      "matchingOriginalAttemptIds": [
+        10,
+        11
+      ]
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 1,
+      "matchingCompactIds": [
+        1584,
+        1585,
+        1586,
+        1587
+      ],
+      "matchingOriginalAttemptIds": [
+        1586,
+        1587,
+        1588,
+        1589
+      ]
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 2,
+      "matchingCompactIds": [
+        3528,
+        3529
+      ],
+      "matchingOriginalAttemptIds": [
+        3534,
+        3535
+      ]
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 3,
+      "matchingCompactIds": [
+        5603,
+        5604
+      ],
+      "matchingOriginalAttemptIds": [
+        5612,
+        5613
+      ]
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 4,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 5,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 6,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 1584,
+      "sourceOriginalAttemptId": 1586,
+      "camera": 7,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 0,
+      "matchingCompactIds": [
+        734,
+        735,
+        736,
+        737,
+        800,
+        801,
+        802,
+        803
+      ],
+      "matchingOriginalAttemptIds": [
+        734,
+        735,
+        736,
+        737,
+        800,
+        801,
+        802,
+        803
+      ]
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 1,
+      "matchingCompactIds": [
+        2475,
+        2476,
+        2477,
+        2478,
+        2479,
+        2550,
+        2551,
+        2552,
+        2553,
+        2554,
+        2555,
+        2626,
+        2627,
+        2628
+      ],
+      "matchingOriginalAttemptIds": [
+        2481,
+        2482,
+        2483,
+        2484,
+        2485,
+        2556,
+        2557,
+        2558,
+        2559,
+        2560,
+        2561,
+        2632,
+        2633,
+        2634
+      ]
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 2,
+      "matchingCompactIds": [
+        4565,
+        4566,
+        4567,
+        4568,
+        4641,
+        4642,
+        4643,
+        4644
+      ],
+      "matchingOriginalAttemptIds": [
+        4574,
+        4575,
+        4576,
+        4577,
+        4650,
+        4651,
+        4652,
+        4653
+      ]
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 3,
+      "matchingCompactIds": [
+        6694,
+        6695,
+        6696,
+        6697,
+        6782,
+        6783,
+        6784,
+        6785
+      ],
+      "matchingOriginalAttemptIds": [
+        6710,
+        6711,
+        6712,
+        6713,
+        6798,
+        6799,
+        6800,
+        6801
+      ]
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 4,
+      "matchingCompactIds": [
+        8845,
+        8846,
+        8847,
+        8848,
+        8931,
+        8932,
+        8933,
+        8934
+      ],
+      "matchingOriginalAttemptIds": [
+        8870,
+        8871,
+        8872,
+        8873,
+        8956,
+        8957,
+        8958,
+        8959
+      ]
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 5,
+      "matchingCompactIds": [
+        10979,
+        10980,
+        10981,
+        10982,
+        10983,
+        10984,
+        11059,
+        11060,
+        11061,
+        11062,
+        11063,
+        11064
+      ],
+      "matchingOriginalAttemptIds": [
+        11008,
+        11009,
+        11010,
+        11011,
+        11012,
+        11013,
+        11088,
+        11089,
+        11090,
+        11091,
+        11092,
+        11093
+      ]
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 6,
+      "matchingCompactIds": [
+        12939,
+        12940,
+        12941,
+        12942,
+        13018,
+        13019,
+        13020,
+        13021
+      ],
+      "matchingOriginalAttemptIds": [
+        12970,
+        12971,
+        12972,
+        12973,
+        13050,
+        13051,
+        13052,
+        13053
+      ]
+    },
+    {
+      "sourceCompactId": 2552,
+      "sourceOriginalAttemptId": 2558,
+      "camera": 7,
+      "matchingCompactIds": [
+        14819,
+        14820,
+        14821,
+        14822,
+        14885,
+        14886
+      ],
+      "matchingOriginalAttemptIds": [
+        14856,
+        14857,
+        14858,
+        14859,
+        14922,
+        14923
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 0,
+      "matchingCompactIds": [
+        1578,
+        1579,
+        1580,
+        1581
+      ],
+      "matchingOriginalAttemptIds": [
+        1580,
+        1581,
+        1582,
+        1583
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 1,
+      "matchingCompactIds": [
+        3511,
+        3512,
+        3513,
+        3518,
+        3519
+      ],
+      "matchingOriginalAttemptIds": [
+        3517,
+        3518,
+        3519,
+        3524,
+        3525
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 2,
+      "matchingCompactIds": [
+        5601,
+        5602
+      ],
+      "matchingOriginalAttemptIds": [
+        5610,
+        5611
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 3,
+      "matchingCompactIds": [
+        7760,
+        7761,
+        7768,
+        7769
+      ],
+      "matchingOriginalAttemptIds": [
+        7776,
+        7777,
+        7784,
+        7785
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 4,
+      "matchingCompactIds": [
+        9885,
+        9886
+      ],
+      "matchingOriginalAttemptIds": [
+        9910,
+        9911
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 5,
+      "matchingCompactIds": [
+        11833,
+        11834
+      ],
+      "matchingOriginalAttemptIds": [
+        11862,
+        11863
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 6,
+      "matchingCompactIds": [
+        13663,
+        13664
+      ],
+      "matchingOriginalAttemptIds": [
+        13696,
+        13697
+      ]
+    },
+    {
+      "sourceCompactId": 3519,
+      "sourceOriginalAttemptId": 3525,
+      "camera": 7,
+      "matchingCompactIds": [
+        15290,
+        15291,
+        15292,
+        15293
+      ],
+      "matchingOriginalAttemptIds": [
+        15328,
+        15329,
+        15330,
+        15331
+      ]
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 1,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 2,
+      "matchingCompactIds": [
+        3520,
+        3521,
+        3522,
+        3523,
+        3524,
+        3525
+      ],
+      "matchingOriginalAttemptIds": [
+        3526,
+        3527,
+        3528,
+        3529,
+        3530,
+        3531
+      ]
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 3,
+      "matchingCompactIds": [
+        5605
+      ],
+      "matchingOriginalAttemptIds": [
+        5614
+      ]
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 4,
+      "matchingCompactIds": [
+        7772,
+        7773,
+        7774,
+        7775
+      ],
+      "matchingOriginalAttemptIds": [
+        7788,
+        7789,
+        7790,
+        7791
+      ]
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 5,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 6,
+      "matchingCompactIds": [
+        12025,
+        12026,
+        12027,
+        12028
+      ],
+      "matchingOriginalAttemptIds": [
+        12054,
+        12055,
+        12056,
+        12057
+      ]
+    },
+    {
+      "sourceCompactId": 3520,
+      "sourceOriginalAttemptId": 3526,
+      "camera": 7,
+      "matchingCompactIds": [
+        14031,
+        14032,
+        14037,
+        14038
+      ],
+      "matchingOriginalAttemptIds": [
+        14068,
+        14069,
+        14074,
+        14075
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 0,
+      "matchingCompactIds": [
+        726,
+        727,
+        728,
+        729,
+        792,
+        793,
+        794,
+        795
+      ],
+      "matchingOriginalAttemptIds": [
+        726,
+        727,
+        728,
+        729,
+        792,
+        793,
+        794,
+        795
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 1,
+      "matchingCompactIds": [
+        2466,
+        2467,
+        2468,
+        2469,
+        2542,
+        2543,
+        2544,
+        2545
+      ],
+      "matchingOriginalAttemptIds": [
+        2472,
+        2473,
+        2474,
+        2475,
+        2548,
+        2549,
+        2550,
+        2551
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 2,
+      "matchingCompactIds": [
+        4477,
+        4478,
+        4479,
+        4480,
+        4481,
+        4482,
+        4559,
+        4560,
+        4561,
+        4562,
+        4563,
+        4564,
+        4635,
+        4636,
+        4637,
+        4638,
+        4639,
+        4640
+      ],
+      "matchingOriginalAttemptIds": [
+        4486,
+        4487,
+        4488,
+        4489,
+        4490,
+        4491,
+        4568,
+        4569,
+        4570,
+        4571,
+        4572,
+        4573,
+        4644,
+        4645,
+        4646,
+        4647,
+        4648,
+        4649
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 3,
+      "matchingCompactIds": [
+        6598,
+        6599,
+        6600,
+        6601,
+        6602,
+        6603,
+        6684,
+        6685,
+        6686,
+        6687,
+        6688,
+        6689
+      ],
+      "matchingOriginalAttemptIds": [
+        6614,
+        6615,
+        6616,
+        6617,
+        6618,
+        6619,
+        6700,
+        6701,
+        6702,
+        6703,
+        6704,
+        6705
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 4,
+      "matchingCompactIds": [
+        8759,
+        8760,
+        8761,
+        8762,
+        8841,
+        8842,
+        8843,
+        8844
+      ],
+      "matchingOriginalAttemptIds": [
+        8784,
+        8785,
+        8786,
+        8787,
+        8866,
+        8867,
+        8868,
+        8869
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 5,
+      "matchingCompactIds": [
+        10887,
+        10888,
+        10889,
+        10890,
+        10971,
+        10972,
+        10973,
+        10974
+      ],
+      "matchingOriginalAttemptIds": [
+        10916,
+        10917,
+        10918,
+        10919,
+        11000,
+        11001,
+        11002,
+        11003
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 6,
+      "matchingCompactIds": [
+        12853,
+        12854,
+        12855,
+        12856,
+        12931,
+        12932,
+        12933,
+        12934
+      ],
+      "matchingOriginalAttemptIds": [
+        12884,
+        12885,
+        12886,
+        12887,
+        12962,
+        12963,
+        12964,
+        12965
+      ]
+    },
+    {
+      "sourceCompactId": 4561,
+      "sourceOriginalAttemptId": 4570,
+      "camera": 7,
+      "matchingCompactIds": [
+        14751,
+        14752
+      ],
+      "matchingOriginalAttemptIds": [
+        14788,
+        14789
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 0,
+      "matchingCompactIds": [
+        1570,
+        1571,
+        1572,
+        1573,
+        1578,
+        1579,
+        1580,
+        1581
+      ],
+      "matchingOriginalAttemptIds": [
+        1572,
+        1573,
+        1574,
+        1575,
+        1580,
+        1581,
+        1582,
+        1583
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 1,
+      "matchingCompactIds": [
+        3510,
+        3511,
+        3512,
+        3513,
+        3518,
+        3519
+      ],
+      "matchingOriginalAttemptIds": [
+        3516,
+        3517,
+        3518,
+        3519,
+        3524,
+        3525
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 2,
+      "matchingCompactIds": [
+        5593,
+        5594,
+        5595,
+        5596,
+        5601,
+        5602
+      ],
+      "matchingOriginalAttemptIds": [
+        5602,
+        5603,
+        5604,
+        5605,
+        5610,
+        5611
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 3,
+      "matchingCompactIds": [
+        7760,
+        7761,
+        7762,
+        7763,
+        7768,
+        7769
+      ],
+      "matchingOriginalAttemptIds": [
+        7776,
+        7777,
+        7778,
+        7779,
+        7784,
+        7785
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 4,
+      "matchingCompactIds": [
+        9819,
+        9820,
+        9885,
+        9886
+      ],
+      "matchingOriginalAttemptIds": [
+        9844,
+        9845,
+        9910,
+        9911
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 5,
+      "matchingCompactIds": [
+        11755,
+        11756,
+        11757,
+        11758,
+        11833,
+        11834
+      ],
+      "matchingOriginalAttemptIds": [
+        11784,
+        11785,
+        11786,
+        11787,
+        11862,
+        11863
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 6,
+      "matchingCompactIds": [
+        13586,
+        13587,
+        13661,
+        13662,
+        13663,
+        13664
+      ],
+      "matchingOriginalAttemptIds": [
+        13618,
+        13619,
+        13694,
+        13695,
+        13696,
+        13697
+      ]
+    },
+    {
+      "sourceCompactId": 5602,
+      "sourceOriginalAttemptId": 5611,
+      "camera": 7,
+      "matchingCompactIds": [
+        15236,
+        15237,
+        15290,
+        15291
+      ],
+      "matchingOriginalAttemptIds": [
+        15274,
+        15275,
+        15328,
+        15329
+      ]
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 0,
+      "matchingCompactIds": [
+        10,
+        11
+      ],
+      "matchingOriginalAttemptIds": [
+        10,
+        11
+      ]
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 1,
+      "matchingCompactIds": [
+        1584,
+        1585,
+        1586,
+        1587
+      ],
+      "matchingOriginalAttemptIds": [
+        1586,
+        1587,
+        1588,
+        1589
+      ]
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 2,
+      "matchingCompactIds": [
+        3528,
+        3529
+      ],
+      "matchingOriginalAttemptIds": [
+        3534,
+        3535
+      ]
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 3,
+      "matchingCompactIds": [
+        5603,
+        5604
+      ],
+      "matchingOriginalAttemptIds": [
+        5612,
+        5613
+      ]
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 4,
+      "matchingCompactIds": [
+        7770,
+        7771
+      ],
+      "matchingOriginalAttemptIds": [
+        7786,
+        7787
+      ]
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 5,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 6,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 5603,
+      "sourceOriginalAttemptId": 5612,
+      "camera": 7,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 0,
+      "matchingCompactIds": [
+        726,
+        727,
+        728,
+        729,
+        792,
+        793,
+        794,
+        795
+      ],
+      "matchingOriginalAttemptIds": [
+        726,
+        727,
+        728,
+        729,
+        792,
+        793,
+        794,
+        795
+      ]
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 1,
+      "matchingCompactIds": [
+        2468,
+        2469,
+        2544,
+        2545,
+        2620,
+        2621
+      ],
+      "matchingOriginalAttemptIds": [
+        2474,
+        2475,
+        2550,
+        2551,
+        2626,
+        2627
+      ]
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 2,
+      "matchingCompactIds": [
+        4561,
+        4562,
+        4637,
+        4638
+      ],
+      "matchingOriginalAttemptIds": [
+        4570,
+        4571,
+        4646,
+        4647
+      ]
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 3,
+      "matchingCompactIds": [
+        6598,
+        6599,
+        6600,
+        6601,
+        6603,
+        6684,
+        6685,
+        6686,
+        6687,
+        6688,
+        6689,
+        6772,
+        6774,
+        6775,
+        6776
+      ],
+      "matchingOriginalAttemptIds": [
+        6614,
+        6615,
+        6616,
+        6617,
+        6619,
+        6700,
+        6701,
+        6702,
+        6703,
+        6704,
+        6705,
+        6788,
+        6790,
+        6791,
+        6792
+      ]
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 4,
+      "matchingCompactIds": [
+        8759,
+        8760,
+        8761,
+        8762,
+        8841,
+        8842,
+        8843,
+        8844
+      ],
+      "matchingOriginalAttemptIds": [
+        8784,
+        8785,
+        8786,
+        8787,
+        8866,
+        8867,
+        8868,
+        8869
+      ]
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 5,
+      "matchingCompactIds": [
+        10887,
+        10888,
+        10889,
+        10890,
+        10971,
+        10972,
+        10973,
+        10974
+      ],
+      "matchingOriginalAttemptIds": [
+        10916,
+        10917,
+        10918,
+        10919,
+        11000,
+        11001,
+        11002,
+        11003
+      ]
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 6,
+      "matchingCompactIds": [
+        12853,
+        12854,
+        12855,
+        12856,
+        12931,
+        12932,
+        12933,
+        12934
+      ],
+      "matchingOriginalAttemptIds": [
+        12884,
+        12885,
+        12886,
+        12887,
+        12962,
+        12963,
+        12964,
+        12965
+      ]
+    },
+    {
+      "sourceCompactId": 6686,
+      "sourceOriginalAttemptId": 6702,
+      "camera": 7,
+      "matchingCompactIds": [
+        14751,
+        14752
+      ],
+      "matchingOriginalAttemptIds": [
+        14788,
+        14789
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 0,
+      "matchingCompactIds": [
+        1580,
+        1581
+      ],
+      "matchingOriginalAttemptIds": [
+        1582,
+        1583
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 1,
+      "matchingCompactIds": [
+        3518,
+        3519
+      ],
+      "matchingOriginalAttemptIds": [
+        3524,
+        3525
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 2,
+      "matchingCompactIds": [
+        5601,
+        5602
+      ],
+      "matchingOriginalAttemptIds": [
+        5610,
+        5611
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 3,
+      "matchingCompactIds": [
+        7760,
+        7761,
+        7763,
+        7768,
+        7769
+      ],
+      "matchingOriginalAttemptIds": [
+        7776,
+        7777,
+        7779,
+        7784,
+        7785
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 4,
+      "matchingCompactIds": [
+        9885,
+        9886
+      ],
+      "matchingOriginalAttemptIds": [
+        9910,
+        9911
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 5,
+      "matchingCompactIds": [
+        11833,
+        11834
+      ],
+      "matchingOriginalAttemptIds": [
+        11862,
+        11863
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 6,
+      "matchingCompactIds": [
+        13661,
+        13662,
+        13663,
+        13664
+      ],
+      "matchingOriginalAttemptIds": [
+        13694,
+        13695,
+        13696,
+        13697
+      ]
+    },
+    {
+      "sourceCompactId": 7769,
+      "sourceOriginalAttemptId": 7785,
+      "camera": 7,
+      "matchingCompactIds": [
+        15290,
+        15291
+      ],
+      "matchingOriginalAttemptIds": [
+        15328,
+        15329
+      ]
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 1,
+      "matchingCompactIds": [
+        1586,
+        1587,
+        1588,
+        1589
+      ],
+      "matchingOriginalAttemptIds": [
+        1588,
+        1589,
+        1590,
+        1591
+      ]
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 2,
+      "matchingCompactIds": [
+        3528,
+        3529,
+        3530,
+        3531
+      ],
+      "matchingOriginalAttemptIds": [
+        3534,
+        3535,
+        3536,
+        3537
+      ]
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 3,
+      "matchingCompactIds": [
+        5603,
+        5604,
+        5606
+      ],
+      "matchingOriginalAttemptIds": [
+        5612,
+        5613,
+        5617
+      ]
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 4,
+      "matchingCompactIds": [
+        7770,
+        7771
+      ],
+      "matchingOriginalAttemptIds": [
+        7786,
+        7787
+      ]
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 5,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 6,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 7770,
+      "sourceOriginalAttemptId": 7786,
+      "camera": 7,
+      "matchingCompactIds": [
+        14023,
+        14024
+      ],
+      "matchingOriginalAttemptIds": [
+        14060,
+        14061
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 0,
+      "matchingCompactIds": [
+        674,
+        675,
+        676,
+        677,
+        732,
+        733,
+        734,
+        735
+      ],
+      "matchingOriginalAttemptIds": [
+        674,
+        675,
+        676,
+        677,
+        732,
+        733,
+        734,
+        735
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 1,
+      "matchingCompactIds": [
+        2474,
+        2475,
+        2476,
+        2477,
+        2550,
+        2551,
+        2552,
+        2553
+      ],
+      "matchingOriginalAttemptIds": [
+        2480,
+        2481,
+        2482,
+        2483,
+        2556,
+        2557,
+        2558,
+        2559
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 2,
+      "matchingCompactIds": [
+        4485,
+        4486,
+        4487,
+        4488,
+        4565,
+        4566
+      ],
+      "matchingOriginalAttemptIds": [
+        4494,
+        4495,
+        4496,
+        4497,
+        4574,
+        4575
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 3,
+      "matchingCompactIds": [
+        6606,
+        6607,
+        6608,
+        6609,
+        6692,
+        6693,
+        6694,
+        6695
+      ],
+      "matchingOriginalAttemptIds": [
+        6622,
+        6623,
+        6624,
+        6625,
+        6708,
+        6709,
+        6710,
+        6711
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 4,
+      "matchingCompactIds": [
+        8763,
+        8764,
+        8766,
+        8845,
+        8846,
+        8847,
+        8848,
+        8929,
+        8930,
+        8931,
+        8932,
+        8933,
+        8934
+      ],
+      "matchingOriginalAttemptIds": [
+        8788,
+        8789,
+        8791,
+        8870,
+        8871,
+        8872,
+        8873,
+        8954,
+        8955,
+        8956,
+        8957,
+        8958,
+        8959
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 5,
+      "matchingCompactIds": [
+        10895,
+        10896,
+        10897,
+        10898,
+        10979,
+        10980,
+        10981,
+        10982
+      ],
+      "matchingOriginalAttemptIds": [
+        10924,
+        10925,
+        10926,
+        10927,
+        11008,
+        11009,
+        11010,
+        11011
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 6,
+      "matchingCompactIds": [
+        12937,
+        12938,
+        12939,
+        12940,
+        13016,
+        13017,
+        13018,
+        13019
+      ],
+      "matchingOriginalAttemptIds": [
+        12968,
+        12969,
+        12970,
+        12971,
+        13048,
+        13049,
+        13050,
+        13051
+      ]
+    },
+    {
+      "sourceCompactId": 8845,
+      "sourceOriginalAttemptId": 8870,
+      "camera": 7,
+      "matchingCompactIds": [
+        14753,
+        14754,
+        14755,
+        14756,
+        14819,
+        14820,
+        14821,
+        14822
+      ],
+      "matchingOriginalAttemptIds": [
+        14790,
+        14791,
+        14792,
+        14793,
+        14856,
+        14857,
+        14858,
+        14859
+      ]
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 1,
+      "matchingCompactIds": [
+        3252,
+        3253
+      ],
+      "matchingOriginalAttemptIds": [
+        3258,
+        3259
+      ]
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 2,
+      "matchingCompactIds": [
+        5477,
+        5478
+      ],
+      "matchingOriginalAttemptIds": [
+        5486,
+        5487
+      ]
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 3,
+      "matchingCompactIds": [
+        7758,
+        7759
+      ],
+      "matchingOriginalAttemptIds": [
+        7774,
+        7775
+      ]
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 4,
+      "matchingCompactIds": [
+        9916,
+        9917,
+        9918,
+        9919,
+        9920
+      ],
+      "matchingOriginalAttemptIds": [
+        9941,
+        9942,
+        9943,
+        9944,
+        9945
+      ]
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 5,
+      "matchingCompactIds": [
+        12023,
+        12024
+      ],
+      "matchingOriginalAttemptIds": [
+        12052,
+        12053
+      ]
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 6,
+      "matchingCompactIds": [
+        14021,
+        14022
+      ],
+      "matchingOriginalAttemptIds": [
+        14058,
+        14059
+      ]
+    },
+    {
+      "sourceCompactId": 9920,
+      "sourceOriginalAttemptId": 9945,
+      "camera": 7,
+      "matchingCompactIds": [
+        15724,
+        15725
+      ],
+      "matchingOriginalAttemptIds": [
+        15762,
+        15763
+      ]
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 1,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 2,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 3,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 4,
+      "matchingCompactIds": [
+        7774,
+        7775
+      ],
+      "matchingOriginalAttemptIds": [
+        7790,
+        7791
+      ]
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 5,
+      "matchingCompactIds": [
+        9921,
+        9922,
+        9925,
+        9926
+      ],
+      "matchingOriginalAttemptIds": [
+        9946,
+        9947,
+        9950,
+        9951
+      ]
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 6,
+      "matchingCompactIds": [
+        12027,
+        12028,
+        12031,
+        12032
+      ],
+      "matchingOriginalAttemptIds": [
+        12056,
+        12057,
+        12060,
+        12061
+      ]
+    },
+    {
+      "sourceCompactId": 9921,
+      "sourceOriginalAttemptId": 9946,
+      "camera": 7,
+      "matchingCompactIds": [
+        14037,
+        14038,
+        14047,
+        14048
+      ],
+      "matchingOriginalAttemptIds": [
+        14074,
+        14075,
+        14084,
+        14085
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 0,
+      "matchingCompactIds": [
+        792,
+        793,
+        794,
+        795,
+        856,
+        857,
+        858,
+        859
+      ],
+      "matchingOriginalAttemptIds": [
+        792,
+        793,
+        794,
+        795,
+        856,
+        857,
+        858,
+        859
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 1,
+      "matchingCompactIds": [
+        2544,
+        2545,
+        2546,
+        2547,
+        2620,
+        2621,
+        2622,
+        2623
+      ],
+      "matchingOriginalAttemptIds": [
+        2550,
+        2551,
+        2552,
+        2553,
+        2626,
+        2627,
+        2628,
+        2629
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 2,
+      "matchingCompactIds": [
+        4561,
+        4562,
+        4563,
+        4564,
+        4637,
+        4638,
+        4639,
+        4640
+      ],
+      "matchingOriginalAttemptIds": [
+        4570,
+        4571,
+        4572,
+        4573,
+        4646,
+        4647,
+        4648,
+        4649
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 3,
+      "matchingCompactIds": [
+        6686,
+        6687,
+        6688,
+        6689,
+        6774,
+        6775,
+        6776,
+        6777
+      ],
+      "matchingOriginalAttemptIds": [
+        6702,
+        6703,
+        6704,
+        6705,
+        6790,
+        6791,
+        6792,
+        6793
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 4,
+      "matchingCompactIds": [
+        8841,
+        8842,
+        8843,
+        8844,
+        8923,
+        8924,
+        8925,
+        8926
+      ],
+      "matchingOriginalAttemptIds": [
+        8866,
+        8867,
+        8868,
+        8869,
+        8948,
+        8949,
+        8950,
+        8951
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 5,
+      "matchingCompactIds": [
+        10887,
+        10888,
+        10889,
+        10890,
+        10891,
+        10892,
+        10971,
+        10972,
+        10973,
+        10974,
+        10975,
+        10976,
+        11051,
+        11052,
+        11053,
+        11054,
+        11055
+      ],
+      "matchingOriginalAttemptIds": [
+        10916,
+        10917,
+        10918,
+        10919,
+        10920,
+        10921,
+        11000,
+        11001,
+        11002,
+        11003,
+        11004,
+        11005,
+        11080,
+        11081,
+        11082,
+        11083,
+        11084
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 6,
+      "matchingCompactIds": [
+        12931,
+        12932,
+        12933,
+        12934,
+        13010,
+        13011,
+        13012,
+        13013
+      ],
+      "matchingOriginalAttemptIds": [
+        12962,
+        12963,
+        12964,
+        12965,
+        13042,
+        13043,
+        13044,
+        13045
+      ]
+    },
+    {
+      "sourceCompactId": 10973,
+      "sourceOriginalAttemptId": 11002,
+      "camera": 7,
+      "matchingCompactIds": [
+        14815,
+        14816
+      ],
+      "matchingOriginalAttemptIds": [
+        14852,
+        14853
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 0,
+      "matchingCompactIds": [
+        1190,
+        1191
+      ],
+      "matchingOriginalAttemptIds": [
+        1190,
+        1191
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 1,
+      "matchingCompactIds": [
+        3186,
+        3187,
+        3252,
+        3253
+      ],
+      "matchingOriginalAttemptIds": [
+        3192,
+        3193,
+        3258,
+        3259
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 2,
+      "matchingCompactIds": [
+        5409,
+        5410,
+        5411,
+        5412,
+        5477,
+        5478
+      ],
+      "matchingOriginalAttemptIds": [
+        5418,
+        5419,
+        5420,
+        5421,
+        5486,
+        5487
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 3,
+      "matchingCompactIds": [
+        7730,
+        7731,
+        7732,
+        7733,
+        7758,
+        7759
+      ],
+      "matchingOriginalAttemptIds": [
+        7746,
+        7747,
+        7748,
+        7749,
+        7774,
+        7775
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 4,
+      "matchingCompactIds": [
+        9915,
+        9916,
+        9917,
+        9918,
+        9919,
+        9920
+      ],
+      "matchingOriginalAttemptIds": [
+        9940,
+        9941,
+        9942,
+        9943,
+        9944,
+        9945
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 5,
+      "matchingCompactIds": [
+        12021,
+        12022,
+        12023,
+        12024
+      ],
+      "matchingOriginalAttemptIds": [
+        12050,
+        12051,
+        12052,
+        12053
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 6,
+      "matchingCompactIds": [
+        14017,
+        14018,
+        14019,
+        14020,
+        14021,
+        14022
+      ],
+      "matchingOriginalAttemptIds": [
+        14054,
+        14055,
+        14056,
+        14057,
+        14058,
+        14059
+      ]
+    },
+    {
+      "sourceCompactId": 12024,
+      "sourceOriginalAttemptId": 12053,
+      "camera": 7,
+      "matchingCompactIds": [
+        15720,
+        15721,
+        15724,
+        15725
+      ],
+      "matchingOriginalAttemptIds": [
+        15758,
+        15759,
+        15762,
+        15763
+      ]
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 1,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 2,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 3,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 4,
+      "matchingCompactIds": [
+        7772,
+        7773
+      ],
+      "matchingOriginalAttemptIds": [
+        7788,
+        7789
+      ]
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 5,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 6,
+      "matchingCompactIds": [
+        12025,
+        12026,
+        12027,
+        12028
+      ],
+      "matchingOriginalAttemptIds": [
+        12054,
+        12055,
+        12056,
+        12057
+      ]
+    },
+    {
+      "sourceCompactId": 12025,
+      "sourceOriginalAttemptId": 12054,
+      "camera": 7,
+      "matchingCompactIds": [
+        14031,
+        14032
+      ],
+      "matchingOriginalAttemptIds": [
+        14068,
+        14069
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 0,
+      "matchingCompactIds": [
+        680,
+        681
+      ],
+      "matchingOriginalAttemptIds": [
+        680,
+        681
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 1,
+      "matchingCompactIds": [
+        2404,
+        2405,
+        2406,
+        2407,
+        2480,
+        2481,
+        2482,
+        2483
+      ],
+      "matchingOriginalAttemptIds": [
+        2410,
+        2411,
+        2412,
+        2413,
+        2486,
+        2487,
+        2488,
+        2489
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 2,
+      "matchingCompactIds": [
+        4493,
+        4494,
+        4495,
+        4496,
+        4571,
+        4572,
+        4573,
+        4574
+      ],
+      "matchingOriginalAttemptIds": [
+        4502,
+        4503,
+        4504,
+        4505,
+        4580,
+        4581,
+        4582,
+        4583
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 3,
+      "matchingCompactIds": [
+        6614,
+        6615,
+        6616,
+        6617,
+        6700,
+        6701,
+        6702,
+        6703
+      ],
+      "matchingOriginalAttemptIds": [
+        6630,
+        6631,
+        6632,
+        6633,
+        6716,
+        6717,
+        6718,
+        6719
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 4,
+      "matchingCompactIds": [
+        8851,
+        8852,
+        8853,
+        8854,
+        8937,
+        8938,
+        8939,
+        8940
+      ],
+      "matchingOriginalAttemptIds": [
+        8876,
+        8877,
+        8878,
+        8879,
+        8962,
+        8963,
+        8964,
+        8965
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 5,
+      "matchingCompactIds": [
+        10985,
+        10986,
+        10987,
+        10988,
+        11065,
+        11066,
+        11067,
+        11068
+      ],
+      "matchingOriginalAttemptIds": [
+        11014,
+        11015,
+        11016,
+        11017,
+        11094,
+        11095,
+        11096,
+        11097
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 6,
+      "matchingCompactIds": [
+        12943,
+        12944,
+        12945,
+        12946,
+        12948,
+        13022,
+        13023,
+        13024,
+        13025,
+        13026,
+        13027,
+        13100,
+        13102,
+        13103
+      ],
+      "matchingOriginalAttemptIds": [
+        12974,
+        12975,
+        12976,
+        12977,
+        12979,
+        13054,
+        13055,
+        13056,
+        13057,
+        13058,
+        13059,
+        13132,
+        13134,
+        13135
+      ]
+    },
+    {
+      "sourceCompactId": 13024,
+      "sourceOriginalAttemptId": 13056,
+      "camera": 7,
+      "matchingCompactIds": [
+        14825,
+        14826,
+        14827,
+        14828,
+        14889,
+        14890,
+        14891,
+        14892
+      ],
+      "matchingOriginalAttemptIds": [
+        14862,
+        14863,
+        14864,
+        14865,
+        14926,
+        14927,
+        14928,
+        14929
+      ]
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 1,
+      "matchingCompactIds": [
+        3252,
+        3253
+      ],
+      "matchingOriginalAttemptIds": [
+        3258,
+        3259
+      ]
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 2,
+      "matchingCompactIds": [
+        5477,
+        5478
+      ],
+      "matchingOriginalAttemptIds": [
+        5486,
+        5487
+      ]
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 3,
+      "matchingCompactIds": [
+        7758,
+        7759
+      ],
+      "matchingOriginalAttemptIds": [
+        7774,
+        7775
+      ]
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 4,
+      "matchingCompactIds": [
+        9919,
+        9920
+      ],
+      "matchingOriginalAttemptIds": [
+        9944,
+        9945
+      ]
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 5,
+      "matchingCompactIds": [
+        12023,
+        12024
+      ],
+      "matchingOriginalAttemptIds": [
+        12052,
+        12053
+      ]
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 6,
+      "matchingCompactIds": [
+        14015,
+        14016,
+        14018,
+        14021,
+        14022
+      ],
+      "matchingOriginalAttemptIds": [
+        14052,
+        14053,
+        14055,
+        14058,
+        14059
+      ]
+    },
+    {
+      "sourceCompactId": 14022,
+      "sourceOriginalAttemptId": 14059,
+      "camera": 7,
+      "matchingCompactIds": [
+        15724,
+        15725
+      ],
+      "matchingOriginalAttemptIds": [
+        15762,
+        15763
+      ]
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 1,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 2,
+      "matchingCompactIds": [
+        3528,
+        3529,
+        3530,
+        3531
+      ],
+      "matchingOriginalAttemptIds": [
+        3534,
+        3535,
+        3536,
+        3537
+      ]
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 3,
+      "matchingCompactIds": [
+        5603,
+        5604,
+        5606
+      ],
+      "matchingOriginalAttemptIds": [
+        5612,
+        5613,
+        5617
+      ]
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 4,
+      "matchingCompactIds": [
+        7770,
+        7771
+      ],
+      "matchingOriginalAttemptIds": [
+        7786,
+        7787
+      ]
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 5,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 6,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 14023,
+      "sourceOriginalAttemptId": 14060,
+      "camera": 7,
+      "matchingCompactIds": [
+        14023,
+        14024
+      ],
+      "matchingOriginalAttemptIds": [
+        14060,
+        14061
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 0,
+      "matchingCompactIds": [
+        1032,
+        1033,
+        1034,
+        1035,
+        1094,
+        1095,
+        1146,
+        1147
+      ],
+      "matchingOriginalAttemptIds": [
+        1032,
+        1033,
+        1034,
+        1035,
+        1094,
+        1095,
+        1146,
+        1147
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 1,
+      "matchingCompactIds": [
+        2834,
+        2835,
+        2836,
+        2837,
+        2912,
+        2913,
+        2914,
+        2915,
+        2988,
+        2989,
+        2990,
+        2991
+      ],
+      "matchingOriginalAttemptIds": [
+        2840,
+        2841,
+        2842,
+        2843,
+        2918,
+        2919,
+        2920,
+        2921,
+        2994,
+        2995,
+        2996,
+        2997
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 2,
+      "matchingCompactIds": [
+        4865,
+        4866,
+        4867,
+        4868,
+        4869,
+        4870,
+        4947,
+        4948,
+        4949,
+        4950,
+        4951,
+        4952
+      ],
+      "matchingOriginalAttemptIds": [
+        4874,
+        4875,
+        4876,
+        4877,
+        4878,
+        4879,
+        4956,
+        4957,
+        4958,
+        4959,
+        4960,
+        4961
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 3,
+      "matchingCompactIds": [
+        6934,
+        6935,
+        6936,
+        6937,
+        6938,
+        6939,
+        7020,
+        7021,
+        7022,
+        7023,
+        7024,
+        7025,
+        7104,
+        7105,
+        7106,
+        7107,
+        7108,
+        7109
+      ],
+      "matchingOriginalAttemptIds": [
+        6950,
+        6951,
+        6952,
+        6953,
+        6954,
+        6955,
+        7036,
+        7037,
+        7038,
+        7039,
+        7040,
+        7041,
+        7120,
+        7121,
+        7122,
+        7123,
+        7124,
+        7125
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 4,
+      "matchingCompactIds": [
+        8995,
+        8996,
+        8997,
+        8998,
+        9085,
+        9086,
+        9087,
+        9088,
+        9171,
+        9172,
+        9173,
+        9174
+      ],
+      "matchingOriginalAttemptIds": [
+        9020,
+        9021,
+        9022,
+        9023,
+        9110,
+        9111,
+        9112,
+        9113,
+        9196,
+        9197,
+        9198,
+        9199
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 5,
+      "matchingCompactIds": [
+        11119,
+        11120,
+        11121,
+        11122,
+        11201,
+        11202,
+        11203,
+        11204
+      ],
+      "matchingOriginalAttemptIds": [
+        11148,
+        11149,
+        11150,
+        11151,
+        11230,
+        11231,
+        11232,
+        11233
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 6,
+      "matchingCompactIds": [
+        13074,
+        13075,
+        13076,
+        13077,
+        13078,
+        13079,
+        13150,
+        13151,
+        13152,
+        13153,
+        13154,
+        13155
+      ],
+      "matchingOriginalAttemptIds": [
+        13106,
+        13107,
+        13108,
+        13109,
+        13110,
+        13111,
+        13182,
+        13183,
+        13184,
+        13185,
+        13186,
+        13187
+      ]
+    },
+    {
+      "sourceCompactId": 14874,
+      "sourceOriginalAttemptId": 14911,
+      "camera": 7,
+      "matchingCompactIds": [
+        14805,
+        14806,
+        14808,
+        14871,
+        14872,
+        14873,
+        14874,
+        14875,
+        14876,
+        14936,
+        14938,
+        14939,
+        14940,
+        14941
+      ],
+      "matchingOriginalAttemptIds": [
+        14842,
+        14843,
+        14845,
+        14908,
+        14909,
+        14910,
+        14911,
+        14912,
+        14913,
+        14974,
+        14976,
+        14977,
+        14978,
+        14979
+      ]
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 0,
+      "matchingCompactIds": [],
+      "matchingOriginalAttemptIds": []
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 1,
+      "matchingCompactIds": [
+        3252,
+        3253
+      ],
+      "matchingOriginalAttemptIds": [
+        3258,
+        3259
+      ]
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 2,
+      "matchingCompactIds": [
+        5477,
+        5478
+      ],
+      "matchingOriginalAttemptIds": [
+        5486,
+        5487
+      ]
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 3,
+      "matchingCompactIds": [
+        7730,
+        7731,
+        7732,
+        7733,
+        7758,
+        7759
+      ],
+      "matchingOriginalAttemptIds": [
+        7746,
+        7747,
+        7748,
+        7749,
+        7774,
+        7775
+      ]
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 4,
+      "matchingCompactIds": [
+        9915,
+        9916,
+        9917,
+        9918,
+        9919,
+        9920
+      ],
+      "matchingOriginalAttemptIds": [
+        9940,
+        9941,
+        9942,
+        9943,
+        9944,
+        9945
+      ]
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 5,
+      "matchingCompactIds": [
+        12023,
+        12024
+      ],
+      "matchingOriginalAttemptIds": [
+        12052,
+        12053
+      ]
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 6,
+      "matchingCompactIds": [
+        14017,
+        14018,
+        14019,
+        14020,
+        14021,
+        14022
+      ],
+      "matchingOriginalAttemptIds": [
+        14054,
+        14055,
+        14056,
+        14057,
+        14058,
+        14059
+      ]
+    },
+    {
+      "sourceCompactId": 15725,
+      "sourceOriginalAttemptId": 15763,
+      "camera": 7,
+      "matchingCompactIds": [
+        15720,
+        15721,
+        15723,
+        15724,
+        15725
+      ],
+      "matchingOriginalAttemptIds": [
+        15758,
+        15759,
+        15761,
+        15762,
+        15763
+      ]
+    }
+  ]
+}

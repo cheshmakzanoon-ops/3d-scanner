@@ -143,3 +143,13 @@ independently. Hosted corrected behavior remains untested; this change does not
 rearm the workflow. Later official AGP source inspection establishes that the
 missing-NDK error prints a hardcoded default revision even when resolution uses
 the explicit app pin. It does not prove that the app's pin was ignored.
+
+[Camera-partition front R2](fixed-point-front-camera-partition-r2/README.md)
+removes irrelevant-camera index-validation scans while preserving all 192 ordered
+query results, every source triangle and the original shared 5M work cap. The
+charged saving is 2,626,042 visits, including partition construction. Analytic
+controls and independent equivalence checks pass. Nevertheless, author and
+independent whole attempts again stop at 5,000,001 support visits, now after
+48,033 ball checks. No candidate mesh or quality evaluation is published. This
+is a verified work reduction and reproduced resource refusal, not improved
+scanner geometry or a justification for larger limits.

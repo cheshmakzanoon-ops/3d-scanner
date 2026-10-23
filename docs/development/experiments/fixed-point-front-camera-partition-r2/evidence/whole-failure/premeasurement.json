@@ -1,0 +1,9 @@
+{
+  "manifest": "ca4db9c4e662a73d2c9b02e7c82973e953f36805e62d70a6492190dec5879896",
+  "configSHA256": "88b2bd7f59ee9f293ea512f721142407c32ac8bc131dd44afa110484653f5021",
+  "mode": "whole",
+  "pythonEntry": "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+  "pythonBinarySHA256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "inputPinsSHA256": "71b6a48615720ff6527be1ab0bafa7d510e99f3661dc281676ab3e9a3285361c",
+  "inheritedOverrides": []
+}
