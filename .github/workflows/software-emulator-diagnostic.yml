@@ -1,0 +1,20 @@
+name: Focused Android software-emulator experiment
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: software-emulator-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  focused-software-runtime:
+    # Public standard runners only; no paid runner or persistent artifact/cache storage.
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Four focused tests in unsupported CPU software mode (not qualification)
+        run: python3 tools/device/software_emulator/diagnostic.py
