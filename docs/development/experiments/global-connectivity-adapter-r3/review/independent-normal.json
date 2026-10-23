@@ -1,0 +1,67 @@
+{
+  "scope": "synthetic calibrated ledger/parser/index controls only; no production or photographic result",
+  "cases": {
+    "2": {
+      "observations": 8,
+      "accumulators": 5,
+      "unknownNormalsRetained": 2,
+      "memberships": 8,
+      "sourceTriangles": 4,
+      "components": {
+        "0": 4
+      },
+      "candidateSupportHypothesis": true,
+      "inputHashesUnchanged": true
+    },
+    "4": {
+      "observations": 16,
+      "accumulators": 7,
+      "unknownNormalsRetained": 4,
+      "memberships": 16,
+      "sourceTriangles": 8,
+      "components": {
+        "0": 8
+      },
+      "candidateSupportHypothesis": true,
+      "inputHashesUnchanged": true
+    },
+    "8": {
+      "observations": 32,
+      "accumulators": 11,
+      "unknownNormalsRetained": 8,
+      "memberships": 32,
+      "sourceTriangles": 16,
+      "components": {
+        "0": 16
+      },
+      "candidateSupportHypothesis": true,
+      "inputHashesUnchanged": true
+    }
+  },
+  "negativeControls": {
+    "attribute": "MATERIALIZED_COLOR",
+    "postFaceNormal": "NOT_PRE_FACE_NORMAL_STAGE",
+    "pixelMismatch": "SOURCE_PIXEL_PROJECTION_BINDING",
+    "invalidFlag": "PREPARED_SUPPORTED_FLAG",
+    "outOfBoundsSupport": "PREPARED_SUPPORT_ID",
+    "wrongNeighborhood": "PREPARED_SUPPORT_PIXEL_BINDING",
+    "fractionalRGB": "PREPARED_RGB_UINT8",
+    "nonFloat32Confidence": "CONFIDENCE_NOT_FLOAT32",
+    "duplicateSupport": "PREPARED_SUPPORT_ID",
+    "wrongSupportCount": "TABLE_TAIL_WIDTH",
+    "missingStep": "DECLARED_NORMAL_STEP_REQUIRED",
+    "reflection": "NATIVE_NORMAL_ROTATION_DOMAIN",
+    "scaledRotation": "NATIVE_NORMAL_ROTATION_DOMAIN",
+    "hash": "INPUT_IDENTITY:samples",
+    "work": "SUPPORT_WORK_BUDGET",
+    "unknownMerge": "UNSUPPORTED_ACCUMULATOR_NOT_SINGLETON"
+  },
+  "unsupportedNonzeroPreparedVectorIgnoredInAccumulator": true,
+  "status": "PASS_ANALYTIC_ADAPTER_ONLY",
+  "sourceManifest": "97378a0d09594034dc2d30d8c30ee9d136f1d8784fefe43a7feaf804dce151ff",
+  "photo": "NOT_RUN_MISSING_PRODUCTION_LEDGER",
+  "front": "NOT_RUN",
+  "supportWork": 7200,
+  "seconds": 0.11172778799982552,
+  "maxRssKiB": 13184
+}

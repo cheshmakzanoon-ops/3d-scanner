@@ -1,0 +1,33 @@
+# Reconstructed immutable-ledger adapter R3
+
+NEW reconstructed source, not historical byte recovery. The old photographic ledger is missing. These controls use explicitly synthetic two-, four- and eight-camera observed ledgers; they are not production registration, photo reconstruction or mesh-quality results. Front execution is NOT_RUN.
+
+```sh
+python -B run_controls.py /fresh/output/outside/package
+```
+
+Linux/Python standard library only. Sources/manifest are verified before and after; real 256 MiB address-space and 120-second CPU/wall limits apply. Config records the fixed input/work/output caps. Case-wide index, adjacency, witness and support work shares the bounded budget; overflow refuses the complete case, not a partial mesh. Rational bit limits apply to validated inputs/reduced results; process limits bound temporary allocations. Controls write a fixed small number of bounded rows; final aggregate output is checked against 64 MiB.
+
+The adapter binds immutable original source pixels/XYZ, complete original triangles, calibrated camera rows, reciprocal witness identities, pre-face prepared evidence, accumulator memberships and full attribute strings. It independently recomputes actual float32 source weights and ordered weighted position/normal/color sums and materialized attributes. Every accumulator, including unsupported-normal and unreferenced points, remains in the spatial index. All original source components are reconstructed deterministically. Missing verified witness endpoints stay explicitly unavailable.
+
+Full projected support enumeration uses exact closed source bounding boxes and every overlapping bin in every camera, including visibility-only cameras. Actual member-camera rays and original source-triangle normal sets constrain orientation, not fake point normals. Normal checks include successful boundary-only contributors, not merely positive-area overlay labels. Actual fixed-photograph binding and whole-geometry parity still require newly generated production ledgers and independent review.
+
+Eight-view support is an explicit isolated extension: `source_record(..., max_views=4)` preserves R2 defaults, and the validated adapter supplies its bounded count up to eight. No R2 package was modified. R3 controls verify complete attributes/IDs/weights, unknown-point retention, components, exact index-vs-bruteforce overlap, closed support hypotheses and corruption/post-face-normal/hash/budget refusal. Radius 1/4 belongs only to these declared analytic controls; a photo run must freeze its sampling-derived radius once, never reuse an old dataset's numeric radius or sweep values.
+
+Known missing historical input expectations (not present files): accumulator SHA256 `f5a512360d280311118458174859768d81bac137dd0cdbcb0113905288946d9b`; memberships SHA256 `852bcad62b8102cb97ea12390b8d3ed2b635ce6d73570624ecd29aa35c76fdc0`. They are not asserted to match this new analytic data.
+
+The initial synthetic controls erroneously merged unsupported-normal observations across cameras. This violated actual native fusion semantics despite passing parser arithmetic. `preserved-initial-synthetic/` retains those two executed modules, receipt and original manifest (the manifest describes the former package, not the compact archive directory). The corrected controls use three supported fused accumulators and one unknown-normal singleton per camera, follow native XYZ/camera source ordering, and explicitly refuse unsupported merges. Weighted-normal recomputation is gated by actual preparedSupported; an unsupported but nonzero prepared vector does not become accumulator normal evidence. These are still synthetic adapter controls, not proof that the complete fusion algorithm generated the fixture.
+
+### Parser domain and evidence limits
+
+`Ledger(..., normal_step=...)` requires the explicitly declared native normal-neighborhood stride (1–64); these analytic controls declare 2. It validates source pixel/depth domain with the native scalar double operation order and the unchanged 0.25-pixel and depth-greater-than-0.01 gates. This is not a zero-tolerance reprojection test. Exact rational geometry is used separately for overlay predicates. Confidence must represent an actual float32 value, prepared colors must be uint8, flags must be 0 or 1, and support tails must contain at most nine unique in-grid pixel IDs belonging to the declared camera-local 3×3 neighborhood. Supported prepared normals require all nine IDs; tail ordering is retained, not fabricated.
+
+Original depth maps are absent. Source-to-map depth agreement, original neighborhood depths/confidences, normal-estimator reproduction, and accepted reciprocal witness numerical re-evaluation are **NOT_VERIFIED**. Witness status and prepared evidence are externally pinned inputs, not independently regenerated measurements. These schema checks do not certify that native fusion produced the synthetic data. Ordered accumulator arithmetic compares numeric float values, not signed-zero or NaN-payload bit identity; original input bytes remain hash-bound.
+
+`preserved-domain-gaps/` retains the prior parser/control source, prior package manifest and independent failing probes. That parser accepted a shifted source pixel, an invalid normal flag and an out-of-range support ID. The prior manifest describes its original full package, not this compact preservation directory. These were real validation defects, not successful native binding evidence.
+
+Camera arrays must also pass the native normal-helper rotation domain: scalar-double `R Rᵀ` and determinant differ from identity/+1 by at most `1e-5`. Reflections and scaled matrices are refused. The overlay's camera center is the **exact algebraic projection center** `−R⁻¹t` of the represented camera matrix. The native normal helper uses `−Rᵀt`; these are identical for exact rotations but can differ for represented near-orthonormal arrays. Thus member-camera hemisphere constraints are an engineered exact-projection contract, not a claim of bit-exact native normal-helper rays or estimator parity.
+
+### Independent review
+
+The executed source manifest `97378a0d09594034dc2d30d8c30ee9d136f1d8784fefe43a7feaf804dce151ff` passed independent normal and optimized Python replays, all R2 semantic/work parity checks, 800 randomized index-versus-brute-force queries, unknown-point retention, and optimized tamper/existing-output refusals. Compact receipts are in `review/`. This approval covers synthetic adapter controls only; map/estimator/witness regeneration is NOT_VERIFIED, and photo reconstruction and global front execution remain NOT_RUN. Documentation and receipts were added after those runs; executable sources were unchanged.

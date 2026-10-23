@@ -1,0 +1,5 @@
+{
+  "pixel_mismatch": "ACCEPTED",
+  "invalid_flag": "ACCEPTED",
+  "out_of_bounds_support": "ACCEPTED"
+}

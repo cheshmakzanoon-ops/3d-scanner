@@ -1,0 +1,54 @@
+{
+  "scope": "synthetic calibrated ledger/parser/index controls only; no production or photographic result",
+  "cases": {
+    "2": {
+      "observations": 8,
+      "accumulators": 4,
+      "unknownNormalsRetained": 4,
+      "memberships": 8,
+      "sourceTriangles": 4,
+      "components": {
+        "0": 4
+      },
+      "candidateSupportHypothesis": true,
+      "inputHashesUnchanged": true
+    },
+    "4": {
+      "observations": 16,
+      "accumulators": 4,
+      "unknownNormalsRetained": 4,
+      "memberships": 16,
+      "sourceTriangles": 8,
+      "components": {
+        "0": 8
+      },
+      "candidateSupportHypothesis": true,
+      "inputHashesUnchanged": true
+    },
+    "8": {
+      "observations": 32,
+      "accumulators": 4,
+      "unknownNormalsRetained": 4,
+      "memberships": 32,
+      "sourceTriangles": 16,
+      "components": {
+        "0": 16
+      },
+      "candidateSupportHypothesis": true,
+      "inputHashesUnchanged": true
+    }
+  },
+  "negativeControls": {
+    "attribute": "MATERIALIZED_COLOR",
+    "postFaceNormal": "NOT_PRE_FACE_NORMAL_STAGE",
+    "hash": "INPUT_IDENTITY:samples",
+    "work": "SUPPORT_WORK_BUDGET"
+  },
+  "status": "PASS_ANALYTIC_ADAPTER_ONLY",
+  "sourceManifest": "b228b0ad3e1aee4975631d17c4314bf93dc9ae59395697cbe2133959a3065c10",
+  "photo": "NOT_RUN_MISSING_PRODUCTION_LEDGER",
+  "front": "NOT_RUN",
+  "supportWork": 4098,
+  "seconds": 0.08577880899974843,
+  "maxRssKiB": 14436
+}

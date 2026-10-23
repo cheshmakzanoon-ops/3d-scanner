@@ -1,0 +1,11 @@
+# Calibrated ledger adapter reconstruction R3 — source checkpoint
+
+NEW source reconstructed from retained authored tool calls, not recovered historical bytes. The lost photographic ledger is absent. Historical expected accumulator/membership hashes are expectations only, never evidence of a current run. No photographic candidate or front execution is authorized by this source checkpoint.
+
+The adapter consumes original immutable samples, camera rows, source triangles, reciprocal witness rows, prepared-source evidence, exact accumulator memberships/weights and full pre-face attribute rows. It must retain every observation/accumulator, including unreferenced points and unknown normals; membership counts are not source-camera correspondences. No source pose, point, normal, weight or threshold is estimated or changed here.
+
+Production-ledger generation for the NEW fixed eight-view benchmark is separate and currently NOT_RUN. Its accepted sparse camera poses must come from the actual production registration/track-growth path. Rendering extrinsics/geometry/near-far/masks are not input to this adapter. The closed witness/visibility primitive dependencies are reconstructed R2 sources and remain subject to independent review.
+
+Pending prior bug is explicitly addressed in API wiring: use closed certificate contributingSourceIds (includes successful boundary-only contributors), not only positive-area labels, when applying original observed-triangle normal constraints. Full original accumulator attribute strings must remain retained. Complete actual-data identity/index/geometry parity and independent review are prerequisites before front work.
+
+This separate adapter explicitly extends source_record camera arity through a bounded max_views argument (default remains4 for unchanged R2 controls; maximum8 for the new fixed benchmark). The adapter passes its validated view count. Two-, four- and eight-view synthetic ledger controls exercise exact camera-center/projection binding, all unknown-normal points, source memberships/weights/attributes, full source components, spatial-index completeness, and boundary-aware normal constraints. They are not photographed reconstruction or production pipeline tests. No old counts/hashes are imposed on these new controls.

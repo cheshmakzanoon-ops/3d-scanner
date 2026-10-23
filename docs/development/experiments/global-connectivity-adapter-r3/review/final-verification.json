@@ -1,0 +1,9 @@
+{
+  "manifest": "97378a0d09594034dc2d30d8c30ee9d136f1d8784fefe43a7feaf804dce151ff",
+  "random_index_vs_all_triangle_bbox_queries": 800,
+  "all_unknown_singletons_retained": true,
+  "optimized_tamper_refused_before_output": true,
+  "existing_output_refused": true,
+  "native_map_estimator_witness_regeneration": "NOT_VERIFIED",
+  "photo_front": "NOT_RUN"
+}

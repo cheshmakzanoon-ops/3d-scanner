@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "revision": "reconstructed-r3",
+  "maxViews": 8,
+  "maxObservations": 20000,
+  "maxSourceTriangles": 40000,
+  "maxWitnessRows": 100000,
+  "maxPoints": 40000,
+  "maxClippingChecks": 5000000,
+  "maxBallChecks": 10000000,
+  "maxPartitionFragments": 4096,
+  "maxRationalBits": 4096,
+  "maxAddressSpaceBytes": 268435456,
+  "maxSecondsPerCase": 120,
+  "maxOutputBytes": 67108864,
+  "radiusPolicy": "caller must supply once-frozen sampling-derived rho; analytic parser controls use declared1/4, not photographic radius tuning",
+  "scope": "synthetic ledger adapter controls only; production/photo/front NOT_RUN",
+  "onExceeded": "abort whole case; never truncate or publish partial geometry",
+  "analyticNormalStep": 2,
+  "mapAndEstimatorReproduction": "NOT_VERIFIED"
+}

@@ -72,3 +72,10 @@ Its input-boundary and pure evidence-error helper controls pass, but the full
 pipeline is not compiled or executed here. Native/runtime admission deliberately
 refuses until a separately reviewed current-source capability is available.
 This is not a successful eight-view reconstruction or a substitute pose solver.
+
+[Immutable-ledger adapter R3](global-connectivity-adapter-r3/README.md) extends
+the reconstructed controls to synthetic two-, four- and eight-camera ledgers,
+with stricter pixel, flag, support-ID and attribute-domain validation. It retains
+unknown-normal points and closed-boundary normal constraints. Original map/normal
+estimator and reciprocal-witness regeneration are still not verified here;
+production photographic binding and global front execution remain unqualified.
