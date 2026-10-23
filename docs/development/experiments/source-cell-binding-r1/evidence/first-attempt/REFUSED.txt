@@ -1,0 +1,2 @@
+RuntimeError: patch anchor not unique:        if(ids[0]<0||ids[1]<0||ids[2]<0||ids[0]==ids[1]||ids[0]==ids[2]||ids[1]==ids[2])return false;
+No successful arm publication.

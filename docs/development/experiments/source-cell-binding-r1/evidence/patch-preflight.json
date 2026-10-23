@@ -1,0 +1,26 @@
+{
+  "status": "ALL_ANCHORS_APPLIED_BEFORE_BUILD",
+  "files": {
+    "reconstruction/src/cell_observer.hpp": {
+      "baseline": null,
+      "observer": "cd830ed5e16055e0f3a23a584d6e6b7cd84961bf30cdc95f88b3882f8a456d14"
+    },
+    "reconstruction/src/dense.cpp": {
+      "baseline": "4c1da676d11cafcfc5f980a667b344437f443969f139f74c96911b9ddc5571ec",
+      "observer": "e2d5cce1c82086ddfff65943ea6886989290bf9f30ded4dadd0503746baaf576"
+    },
+    "reconstruction/src/dense_witness.hpp": {
+      "baseline": null,
+      "observer": "8339e99ce856d43a5fb086ad062bd07d4a78d0cfef5d6fdbe53c3537ad059970"
+    },
+    "reconstruction/src/ledger_observer.hpp": {
+      "baseline": null,
+      "observer": "d198a3e7a3c3a87072cc8370f8ff00773fd57de0f3a55396d2df59c67a1e346e"
+    },
+    "reconstruction/src/surface.cpp": {
+      "baseline": "dc49530870b343a0ada725d5d6c6d77c3c3a5bd95418ec8fdbd83ca507d3de42",
+      "observer": "b9ac70bf70b8a58a3cbab0cca335b719736a627beb82905cd4347de0673e7ea1"
+    }
+  },
+  "diff": "18a3091bc1566c4ad4f5ea6299fc125406dbbd6037a3bd5642801e11375a93fc"
+}

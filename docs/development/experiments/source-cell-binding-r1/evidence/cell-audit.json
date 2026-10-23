@@ -1,0 +1,41 @@
+{
+  "scope": "PROVENANCE_INCIDENCE_ONLY_NOT_R3_CERTIFICATE",
+  "cells": 34048,
+  "completeCells": 7882,
+  "missingCornerCells": 26166,
+  "triangleAttempts": 15764,
+  "nativeStatusCounts": {
+    "0": 13195,
+    "3": 35,
+    "5": 2531,
+    "2": 3
+  },
+  "nativeAcceptedBeforeCleanup": 13195,
+  "derivedLiftCounts": {
+    "DERIVED_SUPPORT": 15726,
+    "NATIVE_GEOMETRIC_REFUSAL": 38
+  },
+  "derivedTrianglesPerCamera": {
+    "0": 1584,
+    "1": 1936,
+    "2": 2083,
+    "3": 2167,
+    "4": 2151,
+    "5": 2104,
+    "6": 1998,
+    "7": 1703
+  },
+  "allObservations": 9172,
+  "allAccumulators": 4855,
+  "observationsWithDerivedIncidence": 8854,
+  "accumulatorsWithDerivedIncidence": 4538,
+  "unknownNormalAccumulators": 2363,
+  "unknownNormalAccumulatorsWithIncidence": 2046,
+  "directedConfirmations": 25744,
+  "strictReverseDirectedLinks": 17920,
+  "strictReverseLinksWithBothEndpointsIncident": 17542,
+  "nativePredicateReplay": "EXACT_BITS_AND_BRANCHES",
+  "rawLift": "EXPLICIT_DERIVED_POLICY_NOT_NATIVE_RAW_TRIANGULATION",
+  "coverage": "NOT_EVALUATED",
+  "front": "NOT_RUN"
+}

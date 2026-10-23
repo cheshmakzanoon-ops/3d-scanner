@@ -1,0 +1,12 @@
+{
+  "status": "PRE_MEASUREMENT_PATCH_ANCHOR_REFUSAL",
+  "executedPackageManifest": "b3814a33674b084aa7051ccd14fd03a52ed83900d479183584c38431adae0e63",
+  "baselineBuild": "COMPLETED",
+  "nativeBaseline": "NOT_RUN",
+  "nativeObserver": "NOT_RUN",
+  "incidence": "NOT_RUN",
+  "evaluation": "NOT_RUN",
+  "reason": "Exact patch anchor repeated-ID textual order did not match pinned native source; fail-closed before observer patch publication",
+  "correction": "Preserve original native comparison order, validate every patch and actual diff before any build",
+  "librarySHA256": "84429c66f777c5c516f0b7c938a2e9050cc51f536b73c25081ae46ae2dc8c88e"
+}

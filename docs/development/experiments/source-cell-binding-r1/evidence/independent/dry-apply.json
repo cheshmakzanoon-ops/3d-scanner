@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "manifest": "774a927f92da7423574b2282761f889317617c4561dec1a491aa12e18714071e",
+  "changedFiles": [
+    "reconstruction/src/ledger_observer.hpp",
+    "reconstruction/src/dense.cpp",
+    "reconstruction/src/surface.cpp",
+    "reconstruction/src/dense_witness.hpp",
+    "reconstruction/src/cell_observer.hpp"
+  ],
+  "hashes": {
+    "reconstruction/src/ledger_observer.hpp": "d198a3e7a3c3a87072cc8370f8ff00773fd57de0f3a55396d2df59c67a1e346e",
+    "reconstruction/src/dense.cpp": "e2d5cce1c82086ddfff65943ea6886989290bf9f30ded4dadd0503746baaf576",
+    "reconstruction/src/surface.cpp": "b9ac70bf70b8a58a3cbab0cca335b719736a627beb82905cd4347de0673e7ea1",
+    "reconstruction/src/dense_witness.hpp": "8339e99ce856d43a5fb086ad062bd07d4a78d0cfef5d6fdbe53c3537ad059970",
+    "reconstruction/src/cell_observer.hpp": "cd830ed5e16055e0f3a23a584d6e6b7cd84961bf30cdc95f88b3882f8a456d14"
+  }
+}

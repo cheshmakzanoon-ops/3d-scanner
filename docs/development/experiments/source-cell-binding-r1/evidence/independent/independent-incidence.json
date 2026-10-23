@@ -1,0 +1,16 @@
+{
+  "cells": 34048,
+  "triangleAttempts": 15764,
+  "statusCounts": {
+    "0": 13195,
+    "3": 35,
+    "5": 2531,
+    "2": 3
+  },
+  "derivedTriangles": 15726,
+  "sourceIncidenceCount": 8854,
+  "accumulatorIncidenceCount": 4538,
+  "exactProjectedAreaOrientationChecked": 15726,
+  "derivedFlips": 15726,
+  "duplicateNativeWindingUnavailable": true
+}

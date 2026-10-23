@@ -1,0 +1,23 @@
+{
+  "packageManifest": "774a927f92da7423574b2282761f889317617c4561dec1a491aa12e18714071e",
+  "config": "92dcff14ea5a39d871533574907aada52dd8a9558792dd60a1da927c2ab00e4f",
+  "archive": "ee5b11ea876032332a378d78518c6bc51904eceb615a406dda2e15917e6b9662",
+  "sourceCommit": "173dc71d7d99e97a8e2d4257b52cf7033e37a74f",
+  "input": "3eb7e85bdeb1844a6342fa1ec8fc8dfdf7e7ccc98acdb046782222fc402b4762",
+  "fixtureManifest": "c1107dd09510ffbba286b1c7bdae2e3d099726df8704322f20ed92e1010176b6",
+  "native": {
+    "baseline": {
+      "library": "84429c66f777c5c516f0b7c938a2e9050cc51f536b73c25081ae46ae2dc8c88e",
+      "denseSource": "4c1da676d11cafcfc5f980a667b344437f443969f139f74c96911b9ddc5571ec",
+      "surfaceSource": "dc49530870b343a0ada725d5d6c6d77c3c3a5bd95418ec8fdbd83ca507d3de42"
+    },
+    "observer": {
+      "library": "6b679fbf4e60f52a9af6003fb04c274e341b0565518c487a1b0541abd2ea54e5",
+      "denseSource": "e2d5cce1c82086ddfff65943ea6886989290bf9f30ded4dadd0503746baaf576",
+      "surfaceSource": "b9ac70bf70b8a58a3cbab0cca335b719736a627beb82905cd4347de0673e7ea1"
+    }
+  },
+  "oracleCameraExtrinsicsInput": true,
+  "imageDerivedRegistration": false,
+  "geometryMasksInput": false
+}

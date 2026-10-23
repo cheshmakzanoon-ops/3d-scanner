@@ -96,3 +96,11 @@ same poor mesh: 3,434 nonmanifold edges and incomplete intersection checking.
 Only 33.8779% of observable reference-area samples are within a distance of
 1% of the reference object's diagonal from the mesh. This is a measured diagnostic baseline, not image-derived registration,
 a geometry improvement, a full support certificate or a global-front result.
+
+[Native source-cell binding](source-cell-binding-r1/README.md) preserves
+camera-local support before duplicate-face suppression. Independent replay matches
+all 19 predecessor artifacts and all 42 compared outputs. The 15,726 derived
+raw-corner support triangles include 2,531 duplicate-camera proposals, without
+inventing their unavailable native winding. All observations and pre-face points
+remain accounted for, including unknown normals. This is provenance and incidence
+only: geometry, poor coverage and incomplete intersection checks are unchanged.
