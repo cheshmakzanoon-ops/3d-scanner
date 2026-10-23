@@ -2,7 +2,7 @@
 
 This bounded helper compiles the actual Android-free production
 `GrayFeatureExtraction.kt`, `FeatureFrame.kt`, and `LensGeometry.kt` from source,
-then executes ten tests against the app AAR's Java classes and a separately
+then executes eleven tests against the app AAR's Java classes and a separately
 verified official OpenCV 4.12.0 Linux JNI library. It does not reuse cached app
 classes or replace SIFT. See the sibling feature matcher helper's `OPENCV_BUILD.md`
 for native capability provenance and prerequisites.
@@ -30,12 +30,14 @@ Tests check same-process direct-SIFT parity and output order; deterministic
 coordinates/descriptors; configured row cap; ARGB sampler alignment; projection
 normalization; empty frames; independent cloned-descriptor lifetime; borrowed-gray
 preservation after success/failures; callback failure semantics; cancellation
-postkernel, every128 keypoints, and before publication; and internal admission.
+before the kernel, postkernel, every128 keypoints, and before publication; and internal admission.
 They do not prove native deallocation or process memory bounds merely by reuse.
 
 The internal core borrows its image and sampler synchronously. It assumes the
-adapter has validated metadata and performed preconversion cancellation checks;
-it does not add a new cancellation polling point. Setting cancellation in STARTED
+adapter has validated metadata and performed preconversion cancellation checks.
+After grayscale admission it checks cancellation again, before allocating SIFT
+resources or invoking STARTED: a request during prior conversion must not start
+the noninterruptible kernel. This is not asynchronous interruption. Setting cancellation in STARTED
 or FINISHED tests postkernel cancellation semantics, not a timed asynchronous
 request inside JNI. STARTED failure emits no FINISHED. FINISHED failure after successful native
 work still propagates unchanged; when native work already failed, that primary

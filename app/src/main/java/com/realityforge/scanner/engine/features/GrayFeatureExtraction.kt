@@ -35,6 +35,9 @@ internal fun extractGrayFeatures(
     val width=gray.cols(); val height=gray.rows()
     require(gray.dims()==2 && gray.type()==CvType.CV_8UC1 &&
         width in 1..settings.analysisEdge && height in 1..settings.analysisEdge)
+    // The adapter's previous check precedes image conversion. A cancellation
+    // requested during that work must not start another noninterruptible kernel.
+    checkCancelled()
     val resources=ArrayList<Mat>(3)
     var retained:Mat?=null
     var sift:SIFT?=null

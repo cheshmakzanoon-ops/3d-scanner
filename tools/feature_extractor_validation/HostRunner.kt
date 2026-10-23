@@ -13,5 +13,5 @@ fun main(args:Array<String>) {
  val result=org.junit.runner.JUnitCore.runClasses(com.realityforge.scanner.engine.features.ProductionExtractorHostTest::class.java)
  result.failures.forEach{System.err.println(it.trace)}
  println("Production extractor HOST JNI tests: ${result.runCount}, failures: ${result.failureCount}; native=${Core.getVersionString()}, threads=${Core.getNumThreads()}")
- maps();check(result.runCount==10 && result.wasSuccessful())
+ maps();check(result.runCount==11 && result.wasSuccessful())
 }

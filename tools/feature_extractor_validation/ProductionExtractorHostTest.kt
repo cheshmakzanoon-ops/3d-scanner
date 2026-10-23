@@ -97,6 +97,19 @@ class ProductionExtractorHostTest {
             }
         }finally{gray.release()}
     }
+    @Test fun cancellationAlreadyRequestedAtGrayBoundaryNeverStartsKernel() {
+        val gray=texture();val original=gray.clone()
+        try {
+            val events=ArrayList<NativeFeatureCallEvent>()
+            var samples=0
+            assertThrows(CancellationException::class.java){run(gray,
+                sample={x,y->samples++;color(x,y)},cancelled={true},observe={events.add(it)})}
+            assertTrue("Cancellation after image conversion must not launch SIFT",events.isEmpty())
+            assertEquals(0,samples)
+            assertEquals(0.0,Core.norm(gray,original),0.0)
+            run(gray).use{assertTrue(it.count>0)}
+        }finally{gray.release();original.release()}
+    }
     @Test fun callbackCancellationIsObservedAfterKernelWithoutPublication() {
         val gray=texture()
         try {
