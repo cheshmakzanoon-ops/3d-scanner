@@ -673,7 +673,10 @@ Java_com_realityforge_scanner_engine_NativeCore_reconstructCalibrated(
         rf::jni::doubles(env,observed,0,static_cast<jsize>(pixels.size()),pixels.data());if(env->ExceptionCheck())return nullptr;
         rf::jni::doubles(env,domains,0,22,calibration.data());if(env->ExceptionCheck())return nullptr;
         auto* json=rf_reconstruct_calibrated_json(data.data(),data.size()/7,pixels.data(),pixels.size(),calibration.data(),calibration.size(),threshold);
-        if(!json)throw std::bad_alloc();return rf::jni::response(env,json);
+        if (!json) {
+            throw std::bad_alloc();
+        }
+        return rf::jni::response(env, json);
     });
 }
 extern "C" JNIEXPORT jstring JNICALL
