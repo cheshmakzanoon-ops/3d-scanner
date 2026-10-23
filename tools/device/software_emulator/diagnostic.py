@@ -31,8 +31,8 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "7932b9a0e590d7c06815e6f41d7446c23d879b9b"
-PUSH_MESSAGE = "test: run software Android diagnostic with verified host libraries"
+PUSH_BASE_SHA = "68e7a843bf44aaa2557cd34281cd5a4a2281d60e"
+PUSH_MESSAGE = "test: validate observed headless emulator loader trace"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
 PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
@@ -59,6 +59,7 @@ HOST_ARCHIVE_LIMIT = 32 * 1024 * 1024
 HOST_EXPANDED_LIMIT = 64 * 1024 * 1024
 HOST_METADATA_LIMIT = 256 * 1024 * 1024
 SONAME = re.compile(r"[A-Za-z0-9_+.-]+\.so(?:\.[A-Za-z0-9_.-]+)*")
+LOADER_TRACE_LIMIT = 256 * 1024
 INSTRUMENTATION_LIMIT = 128 * 1024
 LOG_LIMIT = 4 * 1024 * 1024
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
@@ -129,6 +130,19 @@ def emit_raw_instrumentation(output):
     print("RF_INSTRUMENTATION_RAW_META " + json.dumps(metadata, sort_keys=True), flush=True)
     for index, chunk in enumerate(chunks, 1):
         print(f"RF_INSTRUMENTATION_RAW_CHUNK {index}/{len(chunks)} {chunk}", flush=True)
+
+
+def emit_raw_loader_trace(raw, complete):
+    """Preserve the complete bounded capture even when subsequent parsing fails."""
+    if len(raw) > LOADER_TRACE_LIMIT:
+        raise Failure("Loader trace exceeds bounded size")
+    encoded = base64.b64encode(raw).decode("ascii")
+    chunks = [encoded[index:index + 4096] for index in range(0, len(encoded), 4096)]
+    metadata = {"encoding": "base64", "bytes": len(raw), "chunks": len(chunks),
+                "sha256": hashlib.sha256(raw).hexdigest(), "complete": complete is True}
+    print("RF_LOADER_TRACE_RAW_META " + json.dumps(metadata, sort_keys=True), flush=True)
+    for index, chunk in enumerate(chunks, 1):
+        print(f"RF_LOADER_TRACE_RAW_CHUNK {index}/{len(chunks)} {chunk}", flush=True)
 
 
 def validate_policy(env, event):
@@ -370,26 +384,106 @@ def check_metadata_storage(root, byte_limit=HOST_METADATA_LIMIT, entry_limit=128
                 raise Blocked("Private APT metadata exceeded sampled byte limit")
 
 
-def observed_loader_paths(output, emulator_root):
-    """Observe the official launcher's own version-only exec, not guessed SDK paths."""
+def observed_loader_paths(output, emulator_root, probe_pid, exit_code=0, evidence=None):
+    """Bind backend startup and search records to the actual owned probe PID/exec.
+
+    RPATH/RUNPATH remain native ELF attributes; only observed LD_LIBRARY_PATH
+    entries become the corresponding environment variable for closure checks.
+    """
     emulator_root = emulator_root.resolve()
-    backends = set(re.findall(r'qemu backend: argv\[00\] = "([^"\n]+)"', output))
-    if len(backends) != 1:
-        raise Blocked("Cannot identify the launcher's actual selected QEMU backend")
-    backend = Path(backends.pop()).resolve()
-    if backend not in {emulator_root / "qemu/linux-x86_64" / name for name in
-            ("qemu-system-x86_64", "qemu-system-x86_64-headless")}:
-        raise Blocked("Launcher selected a backend outside the expected official SDK")
-    directories = []
-    for raw in re.findall(r"search path=([^\n]+?)\s+\(LD_LIBRARY_PATH\)", output):
-        for entry in raw.strip().split(":"):
+    launcher = emulator_root / "emulator"
+    allowed = {emulator_root / "qemu/linux-x86_64" / name for name in
+               ("qemu-system-x86_64", "qemu-system-x86_64-headless")}
+    if type(probe_pid) is not int or probe_pid <= 0:
+        raise Blocked("Missing owned launcher probe PID")
+    pending, initialized, completed, selected, seen_pids = [], None, [], None, set()
+    for line in output.splitlines():
+        record = re.fullmatch(r"\s*([0-9]+):\s*(.*)", line)
+        if not record:
+            continue
+        pid, body = int(record[1]), record[2].strip()
+        seen_pids.add(pid)
+        startup = re.fullmatch(r"(initialize program|transferring control): (/.+)", body)
+        if pid != probe_pid:
+            if startup and Path(startup[2]).resolve() in allowed:
+                raise Blocked("A different process also claims selected QEMU startup")
+            continue  # Crashpad and other children cannot supply backend/path evidence.
+        if startup:
+            path = Path(startup[2]).resolve()
+            if path not in allowed | {launcher}:
+                raise Blocked("Owned probe initialized a foreign program")
+            if startup[1] == "initialize program":
+                if initialized is not None or path in completed:
+                    raise Blocked("Duplicate or incomplete owned program initialization")
+                initialized = (path, list(pending))
+            else:
+                if initialized is None or initialized[0] != path:
+                    raise Blocked("Program control transfer lacks its matching initialization")
+                if path in allowed:
+                    if selected is not None:
+                        raise Blocked("Conflicting selected QEMU backend")
+                    selected = (path, initialized[1], "paired-initialize-and-control")
+                completed.append(path)
+                pending, initialized = [], None
+        elif body.startswith(("initialize program:", "transferring control:")):
+            raise Blocked("Malformed owned program startup evidence")
+        elif body.startswith("search path="):
+            pending.append(body)
+    if initialized is not None:
+        raise Blocked("Program initialization has no matching control transfer")
+    if selected is None:
+        # A loader failure occurs before initialization. Accept only one exact
+        # backend error after the owned launcher, no child PID/foreign evidence.
+        failures = re.findall(r"(?m)^(/[^\n:]+): error while loading shared libraries: "
+            r"([^ /:]+): cannot open shared object file: No such file or directory$", output)
+        if (exit_code != 127 or len(failures) != 1 or Path(failures[0][0]).resolve() not in allowed
+                or not SONAME.fullmatch(failures[0][1]) or seen_pids != {probe_pid}
+                or completed != [launcher]):
+            raise Blocked("Cannot identify an owned selected QEMU startup or exact loader failure")
+        selected = (Path(failures[0][0]).resolve(), pending, "owned-loader-failure")
+    backend, records, mode = selected
+    if mode == "paired-initialize-and-control" and completed not in ([backend], [launcher, backend]):
+        raise Blocked("Unexpected owned launcher/backend execution sequence")
+    if evidence is not None:
+        evidence.update(backendPid=probe_pid, backend=str(backend.relative_to(emulator_root)), backendIdentityMode=mode)
+    directories, elf_records, ld_order = [], [], None
+    for body in records:
+        search = re.fullmatch(r"search path=(.*?)\s+\((LD_LIBRARY_PATH|(?:RPATH|RUNPATH) from file .+)\)", body)
+        if not search:
+            if body.endswith("(system search path)"):
+                continue
+            raise Blocked("Unrecognized selected-process library search evidence")
+        kind = search[2].split(" from file ", 1)[0]
+        origin = None if kind == "LD_LIBRARY_PATH" else Path(search[2].split(" from file ", 1)[1]).resolve()
+        if origin is not None and not origin.is_relative_to(emulator_root):
+            continue  # Host ELF metadata is handled by the real loader, never promoted.
+        observed = []
+        for entry in search[1].strip().split(":"):
             path = Path(entry)
-            if not entry or not path.is_absolute() or not path.resolve().is_relative_to(emulator_root):
-                raise Blocked("Launcher library search path escaped the official SDK")
-            if path.is_dir() and path.resolve() not in directories:
-                directories.append(path.resolve())
-    if not directories:
-        raise Blocked("Actual launcher SDK library search order was not observed")
+            if (not entry or not path.is_absolute() or any(ord(c) < 32 for c in entry)
+                    or not path.resolve().is_relative_to(emulator_root)):
+                raise Blocked("Selected-process SDK library path escaped the official SDK")
+            if path.is_dir() and path.resolve() not in observed:
+                observed.append(path.resolve())
+        if kind == "LD_LIBRARY_PATH":
+            if ld_order is None:
+                ld_order = observed
+                directories = observed
+            elif [p for p in ld_order if p in observed] != observed:
+                raise Blocked("Conflicting selected-process LD_LIBRARY_PATH order")
+        else:
+            item = {"kind": kind, "origin": str(origin.relative_to(emulator_root)),
+                    "directories": [str(p.relative_to(emulator_root)) for p in observed]}
+            if item not in elf_records:
+                elf_records.append(item)
+        if len(elf_records) > 64:
+            raise Blocked("Oversized selected-process ELF search evidence")
+    if ld_order is None and not elf_records:
+        raise Blocked("Selected QEMU library search evidence was not observed")
+    if evidence is not None:
+        evidence.update(backendPid=probe_pid, backend=str(backend.relative_to(emulator_root)),
+                        backendIdentityMode=mode, elfSearchRecords=elf_records,
+                        observedLdLibraryPath=[str(p.relative_to(emulator_root)) for p in directories])
     return backend, directories
 
 
@@ -621,7 +715,7 @@ class Controller:
         return remaining
 
     def command(self, label, args, timeout=60, limit=LOG_LIMIT, check=True, stdin=None,
-                env=None, cwd=None, binary=False, guard=None):
+                env=None, cwd=None, binary=False, guard=None, identity=None):
         expires = self.clock() + self.remaining(timeout)
         proc, data = None, bytearray()
         try:
@@ -632,6 +726,8 @@ class Controller:
                                     stdin=subprocess.DEVNULL if stdin is None else subprocess.PIPE,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                     start_new_session=True)
+            if identity is not None:
+                identity.update(pid=proc.pid, complete=False)
             if stdin is not None:
                 proc.stdin.write(stdin)
                 proc.stdin.close()
@@ -660,6 +756,8 @@ class Controller:
                         if guard is not None:
                             guard()
                         code = exited.si_status if exited.si_code == os.CLD_EXITED else 128 + exited.si_status
+                        if identity is not None:
+                            identity.update(exit=code, complete=True)
                         text = bytes(data) if binary else data.decode("utf-8", "strict")
                         if check and code:
                             raise Failure(label + " failed with exit " + str(code))
@@ -667,13 +765,18 @@ class Controller:
                     if eof:
                         time.sleep(min(0.1, max(0, expires - self.clock())))
         finally:
+            if identity is not None:
+                identity.update(outputBytes=len(data), outputSha256=hashlib.sha256(data).hexdigest())
             if proc is not None:
                 stop_owned(proc)
                 proc.stdout.close()
             # Successful polling is quiet; all other bounded diagnostics are retained.
             if label != "boot-poll":
+                if label == "emulator-loader-probe":
+                    emit_raw_loader_trace(bytes(data), identity is not None and identity.get("complete") is True)
                 emit(label, (f"binary bytes={len(data)} sha256={hashlib.sha256(data).hexdigest()}"
-                             if binary else bytes(data)))
+                             if binary else bytes(data)),
+                     limit=LOADER_TRACE_LIMIT if label == "emulator-loader-probe" else 16384)
 
     def git(self, *args):
         return self.command("source", ["git", *args])[0].strip()
@@ -704,11 +807,16 @@ class Controller:
             raise Blocked("Inherited loader overrides are not permitted for this diagnostic")
         ldd, readelf = require_executable(Path("/usr/bin/ldd")), require_executable(Path("/usr/bin/readelf"))
         sdk_root = Path(self.emulator_path).parent.resolve()
+        details = {"status": "PROBING", "launcherProbe": {}, "packages": [], "selectedLibraries": {}}
+        self.receipt["hostLibraries"] = details
         probe, code = run("emulator-loader-probe", [self.emulator_path, "-no-window", "-gpu", "software",
-                         "-verbose", "-version"], env={**self.env, "LD_DEBUG": "libs"}, check=False)
+                         "-verbose", "-version"], env={**self.env, "LD_DEBUG": "libs"}, check=False,
+                         limit=LOADER_TRACE_LIMIT, identity=details["launcherProbe"])
+        details.update(launcherProbeSha256=hashlib.sha256(probe.encode()).hexdigest(),
+                       launcherProbeBytes=len(probe.encode()), launcherProbeExit=code)
         if code not in (0, 127):
             raise Blocked("Version-only launcher probe failed for a non-loader reason")
-        backend, vendor_dirs = observed_loader_paths(probe, sdk_root)
+        backend, vendor_dirs = observed_loader_paths(probe, sdk_root, details["launcherProbe"].get("pid"), code, details)
         targets = {Path(self.emulator_path).resolve(), backend}
         for directory in (sdk_root / "lib64/gles_swiftshader", sdk_root / "lib64/vulkan"):
             if directory.is_dir():
@@ -721,15 +829,14 @@ class Controller:
             raise Blocked("Unexpectedly large emulator/renderer ELF target set")
         for target in targets:
             verify_x86_64_shared_object(target, executable=target in (backend, Path(self.emulator_path).resolve()))
-        details = {"status": "CHECKING", "launcherProbeSha256": hashlib.sha256(probe.encode()).hexdigest(),
-            "launcherProbeExit": code, "vendorLibraryDirs": [str(p.relative_to(sdk_root)) for p in vendor_dirs],
-            "targets": {str(p.relative_to(sdk_root)): digest(p) for p in sorted(targets)},
-            "loaderToolSha256": {Path(tool).name: digest(tool) for tool in (ldd, readelf)},
-            "packages": [], "selectedLibraries": {}}
-        self.receipt["hostLibraries"] = details
+        details.update(status="CHECKING", vendorLibraryDirs=[str(p.relative_to(sdk_root)) for p in vendor_dirs],
+            targets={str(p.relative_to(sdk_root)): digest(p) for p in sorted(targets)},
+            loaderToolSha256={Path(tool).name: digest(tool) for tool in (ldd, readelf)})
         overlay = self.temp / "emulator-library-overlay"
         overlay.mkdir()
-        trace_env = {**self.env, "LC_ALL": "C", "LD_LIBRARY_PATH": os.pathsep.join(map(str, vendor_dirs))}
+        trace_env = {**self.env, "LC_ALL": "C"}
+        if vendor_dirs:
+            trace_env["LD_LIBRARY_PATH"] = os.pathsep.join(map(str, vendor_dirs))
         def scan():
             missing, resolved, transcripts = set(), {}, []
             for target in sorted(targets):
@@ -828,7 +935,7 @@ class Controller:
                     if name in candidates and candidates[name] != value:
                         raise Blocked("Ambiguous dependency SONAME provider")
                     candidates[name] = value
-        trace_env["LD_LIBRARY_PATH"] += os.pathsep + str(overlay)
+        trace_env["LD_LIBRARY_PATH"] = os.pathsep.join(map(str, [*vendor_dirs, overlay]))
         for _ in range(16):
             if not missing:
                 break

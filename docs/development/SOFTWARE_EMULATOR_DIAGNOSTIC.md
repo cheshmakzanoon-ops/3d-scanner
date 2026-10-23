@@ -50,8 +50,8 @@ fails rather than silently changing mode or downgrading.
 Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
 repository's `refs/heads/main`, on attempt 1, with all of the following:
 
-- Previous head exactly `7932b9a0e590d7c06815e6f41d7446c23d879b9b`.
-- Exact commit message `test: run software Android diagnostic with verified host libraries`.
+- Previous head exactly `68e7a843bf44aaa2557cd34281cd5a4a2281d60e`.
+- Exact commit message `test: validate observed headless emulator loader trace`.
 - A normal update, not a created/deleted branch or forced push.
 - Event `after`, head-commit ID and `GITHUB_SHA` all identical.
 - One non-merge commit whose actual parent is that previous head; the committed
@@ -125,18 +125,54 @@ completed; no app build, AVD boot or instrumentation had begun. This is a real
 hosted prerequisite failure, not an Android test result. The correction is a new
 reviewed source/one-shot authorization, not a rerun of that old source.
 
+The next actual attempt, [run 39935804154, attempt 1](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39935804154),
+at source `68e7a843bf44aaa2557cd34281cd5a4a2281d60e`, stopped `BLOCKED` before
+build/boot/tests because the checker expected an unobserved quoted `argv[00]`
+debug line. The preserved loader tail instead contains paired initialization and
+control-transfer records for owned PID 5143's headless backend, and prints emulator
+37.2.12.0. Visible RPATH/LD_LIBRARY_PATH searches in that tail belong to crashpad
+PID 5147, not the backend. The old controller parsed all 56,618 captured bytes;
+only its displayed log was truncated to 16 KiB. That display loss did **not** cause
+the parser failure, but prevents a complete replay of its search-path evidence.
+The old receipt omitted probe exit/hash/size, so neither an exact probe exit code
+nor a completed closure check is claimed retrospectively. No private APT repair,
+Android build, boot or instrumentation occurred in that attempt.
+
 The smallest path is attempted first: `-no-window -gpu software -version`, matching
 the diagnostic's intended headless/software mode. Official launcher source selects
 a headless backend and omits Qt setup in this mode, but this does **not** establish
 that the installed headless binary is independent of PulseAudio. A bounded
 version-only `-verbose`/process-local `LD_DEBUG=libs` probe identifies the actual
-SDK backend and vendor library-search directories. This does not create an AVD.
+SDK backend and library-search evidence. This does not create an AVD. The probe's
+actual `Popen` PID is recorded before reading output. A successful backend must
+have exactly one matching initialization/control-transfer pair on that same PID,
+in the launcher/backend execution sequence. Other-PID QEMU, duplicate, incomplete,
+conflicting or foreign program records block. Crashpad/other child processes never
+supply the selected backend or search-path evidence.
+
+Search records are associated with that PID's backend-loading interval, not the
+previous launcher exec or a child. Only its observed `LD_LIBRARY_PATH` entries are
+reconstructed as that environment variable, preserving their observed order.
+`RPATH` and `RUNPATH` remain native attributes of the checked ELF files: their
+separate precedence/inheritance rules are handled by the actual loader and are
+never flattened into an environment path. SDK paths must remain SDK-contained;
+host ELF search tags are not promoted into SDK overrides. If only native SDK ELF
+search tags were observed, no LD_LIBRARY_PATH is fabricated. Missing selected
+search evidence blocks even when a child supplies plausible-looking SDK paths.
+
+A true initial missing-library failure can occur before backend initialization.
+That narrow case requires exit 127, a paired owned launcher startup, no other PID,
+and exactly one canonical SDK-backend missing-SONAME loader-error line. Ambiguous
+or differently shaped failures block rather than guessing the backend or repairing
+libraries. The normal four-test runtime acceptance gates are unchanged.
+
 Unknown backend/loader output, inherited `LD_*` overrides, `GLIBC_TUNABLES` or
 system-library preference overrides block rather than guessing a search order.
 
 The controller checks x86_64 ELF identity and complete `ldd` closure for the
 launcher, observed backend, and packaged SwiftShader/Vulkan shared libraries.
-These checks use the observed SDK search order; conflicting providers, loader
+These checks use observed SDK LD_LIBRARY_PATH entries plus each ELF's native
+RPATH/RUNPATH and system loader behavior; conflicting providers, loader
 version errors and incomplete output fail closed. If this exact selected closure
 already resolves and the version probe succeeded, status is `PREINSTALLED` and
 **no APT operation occurs**. This is not proof about every future `dlopen` or the
@@ -174,8 +210,8 @@ Only an initial missing set of exactly `libpulse.so.0` permits the optional repa
   additional download cycle, global library path or fallback install.
 
 The optional overlay is passed only to emulator/version commands. The launcher
-prepends its vendor paths; preflight models those observed paths before the private
-overlay. ADB, Java, Gradle and other commands do not receive the overlay. Private
+sets its vendor paths; preflight preserves native ELF tags and appends the private
+overlay only after observed LD_LIBRARY_PATH directories. ADB, Java, Gradle and other commands do not receive the overlay. Private
 APT and extracted data disappear with the controller's temporary directory; no
 package/library/key material is uploaded. The receipt records target/tool/keyring/
 configuration/source/status/release/package/selected-library hashes, package
@@ -191,16 +227,37 @@ a filesystem quota; transient growth between samples can exceed its threshold. B
 count and SHA-256, never raw archive bytes. No timeout or setup failure proceeds
 to app build, ADB startup, boot or tests.
 
-Local validation: 78 host tests pass, including a genuinely compiled shared-library
-fixture checked by the local dynamic loader, private APT configuration isolation,
+Local validation: 90 diagnostic host tests pass, including genuinely compiled shared-library
+and RPATH-versus-RUNPATH precedence fixtures checked by the local dynamic loader,
+private APT configuration isolation,
 a real child-process metadata-growth cleanup regression, and external-tool-mocked
 full setup/receipt/failure orchestration. Those mocks
 are explicitly **not** Ubuntu Noble solver/signature/download evidence. This
 workspace's Debian host is not the Ubuntu runner; no SDK/emulator or APT download
 was run locally. The corrected installed backend and real private-package route
-remain **NOT_RUN** until the next reviewed hosted attempt. The stdin regression
+remain **NOT_RUN** for this corrected source until the next reviewed hosted attempt.
+The preserved old tail proves only the recorded startup pair, not a successful
+replay of this new complete selected-process path parser. The stdin regression
 retains failing exit semantics while reporting only privacy-safe byte counts and
 numeric sanitizer-marker counts; no cause is attributed without hosted evidence.
+
+### Complete bounded probe evidence
+
+The probe has a 256 KiB capture cap. It emits the **entire captured trace**, not
+just its tail, as prefixed readable lines and byte-exact base64 chunks under
+`RF_LOADER_TRACE_RAW_META` / `RF_LOADER_TRACE_RAW_CHUNK`. Metadata binds byte count,
+SHA-256, chunk count and a `complete` flag. Require every numbered chunk exactly
+once in order, strict base64 decoding, and matching length/hash before review.
+`complete=false` marks partial timeout/overflow capture and cannot establish a
+complete probe or a successful setup. This changes neither instrumentation's
+separate transcript format nor its strict four-test proof requirements.
+
+`hostLibraries.launcherProbe` is attached to the receipt before execution; it
+records the owned PID, captured byte count/hash, completion and exit when known.
+After return, probe exit/size/hash are also recorded before parsing. Thus unknown
+backend/path syntax retains diagnostic evidence instead of losing it with parser
+failure. Early probe or parser failure still stops before build/boot/tests.
+Successful-looking version output alone is never sufficient to pass preflight.
 
 ## Private ADB and emulator ownership
 
@@ -316,6 +373,8 @@ process control only; they are not Android execution evidence.
   selects the headless backend for `-no-window`, sets vendor library paths, and
   executes QEMU in place. This supports the scoped preflight and conservative
   same-PID listener check; installed-tool behavior still requires verification.
+- [Linux dynamic-loader semantics](https://man7.org/linux/man-pages/man8/ld.so.8.html)
+  distinguish RPATH, LD_LIBRARY_PATH and RUNPATH precedence and inheritance.
 - [APT configuration order and directories](https://manpages.debian.org/testing/apt/apt.conf.5.en.html),
   [authenticated archives](https://manpages.debian.org/testing/apt/apt-secure.8.en.html)
   and [simulation/download commands](https://manpages.debian.org/testing/apt/apt-get.8.en.html)

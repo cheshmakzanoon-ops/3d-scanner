@@ -498,21 +498,6 @@ class PrivateHostLibraries(unittest.TestCase):
             stopped.assert_called_once()
             self.assertIsNotNone(stopped.call_args.args[0].returncode)
 
-    def test_observed_launcher_path_order_is_sdk_scoped_and_requires_backend(self):
-        with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)
-            for relative in ("lib64/vulkan", "lib64", "qemu/linux-x86_64"):
-                (root / relative).mkdir(parents=True, exist_ok=True)
-            backend = root / "qemu/linux-x86_64/qemu-system-x86_64-headless"
-            text = f'qemu backend: argv[00] = "{backend}"\n1: search path={root}/lib64/vulkan:{root}/lib64\t(LD_LIBRARY_PATH)\n'
-            found, dirs = diag.observed_loader_paths(text, root)
-            self.assertEqual(found, backend)
-            self.assertEqual(dirs, [root / "lib64/vulkan", root / "lib64"])
-            for bad in (text.replace(str(root / "lib64/vulkan"), "/outside"), text.replace("argv[00]", "argv[01]"),
-                        text.replace(str(backend), "/tmp/foreign-backend")):
-                with self.subTest(text=bad), self.assertRaises(diag.Blocked):
-                    diag.observed_loader_paths(bad, root)
-
     def test_binary_subprocess_evidence_is_bounded_hash_only_and_env_is_not_global(self):
         ctl, output = diag.Controller(env={"PATH": os.environ["PATH"]}), io.StringIO()
         with contextlib.redirect_stdout(output):
@@ -543,6 +528,180 @@ class PrivateHostLibraries(unittest.TestCase):
             self.assertEqual(resolved["libc.so.6"], prior["libc.so.6"])
             diag.verify_x86_64_shared_object(lib / soname)
             subprocess.run([root / "program"], env=env, check=True, timeout=10)
+
+
+class ObservedLoaderTrace(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(); self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        for path in ("lib64", "lib64/vulkan", "lib64/gles_swiftshader", "qemu/linux-x86_64"):
+            (self.root / path).mkdir(parents=True, exist_ok=True)
+        self.backend = self.root / "qemu/linux-x86_64/qemu-system-x86_64-headless"
+        self.launcher = self.root / "emulator"
+        self.pid = 5143
+
+    def trace(self, include_ld=True, kind="RPATH"):
+        text = (f"5143: search path=/launcher-only/not-inherited (LD_LIBRARY_PATH)\n"
+                f"5143: initialize program: {self.launcher}\n5143: transferring control: {self.launcher}\n"
+                f"5143: search path={self.root}/lib64 ({kind} from file {self.backend})\n")
+        if include_ld:
+            text += f"5143: search path={self.root}/lib64/vulkan:{self.root}/lib64/gles_swiftshader (LD_LIBRARY_PATH)\n"
+        return text + f"5143: initialize program: {self.backend}\n5143: transferring control: {self.backend}\n"
+
+    def test_owned_exec_pair_and_only_its_ld_path_are_used_not_rpath_or_crashpad(self):
+        trace = self.trace() + (f"5147: search path=/foreign/child (LD_LIBRARY_PATH)\n"
+            f"5147: initialize program: {self.root}/crashpad_handler\n5147: transferring control: {self.root}/crashpad_handler\n")
+        evidence = {}
+        backend, dirs = diag.observed_loader_paths(trace, self.root, self.pid, evidence=evidence)
+        self.assertEqual(backend, self.backend)
+        self.assertEqual(dirs, [self.root / "lib64/vulkan", self.root / "lib64/gles_swiftshader"])
+        self.assertEqual(evidence["backendPid"], 5143)
+        self.assertEqual(evidence["backendIdentityMode"], "paired-initialize-and-control")
+        self.assertEqual(evidence["elfSearchRecords"], [{"kind": "RPATH", "origin": str(self.backend.relative_to(self.root)), "directories": ["lib64"]}])
+
+    def test_native_rpath_or_runpath_is_not_promoted_to_ld_library_path(self):
+        for kind in ("RPATH", "RUNPATH"):
+            with self.subTest(kind=kind):
+                evidence = {}
+                _, dirs = diag.observed_loader_paths(self.trace(False, kind), self.root, self.pid, evidence=evidence)
+                self.assertEqual(dirs, [])
+                self.assertEqual(evidence["elfSearchRecords"][0]["kind"], kind)
+
+    def test_missing_conflicting_foreign_duplicate_or_wrong_pid_identity_is_rejected(self):
+        good = self.trace()
+        other = self.root / "qemu/linux-x86_64/qemu-system-x86_64"
+        bad = [good.replace("5143:", "5147:"),
+               good.replace(f"transferring control: {self.backend}", f"transferring control: {other}"),
+               good + f"5143: initialize program: {self.backend}\n5143: transferring control: {self.backend}\n",
+               good + f"5147: initialize program: {self.backend}\n5147: transferring control: {self.backend}\n",
+               good.replace(str(self.backend), "/foreign/qemu-system-x86_64-headless"),
+               good.replace(f"5143: transferring control: {self.backend}\n", ""),
+               good.replace(f"5143: initialize program: {self.backend}\n", ""),
+               good.replace(f"5143: initialize program: {self.backend}\n5143: transferring control: {self.backend}",
+                            f"5143: transferring control: {self.backend}\n5143: initialize program: {self.backend}"),
+               f'qemu backend: argv[00] = "{self.backend}"\nAndroid emulator version 37.2.12.0\n']
+        for value in bad:
+            with self.subTest(trace=value), self.assertRaises(diag.Blocked):
+                diag.observed_loader_paths(value, self.root, self.pid)
+        for pid in (None, 0, True, "5143"):
+            with self.subTest(pid=pid), self.assertRaises(diag.Blocked):
+                diag.observed_loader_paths(good, self.root, pid)
+
+    def test_foreign_or_reordered_selected_sdk_paths_are_rejected(self):
+        good = self.trace()
+        extra = f"5143: search path={self.root}/lib64/gles_swiftshader:{self.root}/lib64/vulkan (LD_LIBRARY_PATH)\n"
+        bad = [good.replace(str(self.root / "lib64/vulkan"), "/foreign/library"),
+               good.replace(f"5143: initialize program: {self.backend}", extra + f"5143: initialize program: {self.backend}"),
+               good.replace(f"search path={self.root}/lib64 (RPATH", "search path=/foreign/rpath (RPATH")]
+        for value in bad:
+            with self.subTest(trace=value), self.assertRaises(diag.Blocked):
+                diag.observed_loader_paths(value, self.root, self.pid)
+
+    def test_exact_owned_loader_failure_can_identify_preinitialization_backend_only(self):
+        text = self.trace().split(f"5143: initialize program: {self.backend}", 1)[0]
+        error = f"{self.backend}: error while loading shared libraries: libpulse.so.0: cannot open shared object file: No such file or directory\n"
+        evidence = {}
+        backend, _ = diag.observed_loader_paths(text + error, self.root, self.pid, 127, evidence)
+        self.assertEqual(backend, self.backend)
+        self.assertEqual(evidence["backendIdentityMode"], "owned-loader-failure")
+        for value, code in ((text + error, 0), (text + error + error, 127),
+                            (text + error + "5147: unrelated child\n", 127),
+                            (text + error.replace(str(self.backend), "/foreign/backend"), 127)):
+            with self.subTest(trace=value, code=code), self.assertRaises(diag.Blocked):
+                diag.observed_loader_paths(value, self.root, self.pid, code)
+
+    def test_retained_hosted_tail_pair_is_real_evidence_but_child_paths_are_insufficient(self):
+        # Exact meaningful lines from run39935804154's retained tail; the complete
+        # 56,618-byte trace was parsed originally but was not retained in old logs.
+        sdk = "/usr/local/lib/android/sdk/emulator"
+        excerpt = (
+            f"      5143:\tinitialize program: {sdk}/qemu/linux-x86_64/qemu-system-x86_64-headless\n"
+            f"      5143:\ttransferring control: {sdk}/qemu/linux-x86_64/qemu-system-x86_64-headless\n"
+            f"      5147:\t search path={sdk}/lib64/vulkan:{sdk}/lib64/gles_swiftshader\t\t(LD_LIBRARY_PATH)\n"
+            f"      5147:\tinitialize program: {sdk}/crashpad_handler\n"
+            f"      5147:\ttransferring control: {sdk}/crashpad_handler\n")
+        evidence = {}
+        with self.assertRaisesRegex(diag.Blocked, "library search evidence was not observed"):
+            diag.observed_loader_paths(excerpt.replace(sdk, str(self.root)), self.root, 5143, evidence=evidence)
+        self.assertEqual(evidence["backend"], "qemu/linux-x86_64/qemu-system-x86_64-headless")
+        self.assertEqual(evidence["backendPid"], 5143)
+
+    def test_full_raw_trace_round_trips_beyond_old_tail_and_binds_owned_command(self):
+        raw = b"BEGIN-important\n" + b"x" * 60000 + b"\nEND\x00\r\n"
+        output, identity = io.StringIO(), {}
+        with contextlib.redirect_stdout(output):
+            result, code = diag.Controller().command("emulator-loader-probe", [sys.executable, "-c", "import sys; sys.stdout.buffer.write(" + repr(raw) + ")"],
+                limit=diag.LOADER_TRACE_LIMIT, identity=identity)
+        lines = output.getvalue().splitlines()
+        meta = json.loads(next(line.split(" ", 1)[1] for line in lines if line.startswith("RF_LOADER_TRACE_RAW_META ")))
+        chunks = []
+        for index, line in enumerate((line for line in lines if line.startswith("RF_LOADER_TRACE_RAW_CHUNK ")), 1):
+            _, position, chunk = line.split(" ", 2)
+            self.assertEqual(position, f"{index}/{meta['chunks']}")
+            chunks.append(chunk)
+        self.assertEqual(len(chunks), meta["chunks"])
+        self.assertEqual(base64.b64decode("".join(chunks), validate=True), raw)
+        self.assertEqual((code, result.encode()), (0, raw))
+        self.assertTrue(meta["complete"]); self.assertTrue(identity["complete"])
+        self.assertEqual(meta["sha256"], identity["outputSha256"])
+        self.assertEqual(meta["bytes"], identity["outputBytes"])
+        self.assertIsInstance(identity["pid"], int)
+        self.assertIn("| BEGIN-important", output.getvalue())
+
+    def test_partial_timed_out_probe_cannot_claim_complete_trace(self):
+        output, identity = io.StringIO(), {}
+        with contextlib.redirect_stdout(output), self.assertRaises(diag.Deadline):
+            diag.Controller().command("emulator-loader-probe", [sys.executable, "-c",
+                "import time; print('partial trace', flush=True); time.sleep(30)"],
+                timeout=.3, limit=diag.LOADER_TRACE_LIMIT, identity=identity)
+        meta = json.loads(next(line.split(" ", 1)[1] for line in output.getvalue().splitlines()
+                               if line.startswith("RF_LOADER_TRACE_RAW_META ")))
+        self.assertFalse(meta["complete"]); self.assertFalse(identity["complete"])
+        self.assertNotIn("exit", identity)
+        self.assertEqual(meta["sha256"], identity["outputSha256"])
+        with self.assertRaises(diag.Failure):
+            diag.emit_raw_loader_trace(b"x" * (diag.LOADER_TRACE_LIMIT + 1), True)
+
+    def test_overflowing_probe_keeps_only_marked_incomplete_bounded_evidence(self):
+        output, identity = io.StringIO(), {}
+        with contextlib.redirect_stdout(output), self.assertRaisesRegex(diag.Failure, "output limit"):
+            diag.Controller().command("emulator-loader-probe", [sys.executable, "-c",
+                "import sys,time; print('prefix',flush=True); time.sleep(.1); sys.stdout.write('x'*10000)"],
+                timeout=3, limit=128, identity=identity)
+        lines = output.getvalue().splitlines()
+        meta = json.loads(next(line.split(" ", 1)[1] for line in lines if line.startswith("RF_LOADER_TRACE_RAW_META ")))
+        chunks = [line.split(" ", 2)[2] for line in lines if line.startswith("RF_LOADER_TRACE_RAW_CHUNK ")]
+        raw = base64.b64decode("".join(chunks), validate=True)
+        self.assertLessEqual(len(raw), 128)
+        self.assertFalse(meta["complete"]); self.assertFalse(identity["complete"])
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), identity["outputSha256"])
+        self.assertEqual(meta["sha256"], identity["outputSha256"])
+
+    @unittest.skipUnless(shutil.which("cc") and Path("/usr/bin/ldd").is_file(), "Real compiler/loader unavailable; RPATH fixture NOT_RUN")
+    def test_real_rpath_runpath_precedence_is_preserved_not_flattened(self):
+        native, overlay = self.root / "lib64/native", self.root / "lib64/overlay"
+        native.mkdir(); overlay.mkdir()
+        soname = "lib_rf_path_precedence.so.1"
+        for directory, value in ((native, 7), (overlay, 9)):
+            source = directory / "fixture.c"; source.write_text(f"int fixture(void) {{ return {value}; }}\n")
+            subprocess.run(["cc", "-shared", "-fPIC", "-Wl,-soname," + soname, str(source), "-o", str(directory / soname)],
+                check=True, capture_output=True, timeout=30, env=native_compile_env())
+        main = self.root / "main.c"
+        main.write_text('#include <stdio.h>\nextern int fixture(void); int main(void) { printf("VALUE=%d\\n", fixture()); return 0; }\n')
+        for tag, expected in (("--disable-new-dtags", 7), ("--enable-new-dtags", 9)):
+            subprocess.run(["cc", str(main), "-L" + str(native), "-l:" + soname,
+                "-Wl," + tag + ",-rpath,$ORIGIN/../../lib64/native", "-o", str(self.backend)],
+                check=True, capture_output=True, timeout=30, env=native_compile_env())
+            env = {**os.environ, "LD_DEBUG": "libs", "LD_LIBRARY_PATH": str(overlay)}
+            identity = {}
+            with contextlib.redirect_stdout(io.StringIO()):
+                text, code = diag.Controller().command("real-path-fixture", [self.backend], env=env, identity=identity)
+            self.assertEqual(code, 0); self.assertIn(f"VALUE={expected}\n", text)
+            _, dirs = diag.observed_loader_paths(text, self.root, identity["pid"])
+            self.assertEqual(dirs, [overlay])
+            trace = subprocess.check_output(["/usr/bin/ldd", self.backend], env={**os.environ, "LD_LIBRARY_PATH": str(overlay)}, text=True, timeout=10)
+            resolved = {}; self.assertEqual(diag.loader_missing(trace, resolved), set())
+            self.assertEqual(Path(resolved[soname]).resolve(), (native if expected == 7 else overlay) / soname)
 
 
 class HostLibraryPreparation(unittest.TestCase):
@@ -592,8 +751,16 @@ class HostLibraryPreparation(unittest.TestCase):
         self.calls.append((label, list(map(str, args)), copy.deepcopy(kwargs)))
         apt = self.ctl.temp / "private-apt"
         if label == "emulator-loader-probe":
-            return (f'qemu backend: argv[00] = "{self.sdk}/qemu/linux-x86_64/qemu-system-x86_64-headless"\n'
-                    f'1: search path={self.sdk}/lib64\t(LD_LIBRARY_PATH)\n', 0 if self.preinstalled else 127)
+            kwargs["identity"].update(pid=5143, complete=True, exit=0 if self.preinstalled else 127)
+            if self.problem == "parser-no-backend":
+                return "version output without attributable backend\n", 0
+            launcher = f"5143: initialize program: {self.sdk}/emulator\n5143: transferring control: {self.sdk}/emulator\n"
+            backend = f"{self.sdk}/qemu/linux-x86_64/qemu-system-x86_64-headless"
+            search_kind = f"RPATH from file {backend}" if self.problem == "rpath-only" else "LD_LIBRARY_PATH"
+            search = f"5143: search path={self.sdk}/lib64\t({search_kind})\n"
+            end = (f"5143: initialize program: {backend}\n5143: transferring control: {backend}\n" if self.preinstalled
+                   else f"{backend}: error while loading shared libraries: libpulse.so.0: cannot open shared object file: No such file or directory\n")
+            return launcher + search + end, 0 if self.preinstalled else 127
         if label == "emulator-elf-closure":
             selected = self.ctl.temp / "emulator-library-overlay/libpulse.so.0"
             libc = "/lib/libc.so.6"
@@ -650,6 +817,51 @@ class HostLibraryPreparation(unittest.TestCase):
         self.assertEqual(self.ctl.emulator_library_env, {})
         self.assertEqual({call[0] for call in self.calls}, {"emulator-loader-probe", "emulator-elf-closure"})
         self.assertEqual(self.calls[0][1][1:], ["-no-window", "-gpu", "software", "-verbose", "-version"])
+
+    def test_rpath_only_preinstalled_closure_omits_ld_variable_and_preserves_native_tag(self):
+        self.problem, self.preinstalled = "rpath-only", True
+        self.ctl.prepare_host_libraries()
+        details = self.ctl.receipt["hostLibraries"]
+        self.assertEqual(details["status"], "PREINSTALLED")
+        self.assertEqual(details["observedLdLibraryPath"], [])
+        self.assertEqual(details["elfSearchRecords"], [{"kind": "RPATH",
+            "origin": "qemu/linux-x86_64/qemu-system-x86_64-headless", "directories": ["lib64"]}])
+        for label, _, kwargs in self.calls:
+            if label == "emulator-elf-closure":
+                self.assertNotIn("LD_LIBRARY_PATH", kwargs["env"])
+        self.assertEqual(self.ctl.emulator_library_env, {})
+        self.assertFalse((self.ctl.temp / "private-apt").exists())
+
+    def test_rpath_only_repair_adds_only_overlay_without_empty_or_cwd_component(self):
+        self.problem = "rpath-only"
+        self.ctl.prepare_host_libraries()
+        details = self.ctl.receipt["hostLibraries"]
+        self.assertEqual(details["status"], "RESOLVED_PRIVATE")
+        self.assertEqual(details["observedLdLibraryPath"], [])
+        self.assertEqual(details["elfSearchRecords"][0]["kind"], "RPATH")
+        self.assertEqual(details["elfSearchRecords"][0]["directories"], ["lib64"])
+        overlay = str(self.ctl.temp / "emulator-library-overlay")
+        closure_envs = [kwargs["env"] for label, _, kwargs in self.calls if label == "emulator-elf-closure"]
+        self.assertTrue(any("LD_LIBRARY_PATH" not in env for env in closure_envs))
+        self.assertTrue(any(env.get("LD_LIBRARY_PATH") == overlay for env in closure_envs))
+        for env in closure_envs:
+            if "LD_LIBRARY_PATH" in env:
+                self.assertEqual(env["LD_LIBRARY_PATH"].split(os.pathsep), [overlay])
+                self.assertNotIn(str(self.sdk / "lib64"), env["LD_LIBRARY_PATH"])
+        self.assertEqual(self.ctl.emulator_library_env, {"LD_LIBRARY_PATH": overlay})
+        self.assertNotIn("LD_LIBRARY_PATH", self.ctl.env)
+
+    def test_parser_failure_retains_probe_exit_bytes_hash_and_owned_pid_before_build(self):
+        self.problem = "parser-no-backend"
+        with self.assertRaises(diag.Blocked): self.ctl.prepare_host_libraries()
+        details = self.ctl.receipt["hostLibraries"]
+        raw = b"version output without attributable backend\n"
+        self.assertEqual(details["status"], "PROBING")
+        self.assertEqual(details["launcherProbeExit"], 0)
+        self.assertEqual(details["launcherProbeBytes"], len(raw))
+        self.assertEqual(details["launcherProbeSha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(details["launcherProbe"]["pid"], 5143)
+        self.assertEqual([call[0] for call in self.calls], ["emulator-loader-probe"])
 
     def test_signed_exact_package_is_extracted_to_missing_only_overlay_and_receipt(self):
         self.ctl.prepare_host_libraries()
