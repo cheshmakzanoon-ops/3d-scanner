@@ -1,0 +1,1 @@
+{"segment_only_support_normal_binding": true, "segment_only_free_space_refused": true, "same_camera_depth_conflict_refused": true, "budget_refusals": true, "random_overlay_cases": 100, "patch_label_checks": 1848, "optimized_tamper_and_existing_output_refused": true}

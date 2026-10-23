@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "revision": "reconstructed-r2",
+  "rho": 0.02437736524851641,
+  "maxPoints": 40000,
+  "maxObservations": 20000,
+  "maxSourceTriangles": 40000,
+  "maxFaces": 80000,
+  "maxFrontEdges": 80000,
+  "maxProposals": 2000000,
+  "maxBallChecks": 10000000,
+  "maxClippingChecks": 5000000,
+  "maxPartitionFragments": 4096,
+  "maxRationalBits": 4096,
+  "maxAddressSpaceBytes": 268435456,
+  "maxOutputBytes": 67108864,
+  "maxSecondsPerCase": 120,
+  "onExceeded": "abort whole case, never truncate or publish partial geometry",
+  "scope": "primitive plus closed overlay/orientation reconstruction; photo/adapter/front NOT_RUN"
+}

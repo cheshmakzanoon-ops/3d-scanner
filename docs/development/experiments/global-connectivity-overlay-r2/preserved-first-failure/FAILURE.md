@@ -1,0 +1,1 @@
+First R2 replay caught record-order-dependent diagnostic list ordering in closed-boundary evidence. Geometry classification was not compared to truth or tuned. Closed certificate now canonicalizes source-record IDs before all evidence output. The original executed module and failure receipt are retained here. Config/thresholds unchanged. No photo or front execution.

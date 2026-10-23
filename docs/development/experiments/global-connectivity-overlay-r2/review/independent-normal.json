@@ -1,0 +1,60 @@
+{
+  "strict_enclosed_hole": {
+    "uncoveredArea": "1/4",
+    "verticesAndCentroidSupported": true,
+    "refused": true
+  },
+  "shifted_multicell_union": true,
+  "perspectiveRatioExtrema": [
+    "1",
+    "7/5"
+  ],
+  "emptyBallUnknownNormalAndExactTies": true,
+  "representedFloatNormalization": true,
+  "expectedRefusals": {
+    "oversizedCancellingOperands": "RATIONAL_BIT_BUDGET",
+    "clipping": "SUPPORT_WORK_BUDGET",
+    "fragments": "FRAGMENT_BUDGET",
+    "balls": "BALL_BUDGET",
+    "collinear": "COLLINEAR",
+    "radius": "CIRCUMRADIUS_EXCEEDS_RHO",
+    "invalidDimension": "VECTOR_DIMENSION",
+    "duplicateIds": "DUPLICATE_SOURCE_ID"
+  },
+  "randomPartitionTrials": 500,
+  "squareRadicalTrials": 10000,
+  "overlay": {
+    "positiveWeightBoundaryWitnessRequired": true,
+    "closedPointTouchFreeSpaceRefused": true,
+    "lateOverlappingEvidenceAndOcclusion": true,
+    "exactDepthEqualityAndEdgeOnExclusion": true,
+    "boundaryOnlyNormalConstraintPropagation": "PASS_API_PROVENANCE_CONTROL_NOT_PHYSICAL_NORMAL_MEASUREMENT",
+    "orientationConstraintsNotPointNormals": true,
+    "fourViewResolvedLayerSupport": {
+      "contributors": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "scope": "abstract per-view source/depth/witness unit control; not calibrated observation pipeline or extracted geometry"
+    },
+    "strictInteriorHoleParameterArea": "1/144"
+  },
+  "status": "PASS_PRIMITIVES_ONLY",
+  "revision": "reconstructed-r2",
+  "photo": "NOT_RUN_MISSING_FIXTURE",
+  "adapter": "NOT_RUN",
+  "front": "NOT_RUN",
+  "work": {
+    "support": 13196,
+    "balls": 11
+  },
+  "seconds": 1.7168485170000167,
+  "maxRssKiB": 11648,
+  "sourceManifest": "d1fdeb63a2c52f2658ddc4985579f3f99a92285543f4f133a347af5f625035b3"
+}

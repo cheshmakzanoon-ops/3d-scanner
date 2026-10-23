@@ -59,3 +59,9 @@ It does not replace the missing historical three-view fixture or reproduce its
 measurements. Render poses and reference geometry are evaluation-only; no
 image-derived reconstruction result is claimed. The original executed renderer
 is retained as historical evidence with its known replay-safety limitations.
+
+[Closed support overlay R2](global-connectivity-overlay-r2/README.md) adds
+reviewed exact whole-footprint and closed-boundary association/visibility checks,
+including mandatory normal constraints for boundary-only contributing records.
+This is a new primitive-only checkpoint, limited to abstract camera IDs 0–3;
+calibrated adapters, global fronts and photographic quality remain unqualified.
