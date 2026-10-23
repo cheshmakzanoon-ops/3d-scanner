@@ -1,0 +1,32 @@
+{
+  "scope": "EVALUATION_ONLY_ORACLE_CAMERA_DEPTH_STAGE_CENSUS_NO_SOLVER_CALLS",
+  "sourceCommit": "173dc71d7d99e97a8e2d4257b52cf7033e37a74f",
+  "views": 8,
+  "width": 160,
+  "height": 120,
+  "patchRadius": 2,
+  "stride": 2,
+  "origin": 3,
+  "near": 3.0,
+  "far": 7.0,
+  "referenceSamples": 6000,
+  "observableSamples": 3734,
+  "maxRows": 35112,
+  "maxVisibleSampleViewRows": 29872,
+  "maxOutputBytes": 16777216,
+  "maxAddressSpaceBytes": 1073741824,
+  "maxSeconds": 120,
+  "errorFractions": [
+    0.005,
+    0.01,
+    0.02,
+    0.05
+  ],
+  "gridSelection": "native std::round((uv-origin)/stride)*stride+origin; evaluate only, not a reconstruction query",
+  "zeroDepthCause": "UNAVAILABLE_NO_NCC_WINNER_OR_REJECT_COST_LOGS",
+  "truthRoles": "geometry/face masks/grid ray depths only in this evaluator; immutable solver outputs",
+  "maxDataBytes": 12582912,
+  "maxAggregateLogBytes": 1048576,
+  "maxHelperBinaryBytes": 1048576,
+  "maxReceiptBytes": 1048576
+}

@@ -1,0 +1,19 @@
+{
+  "dataByteExact": true,
+  "visibleRows": 22157,
+  "observableReferences": 3734,
+  "independentSlabGridRays": 8509,
+  "maxRasterVersusSlabCameraZDifference": 5.329070518200751e-15,
+  "stageAndAccuracyRecounts": true,
+  "highestStage": {
+    "SOURCE_INCIDENT": 1728,
+    "ZERO_PHOTOMETRIC_DEPTH": 1119,
+    "ACCEPTED_NOT_SOURCE_INCIDENT": 547,
+    "POSITIVE_NOT_VERIFIED": 340
+  },
+  "gridRayRelations": {
+    "SAME_PHYSICAL_FACE": 21120,
+    "BACKGROUND": 682,
+    "OTHER_FACE": 355
+  }
+}

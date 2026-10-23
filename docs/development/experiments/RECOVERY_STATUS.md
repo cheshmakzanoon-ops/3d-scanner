@@ -162,3 +162,27 @@ bytes, time, disk, ownership and cleanup. No SDK CMake or alternate NDK is added
 Independent 222 synthetic/controller guards pass, but no actual archive install
 or revised app-pipeline run has occurred. This source change does not rearm the
 one-shot workflow or change original device/sanitizer/quality gates.
+
+[Reject-only front R3](fixed-point-front-reject-shortcircuit-r3/README.md) skips
+closed-boundary follow-on work only after a permanent positive-area rejection,
+with explicitly incomplete rejection diagnostics. Accepted-path checks and
+control face/proof order are unchanged. Whole author and independent attempts
+still exhaust 5,000,001 support visits, after 516,944 ball checks, without a
+candidate mesh or evaluation. Further connectivity variants are paused.
+
+[Fixed-point support ceiling](fixed-point-observable-support-bound-r1/ASSESSMENT.md)
+proves that 1,360 of 3,734 frozen observable samples cannot be reached within 1%
+of the reference diagonal by any mesh using all 4,855 points and edges at most
+2rho. The resulting sampled completeness ceiling is 63.5779%, not projected
+coverage or guaranteed attainable quality. All 9,172 original observations give
+the same unreachable counts. Root replay reproduces all four numerical outputs
+exactly; truth is used only for evaluation, never solver inputs or radius tuning.
+
+[Observable depth-stage census](observable-depth-stage-census-r1/README.md)
+independently accounts for all 22,157 visible sample/view rows. For 1,119 reference
+samples, every selected visible grid ray has zero photometric depth. All 10,618
+same-face zero-depth rows have truth depths strictly inside the frozen search
+interval, ruling out simple out-of-range exclusion for those rows. This localizes
+missing evidence largely before consistency, but does not identify NCC, variance,
+uniqueness or winner-rejection causes. The next investigation targets actual
+native photometric exits without changing queries, thresholds or geometry.

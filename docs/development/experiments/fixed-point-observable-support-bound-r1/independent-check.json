@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "independentAlgorithm": "scipy.spatial.cKDTree exact query vs chunked brute force numpy; independently parsed native accumulators",
+  "maxDistanceDifference": 0.0,
+  "closestSampleToOnePercentThreshold": 3.701993029572859e-05,
+  "unreachableAtOnePercent": 1360,
+  "receiptSHA256": "92621b4efc0aa77db211e5980adfc763733d6a035829c1d6efedfe334a36f13e"
+}

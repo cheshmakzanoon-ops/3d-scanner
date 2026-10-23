@@ -1,0 +1,11 @@
+{
+  "scope": "post-hoc evaluation-only fixed near3/far7 range recount, no solver changes",
+  "sourceCSV_SHA256": "dc15e57392525ff36cc81614ee11895e5c0c16f43730758fac00f9082ec13159",
+  "selectedRows": 10618,
+  "uniqueCameraPixels": 2614,
+  "outsideSearch": 0,
+  "exactBoundary": 0,
+  "strictInterior": 10618,
+  "minimumTruthCameraZ": 4.0617697146761795,
+  "maximumTruthCameraZ": 6.188615986787876
+}

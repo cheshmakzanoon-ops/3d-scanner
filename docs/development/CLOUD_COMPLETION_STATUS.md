@@ -23,6 +23,9 @@ below are historical, not cumulative or automatic qualification of current main.
 - Bounded fixed-point front experiments have exhausted their exact-support work
   cap before a candidate mesh could be evaluated. Proven work reductions are not
   geometry improvements. Unknown observations and incomplete output stay explicit.
+- Evaluation-only support bounds and a native-map stage census localize substantial
+  missing surface evidence before consistency filtering. See the [stage census](experiments/observable-depth-stage-census-r1/README.md).
+  Photometric rejection causes remain unobserved; no algorithm improvement is claimed.
 - Current priorities are actual app-pipeline execution with verified prerequisites
   and diagnosing missing depth evidence before further meshing optimization.
   Signing, complete sessions, physical reference captures, ARM64 resources and

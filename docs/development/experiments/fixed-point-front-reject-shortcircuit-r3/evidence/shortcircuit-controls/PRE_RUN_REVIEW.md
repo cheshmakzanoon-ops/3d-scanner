@@ -1,0 +1,7 @@
+# Independent reject-only R3 gate
+
+Frozen manifest `5c49b6ec7ee4421aef1e09c21d55589b3223730875bda5c92faf5db047f5d11b` verified. Independent full analytic/cancellation controls EXIT 0; results match author. All seven full/early analytic front paths retain exact ordered oriented faces, proofs, accepted certificate objects and candidate decisions. Boundary-only free-space and witness failures still execute full closed checks. Additional 120 random source-record/link cases preserve decisions (109 early refusals, 11 exact full results).
+
+Source inspection establishes monotonicity: original closed checks only union extra reasons into the positive-area refusal set; observed-normal checks only add conflicts. Returning immediately on a nonempty positive-area refusal set cannot admit a previously rejected candidate. Potentially accepted path is unchanged. The explicit incomplete-reasons marker prevents claiming exhaustive boundary/normal checks on already rejected candidates. Unknown points, proposal/topology ordering, complete point obstruction, config, native diagnostics, gates and runner are unchanged. No cache or work reset.
+
+Clear only the prescribed first bounded whole R3 attempt. This is not a whole-dataset acceptance or quality result. Preserve first failure and unchanged bounds. R2 independently reproduces its 5,000,001-check refusal with 48,033 ball checks; no geometry from either previous whole arm was published.

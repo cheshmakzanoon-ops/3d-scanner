@@ -1,0 +1,1 @@
+Pre-run accounting review found combined helper-log/binary allowances exceeded the stated aggregate allocation, although final total-byte check refused excess. No full census ran. Reserve12MiB data,1MiB aggregate log allowances,1MiB compiled helper,1MiB receipt/refusal; unchanged16MiB total cap.

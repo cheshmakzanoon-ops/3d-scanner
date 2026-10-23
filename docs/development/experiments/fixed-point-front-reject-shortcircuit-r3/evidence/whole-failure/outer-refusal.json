@@ -1,0 +1,74 @@
+{
+  "error": "RuntimeError",
+  "reason": "CHILD_EXIT:1:/workspace/shared/fixed-point-front-reject-whole-first/geometry.log",
+  "manifest": "fc8b6794c260ae728a220a7b99bf98761487d92dd35842c84dc471dab10b426a",
+  "quality": "NO_GO_INCOMPLETE_ARM",
+  "successfulGeometryPublication": false,
+  "calls": [
+    {
+      "argv": [
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+        "--version"
+      ],
+      "seconds": 0.05370099799984018,
+      "logBytes": 15
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=600",
+        "--fsize=16777216",
+        "--",
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+        "-B",
+        "/workspace/shared/fixed-point-front-reject-shortcircuit-r3/source/run_controls.py",
+        "/workspace/shared/fixed-point-front-reject-shortcircuit-r3",
+        "/workspace/shared/fixed-point-front-reject-whole-first/controls"
+      ],
+      "seconds": 36.293443206999655,
+      "logBytes": 14
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=600",
+        "--fsize=16777216",
+        "--",
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+        "-B",
+        "/workspace/shared/fixed-point-front-reject-shortcircuit-r3/source/partition_proof.py",
+        "/workspace/shared/fixed-point-front-reject-shortcircuit-r3",
+        "/workspace/shared/source-cell-binding-corrected-run",
+        "/workspace/shared/fixed-point-front-reject-whole-first/partition-proof"
+      ],
+      "seconds": 3.9182753449986194,
+      "logBytes": 533
+    },
+    {
+      "argv": [
+        "/usr/bin/c++",
+        "-std=c++20",
+        "-O2",
+        "-I/workspace/shared/source-cell-binding-corrected-run/baseline-source/reconstruction/include",
+        "/workspace/shared/fixed-point-front-reject-shortcircuit-r3/source/native_diagnostics.cpp",
+        "-L/workspace/shared/source-cell-binding-corrected-run/baseline-build",
+        "-Wl,-rpath,/workspace/shared/source-cell-binding-corrected-run/baseline-build",
+        "-lrealityforge",
+        "-o",
+        "/workspace/shared/fixed-point-front-reject-whole-first/native-diagnostics"
+      ],
+      "seconds": 3.36780334300056,
+      "logBytes": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/ldd",
+        "/workspace/shared/fixed-point-front-reject-whole-first/native-diagnostics"
+      ],
+      "seconds": 0.05301725099889154,
+      "logBytes": 571
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Compiled2,406-row oracle output exceeded its64KiB per-log allowance before any census. Parent approved only reallocation within unchanged1MiB aggregate: rounding192KiB, compile32KiB, check32KiB, execution768KiB. No numerical source/input/solver change.

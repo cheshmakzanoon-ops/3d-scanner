@@ -1,0 +1,21 @@
+{
+  "run": {
+    "observer/inputs.bits": "3eb7e85bdeb1844a6342fa1ec8fc8dfdf7e7ccc98acdb046782222fc402b4762",
+    "observer/dense.bits": "21e83d03d0a0c88c71bbbf867e7b9fbba4f60a5457f16ae379f8413ca7964574",
+    "observer/prepared.tsv": "9b9f8fea66a8b0063df841b256eceda1d7577671a7baa8d9b35115c5b8641759",
+    "observer/accumulators.tsv": "4cd01767c2d5346eb990a2fadcf37647fb74a000607f76004a7981024b52ac33",
+    "observer/memberships.tsv": "ee9d801434e527a4b2be411249a2d0fffb884a15513b4e357f53090a93ef950c",
+    "observer/derived-support.tsv": "efb4a56333c236faa58d3cec44063902719259adef7574c52e621c80b6dd0f68",
+    "observer/source-plan.tsv": "45525116de96c7eb1e8e7a1af03ecb97a09d627d0c10da21f9c57782249ac3da",
+    "observer/witness.bin": "e729fcdbcce5c08033cb8d4c35aab1a3630d82a02f9e8f1134940989e8fa7837",
+    "observer/witness-counts.tsv": "c944325d09a637f403aea7ec172e3d730e65497ee0dd266b47482daee8c3ed0e",
+    "observer/generated.bin": "c356bf83f6236d155c179cdaee5b764a11cbb33a95c59d682cb2c0a606d5571d"
+  },
+  "fixture": {
+    "evaluation-only/fixture.json": "a49d40960dcdc39d79d8c804adf97bbcae3d37200fb08987649f102c1afed35c"
+  },
+  "source": {
+    "reconstruction/src/dense.cpp": "4c1da676d11cafcfc5f980a667b344437f443969f139f74c96911b9ddc5571ec",
+    "reconstruction/include/realityforge/depth_tiles.hpp": "e661359e3e944e2ebb06c6aaadbc2cce56045e973680e5c4f4a484d0d3eaedcb"
+  }
+}

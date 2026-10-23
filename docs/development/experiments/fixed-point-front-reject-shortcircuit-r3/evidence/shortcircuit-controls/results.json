@@ -1,0 +1,561 @@
+{
+  "reviewedPrimitives": {
+    "strict_enclosed_hole": {
+      "uncoveredArea": "1/4",
+      "verticesAndCentroidSupported": true,
+      "refused": true
+    },
+    "shifted_multicell_union": true,
+    "perspectiveRatioExtrema": [
+      "1",
+      "7/5"
+    ],
+    "emptyBallUnknownNormalAndExactTies": true,
+    "representedFloatNormalization": true,
+    "expectedRefusals": {
+      "oversizedCancellingOperands": "RATIONAL_BIT_BUDGET",
+      "clipping": "SUPPORT_WORK_BUDGET",
+      "fragments": "FRAGMENT_BUDGET",
+      "balls": "BALL_BUDGET",
+      "collinear": "COLLINEAR",
+      "radius": "CIRCUMRADIUS_EXCEEDS_RHO",
+      "invalidDimension": "VECTOR_DIMENSION",
+      "duplicateIds": "DUPLICATE_SOURCE_ID"
+    },
+    "randomPartitionTrials": 500,
+    "squareRadicalTrials": 10000
+  },
+  "reviewedClosedOverlay": {
+    "positiveWeightBoundaryWitnessRequired": true,
+    "closedPointTouchFreeSpaceRefused": true,
+    "lateOverlappingEvidenceAndOcclusion": true,
+    "exactDepthEqualityAndEdgeOnExclusion": true,
+    "boundaryOnlyNormalConstraintPropagation": "PASS_API_PROVENANCE_CONTROL_NOT_PHYSICAL_NORMAL_MEASUREMENT",
+    "orientationConstraintsNotPointNormals": true,
+    "fourViewResolvedLayerSupport": {
+      "contributors": [
+        [
+          0,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "scope": "abstract per-view source/depth/witness unit control; not calibrated observation pipeline or extracted geometry"
+    },
+    "strictInteriorHoleParameterArea": "1/144"
+  },
+  "reviewedAdapterSchema": {
+    "scope": "synthetic calibrated ledger/parser/index controls only; no production or photographic result",
+    "cases": {
+      "2": {
+        "observations": 8,
+        "accumulators": 5,
+        "unknownNormalsRetained": 2,
+        "memberships": 8,
+        "sourceTriangles": 4,
+        "components": {
+          "0": 4
+        },
+        "candidateSupportHypothesis": true,
+        "inputHashesUnchanged": true
+      },
+      "4": {
+        "observations": 16,
+        "accumulators": 7,
+        "unknownNormalsRetained": 4,
+        "memberships": 16,
+        "sourceTriangles": 8,
+        "components": {
+          "0": 8
+        },
+        "candidateSupportHypothesis": true,
+        "inputHashesUnchanged": true
+      },
+      "8": {
+        "observations": 32,
+        "accumulators": 11,
+        "unknownNormalsRetained": 8,
+        "memberships": 32,
+        "sourceTriangles": 16,
+        "components": {
+          "0": 16
+        },
+        "candidateSupportHypothesis": true,
+        "inputHashesUnchanged": true
+      }
+    },
+    "negativeControls": {
+      "attribute": "MATERIALIZED_COLOR",
+      "postFaceNormal": "NOT_PRE_FACE_NORMAL_STAGE",
+      "pixelMismatch": "SOURCE_PIXEL_PROJECTION_BINDING",
+      "invalidFlag": "PREPARED_SUPPORTED_FLAG",
+      "outOfBoundsSupport": "PREPARED_SUPPORT_ID",
+      "wrongNeighborhood": "PREPARED_SUPPORT_PIXEL_BINDING",
+      "fractionalRGB": "PREPARED_RGB_UINT8",
+      "nonFloat32Confidence": "CONFIDENCE_NOT_FLOAT32",
+      "duplicateSupport": "PREPARED_SUPPORT_ID",
+      "wrongSupportCount": "TABLE_TAIL_WIDTH",
+      "missingStep": "DECLARED_NORMAL_STEP_REQUIRED",
+      "reflection": "NATIVE_NORMAL_ROTATION_DOMAIN",
+      "scaledRotation": "NATIVE_NORMAL_ROTATION_DOMAIN",
+      "hash": "INPUT_IDENTITY:samples",
+      "work": "SUPPORT_WORK_BUDGET",
+      "unknownMerge": "UNSUPPORTED_ACCUMULATOR_NOT_SINGLETON"
+    },
+    "unsupportedNonzeroPreparedVectorIgnoredInAccumulator": true
+  },
+  "plane": {
+    "points": 9,
+    "faces": 8,
+    "unknownNormalsRetained": 9,
+    "actualWitnessViewsPerLayer": 2,
+    "witnessScope": "exact analytic calibrated correspondence, NOT native consistency execution",
+    "summary": {
+      "allIndexedPoints": 9,
+      "referencedPoints": 9,
+      "unreferencedPointIds": [],
+      "proposals": 30,
+      "classifiedProposals": 30,
+      "acceptedFaces": 8,
+      "refusalCounts": {
+        "DEGENERATE_CANDIDATE": 6,
+        "ONLINE_EDGE_OR_LINK": 8,
+        "NONEMPTY_BALL": 8
+      },
+      "work": {
+        "maxNeighborVisits": 36,
+        "maxProposalCombinationVisits": 37,
+        "maxProposals": 30,
+        "maxFrontVisits": 157
+      },
+      "sharedExactWork": {
+        "clips": 12940,
+        "balls": 94
+      },
+      "ordering": "XYZ/immutable ID canonical triples; canonical oriented boundary edges",
+      "allPointNormalsUnchanged": true
+    },
+    "thinQualification": "ANALYTIC_ONLY"
+  },
+  "curved": {
+    "points": 9,
+    "faces": 8,
+    "unknownNormalsRetained": 9,
+    "actualWitnessViewsPerLayer": 2,
+    "witnessScope": "exact analytic calibrated correspondence, NOT native consistency execution",
+    "summary": {
+      "allIndexedPoints": 9,
+      "referencedPoints": 9,
+      "unreferencedPointIds": [],
+      "proposals": 16,
+      "classifiedProposals": 16,
+      "acceptedFaces": 8,
+      "refusalCounts": {
+        "NONEMPTY_BALL": 8
+      },
+      "work": {
+        "maxNeighborVisits": 36,
+        "maxProposalCombinationVisits": 20,
+        "maxProposals": 16,
+        "maxFrontVisits": 126
+      },
+      "sharedExactWork": {
+        "clips": 13664,
+        "balls": 50
+      },
+      "ordering": "XYZ/immutable ID canonical triples; canonical oriented boundary edges",
+      "allPointNormalsUnchanged": true
+    },
+    "thinQualification": "ANALYTIC_ONLY"
+  },
+  "hole": {
+    "points": 25,
+    "faces": 26,
+    "unknownNormalsRetained": 25,
+    "actualWitnessViewsPerLayer": 2,
+    "witnessScope": "exact analytic calibrated correspondence, NOT native consistency execution",
+    "summary": {
+      "allIndexedPoints": 25,
+      "referencedPoints": 25,
+      "unreferencedPointIds": [],
+      "proposals": 142,
+      "classifiedProposals": 142,
+      "acceptedFaces": 26,
+      "refusalCounts": {
+        "DEGENERATE_CANDIDATE": 30,
+        "ONLINE_EDGE_OR_LINK": 34,
+        "NONEMPTY_BALL": 48,
+        "CERTIFICATE:INSUFFICIENT_VIEWS": 4
+      },
+      "work": {
+        "maxNeighborVisits": 208,
+        "maxProposalCombinationVisits": 195,
+        "maxProposals": 142,
+        "maxFrontVisits": 655
+      },
+      "sharedExactWork": {
+        "clips": 71252,
+        "balls": 748
+      },
+      "ordering": "XYZ/immutable ID canonical triples; canonical oriented boundary edges",
+      "allPointNormalsUnchanged": true
+    },
+    "thinQualification": "ANALYTIC_ONLY"
+  },
+  "disconnected": {
+    "points": 18,
+    "faces": 16,
+    "unknownNormalsRetained": 18,
+    "actualWitnessViewsPerLayer": 2,
+    "witnessScope": "exact analytic calibrated correspondence, NOT native consistency execution",
+    "summary": {
+      "allIndexedPoints": 18,
+      "referencedPoints": 18,
+      "unreferencedPointIds": [],
+      "proposals": 60,
+      "classifiedProposals": 60,
+      "acceptedFaces": 16,
+      "refusalCounts": {
+        "DEGENERATE_CANDIDATE": 12,
+        "ONLINE_EDGE_OR_LINK": 16,
+        "NONEMPTY_BALL": 16
+      },
+      "work": {
+        "maxNeighborVisits": 72,
+        "maxProposalCombinationVisits": 74,
+        "maxProposals": 60,
+        "maxFrontVisits": 314
+      },
+      "sharedExactWork": {
+        "clips": 25880,
+        "balls": 188
+      },
+      "ordering": "XYZ/immutable ID canonical triples; canonical oriented boundary edges",
+      "allPointNormalsUnchanged": true
+    },
+    "thinQualification": "ANALYTIC_ONLY"
+  },
+  "fold": {
+    "points": 9,
+    "faces": 8,
+    "unknownNormalsRetained": 9,
+    "actualWitnessViewsPerLayer": 2,
+    "witnessScope": "exact analytic calibrated correspondence, NOT native consistency execution",
+    "summary": {
+      "allIndexedPoints": 9,
+      "referencedPoints": 9,
+      "unreferencedPointIds": [],
+      "proposals": 30,
+      "classifiedProposals": 30,
+      "acceptedFaces": 8,
+      "refusalCounts": {
+        "DEGENERATE_CANDIDATE": 3,
+        "ONLINE_EDGE_OR_LINK": 8,
+        "CIRCUMRADIUS_EXCEEDS_RHO": 10,
+        "GRAZING_MEMBER_HEMISPHERE": 1
+      },
+      "work": {
+        "maxNeighborVisits": 36,
+        "maxProposalCombinationVisits": 37,
+        "maxProposals": 30,
+        "maxFrontVisits": 157
+      },
+      "sharedExactWork": {
+        "clips": 23662,
+        "balls": 68
+      },
+      "ordering": "XYZ/immutable ID canonical triples; canonical oriented boundary edges",
+      "allPointNormalsUnchanged": true
+    },
+    "thinQualification": "ANALYTIC_ONLY"
+  },
+  "aboveBandLayers": {
+    "points": 18,
+    "faces": 16,
+    "unknownNormalsRetained": 18,
+    "actualWitnessViewsPerLayer": 2,
+    "witnessScope": "exact analytic calibrated correspondence, NOT native consistency execution",
+    "summary": {
+      "allIndexedPoints": 18,
+      "referencedPoints": 18,
+      "unreferencedPointIds": [],
+      "proposals": 60,
+      "classifiedProposals": 60,
+      "acceptedFaces": 16,
+      "refusalCounts": {
+        "DEGENERATE_CANDIDATE": 12,
+        "ONLINE_EDGE_OR_LINK": 16,
+        "NONEMPTY_BALL": 16
+      },
+      "work": {
+        "maxNeighborVisits": 72,
+        "maxProposalCombinationVisits": 74,
+        "maxProposals": 60,
+        "maxFrontVisits": 319
+      },
+      "sharedExactWork": {
+        "clips": 119236,
+        "balls": 188
+      },
+      "ordering": "XYZ/immutable ID canonical triples; canonical oriented boundary edges",
+      "allPointNormalsUnchanged": true
+    },
+    "thinQualification": "ANALYTIC_ONLY"
+  },
+  "belowResolutionLayers": {
+    "points": 18,
+    "faces": 0,
+    "unknownNormalsRetained": 18,
+    "actualWitnessViewsPerLayer": 2,
+    "witnessScope": "exact analytic calibrated correspondence, NOT native consistency execution",
+    "summary": {
+      "allIndexedPoints": 18,
+      "referencedPoints": 0,
+      "unreferencedPointIds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "proposals": 264,
+      "classifiedProposals": 264,
+      "acceptedFaces": 0,
+      "refusalCounts": {
+        "GRAZING_MEMBER_HEMISPHERE": 28,
+        "DEGENERATE_CANDIDATE": 12,
+        "CERTIFICATE:MISSING_POSITIVE_CORNER_WITNESS": 32,
+        "CERTIFICATE:OPPOSING_OBSERVED_TRIANGLE_NORMAL": 32,
+        "CONFLICTING_MEMBER_HEMISPHERES": 112,
+        "NONEMPTY_BALL": 72,
+        "CIRCUMRADIUS_EXCEEDS_RHO": 8
+      },
+      "work": {
+        "maxNeighborVisits": 153,
+        "maxProposalCombinationVisits": 312,
+        "maxProposals": 264,
+        "maxFrontVisits": 264
+      },
+      "sharedExactWork": {
+        "clips": 199828,
+        "balls": 664
+      },
+      "ordering": "XYZ/immutable ID canonical triples; canonical oriented boundary edges",
+      "allPointNormalsUnchanged": true
+    },
+    "thinQualification": "BELOW_RESOLUTION_UNQUALIFIED"
+  },
+  "onlineTopologyAndOrderingAndBudgets": "PASS",
+  "cameraPartition": {
+    "queries": 400,
+    "allEquivalent": true,
+    "negatives": {
+      "missingCameraPartition": "PARTITION_QUERY_CAMERA",
+      "duplicateOriginalId": "PARTITION_ORIGINAL_IDENTITY",
+      "missingIdentity": "PARTITION_SIZE_BINDING",
+      "cameraDomain": "PARTITION_CAMERA_DOMAIN",
+      "queryCameraDomain": "PARTITION_QUERY_CAMERA",
+      "invertedBounds": "PARTITION_BOUNDS",
+      "nonfiniteBounds": "PARTITION_EXACT_BOUNDS_DOMAIN",
+      "floatBounds": "PARTITION_EXACT_BOUNDS_DOMAIN",
+      "triangleDomain": "PARTITION_TRIANGLE_DOMAIN",
+      "workBudget": "SUPPORT_WORK_BUDGET"
+    },
+    "presentEmptyCameraRetained": true
+  },
+  "rejectOnlyEquivalence": {
+    "valid": {
+      "decisionIdentical": true,
+      "fullResultIdentical": true,
+      "earlyRefusal": false,
+      "oldClips": 82,
+      "newClips": 82
+    },
+    "insufficient": {
+      "decisionIdentical": true,
+      "fullResultIdentical": false,
+      "earlyRefusal": true,
+      "oldClips": 34,
+      "newClips": 10
+    },
+    "interiorFront": {
+      "decisionIdentical": true,
+      "fullResultIdentical": false,
+      "earlyRefusal": true,
+      "oldClips": 116,
+      "newClips": 32
+    },
+    "boundaryFront": {
+      "decisionIdentical": true,
+      "fullResultIdentical": true,
+      "earlyRefusal": false,
+      "oldClips": 110,
+      "newClips": 110
+    },
+    "boundaryWitness": {
+      "decisionIdentical": true,
+      "fullResultIdentical": true,
+      "earlyRefusal": false,
+      "oldClips": 88,
+      "newClips": 88
+    },
+    "plane": {
+      "faces": 8,
+      "certificateAttempts": 16,
+      "earlyRefusals": 0,
+      "orientedFaceSequenceAndProofsSHA256": "267835159fb172998da956fbc07b44f121492adbf500d48b766baedf20f69614",
+      "oldWork": {
+        "clips": 12940,
+        "balls": 94
+      },
+      "newWork": {
+        "clips": 12940,
+        "balls": 94
+      },
+      "allDecisionsIdentical": true,
+      "acceptedCertificatesExact": true,
+      "ledgerUnchanged": true
+    },
+    "curved": {
+      "faces": 8,
+      "certificateAttempts": 8,
+      "earlyRefusals": 0,
+      "orientedFaceSequenceAndProofsSHA256": "4937b142c8b0b9f30a946066854ce85b267e36f22611676167b7d4357f44fc21",
+      "oldWork": {
+        "clips": 13664,
+        "balls": 50
+      },
+      "newWork": {
+        "clips": 13664,
+        "balls": 50
+      },
+      "allDecisionsIdentical": true,
+      "acceptedCertificatesExact": true,
+      "ledgerUnchanged": true
+    },
+    "hole": {
+      "faces": 26,
+      "certificateAttempts": 64,
+      "earlyRefusals": 4,
+      "orientedFaceSequenceAndProofsSHA256": "cbc5f25ac5b4c0e2984b5f5cec32683c871b9527bca63209192aab4caf54105f",
+      "oldWork": {
+        "clips": 71252,
+        "balls": 748
+      },
+      "newWork": {
+        "clips": 66520,
+        "balls": 748
+      },
+      "allDecisionsIdentical": true,
+      "acceptedCertificatesExact": true,
+      "ledgerUnchanged": true
+    },
+    "disconnected": {
+      "faces": 16,
+      "certificateAttempts": 32,
+      "earlyRefusals": 0,
+      "orientedFaceSequenceAndProofsSHA256": "5b57a3e0b8b90219068068179ca61eb6365f3d82072a560a1f87e74a754e9b7c",
+      "oldWork": {
+        "clips": 25880,
+        "balls": 188
+      },
+      "newWork": {
+        "clips": 25880,
+        "balls": 188
+      },
+      "allDecisionsIdentical": true,
+      "acceptedCertificatesExact": true,
+      "ledgerUnchanged": true
+    },
+    "fold": {
+      "faces": 8,
+      "certificateAttempts": 16,
+      "earlyRefusals": 0,
+      "orientedFaceSequenceAndProofsSHA256": "4e5461855a212916166acbdd3eb55602f283ef4c9c646a194b4f9ad812aa4d54",
+      "oldWork": {
+        "clips": 23662,
+        "balls": 68
+      },
+      "newWork": {
+        "clips": 23662,
+        "balls": 68
+      },
+      "allDecisionsIdentical": true,
+      "acceptedCertificatesExact": true,
+      "ledgerUnchanged": true
+    },
+    "aboveBandLayers": {
+      "faces": 16,
+      "certificateAttempts": 32,
+      "earlyRefusals": 0,
+      "orientedFaceSequenceAndProofsSHA256": "6579254fd695635ed363cf9bdbc738fb8f070f4fb8204b26ce57a70197624ee9",
+      "oldWork": {
+        "clips": 119236,
+        "balls": 188
+      },
+      "newWork": {
+        "clips": 119236,
+        "balls": 188
+      },
+      "allDecisionsIdentical": true,
+      "acceptedCertificatesExact": true,
+      "ledgerUnchanged": true
+    },
+    "belowResolutionLayers": {
+      "faces": 0,
+      "certificateAttempts": 32,
+      "earlyRefusals": 32,
+      "orientedFaceSequenceAndProofsSHA256": "a683096011db3975a1e401e33b0047d1f2677a11efe85ef12806f016ae039795",
+      "oldWork": {
+        "clips": 199828,
+        "balls": 664
+      },
+      "newWork": {
+        "clips": 30458,
+        "balls": 664
+      },
+      "allDecisionsIdentical": true,
+      "acceptedCertificatesExact": true,
+      "ledgerUnchanged": true
+    },
+    "scope": "Analytic controls only; no photographic frequency estimate or quality claim; original per-stage caps unchanged."
+  },
+  "externalCancellation": {
+    "2": {
+      "driverExit": 1,
+      "ownedWorkerGone": true,
+      "successReceiptAbsent": true,
+      "refusal": {
+        "status": "REFUSED",
+        "reason": "INTERRUPTED:2",
+        "successfulGeometryPublication": false
+      }
+    },
+    "15": {
+      "driverExit": 1,
+      "ownedWorkerGone": true,
+      "successReceiptAbsent": true,
+      "refusal": {
+        "status": "REFUSED",
+        "reason": "INTERRUPTED:15",
+        "successfulGeometryPublication": false
+      }
+    }
+  }
+}

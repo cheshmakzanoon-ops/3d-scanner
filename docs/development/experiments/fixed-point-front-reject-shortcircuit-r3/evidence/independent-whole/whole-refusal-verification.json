@@ -1,0 +1,21 @@
+{
+  "status": "PASS_REPRODUCED_BOUNDED_REFUSAL",
+  "manifest": "fc8b6794c260ae728a220a7b99bf98761487d92dd35842c84dc471dab10b426a",
+  "exitCode": 1,
+  "refusal": {
+    "error": "Refusal",
+    "reason": "SUPPORT_WORK_BUDGET",
+    "geometry": "NOT_PUBLISHED",
+    "quality": "NO_GO_INCOMPLETE_ARM",
+    "sharedWork": {
+      "clips": 5000001,
+      "balls": 516944
+    }
+  },
+  "bindingAndProofExact": true,
+  "bridgeExact": true,
+  "inputPinsUnchanged": 28,
+  "wholeGeometryPublished": false,
+  "nativeWholeDiagnostics": "NOT_RUN",
+  "evaluation": "NOT_RUN"
+}

@@ -1,0 +1,26 @@
+{
+  "status": "CONTROLS_PASS",
+  "manifest": "ab5842c37bffb3c54a1a3c51e48ee16f44493d204762075a4ce766fdc789ec24",
+  "mode": "controls",
+  "pythonEntry": "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+  "pythonBinarySHA256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "call": {
+    "argv": [
+      "/usr/bin/prlimit",
+      "--as=1073741824",
+      "--cpu=120",
+      "--fsize=1048576",
+      "--",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+      "-B",
+      "-c",
+      "import sys,json;sys.dont_write_bytecode=True;sys.path.insert(0,sys.argv[1]);from census import controls;print(json.dumps(controls(),sort_keys=True))",
+      "/workspace/shared/observable-depth-stage-census-r1/source"
+    ],
+    "seconds": 0.8634607220010366,
+    "logBytes": 247
+  },
+  "files": {
+    "execution.log": "0789d27671d5c632668eabc705a1870f9b8ae4f10fed30351ccaba4bcf36f36c"
+  }
+}

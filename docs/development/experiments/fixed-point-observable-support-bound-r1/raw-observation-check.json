@@ -1,0 +1,28 @@
+{
+  "status": "EVALUATION_ONLY",
+  "scope": "9172 raw verified observations, not legal fixed-point front vertices; unchanged fixed radius for descriptive fusion sensitivity comparison only; cannot combine point universes or alter solver",
+  "rawObservationCount": 9172,
+  "samplesSHA256": "6b0682320c14cba51413c03c5022d54a237007c7ecfbcfb3aba4b73623bd9005",
+  "curves": {
+    "0": {
+      "unreachableSamples": 1599,
+      "hypotheticalUpperBound": 0.5717728976968399
+    },
+    "0.005": {
+      "unreachableSamples": 1476,
+      "hypotheticalUpperBound": 0.6047134440278521
+    },
+    "0.01": {
+      "unreachableSamples": 1360,
+      "hypotheticalUpperBound": 0.6357793251205142
+    },
+    "0.02": {
+      "unreachableSamples": 1133,
+      "hypotheticalUpperBound": 0.6965720407070166
+    },
+    "0.05": {
+      "unreachableSamples": 581,
+      "hypotheticalUpperBound": 0.8444027852169256
+    }
+  }
+}

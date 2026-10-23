@@ -1,0 +1,417 @@
+{
+  "status": "EVALUATION_ONLY_COMPLETE",
+  "scope": "EVALUATION_ONLY_ORACLE_CAMERA_DEPTH_STAGE_CENSUS_NO_SOLVER_CALLS",
+  "nativeAudit": {
+    "attempts": 28374,
+    "generatedSamples": 9172,
+    "sampledPixels": 35112,
+    "photometricPixels": 9458,
+    "consistentPixels": 9172,
+    "consistentPixelsPerView": [
+      1005,
+      1137,
+      1182,
+      1223,
+      1213,
+      1197,
+      1170,
+      1045
+    ],
+    "trailingNativeDiagnostics": [
+      0,
+      20000,
+      0,
+      0,
+      48,
+      48,
+      17551872,
+      0,
+      48,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "reasonCounts": {
+      "0": 25744,
+      "2": 2037,
+      "5": 45,
+      "3": 548
+    },
+    "strictIdentityDiagnostics": {
+      "exactReverseConfirmedWithVerifiedEndpoints": 17920,
+      "reverseNotAttempted": 5797,
+      "reverseNotExactConfirmed": 1967,
+      "missingVerifiedEndpoint": 60
+    },
+    "maxFloatRelativeErrorDelta": 0,
+    "scope": "actual native nearest-grid branch; not certified same-sheet or full image-derived SfM"
+  },
+  "controls": {
+    "rounding": "ties away from zero, including negative lattice coordinate",
+    "borders": "155/115 last sample; x0 nearest -1 outside",
+    "rayDepth": "nearer face/other face/background distinct",
+    "projection": "offset ray must use its own truth depth"
+  },
+  "allGridSites": 35112,
+  "observableSamples": 3734,
+  "visibleSampleViewRows": 22157,
+  "referenceDiagonal": 2.8178005387220617,
+  "perView": [
+    {
+      "camera": 0,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1619,
+        "POSITIVE_NOT_VERIFIED": 86,
+        "VERIFIED_NOT_ACCEPTED": 0,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 81,
+        "SOURCE_INCIDENT": 1145
+      },
+      "allGrid": {
+        "camera": 0,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3308,
+          "POSITIVE_NOT_VERIFIED": 76,
+          "VERIFIED_NOT_ACCEPTED": 0,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 46,
+          "SOURCE_INCIDENT": 959
+        },
+        "positiveDepthOnTruthError": {
+          "count": 932,
+          "finiteCount": 932,
+          "p50": 0.010931534707289359,
+          "p95": 0.056137160796697734,
+          "max": 1.7344326000398835
+        }
+      }
+    },
+    {
+      "camera": 1,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1482,
+        "POSITIVE_NOT_VERIFIED": 127,
+        "VERIFIED_NOT_ACCEPTED": 0,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 142,
+        "SOURCE_INCIDENT": 1180
+      },
+      "allGrid": {
+        "camera": 1,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3210,
+          "POSITIVE_NOT_VERIFIED": 42,
+          "VERIFIED_NOT_ACCEPTED": 0,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 52,
+          "SOURCE_INCIDENT": 1085
+        },
+        "positiveDepthOnTruthError": {
+          "count": 1074,
+          "finiteCount": 1074,
+          "p50": 0.008360697450160437,
+          "p95": 0.07563359559928658,
+          "max": 1.8916793259137634
+        }
+      }
+    },
+    {
+      "camera": 2,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1510,
+        "POSITIVE_NOT_VERIFIED": 61,
+        "VERIFIED_NOT_ACCEPTED": 0,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 133,
+        "SOURCE_INCIDENT": 1227
+      },
+      "allGrid": {
+        "camera": 2,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3194,
+          "POSITIVE_NOT_VERIFIED": 13,
+          "VERIFIED_NOT_ACCEPTED": 0,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 24,
+          "SOURCE_INCIDENT": 1158
+        },
+        "positiveDepthOnTruthError": {
+          "count": 1116,
+          "finiteCount": 1116,
+          "p50": 0.006922696639265702,
+          "p95": 0.02615261350211906,
+          "max": 1.0548546795358744
+        }
+      }
+    },
+    {
+      "camera": 3,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1024,
+        "POSITIVE_NOT_VERIFIED": 21,
+        "VERIFIED_NOT_ACCEPTED": 0,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 47,
+        "SOURCE_INCIDENT": 1099
+      },
+      "allGrid": {
+        "camera": 3,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3153,
+          "POSITIVE_NOT_VERIFIED": 13,
+          "VERIFIED_NOT_ACCEPTED": 0,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 28,
+          "SOURCE_INCIDENT": 1195
+        },
+        "positiveDepthOnTruthError": {
+          "count": 1154,
+          "finiteCount": 1154,
+          "p50": 0.005732153521827765,
+          "p95": 0.023711159969182664,
+          "max": 1.135861346758209
+        }
+      }
+    },
+    {
+      "camera": 4,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1024,
+        "POSITIVE_NOT_VERIFIED": 43,
+        "VERIFIED_NOT_ACCEPTED": 2,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 67,
+        "SOURCE_INCIDENT": 1055
+      },
+      "allGrid": {
+        "camera": 4,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3158,
+          "POSITIVE_NOT_VERIFIED": 18,
+          "VERIFIED_NOT_ACCEPTED": 1,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 30,
+          "SOURCE_INCIDENT": 1182
+        },
+        "positiveDepthOnTruthError": {
+          "count": 1149,
+          "finiteCount": 1149,
+          "p50": 0.006291617233245894,
+          "p95": 0.023373481235359598,
+          "max": 1.195100775321622
+        }
+      }
+    },
+    {
+      "camera": 5,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1404,
+        "POSITIVE_NOT_VERIFIED": 98,
+        "VERIFIED_NOT_ACCEPTED": 0,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 223,
+        "SOURCE_INCIDENT": 1269
+      },
+      "allGrid": {
+        "camera": 5,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3167,
+          "POSITIVE_NOT_VERIFIED": 25,
+          "VERIFIED_NOT_ACCEPTED": 0,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 37,
+          "SOURCE_INCIDENT": 1160
+        },
+        "positiveDepthOnTruthError": {
+          "count": 1143,
+          "finiteCount": 1143,
+          "p50": 0.007056819053470775,
+          "p95": 0.05901306856733813,
+          "max": 1.2262462982870668
+        }
+      }
+    },
+    {
+      "camera": 6,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1478,
+        "POSITIVE_NOT_VERIFIED": 104,
+        "VERIFIED_NOT_ACCEPTED": 0,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 207,
+        "SOURCE_INCIDENT": 1205
+      },
+      "allGrid": {
+        "camera": 6,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3185,
+          "POSITIVE_NOT_VERIFIED": 34,
+          "VERIFIED_NOT_ACCEPTED": 0,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 51,
+          "SOURCE_INCIDENT": 1119
+        },
+        "positiveDepthOnTruthError": {
+          "count": 1086,
+          "finiteCount": 1086,
+          "p50": 0.008085545634344271,
+          "p95": 0.06591136829478472,
+          "max": 0.5815979626857004
+        }
+      }
+    },
+    {
+      "camera": 7,
+      "visibleSampleViewStageCounts": {
+        "NO_ELIGIBLE_GRID": 0,
+        "ZERO_PHOTOMETRIC_DEPTH": 1617,
+        "POSITIVE_NOT_VERIFIED": 106,
+        "VERIFIED_NOT_ACCEPTED": 0,
+        "ACCEPTED_NOT_SOURCE_INCIDENT": 100,
+        "SOURCE_INCIDENT": 1171
+      },
+      "allGrid": {
+        "camera": 7,
+        "stageCounts": {
+          "NO_ELIGIBLE_GRID": 0,
+          "ZERO_PHOTOMETRIC_DEPTH": 3279,
+          "POSITIVE_NOT_VERIFIED": 65,
+          "VERIFIED_NOT_ACCEPTED": 0,
+          "ACCEPTED_NOT_SOURCE_INCIDENT": 49,
+          "SOURCE_INCIDENT": 996
+        },
+        "positiveDepthOnTruthError": {
+          "count": 961,
+          "finiteCount": 961,
+          "p50": 0.010479439484381459,
+          "p95": 0.07642323179903965,
+          "max": 1.8223486007990353
+        }
+      }
+    }
+  ],
+  "groupedVisibleSampleViewCounts": {
+    "potentiallyReachable1pct": {
+      "NO_ELIGIBLE_GRID": 0,
+      "ZERO_PHOTOMETRIC_DEPTH": 4587,
+      "POSITIVE_NOT_VERIFIED": 397,
+      "VERIFIED_NOT_ACCEPTED": 2,
+      "ACCEPTED_NOT_SOURCE_INCIDENT": 707,
+      "SOURCE_INCIDENT": 9269
+    },
+    "SAME_PHYSICAL_FACE": {
+      "NO_ELIGIBLE_GRID": 0,
+      "ZERO_PHOTOMETRIC_DEPTH": 10618,
+      "POSITIVE_NOT_VERIFIED": 614,
+      "VERIFIED_NOT_ACCEPTED": 2,
+      "ACCEPTED_NOT_SOURCE_INCIDENT": 961,
+      "SOURCE_INCIDENT": 8925
+    },
+    "unreachable1pct": {
+      "NO_ELIGIBLE_GRID": 0,
+      "ZERO_PHOTOMETRIC_DEPTH": 6571,
+      "POSITIVE_NOT_VERIFIED": 249,
+      "VERIFIED_NOT_ACCEPTED": 0,
+      "ACCEPTED_NOT_SOURCE_INCIDENT": 293,
+      "SOURCE_INCIDENT": 82
+    },
+    "BACKGROUND": {
+      "NO_ELIGIBLE_GRID": 0,
+      "ZERO_PHOTOMETRIC_DEPTH": 446,
+      "POSITIVE_NOT_VERIFIED": 31,
+      "VERIFIED_NOT_ACCEPTED": 0,
+      "ACCEPTED_NOT_SOURCE_INCIDENT": 33,
+      "SOURCE_INCIDENT": 172
+    },
+    "OTHER_FACE": {
+      "NO_ELIGIBLE_GRID": 0,
+      "ZERO_PHOTOMETRIC_DEPTH": 94,
+      "POSITIVE_NOT_VERIFIED": 1,
+      "VERIFIED_NOT_ACCEPTED": 0,
+      "ACCEPTED_NOT_SOURCE_INCIDENT": 6,
+      "SOURCE_INCIDENT": 254
+    }
+  },
+  "highestRetainedStagePerReference": {
+    "SOURCE_INCIDENT": 1728,
+    "ZERO_PHOTOMETRIC_DEPTH": 1119,
+    "ACCEPTED_NOT_SOURCE_INCIDENT": 547,
+    "POSITIVE_NOT_VERIFIED": 340
+  },
+  "anyViewSameFaceAccuratePositiveMap": {
+    "0.005": 1220,
+    "0.01": 1333,
+    "0.02": 1588,
+    "0.05": 2051
+  },
+  "anyViewSameFaceAccurateVerifiedMap": {
+    "0.005": 1191,
+    "0.01": 1277,
+    "0.02": 1443,
+    "0.05": 1779
+  },
+  "unreachableAtOnePercent": 1360,
+  "zeroPhotometricDepthReason": "UNAVAILABLE_NO_REJECTED_NCC_WINNER_COST_LOGS",
+  "zeroDepthNotReinterpretedAsConsistencyRejection": true,
+  "geometryFedToSolver": false,
+  "solverInvoked": false,
+  "sourcePlan": [
+    [
+      1,
+      2,
+      3
+    ],
+    [
+      2,
+      0,
+      3
+    ],
+    [
+      1,
+      3,
+      4
+    ],
+    [
+      4,
+      2,
+      1
+    ],
+    [
+      3,
+      5,
+      6
+    ],
+    [
+      6,
+      4,
+      3
+    ],
+    [
+      5,
+      7,
+      4
+    ],
+    [
+      6,
+      5,
+      4
+    ]
+  ],
+  "positiveMapTruthZErrorAllGrid": {
+    "count": 8615,
+    "finiteCount": 8615,
+    "p50": 0.007603110363763932,
+    "p95": 0.04868892236490712,
+    "max": 1.8916793259137634
+  },
+  "gridRayTruthCaveat": "offset grid ray may hit another face/background; no comparison against offset original-sample depth",
+  "lattice": "native origin3 stride2 std::round ties away from zero; x3..155/y3..115; all positive map entries bound to this lattice",
+  "inputsUnchanged": true
+}

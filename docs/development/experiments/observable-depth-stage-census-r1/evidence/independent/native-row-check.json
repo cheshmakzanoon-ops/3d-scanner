@@ -1,0 +1,11 @@
+{
+  "allVisibleNativeDepthConfidenceAndIDsExact": true,
+  "stageCounts": {
+    "SOURCE_INCIDENT": 9351,
+    "ZERO_PHOTOMETRIC_DEPTH": 11158,
+    "POSITIVE_NOT_VERIFIED": 646,
+    "ACCEPTED_NOT_SOURCE_INCIDENT": 1000,
+    "VERIFIED_NOT_ACCEPTED": 2
+  },
+  "inputHashesStillExact": true
+}

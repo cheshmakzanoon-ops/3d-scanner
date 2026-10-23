@@ -1,0 +1,80 @@
+{
+  "status": "EVALUATION_ONLY_COMPLETE",
+  "manifest": "bb8c4539c580cfef3191384ceff7fa916a90bd23abe74544245d02f9a26aa400",
+  "mode": "census",
+  "pythonEntry": "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+  "pythonBinarySHA256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "call": {
+    "argv": [
+      "/usr/bin/prlimit",
+      "--as=1073741824",
+      "--cpu=120",
+      "--fsize=12582912",
+      "--",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+      "-B",
+      "/workspace/shared/observable-depth-stage-census-r1/source/census.py",
+      "/workspace/shared/observable-depth-stage-census-r1",
+      "/workspace/shared/source-cell-binding-corrected-run",
+      "/workspace/scratch/6b683a119bde/3d-scanner/docs/development/experiments/new-cuboid-eight-view-160x120",
+      "/workspace/shared/source-cell-binding-corrected-run/baseline-source",
+      "/workspace/shared/observable-depth-stage-census-first/data"
+    ],
+    "seconds": 3.218133670001407,
+    "logBytes": 460
+  },
+  "roundingCalls": [
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=120",
+        "--fsize=1048576",
+        "--",
+        "/usr/bin/c++",
+        "-std=c++20",
+        "-O2",
+        "/workspace/shared/observable-depth-stage-census-r1/source/rounding_control.cpp",
+        "-o",
+        "/workspace/shared/observable-depth-stage-census-first/rounding-control"
+      ],
+      "seconds": 0.5041165410002577,
+      "logBytes": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=120",
+        "--fsize=262144",
+        "--",
+        "/workspace/shared/observable-depth-stage-census-first/rounding-control"
+      ],
+      "seconds": 0.05185452499972598,
+      "logBytes": 72126
+    },
+    {
+      "argv": [
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+        "-B",
+        "-c",
+        "import sys;sys.dont_write_bytecode=True;sys.path.insert(0,sys.argv[1]);from census import native_rounding_controls;print(native_rounding_controls(sys.argv[2]))",
+        "/workspace/shared/observable-depth-stage-census-r1/source",
+        "/workspace/shared/observable-depth-stage-census-first/rounding.log"
+      ],
+      "seconds": 0.6080505369991442,
+      "logBytes": 5
+    }
+  ],
+  "compilerSHA256": "6b3696e4dcb85e1c949c732a02befa50e3983ecf94ce7e8e58d9d503b954b79d",
+  "files": {
+    "rounding-check.log": "ea788de5212936bdb739ac6ac5a21e3202388dd177a618f15b7ee1d2de1ab846",
+    "rounding-control": "27cb2a4e2dc6d4bd9ae159b9cb29986c9e1619e40a4868939174ca42c593c8e1",
+    "rounding.log": "e46f4e0961a81f2386ccd4b294d2ff4a6486402c23657dcf5c23fc21246c4157",
+    "execution.log": "7267590db0b2c8e2ffbe59579f32623f34dae15aeb5f204143f89e140e46f917",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "data/visible-sample-view-stages.csv": "dc15e57392525ff36cc81614ee11895e5c0c16f43730758fac00f9082ec13159",
+    "data/summary.json": "590d0305eadab21b00bcc5dc4dedc4e54ff6335bc1e2c3b2a3693aa3f5d68daa",
+    "data/reference-summaries.json": "f529b71f1fe73992d1c2037635a43057e3cae6c2f617bb0fb27e9a90c344bde5"
+  }
+}

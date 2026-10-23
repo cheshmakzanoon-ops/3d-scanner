@@ -1,0 +1,245 @@
+{
+  "status": "EVALUATION_ONLY_COMPLETED",
+  "scope": "frozen observable sample set; oracle world frame; all indexed points including unknowns; no ICP, crop, scale fit or solver calls",
+  "allPoints": 4855,
+  "allObservations": 9172,
+  "accumulatorSourceMemberships": 9171,
+  "unknownNormalPoints": 2363,
+  "totalReferenceSamples": 6000,
+  "observableReferenceSamples": 3734,
+  "excludedUnobservableSamples": 2266,
+  "referenceDiagonal": 2.8178005387220617,
+  "rho": 0.04965026414510365,
+  "maximumPermittedEdge": 0.0993005282902073,
+  "floatingComparisonSlack": 2.8178005387220615e-12,
+  "nearestAllPointDistance": {
+    "count": 3734,
+    "finiteCount": 3734,
+    "p50": 0.07287329447961102,
+    "p95": 0.3401695674683465,
+    "max": 0.616111190671942
+  },
+  "curves": {
+    "0": {
+      "toleranceWorld": 0.0,
+      "necessaryPointDistanceThreshold": 0.0993005282930251,
+      "potentiallyReachableSamples": 2135,
+      "provablyUnreachableSamples": 1599,
+      "completenessUpperBound": 0.5717728976968398,
+      "unreachableFraction": 0.42822710230316013,
+      "baselineCompleteness": null
+    },
+    "0.005": {
+      "toleranceWorld": 0.01408900269361031,
+      "necessaryPointDistanceThreshold": 0.11338953098663541,
+      "potentiallyReachableSamples": 2258,
+      "provablyUnreachableSamples": 1476,
+      "completenessUpperBound": 0.6047134440278522,
+      "unreachableFraction": 0.39528655597214785,
+      "baselineCompleteness": 0.30958757364756295,
+      "maxPossibleGainOverBaselinePercentagePoints": 29.512587038028926
+    },
+    "0.01": {
+      "toleranceWorld": 0.02817800538722062,
+      "necessaryPointDistanceThreshold": 0.12747853368024573,
+      "potentiallyReachableSamples": 2374,
+      "provablyUnreachableSamples": 1360,
+      "completenessUpperBound": 0.6357793251205142,
+      "unreachableFraction": 0.3642206748794858,
+      "baselineCompleteness": 0.3387787895018747,
+      "maxPossibleGainOverBaselinePercentagePoints": 29.70005356186395
+    },
+    "0.02": {
+      "toleranceWorld": 0.05635601077444124,
+      "necessaryPointDistanceThreshold": 0.15565653906746635,
+      "potentiallyReachableSamples": 2601,
+      "provablyUnreachableSamples": 1133,
+      "completenessUpperBound": 0.6965720407070166,
+      "unreachableFraction": 0.3034279592929834,
+      "baselineCompleteness": 0.3899303695768613,
+      "maxPossibleGainOverBaselinePercentagePoints": 30.664167113015534
+    },
+    "0.05": {
+      "toleranceWorld": 0.14089002693610309,
+      "necessaryPointDistanceThreshold": 0.2401905552291282,
+      "potentiallyReachableSamples": 3153,
+      "provablyUnreachableSamples": 581,
+      "completenessUpperBound": 0.8444027852169256,
+      "unreachableFraction": 0.15559721478307445,
+      "baselineCompleteness": 0.5203535083020889,
+      "maxPossibleGainOverBaselinePercentagePoints": 32.404927691483664
+    }
+  },
+  "byReferenceTriangle": [
+    {
+      "triangle": 0,
+      "normal": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "samples": 361,
+      "nearestPointDistance": {
+        "count": 361,
+        "finiteCount": 361,
+        "p50": 0.1034645036180796,
+        "p95": 0.2892634213404804,
+        "max": 0.3776841809658506
+      },
+      "unreachableAtOnePercentDiagonal": 155
+    },
+    {
+      "triangle": 1,
+      "normal": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "samples": 379,
+      "nearestPointDistance": {
+        "count": 379,
+        "finiteCount": 379,
+        "p50": 0.14403394910360198,
+        "p95": 0.359958678946464,
+        "max": 0.4311934621362881
+      },
+      "unreachableAtOnePercentDiagonal": 210
+    },
+    {
+      "triangle": 4,
+      "normal": [
+        1.0,
+        0.0,
+        -0.0
+      ],
+      "samples": 389,
+      "nearestPointDistance": {
+        "count": 389,
+        "finiteCount": 389,
+        "p50": 0.16092979433163743,
+        "p95": 0.415007984121998,
+        "max": 0.49912842590661444
+      },
+      "unreachableAtOnePercentDiagonal": 227
+    },
+    {
+      "triangle": 5,
+      "normal": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "samples": 414,
+      "nearestPointDistance": {
+        "count": 414,
+        "finiteCount": 414,
+        "p50": 0.09883978304977353,
+        "p95": 0.25057815482604634,
+        "max": 0.3712582469734701
+      },
+      "unreachableAtOnePercentDiagonal": 145
+    },
+    {
+      "triangle": 6,
+      "normal": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "samples": 552,
+      "nearestPointDistance": {
+        "count": 552,
+        "finiteCount": 552,
+        "p50": 0.013832387588572205,
+        "p95": 0.022492620767825596,
+        "max": 0.028148518869556216
+      },
+      "unreachableAtOnePercentDiagonal": 0
+    },
+    {
+      "triangle": 7,
+      "normal": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "samples": 469,
+      "nearestPointDistance": {
+        "count": 469,
+        "finiteCount": 469,
+        "p50": 0.01431012267847793,
+        "p95": 0.022629591988541493,
+        "max": 0.030049962252784584
+      },
+      "unreachableAtOnePercentDiagonal": 0
+    },
+    {
+      "triangle": 10,
+      "normal": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "samples": 595,
+      "nearestPointDistance": {
+        "count": 595,
+        "finiteCount": 595,
+        "p50": 0.1893700037677549,
+        "p95": 0.43147375108313196,
+        "max": 0.616111190671942
+      },
+      "unreachableAtOnePercentDiagonal": 405
+    },
+    {
+      "triangle": 11,
+      "normal": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "samples": 575,
+      "nearestPointDistance": {
+        "count": 575,
+        "finiteCount": 575,
+        "p50": 0.09836190689768408,
+        "p95": 0.2695594918906343,
+        "max": 0.3380875845038915
+      },
+      "unreachableAtOnePercentDiagonal": 218
+    }
+  ],
+  "proof": "For triangle vertices a,b,c and x=lambda_a*a+lambda_b*b+lambda_c*c, distance(x,a)<=lambda_b*distance(b,a)+lambda_c*distance(c,a)<=2rho. If distance(q,mesh)<=epsilon, choosing a closest surface point x gives distance(q,P)<=distance(q,x)+distance(x,a)<=epsilon+2rho. Thus distance(q,P)>epsilon+2rho is impossible to cover within epsilon by any allowed triangle mesh using P. Using ALL points only weakens this bound. Reachability is necessary, not sufficient. Bound concerns sampled surface-distance completeness, NOT projected silhouette coverage.",
+  "inputs": {
+    "fixture": {
+      "path": "/workspace/scratch/6b683a119bde/3d-scanner/docs/development/experiments/new-cuboid-eight-view-160x120/evaluation-only/fixture.json",
+      "sha256": "a49d40960dcdc39d79d8c804adf97bbcae3d37200fb08987649f102c1afed35c"
+    },
+    "evaluator": {
+      "path": "/workspace/scratch/6b683a119bde/3d-scanner/docs/development/experiments/source-cell-binding-r1/source/cuboid_evaluate.py",
+      "sha256": "3d5f9a42bb2cfcef7566182aee3fe74fba9249283d4d64603e96f92a75f48ef1"
+    },
+    "accumulators": {
+      "path": "/workspace/shared/fixed-point-front-whole-first/geometry/bridge/accumulators.txt",
+      "sha256": "5bd153cdee39dfe9a4f6fd2d905d017b9500380e50514c9bfb15ddd1a0970753"
+    },
+    "native_accumulators": {
+      "path": "/workspace/shared/source-cell-binding-corrected-run/observer/accumulators.tsv",
+      "sha256": "4cd01767c2d5346eb990a2fadcf37647fb74a000607f76004a7981024b52ac33"
+    },
+    "bridge_summary": {
+      "path": "/workspace/shared/fixed-point-front-whole-first/geometry/bridge/bridge-summary.json",
+      "sha256": "3f90bd001763621a4ce8198e041b5b431709d72ea97917687677b7597410938e"
+    },
+    "samples": {
+      "path": "/workspace/shared/fixed-point-front-whole-first/geometry/bridge/samples.txt",
+      "sha256": "6b0682320c14cba51413c03c5022d54a237007c7ecfbcfb3aba4b73623bd9005"
+    },
+    "baseline_evaluation": {
+      "path": "/workspace/shared/source-cell-binding-corrected-run/evaluation.json",
+      "sha256": "3f98a07022dfac9d9941cc044c809dc1f0a80c8d4e6668b441b374c8ebdb99a9"
+    }
+  },
+  "scriptSHA256": "ba7cadc9f95b0c3e5bffc289a95ddf02b05ed5120c2844bae73184f7147b2e02",
+  "inputsUnchangedAfterEvaluation": true,
+  "sampleDistancesSHA256": "a2f1f9321e71a024bbf85717d30bacd83508e124e12c63a7483ef426694b93bf"
+}

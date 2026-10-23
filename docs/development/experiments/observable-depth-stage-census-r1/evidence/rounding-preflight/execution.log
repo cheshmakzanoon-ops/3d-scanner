@@ -1,0 +1,1 @@
+{"borders": "155/115 last sample; x0 nearest -1 outside", "projection": "offset ray must use its own truth depth", "rayDepth": "nearer face/other face/background distinct", "rounding": "ties away from zero, including negative lattice coordinate"}
