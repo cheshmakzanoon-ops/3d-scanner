@@ -1,0 +1,269 @@
+{
+  "schema": 1,
+  "synthetic": true,
+  "dataset": "new-cuboid-eight-view-160x120-blender432",
+  "manifestSha256": "4f58396f5e519cdd959e6dca1af2709dcb685dafdb017c08f3947a667d1a3da2",
+  "images": [
+    {
+      "id": "view-00",
+      "path": "images/view-00.png",
+      "sha256": "7afa0439561a42f2e95747f5f176c1298cbbdc078d8c5aa688bdd4e7a808c824",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "view-01",
+      "path": "images/view-01.png",
+      "sha256": "c27de4f1cdcde8c9a5789a76e43a95a997cb8d59937a963723156a86755baa8a",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "view-02",
+      "path": "images/view-02.png",
+      "sha256": "8d3e48b9aeccbc83c50d05d3c4f2d43dd2138691e8cce2ad5ca64396bb6fa938",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "view-03",
+      "path": "images/view-03.png",
+      "sha256": "9105cde8db1ea0459386be997f7ce95606d763053a380a6c505cc9e4a0958e91",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "view-04",
+      "path": "images/view-04.png",
+      "sha256": "9b37373f1739d8019e89b9bb9360dad8d7bd0b2dde2fbc5f16448cac71571fc5",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "view-05",
+      "path": "images/view-05.png",
+      "sha256": "e7f46a7b187208a497bfe5f58c1092b4b40eb6cd47407108d58320be284037b6",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "view-06",
+      "path": "images/view-06.png",
+      "sha256": "cbc1316ed871bc1909368d8b4c28a97273828875387071a003143442eec3ec8a",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "view-07",
+      "path": "images/view-07.png",
+      "sha256": "83ab44d9c1cd618961f0be934aa64bf4dbfc780dcd8290f09212a752c93a6c5a",
+      "K": [
+        [
+          200.0,
+          0,
+          79.5
+        ],
+        [
+          0,
+          200.0,
+          59.5
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "distortion": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "inputCount": 8,
+  "pairCount": 28,
+  "width": 160,
+  "height": 120,
+  "assumedFocal35": 43.26661530556787,
+  "calibrationProvenance": "declared synthetic K through existing estimated-pinhole path; no measured lens profile",
+  "profile": "COMPACT",
+  "productionSettings": "unchanged SIFT3500/analysisEdge1600/reciprocalRatio0.67/native thresholds and acceptance",
+  "stop": "accepted SPARSE barrier; cancel and join before native disposal",
+  "qualityPolicy": "Record all8 accounting and fallback/failure; no geometry/surface quality PASS, no tuning, no dropping, no retries with alternative settings",
+  "forbiddenInputs": [
+    "extrinsics",
+    "poses",
+    "geometry",
+    "masks",
+    "visibility",
+    "scale",
+    "near",
+    "far",
+    "evaluation-only",
+    "render-config.json"
+  ],
+  "runtime": "BLOCKED_PENDING_REVIEWED_CAPABILITY",
+  "operationTimeoutSeconds": 90,
+  "junitTimeoutSeconds": 120,
+  "outerProcessWatchdogSeconds": 600,
+  "gradleWorkers": 1,
+  "processors": 2,
+  "heapMiB": 1024
+}

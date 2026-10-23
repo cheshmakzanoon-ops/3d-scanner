@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "status": "SOURCE_ONLY_14_BOUNDARY_TESTS_PASS",
+  "kotlinCompilation": "PIPELINE_NOT_RUN; pure evidence helper compiled separately",
+  "nativeRuntime": "NOT_RUN_BLOCKED_UNQUALIFIED_CAPABILITY",
+  "reconstruction": "NOT_RUN",
+  "productionFilesUnchanged": true,
+  "truthIsolation": "allowlisted staging and negative controls, not OS confinement",
+  "testCommand": "PYTHONDONTWRITEBYTECODE=1 python -m unittest -v test_inputs",
+  "tests": 14,
+  "checkpoint": 2,
+  "previousManifestSha256": "62f8df0bc03ff4b713ae2fc01f0711860ada0b2a8a48d16dbc5c13d4939eda74",
+  "inputTests": {
+    "normal": 14,
+    "optimized": 14,
+    "result": "PASS"
+  },
+  "pureKotlinEvidenceHelper": {
+    "controls": 6,
+    "result": "PASS",
+    "compiler": "existing Kotlin2.1.21/JDK17",
+    "scope": "only pure helper; no Android/JNI/pipeline execution"
+  }
+}

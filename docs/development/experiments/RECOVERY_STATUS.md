@@ -65,3 +65,10 @@ reviewed exact whole-footprint and closed-boundary association/visibility checks
 including mandatory normal constraints for boundary-only contributing records.
 This is a new primitive-only checkpoint, limited to abstract camera IDs 0–3;
 calibrated adapters, global fronts and photographic quality remain unqualified.
+
+[Eight-view sparse source checkpoint](eight-view-sparse-source-checkpoint/README.md)
+adapts the existing production Kotlin pipeline test harness to the new images.
+Its input-boundary and pure evidence-error helper controls pass, but the full
+pipeline is not compiled or executed here. Native/runtime admission deliberately
+refuses until a separately reviewed current-source capability is available.
+This is not a successful eight-view reconstruction or a substitute pose solver.
