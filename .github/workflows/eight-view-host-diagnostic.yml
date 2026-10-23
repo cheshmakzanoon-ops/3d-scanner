@@ -20,9 +20,9 @@ jobs:
           toJSON(github.event.repository.private) == 'false' &&
           github.event.repository.default_branch == 'main' &&
           github.ref == 'refs/heads/main' && github.event.ref == 'refs/heads/main' &&
-          github.event.before == '83fefee29b273d2132dd82b80c7071a4b015f3bc' && github.event.after == github.sha &&
+          github.event.before == 'ce63c1d630bcae4947d8ee06137535876821a59a' && github.event.after == github.sha &&
           github.event.head_commit.id == github.sha &&
-          github.event.head_commit.message == 'test: run one bounded eight-view sparse host diagnostic' &&
+          github.event.head_commit.message == 'test: run bounded eight-view host with pinned NDK' &&
           toJSON(github.event.created) == 'false' && toJSON(github.event.deleted) == 'false' &&
           toJSON(github.event.forced) == 'false' && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
