@@ -19,13 +19,82 @@ public class NativeCore {
  public static native long[] pollNativeProgress(long t);
  public static native String reconstruct(double[] rows,double threshold);
  public static native String reconstructCancellable(double[] rows,double threshold,long t);
+ public static native String reconstructCalibrated(double[] rows,double[] observed,double[] domains,double threshold);
+ public static native String reconstructCalibratedCancellable(double[] rows,double[] observed,double[] domains,double threshold,long t);
  public static native String bundleAdjustProblemCancellable(double[] cameras,double[] seeds,double[] pixels,double[] models,String[] groups,String[] photos,String[] sourceTracks,boolean measured,boolean refine,double threshold,int iterations,long token);
  public static native void exportPointsTyped(double[] rows,String path,boolean glb,boolean dense);
  public static native String reconstructDenseRefinedCancellable(byte[] rgba,int w,int h,double[] cameras,double near,double far,int planes,int stride,double[] priors,byte[] coarse,int cw,int ch,double[] coarseCameras,String identity,long token);
  public static native String reconstructTexturedSurfaceCompactCheckpointed(byte[] rgba,int w,int h,byte[] photos,int pw,int ph,double[] cameras,double near,double far,int planes,int stride,String meshGlb,String meshPly,String photoGlb,String png,long token,String cache,String identity);
  public static native String reconstructTexturedSurfaceRefinedCheckpointed(byte[] rgba,int w,int h,byte[] photos,int pw,int ph,double[] cameras,double near,double far,int planes,int stride,String meshGlb,String meshPly,String photoGlb,String png,double[] priors,byte[] coarse,int cw,int ch,double[] coarseCameras,String identity,int[] adjacency,boolean compact,long token,String cache,String checkpointIdentity);
  static void check(boolean c){if(!c)throw new AssertionError("JNI lease regression");}
+ static int integerField(String json,String name) {
+  var matcher=java.util.regex.Pattern.compile("\""+name+"\":([0-9]+)(?=,|})").matcher(json);
+  check(matcher.find());return Integer.parseInt(matcher.group(1));
+ }
+ static void calibratedSuccess(String json) {
+  check(!json.contains("\"error\"")&&json.contains("\"initializerModel\":\"HOMOGRAPHY\""));
+  check(integerField(json,"homographyInliers")==240);
+  check(integerField(json,"modelInliers")==240&&integerField(json,"inliers")==240);
+  check(!json.contains("\"epipolarInliers\""));
+  check(integerField(json,"pointCount")>=230&&integerField(json,"pointCount")<=240);
+ }
+ static void calibratedContract() {
+  // Same deterministic analytic plane as the Android contract test. Actual JNI
+  // and native solver execute here; host JVM success is not Android device proof.
+  double[] rows=new double[240*7],pixels=new double[240*4],domains=new double[22];
+  double[] domain={480,480,191.5,143.5,0,0,0,0,0,384,288};
+  System.arraycopy(domain,0,domains,0,11);System.arraycopy(domain,0,domains,11,11);
+  var random=new java.util.Random(640293);
+  for(int i=0;i<240;i++) {
+   double x=random.nextDouble()*1.8-.9,y=random.nextDouble()*1.4-.7,z=4+.45*x+.2*y;
+   double qx=Math.cos(.1)*x+Math.sin(.1)*z-.65,qy=y+.02,qz=-Math.sin(.1)*x+Math.cos(.1)*z+.02;
+   double[] row={x/z,y/z,qx/qz,qy/qz,120,130,140};
+   double[] pixel={480*x/z+191.5,480*y/z+143.5,480*qx/qz+191.5,480*qy/qz+143.5};
+   System.arraycopy(row,0,rows,i*7,7);System.arraycopy(pixel,0,pixels,i*4,4);
+  }
+  calibratedSuccess(reconstructCalibrated(rows,pixels,domains,.003125));
+  check(!reconstruct(rows,.003125).contains("\"initializerModel\""));
+  try {reconstructCalibrated(null,pixels,domains,.003125);throw new AssertionError("Null calibrated rows accepted");}
+  catch(IllegalArgumentException expected) {}
+  try {reconstructCalibrated(rows,java.util.Arrays.copyOf(pixels,pixels.length-1),domains,.003125);throw new AssertionError("Truncated pixels accepted");}
+  catch(IllegalArgumentException expected) {}
+  try {reconstructCalibrated(rows,pixels,java.util.Arrays.copyOf(domains,21),.003125);throw new AssertionError("Truncated domains accepted");}
+  catch(IllegalArgumentException expected) {}
+  try {reconstructCalibrated(rows,pixels,domains,Double.NaN);throw new AssertionError("Nonfinite threshold accepted");}
+  catch(IllegalArgumentException expected) {}
+  double[] shifted=pixels.clone();shifted[0]+=1;
+  check(reconstructCalibrated(rows,shifted,domains,.003125).contains("\"errorCode\":\"INVALID_INPUT\""));
+  double[] badDomain=domains.clone();badDomain[9]=384.5;
+  check(reconstructCalibrated(rows,pixels,badDomain,.003125).contains("\"errorCode\":\"INVALID_INPUT\""));
+  double[] badRows=rows.clone();badRows[0]=Double.NaN;
+  // JNI buffer copying rejects nonfinite values before the C ABI JSON boundary.
+  try {reconstructCalibrated(badRows,pixels,domains,.003125);throw new AssertionError("Nonfinite calibrated rows accepted");}
+  catch(IllegalArgumentException expected) {}
+  double[] badPixels=pixels.clone();badPixels[0]=Double.POSITIVE_INFINITY;
+  try {reconstructCalibrated(rows,badPixels,domains,.003125);throw new AssertionError("Nonfinite calibrated pixels accepted");}
+  catch(IllegalArgumentException expected) {}
+  long token=beginReconstruction();
+  try {
+   try {reconstructCalibratedCancellable(rows,pixels,new double[21],.003125,token);throw new AssertionError("Scoped malformed input accepted");}
+   catch(IllegalArgumentException expected) {}
+   // The JNI exception must release the operation lease, allowing a valid retry.
+   calibratedSuccess(reconstructCalibratedCancellable(rows,pixels,domains,.003125,token));
+   check(reconstructCalibratedCancellable(rows,shifted,domains,.003125,token).contains("\"errorCode\":\"INVALID_INPUT\""));
+   // Native error JSON must release the lease too, independently of JNI exceptions.
+   calibratedSuccess(reconstructCalibratedCancellable(rows,pixels,domains,.003125,token));
+   check(cancelReconstruction(token));
+   try {reconstructCalibratedCancellable(rows,pixels,domains,.003125,token);throw new AssertionError("Calibrated cancellation ignored");}
+   catch(CancellationException expected) {}
+  } finally {check(finishReconstruction(token));}
+  try {reconstructCalibratedCancellable(rows,pixels,domains,.003125,token);throw new AssertionError("Finished calibrated token accepted");}
+  catch(IllegalArgumentException expected) {}
+  long recovery=beginReconstruction();
+  try {calibratedSuccess(reconstructCalibratedCancellable(rows,pixels,domains,.003125,recovery));}
+  finally {check(finishReconstruction(recovery));}
+  System.out.println("Actual calibrated JNI model/support, input validation, cancellation and lease recovery passed");
+ }
  public static void main(String[] args)throws Exception {
+  calibratedContract();
   for(int i=0;i<24;++i){long t=beginReconstruction();long[] p=pollNativeProgress(t);check(p.length==7&&p[0]==1&&p[5]==-1);check(cancelReconstruction(t));
    try{reconstructCancellable(new double[140],.002,t);throw new AssertionError("Cancellation returned JSON");}catch(CancellationException expected){}
    check(finishReconstruction(t));check(!cancelReconstruction(t));
