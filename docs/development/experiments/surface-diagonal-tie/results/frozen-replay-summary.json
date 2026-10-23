@@ -1,0 +1,31 @@
+{
+  "scope": "synthetic photographs, frozen384x288 first3 views; matched current-library diagnostic candidate before cache-version bump",
+  "baselineCommit": "b838b3c69d1a7a03bc3be3eb2cb9f099b8bc4df2",
+  "denseJsonExactlyEqual": true,
+  "meshJsonExactlyEqual": true,
+  "mesh": {
+    "schema": 8,
+    "representation": "observed_open_triangle_mesh",
+    "scale": "arbitrary",
+    "textured": false,
+    "watertight": false,
+    "material": "vertex_colors",
+    "vertexCount": 10760,
+    "triangleCount": 26079,
+    "inputSamples": 19901,
+    "acceptedSamples": 19891,
+    "fusedObservations": 7977,
+    "rejectedCells": 61360,
+    "rejectedTriangles": 9121,
+    "medianConfidence": 1,
+    "fusionVersion": 6,
+    "boundaryEdges": 2405,
+    "nonmanifoldEdges": 5940,
+    "intersections": 3518,
+    "topologyIncomplete": true
+  },
+  "baselineArtifactSha256": "e0b09aa2b6f40146ad7453c8c46a5a059e4bacb3a83ab92d66f98aa7a5baff79",
+  "candidateArtifactSha256": "e0b09aa2b6f40146ad7453c8c46a5a059e4bacb3a83ab92d66f98aa7a5baff79",
+  "matchedDependencyLibrarySha256": "ba81c9819b5389bf3bc3ecd4ccfe41267d9ddfdcb2570a13cbbe12562b1f6921",
+  "historicalIncomparableLibrarySha256": "14d10932aff9ac3021a20b6301433d4770aebbb694a63bdab30cb57b1257e65e"
+}

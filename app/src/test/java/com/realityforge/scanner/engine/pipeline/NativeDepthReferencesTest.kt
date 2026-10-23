@@ -13,7 +13,7 @@ class NativeDepthReferencesTest {
  private fun file(root:File,name:String)=File(root,name).apply{writeText("opaque fixture")}
  @Test fun manyCompletedTilesAndPartialsDoNotHideCompleteReferences() {
   val root=temporary.newFolder();repeat(40){file(root,"tile-0-$it.bin")}
-  file(root,"ref-0.bin");file(root,"ref-7.bin");file(root,"surface-v2.rfmesh");file(root,"ref-1.bin.partial")
+  file(root,"ref-0.bin");file(root,"ref-7.bin");file(root,"surface-v2.rfmesh");file(root,DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME);file(root,"ref-1.bin.partial")
   assertEquals(listOf("ref-0.bin","ref-7.bin"),completeNativeDepthReferences(root).map{it.name})
  }
  @Test fun exactNativeReferenceDomainOnlyAndDeterministicOrder() {

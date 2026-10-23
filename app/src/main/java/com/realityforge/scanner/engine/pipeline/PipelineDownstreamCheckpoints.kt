@@ -54,7 +54,7 @@ object PipelineDownstreamCheckpoints {
             // The native solver must have independently accepted this complete binary. A
             // filename left by a failed or interrupted writer does not establish geometry.
             if (dense.optBoolean("surfaceCheckpointAvailable", false) && identity.matches(Regex("[0-9a-f]{64}"))) {
-                val fullMesh = File(root, ".depth-checkpoints-m18/$identity/surface-v2.rfmesh")
+                val fullMesh = File(root, ".depth-checkpoints-m18/$identity/${DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME}")
                 require(Files.isRegularFile(fullMesh.toPath(), LinkOption.NOFOLLOW_LINKS)) {
                     "The accepted native surface checkpoint is missing."
                 }

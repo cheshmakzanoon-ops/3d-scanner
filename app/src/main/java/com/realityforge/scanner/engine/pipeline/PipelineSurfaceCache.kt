@@ -68,7 +68,7 @@ class PipelineSurfaceCache(private val root: File) {
                 val identity = densePreview.getString("depthCheckpointIdentity")
                 require(identity.matches(Regex("[0-9a-f]{64}")))
                 val depthPath = ".depth-checkpoints-m18/$identity"
-                val surface = manifest.artifacts.single { it.relativePath == "$depthPath/surface-v2.rfmesh" &&
+                val surface = manifest.artifacts.single { it.relativePath == "$depthPath/${DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME}" &&
                     it.representation == RepresentationKind.TRIANGLE_MESH }
                 val depthFiles = requireNotNull(closure[ArtifactStage.DENSE_DEPTH]).artifacts.filter {
                     it.representation == RepresentationKind.DEPTH_MAP_SET }

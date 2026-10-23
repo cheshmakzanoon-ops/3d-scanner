@@ -93,10 +93,9 @@ int main() {
             require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"current reference restoration did not restore surface reuse");
         }
     });
-    test("pre-topology-v2 cache identity cannot reuse stale intersection diagnostics",[&] {
-        // Recreate the former identity with its exact little-endian settings encoding.
-        rf::checkpoint::Sha256 legacy;
-        legacy.update("realityforge-observed-open-surface-fusion-v6-checkpoint-v2");
+    // Recreate historical algorithm identities with the unchanged v2 settings encoding.
+    const auto historicalBytes=[&](const char* domain) {
+        rf::checkpoint::Sha256 legacy;legacy.update(domain);
         const auto integer=[&]<class T>(T value) {
             std::array<std::uint8_t,sizeof(T)> bytes{};
             for(std::size_t i=0;i<bytes.size();++i)bytes[i]=static_cast<std::uint8_t>(value>>(8*i));
@@ -111,22 +110,67 @@ int main() {
         integer(static_cast<std::uint32_t>(meshSettings.maxVoxelOccupancy));
         integer(static_cast<std::uint32_t>(meshSettings.maxFusionCandidates));
         const auto oldIdentity=legacy.finish();
+        require(oldIdentity!=rf::surface_checkpoint::algorithmIdentity(meshSettings),
+                "historical algorithm identity is still current");
         auto oldBytes=acceptedBytes;
         // v2 header: magic + nine u32 fields + 64-byte scope + geometry digest.
         constexpr std::size_t algorithmOffset=8+9*4+64+32;
         std::copy(oldIdentity.begin(),oldIdentity.end(),oldBytes.begin()+algorithmOffset);
-        checksum(oldBytes);write(checkpoint,oldBytes);
+        checksum(oldBytes);return oldBytes;
+    };
+    test("historical topology and fusion identities fail closed even under the current filename",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
         rf::surface_checkpoint::AcceptedSurface recovered;
-        require(!rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
-                "legacy topology diagnostic cache was reused");
-        require(oldIdentity!=rf::surface_checkpoint::algorithmIdentity(meshSettings),
-                "topology diagnostic semantics did not invalidate algorithm identity");
+        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v6-checkpoint-v2",
+                               "realityforge-observed-open-surface-fusion-v6-checkpoint-v2-topology-v2"}) {
+            const auto oldBytes=historicalBytes(domain);write(checkpoint,oldBytes);
+            require(!rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
+                    "historical algorithm cache was reused");
+            require(!rf::surface_checkpoint::store(views,dense,mesh,meshSettings),
+                    "historical bytes occupying the current name were overwritten");
+            require(read(checkpoint)==oldBytes,"rejected historical cache bytes were changed");
+        }
         write(checkpoint,acceptedBytes);
         require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
-                "current topology identity checkpoint was rejected");
+                "current algorithm identity checkpoint was rejected");
         require(rf::surfaceJson(mesh)==rf::surfaceJson(recovered.mesh),
-                "current topology identity changed round-trip geometry");
+                "current algorithm identity changed round-trip geometry");
+    });
+    test("fusion migration preserves old mesh and depth while publishing and reusing the new namespace",[&] {
+        Temp migration;
+        rf::depth_checkpoint::Scope scope(migration.directory.string(),HASH);
+        std::vector<std::vector<std::uint8_t>> referenceBytes;
+        for(std::size_t i=0;i<dense.maps.size();++i) {
+            const auto name="ref-"+std::to_string(i)+".bin";
+            referenceBytes.push_back(read(temporary.directory/name));
+            write(migration.directory/name,referenceBytes.back());
+        }
+        const auto oldPath=migration.directory/"surface-v2.rfmesh";
+        const auto oldBytes=historicalBytes("realityforge-observed-open-surface-fusion-v6-checkpoint-v2-topology-v2");
+        write(oldPath,oldBytes);
+        const auto next=migration.directory/rf::surface_checkpoint::FILENAME;
+        require(next!=oldPath&&!std::filesystem::exists(next),"fusion migration did not get a fresh namespace");
+        rf::surface_checkpoint::AcceptedSurface recovered;
+        require(!rf::surface_checkpoint::load(oldPath.string(),views,recovered),"legacy filename reused stale fusion");
+        const auto resumed=rf::reconstructDense(views,denseSettings);
+        require(resumed.writtenDepthMaps==0&&resumed.resumedDepthMaps==views.size(),
+                "surface-only migration reran reusable depth references");
+        bool created=false;
+        require(rf::surface_checkpoint::store(views,dense,mesh,meshSettings,&created)&&created,
+                "legacy immutable surface blocked new checkpoint publication");
+        const auto newBytes=read(next);
+        require(newBytes==acceptedBytes&&u32(newBytes,8)==2,
+                "algorithm migration changed the v2 serialization layout");
+        require(rf::surface_checkpoint::load(next.string(),views,recovered),"new fusion checkpoint was not reusable");
+        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":7")!=std::string::npos,
+                "reopened checkpoint reports a stale fusion version");
+        created=true;
+        require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&created)&&!created,
+                "new checkpoint replay was not idempotent");
+        require(read(oldPath)==oldBytes&&read(next)==newBytes,"fusion migration replaced an immutable mesh");
+        for(std::size_t i=0;i<referenceBytes.size();++i)
+            require(read(migration.directory/("ref-"+std::to_string(i)+".bin"))==referenceBytes[i],
+                    "surface-only migration modified depth references");
     });
     test("new evidence cannot exceed admitted cache memory or overwrite accepted bytes",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);

@@ -3,7 +3,9 @@
 #include "realityforge/surface.hpp"
 
 namespace rf::surface_checkpoint {
-inline constexpr char FILENAME[]="surface-v2.rfmesh";
+// Serialization remains v2. Algorithm namespacing lets immutable older meshes coexist
+// under the unchanged depth identity instead of blocking the next accepted write.
+inline constexpr char FILENAME[]="surface-v2-fusion-v7.rfmesh";
 inline constexpr std::size_t MAX_FILE_BYTES=12*1024*1024;
 
 struct AcceptedSurface {

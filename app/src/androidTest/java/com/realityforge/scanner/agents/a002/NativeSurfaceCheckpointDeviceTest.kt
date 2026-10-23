@@ -3,6 +3,7 @@ package com.realityforge.scanner.agents.a002
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.realityforge.scanner.engine.DepthCheckpointIdentity
+import com.realityforge.scanner.engine.pipeline.DenseExecutionPolicy
 import com.realityforge.scanner.engine.NativeCore
 import com.realityforge.scanner.engine.nativebridge.NativeResultJson
 import java.io.File
@@ -27,6 +28,9 @@ class NativeSurfaceCheckpointDeviceTest {
             val identity = DepthCheckpointIdentity.fingerprint("sparse-m18-r1-0123456789abcdef",
                 rgba, cameras, WIDTH, HEIGHT, 3.2, 7.2, 56, 3)
             val directory = DepthCheckpointIdentity.directory(root, identity)
+            // Opaque legacy bytes model an occupied old namespace; never native acceptance.
+            val legacy = File(directory, "surface-v2.rfmesh").apply { writeText("synthetic legacy surface marker") }
+            val legacyHash = sha(legacy)
             val initial = NativeResultJson.decode(NativeCore.reconstructTexturedSurfaceCheckpointed(
                 rgba, WIDTH, HEIGHT, rgba, WIDTH, HEIGHT, cameras, 3.2, 7.2, 56, 3,
                 File(root, "initial.mesh.glb.partial").path, File(root, "initial.mesh.ply.partial").path,
@@ -41,12 +45,13 @@ class NativeSurfaceCheckpointDeviceTest {
                 "writtenDepthMaps=${denseDiagnostics.optInt("writtenDepthMaps",-1)}, " +
                 "resumedDepthMaps=${denseDiagnostics.optInt("resumedDepthMaps",-1)}, " +
                 "fileCount=${directory.listFiles()?.size}, " +
-                "surfaceBytes=${File(directory, "surface-v2.rfmesh").length()}"
+                "surfaceBytes=${File(directory, DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME).length()}"
             assertTrue(checkpointEvidence,initial.getBoolean("surfaceCheckpointWritten"))
             assertTrue(initial.getJSONObject("mesh").getInt("triangleCount") >= 40)
-            val mesh = File(directory, "surface-v2.rfmesh")
+            val mesh = File(directory, DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME)
             assertTrue(mesh.length() in 1..12L * 1024 * 1024)
-            val protectedFiles = (listOf(mesh) + (0..2).map { File(directory, "ref-$it.bin") }).associateWith(::sha)
+            assertEquals(legacyHash, sha(legacy))
+            val protectedFiles = (listOf(mesh, legacy) + (0..2).map { File(directory, "ref-$it.bin") }).associateWith(::sha)
             val larger = ByteArray(3 * WIDTH * 2 * HEIGHT * 2 * 4)
             for (camera in 0..2) for (y in 0 until HEIGHT * 2) for (x in 0 until WIDTH * 2) {
                 val source = (camera * WIDTH * HEIGHT + y / 2 * WIDTH + x / 2) * 4

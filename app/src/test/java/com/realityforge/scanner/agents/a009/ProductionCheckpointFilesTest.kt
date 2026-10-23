@@ -103,7 +103,7 @@ class ProductionCheckpointFilesTest {
                 ArtifactProvenanceFixtures.binding(revision = input.revision, attempt = 3)), sparse)
         val unchanged = requireNotNull(select(next))
         assertNotNull(unchanged.completeTexture)
-        assertEquals("surface-v2.rfmesh", unchanged.surfaceFile.name)
+        assertEquals(DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME, unchanged.surfaceFile.name)
         assertEquals(PipelineArtifactSession.hashFile(unchanged.meshGlb).hex, unchanged.meshGlbSha256)
 
         val appearance = requireNotNull(select(next.copy(settings = next.settings.copy(texture = "texture-only-change"))))
@@ -146,7 +146,7 @@ class ProductionCheckpointFilesTest {
         val ignored = PipelineSurfaceCache(unaccepted.root).load(PipelineArtifactSession.identityPlan(unaccepted.input,
             ArtifactProvenanceFixtures.binding()), unaccepted.sparse)
         assertNull(ignored)
-        assertTrue(File(unaccepted.root, ".depth-checkpoints-m18/${sha256Utf8("synthetic-depth")}/surface-v2.rfmesh").isFile)
+        assertTrue(File(unaccepted.root, ".depth-checkpoints-m18/${sha256Utf8("synthetic-depth")}/${DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME}").isFile)
     }
 
     @Test fun calibrationIdentityHashesExactBoundedBytesAndRejectsCorruptSizeBeforeAllocation() {
@@ -174,6 +174,68 @@ class ProductionCheckpointFilesTest {
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking { surfaceFixture(symlinkDepthParent = true) }
         }
+    }
+
+    @Test fun fusionVersionInvalidatesOnlySurfaceAndTextureNotDepthOrSparseParents() = runBlocking {
+        for (profile in DensePreviewProfile.entries) {
+            val current = productionInput(profile)
+            assertEquals("rf-observed-open-mesh-v7-canonical-world-diagonal-ties|quality-gated", current.settings.surface)
+            val legacy = current.copy(settings = current.settings.copy(
+                surface = "rf-observed-open-mesh-v6-reliability-weighted-pixel-fusion|quality-gated"))
+            val binding = ArtifactProvenanceFixtures.binding()
+            for (stage in AdapterStage.entries) {
+                if (stage.ordinal <= AdapterStage.DENSE.ordinal)
+                    assertEquals(legacy.identity(stage), current.identity(stage))
+                else assertNotEquals(legacy.identity(stage), current.identity(stage))
+            }
+            val previousPlan = PipelineArtifactSession.identityPlan(legacy, binding)
+            val currentPlan = PipelineArtifactSession.identityPlan(current, binding)
+            assertEquals(previousPlan.snapshot.contentHash, currentPlan.snapshot.contentHash)
+            for (stage in listOf(ArtifactStage.FEATURES, ArtifactStage.MATCHES, ArtifactStage.ALIGNMENT, ArtifactStage.DENSE_DEPTH))
+                assertEquals(previousPlan[stage], currentPlan[stage])
+            for (stage in listOf(ArtifactStage.SURFACE, ArtifactStage.TEXTURE))
+                assertNotEquals(previousPlan[stage], currentPlan[stage])
+
+            val previous = surfaceFixture(inputOverride = legacy)
+            val cache = PipelineSurfaceCache(previous.root)
+            assertNotNull(requireNotNull(cache.load(previousPlan, previous.sparse)).completeTexture)
+            // The Kotlin complete-texture fast path must not bypass native v7 rejection.
+            assertNull(cache.load(currentPlan, previous.sparse))
+            for (stage in listOf(ReconstructionStage.SPARSE, ReconstructionStage.DENSE))
+                PipelineJobCheckpointValidator.validateArtifacts(previous.root,
+                    job(previous.cursors.single { it.acceptedStage == stage }), current)
+            for (stage in listOf(ReconstructionStage.SURFACE, ReconstructionStage.TEXTURE)) {
+                val cursor = previous.cursors.single { it.acceptedStage == stage }
+                PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), legacy)
+                assertThrows(IllegalArgumentException::class.java) {
+                    PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), current)
+                }
+            }
+        }
+    }
+
+    @Test fun newSurfaceManifestReusesNewNamespaceWithoutTouchingLegacyMeshOrDepthReferences() = runBlocking {
+        val current = productionInput(DensePreviewProfile.Compatibility)
+        val fixture = surfaceFixture(inputOverride = current, includeLegacySurface = true)
+        val plan = PipelineArtifactSession.identityPlan(current, ArtifactProvenanceFixtures.binding())
+        val cache = PipelineSurfaceCache(fixture.root)
+        val accepted = requireNotNull(cache.load(plan, fixture.sparse))
+        val legacy = File(accepted.depthDirectory, "surface-v2.rfmesh")
+        val protectedFiles = (listOf(legacy, accepted.surfaceFile) + fixture.depthReferences.map { File(fixture.root, it) })
+            .associateWith { it.readBytes() }
+        assertEquals("surface-v2-fusion-v7.rfmesh", accepted.surfaceFile.name)
+        assertNotEquals(legacy, accepted.surfaceFile)
+        assertEquals(listOf("ref-0.bin", "ref-1.bin"), fixture.depthReferences.map { File(it).name })
+        repeat(2) {
+            val reused = requireNotNull(cache.load(plan, fixture.sparse))
+            assertEquals(accepted.surfaceFile, reused.surfaceFile)
+            assertNotNull(reused.completeTexture)
+            protectedFiles.forEach { (file, bytes) -> assertArrayEquals(bytes, file.readBytes()) }
+        }
+        // The old filename cannot substitute for a missing accepted v7 artifact.
+        assertTrue(accepted.surfaceFile.delete())
+        assertNull(cache.load(plan, fixture.sparse))
+        assertArrayEquals(protectedFiles.getValue(legacy), legacy.readBytes())
     }
 
     @Test fun peakSupportVersionChangesBothPublishedDenseIdentitiesWithoutDiscardingSparseWork() {
@@ -253,7 +315,8 @@ class ProductionCheckpointFilesTest {
 
     /** Opaque synthetic native payloads test the Kotlin reference gate only; native decoder tests use real RF mesh bytes. */
     private suspend fun surfaceFixture(available: Boolean = true, extraTiles: Int = 0,
-        symlinkDepthParent: Boolean = false, inputOverride: PipelineInputSnapshot? = null): SurfaceFixture {
+        symlinkDepthParent: Boolean = false, inputOverride: PipelineInputSnapshot? = null,
+        includeLegacySurface: Boolean = false): SurfaceFixture {
         // Each fixture gets isolation while retaining the production project-directory identity.
         val root = File(temporary.newFolder(), "project-9").apply { check(mkdirs()) }
         val input = inputOverride ?: input()
@@ -307,7 +370,8 @@ class ProductionCheckpointFilesTest {
             .put("densePreview", dense).put("meshPreview", mesh).put("texturePreview", texture)
         file("$key.json", preview.toString().toByteArray())
         for (extension in listOf("dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png")) file("$key.$extension")
-        for (name in listOf("ref-0.bin", "ref-1.bin", "surface-v2.rfmesh")) file(".depth-checkpoints-m18/$depthIdentity/$name")
+        if (includeLegacySurface) file(".depth-checkpoints-m18/$depthIdentity/surface-v2.rfmesh")
+        for (name in listOf("ref-0.bin", "ref-1.bin", DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME)) file(".depth-checkpoints-m18/$depthIdentity/$name")
         repeat(extraTiles) { index -> file(".depth-checkpoints-m18/$depthIdentity/tile-0-$index.bin") }
         file(".depth-checkpoints-m18/$depthIdentity/ref-0.bin.partial")
         if (symlinkDepthParent) {

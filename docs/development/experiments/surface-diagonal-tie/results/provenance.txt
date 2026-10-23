@@ -1,0 +1,7 @@
+maximumLostRefPositionDistance=1.11022e-16 lostRefs=64 lostRefsWithoutExactSurvivingPosition=16 rotated input=578 accepted=578 refs=514 vertices=289 faces=512 nonmanifold=0 intersections=0 incomplete=0 area=2.56
+maximumLostRefPositionDistance=1.11022e-16 lostRefs=64 lostRefsWithoutExactSurvivingPosition=16 reverse input=578 accepted=578 refs=514 vertices=289 faces=512 nonmanifold=0 intersections=0 incomplete=0 area=2.56
+maximumLostRefPositionDistance=0 lostRefs=0 lostRefsWithoutExactSurvivingPosition=0 translated input=578 accepted=578 refs=578 vertices=353 faces=632 nonmanifold=56 intersections=212 incomplete=0 area=3.16
+maximumLostRefPositionDistance=1.11022e-16 lostRefs=48 lostRefsWithoutExactSurvivingPosition=12 partial input=442 accepted=442 refs=394 vertices=289 faces=512 nonmanifold=0 intersections=0 incomplete=0 area=2.56
+maximumLostRefPositionDistance=8.9681e-16 lostRefs=64 lostRefsWithoutExactSurvivingPosition=60 curved input=578 accepted=578 refs=514 vertices=289 faces=512 nonmanifold=0 intersections=0 incomplete=0 area=2.56354
+maximumLostRefPositionDistance=1.11022e-16 lostRefs=94 lostRefsWithoutExactSurvivingPosition=18 step input=578 accepted=578 refs=484 vertices=289 faces=480 nonmanifold=0 intersections=0 incomplete=0 area=2.9632
+maximumLostRefPositionDistance=8.9681e-16 lostRefs=64 lostRefsWithoutExactSurvivingPosition=51 nontie input=578 accepted=578 refs=514 vertices=289 faces=512 nonmanifold=0 intersections=0 incomplete=0 area=2.34623

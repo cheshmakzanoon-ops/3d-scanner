@@ -1,0 +1,37 @@
+{
+  "zero_arguments": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "one_argument": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "three_arguments": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "nonempty_hidden_output": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "source_root": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "source_descendant": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "source_symlink_alias": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "nonexistent_output": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "preservedExistingHiddenFile": true,
+  "nonexistentTargetNotCreated": true,
+  "wholeBuildFlow": "NOT_RUN"
+}

@@ -1,0 +1,26 @@
+{
+  "rotated": {
+    "baselineSummedArea": 5.119999999999914,
+    "candidateUnionAreaNonoverlapping": 2.5599999999999685,
+    "summedUncoveredBaselineTriangleArea": 3.191891195797325e-16,
+    "largestUncoveredTriangleArea": 5.204170427930421e-18
+  },
+  "reverse": {
+    "baselineSummedArea": 5.119999999999914,
+    "candidateUnionAreaNonoverlapping": 2.5599999999999685,
+    "summedUncoveredBaselineTriangleArea": 3.191891195797325e-16,
+    "largestUncoveredTriangleArea": 5.204170427930421e-18
+  },
+  "partial": {
+    "baselineSummedArea": 3.8399999999999412,
+    "candidateUnionAreaNonoverlapping": 2.5599999999999685,
+    "summedUncoveredBaselineTriangleArea": 3.191891195797325e-16,
+    "largestUncoveredTriangleArea": 5.204170427930421e-18
+  },
+  "step": {
+    "baselineSummedArea": 5.926400000000002,
+    "candidateUnionAreaNonoverlapping": 2.9632000000000014,
+    "summedUncoveredBaselineTriangleArea": 4.848552115355176e-16,
+    "largestUncoveredTriangleArea": 6.938893903907228e-18
+  }
+}

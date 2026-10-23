@@ -45,9 +45,74 @@ std::vector<rf::DenseView> fixture(int count=3,bool texture=true,bool occlude=fa
     return views;
 }
 }
+struct DiagonalFixture{std::vector<rf::DenseView> views;rf::DenseResult dense;};
+DiagonalFixture diagonalFixture(double shift,bool rotate,bool reverse,bool partial,int shape,bool rectangular){
+ DiagonalFixture f;f.views.resize(2);f.dense.maps.resize(2);
+ for(int c=0;c<2;++c){int physical=reverse?1-c:c;auto&v=f.views[c];v.width=v.height=40;v.fx=100;v.fy=rectangular?110:100;v.cx=v.cy=19;v.pose={rf::identity(),{-physical*shift,0,0}};
+ bool rot=physical&&rotate;if(rot)v.pose.rotation={0,-1,0,1,0,0,0,0,1};
+ auto&m=f.dense.maps[c];m.width=m.height=40;m.depth.assign(1600,0);m.confidence.assign(1600,0);
+ for(int y=3;y<37;y+=2)for(int x=3;x<37;x+=2){
+ if(partial&&physical&&x<19)continue;
+ double rx=(x-v.cx)/v.fx,ry=(y-v.cy)/v.fy; if(rot){double q=rx;rx=ry;ry=-q;}
+ // Synthetic analytic surfaces only, directly test the dense-to-mesh API.
+ double z=5;
+ if(shape==1)z=10/(1+std::sqrt(1-.08*(rx*rx+ry*ry))); // paraboloid z=5+.004(x²+y²)
+ if(shape==2)z=rx<0?5:6;
+ if(shape==3)z=5/(1-.1*rx-.07*ry);
+ double ox=physical*shift,oy=0;if(rot){ox=0;oy=-physical*shift;}
+ rf::Vec3 p{rx*z+ox,ry*z+oy,z};m.depth[y*40+x]=z;m.confidence[y*40+x]=.9;
+ f.dense.verifiedSamples.push_back({p,{128,128,128},.9f,2,(uint8_t)c,(uint16_t)x,(uint16_t)y});}}
+ return f;
+}
+
 int main(){
     int passed=0;
     auto test=[&](const char* name,auto fn){try{fn();++passed;std::cout<<"PASS "<<name<<'\n';}catch(const std::exception& e){std::cerr<<"FAIL "<<name<<": "<<e.what()<<'\n';throw;}};
+    test("exact equal diagonal ties share a world-space tessellation across rotated views",[]{
+        for(int variant=0;variant<4;++variant){
+            const bool reverse=variant==1,partial=variant==2,step=variant==3;
+            const auto f=diagonalFixture(0,true,reverse,partial,step?2:0,false);
+            rf::SurfaceSettings settings;settings.pixelStride=2;
+            const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense,settings);
+            require(mesh.acceptedSamples==mesh.inputSamples,"Diagonal ownership changed accepted depth observations");
+            require(mesh.triangles.size()==(step?480u:512u),"Coincident source quad acquired duplicate tessellations");
+            require(mesh.topology.nonmanifoldEdges==0&&mesh.topology.intersections==0&&!mesh.topology.intersectionBudgetExceeded,
+                    "Exact tied source quad caused overlapping or nonmanifold geometry");
+            double area=0;
+            for(const auto&t:mesh.triangles){
+                const auto a=mesh.vertices[t.a].xyz,b=mesh.vertices[t.b].xyz,c=mesh.vertices[t.c].xyz;
+                const rf::Vec3 u{b.x-a.x,b.y-a.y,b.z-a.z},v{c.x-a.x,c.y-a.y,c.z-a.z};
+                area+=.5*std::hypot(u.y*v.z-u.z*v.y,u.z*v.x-u.x*v.z,u.x*v.y-u.y*v.x);
+                require(a.z==b.z&&b.z==c.z,"Canonical tie bridged measured depth discontinuity");
+            }
+            require(std::abs(area-(step?2.9632:2.56))<1e-12,"Canonical tie lost analytic observed plane coverage");
+            // Existing exact-face cleanup compacts duplicate boundary vertices and
+            // their refs. Do not confuse acceptedSamples with retained provenance.
+            const std::size_t expectedRefs=step?484:partial?394:514;
+            require(mesh.observations.size()==expectedRefs,"Unexpected reference-compaction behavior");
+            std::vector<bool> retained(f.dense.verifiedSamples.size());
+            for(const auto&o:mesh.observations)retained[o.sourceSampleId]=true;
+            for(std::size_t i=0;i<retained.size();++i)if(!retained[i]){
+                const auto p=f.dense.verifiedSamples[i].xyz;double nearest=INFINITY;
+                for(const auto&v:mesh.vertices)nearest=std::min(nearest,std::hypot(v.xyz.x-p.x,v.xyz.y-p.y,v.xyz.z-p.z));
+                require(nearest<1e-14,"Removed duplicate reference lost its measured position");
+            }
+        }
+    });
+    test("canonical diagonal does not conceal translated grid overlap",[]{
+        const auto f=diagonalFixture(.01,false,false,false,0,false);
+        rf::SurfaceSettings settings;settings.pixelStride=2;
+        const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense,settings);
+        require(mesh.topology.nonmanifoldEdges>0&&mesh.topology.intersections>0,
+                "Narrow exact-tie repair must not silently filter generic overlapping grids");
+        require(mesh.acceptedSamples==578&&mesh.observations.size()==578,"Translated control discarded observations");
+    });
+    test("nonfinite observed sample is rejected before diagonal ordering",[]{
+        auto f=diagonalFixture(0,true,false,false,0,false);
+        f.dense.verifiedSamples.front().xyz.x=std::numeric_limits<double>::quiet_NaN();
+        rf::SurfaceSettings settings;settings.pixelStride=2;
+        expectError([&]{rf::fuseDepthSurfaces(f.views,f.dense,settings);});
+    });
     test("confirmed depth samples produce genuine indexed triangles",[]{
         const auto images=fixture();
         rf::DenseSettings ds;ds.nearDepth=3.1;ds.farDepth=7;ds.depthPlanes=64;ds.pixelStride=2;

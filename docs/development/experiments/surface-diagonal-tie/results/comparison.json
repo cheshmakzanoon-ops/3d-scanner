@@ -1,0 +1,69 @@
+{
+  "rotated": {
+    "changedFields": [
+      "boundaryEdges",
+      "intersections",
+      "nonmanifoldEdges",
+      "rejectedTriangles",
+      "triangleCount",
+      "triangles",
+      "vertexCount",
+      "vertices"
+    ],
+    "geometryFieldsEqualIgnoringVersion": false
+  },
+  "reverse": {
+    "changedFields": [
+      "boundaryEdges",
+      "intersections",
+      "nonmanifoldEdges",
+      "rejectedTriangles",
+      "triangleCount",
+      "triangles",
+      "vertexCount",
+      "vertices"
+    ],
+    "geometryFieldsEqualIgnoringVersion": false
+  },
+  "translated": {
+    "changedFields": [
+      "triangles",
+      "vertices"
+    ],
+    "geometryFieldsEqualIgnoringVersion": false
+  },
+  "partial": {
+    "changedFields": [
+      "boundaryEdges",
+      "intersections",
+      "nonmanifoldEdges",
+      "rejectedTriangles",
+      "triangleCount",
+      "triangles",
+      "vertexCount",
+      "vertices"
+    ],
+    "geometryFieldsEqualIgnoringVersion": false
+  },
+  "curved": {
+    "changedFields": [],
+    "geometryFieldsEqualIgnoringVersion": true
+  },
+  "step": {
+    "changedFields": [
+      "boundaryEdges",
+      "intersections",
+      "nonmanifoldEdges",
+      "rejectedTriangles",
+      "triangleCount",
+      "triangles",
+      "vertexCount",
+      "vertices"
+    ],
+    "geometryFieldsEqualIgnoringVersion": false
+  },
+  "nontie": {
+    "changedFields": [],
+    "geometryFieldsEqualIgnoringVersion": true
+  }
+}

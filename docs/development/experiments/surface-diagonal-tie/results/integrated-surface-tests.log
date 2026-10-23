@@ -1,0 +1,13 @@
+PASS exact equal diagonal ties share a world-space tessellation across rotated views
+PASS canonical diagonal does not conceal translated grid overlap
+PASS nonfinite observed sample is rejected before diagonal ordering
+confirmed=4676 vertices=3957 faces=8559 fused=710
+PASS confirmed depth samples produce genuine indexed triangles
+PASS textureless inputs produce zero triangle faces
+PASS occluded input retains only confirmed geometry
+PASS depth-step barrier prevents triangles across measured discontinuity
+PASS reject malformed source depth maps and unverified samples
+PASS surface serialization rejects malformed numeric data and indices
+PASS invalid C ABI produces JSON error
+PASS deterministic fusion
+11 surface meshing cases passed

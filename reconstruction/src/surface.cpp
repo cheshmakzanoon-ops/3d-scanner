@@ -322,7 +322,16 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
                 const auto& v=mesh.vertices;
                 const auto dist=[&](int a,int b){return norm(sub(v[static_cast<std::size_t>(ids[a])].xyz,
                                                                   v[static_cast<std::size_t>(ids[b])].xyz));};
-                const bool diag03=dist(0,3)<dist(1,2);
+                // Only exact length ties canonicalize the common world-space
+                // endpoint pair across camera-local grid orientations. No epsilon:
+                // the strictly shorter-diagonal decision remains unchanged.
+                const auto diagonalKey=[&](int a,int b){
+                    const auto& A=v[static_cast<std::size_t>(ids[a])].xyz;const auto& B=v[static_cast<std::size_t>(ids[b])].xyz;
+                    std::array<std::array<double,3>,2> key{{{A.x,A.y,A.z},{B.x,B.y,B.z}}};
+                    std::sort(key.begin(),key.end());return key;
+                };
+                const double d03=dist(0,3),d12=dist(1,2);
+                const bool diag03=d03<d12||(d03==d12&&diagonalKey(0,3)<diagonalKey(1,2));
                 const auto face=[&](int a,int b,int c){
                     if(mesh.triangles.size()>=s.maxTriangles)return;
                     if(!validTriangle(cam,{ids[a],ids[b],ids[c]},{d[a],d[b],d[c]}))++mesh.rejectedTriangles;
@@ -375,7 +384,7 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<",\"triangleCount\":"<<m.triangles.size()<<",\"inputSamples\":"<<m.inputSamples
      <<",\"acceptedSamples\":"<<m.acceptedSamples<<",\"fusedObservations\":"<<m.fusedObservations
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":6,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":7,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])

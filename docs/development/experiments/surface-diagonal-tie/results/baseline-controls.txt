@@ -1,0 +1,7 @@
+rotated input=578 accepted=578 refs=578 vertices=353 faces=1024 nonmanifold=420 intersections=1024 incomplete=0 area=5.12
+reverse input=578 accepted=578 refs=578 vertices=353 faces=1024 nonmanifold=420 intersections=1024 incomplete=0 area=5.12
+translated input=578 accepted=578 refs=578 vertices=353 faces=632 nonmanifold=56 intersections=212 incomplete=0 area=3.16
+partial input=442 accepted=442 refs=442 vertices=337 faces=768 nonmanifold=188 intersections=512 incomplete=0 area=3.84
+curved input=578 accepted=578 refs=514 vertices=289 faces=512 nonmanifold=0 intersections=0 incomplete=0 area=2.56354
+step input=578 accepted=578 refs=578 vertices=383 faces=960 nonmanifold=347 intersections=960 incomplete=0 area=5.9264
+nontie input=578 accepted=578 refs=514 vertices=289 faces=512 nonmanifold=0 intersections=0 incomplete=0 area=2.34623
