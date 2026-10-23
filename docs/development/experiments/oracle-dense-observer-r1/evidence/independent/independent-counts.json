@@ -1,0 +1,15 @@
+{
+  "independentPillowRGBAParityAll8": true,
+  "attempts": 28374,
+  "directedConfirmations": 25744,
+  "strictReverseDirected": 17920,
+  "strictUnorderedPairs": 8960,
+  "generatedIdentities": 9172,
+  "categories": {
+    "reverseNotExactConfirmed": 1967,
+    "exactReverseConfirmedWithVerifiedEndpoints": 17920,
+    "reverseNotAttempted": 5797,
+    "missingVerifiedEndpoint": 60
+  },
+  "scope": "oracle cameras only; actual directed identities, not same-sheet certification"
+}

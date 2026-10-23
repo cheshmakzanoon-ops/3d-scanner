@@ -1,0 +1,627 @@
+{
+  "oracleCameraExtrinsicsInput": true,
+  "imageDerivedRegistration": false,
+  "geometryMasksRayWitnessInput": false,
+  "scale": "supplied oracle-camera gauge",
+  "cameraRows": [
+    [
+      0.8191519975662231,
+      -0.5735765099525452,
+      -6.414760278516951e-09,
+      -0.1942814290523529,
+      -0.27746257185935974,
+      -0.940887451171875,
+      0.539671003818512,
+      0.7707298398017883,
+      -0.33871927857398987,
+      -4.3770669572785954e-07,
+      9.058519054860881e-07,
+      5.31413229383346,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ],
+    [
+      0.9063077569007874,
+      -0.4226182997226715,
+      1.7383495531930748e-08,
+      -0.1431489884853363,
+      -0.3069840371608734,
+      -0.940887451171875,
+      0.3976362347602844,
+      0.8527336120605469,
+      -0.3387193977832794,
+      -3.499510156028502e-07,
+      3.6952533122303066e-07,
+      5.314132128799891,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ],
+    [
+      0.9659258127212524,
+      -0.2588190734386444,
+      -1.236798397030725e-08,
+      -0.0876670852303505,
+      -0.32717791199684143,
+      -0.9408873915672302,
+      0.2435196042060852,
+      0.9088274240493774,
+      -0.33871951699256897,
+      -3.324448899633222e-08,
+      -2.148051851946775e-07,
+      5.314131916937306,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ],
+    [
+      0.9961947202682495,
+      -0.08715575188398361,
+      -2.0042012494059236e-10,
+      -0.029521334916353226,
+      -0.33743035793304443,
+      -0.940887451171875,
+      0.08200375735759735,
+      0.9373071193695068,
+      -0.33871927857398987,
+      -6.198462242213762e-08,
+      8.526972985478665e-07,
+      5.314132306318463,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ],
+    [
+      0.9961947202682495,
+      0.08715575188398361,
+      2.0042012494059236e-10,
+      0.029521334916353226,
+      -0.33743035793304443,
+      -0.940887451171875,
+      -0.08200375735759735,
+      0.9373071193695068,
+      -0.33871927857398987,
+      6.198462242213762e-08,
+      8.526972985478665e-07,
+      5.314132306318463,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ],
+    [
+      0.9659258127212524,
+      0.2588190734386444,
+      1.236798397030725e-08,
+      0.0876670852303505,
+      -0.32717791199684143,
+      -0.9408873915672302,
+      -0.2435196042060852,
+      0.9088274240493774,
+      -0.33871951699256897,
+      3.324448899633222e-08,
+      -2.148051851946775e-07,
+      5.314131916937306,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ],
+    [
+      0.9063077569007874,
+      0.4226182997226715,
+      -1.7383495531930748e-08,
+      0.1431489884853363,
+      -0.3069840371608734,
+      -0.940887451171875,
+      -0.3976362347602844,
+      0.8527336120605469,
+      -0.3387193977832794,
+      3.499510156028502e-07,
+      3.6952533122303066e-07,
+      5.314132128799891,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ],
+    [
+      0.8191519975662231,
+      0.5735765099525452,
+      6.414760278516951e-09,
+      0.1942814290523529,
+      -0.27746257185935974,
+      -0.940887451171875,
+      -0.539671003818512,
+      0.7707298398017883,
+      -0.33871927857398987,
+      4.3770669572785954e-07,
+      9.058519054860881e-07,
+      5.31413229383346,
+      200.0,
+      200.0,
+      79.5,
+      59.5
+    ]
+  ],
+  "settings": {
+    "near": 3.0,
+    "far": 7.0,
+    "planes": 96,
+    "stride": 2
+  },
+  "images": [
+    {
+      "id": "view-00",
+      "pngSHA256": "7afa0439561a42f2e95747f5f176c1298cbbdc078d8c5aa688bdd4e7a808c824",
+      "rgbaSHA256": "3392bb41d5cbcbd3e339233417dd6e7836097692e82050717e7439f2908ca1ac"
+    },
+    {
+      "id": "view-01",
+      "pngSHA256": "c27de4f1cdcde8c9a5789a76e43a95a997cb8d59937a963723156a86755baa8a",
+      "rgbaSHA256": "8a085cbaf7f236e7d0ef4d97c3e0593de9dbae30233708bd7cde2bbbb5b5acb4"
+    },
+    {
+      "id": "view-02",
+      "pngSHA256": "8d3e48b9aeccbc83c50d05d3c4f2d43dd2138691e8cce2ad5ca64396bb6fa938",
+      "rgbaSHA256": "fb9846b663090907161a021efb1de26acf0a2e966c33df86ca48214ed525c759"
+    },
+    {
+      "id": "view-03",
+      "pngSHA256": "9105cde8db1ea0459386be997f7ce95606d763053a380a6c505cc9e4a0958e91",
+      "rgbaSHA256": "eba88b65c91e209cbaa6ec2ad126ffb6e1131afdbbd82eb6a82ec65253bfcc0e"
+    },
+    {
+      "id": "view-04",
+      "pngSHA256": "9b37373f1739d8019e89b9bb9360dad8d7bd0b2dde2fbc5f16448cac71571fc5",
+      "rgbaSHA256": "dbb0dc44437653b13b837150914e068362dc767c056426d036bcda618a0cd744"
+    },
+    {
+      "id": "view-05",
+      "pngSHA256": "e7f46a7b187208a497bfe5f58c1092b4b40eb6cd47407108d58320be284037b6",
+      "rgbaSHA256": "0152f66f508ff0052d569f83cc92cc9c60cd884d0040eb02aa4edcb84626b67f"
+    },
+    {
+      "id": "view-06",
+      "pngSHA256": "cbc1316ed871bc1909368d8b4c28a97273828875387071a003143442eec3ec8a",
+      "rgbaSHA256": "d15cf1c1b671c25749f29e67fb0c426c992d57e4323b43d3228fd0784c692e15"
+    },
+    {
+      "id": "view-07",
+      "pngSHA256": "83ab44d9c1cd618961f0be934aa64bf4dbfc780dcd8290f09212a752c93a6c5a",
+      "rgbaSHA256": "c6147e02f632769a6de885ea4d54c5b6e6dc2f561e9b334f83c675f837ebc388"
+    }
+  ],
+  "inputSHA256": "3eb7e85bdeb1844a6342fa1ec8fc8dfdf7e7ccc98acdb046782222fc402b4762",
+  "decoder": {
+    "opencv": "4.12.0",
+    "numpy": "2.2.6",
+    "interpreterEntryPoint": "/workspace/scratch/6b683a119bde/host-validation/qa-python/bin/python",
+    "interpreterRealPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "interpreterSHA256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "sysPrefix": "/workspace/scratch/6b683a119bde/host-validation/qa-python",
+    "sysBasePrefix": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python",
+    "modules": {
+      "numpy._utils._convertions": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_utils/_convertions.py",
+        "sha256": "d3133175e2cece20e61ec44cffc96e121e12fa441d328320e86c4d0c36acebd9"
+      },
+      "numpy._utils": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_utils/__init__.py",
+        "sha256": "7c3b9cd8bb02e28968d2eb685a302cdcb5eec7e80f60714a8538651088b878e4"
+      },
+      "numpy._globals": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_globals.py",
+        "sha256": "5d5b943e914bb9ea8a513370aa23a35966a19ccfaf1b11b2e2d600de987e1001"
+      },
+      "numpy._expired_attrs_2_0": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_expired_attrs_2_0.py",
+        "sha256": "653577229784e147094a7d914d92f12808b1125e79ecc90a2b847bc6e6f0d51c"
+      },
+      "numpy.version": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/version.py",
+        "sha256": "a7fcfa08bc3d730a77a7d31ec027bf53a9695812c353a526dd077dc1451b7d7a"
+      },
+      "numpy._distributor_init": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_distributor_init.py",
+        "sha256": "20acb64c7c26bb9520063b556f06c3f47f80a7cb9a509a0f2766ed43825ab5da"
+      },
+      "numpy._utils._inspect": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_utils/_inspect.py",
+        "sha256": "2dc6c7509d8a3c3a4f78d8b1c8878a3945af39168b1b927e1f4b88de21c8b0e0"
+      },
+      "numpy.exceptions": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/exceptions.py",
+        "sha256": "d841f73b00d5a09b40b11383b869672d603586b8c39e2a25095911f3bf9e1c8a"
+      },
+      "numpy._core._exceptions": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_exceptions.py",
+        "sha256": "75958aa9f74b46f26f6c0106fdfa1fffc8a410ac636a400332dcb590b0bf97f3"
+      },
+      "numpy._core.printoptions": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/printoptions.py",
+        "sha256": "15463efa11b4fa8a1bbed1ce63ae03e7406cffe24599ff8dcdaec2f485ce4456"
+      },
+      "numpy.dtypes": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/dtypes.py",
+        "sha256": "cee3f0802d228c5da80d100e27a23d24a85a26e857140ca00722d06a856d4f9e"
+      },
+      "numpy._core._multiarray_umath": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so",
+        "sha256": "e6241082eaab01d0f68b2b661522ecb9d5d2160915104df8b112cc161dfa18b4"
+      },
+      "numpy._core.overrides": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/overrides.py",
+        "sha256": "733b9bbb924749d89ddf521fd162ea39810cdd6880634ded2e6ca86b4e2c5a38"
+      },
+      "numpy._core.multiarray": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/multiarray.py",
+        "sha256": "d0fed9047291d26234b5ab72a83087c277dec04122438f1dc2bcd52f63d0024d"
+      },
+      "numpy._core.umath": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/umath.py",
+        "sha256": "3ac6dabe62d1c4a34d6d5f129cf11cde654d93d10856332165e46cf67094b135"
+      },
+      "numpy._core._string_helpers": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_string_helpers.py",
+        "sha256": "82edf1d1d1274678779a73a4be25f5eebf2b0a66a05606077f120bb7d43d8ab0"
+      },
+      "numpy._core._type_aliases": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_type_aliases.py",
+        "sha256": "e0053f7157a404a0c85ced544653902ac333f27ac3c35b47aff9c1750cef373a"
+      },
+      "numpy._core._dtype": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_dtype.py",
+        "sha256": "e0fcfa289409472c25b0c85d1fc35b22e833883c908b57a4bf664cc3bce89b3a"
+      },
+      "numpy._core.numerictypes": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/numerictypes.py",
+        "sha256": "5be12efc0bf9ccd3411c364718b36598d6f652e301c8a45dc163d3b09c40e684"
+      },
+      "numpy._core._methods": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_methods.py",
+        "sha256": "a6398fd7201bb557ac5d3cadbaea46217a233b9e72f0b052fbc7c440fbac3485"
+      },
+      "numpy._core.fromnumeric": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/fromnumeric.py",
+        "sha256": "80af26d98de5489e6ab3380d13e17e65d37ab9a6f8d1c5b9041b03e1238d1cb0"
+      },
+      "numpy._core.shape_base": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/shape_base.py",
+        "sha256": "08adcbadc7d62a70a1a24526d5e1d8b0be3743b0f9a8fabb4310cfb9860c9c05"
+      },
+      "numpy._core._ufunc_config": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_ufunc_config.py",
+        "sha256": "2e51694d49c715e1d094d162b811efaea567fa743b12f2205049f71d4725b7b9"
+      },
+      "numpy._core.arrayprint": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/arrayprint.py",
+        "sha256": "b3994c2efdd6cbf7dade10753aa51a33887525af5207f5fedf3024416d53bb81"
+      },
+      "numpy._core._asarray": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_asarray.py",
+        "sha256": "ee864fa8d8ee0cbd08c48793ed5fd4256d7d96c292dde9f2fa394de076be8680"
+      },
+      "numpy._core.numeric": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/numeric.py",
+        "sha256": "bec88470c8a0e101f031ff473f999aa8e845b1b96a19b87c02d138717d3c0fbc"
+      },
+      "numpy._core.records": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/records.py",
+        "sha256": "d14bf6676c41bf161052c021a79cd9dbad9814799237a47f6dacc8fc4c91134d"
+      },
+      "numpy._core.memmap": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/memmap.py",
+        "sha256": "077939119f10c338cfc16c0eb55455c84a1f409486fe90817160859273be19a5"
+      },
+      "numpy._core.function_base": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/function_base.py",
+        "sha256": "85f71875abcd79e0db8988ef4c1a8303a3891f11f57ee34374cb536548b74598"
+      },
+      "numpy._core._machar": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_machar.py",
+        "sha256": "dfdf6da6114f1b3272d5ba5b7972c38d45194de6d6b68d65a33075a6b68e45f1"
+      },
+      "numpy._core.getlimits": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/getlimits.py",
+        "sha256": "532dd6e9e270bb697b47aa2fa9d7de3b24326c5e638e53c447cf2948cdff24f8"
+      },
+      "numpy._core.einsumfunc": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/einsumfunc.py",
+        "sha256": "c6c6286b0bf32b8100d9021876d9392b2ac591409ee244ade703ad5c29bfbf5b"
+      },
+      "numpy._core._add_newdocs": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_add_newdocs.py",
+        "sha256": "b2d295ad95a4587fa0fe6a7b3303be3750e431f2978cbc41b2b96eac15e6780e"
+      },
+      "numpy._core._add_newdocs_scalars": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_add_newdocs_scalars.py",
+        "sha256": "78f99ab34988e8e0a9abd5bc66ccd71f212192db01523fe1bc4b7aa336fc6627"
+      },
+      "numpy._core._dtype_ctypes": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_dtype_ctypes.py",
+        "sha256": "75c647438eaa8d5d27ee5f77e16218c3b92ffb51e81f17a5bb9d282085fb1965"
+      },
+      "numpy._core._internal": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_internal.py",
+        "sha256": "07cb7a9b1bda0e8bb113e08e474d74bf8fcf507373385f261e015ab513e52569"
+      },
+      "numpy._pytesttester": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_pytesttester.py",
+        "sha256": "8ad5313045dd6104ff98262a75efbb0aa8f1380e7dc222c5c89788ca856d1a02"
+      },
+      "numpy._core": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/__init__.py",
+        "sha256": "1fde7ecd24f4087ea99e739b8d75175e23e0b6e6fd337e4804669813eab8c2b5"
+      },
+      "numpy.__config__": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/__config__.py",
+        "sha256": "212c5766a509cdd26a2c0ff78123cac9554ff29b7046927c2cfcc5d16bca8122"
+      },
+      "numpy.lib._array_utils_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_array_utils_impl.py",
+        "sha256": "78c19d662edabaeeb6d35878bf87906769a217c2a674c1830296c1160444fba4"
+      },
+      "numpy.lib.array_utils": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/array_utils.py",
+        "sha256": "ce868bc3d4efac0151921f67f2e332afc92fba0dc8bd59544fb2dc2730774e4d"
+      },
+      "numpy.lib.introspect": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/introspect.py",
+        "sha256": "4a24393b082f13ed51a103afdabfff58e6d2e5011406885a9f209ded77bcd145"
+      },
+      "numpy.lib.mixins": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/mixins.py",
+        "sha256": "ff26f78b0c3351f49b37b1e9252a77161164815dd65624c74b94801e42bc2e67"
+      },
+      "numpy.lib._utils_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_utils_impl.py",
+        "sha256": "e31610733a17ee2ff01e3ba09e5d1b6b5544c526d5e3c9dd568c34f12f06d164"
+      },
+      "numpy.lib.format": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/format.py",
+        "sha256": "5cc310cd83af73c2e078da715fb4297eeae58b66c6e68f6301a798e79b4ff390"
+      },
+      "numpy.lib._datasource": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_datasource.py",
+        "sha256": "149ee4d4782144453bb9d87c66e3b96591779c725f3a48fb8968a3868545a884"
+      },
+      "numpy.lib._iotools": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_iotools.py",
+        "sha256": "98c87178606df93f29ae35a93619ffc6f6428fabba3965a69acbca3fabdb339c"
+      },
+      "numpy.lib._npyio_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_npyio_impl.py",
+        "sha256": "500f386e9385f717c42c1b1a8004a31dfd44e4680b5afb3f63f1a6b69964a2fc"
+      },
+      "numpy.lib.npyio": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/npyio.py",
+        "sha256": "342c6a59e7496d233933ec2bebd4c40fcc7b297732049d31e6ee3dbe3e2c3e42"
+      },
+      "numpy.lib._ufunclike_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_ufunclike_impl.py",
+        "sha256": "d1e7a67ff11894b9926b88a736bde2b89d5ea1332a2f2211d27e9d4329a06b76"
+      },
+      "numpy.lib._type_check_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_type_check_impl.py",
+        "sha256": "0eff5aed0091d5ba811e85e00a398fac611ec06d6fd8106d13ff157dc178c925"
+      },
+      "numpy.lib._scimath_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_scimath_impl.py",
+        "sha256": "754c5bf570fe0093dba0afcb3b72c0d0a83290549410e1b90551ab8709b642aa"
+      },
+      "numpy.lib.scimath": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/scimath.py",
+        "sha256": "88ed088838291e4d44bab754bc9204d8aa83cd539fbd2b14dcc148949b2420e1"
+      },
+      "numpy.lib._stride_tricks_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_stride_tricks_impl.py",
+        "sha256": "cb7531a778c5cc3c26210d77ecddb36a9efebd6fe338d5109979db7eaaeceb40"
+      },
+      "numpy.lib.stride_tricks": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/stride_tricks.py",
+        "sha256": "54647933c272c3c202e12e97101f4d37f1942d3249423ff542b22d222fc12623"
+      },
+      "numpy.linalg.linalg": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/linalg/linalg.py",
+        "sha256": "25059c12f8d8fdb8e168c1d7639bc393af4e2283335f946f6e7d5e196d850af1"
+      },
+      "numpy.lib._twodim_base_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_twodim_base_impl.py",
+        "sha256": "af7d5a067cc2481a6afde9b81f22e248c793891ce51c09fb05de325d8ab21056"
+      },
+      "numpy.linalg._umath_linalg": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/linalg/_umath_linalg.cpython-312-x86_64-linux-gnu.so",
+        "sha256": "cc26f067e35c99248f354652fb7a941fd6c60823bb100524d245f6a54fbceba6"
+      },
+      "numpy._typing._nested_sequence": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_nested_sequence.py",
+        "sha256": "ee274dd04c8423a36dd151fdc675958f8b32a9ebbf2caf0811267073355c2b58"
+      },
+      "numpy._typing._nbit_base": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_nbit_base.py",
+        "sha256": "1c79f6cd858dfb7c0bb328a077dedcb3dbb223736f45851c43af4e2ce742fa4b"
+      },
+      "numpy._typing._nbit": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_nbit.py",
+        "sha256": "2e200fb8c3dd749f428d24adc3ccef5d0d66fc56cd23397f88cca03bce753348"
+      },
+      "numpy._typing._char_codes": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_char_codes.py",
+        "sha256": "4494af008032f1300441b15fa03368b9474b7189e0981995e17ec0b7ad9251b5"
+      },
+      "numpy._typing._scalars": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_scalars.py",
+        "sha256": "f6ffb5c5a842f53660dbc1537c11b5e6f5827270c1d5b7d6cfb7a34f4783ad5c"
+      },
+      "numpy._typing._shape": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_shape.py",
+        "sha256": "7d8d6a8ba5031633d6d5be066b185c27db51010bba4972d920d77f572eb45d26"
+      },
+      "numpy._typing._dtype_like": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_dtype_like.py",
+        "sha256": "deaecc7bf457afbe5b6b8a75bcfcbe9f0e4d44b5ac9c29c7b1fcd51a764c3628"
+      },
+      "numpy._typing._array_like": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_array_like.py",
+        "sha256": "403e2ec53cafb8c11133902113a3f1cdd2f9c8750c6f650e8bb1dd40514d5e82"
+      },
+      "numpy._typing._ufunc": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/_ufunc.py",
+        "sha256": "53a3827432c7cd74add5f6d295d1c53f4be2587878bb763508306fcc1518f3e3"
+      },
+      "numpy._typing": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_typing/__init__.py",
+        "sha256": "d32ef4a2e523dbf94a19c03abc66e6fcd595478f312a8caefdceeba26fc0129e"
+      },
+      "numpy.linalg._linalg": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/linalg/_linalg.py",
+        "sha256": "40d795507d435d07bb5f9620a7e2d5f56d6d37bb1bc1b84c5c841b44d3d8257d"
+      },
+      "numpy.linalg": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/linalg/__init__.py",
+        "sha256": "5cdb5d2e8df74954e341b5de8a62c56b966e773a441309df241368ad56f1bb27"
+      },
+      "numpy.matrixlib.defmatrix": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/matrixlib/defmatrix.py",
+        "sha256": "046577a15710f7cfa0cea32cdd6342d3ec7be9f99f6864bfd9b0e72c11cf87dd"
+      },
+      "numpy.matrixlib": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/matrixlib/__init__.py",
+        "sha256": "04706940aa10bf81234f452958103e0a4e0be4eb0ca9323622e636e29fae7179"
+      },
+      "numpy.lib._histograms_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_histograms_impl.py",
+        "sha256": "2f0ffd2df33f67ba8179fddba1a987e4bb4beea893d748292325b2f548fa953a"
+      },
+      "numpy.lib._function_base_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_function_base_impl.py",
+        "sha256": "79e65a8b3169b022de8ac2dcc6b43e78ae11fbc7a7c3a60a3d5d637833f00b35"
+      },
+      "numpy.lib._index_tricks_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_index_tricks_impl.py",
+        "sha256": "d768868e36a4de188c7f09e1e7347626a03bf3ea2bfaef4fd604c609c8c90f41"
+      },
+      "numpy.lib._nanfunctions_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_nanfunctions_impl.py",
+        "sha256": "817e8d50a80240abee15348039b86a7eba9021722cc6728840e73e85e3a7eebb"
+      },
+      "numpy.lib._shape_base_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_shape_base_impl.py",
+        "sha256": "0076d73e9e2c1f48042604b233403dce098cf4cc26ea347fa79a56b545dea95f"
+      },
+      "numpy.lib._arraysetops_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_arraysetops_impl.py",
+        "sha256": "0810e81b67d6cf1d0e2136d910a9450f9594a3d1d046a9acc1ea0c3ad1ca423b"
+      },
+      "numpy.lib._polynomial_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_polynomial_impl.py",
+        "sha256": "eab0f90b2e264839360acb807493aada17be3d26be662aac760cb2400179ab1d"
+      },
+      "numpy.lib._arrayterator_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_arrayterator_impl.py",
+        "sha256": "ab1ea0ab12d3358e0b79ae8b87a27e0ae7784722c8aa710b862fa43302bcbca5"
+      },
+      "numpy.lib._arraypad_impl": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_arraypad_impl.py",
+        "sha256": "c66f0f92e9edec300a016be7c9212ca166e332f72664bf8e0bba9ef8b41aaee4"
+      },
+      "numpy.lib._version": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/_version.py",
+        "sha256": "9f245a8130ae13af7ed0ff494c870a2bb8dbcd119bb209ea56d148acdcd316c3"
+      },
+      "numpy.lib": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/lib/__init__.py",
+        "sha256": "22f52848edbb9c75a66930ace1fa892c321621c6a3fae4486d1f587e4ca9b40a"
+      },
+      "numpy._array_api_info": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_array_api_info.py",
+        "sha256": "aa21c90d51b9f2b024d624e55ec16b9e167b63e8213d493206926232f3cada38"
+      },
+      "numpy": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/__init__.py",
+        "sha256": "6ae17b070c0f70a8e3cad89a510a256942e5a1f37ea5feb120cec167ed2a6236"
+      },
+      "numpy.core._utils": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/core/_utils.py",
+        "sha256": "e5f935f09378dd183a607bda9fa42376b39e3ae2ed4652d598fe8c69d0442550"
+      },
+      "numpy.core": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/core/__init__.py",
+        "sha256": "1564647a41aa675345e1860d7e6e3a98e00ef6edefe1962db3f95cf328107ea6"
+      },
+      "numpy.core.multiarray": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/core/multiarray.py",
+        "sha256": "4b0545f0a366dbdab26aaeefc7caeb96334dc5f9f47ba1b9cb51fcdf49f545a7"
+      },
+      "cv2.load_config_py3": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/load_config_py3.py",
+        "sha256": "03dc1f11374a667c9b7db10dd5276d640b0c2d5b2e7866b4ccef772732bd3852"
+      },
+      "cv2.version": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/version.py",
+        "sha256": "1846ff2a08d1d8bef221d367985ee3369e8098aa25a7240ebaa6f220dff7141f"
+      },
+      "cv2.typing": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/typing/__init__.py",
+        "sha256": "4eccb14706ed3f6f375bd220886d31ab1770cd5cea9414cfaf613eb9435d4ede"
+      },
+      "cv2.misc.version": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/misc/version.py",
+        "sha256": "893131ab58f01a002fde3b58407448f294a999fccfb23906f5baec1f46dd6219"
+      },
+      "cv2.misc": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/misc/__init__.py",
+        "sha256": "cabf4f9312ac97145cf3b861b482519f94689a63fd8daaa4b18afe643ba3edc5"
+      },
+      "cv2.gapi": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/gapi/__init__.py",
+        "sha256": "e960408dfab51428910038185c600a2131dd041eadd3f8d9f2191353c062cfe3"
+      },
+      "cv2.data": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/data/__init__.py",
+        "sha256": "d76e4f72d7bf3ad079e59c635a0e64a3cba0a67a20675b113323f8f1db4108cc"
+      },
+      "cv2.utils": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/utils/__init__.py",
+        "sha256": "7eec381871ce5ecc7129cf8069d00438a42afc8d46af81b7c8c951bc06d33f7d"
+      },
+      "cv2.mat_wrapper": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/mat_wrapper/__init__.py",
+        "sha256": "8b627063a9260cbfeced85f3225f8966e582315624462e05ea3eb45b78f83fd0"
+      },
+      "cv2": {
+        "path": "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/__init__.py",
+        "sha256": "936bd94c5a5debf0212fc751af79d3a163652f3e850259df2159db6aa3ed8ad8"
+      }
+    },
+    "loadedExtensionBinaries": {
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libquadmath-96973f99.so.0.0.0": "934c22ded0e7d169c4d4678876c96051adf3d94545da962f60b41659b075da3b",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libgfortran-91cc3cb1.so.3.0.0": "55e3eb67306c2ff17e6f8a0810eaa0dcb26e94cd83924c5065d5040e87814608",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libcrypto-01067bc0.so.1.1": "931b4718d3165a2e86d8272d898f1032590b774a8b6b78e578a243c6c8d8c01c",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libvpx-127417df.so.11.0.0": "5dac103adcc2b87e5b6d492075a59a673d0ca1dc8c394712d4a4428d48a45cf8",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libaom-49d00b71.so.3.12.1": "695f7a1e370c510316b4a569204320b7478fad6c6ce3623434ecf2e7b6063479",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libopenblas-r0-f650aae0.3.3.so": "79ec02b53f573cd7116a89f04c397473018e7fda05720b354d43505c19d47958",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libssl-28bef1ac.so.1.1": "22404ea0d3ee5acb5bd6280f29564e3a9c2ad40bc0995edf2b3310410c1e2cc9",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libswscale-95ddd674.so.6.7.100": "72155ab5149130621f244a9c22259713208f25e0a5b295957479b9d3bc185be1",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libavutil-734d06dd.so.57.28.100": "b207c6d08f72e7bc047e3d17fac1a9f23c61059ffd30cba8040489e8ad79ae33",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libavformat-d296e685.so.59.27.100": "44640e555136009624b2ed717b0df44c9d2a39ec2a9c696d20af7f3d95d1f7b0",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libavcodec-e0dd92b8.so.59.37.100": "615a758f23ed255c66f7b645c17f361c1b1370eb538eacd13911771109643176",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libavif-850e7649.so.16.3.0": "d4430ad497a35bf2616052e736fe58c3151297af8e2d2f6cb9d36f39e139a188",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cv2/cv2.abi3.so": "992ae98dec8d23f1ccf8352d1e8ce60d5ee49526ef2dded1fd8c071aca7cffd7",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy.libs/libquadmath-96973f99-934c22de.so.0.0.0": "6ed5137f412781ad7863439fb543613f620b43c32b63292a0029246162f5bbc6",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libpng16-04239421.so.16.48.0": "b9ade3c0b9892f63ff7b36aeb7a10716be7b0e1da70e612e4cda8dca4523f757",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/linalg/_umath_linalg.cpython-312-x86_64-linux-gnu.so": "cc26f067e35c99248f354652fb7a941fd6c60823bb100524d245f6a54fbceba6",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy.libs/libgfortran-040039e1-0352e75f.so.5.0.0": "c6090048eccc763522c12ef016f81da6b627cb3a044f55cf0479a839c41c0980",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/opencv_python_headless.libs/libswresample-3e7db482.so.4.7.100": "e1870006793d8396a4aa7a6db3e228aa0a30ae4781a639787bc1dc78f76bc220",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-56d6093b.so": "0bd815d04b6b54990e3cccc7528fbb696456d09569f533d0390c13f0cdc4dd4a",
+      "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so": "e6241082eaab01d0f68b2b661522ecb9d5d2160915104df8b112cc161dfa18b4"
+    }
+  },
+  "fixtureManifest": "c1107dd09510ffbba286b1c7bdae2e3d099726df8704322f20ed92e1010176b6"
+}

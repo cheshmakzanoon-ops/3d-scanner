@@ -1,0 +1,7 @@
+{
+  "meshBitsSHA256": "a97f03fba123993659d404a3f8691b1860a15964718accdfb8e6f200a90a513e",
+  "inputSHA256": "3eb7e85bdeb1844a6342fa1ec8fc8dfdf7e7ccc98acdb046782222fc402b4762",
+  "baselineObserverParity": true,
+  "oracleCameraExtrinsicsInput": true,
+  "imageDerivedRegistration": false
+}

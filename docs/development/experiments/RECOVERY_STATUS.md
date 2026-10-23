@@ -87,3 +87,12 @@ produce identical inputs, final fields and JSON/PLY/GLB output; all source IDs
 are accounted for. The cameras coincide, and verified samples are constructor
 inputs. This does not establish reciprocal witnesses, photographic reconstruction,
 a full support certificate or any new meshing/front quality.
+
+[Oracle-camera dense observer](oracle-dense-observer-r1/README.md) now records
+actual native directed consistency attempts and pre-face evidence on all eight
+fixed synthetic images, with camera poses supplied explicitly as component-test
+inputs. Independent baseline/observer parity and sealed evaluation reproduce the
+same poor mesh: 3,434 nonmanifold edges and incomplete intersection checking.
+Only 33.8779% of observable reference-area samples are within a distance of
+1% of the reference object's diagonal from the mesh. This is a measured diagnostic baseline, not image-derived registration,
+a geometry improvement, a full support certificate or a global-front result.

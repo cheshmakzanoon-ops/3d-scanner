@@ -1,0 +1,5 @@
+{
+  "trailingDense": "DENSE_BITS_TRAILING",
+  "unknownFlag": "FLAG_OR_FLOAT_WORD_DOMAIN",
+  "wrongCounts": "FIXED_RECORD_WIDTH"
+}
