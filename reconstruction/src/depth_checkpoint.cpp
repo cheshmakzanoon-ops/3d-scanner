@@ -32,8 +32,8 @@ namespace rf::depth_checkpoint {
 namespace {
 thread_local const Scope* active = nullptr;
 constexpr std::array<char,8> MAGIC{'R','F','D','P','T','0','1','8'};
-// Version 2 rejects pre-uniqueness reference maps even with the same caller SHA.
-constexpr std::uint32_t REFERENCE_FORMAT_VERSION=2;
+// Version 3 rejects maps predating observed peak-neighbor support even with the same caller SHA.
+constexpr std::uint32_t REFERENCE_FORMAT_VERSION=3;
 constexpr std::size_t HEADER = 8+4*6+64;
 constexpr std::size_t MAX_PIXELS = 320000;
 #if defined(__unix__) || defined(__ANDROID__)

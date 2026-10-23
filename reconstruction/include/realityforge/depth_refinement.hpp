@@ -6,7 +6,7 @@
 #include <span>
 #include <stdexcept>
 namespace rf::refinement {
-inline constexpr unsigned SETTINGS_VERSION=2;
+inline constexpr unsigned SETTINGS_VERSION=3;
 inline constexpr double NORMAL_PERTURBATION=.035;
 inline constexpr double MINIMUM_PLANE_RAY_COSINE=.15;
 inline constexpr double MAXIMUM_PLANE_DEPTH_RATIO=2.;
@@ -48,6 +48,9 @@ template<class Evaluate> RefinementResult local(double leftDepth,double initialD
  }
  return {1/bestInverse,best,(hi-lo)*.5,work,true};
 }
+// This solver reserves cost 2 for absent support (dense rejects corr <= -.999).
+// Generic matching::zncc may return a valid cost 2 for exact anticorrelation;
+// that generic result must not be passed here as observed solver support.
 inline double parabolicInverseDepth(std::span<const double> costs,std::span<const double> planes,std::size_t best){
  // Check the interior index without adding to an untrusted size_t: SIZE_MAX+1
  // wraps to zero and would otherwise admit an out-of-bounds three-point read.
@@ -58,8 +61,11 @@ inline double parabolicInverseDepth(std::span<const double> costs,std::span<cons
      !std::isfinite(planes[i])||planes[i]<=0||!std::isfinite(1/planes[i]))
    throw std::invalid_argument("Invalid depth peak data");
  }
+ if(b==2.)throw std::invalid_argument("Missing depth peak support");
  double inv=1/planes[best],denom=a-2*b+c;
- if(denom>1e-8)inv+=(1/planes[best+1]-inv)*std::clamp(.5*(a-c)/denom,-.75,.75);
+ // A sentinel is missing support, not a measured side of the peak.
+ // Retain the observed center unless both neighbors support interpolation.
+ if(a<2. && c<2. && denom>1e-8)inv+=(1/planes[best+1]-inv)*std::clamp(.5*(a-c)/denom,-.75,.75);
  if(!std::isfinite(inv)||inv<=0)throw std::invalid_argument("Invalid interpolated inverse depth");
  return inv;
 }

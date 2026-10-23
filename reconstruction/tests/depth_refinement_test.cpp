@@ -3,6 +3,10 @@
 #undef NDEBUG
 #endif
 #include <cassert>
+#include <bit>
+#include <cstdint>
+#include <random>
+#include "realityforge/matching_cost.hpp"
 #include <iostream>
 #include <limits>
 namespace {
@@ -45,6 +49,44 @@ void peakBoundaryTests(){
  assert(parabolicInverseDepth(costs,planes,1)==expected);
  assert(parabolicInverseDepth(std::array<double,3>{.4,.1,.4},planes,1)==1./3.);
  assert(parabolicInverseDepth(std::array<double,3>{.1,.1,.1},planes,1)==1./3.);
+}
+void peakSupportTests(){
+ const std::array<double,3> p{2.,3.,6.};
+ for(auto c: {std::array<double,3>{2.,.1,.2},std::array<double,3>{.2,.1,2.},std::array<double,3>{2.,.1,2.}})
+  assert(rf::refinement::parabolicInverseDepth(c,p,1)==1./p[1]);
+ // Missing evidence must not bypass malformed-neighbor validation on either side.
+ for(std::size_t missing:{std::size_t{0},std::size_t{2}}){
+  const auto other=2-missing;
+  for(double invalid:{0.,-1.,std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::infinity()}){
+   auto bad=p;bad[other]=invalid;std::array<double,3> curve{.2,.1,.2};curve[missing]=2.;bool threw=false;
+   try{(void)rf::refinement::parabolicInverseDepth(curve,bad,1);}catch(const std::invalid_argument&){threw=true;}assert(threw);
+  }
+  for(double invalid:{-.1,2.1,std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::infinity()}){
+   std::array<double,3> curve{.2,.1,.2};curve[missing]=2.;curve[other]=invalid;bool threw=false;
+   try{(void)rf::refinement::parabolicInverseDepth(curve,p,1);}catch(const std::invalid_argument&){threw=true;}assert(threw);
+  }
+ }
+ for(auto curve: {std::array<double,3>{.1,2.,.2},std::array<double,3>{2.,2.,2.}}){
+  bool missing=false;try{(void)rf::refinement::parabolicInverseDepth(curve,p,1);}catch(const std::invalid_argument&){missing=true;}assert(missing);
+ }
+ std::mt19937_64 random(73);std::uniform_real_distribution<double> unit(0.,1.);
+ for(unsigned i=0;i<100000;++i){
+  double b=unit(random)*.28,a=b+unit(random)*(1.999-b),c=b+unit(random)*(1.999-b);
+  std::array<double,3> curve{a,b,c};double inv=1./p[1],denom=a-2*b+c;
+  if(denom>1e-8)inv+=(1./p[2]-inv)*std::clamp(.5*(a-c)/denom,-.75,.75);
+  assert(std::bit_cast<std::uint64_t>(inv)==std::bit_cast<std::uint64_t>(rf::refinement::parabolicInverseDepth(curve,p,1)));
+ }
+
+ // Reachable dense selection: valid center NCC/uniqueness, but missing left sample.
+ std::array<double,16> curve{.6,.5,2.,.1,.2,.4,.5,.7,.8,.8,.8,.8,.8,.8,.8,.8},planes{};
+ for(std::size_t i=0;i<planes.size();++i)planes[i]=1./(1.-.05*i);
+ const auto selected=rf::matching::distinctMinimum(curve);
+ assert(selected.valid&&selected.best==3&&selected.margin>.025&&curve[selected.best]<1.-.72);
+ assert(selected.best>=2&&selected.best<planes.size()-2);
+ assert(rf::refinement::parabolicInverseDepth(curve,planes,selected.best)==1./planes[selected.best]);
+ // Legacy parabola moved this observed center by +2.719% using missing data.
+ const double legacy=1./planes[3]+(1./planes[4]-1./planes[3])*(.5*(2.-.2)/(2.-2*.1+.2));
+ assert(1./legacy>planes[3]*1.027);
 }
 void planeTests(){
  using namespace rf::refinement;
@@ -138,6 +180,7 @@ int main(){
  m.depth[3]=2;assert(propagate(m,.5,.5)==0);m.depth[3]=0;assert(propagate(m,.5,.5)==0);
  rf::DenseDepthMap sparse{5,5,std::vector<float>(25,0),std::vector<float>(25,0)};for(int y=0;y<5;y+=2)for(int x=0;x<5;x+=2)sparse.depth[y*5+x]=5+.01f*x;assert(propagate(sparse,1,1,.05,2,0)>5);sparse.depth[2*5+2]=0;assert(propagate(sparse,1,1,.05,2,0)==0);
  peakBoundaryTests();
+ peakSupportTests();
  planeTests();
  std::cout<<"multi-layer priors, bounded local depth/normal hypotheses, curved tangent and invalid/discontinuous sampled-grid checks passed\n";
 }

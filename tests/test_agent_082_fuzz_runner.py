@@ -19,7 +19,7 @@ def test_checkpoint_seed_has_real_format_and_crc_and_bad_variant(tmp_path):
     assert result['synthetic']
     data = (tmp_path / 'checkpoint/valid32').read_bytes()
     assert data[:8] == b'RFDPT018'
-    assert struct.unpack('<IIIII', data[8:28]) == (2, 32, 32, 0, 8192)
+    assert struct.unpack('<IIIII', data[8:28]) == (3, 32, 32, 0, 8192)
     assert struct.unpack('<I', data[92:96])[0] == zlib.crc32(data[96:])
     assert (tmp_path / 'checkpoint/bad_crc').read_bytes() != data
     before = result

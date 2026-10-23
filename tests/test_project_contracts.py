@@ -317,7 +317,7 @@ def test_m18_depth_resume_is_input_identified_atomic_and_native_scoped():
     identity=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/DepthCheckpointIdentity.kt").read_text()
     core=(ROOT/"reconstruction/src/dense.cpp").read_text()
     assert 'SHA-256' in identity and 'digest.update(rgba)' in identity
-    assert 'M18_DOMAIN = "realityforge-m18-native-reference-depth-v2' in identity
+    assert 'M18_DOMAIN = "realityforge-m18-native-reference-depth-v3' in identity
     assert "digest.update(compatibility.algorithmDomain" in identity and "require(supports(compatibility))" in identity
     assert "cameraRows.forEach" in identity and "long(planes.toLong())" in identity
     assert "deleteRecursively" not in identity

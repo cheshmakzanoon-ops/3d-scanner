@@ -44,7 +44,7 @@ class DepthCheckpointIdentityTest {
         assertNotEquals(original, id(key = "sparse-m16-r2-0123456789abcdef"))
     }
 
-    @Test fun uniquenessFingerprintInvalidatesLegacyAndUnknownFormatsAreRejected() {
+    @Test fun observedPeakFingerprintInvalidatesBothPriorDomainsAndUnknownFormats() {
         val random = Random(9)
         repeat(50) { iteration ->
             val cameraCount = 2 + random.nextInt(3)
@@ -65,13 +65,16 @@ class DepthCheckpointIdentityTest {
             val key = "sparse-m16-r${iteration + 1}-${iteration.toString(16).padStart(16, '0')}"
             val actual = DepthCheckpointIdentity.fingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3)
             assertEquals(actual, DepthCheckpointIdentity.fingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3))
-            assertNotEquals(
-                legacyFingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3),
-                DepthCheckpointIdentity.fingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3),
-            )
+            for (version in listOf(1, 2)) {
+                assertNotEquals(
+                    legacyFingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3, version),
+                    actual,
+                )
+            }
         }
         for (compatibility in listOf(
             DepthCheckpointIdentity.Compatibility(18, "realityforge-m18-native-reference-depth-v1\u0000"),
+            DepthCheckpointIdentity.Compatibility(18, "realityforge-m18-native-reference-depth-v2\u0000"),
             DepthCheckpointIdentity.Compatibility(19, "future-depth-format\u0000"),
         )) {
             assertThrows(IllegalArgumentException::class.java) {
@@ -173,9 +176,11 @@ class DepthCheckpointIdentityTest {
         far: Double,
         planes: Int,
         stride: Int,
+        version: Int,
     ): String {
         val digest = MessageDigest.getInstance("SHA-256")
-        digest.update("realityforge-m18-native-reference-depth-v1\u0000".toByteArray(StandardCharsets.UTF_8))
+        require(version in 1..2)
+        digest.update("realityforge-m18-native-reference-depth-v$version\u0000".toByteArray(StandardCharsets.UTF_8))
         digest.update(artifactKey.toByteArray(StandardCharsets.UTF_8))
         fun long(value: Long) {
             for (index in 0 until 8) digest.update((value ushr (8 * index)).toByte())

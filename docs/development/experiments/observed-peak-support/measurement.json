@@ -1,0 +1,301 @@
+{
+  "schema": 1,
+  "status": "OBSERVED_DATA_CORRECTNESS_MIXED_QUALITY_NOT_QUALITY_PASS",
+  "baseCommit": "fba977348d1d4a364a6c9183cf38de6a7ab934f5",
+  "truthPassedToSolver": false,
+  "instrumentedArms": {
+    "beforeLibrarySHA256": "59eebb8fb826d4351797bc72372c3db0a8c1edc877341597e6e623ab08bbd2c3",
+    "afterLibrarySHA256": "06b9484def38e7631ce50d50ede709e58eb1cd220216f42032fc7c3410bf68b6",
+    "provenance": "Base commit plus identical fprintf-only accepted-peak instrumentation. After also guards a<2 && b<2 && c<2; final integration rejects center2 and guards neighbors only, output-equivalent because dense excludes center2. Logs never influence selection.",
+    "missingNeighborAcceptedCalls": {
+      "plane_2": 35,
+      "plane_3": 35,
+      "plane_8": 35,
+      "exposure": 35,
+      "repeated": 70,
+      "middlebury": 208,
+      "cuboid": 25,
+      "eachAlignedAlphaStrip": 35
+    }
+  },
+  "integrated": {
+    "librarySHA256": "9242757bc9930a3e490108b181df93336291f23bf2ff1c7cd4939d12aa376205",
+    "sourceSHA256": {
+      "reconstruction/include/realityforge/depth_refinement.hpp": "470c3ce7d344828d82df1d8076fad6d46622c1ad99fffcd97a72795291d74db6",
+      "reconstruction/src/dense.cpp": "4c1da676d11cafcfc5f980a667b344437f443969f139f74c96911b9ddc5571ec",
+      "reconstruction/src/depth_checkpoint.cpp": "8abaa5dbc33626f90890ffb9867a7b7c9b8d1f950144a8b73a72287d35216dce"
+    },
+    "cubeMatchesIsolatedRawExactly": true,
+    "middleburyMatchesIsolatedExactly": true,
+    "allSyntheticRawHashesMatchIsolatedExactly": true,
+    "allMaskedRecordsMatchIsolatedExactly": true,
+    "sourcesUnchanged": true,
+    "libraryUnchanged": true,
+    "inputsUnchanged": true,
+    "fullCTestPassed": 46,
+    "ctestLogSHA256": "d22e0b194c363541bec44c3d3beda45a275deba56c5d6cc0f6232f3e56c82813"
+  },
+  "cuboid": {
+    "inputsSHA256": {
+      "fixture.json": "efe68abb8d6979d4d59553f1fcf1820ed8ca324ac5a32925a932c454d510f0f2",
+      "view-00.png": "b28774a228defe15cd0d1ae4451432ffa902284281d6aaf4179b48c7aec28f5c",
+      "view-01.png": "fc912968ddc14f275be9db510bf15f6ed903df68d199ee6853446e1cf22e87e5",
+      "view-02.png": "caecfe846b061f41a2f3765a97c6da3f3faf9cdf0cca4eb886fb044c71d0e206",
+      "view-03.png": "9293db996de8c74e32ade1af6d2b8601886d0db5bfa6224b1cff4d92f1af18ae",
+      "view-04.png": "73eb927b9af0184f3c81bfc1feb63b26e1e12891fd855e2e4ec2ba6ecfe240a4",
+      "view-05.png": "9f9197e12d41f93d8c8b8ecc01b3addc25e8a5cd6c09382f3c351f42b5b3f431",
+      "view-06.png": "43e930b3adce3580829261a072773f9bf225a6280826eb7f34b319b67303675b",
+      "view-07.png": "1c9e5fc8339daf9e5b692a45ccf8a9098a64e20df8541fe1a0cc812781b87e75"
+    },
+    "before": {
+      "rawResultSHA256": "39ed3b2d9e833f844dde7bfa7311ba7014a999bb34a1cb6458fe2f22e44131a7",
+      "photometricPixels": 9458,
+      "consistentPixels": 9179,
+      "points": 9028,
+      "vertices": 4549,
+      "triangles": 13212,
+      "projectedPixelCoverage": 0.7508220439300276,
+      "referenceSurfaceSampling": {
+        "totalAreaUniformSamples": 6000,
+        "observableInAtLeastTwoViews": 3734,
+        "unknownExcludedSamples": 2266,
+        "referenceToCandidateDistance": {
+          "count": 3734,
+          "finiteCount": 3734,
+          "p50": 0.12828663833252568,
+          "p95": 0.6504823108008222,
+          "max": 0.9555656792836972
+        },
+        "distanceCDF": {
+          "0.005": 0.30958757364756295,
+          "0.01": 0.3387787895018747,
+          "0.02": 0.3899303695768613,
+          "0.05": 0.5203535083020889
+        },
+        "cdfUnits": "fraction of reference bbox diagonal; descriptive curve, NOT acceptance thresholds"
+      },
+      "candidateToObservableReferenceDistance": {
+        "count": 6000,
+        "finiteCount": 6000,
+        "p50": 0.004183998285372914,
+        "p95": 0.019048401422577216,
+        "max": 0.1027088562696661
+      },
+      "candidateDistanceCDF": {
+        "0.005": 0.9153333333333333,
+        "0.01": 0.9738333333333333,
+        "0.02": 0.9965,
+        "0.05": 1.0
+      },
+      "nonmanifoldEdges": 3432,
+      "boundedIntersections": 15401
+    },
+    "afterAndIntegrated": {
+      "rawResultSHA256": "0a5e5b21ec7d0e8c9c8e233471b2be015ac52fb53e5e6b15aa346b1ae6531e9a",
+      "photometricPixels": 9458,
+      "consistentPixels": 9172,
+      "points": 9021,
+      "vertices": 4537,
+      "triangles": 13194,
+      "projectedPixelCoverage": 0.750515147529484,
+      "referenceSurfaceSampling": {
+        "totalAreaUniformSamples": 6000,
+        "observableInAtLeastTwoViews": 3734,
+        "unknownExcludedSamples": 2266,
+        "referenceToCandidateDistance": {
+          "count": 3734,
+          "finiteCount": 3734,
+          "p50": 0.12828663833252568,
+          "p95": 0.6504823108008222,
+          "max": 0.9555656792836972
+        },
+        "distanceCDF": {
+          "0.005": 0.30958757364756295,
+          "0.01": 0.3387787895018747,
+          "0.02": 0.3899303695768613,
+          "0.05": 0.5203535083020889
+        },
+        "cdfUnits": "fraction of reference bbox diagonal; descriptive curve, NOT acceptance thresholds"
+      },
+      "candidateToObservableReferenceDistance": {
+        "count": 6000,
+        "finiteCount": 6000,
+        "p50": 0.004112892124159717,
+        "p95": 0.01813966637334236,
+        "max": 0.10475870191288272
+      },
+      "candidateDistanceCDF": {
+        "0.005": 0.9216666666666666,
+        "0.01": 0.978,
+        "0.02": 0.997,
+        "0.05": 1.0
+      },
+      "nonmanifoldEdges": 3435,
+      "boundedIntersections": 15439
+    },
+    "qualification": "Synthetic fixed known-camera fixture; no recovered-camera frontend or Android controller parity. Truth evaluation only; all3734 visible reference samples retained."
+  },
+  "middlebury": {
+    "before": {
+      "schema": 7,
+      "dataset": "Middlebury 2014 Motorcycle (real rectified stereo)",
+      "realPhotographs": true,
+      "cameraCount": 2,
+      "sourceImageDimensions": [
+        741,
+        500
+      ],
+      "inputDownsampledDimensions": [
+        228,
+        154
+      ],
+      "calibrationUsedForProcessing": "published rectified focal/principal offsets, arbitrary unit baseline",
+      "groundTruthUsedForOptimization": false,
+      "densePointCount": 4249,
+      "groundTruthMatchedPoints": 3875,
+      "sampledPixels": 7252,
+      "photometricPixels": 4974,
+      "consistentPixels": 4271,
+      "disparityAbsoluteErrorPxP50": 0.4699236573499803,
+      "disparityAbsoluteErrorPxP90": 3.003377334685866,
+      "depthRelativeErrorP50": 0.007014549915391331,
+      "depthRelativeErrorP90": 0.0451534647314665,
+      "limitations": [
+        "Two cameras only, not a handheld 360 object scan",
+        "No 3D mesh or photographic UV textures",
+        "Ground-truth annotations cover only evaluated pixels",
+        "Downsampled low-resolution CPU reference preview"
+      ]
+    },
+    "afterAndIntegrated": {
+      "schema": 7,
+      "dataset": "Middlebury 2014 Motorcycle (real rectified stereo)",
+      "realPhotographs": true,
+      "cameraCount": 2,
+      "sourceImageDimensions": [
+        741,
+        500
+      ],
+      "inputDownsampledDimensions": [
+        228,
+        154
+      ],
+      "calibrationUsedForProcessing": "published rectified focal/principal offsets, arbitrary unit baseline",
+      "groundTruthUsedForOptimization": false,
+      "densePointCount": 4240,
+      "groundTruthMatchedPoints": 3867,
+      "sampledPixels": 7252,
+      "photometricPixels": 4974,
+      "consistentPixels": 4262,
+      "disparityAbsoluteErrorPxP50": 0.47199020871551056,
+      "disparityAbsoluteErrorPxP90": 2.8787423179548304,
+      "depthRelativeErrorP50": 0.0070253904372971025,
+      "depthRelativeErrorP90": 0.04463557121219566,
+      "limitations": [
+        "Two cameras only, not a handheld 360 object scan",
+        "No 3D mesh or photographic UV textures",
+        "Ground-truth annotations cover only evaluated pixels",
+        "Downsampled low-resolution CPU reference preview"
+      ]
+    },
+    "qualification": "Real two-photo rectified benchmark with published calibration, not whole-object scan. Changed retained populations; not paired-error improvement claim."
+  },
+  "alignedAlphaStrips": {
+    "before": {
+      "7": {
+        "inputSHA256": "e11876e8889eac2406c6cb5331607f9c154b575183a9c26b1cf7153a1ff1623d",
+        "sampled": 3430,
+        "photometric": 70,
+        "consistent": 59,
+        "points": 59,
+        "rawSHA256": "34d9f18f0b0d1be5414fb66d625c7189732ee09385fed490616b39011d8973d9",
+        "relativeP50": 0.006020069120000038
+      },
+      "9": {
+        "inputSHA256": "5aa923b88e56b07e519a3010cf3485216f0f82a4801977529803d1e5afe53f2c",
+        "sampled": 3430,
+        "photometric": 140,
+        "consistent": 118,
+        "points": 118,
+        "rawSHA256": "bed587a87044b9c5d5ea34f3ee8fd8c4e155ca493641a0cd6a7c0efd886fd5a4",
+        "relativeP50": 0.00580873489
+      },
+      "13": {
+        "inputSHA256": "e2715a2a2a4fb46b5de4a5410ba145793907a99edd21c52bd0b1dce15535fd57",
+        "sampled": 3430,
+        "photometric": 280,
+        "consistent": 260,
+        "points": 260,
+        "rawSHA256": "ad8feb09127760c4b4407086be0be75f4cb77b47fc9166e70e046bb395943396",
+        "relativeP50": 0.005111503599999967
+      }
+    },
+    "afterAndIntegrated": {
+      "7": {
+        "inputSHA256": "e11876e8889eac2406c6cb5331607f9c154b575183a9c26b1cf7153a1ff1623d",
+        "sampled": 3430,
+        "photometric": 70,
+        "consistent": 59,
+        "points": 59,
+        "rawSHA256": "ecf8370ee73b6e26cc400078d842c28ae1ec9aed0c345214f12d0737356c2dd5",
+        "relativeP50": 0.0004390716599999678
+      },
+      "9": {
+        "inputSHA256": "5aa923b88e56b07e519a3010cf3485216f0f82a4801977529803d1e5afe53f2c",
+        "sampled": 3430,
+        "photometric": 140,
+        "consistent": 118,
+        "points": 118,
+        "rawSHA256": "ef6b90707d2454c07d497906411ab036e9fff4cced410ef665de4acddfc95635",
+        "relativeP50": 0.00580873489
+      },
+      "13": {
+        "inputSHA256": "e2715a2a2a4fb46b5de4a5410ba145793907a99edd21c52bd0b1dce15535fd57",
+        "sampled": 3430,
+        "photometric": 280,
+        "consistent": 260,
+        "points": 260,
+        "rawSHA256": "bbbdd47952fcb3cbeb9fcd9505256544edce530cc8e20b8d6b457ae424381e01",
+        "relativeP50": 0.005111503599999967
+      }
+    }
+  },
+  "retainedWitness": {
+    "before": {
+      "pixelDistance": 3.8481839952298586e-10,
+      "sourcePixel": [
+        34.99999999987037,
+        2.999999999637673
+      ],
+      "point": [
+        -0.056644378859,
+        -1.4775291558,
+        4.967924118,
+        103.0,
+        79.0,
+        217.0,
+        1.0,
+        2.0
+      ],
+      "cameraZ": 4.967924118
+    },
+    "after": {
+      "pixelDistance": 1.3117904138225429e-09,
+      "sourcePixel": [
+        35.000000000078764,
+        3.0000000013094237
+      ],
+      "point": [
+        -0.061519167341,
+        -1.4877218953,
+        5.0021953583,
+        103.0,
+        79.0,
+        217.0,
+        1.0,
+        2.0
+      ],
+      "cameraZ": 5.0021953583
+    }
+  }
+}

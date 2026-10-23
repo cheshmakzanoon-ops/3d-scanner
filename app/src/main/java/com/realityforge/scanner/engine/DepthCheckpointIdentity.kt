@@ -9,7 +9,7 @@ import java.security.MessageDigest
 /** Pure-JVM identity for the existing M18 CPU depth checkpoints; no photo leaves this device. */
 internal object DepthCheckpointIdentity {
     private val HASH = Regex("[0-9a-f]{64}")
-    private const val M18_DOMAIN = "realityforge-m18-native-reference-depth-v2\u0000"
+    private const val M18_DOMAIN = "realityforge-m18-native-reference-depth-v3\u0000"
 
     /**
      * The native binary layout remains owned by the depth-checkpoint implementation. Unknown
@@ -34,8 +34,8 @@ internal object DepthCheckpointIdentity {
 
     /**
      * Production geometry is content-addressed independently of the owning project revision.
-     * The versioned key intentionally misses older revision-bound entries once; native reference format v2
-     * additionally rejects pre-uniqueness maps even with a reused caller SHA. Exact sparse/C8 and pixel/camera digests still gate reuse.
+     * The versioned key intentionally misses older revision-bound entries once; native reference format v3
+     * additionally rejects maps predating observed peak-neighbor support even with a reused caller SHA. Exact sparse/C8 and pixel/camera digests still gate reuse.
      */
     fun contentGeometryKey(sparseIdentitySha256: String): String {
         require(sparseIdentitySha256.matches(HASH)) { "Invalid sparse geometry identity" }

@@ -176,43 +176,45 @@ class ProductionCheckpointFilesTest {
         }
     }
 
-    @Test fun uniquenessVersionChangesProductionDenseDescendantsWithoutDiscardingSparseWork() {
+    @Test fun peakSupportVersionChangesBothPublishedDenseIdentitiesWithoutDiscardingSparseWork() {
         for (profile in DensePreviewProfile.entries) {
             val current = productionInput(profile)
-            val legacy = beforeObservedAlternativeUniqueness(current)
-            for (stage in AdapterStage.entries) {
-                if (stage.ordinal <= AdapterStage.SPARSE.ordinal)
-                    assertEquals(legacy.identity(stage), current.identity(stage))
-                else assertNotEquals(legacy.identity(stage), current.identity(stage))
+            for (legacy in beforeObservedPeakSupport(current)) {
+                for (stage in AdapterStage.entries) {
+                    if (stage.ordinal <= AdapterStage.SPARSE.ordinal)
+                        assertEquals(legacy.identity(stage), current.identity(stage))
+                    else assertNotEquals(legacy.identity(stage), current.identity(stage))
+                }
+                val binding = ArtifactProvenanceFixtures.binding()
+                val previousPlan = PipelineArtifactSession.identityPlan(legacy, binding)
+                val currentPlan = PipelineArtifactSession.identityPlan(current, binding)
+                assertEquals(previousPlan.snapshot.contentHash, currentPlan.snapshot.contentHash)
+                for (stage in listOf(ArtifactStage.FEATURES, ArtifactStage.MATCHES, ArtifactStage.ALIGNMENT))
+                    assertEquals(previousPlan[stage], currentPlan[stage])
+                for (stage in listOf(ArtifactStage.DENSE_DEPTH, ArtifactStage.SURFACE, ArtifactStage.TEXTURE))
+                    assertNotEquals(previousPlan[stage], currentPlan[stage])
             }
-            val binding = ArtifactProvenanceFixtures.binding()
-            val previousPlan = PipelineArtifactSession.identityPlan(legacy, binding)
-            val currentPlan = PipelineArtifactSession.identityPlan(current, binding)
-            assertEquals(previousPlan.snapshot.contentHash, currentPlan.snapshot.contentHash)
-            for (stage in listOf(ArtifactStage.FEATURES, ArtifactStage.MATCHES, ArtifactStage.ALIGNMENT))
-                assertEquals(previousPlan[stage], currentPlan[stage])
-            for (stage in listOf(ArtifactStage.DENSE_DEPTH, ArtifactStage.SURFACE, ArtifactStage.TEXTURE))
-                assertNotEquals(previousPlan[stage], currentPlan[stage])
         }
     }
 
-    @Test fun legacyUniquenessCannotResumeDenseCursorOrBypassNativeThroughCompleteTextureReuse() = runBlocking {
+    @Test fun neitherPublishedDenseVersionCanResumeOrBypassNativeThroughCompleteTextureReuse() = runBlocking {
         val current = productionInput(DensePreviewProfile.Compatibility)
-        val legacy = beforeObservedAlternativeUniqueness(current)
-        val previous = surfaceFixture(inputOverride = legacy)
         val binding = ArtifactProvenanceFixtures.binding()
-        val cache = PipelineSurfaceCache(previous.root)
-        assertNotNull(requireNotNull(cache.load(PipelineArtifactSession.identityPlan(legacy, binding), previous.sparse)).completeTexture)
-        // This selector guards DensePreview's complete-result fast path, which deliberately
-        // does not enter native code. A native reference-header bump alone is insufficient.
-        assertNull(cache.load(PipelineArtifactSession.identityPlan(current, binding), previous.sparse))
-        val sparseCursor = previous.cursors.single { it.acceptedStage == ReconstructionStage.SPARSE }
-        PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(sparseCursor), current)
-        for (stage in listOf(ReconstructionStage.DENSE, ReconstructionStage.SURFACE, ReconstructionStage.TEXTURE)) {
-            val cursor = previous.cursors.single { it.acceptedStage == stage }
-            PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), legacy)
-            assertThrows(IllegalArgumentException::class.java) {
-                PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), current)
+        for (legacy in beforeObservedPeakSupport(current)) {
+            val previous = surfaceFixture(inputOverride = legacy)
+            val cache = PipelineSurfaceCache(previous.root)
+            assertNotNull(requireNotNull(cache.load(PipelineArtifactSession.identityPlan(legacy, binding), previous.sparse)).completeTexture)
+            // This selector guards DensePreview's complete-result fast path, which deliberately
+            // does not enter native code. A native reference-header bump alone is insufficient.
+            assertNull(cache.load(PipelineArtifactSession.identityPlan(current, binding), previous.sparse))
+            val sparseCursor = previous.cursors.single { it.acceptedStage == ReconstructionStage.SPARSE }
+            PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(sparseCursor), current)
+            for (stage in listOf(ReconstructionStage.DENSE, ReconstructionStage.SURFACE, ReconstructionStage.TEXTURE)) {
+                val cursor = previous.cursors.single { it.acceptedStage == stage }
+                PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), legacy)
+                assertThrows(IllegalArgumentException::class.java) {
+                    PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), current)
+                }
             }
         }
         val accepted = surfaceFixture(inputOverride = current)
@@ -232,13 +234,18 @@ class ProductionCheckpointFilesTest {
             com.realityforge.scanner.processing.resources.ResourceWorkloadSelection.COMPACT, profile)
     }
 
-    private fun beforeObservedAlternativeUniqueness(current: PipelineInputSnapshot): PipelineInputSnapshot {
-        val currentPrefix = "native-reference-depth-v3|observed-alternative-uniqueness-v2|"
-        // Keep the prior published descriptor explicit: removing the production version
-        // update must fail this regression rather than silently constructing equal inputs.
+    private fun beforeObservedPeakSupport(current: PipelineInputSnapshot): List<PipelineInputSnapshot> {
+        val currentPrefix = "native-reference-depth-v4|observed-alternative-uniqueness-v2|observed-peak-support-v3|"
+        // Reconstruct both actual published descriptors, not a hybrid carrying newer tags.
+        // Removing the production version update must fail instead of constructing equal inputs.
         assertTrue(current.settings.dense.startsWith(currentPrefix))
-        return current.copy(settings = current.settings.copy(dense =
-            "native-reference-depth-v2|" + current.settings.dense.removePrefix(currentPrefix)))
+        val unchangedSettings = current.settings.dense.removePrefix(currentPrefix)
+        return listOf(
+            "native-reference-depth-v2|",
+            "native-reference-depth-v3|observed-alternative-uniqueness-v2|"
+        ).map { legacyPrefix ->
+            current.copy(settings = current.settings.copy(dense = legacyPrefix + unchangedSettings))
+        }
     }
 
     private data class SurfaceFixture(val root: File, val input: PipelineInputSnapshot, val sparse: JSONObject,
