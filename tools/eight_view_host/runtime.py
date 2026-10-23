@@ -21,30 +21,59 @@ def atomic_json(path, value):
     partial.replace(path)
 
 def inventory(root, max_bytes=8*1024**3, max_files=100000, aliases=None, seconds=10):
-    """Incremental bounded traversal; directories count and aliases are exact path/target pairs."""
+    """Bounded live inventory, not an atomic snapshot; vanished owned descendants may disappear.
+
+    Root/replacement/permission failures remain fatal. Reopen each observed directory chain
+    relative to the retained root FD, no-follow, checking identities before enumeration.
+    Already encountered entries still count when removed; files already sized remain counted.
+    """
     root = Path(root); entries = {}; total = 0; count = 0; end = time.monotonic()+seconds
     aliases = {} if aliases is None else aliases
-    if root.is_symlink() or not root.is_dir(): raise Failure('Owned inventory root is not a directory')
-    pending = [root]
-    while pending:
-        directory = pending.pop()
-        with os.scandir(directory) as iterator:
-            for entry in iterator:
-                count += 1
-                if count > max_files or time.monotonic() >= end: raise Failure('Owned directory traversal/count limit')
-                p=Path(entry.path)
-                try: info=entry.stat(follow_symlinks=False)
-                except FileNotFoundError: continue  # Concurrent owned build temporary file disappeared.
-                if stat.S_ISLNK(info.st_mode):
-                    if str(p) not in aliases or p.resolve(strict=True)!=Path(aliases[str(p)]).resolve(strict=True):
-                        raise Failure('Unexpected symlink in owned tree: '+str(p))
-                elif stat.S_ISDIR(info.st_mode): pending.append(p)
-                elif stat.S_ISREG(info.st_mode):
-                    total += info.st_size
-                    if total > max_bytes: raise Failure('Owned directory size limit')
-                else: raise Failure('Unexpected special file in owned tree')
-                entries[p.relative_to(root).as_posix()] = info.st_size if stat.S_ISREG(info.st_mode) else 0
-    return total, entries
+    def identity(info): return (info.st_dev,info.st_ino,stat.S_IFMT(info.st_mode))
+    root_info=root.lstat();root_identity=identity(root_info)
+    if not stat.S_ISDIR(root_info.st_mode):raise Failure('Owned inventory root is not a directory')
+    def root_unchanged():
+        if identity(root.lstat())!=root_identity:raise Failure('Owned inventory root identity changed')
+    flags=os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW
+    root_fd=os.open(root,flags)
+    try:
+        if identity(os.fstat(root_fd))!=root_identity:raise Failure('Owned inventory root identity changed')
+        pending=[((),())]
+        while pending:
+            if time.monotonic()>=end:raise Failure('Owned directory traversal/count limit')
+            root_unchanged();parts,expected=pending.pop();fd=os.dup(root_fd);missing=False
+            try:
+                for part,wanted in zip(parts,expected):
+                    if time.monotonic()>=end:raise Failure('Owned directory traversal/count limit')
+                    try:child=os.open(part,flags,dir_fd=fd)
+                    except FileNotFoundError:
+                        root_unchanged();missing=True;break  # Previously discovered descendant only.
+                    try:
+                        if identity(os.fstat(child))!=wanted:raise Failure('Owned directory identity changed')
+                    except BaseException:
+                        os.close(child);raise
+                    os.close(fd);fd=child
+                if missing:continue
+                with os.scandir(fd) as iterator:
+                    for entry in iterator:
+                        count+=1
+                        if count>max_files or time.monotonic()>=end:raise Failure('Owned directory traversal/count limit')
+                        p=root.joinpath(*parts,entry.name)
+                        try:info=entry.stat(follow_symlinks=False)
+                        except FileNotFoundError:continue  # Concurrent owned temporary entry disappeared.
+                        if stat.S_ISLNK(info.st_mode):
+                            if str(p) not in aliases or p.resolve(strict=True)!=Path(aliases[str(p)]).resolve(strict=True):
+                                raise Failure('Unexpected symlink in owned tree: '+str(p))
+                        elif stat.S_ISDIR(info.st_mode):pending.append((parts+(entry.name,),expected+(identity(info),)))
+                        elif stat.S_ISREG(info.st_mode):
+                            total+=info.st_size
+                            if total>max_bytes:raise Failure('Owned directory size limit')
+                        else:raise Failure('Unexpected special file in owned tree')
+                        entries[p.relative_to(root).as_posix()]=info.st_size if stat.S_ISREG(info.st_mode) else 0
+            finally:os.close(fd)
+        root_unchanged()
+    finally:os.close(root_fd)
+    return total,entries
 
 def child_pids(pid, end=None):
     try: return [int(x) for x in Path(f'/proc/{pid}/task/{pid}/children').read_text().split()]

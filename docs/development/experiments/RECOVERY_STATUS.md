@@ -133,3 +133,13 @@ remain accounted for. No candidate mesh or whole geometry evaluation was publish
 this is a reproduced resource refusal, not an improved scanner or quality result.
 A separately reviewed optimization may remove irrelevant-camera validation scans
 without increasing the cap or weakening the certificate.
+
+[Owned inventory race fix](eight-view-host-inventory-race/README.md) reproduces
+the missing-directory mechanism with a synchronized real thread and replaces
+path-only reopening with identity-bound, no-follow descriptor traversal. Only
+vanished discovered descendants are tolerated; missing/replaced roots, symlinks,
+permission failures and resource overruns remain fatal. All 165 guard tests pass
+independently. Hosted corrected behavior remains untested; this change does not
+rearm the workflow. Later official AGP source inspection establishes that the
+missing-NDK error prints a hardcoded default revision even when resolution uses
+the explicit app pin. It does not prove that the app's pin was ignored.

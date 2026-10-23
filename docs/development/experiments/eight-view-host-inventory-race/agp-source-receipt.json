@@ -1,0 +1,13 @@
+{
+  "scope": "OFFICIAL_SOURCE_INSPECTION_ONLY_NO_EXECUTION",
+  "url": "https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.11.1/gradle-8.11.1-sources.jar",
+  "bytes": 3810095,
+  "sha256": "65bc5d04cc52655664894e196f274da781091602a219126b67fd13bd2621ddd6",
+  "matchingSources": [
+    {
+      "entry": "com/android/build/gradle/internal/cxx/configure/NdkLocator.kt",
+      "sha256": "60b1d099e8418f1d6d482e83b4468181a4e0f6ef6ebf9cbb042fbc0e6e7324d5",
+      "bytes": 18165
+    }
+  ]
+}

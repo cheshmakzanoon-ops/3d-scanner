@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/workspace/shared/eight-view-inventory-race-review/reproduce_queued_delete.py", line 15, in <module>
+    try:r.inventory(root)
+        ^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/6b683a119bde/3d-scanner/tools/eight_view_host/runtime.py", line 31, in inventory
+    with os.scandir(directory) as iterator:
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/workspace/shared/eight-view-inventory-race-review/reproduce_queued_delete.py", line 11, in scan
+    with original(path) as entries:yield entries
+         ^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/shared/eight-race-baseline-aav471p6/queued'
+REPRODUCED actual concurrent descendant deletion; original inventory fails:

@@ -1,0 +1,16 @@
+{
+  "scope": "HOST_LIVE_INVENTORY_RACE_ONLY_NO_REARM",
+  "baselineSource": "c85ff88066e411f5f171c45f5c2f92077b3bc3f8",
+  "changedFiles": {
+    "tools/eight_view_host/runtime.py": "32a9633a5c23b9d8b996b1626777f83435e5723d034b5ea6083576ec27c6099b",
+    "tests/test_eight_view_host.py": "9b8a4f19b5fb543f2dbebbaee089fbcad503badd179ce3af166135830ddfb35a"
+  },
+  "patchSha256": "901cba53aaf21aa714292a8570eceb4a2ba378f4bd066a1953bbbe9507332e33",
+  "tests": {
+    "passed": 165,
+    "seconds": 12.41,
+    "logSha256": "1342fafcb36f5bfbd781bec0ed54dbbf1b8d4bc385b4aa63df5d57c268137fa2"
+  },
+  "baselineReproductionLogSha256": "0194661393880eec08e8e1c30a06df8d19062fb2a0f1762a2a99a1102fe83d02",
+  "actualGradleRuntime": "NOT_RUN"
+}

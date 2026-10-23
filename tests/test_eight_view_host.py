@@ -394,3 +394,83 @@ def test_actual_javac_header_confirms_long_jni_name_encoding(tmp_path):
  actual=set(re.findall(r'JNICALL (Java_\w+)\s*\(',header))
  expected={jni_symbol('fixture.Fixture','n_Mat',desc) for desc in ('()J','(I[II)J','(Ljava/nio/ByteBuffer;)J')}
  assert actual==expected
+
+# Actual controller race: Gradle can rename/delete an enumerated transform directory.
+def _mutate_after_root_enumeration(monkeypatch,root,mutation):
+ import threading
+ original=r.os.scandir;ready=threading.Event();done=threading.Event();errors=[]
+ expected=(root.stat().st_dev,root.stat().st_ino)
+ def worker():
+  try:
+   assert ready.wait(5),'enumeration barrier never reached';mutation()
+  except BaseException as error:errors.append(error)
+  finally:done.set()
+ @contextlib.contextmanager
+ def scan(path):
+  info=os.fstat(path) if isinstance(path,int) else Path(path).stat()
+  is_root=(info.st_dev,info.st_ino)==expected
+  with original(path) as iterator:yield iterator
+  if is_root:
+   ready.set();assert done.wait(5),'concurrent mutation did not finish'
+ thread=threading.Thread(target=worker);thread.start();monkeypatch.setattr(r.os,'scandir',scan)
+ def finish():
+  ready.set();thread.join(5);assert not thread.is_alive();assert not errors,errors
+ return finish
+
+def test_inventory_concurrent_queued_directory_deletion(monkeypatch,tmp_path):
+ root=tmp_path/'owned';root.mkdir();queued=root/'queued';queued.mkdir()
+ finish=_mutate_after_root_enumeration(monkeypatch,root,queued.rmdir)
+ try:
+  total,entries=r.inventory(root)
+  assert total==0 and entries=={'queued':0}  # Encountered node still counted.
+ finally:finish()
+
+@pytest.mark.parametrize('replacement',['directory','symlink','file','root-delete','root-replace'])
+def test_inventory_concurrent_replacement_or_root_loss_fails(monkeypatch,tmp_path,replacement):
+ root=tmp_path/'owned';root.mkdir();queued=root/'queued';queued.mkdir()
+ outside=tmp_path/'outside';outside.mkdir();(outside/'must-not-read').write_text('outside')
+ def mutate():
+  if replacement.startswith('root-'):
+   root.rename(tmp_path/'old-root')
+   if replacement=='root-replace':root.mkdir()
+  else:
+   queued.rename(tmp_path/'old-queued')  # Retain inode, so new directory cannot reuse it.
+   if replacement=='directory':queued.mkdir()
+   elif replacement=='symlink':queued.symlink_to(outside,target_is_directory=True)
+   else:queued.write_text('not-directory')
+ before=len(list(Path('/proc/self/fd').iterdir()))
+ finish=_mutate_after_root_enumeration(monkeypatch,root,mutate)
+ try:
+  with pytest.raises((r.Failure,OSError)):r.inventory(root)
+ finally:finish()
+ assert len(list(Path('/proc/self/fd').iterdir()))==before
+
+def test_inventory_permission_error_is_not_deletion(monkeypatch,tmp_path):
+ (tmp_path/'queued').mkdir();original=r.os.open
+ def denied(path,flags,*args,**kwargs):
+  if path=='queued' and 'dir_fd' in kwargs:raise PermissionError('injected permission failure')
+  return original(path,flags,*args,**kwargs)
+ monkeypatch.setattr(r.os,'open',denied)
+ with pytest.raises(PermissionError,match='permission'):r.inventory(tmp_path)
+
+def test_inventory_disappearing_nodes_do_not_extend_deadline(monkeypatch,tmp_path):
+ root=tmp_path/'owned';root.mkdir();queued=root/'queued';queued.mkdir();now=[0.0]
+ monkeypatch.setattr(r.time,'monotonic',lambda:now[0])
+ def remove():queued.rmdir();now[0]=2.0
+ finish=_mutate_after_root_enumeration(monkeypatch,root,remove)
+ try:
+  with pytest.raises(r.Failure,match='traversal'):r.inventory(root,seconds=1)
+ finally:finish()
+
+def test_inventory_vanished_nested_ancestor_remains_bounded(monkeypatch,tmp_path):
+ root=tmp_path/'owned';root.mkdir();(root/'parent').mkdir();(root/'parent'/'nested').mkdir()
+ finish=_mutate_after_root_enumeration(monkeypatch,root,lambda:__import__('shutil').rmtree(root/'parent'))
+ try:assert r.inventory(root,max_files=1)==(0,{'parent':0})
+ finally:finish()
+
+@pytest.mark.parametrize('kind',['absent','symlink','file'])
+def test_inventory_root_is_never_optional(tmp_path,kind):
+ root=tmp_path/'root'
+ if kind=='symlink':root.symlink_to(tmp_path,target_is_directory=True)
+ elif kind=='file':root.write_text('not-directory')
+ with pytest.raises((r.Failure,OSError)):r.inventory(root)
