@@ -657,3 +657,29 @@ Java_com_realityforge_scanner_engine_NativeCore_exportPointCloud(
         exportPointData(env,receiver,rows,destination,glb,representation==1?JNI_TRUE:JNI_FALSE);
     });
 }
+
+// Additive route; legacy reconstruct remains normalized-only E for compatibility.
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructCalibrated(
+    JNIEnv* env,jobject,jdoubleArray rows,jdoubleArray observed,jdoubleArray domains,jdouble threshold) {
+    return rf::jni::boundary<jstring>(env,nullptr,[&]() -> jstring {
+        if(!rows||!observed||!domains){illegal(env,"Missing calibrated initializer arrays");return nullptr;}
+        const auto length=env->GetArrayLength(rows);
+        if(length%7||length<140||length>140000||env->GetArrayLength(observed)!=(length/7)*4||env->GetArrayLength(domains)!=22){illegal(env,"Invalid calibrated initializer array shape");return nullptr;}
+        if(!std::isfinite(threshold)||threshold<=0||threshold>.05){illegal(env,"Invalid normalized threshold");return nullptr;}
+        std::vector<double> data(static_cast<std::size_t>(length)),pixels(static_cast<std::size_t>(length/7)*4);
+        std::array<double,22> calibration{};
+        rf::jni::doubles(env,rows,0,length,data.data());if(env->ExceptionCheck())return nullptr;
+        rf::jni::doubles(env,observed,0,static_cast<jsize>(pixels.size()),pixels.data());if(env->ExceptionCheck())return nullptr;
+        rf::jni::doubles(env,domains,0,22,calibration.data());if(env->ExceptionCheck())return nullptr;
+        auto* json=rf_reconstruct_calibrated_json(data.data(),data.size()/7,pixels.data(),pixels.size(),calibration.data(),calibration.size(),threshold);
+        if(!json)throw std::bad_alloc();return rf::jni::response(env,json);
+    });
+}
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_realityforge_scanner_engine_NativeCore_reconstructCalibratedCancellable(
+    JNIEnv* env,jobject receiver,jdoubleArray rows,jdoubleArray observed,jdoubleArray domains,jdouble threshold,jlong token) {
+    return rf::jni::boundary<jstring>(env,nullptr,[&]{return withOperation(env,token,[&]{
+        return Java_com_realityforge_scanner_engine_NativeCore_reconstructCalibrated(env,receiver,rows,observed,domains,threshold);
+    });});
+}

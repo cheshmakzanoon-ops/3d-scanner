@@ -327,8 +327,11 @@ class SparsePipeline(
                         ?: matches(a, b, timing).also { savedMatches[pair] = FeatureMatchRecord(it.rows, it.firstKeys, it.secondKeys) }
                     if (rows.size >= 20) {
                         timing.phase(PairWorkPhase.GEOMETRY)
+                        val calibrated = CalibratedInitializerInput.create(
+                            a.projection, a.width, a.height, a.xy, rows.firstKeys,
+                            b.projection, b.width, b.height, b.xy, rows.secondKeys)
                         val result = com.realityforge.scanner.engine.nativebridge.NativeResultJson.decode(nativeCall(nativeToken,
-                            { update -> progress(update.copy(pairWork = timing.snapshot())) }) { NativeCore.reconstructCancellable(rows.rows, 1.5 / min(fA, fB), nativeToken) })
+                            { update -> progress(update.copy(pairWork = timing.snapshot())) }) { NativeCore.reconstructCalibratedCancellable(rows.rows, calibrated.observed, calibrated.domains, 1.5 / min(fA, fB), nativeToken) })
                         coroutineContext.ensureActive()
                         if (!result.has("error")) {
                             verifiedPairIds.add(minOf(first.id, second.id) to maxOf(first.id, second.id))

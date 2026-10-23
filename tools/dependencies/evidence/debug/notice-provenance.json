@@ -10,9 +10,9 @@
     "androidx.compose.ui:ui-tooling-data:1.8.2",
     "androidx.compose.ui:ui-tooling:1.8.2"
   ],
-  "commonNoticeIndexSha256": "0c113900d66b873121a2cab9c65cb9aee3d2fdfb7b147f2177061bf09dfc22c8",
-  "noticeIndexSha256": "5b064d7efd4065511bce234d194082e7c4746be390aff878b0ad07b119173592",
-  "noticeFiles": 114,
+  "commonNoticeIndexSha256": "e1d2ad6c8885c25ebe3b43f0d8dcbc98d999a9faef3210874a0f474044619cac",
+  "noticeIndexSha256": "849bea4e5c34893152eaaeae6c535d4dbedfd372b9b72c87154d00b6ee668f4c",
+  "noticeFiles": 115,
   "additionalLicenseEvidence": [
     {
       "coordinate": "androidx.compose.material:material-android:1.8.2",

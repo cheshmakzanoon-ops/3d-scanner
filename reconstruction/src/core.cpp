@@ -2,6 +2,7 @@
 #include "realityforge/core.hpp"
 #include "realityforge/cancellation.hpp"
 #include "realityforge/progress.hpp"
+#include "calibrated_observations.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -106,6 +107,8 @@ double median(std::vector<double> values) {
 std::vector<std::size_t> inliers(std::span<const Match> m,const Mat3& e,double threshold) {
     std::vector<std::size_t> out; for(std::size_t i=0;i<m.size();++i)if(sampson(e,m[i])<threshold*threshold)out.push_back(i);return out;
 }
+#include "calibrated_initializer.inc"
+
 void validateResult(const Result& r) {
     if(r.representation!=PointRepresentation::SparsePoints && r.representation!=PointRepresentation::DensePoints)throw Error("Unsupported point representation");
     if(r.points.empty())throw Error("No reconstructed points to export");
@@ -187,6 +190,22 @@ Result reconstruct(std::span<const Match> matches,const Settings& s) {
     out.medianError=median(errors);out.medianParallax=median(angles);
     return out;
 }
+Result reconstructCalibrated(std::span<const Match> matches,std::span<const ObservedMatch> observed,
+    const std::array<CalibratedImageDomain,2>& domains,const Settings& settings) {
+    auto diagnostic=planar::select(matches,domains,settings,observed);
+    if(diagnostic.status=="H_NOT_DOMINANT") {
+        auto result=reconstruct(matches,settings);
+        result.initializerModel=InitializerModel::Essential;
+        return result;
+    }
+    if(diagnostic.status=="ACCEPTED") {
+        diagnostic.result.initializerModel=InitializerModel::Homography;
+        return diagnostic.result;
+    }
+    if(diagnostic.status=="PlanarAmbiguity:H_SUPPORT_UNSTABLE")
+        throw InitializationError(InitializationFailure::PlanarAmbiguity,"Dominant homography lost stable support during refit; capture another baseline");
+    throw InitializationError(InitializationFailure::PlanarAmbiguity,"Dominant homography has ambiguous or unobservable geometry");
+}
 Quality quality(std::span<const std::uint8_t> pixels,int width,int height,int stride) {
     if(width<3||height<3||stride<width||width>32768||height>32768||pixels.size()<static_cast<std::size_t>(stride)*static_cast<std::size_t>(height))throw Error("Invalid grayscale buffer");
     double sum=0,sum2=0,lap=0,lap2=0,dark=0,bright=0,n=static_cast<double>(width)*height;
@@ -197,7 +216,14 @@ Quality quality(std::span<const std::uint8_t> pixels,int width,int height,int st
 std::string resultJson(const Result& r) {
     if(r.representation!=PointRepresentation::SparsePoints)throw Error("Dense points are not a two-view reconstruction result; use typed point export");
     std::ostringstream o;o.imbue(std::locale::classic());o<<std::setprecision(12);
-    o<<"{\"schema\":1,\"representation\":\"sparse_points\",\"scale\":\"arbitrary\",\"registeredCameras\":2,\"inputMatches\":"<<r.inputMatches<<",\"inliers\":"<<r.epipolarInliers<<",\"pointCount\":"<<r.points.size()<<",\"medianErrorNormalized\":"<<r.medianError<<",\"medianParallaxDegrees\":"<<r.medianParallax<<",\"rotation\":[";
+    o<<"{\"schema\":1,\"representation\":\"sparse_points\",\"scale\":\"arbitrary\",\"registeredCameras\":2,\"inputMatches\":"<<r.inputMatches<<",\"inliers\":"<<r.epipolarInliers;
+    if(r.initializerModel!=InitializerModel::Unspecified) {
+        const bool homography=r.initializerModel==InitializerModel::Homography;
+        o<<",\"initializerModel\":\""<<(homography?"HOMOGRAPHY":"ESSENTIAL")
+         <<"\",\"modelInliers\":"<<r.epipolarInliers
+         <<(homography?",\"homographyInliers\":":",\"epipolarInliers\":")<<r.epipolarInliers;
+    }
+    o<<",\"pointCount\":"<<r.points.size()<<",\"medianErrorNormalized\":"<<r.medianError<<",\"medianParallaxDegrees\":"<<r.medianParallax<<",\"rotation\":[";
     for(std::size_t i=0;i<9;++i){if(i)o<<',';o<<r.rotation[i];}o<<"],\"translation\":["<<r.translation.x<<','<<r.translation.y<<','<<r.translation.z<<"],\"points\":[";
     for(std::size_t i=0;i<r.points.size();++i){auto&p=r.points[i];if(i)o<<',';o<<'['<<p.xyz.x<<','<<p.xyz.y<<','<<p.xyz.z<<','<<int(p.color[0])<<','<<int(p.color[1])<<','<<int(p.color[2])<<','<<p.error<<','<<p.parallax<<','<<p.matchIndex<<']';}o<<"]}";return o.str();
 }

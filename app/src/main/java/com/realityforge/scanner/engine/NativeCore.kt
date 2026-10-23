@@ -3,6 +3,9 @@ package com.realityforge.scanner.engine
 /** All geometry is evaluated by the C++ library also exercised in host tests. */
 object NativeCore {
     init { System.loadLibrary("realityforge") }
+    // Calibrated rays and actual observed working-image pixels are separate, same-index arrays.
+    external fun reconstructCalibrated(rows: DoubleArray, observed: DoubleArray, domains: DoubleArray, threshold: Double): String
+    external fun reconstructCalibratedCancellable(rows: DoubleArray, observed: DoubleArray, domains: DoubleArray, threshold: Double, token: Long): String
     external fun reconstruct(rows: DoubleArray, threshold: Double): String
     /** Same packed geometry; token is bound to one active native call. Cancellation throws. */
     external fun reconstructCancellable(rows: DoubleArray, threshold: Double, token: Long): String

@@ -3,6 +3,7 @@
 import argparse,hashlib,json,urllib.request,zipfile
 from pathlib import Path
 from inventory import notice_files, notice_path
+from source_notices import assemble as assemble_source_notices
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def main():
@@ -47,6 +48,7 @@ def main():
   lines.append(m['coordinate']+(' [metadata only]' if m['metadataOnly'] else ''))
   lines.extend('  '+l['name']+' '+(l['url'] or '') for l in m['licenses'])
  (a.output/'DEPENDENCIES.txt').write_text('\n'.join(lines)+'\n')
+ assemble_source_notices(a.output,evidence)
  files=notice_files(a.output)
  index=dict(schemaVersion=1,runtimeCoordinates=[m['coordinate'] for m in runtime],files=files,unresolved=[],distributionAuthorization='BLOCKED_EXTERNAL: first-party owner license decision; no permission inferred')
  (a.output/'NOTICE_INDEX.json').write_text(json.dumps(index,indent=2)+'\n')

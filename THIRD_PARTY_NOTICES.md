@@ -4,10 +4,19 @@ The release graph is recorded in `tools/dependencies/evidence/inventory.json` an
 `sbom.cdx.json`: 123 runtime modules (including metadata-only platforms), 97 compile
 modules and 38 KSP processor modules, 155 distinct coordinates. Runtime attribution
 is packaged under `app/src/main/assets/third-party-notices/`; NOTICE_INDEX.json binds
-all 92 full license/notice files and the exact runtime coordinate set. Build processors
+all indexed full license/notice files and the exact runtime coordinate set. Build processors
 and host benchmark tools are identified separately; they are not app runtime libraries.
 
-The native app core is first-party. Shipped native dependencies are OpenCV4.12.0,
+The native app core is first-party except explicitly attributed adapted components.
+Its calibrated homography decomposition adapts the official OpenCV4.12.0 INRIA
+implementation by Samson Yilma, with Intel amendments. The complete file-specific
+BSD-three-clause notice is preserved in source AND shipped release/debug assets as
+`OpenCV-4.12.0-homography-decomposition-BSD.txt`, indexed by SHA256. This notice is
+separate from the package-level Apache2.0 license. Upstream URL/source hash and exact
+notice extraction are recorded in `tools/dependencies/evidence/native-source-notices.json`;
+`assemble_notices.py` reproduces the reviewed notice from `source-notices/`.
+No GPL ORB-SLAM implementation is copied; this adaptation adds no native OpenCV link.
+Shipped native dependencies are OpenCV4.12.0,
 its libc++ redistributable, AndroidX Camera1.4.2 image/surface utilities and AndroidX
 Graphics Path1.0.1. `inventory.json` binds all ten dependency native libraries across
 arm64-v8a/x86_64 by artifact hash and GNU build identity, allowing stripped package

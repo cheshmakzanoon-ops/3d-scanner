@@ -1,0 +1,12 @@
+[
+  {
+    "file": "OpenCV-4.12.0-homography-decomposition-BSD.txt",
+    "sourceUrl": "https://raw.githubusercontent.com/opencv/opencv/4.12.0/modules/calib3d/src/homography_decomp.cpp",
+    "upstreamSourceSha256": "5f2faba2adc6baaa9d617d48b88b2b23091143e487bde36cbea4e0cd9909601a",
+    "sha256": "cf51e4dea2e2fa68e3b3657859a47b0455d8fdf864d7040e5a248c242b39fc51",
+    "extraction": "Complete initial file-specific notice preceding first #include; trailing blank lines normalized to one final newline; no copyright/license/disclaimer lines omitted",
+    "adaptedSource": "reconstruction/src/homography_decomposition.inc",
+    "license": "BSD-3-Clause, Samson Yilma (2014) / Intel Corporation (2018)",
+    "scope": "Mathematical decomposition adaptation compiled into first-party native library, not a new native OpenCV link"
+  }
+]

@@ -21,13 +21,16 @@ struct Settings {
     std::size_t minInliers = 20;
 };
 enum class PointRepresentation { SparsePoints, DensePoints, Sparse=SparsePoints, Dense=DensePoints };
+enum class InitializerModel { Unspecified, Essential, Homography };
 struct Result {
     Mat3 rotation{};
     Vec3 translation{}; // unit baseline, NOT meters
     std::vector<Point> points;
+    // Legacy member name; calibrated results qualify this generic model-support count below.
     std::size_t inputMatches{}, epipolarInliers{};
     double medianError{}, medianParallax{};
     PointRepresentation representation{PointRepresentation::SparsePoints};
+    InitializerModel initializerModel{InitializerModel::Unspecified};
 };
 struct Quality {
     double mean{}, standardDeviation{}, laplacianVariance{}, darkFraction{}, brightFraction{};
@@ -47,6 +50,17 @@ double determinant(const Mat3& a);
 // Inputs must be calibrated, undistorted normalized coordinates; pixel coordinates are not accepted.
 Point triangulate(const Match& match, const Mat3& rotation, Vec3 translation);
 Result reconstruct(std::span<const Match> matches, const Settings& settings = {});
+// Additive calibrated initializer. Rays and observed pixels must share exact row order.
+// Observed pixels refer to the real working image, BEFORE Brown-Conrady undistortion.
+struct CalibratedImageDomain {
+    double fx{}, fy{}, cx{}, cy{}, k1{}, k2{}, p1{}, p2{}, k3{};
+    int width{}, height{};
+};
+struct ObservedMatch { Vec2 a, b; };
+Result reconstructCalibrated(std::span<const Match> matches,
+    std::span<const ObservedMatch> observed,
+    const std::array<CalibratedImageDomain,2>& domains, const Settings& settings = {});
+
 Quality quality(std::span<const std::uint8_t> gray, int width, int height, int stride);
 std::string resultJson(const Result& result);
 void writePointPly(const Result& result, const std::string& path, PointRepresentation representation);
@@ -60,5 +74,10 @@ extern "C" {
 // rows: [x1,y1,x2,y2,r,g,b]. Returns malloc-owned JSON; always release via rf_free.
 char* rf_reconstruct_json(const double* rows, std::size_t count, double threshold,
                           const char* glb_path, const char* ply_path) noexcept;
+// Domain layout per camera: fx,fy,cx,cy,k1,k2,p1,p2,k3,width,height (22values total).
+// observed: x1,y1,x2,y2 per original match (count*4values), real/distorted pixels.
+char* rf_reconstruct_calibrated_json(const double* rows, std::size_t count,
+    const double* observed, std::size_t observed_values,
+    const double* domains, std::size_t domain_values, double threshold) noexcept;
 void rf_free(void* pointer) noexcept;
 }

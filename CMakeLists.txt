@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(realityforge SHARED
     reconstruction/src/core.cpp
+    reconstruction/src/calibrated_initializer_api.cpp
     reconstruction/src/pnp.cpp
     reconstruction/src/multiview.cpp
     reconstruction/src/bundle_adjustment.cpp
@@ -221,4 +222,11 @@ else()
             rf_cancellation_tests rf_depth_checkpoint_tests)
         target_compile_options(${target} PRIVATE -UNDEBUG)
     endforeach()
+endif()
+
+if(NOT ANDROID)
+    add_executable(rf_calibrated_initializer_tests reconstruction/tests/calibrated_initializer_test.cpp)
+    target_link_libraries(rf_calibrated_initializer_tests PRIVATE realityforge)
+    target_compile_options(rf_calibrated_initializer_tests PRIVATE -UNDEBUG)
+    add_test(NAME native_calibrated_initializer COMMAND rf_calibrated_initializer_tests)
 endif()
