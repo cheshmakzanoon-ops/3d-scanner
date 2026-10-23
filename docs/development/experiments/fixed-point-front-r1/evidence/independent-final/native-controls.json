@@ -1,0 +1,35 @@
+{
+  "scope": "analytic topology helper only, not whole geometry",
+  "results": {
+    "triangle": {
+      "vertices": 3,
+      "faces": 1,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflictFaces": 0,
+      "nonmanifoldEdges": 0,
+      "nonmanifoldVertices": 0,
+      "boundaryEdges": 3,
+      "intersections": 0,
+      "ambiguousPairs": 0,
+      "intersectionCandidates": 0,
+      "intersectionBudgetExceeded": false,
+      "generatedFaces": 1
+    },
+    "bowtie": {
+      "vertices": 5,
+      "faces": 2,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflictFaces": 0,
+      "nonmanifoldEdges": 0,
+      "nonmanifoldVertices": 1,
+      "boundaryEdges": 6,
+      "intersections": 0,
+      "ambiguousPairs": 1,
+      "intersectionCandidates": 1,
+      "intersectionBudgetExceeded": false,
+      "generatedFaces": 2
+    }
+  }
+}

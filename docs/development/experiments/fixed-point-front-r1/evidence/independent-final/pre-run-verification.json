@@ -1,0 +1,30 @@
+{
+  "status": "PASS_CONTROLS_ONLY_WHOLE_NOT_RUN",
+  "manifest": "185d650368ed6a6d5d2870b93e880cf1214df810dc441421e584ab10f6a2e884",
+  "oldGeometricControlsUnchanged": true,
+  "externalCancellation": {
+    "2": {
+      "driverExit": 1,
+      "ownedWorkerGone": true,
+      "successReceiptAbsent": true,
+      "refusal": {
+        "status": "REFUSED",
+        "reason": "INTERRUPTED:2",
+        "successfulGeometryPublication": false
+      }
+    },
+    "15": {
+      "driverExit": 1,
+      "ownedWorkerGone": true,
+      "successReceiptAbsent": true,
+      "refusal": {
+        "status": "REFUSED",
+        "reason": "INTERRUPTED:15",
+        "successfulGeometryPublication": false
+      }
+    }
+  },
+  "nativeHelperCompiledAndAnalyticControls": true,
+  "R3CoreModulesByteIdentical": true,
+  "neighborAndGateExtraControls": true
+}

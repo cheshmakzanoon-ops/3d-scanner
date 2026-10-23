@@ -1,0 +1,12 @@
+{
+  "exactRandomNeighborQueries": 480,
+  "immutableOrderIncludingCoincidentXYZ": true,
+  "syntheticGateTests": [
+    "equal-metrics-positive",
+    "ambiguous-refusal",
+    "single-view-regression-refusal",
+    "CDF-regression-refusal",
+    "incomplete-intersection-refusal"
+  ],
+  "wholeGeometry": "NOT_RUN"
+}

@@ -1,0 +1,32 @@
+{
+  "exact_geometry.py": {
+    "origin": "global-connectivity-adapter-recovered-r3/source/exact_geometry.py",
+    "sha256": "1612d710934e0ad5df25733b36a98cf7dd41e5a92d839bf2ef9136a833582191",
+    "unchanged": true
+  },
+  "support_overlay.py": {
+    "origin": "global-connectivity-adapter-recovered-r3/source/support_overlay.py",
+    "sha256": "a2456441681cb073bb74243429409b6cd2a7eb3e050fe6b3f747ef8d98402ae7",
+    "unchanged": true
+  },
+  "closed_certificate.py": {
+    "origin": "global-connectivity-adapter-recovered-r3/source/closed_certificate.py",
+    "sha256": "075ee89a1e3c0c014e88a0164c60759f56f89d662099bce4c8808710471412b0",
+    "unchanged": true
+  },
+  "orientation.py": {
+    "origin": "global-connectivity-adapter-recovered-r3/source/orientation.py",
+    "sha256": "55fc8a2918c12024ac4a645518921b9ccc3e9eeeec39de941c0cdd43aae834c8",
+    "unchanged": true
+  },
+  "ledger_adapter.py": {
+    "origin": "global-connectivity-adapter-recovered-r3/source/ledger_adapter.py",
+    "sha256": "c252d32556f5014129f0e7b087eec6590e83932b70bb6b281e9ce2fd4880e705",
+    "unchanged": true
+  },
+  "adapter_controls.py": {
+    "origin": "global-connectivity-adapter-recovered-r3/source/adapter_controls.py",
+    "sha256": "d9b93e7ca4d6d0efcc6bc9224cb2f499ff1667ca1d8d87447aaa0d47646bea30",
+    "unchanged": true
+  }
+}

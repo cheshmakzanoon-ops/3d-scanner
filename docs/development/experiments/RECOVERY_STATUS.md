@@ -114,3 +114,22 @@ contract tests, not a compiled production pipeline or successful reconstruction.
 The actual Gradle/Kotlin/native eight-view run remains NOT_RUN. Exact one-shot
 source, parent, message and changed-path admission require a separate reviewed
 arming change; ordinary device and sanitizer gates are unchanged.
+
+[Eight-view HOST prerequisite failure](eight-view-host-c85-failure-evidence/README.md)
+preserves the first actual hosted attempt at c85ff880, with zero production-pipeline
+invocations. An owned Gradle transforms directory disappeared during bounded
+inventory, and separate offline restoration failed because NDK configuration was
+unavailable. The log's preferred NDK differs from the app's explicit pin; its cause
+is not established. Source/license postchecks and owned cleanup passed. Exact
+artifact and terminal-log receipt hashes agree. This is an infrastructure failure,
+not a reconstruction result, and no retry or runtime qualification is claimed.
+
+[Fixed-point global front R1](fixed-point-front-r1/README.md) implements bounded
+empty-ball proposals, exact support certificates and online edge/vertex-link
+checks without moving points or inventing unknown normals. Analytic controls pass,
+but the whole eight-view attempt and independent replay both stop at the shared
+5,000,001-visit work limit. All original points, observations and source triangles
+remain accounted for. No candidate mesh or whole geometry evaluation was published;
+this is a reproduced resource refusal, not an improved scanner or quality result.
+A separately reviewed optimization may remove irrelevant-camera validation scans
+without increasing the cap or weakening the certificate.

@@ -1,0 +1,193 @@
+﻿2026-10-23T17:43:57.9675534Z Current runner version: '2.338.0'
+2026-10-23T17:43:57.9699828Z ##[group]Runner Image Provisioner
+2026-10-23T17:43:57.9700781Z Hosted Compute Agent
+2026-10-23T17:43:57.9701771Z Version: 20261012.601
+2026-10-23T17:43:57.9702575Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-23T17:43:57.9703349Z Build Date: 2026-10-12T17:48:21Z
+2026-10-23T17:43:57.9704111Z Worker ID: {8a434fe9-05c3-4bc9-bce3-9204ccd2c734}
+2026-10-23T17:43:57.9704885Z Region: westus
+2026-10-23T17:43:57.9705427Z Cloud: Azure
+2026-10-23T17:43:57.9706024Z ##[endgroup]
+2026-10-23T17:43:57.9707853Z ##[group]Operating System
+2026-10-23T17:43:57.9708598Z Ubuntu
+2026-10-23T17:43:57.9709179Z 24.04.5
+2026-10-23T17:43:57.9709686Z LTS
+2026-10-23T17:43:57.9710290Z ##[endgroup]
+2026-10-23T17:43:57.9710878Z ##[group]Runner Image
+2026-10-23T17:43:57.9711667Z Image: ubuntu-24.04
+2026-10-23T17:43:57.9712351Z Version: 20261012.334.1
+2026-10-23T17:43:57.9713587Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-23T17:43:57.9715210Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-23T17:43:57.9716508Z ##[endgroup]
+2026-10-23T17:43:57.9717770Z ##[group]GITHUB_TOKEN Permissions
+2026-10-23T17:43:57.9719816Z Contents: read
+2026-10-23T17:43:57.9720550Z Metadata: read
+2026-10-23T17:43:57.9721465Z ##[endgroup]
+2026-10-23T17:43:57.9723743Z Secret source: Actions
+2026-10-23T17:43:57.9724687Z Cache mode: write
+2026-10-23T17:43:57.9725412Z Prepare workflow directory
+2026-10-23T17:43:58.0062455Z Prepare all required actions
+2026-10-23T17:43:58.0111894Z Getting action download info
+2026-10-23T17:43:58.3824202Z Download action repository 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-23T17:43:58.4975124Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-23T17:43:59.1589703Z Complete job name: eight-view-host
+2026-10-23T17:43:59.2519466Z ##[group]Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+2026-10-23T17:43:59.2520670Z with:
+2026-10-23T17:43:59.2521446Z   persist-credentials: false
+2026-10-23T17:43:59.2522070Z   ref: c85ff88066e411f5f171c45f5c2f92077b3bc3f8
+2026-10-23T17:43:59.2522718Z   fetch-depth: 2
+2026-10-23T17:43:59.2523261Z   repository: cheshmakzanoon-ops/3d-scanner
+2026-10-23T17:43:59.2527487Z   token: ***
+2026-10-23T17:43:59.2527983Z   ssh-strict: true
+2026-10-23T17:43:59.2528475Z   ssh-user: git
+2026-10-23T17:43:59.2528955Z   clean: true
+2026-10-23T17:43:59.2529460Z   sparse-checkout-cone-mode: true
+2026-10-23T17:43:59.2530045Z   fetch-tags: false
+2026-10-23T17:43:59.2530556Z   show-progress: true
+2026-10-23T17:43:59.2531283Z   lfs: false
+2026-10-23T17:43:59.2531775Z   submodules: false
+2026-10-23T17:43:59.2532276Z   set-safe-directory: true
+2026-10-23T17:43:59.2532843Z   allow-unsafe-pr-checkout: false
+2026-10-23T17:43:59.2533739Z ##[endgroup]
+2026-10-23T17:43:59.3624390Z Syncing repository: cheshmakzanoon-ops/3d-scanner
+2026-10-23T17:43:59.3627176Z ##[group]Getting Git version info
+2026-10-23T17:43:59.3628464Z Working directory is '/home/runner/work/3d-scanner/3d-scanner'
+2026-10-23T17:43:59.3630257Z [command]/usr/bin/git version
+2026-10-23T17:43:59.3657202Z git version 2.55.0
+2026-10-23T17:43:59.3680234Z ##[endgroup]
+2026-10-23T17:43:59.3698058Z Temporarily overriding HOME='/home/runner/work/_temp/8e0516b5-2364-4ede-a80d-17a486562800' before making global git config changes
+2026-10-23T17:43:59.3700867Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-23T17:43:59.3704231Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/3d-scanner/3d-scanner
+2026-10-23T17:43:59.3767600Z Deleting the contents of '/home/runner/work/3d-scanner/3d-scanner'
+2026-10-23T17:43:59.3780082Z ##[group]Initializing the repository
+2026-10-23T17:43:59.3794856Z [command]/usr/bin/git init /home/runner/work/3d-scanner/3d-scanner
+2026-10-23T17:43:59.3934586Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-23T17:43:59.3936456Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-23T17:43:59.3938223Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-23T17:43:59.3939586Z hint: call:
+2026-10-23T17:43:59.3940294Z hint:
+2026-10-23T17:43:59.3941443Z hint: 	git config --global init.defaultBranch <name>
+2026-10-23T17:43:59.3942582Z hint:
+2026-10-23T17:43:59.3943765Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-23T17:43:59.3945473Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-23T17:43:59.3946813Z hint:
+2026-10-23T17:43:59.3947541Z hint: 	git branch -m <name>
+2026-10-23T17:43:59.3948464Z hint:
+2026-10-23T17:43:59.3949628Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-23T17:43:59.3951708Z Initialized empty Git repository in /home/runner/work/3d-scanner/3d-scanner/.git/
+2026-10-23T17:43:59.3954899Z [command]/usr/bin/git remote add origin https://github.com/cheshmakzanoon-ops/3d-scanner
+2026-10-23T17:43:59.4003321Z ##[endgroup]
+2026-10-23T17:43:59.4005162Z ##[group]Disabling automatic garbage collection
+2026-10-23T17:43:59.4006719Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-23T17:43:59.4039313Z ##[endgroup]
+2026-10-23T17:43:59.4040880Z ##[group]Setting up auth
+2026-10-23T17:43:59.4047112Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-23T17:43:59.4080741Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-23T17:43:59.4518862Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-23T17:43:59.4559174Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-23T17:43:59.4808453Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-23T17:43:59.4848899Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-23T17:43:59.5073715Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-23T17:43:59.5116254Z ##[endgroup]
+2026-10-23T17:43:59.5117177Z ##[group]Fetching the repository
+2026-10-23T17:43:59.5125921Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=2 origin c85ff88066e411f5f171c45f5c2f92077b3bc3f8
+2026-10-23T17:44:00.3908812Z From https://github.com/cheshmakzanoon-ops/3d-scanner
+2026-10-23T17:44:00.3910666Z  * branch            c85ff88066e411f5f171c45f5c2f92077b3bc3f8 -> FETCH_HEAD
+2026-10-23T17:44:00.3915931Z ##[endgroup]
+2026-10-23T17:44:00.3917751Z ##[group]Determining the checkout info
+2026-10-23T17:44:00.3919675Z ##[endgroup]
+2026-10-23T17:44:00.3924659Z [command]/usr/bin/git sparse-checkout disable
+2026-10-23T17:44:00.3989943Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-23T17:44:00.4024650Z ##[group]Checking out the ref
+2026-10-23T17:44:00.4029707Z [command]/usr/bin/git checkout --progress --force c85ff88066e411f5f171c45f5c2f92077b3bc3f8
+2026-10-23T17:44:00.6046176Z Note: switching to 'c85ff88066e411f5f171c45f5c2f92077b3bc3f8'.
+2026-10-23T17:44:00.6047707Z 
+2026-10-23T17:44:00.6048735Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-23T17:44:00.6051771Z changes and commit them, and you can discard any commits you make in this
+2026-10-23T17:44:00.6054376Z state without impacting any branches by switching back to a branch.
+2026-10-23T17:44:00.6056076Z 
+2026-10-23T17:44:00.6057515Z If you want to create a new branch to retain commits you create, you may
+2026-10-23T17:44:00.6061474Z do so (now or later) by using -c with the switch command. Example:
+2026-10-23T17:44:00.6063323Z 
+2026-10-23T17:44:00.6064162Z   git switch -c <new-branch-name>
+2026-10-23T17:44:00.6065500Z 
+2026-10-23T17:44:00.6066263Z Or undo this operation with:
+2026-10-23T17:44:00.6067497Z 
+2026-10-23T17:44:00.6068247Z   git switch -
+2026-10-23T17:44:00.6069251Z 
+2026-10-23T17:44:00.6070748Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-23T17:44:00.6073181Z 
+2026-10-23T17:44:00.6074713Z HEAD is now at c85ff88 test: run one bounded eight-view sparse host diagnostic
+2026-10-23T17:44:00.6080671Z ##[endgroup]
+2026-10-23T17:44:00.6117106Z [command]/usr/bin/git log -1 --format=%H
+2026-10-23T17:44:00.6145516Z c85ff88066e411f5f171c45f5c2f92077b3bc3f8
+2026-10-23T17:44:00.6155472Z ##[group]Removing auth
+2026-10-23T17:44:00.6159316Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-23T17:44:00.6195731Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-23T17:44:00.6427002Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-23T17:44:00.6455358Z http.https://github.com/.extraheader
+2026-10-23T17:44:00.6462995Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-23T17:44:00.6498502Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-23T17:44:00.6725436Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-23T17:44:00.6762115Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-23T17:44:00.6991809Z ##[endgroup]
+2026-10-23T17:44:00.7241637Z ##[group]Run python3 -B tools/eight_view_host/controller.py
+2026-10-23T17:44:00.7243538Z [36;1mpython3 -B tools/eight_view_host/controller.py[0m
+2026-10-23T17:44:00.7530262Z shell: /usr/bin/bash -e {0}
+2026-10-23T17:44:00.7531714Z ##[endgroup]
+2026-10-23T17:44:01.3454164Z RF_EIGHT_COMMAND {"label": "git-head", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 2420, "starttime": 15367, "exit": 0, "seconds": 0.453, "bytes": 41, "sha256": "c3d95d24311ff92de235f7cbccd9859a976ef5c83cf922c31c77573636f86889"}
+2026-10-23T17:44:01.9084469Z RF_EIGHT_COMMAND {"label": "git-status", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 2421, "starttime": 15412, "exit": 0, "seconds": 0.563, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+2026-10-23T17:44:02.3626690Z RF_EIGHT_COMMAND {"label": "git-parents", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 2427, "starttime": 15468, "exit": 0, "seconds": 0.454, "bytes": 41, "sha256": "b57717e10b30b5c374d6bc043fe6f190ecd82bb5648714502b1aa4e0bb74f33f"}
+2026-10-23T17:44:02.8165394Z RF_EIGHT_COMMAND {"label": "git-parent-commit", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 2428, "starttime": 15514, "exit": 0, "seconds": 0.453, "bytes": 41, "sha256": "b57717e10b30b5c374d6bc043fe6f190ecd82bb5648714502b1aa4e0bb74f33f"}
+2026-10-23T17:44:03.2709104Z RF_EIGHT_COMMAND {"label": "git-paths", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 2429, "starttime": 15559, "exit": 0, "seconds": 0.454, "bytes": 104, "sha256": "91386c07c35881d8dea080ac7026e0612f9e0de96c49538e1d80984d6263035b"}
+2026-10-23T17:44:08.1838967Z RF_EIGHT_COMMAND {"label": "source-manifest", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 2430, "starttime": 15605, "exit": 0, "seconds": 4.912, "bytes": 52, "sha256": "a08eaee54ddac3c66518379f51816bbd1fe72c31930f83b91403ebefefdaff3d"}
+2026-10-23T17:44:08.6383194Z RF_EIGHT_COMMAND {"label": "git-tree", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 5307, "starttime": 16096, "exit": 0, "seconds": 0.454, "bytes": 41, "sha256": "db385cc33bdc420cbcb90c4598d34464665b2f519f221f4ade4d43cd65271876"}
+2026-10-23T17:44:13.8865183Z RF_EIGHT_COMMAND {"label": "java-version", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 5308, "starttime": 16155, "exit": 0, "seconds": 5.109, "bytes": 193, "sha256": "8ffd2d05de22acb2a1f82845905d499e807c7595cf7c3e7f2a2cab7e576a26de"}
+2026-10-23T17:45:40.1194016Z RF_EIGHT_COMMAND {"label": "gradle-task-graph", "complete": false, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 5327, "starttime": 16696, "error": "FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/_temp/rf-eight-work/gradle/caches/8.13/transforms/38d5a1c87ad44bc04539a877c61b792c-fb0ef7ed-ad12-4950-9bd3-dc04155a259d'", "seconds": 85.932, "bytes": 793, "sha256": "bc7f9bcdad310ae4c174d6232692e3719cd3d86c3bd184a79e0a4cbbb326c99b"}
+2026-10-23T17:46:11.8014236Z RF_EIGHT_COMMAND {"label": "restore-normal-test-compilation", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 5458, "starttime": 25340, "exit": 1, "error": "Failure: restore-normal-test-compilation exit 1", "seconds": 31.681, "bytes": 894, "sha256": "f3cf026e3e9ba2470ec8625d38e197a7a4851de2f44275f62e64c173dd56be50"}
+2026-10-23T17:46:12.6912734Z RF_EIGHT_COMMAND {"label": "source-worktree-postcheck", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 5557, "starttime": 28458, "exit": 0, "seconds": 0.889, "bytes": 56, "sha256": "c4061a01ebd74327d4bba2eca55cd80497a5e677758460f8a75ae66f0bafb993"}
+2026-10-23T17:46:13.1565455Z RF_EIGHT_COMMAND {"label": "source-status-postcheck", "complete": true, "runOwner": "a8bc19d338888cc533e5d362fc336d7d", "environmentBoundary": "INHERITED_RUNTIME", "pid": 5566, "starttime": 28547, "exit": 0, "seconds": 0.465, "bytes": 0, "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+2026-10-23T17:46:13.3703762Z RF_EIGHT_FRAME_META {"label": "terminal-receipt", "bytes": 12219, "sha256": "5e78614cae2297c9cfccc375e5893e0b3989413be6a660203742a677da966511", "chunks": 4}
+2026-10-23T17:46:13.3851797Z RF_EIGHT_FRAME terminal-receipt 1/4 ewogICJjaGFuZ2VkUGF0aHMiOiBbCiAgICAiLmdpdGh1Yi93b3JrZmxvd3MvZWlnaHQtdmlldy1ob3N0LWRpYWdub3N0aWMueW1sIiwKICAgICJTT1VSQ0VfTUFOSUZFU1Quc2hhMjU2IiwKICAgICJ0b29scy9laWdodF92aWV3X2hvc3QvcG9saWN5LnB5IgogIF0sCiAgImNsYXNzaWZpY2F0aW9uIjogIlNVUFBMRU1FTlRBUllfRUlHSFRfVklFV19IT1NUX1NQQVJTRV9OT1RfUVVBTElGSUNBVElPTiIsCiAgImNvbW1hbmRzIjogWwogICAgewogICAgICAiYXJndiI6IFsKICAgICAgICAiZ2l0IiwKICAgICAgICAicmV2LXBhcnNlIiwKICAgICAgICAiSEVBRCIKICAgICAgXSwKICAgICAgImJ5dGVzIjogNDEsCiAgICAgICJjb21wbGV0ZSI6IHRydWUsCiAgICAgICJlbnZpcm9ubWVudEJvdW5kYXJ5IjogIklOSEVSSVRFRF9SVU5USU1FIiwKICAgICAgImV4aXQiOiAwLAogICAgICAibGFiZWwiOiAiZ2l0LWhlYWQiLAogICAgICAicGlkIjogMjQyMCwKICAgICAgInJ1bk93bmVyIjogImE4YmMxOWQzMzg4ODhjYzUzM2U1ZDM2MmZjMzM2ZDdkIiwKICAgICAgInNlY29uZHMiOiAwLjQ1MywKICAgICAgInNoYTI1NiI6ICJjM2Q5NWQyNDMxMWZmOTJkZTIzNWY3Y2JjY2Q5ODU5YTk3NmVmNWM4M2NmOTIyYzMxYzc3NTczNjM2Zjg2ODg5IiwKICAgICAgInN0YXJ0dGltZSI6IDE1MzY3CiAgICB9LAogICAgewogICAgICAiYXJndiI6IFsKICAgICAgICAiZ2l0IiwKICAgICAgICAic3RhdHVzIiwKICAgICAgICAiLS1wb3JjZWxhaW49djEiLAogICAgICAgICItLXVudHJhY2tlZC1maWxlcz1hbGwiCiAgICAgIF0sCiAgICAgICJieXRlcyI6IDAsCiAgICAgICJjb21wbGV0ZSI6IHRydWUsCiAgICAgICJlbnZpcm9ubWVudEJvdW5kYXJ5IjogIklOSEVSSVRFRF9SVU5USU1FIiwKICAgICAgImV4aXQiOiAwLAogICAgICAibGFiZWwiOiAiZ2l0LXN0YXR1cyIsCiAgICAgICJwaWQiOiAyNDIxLAogICAgICAicnVuT3duZXIiOiAiYThiYzE5ZDMzODg4OGNjNTMzZTVkMzYyZmMzMzZkN2QiLAogICAgICAic2Vjb25kcyI6IDAuNTYzLAogICAgICAic2hhMjU2IjogImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLAogICAgICAic3RhcnR0aW1lIjogMTU0MTIKICAgIH0sCiAgICB7CiAgICAgICJhcmd2IjogWwogICAgICAgICJnaXQiLAogICAgICAgICJzaG93IiwKICAgICAgICAiLS1mb3JtYXQ9JVAiLAogICAgICAgICItLW5vLXBhdGNoIiwKICAgICAgICAiSEVBRCIKICAgICAgXSwKICAgICAgImJ5dGVzIjogNDEsCiAgICAgICJjb21wbGV0ZSI6IHRydWUsCiAgICAgICJlbnZpcm9ubWVudEJvdW5kYXJ5IjogIklOSEVSSVRFRF9SVU5USU1FIiwKICAgICAgImV4aXQiOiAwLAogICAgICAibGFiZWwiOiAiZ2l0LXBhcmVudHMiLAogICAgICAicGlkIjogMjQyNywKICAgICAgInJ1bk93bmVyIjogImE4YmMxOWQzMzg4ODhjYzUzM2U1ZDM2MmZjMzM2ZDdkIiwKICAgICAgInNlY29uZHMiOiAwLjQ1NCwKICAgICAgInNoYTI1NiI6ICJiNTc3MTdlMTBiMzBiNWMzNzRkNmJjMDQzZmU2ZjE5MGVjZDgyYmI1NjQ4NzE0NTAyYjFhYTRlMGJiNzRmMzNmIiwKICAgICAgInN0YXJ0dGltZSI6IDE1NDY4CiAgICB9LAogICAgewogICAgICAiYXJndiI6IFsKICAgICAgICAiZ2l0IiwKICAgICAgICAicmV2LXBhcnNlIiwKICAgICAgICAiSEVBRF4iCiAgICAgIF0sCiAgICAgICJieXRlcyI6IDQxLAogICAgICAiY29tcGxldGUiOiB0cnVlLAogICAgICAiZW52aXJvbm1lbnRCb3VuZGFyeSI6ICJJTkhFUklURURfUlVOVElNRSIsCiAgICAgICJleGl0IjogMCwKICAgICAgImxhYmVsIjogImdpdC1wYXJlbnQtY29tbWl0IiwKICAgICAgInBpZCI6IDI0MjgsCiAgICAgICJydW5Pd25lciI6ICJhOGJjMTlkMzM4ODg4Y2M1MzNlNWQzNjJmYzMzNmQ3ZCIsCiAgICAgICJzZWNvbmRzIjogMC40NTMsCiAgICAgICJzaGEyNTYiOiAiYjU3NzE3ZTEwYjMwYjVjMzc0ZDZiYzA0M2ZlNmYxOTBlY2Q4MmJiNTY0ODcxNDUwMmIxYWE0ZTBiYjc0ZjMzZiIsCiAgICAgICJzdGFydHRpbWUiOiAxNTUxNAogICAgfSwKICAgIHsKICAgICAgImFyZ3YiOiBbCiAgICAgICAgImdpdCIsCiAgICAgICAgImRpZmYiLAogICAgICAgICItLW5vLXJlbmFtZXMiLAogICAgICAgICItLW5hbWUtb25seSIsCiAgICAgICAgIjgzZmVmZWUyOWIyNzNkMjEzMmRkODJiODBjNzA3MWE0YjAxNWYzYmMiLAogICAgICAgICJjODVmZjg4MDY2ZTQxMWY1ZjE3MWM0NWY1YzJmOTIwNzdiM2JjM2Y4IgogICAgICBdLAogICAgICAiYnl0ZXMiOiAxMDQsCiAgICAgICJjb21wbGV0ZSI6IHRydWUsCiAgICAgICJlbnZpcm9ubWVudEJvdW5kYXJ5IjogIklOSEVSSVRFRF9SVU5USU1FIiwKICAgICAgImV4aXQiOiAwLAogICAgICAibGFiZWwiOiAiZ2l0LXBhdGhzIiwKICAgICAgInBpZCI6IDI0MjksCiAgICAgICJydW5Pd25lciI6ICJhOGJjMTlkMzM4ODg4Y2M1MzNlNWQzNjJmYzMzNmQ3ZCIsCiAgICAgICJzZWNvbmRzIjogMC40NTQsCiAgICAgICJzaGEyNTYiOiAiOTEzODZjMDdjMzU4ODFkOGRlYTA4MGFjNzAyNmUwNjEyZjllMGRlOTZjNDk1MzhlMWQ4MDk4NGQ2MjYzMDM1YiIsCiAgICAgICJzdGFydHRpbWUiOiAxNTU1OQogICAgfSwKICAgIHsKICAgICAgImFyZ3YiOiBbCiAgICAgICAgInB5dGhvbjMiLAogICAgICAgICJ0b29scy9zb3VyY2VfbWFuaWZlc3QucHkiLAogICAgICAgICJ2ZXJpZnkiLAogICAgICAgICItLXNvdXJjZSIsCiAgICAgICAgIkhFQUQiCiAgICAgIF0sCiAgICAgICJieXRlcyI6IDUyLAogICAgICAiY29tcGxldGUiOiB0cnVlLAogICAgICAiZW52aXJvbm1lbnRCb3VuZGFyeSI6ICJJTkhFUklURURfUlVOVElNRSIsCiAgICAgICJleGl0IjogMCwKICAgICAgImxhYmVsIjogInNvdXJjZS1tYW5pZmVzdCIsCiAgICAgICJwaWQiOiAyNDMwLAogICAgICAicnVuT3duZXIiOiAiYThiYzE5ZDMzODg4OGNjNTMzZTVkMzYyZmMzMzZkN2QiLAogICAgICAic2Vjb25kcyI6IDQuOTEyLAogICAgICAic2hhMjU2IjogImEwOGVhZWU1NGRkYWMzYzY2NTE4Mzc5ZjUxODE2YmJkMWZlNzJjMzE5MzBm
+2026-10-23T17:46:13.4125109Z RF_EIGHT_FRAME terminal-receipt 2/4 ODNiOTE0MDNlYmVmZWZkYWZmM2QiLAogICAgICAic3RhcnR0aW1lIjogMTU2MDUKICAgIH0sCiAgICB7CiAgICAgICJhcmd2IjogWwogICAgICAgICJnaXQiLAogICAgICAgICJyZXYtcGFyc2UiLAogICAgICAgICJIRUFEXnt0cmVlfSIKICAgICAgXSwKICAgICAgImJ5dGVzIjogNDEsCiAgICAgICJjb21wbGV0ZSI6IHRydWUsCiAgICAgICJlbnZpcm9ubWVudEJvdW5kYXJ5IjogIklOSEVSSVRFRF9SVU5USU1FIiwKICAgICAgImV4aXQiOiAwLAogICAgICAibGFiZWwiOiAiZ2l0LXRyZWUiLAogICAgICAicGlkIjogNTMwNywKICAgICAgInJ1bk93bmVyIjogImE4YmMxOWQzMzg4ODhjYzUzM2U1ZDM2MmZjMzM2ZDdkIiwKICAgICAgInNlY29uZHMiOiAwLjQ1NCwKICAgICAgInNoYTI1NiI6ICJkYjM4NWNjMzNiZGM0MjBjYmNiOTBjNDU5OGQzNDQ2NDY2NWIyZjUxOWYyMjFmNGFkZTRkNDNjZDY1MjcxODc2IiwKICAgICAgInN0YXJ0dGltZSI6IDE2MDk2CiAgICB9LAogICAgewogICAgICAiYXJndiI6IFsKICAgICAgICAiL3Vzci9saWIvanZtL3RlbXVyaW4tMTctamRrLWFtZDY0L2Jpbi9qYXZhIiwKICAgICAgICAiLXZlcnNpb24iCiAgICAgIF0sCiAgICAgICJieXRlcyI6IDE5MywKICAgICAgImNvbXBsZXRlIjogdHJ1ZSwKICAgICAgImVudmlyb25tZW50Qm91bmRhcnkiOiAiSU5IRVJJVEVEX1JVTlRJTUUiLAogICAgICAiZXhpdCI6IDAsCiAgICAgICJsYWJlbCI6ICJqYXZhLXZlcnNpb24iLAogICAgICAicGlkIjogNTMwOCwKICAgICAgInJ1bk93bmVyIjogImE4YmMxOWQzMzg4ODhjYzUzM2U1ZDM2MmZjMzM2ZDdkIiwKICAgICAgInNlY29uZHMiOiA1LjEwOSwKICAgICAgInNoYTI1NiI6ICI4ZmZkMmQwNWRlMjJhY2IyYTFmODI4NDU5MDVkNDk5ZTgwN2M3NTk1Y2Y3YzNlN2YyYTJjYWI3ZTU3NmEyNmRlIiwKICAgICAgInN0YXJ0dGltZSI6IDE2MTU1CiAgICB9LAogICAgewogICAgICAiYXJndiI6IFsKICAgICAgICAiL2hvbWUvcnVubmVyL3dvcmsvM2Qtc2Nhbm5lci8zZC1zY2FubmVyL2dyYWRsZXciLAogICAgICAgICItLW5vLWRhZW1vbiIsCiAgICAgICAgIi0tbm8tcGFyYWxsZWwiLAogICAgICAgICItLW1heC13b3JrZXJzPTEiLAogICAgICAgICItLW5vLWJ1aWxkLWNhY2hlIiwKICAgICAgICAiLS1uby1jb25maWd1cmF0aW9uLWNhY2hlIiwKICAgICAgICAiLS1kZXBlbmRlbmN5LXZlcmlmaWNhdGlvbiIsCiAgICAgICAgInN0cmljdCIsCiAgICAgICAgIi1QYW5kcm9pZC5idWlsZGVyLnNka0Rvd25sb2FkPWZhbHNlIiwKICAgICAgICAiLVBrb3RsaW4uY29tcGlsZXIuZXhlY3V0aW9uLnN0cmF0ZWd5PWluLXByb2Nlc3MiLAogICAgICAgICItUGtvdGxpbi5kYWVtb24udXNlRmFsbGJhY2tTdHJhdGVneT1mYWxzZSIsCiAgICAgICAgIi1Eb3JnLmdyYWRsZS5qdm1hcmdzPS1YbXgzZyAtWFg6QWN0aXZlUHJvY2Vzc29yQ291bnQ9MiAtRGZpbGUuZW5jb2Rpbmc9VVRGLTggLUR1c2VyLmhvbWU9L2hvbWUvcnVubmVyL3dvcmsvX3RlbXAvcmYtZWlnaHQtd29yay9ob21lIiwKICAgICAgICAiLUkiLAogICAgICAgICIvaG9tZS9ydW5uZXIvd29yay8zZC1zY2FubmVyLzNkLXNjYW5uZXIvdG9vbHMvZWlnaHRfdmlld19ob3N0L3Byb2JlLmluaXQuZ3JhZGxlIiwKICAgICAgICAiLVBlaWdodENvbmZpZz0vaG9tZS9ydW5uZXIvd29yay9fdGVtcC9yZi1laWdodC13b3JrL2dyYWRsZS1jb25maWcuanNvbiIsCiAgICAgICAgIjphcHA6ZWlnaHRQcmVwYXJlIiwKICAgICAgICAiLS1kcnktcnVuIgogICAgICBdLAogICAgICAiYnl0ZXMiOiA3OTMsCiAgICAgICJjb21wbGV0ZSI6IGZhbHNlLAogICAgICAiZW52aXJvbm1lbnRCb3VuZGFyeSI6ICJJTkhFUklURURfUlVOVElNRSIsCiAgICAgICJlcnJvciI6ICJGaWxlTm90Rm91bmRFcnJvcjogW0Vycm5vIDJdIE5vIHN1Y2ggZmlsZSBvciBkaXJlY3Rvcnk6ICcvaG9tZS9ydW5uZXIvd29yay9fdGVtcC9yZi1laWdodC13b3JrL2dyYWRsZS9jYWNoZXMvOC4xMy90cmFuc2Zvcm1zLzM4ZDVhMWM4N2FkNDRiYzA0NTM5YTg3N2M2MWI3OTJjLWZiMGVmN2VkLWFkMTItNDk1MC05YmQzLWRjMDQxNTVhMjU5ZCciLAogICAgICAibGFiZWwiOiAiZ3JhZGxlLXRhc2stZ3JhcGgiLAogICAgICAicGlkIjogNTMyNywKICAgICAgInJ1bk93bmVyIjogImE4YmMxOWQzMzg4ODhjYzUzM2U1ZDM2MmZjMzM2ZDdkIiwKICAgICAgInNlY29uZHMiOiA4NS45MzIsCiAgICAgICJzaGEyNTYiOiAiYmM3ZjliY2RhZDMxMGFlNGMxNzRkNjIzMjY5MmUzNzE5Y2QzZDg2YzNiZDE4NGE3OWUwYTRjYmJiMzI2Yzk5YiIsCiAgICAgICJzdGFydHRpbWUiOiAxNjY5NgogICAgfSwKICAgIHsKICAgICAgImFyZ3YiOiBbCiAgICAgICAgIi9ob21lL3J1bm5lci93b3JrLzNkLXNjYW5uZXIvM2Qtc2Nhbm5lci9ncmFkbGV3IiwKICAgICAgICAiLS1uby1kYWVtb24iLAogICAgICAgICItLW5vLXBhcmFsbGVsIiwKICAgICAgICAiLS1tYXgtd29ya2Vycz0xIiwKICAgICAgICAiLS1uby1idWlsZC1jYWNoZSIsCiAgICAgICAgIi0tbm8tY29uZmlndXJhdGlvbi1jYWNoZSIsCiAgICAgICAgIi0tZGVwZW5kZW5jeS12ZXJpZmljYXRpb24iLAogICAgICAgICJzdHJpY3QiLAogICAgICAgICItUGFuZHJvaWQuYnVpbGRlci5zZGtEb3dubG9hZD1mYWxzZSIsCiAgICAgICAgIi1Qa290bGluLmNvbXBpbGVyLmV4ZWN1dGlvbi5zdHJhdGVneT1pbi1wcm9jZXNzIiwKICAgICAgICAiLVBrb3RsaW4uZGFlbW9uLnVzZUZhbGxiYWNrU3RyYXRlZ3k9ZmFsc2UiLAogICAgICAgICItRG9yZy5ncmFkbGUuanZtYXJncz0tWG14M2cgLVhYOkFjdGl2ZVByb2Nlc3NvckNvdW50PTIgLURmaWxlLmVuY29kaW5nPVVURi04IC1EdXNlci5ob21lPS9ob21lL3J1bm5lci93b3JrL190ZW1wL3JmLWVpZ2h0LXdvcmsvaG9tZSIsCiAgICAgICAgIi0tb2ZmbGluZSIsCiAgICAgICAgIjphcHA6Y29tcGlsZURlYnVnVW5pdFRlc3RLb3RsaW4iCiAgICAgIF0sCiAgICAgICJieXRlcyI6IDg5NCwKICAgICAgImNvbXBsZXRlIjogdHJ1ZSwKICAgICAgImVudmlyb25tZW50Qm91bmRhcnkiOiAiSU5IRVJJVEVEX1JVTlRJ
+2026-10-23T17:46:13.4394840Z RF_EIGHT_FRAME terminal-receipt 3/4 TUUiLAogICAgICAiZXJyb3IiOiAiRmFpbHVyZTogcmVzdG9yZS1ub3JtYWwtdGVzdC1jb21waWxhdGlvbiBleGl0IDEiLAogICAgICAiZXhpdCI6IDEsCiAgICAgICJsYWJlbCI6ICJyZXN0b3JlLW5vcm1hbC10ZXN0LWNvbXBpbGF0aW9uIiwKICAgICAgInBpZCI6IDU0NTgsCiAgICAgICJydW5Pd25lciI6ICJhOGJjMTlkMzM4ODg4Y2M1MzNlNWQzNjJmYzMzNmQ3ZCIsCiAgICAgICJzZWNvbmRzIjogMzEuNjgxLAogICAgICAic2hhMjU2IjogImYzY2YwMjZlM2U5YmEyNDcwZWM4NjI1ZDM4ZTE5N2E3YTQ4NTFkZTJmNDQyNzVmNjJlNjRjMTczZGQ1NmJlNTAiLAogICAgICAic3RhcnR0aW1lIjogMjUzNDAKICAgIH0sCiAgICB7CiAgICAgICJhcmd2IjogWwogICAgICAgICIvdXNyL2Jpbi9weXRob24zIiwKICAgICAgICAidG9vbHMvc291cmNlX21hbmlmZXN0LnB5IiwKICAgICAgICAidmVyaWZ5IiwKICAgICAgICAiLS1zb3VyY2UiLAogICAgICAgICJ3b3JrdHJlZSIKICAgICAgXSwKICAgICAgImJ5dGVzIjogNTYsCiAgICAgICJjb21wbGV0ZSI6IHRydWUsCiAgICAgICJlbnZpcm9ubWVudEJvdW5kYXJ5IjogIklOSEVSSVRFRF9SVU5USU1FIiwKICAgICAgImV4aXQiOiAwLAogICAgICAibGFiZWwiOiAic291cmNlLXdvcmt0cmVlLXBvc3RjaGVjayIsCiAgICAgICJwaWQiOiA1NTU3LAogICAgICAicnVuT3duZXIiOiAiYThiYzE5ZDMzODg4OGNjNTMzZTVkMzYyZmMzMzZkN2QiLAogICAgICAic2Vjb25kcyI6IDAuODg5LAogICAgICAic2hhMjU2IjogImM0MDYxYTAxZWJkNzQzMjdkNGJiYTJlY2E1NWNkODA0OTdhNWU2Nzc3NTg0NjBmOGE3NWFlNjZmMGJhZmI5OTMiLAogICAgICAic3RhcnR0aW1lIjogMjg0NTgKICAgIH0sCiAgICB7CiAgICAgICJhcmd2IjogWwogICAgICAgICJnaXQiLAogICAgICAgICJzdGF0dXMiLAogICAgICAgICItLXBvcmNlbGFpbj12MSIsCiAgICAgICAgIi0tdW50cmFja2VkLWZpbGVzPWFsbCIKICAgICAgXSwKICAgICAgImJ5dGVzIjogMCwKICAgICAgImNvbXBsZXRlIjogdHJ1ZSwKICAgICAgImVudmlyb25tZW50Qm91bmRhcnkiOiAiSU5IRVJJVEVEX1JVTlRJTUUiLAogICAgICAiZXhpdCI6IDAsCiAgICAgICJsYWJlbCI6ICJzb3VyY2Utc3RhdHVzLXBvc3RjaGVjayIsCiAgICAgICJwaWQiOiA1NTY2LAogICAgICAicnVuT3duZXIiOiAiYThiYzE5ZDMzODg4OGNjNTMzZTVkMzYyZmMzMzZkN2QiLAogICAgICAic2Vjb25kcyI6IDAuNDY1LAogICAgICAic2hhMjU2IjogImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLAogICAgICAic3RhcnR0aW1lIjogMjg1NDcKICAgIH0KICBdLAogICJldmlkZW5jZSI6IHsKICAgICJieXRlcyI6IDExODk4LAogICAgImNvbXBsZXRlIjogdHJ1ZSwKICAgICJmaWxlcyI6IFsKICAgICAgewogICAgICAgICJieXRlcyI6IDY3NzksCiAgICAgICAgInBhdGgiOiAiY29tbWFuZHMuanNvbiIsCiAgICAgICAgInNoYTI1NiI6ICIxOTczZDFmY2I2Mjk5NGUwOWFkNGY2NzgxOGMyNWVhZjZkNDBiOWEwMmRiODM0ODVlYzcyZGNjM2E1YmRiZTc1IgogICAgICB9LAogICAgICB7CiAgICAgICAgImJ5dGVzIjogOTYyLAogICAgICAgICJwYXRoIjogIm9ic2VydmF0aW9uLXByb29mLmpzb24iLAogICAgICAgICJzaGEyNTYiOiAiMmRiYmNiYmI3MDJkOWVjZWJiMjM2NjA4YjRlMDk4ZjUwMzJmZTQzYTg0MmMxMDdmZjUwMDM4YWFjOGJlMzZlMiIKICAgICAgfSwKICAgICAgewogICAgICAgICJieXRlcyI6IDQxLAogICAgICAgICJwYXRoIjogImxvZ3MvZ2l0LWhlYWQucmF3LmxvZyIsCiAgICAgICAgInNoYTI1NiI6ICJjM2Q5NWQyNDMxMWZmOTJkZTIzNWY3Y2JjY2Q5ODU5YTk3NmVmNWM4M2NmOTIyYzMxYzc3NTczNjM2Zjg2ODg5IgogICAgICB9LAogICAgICB7CiAgICAgICAgImJ5dGVzIjogNDEsCiAgICAgICAgInBhdGgiOiAibG9ncy9naXQtcGFyZW50LWNvbW1pdC5yYXcubG9nIiwKICAgICAgICAic2hhMjU2IjogImI1NzcxN2UxMGIzMGI1YzM3NGQ2YmMwNDNmZTZmMTkwZWNkODJiYjU2NDg3MTQ1MDJiMWFhNGUwYmI3NGYzM2YiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiYnl0ZXMiOiA0MSwKICAgICAgICAicGF0aCI6ICJsb2dzL2dpdC1wYXJlbnRzLnJhdy5sb2ciLAogICAgICAgICJzaGEyNTYiOiAiYjU3NzE3ZTEwYjMwYjVjMzc0ZDZiYzA0M2ZlNmYxOTBlY2Q4MmJiNTY0ODcxNDUwMmIxYWE0ZTBiYjc0ZjMzZiIKICAgICAgfSwKICAgICAgewogICAgICAgICJieXRlcyI6IDEwNCwKICAgICAgICAicGF0aCI6ICJsb2dzL2dpdC1wYXRocy5yYXcubG9nIiwKICAgICAgICAic2hhMjU2IjogIjkxMzg2YzA3YzM1ODgxZDhkZWEwODBhYzcwMjZlMDYxMmY5ZTBkZTk2YzQ5NTM4ZTFkODA5ODRkNjI2MzAzNWIiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiYnl0ZXMiOiAwLAogICAgICAgICJwYXRoIjogImxvZ3MvZ2l0LXN0YXR1cy5yYXcubG9nIiwKICAgICAgICAic2hhMjU2IjogImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiYnl0ZXMiOiA0MSwKICAgICAgICAicGF0aCI6ICJsb2dzL2dpdC10cmVlLnJhdy5sb2ciLAogICAgICAgICJzaGEyNTYiOiAiZGIzODVjYzMzYmRjNDIwY2JjYjkwYzQ1OThkMzQ0NjQ2NjViMmY1MTlmMjIxZjRhZGU0ZDQzY2Q2NTI3MTg3NiIKICAgICAgfSwKICAgICAgewogICAgICAgICJieXRlcyI6IDc5MywKICAgICAgICAicGF0aCI6ICJsb2dzL2dyYWRsZS10YXNrLWdyYXBoLnJhdy5sb2ciLAogICAgICAgICJzaGEyNTYiOiAiYmM3ZjliY2RhZDMxMGFlNGMxNzRkNjIzMjY5MmUzNzE5Y2QzZDg2YzNiZDE4NGE3OWUwYTRjYmJiMzI2Yzk5YiIKICAgICAgfSwKICAgICAgewogICAgICAgICJieXRlcyI6IDE5MywKICAgICAgICAicGF0aCI6ICJsb2dzL2phdmEtdmVyc2lvbi5yYXcubG9nIiwKICAgICAgICAic2hhMjU2IjogIjhmZmQyZDA1ZGUyMmFjYjJhMWY4Mjg0NTkwNWQ0OTllODA3Yzc1OTVjZjdjM2U3
+2026-10-23T17:46:13.4657814Z RF_EIGHT_FRAME terminal-receipt 4/4 ZjJhMmNhYjdlNTc2YTI2ZGUiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiYnl0ZXMiOiA4OTQsCiAgICAgICAgInBhdGgiOiAibG9ncy9yZXN0b3JlLW5vcm1hbC10ZXN0LWNvbXBpbGF0aW9uLnJhdy5sb2ciLAogICAgICAgICJzaGEyNTYiOiAiZjNjZjAyNmUzZTliYTI0NzBlYzg2MjVkMzhlMTk3YTdhNDg1MWRlMmY0NDI3NWY2MmU2NGMxNzNkZDU2YmU1MCIKICAgICAgfSwKICAgICAgewogICAgICAgICJieXRlcyI6IDUyLAogICAgICAgICJwYXRoIjogImxvZ3Mvc291cmNlLW1hbmlmZXN0LnJhdy5sb2ciLAogICAgICAgICJzaGEyNTYiOiAiYTA4ZWFlZTU0ZGRhYzNjNjY1MTgzNzlmNTE4MTZiYmQxZmU3MmMzMTkzMGY4M2I5MTQwM2ViZWZlZmRhZmYzZCIKICAgICAgfSwKICAgICAgewogICAgICAgICJieXRlcyI6IDAsCiAgICAgICAgInBhdGgiOiAibG9ncy9zb3VyY2Utc3RhdHVzLXBvc3RjaGVjay5yYXcubG9nIiwKICAgICAgICAic2hhMjU2IjogImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiYnl0ZXMiOiA1NiwKICAgICAgICAicGF0aCI6ICJsb2dzL3NvdXJjZS13b3JrdHJlZS1wb3N0Y2hlY2sucmF3LmxvZyIsCiAgICAgICAgInNoYTI1NiI6ICJjNDA2MWEwMWViZDc0MzI3ZDRiYmEyZWNhNTVjZDgwNDk3YTVlNjc3NzU4NDYwZjhhNzVhZTY2ZjBiYWZiOTkzIgogICAgICB9LAogICAgICB7CiAgICAgICAgImJ5dGVzIjogMTkwMSwKICAgICAgICAicGF0aCI6ICJidWlsZC1wb2xpY3kuanNvbiIsCiAgICAgICAgInNoYTI1NiI6ICI0ZDcyNzQwMTg2MWI3ZDQ2MGYzZTZjNGEzMGE5OWIzNGQ3ZGI1OWEwZjNhOTMwOTIwZDE2OWQ4NzJhM2IxODIwIgogICAgICB9CiAgICBdLAogICAgIndpdGhoZWxkIjogW10KICB9LAogICJmaXJzdEZhaWx1cmUiOiB7CiAgICAibWVzc2FnZSI6ICJbRXJybm8gMl0gTm8gc3VjaCBmaWxlIG9yIGRpcmVjdG9yeTogJy9ob21lL3J1bm5lci93b3JrL190ZW1wL3JmLWVpZ2h0LXdvcmsvZ3JhZGxlL2NhY2hlcy84LjEzL3RyYW5zZm9ybXMvMzhkNWExYzg3YWQ0NGJjMDQ1MzlhODc3YzYxYjc5MmMtZmIwZWY3ZWQtYWQxMi00OTUwLTliZDMtZGMwNDE1NWEyNTlkJyIsCiAgICAic3RhdHVzIjogIkZBSUwiLAogICAgInR5cGUiOiAiRmlsZU5vdEZvdW5kRXJyb3IiCiAgfSwKICAib3duZWRDbGVhbnVwIjogIlBBU1MiLAogICJwYXJlbnRTaGEiOiAiODNmZWZlZTI5YjI3M2QyMTMyZGQ4MmI4MGM3MDcxYTRiMDE1ZjNiYyIsCiAgInBpcGVsaW5lQXR0ZW1wdHMiOiAwLAogICJzY2hlbWEiOiAxLAogICJzZGtMaWNlbnNlRXZpZGVuY2UiOiB7CiAgICAicG9zdGNoZWNrIjogIlBBU1MiLAogICAgInByZWV4aXN0aW5nTGljZW5zZVNoYTI1NiI6IHsKICAgICAgImFuZHJvaWQtc2RrLWxpY2Vuc2UiOiAiYzQzZmEzNzY4NjQ1N2MzZjE4Y2FhMzYwNzk0NWY0ZWM1MmE5ZDFiZWFhYWQ4MTE3ZTUwZGM0ZTg2MzI3MGM4NSIKICAgIH0sCiAgICAic2RrUGF0aCI6ICIvdXNyL2xvY2FsL2xpYi9hbmRyb2lkL3NkayIKICB9LAogICJzZWNvbmRhcnlFcnJvcnMiOiBbCiAgICB7CiAgICAgICJtZXNzYWdlIjogInJlc3RvcmUtbm9ybWFsLXRlc3QtY29tcGlsYXRpb24gZXhpdCAxIiwKICAgICAgInBoYXNlIjogInJlc3RvcmF0aW9uIiwKICAgICAgInR5cGUiOiAiRmFpbHVyZSIKICAgIH0KICBdLAogICJzZWNvbmRzIjogMTMyLjQ2NywKICAic291cmNlTWFuaWZlc3RTaGEyNTYiOiAiYjhkMzk5ZWNiZmY5ZDVhYzRjZjNlZWZlYzY0NDMxYzQ4MzIyNGZlYzgzMzQ0YTBjYjk5NjA4NjE4ZTU3ZDIyYyIsCiAgInNvdXJjZVNoYSI6ICJjODVmZjg4MDY2ZTQxMWY1ZjE3MWM0NWY1YzJmOTIwNzdiM2JjM2Y4IiwKICAic3RhcnRlZFV0YyI6ICIyMDI2LTEwLTIzVDE3OjQ0OjAwWiIsCiAgInN0YXR1cyI6ICJGQUlMIiwKICAidG9vbHMiOiB7CiAgICAiamF2YSI6IHsKICAgICAgInBhdGgiOiAiL3Vzci9saWIvanZtL3RlbXVyaW4tMTctamRrLWFtZDY0IiwKICAgICAgInJlbGVhc2VTaGEyNTYiOiAiOTczZjI4NzI5ZGE0Mzk2MmRmYmEyZTM5YjJhMjdhYjczNjEyMmYzYTFiZjgyOWUwNmFiZmJkZTJhNzMxYzcxMSIsCiAgICAgICJzaGEyNTYiOiAiZjVhZWQyMWQzYTBiMGY0YjA1ZDNhM2Y5ZmU3MTI2MzkxNmQ1YmMwZDQ3YjUzYWE1MmEzMzQwYjkwZjBiNDgwNSIKICAgIH0sCiAgICAicHJlZXhpc3RpbmdMaWNlbnNlU2hhMjU2IjogewogICAgICAiYW5kcm9pZC1zZGstbGljZW5zZSI6ICJjNDNmYTM3Njg2NDU3YzNmMThjYWEzNjA3OTQ1ZjRlYzUyYTlkMWJlYWFhZDgxMTdlNTBkYzRlODYzMjcwYzg1IgogICAgfSwKICAgICJzZGsiOiBbCiAgICAgIHsKICAgICAgICAicGFja2FnZSI6ICJwbGF0Zm9ybXM7YW5kcm9pZC0zNiIsCiAgICAgICAgInBhY2thZ2VYbWxTaGEyNTYiOiAiMDY2ZTdiYmUzYTQ5YzUwNmFmMGY2Y2RmMDdkYWQyNjJlNDg3ZTgyM2NhMDk2YWVjNzRmYTNhZGEzNzdkMWUwMyIsCiAgICAgICAgInJldmlzaW9uIjogIjIiLAogICAgICAgICJzb3VyY2VQcm9wZXJ0aWVzU2hhMjU2IjogIjcyMjkxZmY2NjExZGJmYzQ2ZmRmYjZkZTI4MjFjNGE2MmM4N2JlZmE1MjAwNzEzODQ3ZWRhNDI2ZTNhNTAxYzIiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAicGFja2FnZSI6ICJidWlsZC10b29sczszNi4wLjAiLAogICAgICAgICJwYWNrYWdlWG1sU2hhMjU2IjogIjUzMWFlZWY0YWY2ZmM3OTc5NmFiYzU4ZGE1YjEwMjRjNGI3ZjdhY2Y1YjA0MDE4ZWQwNTExOGVhMGU4NzcyYzkiLAogICAgICAgICJyZXZpc2lvbiI6ICIzNi4wLjAiLAogICAgICAgICJzb3VyY2VQcm9wZXJ0aWVzU2hhMjU2IjogIjdkZWU2NjMyZTlhZDZjYjExMWRhMmJiOTlkNzQ3MjExZTI3OTI3MDYxYjEyNzZkMDQwYmIxZDcxZmRlZDVlYmIiCiAgICAgIH0KICAgIF0KICB9LAogICJ0cmVlIjogIjMwMmMyOWRmNjgyZGIwMTU4NmI5Y2ViMDNkYmE4ZWM3YTc5Mzc0YTciCn0K
+2026-10-23T17:46:13.4798160Z ##[error]Process completed with exit code 1.
+2026-10-23T17:46:13.4972092Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-23T17:46:13.4972559Z with:
+2026-10-23T17:46:13.4972867Z   name: eight-view-host-c85ff88066e411f5f171c45f5c2f92077b3bc3f8-1
+2026-10-23T17:46:13.4973279Z   path: /home/runner/work/_temp/rf-eight-evidence/
+2026-10-23T17:46:13.4973608Z   if-no-files-found: error
+2026-10-23T17:46:13.4973841Z   retention-days: 1
+2026-10-23T17:46:13.4974049Z   compression-level: 6
+2026-10-23T17:46:13.4974288Z   include-hidden-files: false
+2026-10-23T17:46:13.4974531Z   overwrite: false
+2026-10-23T17:46:13.4974730Z ##[endgroup]
+2026-10-23T17:46:13.6627170Z (node:5574) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-23T17:46:13.6628139Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-23T17:46:13.6754687Z With the provided path, there will be 17 files uploaded
+2026-10-23T17:46:13.6761634Z Artifact name is valid!
+2026-10-23T17:46:13.6762656Z Root directory input is valid!
+2026-10-23T17:46:14.0667788Z Beginning upload of artifact content to blob storage
+2026-10-23T17:46:14.1065540Z (node:5574) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-23T17:46:14.3644198Z Uploaded bytes 10593
+2026-10-23T17:46:14.4380835Z Finished uploading artifact content to blob storage!
+2026-10-23T17:46:14.4382477Z SHA256 digest of uploaded artifact zip is 70ea27b5d73bb55b3ef035fca8bb7a7ced56b670e78ef8c92d5e59aecf8dcbcf
+2026-10-23T17:46:14.4383638Z Finalizing artifact upload
+2026-10-23T17:46:14.9009157Z Artifact eight-view-host-c85ff88066e411f5f171c45f5c2f92077b3bc3f8-1.zip successfully finalized. Artifact ID 12519938503
+2026-10-23T17:46:14.9011433Z Artifact eight-view-host-c85ff88066e411f5f171c45f5c2f92077b3bc3f8-1 has been successfully uploaded! Final size is 10593 bytes. Artifact ID is 12519938503
+2026-10-23T17:46:14.9019027Z Artifact download URL: https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39997467140/artifacts/12519938503
+2026-10-23T17:46:14.9249047Z Post job cleanup.
+2026-10-23T17:46:15.0075702Z [command]/usr/bin/git version
+2026-10-23T17:46:15.0120133Z git version 2.55.0
+2026-10-23T17:46:15.0164509Z Temporarily overriding HOME='/home/runner/work/_temp/39a2522b-c278-46b5-b6a1-1ed3bd49e0c0' before making global git config changes
+2026-10-23T17:46:15.0166344Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-23T17:46:15.0170137Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/3d-scanner/3d-scanner
+2026-10-23T17:46:15.0209994Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-23T17:46:15.0245484Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-23T17:46:15.0516724Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-23T17:46:15.0553842Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-23T17:46:15.0828381Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-23T17:46:15.0867113Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-23T17:46:15.1328401Z Cleaning up orphan processes
+2026-10-23T17:46:15.1660409Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

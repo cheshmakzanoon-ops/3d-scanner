@@ -1,0 +1,25 @@
+{
+  "status": "PASS_REPRODUCED_BOUNDED_REFUSAL",
+  "wholeExit": 1,
+  "executedManifest": "185d650368ed6a6d5d2870b93e880cf1214df810dc441421e584ab10f6a2e884",
+  "exactArtifacts": {
+    "geometry/REFUSED.json": "4e8b9b3bf8eb7bde2fd221c306be8853af780778d317192fea2ad87f47170d28",
+    "geometry/binding.json": "05efe03e67fd8c9db2e2f3a81676003676ec2e9c30e82049c00c4569edbe99d7"
+  },
+  "bridgeFilesExact": 11,
+  "inputPinsUnchanged": 28,
+  "refusal": {
+    "error": "Refusal",
+    "reason": "SUPPORT_WORK_BUDGET",
+    "geometry": "NOT_PUBLISHED",
+    "quality": "NO_GO_INCOMPLETE_ARM",
+    "sharedWork": {
+      "clips": 5000001,
+      "balls": 12650
+    }
+  },
+  "geometryPublished": false,
+  "wholeNativeDiagnostics": "NOT_RUN",
+  "wholeEvaluation": "NOT_RUN",
+  "scope": "resource feasibility failure, not measured geometry-quality failure"
+}

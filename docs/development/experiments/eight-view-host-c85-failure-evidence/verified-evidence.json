@@ -1,0 +1,38 @@
+{
+  "status": "VERIFIED_TERMINAL_FAILURE_EVIDENCE",
+  "sourceSha": "c85ff88066e411f5f171c45f5c2f92077b3bc3f8",
+  "runId": 39997467140,
+  "jobId": 120564631195,
+  "attempt": 1,
+  "artifactId": 12519938503,
+  "zipSha256": "70ea27b5d73bb55b3ef035fca8bb7a7ced56b670e78ef8c92d5e59aecf8dcbcf",
+  "zipBytes": 10593,
+  "files": 17,
+  "expandedBytes": 25595,
+  "allManifestFilesVerified": true,
+  "allCommandHashesVerified": true,
+  "terminalFrame": {
+    "label": "terminal-receipt",
+    "bytes": 12219,
+    "sha256": "5e78614cae2297c9cfccc375e5893e0b3989413be6a660203742a677da966511",
+    "chunks": 4
+  },
+  "framedReceiptEqualsArtifact": true,
+  "measurementStatus": "FAIL",
+  "pipelineAttempts": 0,
+  "ownedCleanup": "PASS",
+  "sdkLicensePostcheck": "PASS",
+  "firstFailure": {
+    "message": "[Errno 2] No such file or directory: '/home/runner/work/_temp/rf-eight-work/gradle/caches/8.13/transforms/38d5a1c87ad44bc04539a877c61b792c-fb0ef7ed-ad12-4950-9bd3-dc04155a259d'",
+    "status": "FAIL",
+    "type": "FileNotFoundError"
+  },
+  "secondaryErrors": [
+    {
+      "message": "restore-normal-test-compilation exit 1",
+      "phase": "restoration",
+      "type": "Failure"
+    }
+  ],
+  "jobLogSha256": "c589067766567c74e2e3bc53be8a37929c53a87fbb1cfe6d22ce29f4fc2dcdc1"
+}

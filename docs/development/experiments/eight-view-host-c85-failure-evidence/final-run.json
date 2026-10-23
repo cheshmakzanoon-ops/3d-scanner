@@ -1,0 +1,79 @@
+{
+  "observedUtc": "2026-10-23T17:50:13Z",
+  "run": {
+    "id": 39997467140,
+    "name": "Eight-view production sparse HOST diagnostic",
+    "head_sha": "c85ff88066e411f5f171c45f5c2f92077b3bc3f8",
+    "path": ".github/workflows/eight-view-host-diagnostic.yml",
+    "event": "push",
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39997467140",
+    "run_attempt": 1,
+    "created_at": "2026-10-23T17:43:54Z",
+    "updated_at": "2026-10-23T17:46:18Z",
+    "run_started_at": "2026-10-23T17:43:54Z",
+    "head_commit": {
+      "id": "c85ff88066e411f5f171c45f5c2f92077b3bc3f8",
+      "tree_id": "302c29df682db01586b9ceb03dba8ec7a79374a7",
+      "message": "test: run one bounded eight-view sparse host diagnostic",
+      "timestamp": "2026-10-23T17:43:31Z",
+      "author": {
+        "name": "cheshmakzanoon-ops",
+        "email": "cheshmakzanoon@gmail.com"
+      },
+      "committer": {
+        "name": "cheshmakzanoon-ops",
+        "email": "cheshmakzanoon@gmail.com"
+      }
+    }
+  },
+  "jobs": [
+    {
+      "id": 120564631195,
+      "name": "eight-view-host",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39997467140,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "One source-bound actual eight-view HOST attempt (not qualification)",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 3
+        },
+        {
+          "name": "Retain bounded evidence, including original failure (upload is not PASS)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        }
+      ]
+    }
+  ]
+}

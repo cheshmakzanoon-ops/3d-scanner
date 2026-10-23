@@ -1,0 +1,3 @@
+.github/workflows/eight-view-host-diagnostic.yml
+SOURCE_MANIFEST.sha256
+tools/eight_view_host/policy.py
