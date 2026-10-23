@@ -1,0 +1,23 @@
+{
+  "scope": "OFFICIAL_ZIP_CENTRAL_DIRECTORY_ONLY_NOT_FULL_ARCHIVE_VERIFICATION",
+  "url": "https://dl.google.com/android/repository/android-ndk-r28c-linux.zip",
+  "archiveBytes": 722261334,
+  "entries": 8996,
+  "uncompressedBytes": 2294132951,
+  "largestEntryBytes": 205854640,
+  "symlinkEntries": 35,
+  "requests": [
+    {
+      "start": 722195777,
+      "end": 722261333,
+      "bytes": 65557,
+      "sha256": "feeb75af163368b4c6a128c3d1ecb11721c374192613784435aa8bbcc5280a81"
+    },
+    {
+      "start": 720720887,
+      "end": 722261311,
+      "bytes": 1540425,
+      "sha256": "6ff39a6d45004d7e20fc45cffbd1c628b42be6c04fd4569ea8b56197521d3df8"
+    }
+  ]
+}

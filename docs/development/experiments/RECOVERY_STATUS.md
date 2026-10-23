@@ -153,3 +153,12 @@ independent whole attempts again stop at 5,000,001 support visits, now after
 48,033 ball checks. No candidate mesh or quality evaluation is published. This
 is a verified work reduction and reproduced resource refusal, not improved
 scanner geometry or a justification for larger limits.
+
+[Exact HOST NDK prerequisite](../EIGHT_VIEW_HOST_NDK_PREREQUISITE.md) adds bounded
+admission of the app's pinned NDK 28.2.13676358 for Gradle configuration, using only
+already accepted unchanged SDK licenses. The single direct official ZIP route
+preserves all contained package links, verifies exact archive metadata and bounds
+bytes, time, disk, ownership and cleanup. No SDK CMake or alternate NDK is added.
+Independent 222 synthetic/controller guards pass, but no actual archive install
+or revised app-pipeline run has occurred. This source change does not rearm the
+one-shot workflow or change original device/sanitizer/quality gates.

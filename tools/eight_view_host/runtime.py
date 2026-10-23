@@ -196,7 +196,7 @@ class Runner:
             count=len(files)
             for root in self.extra_owned_roots:
                 if root.exists():
-                    size,entries=inventory(root,seconds=left());total+=size;count+=len(entries)
+                    size,entries=inventory(root,aliases=self.aliases,seconds=left());total+=size;count+=len(entries)
             if total>8*1024**3 or count>100000:raise Failure('Combined owned build directory size/count limit')
             self.last_scan = self.clock()
     def command(self, label, args, seconds=60, env=None, cwd=None, limit=8*1024**2, check=True, cleanup=False):

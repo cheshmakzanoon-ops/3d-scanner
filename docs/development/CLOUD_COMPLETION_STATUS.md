@@ -1,5 +1,34 @@
 # Cloud completion campaign — 21 October 2026
 
+## Current checkpoint — 23 October 2026
+
+The app remains an engineering preview, not a reliable complete-object scanner or
+release candidate. Current work and immutable experiment evidence are indexed in
+[the recovery and research ledger](experiments/RECOVERY_STATUS.md). Older counts
+below are historical, not cumulative or automatic qualification of current main.
+
+- The ordinary Android suite has reached 837 passing tests with lint and APK
+  builds on recent exact commits. This does not establish a complete installed
+  import-to-model journey, physical ARM64 quality or sustained performance.
+- The source-bound eight-image HOST pipeline attempt at `c85ff880` failed during
+  prerequisites with zero reconstruction invocations. Its exact evidence is
+  preserved. A reproduced owned-directory inventory race is fixed in `1e09c145`;
+  the full local host regression passed 2,070 tests and 301 subtests, with three
+  skips and two previously blocked live-audit tests explicitly excluded. Required
+  hosted audits and device/sanitizer gates are not waived.
+- The eight-view synthetic dense baseline uses supplied oracle cameras, not
+  recovered image-derived poses. It has 3,434 nonmanifold edges, incomplete
+  intersection checking and only 33.8779% sampled visible-reference completeness
+  within 1% of the reference diagonal. It does not pass scan-quality criteria.
+- Bounded fixed-point front experiments have exhausted their exact-support work
+  cap before a candidate mesh could be evaluated. Proven work reductions are not
+  geometry improvements. Unknown observations and incomplete output stay explicit.
+- Current priorities are actual app-pipeline execution with verified prerequisites
+  and diagnosing missing depth evidence before further meshing optimization.
+  Signing, complete sessions, physical reference captures, ARM64 resources and
+  release qualification remain open.
+
+
 ## Goal and truth boundary
 
 Deliver a usable offline Android photo-to-3D scanner APK with the approved complete

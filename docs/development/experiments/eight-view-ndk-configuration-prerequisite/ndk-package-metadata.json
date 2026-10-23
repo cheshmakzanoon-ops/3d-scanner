@@ -1,0 +1,41 @@
+{
+  "url": "https://dl.google.com/android/repository/repository2-3.xml",
+  "bytes": 423137,
+  "sha256": "f2bc624c8e1dc14c320fdf17e49a5501c35934948e46a444df8b36a138a03e1e",
+  "packages": [
+    {
+      "path": "ndk;28.2.13676358",
+      "revision": {
+        "major": "28",
+        "minor": "2",
+        "micro": "13676358"
+      },
+      "licenseId": "android-sdk-license",
+      "linuxArchives": [
+        {
+          "bytes": 722261334,
+          "checksumType": "sha1",
+          "checksum": "a7b54a5de87fecd125a17d54f73c446199e72a64",
+          "url": "https://dl.google.com/android/repository/android-ndk-r28c-linux.zip"
+        }
+      ]
+    },
+    {
+      "path": "cmake;3.22.1",
+      "revision": {
+        "major": "3",
+        "minor": "22",
+        "micro": "1"
+      },
+      "licenseId": "android-sdk-license",
+      "linuxArchives": [
+        {
+          "bytes": 22308647,
+          "checksumType": "sha1",
+          "checksum": "fd0a48b4a758310df8c7aa51f59840ed48fe7ed8",
+          "url": "https://dl.google.com/android/repository/cmake-3.22.1-linux.zip"
+        }
+      ]
+    }
+  ]
+}

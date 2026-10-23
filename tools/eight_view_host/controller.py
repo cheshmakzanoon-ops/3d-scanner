@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,Deadline,Cancelled,sha,atomic_json,inventory,safe_display,frame
-from tools.eight_view_host import policy,capability
+from tools.eight_view_host import policy,capability,ndk
 from tools.device.software_emulator.diagnostic import license_snapshot,verify_license_snapshot,package_metadata
 HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
@@ -129,7 +129,8 @@ def prepare_environment(run):
                 primary.add_note('SDK license postcheck failed: '+str(error));run.evidence_errors.append('SDK license postcheck failure')
         if exit_code or re.search(rb'not accepted|Accept\?\s*\(|licenses?\s+have not been accepted',raw,re.I):raise Blocked('SDK prerequisite blocked; no license acceptance or retry')
     metadata=[package_metadata(sdk,p) for p in BASE_PACKAGES]
-    return sdk,licenses,{'java':{'path':str(java),'sha256':sha(java/'bin/java'),'releaseSha256':sha(java/'release')},'sdk':metadata,'preexistingLicenseSha256':licenses}
+    ndk_identity=ndk.prepare(run,sdk,licenses)
+    return sdk,licenses,{'java':{'path':str(java),'sha256':sha(java/'bin/java'),'releaseSha256':sha(java/'release')},'sdk':metadata,'ndkConfigurationPrerequisite':ndk_identity,'preexistingLicenseSha256':licenses}
 
 def gradle_args(run,cfg=None,offline=False):
     args=[run.root/'gradlew','--no-daemon','--no-parallel','--max-workers=1','--no-build-cache','--no-configuration-cache','--dependency-verification','strict',
@@ -158,8 +159,8 @@ def prepare_runtime(run,source,package,inputs):
     config=run.work/'gradle-config.json';atomic_json(config,cfg)
     run.command('gradle-task-graph',[*gradle_args(run,config),':app:eightPrepare','--dry-run'],seconds=300)
     graph=json.loads((run.work/'task-graph.json').read_text())
-    if graph.get('externalNativeTasks'):raise Blocked('Unexpected Android native tasks in HOST compilation graph; no eager NDK install')
-    if graph.get('compileSdk') not in (36,'android-36') or graph.get('buildTools')!='36.0.0':raise Failure('Unexpected actual Android compilation configuration')
+    if graph.get('externalNativeTasks'):raise Blocked('Unexpected Android native tasks in HOST graph; configuration-only NDK does not authorize native execution')
+    if graph.get('compileSdk') not in (36,'android-36') or graph.get('buildTools')!='36.0.0' or graph.get('ndkVersion')!=ndk.REVISION:raise Failure('Unexpected actual Android compilation configuration')
     run.command('gradle-prepare',[*gradle_args(run,config),':app:eightPrepare'],seconds=900)
     prepared=json.loads((run.work/'prepared.json').read_text())
     classpath_check(prepared,run)
@@ -296,7 +297,7 @@ def evidence_package(run,receipt,destination):
         selected_bytes+=path.stat().st_size;selected_entries+=1
         if selected_bytes>31*1024**2 or selected_entries>1990:raise Failure('Evidence package byte/count limit')
         selected.append((path,rel))
-    names=['commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
+    names=['ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
     for name in names:
         if (run.work/name).exists():add(run.work/name,name)
     for directory in ['logs','measurement','xml']:
@@ -420,6 +421,9 @@ def main():
                 if raw.strip():raise Failure('Source changed during diagnostic')
                 if cap:policy.verify_capability(cap,receipt['sourceSha'],capability.POLICY,run,prepared)
         except BaseException as error:secondary('source-capability-postcheck',error)
+        try:ndk.finish(run)
+        except BaseException as error:secondary('ndk-postcheck-cleanup',error)
+        if hasattr(run,'ndk_state'):receipt['ndkPrerequisite']=run.ndk_state
         try:run.cleanup();receipt['ownedCleanup']='PASS'
         except BaseException as error:secondary('cleanup',error);receipt['ownedCleanup']='FAIL'
         receipt['status']=getattr(first,'status','FAIL') if first else 'PASS'

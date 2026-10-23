@@ -1,0 +1,39 @@
+{
+  "scope": "HOST_SYNTHETIC_GUARDS_AND_OFFICIAL_METADATA_ONLY",
+  "baseSource": "1e09c1459ca597d03492235bdc1c7969b35ec65d",
+  "sourceFiles": [
+    {
+      "path": "tools/eight_view_host/ndk.py",
+      "bytes": 20504,
+      "sha256": "2b589ef4e87a7261cef32794d83c70ad76cb43ed84a23499bbcda2c076b5e2fe"
+    },
+    {
+      "path": "tools/eight_view_host/controller.py",
+      "bytes": 34629,
+      "sha256": "d4a8d1a7855faa5d8151b3ded3dda6b3d1f08e824419913e88002345f0d6b2dd"
+    },
+    {
+      "path": "tools/eight_view_host/runtime.py",
+      "bytes": 19714,
+      "sha256": "80ed445785557bce510aa62d8440cd9184ea338db5c03b039a6f96db52f6e828"
+    },
+    {
+      "path": "tests/test_eight_view_ndk.py",
+      "bytes": 21073,
+      "sha256": "cc9e3b94c69a5e66d1e390b8657d68e70dd13f0413d752c9797723b516e36029"
+    }
+  ],
+  "tests": {
+    "command": "RF_SOURCE_ROOT=/path/to/3d-scanner PYTHONDONTWRITEBYTECODE=1 python -B -m pytest -p no:cacheprovider -q /path/to/candidate/tests",
+    "passed": 222,
+    "seconds": 12.52,
+    "warnings": "one intentional duplicate-ZIP-name fixture warning",
+    "logSha256": "4d1e68643e31f39d882db560a915e5907c8b6e1b0fd6f883d6eebcefb55c4ade"
+  },
+  "actualNdkFullArchiveDownload": "NOT_RUN",
+  "actualNdkExtraction": "NOT_RUN",
+  "actualGradleConfiguration": "NOT_RUN",
+  "productionPipelineAttempts": 0,
+  "workflowPolicyChanges": false,
+  "inventoryRaceFixPreserved": true
+}

@@ -1,0 +1,25 @@
+{
+  "url": "https://dl.google.com/dl/android/maven2/com/android/tools/repository/31.11.1/repository-31.11.1-sources.jar",
+  "bytes": 204899,
+  "sha256": "16ac8d8cc722f5dad2cd241e18ac50b9c8b0f961fb82a2478a6e850c201e7f22",
+  "sources": [
+    {
+      "entry": "com/android/repository/api/License.java",
+      "bytes": 6074,
+      "sha256": "e71b2ae95f73767940c366463860ed3c906425633357e61ebeedff0b999082b2"
+    },
+    {
+      "entry": "com/android/repository/impl/meta/TrimStringAdapter.java",
+      "bytes": 2232,
+      "sha256": "5fc4684d8afdd7e68f57adfcf71d90ef6981d78c8f0a64d366a66d0515efc5d1"
+    },
+    {
+      "entry": "bazel-out/k8-opt/bin/tools/base/repository/repo-common-2-java/com/android/repository/impl/generated/v2/LicenseType.java",
+      "bytes": 3664,
+      "sha256": "1d6976a7e81a1dd511dd27ce7f4bb8a3f04cc1d26baf24627ef6e4bd0c28fafb"
+    }
+  ],
+  "licenseId": "android-sdk-license",
+  "licenseAcceptedSha1": "24333f8a63b6825ea9c5514f83c2829b004d1fee",
+  "method": "TrimStringAdapter.unmarshal -> License.getLicenseHash UTF8 SHA1; checkAccepted exact line"
+}

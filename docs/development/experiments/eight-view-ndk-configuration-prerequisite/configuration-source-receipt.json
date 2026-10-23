@@ -1,0 +1,50 @@
+{
+  "scope": "OFFICIAL_SOURCE_INSPECTION_ONLY_NO_EXECUTION",
+  "url": "https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.11.1/gradle-8.11.1-sources.jar",
+  "bytes": 3810095,
+  "sha256": "65bc5d04cc52655664894e196f274da781091602a219126b67fd13bd2621ddd6",
+  "matchingSources": [
+    {
+      "entry": "com/android/build/gradle/internal/cxx/configure/NdkLocator.kt",
+      "sha256": "60b1d099e8418f1d6d482e83b4468181a4e0f6ef6ebf9cbb042fbc0e6e7324d5",
+      "bytes": 18165
+    }
+  ],
+  "configurationPathSources": [
+    {
+      "entry": "com/android/build/gradle/internal/VariantTaskManager.kt",
+      "bytes": 35363,
+      "sha256": "ba46d04c4b840fdc7228bb0d825c8e99a20c7445c9ec11f7210a511999a29763"
+    },
+    {
+      "entry": "com/android/build/gradle/internal/cxx/configure/CxxCreateGradleTasks.kt",
+      "bytes": 16170,
+      "sha256": "90fc128e3f2772add5cd467ec3468fb2f7910bee5882e12bd66893a6cd337979"
+    },
+    {
+      "entry": "com/android/build/gradle/internal/cxx/gradle/generator/CxxConfigurationModel.kt",
+      "bytes": 18358,
+      "sha256": "e40145bf6e1438921f6eae96e87e397f1f48376f5e1aa5b8ba9bdeb6acef4551"
+    },
+    {
+      "entry": "com/android/build/gradle/internal/SdkHandler.java",
+      "bytes": 16345,
+      "sha256": "43f1e91127edc26a8c8c18a364e691dc0eb6d99f5e93517f7010fb10e00e1591"
+    },
+    {
+      "entry": "com/android/build/gradle/internal/cxx/model/CreateCxxModuleModel.kt",
+      "bytes": 5634,
+      "sha256": "7462bbd76a40707e28de91903dcf1db83a5c2ceaab3fee24b2e4505e19dd40d6"
+    },
+    {
+      "entry": "com/android/build/gradle/internal/cxx/configure/NativeLocationsBuildService.kt",
+      "bytes": 8431,
+      "sha256": "3bc4c4f6a07ab159b11bda695fda8372fbd2e7bfabc4e1db70aafebb7847008a"
+    },
+    {
+      "entry": "com/android/build/gradle/tasks/ExternalNativeBuildJsonTask.kt",
+      "bytes": 4938,
+      "sha256": "08dcdcbfede7964fa01c577968c2b3005c901a95cba1d46046921e7229ceb8a7"
+    }
+  ]
+}
