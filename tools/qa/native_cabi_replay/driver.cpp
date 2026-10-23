@@ -48,10 +48,10 @@ int main(int argc, char** argv) {
         std::ifstream in(argv[1], std::ios::binary);
         std::array<std::uint32_t, 7> h{};
         read(in, h.data(), h.size());
-        if (h[0] != 0x52464331 || h[1] > 2)
+        if (h[0] != 0x52464331 || h[1] > 3)
             throw std::runtime_error("format/mode");
         const auto mode = h[1], n = h[2], w = h[3], height = h[4], pw = h[5], ph = h[6];
-        std::vector<double> cameras, rows;
+        std::vector<double> cameras, rows, observed, domains;
         std::vector<std::uint8_t> depth, photos;
 
         if (mode == 0) {
@@ -59,6 +59,15 @@ int main(int argc, char** argv) {
                 throw std::runtime_error("sparse shape");
             rows.resize(n * 7);
             read(in, rows.data(), rows.size());
+        } else if (mode == 3) {
+            if (n != 194 || w || height || pw || ph)
+                throw std::runtime_error("calibrated shape");
+            rows.resize(n * 7);
+            observed.resize(n * 4);
+            domains.resize(22);
+            read(in, rows.data(), rows.size());
+            read(in, observed.data(), observed.size());
+            read(in, domains.data(), domains.size());
         } else {
             if (n < 2 || n > 8 || w < 32 || w > 640 || height < 32 || height > 640 ||
                 std::uint64_t(w) * height > 320000 || pw < 32 || pw > 1024 || ph < 32 || ph > 1024)
@@ -107,6 +116,45 @@ int main(int argc, char** argv) {
                 response(rf_surface_json(depth.data(), w, height, cameras.data(), n,
                                          6, 80, 64, 3, nullptr, nullptr),
                          dir / "recovery.json");
+            } else if (mode == 3) {
+                auto call = [&](const char* name, const double* r, const double* p,
+                                std::size_t pn, const double* k, std::size_t kn) {
+                    response(rf_reconstruct_calibrated_json(r, n, p, pn, k, kn, .003125),
+                             dir / (std::string(name) + ".json"));
+                };
+                auto valid = [&](const char* name) {
+                    call(name, rows.data(), observed.data(), observed.size(), domains.data(), domains.size());
+                };
+                valid("success");
+                call("observed-count", rows.data(), observed.data(), observed.size() - 1, domains.data(), 22);
+                call("domain-count", rows.data(), observed.data(), observed.size(), domains.data(), 21);
+                call("null-rows", nullptr, observed.data(), observed.size(), domains.data(), 22);
+                call("null-observed", rows.data(), nullptr, observed.size(), domains.data(), 22);
+                call("null-domains", rows.data(), observed.data(), observed.size(), nullptr, 22);
+                auto swappedDomains = domains;
+                for (std::size_t d = 0; d < 11; ++d)
+                    std::swap(swappedDomains[d], swappedDomains[11 + d]);
+                call("swapped-domains", rows.data(), observed.data(), observed.size(), swappedDomains.data(), 22);
+                auto badDomains = domains;
+                badDomains[9] += .5;
+                call("invalid-dimensions", rows.data(), observed.data(), observed.size(), badDomains.data(), 22);
+                auto badPixels = observed;
+                badPixels[0] += 1;
+                call("mismatched-pixels", rows.data(), badPixels.data(), badPixels.size(), domains.data(), 22);
+                badPixels[0] = std::numeric_limits<double>::quiet_NaN();
+                call("nonfinite-pixels", rows.data(), badPixels.data(), badPixels.size(), domains.data(), 22);
+                auto plainDomains = domains;
+                auto plainPixels = observed;
+                for (std::size_t c = 0; c < 2; ++c) {
+                    for (std::size_t d = 4; d < 9; ++d)
+                        plainDomains[c * 11 + d] = 0;
+                    for (std::size_t j = 0; j < n; ++j) {
+                        plainPixels[j * 4 + c * 2] = domains[c * 11] * rows[j * 7 + c * 2] + domains[c * 11 + 2];
+                        plainPixels[j * 4 + c * 2 + 1] = domains[c * 11 + 1] * rows[j * 7 + c * 2 + 1] + domains[c * 11 + 3];
+                    }
+                }
+                call("undistorted-equivalent", rows.data(), plainPixels.data(), plainPixels.size(), plainDomains.data(), 22);
+                valid("recovery");
             } else {
                 response(rf_textured_surface_json(
                              depth.data(), w, height, photos.data(), pw, ph, cameras.data(), n,

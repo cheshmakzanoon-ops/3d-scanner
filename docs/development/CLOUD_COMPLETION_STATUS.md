@@ -1518,3 +1518,63 @@ existing required workflows and their gate criteria are unchanged.
 
 The final scoped-trigger contract raises the synthetic orchestration total to
 22 passing tests. YAML event/permission structure and shell syntax also pass.
+
+## 2026-10-23: calibrated initialization, surface evidence and Android diagnostic
+
+The following are independently published main checkpoints, not a claim that the
+complete scanner or every required gate passes:
+
+- `ad475bd8`: overflow-safe depth indexing/finite checks and NUL rejection before
+  native export calls. Regression inputs reproduced the prior invalid access and
+  unintended path-prefix export.
+- `fba97734` and `9f4d241e`: absent competing/neighbor photometric costs no longer
+  invent uniqueness or subpixel peak support. Depth/cache policy identities were
+  advanced; the measured geometry tradeoffs are retained in
+  [alternative-cost evidence](experiments/observed-alternative-uniqueness/) and
+  [peak-support evidence](experiments/observed-peak-support/). These corrections
+  do not establish a general quality gain.
+- `b838b3c6`, with GCC warning repair `bc2fd43e` and actual host-JVM coverage
+  `2f30bac7`: calibrated planar initialization is wired through the app/JNI/native
+  boundary with explicit observed pixels and Brown–Conrady domains. Legacy
+  normalized-only APIs retain their essential-model contract. Model ambiguity,
+  cancellation and malformed domains remain failures, not successful fallback.
+  Host-JVM execution is not Android device execution.
+- `c30e123d`: exact equal-length diagonal ties use canonical world endpoints,
+  preventing contradictory tessellation of the same synthetic observed quad.
+  Strictly shorter choices and acceptance thresholds are unchanged. The
+  [matched photograph replay](experiments/surface-diagonal-tie/) did not improve;
+  arbitrary translated-grid overlap remains unresolved.
+- `97e325f9`: exact removed-face evidence preserves accepted observation IDs
+  through cleanup as attribute-contributor, exact-duplicate-support, or explicitly
+  unattached records. Versioned surface caches reject incompatible data. The
+  [provenance evidence](experiments/surface-provenance/) records unchanged geometry
+  and texture output, additional storage/resource cost and remaining limits.
+  [Chart-overlay experiments](experiments/chart-overlay-kernel/) are QA-only,
+  with failing topology cases explicitly refused; no general mesher was promoted.
+
+For exact source `97e325f9ac3c17cd2447accd9faeafa17fb45bad`, both hosted release
+matrix arms passed 48 CTest targets and 1,753 Python tests. Android build/lint and
+814 JVM plus 18 HOST tests passed. Debug APK SHA-256:
+`1eb2eba3006fc9aef6058c7e86738bf27f41769682524c925b448095598ba5ac`.
+Device testing stopped at the unchanged KVM prerequisite, before device tests.
+Both sanitized native CTest runs passed, but GCC sanitized Python reported
+81 failures and Clang timed out without a final failure count. Those gates are
+not waived. The aggregate native and candidate jobs were subsequently cancelled
+when the next main push superseded this run; neither is a qualification pass.
+
+The additive native C ABI lifetime replay introduced in `a59b8374` passed on
+`97e325f9`, including ordinary-exit clean/planted-leak controls and two repetitions
+of three legacy API workloads. It does not directly cover the calibrated API or
+certify Python/JVM shutdown, all JNI paths, or whole-project leak freedom.
+
+`2c47989d905e5a205a4bd814f5fa2511035ca956` adds a separate
+[software-emulator diagnostic](SOFTWARE_EMULATOR_DIAGNOSTIC.md). Its 48 focused
+host tests pass; the local repository run passed 1,798 tests with three skips,
+47 subtests and two blocked live dependency-audit tests explicitly deselected.
+The original hosted audits remain required and unchanged. The diagnostic uses
+unsupported CPU software emulation, no KVM/security changes and no new SDK license
+acceptance. It checks exact source/APK/native hashes, four actual instrumentation
+outcomes, raw transcript bytes and cleanup before accepting success. Android
+execution remains **NOT_RUN** at publication: manual dispatch requires an
+authenticated GitHub session and has not been performed. This supplementary
+experiment cannot replace the original device or physical ARM64 gates.

@@ -178,7 +178,7 @@ def test_configure_requires_all_reviewed_providers(monkeypatch, tmp_path):
         if name == 'prepare-inputs':
             inputs = runner.output / 'inputs'
             inputs.mkdir()
-            (inputs / 'manifest.json').write_text('{"cases": {}}')
+            (inputs / 'manifest.json').write_text(json.dumps({'cases': {name: {'header': [0x52464331, mode]} for name, mode in run.CASES.items()}}))
         if name == 'configure':
             assert '-DRF_REQUIRE_CAMPAIGN_031_060=ON' in argv
             assert source in argv
@@ -262,3 +262,98 @@ def test_verifier_rejects_nonfinite_json(number):
     from tools.qa.native_cabi_replay.verify import strict_json
     with pytest.raises(RuntimeError, match='Nonfinite'):
         strict_json('{"value": ' + number + '}')
+
+
+def test_calibrated_preparation_uses_real_distorted_observed_pixels():
+    import numpy as np
+    from tools.qa.native_cabi_replay.prepare import calibrated_arrays, validate_arrays
+    rows, observed, domains = calibrated_arrays(Path(__file__).resolve().parents[1])
+    validate_arrays(3, [rows, observed, domains])
+    assert np.any(domains[:, 4:9] != 0)
+    assert np.all(domains[0, :9] != domains[1, :9])
+    for c, k in enumerate(domains):
+        for row, pixels in zip(rows, observed):
+            x, y = row[c*2:c*2+2]
+            r2 = x*x + y*y
+            radial = 1 + r2 * (k[4] + r2 * (k[5] + r2*k[8]))
+            px = k[0]*(x*radial + 2*k[6]*x*y + k[7]*(r2+2*x*x)) + k[2]
+            py = k[1]*(y*radial + k[6]*(r2+2*y*y) + 2*k[7]*x*y) + k[3]
+            assert np.hypot(px-pixels[c*2], py-pixels[c*2+1]) < .01
+        virtual = rows[:, c*2:c*2+2] * k[:2] + k[2:4]
+        assert np.max(np.abs(virtual-observed[:, c*2:c*2+2])) > .01
+
+
+@pytest.mark.parametrize('fault', ['rows', 'observed', 'domains', 'nonfinite', 'outside', 'fractional'])
+def test_calibrated_preparation_rejects_bad_buffers(fault):
+    import numpy as np
+    from tools.qa.native_cabi_replay.prepare import calibrated_arrays, validate_arrays
+    rows, observed, domains = calibrated_arrays(Path(__file__).resolve().parents[1])
+    if fault == 'rows': rows = rows[:-1]
+    if fault == 'observed': observed = observed[:, :3]
+    if fault == 'domains': domains = domains[:, :10]
+    if fault == 'nonfinite': observed[0, 0] = np.nan
+    if fault == 'outside': observed[0, 0] = domains[0, 9]
+    if fault == 'fractional': domains[0, 9] += .5
+    with pytest.raises(RuntimeError):
+        validate_arrays(3, [rows, observed, domains])
+
+
+@pytest.mark.parametrize('fault', ['missing', 'extra', 'replaced'])
+def test_replay_workload_coverage_is_exact(fault):
+    manifest = {'cases': {name: {'header': [0x52464331, mode]} for name, mode in run.CASES.items()}}
+    if fault == 'missing': del manifest['cases']['calibrated-planar']
+    if fault == 'extra': manifest['cases']['unexpected'] = {'header': [0x52464331, 3]}
+    if fault == 'replaced': manifest['cases']['calibrated-planar']['header'][1] = 0
+    with pytest.raises(RuntimeError, match='workload'):
+        run.validate_manifest(manifest)
+
+
+def calibrated_outputs(tmp_path):
+    from tools.qa.native_cabi_replay.verify import CALIBRATED_ERRORS
+    result = {'representation': 'sparse_points', 'initializerModel': 'HOMOGRAPHY', 'scale': 'arbitrary',
+              'registeredCameras': 2, 'inputMatches': 194, 'pointCount': 170, 'homographyInliers': 170,
+              'modelInliers': 170, 'inliers': 170,
+              'points': [[0, 0, 1, 120, 130, 140, 0, 1, i] for i in range(170)]}
+    for i in range(2):
+        directory = tmp_path / str(i)
+        directory.mkdir()
+        for name in ('success', 'recovery', 'undistorted-equivalent'):
+            (directory / (name + '.json')).write_text(json.dumps(result))
+        for name in CALIBRATED_ERRORS:
+            (directory / (name + '.json')).write_text(json.dumps({'errorCode': 'INVALID_INPUT', 'error': 'deliberate'}))
+    return result
+
+
+def test_calibrated_verifier_valid_contract(tmp_path):
+    from tools.qa.native_cabi_replay.verify import verify
+    expected = calibrated_outputs(tmp_path)
+    assert verify('calibrated-planar', tmp_path) == expected
+
+
+@pytest.mark.parametrize('fault', ['missing-call', 'extra-call', 'missing-repeat', 'repeat-error', 'wrong-code',
+                                   'partial-error', 'equivalence', 'wrong-model', 'lost-support', 'provenance',
+                                   'conflicting-model', 'bool-index', 'success-error-code'])
+def test_calibrated_verifier_fails_closed(tmp_path, fault):
+    from tools.qa.native_cabi_replay.verify import verify
+    result = calibrated_outputs(tmp_path)
+    if fault == 'missing-call': (tmp_path / '0/null-domains.json').unlink()
+    elif fault == 'extra-call': (tmp_path / '0/extra.json').write_text('{}')
+    elif fault == 'missing-repeat': (tmp_path / '1').rename(tmp_path / '2')
+    elif fault in ('repeat-error', 'wrong-code', 'partial-error'):
+        value = {'errorCode': 'INVALID_INPUT', 'error': 'different' if fault == 'repeat-error' else 'deliberate'}
+        if fault == 'wrong-code': value['errorCode'] = 'NATIVE_FAILURE'
+        if fault == 'partial-error': value['points'] = []
+        (tmp_path / '1/null-rows.json').write_text(json.dumps(value))
+    elif fault == 'equivalence': (tmp_path / '0/undistorted-equivalent.json').write_text('{}')
+    else:
+        if fault == 'wrong-model': result['initializerModel'] = 'ESSENTIAL'
+        if fault == 'conflicting-model': result['epipolarInliers'] = 170
+        if fault == 'bool-index': result['points'][0][8] = False
+        if fault == 'success-error-code': result['errorCode'] = 'INVALID_INPUT'
+        if fault == 'lost-support': result['pointCount'] = 0
+        if fault == 'provenance': result['points'][0][8] = result['points'][1][8]
+        for i in range(2):
+            for name in ('success', 'recovery', 'undistorted-equivalent'):
+                (tmp_path / str(i) / (name + '.json')).write_text(json.dumps(result))
+    with pytest.raises(RuntimeError):
+        verify('calibrated-planar', tmp_path)

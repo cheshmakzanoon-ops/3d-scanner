@@ -16,11 +16,17 @@ data class FeatureCacheIdentity(val originalSha256:String,val decoderTransform:S
     }
 }
 class CachedFeatures(val identity:FeatureCacheIdentity,val width:Int,val height:Int,xy:FloatArray,colors:IntArray,descriptors:FloatArray) {
+    init {
+        // Admit immutable array lengths before copying caller-owned storage. Malformed
+        // shapes must not double an unbounded allocation just to reject it afterward.
+        // Bound count first so both shape multiplications are overflow-safe.
+        require(width in 3..4096 && height in 3..4096 && colors.size in 0..20000)
+        require(xy.size==colors.size*2 && descriptors.size==colors.size*128)
+    }
     private val positions=xy.copyOf();private val argb=colors.copyOf();private val values=descriptors.copyOf()
     val count get()=argb.size
     init {
-        require(width in 3..4096 && height in 3..4096 && count in 0..20000)
-        require(positions.size==count*2 && values.size==count*128)
+        // Validate values on the owned snapshots, never on mutable caller arrays.
         require(positions.indices.all{i->positions[i].isFinite() && positions[i]>=0 && positions[i]<if(i%2==0)width else height})
         require(values.all{it.isFinite() && it>=0f && it<=512f}) { "Invalid SIFT descriptor" }
     }

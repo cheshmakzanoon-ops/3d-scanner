@@ -45,16 +45,38 @@ serialization, alongside image/camera shape relationships and byte types.
 Depth inputs are228×154; texture photographs are608×410; parameters remain
   near6/far80/64planes/stride3. The benchmark's dataset loader also loads disparity,
   but ground truth is never serialized into native input or used by the driver.
-- Each of the three native processes executes two repetitions, each containing
+- Each of the original three native processes executes two repetitions, each containing
   successful export, deliberate export-path error, null-input error and successful
   recovery. RAII releases every non-null returned JSON through `rf_free`, including
   output-write exceptions. The driver also checks `rf_free(nullptr)`.
+- A fourth, explicitly synthetic calibrated-planar workload reuses the existing
+  `calibrated_initializer_fixtures.hpp` 194-match anchor. Preparation forward-projects
+  normalized rays with nonzero radial and tangential distortion into observed pixels
+  in two 384×288 domains with different intrinsics and distortion. No truth pose or geometry enters the input. Its direct
+  `rf_reconstruct_calibrated_json` calls run twice with successful reconstruction,
+  short observed/domain counts, each of the three null buffers, swapped domains, fractional image
+  dimensions, misaligned and nonfinite observed pixels, an equivalent zero-distortion
+  domain, and successful recovery. Every returned JSON uses the same RAII `rf_free`
+  ownership path. This API has no export parameters; it does not substitute an
+  export test for the original workloads. The verifier requires the exact call set,
+  homography/sparse/arbitrary-scale representation, at least170 retained points and unique
+  original match indices, deterministic success/error replies, and exact recovery
+  and domain-equivalence output. Ordinary ctypes parity uses a diagnostic-local
+  calibrated signature and `finally` release, not a new production Python wrapper.
 - File extents, format, dimensions, architecture and repetition bounds are checked
   before reconstruction. Truncated, trailing, bad-format and extreme-count files
   must fail before creating outputs.
 - The controller checks JSON error/partial-result contracts, deterministic repeated
   responses/artifacts, finite JSON values, sparse versus triangle representation and exact photographic
   PNG embedding. Only `normal` additionally compares actual ordinary ctypes JSON.
+
+The controller requires all four expected workload names and modes; missing,
+extra or substituted modes fail. Calibrated binary truncation, trailing bytes and
+extreme counts also fail before output creation. The modest distortion deliberately
+preserves this anchor's accepted domain coverage: exact equality to the undistorted
+reference is a property checked for this fixture, not a claim that distortion can
+never change support. Native initializer tests separately exercise changed observed
+cell membership and ambiguous/unstable planar hypotheses.
 
 Inputs have a fixed little-endian versioned binary header and typed contiguous
 buffers; their hashes, extents and settings are recorded. Successful and failed
@@ -88,7 +110,7 @@ be empty; any unexpected output fails closed even with exit0.
 
 ## Explicit limitations
 
-Coverage is three representative C ABI workloads, not every allocation path/API.
+Coverage is four representative C ABI workloads, not every allocation path/API.
 It does not cover Python/NumPy shutdown, ctypes declarations or wrapper-finally
 lifetimes, camera registration/BA, compact textures, cancellation/checkpoint APIs,
 JNI/Android lifecycle, physical multi-side quality or release readiness. Normal

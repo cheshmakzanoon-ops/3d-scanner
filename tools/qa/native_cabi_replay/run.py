@@ -12,7 +12,7 @@ import sys
 import time
 
 from .prepare import digest, require
-from .verify import verify
+from .verify import CASES, strict_json, verify
 
 ROOT = Path(__file__).resolve().parents[3]
 MAX_LOG = 32 * 1024 * 1024
@@ -140,6 +140,11 @@ def malformed(runner, executable, env):
              'shape': valid[:8] + struct.pack('<I', 0xffffffff) + valid[12:]}
     reasons = {'truncated': 'truncated input', 'trailing': 'trailing input',
                'version': 'format/mode', 'shape': 'sparse shape'}
+    calibrated = (runner.output / 'inputs/calibrated-planar.bin').read_bytes()
+    cases.update({'calibrated-truncated': calibrated[:-1], 'calibrated-trailing': calibrated + b'x',
+                  'calibrated-shape': calibrated[:8] + struct.pack('<I', 0xffffffff) + calibrated[12:]})
+    reasons.update({'calibrated-truncated': 'truncated input', 'calibrated-trailing': 'trailing input',
+                    'calibrated-shape': 'calibrated shape'})
     for name, data in cases.items():
         path = runner.output / ('malformed-' + name + '.bin')
         path.write_bytes(data)
@@ -161,6 +166,23 @@ def ctypes_parity(source, library, inputs, results):
         offset = 28
         if mode == 0:
             actual = engine.reconstruct(np.frombuffer(data, dtype='<f8', offset=offset).reshape(n, 7))
+        elif mode == 3:
+            # Diagnostic-local binding only: no sanitized library enters Python.
+            import ctypes
+            pointer = ctypes.POINTER(ctypes.c_double)
+            call = engine.library.rf_reconstruct_calibrated_json
+            call.argtypes = [pointer, ctypes.c_size_t, pointer, ctypes.c_size_t,
+                             pointer, ctypes.c_size_t, ctypes.c_double]
+            call.restype = ctypes.c_void_p
+            values = np.frombuffer(data, dtype='<f8', offset=offset).copy()
+            rows, observed, domains = values[:n*7], values[n*7:n*11], values[n*11:]
+            raw = call(rows.ctypes.data_as(pointer), n, observed.ctypes.data_as(pointer), observed.size,
+                       domains.ctypes.data_as(pointer), domains.size, .003125)
+            require(bool(raw), 'Null calibrated ctypes result')
+            try:
+                actual = strict_json(ctypes.string_at(raw).decode('utf-8'))
+            finally:
+                engine.library.rf_free(raw)
         else:
             cameras = np.frombuffer(data, dtype='<f8', count=n * 16, offset=offset).reshape(n, 16)
             offset += n * 16 * 8
@@ -182,6 +204,12 @@ def ordinary_parity_command(source, library, inputs, expected):
             source, library, inputs, expected]
 
 
+def validate_manifest(manifest):
+    require(set(manifest['cases']) == set(CASES), 'Replay workload coverage differs')
+    require(all(metadata['header'][1] == CASES[case] for case, metadata in manifest['cases'].items()),
+            'Replay workload mode differs')
+
+
 def execute(runner, config, compiler):
     env = native_environment(config)
     runner.receipt.update(config=config, sanitizer_environment={key: env[key] for key in ('ASAN_OPTIONS', 'LSAN_OPTIONS', 'UBSAN_OPTIONS') if key in env},
@@ -194,6 +222,7 @@ def execute(runner, config, compiler):
     inputs = runner.output / 'inputs'
     runner.command('prepare-inputs', [sys.executable, source / 'tools/qa/native_cabi_replay/prepare.py', '--source', source, '--output', inputs])
     manifest = json.loads((inputs / 'manifest.json').read_text())
+    validate_manifest(manifest)
     runner.receipt['inputs'] = manifest
     runner.save()
     flags = [] if config == 'normal' else ['-fsanitize=' + ('address,' if config == 'sanitize' else '') + 'undefined,float-cast-overflow', '-fno-sanitize-recover=all', '-fno-omit-frame-pointer']

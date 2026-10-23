@@ -29,7 +29,49 @@ def parse_glb(path):
     return gltf, binary
 
 
+CASES = {'sparse': 0, 'surface': 1, 'texture': 2, 'calibrated-planar': 3}
+CALIBRATED_ERRORS = ('observed-count', 'domain-count', 'null-rows', 'null-observed',
+                     'null-domains', 'swapped-domains', 'invalid-dimensions', 'mismatched-pixels', 'nonfinite-pixels')
+
+
+def verify_calibrated(output, repeats):
+    names = ('success', 'recovery', 'undistorted-equivalent', *CALIBRATED_ERRORS)
+    values = []
+    for index in range(repeats):
+        directory = output / str(index)
+        require({p.name for p in directory.iterdir()} == {name + '.json' for name in names},
+                'Calibrated call coverage differs')
+        decoded = {name: strict_json((directory / (name + '.json')).read_text()) for name in names}
+        result = decoded['success']
+        require(result == decoded['recovery'] == decoded['undistorted-equivalent'],
+                'Calibrated recovery/domain equivalence differs')
+        require(not any(key in result for key in ('error', 'errorCode', 'meshError', 'textureError')), 'Calibrated success reported an error')
+        require(result['representation'] == 'sparse_points' and result['initializerModel'] == 'HOMOGRAPHY'
+                and result['scale'] == 'arbitrary' and result['registeredCameras'] == 2
+                and result['inputMatches'] == 194 and 'epipolarInliers' not in result,
+                'Calibrated representation/model differs')
+        require(result['pointCount'] == len(result['points']) >= 170
+                and result['homographyInliers'] == result['modelInliers'] == result['inliers'] >= result['pointCount'],
+                'Calibrated fixture lost support')
+        indices = [point[8] for point in result['points']]
+        require(len(set(indices)) == len(indices) and all(type(i) is int and 0 <= i < 194 for i in indices),
+                'Calibrated match provenance differs')
+        require(all(point[3:6] == [120, 130, 140] for point in result['points']), 'Calibrated colors differ')
+        for name in CALIBRATED_ERRORS:
+            error = decoded[name]
+            require(set(error) == {'errorCode', 'error'} and error['errorCode'] == 'INVALID_INPUT'
+                    and isinstance(error['error'], str) and bool(error['error']),
+                    'Calibrated invalid input contract differs: ' + name)
+        values.append(decoded)
+    require(all(value == values[0] for value in values), 'Repeated calibrated JSON differs')
+    return values[0]['success']
+
+
 def verify(case, output, repeats=2):
+    require(case in CASES, 'Unknown replay workload')
+    require({p.name for p in output.iterdir()} == {str(i) for i in range(repeats)}, 'Replay repetition coverage differs')
+    if case == 'calibrated-planar':
+        return verify_calibrated(output, repeats)
     values = []
     for index in range(repeats):
         directory = output / str(index)

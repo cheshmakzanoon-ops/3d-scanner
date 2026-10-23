@@ -2,6 +2,7 @@
 import hashlib
 import importlib.util
 import json
+import re
 import struct
 import sys
 from pathlib import Path
@@ -43,6 +44,18 @@ def validate_arrays(mode, arrays):
                 'Sparse fixture shape changed')
         require(np.isfinite(rows).all(), 'Nonfinite sparse fixture')
         return
+    if mode == 3:
+        require(len(arrays) == 3, 'Calibrated fixture buffers changed')
+        rows, observed, domains = map(np.asarray, arrays)
+        require(rows.shape == (194, 7) and observed.shape == (194, 4) and domains.shape == (2, 11),
+                'Calibrated fixture shape changed')
+        require(all(np.isfinite(a).all() for a in (rows, observed, domains)), 'Nonfinite calibrated fixture')
+        for camera, k in enumerate(domains):
+            require(k[0] > 0 and k[1] > 0 and all(3 <= v <= 32768 and v == int(v) for v in k[9:]),
+                    'Invalid calibrated domain')
+            pixels = observed[:, camera * 2:camera * 2 + 2]
+            require(((pixels >= 0) & (pixels < k[9:])).all(), 'Observed pixels outside domain')
+        return
     require(mode in (1, 2) and len(arrays) == 3, 'Unknown fixture mode')
     depth, photos, cameras = map(np.asarray, arrays)
     require(depth.ndim == photos.ndim == 4 and depth.shape[-1] == photos.shape[-1] == 4,
@@ -54,6 +67,27 @@ def validate_arrays(mode, arrays):
             and depth.shape[1] * depth.shape[2] <= 320000, 'Depth dimensions changed beyond native cap')
     require(32 <= photos.shape[1] <= 1024 and 32 <= photos.shape[2] <= 1024,
             'Photograph dimensions changed beyond native cap')
+
+
+def calibrated_arrays(source):
+    """Existing synthetic planar anchor; pixels are forward-distorted, never truth geometry."""
+    import numpy as np
+    text = (source / 'reconstruction/tests/calibrated_initializer_fixtures.hpp').read_text()
+    match = re.search(r'inline constexpr std::array<double,776> anchor\{\{(.*?)\}\};', text, re.S)
+    require(match is not None, 'Calibrated anchor declaration changed')
+    coordinates = np.array([float(value) for value in match[1].split(',') if value.strip()])
+    require(coordinates.size == 776, 'Calibrated anchor extent changed')
+    rows = np.column_stack((coordinates.reshape(194, 4), np.tile([120., 130., 140.], (194, 1))))
+    domains = np.tile([480., 480., 191.5, 143.5, .01, -.001, .0001, -.0002, .00001, 384., 288.], (2, 1))
+    domains[1] = [460., 500., 190., 142., .015, -.002, -.00015, .0001, -.00002, 384., 288.]
+    observed = np.empty((len(rows), 4))
+    for camera, k in enumerate(domains):
+        x, y = rows[:, camera * 2:camera * 2 + 2].T
+        r2 = x*x + y*y
+        radial = 1 + r2 * (k[4] + r2 * (k[5] + r2 * k[8]))
+        observed[:, camera * 2] = k[0] * (x*radial + 2*k[6]*x*y + k[7]*(r2 + 2*x*x)) + k[2]
+        observed[:, camera * 2 + 1] = k[1] * (y*radial + k[6]*(r2 + 2*y*y) + 2*k[7]*x*y) + k[3]
+    return [rows, observed, domains]
 
 
 def captured_arrays(mode, call, output):
@@ -87,6 +121,10 @@ def prepare(source, output):
             rows = np.ascontiguousarray(arrays[0], dtype='<f8')
             header = [0x52464331, mode, len(rows), 0, 0, 0, 0]
             body = rows.tobytes()
+        elif mode == 3:
+            rows, observed, domains = [np.ascontiguousarray(a, dtype='<f8') for a in arrays]
+            header = [0x52464331, mode, len(rows), 0, 0, 0, 0]
+            body = rows.tobytes() + observed.tobytes() + domains.tobytes()
         else:
             depth, photos, cameras = arrays
             depth = np.ascontiguousarray(depth, dtype='u1')
@@ -100,7 +138,7 @@ def prepare(source, output):
             stream.write(data)
         path.chmod(0o444)
         manifest['cases'][name] = {'sha256': digest(path), 'bytes': len(data), 'header': header,
-                                   'settings': {'threshold': .002} if mode == 0 else {'near': 6., 'far': 80., 'planes': 64, 'stride': 3}}
+                                   'settings': {'threshold': .003125} if mode == 3 else {'threshold': .002} if mode == 0 else {'near': 6., 'far': 80., 'planes': 64, 'stride': 3}}
 
     fixture = module('replay_pipeline_fixture', source / 'tests/test_pipeline.py')
     rows, *_ = fixture.observations()
@@ -118,6 +156,8 @@ def prepare(source, output):
         method, arrays = captured_arrays(mode, capture.call, output)
         save(name, mode, arrays)
         manifest['cases'][name]['captured_method'] = method
+    save('calibrated-planar', 3, calibrated_arrays(source))
+    manifest['cases']['calibrated-planar']['provenance'] = 'synthetic existing calibrated_initializer_fixtures.hpp anchor; forward-distorted observed pixels'
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
     return manifest
 
