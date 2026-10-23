@@ -28,8 +28,9 @@ device selectors are removed. No key or signing material is printed or uploaded.
 Implementation and host tests do not execute Android. Publishing the exact
 opted-in commit intentionally requests one automatic attempt under the existing
 authorized repository CI; it is not a credential or permissions workaround.
-Until the four exact test events exist, record **focused instrumentation NOT_RUN**.
-An observed emulator boot alone is narrower evidence, not an instrumentation pass.
+The 25f invocation failed before any selected test event: the invocation is **FAIL**,
+with zero demonstrated test executions/completions. Boot or installation alone is
+narrower evidence, not an instrumentation pass.
 
 The controller requires a preinstalled SDK, SDK command-line tools and JDK 17.
 Missing required SDK package versions may be downloaded by the official existing
@@ -51,8 +52,8 @@ fails rather than silently changing mode or downgrading.
 Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
 repository's `refs/heads/main`, on attempt 1, with all of the following:
 
-- Previous head exactly `a014166f3d6d64762e825d7217d250a92ba02935`.
-- Exact commit message `test: bound software emulator installation and retain evidence`.
+- Previous head exactly `25f0187c1a593a2db845d132bb1f9d01d050deed`.
+- Exact commit message `test: preserve Android crash context for focused runtime`.
 - A normal update, not a created/deleted branch or forced push.
 - Event `after`, head-commit ID and `GITHUB_SHA` all identical.
 - One non-merge commit whose actual parent is that previous head; the committed
@@ -100,6 +101,7 @@ skip-CI commit markers, which would suppress required ordinary push checks too.
 | One read-only PackageManager response probe | 60 seconds |
 | Each APK install, exactly one attempt (two APKs maximum) | 10 minutes |
 | Selected instrumentation invocation | 15 minutes |
+| One failure-only read-only device-log capture | 45 seconds / 256 KiB |
 
 Every subprocess deadline is clipped by the remaining controller budget. A later
 phase may therefore receive less than its individual maximum. Regular commands
@@ -240,7 +242,8 @@ full setup/receipt/failure orchestration. Those mocks
 are explicitly **not** Ubuntu Noble solver/signature/download evidence. This
 workspace's Debian host is not the Ubuntu runner; no SDK/emulator or APT download
 was run locally. The a014 backend/closure checks succeeded without private packages; the actual
-private-package route remains **NOT_RUN**. New install behavior remains unverified.
+private-package route remains **NOT_RUN**. The later 25f attempt verified both installs,
+but its instrumentation process crashed before any selected test events.
 The preserved old tail proves only the recorded startup pair, not a successful
 replay of this new complete selected-process path parser. The stdin regression
 retains failing exit semantics while reporting only privacy-safe byte counts and
@@ -284,8 +287,8 @@ changes.
 
 CLI syntax was checked against official help/source; the a014 hosted attempt
 also exercised these private-server/ownership checks through measured emulator
-boot. **The four instrumentation tests remain NOT_RUN; the corrected install
-path remains unverified until another reviewed experiment.**
+boot. The 25f attempt additionally installed and hash-verified both APKs. Its
+instrumentation invocation failed with no demonstrated selected test executions.
 A tool version that differs from the source assumptions can conservatively block
 startup; this diagnostic does not fall back to a shared server or relaxed checks.
 
@@ -342,9 +345,8 @@ cancellation and timeout. `COMMAND_SUCCEEDED` means only command completion;
 `INSTALLED_HASH_VERIFIED` requires the unchanged post-install installed-base-APK
 hash check. First-install failure prevents the second attempt; any setup failure
 prevents instrumentation and JUnit. There is no automatic retry or mode fallback.
-The bounded increase is an experiment, not evidence that 600 seconds is sufficient.
-The next attempt requires the separately reviewed exact parent/message opt-in
-in the existing one-shot policy; the failed a014 attempt is not retried.
+The subsequent 25f attempt completed both installs within these caps; this does
+not guarantee future installation timing. The failed a014 attempt was not retried.
 
 The previous emulator tail also printed its disposable ADB **public** key. This
 was not a private signing key, but conflicts with the diagnostic's no-key-output
@@ -355,12 +357,107 @@ or instrumentation proof containing those markers is rejected before emission,
 not silently rewritten or rehashed. Clean raw proof/chunk/hash semantics remain
 unchanged. No key persistence, permissions change or credential rotation is added.
 
-Local coverage includes 101 diagnostic host tests, with single-attempt first/second
+Local installation coverage includes single-attempt first/second
 install timeout, cancellation, deadline clipping, malformed service responses,
 changed APKs, exit-zero/hash mismatch, terminal no-JUnit timeout and real silent
-child-process metadata. These are host/controller tests, not corrected Android
-installation or test execution. This corrected installation path and the four
-instrumentation methods remain **NOT_RUN** until a separately reviewed hosted run.
+child-process metadata. Host/controller tests themselves do not establish Android
+installation or test execution; the distinct 25f hosted observations follow below.
+
+## Observed instrumentation crash and bounded context capture
+
+[Run 39945481835, attempt 1](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39945481835),
+at exact source `25f0187c1a593a2db845d132bb1f9d01d050deed`, again built both APKs,
+booted API35 / x86_64 / 4096-byte pages, and resolved the headless host-library
+closure as `PREINSTALLED` without private APT packages. The read-only PackageManager
+probe responded in 3.030 seconds. App and test-APK installs succeeded in 281.937
+and 27.995 seconds, respectively. Both actual installed base APKs were subsequently
+hash-verified against the exact-source build:
+
+- App, 144,878,589 bytes: `40fb5a3925bb6701eedf5cce8c477c7af1a7e50ca8234df3b6522f5c573adb38`.
+- Test, 5,628,801 bytes: `b8269be08b2484e7f0bdba60ed811e629cd0f33d1f08a197dd0621a94621c934`.
+
+Instrumentation was invoked but returned only `shortMsg=Process crashed.` and
+`INSTRUMENTATION_CODE: 0`. Its exact 74-byte transcript was reconstructed from one
+ordered base64 chunk and verified as SHA-256
+`cc376fcd260b55a01f82c04af5e0a9ead88516f600131a38bdea1a3e05b10a8d`.
+There were **zero test starts or completions**, no `testProof`, no JUnit success,
+and no post-test installed-hash verification. The terminal receipt at
+11:50:17 UTC is `FAIL`, elapsed 1,734.137 seconds, with the original error
+`Instrumentation crash/failure marker`.
+
+No Android crash/main/system logs were collected before that owned emulator was
+stopped. The retained host emulator tail does not identify a Java exception,
+native stack, signal, or process-kill reason. TCG warnings are not causal evidence.
+Neither an application defect nor a TCG/runtime defect is diagnosed from these
+74 bytes. Original evidence remains unchanged:
+
+- Full job log: `fb5b595aa6d0b61800059a82571225b0f806fe55db7d86ec6e262257998949e3`.
+- Extracted receipt: `48cda4f0cc09e91081421e64bcb8ce1298b694d54dd35b950deaa296cc9cd335`.
+
+Ordinary CI is separate: the same source's Android host suite passed 837 tests,
+and both native release configurations passed 48 CTest and 1,878 pytest tests
+(176 subtests; 3 skips). The separate GCC sanitizer Python stage failed 83 tests
+(1,795 passed), its Clang counterpart timed out, and the original device gate
+remained blocked by KVM. Aggregate sanitizer verification was still pending as of
+2026-10-23 11:59:57 UTC; no terminal aggregate result is asserted here. These observations are **not a general release pass**;
+no original gate or sanitizer runtime environment is weakened by this change.
+
+The narrow correction changes diagnostics, not test selection or acceptance.
+Before parsing, `instrumentation` retains the command's owned PID, exit when known,
+completion, captured-byte count/SHA-256, timing and configured/effective budget.
+On an instrumentation command or parser failure, exactly one read-only command
+may run while the same owned emulator and private foreground ADB server remain
+alive with verified listener ownership:
+
+```text
+adb -H 127.0.0.1 -P <owned-port> -s emulator-5580 shell logcat \
+  -b crash -b main -b system -d -v threadtime -t 1000
+```
+
+It requests at most the last 1,000 interleaved records from those three buffers,
+with a 256 KiB captured-byte cap and 45-second timeout clipped to the unchanged
+72-minute controller deadline. There is no buffer clear, property change, root,
+protected tombstone read, retry, second instrumentation attempt, or mode switch.
+Cancellation, exhausted **global** deadline, lost process/listener ownership, or
+missing exact source/device/installed-APK binding skips capture. An original
+**local** instrumentation timeout can still collect this bounded context if global
+time remains; the original terminal result stays `TIMEOUT`. Capture timeout,
+nonzero exit, child signal, overflow, or renderer failure cannot mask the original
+instrumentation exception or produce JUnit. This does not override external job
+cancellation/termination: a cancelled job remains non-passing even if a failure
+receipt was already emitted, and forced termination can prevent the final receipt.
+A successful instrumentation proof does
+not collect this extra context. Normal owned-process cleanup still runs.
+
+`RF_CRASH_CONTEXT_META` and the final receipt's `crashContext` bind diagnostics to
+the source, installed APK hashes, device serial and original instrumentation
+process metadata. `capturedBytes` / `capturedSha256` describe **only the original
+bounded captured bytes**; `captureComplete=false` marks a partial capture. No raw
+crash-log base64 is published. These raw captured bytes cannot be reconstructed
+from a redacted display, and their hash is not an independently retrievable raw
+proof. Exit zero means only that logcat completed, not that any test passed or
+that every relevant crash record was retained in the circular buffers.
+
+The separate `displayBytes` / `displaySha256` bind a canonical diagnostic display:
+UTF-8 replacement decoding, known disposable-public-key redaction, normalized
+line separators, stripped terminal controls, and removal of terminal newline
+characters. Reconstruct it by joining the payloads after
+`RF_DIAGNOSTIC_LOG device-crash-context-display | ` with `\n`, **without adding a
+terminal newline**, then UTF-8 encode and check its byte count/hash. Every output
+line is prefixed against workflow-command injection. Recognizable unexpected
+credential/private-key markers withhold the entire display; an expanded display
+over 256 KiB is also withheld. These checks are not a general secret detector:
+collection is restricted to the owned synthetic emulator without user accounts,
+and no arbitrary user-device logs, credentials or private files are requested.
+Display normalization/redaction never changes instrumentation's exact raw proof.
+
+The new read-only logcat path is **NOT_RUN on Android** until a separately reviewed
+hosted attempt. The 114 diagnostic host tests cover parser failure,
+nonzero/timeout/signal paths,
+partial bounded output, original-exception preservation, cancellation/global
+clipping, missing ownership/binding, display secrecy and actual prefixed-display
+hash reconstruction. Real host child regressions verify timeout/overflow/signal
+metadata and owned cleanup; they are not Android crash-cause evidence.
 
 ## Exactly four tests
 
@@ -434,6 +531,10 @@ process control only; they are not Android execution evidence.
   documents current software graphics modes; these do not replace CPU acceleration.
 - [Android command-line tests](https://developer.android.com/studio/test/command-line)
   documents class/method selection with `am instrument -e class`.
+- [Logcat documentation](https://developer.android.com/tools/logcat) identifies the
+  main/system/crash buffers and threadtime format. [AOSP logcat source](https://android.googlesource.com/platform/system/logging/+/refs/heads/main/logcat/logcat.cpp)
+  documents read-only `-d`, `-t N` and repeated buffer selection; actual installed
+  Android execution of this new capture remains unverified.
 - [SDK manager](https://developer.android.com/tools/sdkmanager) and
   [AVD manager](https://developer.android.com/tools/avdmanager) document package/AVD
   command syntax. These existing runner tools are used without installing a new CLI.

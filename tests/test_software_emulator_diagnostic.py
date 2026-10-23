@@ -1292,6 +1292,259 @@ class CandidateInstallation(unittest.TestCase):
         self.assertNotIn("testProof", final)
 
 
+class DeviceCrashContext(unittest.TestCase):
+    CRASH = "INSTRUMENTATION_RESULT: shortMsg=Process crashed.\nINSTRUMENTATION_CODE: 0\n"
+
+    def setUp(self):
+        self.now, self.calls = 100.0, []
+        self.ctl = diag.Controller(env={}, clock=lambda: self.now)
+        self.ctl.receipt.update(receipt(), device={"serial": diag.SERIAL}, candidateInstallations=[])
+        self.ctl.receipt["installedSha256"] = {key: self.ctl.receipt[key] for key in ("appSha256", "testSha256")}
+        self.ctl.emulator = mock.Mock(pid=123)
+        self.ctl.adb_server, self.ctl.adb_port, self.ctl.adb = mock.Mock(pid=234), 34567, "/owned/adb"
+        self.stack = contextlib.ExitStack(); self.addCleanup(self.stack.close)
+        self.stack.enter_context(mock.patch.object(diag.os, "waitid", return_value=None))
+        self.listening = self.stack.enter_context(mock.patch.object(diag, "process_listens_on_loopback", return_value=True))
+        self.stack.enter_context(mock.patch.object(self.ctl, "drain_background"))
+        self.stack.enter_context(mock.patch.object(self.ctl, "install_candidates"))
+        self.stack.enter_context(mock.patch.object(self.ctl, "source_identity"))
+        self.stack.enter_context(mock.patch.object(self.ctl, "installed_hash", side_effect=lambda package:
+            self.ctl.receipt["appSha256" if package == diag.APP else "testSha256"]))
+        self.output = io.StringIO()
+        self.stack.enter_context(contextlib.redirect_stdout(self.output))
+
+    def result(self, kwargs, raw, code=0, complete=True):
+        kwargs["identity"].update(pid=345, complete=complete, outputBytes=len(raw),
+                                  outputSha256=hashlib.sha256(raw).hexdigest())
+        if complete: kwargs["identity"]["exit"] = code
+        if "raw_capture" in kwargs: kwargs["raw_capture"][:] = raw
+        return (raw if kwargs.get("binary") else raw.decode()), code
+
+    def command(self, label, args, **kwargs):
+        self.calls.append((label, args, kwargs))
+        if label == "instrumentation": return self.result(kwargs, self.CRASH.encode())
+        kwargs["guard"]()
+        return self.result(kwargs, b"10-23 11:50:12.000  876  876 E AndroidRuntime: synthetic crash stack\n")
+
+    def test_parser_failure_retains_exact_command_identity_before_one_owned_readonly_capture(self):
+        with mock.patch.object(self.ctl, "command", side_effect=self.command):
+            with self.assertRaisesRegex(diag.Failure, "Instrumentation crash/failure marker"):
+                self.ctl.tests()
+        self.assertEqual([call[0] for call in self.calls], ["instrumentation", "device-crash-context"])
+        label, args, kwargs = self.calls[-1]
+        self.assertEqual(args, ["/owned/adb", "-H", "127.0.0.1", "-P", "34567", "-s", diag.SERIAL,
+            "shell", "logcat", "-b", "crash", "-b", "main", "-b", "system", "-d", "-v", "threadtime", "-t", "1000"])
+        self.assertEqual(kwargs["timeout"], 45)
+        self.assertEqual(kwargs["limit"], 256 * 1024)
+        self.assertTrue(kwargs["binary"]); self.assertFalse(kwargs["check"])
+        record, context = self.ctl.receipt["instrumentation"], self.ctl.receipt["crashContext"]
+        self.assertEqual(record["status"], "FAIL")
+        self.assertEqual(record["process"]["outputSha256"], "cc376fcd260b55a01f82c04af5e0a9ead88516f600131a38bdea1a3e05b10a8d")
+        self.assertEqual(record["process"]["outputBytes"], 74)
+        self.assertEqual(context["instrumentationProcess"], record["process"])
+        self.assertEqual(context["installedSha256"], self.ctl.receipt["installedSha256"])
+        self.assertEqual(context["sourceSha"], "a" * 40)
+        self.assertEqual(context["status"], "CAPTURED")
+        self.assertTrue(context["captureComplete"])
+        self.assertNotIn("testProof", self.ctl.receipt); self.assertNotIn("junitXml", self.ctl.receipt)
+        self.assertIn("RF_INSTRUMENTATION_RAW_CHUNK 1/1 ", self.output.getvalue())
+
+    def test_success_does_not_capture_and_retains_all_exact_proof_gates(self):
+        with mock.patch.object(self.ctl, "command", side_effect=lambda label, args, **kw:
+                               self.result(kw, transcript().encode())) as command:
+            self.ctl.tests()
+        command.assert_called_once()
+        self.assertNotIn("crashContext", self.ctl.receipt)
+        self.assertEqual(self.ctl.receipt["instrumentation"]["status"], "EVENTS_VERIFIED")
+        self.assertEqual(self.ctl.receipt["testProof"]["passed"], 4)
+        self.assertIn("junitXml", self.ctl.receipt)
+
+    def test_command_nonzero_timeout_and_signal_failures_keep_original_and_no_junit(self):
+        for original in (diag.Failure("instrumentation failed with exit 9"),
+                         diag.Deadline("instrumentation timed out"), diag.Cancelled("Signal 15")):
+            with self.subTest(original=original):
+                self.calls.clear(); self.ctl.receipt.pop("crashContext", None)
+                def command(label, args, **kwargs):
+                    if label == "instrumentation":
+                        self.calls.append((label, args, kwargs))
+                        self.result(kwargs, b"partial", complete=False)
+                        raise original
+                    return self.command(label, args, **kwargs)
+                with mock.patch.object(self.ctl, "command", side_effect=command), self.assertRaises(type(original)) as caught:
+                    self.ctl.tests()
+                self.assertIs(caught.exception, original)
+                self.assertFalse(self.ctl.receipt["instrumentation"]["process"]["complete"])
+                self.assertEqual(len(self.calls), 1 if isinstance(original, diag.Cancelled) else 2)
+                self.assertNotIn("junitXml", self.ctl.receipt)
+                if isinstance(original, diag.Cancelled):
+                    self.assertEqual(self.ctl.receipt["crashContext"]["status"], "SKIPPED_CANCELLED")
+
+    def test_capture_nonzero_timeout_overflow_and_internal_error_cannot_mask_original(self):
+        for problem in ("nonzero", "timeout", "overflow", "renderer"):
+            with self.subTest(problem=problem):
+                def command(label, args, **kwargs):
+                    if label == "instrumentation": return self.command(label, args, **kwargs)
+                    self.result(kwargs, b"partial context", code=7, complete=problem == "nonzero")
+                    if problem == "timeout": raise diag.Deadline("device-crash-context timed out")
+                    if problem == "overflow": raise diag.Failure("device-crash-context exceeded output limit")
+                    return b"partial context", 7
+                with contextlib.ExitStack() as stack:
+                    stack.enter_context(mock.patch.object(self.ctl, "command", side_effect=command))
+                    if problem == "renderer": stack.enter_context(mock.patch.object(diag, "crash_context_display", side_effect=ValueError("fixture")))
+                    with self.assertRaisesRegex(diag.Failure, "Instrumentation crash/failure marker"):
+                        self.ctl.tests()
+                self.assertNotIn("testProof", self.ctl.receipt); self.assertNotIn("junitXml", self.ctl.receipt)
+                if problem == "renderer":
+                    self.assertEqual(self.ctl.receipt["crashContextError"], "ValueError")
+                    self.assertEqual(self.ctl.receipt["crashContext"]["capturedSha256"], hashlib.sha256(b"partial context").hexdigest())
+                    self.assertEqual(self.ctl.receipt["crashContext"]["displayPolicy"], "NOT_RENDERED")
+                else:
+                    record = self.ctl.receipt["crashContext"]
+                    self.assertEqual(record["capturedBytes"], 15)
+                    self.assertEqual(record["capturedSha256"], hashlib.sha256(b"partial context").hexdigest())
+                    self.assertEqual(record["captureComplete"], problem == "nonzero")
+                    self.assertEqual(record["status"], {"nonzero": "COMMAND_FAILED", "timeout": "TIMEOUT", "overflow": "FAIL"}[problem])
+
+    def test_cancelled_expired_dead_unowned_and_unbound_capture_never_executes(self):
+        for problem in ("cancel", "expired", "watchdog", "dead", "unowned", "no-emulator", "no-adb", "binding"):
+            with self.subTest(problem=problem), contextlib.ExitStack() as stack:
+                if problem == "cancel": stack.enter_context(mock.patch.object(self.ctl, "interrupted_signal", 15))
+                if problem == "expired": stack.enter_context(mock.patch.object(self.ctl, "ends", 99))
+                if problem == "watchdog": stack.enter_context(mock.patch.object(self.ctl, "watchdog_expired", True))
+                if problem == "dead": stack.enter_context(mock.patch.object(diag.os, "waitid", return_value=object()))
+                if problem == "unowned": stack.enter_context(mock.patch.object(diag, "process_listens_on_loopback", return_value=False))
+                if problem == "no-emulator": stack.enter_context(mock.patch.object(self.ctl, "emulator", None))
+                if problem == "no-adb": stack.enter_context(mock.patch.object(self.ctl, "adb_server", None))
+                if problem == "binding": stack.enter_context(mock.patch.dict(self.ctl.receipt, installedSha256={}))
+                command = stack.enter_context(mock.patch.object(self.ctl, "command"))
+                self.ctl.capture_device_crash_context(diag.Failure("original"))
+                command.assert_not_called()
+                self.assertTrue(self.ctl.receipt["crashContext"]["status"].startswith("SKIPPED_"))
+                self.assertFalse(self.ctl.receipt["crashContext"]["captureComplete"])
+
+    def test_global_deadline_clips_capture_and_instrumentation_elapsed_excludes_capture(self):
+        self.ctl.ends = 107
+        def command(label, args, **kwargs):
+            result = self.command(label, args, **kwargs)
+            self.now += 2 if label == "instrumentation" else 3
+            return result
+        with mock.patch.object(self.ctl, "command", side_effect=command), self.assertRaises(diag.Failure):
+            self.ctl.tests()
+        self.assertEqual(self.calls[-1][2]["timeout"], 5)
+        self.assertEqual(self.ctl.receipt["instrumentation"]["elapsedSeconds"], 2)
+        self.assertEqual(self.ctl.receipt["crashContext"]["elapsedSeconds"], 3)
+        self.assertEqual(diag.BUDGETS["controller"], 4320); self.assertEqual(diag.BUDGETS["workflow"], 4500)
+
+    def test_guard_cancellation_or_lost_ownership_during_capture_preserves_original_failure(self):
+        for problem in ("cancel", "deadline", "unowned"):
+            with self.subTest(problem=problem):
+                self.ctl.interrupted_signal, self.ctl.ends = 0, 1000
+                self.listening.return_value = True
+                def command(label, args, **kwargs):
+                    if label == "instrumentation": return self.command(label, args, **kwargs)
+                    self.result(kwargs, b"bounded partial", complete=False)
+                    if problem == "cancel": self.ctl.interrupted_signal = 15
+                    if problem == "deadline": self.ctl.ends = self.now
+                    if problem == "unowned": self.listening.return_value = False
+                    kwargs["guard"]()
+                    self.fail("Guard must interrupt capture")
+                with mock.patch.object(self.ctl, "command", side_effect=command), \
+                        self.assertRaisesRegex(diag.Failure, "Instrumentation crash/failure marker"):
+                    self.ctl.tests()
+                record = self.ctl.receipt["crashContext"]
+                self.assertEqual(record["status"], {"cancel": "CANCELLED", "deadline": "TIMEOUT", "unowned": "FAIL"}[problem])
+                self.assertFalse(record["captureComplete"])
+                self.assertEqual(record["capturedBytes"], 15)
+                self.assertNotIn("junitXml", self.ctl.receipt)
+
+    def test_crash_context_remains_diagnostic_and_terminal_original_fail_after_cleanup(self):
+        with mock.patch.object(self.ctl, "command", side_effect=self.command), \
+                mock.patch.object(self.ctl, "prerequisites"), mock.patch.object(self.ctl, "build"), \
+                mock.patch.object(self.ctl, "boot"), mock.patch.object(diag, "stop_owned"):
+            self.assertEqual(self.ctl.run(), 1)
+        self.assertEqual(self.ctl.receipt["status"], "FAIL")
+        self.assertEqual(self.ctl.receipt["error"], "Instrumentation crash/failure marker")
+        self.assertEqual(self.ctl.receipt["crashContext"]["scope"], "diagnostic-only-not-test-proof")
+        self.assertNotIn("RF_DIAGNOSTIC_JUNIT", self.output.getvalue())
+        self.assertNotIn("testProof", self.ctl.receipt)
+
+    def test_display_redaction_distinct_hash_and_safe_prefix_without_raw_crash_emission(self):
+        raw = b"::error::not a workflow command\nandroidboot.qemu.adb.pubkey=SYNTHETIC_KEY\n\x1b[31mstack\n"
+        with mock.patch.object(self.ctl, "command", side_effect=lambda label, args, **kw: self.result(kw, raw)):
+            self.ctl.capture_device_crash_context(diag.Failure("original"))
+        context = self.ctl.receipt["crashContext"]
+        display, _ = diag.crash_context_display(raw)
+        self.assertEqual(context["capturedSha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(context["displaySha256"], hashlib.sha256(display).hexdigest())
+        self.assertNotEqual(context["capturedSha256"], context["displaySha256"])
+        self.assertNotIn("SYNTHETIC_KEY", self.output.getvalue()); self.assertNotIn("\x1b", self.output.getvalue())
+        self.assertNotIn("RAW_CHUNK", self.output.getvalue())
+        self.assertTrue(all(line.startswith(("RF_CRASH_CONTEXT_META ", "RF_DIAGNOSTIC_LOG "))
+                            for line in self.output.getvalue().splitlines()))
+
+    def test_recognizable_unexpected_secrets_withhold_entire_display(self):
+        for raw in (b"-----BEGIN PRIVATE KEY-----\nSYNTHETIC_SECRET\n-----END PRIVATE KEY-----",
+                    b"Authorization: Bearer SYNTHETIC_SECRET", b"password=SYNTHETIC_SECRET",
+                    b"client_secret=SYNTHETIC_SECRET", b"https://user:SYNTHETIC_SECRET@example.invalid",
+                    b"ghp_" + b"X" * 25):
+            with self.subTest(raw=raw):
+                self.assertEqual(diag.crash_context_display(raw), (b"", "WITHHELD_SECRET_MARKER"))
+        self.assertEqual(diag.crash_context_display(b"\xff" * diag.CRASH_CONTEXT_LIMIT), (b"", "WITHHELD_DISPLAY_LIMIT"))
+
+    def test_unexpected_secret_never_appears_in_capture_output_or_receipt(self):
+        raw = b"stack\n-----BEGIN PRIVATE KEY-----\nSYNTHETIC_PRIVATE_MATERIAL\n-----END PRIVATE KEY-----\n"
+        with mock.patch.object(self.ctl, "command", side_effect=lambda label, args, **kw: self.result(kw, raw)):
+            self.ctl.capture_device_crash_context(diag.Failure("original"))
+        record = self.ctl.receipt["crashContext"]
+        self.assertEqual(record["capturedSha256"], hashlib.sha256(raw).hexdigest())
+        self.assertEqual(record["displayPolicy"], "WITHHELD_SECRET_MARKER")
+        self.assertEqual(record["displayBytes"], 0)
+        self.assertNotIn("SYNTHETIC_PRIVATE_MATERIAL", self.output.getvalue())
+        self.assertNotIn("PRIVATE KEY", self.output.getvalue())
+
+    def test_prefixed_display_roundtrips_its_own_hash_not_original_bytes(self):
+        for raw in (b"leading\r\n\r\ncontrol\x00\x1b\t\n\n", b"\n\n",
+                    "\nΩ\u2028unicode\n".encode() + b"invalid\xff\n",
+                    b"::error::fixture\nSending adb public key [SYNTHETIC]\n\n"):
+            with self.subTest(raw=raw):
+                self.output.seek(0); self.output.truncate(0)
+                with mock.patch.object(self.ctl, "command", side_effect=lambda label, args, **kw: self.result(kw, raw)):
+                    self.ctl.capture_device_crash_context(diag.Failure("original"))
+                prefix = "RF_DIAGNOSTIC_LOG device-crash-context-display | "
+                reconstructed = "\n".join(line[len(prefix):] for line in self.output.getvalue().splitlines()
+                                          if line.startswith(prefix)).encode("utf-8")
+                record = self.ctl.receipt["crashContext"]
+                self.assertEqual(hashlib.sha256(reconstructed).hexdigest(), record["displaySha256"])
+                self.assertEqual(len(reconstructed), record["displayBytes"])
+                self.assertEqual(record["capturedSha256"], hashlib.sha256(raw).hexdigest())
+                self.assertNotEqual(record["capturedSha256"], record["displaySha256"])
+
+
+class CrashCaptureSubprocess(unittest.TestCase):
+    def test_real_partial_timeout_and_overflow_hash_only_retained_bytes_and_cleanup(self):
+        for kind in ("timeout", "overflow", "signal"):
+            with self.subTest(kind=kind):
+                ctl, raw, identity, output = diag.Controller(), bytearray(), {}, io.StringIO()
+                script = {"timeout": "import time; print('partial',flush=True); time.sleep(60)",
+                          "overflow": "import sys,time; sys.stdout.buffer.write(b'x'*10000); sys.stdout.flush(); time.sleep(60)",
+                          "signal": "import os,signal; print('partial',flush=True); os.kill(os.getpid(),signal.SIGTERM)"}[kind]
+                with contextlib.redirect_stdout(output):
+                    if kind == "signal":
+                        _, code = ctl.command("context-fixture", [sys.executable, "-c", script], timeout=3,
+                            limit=100, binary=True, identity=identity, raw_capture=raw, check=False)
+                        self.assertEqual(code, 143)
+                    else:
+                        with self.assertRaises(diag.Failure):
+                            ctl.command("context-fixture", [sys.executable, "-c", script], timeout=.25,
+                                limit=100, binary=True, identity=identity, raw_capture=raw)
+                self.assertEqual(identity["outputBytes"], len(raw))
+                self.assertEqual(identity["outputSha256"], hashlib.sha256(raw).hexdigest())
+                self.assertEqual(identity["complete"], kind == "signal")
+                self.assertEqual(bytes(raw), b"x" * 100 if kind == "overflow" else b"partial\n")
+                self.assertNotIn("partial", output.getvalue()); self.assertNotIn("x" * 20, output.getvalue())
+                with self.assertRaises(ChildProcessError): os.waitpid(identity["pid"], os.WNOHANG)
+
+
 class DiagnosticPublicKeyPrivacy(unittest.TestCase):
     def test_known_emulator_key_forms_are_redacted_before_tail_truncation(self):
         key = "SYNTHETIC_PUBLIC_KEY_BYTES" * 1000

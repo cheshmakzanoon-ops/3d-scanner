@@ -31,8 +31,8 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "a014166f3d6d64762e825d7217d250a92ba02935"
-PUSH_MESSAGE = "test: bound software emulator installation and retain evidence"
+PUSH_BASE_SHA = "25f0187c1a593a2db845d132bb1f9d01d050deed"
+PUSH_MESSAGE = "test: preserve Android crash context for focused runtime"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
 PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
@@ -52,7 +52,8 @@ RUNNER = APP + ".test/androidx.test.runner.AndroidJUnitRunner"
 SERIAL = "emulator-5580"
 BUDGETS = {"workflow": 4500, "controller": 4320, "sdkInstall": 300,
            "hostLibraries": 300, "build": 1200, "boot": 1800,
-           "packageManagerProbe": 60, "apkInstall": 600, "instrumentation": 900}
+           "packageManagerProbe": 60, "apkInstall": 600, "instrumentation": 900,
+           "crashContext": 45}
 HOST_LIBRARY_PACKAGES = frozenset(("libpulse0", "libasyncns0", "libsndfile1", "libflac12t64",
     "libogg0", "libopus0", "libvorbis0a", "libvorbisenc2", "libmpg123-0t64", "libmp3lame0",
     "libdbus-1-3", "libx11-6", "libx11-xcb1", "libxcb1", "libxau6", "libxdmcp6", "libbsd0", "libmd0"))
@@ -62,6 +63,7 @@ HOST_METADATA_LIMIT = 256 * 1024 * 1024
 SONAME = re.compile(r"[A-Za-z0-9_+.-]+\.so(?:\.[A-Za-z0-9_.-]+)*")
 LOADER_TRACE_LIMIT = 256 * 1024
 INSTRUMENTATION_LIMIT = 128 * 1024
+CRASH_CONTEXT_LIMIT = 256 * 1024
 LOG_LIMIT = 4 * 1024 * 1024
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
 
@@ -110,6 +112,27 @@ def emit(label, output, limit=16384):
         # Strip terminal control characters, while preserving printable evidence.
         line = "".join(c if c >= " " or c == "\t" else "?" for c in line)
         print("RF_DIAGNOSTIC_LOG " + label + " | " + line, flush=True)
+
+
+def crash_context_display(raw):
+    """Diagnostic-only rendering; never publish raw crash bytes as execution proof."""
+    decoded = raw.decode("utf-8", "replace")
+    safe = redact_diagnostic_text(decoded)
+    # This disposable synthetic device has no user accounts or signing secrets.
+    # Fail closed on recognizable unexpected credentials, including multiline keys.
+    secret = re.search(r"-----BEGIN [A-Z ]*PRIVATE KEY-----|(?i:"
+        r"\b(?:authorization|proxy-authorization)\s*[:=]|"
+        r"\b(?:password|passwd|access[_-]?token|refresh[_-]?token|client[_-]?secret|api[_-]?key)\s*[:=]|"
+        r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})|"
+        r"https?://[^\s/@:]+:[^\s/@]+@)", safe)
+    if secret:
+        return b"", "WITHHELD_SECRET_MARKER"
+    # Canonical no-terminal-newline form is recoverable by joining prefixed lines.
+    display = "\n".join("".join(c if c >= " " or c == "\t" else "?" for c in line)
+                        for line in safe.splitlines()).rstrip("\n").encode("utf-8")
+    if len(display) > CRASH_CONTEXT_LIMIT:
+        return b"", "WITHHELD_DISPLAY_LIMIT"
+    return display, "SANITIZED_DIAGNOSTIC_ONLY"
 
 
 def base_receipt():
@@ -730,7 +753,7 @@ class Controller:
         return remaining
 
     def command(self, label, args, timeout=60, limit=LOG_LIMIT, check=True, stdin=None,
-                env=None, cwd=None, binary=False, guard=None, identity=None):
+                env=None, cwd=None, binary=False, guard=None, identity=None, raw_capture=None):
         expires = self.clock() + self.remaining(timeout)
         proc, data = None, bytearray()
         try:
@@ -763,6 +786,8 @@ class Controller:
                             selector.unregister(proc.stdout)
                             eof = True
                         elif len(data) + len(chunk) > limit:
+                            if raw_capture is not None:
+                                data.extend(chunk[:max(0, limit - len(data))])
                             raise Failure(label + " exceeded output limit")
                         else:
                             data.extend(chunk)
@@ -780,6 +805,8 @@ class Controller:
                     if eof:
                         time.sleep(min(0.1, max(0, expires - self.clock())))
         finally:
+            if raw_capture is not None:
+                raw_capture[:] = data
             if identity is not None:
                 identity.update(outputBytes=len(data), outputSha256=hashlib.sha256(data).hexdigest())
             if proc is not None:
@@ -1235,6 +1262,59 @@ class Controller:
             self.candidate_setup_command(label, self.adb_args("-s", SERIAL, "install", "-t", apk),
                                          BUDGETS["apkInstall"], record)
 
+    def capture_device_crash_context(self, original_error):
+        """One read-only best-effort capture; its outcome cannot replace the test failure."""
+        started, raw = self.clock(), bytearray()
+        record = {"status": "PENDING", "scope": "diagnostic-only-not-test-proof", "process": {},
+                  "budgetSeconds": BUDGETS["crashContext"], "limitBytes": CRASH_CONTEXT_LIMIT,
+                  "buffers": ["crash", "main", "system"], "lastRecords": 1000,
+                  "sourceSha": self.receipt.get("sourceSha"), "serial": SERIAL,
+                  "installedSha256": dict(self.receipt.get("installedSha256", {})),
+                  "instrumentationProcess": dict(self.receipt.get("instrumentation", {}).get("process", {})),
+                  "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+        self.receipt["crashContext"] = record
+        def owned_device():
+            self.remaining(1)
+            if (self.emulator is None
+                    or os.waitid(os.P_PID, self.emulator.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+                    or not process_listens_on_loopback(self.emulator.pid, 5581)):
+                raise Failure("Task-owned emulator is not alive and listening")
+            self.adb_args()  # Requires the live owned foreground server and private socket.
+        try:
+            if isinstance(original_error, Cancelled):
+                raise Cancelled("Original instrumentation was cancelled")
+            record["effectiveTimeoutSeconds"] = self.remaining(BUDGETS["crashContext"])
+            deadline = started + record["effectiveTimeoutSeconds"]
+            if (self.receipt.get("device", {}).get("serial") != SERIAL
+                    or not re.fullmatch(r"[0-9a-f]{40}", record["sourceSha"] or "")
+                    or any(not re.fullmatch(r"[0-9a-f]{64}", self.receipt.get(key, ""))
+                           or record["installedSha256"].get(key) != self.receipt[key]
+                           for key in ("appSha256", "testSha256"))):
+                raise Failure("Crash context lacks exact source/device/installed-APK binding")
+            owned_device()
+            record["effectiveTimeoutSeconds"] = self.remaining(deadline - self.clock())
+            record["status"] = "RUNNING"
+            _, code = self.command("device-crash-context", self.adb_args("-s", SERIAL, "shell", "logcat",
+                "-b", "crash", "-b", "main", "-b", "system", "-d", "-v", "threadtime", "-t", "1000"),
+                timeout=record["effectiveTimeoutSeconds"], limit=CRASH_CONTEXT_LIMIT, binary=True,
+                check=False, guard=owned_device, identity=record["process"], raw_capture=raw)
+            record["status"] = "CAPTURED" if code == 0 else "COMMAND_FAILED"
+        except Exception as error:
+            record.update(status=("SKIPPED_" if record["status"] == "PENDING" else "")
+                          + getattr(error, "status", "FAIL"), error=str(error)[:1024])
+        finally:
+            # Hash the original bounded bytes independently of the safe display.
+            record.update(capturedBytes=len(raw), capturedSha256=hashlib.sha256(raw).hexdigest(),
+                          captureComplete=record["process"].get("complete") is True,
+                          displayPolicy="NOT_RENDERED",
+                          elapsedSeconds=round(self.clock() - started, 3),
+                          finishedAtUtc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+            display, policy = crash_context_display(bytes(raw))
+            record.update(displayPolicy=policy, displayBytes=len(display),
+                          displaySha256=hashlib.sha256(display).hexdigest(), displayChanged=display != bytes(raw))
+            print("RF_CRASH_CONTEXT_META " + json.dumps(record, sort_keys=True), flush=True)
+            emit("device-crash-context-display", display, CRASH_CONTEXT_LIMIT)
+
     def tests(self):
         self.install_candidates()
         installed = {"appSha256": self.installed_hash(APP), "testSha256": self.installed_hash(APP + ".test")}
@@ -1245,12 +1325,32 @@ class Controller:
             record.update(status="INSTALLED_HASH_VERIFIED", installedSha256=record["apkSha256"])
         # Drain between operations; the command loop also drains while native work runs.
         self.drain_background()
-        output, _ = self.command("instrumentation", self.adb_args("-s", SERIAL, "shell", "am", "instrument", "-w", "-r",
-                       "-e", "class", ",".join(EXPECTED), RUNNER), timeout=BUDGETS["instrumentation"],
-                                limit=INSTRUMENTATION_LIMIT)
-        emit("instrumentation-full", output, INSTRUMENTATION_LIMIT)
-        emit_raw_instrumentation(output)
-        proof = parse_instrumentation(output)
+        started = self.clock()
+        record = {"status": "RUNNING", "process": {}, "budgetSeconds": BUDGETS["instrumentation"],
+                  "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+        self.receipt["instrumentation"] = record
+        try:
+            record["effectiveTimeoutSeconds"] = self.remaining(BUDGETS["instrumentation"])
+            output, _ = self.command("instrumentation", self.adb_args("-s", SERIAL, "shell", "am", "instrument", "-w", "-r",
+                           "-e", "class", ",".join(EXPECTED), RUNNER), timeout=record["effectiveTimeoutSeconds"],
+                                    limit=INSTRUMENTATION_LIMIT, identity=record["process"])
+            emit("instrumentation-full", output, INSTRUMENTATION_LIMIT)
+            emit_raw_instrumentation(output)
+            proof = parse_instrumentation(output)
+            record["status"] = "EVENTS_VERIFIED"
+        except Exception as error:
+            record.update(status=getattr(error, "status", "FAIL"), error=str(error)[:1024],
+                          elapsedSeconds=round(self.clock() - started, 3),
+                          finishedAtUtc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+            try:
+                self.capture_device_crash_context(error)
+            except Exception as capture_error:
+                # Even an unexpected capture/renderer failure must not mask the original.
+                self.receipt["crashContextError"] = type(capture_error).__name__
+            raise
+        finally:
+            record.setdefault("elapsedSeconds", round(self.clock() - started, 3))
+            record.setdefault("finishedAtUtc", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
         self.receipt["testProof"] = proof
         self.source_identity()
         if self.installed_hash(APP) != self.receipt["appSha256"] or self.installed_hash(APP + ".test") != self.receipt["testSha256"]:
