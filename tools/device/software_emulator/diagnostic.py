@@ -7,6 +7,7 @@ means exactly four synthetic x86_64 runtime tests, not the existing device gate.
 from __future__ import annotations
 
 import base64
+from datetime import datetime, timezone
 import hashlib
 import io
 import json
@@ -31,13 +32,14 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "25f0187c1a593a2db845d132bb1f9d01d050deed"
-PUSH_MESSAGE = "test: preserve Android crash context for focused runtime"
+PUSH_BASE_SHA = "9628a5b28501183b0d2fd78daf2cb77ba53da02f"
+PUSH_MESSAGE = "test: isolate focused Android runtime on stock AOSP"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
 PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
     "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256"))
-IMAGE = "system-images;android-35;google_apis;x86_64"
+IMAGE = "system-images;android-35;default;x86_64"
+IMAGE_REVISION = "2"
 PACKAGES = ("platform-tools", "emulator", "platforms;android-36", "build-tools;36.0.0",
             "ndk;28.2.13676358", "cmake;3.22.1", IMAGE)
 PREFIX = "com.realityforge.scanner."
@@ -53,7 +55,7 @@ SERIAL = "emulator-5580"
 BUDGETS = {"workflow": 4500, "controller": 4320, "sdkInstall": 300,
            "hostLibraries": 300, "build": 1200, "boot": 1800,
            "packageManagerProbe": 60, "apkInstall": 600, "instrumentation": 900,
-           "crashContext": 45}
+           "crashContext": 45, "deviceFactoryEvidence": 60, "deviceClockSample": 10}
 HOST_LIBRARY_PACKAGES = frozenset(("libpulse0", "libasyncns0", "libsndfile1", "libflac12t64",
     "libogg0", "libopus0", "libvorbis0a", "libvorbisenc2", "libmpg123-0t64", "libmp3lame0",
     "libdbus-1-3", "libx11-6", "libx11-xcb1", "libxcb1", "libxau6", "libxdmcp6", "libbsd0", "libmd0"))
@@ -133,6 +135,83 @@ def crash_context_display(raw):
     if len(display) > CRASH_CONTEXT_LIMIT:
         return b"", "WITHHELD_DISPLAY_LIMIT"
     return display, "SANITIZED_DIAGNOSTIC_ONLY"
+
+
+def validate_image_metadata(properties, metadata):
+    if (properties.get("AndroidVersion.ApiLevel") != "35"
+            or properties.get("SystemImage.Abi") != "x86_64"
+            or properties.get("SystemImage.TagId") != "default"
+            or properties.get("Pkg.Revision") != IMAGE_REVISION
+            or metadata.get("package") != IMAGE
+            or metadata.get("revision") not in (IMAGE_REVISION, IMAGE_REVISION + ".0.0")):
+        raise Blocked("System image must be ordinary AOSP API35 default x86_64 revision2")
+
+
+def validate_factory_evidence(record):
+    """Observe factory settings, never set them or infer absent values/equivalence."""
+    settings = record["globalSettings"]
+    if settings.get("debug_app") in (APP, APP + ".test"):
+        raise Blocked("Selected app debugger mode suppresses Android ANR handling")
+    if settings.get("wait_for_debugger") not in ("", "null", "0", "1"):
+        raise Blocked("Unrecognized wait_for_debugger setting")
+    record["watchdogEquivalenceToPreviousGoogleImage"] = "UNVERIFIED"
+    record["scope"] = "observed-factory-values-no-setting-writes"
+
+
+def associate_anr_trace(logcat, trace, before, after):
+    """Associate only complete same-device UTC event/trace evidence, not test proof."""
+    unavailable = {"status": "UNASSOCIATED", "reason": "missing-or-ambiguous-process-pid-time-evidence"}
+    try:
+        if before.get("status") != "CAPTURED" or after.get("status") != "CAPTURED":
+            return unavailable
+        low, high = before["epochSeconds"], after["epochSeconds"] + 1
+        elapsed = after["sampleMonotonic"] - before["sampleMonotonic"]
+        if elapsed < 0 or high < low or abs((high - low - 1) - elapsed) > 5:
+            return {**unavailable, "reason": "device-clock-discontinuity"}
+        events = []
+        lines = logcat.decode("utf-8", "strict").splitlines()
+        prefix = r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+) E ActivityManager: "
+        for index, line in enumerate(lines):
+            match = re.fullmatch(prefix + "ANR in " + re.escape(APP), line)
+            if match is None or index + 2 >= len(lines):
+                continue
+            stamp = datetime.strptime(match[1], "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=timezone.utc).timestamp()
+            if not low <= stamp <= high:
+                continue
+            pid = re.fullmatch(prefix + r"PID: ([1-9][0-9]*)", lines[index + 1])
+            reason = re.fullmatch(prefix + r"Reason: Process ProcessRecord\{[^{}\s]+ ([1-9][0-9]*):"
+                + re.escape(APP) + r"/[^{}\s]+\} failed to complete startup", lines[index + 2])
+            if (pid is None or reason is None or pid.groups()[:3] != match.groups()
+                    or reason.groups()[:3] != match.groups() or pid[4] != reason[4]):
+                return unavailable
+            events.append((int(pid[4]), stamp, match[1]))
+        if len(events) != 1:
+            return unavailable
+        pid, event_time, event_text = events[0]
+        blocks = re.findall(r"(?ms)^----- pid ([1-9][0-9]*) at ([^\n]+) -----\n(.*?)^----- end ([1-9][0-9]*) -----$",
+                            trace.decode("utf-8", "strict"))
+        selected = [block for block in blocks if block[0] == str(pid)
+                    or re.search(r"(?m)^Cmd line: " + re.escape(APP) + "$", block[2])]
+        if len(selected) != 1:
+            return unavailable
+        block_pid, timestamp, body, end_pid = selected[0]
+        # ART GetIsoDate prints an explicit numeric timezone; never borrow the host timezone.
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{9}[+-]\d{4}", timestamp):
+            return unavailable
+        canonical = timestamp[:26] + timestamp[-5:]
+        trace_time = datetime.strptime(canonical, "%Y-%m-%d %H:%M:%S.%f%z").timestamp()
+        if (len(re.findall(r"(?m)^----- pid " + str(pid) + r" at ", trace.decode())) != 1
+                or len(re.findall(r"(?m)^Cmd line: " + re.escape(APP) + "$", trace.decode())) != 1
+                or block_pid != str(pid) or end_pid != str(pid)
+                or re.findall(r"(?m)^Cmd line: (.*)$", body) != [APP]
+                or not re.search(r'(?m)^"main" ', body)
+                or not low <= trace_time <= high or abs(trace_time - event_time) > 30):
+            return unavailable
+        return {"status": "ASSOCIATED_DIAGNOSTIC_ONLY", "package": APP, "pid": pid,
+                "eventUtc": event_text + "Z", "traceTimestamp": timestamp,
+                "timeBasis": "device-date-UTC-and-logcat-year-UTC-with-explicit-trace-zone"}
+    except (ValueError, KeyError, TypeError, UnicodeDecodeError, OverflowError):
+        return unavailable
 
 
 def base_receipt():
@@ -1071,8 +1150,7 @@ class Controller:
         self.receipt["adbVersion"] = self.command("adb-version", [self.adb, "version"])[0].strip()[:2048]
         image = sdk.joinpath(*IMAGE.split(";"))
         props = dict(line.split("=", 1) for line in (image / "source.properties").read_text().splitlines() if "=" in line)
-        if props.get("AndroidVersion.ApiLevel") != "35" or props.get("SystemImage.Abi") != "x86_64" or props.get("SystemImage.TagId") != "google_apis":
-            raise Blocked("System image properties do not match API35 google_apis x86_64")
+        validate_image_metadata(props, next(p for p in self.receipt["sdkPackages"] if p["package"] == IMAGE))
         self.receipt["systemImageSha256"] = {
             name: sha256(image / name, lambda: self.remaining(1))
             for name in ("system.img", "kernel-ranchu", "ramdisk.img")}
@@ -1194,6 +1272,7 @@ class Controller:
                 or identity["pageSize"] != "4096" or not identity["fingerprint"]):
             raise Failure("Measured device differs from focused API35 x86_64 4KiB emulator")
         self.receipt["device"] = identity
+        self.factory_evidence()
 
     def drain_background(self):
         for proc, output, label in ((self.emulator, self.emulator_output, "Emulator"),
@@ -1262,9 +1341,97 @@ class Controller:
             self.candidate_setup_command(label, self.adb_args("-s", SERIAL, "install", "-t", apk),
                                          BUDGETS["apkInstall"], record)
 
+    def factory_evidence(self):
+        deadline = self.clock() + self.remaining(BUDGETS["deviceFactoryEvidence"])
+        record = {"properties": {}, "globalSettings": {}, "status": "RUNNING"}
+        self.receipt["deviceFactoryEvidence"] = record
+        for key in ("ro.hw_timeout_multiplier", "ro.debuggable", "ro.build.type", "ro.build.tags",
+                    "ro.test_harness", "debug.hwui.drawing_enabled"):
+            record["properties"][key] = self.shell("getprop", key,
+                timeout=self.remaining(deadline - self.clock()), limit=2048)
+        for key in ("debug_app", "wait_for_debugger", "watchdog_timeout_millis"):
+            record["globalSettings"][key] = self.shell("settings", "get", "global", key,
+                timeout=self.remaining(deadline - self.clock()), limit=2048)
+        validate_factory_evidence(record)
+        record["status"] = "RECORDED"
+
+    def device_clock_sample(self, deadline=None, guard=None):
+        """Read-only device UTC anchor; unavailable metadata never invents a time."""
+        record = {"status": "UNAVAILABLE", "process": {}}
+        try:
+            timeout = self.remaining(BUDGETS["deviceClockSample"])
+            if deadline is not None:
+                timeout = min(timeout, self.remaining(deadline - self.clock()))
+            if guard is not None:
+                guard()
+            output, code = self.command("device-clock", self.adb_args("-s", SERIAL, "shell", "date",
+                "-u", "+%Y-%m-%dT%H:%M:%SZ"), timeout=timeout, limit=256, check=False,
+                identity=record["process"], guard=guard)
+            value = output.strip()
+            if (code == 0 and record["process"].get("complete") is True
+                    and re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z", value)):
+                stamp = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp()
+                record.update(status="CAPTURED", utc=value, epochSeconds=stamp, sampleMonotonic=self.clock())
+        except (Cancelled, Deadline):
+            self.remaining(1)  # Propagate external cancellation/global expiry, not a local probe timeout.
+        except Exception as error:
+            record["errorType"] = type(error).__name__
+        return record
+
+    def capture_last_anr_traces(self, original_error, logcat, deadline):
+        """Read the service's latest trace once, sharing the existing45s failure budget."""
+        started, raw = self.clock(), bytearray()
+        context = self.receipt["crashContext"]
+        record = {"status": "PENDING", "scope": "diagnostic-only-not-test-proof", "process": {},
+                  "limitBytes": CRASH_CONTEXT_LIMIT, "budgetPolicy": "shared-crashContext-deadline",
+                  "sourceSha": context["sourceSha"], "serial": SERIAL,
+                  "installedSha256": context["installedSha256"],
+                  "instrumentationProcess": context["instrumentationProcess"],
+                  "association": {"status": "UNASSOCIATED"}}
+        self.receipt["lastAnrTraces"] = record
+        def owned_device():
+            self.remaining(deadline - self.clock())
+            if (self.emulator is None
+                    or os.waitid(os.P_PID, self.emulator.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT) is not None
+                    or not process_listens_on_loopback(self.emulator.pid, 5581)):
+                raise Failure("Task-owned emulator is not alive and listening")
+            self.adb_args()
+        try:
+            if isinstance(original_error, Cancelled):
+                raise Cancelled("Original instrumentation was cancelled")
+            owned_device()
+            if (context["status"] != "CAPTURED" or not context["captureComplete"]
+                    or not re.search(rb"(?m) E ActivityManager: ANR in " + APP.encode() + rb"$", logcat)):
+                record["status"] = "SKIPPED_NO_COMPLETE_SCANNER_ANR_LOG"
+                return
+            record["deviceClockAfterFailure"] = self.device_clock_sample(deadline, owned_device)
+            record["effectiveTimeoutSeconds"] = self.remaining(deadline - self.clock())
+            record["status"] = "RUNNING"
+            _, code = self.command("device-last-anr-traces", self.adb_args("-s", SERIAL, "shell", "dumpsys",
+                "activity", "lastanr-traces"), timeout=record["effectiveTimeoutSeconds"],
+                limit=CRASH_CONTEXT_LIMIT, binary=True, check=False, guard=owned_device,
+                identity=record["process"], raw_capture=raw)
+            record["status"] = "CAPTURED" if code == 0 else "COMMAND_FAILED"
+            if code == 0 and record["process"].get("complete") is True:
+                record["association"] = associate_anr_trace(logcat, bytes(raw),
+                    self.receipt.get("instrumentationDeviceClock", {}), record["deviceClockAfterFailure"])
+        except Exception as error:
+            record.update(status=("SKIPPED_" if record["status"] == "PENDING" else "")
+                          + getattr(error, "status", "FAIL"), error=str(error)[:1024])
+        finally:
+            record.update(capturedBytes=len(raw), capturedSha256=hashlib.sha256(raw).hexdigest(),
+                          captureComplete=record["process"].get("complete") is True,
+                          displayPolicy="NOT_RENDERED", elapsedSeconds=round(self.clock() - started, 3))
+            display, policy = crash_context_display(bytes(raw))
+            record.update(displayPolicy=policy, displayBytes=len(display),
+                          displaySha256=hashlib.sha256(display).hexdigest(), displayChanged=display != bytes(raw))
+            print("RF_LAST_ANR_TRACES_META " + json.dumps(record, sort_keys=True), flush=True)
+            emit("device-last-anr-traces-display", display, CRASH_CONTEXT_LIMIT)
+
     def capture_device_crash_context(self, original_error):
         """One read-only best-effort capture; its outcome cannot replace the test failure."""
         started, raw = self.clock(), bytearray()
+        deadline = started + min(BUDGETS["crashContext"], max(0, self.ends - started))
         record = {"status": "PENDING", "scope": "diagnostic-only-not-test-proof", "process": {},
                   "budgetSeconds": BUDGETS["crashContext"], "limitBytes": CRASH_CONTEXT_LIMIT,
                   "buffers": ["crash", "main", "system"], "lastRecords": 1000,
@@ -1295,7 +1462,7 @@ class Controller:
             record["effectiveTimeoutSeconds"] = self.remaining(deadline - self.clock())
             record["status"] = "RUNNING"
             _, code = self.command("device-crash-context", self.adb_args("-s", SERIAL, "shell", "logcat",
-                "-b", "crash", "-b", "main", "-b", "system", "-d", "-v", "threadtime", "-t", "1000"),
+                "-b", "crash", "-b", "main", "-b", "system", "-d", "-v", "threadtime", "-v", "year", "-v", "UTC", "-t", "1000"),
                 timeout=record["effectiveTimeoutSeconds"], limit=CRASH_CONTEXT_LIMIT, binary=True,
                 check=False, guard=owned_device, identity=record["process"], raw_capture=raw)
             record["status"] = "CAPTURED" if code == 0 else "COMMAND_FAILED"
@@ -1314,6 +1481,7 @@ class Controller:
                           displaySha256=hashlib.sha256(display).hexdigest(), displayChanged=display != bytes(raw))
             print("RF_CRASH_CONTEXT_META " + json.dumps(record, sort_keys=True), flush=True)
             emit("device-crash-context-display", display, CRASH_CONTEXT_LIMIT)
+            self.capture_last_anr_traces(original_error, bytes(raw), deadline)
 
     def tests(self):
         self.install_candidates()
@@ -1325,6 +1493,7 @@ class Controller:
             record.update(status="INSTALLED_HASH_VERIFIED", installedSha256=record["apkSha256"])
         # Drain between operations; the command loop also drains while native work runs.
         self.drain_background()
+        self.receipt["instrumentationDeviceClock"] = self.device_clock_sample()
         started = self.clock()
         record = {"status": "RUNNING", "process": {}, "budgetSeconds": BUDGETS["instrumentation"],
                   "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}

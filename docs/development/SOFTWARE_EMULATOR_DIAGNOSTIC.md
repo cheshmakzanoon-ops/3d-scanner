@@ -28,7 +28,7 @@ device selectors are removed. No key or signing material is printed or uploaded.
 Implementation and host tests do not execute Android. Publishing the exact
 opted-in commit intentionally requests one automatic attempt under the existing
 authorized repository CI; it is not a credential or permissions workaround.
-The 25f invocation failed before any selected test event: the invocation is **FAIL**,
+The latest 9628 invocation failed before any selected test event: the invocation is **FAIL**,
 with zero demonstrated test executions/completions. Boot or installation alone is
 narrower evidence, not an instrumentation pass.
 
@@ -52,8 +52,8 @@ fails rather than silently changing mode or downgrading.
 Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
 repository's `refs/heads/main`, on attempt 1, with all of the following:
 
-- Previous head exactly `25f0187c1a593a2db845d132bb1f9d01d050deed`.
-- Exact commit message `test: preserve Android crash context for focused runtime`.
+- Previous head exactly `9628a5b28501183b0d2fd78daf2cb77ba53da02f`.
+- Exact commit message `test: isolate focused Android runtime on stock AOSP`.
 - A normal update, not a created/deleted branch or forced push.
 - Event `after`, head-commit ID and `GITHUB_SHA` all identical.
 - One non-merge commit whose actual parent is that previous head; the committed
@@ -101,7 +101,9 @@ skip-CI commit markers, which would suppress required ordinary push checks too.
 | One read-only PackageManager response probe | 60 seconds |
 | Each APK install, exactly one attempt (two APKs maximum) | 10 minutes |
 | Selected instrumentation invocation | 15 minutes |
-| One failure-only read-only device-log capture | 45 seconds / 256 KiB |
+| Named read-only factory property/setting snapshot | 60 seconds |
+| Read-only device UTC sample immediately before instrumentation | 10 seconds |
+| Failure-only logcat and optional latest-ANR trace, shared deadline | 45 seconds / 256 KiB each (512 KiB combined) |
 
 Every subprocess deadline is clipped by the remaining controller budget. A later
 phase may therefore receive less than its individual maximum. Regular commands
@@ -398,8 +400,9 @@ Ordinary CI is separate: the same source's Android host suite passed 837 tests,
 and both native release configurations passed 48 CTest and 1,878 pytest tests
 (176 subtests; 3 skips). The separate GCC sanitizer Python stage failed 83 tests
 (1,795 passed), its Clang counterpart timed out, and the original device gate
-remained blocked by KVM. Aggregate sanitizer verification was still pending as of
-2026-10-23 11:59:57 UTC; no terminal aggregate result is asserted here. These observations are **not a general release pass**;
+remained blocked by KVM. Aggregate verification completed normally by
+2026-10-23 12:13:40 UTC: both sanitized CTest stages passed 48 tests, but both
+Python stages timed out at 600 seconds without summaries. These observations are **not a general release pass**;
 no original gate or sanitizer runtime environment is weakened by this change.
 
 The narrow correction changes diagnostics, not test selection or acceptance.
@@ -411,7 +414,7 @@ alive with verified listener ownership:
 
 ```text
 adb -H 127.0.0.1 -P <owned-port> -s emulator-5580 shell logcat \
-  -b crash -b main -b system -d -v threadtime -t 1000
+  -b crash -b main -b system -d -v threadtime -v year -v UTC -t 1000
 ```
 
 It requests at most the last 1,000 interleaved records from those three buffers,
@@ -451,13 +454,187 @@ collection is restricted to the owned synthetic emulator without user accounts,
 and no arbitrary user-device logs, credentials or private files are requested.
 Display normalization/redaction never changes instrumentation's exact raw proof.
 
-The new read-only logcat path is **NOT_RUN on Android** until a separately reviewed
-hosted attempt. The 114 diagnostic host tests cover parser failure,
+The logcat path ran on 9628 as described below. The diagnostic host tests cover parser failure,
 nonzero/timeout/signal paths,
 partial bounded output, original-exception preservation, cancellation/global
 clipping, missing ownership/binding, display secrecy and actual prefixed-display
 hash reconstruction. Real host child regressions verify timeout/overflow/signal
 metadata and owned cleanup; they are not Android crash-cause evidence.
+
+## Observed startup ANR and ordinary AOSP image experiment
+
+[Run 39951908860, attempt 1](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39951908860)
+at source `9628a5b28501183b0d2fd78daf2cb77ba53da02f` built, booted and hash-verified
+both installed APKs. Headless libraries were `PREINSTALLED`; no private APT
+packages were needed. App/test installs took 179.122 / 20.661 seconds. The app
+APK hash was `05631abe977ac20d1863edd6ecff8fb30404230f6679f54d581708bb18184048`;
+test APK hash was `4f5ecad79b41e7f8d69b2f581c2b05b513162e4124d9e4805968bf0324cbaf47`.
+Instrumentation ran for 48.901 seconds and again returned the exact 74-byte
+process-crashed transcript with SHA-256
+`cc376fcd260b55a01f82c04af5e0a9ead88516f600131a38bdea1a3e05b10a8d`.
+The terminal result at 2026-10-23 12:32:45 UTC was **FAIL**, with zero selected
+test starts/completions and no JUnit proof.
+
+This time Android context established the immediate failure mechanism. At guest
+12:32:33.442, ActivityManager reported startup ANR for scanner PID 3273, followed
+by its `bg anr` kill at 12:32:33.946, Zygote's signal 9 exit and the instrumentation
+crash report. Earlier SIGQUIT 3/tombstoned messages describe ANR stack collection,
+not evidence of a fatal native crash. The captured log does **not** contain the
+scanner main-thread stack. Native test/JNI execution is not demonstrated.
+
+The same log reports 100% guest CPU utilization and CPU-pressure `some avg10=85.52`,
+with system_server, scanner, launcher and other system/Google processes active.
+Scanner class-loader setup/context-mismatch warnings precede the ANR. These
+observations justify investigating startup contention; they do not establish
+whether TCG, ART/classloading, app initialization, or their combination is the
+underlying cause. The tiny lazy application composition root is not changed.
+The mechanism of the earlier 25f crash remains unproven; no retroactive diagnosis
+is made from this later run.
+
+The complete captured context was 196,675 bytes, SHA-256
+`e9812100dcce6b28bd115311908e917848e2e90d12dbdedaa6abad70c13247b9`.
+Its independently reconstructed canonical **diagnostic-only display** was
+196,674 bytes, SHA-256
+`a81fa7856b29833d977738034472ba77f3c7732d235c5876cdd5ea80ca0dc835`.
+Do not append a newline when reconstructing that display; raw and displayed
+hash semantics remain separate even when one added newline happens to reproduce
+the recorded captured hash. Original failure evidence is preserved.
+
+### Image choice and factory behavior
+
+The single experimental runtime change selects ordinary
+`system-images;android-35;default;x86_64`, **revision 2**, instead of Google APIs
+revision 9. API/ABI/tag/revision must match both installed SDK metadata sources;
+a newly published different revision blocks rather than silently changing the
+experiment. All existing API35 / x86_64 / 4096-page, source, APK, four-event-pair,
+license and system-image hash gates remain. This is a **different diagnostic
+image**, not equivalent Google-services runtime, physical-device validation,
+ARM64/performance evidence, or original-gate qualification. No application code,
+ART compilation, startup warmup, PM queue wait, service disabling, watchdog
+extension, permission setting or security change is combined with it.
+
+The official repository XML metadata inspected on 2026-10-23 lists:
+
+| Image | Stable revision | Archive bytes | Official metadata SHA-256 |
+| --- | --- | --- | --- |
+| [Ordinary AOSP default API35 x86_64](https://dl.google.com/android/repository/sys-img/android/sys-img2-3.xml) | 2 | 782,404,023 | `7b119fdc282a65432aab52e8bbc64546f7fb6ec74e79e235633c60d06564b111` |
+| [AOSP ATD API35 x86_64](https://dl.google.com/android/repository/sys-img/aosp_atd/sys-img2-3.xml) | 1 | 690,340,274 | `2c5ee64ad6720bfd09745c5974d03759fd84a5e72de6fea4231b6d00eab619c8` |
+| [Prior Google APIs API35 x86_64](https://dl.google.com/android/repository/sys-img/google_apis/sys-img2-3.xml) | 9 | 1,738,815,903 | `858c1f39632fa98235f13ebfcf2f362d5a19eeaed6c5f9c991425f257809e518` |
+
+The selected official archive is `x86_64-35_r02.zip` under the default metadata's
+base URL; its repository-declared SHA-1 is
+`2d857d170c0d1b827149565da34b3383e5306f7f`. No image archive was downloaded or
+installed during this host investigation. Runtime SDK metadata and extracted
+system/kernel/ramdisk/vendor SHA-256 values remain required in the receipt.
+All three selected package entries reference `android-sdk-license`; their license
+text is byte-identical, SHA-256
+`1f8729233617b193fd619213792ae16a41b95d2bbbf525dfe66998252ba68b16`.
+This is **not proof of the runner's acceptance**. Only its preexisting unchanged
+license records and closed-stdin official SDK download admission are allowed;
+new terms or a missing acceptance still block, with no affirmative response.
+
+ATD is not selected. Official [ATD documentation](https://developer.android.com/studio/test/managed-devices)
+describes deliberate app/service/rendering reductions. Android15's
+[slim product](https://android.googlesource.com/device/generic/goldfish/+/refs/heads/android15-release/product/slim_handheld.mk)
+replaces major UI components with FakeSystemApp (source SHA-256
+`72e2b94be014d53e305981019a6ba9d4d5e8567a3f1ae9147ae31384a728b623`), and
+[slim vendor configuration](https://android.googlesource.com/device/generic/goldfish/+/refs/heads/android15-release/slim/vendor.mk)
+disables HWUI drawing (SHA-256
+`ce120d024731944361e1618ef50664ce15f88011d8e34c1e21158ea496e41c51`).
+The inspected product/overlay subset did not establish an ATD ANR-timeout change,
+but also cannot prove the complete shipped factory property set. Neither ATD nor
+ordinary AOSP watchdog equivalence to the prior image is asserted.
+
+The next diagnostic records named factory properties and read-only global
+settings, including `ro.hw_timeout_multiplier`, `ro.debuggable`, build type/tags,
+`debug.hwui.drawing_enabled`, `debug_app`, `wait_for_debugger` and
+`watchdog_timeout_millis`. Empty values remain empty, not invented measurements.
+[AOSP Build](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/core/java/android/os/Build.java)
+(source SHA-256 `ce3c4c46051d0f845491ab39b39d3291f4e3994cea1d2271aa2a91bf0713e8d9`)
+uses a default multiplier 1 when the property is absent;
+[ActivityManagerService](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/services/core/java/com/android/server/am/ActivityManagerService.java)
+(SHA-256 `4eaf4c3b930071827705079c69ea15c4dddce375a6a52ef7b5cd75803ff10db5`)
+applies it to the 15-second bind-application timeout with one bounded CPU-delay
+extension. The prior receipt did not observe this property, so comparison is
+explicitly `UNVERIFIED`. No property is written or overridden.
+
+A selected scanner `debug_app` blocks: AMS marks that process debugging, and
+[ProcessErrorStateRecord](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/services/core/java/com/android/server/am/ProcessErrorStateRecord.java)
+(SHA-256 `adfa40890deedf51f7df6ffd8e3179c51db15751f22da9265857edb935592c6d`)
+skips its ANR handling. A factory userdebug build alone is not that mode. The
+[system_server Watchdog](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/services/core/java/com/android/server/Watchdog.java)
+(SHA-256 `2bf6c417c43e8f408985c1fb4db802551b9ffc47c04f923ad8ae6345d167177d`)
+is distinct from app startup ANR handling; its setting is recorded, not mislabeled
+as an app-ANR-disable switch. These targeted observations are not a proof that
+all possible platform watchdog/security behavior is equivalent.
+
+### Additional read-only ANR stack context
+
+After an instrumentation failure, logcat now requests `-v year -v UTC` alongside
+threadtime, using [documented modifiers](https://developer.android.com/tools/logcat).
+If a complete bounded log contains a scanner ANR, at most one additional command
+may read the same owned device while it is alive:
+
+```text
+adb -H 127.0.0.1 -P <owned-port> -s emulator-5580 shell dumpsys activity lastanr-traces
+```
+
+It **shares the original 45-second context deadline** with logcat and the failure
+UTC sample, clipped by the 72-minute global deadline; it does not receive another
+45 seconds. Each capture is capped at 256 KiB (at most 512 KiB combined). A read-only
+10-second-capped device `date -u` sample immediately before instrumentation and
+another within the failure budget provide a common device-time basis. Missing
+samples, clock jumps, cancellation, expired time or lost ownership cannot create
+an attributed stack. Instrumentation success performs no failure captures.
+
+[ActivityTaskManagerService](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/services/core/java/com/android/server/wm/ActivityTaskManagerService.java)
+(SHA-256 `37ab36dc1c57988da482a1803397d07af254cbc4ee26c6ec6d8d5eb633722199`)
+implements this service read using its existing permissions and chooses the most
+recent ANR file, which may belong to another process. No direct protected-path
+read, root/run-as fallback, grant, buffer clear, retry or private user device is
+used. Permission denial remains unavailable/unassociated diagnostic evidence.
+A DropBox read was considered but is not combined here; its tag filter alone
+would not bind a scanner process.
+
+`lastAnrTraces` / `RF_LAST_ANR_TRACES_META` retain exact source, installed APKs,
+serial, instrumentation process, bounded command metadata and separate captured
+versus display hashes under the existing redaction/secret-withholding policy.
+The display prefix is `RF_DIAGNOSTIC_LOG device-last-anr-traces-display | `;
+reconstruct it using the same no-terminal-newline rule. The original test failure
+and all strict test-proof gates remain authoritative, regardless of capture result.
+
+Association requires one scanner startup ANR event with matching PID/reason and
+same ActivityManager timestamp/emitter, inside the measured device UTC interval;
+one complete ART trace block with that exact process/PID, explicit timezone,
+nearby timestamp and main-thread section; and no duplicate/conflicting matching
+blocks. [ART SignalCatcher](https://android.googlesource.com/platform/art/+/refs/heads/android15-release/runtime/signal_catcher.cc)
+and [GetIsoDate](https://android.googlesource.com/platform/art/+/refs/heads/android15-release/libartbase/base/time_utils.cc)
+define the process/header/nanosecond timestamp format. Foreign, stale, partial,
+ambiguous, clock-discontinuous or unfamiliar formats remain `UNASSOCIATED` and
+must not be presented as the scanner's causal stack. Even associated output is
+`ASSOCIATED_DIAGNOSTIC_ONLY`, never test or qualification proof.
+
+As of 2026-10-23 12:58:18 UTC, source 9628's ordinary Android job passed 837
+host tests; both release configurations passed 48 CTest and 1,891 pytest tests
+(207 subtests, 3 skips). Both matrix sanitizer CTest stages passed 48; their Python
+stages timed out at 600.116 / 600.151 seconds without final summaries. The original
+KVM device gate remained blocked, and aggregate native execution was still
+running. No terminal aggregate result or general release pass is asserted.
+
+Final update at 2026-10-23 13:03:44 UTC: all workflows were terminal, not
+cancelled. The aggregate native job failed normally: all four configurations
+passed 48 CTest tests; both release Python stages passed 1,891 tests; both
+aggregate sanitizer Python stages **completed** with 83 failures / 1,808 passes /
+3 skips / 207 subtests each. The 83 failure identities matched a014 exactly.
+Those completed aggregate results are distinct from the separate matrix's two
+600-second Python timeouts. Source-bound aggregate artifact `12502843079` had
+SHA-256 `3d30b5d5d28b802fa9288e6af770587e640befa30ab86d5d9d4316f25ad82a8d`.
+These failures and the blocked original KVM gate remain failures, not waivers.
+
+Ordinary AOSP installation/boot/runtime and the new lastanr-traces command are
+**NOT_RUN locally**. Host regressions exercise policy/parser/budget/privacy logic,
+not Android behavior. The previous 9628 logcat capture is actual hosted evidence;
+its success does not establish this new service command's runtime availability.
 
 ## Exactly four tests
 
@@ -534,7 +711,8 @@ process control only; they are not Android execution evidence.
 - [Logcat documentation](https://developer.android.com/tools/logcat) identifies the
   main/system/crash buffers and threadtime format. [AOSP logcat source](https://android.googlesource.com/platform/system/logging/+/refs/heads/main/logcat/logcat.cpp)
   documents read-only `-d`, `-t N` and repeated buffer selection; actual installed
-  Android execution of this new capture remains unverified.
+  Android execution of the original logcat capture succeeded on 9628; the added
+  latest-ANR service read remains unverified until a new actual attempt.
 - [SDK manager](https://developer.android.com/tools/sdkmanager) and
   [AVD manager](https://developer.android.com/tools/avdmanager) document package/AVD
   command syntax. These existing runner tools are used without installing a new CLI.
