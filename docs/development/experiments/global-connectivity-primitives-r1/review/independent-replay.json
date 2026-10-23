@@ -1,0 +1,38 @@
+{
+  "strict_enclosed_hole": {
+    "uncoveredArea": "1/4",
+    "verticesAndCentroidSupported": true,
+    "refused": true
+  },
+  "shifted_multicell_union": true,
+  "perspectiveRatioExtrema": [
+    "1",
+    "7/5"
+  ],
+  "emptyBallUnknownNormalAndExactTies": true,
+  "representedFloatNormalization": true,
+  "expectedRefusals": {
+    "oversizedCancellingOperands": "RATIONAL_BIT_BUDGET",
+    "clipping": "SUPPORT_WORK_BUDGET",
+    "fragments": "FRAGMENT_BUDGET",
+    "balls": "BALL_BUDGET",
+    "collinear": "COLLINEAR",
+    "radius": "CIRCUMRADIUS_EXCEEDS_RHO",
+    "invalidDimension": "VECTOR_DIMENSION",
+    "duplicateIds": "DUPLICATE_SOURCE_ID"
+  },
+  "randomPartitionTrials": 500,
+  "squareRadicalTrials": 10000,
+  "status": "PASS_PRIMITIVES_ONLY",
+  "revision": "reconstructed-r1",
+  "photo": "NOT_RUN_MISSING_FIXTURE",
+  "adapter": "NOT_RUN",
+  "front": "NOT_RUN",
+  "work": {
+    "support": 8380,
+    "balls": 11
+  },
+  "seconds": 1.0656856860000516,
+  "maxRssKiB": 13216,
+  "sourceManifest": "574f069334d9716c11ec4773e33cbf071d02055c793248f20638068314741e95"
+}

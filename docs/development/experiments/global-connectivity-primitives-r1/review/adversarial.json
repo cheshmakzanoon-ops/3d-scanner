@@ -1,0 +1,1 @@
+{"nonsquare_decimal_crosschecks": 2000, "random_exact_ball_boundary_cases": 199, "nonpositive_radius_refusal": true, "optimized_tamper_refusal_before_output": true, "optimized_existing_output_refusal": true}

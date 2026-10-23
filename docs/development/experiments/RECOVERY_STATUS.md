@@ -44,3 +44,11 @@ The aggregate Verify run
 [39967166241](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39967166241)
 failed and did not seal final native evidence. The original device gate also failed.
 No sanitizer, physical-device, UI, performance or release requirement is waived.
+
+## New reconstruction checkpoints
+
+[Exact connectivity primitives R1](global-connectivity-primitives-r1/README.md)
+is newly reconstructed source with new identities, not a recovered historical
+package. Its independent rational-geometry, hole, sphere and bounded-execution
+controls pass. It does not contain a calibrated adapter, global advancing front
+or photographic result. The missing original datasets remain missing.
