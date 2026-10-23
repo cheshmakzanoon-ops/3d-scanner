@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <array>
+#include <cstdint>
 namespace rf::consistency {
 enum class Visibility { Unknown, Supported, Occluded, Inconsistent, Discontinuity, Outside };
 struct Sample { Visibility classification{Visibility::Unknown}; double depth{},confidence{},x{},y{}; };
@@ -15,10 +16,14 @@ inline Sample sampleDepth(const DenseDepthMap& map,double x,double y,int step,in
     if(x<origin||y<origin||x>=map.width||y>=map.height)return {Visibility::Outside};
     const double gx=(x-origin)/step,gy=(y-origin)/step;
     if(gx>map.width||gy>map.height)return {Visibility::Outside};
-    const int ix=origin+static_cast<int>(std::floor(gx))*step,iy=origin+static_cast<int>(std::floor(gy))*step;
+    // Grid neighbors may lie beyond the image (including beyond INT_MAX).
+    // Keep arithmetic wide until bounds checks; zero-weight neighbors are not
+    // sampled, so a valid exact-grid observation remains supported.
+    const std::int64_t ix=origin+static_cast<std::int64_t>(std::floor(gx))*step;
+    const std::int64_t iy=origin+static_cast<std::int64_t>(std::floor(gy))*step;
     const double fx=(x-ix)/step,fy=(y-iy)/step;
     const std::array<double,4>weight{(1-fx)*(1-fy),fx*(1-fy),(1-fx)*fy,fx*fy};
-    const std::array<int,4>xs{ix,ix+step,ix,ix+step},ys{iy,iy,iy+step,iy+step};
+    const std::array<std::int64_t,4>xs{ix,ix+step,ix,ix+step},ys{iy,iy,iy+step,iy+step};
     double lo=1e300,hi=0,z=0,c=0;
     for(int k=0;k<4;++k){
         if(weight[k]<1e-12)continue;

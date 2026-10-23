@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "status": "REPRODUCED_SYNTHETIC_ASSESSMENT_NOT_QUALITY_PASS",
+  "preCleanBuildSourceSHA256Canonical": "639364cd8cfa886912808b2d7f5695488b0e95d48c0ec56fd733a7a079eb888d",
+  "postCleanBuildSourceSHA256Canonical": "639364cd8cfa886912808b2d7f5695488b0e95d48c0ec56fd733a7a079eb888d",
+  "compiledSourceManifestLocation": "measurement.json/sourceSHA256",
+  "canonicalDigestEncoding": "UTF-8 json.dumps(dict,sort_keys=True,separators=(comma,colon))",
+  "preAndPostBuildManifestEqualsBothRunSourceManifests": true,
+  "cleanBuildCommand": "cmake --build build --target realityforge --clean-first -j2",
+  "configureCommand": "cmake -S ../3d-scanner -B build -G Ninja -DCMAKE_BUILD_TYPE=Release",
+  "nativeLibrarySHA256": "3f5f6ddc090568f4160ba9b03568e9de2edab1d6f4f1963bf8232c16632e25d1",
+  "buildLogs": {
+    "configure.log": "1c4f15618c19ed22a0b08dca8bd435feddf34bc5146d3a5d4d67b3689af013a6",
+    "clean-build.log": "bd1b1bfe617011c733f0f6964a523bd936daef35b323cbd7ca256251c52d1ad7",
+    "tests-final.log": "0ab61e6acac9e466361b4564539cdaccfa46c563f43c25cea4adbdd418796b8c"
+  },
+  "tools": {
+    "cmake": {
+      "version": "cmake version 3.22.1",
+      "executableSHA256": "c180ca34fa8d53d935740446445931e79691b4d286bc2a7f0814d41099eaedbb"
+    },
+    "c++": {
+      "version": "c++ (Debian 14.2.0-19) 14.2.0",
+      "executableSHA256": "6b3696e4dcb85e1c949c732a02befa50e3983ecf94ce7e8e58d9d503b954b79d"
+    },
+    "blender": {
+      "version": "Blender 4.3.2",
+      "executableSHA256": "23fa8e83d8152f11246d7172819baa5a00e8e1e706dbc204cc85912db3f368c4"
+    }
+  },
+  "tests": "13 guards passed",
+  "renderByteIdentical": {
+    "view-06.png": true,
+    "view-00.png": true,
+    "fixture.json": true,
+    "view-02.png": true,
+    "view-04.png": true,
+    "view-03.png": true,
+    "view-05.png": true,
+    "view-07.png": true,
+    "view-01.png": true
+  },
+  "canonicalDecodedPixelsEqualInitialRender": true,
+  "nativeReplayRawJSONByteIdentical": true,
+  "nativeRawJSONSHA256": "39ed3b2d9e833f844dde7bfa7311ba7014a999bb34a1cb6458fe2f22e44131a7",
+  "evaluationReplayIdentical": true,
+  "replayReceiptSHA256": "d735b73b3242722d3888dd5a82ad630039bd41ca577f52c5782a62415661bf25",
+  "preFixVsPostFixSupportedInputNativeRawJSONIdentical": true,
+  "retainedExploratoryFailures": [
+    {
+      "run": "final-c",
+      "status": "FAILED",
+      "reason": "RuntimeError('Provenance changed during execution')",
+      "receiptSHA256": "c09faadd64b4024efa32923ed344789eb148c0d685c4c5cc031758af62706fd2",
+      "disposition": "INVALIDATED concurrent native source change; not admitted as final result"
+    },
+    {
+      "stage": "initial PNG byte reproducibility",
+      "status": "FAILED_METADATA_VARIATION",
+      "reason": "Blender Date/RenderTime textual metadata varied; decoded pixels identical",
+      "resolution": "Lossless textual PNG metadata removal in final generator; exact canonical image replay passed"
+    }
+  ],
+  "notRun": [
+    "image-only estimated-camera arm",
+    "production Kotlin/Android controller parity",
+    "physical-object quality",
+    "release qualification",
+    "independent exhaustive intersection audit"
+  ],
+  "hermeticCompilerOSClosure": false
+}

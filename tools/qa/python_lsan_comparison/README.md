@@ -1,6 +1,8 @@
 # Interpreter-only LSan comparison
 
-**NOT RUN on hosted GCC13; not scanner or release-gate qualification.** This is
+**Hosted comparison completed; NOT scanner or release-gate qualification.**
+See the [784f24a result](../../../docs/development/PYTHON_LSAN_COMPARISON_784F24A.md):
+Py_DEBUG removed the empty-workload report, but NumPy-only still leaked. This is
 an additive workflow, triggered manually or by changes to its own workflow/helper
 files on main only. It does not import scanner modules or modify
 any required gate, security policy, dependency lock or exception. A clean debug
@@ -12,8 +14,9 @@ any older Py_DEBUG workflow: its dependency provenance was lost.
 The workflow targets ubuntu-24.04 x86_64 and official apt GCC13. Both interpreters
 use the **same** official CPython 3.12.15 archive; out-of-tree configure differs
 only by `--with-pydebug`. The extracted source is made read-only before building.
-Neither Python build is itself ASan-instrumented. Both preload the same GCC13
-ASan and libstdc++ runtimes, with `PYTHONMALLOC=malloc` and leak detection enabled.
+Neither Python build is itself ASan-instrumented. Both preload the same GCC13-selected
+ASan and libstdc++ runtimes (the compiler selection does not pin their package
+versions; the first hosted run resolved Ubuntu 14.2 runtime packages), with `PYTHONMALLOC=malloc` and leak detection enabled.
 The planted C executable/shared helper are ASan-instrumented.
 
 Order: standalone empty/planted prerequisite controls, source/wheel acquisition,

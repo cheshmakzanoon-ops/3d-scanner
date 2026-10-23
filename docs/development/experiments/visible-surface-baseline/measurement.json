@@ -1,0 +1,511 @@
+{
+  "schema": 1,
+  "status": "ASSESSMENT_COMPLETED_NOT_QUALITY_PASS",
+  "synthetic": true,
+  "arm": "known-camera CPU kernel",
+  "productionControllerParity": false,
+  "boundary": "NativeEngine.surface -> rf_surface_json -> reconstructDense(default settings) -> fuseDepthSurfaces(default settings); not Kotlin/controller/coarse-to-fine/Android execution",
+  "truthPassedToSolver": false,
+  "imageOnlyEstimatedCameraArm": {
+    "status": "NOT_RUN",
+    "reason": "No verified production-equivalent image-only host frontend in this baseline"
+  },
+  "settings": {
+    "near": 3.0,
+    "far": 7.0,
+    "planes": 96,
+    "stride": 2
+  },
+  "librarySHA256": "3f5f6ddc090568f4160ba9b03568e9de2edab1d6f4f1963bf8232c16632e25d1",
+  "inputsSHA256": {
+    "fixture.json": "efe68abb8d6979d4d59553f1fcf1820ed8ca324ac5a32925a932c454d510f0f2",
+    "view-00.png": "b28774a228defe15cd0d1ae4451432ffa902284281d6aaf4179b48c7aec28f5c",
+    "view-01.png": "fc912968ddc14f275be9db510bf15f6ed903df68d199ee6853446e1cf22e87e5",
+    "view-02.png": "caecfe846b061f41a2f3765a97c6da3f3faf9cdf0cca4eb886fb044c71d0e206",
+    "view-03.png": "9293db996de8c74e32ade1af6d2b8601886d0db5bfa6224b1cff4d92f1af18ae",
+    "view-04.png": "73eb927b9af0184f3c81bfc1feb63b26e1e12891fd855e2e4ec2ba6ecfe240a4",
+    "view-05.png": "9f9197e12d41f93d8c8b8ecc01b3addc25e8a5cd6c09382f3c351f42b5b3f431",
+    "view-06.png": "43e930b3adce3580829261a072773f9bf225a6280826eb7f34b319b67303675b",
+    "view-07.png": "1c9e5fc8339daf9e5b692a45ccf8a9098a64e20df8541fe1a0cc812781b87e75"
+  },
+  "sourceSHA256": {
+    "CMakeLists.txt": "7e02293b9a2b6b24d81f50ab7f2bc9cad5971d6b71bb25a4c14733d80c894498",
+    "reconstruction/fuzz/CMakeLists.txt": "ab2ecfa8de9091cd7079f01edbded04c79f07bf431ab1b6079af36b29c65f164",
+    "reconstruction/fuzz/checkpoint.cpp": "f48825de4aa97588512331920e765bfedad7cd5ee20233707efeda0a53fb8bb3",
+    "reconstruction/fuzz/common.hpp": "f587d5e8e5828d5af6ca86617fbc2af0cc5416b360b0d60c063c5d5a64edac52",
+    "reconstruction/fuzz/exports.cpp": "827c7490935df70c34639468327c0878d0f55923fc2d3a549938a5fbb0b7c63f",
+    "reconstruction/fuzz/numeric.cpp": "4bfb73e607737714f473156cdf643b5639aa0ea4d14b2bd75c184824c6a67cca",
+    "reconstruction/include/realityforge/asset_edit.hpp": "f2ae21c3fed45b67e277e471c076bac7bbbd851fbfebbd7e2cd7b9f3147a65b1",
+    "reconstruction/include/realityforge/asset_model.hpp": "f6db5fd4fe627fcaee5bf52264f7fb5a8e5b3bb5cd6139f1b3092ab91144ccde",
+    "reconstruction/include/realityforge/bundle_adjustment.hpp": "ec0d9199fa82bf2247e1406561d02a00fc190de627b4f97054f8df1990c4384d",
+    "reconstruction/include/realityforge/c_abi_support.hpp": "514b48f1db71ea68a55b61281d9817bdbc02e510a35b7503ff78e3eeaa62c12f",
+    "reconstruction/include/realityforge/cancellation.hpp": "f24201bbdcadabd74460e9dca047837629a8c3e30d67f712435bd0b5c50ed3bc",
+    "reconstruction/include/realityforge/checkpoint_digest.hpp": "b26fe9bba08d15db72a52a76daea31f7f084cf0b938881a61a4641781267172e",
+    "reconstruction/include/realityforge/core.hpp": "d2d38fdae4d7f32b9558dacc8c5291fedfdead1249d827590a6f20b7e7bdaba5",
+    "reconstruction/include/realityforge/dense.hpp": "5ddb77d1264b2ac5604b32ef104bb76f001d0374d1871871442fe077eef377a5",
+    "reconstruction/include/realityforge/dense_selection.hpp": "da613288fb1f304572c9c7b0bdc917807772bfdfb280738f6759210b47a7965b",
+    "reconstruction/include/realityforge/depth_cache_manifest.hpp": "649993ed41cc1de169f4486e1d51f1d7e2ab5618a072b984e0c6e1cbc48fc97f",
+    "reconstruction/include/realityforge/depth_checkpoint.hpp": "29c52e7cd6688a480652c8eff64b861781ef642a3a55f7d1941299a4d6ac379f",
+    "reconstruction/include/realityforge/depth_consistency.hpp": "6cc9146bf274849c576abbb50af355e1a5adecbb5fa7f5ca541a00dfd043d9b0",
+    "reconstruction/include/realityforge/depth_refinement.hpp": "14983d98d4dca6895420158f952c1c229f8ab2dd0c74336783835d9a7a92d78d",
+    "reconstruction/include/realityforge/depth_tiles.hpp": "e661359e3e944e2ebb06c6aaadbc2cce56045e973680e5c4f4a484d0d3eaedcb",
+    "reconstruction/include/realityforge/glb_export.hpp": "88108eb943777d430d80f43f5cfcabf267d7f6d32bb29d76013e7bf9c8c8c4cf",
+    "reconstruction/include/realityforge/intrinsics.hpp": "ab679b700f08db4bf5711ce93a4a9b92f818ad5d5198cb43af2ea9d5ff9c3c1b",
+    "reconstruction/include/realityforge/jni_support.hpp": "b597ec5c307611e322e480d5f4a77fbf614dfed43b2bb2437af3cde26432e506",
+    "reconstruction/include/realityforge/legacy_asset_export.hpp": "5680b8f6f8c7c8b5b0660f4fc8e6d446c65672110c9fadd7edd7240bcccccb72",
+    "reconstruction/include/realityforge/loop_closure.hpp": "352c3e8197dfb1bb043544c20d7b602977981006b72b43c83858c7a320c16506",
+    "reconstruction/include/realityforge/matching_cost.hpp": "4553b9b34fb27944c0d71b597b7430e34bff8841a5686384b09288299931f268",
+    "reconstruction/include/realityforge/mesh_cleanup.hpp": "55a6c010449beafc00e627a645b7e65a7ba4587d3bebdfcff6ac2236646ce2d4",
+    "reconstruction/include/realityforge/mesh_lod.hpp": "40a2c5a841562ab05f41bf77e1f49f3c24a4b83b5b71bc09b29f076c25980188",
+    "reconstruction/include/realityforge/mesh_topology.hpp": "9f91471032e0b89de0b53d9bf8a51733256a17bf71bd72d99fbdf18c906646c4",
+    "reconstruction/include/realityforge/multiview.hpp": "1498fc91d4714a0bc2f62da8551817d2e339df1c6445389315a786eb5fa645e6",
+    "reconstruction/include/realityforge/obj_export.hpp": "1927504fe407a6dec43955c3f3aa2d6b051c355d342aa392b329b7554302dc1a",
+    "reconstruction/include/realityforge/photometric.hpp": "b26192ce8fb327abf36fe302a57417e0c0e11e7f691dcbf27f28650f64ee4820",
+    "reconstruction/include/realityforge/ply_export.hpp": "6279335b1f826fce4d439af364bf5682b569c464b33b16424520d1e2c8e6ae39",
+    "reconstruction/include/realityforge/pnp.hpp": "32c39f4c6811125d41fb3d8f1dc5c4d881526660ed311c23f4a9b543883b072e",
+    "reconstruction/include/realityforge/progress.hpp": "5f6c102341cf4bbd931d1ed484be5c679cbc4080a6c52f30df6611dd5f3e91c6",
+    "reconstruction/include/realityforge/stereo_warp.hpp": "793ee03c563699d32b6c12138d2b30d584821d428fd0432b70e993654efcf889",
+    "reconstruction/include/realityforge/stl_export.hpp": "f8721da4bd5fbfdab089bd4374f8b91ca4df23b639352e742fe7815b1d267eb7",
+    "reconstruction/include/realityforge/surface.hpp": "076fa349db9e78645221896cfed4233f7055e4f4f570842e5acde9910051b35f",
+    "reconstruction/include/realityforge/surface_checkpoint.hpp": "1fb79defca2f92207b926c74824f3b22133f4e00445b9ac93093354eb23e2751",
+    "reconstruction/include/realityforge/surface_evidence.hpp": "8082ee701dcad38ee937125a582eadab6dc88638876714cb64d7ef456775f875",
+    "reconstruction/include/realityforge/surface_fusion.hpp": "f6f006d4f15a6a42dff816e80a57190235f85a1453908e33f34c362cb4b7e8dc",
+    "reconstruction/include/realityforge/texture.hpp": "ef4f83d2b22e569fa96bafae68c41ac080222b73dd1dd93b7cf9e7675ef1fec2",
+    "reconstruction/include/realityforge/texture_blend.hpp": "4e786d94b20c14b729a0cd92a6914c624ab19cde8aba81ccf64e39bdd22da541",
+    "reconstruction/include/realityforge/texture_png.hpp": "dfbb38af173e730c4bfc0808816671b19fddf50bcd216f898526ffe582f07a7e",
+    "reconstruction/include/realityforge/texture_visibility.hpp": "4df2229b923f557ea051373e1576c914d4b1d93a07deb732ef01f36324d8472f",
+    "reconstruction/include/realityforge/uv_atlas.hpp": "2fb9d2449be0d7d328fce8ee2385c7c013ed25410e73afc6fd017931e670067b",
+    "reconstruction/include/realityforge/vulkan_depth.hpp": "d741018eb6b9fef204b5875d9d9200b38462f02a83675427063c7af01fb3e455",
+    "reconstruction/shaders/depth/cost_reduce.comp": "9b37475fcbb0204e61d3400dc7272bbcf68d631622176ddd4d7a4fda0ed58e4f",
+    "reconstruction/src/asset_edit.cpp": "dd1789fd460681c7d0140fe09d8328771bc331f88995a3114aadbca7398ca529",
+    "reconstruction/src/asset_exports_jni.cpp": "d456391e0872cc44b899b309e27a1aa0fa7f24bc8e86f022c5ec237c179c66d8",
+    "reconstruction/src/asset_model.cpp": "10b8def4ec8080cd5a4231c54a5b020a34d587820da4a35959f1ba981cf2aa3d",
+    "reconstruction/src/bundle_adjustment.cpp": "5144730ce8db99d3ee9e50b47cb4e4ca13ffa961f86d2dc7d072d3ed556f6a5f",
+    "reconstruction/src/bundle_problem_bridge.hpp": "1d931ffe909b91a5c735369b0b07fb1abf926cd20e6f3805a0ec2d1bfffe75c7",
+    "reconstruction/src/cancellation.cpp": "ac20f2eb9fcabe3baa20e119560ba987aa0b78376c4a0e7478e47e068d7fe5ca",
+    "reconstruction/src/core.cpp": "20eb9104189701b3fa8ced911f1c6ea71b3c7afe196451678aaa7f1bf511414b",
+    "reconstruction/src/dense.cpp": "04ffc0c7693b000eb54f62f961a925b3ab74125cfce95df1e82ecebc9c39fdd4",
+    "reconstruction/src/depth_cache_manifest.cpp": "31cd9134bda8020f8dbb41293b2f6885058f3699770045080cdba045d29a75e8",
+    "reconstruction/src/depth_checkpoint.cpp": "9213ddc96619c6af6138bf6d8efaad494d2bac4559d72326a668881d301d9f09",
+    "reconstruction/src/depth_consistency.cpp": "bb4be77fcb59066de0a3492e1e25ee854c8e9c38f643eb9cdab3eb1ae964a8bf",
+    "reconstruction/src/depth_refinement.cpp": "478583a85b95eea596d3c07c775963ac6b552e973ec377572d2b98a687864259",
+    "reconstruction/src/depth_tiles.cpp": "b8e6659396a1d5eb52f416641811722e849c1febca1879e9ad842e69fefd3abd",
+    "reconstruction/src/glb_export.cpp": "f1fea2d16637571bc314b0c00cbafcee480b1eaeeb66257ae9adaf66668edfb7",
+    "reconstruction/src/intrinsics.cpp": "ae9687755730aeefcf4fedbb8c9b10455303423974a88101f98c6c289ba5b6b9",
+    "reconstruction/src/jni.cpp": "be46fa526e3c36f2205276032b50afbd690958c0549b49496534f7ecdfc8851f",
+    "reconstruction/src/legacy_asset_export.cpp": "2e6fb934aebbff0e175354567865da630ad0a72fbd8c8982da21035abb62f1a4",
+    "reconstruction/src/loop_closure.cpp": "aada1700a22ed88417ba4ca5b4c4bd6fb905ad22fae54fae751c0fc915c36339",
+    "reconstruction/src/matching_cost.cpp": "5b9f6dcb042789d05e649d3fb09d23384f87b4e1b6aec3141dab3b8b40066a6e",
+    "reconstruction/src/mesh_cleanup.cpp": "cef008d9eede87c702fb6adc90fd48d656fdbbad9f8402390ec6c78f96b69a66",
+    "reconstruction/src/mesh_lod.cpp": "62c1755124474501ccafc28efd1e98dd7f5019ece7f8f1255362044d1c64356e",
+    "reconstruction/src/mesh_topology.cpp": "b5b8c57721f906c893fd04220012028dde6863b8532656c8e8cafa594f687132",
+    "reconstruction/src/multiview.cpp": "0a3b4459e51fffa6bcb82374b68ba42b040f14dd6f9b47363519d8eb18bcd25f",
+    "reconstruction/src/obj_export.cpp": "df9481137720dcd41f9858f5d3bc77856cafc8cfdebe90cadfe8a7cfbeb017eb",
+    "reconstruction/src/photometric.cpp": "3caffc3385f561cecfbe1a198ecd83583ae95693e731091b47a2269b35ebeb20",
+    "reconstruction/src/ply_export.cpp": "33f613e472273feeca1301084ce157c27c19e86177ea27e4f27c4b73f1a1c098",
+    "reconstruction/src/pnp.cpp": "b82b645ccaaa2099b60787017c23704c474c97350b1d4790ae295c8fbadd8792",
+    "reconstruction/src/progress.cpp": "c6fb7a5b31e0944b27fa97b2d28cb52956c4aea7eb40f334eb964e938752ca34",
+    "reconstruction/src/stl_export.cpp": "6fbc746a57371e3e33ac97c3b69e0cf189f20b559f5ba675534d54352fc365c8",
+    "reconstruction/src/surface.cpp": "9e858e932ea8477460a4f21073eea05482a652be7ad345dce93f195f9e9c018d",
+    "reconstruction/src/surface_checkpoint.cpp": "bc918258377ae44b3c1a6ab2cf02991b22346716c958747b77cae0b802bf31fd",
+    "reconstruction/src/surface_evidence.cpp": "fb0f5d7c759ccd35b82ce95974c2ab2f5e1e5761a1a5d0e2160e6e83d87f9b0a",
+    "reconstruction/src/surface_fusion.cpp": "b7ad3fad8db88e2b3e9f4df19e20ad448c3a9f896b5900b1b90f05f3a936b8df",
+    "reconstruction/src/texture.cpp": "3ff5c9cab9c38ce62182efb83f77e08fc8b8dc50a0824bf85368b016cd85ebc3",
+    "reconstruction/src/texture_blend.cpp": "5daa9ddd7cc4829653d63e29fe27b8b3c7313d625c4fd01460228ca73a066c3c",
+    "reconstruction/src/texture_checkpoint.cpp": "725f32abbd272a0c9800175a04cebb310f94a2639f2b0cbfefb4eb035055df7f",
+    "reconstruction/src/texture_png.cpp": "9a777e8a77800ffc0283ea1938584cba58c68df959263efc89db36a26c02b7a6",
+    "reconstruction/src/texture_visibility.cpp": "c5fa7443f16ff9dfcf0ae3014cf6afde285edffcba8965788de669d052a4f76e",
+    "reconstruction/src/uv_atlas.cpp": "55b0b81387827168657c3a767e237e0893b5a11f5792de4921688aeef5964cf5",
+    "reconstruction/src/vulkan/CMakeLists.txt": "900cddba1066673dc9707638470665ec3b4b6410b5b6604015a8265579197d4a",
+    "reconstruction/src/vulkan/cost_reduce_spv.hpp": "926598c1f0ec4584a200398a1c91ca1f656361950da5b6cb244891f3015a52c9",
+    "reconstruction/src/vulkan/vulkan_depth.cpp": "147152fbac3ce2bff752c399cff40d6c8f082516ac570243ff5722bd2b0bdcbb",
+    "reconstruction/tests/agent_003_jni_boundary_test.cpp": "3d43b638a235925dae4a915f495e4dc39a9613e8170055d98cc8ca5644a53090",
+    "reconstruction/tests/agent_046_real_profile.cpp": "529cf209616a7188b99ce6d92e40bf8019647c37be1fc0dd1954298ca235fa69",
+    "reconstruction/tests/agent_046_robust_local.cpp": "ad24239a452d72a6673f633a56e009dc6820bfad69eeda7a0a0f2f47e2061215",
+    "reconstruction/tests/agent_046_tile_process.cpp": "0a6934649adab480a05748bfad0e85e1531f9b80362bfe9f4ccd5bdf608f69b7",
+    "reconstruction/tests/agent_050_process_recovery.cpp": "b8531c0e22a4152e768fb5bc43ae656b041249e0d594ffa81165156689f21fa6",
+    "reconstruction/tests/agent_057_c_abi_failure.cpp": "4dab4ef82f7c53b72d32e129cb9299caa86d90e444d572191824910a2d516cbd",
+    "reconstruction/tests/agent_061_asset_test.cpp": "6a8b66aa85eff01d01dd6c2a7171d5a02d26021a92c29582ff82a98bf7daea35",
+    "reconstruction/tests/agent_062_obj_test.cpp": "7d6c0c1ffcff76dbef2ba9a6228dcf11e5483ffb5b3e712daddee8aec6676662",
+    "reconstruction/tests/agent_063_stl_test.cpp": "40a13f44f7c34c3fb8131362e627af1d3094fb437b8b855b1c43bfb7bfaf7116",
+    "reconstruction/tests/agent_064_ply_test.cpp": "d51b5cc725d75a542d086db19cc65470a5de3346c0de7121e293ee0235f1a568",
+    "reconstruction/tests/agent_065_mesh_lod.cpp": "c052fa143cd6b1c87a137847f299e72b5de941751b77b988f4ea65c93854e3d5",
+    "reconstruction/tests/agent_066_asset_edit.cpp": "4729933d83b1d8877c83bce5ab5c738efb1a2f57ef3d455c63403b53551a8905",
+    "reconstruction/tests/agents/003_bundle_problem_bridge_test.cpp": "626ac04518d3325fed020c98aa077b65f948732cdfcc6b233bdbe24a5c844ae9",
+    "reconstruction/tests/boundary_test.cpp": "2137a8eaa0fcb901f255e349e405cf8a055cd3c1f7bfd8a50793d5b888b2c3fd",
+    "reconstruction/tests/bundle_adjustment_test.cpp": "f4e0fb5d66f31ef5ef8f0398a9c78563fb5747a1483c03f945f255a531f988e8",
+    "reconstruction/tests/cancellation_test.cpp": "94a0a011bf6e86784950ce8893070d088fba04ed3039ba627f10fd731593161f",
+    "reconstruction/tests/core_test.cpp": "5444fa196aae12091b37003bc8f94d23ca74801aae9babfb7b7ff9613882d307",
+    "reconstruction/tests/dense_incumbent_test.cpp": "6ce21ab04fd26051aed91138f0ef7e3044edb908491dd16380362d8fcb34cf2b",
+    "reconstruction/tests/dense_selection_test.cpp": "4b59421435d93ced47abbdeca38bae77401a64aa84cbfb92c164fe5d3adac196",
+    "reconstruction/tests/dense_test.cpp": "e45639f478365cdb5075c667706c79785a12374d364f901a5a46fd4a52163db7",
+    "reconstruction/tests/depth_cache_manifest_test.cpp": "2142ac081461e81ba1c8612e24bbff06d0a0c721992f66b284e745b3e27d792b",
+    "reconstruction/tests/depth_checkpoint_test.cpp": "fad5150560d4a203509d294aeb1bd9885a714eb03f24a7bdbfb217c690d8b5f5",
+    "reconstruction/tests/depth_consistency_test.cpp": "e5f68b94b0532b6ee5cd94793e0ecf676d1cd3560b9e49df2c1bf5b6dce0f45b",
+    "reconstruction/tests/depth_refinement_test.cpp": "a39e930f6d8ba2b77cf16e4b77dd9325d0ccc5f804994ef55f8f89177ba907d3",
+    "reconstruction/tests/depth_tiles_test.cpp": "41cdf20318c89c8df45f02c6ab8ac096e4cab0066b7aa92cd0faec8457cd1383",
+    "reconstruction/tests/initializer_degeneracy_test.cpp": "a7a70b95264c30921737420600816e51d15be0ca5e09fd05bfcd64e0bd9f9408",
+    "reconstruction/tests/intrinsics_test.cpp": "b3728ce931764ade8bc233c3d5226e30a904b164ca41acc3a635d70c48e883ae",
+    "reconstruction/tests/legacy_asset_export_test.cpp": "94f5e2f34112ac53aa43a08c4b9768dbe20fccdcb0d339a027ab469333f7ab00",
+    "reconstruction/tests/loop_closure_test.cpp": "4a1b6abda8783b88cb6d504f771c34f07a9b7469360e02b352f346b3167e0349",
+    "reconstruction/tests/matching_cost_test.cpp": "d1c07e2958ca20eb74c9df185366dbaa647f3a20257bfc5611bfdfe71f86c7d6",
+    "reconstruction/tests/mesh_cleanup_test.cpp": "f284d2411f10ba3b6d3a88991af3d67bc255535d6f5b95855080f9c63a515b52",
+    "reconstruction/tests/mesh_topology_test.cpp": "727edd9497d497bb1dde033a648d1b2ffa3442a7b40c53a0fe8c1721a21a3f49",
+    "reconstruction/tests/multiview_test.cpp": "ba28217c480835e0a4c191e8b2296b96ed24f531c384e539ebb4ecaca46e11b9",
+    "reconstruction/tests/photometric_adversarial_test.cpp": "e6291734d91c5b7379b3b36be8c930f236767282b375826c7a0ce5582e5a7a70",
+    "reconstruction/tests/photometric_test.cpp": "c6cb6f48f9f957f26a72bba50f1ce721d9c85ae7fe8165f42122627991b39dcf",
+    "reconstruction/tests/pnp_robustness_test.cpp": "890582ab566d7ea769e712bc3cc06f02d7a9bd4de97d60b1942bfa24dded71b1",
+    "reconstruction/tests/progress_test.cpp": "f85d2dda5790943883ebb47f8e99dab06d130356a6d6dbbc75d87bf2499dcd54",
+    "reconstruction/tests/stereo_warp_test.cpp": "7706f397f75c2b3cf860f38762d19b6088eb472f6477922764652dd0f13b723c",
+    "reconstruction/tests/surface_checkpoint_fixture.hpp": "075a55880753de8fe4f2ee526657127b8ec50f60c30a23ab1464513ddf6ce26f",
+    "reconstruction/tests/surface_checkpoint_test.cpp": "1e4c618b4b90a13d1586febcfbc3cb2760a02947693cd41f2eef49d486fd9efc",
+    "reconstruction/tests/surface_checkpoint_unsupported_test.cpp": "e345c75025f9c2deafa910664a9e152059e6f1483d9c9e559f3c7dd151ab90cd",
+    "reconstruction/tests/surface_evidence_test.cpp": "abbaefce7442e281270c4823a39e3a0858dee5027eb35f64ecbeda9add1503da",
+    "reconstruction/tests/surface_fusion_test.cpp": "e9d8d575aaa63a8b801647d67f69ac0a880d1e7d47b8105f7cfe11e3f2dc107d",
+    "reconstruction/tests/surface_test.cpp": "506552ef4c975428cf33cf0c7eb114aa5d7a495102b5c82c808d087a2e9748e8",
+    "reconstruction/tests/texture_blend_test.cpp": "a8a78aff04c0cc7d1a566045bdb85e9428c696f803fc5f345a6dbd505ac5affe",
+    "reconstruction/tests/texture_png_test.cpp": "46ed2a7c3d152c2a6c2d275d4472f24a684bd1000e0edc75a0552e6665d5c765",
+    "reconstruction/tests/texture_test.cpp": "379aa2ff2f8c0aaa36c72bcffb897d896e8bcfc72c3a0e159fdce27eb57a28f1",
+    "reconstruction/tests/texture_visibility_test.cpp": "00aa541cf849ab276ec7ff10406c30c29889cea8a6e6f16be3b212efbf50c4ac",
+    "reconstruction/tests/triangulation_conditioning_test.cpp": "8a96d1e611e951e5d58cc3dc0ac2ae95377824134dbd9985ba03fb8f794312cd",
+    "reconstruction/tests/uv_atlas_test.cpp": "5d8a1c8b9ad0453c7cdbd5e338fec9af48840b4bbaeb0be7130af4e9d1952ed6",
+    "reconstruction/tests/vulkan_depth_contract_test.cpp": "20163375ada973fb29976404c22f04fc29d52fab88a265aba02a442691097feb",
+    "tools/native_api.py": "894a307eed014dc67c77cd14bb8ad2bbdbb1d179514e59726e566285bcd28f56"
+  },
+  "scriptsSHA256": {
+    "generate.py": "c55c5998f92eb96ffa1a9ef391d9841c1c5be88e584f22859837f13558d63f15",
+    "evaluate.py": "3d5f9a42bb2cfcef7566182aee3fe74fba9249283d4d64603e96f92a75f48ef1",
+    "test_evaluate.py": "40d9f57bec07047f3fb70b4338519007a2b25cad28d6b0000f2ae9e3938c71a0",
+    "run.py": "aa65153a75606423ee84a68bbeac262d16e5d6d51cf5285c36932d6d25b692ff",
+    "test_run.py": "b3e8f94f6df608926a9419df106dce070dc957ab6c45ce1eb6e79b0e23cf30b3"
+  },
+  "sourceCommit": "784f24ac195f1ff533bbb69bae92e273d0fd3c0b",
+  "versions": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "numpy": "2.2.6",
+    "opencv": "4.12.0"
+  },
+  "runtimeLibraryMappings": [
+    "7f99e97d8000-7f99e97e8000 r--p 00000000 00:1b 1442470                    /workspace/scratch/6b683a119bde/visible-surface-baseline/build/librealityforge.so",
+    "7f99e97e8000-7f99e98fa000 r-xp 00010000 00:1b 1442470                    /workspace/scratch/6b683a119bde/visible-surface-baseline/build/librealityforge.so",
+    "7f99e98fa000-7f99e9913000 r--p 00122000 00:1b 1442470                    /workspace/scratch/6b683a119bde/visible-surface-baseline/build/librealityforge.so",
+    "7f99e9913000-7f99e9914000 r--p 0013a000 00:1b 1442470                    /workspace/scratch/6b683a119bde/visible-surface-baseline/build/librealityforge.so",
+    "7f99e9914000-7f99e9915000 rw-p 0013b000 00:1b 1442470                    /workspace/scratch/6b683a119bde/visible-surface-baseline/build/librealityforge.so"
+  ],
+  "nativeWallSeconds": 3.17530159800026,
+  "rawResultSHA256": "39ed3b2d9e833f844dde7bfa7311ba7014a999bb34a1cb6458fe2f22e44131a7",
+  "nativeStatus": "COMPLETED",
+  "meshDiagnostics": {
+    "schema": 8,
+    "representation": "observed_open_triangle_mesh",
+    "scale": "arbitrary",
+    "textured": false,
+    "watertight": false,
+    "material": "vertex_colors",
+    "vertexCount": 4549,
+    "triangleCount": 13212,
+    "inputSamples": 9179,
+    "acceptedSamples": 9178,
+    "fusedObservations": 4314,
+    "rejectedCells": 26157,
+    "rejectedTriangles": 2570,
+    "medianConfidence": 1,
+    "fusionVersion": 6,
+    "boundaryEdges": 1949,
+    "nonmanifoldEdges": 3432,
+    "intersections": 15401,
+    "topologyIncomplete": true
+  },
+  "vertices": 4549,
+  "triangles": 13212,
+  "dense": {
+    "schema": 7,
+    "representation": "dense_points",
+    "technique": "bounded_cpu_plane_sweep_zncc",
+    "scale": "arbitrary",
+    "triangleCount": 0,
+    "textured": false,
+    "pointCount": 9028,
+    "sampledPixels": 35112,
+    "photometricPixels": 9458,
+    "consistentPixels": 9179,
+    "medianConfidence": 0.99576634169,
+    "sourceViewIndices": [
+      [
+        1,
+        2,
+        3
+      ],
+      [
+        2,
+        0,
+        3
+      ],
+      [
+        1,
+        3,
+        4
+      ],
+      [
+        4,
+        2,
+        1
+      ],
+      [
+        3,
+        5,
+        6
+      ],
+      [
+        6,
+        4,
+        3
+      ],
+      [
+        5,
+        7,
+        4
+      ],
+      [
+        6,
+        5,
+        4
+      ]
+    ],
+    "consistentPixelsPerView": [
+      1010,
+      1137,
+      1182,
+      1223,
+      1213,
+      1197,
+      1170,
+      1047
+    ],
+    "resumedDepthMaps": 0,
+    "writtenDepthMaps": 0,
+    "resumedDepthTiles": 0,
+    "recomputedDepthTiles": 48,
+    "writtenDepthTiles": 0,
+    "rejectedDepthTiles": 0,
+    "coarseDepthMaps": 0,
+    "propagatedHypotheses": 0,
+    "sparsePriorTiles": 0,
+    "normalHypothesesEvaluated": 0,
+    "normalRefinedPixels": 0,
+    "normalSupportPairs": 0,
+    "normalRejectedPairs": 0,
+    "normalUnknownPairs": 0,
+    "completedTiles": 48,
+    "totalTiles": 48,
+    "admittedWorkingSetBytes": 17551872,
+    "peakLuminanceBytes": 0,
+    "verifiedSampleCount": 9179,
+    "pointExportLimitReached": false
+  },
+  "evaluation": {
+    "referenceBoundingBoxDiagonal": 2.8178005387220617,
+    "perView": [
+      {
+        "view": 0,
+        "observablePixels": 5861,
+        "coveredPixels": 3718,
+        "coverage": 0.6343627367343456,
+        "absoluteCameraZError": {
+          "count": 3718,
+          "finiteCount": 3718,
+          "p50": 0.0088924282822056,
+          "p95": 0.056798443933322056,
+          "max": 1.4760813350593684
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.46544958198259684,
+          "0.01": 0.5758403002900528,
+          "0.02": 0.6024569186145708,
+          "0.05": 0.6234430984473639
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      },
+      {
+        "view": 1,
+        "observablePixels": 5776,
+        "coveredPixels": 4247,
+        "coverage": 0.7352839335180056,
+        "absoluteCameraZError": {
+          "count": 4247,
+          "finiteCount": 4247,
+          "p50": 0.0078014460017312715,
+          "p95": 0.06080577753284202,
+          "max": 1.4909752087586714
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.5837950138504155,
+          "0.01": 0.6807479224376731,
+          "0.02": 0.6968490304709142,
+          "0.05": 0.715893351800554
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      },
+      {
+        "view": 2,
+        "observablePixels": 5583,
+        "coveredPixels": 4572,
+        "coverage": 0.8189145620634067,
+        "absoluteCameraZError": {
+          "count": 4572,
+          "finiteCount": 4572,
+          "p50": 0.006933821702757914,
+          "p95": 0.03338262512058826,
+          "max": 1.501466969755615
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.6901307540748701,
+          "0.01": 0.7727028479312198,
+          "0.02": 0.783987103707684,
+          "0.05": 0.7915099408919936
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      },
+      {
+        "view": 3,
+        "observablePixels": 5589,
+        "coveredPixels": 4631,
+        "coverage": 0.8285918769010556,
+        "absoluteCameraZError": {
+          "count": 4631,
+          "finiteCount": 4631,
+          "p50": 0.006522926976456844,
+          "p95": 0.02099675345197838,
+          "max": 1.4629328834669568
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.7273215244229737,
+          "0.01": 0.8033637502236536,
+          "0.02": 0.8130255859724459,
+          "0.05": 0.81624619788871
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      },
+      {
+        "view": 4,
+        "observablePixels": 5589,
+        "coveredPixels": 4627,
+        "coverage": 0.8278761853641081,
+        "absoluteCameraZError": {
+          "count": 4627,
+          "finiteCount": 4627,
+          "p50": 0.006521754987631745,
+          "p95": 0.020511155157440515,
+          "max": 1.4388120378053886
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.7278582930756844,
+          "0.01": 0.8055108248344963,
+          "0.02": 0.8151726605832886,
+          "0.05": 0.8182143496153158
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      },
+      {
+        "view": 5,
+        "observablePixels": 5583,
+        "coveredPixels": 4559,
+        "coverage": 0.8165860648396919,
+        "absoluteCameraZError": {
+          "count": 4559,
+          "finiteCount": 4559,
+          "p50": 0.0069031778582120396,
+          "p95": 0.02895656141803641,
+          "max": 1.4880484121164095
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.69299659681175,
+          "0.01": 0.7741357692996597,
+          "0.02": 0.785240909905069,
+          "0.05": 0.7916890560630485
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      },
+      {
+        "view": 6,
+        "observablePixels": 5776,
+        "coveredPixels": 4220,
+        "coverage": 0.7306094182825484,
+        "absoluteCameraZError": {
+          "count": 4220,
+          "finiteCount": 4220,
+          "p50": 0.007487057144478726,
+          "p95": 0.044269331932911785,
+          "max": 1.4921767890269946
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.5855263157894737,
+          "0.01": 0.6810941828254847,
+          "0.02": 0.697887811634349,
+          "0.05": 0.7155470914127424
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      },
+      {
+        "view": 7,
+        "observablePixels": 5861,
+        "coveredPixels": 3677,
+        "coverage": 0.627367343456748,
+        "absoluteCameraZError": {
+          "count": 3677,
+          "finiteCount": 3677,
+          "p50": 0.008488584883385997,
+          "p95": 0.04455179754338941,
+          "max": 1.5215096453169208
+        },
+        "accurateCoverageCDF": {
+          "0.005": 0.4731274526531309,
+          "0.01": 0.5778877324688619,
+          "0.02": 0.6021156799181027,
+          "0.05": 0.6208838082238526
+        },
+        "candidateTrianglesSkippedNonpositiveCameraZ": 0
+      }
+    ],
+    "projectedPixelCoverage": 0.7508220439300276,
+    "referenceSurfaceSampling": {
+      "totalAreaUniformSamples": 6000,
+      "observableInAtLeastTwoViews": 3734,
+      "unknownExcludedSamples": 2266,
+      "referenceToCandidateDistance": {
+        "count": 3734,
+        "finiteCount": 3734,
+        "p50": 0.12828663833252568,
+        "p95": 0.6504823108008222,
+        "max": 0.9555656792836972
+      },
+      "distanceCDF": {
+        "0.005": 0.30958757364756295,
+        "0.01": 0.3387787895018747,
+        "0.02": 0.3899303695768613,
+        "0.05": 0.5203535083020889
+      },
+      "cdfUnits": "fraction of reference bbox diagonal; descriptive curve, NOT acceptance thresholds"
+    },
+    "candidateToObservableReferenceDistance": {
+      "count": 6000,
+      "finiteCount": 6000,
+      "p50": 0.004183998285372914,
+      "p95": 0.019048401422577216,
+      "max": 0.1027088562696661
+    },
+    "candidateDistanceCDF": {
+      "0.005": 0.9153333333333333,
+      "0.01": 0.9738333333333333,
+      "0.02": 0.9965,
+      "0.05": 1.0
+    },
+    "candidateSampling": "6000 deterministic area-uniform candidate samples including ALL candidate triangles; unknown/outside-visible-truth geometry is not silently cropped",
+    "referenceFullFaceVisibilityProof": "all reference vertices are positive-z and inside 6px margin in ALL cameras; convex planar-face visibility is constant per triangle",
+    "alignment": "identity: known-camera synthetic world frame; no ICP or fitted scale",
+    "observability": "convex-reference front-face visibility, positive camera z, 6px image margin, >=2 cameras; not valid for nonconvex replacement fixtures"
+  },
+  "sourcesUnchanged": true,
+  "libraryUnchanged": true,
+  "inputsUnchanged": true
+}

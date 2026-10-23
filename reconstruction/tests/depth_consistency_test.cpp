@@ -12,6 +12,19 @@ int main(){
  m.depth[3*8+3]=3;assert(rf::consistency::sampleDepth(m,2,2,2,1).classification==rf::consistency::Visibility::Discontinuity);
  m.depth[3*8+3]=0;assert(rf::consistency::sampleDepth(m,2,2,2,1).classification==rf::consistency::Visibility::Unknown);
  assert(rf::consistency::sampleDepth(m,-1,2,2,1).classification==rf::consistency::Visibility::Outside);
+ // A declared sparse grid can extend beyond the image. Neighbor arithmetic
+ // must not overflow even when an unused neighbor exceeds signed-int range.
+ rf::DenseDepthMap tiny{3,3,std::vector<float>(9,4),std::vector<float>(9,.8f)};
+ const auto hugeStep=std::numeric_limits<int>::max();
+ for(int step:{1,2,8,hugeStep}){
+  const auto exact=rf::consistency::sampleDepth(tiny,1,1,step,1);
+  assert(exact.classification==rf::consistency::Visibility::Supported);
+  assert(exact.depth==4&&std::abs(exact.confidence-.8)<1e-6);
+ }
+ assert(rf::consistency::sampleDepth(tiny,1.5,1.5,hugeStep,1).classification==rf::consistency::Visibility::Outside);
+ for(int step:{0,-1,std::numeric_limits<int>::min()})
+  assert(rf::consistency::sampleDepth(tiny,1,1,step,1).classification==rf::consistency::Visibility::Unknown);
+ assert(rf::consistency::sampleDepth(tiny,1,1,1,hugeStep).classification==rf::consistency::Visibility::Outside);
  using V=rf::consistency::Visibility;rf::consistency::Sample s{V::Supported,3,.8,2,2};
  assert(rf::consistency::verify(s,5,0,.05,1).classification==V::Occluded);
  assert(rf::consistency::verify(s,2,0,.05,1).classification==V::Inconsistent);

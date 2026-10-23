@@ -1,0 +1,18 @@
+test_camera_projection (test_evaluate.Guards.test_camera_projection) ... ok
+test_displacement_not_aligned_away (test_evaluate.Guards.test_displacement_not_aligned_away) ... ok
+test_empty_preserves_unknown (test_evaluate.Guards.test_empty_preserves_unknown) ... ok
+test_identity (test_evaluate.Guards.test_identity) ... ok
+test_independent_blender_raycast (test_evaluate.Guards.test_independent_blender_raycast) ... ok
+test_invalid_reference_and_camera_rejected (test_evaluate.Guards.test_invalid_reference_and_camera_rejected) ... ok
+test_malformed_candidate_rejected (test_evaluate.Guards.test_malformed_candidate_rejected) ... ok
+test_nonpositive_candidate_triangle_reported (test_evaluate.Guards.test_nonpositive_candidate_triangle_reported) ... ok
+test_occluded_backfaces_excluded (test_evaluate.Guards.test_occluded_backfaces_excluded) ... ok
+test_partial_reference_fov_rejected (test_evaluate.Guards.test_partial_reference_fov_rejected) ... ok
+test_zbuffer_nearer_surface (test_evaluate.Guards.test_zbuffer_nearer_surface) ... ok
+test_existing_output_refused_without_overwrite (test_run.WrapperGuards.test_existing_output_refused_without_overwrite) ... ok
+test_missing_fixture_fails_nonzero_with_receipt (test_run.WrapperGuards.test_missing_fixture_fails_nonzero_with_receipt) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.036s
+
+OK
