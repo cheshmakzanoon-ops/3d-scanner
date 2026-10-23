@@ -52,3 +52,10 @@ is newly reconstructed source with new identities, not a recovered historical
 package. Its independent rational-geometry, hole, sphere and bounded-execution
 controls pass. It does not contain a calibrated adapter, global advancing front
 or photographic result. The missing original datasets remain missing.
+
+[New eight-view cuboid fixture](new-cuboid-eight-view-160x120/README.md) is a
+separately generated synthetic dataset with pinned images and declared intrinsics.
+It does not replace the missing historical three-view fixture or reproduce its
+measurements. Render poses and reference geometry are evaluation-only; no
+image-derived reconstruction result is claimed. The original executed renderer
+is retained as historical evidence with its known replay-safety limitations.

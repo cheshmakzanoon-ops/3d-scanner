@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "status": "RENDERED_NEW_SYNTHETIC_FIXTURE",
+  "configSHA256": "d7c09436ad50c8a71205d2ae2262f6465a84ca0666ea0231f1ea6220660d2941",
+  "runnerSHA256": "16b405c06042918779a19893e508c231f58d6af8f0b2b99e9f706f7201139795",
+  "generatorSHA256": "c55c5998f92eb96ffa1a9ef391d9841c1c5be88e584f22859837f13558d63f15",
+  "blenderSHA256": "0dfe9af0f3e67643ecf15327fa5e14e7315f61d1a81afdcafe76a71b1918e2b4",
+  "prlimitSHA256": "06275e616ca2b721482aeb564260489be3fdc6d5f86836b4a78e96485845f060",
+  "candidate": "NOT_RUN",
+  "reconstruction": "NOT_RUN",
+  "command": [
+    "/usr/bin/prlimit",
+    "--as=2147483648",
+    "--cpu=600",
+    "--",
+    "/usr/bin/blender",
+    "--background",
+    "--threads",
+    "2",
+    "--python",
+    "/workspace/shared/new-fixed-cuboid-fixture/source/generate.py",
+    "--",
+    "/workspace/shared/new-fixed-cuboid-render-first/assets"
+  ],
+  "seconds": 2.806155437999905,
+  "assetSHA256": {
+    "fixture.json": "a49d40960dcdc39d79d8c804adf97bbcae3d37200fb08987649f102c1afed35c",
+    "view-00.png": "7afa0439561a42f2e95747f5f176c1298cbbdc078d8c5aa688bdd4e7a808c824",
+    "view-01.png": "c27de4f1cdcde8c9a5789a76e43a95a997cb8d59937a963723156a86755baa8a",
+    "view-02.png": "8d3e48b9aeccbc83c50d05d3c4f2d43dd2138691e8cce2ad5ca64396bb6fa938",
+    "view-03.png": "9105cde8db1ea0459386be997f7ce95606d763053a380a6c505cc9e4a0958e91",
+    "view-04.png": "9b37373f1739d8019e89b9bb9360dad8d7bd0b2dde2fbc5f16448cac71571fc5",
+    "view-05.png": "e7f46a7b187208a497bfe5f58c1092b4b40eb6cd47407108d58320be284037b6",
+    "view-06.png": "cbc1316ed871bc1909368d8b4c28a97273828875387071a003143442eec3ec8a",
+    "view-07.png": "83ab44d9c1cd618961f0be934aa64bf4dbfc780dcd8290f09212a752c93a6c5a"
+  },
+  "assetBytes": 244946,
+  "logSHA256": "abaf2146e0888803b2a947c77b8b0a14332c33a8a44fa954e588bc81cbad3ee4",
+  "renderer": "4.3.2",
+  "numpyVersion": "2.2.4"
+}

@@ -1,0 +1,140 @@
+{
+  "manifest": "3862a5506f069c58c0858b9575485f6d75b913c608a935237055a0bfd13a4f2e",
+  "generator_commit_byteexact": true,
+  "tool_binaries_match": true,
+  "observation_schema_intrinsics_images_only": true,
+  "alpha_all_opaque_no_text_metadata": true,
+  "images": [
+    {
+      "image": "view-00.png",
+      "decodedPixelSHA256": "3392bb41d5cbcbd3e339233417dd6e7836097692e82050717e7439f2908ca1ac",
+      "distinctRGBA": 5951,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    },
+    {
+      "image": "view-01.png",
+      "decodedPixelSHA256": "8a085cbaf7f236e7d0ef4d97c3e0593de9dbae30233708bd7cde2bbbb5b5acb4",
+      "distinctRGBA": 5913,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    },
+    {
+      "image": "view-02.png",
+      "decodedPixelSHA256": "fb9846b663090907161a021efb1de26acf0a2e966c33df86ca48214ed525c759",
+      "distinctRGBA": 5745,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    },
+    {
+      "image": "view-03.png",
+      "decodedPixelSHA256": "eba88b65c91e209cbaa6ec2ad126ffb6e1131afdbbd82eb6a82ec65253bfcc0e",
+      "distinctRGBA": 5770,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    },
+    {
+      "image": "view-04.png",
+      "decodedPixelSHA256": "dbb0dc44437653b13b837150914e068362dc767c056426d036bcda618a0cd744",
+      "distinctRGBA": 5756,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    },
+    {
+      "image": "view-05.png",
+      "decodedPixelSHA256": "0152f66f508ff0052d569f83cc92cc9c60cd884d0040eb02aa4edcb84626b67f",
+      "distinctRGBA": 5773,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    },
+    {
+      "image": "view-06.png",
+      "decodedPixelSHA256": "d15cf1c1b671c25749f29e67fb0c426c992d57e4323b43d3228fd0784c692e15",
+      "distinctRGBA": 5916,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    },
+    {
+      "image": "view-07.png",
+      "decodedPixelSHA256": "c6147e02f632769a6de885ea4d54c5b6e6dc2f561e9b334f83c675f837ebc388",
+      "distinctRGBA": 5960,
+      "chunks": [
+        "IHDR",
+        "eXIf",
+        "oFFs",
+        "pHYs",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IDAT",
+        "IEND"
+      ]
+    }
+  ],
+  "rerender": "NOT_RUN_NOT_NEEDED",
+  "reconstruction": "NOT_RUN",
+  "candidate": "NOT_RUN"
+}
