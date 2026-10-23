@@ -1,0 +1,29 @@
+{
+  "base_commit": "ad475bd8e2bf7c47a1c8de380ee716ec5a5f50e6",
+  "tested_staged_tree": "1bd4d4dd5023dca33a45f479f67c82a33570a027",
+  "native_ctest": {
+    "passed": 46,
+    "failed": 0
+  },
+  "pytest": {
+    "passed": 1658,
+    "skipped": 4,
+    "deselected": 1,
+    "subtests_passed": 11,
+    "excluded_test": "test_real_dependency_audit_rejects_known_vulnerable_pin",
+    "reason": "previously denied live PyPI access; not a full dependency-audit qualification"
+  },
+  "kotlin_pure_jvm": {
+    "passed": 21,
+    "scope": [
+      "DepthCheckpointIdentityTest",
+      "PipelineGraphTest"
+    ],
+    "production_checkpoint_files_test": "NOT_RUN locally; pending hosted Android dependency closure"
+  },
+  "logs": {
+    "uniqueness-build.log": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794",
+    "uniqueness-ctest.log": "ccedac1097ec748d75b9a846926718232a4172dfe2f3ea95fc2022a8cd58b857",
+    "uniqueness-pytest.log": "d84bfe2dd57a267038e325395384eedf0a977d73ce276c127c33b0c47032bb5a"
+  }
+}

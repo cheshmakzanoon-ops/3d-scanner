@@ -40,12 +40,15 @@ inline Aggregation aggregate(std::span<const Cost> costs,bool robust=false){
     const double median=values[n/2];
     return {robust?median:values[0],n,values[n-1]-values[0],true};
 }
+// Invalid cost 2 is absence of evidence, never a competing depth minimum.
+// A uniqueness margin requires an observed alternative outside the peak basin.
+inline constexpr unsigned UNIQUENESS_SETTINGS_VERSION=2;
 struct Ambiguity { std::size_t best{}; double margin{}; bool valid{}; };
 inline Ambiguity distinctMinimum(std::span<const double> costs,std::size_t exclusion=3){
     if(costs.empty()||costs.size()>128)throw std::invalid_argument("Invalid cost curve size");
     std::size_t best=0;for(std::size_t i=0;i<costs.size();++i){if(!std::isfinite(costs[i])||costs[i]<0||costs[i]>2)throw std::invalid_argument("Invalid cost curve");if(costs[i]<costs[best])best=i;}
     double runner=2.;bool found=false;
-    for(std::size_t i=0;i<costs.size();++i)if((i>best?i-best:best-i)>exclusion){runner=std::min(runner,costs[i]);found=true;}
-    return {best,runner-costs[best],found&&costs[best]<2.};
+    for(std::size_t i=0;i<costs.size();++i)if(costs[i]<2.&&(i>best?i-best:best-i)>exclusion){runner=std::min(runner,costs[i]);found=true;}
+    return {best,found?runner-costs[best]:0.,found&&costs[best]<2.};
 }
 }

@@ -32,6 +32,8 @@ namespace rf::depth_checkpoint {
 namespace {
 thread_local const Scope* active = nullptr;
 constexpr std::array<char,8> MAGIC{'R','F','D','P','T','0','1','8'};
+// Version 2 rejects pre-uniqueness reference maps even with the same caller SHA.
+constexpr std::uint32_t REFERENCE_FORMAT_VERSION=2;
 constexpr std::size_t HEADER = 8+4*6+64;
 constexpr std::size_t MAX_PIXELS = 320000;
 #if defined(__unix__) || defined(__ANDROID__)
@@ -102,7 +104,7 @@ bool load(std::size_t index,DenseDepthMap& map){
     stream.read(reinterpret_cast<char*>(bytes.data()),static_cast<std::streamsize>(bytes.size()));
     if(!stream || stream.gcount()!=static_cast<std::streamsize>(bytes.size()))return false;
     if(!std::equal(MAGIC.begin(),MAGIC.end(),bytes.begin()))return false;
-    if(read32(bytes,8)!=1||read32(bytes,12)!=static_cast<std::uint32_t>(map.width)||
+    if(read32(bytes,8)!=REFERENCE_FORMAT_VERSION||read32(bytes,12)!=static_cast<std::uint32_t>(map.width)||
        read32(bytes,16)!=static_cast<std::uint32_t>(map.height)||
        read32(bytes,20)!=index||read32(bytes,24)!=count*8)return false;
     if(!std::equal(active->identity().begin(),active->identity().end(),bytes.begin()+28))return false;
@@ -130,7 +132,7 @@ bool store(std::size_t index,const DenseDepthMap& map){
     std::vector<std::uint8_t> bytes;
     bytes.reserve(HEADER+count*8);
     bytes.insert(bytes.end(),MAGIC.begin(),MAGIC.end());
-    append32(bytes,1);append32(bytes,static_cast<std::uint32_t>(map.width));
+    append32(bytes,REFERENCE_FORMAT_VERSION);append32(bytes,static_cast<std::uint32_t>(map.width));
     append32(bytes,static_cast<std::uint32_t>(map.height));
     append32(bytes,static_cast<std::uint32_t>(index));
     append32(bytes,static_cast<std::uint32_t>(count*8));

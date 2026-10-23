@@ -106,7 +106,7 @@ def corpus(directory: Path) -> dict:
                          'triangle': b'\x01' + struct.pack('<ddd', 0, 0, 3) + bytes([0, 1, 2]),
                          'textured_boundary': b'\x02' + bytes(range(96))}}
     payload = struct.pack('<ff', 4.0, .75) * 1024
-    header = b'RFDPT018' + struct.pack('<IIIII', 1, 32, 32, 0, len(payload)) + b'a' * 64
+    header = b'RFDPT018' + struct.pack('<IIIII', 2, 32, 32, 0, len(payload)) + b'a' * 64
     valid = header + struct.pack('<I', zlib.crc32(payload)) + payload
     cases['checkpoint']['valid32'] = valid
     cases['checkpoint']['bad_crc'] = valid[:-1] + bytes([valid[-1] ^ 1])

@@ -76,6 +76,20 @@ int main() {
         require(std::filesystem::file_size(checkpoint)<rf::surface_checkpoint::MAX_FILE_BYTES,"checkpoint exceeded byte bound");
     });
     const auto acceptedBytes=read(checkpoint);
+    test("accepted surface cannot bypass pre-uniqueness reference invalidation",[&] {
+        rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
+        rf::surface_checkpoint::AcceptedSurface recovered;
+        require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"current surface should load before mutation");
+        const auto retained=rf::surfaceJson(recovered.mesh);
+        const auto reference=temporary.directory/"ref-0.bin";
+        const auto current=read(reference);auto legacy=current;u32(legacy,8,1);write(reference,legacy);
+        require(!rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
+                "accepted-surface shortcut bypassed old reference solver version");
+        require(rf::surfaceJson(recovered.mesh)==retained,"rejected surface mutated accepted output");
+        require(read(checkpoint)==acceptedBytes,"rejected reference changed accepted surface bytes");
+        write(reference,current);
+        require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"current reference restoration did not restore surface reuse");
+    });
     test("pre-topology-v2 cache identity cannot reuse stale intersection diagnostics",[&] {
         // Recreate the former identity with its exact little-endian settings encoding.
         rf::checkpoint::Sha256 legacy;

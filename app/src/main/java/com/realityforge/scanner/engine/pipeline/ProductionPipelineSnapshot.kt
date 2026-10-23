@@ -33,7 +33,7 @@ object ProductionPipelineSnapshot {
             features = com.realityforge.scanner.engine.features.SparseFeatureCache.STAGE_SETTINGS,
             matching = "rf-bf-l2-reciprocal-v2|ratio-.67|opencv-4.12.0|summary-ranked-exhaustive-admitted12-v1|pair-cache-v3|ray-focal35=$assumedFocal35",
             sparse = "incremental-frontier-v1|complete-source-window-typed-ba-frontier-admitted12-v3|assumed-focal35=$assumedFocal35",
-            dense = "native-reference-depth-v2|${VerifiedDenseAlignment.POLICY}|${DenseExecutionPolicy.depth(executionProfile)}|planes-56|resource=${resources.geometryIdentityText}",
+            dense = "native-reference-depth-v3|observed-alternative-uniqueness-v2|${VerifiedDenseAlignment.POLICY}|${DenseExecutionPolicy.depth(executionProfile)}|planes-56|resource=${resources.geometryIdentityText}",
             surface = "${DenseExecutionPolicy.SURFACE_ENGINE}|quality-gated",
             texture = "${DenseExecutionPolicy.ATLAS_ENGINE}|${DenseExecutionPolicy.texture(executionProfile)}|resource=${resources.appearanceIdentityText}",
             export = "diagnostic-sparse-and-dense-glb-ply-v1",

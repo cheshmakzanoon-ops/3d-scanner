@@ -176,15 +176,83 @@ class ProductionCheckpointFilesTest {
         }
     }
 
+    @Test fun uniquenessVersionChangesProductionDenseDescendantsWithoutDiscardingSparseWork() {
+        for (profile in DensePreviewProfile.entries) {
+            val current = productionInput(profile)
+            val legacy = beforeObservedAlternativeUniqueness(current)
+            for (stage in AdapterStage.entries) {
+                if (stage.ordinal <= AdapterStage.SPARSE.ordinal)
+                    assertEquals(legacy.identity(stage), current.identity(stage))
+                else assertNotEquals(legacy.identity(stage), current.identity(stage))
+            }
+            val binding = ArtifactProvenanceFixtures.binding()
+            val previousPlan = PipelineArtifactSession.identityPlan(legacy, binding)
+            val currentPlan = PipelineArtifactSession.identityPlan(current, binding)
+            assertEquals(previousPlan.snapshot.contentHash, currentPlan.snapshot.contentHash)
+            for (stage in listOf(ArtifactStage.FEATURES, ArtifactStage.MATCHES, ArtifactStage.ALIGNMENT))
+                assertEquals(previousPlan[stage], currentPlan[stage])
+            for (stage in listOf(ArtifactStage.DENSE_DEPTH, ArtifactStage.SURFACE, ArtifactStage.TEXTURE))
+                assertNotEquals(previousPlan[stage], currentPlan[stage])
+        }
+    }
+
+    @Test fun legacyUniquenessCannotResumeDenseCursorOrBypassNativeThroughCompleteTextureReuse() = runBlocking {
+        val current = productionInput(DensePreviewProfile.Compatibility)
+        val legacy = beforeObservedAlternativeUniqueness(current)
+        val previous = surfaceFixture(inputOverride = legacy)
+        val binding = ArtifactProvenanceFixtures.binding()
+        val cache = PipelineSurfaceCache(previous.root)
+        assertNotNull(requireNotNull(cache.load(PipelineArtifactSession.identityPlan(legacy, binding), previous.sparse)).completeTexture)
+        // This selector guards DensePreview's complete-result fast path, which deliberately
+        // does not enter native code. A native reference-header bump alone is insufficient.
+        assertNull(cache.load(PipelineArtifactSession.identityPlan(current, binding), previous.sparse))
+        val sparseCursor = previous.cursors.single { it.acceptedStage == ReconstructionStage.SPARSE }
+        PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(sparseCursor), current)
+        for (stage in listOf(ReconstructionStage.DENSE, ReconstructionStage.SURFACE, ReconstructionStage.TEXTURE)) {
+            val cursor = previous.cursors.single { it.acceptedStage == stage }
+            PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), legacy)
+            assertThrows(IllegalArgumentException::class.java) {
+                PipelineJobCheckpointValidator.validateArtifacts(previous.root, job(cursor), current)
+            }
+        }
+        val accepted = surfaceFixture(inputOverride = current)
+        assertNotNull(requireNotNull(PipelineSurfaceCache(accepted.root).load(
+            PipelineArtifactSession.identityPlan(current, binding), accepted.sparse)).completeTexture)
+        for (cursor in accepted.cursors)
+            PipelineJobCheckpointValidator.validateArtifacts(accepted.root, job(cursor), current)
+    }
+
+    private fun productionInput(profile: DensePreviewProfile): PipelineInputSnapshot {
+        val source = input()
+        val photos = source.photos.map { photo -> com.realityforge.scanner.data.ProjectInputPhoto(
+            photo.id, photo.contentSha256, photo.byteCount, photo.width, photo.height, photo.focal35mm,
+            0L, requireNotNull(photo.captureMetadataSha256)) }
+        return ProductionPipelineSnapshot.create(com.realityforge.scanner.data.ProjectInputSnapshot(
+            source.projectId, source.revision, photos), source.calibrationIdentity, 26.0,
+            com.realityforge.scanner.processing.resources.ResourceWorkloadSelection.COMPACT, profile)
+    }
+
+    private fun beforeObservedAlternativeUniqueness(current: PipelineInputSnapshot): PipelineInputSnapshot {
+        val currentPrefix = "native-reference-depth-v3|observed-alternative-uniqueness-v2|"
+        // Keep the prior published descriptor explicit: removing the production version
+        // update must fail this regression rather than silently constructing equal inputs.
+        assertTrue(current.settings.dense.startsWith(currentPrefix))
+        return current.copy(settings = current.settings.copy(dense =
+            "native-reference-depth-v2|" + current.settings.dense.removePrefix(currentPrefix)))
+    }
+
     private data class SurfaceFixture(val root: File, val input: PipelineInputSnapshot, val sparse: JSONObject,
-        val depthReferences: List<String>)
+        val depthReferences: List<String>, val cursors: List<JobStageCursor>)
 
     /** Opaque synthetic native payloads test the Kotlin reference gate only; native decoder tests use real RF mesh bytes. */
-    private suspend fun surfaceFixture(available: Boolean = true, extraTiles: Int = 0, symlinkDepthParent: Boolean = false): SurfaceFixture {
+    private suspend fun surfaceFixture(available: Boolean = true, extraTiles: Int = 0,
+        symlinkDepthParent: Boolean = false, inputOverride: PipelineInputSnapshot? = null): SurfaceFixture {
         // Each fixture gets isolation while retaining the production project-directory identity.
         val root = File(temporary.newFolder(), "project-9").apply { check(mkdirs()) }
-        val input = input()
-        val session = PipelineArtifactSession(root, input, ArtifactProvenanceFixtures.binding())
+        val input = inputOverride ?: input()
+        val cursors = mutableListOf<JobStageCursor>()
+        val session = PipelineArtifactSession(root, input, ArtifactProvenanceFixtures.binding(),
+            PipelineCheckpointSink { cursors += it })
         session.prepared()
         fun file(name: String, bytes: ByteArray = "synthetic-opaque-stage-payload-$name".toByteArray()): File =
             File(root, name).apply { parentFile?.mkdirs(); writeBytes(bytes) }
@@ -243,7 +311,7 @@ class ProductionCheckpointFilesTest {
         }
         PipelineDownstreamCheckpoints.record(session, preview, key)
         return SurfaceFixture(root, input, sparse, requireNotNull(session.manifest(ArtifactStage.DENSE_DEPTH))
-            .artifacts.filter { it.representation == RepresentationKind.DEPTH_MAP_SET }.map { it.relativePath })
+            .artifacts.filter { it.representation == RepresentationKind.DEPTH_MAP_SET }.map { it.relativePath }, cursors.toList())
     }
 
     private fun input() = PipelineInputSnapshot("project-9", 7, listOf(

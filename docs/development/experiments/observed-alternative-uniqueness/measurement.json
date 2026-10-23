@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "status": "REPRODUCED_PAIRED_ASSESSMENT_NOT_QUALITY_PASS",
+  "synthetic": true,
+  "sourceBaseCommit": "ad475bd8e2bf7c47a1c8de380ee716ec5a5f50e6",
+  "candidateChange": "Require usable cost<2 alternative outside peak basin; honor distinct.valid/margin; tile identity suffix. Frozen library does not include later cache-format/Kotlin integration, no checkpoint scope used.",
+  "fixtureExactlyMatchesPublished": true,
+  "baselineRawExactlyMatchesPublished": true,
+  "candidateRawExactlyMatchesBaseline": true,
+  "evaluationExactlyMatchesPublished": true,
+  "rawResultSHA256": "39ed3b2d9e833f844dde7bfa7311ba7014a999bb34a1cb6458fe2f22e44131a7",
+  "librarySHA256": {
+    "baseline": "f8e49effc22af79c53e0ffb0f07e675e01429109a0a142909ba1abef83cf4149",
+    "candidate": "14d10932aff9ac3021a20b6301433d4770aebbb694a63bdab30cb57b1257e65e"
+  },
+  "integratedCandidate": {
+    "stagedTree": "1bd4d4dd5023dca33a45f479f67c82a33570a027",
+    "librarySHA256": "41e232bd7dc24bd4b95356fe5909ff21c97e3355c9bade3e9b6186eb1acd037e",
+    "rawResultSHA256": "39ed3b2d9e833f844dde7bfa7311ba7014a999bb34a1cb6458fe2f22e44131a7",
+    "rawAndEvaluationExactlyMatch": true,
+    "nativeWallSeconds": 2.952282124000021,
+    "sourceAndLibraryAndInputsUnchanged": true
+  },
+  "sourceManifestSHA256": {
+    "baseline": "9c97a548d5dc437ef8d2bc7f993e1b949251a93de4d5bdf2ff6893c57e06ed63",
+    "isolatedCandidate": "2426dd60680c575faea6625b0990278d18d64ad3fb724b8c924fcfcc798c11b5",
+    "integratedCandidate": "3c20739d6cf49b185bad6114dcdddb78a40aa62915b9587db5a5c6068279aa76"
+  },
+  "sourceManifestEncoding": "UTF-8 canonical sorted JSON; maps contain all reconstruction files, CMakeLists.txt and tools/native_api.py (run.py pins scope)",
+  "publishedReference": {
+    "path": "docs/development/experiments/visible-surface-baseline/measurement.json",
+    "sha256": "933828b2af839aa2cafbd5507a4c60822077fe5abbd2340ee8eff6cd390ed58e",
+    "inputHashesAndAllEvaluationFieldsExactlyEqual": true
+  },
+  "officialBlender": {
+    "version": "4.3.2",
+    "binarySHA256": "23fa8e83d8152f11246d7172819baa5a00e8e1e706dbc204cc85912db3f368c4",
+    "archiveSHA256": "4da1c956673c0485e63054e563ee69198cc8f80d8157dd7592dffc8a6a5592e6",
+    "url": "https://download.blender.org/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz",
+    "publisherChecksum": "https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256"
+  },
+  "integratedChangedSourceSHA256": {
+    "reconstruction/include/realityforge/matching_cost.hpp": "8f9de96221746ea58c164d479e8d6154f8f045b422b62d8043c50ea4a0272b03",
+    "reconstruction/src/dense.cpp": "4c1da676d11cafcfc5f980a667b344437f443969f139f74c96911b9ddc5571ec",
+    "reconstruction/src/depth_checkpoint.cpp": "167411944d1c7ceeb3d58dd9989733cf1c04fb01ad14ac63c0334429a61df4d0"
+  },
+  "summary": {
+    "visibleAreaSampleCount": 3734,
+    "totalAreaSampleCount": 6000,
+    "areaCDF1PercentDiagonal": 0.3387787895018747,
+    "projectedCoverage": 0.7508220439300276,
+    "vertices": 4549,
+    "triangles": 13212,
+    "nonmanifoldEdges": 3432,
+    "boundedIntersections": 15401,
+    "topologyIncomplete": true
+  },
+  "evaluatorGuardsPassed": 13,
+  "limitations": [
+    "Known-camera synthetic kernel only; truth not supplied to solver; no checkpoint scope.",
+    "No Android/controller, image-only recovered-camera, physical-object or release qualification.",
+    "Initial system Blender render failed exact-input reproduction and is excluded; official portable binary recovered all9input hashes.",
+    "The isolated core candidate and final cache-integrated candidate were measured separately without checkpoint scope; cache behavior has separate regression tests."
+  ]
+}

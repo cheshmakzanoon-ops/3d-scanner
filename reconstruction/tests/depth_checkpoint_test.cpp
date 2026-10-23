@@ -62,6 +62,22 @@ int main(){
         require(std::filesystem::file_size(file)==96+64*48*8,"unexpected bounded binary structure");
         require(!std::filesystem::exists(t.dir/"ref-2.bin.partial"),"orphan partial file");
     });
+    test("pre-uniqueness reference maps are rejected without changing destination",[]{
+        Temp t;rf::DenseDepthMap map{64,48,std::vector<float>(64*48,5.f),std::vector<float>(64*48,.8f)};
+        rf::depth_checkpoint::Scope scope(t.dir.string(),HASH);
+        require(rf::depth_checkpoint::store(0,map),"cannot prepare current checkpoint");
+        rf::DenseDepthMap recovered{64,48,std::vector<float>(64*48,7.f),std::vector<float>(64*48,.2f)};
+        const auto savedDepth=recovered.depth,savedConfidence=recovered.confidence;
+        const auto file=t.dir/"ref-0.bin";
+        {std::fstream f(file,std::ios::in|std::ios::out|std::ios::binary);
+         f.seekg(8);require(f.get()==2,"current reference format version missing");
+         f.seekp(8);const std::array<char,4> oldVersion{1,0,0,0};f.write(oldVersion.data(),oldVersion.size());}
+        require(!rf::depth_checkpoint::load(0,recovered),"accepted pre-uniqueness cache under same identity");
+        require(recovered.depth==savedDepth&&recovered.confidence==savedConfidence,"cache miss changed destination buffers");
+        require(rf::depth_checkpoint::store(0,map),"cannot replace stale reference with current result");
+        require(rf::depth_checkpoint::load(0,recovered),"current-version roundtrip failed");
+        require(recovered.depth==map.depth&&recovered.confidence==map.confidence,"current checkpoint changed float bits");
+    });
     test("identity change never reuses stale geometry",[]{
         Temp t;rf::DenseDepthMap map{64,48,std::vector<float>(64*48),std::vector<float>(64*48)};
         {rf::depth_checkpoint::Scope scope(t.dir.string(),HASH);

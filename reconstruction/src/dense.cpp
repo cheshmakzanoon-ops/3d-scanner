@@ -226,6 +226,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     if(inputs&&!inputs->coarseViews.empty())settingsText<<"|coarse-incumbent-objective-v1";
     result.sourceViews=detail::denseSourcePlan(views,settings.nearDepth,settings.farDepth);
     settingsText<<"|sources:";for(std::size_t ref=0;ref<result.sourceViews.size();++ref){settingsText<<ref<<':';for(auto source:result.sourceViews[ref])settingsText<<source<<',';settingsText<<';';}
+    settingsText<<"|uniqueness:"<<matching::UNIQUENESS_SETTINGS_VERSION;
     const auto solverIdentity=settingsText.str();
     result.consistentPixelsPerView.assign(views.size(),0);
     result.maps.reserve(views.size());
@@ -300,10 +301,8 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             }
             const auto distinct=matching::distinctMinimum(costs);
             const int best=static_cast<int>(distinct.best);
-            if(best<2||best>=settings.depthPlanes-2||costs[best]>1-settings.minimumNcc)continue;
-            double runnerUp=2.;
-            for(int k=0;k<settings.depthPlanes;++k)if(std::abs(k-best)>3)runnerUp=std::min(runnerUp,costs[k]);
-            double margin=runnerUp-costs[best];
+            if(!distinct.valid||best<2||best>=settings.depthPlanes-2||costs[best]>1-settings.minimumNcc)continue;
+            const double margin=distinct.margin;
             if(margin<settings.minUniqueness)continue;
             double inverse=refinement::parabolicInverseDepth(costs,planes,static_cast<std::size_t>(best));
             double selectedCost=-1.;

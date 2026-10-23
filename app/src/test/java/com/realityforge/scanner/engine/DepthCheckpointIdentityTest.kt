@@ -44,7 +44,7 @@ class DepthCheckpointIdentityTest {
         assertNotEquals(original, id(key = "sparse-m16-r2-0123456789abcdef"))
     }
 
-    @Test fun m18FingerprintRemainsBitForBitCompatibleAndUnknownFormatsAreRejected() {
+    @Test fun uniquenessFingerprintInvalidatesLegacyAndUnknownFormatsAreRejected() {
         val random = Random(9)
         repeat(50) { iteration ->
             val cameraCount = 2 + random.nextInt(3)
@@ -63,16 +63,23 @@ class DepthCheckpointIdentityTest {
             }
             val rgba = ByteArray(cameraCount * width * height * 4).also(random::nextBytes)
             val key = "sparse-m16-r${iteration + 1}-${iteration.toString(16).padStart(16, '0')}"
-            assertEquals(
+            val actual = DepthCheckpointIdentity.fingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3)
+            assertEquals(actual, DepthCheckpointIdentity.fingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3))
+            assertNotEquals(
                 legacyFingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3),
                 DepthCheckpointIdentity.fingerprint(key, rgba, rows, width, height, 2.0, 8.0, 56, 3),
             )
         }
-        assertThrows(IllegalArgumentException::class.java) {
-            DepthCheckpointIdentity.fingerprint(
-                "sparse-m16-r1-0123456789abcdef", pixels(), poses(), 64, 48, 3.0, 7.0, 56, 3,
-                DepthCheckpointIdentity.Compatibility(19, "future-depth-format\u0000"),
-            )
+        for (compatibility in listOf(
+            DepthCheckpointIdentity.Compatibility(18, "realityforge-m18-native-reference-depth-v1\u0000"),
+            DepthCheckpointIdentity.Compatibility(19, "future-depth-format\u0000"),
+        )) {
+            assertThrows(IllegalArgumentException::class.java) {
+                DepthCheckpointIdentity.fingerprint(
+                    "sparse-m16-r1-0123456789abcdef", pixels(), poses(), 64, 48, 3.0, 7.0, 56, 3,
+                    compatibility,
+                )
+            }
         }
     }
 
@@ -87,7 +94,7 @@ class DepthCheckpointIdentityTest {
         }
     }
 
-    @Test fun resourceSelectionBindsCheckpointWithoutChangingLegacyOrNullFingerprints() {
+    @Test fun resourceSelectionBindsCheckpointWithoutChangingNullFingerprint() {
         fun selected(identity: String?) = DepthCheckpointIdentity.fingerprint(
             "sparse-m16-r1-0123456789abcdef", pixels(), poses(), 64, 48, 3.0, 7.0, 56, 3,
             resourceSelectionIdentity = identity)
