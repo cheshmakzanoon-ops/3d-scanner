@@ -1,0 +1,10 @@
+{
+  "packageManifest": "6d39c9c2ae635347a573a3b7841dac7fe12e8992562de5ca3d06505be3682e3a",
+  "config": "a30ef5fe0d82baddb1d1bb5a84d6329aa4b4bf962cdd53939024c202276de9b5",
+  "archive": "8e4bce68bcc8e3cf9d5b452725003e983f1dfe6a3aab825e37e4e92b020467af",
+  "sourceCommit": "173dc71d7d99e97a8e2d4257b52cf7033e37a74f",
+  "inputs": {
+    "plane": "db0302a8cefc8c31c8477b280649c7fd22eb38ccc5b4d8ac01ecec441edbeb74",
+    "central-hole": "547922eb5f2e58fd87e993270de7879efdaef49081e281badb52dd183bf23e49"
+  }
+}

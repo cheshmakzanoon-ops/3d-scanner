@@ -1,0 +1,6 @@
+{
+  "success": "PASS",
+  "failure": "CHILD_EXIT:2:/workspace/shared/native-ledger-observer-independent-review/failure.log",
+  "timeout": "WALL_BUDGET",
+  "log": "FINAL_TIME_OR_LOG_BUDGET"
+}

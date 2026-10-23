@@ -79,3 +79,11 @@ with stricter pixel, flag, support-ID and attribute-domain validation. It retain
 unknown-normal points and closed-boundary normal constraints. Original map/normal
 estimator and reciprocal-witness regeneration are still not verified here;
 production photographic binding and global front execution remain unqualified.
+
+[Native pre-face observer](native-ledger-observer-r1/README.md) now validates
+map, prepared-normal and ordered accumulator mechanics on a plane and a fixed
+hole derivative from committed direct-depth controls. Independent matched builds
+produce identical inputs, final fields and JSON/PLY/GLB output; all source IDs
+are accounted for. The cameras coincide, and verified samples are constructor
+inputs. This does not establish reciprocal witnesses, photographic reconstruction,
+a full support certificate or any new meshing/front quality.

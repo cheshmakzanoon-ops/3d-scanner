@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "sourceCommit": "173dc71d7d99e97a8e2d4257b52cf7033e37a74f",
+  "cases": ["plane", "central-hole"],
+  "generator": "exact plane(false) function from reconstruction/tests/surface_fusion_test.cpp",
+  "hole": "after generation remove sample and zero depth/confidence when 12<=x<=18 and 12<=y<=18, both cameras",
+  "surfaceSettings": "unchanged defaults: pixelStride3, depthJump0.08, confidence0.12",
+  "maxViews": 2, "width": 32, "height": 32,
+  "maxSamples": 162, "maxPrepared": 162, "maxMemberships": 162, "maxAccumulators": 162,
+  "maxNormalSupportIds": 1458,
+  "maxSidecarBytes": 8388608, "maxCaseOutputBytes": 16777216,
+  "nativeAddressSpaceBytes": 1073741824, "nativeCpuSeconds": 60, "nativeWallSeconds": 60,
+  "buildJobs": 2, "buildSeconds": 900, "maxBuildLogBytes": 16777216,
+  "reciprocalWitnessRegeneration": "NOT_VERIFIED_NO_QUERIES",
+  "photo": "NOT_RUN", "front": "NOT_RUN",
+  "onLimit": "abort whole case; no success receipt or partial geometry publication"
+}

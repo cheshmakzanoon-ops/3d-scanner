@@ -1,0 +1,385 @@
+{
+  "status": "PASS_DIRECT_DEPTH_OBSERVER_ONLY",
+  "photo": "NOT_RUN",
+  "front": "NOT_RUN",
+  "reciprocalWitnessRegeneration": "NOT_VERIFIED",
+  "sourceCommit": "173dc71d7d99e97a8e2d4257b52cf7033e37a74f",
+  "manifest": "6d39c9c2ae635347a573a3b7841dac7fe12e8992562de5ca3d06505be3682e3a",
+  "results": {
+    "plane": {
+      "finalMesh": {
+        "vertices": 81,
+        "faces": 128,
+        "attached": 162,
+        "unattached": 0,
+        "unattachedSourceIds": [],
+        "boundaryEdges": 32,
+        "nonmanifoldEdges": 0,
+        "intersections": 0,
+        "topologyIncomplete": false
+      },
+      "inputSamples": 162,
+      "acceptedMemberships": 162,
+      "accumulators": 113,
+      "unknownNormalAccumulators": 64,
+      "unacceptedSourceIds": [],
+      "normalRegeneration": {
+        "samples": 162,
+        "preparedSupported": 98,
+        "preparedUnknown": 64,
+        "supportIds": 882,
+        "maxPixelError": 4.76837158203125e-07,
+        "maxRelativeMapDepthError": 0,
+        "witnessRegeneration": "NOT_VERIFIED"
+      },
+      "orderedAccumulatorBitParity": true,
+      "reciprocalWitnessRegeneration": "NOT_VERIFIED"
+    },
+    "central-hole": {
+      "finalMesh": {
+        "vertices": 72,
+        "faces": 96,
+        "attached": 144,
+        "unattached": 0,
+        "unattachedSourceIds": [],
+        "boundaryEdges": 48,
+        "nonmanifoldEdges": 0,
+        "intersections": 0,
+        "topologyIncomplete": false
+      },
+      "inputSamples": 144,
+      "acceptedMemberships": 144,
+      "accumulators": 120,
+      "unknownNormalAccumulators": 96,
+      "unacceptedSourceIds": [],
+      "normalRegeneration": {
+        "samples": 144,
+        "preparedSupported": 48,
+        "preparedUnknown": 96,
+        "supportIds": 432,
+        "maxPixelError": 4.76837158203125e-07,
+        "maxRelativeMapDepthError": 0,
+        "witnessRegeneration": "NOT_VERIFIED"
+      },
+      "orderedAccumulatorBitParity": true,
+      "reciprocalWitnessRegeneration": "NOT_VERIFIED"
+    }
+  },
+  "calls": [
+    {
+      "argv": [
+        "/usr/bin/c++",
+        "--version"
+      ],
+      "seconds": 0.054113768999741296,
+      "logBytes": 232
+    },
+    {
+      "argv": [
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cmake/data/bin/cmake",
+        "--version"
+      ],
+      "seconds": 0.051761345000159054,
+      "logBytes": 91
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--version"
+      ],
+      "seconds": 0.005444788000204426,
+      "logBytes": 31
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-C",
+        "/workspace/scratch/6b683a119bde/3d-scanner",
+        "archive",
+        "--format=tar",
+        "-o",
+        "/workspace/shared/native-ledger-observer-independent-final/pinned-source.tar",
+        "173dc71d7d99e97a8e2d4257b52cf7033e37a74f",
+        "CMakeLists.txt",
+        "reconstruction"
+      ],
+      "seconds": 0.0524211860001742,
+      "logBytes": 0
+    },
+    {
+      "argv": [
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cmake/data/bin/cmake",
+        "-S",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-source",
+        "-B",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_CXX_COMPILER=/usr/bin/c++",
+        "-DBUILD_TESTING=OFF"
+      ],
+      "seconds": 0.4032669360003638,
+      "logBytes": 593
+    },
+    {
+      "argv": [
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cmake/data/bin/cmake",
+        "--build",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-build",
+        "--target",
+        "realityforge",
+        "--parallel",
+        "2"
+      ],
+      "seconds": 40.70386261599924,
+      "logBytes": 3536
+    },
+    {
+      "argv": [
+        "/usr/bin/c++",
+        "-std=c++20",
+        "-O2",
+        "-I/workspace/shared/native-ledger-observer-independent-final/baseline-source/reconstruction/include",
+        "-I/workspace/shared/native-ledger-observer-r1/source",
+        "/workspace/shared/native-ledger-observer-r1/source/harness.cpp",
+        "-L/workspace/shared/native-ledger-observer-independent-final/baseline-build",
+        "-Wl,-rpath,/workspace/shared/native-ledger-observer-independent-final/baseline-build",
+        "-lrealityforge",
+        "-o",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-harness"
+      ],
+      "seconds": 3.1143909109996457,
+      "logBytes": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/ldd",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-harness"
+      ],
+      "seconds": 0.052490294000563154,
+      "logBytes": 578
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=60",
+        "--fsize=16777216",
+        "--",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-harness",
+        "prepare",
+        "plane",
+        "/workspace/shared/native-ledger-observer-independent-final/input-plane"
+      ],
+      "seconds": 0.05165794399999868,
+      "logBytes": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=60",
+        "--fsize=16777216",
+        "--",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-harness",
+        "prepare",
+        "central-hole",
+        "/workspace/shared/native-ledger-observer-independent-final/input-central-hole"
+      ],
+      "seconds": 0.052321809000204667,
+      "logBytes": 0
+    },
+    {
+      "argv": [
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cmake/data/bin/cmake",
+        "-S",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-source",
+        "-B",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-build",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_CXX_COMPILER=/usr/bin/c++",
+        "-DBUILD_TESTING=OFF"
+      ],
+      "seconds": 0.2530121979998512,
+      "logBytes": 593
+    },
+    {
+      "argv": [
+        "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cmake/data/bin/cmake",
+        "--build",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-build",
+        "--target",
+        "realityforge",
+        "--parallel",
+        "2"
+      ],
+      "seconds": 40.209661899999446,
+      "logBytes": 7673
+    },
+    {
+      "argv": [
+        "/usr/bin/c++",
+        "-std=c++20",
+        "-O2",
+        "-I/workspace/shared/native-ledger-observer-independent-final/observer-source/reconstruction/include",
+        "-I/workspace/shared/native-ledger-observer-r1/source",
+        "/workspace/shared/native-ledger-observer-r1/source/harness.cpp",
+        "-L/workspace/shared/native-ledger-observer-independent-final/observer-build",
+        "-Wl,-rpath,/workspace/shared/native-ledger-observer-independent-final/observer-build",
+        "-lrealityforge",
+        "-o",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-harness"
+      ],
+      "seconds": 2.8643635450007423,
+      "logBytes": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/ldd",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-harness"
+      ],
+      "seconds": 0.05174435099979746,
+      "logBytes": 578
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=60",
+        "--fsize=16777216",
+        "--",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-harness",
+        "run",
+        "plane",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-plane"
+      ],
+      "seconds": 0.05179435700028989,
+      "logBytes": 73
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=60",
+        "--fsize=16777216",
+        "--",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-harness",
+        "run",
+        "plane",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-plane"
+      ],
+      "seconds": 0.051655612000104156,
+      "logBytes": 73
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=60",
+        "--fsize=16777216",
+        "--",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-harness",
+        "run",
+        "central-hole",
+        "/workspace/shared/native-ledger-observer-independent-final/baseline-central-hole"
+      ],
+      "seconds": 0.05167995899955713,
+      "logBytes": 72
+    },
+    {
+      "argv": [
+        "/usr/bin/prlimit",
+        "--as=1073741824",
+        "--cpu=60",
+        "--fsize=16777216",
+        "--",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-harness",
+        "run",
+        "central-hole",
+        "/workspace/shared/native-ledger-observer-independent-final/observer-central-hole"
+      ],
+      "seconds": 0.05168685499938874,
+      "logBytes": 72
+    }
+  ],
+  "artifacts": {
+    "observer-plane.log": "1c16c2ea9b5fe3af12a3c5a09601ee31549f328bddfd487483f7ad30fd0c40cb",
+    "observer-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline-central-hole.log": "f3f9f080785869d7d0d8b86eb2534d4644fb6182b8978e826fe0f37f6ae8d38a",
+    "observer-configure.log": "0d254ae40be450e793f0a63fa5651d6fbdb98092e172c100e4d05dce7c8a7d23",
+    "prepare-central-hole.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiler-version.log": "00f7e3c3e6a0308d7b60cc02429720ef6000d84c0add523f7dc030058d19961b",
+    "cmake-version.log": "f6e81c2559f3ce00c5fdad01d7b226c301f5d6b07ee04f65db6dbfdc1cc5970b",
+    "observer-build.log": "9eaf224b82fbb1199e1d2eb5fba5ef0a807b67a47a3260a1adebd2c70da1bbc4",
+    "baseline-ldd.log": "182bbb8fde23343619df4bfeb302e0e729324db9ec8b4474db71daef3c879c3b",
+    "archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline-build.log": "ec9339f03232a08954baf8877142b91c1ed109c82a1b49eb1aaa27884f3775e0",
+    "observer-harness": "047f03b3dc57387a1fae892d40e8f6c22e1a91a5c2afd962311983fe98d66162",
+    "pinned-source.tar": "8e4bce68bcc8e3cf9d5b452725003e983f1dfe6a3aab825e37e4e92b020467af",
+    "baseline-plane.log": "1c16c2ea9b5fe3af12a3c5a09601ee31549f328bddfd487483f7ad30fd0c40cb",
+    "baseline-configure.log": "a45d5595b2f46b3de072688b78ae07863e42c8eccd666c8c1318c2533c1820e4",
+    "observer-ldd.log": "6a84e6f55c3af5084c83445731197030c828cce3cef53c90592cd69339bacbe5",
+    "prepare-plane.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "premeasurement.json": "21c6e48341a00b3315a59d24fffd9a345666aa1c018cfe4e1be40e8145d85478",
+    "observer-central-hole.log": "f3f9f080785869d7d0d8b86eb2534d4644fb6182b8978e826fe0f37f6ae8d38a",
+    "prlimit-version.log": "bbe8807eceb1fdeeb652e30541014ca95948bc7441a80fb3cff96e0f29ec86b2",
+    "baseline-harness": "e58ec2f385b966e68319f5ee25cb8bf7187d383ed4a8ec2b895af5f1e5bb04aa",
+    "input-central-hole/inputs.bits": "547922eb5f2e58fd87e993270de7879efdaef49081e281badb52dd183bf23e49",
+    "observer-plane/memberships.tsv": "f509f9d421652e38c0bd06f8fb104f1a9376baec902d3c360a863fa412b2e8a4",
+    "observer-plane/mesh.glb": "1716d27f3a39f0f897784c595084287483e4a3b6c2346c82a5757d6023db4395",
+    "observer-plane/inputs.bits": "db0302a8cefc8c31c8477b280649c7fd22eb38ccc5b4d8ac01ecec441edbeb74",
+    "observer-plane/accumulators.tsv": "cda4279b86bd50a321f06b88a2a57c28674157e182e0f632e6ef449c66f9950f",
+    "observer-plane/mesh.json": "8832c81420e2ab1e1987c99f5060db4150a844e645b2406fad3a25ce7c34a204",
+    "observer-plane/mesh.bits": "423c99d2cbe144474b78c6a230379c61de8a361358b3dbd9fa2ff9aee4c5335c",
+    "observer-plane/mesh.ply": "234b95008d4502b98e7c4f989f745d09e371cd413a67511a9862f2e77bbde50d",
+    "observer-plane/normal-audit.json": "9c72a56d59c6ecd6837fb5a59f282e8af9094fb6b7c20151c17968c8f0fee5ba",
+    "observer-plane/prepared.tsv": "877117bd0ff04ed5097b2917264b9c87bf968f3ae0f4af2da7899c3f39624fca",
+    "observer-plane/expected-prepared.tsv": "877117bd0ff04ed5097b2917264b9c87bf968f3ae0f4af2da7899c3f39624fca",
+    "input-plane/inputs.bits": "db0302a8cefc8c31c8477b280649c7fd22eb38ccc5b4d8ac01ecec441edbeb74",
+    "observer-central-hole/memberships.tsv": "13fba0a47697f333babbd5dd92197f402b2a539f03a09fcab712e82a06886a38",
+    "observer-central-hole/mesh.glb": "58e3d922cebb71eeab270388fefa5e260aae13ddc0104e33cef37d1605dd60fd",
+    "observer-central-hole/inputs.bits": "547922eb5f2e58fd87e993270de7879efdaef49081e281badb52dd183bf23e49",
+    "observer-central-hole/accumulators.tsv": "6ecf408ca643773f51a750f2145a9cbf1613f1e29c357f755ecaddaf7b122e8a",
+    "observer-central-hole/mesh.json": "18f11b4dbc24648b5405da5f3b81973137806c68f7e0424f8f0df8667c8ffb52",
+    "observer-central-hole/mesh.bits": "ca5f668a524466bd6808af7a9537ccb950692e3383d4eef47edd923f033dfd2f",
+    "observer-central-hole/mesh.ply": "429aa74915268471be356dd30941fc5681cd538727063b8ac5d3ba73ffe977a7",
+    "observer-central-hole/normal-audit.json": "705cd2356df48814afb4bbd3f63d324111adb2935224208618daf5b632aab7d2",
+    "observer-central-hole/prepared.tsv": "fa59a7c8846ecda5a0483c28b3e95dd04004700a1eadc45529d1ee71e69acced",
+    "observer-central-hole/expected-prepared.tsv": "fa59a7c8846ecda5a0483c28b3e95dd04004700a1eadc45529d1ee71e69acced",
+    "baseline-central-hole/mesh.glb": "58e3d922cebb71eeab270388fefa5e260aae13ddc0104e33cef37d1605dd60fd",
+    "baseline-central-hole/inputs.bits": "547922eb5f2e58fd87e993270de7879efdaef49081e281badb52dd183bf23e49",
+    "baseline-central-hole/mesh.json": "18f11b4dbc24648b5405da5f3b81973137806c68f7e0424f8f0df8667c8ffb52",
+    "baseline-central-hole/mesh.bits": "ca5f668a524466bd6808af7a9537ccb950692e3383d4eef47edd923f033dfd2f",
+    "baseline-central-hole/mesh.ply": "429aa74915268471be356dd30941fc5681cd538727063b8ac5d3ba73ffe977a7",
+    "baseline-central-hole/normal-audit.json": "705cd2356df48814afb4bbd3f63d324111adb2935224208618daf5b632aab7d2",
+    "baseline-central-hole/expected-prepared.tsv": "fa59a7c8846ecda5a0483c28b3e95dd04004700a1eadc45529d1ee71e69acced",
+    "baseline-plane/mesh.glb": "1716d27f3a39f0f897784c595084287483e4a3b6c2346c82a5757d6023db4395",
+    "baseline-plane/inputs.bits": "db0302a8cefc8c31c8477b280649c7fd22eb38ccc5b4d8ac01ecec441edbeb74",
+    "baseline-plane/mesh.json": "8832c81420e2ab1e1987c99f5060db4150a844e645b2406fad3a25ce7c34a204",
+    "baseline-plane/mesh.bits": "423c99d2cbe144474b78c6a230379c61de8a361358b3dbd9fa2ff9aee4c5335c",
+    "baseline-plane/mesh.ply": "234b95008d4502b98e7c4f989f745d09e371cd413a67511a9862f2e77bbde50d",
+    "baseline-plane/normal-audit.json": "9c72a56d59c6ecd6837fb5a59f282e8af9094fb6b7c20151c17968c8f0fee5ba",
+    "baseline-plane/expected-prepared.tsv": "877117bd0ff04ed5097b2917264b9c87bf968f3ae0f4af2da7899c3f39624fca",
+    "observer-plane/after/inputs.bits": "db0302a8cefc8c31c8477b280649c7fd22eb38ccc5b4d8ac01ecec441edbeb74",
+    "observer-central-hole/after/inputs.bits": "547922eb5f2e58fd87e993270de7879efdaef49081e281badb52dd183bf23e49",
+    "baseline-central-hole/after/inputs.bits": "547922eb5f2e58fd87e993270de7879efdaef49081e281badb52dd183bf23e49",
+    "baseline-plane/after/inputs.bits": "db0302a8cefc8c31c8477b280649c7fd22eb38ccc5b4d8ac01ecec441edbeb74"
+  },
+  "native": {
+    "baseline": {
+      "library": "84429c66f777c5c516f0b7c938a2e9050cc51f536b73c25081ae46ae2dc8c88e",
+      "surfaceSource": "dc49530870b343a0ada725d5d6c6d77c3c3a5bd95418ec8fdbd83ca507d3de42",
+      "cmakeCache": "964ffae9d8f2e8d4fff5bf4f722fd29c6486a674e926d050630e98f03c458463"
+    },
+    "observer": {
+      "library": "44f774b63b6aa9a030e34effc88eb0f88835c3fd7a346ccb52a25194eb68d4f3",
+      "surfaceSource": "07990b5295e7126a0d728ff9bb9c8f2ee2df9156121db617a5288f1928e97284",
+      "cmakeCache": "92b7b09885b7f51c98b9cc71c4996a4eba107bf70726742cd34d8e30e82eecc5"
+    }
+  },
+  "tools": {
+    "/usr/bin/c++": "6b3696e4dcb85e1c949c732a02befa50e3983ecf94ce7e8e58d9d503b954b79d",
+    "/workspace/scratch/6b683a119bde/host-validation/qa-python/lib/python3.12/site-packages/cmake/data/bin/cmake": "57452fa01ed0f69552c06d3e25edd0d9375347b982dfb709393526cb45396d6b",
+    "/usr/bin/prlimit": "06275e616ca2b721482aeb564260489be3fdc6d5f86836b4a78e96485845f060"
+  }
+}

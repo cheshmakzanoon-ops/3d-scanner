@@ -1,0 +1,42 @@
+{
+  "status": "REFUSED_AUDITOR_DEFECT",
+  "case": "plane",
+  "centralHoleFusion": "NOT_RUN",
+  "firstMismatch": {
+    "accumulatorId": 20,
+    "field": "weightedNx",
+    "nativeDoubleLittleEndianHex": "0000000000000080",
+    "incorrectPythonDoubleLittleEndianHex": "0000000000000000"
+  },
+  "reason": "Native first-member product assignment preserves negative zero; +0 initial sum loses sign. Correct initialization without relaxing bit comparisons.",
+  "parityArtifacts": {
+    "inputs.bits": {
+      "equal": true,
+      "sha256": "db0302a8cefc8c31c8477b280649c7fd22eb38ccc5b4d8ac01ecec441edbeb74"
+    },
+    "mesh.bits": {
+      "equal": true,
+      "sha256": "423c99d2cbe144474b78c6a230379c61de8a361358b3dbd9fa2ff9aee4c5335c"
+    },
+    "mesh.json": {
+      "equal": true,
+      "sha256": "8832c81420e2ab1e1987c99f5060db4150a844e645b2406fad3a25ce7c34a204"
+    },
+    "mesh.ply": {
+      "equal": true,
+      "sha256": "234b95008d4502b98e7c4f989f745d09e371cd413a67511a9862f2e77bbde50d"
+    },
+    "mesh.glb": {
+      "equal": true,
+      "sha256": "1716d27f3a39f0f897784c595084287483e4a3b6c2346c82a5757d6023db4395"
+    },
+    "normal-audit.json": {
+      "equal": true,
+      "sha256": "9c72a56d59c6ecd6837fb5a59f282e8af9094fb6b7c20151c17968c8f0fee5ba"
+    },
+    "expected-prepared.tsv": {
+      "equal": true,
+      "sha256": "877117bd0ff04ed5097b2917264b9c87bf968f3ae0f4af2da7899c3f39624fca"
+    }
+  }
+}
