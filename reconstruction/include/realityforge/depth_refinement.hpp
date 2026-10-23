@@ -49,11 +49,18 @@ template<class Evaluate> RefinementResult local(double leftDepth,double initialD
  return {1/bestInverse,best,(hi-lo)*.5,work,true};
 }
 inline double parabolicInverseDepth(std::span<const double> costs,std::span<const double> planes,std::size_t best){
- if(costs.size()!=planes.size()||best==0||best+1>=planes.size())throw std::invalid_argument("Invalid depth peak");
+ // Check the interior index without adding to an untrusted size_t: SIZE_MAX+1
+ // wraps to zero and would otherwise admit an out-of-bounds three-point read.
+ if(costs.size()!=planes.size()||planes.size()<3||best==0||best>=planes.size()-1)throw std::invalid_argument("Invalid depth peak");
  const double a=costs[best-1],b=costs[best],c=costs[best+1];
- if(!std::isfinite(a)||!std::isfinite(b)||!std::isfinite(c)||planes[best]<=0||planes[best-1]<=0||planes[best+1]<=0)throw std::invalid_argument("Invalid depth peak data");
+ for(std::size_t i=best-1;i<=best+1;++i){
+  if(!std::isfinite(costs[i])||costs[i]<0||costs[i]>2||
+     !std::isfinite(planes[i])||planes[i]<=0||!std::isfinite(1/planes[i]))
+   throw std::invalid_argument("Invalid depth peak data");
+ }
  double inv=1/planes[best],denom=a-2*b+c;
  if(denom>1e-8)inv+=(1/planes[best+1]-inv)*std::clamp(.5*(a-c)/denom,-.75,.75);
+ if(!std::isfinite(inv)||inv<=0)throw std::invalid_argument("Invalid interpolated inverse depth");
  return inv;
 }
 // Coarse validity is propagated only through a fully observed continuous cell.

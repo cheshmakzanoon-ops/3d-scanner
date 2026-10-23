@@ -14,6 +14,38 @@ template<class Depth> rf::DenseDepthMap observed(const rf::DenseView& v,int stri
  for(int y=origin;y<v.height;y+=stride)for(int x=origin;x<v.width;x+=stride){const auto i=y*v.width+x;map.depth[i]=static_cast<float>(depth(x,y));map.confidence[i]=.8f;}
  return map;
 }
+void peakBoundaryTests(){
+ using rf::refinement::parabolicInverseDepth;
+ const std::array<double,3> costs{.6,.1,.4},planes{2.,3.,6.};
+ const auto rejects=[](auto&& call){bool caught=false;try{call();}catch(const std::invalid_argument&){caught=true;}assert(caught);};
+ // Check before touching either span, including indices whose +1 wraps.
+ for(const std::size_t best:{std::size_t{0},std::size_t{2},std::size_t{3},
+                            std::numeric_limits<std::size_t>::max()-1,
+                            std::numeric_limits<std::size_t>::max()})
+  rejects([&]{(void)parabolicInverseDepth(costs,planes,best);});
+ for(std::size_t size=0;size<3;++size)
+  rejects([&]{(void)parabolicInverseDepth(std::span(costs).first(size),std::span(planes).first(size),1);});
+ rejects([&]{(void)parabolicInverseDepth(std::span(costs).first(2),planes,1);});
+ for(std::size_t slot=0;slot<3;++slot){
+  for(double invalid:{0.,-1.,std::numeric_limits<double>::quiet_NaN(),
+                      std::numeric_limits<double>::infinity(),std::numeric_limits<double>::denorm_min()}){
+   auto bad=planes;bad[slot]=invalid;
+   rejects([&]{(void)parabolicInverseDepth(costs,bad,1);});
+  }
+  for(double invalid:{-.1,2.1,std::numeric_limits<double>::quiet_NaN(),std::numeric_limits<double>::infinity()}){
+   auto bad=costs;bad[slot]=invalid;
+   rejects([&]{(void)parabolicInverseDepth(bad,planes,1);});
+  }
+ }
+ // Finite inputs can still overflow or extrapolate outside positive depth.
+ rejects([&]{(void)parabolicInverseDepth(std::array<double,3>{.4,.1,.6},std::array<double,3>{2e-308,6e-309,1.},1);});
+ rejects([&]{(void)parabolicInverseDepth(std::array<double,3>{.4,.1,.6},std::array<double,3>{2.,3.,.01},1);});
+ // Preserve the established inverse-depth interpolation for admitted curves.
+ const double expected=1./3.+(1./6.-1./3.)*(.5*(.6-.4)/(.6-2*.1+.4));
+ assert(parabolicInverseDepth(costs,planes,1)==expected);
+ assert(parabolicInverseDepth(std::array<double,3>{.4,.1,.4},planes,1)==1./3.);
+ assert(parabolicInverseDepth(std::array<double,3>{.1,.1,.1},planes,1)==1./3.);
+}
 void planeTests(){
  using namespace rf::refinement;
  const auto v=camera();const auto truth=unit({.45,-.3,1});
@@ -105,6 +137,7 @@ int main(){
  rf::DenseDepthMap m{2,2,{5,5.02f,5.03f,5.05f},{1,1,1,1}};assert(propagate(m,.5,.5)>5);
  m.depth[3]=2;assert(propagate(m,.5,.5)==0);m.depth[3]=0;assert(propagate(m,.5,.5)==0);
  rf::DenseDepthMap sparse{5,5,std::vector<float>(25,0),std::vector<float>(25,0)};for(int y=0;y<5;y+=2)for(int x=0;x<5;x+=2)sparse.depth[y*5+x]=5+.01f*x;assert(propagate(sparse,1,1,.05,2,0)>5);sparse.depth[2*5+2]=0;assert(propagate(sparse,1,1,.05,2,0)==0);
+ peakBoundaryTests();
  planeTests();
  std::cout<<"multi-layer priors, bounded local depth/normal hypotheses, curved tangent and invalid/discontinuous sampled-grid checks passed\n";
 }

@@ -22,6 +22,16 @@ def library_path() -> Path:
     raise FileNotFoundError("Build the C++ library first: cmake -S . -B build/host && cmake --build build/host")
 
 
+def _export_path(file: os.PathLike | str | bytes | None) -> bytes | None:
+    """Reject C-string truncation before native code can create any output."""
+    if not file:
+        return None
+    encoded = os.fsencode(file)
+    if b"\0" in encoded:
+        raise ValueError("Native export path must not contain NUL")
+    return encoded
+
+
 class NativeEngine:
     def __init__(self,path:Path|None=None):
         self.library=ctypes.CDLL(str(path or library_path()))
@@ -51,13 +61,14 @@ class NativeEngine:
         self.library.rf_free.restype=None
 
     def reconstruct(self, matches:np.ndarray, threshold:float=.002, glb:Path|None=None, ply:Path|None=None) -> dict[str,Any]:
+        glb_path,ply_path=_export_path(glb),_export_path(ply)
         rows=np.ascontiguousarray(matches,dtype=np.float64)
         if rows.ndim!=2 or rows.shape[1]!=7:
             raise ValueError("Expected N×7 rows: normalized x1,y1,x2,y2,r,g,b")
         if len(rows)>20000:
             raise ValueError("The bounded native initializer accepts at most 20,000 matches")
         pointer=self.library.rf_reconstruct_json(rows.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),len(rows),threshold,
-                    os.fsencode(glb) if glb else None,os.fsencode(ply) if ply else None)
+                    glb_path,ply_path)
         if not pointer: raise MemoryError("Native result allocation failed")
         try: result=json.loads(ctypes.string_at(pointer).decode("utf-8"))
         finally: self.library.rf_free(pointer)
@@ -133,6 +144,7 @@ class NativeEngine:
         GLB/PLY filenames are optional; when mesh lacks support the dense results
         remain and meshError explains why. Does not infer unseen surfaces or UVs.
         """
+        glb_path,ply_path=_export_path(glb),_export_path(ply)
         images=np.ascontiguousarray(rgba,dtype=np.uint8)
         poses=np.ascontiguousarray(cameras,dtype=np.float64)
         if images.ndim!=4 or images.shape[-1]!=4 or images.shape[0] not in range(2,9):
@@ -142,7 +154,7 @@ class NativeEngine:
         ptr=self.library.rf_surface_json(images.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),
             images.shape[2],images.shape[1],poses.ctypes.data_as(ctypes.POINTER(ctypes.c_double)),
             len(poses),near,far,depth_planes,pixel_stride,
-            os.fsencode(glb) if glb else None,os.fsencode(ply) if ply else None)
+            glb_path,ply_path)
         if not ptr:raise MemoryError('Surface native allocation failed')
         try:result=json.loads(ctypes.string_at(ptr).decode('utf-8'))
         finally:self.library.rf_free(ptr)
@@ -159,6 +171,8 @@ class NativeEngine:
         higher resolution but must have identical crop/pose to the depth input.
         A textureError leaves the depth/mesh products available.
         """
+        mesh_glb_path,mesh_ply_path=_export_path(mesh_glb),_export_path(mesh_ply)
+        textured_glb_path,atlas_png_path=_export_path(textured_glb),_export_path(atlas_png)
         depth=np.ascontiguousarray(depth_rgba,dtype=np.uint8)
         photos=np.ascontiguousarray(photo_rgba,dtype=np.uint8)
         camera=np.ascontiguousarray(cameras,dtype=np.float64)
@@ -171,12 +185,11 @@ class NativeEngine:
         if camera.shape!=(len(depth),16):
             raise ValueError('Camera rows must be N×16')
         def ptr(array,type_):return array.ctypes.data_as(ctypes.POINTER(type_))
-        def pathname(file):return os.fsencode(file) if file else None
         result=self.library.rf_textured_surface_json(
             ptr(depth,ctypes.c_uint8),depth.shape[2],depth.shape[1],
             ptr(photos,ctypes.c_uint8),photos.shape[2],photos.shape[1],
             ptr(camera,ctypes.c_double),len(camera),near,far,depth_planes,pixel_stride,
-            pathname(mesh_glb),pathname(mesh_ply),pathname(textured_glb),pathname(atlas_png))
+            mesh_glb_path,mesh_ply_path,textured_glb_path,atlas_png_path)
         if not result:raise MemoryError('M09 texture engine failed to allocate native response')
         try:decoded=json.loads(ctypes.string_at(result).decode('utf-8'))
         finally:self.library.rf_free(result)
