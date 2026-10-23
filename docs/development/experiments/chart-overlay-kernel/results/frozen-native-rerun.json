@@ -1,0 +1,15 @@
+{
+  "baselineCommit": "c30e123df1d64414417a84d19807918a06cf6390",
+  "libraryArtifact": "frozen-native/librealityforge.so",
+  "librarySha256": "2c8e015241795183d8c2bf94b18c5b62a90653dd2a8dee77f51b3cb654e98c07",
+  "dynamicResolutionMatchesFrozenArtifact": true,
+  "archivedHeaderTreeSha256": "804dcd2d4445a392a9acdb9b71470684df459853f437b459eafe0ce67673fa1c",
+  "surfaceHeaderSha256": "076fa349db9e78645221896cfed4233f7055e4f4f570842e5acde9910051b35f",
+  "nativeBaselineAdapterSha256": "f6271b0ea298101d581576d1093ef92c8e1656ed139fa25a45b632949d603362",
+  "nativeTopologyAdapterSha256": "bfeb3d45f41924709f9ec8d6899215e8df47e5a740818efbef5d9e8f573f561a",
+  "nativeBaselineAdapterSourceSha256": "230abbd3046d33dd3df7f070502c0dd33cbc59ab4cec9113036fbbc2bac00939",
+  "nativeTopologyAdapterSourceSha256": "aa9b34389cab8c43ce07a044c25243f721eb0d82e53a98ba8e1cea59181ea4a7",
+  "controlRunnerExitCode": 0,
+  "independentAuditExitCode": 0,
+  "scope": "Adapters rebuilt against archived baseline headers and exact preserved baseline library; no mutable shared-build rpath in these adapters."
+}

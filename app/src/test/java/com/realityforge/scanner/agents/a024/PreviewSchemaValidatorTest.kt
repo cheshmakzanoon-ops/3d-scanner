@@ -83,6 +83,25 @@ class PreviewSchemaValidatorTest {
             .put("reassignedFaces", if (compact) JSONObject.NULL else 1).put("exposureSamples", 8))
     }
 
+    @Test fun optionalObservationLedgerPreservesLegacyAndRejectsMixedEvidence() {
+        assertTrue(PreviewSchemaValidator.validate(texturedFixture(), 3, key) is ReopenResult.Ready)
+        val current = texturedFixture().apply { getJSONObject("meshPreview")
+            .put("observationLedgerVersion", 1).put("inputSamples", 8).put("acceptedSamples", 7)
+            .put("attachedObservationCount", 6).put("unattachedObservationCount", 1)
+            .put("exactDuplicateSupportCount", 3) }
+        assertTrue(PreviewSchemaValidator.validate(current, 3, key) is ReopenResult.Ready)
+        val mutations = listOf<(JSONObject) -> Unit>(
+            { it.remove("observationLedgerVersion") }, { it.put("observationLedgerVersion", 2) },
+            { it.remove("unattachedObservationCount") }, { it.put("attachedObservationCount", 5) },
+            { it.put("exactDuplicateSupportCount", 7) }, { it.put("acceptedSamples", 9) },
+            { it.put("inputSamples", 100_001) }, { it.put("attachedObservationCount", "6") },
+            { it.put("unattachedObservationCount", -1) }, { it.put("schema", 9) })
+        for (mutate in mutations) {
+            val changed = JSONObject(current.toString());mutate(changed.getJSONObject("meshPreview"))
+            assertTrue(changed.toString(), PreviewSchemaValidator.validate(changed, 3, key) is ReopenResult.Invalid)
+        }
+    }
+
     @Test fun compactNativeSchemaPreservesGeometryAndInapplicableCountersWithoutCheckpoint() {
         val json = texturedFixture()
         val encoded = json.toString()

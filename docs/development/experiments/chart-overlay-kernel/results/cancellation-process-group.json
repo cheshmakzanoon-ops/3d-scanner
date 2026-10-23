@@ -1,0 +1,8 @@
+{
+  "status": "cancelled",
+  "result": {
+    "reason": "external cancellation; no mesh published",
+    "seconds": 0.04254217600100674
+  },
+  "scope": "POSIX worker process group including native diagnostic descendants"
+}

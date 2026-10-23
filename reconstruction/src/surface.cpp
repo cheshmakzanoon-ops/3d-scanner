@@ -1,6 +1,7 @@
 #include "realityforge/c_abi_support.hpp"
 #include "realityforge/surface.hpp"
 #include "realityforge/surface_checkpoint.hpp"
+#include "realityforge/surface_provenance.hpp"
 #include "realityforge/cancellation.hpp"
 #include "realityforge/surface_fusion.hpp"
 #include "realityforge/mesh_topology.hpp"
@@ -341,9 +342,12 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         }
     }
     progress::advance(2*prepared.size());
+    std::vector<std::int32_t> exactObservationTargets;
     {
         const auto initialTopology=analyzeMeshTopology(mesh);
-        auto cleaned=applyMeshCleanup(mesh,planMeshCleanup(mesh,initialTopology));
+        const auto plan=planMeshCleanup(mesh,initialTopology);
+        exactObservationTargets=exactCleanupObservationTargets(mesh,plan);
+        auto cleaned=applyMeshCleanup(mesh,plan);
         mesh=std::move(cleaned.mesh);
         mesh.topology.removedExactDefects=cleaned.plan.removedFaces.size();
     } // release first diagnostic/copy before normal compaction and final report
@@ -365,8 +369,9 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         if(remap[old]<0){remap[old]=static_cast<std::int32_t>(compact.size());compact.push_back(mesh.vertices[old]);}
         *index=static_cast<std::uint32_t>(remap[old]);
     }
-    for(auto& observation:mesh.observations){const auto mapped=remap[observation.vertex];observation.vertex=mapped<0?std::numeric_limits<std::uint32_t>::max():static_cast<std::uint32_t>(mapped);}
-    mesh.observations.erase(std::remove_if(mesh.observations.begin(),mesh.observations.end(),[](const auto& o){return o.vertex==std::numeric_limits<std::uint32_t>::max();}),mesh.observations.end());
+    auto ledger=compactSurfaceObservations(mesh.observations,remap,exactObservationTargets);
+    mesh.observations=std::move(ledger.attached);
+    mesh.unattachedObservations=std::move(ledger.unattached);
     mesh.vertices=std::move(compact);
     const auto report=analyzeMeshTopology(mesh);
     mesh.topology.boundaryEdges=report.boundaryEdges;mesh.topology.components=report.components;mesh.topology.nonmanifoldEdges=report.nonmanifoldEdges;mesh.topology.intersections=report.intersections.size();mesh.topology.ambiguousPairs=report.ambiguousPairs.size();mesh.topology.intersectionBudgetExceeded=report.intersectionBudgetExceeded;
@@ -383,8 +388,11 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<"\"textured\":false,\"watertight\":false,\"material\":\"vertex_colors\",\"vertexCount\":"<<m.vertices.size()
      <<",\"triangleCount\":"<<m.triangles.size()<<",\"inputSamples\":"<<m.inputSamples
      <<",\"acceptedSamples\":"<<m.acceptedSamples<<",\"fusedObservations\":"<<m.fusedObservations
+     <<",\"observationLedgerVersion\":1,\"attachedObservationCount\":"<<m.observations.size()
+     <<",\"unattachedObservationCount\":"<<m.unattachedObservations.size()
+     <<",\"exactDuplicateSupportCount\":"<<std::count_if(m.observations.begin(),m.observations.end(),[](const auto& o){return o.relation==SurfaceObservationRelation::ExactDuplicateFace;})
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":7,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":8,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])

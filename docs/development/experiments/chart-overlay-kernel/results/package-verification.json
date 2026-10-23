@@ -1,0 +1,13 @@
+{
+  "compactScriptsExecuted": true,
+  "fullPortableBuildInstallFlow": "NOT_RUN",
+  "scope": "Matched frozen baseline adapters/library; existing geometry outcomes unchanged; additional guard cases and fail-closed assertions executed.",
+  "failClosedControlRunnerExitCode": 0,
+  "failClosedIndependentAuditExitCode": 0,
+  "nativeAbiPairFrozen": true,
+  "preReviewControlOutcomesAndMetricsExactlyPreservedIgnoringWallTime": true,
+  "preReviewIndependentAuditFieldsExactlyPreserved": true,
+  "additionalDeclaredGuardsReproduced": true,
+  "corruptionTestsReturnNonzero": true,
+  "forcedCancellationScratchCleanupVerified": true
+}

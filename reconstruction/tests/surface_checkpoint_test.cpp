@@ -58,8 +58,13 @@ int main() {
                 "unserialized topology diagnostics lost");
         for(std::size_t i=0;i<mesh.observations.size();++i){
             const auto& a=mesh.observations[i];const auto& b=recovered.mesh.observations[i];
-            require(a.vertex==b.vertex&&a.camera==b.camera&&a.x==b.x&&a.y==b.y&&a.sourceSampleId==b.sourceSampleId,
+            require(a.vertex==b.vertex&&a.camera==b.camera&&a.x==b.x&&a.y==b.y&&a.sourceSampleId==b.sourceSampleId&&a.relation==b.relation,
                     "surface observation provenance changed");
+        }
+        require(mesh.unattachedObservations.size()==recovered.mesh.unattachedObservations.size(),"unattached identities lost");
+        for(std::size_t i=0;i<mesh.unattachedObservations.size();++i){
+            const auto& a=mesh.unattachedObservations[i];const auto& b=recovered.mesh.unattachedObservations[i];
+            require(a.camera==b.camera&&a.x==b.x&&a.y==b.y&&a.sourceSampleId==b.sourceSampleId&&a.reason==b.reason,"unattached identity changed");
         }
         for(std::size_t i=0;i<dense.verifiedSamples.size();++i){
             const auto& a=dense.verifiedSamples[i];const auto& b=recovered.dense.verifiedSamples[i];
@@ -121,7 +126,8 @@ int main() {
     test("historical topology and fusion identities fail closed even under the current filename",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
         rf::surface_checkpoint::AcceptedSurface recovered;
-        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v6-checkpoint-v2",
+        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2",
+                               "realityforge-observed-open-surface-fusion-v6-checkpoint-v2",
                                "realityforge-observed-open-surface-fusion-v6-checkpoint-v2-topology-v2"}) {
             const auto oldBytes=historicalBytes(domain);write(checkpoint,oldBytes);
             require(!rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
@@ -159,10 +165,10 @@ int main() {
         require(rf::surface_checkpoint::store(views,dense,mesh,meshSettings,&created)&&created,
                 "legacy immutable surface blocked new checkpoint publication");
         const auto newBytes=read(next);
-        require(newBytes==acceptedBytes&&u32(newBytes,8)==2,
-                "algorithm migration changed the v2 serialization layout");
+        require(newBytes==acceptedBytes&&u32(newBytes,8)==3,
+                "provenance migration omitted v3 serialization");
         require(rf::surface_checkpoint::load(next.string(),views,recovered),"new fusion checkpoint was not reusable");
-        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":7")!=std::string::npos,
+        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":8")!=std::string::npos,
                 "reopened checkpoint reports a stale fusion version");
         created=true;
         require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&created)&&!created,
@@ -182,6 +188,18 @@ int main() {
         require(read(checkpoint)==acceptedBytes,"over-budget cache replaced accepted bytes");
     });
 
+    test("duplicate relation and unattached identity corruption cannot be cached",[&] {
+        rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
+        const auto rejectsMesh=[&](rf::SurfaceMesh bad) {
+            bool rejected=false;try{rejected=!rf::surface_checkpoint::store(views,dense,bad,meshSettings);}catch(const rf::Error&){rejected=true;}
+            require(rejected&&read(checkpoint)==acceptedBytes,"invalid ledger overwrote accepted checkpoint");
+        };
+        auto bad=mesh;bad.observations[0].relation=static_cast<rf::SurfaceObservationRelation>(255);rejectsMesh(bad);
+        bad=mesh;bad.observations[1].sourceSampleId=bad.observations[0].sourceSampleId;rejectsMesh(bad);
+        bad=mesh;bad.unattachedObservations.push_back({bad.observations[0].camera,bad.observations[0].x,bad.observations[0].y,bad.observations[0].sourceSampleId,rf::SurfaceUnattachedReason::NoRetainedFace});
+        ++bad.acceptedSamples;rejectsMesh(bad);
+        bad=mesh;bad.observations.pop_back();rejectsMesh(bad);
+    });
     test("texture-only C ABI changes atlas while accepted mesh and depth hashes stay equal",[&] {
         std::vector<std::vector<std::uint8_t>> originalDepth;
         for(std::size_t i=0;i<views.size();++i)originalDepth.push_back(read(temporary.directory/("ref-"+std::to_string(i)+".bin")));
@@ -252,6 +270,20 @@ int main() {
         faceEnd+=static_cast<std::size_t>(u32(bad,36))*32+static_cast<std::size_t>(u32(bad,40))*66+
                  static_cast<std::size_t>(u32(bad,28))*56+static_cast<std::size_t>(u32(bad,32))*13;
         bad[faceEnd-1]=8;checksum(bad);rejects(bad);
+        // New v3 relation/reason bytes are parsed, not just store-time checked.
+        const std::size_t firstObservation=faceEnd+4;
+        const auto observationCount=u32(acceptedBytes,faceEnd);
+        require(observationCount>1,"fixture needs multiple attached observations");
+        bad=acceptedBytes;bad[firstObservation+17]=255;checksum(bad);rejects(bad);
+        bad=acceptedBytes;std::copy_n(bad.begin()+static_cast<std::ptrdiff_t>(firstObservation),18,
+            bad.begin()+static_cast<std::ptrdiff_t>(firstObservation+18));checksum(bad);rejects(bad);
+        const std::size_t unattachedOffset=firstObservation+static_cast<std::size_t>(observationCount)*18;
+        require(u32(acceptedBytes,unattachedOffset)>0,"photographic fixture must exercise unmeshed accepted evidence");
+        bad=acceptedBytes;bad[unattachedOffset+4+13]=255;checksum(bad);rejects(bad);
+        bad=acceptedBytes;std::copy_n(bad.begin()+static_cast<std::ptrdiff_t>(firstObservation+4),13,
+            bad.begin()+static_cast<std::ptrdiff_t>(unattachedOffset+4));checksum(bad);rejects(bad);
+        bad=acceptedBytes;u32(bad,unattachedOffset,std::numeric_limits<std::uint32_t>::max());checksum(bad);rejects(bad);
+        bad=acceptedBytes;u32(bad,8,2);checksum(bad);rejects(bad);
         bad=acceptedBytes;u32(bad,8,1);checksum(bad);rejects(bad);
         bad=acceptedBytes;std::size_t vertexOffset=316;
         for(std::size_t i=0;i<views.size();++i)vertexOffset+=4+u32(bad,vertexOffset)*4+8;

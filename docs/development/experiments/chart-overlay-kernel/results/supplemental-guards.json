@@ -1,0 +1,42 @@
+{
+  "source_budget": {
+    "status": "refused",
+    "result": {
+      "reason": "budget:inputTriangles",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.006847460001154104
+    }
+  },
+  "same_view_overlap": {
+    "status": "refused",
+    "result": {
+      "reason": "same-view chart overlap",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.06841990300017642
+    }
+  },
+  "duplicate_source_id": {
+    "status": "refused",
+    "result": {
+      "reason": "repeated source identity",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.006412941000235151
+    }
+  },
+  "cooperative_precheck": {
+    "status": "cancelled",
+    "resultProduced": false
+  },
+  "opposite_oriented_coincident_sheet": {
+    "status": "refused",
+    "result": {
+      "reason": "opposite sheet orientation or chart fold",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.019726541999261826
+    }
+  }
+}

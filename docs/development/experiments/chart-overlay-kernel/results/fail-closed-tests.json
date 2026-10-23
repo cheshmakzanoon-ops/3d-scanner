@@ -1,0 +1,43 @@
+{
+  "ledger": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "immutable source ledger mismatch"
+  },
+  "ledger_with_python_optimized": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "immutable source ledger mismatch"
+  },
+  "support": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "declared support/topology invariant failed"
+  },
+  "duplicate_ledger": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "duplicate source ledger IDs"
+  },
+  "native_topology": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "independent native topology defect"
+  },
+  "permutation": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "Permutation triangle-coordinate sets differ"
+  },
+  "unexpected_control_status": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "expected declared success"
+  },
+  "cancelled_mesh_cleanup": {
+    "status": "PASS",
+    "meshWrittenBeforeCancellation": true,
+    "parentRemovedWorkerScratch": true,
+    "temporaryMeshOutsideRun": false
+  }
+}

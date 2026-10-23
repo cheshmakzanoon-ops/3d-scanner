@@ -56,7 +56,7 @@ std::pair<std::vector<rf::DenseView>,rf::DenseResult> tiltedPlane(){
 }
 std::size_t farFusions(const rf::SurfaceMesh& mesh){
     std::set<std::uint32_t> seen;std::size_t count=0;
-    for(const auto& source:mesh.observations)if(mesh.vertices[source.vertex].xyz.z>25&&!seen.insert(source.vertex).second)++count;
+    for(const auto& source:mesh.observations)if(source.relation==rf::SurfaceObservationRelation::Accumulator&&mesh.vertices[source.vertex].xyz.z>25&&!seen.insert(source.vertex).second)++count;
     return count;
 }
 }
@@ -80,7 +80,7 @@ int main(){
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::infinity()},{0,0,1}),"infinite normal accepted");
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::quiet_NaN()},{0,0,1}),"NaN normal accepted");
     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
-    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":7")!=std::string::npos,"local footprint algorithm version missing");
+    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":8")!=std::string::npos,"local footprint algorithm version missing");
     // Confidence is an admitted observation weight, not a normal-vector length.
     // Identical supported planes must associate identically above the configured
     // minimum confidence; changing weights must not rotate or invalidate normals.

@@ -30,8 +30,17 @@ struct SurfaceTriangle {
     std::uint32_t a{},b{},c{};
     std::uint8_t sourceCamera{}; // original depth map that supported the face
 };
+// Accumulator refs produced existing attributes. ExactDuplicateFace refs preserve
+// additional observed support only; they do not retroactively change fusion weights.
+enum class SurfaceObservationRelation : std::uint8_t { Accumulator=0, ExactDuplicateFace=1 };
+enum class SurfaceUnattachedReason : std::uint8_t { NoRetainedFace=0, AmbiguousExactDuplicate=1 };
 struct SurfaceObservationRef {
     std::uint32_t vertex{};std::uint8_t camera{};std::uint16_t x{},y{};std::size_t sourceSampleId{};
+    SurfaceObservationRelation relation=SurfaceObservationRelation::Accumulator;
+};
+struct SurfaceUnattachedObservation {
+    std::uint8_t camera{};std::uint16_t x{},y{};std::size_t sourceSampleId{};
+    SurfaceUnattachedReason reason=SurfaceUnattachedReason::NoRetainedFace;
 };
 struct SurfaceQualityDiagnostics {
     std::size_t boundaryEdges{},components{},nonmanifoldEdges{},intersections{},ambiguousPairs{},removedExactDefects{};
@@ -43,6 +52,7 @@ struct SurfaceMesh {
     std::size_t inputSamples{},acceptedSamples{},rejectedCells{},rejectedTriangles{},fusedObservations{};
     float medianConfidence{};
     std::vector<SurfaceObservationRef> observations;
+    std::vector<SurfaceUnattachedObservation> unattachedObservations;
     SurfaceQualityDiagnostics topology;
 };
 // Only verified samples (reciprocal depth, >=2 supporting cameras) can

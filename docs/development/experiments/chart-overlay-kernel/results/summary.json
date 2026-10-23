@@ -1,0 +1,662 @@
+{
+  "identical": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 289,
+      "triangleCount": 512,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 225,
+      "rejectedCells": 0,
+      "rejectedTriangles": 392,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 64,
+      "nonmanifoldEdges": 0,
+      "intersections": 0,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 1024,
+      "candidatePairs": 16416,
+      "arrangementCells": 512,
+      "outputVertices": 289,
+      "outputTriangles": 512,
+      "contributorLinks": 1024,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.10240000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 64,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 64,
+        "components": 1
+      }
+    },
+    "seconds": 0.3654589699999633,
+    "sourceIdsPreserved": true
+  },
+  "translated": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 353,
+      "triangleCount": 632,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 225,
+      "rejectedCells": 0,
+      "rejectedTriangles": 392,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 128,
+      "nonmanifoldEdges": 56,
+      "intersections": 212,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 1024,
+      "candidatePairs": 13656,
+      "arrangementCells": 1552,
+      "outputVertices": 1090,
+      "outputTriangles": 2080,
+      "contributorLinks": 4064,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "sourceUnionChartArea": 0.10304000000000002,
+      "candidateUnionChartArea": 0.10304000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 98,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 98,
+        "components": 1
+      }
+    },
+    "seconds": 0.7367738290013222,
+    "sourceIdsPreserved": true
+  },
+  "rotated": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 289,
+      "triangleCount": 512,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 225,
+      "rejectedCells": 0,
+      "rejectedTriangles": 392,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 64,
+      "nonmanifoldEdges": 0,
+      "intersections": 0,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 1024,
+      "candidatePairs": 16416,
+      "arrangementCells": 512,
+      "outputVertices": 289,
+      "outputTriangles": 512,
+      "contributorLinks": 1024,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.10240000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 64,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 64,
+        "components": 1
+      }
+    },
+    "seconds": 0.39291350600069563,
+    "sourceIdsPreserved": true
+  },
+  "permuted": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 353,
+      "triangleCount": 632,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 225,
+      "rejectedCells": 0,
+      "rejectedTriangles": 392,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 128,
+      "nonmanifoldEdges": 56,
+      "intersections": 212,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 1024,
+      "candidatePairs": 13656,
+      "arrangementCells": 1552,
+      "outputVertices": 1090,
+      "outputTriangles": 2080,
+      "contributorLinks": 4064,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "sourceUnionChartArea": 0.10304000000000002,
+      "candidateUnionChartArea": 0.10304000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 98,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 98,
+        "components": 1
+      }
+    },
+    "seconds": 0.7590377739998075,
+    "sourceIdsPreserved": true
+  },
+  "partial": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 289,
+      "triangleCount": 512,
+      "inputSamples": 442,
+      "acceptedSamples": 442,
+      "fusedObservations": 105,
+      "rejectedCells": 128,
+      "rejectedTriangles": 168,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 64,
+      "nonmanifoldEdges": 0,
+      "intersections": 0,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 768,
+      "candidatePairs": 10104,
+      "arrangementCells": 512,
+      "outputVertices": 289,
+      "outputTriangles": 512,
+      "contributorLinks": 768,
+      "inputObservations": 442,
+      "retainedObservations": 442,
+      "geometricSupportSources": 442,
+      "maximumArithmeticLiftSpread": 0,
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.10240000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 64,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 64,
+        "components": 1
+      }
+    },
+    "seconds": 0.2982790509995539,
+    "sourceIdsPreserved": true
+  },
+  "complementary": {
+    "status": "refused",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 422,
+      "triangleCount": 727,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 150,
+      "rejectedCells": 0,
+      "rejectedTriangles": 252,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 141,
+      "nonmanifoldEdges": 24,
+      "intersections": 67,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "reason": "native coherent-topology guard failed; candidate not published",
+      "exception": "Refused",
+      "details": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 192,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 4,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 266,
+        "components": 199
+      },
+      "seconds": 0.4688808210012212
+    },
+    "seconds": 0.4688808210012212
+  },
+  "hole": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 264,
+      "triangleCount": 440,
+      "inputSamples": 528,
+      "acceptedSamples": 528,
+      "fusedObservations": 176,
+      "rejectedCells": 72,
+      "rejectedTriangles": 266,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 88,
+      "nonmanifoldEdges": 0,
+      "intersections": 0,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 880,
+      "candidatePairs": 13352,
+      "arrangementCells": 441,
+      "outputVertices": 264,
+      "outputTriangles": 440,
+      "contributorLinks": 880,
+      "inputObservations": 528,
+      "retainedObservations": 528,
+      "geometricSupportSources": 528,
+      "maximumArithmeticLiftSpread": 0,
+      "sourceUnionChartArea": 0.08800000000000002,
+      "candidateUnionChartArea": 0.08800000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 88,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 88,
+        "components": 1
+      }
+    },
+    "seconds": 0.32736237900098786,
+    "sourceIdsPreserved": true
+  },
+  "curved_identical": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 289,
+      "triangleCount": 512,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 225,
+      "rejectedCells": 0,
+      "rejectedTriangles": 392,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 64,
+      "nonmanifoldEdges": 0,
+      "intersections": 0,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 1024,
+      "candidatePairs": 15968,
+      "arrangementCells": 512,
+      "outputVertices": 289,
+      "outputTriangles": 512,
+      "contributorLinks": 1024,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 1.7763568394002505e-15,
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.10240000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 64,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 64,
+        "components": 1
+      }
+    },
+    "seconds": 0.3868455619995075,
+    "sourceIdsPreserved": true
+  },
+  "curved_translated": {
+    "status": "refused",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 353,
+      "triangleCount": 632,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 225,
+      "rejectedCells": 0,
+      "rejectedTriangles": 392,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 128,
+      "nonmanifoldEdges": 56,
+      "intersections": 64,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "reason": "ambiguous distinct chart-ray depths; no calibrated sheet/noise decision",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.3237386469991179
+    },
+    "seconds": 0.3237386469991179
+  },
+  "step": {
+    "status": "success",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 289,
+      "triangleCount": 480,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 195,
+      "rejectedCells": 0,
+      "rejectedTriangles": 372,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 94,
+      "nonmanifoldEdges": 0,
+      "intersections": 0,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "inputTriangles": 960,
+      "candidatePairs": 14608,
+      "arrangementCells": 480,
+      "outputVertices": 289,
+      "outputTriangles": 480,
+      "contributorLinks": 960,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 8.881784197001252e-16,
+      "sourceUnionChartArea": 0.09600000000000003,
+      "candidateUnionChartArea": 0.09600000000000003,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 94,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 94,
+        "components": 2
+      }
+    },
+    "seconds": 0.33050133799952164,
+    "sourceIdsPreserved": true
+  },
+  "thin_sheets": {
+    "status": "refused",
+    "nativeBaseline": {
+      "schema": 8,
+      "representation": "observed_open_triangle_mesh",
+      "scale": "arbitrary",
+      "textured": false,
+      "watertight": false,
+      "material": "vertex_colors",
+      "vertexCount": 353,
+      "triangleCount": 632,
+      "inputSamples": 578,
+      "acceptedSamples": 578,
+      "fusedObservations": 225,
+      "rejectedCells": 0,
+      "rejectedTriangles": 392,
+      "medianConfidence": 0.8999999762,
+      "fusionVersion": 7,
+      "boundaryEdges": 128,
+      "nonmanifoldEdges": 56,
+      "intersections": 0,
+      "topologyIncomplete": false
+    },
+    "candidate": {
+      "reason": "ambiguous distinct chart-ray depths; no calibrated sheet/noise decision",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.2097843349984032
+    },
+    "seconds": 0.2097843349984032
+  },
+  "source_budget": {
+    "status": "refused",
+    "result": {
+      "reason": "budget:inputTriangles",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.0017722010015859269
+    }
+  },
+  "pair_budget": {
+    "status": "refused",
+    "result": {
+      "reason": "budget:candidatePairs",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.032264060000670725
+    }
+  },
+  "fragment_budget": {
+    "status": "refused",
+    "result": {
+      "reason": "budget:cells",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.19538190600178496
+    }
+  },
+  "vertex_budget": {
+    "status": "refused",
+    "result": {
+      "reason": "budget:vertices",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.20636108799953945
+    }
+  },
+  "face_budget": {
+    "status": "refused",
+    "result": {
+      "reason": "budget:faces",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.19668582300073467
+    }
+  },
+  "contributor_budget": {
+    "status": "refused",
+    "result": {
+      "reason": "budget:links",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.1970794480002951
+    }
+  },
+  "cancelled": {
+    "status": "cancelled",
+    "result": {
+      "reason": "external cancellation; no mesh published",
+      "seconds": 0.04089388600004895
+    }
+  },
+  "nonfinite": {
+    "status": "refused",
+    "result": {
+      "reason": "nonfinite source",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.0025933279994205805
+    }
+  },
+  "same_view_overlap": {
+    "status": "refused",
+    "result": {
+      "reason": "same-view chart overlap",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.035433723000096506
+    }
+  },
+  "duplicate_source_id": {
+    "status": "refused",
+    "result": {
+      "reason": "repeated source identity",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.002434517999063246
+    }
+  },
+  "opposite_oriented_coincident_sheet": {
+    "status": "refused",
+    "result": {
+      "reason": "opposite sheet orientation or chart fold",
+      "exception": "Refused",
+      "details": null,
+      "seconds": 0.019112228001176845
+    }
+  },
+  "cooperative_precheck": {
+    "status": "cancelled",
+    "resultProduced": false
+  }
+}

@@ -86,6 +86,19 @@ object PreviewSchemaValidator {
         if (mesh == null) { vertices = emptyList(); triangles = emptyList() } else {
             require(dense != null) { "Mesh has no successful depth prerequisite." }
             require(integer(mesh, "schema", 8, 8) == 8L && string(mesh, "representation") == "observed_open_triangle_mesh")
+            // Schema 8 geometry remains backward compatible. The optional versioned
+            // ledger diagnostics do not turn accepted samples into mesh contributors.
+            val ledgerFields = listOf("observationLedgerVersion", "attachedObservationCount",
+                "unattachedObservationCount", "exactDuplicateSupportCount")
+            if (ledgerFields.any(mesh::has)) {
+                integer(mesh, "observationLedgerVersion", 1, 1)
+                val input = integer(mesh, "inputSamples", 0, 100_000)
+                val accepted = integer(mesh, "acceptedSamples", 0, input)
+                val attached = integer(mesh, "attachedObservationCount", 0, accepted)
+                val unattached = integer(mesh, "unattachedObservationCount", 0, accepted)
+                require(attached + unattached == accepted) { "Accepted observation ledger does not reconcile." }
+                integer(mesh, "exactDuplicateSupportCount", 0, attached)
+            }
             require(mesh.get("textured") == false && mesh.get("watertight") == false && string(mesh, "scale") == "arbitrary")
             vertices = pointRows(mesh, "vertices", "vertexCount", MAX_VERTICES, checkCancelled)
             val rows = array(mesh, "triangles")

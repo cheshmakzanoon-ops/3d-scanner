@@ -86,17 +86,16 @@ int main(){
                 require(a.z==b.z&&b.z==c.z,"Canonical tie bridged measured depth discontinuity");
             }
             require(std::abs(area-(step?2.9632:2.56))<1e-12,"Canonical tie lost analytic observed plane coverage");
-            // Existing exact-face cleanup compacts duplicate boundary vertices and
-            // their refs. Do not confuse acceptedSamples with retained provenance.
-            const std::size_t expectedRefs=step?484:partial?394:514;
-            require(mesh.observations.size()==expectedRefs,"Unexpected reference-compaction behavior");
+            const std::size_t expectedSupport=step?94:partial?48:64;
+            require(mesh.observations.size()==mesh.acceptedSamples&&mesh.unattachedObservations.empty(),"Exact duplicate cleanup lost accepted identities");
+            require(std::count_if(mesh.observations.begin(),mesh.observations.end(),[](const auto&o){return o.relation==rf::SurfaceObservationRelation::ExactDuplicateFace;})==static_cast<std::ptrdiff_t>(expectedSupport),"Exact support relabeled averaging contributors");
             std::vector<bool> retained(f.dense.verifiedSamples.size());
-            for(const auto&o:mesh.observations)retained[o.sourceSampleId]=true;
-            for(std::size_t i=0;i<retained.size();++i)if(!retained[i]){
-                const auto p=f.dense.verifiedSamples[i].xyz;double nearest=INFINITY;
-                for(const auto&v:mesh.vertices)nearest=std::min(nearest,std::hypot(v.xyz.x-p.x,v.xyz.y-p.y,v.xyz.z-p.z));
-                require(nearest<1e-14,"Removed duplicate reference lost its measured position");
+            for(const auto&o:mesh.observations){
+                require(o.sourceSampleId<retained.size()&&!retained[o.sourceSampleId],"Missing or duplicate source identity");
+                retained[o.sourceSampleId]=true;const auto& source=f.dense.verifiedSamples[o.sourceSampleId];
+                require(o.camera==source.camera&&o.x==source.x&&o.y==source.y,"Original source camera/pixel changed");
             }
+
         }
     });
     test("canonical diagonal does not conceal translated grid overlap",[]{

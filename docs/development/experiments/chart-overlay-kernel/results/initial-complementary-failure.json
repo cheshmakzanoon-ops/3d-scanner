@@ -1,0 +1,19 @@
+{
+  "scope": "Diagnostic output before the required native topology publication guard; NOT a successful candidate",
+  "audit": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 192,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 4,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 266,
+      "components": 199
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true
+  },
+  "cause": "192 near-coincident arrangement sliver triangles classified degenerate by native topology; no snapping/tolerance tuning applied"
+}

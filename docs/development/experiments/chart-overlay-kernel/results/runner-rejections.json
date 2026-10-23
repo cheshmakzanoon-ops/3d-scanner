@@ -1,0 +1,37 @@
+{
+  "no_args": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "one_arg": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "three_args": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "hidden_nonempty": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "source_root": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "source_descendant": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "source_symlink": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "nonexistent_output": {
+    "exitCode": 2,
+    "rejected": true
+  },
+  "noExistingOutputDeleted": true,
+  "absentOutputNotCreated": true,
+  "wholeBuildInstallFlow": "NOT_RUN"
+}

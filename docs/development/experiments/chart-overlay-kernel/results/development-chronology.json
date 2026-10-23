@@ -1,0 +1,13 @@
+{
+  "firstExecution": "Implementation API error: Shapely2 polygonize returns GeometryCollection; corrected iteration to .geoms. Not counted as semantic rejection or success.",
+  "firstGeometricPass": "Chart-area/edge counts alone missed complementary-grid near-coincident slivers. Independent native audit caught192degeneratefaces,4nonmanifoldvertices,199components.",
+  "finalPolicy": "Required native topology validation moved before publication. Complementary grid is explicitly refused with diagnostics; no tolerance or filtering change.",
+  "stoppingBoundary": "Translated curved depth disagreement and thin separated sheets refused; no physical agreement tolerance added.",
+  "postReviewAbiMismatchAttempt": {
+    "nativeExitCode": 139,
+    "candidateProduced": false,
+    "classification": "ABI mismatch in test setup, NOT algorithm refusal",
+    "cause": "Old adapter referenced mutable host-build library after SurfaceMesh layout rebuild.",
+    "resolution": "Rebuilt against isolated archived c30 headers and exact preserved SHA2c8e015... library; all controls and audits rerun with exit0."
+  }
+}

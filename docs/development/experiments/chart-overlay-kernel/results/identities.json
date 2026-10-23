@@ -1,0 +1,23 @@
+{
+  "baselineCommit": "c30e123df1d64414417a84d19807918a06cf6390",
+  "nativeLibrarySha256": "2c8e015241795183d8c2bf94b18c5b62a90653dd2a8dee77f51b3cb654e98c07",
+  "baselineSurfaceSourceSha256": "8af582c3793baf9b381c2a9d1be3934758863c94a84046227f3ea29f0cf413eb",
+  "syntheticInputArtifactSha256": {
+    "complementary-input.json": "c3178b3a90af1405f78f7e49b72a01480086fdbb46bedfab6697ca1104d30cc0",
+    "curved_identical-input.json": "f42dacca9d1f4d1f13432cad1fcb3f23464812a2f1de20c2941178007da8e476",
+    "curved_translated-input.json": "6bf4f4719284b3a4137737c750aada1dff0eddca768d96df1b28e29f5f09f8d8",
+    "hole-input.json": "bc2633193c37c3887395c2a0c828015fb56b93f2d26eb6e61b83ffd023a12427",
+    "identical-input.json": "92707967e47fdc0d583cef1341f9c07a182ec5846c58802a69125e2066a37841",
+    "partial-input.json": "65afcabec1d34daab5808c81dff457ee0590cb439748acd9950b11c2a58b5665",
+    "permuted-input.json": "06bb023ec6c861e59ca0c8e947cb5cad4a1d08f591a334ab1ca2504b628df2ca",
+    "rotated-input.json": "caafc99218b9b5ed2ae9d53a3c27582dcfc57b1dad50306cb56f2934028d673e",
+    "step-input.json": "60780bbc91f9c6acf391b109b22c59fbf4665eb24fd6f1a2802b204c37e75a12",
+    "thin_sheets-input.json": "5f6f172681898cdd554ffab5cc2ae1a0de53009cb0aa796c34e395215f0a04a4",
+    "translated-input.json": "4fa1add32ef3d72682ece1316b403a3d1a0d7bbb10a5c966697ed44f4d6d6243"
+  },
+  "python": "3.12",
+  "numpy": "2.2.6",
+  "shapely": "2.1.2",
+  "wholePortableBuildInstallScript": "NOT_RUN",
+  "frozenPhotoEvaluation": "NOT_RUN; intentionally not attempted after declared ambiguity/numerical stopping boundary"
+}

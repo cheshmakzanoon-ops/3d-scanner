@@ -20,7 +20,7 @@
 
 namespace rf::surface_checkpoint {
 namespace {
-constexpr std::array<std::uint8_t,8> MAGIC{'R','F','M','S','H','0','0','2'};
+constexpr std::array<std::uint8_t,8> MAGIC{'R','F','M','S','H','0','0','3'};
 constexpr std::size_t BLOCK=64*1024;
 constexpr std::size_t MAX_POINTS=50000,MAX_VERTICES=40000,MAX_TRIANGLES=80000;
 constexpr std::size_t POINT_BYTES=32,SAMPLE_BYTES=66,VERTEX_BYTES=56,TRIANGLE_BYTES=13;
@@ -28,14 +28,14 @@ constexpr std::size_t MIN_BYTES=316+32;
 // Preserve the admitted 10 MiB geometry allocation cap despite richer evidence.
 // Large valid reconstructions remain usable but skip this optional cache.
 constexpr std::size_t MAX_GEOMETRY_BYTES=10*1024*1024;
-constexpr std::size_t OBSERVATION_BYTES=17;
+constexpr std::size_t OBSERVATION_BYTES=18,UNATTACHED_BYTES=14;
 bool withinMemoryBudget(std::size_t points,std::size_t samples,std::size_t vertices,
-                        std::size_t triangles,std::size_t observations){
+                        std::size_t triangles,std::size_t observations,std::size_t unattached=0){
     if(points>MAX_POINTS||samples>MAX_DENSE_SAMPLES||vertices>MAX_VERTICES||
-       triangles>MAX_TRIANGLES||observations>MAX_DENSE_SAMPLES)return false;
+       triangles>MAX_TRIANGLES||observations>MAX_DENSE_SAMPLES||unattached>MAX_DENSE_SAMPLES-observations)return false;
     return points*sizeof(DensePoint)+samples*sizeof(VerifiedDepthSample)+
         vertices*sizeof(SurfaceVertex)+triangles*sizeof(SurfaceTriangle)+
-        observations*sizeof(SurfaceObservationRef)<MAX_GEOMETRY_BYTES;
+        observations*sizeof(SurfaceObservationRef)+unattached*sizeof(SurfaceUnattachedObservation)<MAX_GEOMETRY_BYTES;
 }
 std::atomic<std::uint64_t> nextTemporary{1};
 
@@ -129,7 +129,7 @@ void validGeometry(std::span<const DenseView> views,const DenseResult& dense,con
     const SurfaceSettings& settings) {
     validSettings(settings);
     if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),
-                           mesh.triangles.size(),mesh.observations.size()))throw Error("Accepted geometry exceeds cache memory budget");
+                           mesh.triangles.size(),mesh.observations.size(),mesh.unattachedObservations.size()))throw Error("Accepted geometry exceeds cache memory budget");
     if(views.size()<2||views.size()>MAX_DENSE_VIEWS||dense.points.empty()||dense.points.size()>MAX_POINTS||
         dense.verifiedSamples.empty()||dense.verifiedSamples.size()>MAX_DENSE_SAMPLES||
         mesh.vertices.empty()||mesh.vertices.size()>settings.maxVertices||mesh.triangles.size()<8||
@@ -170,13 +170,42 @@ void validGeometry(std::span<const DenseView> views,const DenseResult& dense,con
             !finitePoint(p.worldNormal)||!std::isfinite(p.normalConfidence)||p.normalConfidence<0||
             p.normalConfidence>1||p.normalSupportingViews>views.size())throw Error("Invalid accepted depth sample");
     }
-    for(const auto& observation:mesh.observations){
-        if(observation.vertex>=mesh.vertices.size()||observation.camera>=views.size()||
-           observation.sourceSampleId>=dense.verifiedSamples.size())throw Error("Invalid accepted observation provenance");
+    if(mesh.observations.size()+mesh.unattachedObservations.size()!=mesh.acceptedSamples)
+        throw Error("Accepted observation ledger does not reconcile");
+    std::vector<std::uint8_t> sampleSeen(dense.verifiedSamples.size(),0);
+    std::vector<std::uint64_t> sourcePixels;sourcePixels.reserve(mesh.acceptedSamples);
+    std::size_t checked=0;
+    const auto validIdentity=[&](const auto& observation){
+        if((checked++&255u)==0)cancellation::checkpoint();
+        if(observation.camera>=views.size()||observation.sourceSampleId>=dense.verifiedSamples.size()||
+           sampleSeen[observation.sourceSampleId]++)
+            throw Error("Invalid or repeated accepted observation provenance");
+        sourcePixels.push_back((static_cast<std::uint64_t>(observation.camera)<<32)|(static_cast<std::uint64_t>(observation.x)<<16)|observation.y);
         const auto& sample=dense.verifiedSamples[observation.sourceSampleId];
-        if(observation.camera!=sample.camera||observation.x!=sample.x||observation.y!=sample.y)
-            throw Error("Accepted observation does not match source sample");
+        if(observation.camera!=sample.camera||observation.x!=sample.x||observation.y!=sample.y||
+           sample.confidence<settings.minimumConfidence)
+            throw Error("Accepted observation does not match admitted source sample");
+    };
+    for(const auto& observation:mesh.observations){
+        validIdentity(observation);
+        if(observation.vertex>=mesh.vertices.size()||
+           (observation.relation!=SurfaceObservationRelation::Accumulator&&
+            observation.relation!=SurfaceObservationRelation::ExactDuplicateFace))
+            throw Error("Invalid accepted observation relation");
     }
+    for(const auto& observation:mesh.unattachedObservations){
+        validIdentity(observation);
+        if(observation.reason!=SurfaceUnattachedReason::NoRetainedFace&&
+           observation.reason!=SurfaceUnattachedReason::AmbiguousExactDuplicate)
+            throw Error("Invalid unattached observation reason");
+    }
+    std::size_t comparisons=0;
+    std::sort(sourcePixels.begin(),sourcePixels.end(),[&](auto a,auto b){
+        if((comparisons++&4095u)==0)cancellation::checkpoint();
+        return a<b;
+    });
+    if(std::adjacent_find(sourcePixels.begin(),sourcePixels.end())!=sourcePixels.end())
+        throw Error("Repeated accepted observation pixel identity");
     for(std::size_t i=0;i<mesh.vertices.size();++i) {
         if((i&1023)==0)cancellation::checkpoint();
         const auto& v=mesh.vertices[i];
@@ -241,7 +270,7 @@ std::vector<std::uint8_t> encode(const depth_checkpoint::Scope& scope,std::span<
     Writer out;
     out.bytes.reserve(512+views.size()*24+mesh.vertices.size()*VERTEX_BYTES+mesh.triangles.size()*TRIANGLE_BYTES+
         dense.points.size()*POINT_BYTES+dense.verifiedSamples.size()*SAMPLE_BYTES);
-    out.data(MAGIC);out.integer(std::uint32_t{2});out.integer(std::uint32_t{0});
+    out.data(MAGIC);out.integer(std::uint32_t{3});out.integer(std::uint32_t{0});
     out.integer(static_cast<std::uint32_t>(views.front().width));out.integer(static_cast<std::uint32_t>(views.front().height));
     out.integer(static_cast<std::uint32_t>(views.size()));out.integer(static_cast<std::uint32_t>(mesh.vertices.size()));
     out.integer(static_cast<std::uint32_t>(mesh.triangles.size()));out.integer(static_cast<std::uint32_t>(dense.points.size()));
@@ -268,7 +297,9 @@ std::vector<std::uint8_t> encode(const depth_checkpoint::Scope& scope,std::span<
     for(const auto& v:mesh.vertices){step();out.vector(v.xyz);out.vector(v.normal);out.data(v.color);out.real(v.confidence);out.integer(v.supportingViews);}
     for(const auto& t:mesh.triangles){step();out.integer(t.a);out.integer(t.b);out.integer(t.c);out.integer(t.sourceCamera);}
     out.integer(static_cast<std::uint32_t>(mesh.observations.size()));
-    for(const auto& observation:mesh.observations){step();out.integer(observation.vertex);out.integer(observation.camera);out.integer(observation.x);out.integer(observation.y);out.integer(static_cast<std::uint64_t>(observation.sourceSampleId));}
+    for(const auto& observation:mesh.observations){step();out.integer(observation.vertex);out.integer(observation.camera);out.integer(observation.x);out.integer(observation.y);out.integer(static_cast<std::uint64_t>(observation.sourceSampleId));out.integer(static_cast<std::uint8_t>(observation.relation));}
+    out.integer(static_cast<std::uint32_t>(mesh.unattachedObservations.size()));
+    for(const auto& observation:mesh.unattachedObservations){step();out.integer(observation.camera);out.integer(observation.x);out.integer(observation.y);out.integer(static_cast<std::uint64_t>(observation.sourceSampleId));out.integer(static_cast<std::uint8_t>(observation.reason));}
     for(const auto count:{mesh.topology.boundaryEdges,mesh.topology.components,mesh.topology.nonmanifoldEdges,
                          mesh.topology.intersections,mesh.topology.ambiguousPairs,mesh.topology.removedExactDefects})out.integer(static_cast<std::uint64_t>(count));
     out.integer(static_cast<std::uint8_t>(mesh.topology.intersectionBudgetExceeded));
@@ -344,8 +375,8 @@ checkpoint::Digest geometryIdentity(std::span<const DenseView> views) {
 
 checkpoint::Digest algorithmIdentity(const SurfaceSettings& settings) {
     validSettings(settings);
-    // Geometry and topology diagnostics must be recomputed after canonical diagonal ties.
-    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2");
+    // Observation relationships must be recomputed, without changing depth identities.
+    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2");
     hashInteger(digest,std::bit_cast<std::uint32_t>(settings.minimumConfidence));
     hashReal(digest,settings.maximumRelativeDepthJump);hashReal(digest,settings.maximumEdgePixelFactor);
     hashInteger(digest,static_cast<std::uint32_t>(settings.maxVertices));hashInteger(digest,static_cast<std::uint32_t>(settings.maxTriangles));
@@ -391,7 +422,7 @@ bool store(std::span<const DenseView> views,const DenseResult& dense,const Surfa
     cancellation::checkpoint();
     if(dense.resumedDepthMaps+dense.writtenDepthMaps!=views.size())return reject(diagnostic,StoreStage::DepthMaps);
     auto dir=directory(*scope,diagnostic);if(!dir)return false;
-    if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),mesh.triangles.size(),mesh.observations.size()))return reject(diagnostic,StoreStage::MemoryBudget);
+    if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),mesh.triangles.size(),mesh.observations.size(),mesh.unattachedObservations.size()))return reject(diagnostic,StoreStage::MemoryBudget);
     const auto bytes=encode(*scope,views,dense,mesh,settings);
     struct stat existing{};
     if(::fstatat(dir.get(),FILENAME,&existing,AT_SYMLINK_NOFOLLOW)==0)
@@ -455,7 +486,7 @@ bool load(const std::string& checkpointPath,std::span<const DenseView> views,Acc
             const auto actual=checksum.finish();
             if(!std::equal(actual.begin(),actual.end(),bytes.end()-32))return false;
             Reader in{std::span(bytes.data(),bytes.size()-32)};
-            if(!std::equal(MAGIC.begin(),MAGIC.end(),in.data(8).begin())||in.integer<std::uint32_t>()!=2||in.integer<std::uint32_t>()!=bytes.size())return false;
+            if(!std::equal(MAGIC.begin(),MAGIC.end(),in.data(8).begin())||in.integer<std::uint32_t>()!=3||in.integer<std::uint32_t>()!=bytes.size())return false;
             const auto width=in.integer<std::uint32_t>(),height=in.integer<std::uint32_t>(),cameras=in.integer<std::uint32_t>();
             const auto vertices=in.integer<std::uint32_t>(),triangles=in.integer<std::uint32_t>();
             const auto points=in.integer<std::uint32_t>(),samples=in.integer<std::uint32_t>();
@@ -507,7 +538,21 @@ bool load(const std::string& checkpointPath,std::span<const DenseView> views,Acc
                 if((i&1023)==0)cancellation::checkpoint();
                 SurfaceObservationRef observation;observation.vertex=in.integer<std::uint32_t>();observation.camera=in.integer<std::uint8_t>();
                 observation.x=in.integer<std::uint16_t>();observation.y=in.integer<std::uint16_t>();observation.sourceSampleId=in.integer<std::uint64_t>();
+                observation.relation=static_cast<SurfaceObservationRelation>(in.integer<std::uint8_t>());
                 mesh.observations.push_back(observation);
+            }
+            const auto unattachedCount=in.integer<std::uint32_t>();
+            if(unattachedCount>samples-observationCount||
+               !withinMemoryBudget(points,samples,vertices,triangles,observationCount,unattachedCount)||
+               static_cast<std::size_t>(unattachedCount)*UNATTACHED_BYTES>in.bytes.size()-in.offset)return false;
+            mesh.unattachedObservations.reserve(unattachedCount);
+            for(std::size_t i=0;i<unattachedCount;++i){
+                if((i&1023)==0)cancellation::checkpoint();
+                SurfaceUnattachedObservation observation;observation.camera=in.integer<std::uint8_t>();
+                observation.x=in.integer<std::uint16_t>();observation.y=in.integer<std::uint16_t>();
+                observation.sourceSampleId=in.integer<std::uint64_t>();
+                observation.reason=static_cast<SurfaceUnattachedReason>(in.integer<std::uint8_t>());
+                mesh.unattachedObservations.push_back(observation);
             }
             mesh.topology.boundaryEdges=in.integer<std::uint64_t>();
             mesh.topology.components=in.integer<std::uint64_t>();
