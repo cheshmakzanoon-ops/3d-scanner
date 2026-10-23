@@ -32,14 +32,14 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "9628a5b28501183b0d2fd78daf2cb77ba53da02f"
-PUSH_MESSAGE = "test: isolate focused Android runtime on stock AOSP"
+PUSH_BASE_SHA = "89d9e3387bb19e5243017f28461040372615736b"
+PUSH_MESSAGE = "test: bound non-UI Android checks on official ATD"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
 PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
     "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256"))
-IMAGE = "system-images;android-35;default;x86_64"
-IMAGE_REVISION = "2"
+IMAGE = "system-images;android-35;aosp_atd;x86_64"
+IMAGE_REVISION = "1"
 PACKAGES = ("platform-tools", "emulator", "platforms;android-36", "build-tools;36.0.0",
             "ndk;28.2.13676358", "cmake;3.22.1", IMAGE)
 PREFIX = "com.realityforge.scanner."
@@ -140,22 +140,30 @@ def crash_context_display(raw):
 def validate_image_metadata(properties, metadata):
     if (properties.get("AndroidVersion.ApiLevel") != "35"
             or properties.get("SystemImage.Abi") != "x86_64"
-            or properties.get("SystemImage.TagId") != "default"
+            or properties.get("SystemImage.TagId") != "aosp_atd"
             or properties.get("Pkg.Revision") != IMAGE_REVISION
             or metadata.get("package") != IMAGE
             or metadata.get("revision") not in (IMAGE_REVISION, IMAGE_REVISION + ".0.0")):
-        raise Blocked("System image must be ordinary AOSP API35 default x86_64 revision2")
+        raise Blocked("System image must be AOSP ATD API35 x86_64 revision1")
 
 
 def validate_factory_evidence(record):
-    """Observe factory settings, never set them or infer absent values/equivalence."""
-    settings = record["globalSettings"]
-    if settings.get("debug_app") in (APP, APP + ".test"):
-        raise Blocked("Selected app debugger mode suppresses Android ANR handling")
-    if settings.get("wait_for_debugger") not in ("", "null", "0", "1"):
-        raise Blocked("Unrecognized wait_for_debugger setting")
+    """Reject unexpected relaxation; never set properties or debugger/watchdog settings."""
+    properties, settings = record["properties"], record["globalSettings"]
     record["watchdogEquivalenceToPreviousGoogleImage"] = "UNVERIFIED"
     record["scope"] = "observed-factory-values-no-setting-writes"
+    record["profile"] = "AOSP_ATD_STRIPPED_UI_NON_UI_DIAGNOSTIC_ONLY"
+    if properties.get("ro.hw_timeout_multiplier") not in ("", "1"):
+        raise Blocked("ATD timeout multiplier is not the observed-stock default/one")
+    if settings.get("debug_app") not in ("", "null"):
+        raise Blocked("ATD selected debugger mode may suppress Android ANR handling")
+    if settings.get("wait_for_debugger") not in ("", "null", "0"):
+        raise Blocked("ATD wait_for_debugger is not absent/disabled")
+    if settings.get("watchdog_timeout_millis") not in ("", "null"):
+        raise Blocked("ATD has an unexpected explicit system_server watchdog setting")
+    if (properties.get("ro.secure") != "1" or properties.get("ro.force.debuggable") != "0"
+            or properties.get("debug.hwui.drawing_enabled") != "0"):
+        raise Blocked("ATD secure/debug/rendering factory values differ from reviewed image metadata")
 
 
 def associate_anr_trace(logcat, trace, before, after):
@@ -170,7 +178,7 @@ def associate_anr_trace(logcat, trace, before, after):
             return {**unavailable, "reason": "device-clock-discontinuity"}
         events = []
         lines = logcat.decode("utf-8", "strict").splitlines()
-        prefix = r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+(\d+)\s+(\d+) E ActivityManager: "
+        prefix = r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) \+0000\s+(\d+)\s+(\d+) E ActivityManager: "
         for index, line in enumerate(lines):
             match = re.fullmatch(prefix + "ANR in " + re.escape(APP), line)
             if match is None or index + 2 >= len(lines):
@@ -184,10 +192,10 @@ def associate_anr_trace(logcat, trace, before, after):
             if (pid is None or reason is None or pid.groups()[:3] != match.groups()
                     or reason.groups()[:3] != match.groups() or pid[4] != reason[4]):
                 return unavailable
-            events.append((int(pid[4]), stamp, match[1]))
+            events.append((int(pid[4]), stamp, match[1], lines[index + 2].split(" E ActivityManager: Reason: ", 1)[1]))
         if len(events) != 1:
             return unavailable
-        pid, event_time, event_text = events[0]
+        pid, event_time, event_text, event_reason = events[0]
         blocks = re.findall(r"(?ms)^----- pid ([1-9][0-9]*) at ([^\n]+) -----\n(.*?)^----- end ([1-9][0-9]*) -----$",
                             trace.decode("utf-8", "strict"))
         selected = [block for block in blocks if block[0] == str(pid)
@@ -208,15 +216,84 @@ def associate_anr_trace(logcat, trace, before, after):
                 or not low <= trace_time <= high or abs(trace_time - event_time) > 30):
             return unavailable
         return {"status": "ASSOCIATED_DIAGNOSTIC_ONLY", "package": APP, "pid": pid,
-                "eventUtc": event_text + "Z", "traceTimestamp": timestamp,
+                "eventUtc": event_text + "Z", "reason": event_reason, "traceTimestamp": timestamp,
                 "timeBasis": "device-date-UTC-and-logcat-year-UTC-with-explicit-trace-zone"}
+    except (ValueError, KeyError, TypeError, UnicodeDecodeError, OverflowError):
+        return unavailable
+
+
+def associate_app_anr_dropbox(logcat, dropbox, before, after, fingerprint):
+    """Bind a complete tagged entry and its complete ART block, never a foreign last ANR."""
+    unavailable = {"status": "UNASSOCIATED", "reason": "missing-incomplete-or-ambiguous-app-dropbox-entry"}
+    try:
+        text = dropbox.decode("utf-8", "strict")
+        if not fingerprint or not text.startswith("Drop box contents: "):
+            return unavailable
+        separators = list(re.finditer(r"(?m)^========================================\n", text))
+        selected = []
+        for index, separator in enumerate(separators):
+            end = separators[index + 1].start() if index + 1 < len(separators) else len(text)
+            entry = text[separator.end():end]
+            title, newline, payload = entry.partition("\n")
+            if not newline or not re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} "
+                    r"data_app_anr \((?:compressed )?text, [1-9][0-9]* bytes\)", title):
+                return unavailable
+            headers, blank, body = payload.partition("\n\n")
+            if not blank:
+                return unavailable
+            fields = {}
+            for line in headers.splitlines():
+                key, colon, value = line.partition(": ")
+                if colon and key in ("Process", "PID", "Subject", "Build", "UID", "Timestamp"):
+                    if key in fields:
+                        return unavailable
+                    fields[key] = value
+            if fields.get("Process") != APP:
+                continue
+            selected.append((entry, fields, body))
+        # One fresh installed target normally contributes one event; ambiguity remains unavailable.
+        if len(selected) != 1:
+            return unavailable
+        entry, fields, body = selected[0]
+        pid = fields.get("PID", "")
+        if (not re.fullmatch(r"[1-9][0-9]*", pid) or fields.get("Build") != fingerprint
+                or not re.fullmatch(r"Process ProcessRecord\{[^{}\s]+ " + re.escape(pid) + ":"
+                    + re.escape(APP) + r"/[^{}\s]+\} failed to complete startup", fields.get("Subject", ""))
+                or "[[TRUNCATED]]" in entry or "(contents lost)" in entry
+                or re.search(r"(?m)^\*\*\*|^Permission Denial", entry)
+                or len(re.findall(r"(?m)^Data File: [^\n]+$", body)) != 1
+                or len(re.findall(r"(?m)^End Data File$", body)) != 1):
+            return unavailable
+        data_header = re.search(r"(?m)^Data File: [^\n]+\n", body)
+        if data_header is None:
+            return unavailable
+        start = data_header.end()
+        end = re.search(r"(?m)^End Data File$", body).start()
+        if end <= start:
+            return unavailable
+        associated = associate_anr_trace(logcat, body[start:end].encode("utf-8"), before, after)
+        if (associated.get("status") != "ASSOCIATED_DIAGNOSTIC_ONLY" or associated.get("pid") != int(pid)
+                or fields["Subject"] != associated.get("reason")):
+            return unavailable
+        if "Timestamp" in fields:
+            stamp = fields["Timestamp"]
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{4}", stamp):
+                return unavailable
+            epoch = datetime.strptime(stamp, "%Y-%m-%d %H:%M:%S.%f%z").timestamp()
+            if not before["epochSeconds"] <= epoch <= after["epochSeconds"] + 1:
+                return unavailable
+        return {**associated, "recordKind": "data_app_anr", "recordBytes": len(entry.encode("utf-8")),
+                "recordSha256": hashlib.sha256(entry.encode("utf-8")).hexdigest(),
+                "buildFingerprintMatched": True}
     except (ValueError, KeyError, TypeError, UnicodeDecodeError, OverflowError):
         return unavailable
 
 
 def base_receipt():
     return {"schema": "realityforge.software-emulator-diagnostic.v1", "status": "NOT_RUN",
-            "scope": "four synthetic Android x86_64 ART/Bionic/JNI/filesystem tests",
+            "scope": "four synthetic Android x86_64 ART/Bionic/JNI/filesystem tests on UI-stripped AOSP ATD",
+            "systemImageProfile": {"package": IMAGE, "revision": IMAGE_REVISION,
+                "uiRendering": "expected-factory-disabled", "qualificationEquivalent": False},
             "cpuMode": "UNSUPPORTED_TCG", "graphicsMode": "software",
             "qualification": {name: "NOT_RUN" for name in (
                 "originalDeviceGate", "fullInstrumentation", "physicalCapture", "arm64",
@@ -1346,7 +1423,7 @@ class Controller:
         record = {"properties": {}, "globalSettings": {}, "status": "RUNNING"}
         self.receipt["deviceFactoryEvidence"] = record
         for key in ("ro.hw_timeout_multiplier", "ro.debuggable", "ro.build.type", "ro.build.tags",
-                    "ro.test_harness", "debug.hwui.drawing_enabled"):
+                    "ro.test_harness", "debug.hwui.drawing_enabled", "ro.secure", "ro.force.debuggable"):
             record["properties"][key] = self.shell("getprop", key,
                 timeout=self.remaining(deadline - self.clock()), limit=2048)
         for key in ("debug_app", "wait_for_debugger", "watchdog_timeout_millis"):
@@ -1378,8 +1455,8 @@ class Controller:
             record["errorType"] = type(error).__name__
         return record
 
-    def capture_last_anr_traces(self, original_error, logcat, deadline):
-        """Read the service's latest trace once, sharing the existing45s failure budget."""
+    def capture_app_anr_dropbox(self, original_error, logcat, deadline):
+        """Read third-party ANR entries once, sharing the existing45s failure budget."""
         started, raw = self.clock(), bytearray()
         context = self.receipt["crashContext"]
         record = {"status": "PENDING", "scope": "diagnostic-only-not-test-proof", "process": {},
@@ -1388,7 +1465,7 @@ class Controller:
                   "installedSha256": context["installedSha256"],
                   "instrumentationProcess": context["instrumentationProcess"],
                   "association": {"status": "UNASSOCIATED"}}
-        self.receipt["lastAnrTraces"] = record
+        self.receipt["appAnrDropBox"] = record
         def owned_device():
             self.remaining(deadline - self.clock())
             if (self.emulator is None
@@ -1407,14 +1484,15 @@ class Controller:
             record["deviceClockAfterFailure"] = self.device_clock_sample(deadline, owned_device)
             record["effectiveTimeoutSeconds"] = self.remaining(deadline - self.clock())
             record["status"] = "RUNNING"
-            _, code = self.command("device-last-anr-traces", self.adb_args("-s", SERIAL, "shell", "dumpsys",
-                "activity", "lastanr-traces"), timeout=record["effectiveTimeoutSeconds"],
+            _, code = self.command("device-app-anr-dropbox", self.adb_args("-s", SERIAL, "shell", "dumpsys",
+                "dropbox", "--print", "data_app_anr"), timeout=record["effectiveTimeoutSeconds"],
                 limit=CRASH_CONTEXT_LIMIT, binary=True, check=False, guard=owned_device,
                 identity=record["process"], raw_capture=raw)
             record["status"] = "CAPTURED" if code == 0 else "COMMAND_FAILED"
             if code == 0 and record["process"].get("complete") is True:
-                record["association"] = associate_anr_trace(logcat, bytes(raw),
-                    self.receipt.get("instrumentationDeviceClock", {}), record["deviceClockAfterFailure"])
+                record["association"] = associate_app_anr_dropbox(logcat, bytes(raw),
+                    self.receipt.get("instrumentationDeviceClock", {}), record["deviceClockAfterFailure"],
+                    self.receipt.get("device", {}).get("fingerprint"))
         except Exception as error:
             record.update(status=("SKIPPED_" if record["status"] == "PENDING" else "")
                           + getattr(error, "status", "FAIL"), error=str(error)[:1024])
@@ -1425,8 +1503,8 @@ class Controller:
             display, policy = crash_context_display(bytes(raw))
             record.update(displayPolicy=policy, displayBytes=len(display),
                           displaySha256=hashlib.sha256(display).hexdigest(), displayChanged=display != bytes(raw))
-            print("RF_LAST_ANR_TRACES_META " + json.dumps(record, sort_keys=True), flush=True)
-            emit("device-last-anr-traces-display", display, CRASH_CONTEXT_LIMIT)
+            print("RF_APP_ANR_DROPBOX_META " + json.dumps(record, sort_keys=True), flush=True)
+            emit("device-app-anr-dropbox-display", display, CRASH_CONTEXT_LIMIT)
 
     def capture_device_crash_context(self, original_error):
         """One read-only best-effort capture; its outcome cannot replace the test failure."""
@@ -1481,7 +1559,7 @@ class Controller:
                           displaySha256=hashlib.sha256(display).hexdigest(), displayChanged=display != bytes(raw))
             print("RF_CRASH_CONTEXT_META " + json.dumps(record, sort_keys=True), flush=True)
             emit("device-crash-context-display", display, CRASH_CONTEXT_LIMIT)
-            self.capture_last_anr_traces(original_error, bytes(raw), deadline)
+            self.capture_app_anr_dropbox(original_error, bytes(raw), deadline)
 
     def tests(self):
         self.install_candidates()

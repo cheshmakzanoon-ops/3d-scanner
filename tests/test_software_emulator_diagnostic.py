@@ -1480,7 +1480,7 @@ class DeviceCrashContext(unittest.TestCase):
         self.assertNotEqual(context["capturedSha256"], context["displaySha256"])
         self.assertNotIn("SYNTHETIC_KEY", self.output.getvalue()); self.assertNotIn("\x1b", self.output.getvalue())
         self.assertNotIn("RAW_CHUNK", self.output.getvalue())
-        self.assertTrue(all(line.startswith(("RF_CRASH_CONTEXT_META ", "RF_LAST_ANR_TRACES_META ", "RF_DIAGNOSTIC_LOG "))
+        self.assertTrue(all(line.startswith(("RF_CRASH_CONTEXT_META ", "RF_APP_ANR_DROPBOX_META ", "RF_DIAGNOSTIC_LOG "))
                             for line in self.output.getvalue().splitlines()))
 
     def test_recognizable_unexpected_secrets_withhold_entire_display(self):
@@ -1522,27 +1522,34 @@ class DeviceCrashContext(unittest.TestCase):
 
 
 
-class AospImageAndFactoryEvidence(unittest.TestCase):
-    def test_exact_default_image_revision_and_conflicting_metadata(self):
+class AtdImageAndFactoryEvidence(unittest.TestCase):
+    @staticmethod
+    def factory():
+        return {"properties": {"ro.hw_timeout_multiplier": "", "ro.secure": "1", "ro.force.debuggable": "0",
+                "ro.debuggable": "1", "debug.hwui.drawing_enabled": "0"},
+                "globalSettings": {"debug_app": "null", "wait_for_debugger": "null", "watchdog_timeout_millis": "null"}}
+
+    def test_exact_atd_image_revision_and_conflicting_metadata(self):
         props = {"AndroidVersion.ApiLevel": "35", "SystemImage.Abi": "x86_64",
-                 "SystemImage.TagId": "default", "Pkg.Revision": "2"}
-        metadata = {"package": diag.IMAGE, "revision": "2.0.0"}
+                 "SystemImage.TagId": "aosp_atd", "Pkg.Revision": "1"}
+        metadata = {"package": diag.IMAGE, "revision": "1.0.0"}
         diag.validate_image_metadata(props, metadata)
-        self.assertEqual(diag.IMAGE, "system-images;android-35;default;x86_64")
+        self.assertEqual(diag.IMAGE, "system-images;android-35;aosp_atd;x86_64")
         for key, value in (("AndroidVersion.ApiLevel", "36"), ("SystemImage.Abi", "arm64-v8a"),
-                           ("SystemImage.TagId", "aosp_atd"), ("SystemImage.TagId", "google_apis"),
-                           ("Pkg.Revision", "1"), ("Pkg.Revision", "3")):
+                           ("SystemImage.TagId", "default"), ("SystemImage.TagId", "google_apis"),
+                           ("Pkg.Revision", "2"), ("Pkg.Revision", "3")):
             with self.subTest(key=key, value=value), self.assertRaises(diag.Blocked):
                 diag.validate_image_metadata({**props, key: value}, metadata)
-        for change in ({"package": "foreign"}, {"revision": "3"}, {"revision": "2.1.0"}):
+        for change in ({"package": "foreign"}, {"revision": "2"}, {"revision": "1.1.0"}):
             with self.subTest(change=change), self.assertRaises(diag.Blocked):
                 diag.validate_image_metadata(props, {**metadata, **change})
 
     def test_factory_values_read_only_unknown_not_equivalence_debuggable_not_suppression(self):
         ctl = diag.Controller(env={})
+        values = self.factory()
         def shell(*args, **kwargs):
-            if args[:3] == ("settings", "get", "global"): return "null"
-            return {"ro.debuggable": "1", "ro.hw_timeout_multiplier": ""}.get(args[-1], "observed")
+            source = "globalSettings" if args[:3] == ("settings", "get", "global") else "properties"
+            return values[source].get(args[-1], "observed")
         with mock.patch.object(ctl, "shell", side_effect=shell) as command:
             ctl.factory_evidence()
         record = ctl.receipt["deviceFactoryEvidence"]
@@ -1554,14 +1561,26 @@ class AospImageAndFactoryEvidence(unittest.TestCase):
             self.assertIn(call.args[0], ("getprop", "settings"))
             if call.args[0] == "settings": self.assertEqual(call.args[1:3], ("get", "global"))
             self.assertLessEqual(call.kwargs["timeout"], 60)
+        self.assertFalse(diag.base_receipt()["systemImageProfile"]["qualificationEquivalent"])
+        self.assertTrue(all(v == "NOT_RUN" for v in diag.base_receipt()["qualification"].values()))
 
-    def test_selected_debugger_suppression_blocks_without_setting_writes(self):
-        for package in (diag.APP, diag.APP + ".test"):
-            record = {"globalSettings": {"debug_app": package, "wait_for_debugger": "0"}}
-            with self.subTest(package=package), self.assertRaisesRegex(diag.Blocked, "suppresses"):
+    def test_factory_unknown_or_relaxed_values_block_without_writes(self):
+        cases = {"properties": {"ro.hw_timeout_multiplier": ("0", "2", "100", "garbage", None),
+                 "ro.secure": ("0", "", None), "ro.force.debuggable": ("1", "", None),
+                 "debug.hwui.drawing_enabled": ("1", "", None)},
+                 "globalSettings": {"debug_app": (diag.APP, diag.APP + ".test", "foreign.app", None),
+                 "wait_for_debugger": ("1", "garbage", None), "watchdog_timeout_millis": ("0", "60000", "120000", None)}}
+        for group, fields in cases.items():
+            for key, values in fields.items():
+                for value in values:
+                    record = self.factory(); record[group][key] = value
+                    with self.subTest(group=group, key=key, value=value), self.assertRaises(diag.Blocked):
+                        diag.validate_factory_evidence(record)
+        for multiplier in ("", "1"):
+            for absent in ("", "null"):
+                record = self.factory();record["properties"]["ro.hw_timeout_multiplier"] = multiplier
+                record["globalSettings"].update(debug_app=absent, watchdog_timeout_millis=absent, wait_for_debugger="0")
                 diag.validate_factory_evidence(record)
-        for value in ("", "null", "0", "1"):
-            diag.validate_factory_evidence({"globalSettings": {"debug_app": "null", "wait_for_debugger": value}})
 
     def test_device_clock_exact_utc_invalid_nonzero_and_deadline(self):
         ctl = diag.Controller(env={}, clock=lambda: 100)
@@ -1583,9 +1602,9 @@ class AospImageAndFactoryEvidence(unittest.TestCase):
 
 
 class AnrTraceAssociation(unittest.TestCase):
-    LOG = ("2026-10-23 12:32:33.442   579  3512 E ActivityManager: ANR in " + diag.APP + "\n"
-           "2026-10-23 12:32:33.442   579  3512 E ActivityManager: PID: 3273\n"
-           "2026-10-23 12:32:33.442   579  3512 E ActivityManager: Reason: Process ProcessRecord{abc 3273:"
+    LOG = ("2026-10-23 12:32:33.442 +0000   579  3512 E ActivityManager: ANR in " + diag.APP + "\n"
+           "2026-10-23 12:32:33.442 +0000   579  3512 E ActivityManager: PID: 3273\n"
+           "2026-10-23 12:32:33.442 +0000   579  3512 E ActivityManager: Reason: Process ProcessRecord{abc 3273:"
            + diag.APP + "/u0a209} failed to complete startup\n").encode()
     TRACE = ("ACTIVITY MANAGER LAST ANR TRACES (dumpsys activity lastanr-traces)\nFile: anr_fixture\n"
              "----- pid 3273 at 2026-10-23 12:32:31.122123456+0000 -----\nCmd line: " + diag.APP
@@ -1610,10 +1629,25 @@ class AnrTraceAssociation(unittest.TestCase):
             with self.subTest(trace=trace[-100:]):
                 self.assertEqual(diag.associate_anr_trace(self.LOG, trace, self.BEFORE, self.AFTER)["status"], "UNASSOCIATED")
         for log in (self.LOG + self.LOG, self.LOG.replace(b"PID: 3273", b"PID: 3274"),
-                    self.LOG.replace(b"2026-10-23", b"10-23"), self.LOG.replace(b"12:32:33", b"11:32:33"),
+                    self.LOG.replace(b"2026-10-23", b"10-23"), self.LOG.replace(b" +0000", b""),
+                    self.LOG.replace(b"+0000", b"+0200"), self.LOG.replace(b"12:32:33", b"11:32:33"),
                     self.LOG.replace(b"579  3512", b"579  3513", 1), b"\xff"):
             with self.subTest(log=log[:100]):
                 self.assertEqual(diag.associate_anr_trace(log, self.TRACE, self.BEFORE, self.AFTER)["status"], "UNASSOCIATED")
+
+    def test_recorded_89d9_utc_event_grammar_with_only_synthetic_matching_art_body(self):
+        # These three log lines were observed; the matching trace below is synthetic,
+        # not a claim that the unavailable scanner stack was recovered.
+        log = ("2026-10-23 13:31:10.142 +0000   578  2851 E ActivityManager: ANR in com.realityforge.scanner\n"
+               "2026-10-23 13:31:10.142 +0000   578  2851 E ActivityManager: PID: 2743\n"
+               "2026-10-23 13:31:10.142 +0000   578  2851 E ActivityManager: Reason: Process ProcessRecord{d465419 2743:com.realityforge.scanner/u0a148} failed to complete startup\n").encode()
+        trace = self.TRACE.replace(b"3273", b"2743").replace(b"12:32:31", b"13:31:08")
+        before = {**self.BEFORE, "epochSeconds": 1792762224}
+        after = {**self.AFTER, "epochSeconds": 1792762278, "sampleMonotonic": 154}
+        result = diag.associate_anr_trace(log, trace, before, after)
+        self.assertEqual(result["status"], "ASSOCIATED_DIAGNOSTIC_ONLY")
+        self.assertEqual(result["pid"], 2743)
+        self.assertIn("d465419", result["reason"])
 
     def test_missing_device_clock_or_clock_jump_never_borrows_host_time(self):
         for before, after in (({}, self.AFTER), (self.BEFORE, {}),
@@ -1623,8 +1657,71 @@ class AnrTraceAssociation(unittest.TestCase):
                 self.assertEqual(diag.associate_anr_trace(self.LOG, self.TRACE, before, after)["status"], "UNASSOCIATED")
 
 
-class DeviceLastAnrTraces(unittest.TestCase):
-    setUp = DeviceCrashContext.setUp
+class AppAnrDropBoxAssociation(unittest.TestCase):
+    FINGERPRINT = "Android/sdk_slim_x86_64/emu64x:15/AE3A.240806.019/12368160:userdebug/test-keys"
+    DROPBOX = ("Drop box contents: 3 entries\nMax entries: 1000\nSearching for: data_app_anr\n\n"
+               "========================================\n2026-10-23 12:32:34 data_app_anr (compressed text, 1234 bytes)\n"
+               "Process: " + diag.APP + "\nPID: 3273\nUID: 10209\n"
+               "Subject: Process ProcessRecord{abc 3273:" + diag.APP + "/u0a209} failed to complete startup\n"
+               "Build: " + FINGERPRINT + "\n\nCPU report\nData File: /data/anr/anr_fixture\n"
+               + AnrTraceAssociation.TRACE.decode() + "End Data File\n\n").encode()
+
+    def associate(self, raw=None, **kwargs):
+        return diag.associate_app_anr_dropbox(kwargs.get("logcat", AnrTraceAssociation.LOG),
+            self.DROPBOX if raw is None else raw, kwargs.get("before", AnrTraceAssociation.BEFORE),
+            kwargs.get("after", AnrTraceAssociation.AFTER), kwargs.get("fingerprint", self.FINGERPRINT))
+
+    def test_complete_exact_app_header_and_art_block_bound_to_same_device_event(self):
+        record = self.associate()
+        self.assertEqual(record["status"], "ASSOCIATED_DIAGNOSTIC_ONLY")
+        self.assertEqual(record["recordKind"], "data_app_anr")
+        self.assertEqual(record["pid"], 3273)
+        self.assertTrue(record["buildFingerprintMatched"])
+        self.assertRegex(record["recordSha256"], r"^[0-9a-f]{64}$")
+        # An unrelated third-party entry is not mistaken for the target record.
+        foreign = self.DROPBOX[self.DROPBOX.index(b"========================================"):].replace(diag.APP.encode(), b"other.app").replace(b"3273", b"4444")
+        self.assertEqual(self.associate(self.DROPBOX + foreign)["status"], "ASSOCIATED_DIAGNOSTIC_ONLY")
+
+    def test_optional_timestamp_must_agree_and_malformed_data_header_stays_unassociated(self):
+        for stamp, expected in (("2026-10-23 12:32:30.000+0000", "ASSOCIATED_DIAGNOSTIC_ONLY"),
+                                ("2026-10-23 14:32:30.000+0200", "ASSOCIATED_DIAGNOSTIC_ONLY"),
+                                ("2026-10-23 11:32:30.000+0000", "UNASSOCIATED"),
+                                ("2026-10-23 12:32:30.000", "UNASSOCIATED")):
+            raw = self.DROPBOX.replace(b"UID: 10209\n", b"UID: 10209\nTimestamp: " + stamp.encode() + b"\n")
+            with self.subTest(stamp=stamp): self.assertEqual(self.associate(raw)["status"], expected)
+        raw = self.DROPBOX[:self.DROPBOX.index(b"Data File:")] + b"End Data File\nData File: no-final-newline"
+        self.assertEqual(self.associate(raw)["status"], "UNASSOCIATED")
+
+    def test_foreign_partial_truncated_duplicate_and_permission_records_never_associate(self):
+        variants = (b"Permission Denial", b"Drop box contents: 0 entries\n(No entries found.)\n",
+            self.DROPBOX.replace(b"data_app_anr (", b"system_app_anr ("),
+            self.DROPBOX.replace(b"Process: " + diag.APP.encode(), b"Process: com.android.phone"),
+            self.DROPBOX.replace(b"PID: 3273", b"PID: 9999"),
+            self.DROPBOX.replace(b"ProcessRecord{abc", b"ProcessRecord{different"),
+            self.DROPBOX.replace(b"/u0a209}", b"/u1a209}"),
+            self.DROPBOX.replace(b"Process ProcessRecord{abc 3273:", b"Process ProcessRecord{abc 9999:"),
+            self.DROPBOX.replace(b"PID: 3273", b"PID: 3273\nPID: 3273"),
+            self.DROPBOX.replace(b"End Data File", b""),
+            self.DROPBOX.replace(b"Data File: /data/anr/anr_fixture", b"Data File: /data/anr/anr_fixture\n[[TRUNCATED]]"),
+            self.DROPBOX.replace(b"End Data File", b"*** java.io.IOException\nEnd Data File"),
+            self.DROPBOX.replace(b"compressed text, 1234 bytes", b"contents lost"),
+            self.DROPBOX + self.DROPBOX[self.DROPBOX.index(b"========================================"):],
+            self.DROPBOX.replace(b"----- end 3273 -----", b""),
+            self.DROPBOX.replace(b"2026-10-23 12:32:31", b"2026-10-23 11:32:31"),
+            self.DROPBOX.replace(b"Build: " + self.FINGERPRINT.encode(), b"Build: other/build"),
+            self.DROPBOX.replace(b"\n\nCPU report", b"\nCPU report"), self.DROPBOX + b"\xff")
+        for raw in variants:
+            with self.subTest(raw=raw[-80:]):
+                self.assertEqual(self.associate(raw)["status"], "UNASSOCIATED")
+        for change in ({"fingerprint": ""}, {"before": {}}, {"after": {}}, {"logcat": b"foreign"}):
+            with self.subTest(change=change):
+                self.assertEqual(self.associate(**change)["status"], "UNASSOCIATED")
+
+
+class DeviceAppAnrDropBox(unittest.TestCase):
+    def setUp(self):
+        DeviceCrashContext.setUp(self)
+        self.ctl.receipt["device"]["fingerprint"] = AppAnrDropBoxAssociation.FINGERPRINT
     result = DeviceCrashContext.result
     CRASH = DeviceCrashContext.CRASH
 
@@ -1637,9 +1734,9 @@ class DeviceLastAnrTraces(unittest.TestCase):
         if label == "device-crash-context":
             self.now += 2
             return self.result(kwargs, AnrTraceAssociation.LOG)
-        self.assertEqual(label, "device-last-anr-traces")
+        self.assertEqual(label, "device-app-anr-dropbox")
         self.now += 1
-        return self.result(kwargs, AnrTraceAssociation.TRACE)
+        return self.result(kwargs, AppAnrDropBoxAssociation.DROPBOX)
 
     def execute(self, command=None):
         with mock.patch.object(self.ctl, "device_clock_sample", side_effect=[AnrTraceAssociation.BEFORE, AnrTraceAssociation.AFTER]), \
@@ -1649,19 +1746,19 @@ class DeviceLastAnrTraces(unittest.TestCase):
 
     def test_complete_trace_associated_but_original_failure_and_no_junit(self):
         self.execute()
-        self.assertEqual([c[0] for c in self.calls], ["instrumentation", "device-crash-context", "device-last-anr-traces"])
+        self.assertEqual([c[0] for c in self.calls], ["instrumentation", "device-crash-context", "device-app-anr-dropbox"])
         label, args, kwargs = self.calls[-1]
-        self.assertEqual(args[-4:], ["shell", "dumpsys", "activity", "lastanr-traces"])
+        self.assertEqual(args[-4:], ["dumpsys", "dropbox", "--print", "data_app_anr"])
         self.assertEqual(kwargs["timeout"], 43)
         self.assertEqual(kwargs["limit"], diag.CRASH_CONTEXT_LIMIT)
-        record = self.ctl.receipt["lastAnrTraces"]
+        record = self.ctl.receipt["appAnrDropBox"]
         self.assertEqual(record["status"], "CAPTURED")
         self.assertEqual(record["association"]["status"], "ASSOCIATED_DIAGNOSTIC_ONLY")
-        self.assertEqual(record["capturedSha256"], hashlib.sha256(AnrTraceAssociation.TRACE).hexdigest())
+        self.assertEqual(record["capturedSha256"], hashlib.sha256(AppAnrDropBoxAssociation.DROPBOX).hexdigest())
         self.assertEqual(record["sourceSha"], self.ctl.receipt["sourceSha"])
         self.assertEqual(record["installedSha256"], self.ctl.receipt["installedSha256"])
         self.assertNotIn("testProof", self.ctl.receipt); self.assertNotIn("junitXml", self.ctl.receipt)
-        prefix = "RF_DIAGNOSTIC_LOG device-last-anr-traces-display | "
+        prefix = "RF_DIAGNOSTIC_LOG device-app-anr-dropbox-display | "
         display = "\n".join(line[len(prefix):] for line in self.output.getvalue().splitlines() if line.startswith(prefix)).encode()
         self.assertEqual(hashlib.sha256(display).hexdigest(), record["displaySha256"])
 
@@ -1670,16 +1767,16 @@ class DeviceLastAnrTraces(unittest.TestCase):
             with self.subTest(problem=problem):
                 self.now = 100; self.calls.clear()
                 def command(label, args, **kwargs):
-                    if label != "device-last-anr-traces": return self.command(label, args, **kwargs)
+                    if label != "device-app-anr-dropbox": return self.command(label, args, **kwargs)
                     self.calls.append((label, args, kwargs))
-                    raw = b"Permission Denial" if problem == "denied" else b"password=unexpected" if problem == "secret" else AnrTraceAssociation.TRACE
+                    raw = b"Permission Denial" if problem == "denied" else b"password=unexpected" if problem == "secret" else AppAnrDropBoxAssociation.DROPBOX
                     result = self.result(kwargs, raw, code=9 if problem == "nonzero" else 0,
                                          complete=problem not in ("timeout", "overflow"))
                     if problem == "timeout": raise diag.Deadline("local dump timeout")
                     if problem == "overflow": raise diag.Failure("dump exceeded output cap")
                     return result
                 self.execute(command)
-                record = self.ctl.receipt["lastAnrTraces"]
+                record = self.ctl.receipt["appAnrDropBox"]
                 self.assertEqual(record["association"]["status"], "UNASSOCIATED")
                 self.assertNotIn("junitXml", self.ctl.receipt)
                 if problem == "secret": self.assertEqual(record["displayPolicy"], "WITHHELD_SECRET_MARKER")
@@ -1699,18 +1796,18 @@ class DeviceLastAnrTraces(unittest.TestCase):
                     return result
                 self.execute(command)
                 self.assertEqual(len(self.calls), 2)
-                self.assertTrue(self.ctl.receipt["lastAnrTraces"]["status"].startswith("SKIPPED_"))
+                self.assertTrue(self.ctl.receipt["appAnrDropBox"]["status"].startswith("SKIPPED_"))
                 self.assertNotIn("junitXml", self.ctl.receipt)
 
     def test_trace_renderer_failure_retains_raw_metadata_and_original_exception(self):
         render = diag.crash_context_display
         def renderer(raw):
-            if raw == AnrTraceAssociation.TRACE: raise ValueError("fixture renderer")
+            if raw == AppAnrDropBoxAssociation.DROPBOX: raise ValueError("fixture renderer")
             return render(raw)
         with mock.patch.object(diag, "crash_context_display", side_effect=renderer):
             self.execute()
-        record = self.ctl.receipt["lastAnrTraces"]
-        self.assertEqual(record["capturedSha256"], hashlib.sha256(AnrTraceAssociation.TRACE).hexdigest())
+        record = self.ctl.receipt["appAnrDropBox"]
+        self.assertEqual(record["capturedSha256"], hashlib.sha256(AppAnrDropBoxAssociation.DROPBOX).hexdigest())
         self.assertTrue(record["captureComplete"])
         self.assertEqual(record["displayPolicy"], "NOT_RENDERED")
         self.assertEqual(self.ctl.receipt["crashContextError"], "ValueError")
@@ -1718,12 +1815,12 @@ class DeviceLastAnrTraces(unittest.TestCase):
 
     def test_foreign_latest_trace_stays_unassociated_without_retry(self):
         def command(label, args, **kwargs):
-            if label != "device-last-anr-traces": return self.command(label, args, **kwargs)
+            if label != "device-app-anr-dropbox": return self.command(label, args, **kwargs)
             self.calls.append((label, args, kwargs))
-            return self.result(kwargs, AnrTraceAssociation.TRACE.replace(diag.APP.encode(), b"foreign.app"))
+            return self.result(kwargs, AppAnrDropBoxAssociation.DROPBOX.replace(diag.APP.encode(), b"foreign.app"))
         self.execute(command)
         self.assertEqual(len(self.calls), 3)
-        self.assertEqual(self.ctl.receipt["lastAnrTraces"]["association"]["status"], "UNASSOCIATED")
+        self.assertEqual(self.ctl.receipt["appAnrDropBox"]["association"]["status"], "UNASSOCIATED")
 
 class CrashCaptureSubprocess(unittest.TestCase):
     def test_real_partial_timeout_and_overflow_hash_only_retained_bytes_and_cleanup(self):
