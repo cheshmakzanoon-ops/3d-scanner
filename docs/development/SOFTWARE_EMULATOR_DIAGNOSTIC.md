@@ -50,8 +50,8 @@ fails rather than silently changing mode or downgrading.
 Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
 repository's `refs/heads/main`, on attempt 1, with all of the following:
 
-- Previous head exactly `09e4d61591afc7bb1789487bcf6477fff9888b0c`.
-- Exact commit message `test: run one bounded software-only Android diagnostic`.
+- Previous head exactly `7932b9a0e590d7c06815e6f41d7446c23d879b9b`.
+- Exact commit message `test: run software Android diagnostic with verified host libraries`.
 - A normal update, not a created/deleted branch or forced push.
 - Event `after`, head-commit ID and `GITHUB_SHA` all identical.
 - One non-merge commit whose actual parent is that previous head; the committed
@@ -93,6 +93,7 @@ skip-CI commit markers, which would suppress required ordinary push checks too.
 | Entire GitHub job, including checkout | 75 minutes |
 | Controller working deadline, including setup/build | 72 minutes |
 | One SDK installation attempt; no automatic retry | 5 minutes |
+| Headless ELF check / optional private host-library preparation | 5 minutes |
 | Exact-source debug app + instrumentation APK build | 20 minutes |
 | Cold boot | 30 minutes |
 | Selected instrumentation invocation | 15 minutes |
@@ -106,13 +107,100 @@ leaves space inside the hard 75-minute job limit for checkout and owned-process
 cleanup. Forced runner termination might prevent a final receipt;
 absence of a final successful receipt is never a pass.
 
-Command/emulator output is capped at 4 MiB, instrumentation proof at 128 KiB, and
+Text command/emulator output is capped at 4 MiB, instrumentation proof at 128 KiB, and
 normal diagnostic tails at 16 KiB. Exceeding a cap fails closed. Subprocess cleanup
 signals only process groups created and still owned by the controller, including
 its one emulator and foreground private ADB server. It never uses broad
 process-name killing, global `adb kill-server`, or resets other devices. Signal
 handlers remain active during cleanup: cancellation or an expired deadline
 invalidates a pending successful result before evidence emission.
+
+## Headless host-library preflight and narrowly scoped repair
+
+The first actual automatic attempt, [run 39929260041, attempt 1](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39929260041),
+at source `b96f1568539f1aa20792f6e1c3d06d0bda93bd92`, failed during prerequisites:
+plain `emulator -version` selected `qemu-system-x86_64`, whose loader could not
+find `libpulse.so.0` (exit 127). Event/source admission and SDK downloads had
+completed; no app build, AVD boot or instrumentation had begun. This is a real
+hosted prerequisite failure, not an Android test result. The correction is a new
+reviewed source/one-shot authorization, not a rerun of that old source.
+
+The smallest path is attempted first: `-no-window -gpu software -version`, matching
+the diagnostic's intended headless/software mode. Official launcher source selects
+a headless backend and omits Qt setup in this mode, but this does **not** establish
+that the installed headless binary is independent of PulseAudio. A bounded
+version-only `-verbose`/process-local `LD_DEBUG=libs` probe identifies the actual
+SDK backend and vendor library-search directories. This does not create an AVD.
+Unknown backend/loader output, inherited `LD_*` overrides, `GLIBC_TUNABLES` or
+system-library preference overrides block rather than guessing a search order.
+
+The controller checks x86_64 ELF identity and complete `ldd` closure for the
+launcher, observed backend, and packaged SwiftShader/Vulkan shared libraries.
+These checks use the observed SDK search order; conflicting providers, loader
+version errors and incomplete output fail closed. If this exact selected closure
+already resolves and the version probe succeeded, status is `PREINSTALLED` and
+**no APT operation occurs**. This is not proof about every future `dlopen` or the
+actual boot's mappings; Android runtime still has to succeed separately.
+
+Only an initial missing set of exactly `libpulse.so.0` permits the optional repair:
+
+- Require the runner's existing Ubuntu archive keyring and APT/dpkg/readelf tools.
+  Use official HTTPS Noble, Noble updates and Noble security **main** indexes with
+  `Signed-By` bound to a private copy of that existing keyring. No key import, new
+  trust, insecure/unauthenticated flag or affirmative prompt is permitted.
+- Keep all APT state, indexes, downloads, logs, status snapshot, configuration,
+  preferences, authentication-file paths and source/trust snippet directories in
+  owned temporary storage. Host APT snippets/hooks are not loaded. The real host
+  package database is read and hashed, never installed into or modified.
+- Require a warning-free authenticated update, all three expected `InRelease`
+  files, and independent `gpgv` signature checks using the existing archive trust.
+  APT authenticates index/package hashes through those signed releases. A readonly
+  solver simulation permits only new packages in the controller's narrow audio/X11
+  allowlist: upgrades, removals and unreviewed dependencies block.
+- Download the exact solved versions once, at most 16 packages and 32 MiB of
+  `.deb` data. Bind each archive's size and SHA-256 to authenticated package-index
+  metadata, then independently compare package/version/architecture control fields.
+  Only `dpkg-deb --fsys-tarfile` data is read; no package installation or maintainer
+  script runs. Bound total expanded data-tar bytes to 64 MiB and each archive to
+  10,000 members. Validate all paths/types/symlinks before manual data extraction;
+  reject traversal, absolute/escaping links, hard links, special files and writes
+  through symlink ancestors. Archive ownership/mode bits are not imported.
+- Verify extracted ELF architecture and canonical SONAMEs. Reject ambiguous
+  providers and core/loader/security-critical libraries. Populate a private loader
+  directory only with currently unresolved SONAMEs, never replace a provider
+  already found in the host or SDK. Resolve the complete selected closure again,
+  require each added provider's exact owned path and hash, and verify every prior
+  provider remains unchanged. Unknown transitive dependencies block; there is no
+  additional download cycle, global library path or fallback install.
+
+The optional overlay is passed only to emulator/version commands. The launcher
+prepends its vendor paths; preflight models those observed paths before the private
+overlay. ADB, Java, Gradle and other commands do not receive the overlay. Private
+APT and extracted data disappear with the controller's temporary directory; no
+package/library/key material is uploaded. The receipt records target/tool/keyring/
+configuration/source/status/release/package/selected-library hashes, package
+versions, signer fingerprints, initial missing SONAMEs and closure-output hashes.
+
+The five-minute phase cap includes probe, metadata, download, extraction and
+closure checks, clipped by the overall deadline; individual external commands
+receive at most 120 seconds. The 32/64 MiB limits apply to package payloads, **not
+APT metadata index bytes**. Metadata acquisition also samples the owned index tree before, during and after
+the update: exceeding 256 MiB or 128 entries, or encountering special/symlink
+files, fails and cleans up the owned command process. This polling guard is not
+a filesystem quota; transient growth between samples can exceed its threshold. Binary data-tar command logs expose only byte
+count and SHA-256, never raw archive bytes. No timeout or setup failure proceeds
+to app build, ADB startup, boot or tests.
+
+Local validation: 78 host tests pass, including a genuinely compiled shared-library
+fixture checked by the local dynamic loader, private APT configuration isolation,
+a real child-process metadata-growth cleanup regression, and external-tool-mocked
+full setup/receipt/failure orchestration. Those mocks
+are explicitly **not** Ubuntu Noble solver/signature/download evidence. This
+workspace's Debian host is not the Ubuntu runner; no SDK/emulator or APT download
+was run locally. The corrected installed backend and real private-package route
+remain **NOT_RUN** until the next reviewed hosted attempt. The stdin regression
+retains failing exit semantics while reporting only privacy-safe byte counts and
+numeric sanitizer-marker counts; no cause is attributed without hosted evidence.
 
 ## Private ADB and emulator ownership
 
@@ -225,8 +313,16 @@ process control only; they are not Android execution evidence.
   [mDNS policy](https://android.googlesource.com/platform/packages/modules/adb/+/refs/heads/android16-s2-release/adb_mdns.cpp)
   disables auto-connect when its environment switch is zero.
 - [AOSP emulator launcher](https://android.googlesource.com/platform/external/qemu/+/emu-master-dev/android/emulator/main-emulator.cpp)
-  executes the QEMU process in place, supporting the conservative same-PID
-  listener-ownership check. Actual installed-tool behavior must still be verified.
+  selects the headless backend for `-no-window`, sets vendor library paths, and
+  executes QEMU in place. This supports the scoped preflight and conservative
+  same-PID listener check; installed-tool behavior still requires verification.
+- [APT configuration order and directories](https://manpages.debian.org/testing/apt/apt.conf.5.en.html),
+  [authenticated archives](https://manpages.debian.org/testing/apt/apt-secure.8.en.html)
+  and [simulation/download commands](https://manpages.debian.org/testing/apt/apt-get.8.en.html)
+  describe the private-config/read-only-solver/authenticated-download primitives.
+  [Ubuntu Noble libpulse0](https://packages.ubuntu.com/noble/libpulse0) is the
+  narrowly reviewed missing-library package; actual dependencies are solved and
+  constrained at runtime, not assumed from a static list.
 - [Ubuntu24.04 runner image](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md)
   lists the preinstalled SDK/JDK. Actual prerequisites are rechecked at runtime.
 - [Standard public-runner availability and costs](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)

@@ -8,18 +8,22 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import io
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
+import posixpath
 import re
 import selectors
 import shutil
 import signal
 import socket
+import stat
 import subprocess
 import sys
 import tempfile
+import tarfile
 import time
 import uuid
 import xml.etree.ElementTree as ET
@@ -27,8 +31,8 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "09e4d61591afc7bb1789487bcf6477fff9888b0c"
-PUSH_MESSAGE = "test: run one bounded software-only Android diagnostic"
+PUSH_BASE_SHA = "7932b9a0e590d7c06815e6f41d7446c23d879b9b"
+PUSH_MESSAGE = "test: run software Android diagnostic with verified host libraries"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
 PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
@@ -47,7 +51,14 @@ APP = "com.realityforge.scanner"
 RUNNER = APP + ".test/androidx.test.runner.AndroidJUnitRunner"
 SERIAL = "emulator-5580"
 BUDGETS = {"workflow": 4500, "controller": 4320, "sdkInstall": 300,
-           "build": 1200, "boot": 1800, "instrumentation": 900}
+           "hostLibraries": 300, "build": 1200, "boot": 1800, "instrumentation": 900}
+HOST_LIBRARY_PACKAGES = frozenset(("libpulse0", "libasyncns0", "libsndfile1", "libflac12t64",
+    "libogg0", "libopus0", "libvorbis0a", "libvorbisenc2", "libmpg123-0t64", "libmp3lame0",
+    "libdbus-1-3", "libx11-6", "libx11-xcb1", "libxcb1", "libxau6", "libxdmcp6", "libbsd0", "libmd0"))
+HOST_ARCHIVE_LIMIT = 32 * 1024 * 1024
+HOST_EXPANDED_LIMIT = 64 * 1024 * 1024
+HOST_METADATA_LIMIT = 256 * 1024 * 1024
+SONAME = re.compile(r"[A-Za-z0-9_+.-]+\.so(?:\.[A-Za-z0-9_.-]+)*")
 INSTRUMENTATION_LIMIT = 128 * 1024
 LOG_LIMIT = 4 * 1024 * 1024
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
@@ -163,6 +174,223 @@ def validate_push_tree(source_sha, parents, message, changes):
     if not PUSH_TRIGGER_PATHS.issubset(paths):
         raise Blocked("One-shot push must change both the workflow and controller")
     return sorted(paths)
+
+
+def loader_missing(output, resolved=None):
+    """Parse complete ldd output; version/format errors never look like resolution."""
+    missing, records = set(), 0
+    for line in output.splitlines():
+        line = line.strip()
+        absent = re.fullmatch(r"([^ /]+) => not found", line)
+        if absent and SONAME.fullmatch(absent[1]):
+            missing.add(absent[1])
+        elif not (re.fullmatch(r"[^ /]+ => /[^\n]+ \(0x[0-9a-f]+\)", line)
+                  or re.fullmatch(r"/[^\n]+ \(0x[0-9a-f]+\)", line)
+                  or re.fullmatch(r"linux-vdso\.so\.1 \(0x[0-9a-f]+\)", line)):
+            raise Blocked("Unrecognized ELF loader output or unresolved version requirement")
+        else:
+            match = re.fullmatch(r"([^ /]+) => (/[^\n]+) \(0x[0-9a-f]+\)", line)
+            if resolved is not None and match:
+                if match[1] in resolved and Path(resolved[match[1]]).resolve() != Path(match[2]).resolve():
+                    raise Blocked("Conflicting ELF providers for one selected SONAME")
+                resolved[match[1]] = match[2]
+        records += 1
+    if not records:
+        raise Blocked("Missing complete ELF loader evidence")
+    return missing
+
+
+def apt_plan(output):
+    """Only a new, narrow audio-library closure; never upgrade host/security libraries."""
+    result = {}
+    for line in output.splitlines():
+        if line.startswith(("Remv ", "Purg ", "Broken ")):
+            raise Blocked("Private dependency plan attempts removal or has broken dependencies")
+        if not line.startswith("Inst "):
+            continue
+        match = re.fullmatch(r"Inst ([a-z0-9+.-]+) \(([A-Za-z0-9.+:~_-]+) .+ \[(amd64|all)\]\)", line)
+        if not match or match[1] not in HOST_LIBRARY_PACKAGES or match[1] in result:
+            raise Blocked("Dependency plan contains an upgrade, unrelated package or malformed identity")
+        result[match[1]] = {"version": match[2], "architecture": match[3]}
+    if "libpulse0" not in result or len(result) > 16:
+        raise Blocked("Missing or oversized private PulseAudio dependency closure")
+    return result
+
+
+def deb_fields(text):
+    fields = {}
+    for line in text.strip().splitlines():
+        if line.startswith((" ", "\t")):
+            continue
+        key, separator, value = line.partition(": ")
+        if not separator or key in fields:
+            raise Blocked("Ambiguous package metadata")
+        fields[key] = value
+    return fields
+
+
+def checked_package(text, name, planned):
+    fields = deb_fields(text)
+    if (fields.get("Package") != name or fields.get("Version") != planned["version"]
+            or fields.get("Architecture") != planned["architecture"]
+            or not re.fullmatch(r"[0-9a-f]{64}", fields.get("SHA256", ""))
+            or not fields.get("Size", "").isdigit()
+            or not 0 < int(fields["Size"]) <= HOST_ARCHIVE_LIMIT
+            or not re.fullmatch(r"pool/main/[A-Za-z0-9+._~/-]+\.deb", fields.get("Filename", ""))
+            or ".." in PurePosixPath(fields["Filename"]).parts):
+        raise Blocked("Package metadata is not the exact signed Ubuntu main dependency")
+    return {"package": name, "version": planned["version"], "architecture": planned["architecture"],
+            "sha256": fields["SHA256"], "bytes": int(fields["Size"]), "filename": fields["Filename"],
+            "metadataSha256": hashlib.sha256(text.encode()).hexdigest()}
+
+
+def extract_library_archive(payload, destination, check=None):
+    """Extract data only after validating every path/type/link; never run package scripts."""
+    if len(payload) > HOST_EXPANDED_LIMIT or destination.exists():
+        raise Blocked("Package expansion exceeds bounds or destination is not fresh")
+    with tarfile.open(fileobj=io.BytesIO(payload), mode="r:") as archive:
+        members, names, links, total = [], set(), set(), 0
+        for member in archive:
+            if check is not None:
+                check()
+            name = member.name.removeprefix("./").rstrip("/")
+            if name in ("", ".") and member.isdir():
+                continue
+            if (not name or name.startswith("/") or "\\" in name
+                    or any(part in ("", ".", "..") for part in name.split("/"))
+                    or any(ord(c) < 32 or ord(c) == 127 for c in name) or name in names
+                    or not (member.isdir() or member.isfile() or member.issym())):
+                raise Blocked("Unsafe or duplicate archive member")
+            if member.issym():
+                target = member.linkname
+                resolved = posixpath.normpath(posixpath.join(posixpath.dirname(name), target))
+                if (not target or target.startswith("/") or "\\" in target
+                        or any(ord(c) < 32 or ord(c) == 127 for c in target)
+                        or resolved == ".." or resolved.startswith("../")):
+                    raise Blocked("Archive symlink escapes owned package directory")
+                links.add(name)
+            total += member.size
+            if total > HOST_EXPANDED_LIMIT or len(members) >= 10000:
+                raise Blocked("Package expanded size/member count exceeds bounds")
+            names.add(name)
+            members.append((member, name))
+        for _, name in members:
+            if any(str(parent) in links for parent in PurePosixPath(name).parents):
+                raise Blocked("Archive writes through a symlink ancestor")
+        destination.mkdir()
+        for member, name in members:
+            if check is not None:
+                check()
+            path = destination / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            if member.isdir():
+                path.mkdir(exist_ok=True)
+            elif member.isfile():
+                with archive.extractfile(member) as source, path.open("xb") as target:
+                    shutil.copyfileobj(source, target, 1024 * 1024)
+            else:
+                path.symlink_to(member.linkname)
+        for name in links:
+            try:
+                if not (destination / name).resolve().is_relative_to(destination.resolve()):
+                    raise Blocked("Archive symlink chain escapes owned package directory")
+            except RuntimeError as error:
+                raise Blocked("Cyclic archive symlink") from error
+
+
+def verify_x86_64_shared_object(path, executable=False):
+    with path.open("rb") as stream:
+        header = stream.read(20)
+    if (len(header) != 20 or header[:6] != b"\x7fELF\x02\x01"
+            or int.from_bytes(header[16:18], "little") not in ((2, 3) if executable else (3,))
+            or int.from_bytes(header[18:20], "little") != 62):
+        raise Blocked("Dependency is not an x86_64 ELF shared object")
+
+
+def private_apt_config(root, keyring, status):
+    """No host APT snippets/hooks/sources or writes: only existing Ubuntu archive trust."""
+    if root.exists() or not keyring.is_file() or not status.is_file():
+        raise Blocked("Fresh private APT state and existing archive keyring/status are required")
+    for path in (root, keyring, status):
+        if any(c in str(path) for c in ('"', "\\", "\n", "\r")):
+            raise Blocked("Unsafe APT configuration path")
+    root.mkdir()
+    for name in ("empty", "lists/partial", "cache/archives/partial", "log", "downloads", "gnupg"):
+        (root / name).mkdir(parents=True)
+    shutil.copyfile(keyring, root / "ubuntu-archive-keyring.gpg")
+    shutil.copyfile(status, root / "status")
+    for name in ("preferences", "extended_states", "main.conf", "auth.conf"):
+        (root / name).write_text("")
+    sources = []
+    for uri, suites in (("https://archive.ubuntu.com/ubuntu/", "noble noble-updates"),
+                        ("https://security.ubuntu.com/ubuntu/", "noble-security")):
+        sources.append(f"Types: deb\nURIs: {uri}\nSuites: {suites}\nComponents: main\n"
+                       f"Architectures: amd64\nSigned-By: {root}/ubuntu-archive-keyring.gpg\n")
+    (root / "ubuntu.sources").write_text("\n".join(sources))
+    config = {
+        "Dir::Etc::Parts": root / "empty", "Dir::Etc::main": root / "main.conf",
+        "Dir::Etc::sourcelist": root / "ubuntu.sources", "Dir::Etc::sourceparts": root / "empty",
+        "Dir::Etc::preferences": root / "preferences", "Dir::Etc::preferencesparts": root / "empty",
+        "Dir::Etc::netrc": root / "auth.conf", "Dir::Etc::netrcparts": root / "empty",
+        "Dir::Etc::trusted": root / "ubuntu-archive-keyring.gpg", "Dir::Etc::trustedparts": root / "empty",
+        "Dir::State": root, "Dir::State::lists": root / "lists", "Dir::State::status": root / "status",
+        "Dir::State::extended_states": root / "extended_states", "Dir::Cache": root / "cache",
+        "Dir::Cache::pkgcache": root / "cache/pkgcache.bin", "Dir::Cache::srcpkgcache": root / "cache/srcpkgcache.bin",
+        "Dir::Log": root / "log", "APT::Architecture": "amd64", "Acquire::Languages": "none",
+        "Acquire::Retries": "0", "Acquire::https::Timeout": "30", "Acquire::Check-Valid-Until": "true",
+        "Acquire::AllowInsecureRepositories": "false", "Acquire::AllowWeakRepositories": "false",
+        "Acquire::AllowDowngradeToInsecureRepositories": "false", "APT::Get::AllowUnauthenticated": "false",
+        "APT::Update::Error-Mode": "any", "APT::Install-Recommends": "false", "APT::Install-Suggests": "false"}
+    (root / "apt.conf").write_text("".join(f'{key} "{value}";\n' for key, value in config.items())
+        + 'APT::Architectures { "amd64"; };\n')
+    return root / "apt.conf"
+
+
+def check_metadata_storage(root, byte_limit=HOST_METADATA_LIMIT, entry_limit=128):
+    """Sample owned APT index growth; this is a polling guard, not a filesystem quota."""
+    if not root.is_dir() or root.is_symlink():
+        raise Blocked("Private APT metadata directory is missing or not owned")
+    total, entries = 0, 0
+    def unreadable(error):
+        raise Blocked("Cannot inspect private APT metadata storage") from error
+    for directory, dirs, files in os.walk(root, followlinks=False, onerror=unreadable):
+        for name in dirs + files:
+            entries += 1
+            if entries > entry_limit:
+                raise Blocked("Private APT metadata exceeded entry-count limit")
+            try:
+                value = (Path(directory) / name).lstat()
+            except FileNotFoundError:
+                continue  # APT atomically renames partial indexes while running.
+            if stat.S_ISREG(value.st_mode):
+                total += value.st_size
+            elif not stat.S_ISDIR(value.st_mode):
+                raise Blocked("Unexpected private APT metadata file type")
+            if total > byte_limit:
+                raise Blocked("Private APT metadata exceeded sampled byte limit")
+
+
+def observed_loader_paths(output, emulator_root):
+    """Observe the official launcher's own version-only exec, not guessed SDK paths."""
+    emulator_root = emulator_root.resolve()
+    backends = set(re.findall(r'qemu backend: argv\[00\] = "([^"\n]+)"', output))
+    if len(backends) != 1:
+        raise Blocked("Cannot identify the launcher's actual selected QEMU backend")
+    backend = Path(backends.pop()).resolve()
+    if backend not in {emulator_root / "qemu/linux-x86_64" / name for name in
+            ("qemu-system-x86_64", "qemu-system-x86_64-headless")}:
+        raise Blocked("Launcher selected a backend outside the expected official SDK")
+    directories = []
+    for raw in re.findall(r"search path=([^\n]+?)\s+\(LD_LIBRARY_PATH\)", output):
+        for entry in raw.strip().split(":"):
+            path = Path(entry)
+            if not entry or not path.is_absolute() or not path.resolve().is_relative_to(emulator_root):
+                raise Blocked("Launcher library search path escaped the official SDK")
+            if path.is_dir() and path.resolve() not in directories:
+                directories.append(path.resolve())
+    if not directories:
+        raise Blocked("Actual launcher SDK library search order was not observed")
+    return backend, directories
 
 
 def license_snapshot(sdk):
@@ -380,6 +608,7 @@ class Controller:
         self.temporary = None
         self.interrupted_signal = 0
         self.watchdog_expired = False
+        self.emulator_library_env = {}
 
     def remaining(self, seconds):
         if self.interrupted_signal:
@@ -391,11 +620,15 @@ class Controller:
             raise Deadline("Controller deadline reached")
         return remaining
 
-    def command(self, label, args, timeout=60, limit=LOG_LIMIT, check=True, stdin=None):
+    def command(self, label, args, timeout=60, limit=LOG_LIMIT, check=True, stdin=None,
+                env=None, cwd=None, binary=False, guard=None):
         expires = self.clock() + self.remaining(timeout)
         proc, data = None, bytearray()
         try:
-            proc = subprocess.Popen([str(x) for x in args], cwd=self.root, env=self.env,
+            if guard is not None:
+                guard()
+            proc = subprocess.Popen([str(x) for x in args], cwd=self.root if cwd is None else cwd,
+                                    env=self.env if env is None else env,
                                     stdin=subprocess.DEVNULL if stdin is None else subprocess.PIPE,
                                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                     start_new_session=True)
@@ -410,6 +643,8 @@ class Controller:
                     if self.clock() >= expires:
                         raise Deadline(label + " timed out")
                     self.remaining(1)
+                    if guard is not None:
+                        guard()
                     self.drain_background()
                     for key, _ in selector.select(min(0.2, expires - self.clock())) if not eof else []:
                         chunk = os.read(key.fd, 65536)
@@ -422,8 +657,10 @@ class Controller:
                             data.extend(chunk)
                     exited = os.waitid(os.P_PID, proc.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
                     if eof and exited is not None:
+                        if guard is not None:
+                            guard()
                         code = exited.si_status if exited.si_code == os.CLD_EXITED else 128 + exited.si_status
-                        text = data.decode("utf-8", "strict")
+                        text = bytes(data) if binary else data.decode("utf-8", "strict")
                         if check and code:
                             raise Failure(label + " failed with exit " + str(code))
                         return text, code
@@ -435,7 +672,8 @@ class Controller:
                 proc.stdout.close()
             # Successful polling is quiet; all other bounded diagnostics are retained.
             if label != "boot-poll":
-                emit(label, bytes(data))
+                emit(label, (f"binary bytes={len(data)} sha256={hashlib.sha256(data).hexdigest()}"
+                             if binary else bytes(data)))
 
     def git(self, *args):
         return self.command("source", ["git", *args])[0].strip()
@@ -447,6 +685,174 @@ class Controller:
         self.command("source-manifest", [sys.executable, "tools/source_manifest.py", "verify", "--source", "HEAD"])
         self.receipt["sourceSha"] = actual
         self.receipt["sourceManifestSha256"] = sha256(self.root / "SOURCE_MANIFEST.sha256")
+
+    def prepare_host_libraries(self):
+        deadline = self.clock() + self.remaining(BUDGETS["hostLibraries"])
+        def check_phase():
+            self.remaining(1)
+            left = deadline - self.clock()
+            if left <= 0:
+                raise Deadline("Private host-library preparation exceeded five minutes")
+            return left
+        def digest(path):
+            return sha256(path, check_phase)
+        def run(label, args, **kwargs):
+            left = check_phase()
+            return self.command(label, args, timeout=min(120, left), **kwargs)
+        if any(value for key, value in self.env.items() if key.startswith("LD_") or key in
+               ("GLIBC_TUNABLES", "ANDROID_EMULATOR_USE_SYSTEM_LIBS")):
+            raise Blocked("Inherited loader overrides are not permitted for this diagnostic")
+        ldd, readelf = require_executable(Path("/usr/bin/ldd")), require_executable(Path("/usr/bin/readelf"))
+        sdk_root = Path(self.emulator_path).parent.resolve()
+        probe, code = run("emulator-loader-probe", [self.emulator_path, "-no-window", "-gpu", "software",
+                         "-verbose", "-version"], env={**self.env, "LD_DEBUG": "libs"}, check=False)
+        if code not in (0, 127):
+            raise Blocked("Version-only launcher probe failed for a non-loader reason")
+        backend, vendor_dirs = observed_loader_paths(probe, sdk_root)
+        targets = {Path(self.emulator_path).resolve(), backend}
+        for directory in (sdk_root / "lib64/gles_swiftshader", sdk_root / "lib64/vulkan"):
+            if directory.is_dir():
+                for candidate in directory.glob("*.so*"):
+                    if candidate.is_file():
+                        if not candidate.resolve().is_relative_to(sdk_root):
+                            raise Blocked("SDK renderer library escapes SDK directory")
+                        targets.add(candidate.resolve())
+        if len(targets) > 16:
+            raise Blocked("Unexpectedly large emulator/renderer ELF target set")
+        for target in targets:
+            verify_x86_64_shared_object(target, executable=target in (backend, Path(self.emulator_path).resolve()))
+        details = {"status": "CHECKING", "launcherProbeSha256": hashlib.sha256(probe.encode()).hexdigest(),
+            "launcherProbeExit": code, "vendorLibraryDirs": [str(p.relative_to(sdk_root)) for p in vendor_dirs],
+            "targets": {str(p.relative_to(sdk_root)): digest(p) for p in sorted(targets)},
+            "loaderToolSha256": {Path(tool).name: digest(tool) for tool in (ldd, readelf)},
+            "packages": [], "selectedLibraries": {}}
+        self.receipt["hostLibraries"] = details
+        overlay = self.temp / "emulator-library-overlay"
+        overlay.mkdir()
+        trace_env = {**self.env, "LC_ALL": "C", "LD_LIBRARY_PATH": os.pathsep.join(map(str, vendor_dirs))}
+        def scan():
+            missing, resolved, transcripts = set(), {}, []
+            for target in sorted(targets):
+                text, _ = run("emulator-elf-closure", [ldd, target], env=trace_env)
+                missing.update(loader_missing(text, resolved))
+                transcripts.append(text)
+            if missing.intersection(resolved):
+                raise Blocked("A missing SONAME already has a provider for another selected target")
+            return missing, resolved, hashlib.sha256("\n".join(transcripts).encode()).hexdigest()
+        missing, original_resolved, before_hash = scan()
+        details.update(initialMissing=sorted(missing), beforeClosureSha256=before_hash)
+        if not missing:
+            if code != 0:
+                raise Blocked("Launcher failed despite complete traced ELF closure")
+            check_phase()
+            details.update(status="PREINSTALLED", afterClosureSha256=before_hash)
+            return
+        if missing != {"libpulse.so.0"}:
+            raise Blocked("Unreviewed host dependencies: " + ", ".join(sorted(missing)))
+        apt_get = require_executable(Path("/usr/bin/apt-get"))
+        apt_cache = require_executable(Path("/usr/bin/apt-cache"))
+        gpgv = require_executable(Path("/usr/bin/gpgv"))
+        dpkg_deb = require_executable(Path("/usr/bin/dpkg-deb"))
+        keyring, status = Path("/usr/share/keyrings/ubuntu-archive-keyring.gpg"), Path("/var/lib/dpkg/status")
+        apt = self.temp / "private-apt"
+        config = private_apt_config(apt, keyring, status)
+        status_hash = digest(status)
+        if digest(apt / "status") != status_hash or digest(apt / "ubuntu-archive-keyring.gpg") != digest(keyring):
+            raise Blocked("Host package status or existing archive keyring changed during private snapshot")
+        stable = {path: digest(path) for path in (config, apt / "ubuntu.sources", apt / "status", apt / "ubuntu-archive-keyring.gpg")}
+        apt_env = {**self.env, "LC_ALL": "C", "APT_CONFIG": str(config), "GNUPGHOME": str(apt / "gnupg")}
+        details.update(archiveKeyringSha256=digest(keyring), aptConfigurationSha256=digest(config),
+                       aptSourcesSha256=digest(apt / "ubuntu.sources"), hostPackageStatusSha256=status_hash)
+        details["toolSha256"] = {Path(tool).name: digest(tool) for tool in (apt_get, apt_cache, gpgv, dpkg_deb, ldd, readelf)}
+        metadata_guard = lambda: check_metadata_storage(apt / "lists")
+        update, _ = run("private-apt-signed-metadata", [apt_get, "update"], env=apt_env, guard=metadata_guard)
+        metadata_guard()
+        details["metadataStorageGuard"] = {"sampledByteLimit": HOST_METADATA_LIMIT, "entryLimit": 128}
+        if re.search(r"(?mi)^(W:|E:)|NO_PUBKEY|BADSIG|EXPKEYSIG|Failed to fetch|not authenticated|not signed", update):
+            raise Blocked("APT metadata update warned or did not authenticate every index")
+        releases = sorted((apt / "lists").glob("*_InRelease"))
+        if len(releases) != 3:
+            raise Blocked("Expected exactly Noble, Noble updates and Noble security signed releases")
+        details["signedReleases"] = []
+        for release in releases:
+            verified, _ = run("ubuntu-release-signature", [gpgv, "--homedir", apt / "gnupg", "--keyring",
+                apt / "ubuntu-archive-keyring.gpg", "--status-fd", "1", release], env=apt_env)
+            fingerprints = re.findall(r"(?m)^\[GNUPG:\] VALIDSIG ([0-9A-F]{40}) ", verified)
+            if not fingerprints:
+                raise Blocked("Missing independently verified Ubuntu archive signature")
+            details["signedReleases"].append({"file": release.name, "sha256": digest(release), "signers": fingerprints})
+        simulated, _ = run("private-apt-plan", [apt_get, "--simulate", "--no-install-recommends", "--no-upgrade",
+                             "install", "libpulse0:amd64"], env=apt_env)
+        plan = apt_plan(simulated)
+        for name, expected in sorted(plan.items()):
+            metadata, _ = run("private-apt-package-metadata", [apt_cache, "show", name + "=" + expected["version"]], env=apt_env)
+            details["packages"].append(checked_package(metadata, name, expected))
+        if sum(package["bytes"] for package in details["packages"]) > HOST_ARCHIVE_LIMIT:
+            raise Blocked("Private dependency download exceeds 32 MiB")
+        run("private-apt-download-only", [apt_get, "download", *[name + "=" + record["version"]
+             for name, record in sorted(plan.items())]], env=apt_env, cwd=apt / "downloads")
+        archives = list((apt / "downloads").iterdir())
+        if len(archives) != len(plan) or any(not p.is_file() or p.is_symlink() or p.suffix != ".deb" for p in archives):
+            raise Blocked("Unexpected dependency download contents")
+        candidates, expanded = {}, 0
+        for package in details["packages"]:
+            matches = [path for path in archives if path.stat().st_size == package["bytes"] and digest(path) == package["sha256"]]
+            if len(matches) != 1:
+                raise Blocked("Downloaded dependency does not match authenticated size/SHA256")
+            archive = matches[0]
+            fields, _ = run("private-deb-identity", [dpkg_deb, "--field", archive, "Package", "Version", "Architecture"])
+            if deb_fields(fields) != {"Package": package["package"], "Version": package["version"], "Architecture": package["architecture"]}:
+                raise Blocked("Downloaded package control identity conflicts with signed metadata")
+            payload, _ = run("private-deb-data-only", [dpkg_deb, "--fsys-tarfile", archive], binary=True, limit=HOST_EXPANDED_LIMIT)
+            expanded += len(payload)
+            if expanded > HOST_EXPANDED_LIMIT:
+                raise Blocked("Dependency closure expansion exceeds 64 MiB")
+            destination = apt / ("package-" + package["package"])
+            extract_library_archive(payload, destination, check_phase)
+            for subdir in ("usr/lib/x86_64-linux-gnu", "lib/x86_64-linux-gnu"):
+                for candidate in (destination / subdir).rglob("*.so*"):
+                    if not candidate.is_file():
+                        continue
+                    actual = candidate.resolve()
+                    if not actual.is_relative_to(destination):
+                        raise Blocked("Dependency library escapes its owned extraction")
+                    verify_x86_64_shared_object(actual)
+                    dynamic, _ = run("private-library-soname", [readelf, "-d", actual])
+                    sonames = re.findall(r"\(SONAME\).*\[([^\]]+)\]", dynamic)
+                    if len(sonames) != 1 or not SONAME.fullmatch(sonames[0]):
+                        raise Blocked("Dependency library lacks one canonical SONAME")
+                    name = sonames[0]
+                    if re.match(r"^(ld-|lib(?:c\.|m\.|dl\.|rt\.|pthread\.|resolv\.|gcc|stdc\+\+|ssl|crypto|nss|pam|selinux|seccomp|cap|audit|systemd))", name):
+                        raise Blocked("Core or security-critical library is outside this scoped dependency repair")
+                    value = (actual, package["package"])
+                    if name in candidates and candidates[name] != value:
+                        raise Blocked("Ambiguous dependency SONAME provider")
+                    candidates[name] = value
+        trace_env["LD_LIBRARY_PATH"] += os.pathsep + str(overlay)
+        for _ in range(16):
+            if not missing:
+                break
+            for name in sorted(missing):
+                if name not in candidates or name in details["selectedLibraries"] or name in original_resolved:
+                    raise Blocked("Unresolved dependency or attempted existing-provider override: " + name)
+                path, package_name = candidates[name]
+                (overlay / name).symlink_to(path)
+                details["selectedLibraries"][name] = {"package": package_name, "sha256": digest(path)}
+            missing, resolved, after_hash = scan()
+            if any(name not in resolved or Path(resolved[name]).resolve() != Path(path).resolve()
+                   for name, path in original_resolved.items()):
+                raise Blocked("Private overlay changed an existing host or SDK SONAME provider")
+            for name in details["selectedLibraries"]:
+                if name not in resolved or Path(resolved[name]).resolve() != candidates[name][0]:
+                    raise Blocked("Selected dependency did not resolve to its exact owned provider")
+        else:
+            raise Blocked("Dependency closure exceeds bounded resolution depth")
+        if missing or digest(status) != status_hash or any(digest(path) != value for path, value in stable.items()):
+            raise Blocked("Incomplete dependency closure or changed host package database")
+        check_phase()
+        details.update(status="RESOLVED_PRIVATE", afterClosureSha256=after_hash)
+        # Only emulator/version receives the overlay. Its launcher adds observed vendor dirs itself.
+        self.emulator_library_env = {"LD_LIBRARY_PATH": str(overlay)}
 
     def prerequisites(self):
         event = json.loads(Path(self.env["GITHUB_EVENT_PATH"]).read_text())
@@ -510,7 +916,9 @@ class Controller:
         self.adb = require_executable(sdk / "platform-tools/adb")
         self.emulator_path = require_executable(sdk / "emulator/emulator")
         self.receipt["toolSha256"] = {"adb": sha256(self.adb), "emulator": sha256(self.emulator_path)}
-        self.receipt["emulatorVersion"] = self.command("emulator-version", [self.emulator_path, "-version"])[0].strip()[:2048]
+        self.prepare_host_libraries()
+        self.receipt["emulatorVersion"] = self.command("emulator-version", [self.emulator_path, "-no-window",
+            "-gpu", "software", "-version"], env={**self.env, **self.emulator_library_env})[0].strip()[:2048]
         self.receipt["adbVersion"] = self.command("adb-version", [self.adb, "version"])[0].strip()[:2048]
         image = sdk.joinpath(*IMAGE.split(";"))
         props = dict(line.split("=", 1) for line in (image / "source.properties").read_text().splitlines() if "=" in line)
@@ -607,7 +1015,7 @@ class Controller:
                 "-cores", "2", "-port", "5580", "-camera-back", "none", "-camera-front", "none"]
         self.receipt["emulatorOptions"] = args[1:]
         self.emulator_output = tempfile.TemporaryFile(dir=self.temp)
-        self.emulator = subprocess.Popen(args, cwd=self.root, env=self.env, stdin=subprocess.DEVNULL,
+        self.emulator = subprocess.Popen(args, cwd=self.root, env={**self.env, **self.emulator_library_env}, stdin=subprocess.DEVNULL,
                                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
         os.set_blocking(self.emulator.stdout.fileno(), False)
         self.boot_end = self.clock() + self.remaining(BUDGETS["boot"])

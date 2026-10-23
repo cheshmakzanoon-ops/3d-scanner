@@ -8,15 +8,19 @@ import io
 import json
 import os
 import signal
+import shutil
 import socket
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tarfile
 import time
 import unittest
 from unittest import mock
 import xml.etree.ElementTree as ET
+
+from tools.native_process import native_compile_env
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "tools/device/software_emulator/diagnostic.py"
@@ -362,6 +366,357 @@ class OneShotPushPolicy(unittest.TestCase):
                         self.assertEqual(diag.validate_push_tree(head, parents, diag.PUSH_MESSAGE, changes), sorted(diag.PUSH_ALLOWED_PATHS))
 
 
+class PrivateHostLibraries(unittest.TestCase):
+    def metadata(self):
+        return "Package: libpulse0\nVersion: 1:16.1-1\nArchitecture: amd64\nSize: 123\nSHA256: " + "a" * 64 + "\nFilename: pool/main/p/pulseaudio/libpulse0_16.1-1_amd64.deb\n"
+
+    def archive(self, entries):
+        output = io.BytesIO()
+        with tarfile.open(fileobj=output, mode="w") as tar:
+            for name, kind, data in entries:
+                item = tarfile.TarInfo(name)
+                if kind == "file":
+                    item.size = len(data)
+                    tar.addfile(item, io.BytesIO(data))
+                elif kind == "link":
+                    item.type, item.linkname = tarfile.SYMTYPE, data
+                    tar.addfile(item)
+                else:
+                    item.type = tarfile.LNKTYPE
+                    item.linkname = data
+                    tar.addfile(item)
+        return output.getvalue()
+
+    def test_loader_inventory_requires_complete_real_looking_output(self):
+        resolved = {}
+        text = "linux-vdso.so.1 (0x00001)\nlibpulse.so.0 => not found\nlibc.so.6 => /lib/libc.so.6 (0x123)\n/lib64/ld-linux-x86-64.so.2 (0x456)\n"
+        self.assertEqual(diag.loader_missing(text, resolved), {"libpulse.so.0"})
+        self.assertEqual(resolved, {"libc.so.6": "/lib/libc.so.6"})
+        for output in ("", "statically linked", "libc.so.6: version `GLIBC_9' not found", text + "truncated"):
+            with self.subTest(output=output), self.assertRaises(diag.Blocked):
+                diag.loader_missing(output)
+
+    def test_apt_plan_rejects_upgrades_removals_unrelated_core_and_duplicate_packages(self):
+        good = "Inst libpulse0 (1:16.1-1 Ubuntu:24.04/noble [amd64])\n"
+        self.assertEqual(diag.apt_plan(good)["libpulse0"]["version"], "1:16.1-1")
+        for value in ("", good + good, good + "Remv libc6 [2.39]\n",
+                      good.replace("libpulse0 (", "libpulse0 [1:old] ("),
+                      good + "Inst libc6 (2.39 Ubuntu:24.04/noble [amd64])\n",
+                      good + "Inst libssl3t64 (3.0 Ubuntu:24.04/noble [amd64])\n"):
+            with self.subTest(value=value), self.assertRaises(diag.Blocked):
+                diag.apt_plan(value)
+
+    def test_authenticated_metadata_binds_exact_identity_hash_size_and_main_path(self):
+        plan = {"version": "1:16.1-1", "architecture": "amd64"}
+        self.assertEqual(diag.checked_package(self.metadata(), "libpulse0", plan)["bytes"], 123)
+        for old, new in (("amd64", "arm64"), ("1:16.1-1", "wrong"), ("Size: 123", "Size: 999999999"),
+                         ("a" * 64, "invalid"), ("pool/main/", "pool/universe/"),
+                         ("pool/main/p/", "pool/main/../../")):
+            with self.subTest(old=old), self.assertRaises(diag.Blocked):
+                diag.checked_package(self.metadata().replace(old, new), "libpulse0", plan)
+        with self.assertRaises(diag.Blocked):
+            diag.checked_package(self.metadata() + "Package: duplicate\n", "libpulse0", plan)
+
+    def test_archive_extracts_data_and_relative_symlink_without_scripts_or_permissions(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "package"
+            data = self.archive([("./usr/lib/libfixture.so.1.0", "file", b"library"),
+                                 ("./usr/lib/libfixture.so.1", "link", "libfixture.so.1.0")])
+            diag.extract_library_archive(data, root)
+            self.assertEqual((root / "usr/lib/libfixture.so.1").read_bytes(), b"library")
+            self.assertTrue((root / "usr/lib/libfixture.so.1").resolve().is_relative_to(root))
+
+    def test_archive_rejects_absolute_traversal_hardlink_duplicates_and_symlink_ancestor_before_writes(self):
+        invalid = [ [("/escape", "file", b"bad")], [("../escape", "file", b"bad")],
+            [("good", "link", "../../escape")], [("good", "link", "/escape")],
+            [("good", "hardlink", "elsewhere")], [("good", "file", b"a"), ("good", "file", b"b")],
+            [("dir", "link", "inside"), ("dir/file", "file", b"bad")],
+            [("control\nname", "file", b"bad")]]
+        with tempfile.TemporaryDirectory() as temp:
+            for index, entries in enumerate(invalid):
+                root = Path(temp) / str(index)
+                with self.subTest(entries=entries), self.assertRaises(diag.Blocked):
+                    diag.extract_library_archive(self.archive(entries), root)
+                self.assertFalse(root.exists())
+
+    def test_archive_size_and_existing_destination_fail_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            with self.assertRaises(diag.Blocked):
+                diag.extract_library_archive(self.archive([]), Path(temp))
+            with mock.patch.object(diag, "HOST_EXPANDED_LIMIT", 5), self.assertRaises(diag.Blocked):
+                diag.extract_library_archive(b"123456", Path(temp) / "new")
+
+    def test_elf_architecture_and_shared_object_type_are_checked(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "library"
+            header = bytearray(20)
+            header[:6], header[16:18], header[18:20] = b"\x7fELF\x02\x01", (3).to_bytes(2, "little"), (62).to_bytes(2, "little")
+            path.write_bytes(header)
+            diag.verify_x86_64_shared_object(path)
+            for index, value in ((4, 1), (5, 2), (16, 2), (18, 183)):
+                bad = header.copy(); bad[index] = value; path.write_bytes(bad)
+                with self.subTest(index=index), self.assertRaises(diag.Blocked):
+                    diag.verify_x86_64_shared_object(path)
+
+    def test_private_apt_configuration_has_no_host_snippets_credentials_or_trust_changes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            key, status = root / "keyring", root / "status"
+            key.write_bytes(b"existing-public-trust"); status.write_bytes(b"host-status")
+            config = diag.private_apt_config(root / "apt", key, status)
+            text = config.read_text()
+            for key_name in ("Parts", "main", "sourceparts", "preferencesparts", "trustedparts", "netrcparts"):
+                self.assertIn("Dir::Etc::" + key_name + ' "' + str(root / "apt"), text)
+            self.assertIn('Acquire::AllowInsecureRepositories "false";', text)
+            self.assertIn('APT::Get::AllowUnauthenticated "false";', text)
+            self.assertNotIn("trusted=yes", (root / "apt/ubuntu.sources").read_text())
+            self.assertEqual(key.read_bytes(), b"existing-public-trust")
+            self.assertEqual(status.read_bytes(), b"host-status")
+            self.assertIn("https://archive.ubuntu.com/ubuntu/", (root / "apt/ubuntu.sources").read_text())
+            self.assertIn("https://security.ubuntu.com/ubuntu/", (root / "apt/ubuntu.sources").read_text())
+
+    def test_metadata_storage_rejects_size_count_and_links(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); (root / "index").write_bytes(b"1234")
+            diag.check_metadata_storage(root, 4, 1)
+            for byte_limit, entry_limit in ((3, 1), (4, 0)):
+                with self.subTest(byte_limit=byte_limit), self.assertRaises(diag.Blocked):
+                    diag.check_metadata_storage(root, byte_limit, entry_limit)
+            (root / "link").symlink_to("index")
+            with self.assertRaises(diag.Blocked): diag.check_metadata_storage(root)
+
+    def test_metadata_growth_guard_stops_its_real_owned_child(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); ctl = diag.Controller()
+            script = "import pathlib,time; pathlib.Path(" + repr(str(root / "index")) + ").write_bytes(b'x'*1024); time.sleep(30)"
+            start = time.monotonic()
+            with mock.patch.object(diag, "stop_owned", wraps=diag.stop_owned) as stopped, \
+                    contextlib.redirect_stdout(io.StringIO()), self.assertRaises(diag.Blocked):
+                ctl.command("metadata-growth-fixture", [sys.executable, "-c", script], timeout=5,
+                    guard=lambda: diag.check_metadata_storage(root, 64, 10))
+            self.assertLess(time.monotonic() - start, 5)
+            stopped.assert_called_once()
+            self.assertIsNotNone(stopped.call_args.args[0].returncode)
+
+    def test_observed_launcher_path_order_is_sdk_scoped_and_requires_backend(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for relative in ("lib64/vulkan", "lib64", "qemu/linux-x86_64"):
+                (root / relative).mkdir(parents=True, exist_ok=True)
+            backend = root / "qemu/linux-x86_64/qemu-system-x86_64-headless"
+            text = f'qemu backend: argv[00] = "{backend}"\n1: search path={root}/lib64/vulkan:{root}/lib64\t(LD_LIBRARY_PATH)\n'
+            found, dirs = diag.observed_loader_paths(text, root)
+            self.assertEqual(found, backend)
+            self.assertEqual(dirs, [root / "lib64/vulkan", root / "lib64"])
+            for bad in (text.replace(str(root / "lib64/vulkan"), "/outside"), text.replace("argv[00]", "argv[01]"),
+                        text.replace(str(backend), "/tmp/foreign-backend")):
+                with self.subTest(text=bad), self.assertRaises(diag.Blocked):
+                    diag.observed_loader_paths(bad, root)
+
+    def test_binary_subprocess_evidence_is_bounded_hash_only_and_env_is_not_global(self):
+        ctl, output = diag.Controller(env={"PATH": os.environ["PATH"]}), io.StringIO()
+        with contextlib.redirect_stdout(output):
+            value, code = ctl.command("binary-fixture", [sys.executable, "-c", "import os,sys;sys.stdout.buffer.write(os.environ['RF_FIXTURE'].encode()+b'\\x00')"],
+                env={**ctl.env, "RF_FIXTURE": "private-value"}, binary=True)
+        self.assertEqual((value, code), (b"private-value\x00", 0))
+        self.assertNotIn("RF_FIXTURE", ctl.env)
+        self.assertNotIn("private-value", output.getvalue())
+        self.assertIn("binary bytes=14 sha256=", output.getvalue())
+
+    @unittest.skipUnless(shutil.which("cc") and Path("/usr/bin/ldd").is_file(), "Real host C compiler/loader unavailable; ELF fixture NOT_RUN")
+    def test_real_host_loader_resolves_only_missing_fixture_library_from_owned_overlay(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); lib = root / "lib"; overlay = root / "overlay"
+            lib.mkdir(); overlay.mkdir()
+            (root / "lib.c").write_text("int private_fixture(void) { return 7; }\n")
+            (root / "main.c").write_text("extern int private_fixture(void); int main(void) { return private_fixture() == 7 ? 0 : 1; }\n")
+            soname = "libprivate_rf_fixture.so.1"
+            subprocess.run(["cc", "-shared", "-fPIC", "-Wl,-soname," + soname, str(root / "lib.c"), "-o", str(lib / soname)], check=True, capture_output=True, timeout=30, env=native_compile_env())
+            subprocess.run(["cc", str(root / "main.c"), "-L" + str(lib), "-l:" + soname, "-o", str(root / "program")], check=True, capture_output=True, timeout=30, env=native_compile_env())
+            before = subprocess.check_output(["/usr/bin/ldd", root / "program"], text=True, timeout=10)
+            prior = {}; self.assertEqual(diag.loader_missing(before, prior), {soname})
+            (overlay / soname).symlink_to(lib / soname)
+            env = {**os.environ, "LD_LIBRARY_PATH": str(overlay)}
+            after = subprocess.check_output(["/usr/bin/ldd", root / "program"], text=True, env=env, timeout=10)
+            resolved = {}; self.assertEqual(diag.loader_missing(after, resolved), set())
+            self.assertEqual(Path(resolved[soname]).resolve(), lib / soname)
+            self.assertEqual(resolved["libc.so.6"], prior["libc.so.6"])
+            diag.verify_x86_64_shared_object(lib / soname)
+            subprocess.run([root / "program"], env=env, check=True, timeout=10)
+
+
+class HostLibraryPreparation(unittest.TestCase):
+    """Mock external tools, not controller trust/selection/extraction decisions.
+
+    This exercises orchestration, not Noble APT authentication or Android runtime.
+    A separate compiled ELF fixture exercises the actual local dynamic loader.
+    """
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.sdk = self.root / "sdk/emulator"
+        (self.sdk / "qemu/linux-x86_64").mkdir(parents=True)
+        (self.sdk / "lib64").mkdir()
+        self.header = bytearray(20)
+        self.header[:6] = b"\x7fELF\x02\x01"
+        self.header[16:18], self.header[18:20] = (3).to_bytes(2, "little"), (62).to_bytes(2, "little")
+        for name in ("emulator", "qemu/linux-x86_64/qemu-system-x86_64-headless"):
+            (self.sdk / name).write_bytes(self.header)
+        self.now, self.calls, self.problem, self.preinstalled = 0, [], None, False
+        self.ctl = diag.Controller(env={"PATH": "/usr/bin"}, clock=lambda: self.now)
+        self.ctl.temp = self.root / "owned"; self.ctl.temp.mkdir()
+        self.ctl.emulator_path = str(self.sdk / "emulator")
+        self.key, self.status = self.root / "key", self.root / "status"
+        self.key.write_bytes(b"existing public key fixture")
+        self.status.write_bytes(b"host package status fixture")
+        self.data = b"authenticated package fixture"
+        self.real_digest, self.real_config = diag.sha256, diag.private_apt_config
+        self.stack = contextlib.ExitStack(); self.addCleanup(self.stack.close)
+        self.stack.enter_context(mock.patch.object(diag, "require_executable", side_effect=str))
+        self.stack.enter_context(mock.patch.object(diag, "sha256", side_effect=self.digest))
+        self.stack.enter_context(mock.patch.object(diag, "private_apt_config", side_effect=lambda root, key, status:
+            self.real_config(root, self.key, self.status)))
+        self.stack.enter_context(mock.patch.object(self.ctl, "command", side_effect=self.command))
+
+    def digest(self, path, check=None):
+        path = Path(path)
+        path = {Path("/usr/share/keyrings/ubuntu-archive-keyring.gpg"): self.key,
+                Path("/var/lib/dpkg/status"): self.status}.get(path, path)
+        if str(path).startswith("/usr/bin/"):
+            if check: check()
+            return hashlib.sha256(b"fixture tool").hexdigest()
+        return self.real_digest(path, check)
+
+    def command(self, label, args, **kwargs):
+        self.calls.append((label, list(map(str, args)), copy.deepcopy(kwargs)))
+        apt = self.ctl.temp / "private-apt"
+        if label == "emulator-loader-probe":
+            return (f'qemu backend: argv[00] = "{self.sdk}/qemu/linux-x86_64/qemu-system-x86_64-headless"\n'
+                    f'1: search path={self.sdk}/lib64\t(LD_LIBRARY_PATH)\n', 0 if self.preinstalled else 127)
+        if label == "emulator-elf-closure":
+            selected = self.ctl.temp / "emulator-library-overlay/libpulse.so.0"
+            libc = "/lib/libc.so.6"
+            if self.problem == "conflicting-provider" and str(args[-1]).endswith("headless"):
+                libc = "/different/libc.so.6"
+            if self.problem == "changed-provider" and selected.exists():
+                libc = "/different/libc.so.6"
+            output = f"linux-vdso.so.1 (0x01)\nlibc.so.6 => {libc} (0x02)\n/lib64/ld-linux-x86-64.so.2 (0x03)\n"
+            if self.problem == "unknown-initial":
+                output += "libunreviewed.so.1 => not found\n"
+            elif not self.preinstalled:
+                if selected.exists():
+                    provider = "/foreign/libpulse.so.0" if self.problem == "wrong-selected-provider" else str(selected)
+                    output += f"libpulse.so.0 => {provider} (0x04)\n"
+                    if self.problem == "partial-closure":
+                        output += "libunavailable.so.1 => not found\n"
+                else:
+                    output += "libpulse.so.0 => not found\n"
+            if self.problem == "late-deadline": self.now = 301
+            return output, 0
+        if label == "private-apt-signed-metadata":
+            for suite in ("noble", "noble-updates", "noble-security"):
+                (apt / f"lists/ubuntu_{suite}_InRelease").write_bytes(b"signed fixture " + suite.encode())
+            return ("W: incomplete metadata" if self.problem == "metadata-warning" else "complete fixture metadata"), 0
+        if label == "ubuntu-release-signature":
+            return ("[GNUPG:] VALIDSIG " + "A" * 40 + " 0 0 0\n" if self.problem != "missing-signature" else "no valid signature"), 0
+        if label == "private-apt-plan":
+            return "Inst libpulse0 (1:16.1-1 Ubuntu:24.04/noble [amd64])\n", 0
+        if label == "private-apt-package-metadata":
+            return ("Package: libpulse0\nVersion: 1:16.1-1\nArchitecture: amd64\n"
+                    f"Size: {len(self.data)}\nSHA256: {hashlib.sha256(self.data).hexdigest()}\n"
+                    "Filename: pool/main/p/pulseaudio/libpulse0_16.1-1_amd64.deb\n"), 0
+        if label == "private-apt-download-only":
+            (apt / "downloads/libpulse0.deb").write_bytes(b"tampered" if self.problem == "archive-hash" else self.data)
+            return "download fixture", 0
+        if label == "private-deb-identity":
+            arch = "arm64" if self.problem == "control-identity" else "amd64"
+            return f"Package: libpulse0\nVersion: 1:16.1-1\nArchitecture: {arch}\n", 0
+        if label == "private-deb-data-only":
+            entries = [("usr/lib/x86_64-linux-gnu/libpulse.so.0", "file", bytes(self.header))]
+            if self.problem == "duplicate-provider":
+                entries.append(("usr/lib/x86_64-linux-gnu/other/libpulse.so.0", "file", bytes(self.header)))
+            return PrivateHostLibraries().archive(entries), 0
+        if label == "private-library-soname":
+            soname = "libc.so.6" if self.problem == "core-library" else "libpulse.so.0"
+            return f" 0x000000000000000e (SONAME) Library soname: [{soname}]\n", 0
+        self.fail("Unexpected fixture command: " + label)
+
+    def test_preinstalled_headless_closure_never_initializes_or_downloads_apt(self):
+        self.preinstalled = True
+        self.ctl.prepare_host_libraries()
+        self.assertEqual(self.ctl.receipt["hostLibraries"]["status"], "PREINSTALLED")
+        self.assertFalse((self.ctl.temp / "private-apt").exists())
+        self.assertEqual(self.ctl.emulator_library_env, {})
+        self.assertEqual({call[0] for call in self.calls}, {"emulator-loader-probe", "emulator-elf-closure"})
+        self.assertEqual(self.calls[0][1][1:], ["-no-window", "-gpu", "software", "-verbose", "-version"])
+
+    def test_signed_exact_package_is_extracted_to_missing_only_overlay_and_receipt(self):
+        self.ctl.prepare_host_libraries()
+        details = self.ctl.receipt["hostLibraries"]
+        self.assertEqual(details["status"], "RESOLVED_PRIVATE")
+        self.assertEqual(details["initialMissing"], ["libpulse.so.0"])
+        self.assertEqual(len(details["signedReleases"]), 3)
+        self.assertEqual(details["packages"][0]["sha256"], hashlib.sha256(self.data).hexdigest())
+        self.assertEqual(set(details["selectedLibraries"]), {"libpulse.so.0"})
+        overlay = self.ctl.temp / "emulator-library-overlay"
+        self.assertEqual(list(overlay.iterdir()), [overlay / "libpulse.so.0"])
+        self.assertEqual(self.ctl.emulator_library_env, {"LD_LIBRARY_PATH": str(overlay)})
+        self.assertNotIn("LD_LIBRARY_PATH", self.ctl.env)
+        self.assertNotIn("APT_CONFIG", self.ctl.env)
+        self.assertEqual(sum(label == "private-apt-download-only" for label, _, _ in self.calls), 1)
+        for label, args, kwargs in self.calls:
+            self.assertLessEqual(kwargs["timeout"], 120)
+            if label.startswith("private-apt") or label == "ubuntu-release-signature":
+                self.assertEqual(kwargs["env"]["APT_CONFIG"], str(self.ctl.temp / "private-apt/apt.conf"))
+                self.assertNotIn("LD_LIBRARY_PATH", kwargs["env"])
+            if "install" in args:
+                self.assertIn("--simulate", args)
+            self.assertNotIn("--install", args)
+
+    def test_unrecognized_or_conflicting_initial_closure_blocks_before_apt(self):
+        for problem in ("unknown-initial", "conflicting-provider"):
+            with self.subTest(problem=problem):
+                self.problem = problem
+                with self.assertRaises(diag.Blocked): self.ctl.prepare_host_libraries()
+                self.assertFalse((self.ctl.temp / "private-apt").exists())
+                shutil.rmtree(self.ctl.temp / "emulator-library-overlay")
+
+    def test_authentication_hash_identity_and_provider_failures_cannot_enable_overlay(self):
+        for problem in ("metadata-warning", "missing-signature", "archive-hash", "control-identity",
+                        "core-library", "duplicate-provider", "partial-closure", "changed-provider", "wrong-selected-provider"):
+            with self.subTest(problem=problem):
+                self.problem = problem
+                with self.assertRaises(diag.Blocked): self.ctl.prepare_host_libraries()
+                self.assertEqual(self.ctl.emulator_library_env, {})
+                self.assertEqual(self.ctl.receipt["hostLibraries"]["status"], "CHECKING")
+                shutil.rmtree(self.ctl.temp); self.ctl.temp.mkdir()
+
+    def test_phase_timeout_after_last_external_command_cannot_report_preinstalled(self):
+        self.preinstalled, self.problem = True, "late-deadline"
+        with self.assertRaises(diag.Deadline): self.ctl.prepare_host_libraries()
+        self.assertEqual(self.ctl.receipt["hostLibraries"]["status"], "CHECKING")
+
+    def test_loader_overrides_are_rejected_without_running_tools(self):
+        for key in ("LD_PRELOAD", "LD_AUDIT", "LD_LIBRARY_PATH", "LD_DEBUG_OUTPUT", "LD_ORIGIN_PATH",
+                    "GLIBC_TUNABLES", "ANDROID_EMULATOR_USE_SYSTEM_LIBS"):
+            with self.subTest(key=key):
+                self.ctl.env = {key: "inherited"}
+                with self.assertRaises(diag.Blocked): self.ctl.prepare_host_libraries()
+                self.assertEqual(self.calls, [])
+
+    def test_setup_failure_ends_run_before_build_adb_boot_or_junit(self):
+        self.problem = "archive-hash"
+        output = io.StringIO()
+        with mock.patch.object(self.ctl, "prerequisites", side_effect=self.ctl.prepare_host_libraries), \
+                mock.patch.object(self.ctl, "build") as build, mock.patch.object(self.ctl, "boot") as boot, \
+                mock.patch.object(self.ctl, "tests") as instrument, contextlib.redirect_stdout(output):
+            self.assertEqual(self.ctl.run(), 1)
+        build.assert_not_called(); boot.assert_not_called(); instrument.assert_not_called()
+        self.assertEqual(self.ctl.receipt["status"], "BLOCKED")
+        self.assertNotIn("RF_DIAGNOSTIC_JUNIT", output.getvalue())
+
+
 class LicensesAndMetadata(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
@@ -430,9 +785,12 @@ class SubprocessAndReceipts(unittest.TestCase):
     def test_command_stdin_is_closed(self):
         ctl = diag.Controller()
         with contextlib.redirect_stdout(io.StringIO()):
-            value, code = ctl.command("closed-stdin", [sys.executable, "-c", "import sys; print(repr(sys.stdin.read()))"])
-        self.assertEqual(value.strip(), "''")
-        self.assertEqual(code, 0)
+            value, code = ctl.command("closed-stdin", [sys.executable, "-c", "import sys; print(repr(sys.stdin.read()))"], check=False)
+        # Failure metadata only: preserve gate failure without leaking streams, paths or env.
+        metadata = {"exit": code, "bytes": len(value.encode()),
+            "asanMarkers": value.count("AddressSanitizer"), "lsanMarkers": value.count("LeakSanitizer"),
+            "ubsanMarkers": value.count("UndefinedBehaviorSanitizer"), "summaries": value.count("SUMMARY:")}
+        self.assertTrue(code == 0 and value.strip() == "''", json.dumps(metadata, sort_keys=True))
 
     def test_command_deadline_preserves_diagnostics_and_fails(self):
         ctl = diag.Controller()
