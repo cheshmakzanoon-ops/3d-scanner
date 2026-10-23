@@ -1,6 +1,7 @@
 """Host checks for the supplemental controller; these are not Android execution."""
 import contextlib
 import base64
+import copy
 import hashlib
 import importlib.util
 import io
@@ -179,14 +180,28 @@ class Policy(unittest.TestCase):
             with self.subTest(event=event_data), self.assertRaises(diag.Blocked):
                 diag.validate_policy(self.env, event_data)
 
-    def test_workflow_is_manual_single_standard_runner_no_remote_storage(self):
+    def test_workflow_is_opt_in_single_standard_runner_no_remote_storage(self):
         workflow = (ROOT / ".github/workflows/software-emulator-diagnostic.yml").read_text()
         self.assertIn("on:\n  workflow_dispatch:", workflow)
         self.assertIn("runs-on: ubuntu-24.04", workflow)
         self.assertIn("timeout-minutes: 75", workflow)
-        self.assertIn("github.event.repository.private == false", workflow)
+        self.assertIn("toJSON(github.event.repository.private) == 'false'", workflow)
+        self.assertIn("  push:\n    branches: [main]\n    paths:\n", workflow)
+        for value in (diag.PUSH_BASE_SHA, diag.PUSH_MESSAGE, diag.PUSH_REPOSITORY):
+            self.assertIn(value, workflow)
+        for guard in ("github.event_name == 'workflow_dispatch'", "github.event_name == 'push'",
+                      "github.ref == 'refs/heads/main'", "github.event.ref == 'refs/heads/main'",
+                      "github.event.repository.default_branch == 'main'",
+                      "github.event.after == github.sha", "github.event.head_commit.id == github.sha",
+                      "github.run_attempt == '1'", "ref: ${{ github.sha }}", "fetch-depth: 2",
+                      "persist-credentials: false"):
+            self.assertIn(guard, workflow)
+        for key in ("created", "deleted", "forced"):
+            self.assertIn(f"toJSON(github.event.{key}) == 'false'", workflow)
+        paths = workflow.split("    paths:\n", 1)[1].split("permissions:", 1)[0]
+        self.assertEqual({line.strip().removeprefix("- ") for line in paths.splitlines()}, diag.PUSH_TRIGGER_PATHS)
         self.assertEqual(workflow.count("uses:"), 1)
-        for token in ("  push:", "  pull_request:", "schedule:", "workflow_run:", "upload-artifact", "actions/cache",
+        for token in ("  pull_request:", "schedule:", "workflow_run:", "upload-artifact", "actions/cache",
                       "setup-android", "setup-gradle", "sudo", "chmod", "--licenses", "continue-on-error"):
             self.assertNotIn(token, workflow)
 
@@ -205,6 +220,146 @@ class Policy(unittest.TestCase):
             source = ROOT / "app/src/androidTest/java" / (owner.replace(".", "/") + ".kt")
             self.assertIn("@Test fun " + method + "(", source.read_text())
         self.assertEqual(len(set(diag.EXPECTED)), 4)
+
+
+class OneShotPushPolicy(unittest.TestCase):
+    def setUp(self):
+        self.env = {"GITHUB_EVENT_NAME": "push", "RUNNER_ENVIRONMENT": "github-hosted",
+            "RUNNER_OS": "Linux", "RUNNER_ARCH": "X64", "GITHUB_SHA": "a" * 40,
+            "GITHUB_REPOSITORY": diag.PUSH_REPOSITORY, "GITHUB_REF": "refs/heads/main",
+            "GITHUB_RUN_ATTEMPT": "1"}
+        self.event = {"repository": {"private": False, "full_name": diag.PUSH_REPOSITORY,
+            "default_branch": "main"}, "ref": "refs/heads/main", "before": diag.PUSH_BASE_SHA,
+            "after": self.env["GITHUB_SHA"], "head_commit": {"id": self.env["GITHUB_SHA"],
+            "message": diag.PUSH_MESSAGE}, "created": False, "deleted": False, "forced": False}
+        self.parents = self.env["GITHUB_SHA"] + " " + diag.PUSH_BASE_SHA
+        self.changes = "".join("M\0" + path + "\0" for path in sorted(diag.PUSH_ALLOWED_PATHS))
+
+    def test_exact_one_shot_push_and_tree_are_admitted(self):
+        launch = diag.validate_policy(self.env, self.event)
+        self.assertEqual(launch["event"], "push")
+        self.assertEqual(launch["before"], diag.PUSH_BASE_SHA)
+        self.assertEqual(diag.validate_push_tree(self.env["GITHUB_SHA"], self.parents,
+            diag.PUSH_MESSAGE, self.changes), sorted(diag.PUSH_ALLOWED_PATHS))
+
+    def test_wrong_environment_identity_ref_attempt_and_event_fail_closed(self):
+        for key, value in (("GITHUB_REPOSITORY", "fork/scanner"), ("GITHUB_REF", "refs/tags/main"),
+                ("GITHUB_RUN_ATTEMPT", "2"), ("GITHUB_RUN_ATTEMPT", ""),
+                ("GITHUB_EVENT_NAME", "pull_request"), ("GITHUB_EVENT_NAME", "schedule"),
+                ("GITHUB_EVENT_NAME", "repository_dispatch"), ("GITHUB_SHA", "b" * 40)):
+            with self.subTest(key=key, value=value), self.assertRaises(diag.Blocked):
+                diag.validate_policy({**self.env, key: value}, self.event)
+
+    def test_missing_and_conflicting_head_and_push_fields_fail_closed(self):
+        for key, wrong in (("ref", "refs/heads/other"), ("before", "b" * 40),
+                ("after", "b" * 40), ("head_commit", None)):
+            for value in (wrong, None):
+                candidate = copy.deepcopy(self.event)
+                if value is None:
+                    candidate.pop(key)
+                else:
+                    candidate[key] = value
+                with self.subTest(key=key, value=value), self.assertRaises(diag.Blocked):
+                    diag.validate_policy(self.env, candidate)
+        for head in ({}, {"id": "b" * 40, "message": diag.PUSH_MESSAGE},
+                     {"id": self.env["GITHUB_SHA"], "message": "unrelated"},
+                     {"id": self.env["GITHUB_SHA"], "message": diag.PUSH_MESSAGE + " extra"},
+                     {"id": self.env["GITHUB_SHA"], "message": diag.PUSH_MESSAGE.upper()}):
+            with self.subTest(head=head), self.assertRaises(diag.Blocked):
+                diag.validate_policy(self.env, {**self.event, "head_commit": head})
+
+    def test_force_delete_create_require_actual_false_not_missing_or_coercible(self):
+        for key in ("forced", "created", "deleted"):
+            for value in (True, 0, "false", None):
+                candidate = {**self.event, key: value}
+                if value is None:
+                    candidate.pop(key)
+                with self.subTest(key=key, value=value), self.assertRaises(diag.Blocked):
+                    diag.validate_policy(self.env, candidate)
+
+    def test_fork_unknown_private_and_wrong_default_branch_are_rejected(self):
+        for key, value in (("full_name", "fork/scanner"), ("private", True),
+                           ("private", 0), ("default_branch", "other")):
+            repository = {**self.event["repository"], key: value}
+            with self.subTest(key=key), self.assertRaises(diag.Blocked):
+                diag.validate_policy(self.env, {**self.event, "repository": repository})
+        for repository in ({}, None, []):
+            with self.subTest(repository=repository), self.assertRaises(diag.Blocked):
+                diag.validate_policy(self.env, {**self.event, "repository": repository})
+
+    def test_merge_missing_history_wrong_parent_head_and_commit_message_rejected(self):
+        for parents in ("", self.env["GITHUB_SHA"], self.parents + " " + "b" * 40,
+                        self.env["GITHUB_SHA"] + " " + "b" * 40, "b" * 40 + " " + diag.PUSH_BASE_SHA):
+            with self.subTest(parents=parents), self.assertRaises(diag.Blocked):
+                diag.validate_push_tree(self.env["GITHUB_SHA"], parents, diag.PUSH_MESSAGE, self.changes)
+        with self.assertRaises(diag.Blocked):
+            diag.validate_push_tree(self.env["GITHUB_SHA"], self.parents, "wrong", self.changes)
+
+    def test_unreviewed_paths_statuses_duplicates_partial_output_and_empty_diff_rejected(self):
+        invalid = ("", self.changes[:-1], self.changes + "M\0app/src/main/foreign.kt\0",
+            self.changes + "M\0SOURCE_MANIFEST.sha256\0", self.changes.replace("M\0", "D\0", 1),
+            self.changes.replace("M\0", "A\0", 1), "R100\0old\0new\0", "M\0SOURCE_MANIFEST.sha256\0")
+        for changes in invalid:
+            with self.subTest(changes=changes[-100:]), self.assertRaises(diag.Blocked):
+                diag.validate_push_tree(self.env["GITHUB_SHA"], self.parents, diag.PUSH_MESSAGE, changes)
+
+    def test_prerequisites_check_source_and_tree_before_any_sdk_tool_or_license(self):
+        ctl = diag.Controller(env={**self.env, "GITHUB_EVENT_PATH": "/event.json"})
+        def read(path, *args, **kwargs):
+            return json.dumps(self.event) if str(path) == "/event.json" else 'ID=ubuntu\nVERSION_ID="24.04"\n'
+        with mock.patch.object(diag.Path, "read_text", read), mock.patch.object(diag.platform, "machine", return_value="x86_64"), \
+                mock.patch.object(ctl, "source_identity") as source, \
+                mock.patch.object(ctl, "git", side_effect=[self.env["GITHUB_SHA"], diag.PUSH_MESSAGE, self.changes]), \
+                mock.patch.object(diag, "require_executable") as executable, \
+                mock.patch.object(diag, "license_snapshot") as licenses, self.assertRaises(diag.Blocked):
+            ctl.prerequisites()
+        source.assert_called_once()
+        executable.assert_not_called()
+        licenses.assert_not_called()
+
+    def test_source_identity_requires_clean_exact_sha_and_full_manifest(self):
+        ctl = diag.Controller(env=self.env)
+        for head, status in (("b" * 40, ""), (self.env["GITHUB_SHA"], " M changed")):
+            with mock.patch.object(ctl, "git", side_effect=[head, status]), \
+                    mock.patch.object(ctl, "command") as command, self.assertRaises(diag.Failure):
+                ctl.source_identity()
+            command.assert_not_called()
+        with mock.patch.object(ctl, "git", side_effect=[self.env["GITHUB_SHA"], ""]), \
+                mock.patch.object(ctl, "command") as command, mock.patch.object(diag, "sha256", return_value="manifest"):
+            ctl.source_identity()
+        command.assert_called_once_with("source-manifest", [sys.executable, "tools/source_manifest.py", "verify", "--source", "HEAD"])
+
+    def test_actual_depth_two_checkout_has_provable_parent_but_depth_one_does_not(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            origin = root / "origin"
+            origin.mkdir()
+            def git(where, *args):
+                return subprocess.check_output(["git", "-C", str(where), *args], text=True, stderr=subprocess.PIPE).strip()
+            git(origin, "init", "--quiet")
+            for path in sorted(diag.PUSH_ALLOWED_PATHS):
+                target = origin / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("before\n")
+            git(origin, "add", ".")
+            git(origin, "-c", "user.name=Host fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "base")
+            parent = git(origin, "rev-parse", "HEAD")
+            for path in sorted(diag.PUSH_ALLOWED_PATHS):
+                (origin / path).write_text("after\n")
+            git(origin, "add", ".")
+            git(origin, "-c", "user.name=Host fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", diag.PUSH_MESSAGE)
+            head = git(origin, "rev-parse", "HEAD")
+            for depth in (1, 2):
+                checkout = root / f"depth-{depth}"
+                subprocess.run(["git", "clone", "--quiet", "--depth", str(depth), origin.as_uri(), str(checkout)], check=True)
+                parents = git(checkout, "rev-list", "--parents", "-n", "1", "HEAD")
+                with mock.patch.object(diag, "PUSH_BASE_SHA", parent):
+                    if depth == 1:
+                        with self.assertRaises(diag.Blocked):
+                            diag.validate_push_tree(head, parents, diag.PUSH_MESSAGE, self.changes)
+                    else:
+                        changes = git(checkout, "diff", "--name-status", "--no-renames", "-z", parent, "HEAD", "--")
+                        self.assertEqual(diag.validate_push_tree(head, parents, diag.PUSH_MESSAGE, changes), sorted(diag.PUSH_ALLOWED_PATHS))
 
 
 class LicensesAndMetadata(unittest.TestCase):

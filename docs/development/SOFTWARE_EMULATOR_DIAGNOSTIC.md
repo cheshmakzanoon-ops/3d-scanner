@@ -1,6 +1,6 @@
 # Focused software-emulator experiment — not candidate qualification
 
-This **manual-only, supplementary diagnostic** tests four synthetic Android
+This **explicitly opted-in, supplementary diagnostic** tests four synthetic Android
 x86_64 ART/Bionic/JNI/filesystem contracts. CPU software emulation (TCG) is
 explicitly unsupported by current Android Emulator documentation and can be very
 slow. A successful experiment is useful runtime evidence; it does **not** replace
@@ -13,8 +13,8 @@ result must never be substituted for `verify.yml`'s `device` job.
 
 ## Launch policy
 
-`.github/workflows/software-emulator-diagnostic.yml` has only
-`workflow_dispatch`. It selects the standard `ubuntu-24.04` GitHub-hosted runner
+`.github/workflows/software-emulator-diagnostic.yml` retains `workflow_dispatch`
+and permits the single tightly bound push described below. It selects the standard `ubuntu-24.04` GitHub-hosted runner
 and refuses private repositories. Standard runners are free for public
 repositories. No larger/self-hosted runner, artifact upload, cache action or
 external service is used. APKs, build caches and AVD files exist only on the
@@ -25,9 +25,10 @@ signing key are confined to the controller's temporary directory. `HOME`, Androi
 user/emulator/AVD homes and Java `user.home` all point there; inherited ADB key and
 device selectors are removed. No key or signing material is printed or uploaded.
 
-No dispatch is part of implementing or reviewing these files. The proposed first
-execution should be separately reviewed. Source implementation and host tests
-alone must be recorded as **Android runtime NOT_RUN**.
+Implementation and host tests do not execute Android. Publishing the exact
+opted-in commit intentionally requests one automatic attempt under the existing
+authorized repository CI; it is not a credential or permissions workaround.
+Until actual runtime output exists, record **Android runtime NOT_RUN**.
 
 The controller requires a preinstalled SDK, SDK command-line tools and JDK 17.
 Missing required SDK package versions may be downloaded by the official existing
@@ -43,6 +44,47 @@ are involved. The emulator is explicitly launched with `-accel off`, process-loc
 `ANDROID_I_WANT_MY_TCG=yes`, `-gpu software`, no window/snapshots/cameras, 2 GiB RAM,
 and two virtual cores. An older installed emulator that cannot honor these flags
 fails rather than silently changing mode or downgrading.
+
+### One-shot push admission
+
+Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
+repository's `refs/heads/main`, on attempt 1, with all of the following:
+
+- Previous head exactly `09e4d61591afc7bb1789487bcf6477fff9888b0c`.
+- Exact commit message `test: run one bounded software-only Android diagnostic`.
+- A normal update, not a created/deleted branch or forced push.
+- Event `after`, head-commit ID and `GITHUB_SHA` all identical.
+- One non-merge commit whose actual parent is that previous head; the committed
+  message must also match the event's explicit opt-in.
+- Only modifications to `.github/workflows/software-emulator-diagnostic.yml`,
+  `tools/device/software_emulator/diagnostic.py`,
+  `tests/test_software_emulator_diagnostic.py`, this document and
+  `SOURCE_MANIFEST.sha256`. Both the workflow and controller must change.
+  Added/deleted/renamed paths, unrelated changes and missing history are rejected.
+
+The workflow filters pushes by the two exact workflow/controller paths and has a
+job-level event guard. The controller independently checks the event, clean exact
+SHA, complete committed manifest, real Git ancestry and changed paths **before
+any SDK operation**. Checkout is SHA-bound with depth 2 and no persisted
+credentials; the controller does not fetch history or credentials. Path filters
+alone are not an authorization check: they require only one matching file, and
+the Actions push payload omits per-commit changed-file lists.
+
+The fixed prior SHA makes ordinary subsequent commits ineligible; a reusable
+message tag alone would not. Automatic reruns are blocked by the attempt check.
+This is a forward-history guard, not a durable lock against an owner deliberately
+resetting the branch and replaying a previously authorized update.
+Any later automatic attempt requires a separately reviewed source change that
+explicitly re-arms the policy. The existing manual path remains available and
+separate: this does not promise global deduplication against a user requesting a
+manual run. The unchanged concurrency group serializes manual/push work.
+
+A main push also runs the repository's existing normal verification, sanitizer
+and source-snapshot workflows, including their existing artifact/cache behavior.
+The no-upload rule here is diagnostic-specific. Those workflows and all original
+qualification gates are neither suppressed nor altered. The legacy compatibility
+workflow remains PR/manual-only; this diagnostic never dispatches it. Do not use
+skip-CI commit markers, which would suppress required ordinary push checks too.
 
 ## Explicit budgets
 
@@ -189,6 +231,13 @@ process control only; they are not Android execution evidence.
   lists the preinstalled SDK/JDK. Actual prerequisites are rechecked at runtime.
 - [Standard public-runner availability and costs](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
   documents standard public-repository runners as free.
+- [GitHub push events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#push)
+  document the pushed SHA/ref and omitted per-commit changed-file lists.
+  [Workflow path filters](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore)
+  are combined with branch filters but require only one matching changed path.
+- [GitHub run context](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#github-context)
+  defines the incrementing run-attempt identity. A rerun is not a fresh automatic
+  authorization under this policy.
 
 Before integration, regenerate `SOURCE_MANIFEST.sha256` using the repository's
 mechanical manifest protocol. Do not weaken source verification to accommodate

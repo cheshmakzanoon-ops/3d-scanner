@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manual-only, non-qualifying Android TCG experiment. Never accepts SDK licenses.
+"""Explicitly opted-in, non-qualifying Android TCG experiment. Never accepts licenses.
 
 All evidence is bounded normal job output; no remote artifact/cache upload. A PASS
 means exactly four synthetic x86_64 runtime tests, not the existing device gate.
@@ -26,6 +26,13 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
+PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
+PUSH_BASE_SHA = "09e4d61591afc7bb1789487bcf6477fff9888b0c"
+PUSH_MESSAGE = "test: run one bounded software-only Android diagnostic"
+PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
+                                "tools/device/software_emulator/diagnostic.py"))
+PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
+    "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256"))
 IMAGE = "system-images;android-35;google_apis;x86_64"
 PACKAGES = ("platform-tools", "emulator", "platforms;android-36", "build-tools;36.0.0",
             "ndk;28.2.13676358", "cmake;3.22.1", IMAGE)
@@ -114,13 +121,48 @@ def emit_raw_instrumentation(output):
 
 
 def validate_policy(env, event):
-    if (env.get("GITHUB_EVENT_NAME") != "workflow_dispatch"
-            or env.get("RUNNER_ENVIRONMENT") != "github-hosted"
+    repository = event.get("repository", {}) if isinstance(event, dict) else {}
+    if (not isinstance(repository, dict) or env.get("RUNNER_ENVIRONMENT") != "github-hosted"
             or env.get("RUNNER_OS") != "Linux" or env.get("RUNNER_ARCH") != "X64"
-            or event.get("repository", {}).get("private") is not False):
-        raise Blocked("Requires manual dispatch in a public repository on standard Linux x64 GitHub hosting")
+            or repository.get("private") is not False):
+        raise Blocked("Requires a public repository on standard Linux x64 GitHub hosting")
     if not re.fullmatch(r"[0-9a-f]{40}", env.get("GITHUB_SHA", "")):
         raise Blocked("Missing exact GitHub source SHA")
+    if env.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
+        return {"event": "workflow_dispatch"}
+    head = event.get("head_commit")
+    if (env.get("GITHUB_EVENT_NAME") != "push" or not isinstance(head, dict)
+            or env.get("GITHUB_REPOSITORY") != PUSH_REPOSITORY
+            or repository.get("full_name") != PUSH_REPOSITORY
+            or repository.get("default_branch") != "main"
+            or env.get("GITHUB_REF") != "refs/heads/main" or event.get("ref") != "refs/heads/main"
+            or event.get("before") != PUSH_BASE_SHA
+            or event.get("after") != env["GITHUB_SHA"] or head.get("id") != env["GITHUB_SHA"]
+            or head.get("message") != PUSH_MESSAGE or env.get("GITHUB_RUN_ATTEMPT") != "1"
+            or any(event.get(key) is not False for key in ("created", "deleted", "forced"))):
+        raise Blocked("Not the exact one-shot diagnostic push; no automatic retry or recurring push trigger")
+    return {"event": "push", "repository": PUSH_REPOSITORY, "ref": "refs/heads/main",
+            "before": PUSH_BASE_SHA, "after": env["GITHUB_SHA"], "attempt": 1,
+            "commitMessage": PUSH_MESSAGE}
+
+
+def validate_push_tree(source_sha, parents, message, changes):
+    """Do not trust path filters or missing per-file data in the Actions payload."""
+    if parents.split() != [source_sha, PUSH_BASE_SHA] or message != PUSH_MESSAGE:
+        raise Blocked("One-shot source must be one non-merge commit with the exact reviewed parent/message")
+    if not changes.endswith("\0"):
+        raise Blocked("Missing or malformed one-shot changed-file evidence")
+    fields = changes[:-1].split("\0")
+    if len(fields) % 2:
+        raise Blocked("Malformed one-shot changed-file evidence")
+    paths = []
+    for status, path in zip(fields[::2], fields[1::2]):
+        if status != "M" or path not in PUSH_ALLOWED_PATHS or path in paths:
+            raise Blocked("One-shot push changed an unreviewed path or file status")
+        paths.append(path)
+    if not PUSH_TRIGGER_PATHS.issubset(paths):
+        raise Blocked("One-shot push must change both the workflow and controller")
+    return sorted(paths)
 
 
 def license_snapshot(sdk):
@@ -408,13 +450,19 @@ class Controller:
 
     def prerequisites(self):
         event = json.loads(Path(self.env["GITHUB_EVENT_PATH"]).read_text())
-        validate_policy(self.env, event)
+        launch = validate_policy(self.env, event)
         os_release = dict(line.split("=", 1) for line in Path("/etc/os-release").read_text().splitlines() if "=" in line)
         if os_release.get("ID", "").strip('"') != "ubuntu" or os_release.get("VERSION_ID", "").strip('"') != "24.04":
             raise Blocked("Requires the standard ubuntu-24.04 runner")
         if platform.machine() != "x86_64":
             raise Blocked("Host architecture is not x86_64")
         self.source_identity()
+        if launch["event"] == "push":
+            launch["changedPaths"] = validate_push_tree(self.env["GITHUB_SHA"],
+                self.git("rev-list", "--parents", "-n", "1", "HEAD"),
+                self.git("log", "-1", "--format=%B"),
+                self.git("diff", "--name-status", "--no-renames", "-z", PUSH_BASE_SHA, "HEAD", "--"))
+        self.receipt["launchPolicy"] = launch
         self.receipt["runnerImage"] = {key: self.env.get(key, "unknown") for key in ("ImageOS", "ImageVersion")}
         self.receipt["runIdentity"] = {key: self.env.get(key, "") for key in ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT")}
         sdk_value = self.env.get("ANDROID_HOME")
