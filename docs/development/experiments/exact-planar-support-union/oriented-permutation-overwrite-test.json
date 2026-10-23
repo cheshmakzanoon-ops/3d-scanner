@@ -1,0 +1,6 @@
+{
+  "exitCode": 1,
+  "receiptBytesUnchanged": true,
+  "receiptSha256": "905d3172df172042ba2d4b2e4a0ad07cb8ccc2e4670c482548ec67835d6c2aad",
+  "diagnostic": "AssertionError: Receipt already exists; nothing overwritten"
+}

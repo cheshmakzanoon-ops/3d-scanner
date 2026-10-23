@@ -1,0 +1,38 @@
+{
+  "lostSupportExact": "0",
+  "addedSupportExact": "0",
+  "faces": 4,
+  "sourceFaces": 1024,
+  "lostWorldPlaneSupportExact": "3602879701896397/5070602400912917605986812821504",
+  "addedWorldPlaneSupportExact": "0",
+  "overlapLinkMismatches": [
+    {
+      "face": 0,
+      "falseLinks": [],
+      "missingLinks": [
+        37,
+        173,
+        204,
+        207,
+        238
+      ]
+    },
+    {
+      "face": 1,
+      "falseLinks": [
+        35,
+        66,
+        69,
+        171,
+        202,
+        205,
+        236,
+        239,
+        270
+      ],
+      "missingLinks": []
+    }
+  ],
+  "emittedVerticesExactlyOnSourcePlane": true,
+  "sourceVerticesExactlyCoplanar": true
+}

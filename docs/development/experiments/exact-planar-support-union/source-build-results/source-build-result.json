@@ -1,0 +1,9 @@
+{
+  "mode": "new_local_source_build",
+  "historicalLibraryIdentityClaimed": false,
+  "nativeBuildExitCode": 0,
+  "qaReplayExitCode": 0,
+  "fullNativeCTest": "NOT_RUN",
+  "fullRepositoryPytest": "NOT_RUN",
+  "androidQualification": "NOT_RUN"
+}

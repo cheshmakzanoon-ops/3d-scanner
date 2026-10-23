@@ -1,0 +1,33 @@
+{
+  "status": "PASS_SUPPLEMENTARY_NON_UI_EVIDENCE_CHECK",
+  "sourceSha": "ba259b96d3fdcba8c304a8214764d0d70e51be80",
+  "runId": 39967166172,
+  "jobId": 120459938157,
+  "sourceControllerSha256": "fa8563cc2e9517b63e2020f98c79672e279db69ed1c597636837cc7e65dde66f",
+  "originalJobLogSha256": "31ad199868adc9cd1f51258972b226df913ec67b3db9dd2efa554389adb8ca4b",
+  "rawInstrumentationSha256": "85b97713a5d033e80c76ca866413f67a5d28c979413cf6eb9f0e53f2fc773119",
+  "tests": 4,
+  "starts": 4,
+  "passes": 4,
+  "failures": 0,
+  "skips": 0,
+  "finalInstrumentationCode": -1,
+  "checks": [
+    "ordered raw chunks reconstruct exact3158 bytes",
+    "pinned-source strict instrumentation parser matches receipt",
+    "source and committed manifest identity",
+    "API35 x86_64 4096-byte pages ATDrevision1",
+    "strict read-only factory admission including drawing0",
+    "build and before/after installed APK SHA256 equality",
+    "final JUnit4 tests0 errors/failures/skips",
+    "cleanup log order and no cleanupError; pinned source requires cleanup before finalPASS",
+    "controller elapsed804.219s below4320s",
+    "independent GitHub jobs API: completed success, all steps success"
+  ],
+  "limits": [
+    "not UI/physical/graphics/performance/ARM64/16KiB/full qualification",
+    "cleanup supported by controller contract+terminal receipt/log; no independent OS process census",
+    "no claim ATD success diagnoses previous startup ANRs",
+    "failure-only DropBox route not exercised"
+  ]
+}

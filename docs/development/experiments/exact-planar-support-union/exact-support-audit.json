@@ -1,0 +1,79 @@
+{
+  "identical": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 1024,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "translated": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 1024,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "permuted": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 1024,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "rotated": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 1024,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "partial": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 768,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "complementary": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 1024,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "hole": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 8,
+    "sourceFaces": 880,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  }
+}

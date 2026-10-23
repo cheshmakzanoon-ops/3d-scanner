@@ -1,0 +1,19 @@
+{
+  "random": {
+    "status": "refused",
+    "reason": "emitted vertices leave exact observed world plane"
+  },
+  "world-shift": {
+    "status": "refused",
+    "reason": "emitted vertices leave exact observed world plane"
+  },
+  "in-plane": {
+    "status": "refused",
+    "reason": "emitted exact world/chart support or provenance mismatch"
+  },
+  "single_triangle": {
+    "status": "refused",
+    "reason": "emitted vertices leave exact observed world plane",
+    "noGeometryCollectionAPIError": true
+  }
+}

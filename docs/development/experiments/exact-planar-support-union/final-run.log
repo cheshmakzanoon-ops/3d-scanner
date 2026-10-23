@@ -1,0 +1,778 @@
+Verified baseline c30e123df1d64414417a84d19807918a06cf6390
+2c8e015241795183d8c2bf94b18c5b62a90653dd2a8dee77f51b3cb654e98c07  /workspace/scratch/6b683a119bde/chart-overlay-prototype/frozen-native/librealityforge.so
+f6271b0ea298101d581576d1093ef92c8e1656ed139fa25a45b632949d603362  /workspace/scratch/6b683a119bde/chart-overlay-portable-replay-v5/kernel/native_baseline
+bfeb3d45f41924709f9ec8d6899215e8df47e5a740818efbef5d9e8f573f561a  /workspace/scratch/6b683a119bde/chart-overlay-portable-replay-v5/kernel/native_topology
+	linux-vdso.so.1 (0x00007f92824ce000)
+	librealityforge.so => /workspace/scratch/6b683a119bde/chart-overlay-prototype/frozen-native/librealityforge.so (0x00007f928236f000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f92820e6000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f9281ff6000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f9281fc9000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f9281dd3000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007f9281db3000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007f92824d0000)
+{
+  "vertices": 472,
+  "faces": 864,
+  "smallCrossCount": 192,
+  "crossRange": [
+    6.162975822039155e-33,
+    0.010000000000000018
+  ],
+  "native": {
+    "nonmanifoldEdges": 0,
+    "degenerateFaces": 192,
+    "duplicateFaces": 0,
+    "windingConflicts": 0,
+    "nonmanifoldVertices": 4,
+    "intersections": 0,
+    "incomplete": false,
+    "boundaryEdges": 266,
+    "components": 199
+  }
+}
+identical {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 289, "triangleCount": 512, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 225, "rejectedCells": 0, "rejectedTriangles": 392, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 64, "nonmanifoldEdges": 0, "intersections": 0, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": true, "inputTriangles": 1024, "candidatePairs": 16416, "arrangementCells": 512, "triangulationRegions": 1, "outputVertices": 4, "outputTriangles": 2, "contributorLinks": 1024, "inputObservations": 578, "retainedObservations": 578, "geometricSupportSources": 578, "maximumArithmeticLiftSpread": 0, "emittedExactSupportAudit": {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}, "sourceUnionChartArea": 0.10240000000000002, "candidateUnionChartArea": 0.1024, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 4, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 4, "components": 1}}, "seconds": 2.6329653049979242, "sourceIdsPreserved": true}
+translated {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 353, "triangleCount": 632, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 225, "rejectedCells": 0, "rejectedTriangles": 392, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 128, "nonmanifoldEdges": 56, "intersections": 212, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": true, "inputTriangles": 1024, "candidatePairs": 13656, "arrangementCells": 1552, "triangulationRegions": 1, "outputVertices": 4, "outputTriangles": 2, "contributorLinks": 1086, "inputObservations": 578, "retainedObservations": 578, "geometricSupportSources": 578, "maximumArithmeticLiftSpread": 0, "emittedExactSupportAudit": {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}, "sourceUnionChartArea": 0.10304000000000002, "candidateUnionChartArea": 0.10304, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 4, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 4, "components": 1}}, "seconds": 2.5563397480000276, "sourceIdsPreserved": true}
+rotated {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 289, "triangleCount": 512, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 225, "rejectedCells": 0, "rejectedTriangles": 392, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 64, "nonmanifoldEdges": 0, "intersections": 0, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": true, "inputTriangles": 1024, "candidatePairs": 16416, "arrangementCells": 512, "triangulationRegions": 1, "outputVertices": 4, "outputTriangles": 2, "contributorLinks": 1088, "inputObservations": 578, "retainedObservations": 578, "geometricSupportSources": 578, "maximumArithmeticLiftSpread": 0, "emittedExactSupportAudit": {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}, "sourceUnionChartArea": 0.10240000000000002, "candidateUnionChartArea": 0.1024, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 4, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 4, "components": 1}}, "seconds": 2.4532072380025056, "sourceIdsPreserved": true}
+permuted {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 353, "triangleCount": 632, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 225, "rejectedCells": 0, "rejectedTriangles": 392, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 128, "nonmanifoldEdges": 56, "intersections": 212, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": true, "inputTriangles": 1024, "candidatePairs": 13656, "arrangementCells": 1552, "triangulationRegions": 1, "outputVertices": 4, "outputTriangles": 2, "contributorLinks": 1086, "inputObservations": 578, "retainedObservations": 578, "geometricSupportSources": 578, "maximumArithmeticLiftSpread": 0, "emittedExactSupportAudit": {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}, "sourceUnionChartArea": 0.10304000000000002, "candidateUnionChartArea": 0.10304, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 4, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 4, "components": 1}}, "seconds": 5.910551790999307, "sourceIdsPreserved": true}
+partial {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 289, "triangleCount": 512, "inputSamples": 442, "acceptedSamples": 442, "fusedObservations": 105, "rejectedCells": 128, "rejectedTriangles": 168, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 64, "nonmanifoldEdges": 0, "intersections": 0, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": true, "inputTriangles": 768, "candidatePairs": 10104, "arrangementCells": 512, "triangulationRegions": 1, "outputVertices": 4, "outputTriangles": 2, "contributorLinks": 768, "inputObservations": 442, "retainedObservations": 442, "geometricSupportSources": 442, "maximumArithmeticLiftSpread": 0, "emittedExactSupportAudit": {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 768, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}, "sourceUnionChartArea": 0.10240000000000002, "candidateUnionChartArea": 0.1024, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 4, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 4, "components": 1}}, "seconds": 1.9778108650025388, "sourceIdsPreserved": true}
+complementary {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 422, "triangleCount": 727, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 150, "rejectedCells": 0, "rejectedTriangles": 252, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 141, "nonmanifoldEdges": 24, "intersections": 67, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": true, "inputTriangles": 1024, "candidatePairs": 13656, "arrangementCells": 832, "triangulationRegions": 1, "outputVertices": 4, "outputTriangles": 2, "contributorLinks": 1086, "inputObservations": 578, "retainedObservations": 578, "geometricSupportSources": 578, "maximumArithmeticLiftSpread": 0, "emittedExactSupportAudit": {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}, "sourceUnionChartArea": 0.13440000000000005, "candidateUnionChartArea": 0.13440000000000002, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 4, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 4, "components": 1}}, "seconds": 2.5730054039995593, "sourceIdsPreserved": true}
+hole {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 264, "triangleCount": 440, "inputSamples": 528, "acceptedSamples": 528, "fusedObservations": 176, "rejectedCells": 72, "rejectedTriangles": 266, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 88, "nonmanifoldEdges": 0, "intersections": 0, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": true, "inputTriangles": 880, "candidatePairs": 13352, "arrangementCells": 441, "triangulationRegions": 1, "outputVertices": 8, "outputTriangles": 8, "contributorLinks": 1140, "inputObservations": 528, "retainedObservations": 528, "geometricSupportSources": 528, "maximumArithmeticLiftSpread": 0, "emittedExactSupportAudit": {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 8, "sourceFaces": 880, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}, "sourceUnionChartArea": 0.08800000000000002, "candidateUnionChartArea": 0.08800000000000001, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 8, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 8, "components": 1}}, "seconds": 2.617948430000979, "sourceIdsPreserved": true}
+curved_identical {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 289, "triangleCount": 512, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 225, "rejectedCells": 0, "rejectedTriangles": 392, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 64, "nonmanifoldEdges": 0, "intersections": 0, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": false, "inputTriangles": 1024, "candidatePairs": 15968, "arrangementCells": 512, "triangulationRegions": 512, "outputVertices": 289, "outputTriangles": 512, "contributorLinks": 1024, "inputObservations": 578, "retainedObservations": 578, "geometricSupportSources": 578, "maximumArithmeticLiftSpread": 1.7763568394002505e-15, "sourceUnionChartArea": 0.10240000000000002, "candidateUnionChartArea": 0.10240000000000002, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 64, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 64, "components": 1}}, "seconds": 0.43067528899700847, "sourceIdsPreserved": true}
+curved_translated {"status": "refused", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 353, "triangleCount": 632, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 225, "rejectedCells": 0, "rejectedTriangles": 392, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 128, "nonmanifoldEdges": 56, "intersections": 64, "topologyIncomplete": false}, "candidate": {"reason": "ambiguous distinct chart-ray depths; no calibrated sheet/noise decision", "exception": "Refused", "details": null, "seconds": 0.33315827299884404}, "seconds": 0.33315827299884404}
+step {"status": "success", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 289, "triangleCount": 480, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 195, "rejectedCells": 0, "rejectedTriangles": 372, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 94, "nonmanifoldEdges": 0, "intersections": 0, "topologyIncomplete": false}, "candidate": {"exactCoplanarRetriangulation": false, "inputTriangles": 960, "candidatePairs": 14608, "arrangementCells": 480, "triangulationRegions": 480, "outputVertices": 289, "outputTriangles": 480, "contributorLinks": 960, "inputObservations": 578, "retainedObservations": 578, "geometricSupportSources": 578, "maximumArithmeticLiftSpread": 8.881784197001252e-16, "sourceUnionChartArea": 0.09600000000000003, "candidateUnionChartArea": 0.09600000000000003, "lostSupportChartArea": 0.0, "addedUnsupportedChartArea": 0.0, "nonmanifoldEdges": 0, "boundaryEdges": 94, "positiveAreaOverlapPairs": 0, "summedOverlapChartArea": 0.0, "nativeTopology": {"nonmanifoldEdges": 0, "degenerateFaces": 0, "duplicateFaces": 0, "windingConflicts": 0, "nonmanifoldVertices": 0, "intersections": 0, "incomplete": false, "boundaryEdges": 94, "components": 2}}, "seconds": 0.33894714399866643, "sourceIdsPreserved": true}
+thin_sheets {"status": "refused", "nativeBaseline": {"schema": 8, "representation": "observed_open_triangle_mesh", "scale": "arbitrary", "textured": false, "watertight": false, "material": "vertex_colors", "vertexCount": 353, "triangleCount": 632, "inputSamples": 578, "acceptedSamples": 578, "fusedObservations": 225, "rejectedCells": 0, "rejectedTriangles": 392, "medianConfidence": 0.8999999762, "fusionVersion": 7, "boundaryEdges": 128, "nonmanifoldEdges": 56, "intersections": 0, "topologyIncomplete": false}, "candidate": {"reason": "ambiguous distinct chart-ray depths; no calibrated sheet/noise decision", "exception": "Refused", "details": null, "seconds": 0.23013317699951585}, "seconds": 0.23013317699951585}
+source_budget refused {'reason': 'budget:inputTriangles', 'exception': 'Refused', 'details': None, 'seconds': 0.0019926159984606784}
+pair_budget refused {'reason': 'budget:candidatePairs', 'exception': 'Refused', 'details': None, 'seconds': 0.03606832600053167}
+fragment_budget refused {'reason': 'budget:cells', 'exception': 'Refused', 'details': None, 'seconds': 0.2014900710018992}
+vertex_budget refused {'reason': 'budget:vertices', 'exception': 'Refused', 'details': None, 'seconds': 0.35692912000013166}
+face_budget refused {'reason': 'budget:faces', 'exception': 'Refused', 'details': None, 'seconds': 0.30526072600332554}
+contributor_budget refused {'reason': 'budget:links', 'exception': 'Refused', 'details': None, 'seconds': 0.30586372499965364}
+{
+  "complementary": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 1024,
+      "candidatePairs": 13656,
+      "arrangementCells": 832,
+      "triangulationRegions": 1,
+      "outputVertices": 4,
+      "outputTriangles": 2,
+      "contributorLinks": 1086,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 2,
+        "sourceFaces": 1024,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.13440000000000005,
+      "candidateUnionChartArea": 0.13440000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 4,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 4,
+        "components": 1
+      }
+    }
+  },
+  "curved_identical": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 64,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": false,
+      "inputTriangles": 1024,
+      "candidatePairs": 15968,
+      "arrangementCells": 512,
+      "triangulationRegions": 512,
+      "outputVertices": 289,
+      "outputTriangles": 512,
+      "contributorLinks": 1024,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 1.7763568394002505e-15,
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.10240000000000002,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 64,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 64,
+        "components": 1
+      }
+    }
+  },
+  "hole": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 8,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 880,
+      "candidatePairs": 13352,
+      "arrangementCells": 441,
+      "triangulationRegions": 1,
+      "outputVertices": 8,
+      "outputTriangles": 8,
+      "contributorLinks": 1140,
+      "inputObservations": 528,
+      "retainedObservations": 528,
+      "geometricSupportSources": 528,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 8,
+        "sourceFaces": 880,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.08800000000000002,
+      "candidateUnionChartArea": 0.08800000000000001,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 8,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 8,
+        "components": 1
+      }
+    }
+  },
+  "identical": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 1024,
+      "candidatePairs": 16416,
+      "arrangementCells": 512,
+      "triangulationRegions": 1,
+      "outputVertices": 4,
+      "outputTriangles": 2,
+      "contributorLinks": 1024,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 2,
+        "sourceFaces": 1024,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.1024,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 4,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 4,
+        "components": 1
+      }
+    }
+  },
+  "partial": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 768,
+      "candidatePairs": 10104,
+      "arrangementCells": 512,
+      "triangulationRegions": 1,
+      "outputVertices": 4,
+      "outputTriangles": 2,
+      "contributorLinks": 768,
+      "inputObservations": 442,
+      "retainedObservations": 442,
+      "geometricSupportSources": 442,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 2,
+        "sourceFaces": 768,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.1024,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 4,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 4,
+        "components": 1
+      }
+    }
+  },
+  "permuted": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 1024,
+      "candidatePairs": 13656,
+      "arrangementCells": 1552,
+      "triangulationRegions": 1,
+      "outputVertices": 4,
+      "outputTriangles": 2,
+      "contributorLinks": 1086,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 2,
+        "sourceFaces": 1024,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.10304000000000002,
+      "candidateUnionChartArea": 0.10304,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 4,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 4,
+        "components": 1
+      }
+    }
+  },
+  "rotated": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 1024,
+      "candidatePairs": 16416,
+      "arrangementCells": 512,
+      "triangulationRegions": 1,
+      "outputVertices": 4,
+      "outputTriangles": 2,
+      "contributorLinks": 1088,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 2,
+        "sourceFaces": 1024,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.10240000000000002,
+      "candidateUnionChartArea": 0.1024,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 4,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 4,
+        "components": 1
+      }
+    }
+  },
+  "step": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 94,
+      "components": 2
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": false,
+      "inputTriangles": 960,
+      "candidatePairs": 14608,
+      "arrangementCells": 480,
+      "triangulationRegions": 480,
+      "outputVertices": 289,
+      "outputTriangles": 480,
+      "contributorLinks": 960,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 8.881784197001252e-16,
+      "sourceUnionChartArea": 0.09600000000000003,
+      "candidateUnionChartArea": 0.09600000000000003,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 94,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 94,
+        "components": 2
+      }
+    }
+  },
+  "translated": {
+    "nativeTopology": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    },
+    "immutableSourceLedgerExactlyPreserved": true,
+    "uniqueLedgerIds": true,
+    "candidateMetrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 1024,
+      "candidatePairs": 13656,
+      "arrangementCells": 1552,
+      "triangulationRegions": 1,
+      "outputVertices": 4,
+      "outputTriangles": 2,
+      "contributorLinks": 1086,
+      "inputObservations": 578,
+      "retainedObservations": 578,
+      "geometricSupportSources": 578,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 2,
+        "sourceFaces": 1024,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.10304000000000002,
+      "candidateUnionChartArea": 0.10304,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 4,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 4,
+        "components": 1
+      }
+    }
+  },
+  "permutation": {
+    "triangleCoordinateSetsExactlyEqual": true
+  }
+}
+{
+  "ledger": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "immutable source ledger mismatch"
+  },
+  "ledger_with_python_optimized": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "immutable source ledger mismatch"
+  },
+  "support": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "declared support/topology invariant failed"
+  },
+  "duplicate_ledger": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "duplicate source ledger IDs"
+  },
+  "native_topology": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "independent native topology defect"
+  },
+  "permutation": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "Permutation triangle-coordinate sets differ"
+  },
+  "unexpected_control_status": {
+    "exitCode": 1,
+    "expectedFailureObserved": true,
+    "diagnostic": "expected declared success"
+  },
+  "cancelled_mesh_cleanup": {
+    "status": "PASS",
+    "meshWrittenBeforeCancellation": true,
+    "parentRemovedWorkerScratch": true,
+    "temporaryMeshOutsideRun": false
+  }
+}
+identical {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+translated {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+permuted {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+rotated {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+partial {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 768, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+complementary {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+hole {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 8, "sourceFaces": 880, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+{
+  "complementary": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    }
+  },
+  "hole": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 8,
+      "components": 1
+    }
+  },
+  "step": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 94,
+      "components": 2
+    }
+  },
+  "curved_identical": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 64,
+      "components": 1
+    }
+  },
+  "translated_disjoint": {
+    "status": "refused",
+    "reason": "emitted exact world/chart support or provenance mismatch",
+    "oldFixturePreserved": true
+  },
+  "dyadic_disjoint": {
+    "status": "success",
+    "metrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 4,
+      "candidatePairs": 2,
+      "arrangementCells": 4,
+      "triangulationRegions": 2,
+      "outputVertices": 8,
+      "outputTriangles": 4,
+      "contributorLinks": 4,
+      "inputObservations": 8,
+      "retainedObservations": 8,
+      "geometricSupportSources": 8,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 4,
+        "sourceFaces": 4,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.125,
+      "candidateUnionChartArea": 0.125,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 8,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 8,
+        "components": 2
+      }
+    }
+  },
+  "one_ulp_nonplanar": {
+    "exactCoplanarRetriangulation": false,
+    "originalPathRetained": true
+  }
+}
+complementary-forward {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+complementary-reverse {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+hole-forward {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 8, "sourceFaces": 880, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+hole-reverse {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 8, "sourceFaces": 880, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+dyadic-disjoint {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 4, "sourceFaces": 4, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+complementary {"lostSupportExact": "0", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "0", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [{"face": 0, "falseLinks": [], "missingLinks": [1023]}], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+complementary {"lostSupportExact": "51922968585348323483029058135/162259276829213363391578010288128", "addedSupportExact": "0", "faces": 2, "sourceFaces": 1024, "lostWorldPlaneSupportExact": "162259276829213516513965340885/20282409603651670423947251286016", "addedWorldPlaneSupportExact": "0", "overlapLinkMismatches": [{"face": 0, "falseLinks": [], "missingLinks": [70, 73]}, {"face": 1, "falseLinks": [102, 105], "missingLinks": []}], "emittedVerticesExactlyOnSourcePlane": true, "sourceVerticesExactlyCoplanar": true}
+{
+  "random": {
+    "status": "refused",
+    "reason": "emitted vertices leave exact observed world plane"
+  },
+  "world-shift": {
+    "status": "refused",
+    "reason": "emitted vertices leave exact observed world plane"
+  },
+  "in-plane": {
+    "status": "refused",
+    "reason": "emitted exact world/chart support or provenance mismatch"
+  },
+  "single_triangle": {
+    "status": "refused",
+    "reason": "emitted vertices leave exact observed world plane",
+    "noGeometryCollectionAPIError": true
+  }
+}
+All QA checks completed successfully.

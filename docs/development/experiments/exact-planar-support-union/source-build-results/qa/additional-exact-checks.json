@@ -1,0 +1,59 @@
+{
+  "complementary-forward": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 1024,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "complementary-reverse": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 2,
+    "sourceFaces": 1024,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "hole-forward": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 8,
+    "sourceFaces": 880,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "hole-reverse": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 8,
+    "sourceFaces": 880,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "dyadic-disjoint": {
+    "lostSupportExact": "0",
+    "addedSupportExact": "0",
+    "faces": 4,
+    "sourceFaces": 4,
+    "lostWorldPlaneSupportExact": "0",
+    "addedWorldPlaneSupportExact": "0",
+    "overlapLinkMismatches": [],
+    "emittedVerticesExactlyOnSourcePlane": true,
+    "sourceVerticesExactlyCoplanar": true
+  },
+  "corrupt_link_detected": true,
+  "corrupt_geometry_detected": true
+}

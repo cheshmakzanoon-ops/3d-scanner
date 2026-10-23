@@ -1,0 +1,46 @@
+{
+  "scope": "Exact emitted coordinate equality preserving oriented face cycles; no attribute or production claim",
+  "checkerSha256": "b68d602c3600c7c56a2d5ca40a15349f0935830e49e52a88515d4a2151f22872",
+  "pythonOptimized": true,
+  "pairs": {
+    "translated_permuted": {
+      "orientedCyclicTriangleCoordinateSetsExactlyEqual": true,
+      "faces": 2,
+      "leftSha256": "5b8f895559e11d7137010308c6343558000257bc2b9b530bcb386cf2c8afd842",
+      "rightSha256": "75c7c5a2852a2cdc8eaf017369fec924d2af111670ad0f04e7fe9f32079e5785"
+    },
+    "complementary": {
+      "orientedCyclicTriangleCoordinateSetsExactlyEqual": true,
+      "faces": 2,
+      "leftSha256": "03d4dfb0f594c4898c2e21a920aba4c02b5394f7649a4e9d9360e828866710b0",
+      "rightSha256": "a91fabb7b099c2e2e51890354370ac7a8a2872e3f624502e1635dc5342a1b444"
+    },
+    "hole": {
+      "orientedCyclicTriangleCoordinateSetsExactlyEqual": true,
+      "faces": 8,
+      "leftSha256": "c0469a51b3aa48b06bcd53ea391158b954bec560f3fbe59ac766ae5c3c711c3b",
+      "rightSha256": "4ad713433619b75b4fb85337fd03aa0cc1e55b63d00dd6d774e3e4e4575c001e"
+    },
+    "step": {
+      "orientedCyclicTriangleCoordinateSetsExactlyEqual": true,
+      "faces": 480,
+      "leftSha256": "0602e95d9f614080329ad3092942bb2233f4710b04478dd71c4f1557b96fdc67",
+      "rightSha256": "b3286cfef214ad2d509f69e9dde1add00a3cd8b566d0cea688dc45020b393c5c"
+    },
+    "curved_identical": {
+      "orientedCyclicTriangleCoordinateSetsExactlyEqual": true,
+      "faces": 512,
+      "leftSha256": "a2a86b624e2965bbaea2460061a29acd09775fad2920403947142d27786227b0",
+      "rightSha256": "79109963ead2aa0f2edc8cb349df6b848150a930d868f534a84d1a05310dae06"
+    }
+  },
+  "controls": {
+    "allFaceCyclicRotationsPreserveEquality": true,
+    "singleFaceWindingReversalDetected": true,
+    "boolean_index_false_rejected": true,
+    "boolean_coordinate_false_rejected": true,
+    "boolean_index_true_rejected": true,
+    "boolean_coordinate_true_rejected": true,
+    "exclusiveCreationPreservesExistingReceipt": true
+  }
+}

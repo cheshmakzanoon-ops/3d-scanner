@@ -1,0 +1,138 @@
+{
+  "complementary": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 4,
+      "components": 1
+    }
+  },
+  "hole": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 8,
+      "components": 1
+    }
+  },
+  "step": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 94,
+      "components": 2
+    }
+  },
+  "curved_identical": {
+    "bothStatuses": [
+      "success",
+      "success"
+    ],
+    "exactCoordinateSetPermutation": true,
+    "exactImmutableLedgerPermutation": true,
+    "exactSupportLinksPermutation": true,
+    "native": {
+      "nonmanifoldEdges": 0,
+      "degenerateFaces": 0,
+      "duplicateFaces": 0,
+      "windingConflicts": 0,
+      "nonmanifoldVertices": 0,
+      "intersections": 0,
+      "incomplete": false,
+      "boundaryEdges": 64,
+      "components": 1
+    }
+  },
+  "translated_disjoint": {
+    "status": "refused",
+    "reason": "emitted exact world/chart support or provenance mismatch",
+    "oldFixturePreserved": true
+  },
+  "dyadic_disjoint": {
+    "status": "success",
+    "metrics": {
+      "exactCoplanarRetriangulation": true,
+      "inputTriangles": 4,
+      "candidatePairs": 2,
+      "arrangementCells": 4,
+      "triangulationRegions": 2,
+      "outputVertices": 8,
+      "outputTriangles": 4,
+      "contributorLinks": 4,
+      "inputObservations": 8,
+      "retainedObservations": 8,
+      "geometricSupportSources": 8,
+      "maximumArithmeticLiftSpread": 0,
+      "emittedExactSupportAudit": {
+        "lostSupportExact": "0",
+        "addedSupportExact": "0",
+        "faces": 4,
+        "sourceFaces": 4,
+        "lostWorldPlaneSupportExact": "0",
+        "addedWorldPlaneSupportExact": "0",
+        "overlapLinkMismatches": [],
+        "emittedVerticesExactlyOnSourcePlane": true,
+        "sourceVerticesExactlyCoplanar": true
+      },
+      "sourceUnionChartArea": 0.125,
+      "candidateUnionChartArea": 0.125,
+      "lostSupportChartArea": 0.0,
+      "addedUnsupportedChartArea": 0.0,
+      "nonmanifoldEdges": 0,
+      "boundaryEdges": 8,
+      "positiveAreaOverlapPairs": 0,
+      "summedOverlapChartArea": 0.0,
+      "nativeTopology": {
+        "nonmanifoldEdges": 0,
+        "degenerateFaces": 0,
+        "duplicateFaces": 0,
+        "windingConflicts": 0,
+        "nonmanifoldVertices": 0,
+        "intersections": 0,
+        "incomplete": false,
+        "boundaryEdges": 8,
+        "components": 2
+      }
+    }
+  },
+  "one_ulp_nonplanar": {
+    "exactCoplanarRetriangulation": false,
+    "originalPathRetained": true
+  }
+}

@@ -1,0 +1,10 @@
+complementary-forward {"lostSupportExact": "0", "addedSupportExact": "0", "overlapLinkMismatches": [], "faces": 2, "sourceFaces": 1024}
+complementary-reverse {"lostSupportExact": "0", "addedSupportExact": "0", "overlapLinkMismatches": [], "faces": 2, "sourceFaces": 1024}
+hole-forward {"lostSupportExact": "0", "addedSupportExact": "0", "overlapLinkMismatches": [], "faces": 8, "sourceFaces": 880}
+hole-reverse {"lostSupportExact": "0", "addedSupportExact": "0", "overlapLinkMismatches": [], "faces": 8, "sourceFaces": 880}
+disjoint {"lostSupportExact": "0", "addedSupportExact": "0", "overlapLinkMismatches": [{"face": 0, "falseLinks": [], "missingLinks": [71, 105, 139, 170]}, {"face": 1, "falseLinks": [], "missingLinks": [35, 66, 171, 202, 236, 270, 372, 406, 440]}], "faces": 4, "sourceFaces": 1024}
+Traceback (most recent call last):
+  File "/workspace/scratch/6b683a119bde/chart-overlay-degeneracy/additional_exact_checks.py", line 7, in <module>
+    if r[name]['lostSupportExact']!='0' or r[name]['addedSupportExact']!='0' or r[name]['overlapLinkMismatches']:raise AssertionError(name)
+                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: disjoint

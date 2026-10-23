@@ -1,0 +1,411 @@
+{
+  "adbServer": {
+    "emulatorPortScanning": false,
+    "mdnsAutoConnect": false,
+    "mode": "owned-foreground-loopback",
+    "pid": 8583,
+    "port": 52421,
+    "socketOwnership": "verified-/proc-inode",
+    "statePersistence": "disposable-runner-temp-only",
+    "usbSelector": "RF_DIAGNOSTIC_NO_USB_47371b1d598646d19d1aef44f30a441d"
+  },
+  "adbVersion": "Android Debug Bridge version 1.0.41\nVersion 37.0.1-15733141\nInstalled as /usr/local/lib/android/sdk/platform-tools/adb\nRunning on Linux 6.17.0-1022-azure (x86_64)",
+  "appSha256": "18745226f21bd1851f59cc78b2a5aaea21036da6c29ed754ef9b7add07a7843c",
+  "budgetsSeconds": {
+    "apkInstall": 600,
+    "boot": 1800,
+    "build": 1200,
+    "controller": 4320,
+    "crashContext": 45,
+    "deviceClockSample": 10,
+    "deviceFactoryEvidence": 60,
+    "hostLibraries": 300,
+    "instrumentation": 900,
+    "packageManagerProbe": 60,
+    "sdkInstall": 300,
+    "workflow": 4500
+  },
+  "candidateInstallations": [
+    {
+      "apkBytes": 144878589,
+      "apkSha256": "18745226f21bd1851f59cc78b2a5aaea21036da6c29ed754ef9b7add07a7843c",
+      "budgetSeconds": 600,
+      "effectiveTimeoutSeconds": 600,
+      "elapsedAtStartSeconds": 605.61,
+      "elapsedSeconds": 81.596,
+      "finishedAtUtc": "2026-10-23T14:20:33Z",
+      "installedSha256": "18745226f21bd1851f59cc78b2a5aaea21036da6c29ed754ef9b7add07a7843c",
+      "package": "com.realityforge.scanner",
+      "process": {
+        "complete": true,
+        "exit": 0,
+        "outputBytes": 36,
+        "outputSha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7",
+        "pid": 8886
+      },
+      "stage": "install-app",
+      "startedAtUtc": "2026-10-23T14:19:11Z",
+      "status": "INSTALLED_HASH_VERIFIED"
+    },
+    {
+      "apkBytes": 5628801,
+      "apkSha256": "eff04e4c37e13dad37f303dd5653549bf8b81c72d40f6d5c22b303e0a06d4956",
+      "budgetSeconds": 600,
+      "effectiveTimeoutSeconds": 600,
+      "elapsedAtStartSeconds": 687.221,
+      "elapsedSeconds": 7.94,
+      "finishedAtUtc": "2026-10-23T14:20:41Z",
+      "installedSha256": "eff04e4c37e13dad37f303dd5653549bf8b81c72d40f6d5c22b303e0a06d4956",
+      "package": "com.realityforge.scanner.test",
+      "process": {
+        "complete": true,
+        "exit": 0,
+        "outputBytes": 36,
+        "outputSha256": "781a31c82430c97897af612ece5e0ca2205e301cb5ff121ce2660541ea5182c7",
+        "pid": 8924
+      },
+      "stage": "install-test",
+      "startedAtUtc": "2026-10-23T14:20:33Z",
+      "status": "INSTALLED_HASH_VERIFIED"
+    }
+  ],
+  "commandLineTools": {
+    "properties": "Pkg.Revision=12.0\nPkg.Path=cmdline-tools;12.0\nPkg.Desc=Android SDK Command-line Tools\n",
+    "sourcePropertiesSha256": "d4eb560d17731d9919dbb91bfecb2d90418cb60c21e07b6c02302a682fbb760e"
+  },
+  "cpuMode": "UNSUPPORTED_TCG",
+  "device": {
+    "abi": "x86_64",
+    "api": "35",
+    "emulator": "1",
+    "fingerprint": "Android/sdk_slim_x86_64/emu64x:15/AE3A.240806.019/12368160:userdebug/test-keys",
+    "pageSize": "4096",
+    "serial": "emulator-5580"
+  },
+  "deviceFactoryEvidence": {
+    "globalSettings": {
+      "debug_app": "null",
+      "wait_for_debugger": "null",
+      "watchdog_timeout_millis": "null"
+    },
+    "profile": "AOSP_ATD_STRIPPED_UI_NON_UI_DIAGNOSTIC_ONLY",
+    "properties": {
+      "debug.hwui.drawing_enabled": "0",
+      "ro.build.tags": "test-keys",
+      "ro.build.type": "userdebug",
+      "ro.debuggable": "1",
+      "ro.force.debuggable": "0",
+      "ro.hw_timeout_multiplier": "",
+      "ro.secure": "1",
+      "ro.test_harness": ""
+    },
+    "scope": "observed-factory-values-no-setting-writes",
+    "status": "RECORDED",
+    "watchdogEquivalenceToPreviousGoogleImage": "UNVERIFIED"
+  },
+  "elapsedSeconds": 804.219,
+  "emulatorOptions": [
+    "-avd",
+    "rf_software_39967166172_1",
+    "-accel",
+    "off",
+    "-gpu",
+    "software",
+    "-no-window",
+    "-no-snapshot",
+    "-no-boot-anim",
+    "-no-audio",
+    "-memory",
+    "2048",
+    "-cores",
+    "2",
+    "-port",
+    "5580",
+    "-camera-back",
+    "none",
+    "-camera-front",
+    "none"
+  ],
+  "emulatorVersion": "Android emulator version 37.2.12.0 (build_id 16428233) (CL:N/A)\nCopyright (C) 2006-2024 The Android Open Source Project and many others.\nThis program is a derivative of the QEMU CPU emulator (www.qemu.org).\n\n  This software is licensed under the terms of the GNU General Public\n  License version 2, as published by the Free Software Foundation, and\n  may be copied, distributed, and modified under those terms.\n\n  This program is distributed in the hope that it will be useful,\n  but WITHOUT ANY WARRANTY; without even the implied warranty of\n  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n  GNU General Public License for more details.",
+  "expectedSelectors": [
+    "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#calibratedPlaneReportsModelAndSupportWithoutChangingLegacyContract",
+    "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#calibratedJniRejectsMalformedDomainShapeAndMisalignedPixels",
+    "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#cancelledCalibratedCallHonorsScopedOperationLease",
+    "com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest#privateAndroidCacheHitsCorruptionRecomputesAndEvictionPreservesUnownedFiles"
+  ],
+  "finishedAtUtc": "2026-10-23T14:22:30Z",
+  "graphicsMode": "software",
+  "hostLibraries": {
+    "afterClosureSha256": "6cf12856c2c099ff03e791a023c3f1aee09b6458b022068a27e86b0e4f659ec2",
+    "backend": "qemu/linux-x86_64/qemu-system-x86_64-headless",
+    "backendIdentityMode": "paired-initialize-and-control",
+    "backendPid": 4963,
+    "beforeClosureSha256": "6cf12856c2c099ff03e791a023c3f1aee09b6458b022068a27e86b0e4f659ec2",
+    "elfSearchRecords": [
+      {
+        "directories": [
+          "qemu/linux-x86_64"
+        ],
+        "kind": "RPATH",
+        "origin": "qemu/linux-x86_64/qemu-system-x86_64-headless"
+      }
+    ],
+    "initialMissing": [],
+    "launcherProbe": {
+      "complete": true,
+      "exit": 0,
+      "outputBytes": 56618,
+      "outputSha256": "8054635b45debce30707c3546e1b310999438225b05b26c2235a6ad615bdbc0d",
+      "pid": 4963
+    },
+    "launcherProbeBytes": 56618,
+    "launcherProbeExit": 0,
+    "launcherProbeSha256": "8054635b45debce30707c3546e1b310999438225b05b26c2235a6ad615bdbc0d",
+    "loaderToolSha256": {
+      "ldd": "752803b8baa217b821bd4566c4fbdaec50c01cb32d2796ec056d22d190d4290f",
+      "readelf": "64c58e15274bbbb5153f31078e455e9e77ee5f51489e709bba5bb788ce9df2b0"
+    },
+    "observedLdLibraryPath": [
+      "lib64/vulkan",
+      "lib64/gles_swiftshader",
+      "lib64"
+    ],
+    "packages": [],
+    "selectedLibraries": {},
+    "status": "PREINSTALLED",
+    "targets": {
+      "emulator": "27e9a8cbd545529ba2c1aca973e5bc060f50b36a68d2c03296b0162291a16b83",
+      "lib64/gles_swiftshader/libEGL.so": "481c137b6d8fe7480f3e74374d4fd002e33c9250dffd66a05684f5494982e012",
+      "lib64/gles_swiftshader/libGLES_CM.so": "f0488371cd5ad063831e6d6572fcd1d49935688ef86150269e545f6c30003c79",
+      "lib64/gles_swiftshader/libGLESv2.so": "9471a220fd966c629278b1b6b99227dbe292e57c6374a59132a410370e795b06",
+      "lib64/vulkan/libLLVM.so": "c94801c39ddb7ae09eef3feda2c45dc8fc023b0f40256c3de1b9bd272dd894d2",
+      "lib64/vulkan/libedit.so.0": "5332e7b68129374d572133d43b78c5745bf88ea99da65c3392677d63ae8d5cf0",
+      "lib64/vulkan/libncurses.so.6": "48bb1e9b4a211f12cb07cceb25c5727a0110922be3afcc64c029db732a2a9bcf",
+      "lib64/vulkan/libvk_swiftshader.so": "9e2cebc35ffd7f0dd234c219f6b3a1150801b4675ccc26498fcdfce8c79064e7",
+      "lib64/vulkan/libvulkan.so": "c137499ef642212970b94f332d1b8a172f815952c2d6cbe227c6811453c5d1d1",
+      "lib64/vulkan/libvulkan.so.1": "27bf47e258e00653eef414882168caf0178031f1bb4ec8325f0477f15dde4994",
+      "lib64/vulkan/libvulkan_lvp.so": "307b9efb94cd4431988268d8a2e2df38d31c71641e4c1ef5a171f94c5866bc15",
+      "lib64/vulkan/libxcb-aemu.so": "67e9b459abb9cea13cb529fdaa770bd18152c6de72a4fc0738c38cc4a6142045",
+      "lib64/vulkan/libxml2.so.2": "aa8c008f4de635cdcc1d507aaca4375e69926afa38ca4583afcd48336dd035b8",
+      "qemu/linux-x86_64/qemu-system-x86_64-headless": "23b788a3b87b3228558924de4cb5477e2818b3b9415d6ce27d6438cf3e462b98"
+    },
+    "vendorLibraryDirs": [
+      "lib64/vulkan",
+      "lib64/gles_swiftshader",
+      "lib64"
+    ]
+  },
+  "installedSha256": {
+    "appSha256": "18745226f21bd1851f59cc78b2a5aaea21036da6c29ed754ef9b7add07a7843c",
+    "testSha256": "eff04e4c37e13dad37f303dd5653549bf8b81c72d40f6d5c22b303e0a06d4956"
+  },
+  "instrumentation": {
+    "budgetSeconds": 900,
+    "effectiveTimeoutSeconds": 900,
+    "elapsedSeconds": 55.538,
+    "finishedAtUtc": "2026-10-23T14:22:02Z",
+    "process": {
+      "complete": true,
+      "exit": 0,
+      "outputBytes": 3158,
+      "outputSha256": "85b97713a5d033e80c76ca866413f67a5d28c979413cf6eb9f0e53f2fc773119",
+      "pid": 8944
+    },
+    "startedAtUtc": "2026-10-23T14:21:06Z",
+    "status": "EVENTS_VERIFIED"
+  },
+  "instrumentationDeviceClock": {
+    "epochSeconds": 1792765264.0,
+    "process": {
+      "complete": true,
+      "exit": 0,
+      "outputBytes": 21,
+      "outputSha256": "5b4b3c339a9b10d2d29b4353fc995172c5bd14d114febaebaf8ef02a0cf43fea",
+      "pid": 8941
+    },
+    "sampleMonotonic": 743.476704073,
+    "status": "CAPTURED",
+    "utc": "2026-10-23T14:21:04Z"
+  },
+  "launchPolicy": {
+    "after": "ba259b96d3fdcba8c304a8214764d0d70e51be80",
+    "attempt": 1,
+    "before": "89d9e3387bb19e5243017f28461040372615736b",
+    "changedPaths": [
+      ".github/workflows/software-emulator-diagnostic.yml",
+      "SOURCE_MANIFEST.sha256",
+      "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md",
+      "tests/test_software_emulator_diagnostic.py",
+      "tools/device/software_emulator/diagnostic.py"
+    ],
+    "commitMessage": "test: bound non-UI Android checks on official ATD",
+    "event": "push",
+    "ref": "refs/heads/main",
+    "repository": "cheshmakzanoon-ops/3d-scanner"
+  },
+  "nativeX8664Sha256": "9ced8ed29ff3731b0c61e556db142019f2f8ec06e8b3b24e249ce7614fb11e0c",
+  "packageManagerProbe": {
+    "budgetSeconds": 60,
+    "effectiveTimeoutSeconds": 60,
+    "elapsedAtStartSeconds": 603.373,
+    "elapsedSeconds": 2.154,
+    "expectedPath": "/system/framework/framework-res.apk",
+    "finishedAtUtc": "2026-10-23T14:19:11Z",
+    "package": "android",
+    "process": {
+      "complete": true,
+      "exit": 0,
+      "outputBytes": 44,
+      "outputSha256": "e4fe055d4057c9874d953f3dc0562a284b0f2af40526412bc51afcf3c458bcc1",
+      "pid": 8883
+    },
+    "stage": "package-manager-response",
+    "startedAtUtc": "2026-10-23T14:19:09Z",
+    "status": "RESPONSIVE"
+  },
+  "phase": "tests",
+  "preexistingLicenseSha256": {
+    "android-sdk-license": "c43fa37686457c3f18caa3607945f4ec52a9d1beaaad8117e50dc4e863270c85"
+  },
+  "qualification": {
+    "arm64": "NOT_RUN",
+    "fullInstrumentation": "NOT_RUN",
+    "graphicsQualification": "NOT_RUN",
+    "originalDeviceGate": "NOT_RUN",
+    "performance": "NOT_RUN",
+    "physicalCapture": "NOT_RUN",
+    "runtime16kb": "NOT_RUN"
+  },
+  "runIdentity": {
+    "GITHUB_RUN_ATTEMPT": "1",
+    "GITHUB_RUN_ID": "39967166172"
+  },
+  "runnerImage": {
+    "ImageOS": "ubuntu24",
+    "ImageVersion": "20261012.334.1"
+  },
+  "schema": "realityforge.software-emulator-diagnostic.v1",
+  "scope": "four synthetic Android x86_64 ART/Bionic/JNI/filesystem tests on UI-stripped AOSP ATD",
+  "sdkPackages": [
+    {
+      "package": "platform-tools",
+      "packageXmlSha256": "26465ee68290f3af08a0fa759d5711573b8787c5ed2a0cd5ecb727ba65a91bb3",
+      "revision": "37.0.1",
+      "sourcePropertiesSha256": "2dccd788c0234d8cf7f7457377e57f57527a86a629c6ed54feb8af0f549dac38"
+    },
+    {
+      "package": "emulator",
+      "packageXmlSha256": "001a5a4f0001e27c625de6a945fc24b87e1bd3a91a008c5e71d6f0ca41171809",
+      "revision": "37.2.12",
+      "sourcePropertiesSha256": "ba13085f647fb8389a4d06a1de0e4104ac4e841733e50f67223ac230e1ce685a"
+    },
+    {
+      "package": "platforms;android-36",
+      "packageXmlSha256": "066e7bbe3a49c506af0f6cdf07dad262e487e823ca096aec74fa3ada377d1e03",
+      "revision": "2",
+      "sourcePropertiesSha256": "72291ff6611dbfc46fdfb6de2821c4a62c87befa5200713847eda426e3a501c2"
+    },
+    {
+      "package": "build-tools;36.0.0",
+      "packageXmlSha256": "531aeef4af6fc79796abc58da5b1024c4b7f7acf5b04018ed05118ea0e8772c9",
+      "revision": "36.0.0",
+      "sourcePropertiesSha256": "7dee6632e9ad6cb111da2bb99d747211e27927061b1276d040bb1d71fded5ebb"
+    },
+    {
+      "package": "ndk;28.2.13676358",
+      "packageXmlSha256": "1d901b6452ef3f759a7d7a09b0c3ea5d745a60a8ae9a5be06db24b893ebf8a9a",
+      "revision": "28.2.13676358",
+      "sourcePropertiesSha256": "c00aa236fdb205e9be9edd9e2169763e48aca52735efff4e16f34205d49783b5"
+    },
+    {
+      "package": "cmake;3.22.1",
+      "packageXmlSha256": "b240392c351d915ec94692aeb2076e0b486e935737997954b0454e2214b22aa9",
+      "revision": "3.22.1",
+      "sourcePropertiesSha256": "3f61a0382a6c9d14b1d2bbef580f5c058b9281babbc0d36b18e5c36aa9a0b5dc"
+    },
+    {
+      "package": "system-images;android-35;aosp_atd;x86_64",
+      "packageXmlSha256": "804e2c9b99c11a55ac8c3c62c21b73efbd6a729a04028e5f0cfa1a3fc369677f",
+      "revision": "1",
+      "sourcePropertiesSha256": "7c2bd52d9282f53fc24a57c9a1738f17ff2c51d436c0e8f9272ed0208c06abc5"
+    }
+  ],
+  "sourceManifestSha256": "738f573b270d34c122a3130c3c7e5ae5d1f0f4718d856b32264611bc10a89266",
+  "sourceSha": "ba259b96d3fdcba8c304a8214764d0d70e51be80",
+  "startedAtUtc": "2026-10-23T14:09:06Z",
+  "status": "PASS",
+  "systemImageProfile": {
+    "package": "system-images;android-35;aosp_atd;x86_64",
+    "qualificationEquivalent": false,
+    "revision": "1",
+    "uiRendering": "expected-factory-disabled"
+  },
+  "systemImageSha256": {
+    "kernel-ranchu": "a204606cf2f458540c5437e9ba804b5012acf0a2916d00f099a03e1e553e697e",
+    "ramdisk.img": "2322fe242722ed8a974809ee6fa984524078eb8d71dfca89fc4714e4f46776e9",
+    "system.img": "68debb960e1c12eb9c93cd858e24cb7ae3d8f8243dd659e6a7fba269f9b1c59f",
+    "vendor.img": "35fe50074fe5cb23f69b45536338f16b1714d24902a4705e5151a80f7a8291df"
+  },
+  "testProof": {
+    "events": [
+      {
+        "code": 1,
+        "current": 1,
+        "selector": "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#calibratedPlaneReportsModelAndSupportWithoutChangingLegacyContract",
+        "total": 4
+      },
+      {
+        "code": 0,
+        "current": 1,
+        "selector": "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#calibratedPlaneReportsModelAndSupportWithoutChangingLegacyContract",
+        "total": 4
+      },
+      {
+        "code": 1,
+        "current": 2,
+        "selector": "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#calibratedJniRejectsMalformedDomainShapeAndMisalignedPixels",
+        "total": 4
+      },
+      {
+        "code": 0,
+        "current": 2,
+        "selector": "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#calibratedJniRejectsMalformedDomainShapeAndMisalignedPixels",
+        "total": 4
+      },
+      {
+        "code": 1,
+        "current": 3,
+        "selector": "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#cancelledCalibratedCallHonorsScopedOperationLease",
+        "total": 4
+      },
+      {
+        "code": 0,
+        "current": 3,
+        "selector": "com.realityforge.scanner.agents.a037.CalibratedInitializerNativeTest#cancelledCalibratedCallHonorsScopedOperationLease",
+        "total": 4
+      },
+      {
+        "code": 1,
+        "current": 4,
+        "selector": "com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest#privateAndroidCacheHitsCorruptionRecomputesAndEvictionPreservesUnownedFiles",
+        "total": 4
+      },
+      {
+        "code": 0,
+        "current": 4,
+        "selector": "com.realityforge.scanner.agents.a033.FeatureCacheDeviceTest#privateAndroidCacheHitsCorruptionRecomputesAndEvictionPreservesUnownedFiles",
+        "total": 4
+      }
+    ],
+    "failed": 0,
+    "passed": 4,
+    "rawSha256": "85b97713a5d033e80c76ca866413f67a5d28c979413cf6eb9f0e53f2fc773119",
+    "skipped": 0,
+    "tests": 4
+  },
+  "testSha256": "eff04e4c37e13dad37f303dd5653549bf8b81c72d40f6d5c22b303e0a06d4956",
+  "toolSha256": {
+    "adb": "a902be8f45c6c62e76c9efaf6947a0fa747c9cabd89a2ac8e0d16ecb30b3ed01",
+    "emulator": "27e9a8cbd545529ba2c1aca973e5bc060f50b36a68d2c03296b0162291a16b83"
+  }
+}
