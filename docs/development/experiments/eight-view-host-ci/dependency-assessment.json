@@ -1,0 +1,347 @@
+{
+  "builds": 0,
+  "classification": "READ_ONLY_CAPABILITY_PLAN_NOT_EXECUTED",
+  "files": {
+    "app/build.gradle.kts": "2186a3e9589ca422b4ddfd8441555a744acc390e32ee2f4b0a338085817dbbd6",
+    "app/gradle.lockfile": "454be78955f09601e6615f7f593fbcedc53d95ddfc84c627bb08360fc0b14624",
+    "gradle/verification-metadata.xml": "ddd4c36d6108ec1dc9c94a62caa946eac8a08ff2dec7eeba90a9e82c22b576eb",
+    "tools/feature_matcher_validation/OPENCV_BUILD.md": "835e526eb98c5384dde14606f8441453b2eacb19637d30c831fec1d87178f2dc",
+    "tools/full_core_validation/NATIVE_BUILD.md": "8ad74488667faa6d92eb2b626fd3f4a12316bb2c557760ebb38003d477c95880"
+  },
+  "headMetadataOnly": [
+    {
+      "contentLength": 117745028,
+      "url": "https://repo.maven.apache.org/maven2/org/opencv/opencv/4.12.0/opencv-4.12.0.aar"
+    },
+    {
+      "contentLength": 184872954,
+      "url": "https://repo.maven.apache.org/maven2/org/robolectric/android-all/15-robolectric-12650502/android-all-15-robolectric-12650502.jar"
+    },
+    {
+      "contentLength": 157996126,
+      "url": "https://repo.maven.apache.org/maven2/org/robolectric/nativeruntime-dist-compat/1.0.16/nativeruntime-dist-compat-1.0.16.jar"
+    }
+  ],
+  "largeDownloads": 0,
+  "pipelineRuns": 0,
+  "schema": 1,
+  "selectedPins": [
+    {
+      "artifact": "room-common-metadata-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-common",
+      "sha256": [
+        "37a82a2dfcd131c150bfaae869be7cfc25daec3b135f42be170b28e4d96f8999"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-common-jvm-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-common-jvm",
+      "sha256": [
+        "b2a00b88c8b8d810d07ecbdf92fdff47db7f0ea884efe5c31cda7a526c9b1ae5"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-compiler-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-compiler",
+      "sha256": [
+        "d908e892b10639d29320ea4d64bea1c403e05582a163598556d5ea23eb04b0cd"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-compiler-processing-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-compiler-processing",
+      "sha256": [
+        "b9609e3e141575958a0217dee78610ab1e715709b75ef383e859fb96efb00df0"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-external-antlr-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-external-antlr",
+      "sha256": [
+        "6bf794bffe8de263826502511b4c7df0570312b6cc99312ca7fc6bdb0880ca1e"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-ktx-2.7.1.aar",
+      "group": "androidx.room",
+      "name": "room-ktx",
+      "sha256": [
+        "52dde3c7a5746621854aa2fd4047315cfd1abc6f962259410d0248a541a6cc9b"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-migration-metadata-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-migration",
+      "sha256": [
+        "0fb60c3ce7bc28bf5d4c9dc9e0b6b33b2319061c2c3591698699bdac9896d897"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-migration-jvm-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-migration-jvm",
+      "sha256": [
+        "8c5cec8f2d5da1cb9fde960fdd2253bbfc6be74f9a4a03ecdb82da17662231ac"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-runtime-metadata-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-runtime",
+      "sha256": [
+        "c213db6a92762e5a922e45f91423711517b2653b60021dd51c3e8c94deabc44a"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-runtime-release.aar",
+      "group": "androidx.room",
+      "name": "room-runtime-android",
+      "sha256": [
+        "86329ed71908608f37234ed909248c698e320c6805c8afe8f42e7dd657445026"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-runtime-jvm-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-runtime-jvm",
+      "sha256": [
+        "cbd1367bdfd40bc19abaae648c8a00bb6a4afdde063056b4ba82ba178837afcf"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-testing-metadata-2.7.1.jar",
+      "group": "androidx.room",
+      "name": "room-testing",
+      "sha256": [
+        "3fadae313f7db436ed40c3ef925d08bf3395f66400a2c6eaf69f2f46b01ceff3"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "room-testing-release.aar",
+      "group": "androidx.room",
+      "name": "room-testing-android",
+      "sha256": [
+        "734ae2879b3ed59c9d006d2054bb2cadaf8ddbe0e64c9a1830fd9d2df2f043e3"
+      ],
+      "version": "2.7.1"
+    },
+    {
+      "artifact": "symbol-processing-2.1.21-2.0.1.jar",
+      "group": "com.google.devtools.ksp",
+      "name": "symbol-processing",
+      "sha256": [
+        "9c2024b20f6c52c93e36851f1c770a320d0412caeaceef37c28d40e6e3fc2990"
+      ],
+      "version": "2.1.21-2.0.1"
+    },
+    {
+      "artifact": "symbol-processing-aa-embeddable-2.1.21-2.0.1.jar",
+      "group": "com.google.devtools.ksp",
+      "name": "symbol-processing-aa-embeddable",
+      "sha256": [
+        "4a9368bc06c9214c9d1fc12a1d842b7b577dbac04abaf14de778fb5751affc23"
+      ],
+      "version": "2.1.21-2.0.1"
+    },
+    {
+      "artifact": "symbol-processing-api-2.0.10-1.0.24.jar",
+      "group": "com.google.devtools.ksp",
+      "name": "symbol-processing-api",
+      "sha256": [
+        "dd7dde070be54de66c7bdd4de04c43fb429e0c62bb132a6448cfa33653afb229"
+      ],
+      "version": "2.0.10-1.0.24"
+    },
+    {
+      "artifact": "symbol-processing-api-2.1.21-2.0.1.jar",
+      "group": "com.google.devtools.ksp",
+      "name": "symbol-processing-api",
+      "sha256": [
+        "6b2134148c3bc9e9cf9cf239d45031a21cd789956a21592d1a3231fe8ae309af"
+      ],
+      "version": "2.1.21-2.0.1"
+    },
+    {
+      "artifact": "symbol-processing-cmdline-2.1.21-2.0.1.jar",
+      "group": "com.google.devtools.ksp",
+      "name": "symbol-processing-cmdline",
+      "sha256": [
+        "cb22ba6e9c5bb294acdd15d778107b16020b8e6cfd2d44c132e8123c92377f0c"
+      ],
+      "version": "2.1.21-2.0.1"
+    },
+    {
+      "artifact": "symbol-processing-common-deps-2.1.21-2.0.1.jar",
+      "group": "com.google.devtools.ksp",
+      "name": "symbol-processing-common-deps",
+      "sha256": [
+        "01cdf52b59d3e206aa4fa62781d1505a5cbd98743c05b072f9c8cb9e6aa2e003"
+      ],
+      "version": "2.1.21-2.0.1"
+    },
+    {
+      "artifact": "symbol-processing-gradle-plugin-2.1.21-2.0.1.jar",
+      "group": "com.google.devtools.ksp",
+      "name": "symbol-processing-gradle-plugin",
+      "sha256": [
+        "9e454cb92fd4adc2ffead59a09a8831fe066a64dd9e483da55d8d1af30071821"
+      ],
+      "version": "2.1.21-2.0.1"
+    },
+    {
+      "artifact": "opencv-4.12.0.aar",
+      "group": "org.opencv",
+      "name": "opencv",
+      "sha256": [
+        "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0"
+      ],
+      "version": "4.12.0"
+    },
+    {
+      "artifact": "annotations-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "annotations",
+      "sha256": [
+        "463a5ad1386c31010bc9af00bfe19a1b758d8c2dedd8c19e5c75d29ab8abb9ba"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "junit-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "junit",
+      "sha256": [
+        "2cee817aadce3552706b09450ad1ea7ff5981924072d2adfe40ddad57d5fa123"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "nativeruntime-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "nativeruntime",
+      "sha256": [
+        "c07b66d315aec3272a7c64aa5f154b4194be2cc6030a733d16f2ee87330232a8"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "nativeruntime-dist-compat-1.0.16.jar",
+      "group": "org.robolectric",
+      "name": "nativeruntime-dist-compat",
+      "sha256": [
+        "2f4e879b00eed634d0e43353ecff80db4d5ce24b3b213d1e6053cb21b0ced10f"
+      ],
+      "version": "1.0.16"
+    },
+    {
+      "artifact": "pluginapi-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "pluginapi",
+      "sha256": [
+        "ad8b74238d59bce6631e29190c105dd0c4701e836a2631060678407f621c7b7a"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "plugins-maven-dependency-resolver-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "plugins-maven-dependency-resolver",
+      "sha256": [
+        "6c8dbc979db0780755e712acab9eeb9396811b2d4dc31a92a5b259f9876205ec"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "resources-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "resources",
+      "sha256": [
+        "54eb274a47dec9e74cc9b45b9e4335bb5d83857c63b2a49dd8d1993e6321f2c5"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "robolectric-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "robolectric",
+      "sha256": [
+        "e0a73d45bceb94a5a0352b66e2120ad4a4b222fe406079130893b6c79d4441d1"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "sandbox-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "sandbox",
+      "sha256": [
+        "de361f3de8c08d4488cf156683830f2bd43db1da85a5b136ad6d065b868d3bab"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "shadowapi-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "shadowapi",
+      "sha256": [
+        "fd158863cee488475206ba1d23ff4c7d29be412eccd21b12d9416b0030aa582d"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "shadows-framework-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "shadows-framework",
+      "sha256": [
+        "f3cf7785eecf9b2e80fbb4caac4c42f63eeea3506e289581c04696a56a494622"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "utils-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "utils",
+      "sha256": [
+        "6884eec32c9c9b23d74250e30a5ba9c5ece48784f808feba98f119b215ab59d8"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "utils-reflector-4.14.1.jar",
+      "group": "org.robolectric",
+      "name": "utils-reflector",
+      "sha256": [
+        "eb8f52cdc24f59ae4cf13369c5bf990354c19c386e3e8f9f5d5cee04d836557b"
+      ],
+      "version": "4.14.1"
+    },
+    {
+      "artifact": "android-all-15-robolectric-12650502.jar",
+      "group": "org.robolectric",
+      "name": "android-all",
+      "sha256": [
+        "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b"
+      ],
+      "version": "15-robolectric-12650502"
+    }
+  ],
+  "sourceChangedByThisAssessment": false,
+  "sourceHeadObserved": "4423d073a5822f8aa964b73eaecb226a1d00072a"
+}

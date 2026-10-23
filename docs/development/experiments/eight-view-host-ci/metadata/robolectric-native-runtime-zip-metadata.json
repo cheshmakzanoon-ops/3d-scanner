@@ -1,0 +1,112 @@
+{
+  "classification": "OFFICIAL_HTTPS_ZIP_METADATA_ONLY_NOT_FULL_ARCHIVE_VERIFICATION",
+  "url": "https://repo.maven.apache.org/maven2/org/robolectric/nativeruntime-dist-compat/1.0.16/nativeruntime-dist-compat-1.0.16.jar",
+  "expectedWholeJarSha256": "2f4e879b00eed634d0e43353ecff80db4d5ce24b3b213d1e6053cb21b0ced10f",
+  "tail": {
+    "headers": {
+      "Content-Range": "bytes 157930569-157996125/157996126",
+      "Content-Length": "65557",
+      "ETag": "\"2938211683e393251e03f873f7dd0904\"",
+      "Last-Modified": "Tue, 22 Oct 2024 17:04:53 GMT"
+    },
+    "bytes": 65557,
+    "sha256": "71c45232bea2ef9caeb669c6036cfc9779e92a0b8e4f130cd1fa3403a94e873c"
+  },
+  "centralDirectory": {
+    "headers": {
+      "Content-Range": "bytes 157976710-157996103/157996126",
+      "Content-Length": "19394",
+      "ETag": "\"2938211683e393251e03f873f7dd0904\"",
+      "Last-Modified": "Tue, 22 Oct 2024 17:04:53 GMT"
+    },
+    "bytes": 19394,
+    "sha256": "8bf7f2917320366bc221bab25c35a74c9938f3b147031d612be415d64ef23664",
+    "entries": 253
+  },
+  "nativeEntries": [
+    {
+      "path": "icu/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "icu/icudt68l.dat",
+      "method": 8,
+      "compressedBytes": 9719174,
+      "uncompressedBytes": 25764768
+    },
+    {
+      "path": "native/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/linux/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/linux/x86_64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/linux/x86_64/librobolectric-nativeruntime.so",
+      "method": 8,
+      "compressedBytes": 6091562,
+      "uncompressedBytes": 16112096
+    },
+    {
+      "path": "native/mac/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/mac/aarch64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/mac/aarch64/librobolectric-nativeruntime.dylib",
+      "method": 8,
+      "compressedBytes": 4339893,
+      "uncompressedBytes": 9764608
+    },
+    {
+      "path": "native/mac/x86_64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/mac/x86_64/librobolectric-nativeruntime.dylib",
+      "method": 8,
+      "compressedBytes": 4938047,
+      "uncompressedBytes": 11017688
+    },
+    {
+      "path": "native/windows/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/windows/x86_64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/windows/x86_64/robolectric-nativeruntime.dll",
+      "method": 8,
+      "compressedBytes": 5605975,
+      "uncompressedBytes": 15255552
+    }
+  ]
+}

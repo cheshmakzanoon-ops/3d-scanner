@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "status": "SOURCE_SUCCESSOR_NOT_RUNTIME_QUALIFIED",
+  "pipelineCompilation": "NOT_RUN",
+  "capabilityGateCompilation": "NOT_RUN",
+  "nativeBuild": "NOT_RUN",
+  "actualProviderMapping": "NOT_RUN",
+  "reconstruction": "NOT_RUN",
+  "workflow": "NOT_ARMED",
+  "inputTests": {
+    "normal": 14,
+    "optimized": 14,
+    "result": "PASS"
+  },
+  "syntheticProviderHelper": {
+    "controls": 13,
+    "result": "PASS",
+    "scope": "Pure Kotlin synthetic nonlibrary map/ZIP/file fixtures only"
+  },
+  "baseEvidenceHelper": {
+    "controls": 6,
+    "result": "PASS_AT_CHECKPOINT2"
+  },
+  "truthIsolation": "audited dataflow / fresh observation staging; not OS confinement",
+  "previousRejectedManifest": "90e56198aa3223843477979ac70d45e7f8cfe135c6e7c283afe078522ffabdff",
+  "capabilityIdentityHelper": {
+    "controls": 16,
+    "result": "PASS",
+    "scope": "pure synthetic identity/log/class-resource controls only"
+  },
+  "api35ProviderContract": {
+    "controls": 10,
+    "result": "PASS",
+    "scope": "pure frozen metadata and synthetic ZIP bounds; actual framework NOT_RUN"
+  }
+}

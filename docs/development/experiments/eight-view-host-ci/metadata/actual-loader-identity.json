@@ -1,0 +1,10 @@
+{
+  "url": "https://repo.maven.apache.org/maven2/org/robolectric/nativeruntime/4.14.1/nativeruntime-4.14.1.jar",
+  "bytes": 53484,
+  "sha256": "c07b66d315aec3272a7c64aa5f154b4194be2cc6030a733d16f2ee87330232a8",
+  "scope": "STATIC_CLASSFILE_INSPECTION_ONLY_NO_LIBRARY_EXECUTION",
+  "javapSha256": "338bde170300b8ef9b3341eb52ef05efad68e2d9831b5bcfa7f95866c6f80210",
+  "selectedApi35Entry": "native/linux/x86_64/libandroid_runtime.so",
+  "selectedProviderArchive": "android-all-15-robolectric-12650502.jar",
+  "selectedProviderUncompressedBytes": 15526048
+}

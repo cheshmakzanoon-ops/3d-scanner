@@ -1,0 +1,128 @@
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+import java.security.MessageDigest
+import java.util.zip.ZipFile
+// Additive task only. Original source sets/gates are unchanged after this invocation.
+allprojects { afterEvaluate { if (path == ':app') {
+ def cfg = new JsonSlurper().parse(new File(project.property('eightConfig').toString()))
+ def sha = { byte[] b -> MessageDigest.getInstance('SHA-256').digest(b).encodeHex().toString() }
+ def writeJson = { File f, Object x -> f.parentFile.mkdirs(); f.text=JsonOutput.prettyPrint(JsonOutput.toJson(x))+'\n' }
+ def zipClasses = { File f -> def result=[:]; new ZipFile(f).withCloseable { z -> z.entries().each { e -> if(e.name.endsWith('.class')) result[e.name]=sha(z.getInputStream(e).bytes) } }; result }
+ def sourceDir=new File(cfg.sources); assert sourceDir.isDirectory()
+ android.sourceSets.test.java.srcDir(sourceDir)
+ def ordinary=tasks.getByName('testDebugUnitTest')
+ def host=tasks.getByName('hostIntegrationTest')
+ def output=new File(cfg.work)
+ def prepared=new File(output,'prepared.json')
+ def ownerNames=['org.opencv.android.OpenCVLoader','org.opencv.android.StaticHelper','org.opencv.core.Core','org.opencv.core.Mat','com.realityforge.scanner.engine.NativeCore']
+ def actualClasspath = { ->
+  def artifacts=configurations.getByName('debugRuntimeClasspath').resolvedConfiguration.resolvedArtifacts
+  def cv=artifacts.findAll { it.moduleVersion.id.group=='org.opencv' && it.moduleVersion.id.name=='opencv' && it.moduleVersion.id.version=='4.12.0' }
+  assert cv.size()==1 && cv[0].file.name.endsWith('.aar') : 'exact current OpenCV AAR'
+  File aar=cv[0].file;byte[] bytes
+  new ZipFile(aar).withCloseable { z -> assert z.getEntry('classes.jar'); bytes=z.getInputStream(z.getEntry('classes.jar')).bytes }
+  File classes=new File(output,'aar-classes.jar')
+  if(classes.exists()) assert sha(classes.bytes)==sha(bytes) else classes.bytes=bytes
+  def expected=zipClasses(classes);def original=host.classpath.files.toList();def replaced=[]
+  def cp=original.collect { f ->
+   if(f.isFile() && f.name.endsWith('.jar')) {
+    def content=zipClasses(f)
+    if(content.containsKey('org/opencv/core/Core.class')) { assert content==expected : 'OpenCV transformed provider differs'; replaced<<f; return classes }
+   }
+   f
+  }
+  assert replaced.size()==1 : 'exactly one existing OpenCV runtime provider expected'
+  assert cp.collect {it.canonicalPath}.toSet().size()==cp.size()
+  [cp:cp,aar:aar,classes:classes,replaced:replaced]
+ }
+ def capture = { String stage ->
+  def resolved=actualClasspath();def cp=resolved.cp;def owners=[:].withDefault {[]};def inventory=[]
+  cp.each { f ->
+   assert !java.nio.file.Files.isSymbolicLink(f.toPath())
+   if(f.isDirectory()) {
+    def files=project.fileTree(f).files.sort {it.absolutePath}.collect { c -> assert !java.nio.file.Files.isSymbolicLink(c.toPath()); [path:c.canonicalPath,sha256:sha(c.bytes)] }
+    inventory<<[path:f.canonicalPath,directory:true,files:files]
+    ownerNames.each { name -> File c=new File(f,name.replace('.','/')+'.class');if(c.isFile()) owners[name]<<[container:f.canonicalPath,file:c.canonicalPath,sha256:sha(c.bytes)] }
+   } else {
+    assert f.isFile() && f.name.endsWith('.jar');inventory<<[path:f.canonicalPath,directory:false,sha256:sha(f.bytes)]
+    new ZipFile(f).withCloseable { z -> ownerNames.each { name -> def e=z.getEntry(name.replace('.','/')+'.class');if(e) {
+     byte[] data=z.getInputStream(e).bytes;File extracted=new File(output,'owner-'+name+'.class')
+     if(extracted.exists()) assert sha(extracted.bytes)==sha(data) else extracted.bytes=data
+     owners[name]<<[container:f.canonicalPath,file:extracted.canonicalPath,sha256:sha(data)]
+    } } }
+   }
+  }
+  ownerNames.each {assert owners[it].size()==1 : 'native owner ambiguous: '+it}
+  def record=[schema:1,task:':app:eightPrepare',classpath:inventory,classpathString:cp.collect {it.canonicalPath}.join(File.pathSeparator),
+    owners:owners.collectEntries {k,v->[k,v[0]]},opencvAar:resolved.aar.canonicalPath,opencvClasses:resolved.classes.canonicalPath,
+    replacedOpenCvProvider:resolved.replaced[0].canonicalPath,sourceSha:cfg.sourceSha]
+  if(stage=='prepare') {
+   assert cfg.phase=='prepare' && !prepared.exists() : 'immutable preparation baseline must be fresh'
+   writeJson(prepared,record)
+  } else {
+   assert stage in ['runtime-prepare','runtime-before-fork'] && cfg.phase=='run'
+   assert sha(prepared.bytes)==cfg.preparedSha256 : 'enriched preparation baseline changed'
+   def baseline=new JsonSlurper().parse(prepared)
+   assert record==baseline.findAll { k,v -> record.containsKey(k) } : 'actual ordered runtime classpath/owners differ from baseline'
+   File observed=new File(output,stage+'.json');assert !observed.exists() : 'runtime capture already exists'
+   writeJson(observed,record)
+  }
+  record
+ }
+ tasks.register('eightPrepare') {
+  // Same actual app/test compilation; no ordinary Test execution, old photographic oracle,
+  // instrumentation APK, Android native build or original gate substitution requested.
+  dependsOn(ordinary.taskDependencies.getDependencies(ordinary))
+  dependsOn(tasks.getByName('verifyHostIntegrationSdk'))
+  doLast {capture(cfg.phase=='prepare' ? 'prepare' : 'runtime-prepare')}
+ }
+ tasks.register('eightProbe', org.gradle.api.tasks.testing.Test) {
+  dependsOn(tasks.getByName('eightPrepare'))
+  testClassesDirs=host.testClassesDirs
+  classpath=files(provider { actualClasspath().cp })
+  setExcludes([]) // Override ONLY this explicit narrow task's blanket HOST exclusion.
+  include '**/EightViewSparsePrefixHostTest.class'
+  filter {includeTestsMatching cfg.selector;failOnNoMatchingTests=true}
+  maxParallelForks=1;forkEvery=1;maxHeapSize='1g';timeout=java.time.Duration.ofSeconds(300)
+  File runtimeCwd=new File(output,'runtime-cwd');File runtimeTmp=new File(output,'runtime-tmp')
+  runtimeCwd.mkdirs();runtimeTmp.mkdirs()
+  workingDir=runtimeCwd
+  systemProperty 'java.io.tmpdir',runtimeTmp.canonicalPath
+  jvmArgs '--add-opens=java.base/java.io=ALL-UNNAMED','-XX:ActiveProcessorCount=2'
+  systemProperty 'robolectric.offline','true';systemProperty 'robolectric.usePreinstrumentedJars','false'
+  systemProperty 'robolectric.dependency.dir',new File(project.buildDir,'robolectric-sdk').canonicalPath
+  systemProperty 'rf.decoder.fixtureDir',cfg.observations
+  systemProperty 'rf.eight.evidenceDir',new File(output,'measurement').canonicalPath
+  reports.junitXml.outputLocation=new File(output,'xml');reports.html.required=false
+  doFirst {
+   assert excludes.isEmpty();assert cfg.phase=='run' && cfg.capability && cfg.capabilitySha256
+   File cap=new File(cfg.capability);assert sha(cap.bytes)==cfg.capabilitySha256
+   def manifest=new JsonSlurper().parse(cap)
+   assert manifest.sourceSha==cfg.sourceSha && manifest.policySha256==cfg.policySha256
+   def record=capture('runtime-before-fork')
+   systemProperty 'java.library.path',cfg.aliasDir
+   systemProperty 'rf.loader.aliasDir',cfg.aliasDir
+   systemProperty 'rf.loader.capabilityManifest',cfg.capability
+   systemProperty 'rf.loader.capabilitySha256',cfg.capabilitySha256
+   systemProperty 'rf.loader.sourceSha',cfg.sourceSha
+   assert manifest.producer.runOwner==cfg.runOwner
+   systemProperty 'rf.loader.runOwner',cfg.runOwner
+   systemProperty 'rf.loader.workDir',output.canonicalPath
+   systemProperty 'rf.loader.policySha256',cfg.policySha256
+   manifest.native.each {k,v->assert sha(new File(v.path).bytes)==v.sha256;systemProperty "rf.loader.${k}",v.path}
+   record.owners.each {k,v->systemProperty "rf.loader.classSha.${k}",v.sha256}
+   assert runtimeCwd.list().length==0 && runtimeTmp.list().length==0 : 'fresh truth-free runtime cwd/tmp required'
+   File events=new File(output,'test-events.jsonl');assert !events.exists()
+   File evidence=new File(output,'measurement');assert evidence.isDirectory() && evidence.list().length==0
+   writeJson(new File(output,'effective-test-config.json'),[selector:cfg.selector,classpath:record.classpath,jvmArgs:allJvmArgs,
+      excludes:excludes,includes:includes,workingDir:workingDir.canonicalPath,javaTmpDir:runtimeTmp.canonicalPath,environmentPolicy:'inherited runtime sanitizer and JVM environment unchanged'])
+  }
+  beforeTest { d -> new File(output,'test-events.jsonl') << JsonOutput.toJson([event:'start',class:d.className,method:d.name])+'\n' }
+  afterTest { d,r -> new File(output,'test-events.jsonl') << JsonOutput.toJson([event:'finish',class:d.className,method:d.name,result:r.resultType.toString()])+'\n' }
+ }
+ gradle.taskGraph.whenReady { graph ->
+  writeJson(new File(output,'task-graph.json'),[tasks:graph.allTasks.collect {it.path},
+    compileSdk:android.compileSdk,buildTools:android.buildToolsVersion,ndkVersion:android.ndkVersion,
+    externalNativeTasks:graph.allTasks.findAll {it.name==~/(?i).*(externalNative|configureCMake|buildCMake|configureNdk|buildNdk).*/}.collect {it.path}])
+ }
+} } }

@@ -1,0 +1,113 @@
+{
+  "classification": "OFFICIAL_HTTPS_ZIP_METADATA_ONLY_NOT_FULL_ARCHIVE_VERIFICATION",
+  "url": "https://repo.maven.apache.org/maven2/org/robolectric/android-all/15-robolectric-12650502/android-all-15-robolectric-12650502.jar",
+  "expectedWholeJarSha256": "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b",
+  "tail": {
+    "headers": {
+      "Content-Range": "bytes 184807397-184872953/184872954",
+      "Content-Length": "65557",
+      "ETag": "\"1bf3898ebc30aebf9ccd915ec1c1dfa3\"",
+      "Last-Modified": "Thu, 14 Nov 2024 22:57:19 GMT"
+    },
+    "bytes": 65557,
+    "sha256": "9d75e4bb383508df4facc10b093b505bccd3d945553635218f2454f70d77e5a9"
+  },
+  "centralDirectory": {
+    "headers": {
+      "Content-Range": "bytes 177572515-184872855/184872954",
+      "Content-Length": "7300341",
+      "ETag": "\"1bf3898ebc30aebf9ccd915ec1c1dfa3\"",
+      "Last-Modified": "Thu, 14 Nov 2024 22:57:19 GMT"
+    },
+    "bytes": 7300341,
+    "sha256": "73def6cd1ca6b964b16a07b915b9dacde37010eb3425734b419639a0a84672e8",
+    "entries": 71468,
+    "zip64": true
+  },
+  "nativeEntries": [
+    {
+      "path": "native/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/linux/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/linux/x86_64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/linux/x86_64/libandroid_runtime.so",
+      "method": 8,
+      "compressedBytes": 6560178,
+      "uncompressedBytes": 15526048
+    },
+    {
+      "path": "native/mac/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/mac/aarch64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/mac/aarch64/libandroid_runtime.dylib",
+      "method": 8,
+      "compressedBytes": 6232366,
+      "uncompressedBytes": 17344304
+    },
+    {
+      "path": "native/mac/x86_64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/mac/x86_64/libandroid_runtime.dylib",
+      "method": 8,
+      "compressedBytes": 6763974,
+      "uncompressedBytes": 19023192
+    },
+    {
+      "path": "native/windows/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/windows/x86_64/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "native/windows/x86_64/libandroid_runtime.dll",
+      "method": 8,
+      "compressedBytes": 5656418,
+      "uncompressedBytes": 13691392
+    },
+    {
+      "path": "icu/",
+      "method": 0,
+      "compressedBytes": 0,
+      "uncompressedBytes": 0
+    },
+    {
+      "path": "icu/icudt75l.dat",
+      "method": 8,
+      "compressedBytes": 10479213,
+      "uncompressedBytes": 27956384
+    }
+  ]
+}

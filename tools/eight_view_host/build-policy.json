@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "classification": "HOST_SOURCE_BUILT_CAPABILITY_POLICY",
+  "opencvVersion": "4.12.0",
+  "opencvCommit": "49486f61fb25722cbcf586b7f4320921d46fb38e",
+  "opencvArchiveSha256": "8f00b42869ab2836be36090f6631ae4c38ba59171e22a69a8e0f92f8ef1771d4",
+  "opencvAarSha256": "f71846a313388d9da667a59be1e921669fcf792d1ba264b3898253ca789bc3f0",
+  "opencvModules": [
+    "core",
+    "features2d",
+    "imgproc",
+    "java"
+  ],
+  "nativeClasses": [
+    "org.opencv.core.Core",
+    "org.opencv.core.Mat",
+    "org.opencv.core.Algorithm",
+    "org.opencv.core.MatOfDMatch",
+    "org.opencv.features2d.BFMatcher",
+    "org.opencv.features2d.DescriptorMatcher",
+    "org.opencv.features2d.SIFT",
+    "org.opencv.features2d.Feature2D",
+    "org.opencv.core.MatOfKeyPoint",
+    "org.opencv.imgproc.Imgproc"
+  ],
+  "compiler": {
+    "family": "GNU",
+    "allowedMajorVersions": [
+      13,
+      14
+    ],
+    "standard": "c++20"
+  },
+  "jdkMajorVersion": 17,
+  "gradleVersion": "8.13",
+  "gradleDistributionSha256": "20f1b1176237254a6fc204d8434196fa11a4cfb387567519c61556e8710aed78",
+  "robolectricVersion": "4.14.1",
+  "androidAllSha256": "6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b",
+  "jniTranslationUnits": [
+    "reconstruction/src/jni.cpp"
+  ],
+  "requiredChecks": [
+    "sourceIntegrity",
+    "opencvModules",
+    "opencvAbi",
+    "opencvElf",
+    "opencvSmoke",
+    "scannerSource",
+    "scannerAbi",
+    "scannerElf"
+  ],
+  "qualification": "HOST_JNI_ONLY_NOT_ANDROID_OR_PERFORMANCE",
+  "robolectricNativeRuntimeVersion": "1.0.16",
+  "robolectricNativeRuntimeSha256": "2f4e879b00eed634d0e43353ecff80db4d5ce24b3b213d1e6053cb21b0ced10f",
+  "robolectricNativeRuntimeEntry": "native/linux/x86_64/libandroid_runtime.so",
+  "robolectricNativeProviderArchive": "androidAll",
+  "robolectricNativeProviderEntryBytes": 15526048,
+  "robolectricNativeProviderMaximumBytes": 33554432
+}

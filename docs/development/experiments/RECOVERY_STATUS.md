@@ -104,3 +104,13 @@ raw-corner support triangles include 2,531 duplicate-camera proposals, without
 inventing their unavailable native winding. All observations and pre-face points
 remain accounted for, including unknown normals. This is provenance and incidence
 only: geometry, poor coverage and incomplete intersection checks are unchanged.
+
+[Eight-view HOST CI implementation](eight-view-host-ci/IMPLEMENTATION_STATUS.md)
+and its separate [runtime source successor](eight-view-sparse-runtime-successor/README.md)
+are integrated with the new workflow deliberately unarmed. Independent and root
+runs each pass 153 controller/capability guards; root also rechecks all 14 input
+controls normally and optimized. These are process, integrity and synthetic
+contract tests, not a compiled production pipeline or successful reconstruction.
+The actual Gradle/Kotlin/native eight-view run remains NOT_RUN. Exact one-shot
+source, parent, message and changed-path admission require a separate reviewed
+arming change; ordinary device and sanitizer gates are unchanged.

@@ -1,0 +1,47 @@
+name: Eight-view production sparse HOST diagnostic
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/eight-view-host-diagnostic.yml
+      - tools/eight_view_host/controller.py
+permissions:
+  contents: read
+concurrency:
+  group: eight-view-host-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  eight-view-host:
+    # Deliberately unarmed until implementation, adapter and exact source policy are reviewed.
+    if: >-
+      ${{ false && github.event_name == 'push' &&
+          github.repository == 'cheshmakzanoon-ops/3d-scanner' &&
+          github.event.repository.full_name == 'cheshmakzanoon-ops/3d-scanner' &&
+          toJSON(github.event.repository.private) == 'false' &&
+          github.event.repository.default_branch == 'main' &&
+          github.ref == 'refs/heads/main' && github.event.ref == 'refs/heads/main' &&
+          github.event.before == 'NOT_ARMED' && github.event.after == github.sha &&
+          github.event.head_commit.id == github.sha &&
+          github.event.head_commit.message == 'NOT_ARMED' &&
+          toJSON(github.event.created) == 'false' && toJSON(github.event.deleted) == 'false' &&
+          toJSON(github.event.forced) == 'false' && github.run_attempt == '1' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+      - name: One source-bound actual eight-view HOST attempt (not qualification)
+        run: python3 -B tools/eight_view_host/controller.py
+      - name: Retain bounded evidence, including original failure (upload is not PASS)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: eight-view-host-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rf-eight-evidence/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 6
+          include-hidden-files: false
