@@ -3,10 +3,10 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='NOT_ARMED'
-MESSAGE='NOT_ARMED'
+BASE_SHA='83fefee29b273d2132dd82b80c7071a4b015f3bc'
+MESSAGE='test: run one bounded eight-view sparse host diagnostic'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset()  # Final independently reviewed trigger commit only; no wildcard expansion.
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','SOURCE_MANIFEST.sha256'))  # Final independently reviewed trigger commit only; no wildcard expansion.
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
