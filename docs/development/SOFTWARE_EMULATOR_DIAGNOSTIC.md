@@ -28,7 +28,8 @@ device selectors are removed. No key or signing material is printed or uploaded.
 Implementation and host tests do not execute Android. Publishing the exact
 opted-in commit intentionally requests one automatic attempt under the existing
 authorized repository CI; it is not a credential or permissions workaround.
-Until actual runtime output exists, record **Android runtime NOT_RUN**.
+Until the four exact test events exist, record **focused instrumentation NOT_RUN**.
+An observed emulator boot alone is narrower evidence, not an instrumentation pass.
 
 The controller requires a preinstalled SDK, SDK command-line tools and JDK 17.
 Missing required SDK package versions may be downloaded by the official existing
@@ -50,8 +51,8 @@ fails rather than silently changing mode or downgrading.
 Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
 repository's `refs/heads/main`, on attempt 1, with all of the following:
 
-- Previous head exactly `68e7a843bf44aaa2557cd34281cd5a4a2281d60e`.
-- Exact commit message `test: validate observed headless emulator loader trace`.
+- Previous head exactly `a014166f3d6d64762e825d7217d250a92ba02935`.
+- Exact commit message `test: bound software emulator installation and retain evidence`.
 - A normal update, not a created/deleted branch or forced push.
 - Event `after`, head-commit ID and `GITHUB_SHA` all identical.
 - One non-merge commit whose actual parent is that previous head; the committed
@@ -96,11 +97,15 @@ skip-CI commit markers, which would suppress required ordinary push checks too.
 | Headless ELF check / optional private host-library preparation | 5 minutes |
 | Exact-source debug app + instrumentation APK build | 20 minutes |
 | Cold boot | 30 minutes |
+| One read-only PackageManager response probe | 60 seconds |
+| Each APK install, exactly one attempt (two APKs maximum) | 10 minutes |
 | Selected instrumentation invocation | 15 minutes |
 
 Every subprocess deadline is clipped by the remaining controller budget. A later
 phase may therefore receive less than its individual maximum. Regular commands
-have a 60-second maximum unless explicitly specified; APK installs have 120 seconds.
+have a 60-second maximum unless explicitly specified. Each APK install has a
+600-second cap; there is no retry and its timeout is clipped by the original
+overall working deadline. The instrumentation cap remains 15 minutes.
 No timeout is interpreted as success or justification to relax a required gate.
 The 72-minute controller working deadline also has a signal-based watchdog and
 leaves space inside the hard 75-minute job limit for checkout and owned-process
@@ -227,15 +232,15 @@ a filesystem quota; transient growth between samples can exceed its threshold. B
 count and SHA-256, never raw archive bytes. No timeout or setup failure proceeds
 to app build, ADB startup, boot or tests.
 
-Local validation: 90 diagnostic host tests pass, including genuinely compiled shared-library
+Host-library/loader coverage includes genuinely compiled shared-library
 and RPATH-versus-RUNPATH precedence fixtures checked by the local dynamic loader,
 private APT configuration isolation,
 a real child-process metadata-growth cleanup regression, and external-tool-mocked
 full setup/receipt/failure orchestration. Those mocks
 are explicitly **not** Ubuntu Noble solver/signature/download evidence. This
 workspace's Debian host is not the Ubuntu runner; no SDK/emulator or APT download
-was run locally. The corrected installed backend and real private-package route
-remain **NOT_RUN** for this corrected source until the next reviewed hosted attempt.
+was run locally. The a014 backend/closure checks succeeded without private packages; the actual
+private-package route remains **NOT_RUN**. New install behavior remains unverified.
 The preserved old tail proves only the recorded startup pair, not a successful
 replay of this new complete selected-process path parser. The stdin regression
 retains failing exit semantics while reporting only privacy-safe byte counts and
@@ -277,11 +282,85 @@ Listener or process-ownership uncertainty fails closed instead of contacting an
 unowned server/device. These checks do not require new permissions or security
 changes.
 
-CLI syntax and these behaviors have been checked against official help/source,
-not against a running installed ADB or emulator. **Installed-tool behavior and
-actual Android runtime remain unverified / NOT_RUN until a reviewed experiment.**
+CLI syntax was checked against official help/source; the a014 hosted attempt
+also exercised these private-server/ownership checks through measured emulator
+boot. **The four instrumentation tests remain NOT_RUN; the corrected install
+path remains unverified until another reviewed experiment.**
 A tool version that differs from the source assumptions can conservatively block
 startup; this diagnostic does not fall back to a shared server or relaxed checks.
+
+## Observed install timeout and bounded correction
+
+[Run 39940307810, attempt 1](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39940307810),
+at source `a014166f3d6d64762e825d7217d250a92ba02935`, completed the exact-source
+APK build and measured API35 / x86_64 / 4096-byte-page emulator boot. Loader
+preflight reported `PREINSTALLED` with no private packages downloaded. The emulator
+reported boot completion in 827,808 ms. Device identity queries finished at
+10:57:53 UTC; the first app-install command emitted zero captured bytes and hit
+its fixed 120-second limit at 10:59:54. The terminal receipt is `TIMEOUT`, elapsed
+1,404.861 seconds: this was an individual install cap, not exhaustion of the
+72-minute controller deadline. Test-APK installation and instrumentation never
+started. The built diagnostic app SHA-256 was
+`654ee78273337022a649960c16d46ffd24fba8f49d790a3009bc149d24d1b895`;
+this is not a verified installed-package hash. No installed APK hashes, test proof
+or JUnit success were established.
+
+The same source's [normal verification](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39940307510)
+reported 837 passing Android host tests, while each native release configuration
+passed 48 CTest and 1,867 pytest tests (170 subtests; 3 skips). These do not imply
+a release pass: both aggregate sanitizer Python suites failed 83 tests, the
+[separate sanitizer matrix](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/39940307541)
+hit Python timeouts, and the original device gate remained blocked by its KVM
+prerequisite. None of those gates or runtime sanitizer environments is relaxed
+by this supplementary diagnostic correction.
+
+Retained evidence hashes (original evidence is not rewritten):
+
+- Full job log: `80e8e8dc2ba8184a9548c0d0e37a3d497d6b75b50dc201e66e472f4441d15ad2`.
+- Extracted final receipt: `7c1287f9d9e1ec217a515d1894d9ea191de04ccf9e9af02cd2acec0cb1245934`.
+
+Zero captured output does not locate the stall. ADB's install path can use buffered
+stdio and wait for a remote package result; transfer delay, PackageManager/ART
+work and post-boot CPU contention remain hypotheses, not diagnosed causes. APK
+sizes and the active install's process/timing metadata were not recorded in that
+old attempt. Changing transport, retrying a possibly partial install, disabling
+verification, or changing emulator/security settings is not justified by this
+observation.
+
+The narrow correction keeps the same `adb install -t` operation and one attempt
+per APK, with 600 seconds per attempt under the unchanged hard overall deadline.
+First, one read-only `cmd package path android` query has at most 60 seconds and
+must return exactly the known system framework package path. Its receipt says
+`RESPONSIVE`, not idle or guaranteed ready: neither this query nor boot completion
+proves that installation will finish. Failure or unexpected output stops setup.
+
+Before each install, the APK is rehashed against the exact-source build receipt.
+A per-APK record includes package identity, byte size, SHA-256, start/end time,
+elapsed duration, configured/effective timeout and the owned ADB client's PID,
+exit/completion/output hash/byte count when known. Partial metadata survives
+cancellation and timeout. `COMMAND_SUCCEEDED` means only command completion;
+`INSTALLED_HASH_VERIFIED` requires the unchanged post-install installed-base-APK
+hash check. First-install failure prevents the second attempt; any setup failure
+prevents instrumentation and JUnit. There is no automatic retry or mode fallback.
+The bounded increase is an experiment, not evidence that 600 seconds is sufficient.
+The next attempt requires the separately reviewed exact parent/message opt-in
+in the existing one-shot policy; the failed a014 attempt is not retried.
+
+The previous emulator tail also printed its disposable ADB **public** key. This
+was not a private signing key, but conflicts with the diagnostic's no-key-output
+intent. Known public-key lines are now redacted before readable-log tail clipping;
+`displayRedacted=true` marks the display change while its byte count still refers
+to the original captured bytes. Original archived logs are untouched. Raw loader
+or instrumentation proof containing those markers is rejected before emission,
+not silently rewritten or rehashed. Clean raw proof/chunk/hash semantics remain
+unchanged. No key persistence, permissions change or credential rotation is added.
+
+Local coverage includes 101 diagnostic host tests, with single-attempt first/second
+install timeout, cancellation, deadline clipping, malformed service responses,
+changed APKs, exit-zero/hash mismatch, terminal no-JUnit timeout and real silent
+child-process metadata. These are host/controller tests, not corrected Android
+installation or test execution. This corrected installation path and the four
+instrumentation methods remain **NOT_RUN** until a separately reviewed hosted run.
 
 ## Exactly four tests
 
@@ -375,6 +454,10 @@ process control only; they are not Android execution evidence.
   same-PID listener check; installed-tool behavior still requires verification.
 - [Linux dynamic-loader semantics](https://man7.org/linux/man-pages/man8/ld.so.8.html)
   distinguish RPATH, LD_LIBRARY_PATH and RUNPATH precedence and inheritance.
+- [AOSP ADB install implementation](https://android.googlesource.com/platform/packages/modules/adb/+/refs/heads/main/client/adb_install.cpp)
+  documents transport selection, buffered progress printing and remote status waits.
+  [Android15 PackageManager shell source](https://android.googlesource.com/platform/frameworks/base/+/refs/heads/android15-release/services/core/java/com/android/server/pm/PackageManagerShellCommand.java)
+  implements the read-only package-path query; its response is not an idle-state guarantee.
 - [APT configuration order and directories](https://manpages.debian.org/testing/apt/apt.conf.5.en.html),
   [authenticated archives](https://manpages.debian.org/testing/apt/apt-secure.8.en.html)
   and [simulation/download commands](https://manpages.debian.org/testing/apt/apt-get.8.en.html)

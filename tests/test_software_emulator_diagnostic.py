@@ -631,7 +631,11 @@ class ObservedLoaderTrace(unittest.TestCase):
         output, identity = io.StringIO(), {}
         with contextlib.redirect_stdout(output):
             result, code = diag.Controller().command("emulator-loader-probe", [sys.executable, "-c", "import sys; sys.stdout.buffer.write(" + repr(raw) + ")"],
-                limit=diag.LOADER_TRACE_LIMIT, identity=identity)
+                limit=diag.LOADER_TRACE_LIMIT, identity=identity, check=False)
+        failure_metadata = {"exit": code, "outputBytes": len(result.encode()), "expectedBytes": len(raw),
+            "sanitizerMarkerCounts": {name: result.count(name) for name in
+                ("AddressSanitizer", "LeakSanitizer", "UndefinedBehaviorSanitizer", "SUMMARY:")}}
+        self.assertTrue(code == 0 and result.encode() == raw, json.dumps(failure_metadata, sort_keys=True))
         lines = output.getvalue().splitlines()
         meta = json.loads(next(line.split(" ", 1)[1] for line in lines if line.startswith("RF_LOADER_TRACE_RAW_META ")))
         chunks = []
@@ -641,7 +645,6 @@ class ObservedLoaderTrace(unittest.TestCase):
             chunks.append(chunk)
         self.assertEqual(len(chunks), meta["chunks"])
         self.assertEqual(base64.b64decode("".join(chunks), validate=True), raw)
-        self.assertEqual((code, result.encode()), (0, raw))
         self.assertTrue(meta["complete"]); self.assertTrue(identity["complete"])
         self.assertEqual(meta["sha256"], identity["outputSha256"])
         self.assertEqual(meta["bytes"], identity["outputBytes"])
@@ -1150,6 +1153,171 @@ class SubprocessAndReceipts(unittest.TestCase):
             ctl.installed_hash(diag.APP)
         with mock.patch.object(ctl, "shell", side_effect=["package:/data/app/x/base.apk", "a" * 64 + "  /data/app/x/base.apk"]):
             self.assertEqual(ctl.installed_hash(diag.APP), "a" * 64)
+
+
+class CandidateInstallation(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(); self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.now, self.calls, self.problem = 0, [], None
+        self.ctl = diag.Controller(env={}, clock=lambda: self.now)
+        self.ctl.app, self.ctl.test = self.root / "app.apk", self.root / "test.apk"
+        self.ctl.app.write_bytes(b"synthetic app bytes")
+        self.ctl.test.write_bytes(b"synthetic test bytes")
+        self.ctl.receipt.update(appSha256=diag.sha256(self.ctl.app), testSha256=diag.sha256(self.ctl.test))
+        self.stack = contextlib.ExitStack(); self.addCleanup(self.stack.close)
+        self.stack.enter_context(mock.patch.object(self.ctl, "adb_args", side_effect=lambda *args: ["/owned/adb", *args]))
+        self.stack.enter_context(mock.patch.object(self.ctl, "command", side_effect=self.command))
+        self.stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+
+    def command(self, label, args, **kwargs):
+        self.calls.append((label, args, kwargs))
+        identity = kwargs.get("identity")
+        if identity is not None:
+            identity.update(pid=123, complete=False, outputBytes=0, outputSha256=hashlib.sha256(b"").hexdigest())
+        if self.problem == label:
+            self.now += kwargs["timeout"]
+            raise diag.Deadline(label + " timed out")
+        if self.problem == "cancel-install" and label == "install-app":
+            raise diag.Cancelled("Signal 15")
+        output = "package:/system/framework/framework-res.apk\n" if label == "package-manager-response" else "Success\n"
+        if self.problem == "malformed-probe" and label == "package-manager-response":
+            output = "package:/foreign/framework-res.apk\n"
+        if identity is not None:
+            identity.update(complete=True, exit=0, outputBytes=len(output.encode()), outputSha256=hashlib.sha256(output.encode()).hexdigest())
+        return output, 0
+
+    def test_readonly_response_then_exact_unchanged_two_installs_have_per_apk_bound_receipts(self):
+        self.ctl.install_candidates()
+        self.assertEqual([call[0] for call in self.calls], ["package-manager-response", "install-app", "install-test"])
+        self.assertEqual(self.calls[0][1], ["/owned/adb", "-s", diag.SERIAL, "shell", "cmd", "package", "path", "android"])
+        self.assertEqual(self.calls[0][2]["timeout"], 60)
+        for index, apk in enumerate((self.ctl.app, self.ctl.test), 1):
+            label, args, kwargs = self.calls[index]
+            self.assertEqual(args, ["/owned/adb", "-s", diag.SERIAL, "install", "-t", apk])
+            self.assertEqual(kwargs["timeout"], 600)
+            record = self.ctl.receipt["candidateInstallations"][index - 1]
+            self.assertEqual(record["apkBytes"], apk.stat().st_size)
+            self.assertEqual(record["apkSha256"], diag.sha256(apk))
+            self.assertEqual(record["process"]["pid"], 123)
+            self.assertEqual(record["status"], "COMMAND_SUCCEEDED")
+            self.assertNotIn("installedSha256", record)
+        self.assertEqual(self.ctl.receipt["packageManagerProbe"]["status"], "RESPONSIVE")
+        self.assertNotIn("testProof", self.ctl.receipt)
+
+    def test_first_and_second_timeouts_never_retry_or_reach_hashes_or_instrumentation(self):
+        for problem, count in (("install-app", 1), ("install-test", 2)):
+            with self.subTest(problem=problem), mock.patch.object(self.ctl, "installed_hash") as installed:
+                self.problem, self.calls, self.now = problem, [], 0
+                with self.assertRaises(diag.Deadline): self.ctl.tests()
+                installed.assert_not_called()
+                self.assertEqual(len(self.ctl.receipt["candidateInstallations"]), count)
+                record = self.ctl.receipt["candidateInstallations"][-1]
+                self.assertEqual(record["status"], "TIMEOUT")
+                self.assertFalse(record["process"]["complete"])
+                self.assertEqual(record["process"]["outputBytes"], 0)
+                self.assertEqual(record["elapsedSeconds"], 600)
+                self.assertEqual(sum(label == problem for label, _, _ in self.calls), 1)
+                self.assertNotIn("instrumentation", [label for label, _, _ in self.calls])
+                self.assertNotIn("junitXml", self.ctl.receipt)
+
+    def test_probe_timeout_or_malformed_response_prevents_every_install(self):
+        for problem in ("package-manager-response", "malformed-probe"):
+            with self.subTest(problem=problem):
+                self.problem, self.calls, self.now = problem, [], 0
+                with self.assertRaises(diag.Failure): self.ctl.install_candidates()
+                self.assertEqual([call[0] for call in self.calls], ["package-manager-response"])
+                self.assertEqual(self.ctl.receipt["candidateInstallations"], [])
+                self.assertNotEqual(self.ctl.receipt["packageManagerProbe"]["status"], "RESPONSIVE")
+
+    def test_effective_install_deadline_is_clipped_to_original_controller_limit(self):
+        self.ctl.ends = 75
+        def timed(label, args, **kwargs):
+            result = self.command(label, args, **kwargs)
+            self.now += 5 if label == "package-manager-response" else 30
+            return result
+        with mock.patch.object(self.ctl, "command", side_effect=timed):
+            self.ctl.install_candidates()
+        self.assertEqual([call[2]["timeout"] for call in self.calls], [60, 70, 40])
+        self.assertEqual([r["effectiveTimeoutSeconds"] for r in self.ctl.receipt["candidateInstallations"]], [70, 40])
+        self.assertEqual(diag.BUDGETS["controller"], 4320)
+        self.assertEqual(diag.BUDGETS["workflow"], 4500)
+        self.assertEqual(diag.BUDGETS["instrumentation"], 900)
+
+    def test_cancelled_install_preserves_partial_identity_and_stops(self):
+        self.problem = "cancel-install"
+        with self.assertRaises(diag.Cancelled): self.ctl.install_candidates()
+        record = self.ctl.receipt["candidateInstallations"][0]
+        self.assertEqual(record["status"], "CANCELLED")
+        self.assertEqual(record["process"]["pid"], 123)
+        self.assertFalse(record["process"]["complete"])
+        self.assertEqual([call[0] for call in self.calls], ["package-manager-response", "install-app"])
+
+    def test_changed_source_apk_is_rejected_before_install(self):
+        self.ctl.app.write_bytes(b"mutated bytes")
+        with self.assertRaises(diag.Failure): self.ctl.install_candidates()
+        self.assertEqual([call[0] for call in self.calls], ["package-manager-response"])
+        self.assertEqual(self.ctl.receipt["candidateInstallations"], [])
+
+    def test_exit_zero_does_not_bypass_exact_installed_hashes(self):
+        with mock.patch.object(self.ctl, "installed_hash", return_value="f" * 64) as installed:
+            with self.assertRaisesRegex(diag.Failure, "Installed APK hashes differ"):
+                self.ctl.tests()
+        self.assertEqual(installed.call_count, 2)
+        self.assertNotIn("instrumentation", [label for label, _, _ in self.calls])
+        self.assertNotIn("installedSha256", self.ctl.receipt)
+        self.assertNotIn("junitXml", self.ctl.receipt)
+
+    def test_real_no_output_timeout_preserves_owned_command_metadata_and_failure(self):
+        ctl, record = diag.Controller(), {"package": diag.APP}
+        with self.assertRaises(diag.Deadline):
+            ctl.candidate_setup_command("install-fixture", [sys.executable, "-c", "import time; time.sleep(30)"], .2, record)
+        self.assertEqual(record["status"], "TIMEOUT")
+        self.assertIsInstance(record["process"]["pid"], int)
+        self.assertFalse(record["process"]["complete"])
+        self.assertEqual(record["process"]["outputBytes"], 0)
+        self.assertEqual(record["process"]["outputSha256"], hashlib.sha256(b"").hexdigest())
+
+    def test_first_install_timeout_emits_terminal_timeout_receipt_never_junit(self):
+        self.problem = "install-app"
+        output = io.StringIO()
+        with mock.patch.object(self.ctl, "prerequisites"), mock.patch.object(self.ctl, "build"), \
+                mock.patch.object(self.ctl, "boot"), contextlib.redirect_stdout(output):
+            self.assertEqual(self.ctl.run(), 1)
+        self.assertNotIn("RF_DIAGNOSTIC_JUNIT", output.getvalue())
+        final = json.loads(next(line.split(" ", 1)[1] for line in output.getvalue().splitlines()
+                               if line.startswith("RF_DIAGNOSTIC_RECEIPT ")))
+        self.assertEqual(final["status"], "TIMEOUT")
+        self.assertEqual(len(final["candidateInstallations"]), 1)
+        self.assertNotIn("testProof", final)
+
+
+class DiagnosticPublicKeyPrivacy(unittest.TestCase):
+    def test_known_emulator_key_forms_are_redacted_before_tail_truncation(self):
+        key = "SYNTHETIC_PUBLIC_KEY_BYTES" * 1000
+        for line in ("INFO | Sending adb public key [" + key + " runner@fixture]\n",
+                     "INFO | androidboot.qemu.adb.pubkey=" + key + " runner@fixture\n"):
+            with self.subTest(marker=line[:50]):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output): diag.emit("emulator-tail", line + "ordinary line\n", limit=80)
+                self.assertNotIn("SYNTHETIC_PUBLIC_KEY_BYTES", output.getvalue())
+                self.assertNotIn("runner@fixture", output.getvalue())
+                self.assertIn("REDACTED_EPHEMERAL_ADB_PUBLIC_KEY", output.getvalue())
+                self.assertIn("displayRedacted=true", output.getvalue())
+                self.assertIn("ordinary line", output.getvalue())
+
+    def test_clean_log_bytes_and_unredacted_raw_proofs_keep_existing_semantics(self):
+        plain = "normal diagnostic\n"
+        self.assertEqual(diag.redact_diagnostic_text(plain), plain)
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output): diag.emit("plain", plain)
+        self.assertNotIn("displayRedacted", output.getvalue())
+        self.assertIn("bytes=18", output.getvalue())
+        for method, raw in ((diag.emit_raw_instrumentation, "Sending adb public key [SYNTHETIC]\n"),
+                            (lambda raw: diag.emit_raw_loader_trace(raw, True), b"androidboot.qemu.adb.pubkey=SYNTHETIC\n")):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), self.assertRaises(diag.Failure): method(raw)
+            self.assertEqual(output.getvalue(), "")  # Reject, never hash a silently rewritten proof.
 
 
 class PrivateAdbOwnership(unittest.TestCase):

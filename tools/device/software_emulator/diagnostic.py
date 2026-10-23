@@ -31,8 +31,8 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "68e7a843bf44aaa2557cd34281cd5a4a2281d60e"
-PUSH_MESSAGE = "test: validate observed headless emulator loader trace"
+PUSH_BASE_SHA = "a014166f3d6d64762e825d7217d250a92ba02935"
+PUSH_MESSAGE = "test: bound software emulator installation and retain evidence"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
 PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
@@ -51,7 +51,8 @@ APP = "com.realityforge.scanner"
 RUNNER = APP + ".test/androidx.test.runner.AndroidJUnitRunner"
 SERIAL = "emulator-5580"
 BUDGETS = {"workflow": 4500, "controller": 4320, "sdkInstall": 300,
-           "hostLibraries": 300, "build": 1200, "boot": 1800, "instrumentation": 900}
+           "hostLibraries": 300, "build": 1200, "boot": 1800,
+           "packageManagerProbe": 60, "apkInstall": 600, "instrumentation": 900}
 HOST_LIBRARY_PACKAGES = frozenset(("libpulse0", "libasyncns0", "libsndfile1", "libflac12t64",
     "libogg0", "libopus0", "libvorbis0a", "libvorbisenc2", "libmpg123-0t64", "libmp3lame0",
     "libdbus-1-3", "libx11-6", "libx11-xcb1", "libxcb1", "libxau6", "libxdmcp6", "libbsd0", "libmd0"))
@@ -91,11 +92,20 @@ def sha256(path, check=None):
     return digest.hexdigest()
 
 
+def redact_diagnostic_text(text):
+    """Suppress known emulator public-key lines before tail truncation, not raw proofs."""
+    return re.sub(r"(?i)(Sending adb public key|androidboot\.qemu\.adb\.pubkey=)[^\r\n]*",
+                  r"\1[REDACTED_EPHEMERAL_ADB_PUBLIC_KEY]", text)
+
+
 def emit(label, output, limit=16384):
     """Prefix every line so child output cannot issue GitHub workflow commands."""
     raw = output.encode("utf-8", "replace") if isinstance(output, str) else output
-    tail = raw[-limit:].decode("utf-8", "replace")
-    print("RF_DIAGNOSTIC_LOG " + label + " bytes=" + str(len(raw)), flush=True)
+    decoded = raw.decode("utf-8", "replace")
+    safe = redact_diagnostic_text(decoded)
+    tail = safe.encode("utf-8")[-limit:].decode("utf-8", "replace")
+    print("RF_DIAGNOSTIC_LOG " + label + " bytes=" + str(len(raw))
+          + (" displayRedacted=true" if safe != decoded else ""), flush=True)
     for line in tail.splitlines():
         # Strip terminal control characters, while preserving printable evidence.
         line = "".join(c if c >= " " or c == "\t" else "?" for c in line)
@@ -121,6 +131,8 @@ def emit_raw_instrumentation(output):
     commands. A consumer must require every unique ordered chunk and verify SHA.
     """
     raw = output.encode("utf-8")
+    if redact_diagnostic_text(output) != output:
+        raise Failure("Raw instrumentation contains a public-key diagnostic; refusing unredacted proof emission")
     if len(raw) > INSTRUMENTATION_LIMIT:
         raise Failure("Instrumentation evidence exceeds bounded size")
     encoded = base64.b64encode(raw).decode("ascii")
@@ -136,6 +148,9 @@ def emit_raw_loader_trace(raw, complete):
     """Preserve the complete bounded capture even when subsequent parsing fails."""
     if len(raw) > LOADER_TRACE_LIMIT:
         raise Failure("Loader trace exceeds bounded size")
+    decoded = raw.decode("utf-8", "replace")
+    if redact_diagnostic_text(decoded) != decoded:
+        raise Failure("Raw loader trace contains a public-key diagnostic; refusing unredacted evidence emission")
     encoded = base64.b64encode(raw).decode("ascii")
     chunks = [encoded[index:index + 4096] for index in range(0, len(encoded), 4096)]
     metadata = {"encoding": "base64", "bytes": len(raw), "chunks": len(chunks),
@@ -1179,13 +1194,55 @@ class Controller:
             raise Failure("Malformed installed APK hash")
         return line[:64]
 
+    def candidate_setup_command(self, label, args, budget, record):
+        """One observed command, no retry; partial metadata survives timeout/cancellation."""
+        started = self.clock()
+        record.update(stage=label, status="RUNNING", process={},
+                      startedAtUtc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                      elapsedAtStartSeconds=round(started - self.started, 3), budgetSeconds=budget)
+        try:
+            record["effectiveTimeoutSeconds"] = self.remaining(budget)
+            print("RF_CANDIDATE_SETUP_START " + json.dumps(record, sort_keys=True), flush=True)
+            result = self.command(label, args, timeout=record["effectiveTimeoutSeconds"], identity=record["process"])
+            record["status"] = "COMMAND_SUCCEEDED"
+            return result
+        except Exception as error:
+            record.update(status=getattr(error, "status", "FAIL"), error=str(error)[:1024])
+            raise
+        finally:
+            record.update(elapsedSeconds=round(self.clock() - started, 3),
+                          finishedAtUtc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+            print("RF_CANDIDATE_SETUP_FINISH " + json.dumps(record, sort_keys=True), flush=True)
+
+    def install_candidates(self):
+        self.receipt["candidateInstallations"] = []
+        probe = {"package": "android", "expectedPath": "/system/framework/framework-res.apk"}
+        self.receipt["packageManagerProbe"] = probe
+        output, _ = self.candidate_setup_command("package-manager-response",
+            self.adb_args("-s", SERIAL, "shell", "cmd", "package", "path", "android"),
+            BUDGETS["packageManagerProbe"], probe)
+        if output.strip() != "package:" + probe["expectedPath"]:
+            probe["status"] = "UNEXPECTED_RESPONSE"
+            raise Failure("PackageManager did not return the exact system framework package path")
+        probe["status"] = "RESPONSIVE"  # Not proof of idle state or future install readiness.
+        for label, apk, package, hash_key in (("install-app", self.app, APP, "appSha256"),
+                                             ("install-test", self.test, APP + ".test", "testSha256")):
+            if (not apk.is_file() or apk.is_symlink()
+                    or sha256(apk, lambda: self.remaining(1)) != self.receipt[hash_key]):
+                raise Failure("Built APK identity changed before candidate installation")
+            record = {"package": package, "apkBytes": apk.stat().st_size, "apkSha256": self.receipt[hash_key]}
+            self.receipt["candidateInstallations"].append(record)
+            self.candidate_setup_command(label, self.adb_args("-s", SERIAL, "install", "-t", apk),
+                                         BUDGETS["apkInstall"], record)
+
     def tests(self):
-        for apk in (self.app, self.test):
-            self.command("install-candidate", self.adb_args("-s", SERIAL, "install", "-t", apk), timeout=120)
+        self.install_candidates()
         installed = {"appSha256": self.installed_hash(APP), "testSha256": self.installed_hash(APP + ".test")}
         if any(installed[key] != self.receipt[key] for key in installed):
             raise Failure("Installed APK hashes differ from this source's built candidates")
         self.receipt["installedSha256"] = installed
+        for record in self.receipt["candidateInstallations"]:
+            record.update(status="INSTALLED_HASH_VERIFIED", installedSha256=record["apkSha256"])
         # Drain between operations; the command loop also drains while native work runs.
         self.drain_background()
         output, _ = self.command("instrumentation", self.adb_args("-s", SERIAL, "shell", "am", "instrument", "-w", "-r",
