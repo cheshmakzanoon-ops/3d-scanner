@@ -116,7 +116,12 @@ class FileVerifiedExportSourceAccessTest {
             val job = scope.launch { openOwned(worker) { throw expected }.close() }
             caller.runNext(); worker.runNext(); caller.drain()
             assertTrue(job.isCancelled)
-            assertSame(expected, failure)
+            // Gradle enables assertions, which enables coroutine debug stack recovery.
+            // Recovery may copy an IOException and retain the original as its cause.
+            assertEquals(expected.javaClass, failure?.javaClass)
+            assertEquals(expected.message, failure?.message)
+            assertTrue("The original open failure must be preserved",
+                failure === expected || failure?.cause === expected)
         } finally { scope.cancel(); worker.drain(); caller.drain() }
     }
 

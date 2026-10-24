@@ -144,7 +144,9 @@ def main():
                                       ROOT, folder, 'python-baseline-' + kind, env, min(args.timeout, 30))
                     record['commands'].append(receipt)
             python_steps = [('numerical', [sys.executable, ROOT / 'tools/qa/native_regression/numerical.py', '--output', folder / 'numerical.json']),
-                            ('pytest', [sys.executable, '-m', 'pytest', 'tests', '-q', '--junitxml=' + str(folder / 'pytest.xml')]),
+                            ('pytest', [sys.executable, '-m', 'pytest', 'tests', '-q',
+                                        '-p', 'tools.qa.native_regression.pytest_diagnostics',
+                                        '--junitxml=' + str(folder / 'pytest.xml')]),
                             ('bundle-three-view', [sys.executable, 'tools/bundle_three_view.py'])]
             python_steps += [(tool, [sys.executable, 'tools/' + tool + '.py', '--gate', '--output', folder / (tool + '.json')])
                              for tool in ('benchmark_multiview_coverage', 'benchmark_middlebury', 'benchmark_dense_middlebury', 'benchmark_surface_middlebury', 'benchmark_texture_middlebury')]

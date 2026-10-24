@@ -44,6 +44,13 @@ identity, Py_DEBUG status, NumPy module/extension provenance, sanitizer options
 and loaded-library evidence. Neither control imports or loads the scanner.
 Any control failure remains a failed command/configuration; existing numerical,
 pytest and benchmark phases still run. No early leak check replaces finalization.
+The Python suite emits an immediate, explicitly flushed copy of its first failed
+setup, call or teardown report to the existing bounded command log. This copy is
+limited to 64 KiB; the underlying pytest report is unchanged. Tests continue in
+their original order, so this is not fail-fast, a retry or a reduced suite. A
+later timeout remains FAIL/TIMEOUT with the original deadline, even when the
+usual end-of-session traceback/JUnit output was never produced. The observer
+does not classify the cause or excuse CPython, NumPy or scanner failures.
 Use a fresh evidence directory for each invocation; old receipts are immutable.
 
 `evidence.json` uses `realityforge.native-regression.v1`: source SHA and dirty flag,
