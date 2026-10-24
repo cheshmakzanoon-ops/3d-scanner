@@ -13,9 +13,11 @@ allprojects { afterEvaluate { if (path == ':app') {
  // Android and host test tasks are registered by later afterEvaluate callbacks.
  // Keep source-set setup above in project evaluation, but resolve tasks only once
  // every project has finished evaluation. Missing tasks still fail explicitly.
+ // Keep providers unrealized here: projectsEvaluated has no project state lock.
+ // Host task creation traverses configuration-backed ordinary dependencies.
  gradle.projectsEvaluated {
- def ordinary=tasks.getByName('testDebugUnitTest')
- def host=tasks.getByName('hostIntegrationTest')
+ def ordinaryProvider=tasks.named('testDebugUnitTest')
+ def hostProvider=tasks.named('hostIntegrationTest')
  def output=new File(cfg.work)
  def prepared=new File(output,'prepared.json')
  def ownerNames=['org.opencv.android.OpenCVLoader','org.opencv.android.StaticHelper','org.opencv.core.Core','org.opencv.core.Mat','com.realityforge.scanner.engine.NativeCore']
@@ -27,7 +29,7 @@ allprojects { afterEvaluate { if (path == ':app') {
   new ZipFile(aar).withCloseable { z -> assert z.getEntry('classes.jar'); bytes=z.getInputStream(z.getEntry('classes.jar')).bytes }
   File classes=new File(output,'aar-classes.jar')
   if(classes.exists()) assert sha(classes.bytes)==sha(bytes) else classes.bytes=bytes
-  def expected=zipClasses(classes);def original=host.classpath.files.toList();def replaced=[]
+  def expected=zipClasses(classes);def original=hostProvider.get().classpath.files.toList();def replaced=[]
   def cp=original.collect { f ->
    if(f.isFile() && f.name.endsWith('.jar')) {
     def content=zipClasses(f)
@@ -76,13 +78,17 @@ allprojects { afterEvaluate { if (path == ':app') {
  tasks.register('eightPrepare') {
   // Same actual app/test compilation; no ordinary Test execution, old photographic oracle,
   // instrumentation APK, Android native build or original gate substitution requested.
-  dependsOn(ordinary.taskDependencies.getDependencies(ordinary))
+  // Resolve dependencies during graph construction, never in projectsEvaluated.
+  def ordinary=ordinaryProvider.get()
+  dependsOn { ordinary.taskDependencies.getDependencies(ordinary) }
   dependsOn(tasks.getByName('verifyHostIntegrationSdk'))
   doLast {capture(cfg.phase=='prepare' ? 'prepare' : 'runtime-prepare')}
  }
  tasks.register('eightProbe', org.gradle.api.tasks.testing.Test) {
   dependsOn(tasks.getByName('eightPrepare'))
-  testClassesDirs=host.testClassesDirs
+  // Read the task directly under normal task configuration, not a mapped provider
+  // (which would add the ordinary HOST Test as a producer and run its oracle).
+  testClassesDirs=hostProvider.get().testClassesDirs
   classpath=files(provider { actualClasspath().cp })
   setExcludes([]) // Override ONLY this explicit narrow task's blanket HOST exclusion.
   include '**/EightViewSparsePrefixHostTest.class'
