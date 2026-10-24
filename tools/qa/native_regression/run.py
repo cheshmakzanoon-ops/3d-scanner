@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'tools'))
 from native_process import native_compile_env
 from numerical import compare
+from jvm_control import run_baseline as jvm_baseline
 
 CONFIGS = ('gcc-release', 'clang-release', 'gcc-sanitize', 'clang-sanitize')
 
@@ -143,6 +144,8 @@ def main():
                     receipt = command([sys.executable, ROOT / 'tools/qa/native_regression/python_control.py', kind],
                                       ROOT, folder, 'python-baseline-' + kind, env, min(args.timeout, 30))
                     record['commands'].append(receipt)
+                record['jvm_baseline'] = jvm_baseline(ROOT, folder, env, args.timeout, command)
+                record['commands'].extend(record['jvm_baseline']['commands'])
             python_steps = [('numerical', [sys.executable, ROOT / 'tools/qa/native_regression/numerical.py', '--output', folder / 'numerical.json']),
                             ('pytest', [sys.executable, '-m', 'pytest', 'tests', '-q',
                                         '-p', 'tools.qa.native_regression.pytest_diagnostics',

@@ -69,7 +69,7 @@ def test_all_candidate_linked_agent_fixtures_use_matching_compile_prefix():
 
 
 @pytest.mark.parametrize('config', ['gcc-release', 'clang-release', 'gcc-sanitize', 'clang-sanitize'])
-@pytest.mark.parametrize('failed_phase', [None, 'python-baseline-empty', 'python-baseline-numpy', 'numerical', 'pytest'])
+@pytest.mark.parametrize('failed_phase', [None, 'python-baseline-empty', 'python-baseline-numpy', 'jvm-baseline-empty', 'numerical', 'pytest'])
 @pytest.mark.parametrize('deadline', [7, 600])
 def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeypatch, config, failed_phase, deadline):
     sys.path.insert(0, str(ROOT / 'tools/qa/native_regression'))
@@ -98,7 +98,8 @@ def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeyp
     labels, python_envs = [], []
     def phase(argv, cwd, folder, label, env, timeout):
         labels.append(label)
-        assert timeout == (min(deadline, 30) if label.startswith('python-baseline-') else deadline)
+        assert timeout == (min(deadline, 30) if label.startswith('python-baseline-') else
+                           min(deadline, 60) if label.startswith('jvm-baseline-') else deadline)
         if label == 'build':
             build = folder / 'build'
             build.mkdir(parents=True)
@@ -118,8 +119,12 @@ def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeyp
         return dict(label=label, exit_code=17 if label == failed_phase else 0, reason=None,
                     result='FAIL' if label == failed_phase else 'PASS')
     monkeypatch.setattr(run, 'command', phase)
+    # JDK resolution/compile/run isolation is exercised by test_native_jvm_baseline;
+    # this fixture checks orchestration handoff and failure continuation only.
+    monkeypatch.setattr(run, 'jvm_baseline', lambda root, folder, env, timeout, command:
+                        dict(commands=[command(['java'], root, folder, 'jvm-baseline-empty', env, min(timeout, 60))]))
     status = run.main()
-    controls = ['python-baseline-empty', 'python-baseline-numpy'] if config.endswith('-sanitize') else []
+    controls = ['python-baseline-empty', 'python-baseline-numpy', 'jvm-baseline-empty'] if config.endswith('-sanitize') else []
     assert labels == ['configure', 'build', 'ctest', *controls, 'numerical', 'pytest', 'bundle-three-view',
                       'benchmark_multiview_coverage', 'benchmark_middlebury',
                       'benchmark_dense_middlebury', 'benchmark_surface_middlebury',

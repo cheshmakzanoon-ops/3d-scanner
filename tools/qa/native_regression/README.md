@@ -44,6 +44,21 @@ identity, Py_DEBUG status, NumPy module/extension provenance, sanitizer options
 and loaded-library evidence. Neither control imports or loads the scanner.
 Any control failure remains a failed command/configuration; existing numerical,
 pytest and benchmark phases still run. No early leak check replaces finalization.
+A scanner-free JVM startup/ordinary-exit control then resolves `javac` from the
+same PATH and uses that resolved JDK's `bin/java`, matching the actual JNI test.
+Compilation uses the existing native compile environment; JVM execution preserves
+all sanitizer/preload options and the JNI helper's candidate-directory search
+precedence. Separate compile/run logs retain exits and hashes, with the existing
+32 MiB command-log limit and at most 60 seconds per command (or the configured
+deadline if shorter). Source, compiler, Java executable, JDK release and generated
+class are hashed. The Java main reads `/proc/self/maps` and fails if the selected
+candidate device/inode (including renamed/deleted hardlink aliases) or known
+scanner/JNI library names are mapped; missing or malformed map evidence
+also fails. This is only a mapping snapshot, not proof about the whole process
+lifetime. It is not zero-allocation: Java startup and diagnostic reads allocate.
+It returns ordinarily without a native load, shutdown hook, GC request or early
+leak check. Baseline failure or missing JDK remains FAIL/NOT_RUN and does not skip
+any candidate phase. Leak totals are never subtracted or accepted as allowances.
 The Python suite emits an immediate, explicitly flushed copy of its first failed
 setup, call or teardown report to the existing bounded command log. This copy is
 limited to 64 KiB total across traceback and labeled captured-output sections.
