@@ -155,6 +155,42 @@ class EightViewProviderArchives {
   [cp:cp,ledger:[schema:1,mode:mode,sourceAar:aarIdentity,sourceClasses:source,providers:originals,projection:projection]]
  }
 }
+// An absent classpath directory is a bound state, never an empty fabricated output.
+class EightViewAbsentDirectories {
+ static Map directory(java.nio.file.Path path) {
+  def attrs=java.nio.file.Files.readAttributes(path,'unix:dev,ino,isDirectory,isSymbolicLink',java.nio.file.LinkOption.NOFOLLOW_LINKS)
+  assert attrs.isDirectory && !attrs.isSymbolicLink : 'Absent-output ancestor is not a real directory'
+  [path:path.toString(),device:Long.toUnsignedString((long)attrs.dev),inode:Long.toUnsignedString((long)attrs.ino)]
+ }
+ static Map proof(File buildRoot,File target) {
+  def root=buildRoot.absoluteFile.toPath().normalize();def path=target.absoluteFile.toPath().normalize()
+  assert root.toString()==buildRoot.canonicalPath && path.toString()==target.canonicalPath && path.startsWith(root) && path!=root : 'Absent-output root/path alias'
+  assert path.nameCount+1<=64 : 'Absent-output path depth'
+  def ancestors=[];def current=path.root;ancestors<<directory(current);def missing=null
+  for(def component:path) {
+   def next=current.resolve(component)
+   try { ancestors<<directory(next);current=next }
+   catch(java.nio.file.NoSuchFileException absent) {
+    assert current.startsWith(root) : 'Build root must exist before absence admission'
+    int count=0
+    java.nio.file.Files.newDirectoryStream(current).withCloseable { listing ->
+     for(def child:listing) {
+      assert ++count<=100000 : 'Absent-output parent listing bound'
+      assert child.fileName.toString()!=component.toString() : 'Absent output appeared during listing'
+     }
+    }
+    missing=next;break
+   }
+  }
+  assert missing!=null : 'Declared absent output appeared'
+  ancestors.each { previous -> assert directory(java.nio.file.Paths.get(previous.path))==previous : 'Absent-output ancestor identity changed' }
+  boolean stillAbsent=false
+  try { java.nio.file.Files.readAttributes(missing,java.nio.file.attribute.BasicFileAttributes,java.nio.file.LinkOption.NOFOLLOW_LINKS) }
+  catch(java.nio.file.NoSuchFileException absent) { stillAbsent=true }
+  assert stillAbsent : 'Absent output appeared during proof'
+  [schema:1,root:root.toString(),ancestors:ancestors,firstMissing:missing.toString()]
+ }
+}
 // Additive task only. Original source sets/gates are unchanged after this invocation.
 allprojects { afterEvaluate { if (path == ':app') {
  def cfg = new JsonSlurper().parse(new File(project.property('eightConfig').toString()))
@@ -293,16 +329,43 @@ allprojects { afterEvaluate { if (path == ':app') {
   assert cp.collect {it.canonicalPath}.toSet().size()==cp.size()
   [cp:cp,aar:aar,classes:classes,normalization:normalized.ledger]
  }
+ def absentOutput = { File file ->
+  File buildRoot=layout.buildDirectory.get().asFile
+  assert buildRoot.canonicalPath==new File(projectDir,'build').absoluteFile.toPath().normalize().toString() : 'Only canonical app/build absence domain admitted'
+  def descriptors=[
+   [task:':app:kspDebugUnitTestKotlin',taskType:'com.google.devtools.ksp.gradle.KspAATask',outputProperty:'kspConfig.resourceOutputDir',relativePath:'generated/ksp/debugUnitTest/resources',admission:'completed-optional-output'],
+   [task:':app:compileDebugUnitTestJavaWithJavac',taskType:'org.gradle.api.tasks.compile.JavaCompile',outputProperty:'destinationDirectory',relativePath:'intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes',admission:'java-no-source-output']]
+  def matches=descriptors.findAll { new File(buildRoot,it.relativePath).absoluteFile.toPath().normalize()==file.absoluteFile.toPath().normalize() }
+  assert matches.size()==1 : 'Undeclared absent classpath directory'
+  def producer=matches[0];def task=tasks.getByName(producer.task.tokenize(':').last())
+  assert task.class.classLoader.loadClass(producer.taskType).isInstance(task) : 'Absent-output producer type differs'
+  assert task.enabled && gradle.taskGraph.hasTask(task) && task.state.executed && task.state.failure==null : 'Absent-output producer did not complete successfully'
+  File declared
+  if(producer.admission=='java-no-source-output') {
+   assert task instanceof org.gradle.api.tasks.compile.JavaCompile && task.state.noSource : 'Absent Javac directory requires actual NO-SOURCE'
+   declared=task.destinationDirectory.get().asFile
+  } else {
+   assert !task.state.skipped || task.state.skipMessage in ['UP-TO-DATE','FROM-CACHE','NO-SOURCE'] : 'Absent KSP directory cannot follow arbitrary skipped task'
+   assert task.kspConfig.resourceOutputDir instanceof org.gradle.api.provider.Property : 'KSP resource output property missing/type differs'
+   declared=task.kspConfig.resourceOutputDir.get()
+  }
+  assert declared.absoluteFile.toPath().normalize()==file.absoluteFile.toPath().normalize() : 'Absent-output declared property/path differs'
+  assert task.outputs.files.files.any { it.absoluteFile.toPath().normalize()==file.absoluteFile.toPath().normalize() } : 'Absent-output property is not a declared task output'
+  [kind:'absent-declared-directory',path:file.absoluteFile.toPath().normalize().toString(),producer:producer,absence:EightViewAbsentDirectories.proof(buildRoot,file)]
+ }
  def capture = { String stage ->
   def resolved=actualClasspath();def cp=resolved.cp;def owners=[:].withDefault {[]};def inventory=[]
   cp.each { f ->
-   assert !java.nio.file.Files.isSymbolicLink(f.toPath())
-   if(f.isDirectory()) {
+   def attributes
+   try { attributes=java.nio.file.Files.readAttributes(f.toPath(),java.nio.file.attribute.BasicFileAttributes,java.nio.file.LinkOption.NOFOLLOW_LINKS) }
+   catch(java.nio.file.NoSuchFileException absent) { inventory<<absentOutput(f);return }
+   assert !attributes.isSymbolicLink()
+   if(attributes.isDirectory()) {
     def files=project.fileTree(f).files.sort {it.absolutePath}.collect { c -> assert !java.nio.file.Files.isSymbolicLink(c.toPath()); [path:c.canonicalPath,sha256:sha(c.bytes)] }
-    inventory<<[path:f.canonicalPath,directory:true,files:files]
+    inventory<<[kind:'directory',path:f.canonicalPath,files:files]
     ownerNames.each { name -> File c=new File(f,name.replace('.','/')+'.class');if(c.isFile()) owners[name]<<[container:f.canonicalPath,file:c.canonicalPath,sha256:sha(c.bytes)] }
    } else {
-    assert f.isFile() && f.name.endsWith('.jar');inventory<<[path:f.canonicalPath,directory:false,sha256:sha(f.bytes)]
+    assert attributes.isRegularFile() && f.name.endsWith('.jar');inventory<<[kind:'jar',path:f.canonicalPath,sha256:sha(f.bytes)]
     new ZipFile(f).withCloseable { z -> ownerNames.each { name -> def e=z.getEntry(name.replace('.','/')+'.class');if(e) {
      byte[] data=z.getInputStream(e).bytes;File extracted=new File(output,'owner-'+name+'.class')
      if(extracted.exists()) assert sha(extracted.bytes)==sha(data) else extracted.bytes=data
@@ -311,7 +374,7 @@ allprojects { afterEvaluate { if (path == ':app') {
    }
   }
   ownerNames.each {assert owners[it].size()==1 : 'native owner ambiguous: '+it}
-  def record=[schema:2,task:':app:eightPrepare',classpath:inventory,classpathString:cp.collect {it.canonicalPath}.join(File.pathSeparator),
+  def record=[schema:3,task:':app:eightPrepare',appBuildDirectory:layout.buildDirectory.get().asFile.canonicalPath,classpath:inventory,classpathString:cp.collect {it.canonicalPath}.join(File.pathSeparator),
     owners:owners.collectEntries {k,v->[k,v[0]]},opencvAar:resolved.aar.canonicalPath,opencvClasses:resolved.classes.canonicalPath,
     opencvNormalization:resolved.normalization,sourceSha:cfg.sourceSha]
   if(stage=='prepare') {

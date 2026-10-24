@@ -22,6 +22,9 @@ NATIVE_REPORTS = {"numerical.json", "benchmark_multiview_coverage.json", "benchm
 NATIVE_CONFIGS = {"gcc-release", "clang-release", "gcc-sanitize", "clang-sanitize"}
 COMMANDS = {"configure", "build", "ctest", "numerical", "pytest", "bundle-three-view", "benchmark_multiview_coverage", "benchmark_middlebury", "benchmark_dense_middlebury", "benchmark_surface_middlebury", "benchmark_texture_middlebury"}
 
+# Controls are required only for sanitizer profiles, and remain failing gates.
+SANITIZER_CONTROLS = {"python-baseline-empty", "python-baseline-numpy", "jvm-baseline-compile", "jvm-baseline-empty"}
+
 
 class EvidenceError(ValueError):
     pass
@@ -110,7 +113,8 @@ def native_record(path, expected, mapped=None):
             raise EvidenceError("Native configuration failed")
         commands = config.get("commands", [])
         labels = {Path(item.get("log", "")).stem for item in commands}
-        if len(commands) != len(COMMANDS) or labels != COMMANDS:
+        expected_commands = COMMANDS | SANITIZER_CONTROLS if config["name"].endswith("-sanitize") else COMMANDS
+        if len(commands) != len(expected_commands) or labels != expected_commands:
             raise EvidenceError("Native command evidence is incomplete")
         for item in commands:
             log = Path(item["log"])

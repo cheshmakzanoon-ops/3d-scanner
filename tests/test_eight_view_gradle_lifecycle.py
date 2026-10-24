@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 import subprocess
 import tempfile
+import types
 import sys
 from unittest.mock import patch
 import unittest
@@ -22,7 +23,27 @@ DEFER = ''' // Android and host test tasks are registered by later afterEvaluate
  gradle.projectsEvaluated {
 '''
 
+KSP_MODEL = '''
+package com.google.devtools.ksp.gradle
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.*
+import org.gradle.api.provider.Property
+class KspAATask extends DefaultTask {
+    private final SyntheticKspConfig config = project.objects.newInstance(SyntheticKspConfig)
+    @Nested SyntheticKspConfig getKspConfig() { config }
+    @TaskAction void generateNothing() {
+        File output = kspConfig.resourceOutputDir.get()
+        if (output.isDirectory() && output.list().length == 0) assert output.delete()
+    }
+}
+abstract class SyntheticKspConfig {
+    @OutputDirectory abstract Property<File> getResourceOutputDir()
+}
+'''
+
 BUILD = '''
+buildscript { dependencies { classpath files(rootProject.file('synthetic-ksp-task.jar')) } }
+import com.google.devtools.ksp.gradle.KspAATask
 tasks.withType(Test).configureEach { testClassesDirs = files(); classpath = files() }
 class SyntheticSourceDirectory {
     List<File> dirs = []
@@ -35,6 +56,21 @@ configurations { syntheticRuntime; debugRuntimeClasspath }
 repositories { maven { url = uri(rootProject.file(project.findProperty('providerRepository') ?: 'synthetic-repository')) } }
 dependencies { debugRuntimeClasspath 'org.opencv:opencv:4.12.0@aar' }
 afterEvaluate {
+    tasks.register('kspDebugUnitTestKotlin', project.hasProperty('wrongKspType') ? DefaultTask : KspAATask) {
+        if (project.hasProperty('wrongKspType')) {
+            def target = layout.buildDirectory.dir('generated/ksp/debugUnitTest/resources').get().asFile
+            outputs.dir(target)
+            doLast { if (target.isDirectory() && target.list().length == 0) assert target.delete() }
+        } else kspConfig.resourceOutputDir.set(layout.buildDirectory.dir(project.hasProperty('wrongKspOutput') ? 'wrong-ksp-output' : 'generated/ksp/debugUnitTest/resources').get().asFile)
+        if (project.hasProperty('skipKsp')) onlyIf { false }
+        if (project.hasProperty('disableKsp')) enabled = false
+    }
+    tasks.register('compileDebugUnitTestJavaWithJavac', JavaCompile) {
+        source = files()
+        classpath = files()
+        destinationDirectory = layout.buildDirectory.dir(project.hasProperty('wrongJavacOutput') ? 'wrong-javac-output' : 'intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes')
+        if (project.hasProperty('skipJavac')) onlyIf { false }
+    }
     tasks.register('syntheticCompile') { doLast { if (!project.hasProperty('allowSyntheticPreparation')) throw new GradleException('compile must not execute') } }
     if (!project.hasProperty('omitOrdinary')) {
         tasks.register('testDebugUnitTest', Test) {
@@ -62,6 +98,12 @@ afterEvaluate {
             }
             if (providerCase in ['agp-empty', 'agp-directories']) providers = [rootProject.file('synthetic-runtime.jar'),
                 rootProject.file('synthetic-middle.jar'), rootProject.file(providerCase + '-source.jar')]
+            if (project.hasProperty('includeAbsence')) {
+                if (!project.hasProperty('omitAbsentDependencies')) dependsOn tasks.named('kspDebugUnitTestKotlin'), tasks.named('compileDebugUnitTestJavaWithJavac')
+                providers.add(1, layout.buildDirectory.file('generated/ksp/debugUnitTest/resources').get().asFile)
+                providers.add(3, layout.buildDirectory.file('intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes').get().asFile)
+            }
+            if (project.hasProperty('unclassifiedMissing')) providers += layout.buildDirectory.file('not-an-admitted-output').get().asFile
             classpath = files(providers, configurations.syntheticRuntime)
         }
     }
@@ -74,6 +116,18 @@ afterEvaluate {
         dependsOn tasks.named('syntheticOracle')
     }
     tasks.register('verifyHostIntegrationSdk') { doLast { if (!project.hasProperty('allowSyntheticPreparation')) throw new GradleException('SDK check must not execute') } }
+}
+gradle.taskGraph.whenReady {
+    if (project.hasProperty('appearanceMode')) tasks.getByName('eightPrepare').doFirst {
+        def target = layout.buildDirectory.file('generated/ksp/debugUnitTest/resources').get().asFile.toPath()
+        def mode = project.property('appearanceMode')
+        if (mode == 'directory') java.nio.file.Files.createDirectory(target)
+        if (mode == 'file') java.nio.file.Files.write(target, 'appeared'.bytes)
+        if (mode == 'symlink') {
+            def safe = rootProject.file('empty-symlink-target');safe.mkdirs()
+            java.nio.file.Files.createSymbolicLink(target, safe.toPath())
+        }
+    }
 }
 tasks.register('inspectNormalization') {
     doLast {
@@ -251,7 +305,20 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             policy = root / 'tools/eight_view_host/build-policy.json'
             policy.parent.mkdir(parents=True)
             policy.write_text(json.dumps({'opencvAarSha256': hashlib.sha256((artifact / 'opencv-4.12.0.aar').read_bytes()).hexdigest()}))
-            (root / 'app').mkdir()
+            # Compile a synthetic model against bundled Gradle APIs and load via
+            # Gradle's tracked buildscript classpath, never an unknown loader.
+            model_source = root / 'SyntheticKsp.groovy'
+            model_source.write_text(KSP_MODEL)
+            model_classes = root / 'model-classes'
+            model_classes.mkdir()
+            model_compile = subprocess.run([java, '-cp', str(Path(home) / 'lib/*'),
+                'org.codehaus.groovy.tools.FileSystemCompiler', '-d', str(model_classes), str(model_source)],
+                text=True, capture_output=True, timeout=30)
+            self.assertEqual(model_compile.returncode, 0, model_compile.stdout + model_compile.stderr)
+            with zipfile.ZipFile(root / 'synthetic-ksp-task.jar', 'w') as model_jar:
+                for model_class in sorted(model_classes.rglob('*.class')):
+                    model_jar.write(model_class, model_class.relative_to(model_classes).as_posix())
+            (root / 'app/build').mkdir(parents=True)
             (root / 'sources').mkdir()
             (root / 'settings.gradle').write_text("rootProject.name='synthetic-lifecycle'; include ':app'\n")
             (root / 'app/build.gradle').write_text(BUILD)
@@ -399,7 +466,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             ], text=True, capture_output=True, timeout=120)
             self.assertEqual(prepared_run.returncode, 0, prepared_run.stdout + prepared_run.stderr)
             prepared_record = json.loads((root / 'output/prepared.json').read_text())
-            self.assertEqual(prepared_record['schema'], 2)
+            self.assertEqual(prepared_record['schema'], 3)
             self.assertEqual(prepared_record['opencvNormalization']['mode'], 'agp-two-role-resource-projection')
             self.assertEqual(set(prepared_record['owners']), {'org.opencv.android.OpenCVLoader', 'org.opencv.android.StaticHelper',
                                                               'org.opencv.core.Core', 'org.opencv.core.Mat', 'com.realityforge.scanner.engine.NativeCore'})
@@ -489,6 +556,86 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                     ctl.classpath_check(variant_record)
 
 
+
+            # Optional outputs remain in exactly their original classpath slots.
+            # KSP is a declared-output synthetic model; JavaCompile is Gradle's
+            # real built-in task and must report actual NO-SOURCE.
+            policy.write_text(json.dumps({'opencvAarSha256': hashlib.sha256((artifact / 'opencv-4.12.0.aar').read_bytes()).hexdigest()}))
+            authority = types.SimpleNamespace(root=root, remaining=lambda maximum, **kwargs: maximum)
+            def absent_run(name, extra=(), phase='prepare', prepared_sha=None):
+                work = root / name
+                work.mkdir(exist_ok=True)
+                cfg = {'schema': 1, 'phase': phase, 'sourceSha': 'a' * 40,
+                       'sources': str(root / 'sources'), 'work': str(work),
+                       'selector': 'synthetic.NoExecution', 'observations': str(root / 'sources')}
+                if prepared_sha:
+                    cfg['preparedSha256'] = prepared_sha
+                config_path = root / (name + '.json')
+                config_path.write_text(json.dumps(cfg))
+                result = subprocess.run([
+                    str(gradle), '--offline', '--no-daemon', '--console=plain', '--max-workers=1',
+                    '-g', str(root / 'gradle-home'), '-p', str(root), '-I', str(init),
+                    '-PeightConfig=' + str(config_path), '-PproviderCase=agp', '-PincludeAbsence=true',
+                    '-PallowSyntheticPreparation=true', *extra, ':app:eightPrepare',
+                ], text=True, capture_output=True, timeout=120)
+                return result, work
+            absent_result, absent_work = absent_run('bound-absence')
+            self.assertEqual(absent_result.returncode, 0, absent_result.stdout + absent_result.stderr)
+            self.assertIn(':app:compileDebugUnitTestJavaWithJavac NO-SOURCE', absent_result.stdout)
+            bound = json.loads((absent_work / 'prepared.json').read_text())
+            self.assertEqual(bound['schema'], 3)
+            self.assertEqual([entry['kind'] for entry in bound['classpath']],
+                             ['jar', 'absent-declared-directory', 'jar', 'absent-declared-directory', 'jar'])
+            self.assertEqual(bound['classpathString'], os.pathsep.join(entry['path'] for entry in bound['classpath']))
+            absent_entries = [bound['classpath'][1], bound['classpath'][3]]
+            for entry in absent_entries:
+                self.assertFalse(Path(entry['path']).exists())
+                self.assertEqual(entry['absence']['ancestors'][0]['path'], '/')
+                self.assertEqual(entry['absence']['root'], str(root / 'app/build'))
+                self.assertTrue(entry['absence']['firstMissing'].startswith(str(root / 'app/build') + '/'))
+            self.assertEqual(absent_entries[1]['producer']['admission'], 'java-no-source-output')
+            with patch.object(ctl.capability, 'POLICY', policy):
+                ctl.classpath_check(bound, authority)
+                ctl.normalization_check(bound, authority)
+            loaded_absent = subprocess.run([java, str(harness), os.pathsep.join(paths['original']), bound['classpathString']],
+                                           text=True, capture_output=True, timeout=30)
+            self.assertEqual(loaded_absent.returncode, 0, loaded_absent.stdout + loaded_absent.stderr)
+            self.assertIn('SYNTHETIC_JAVA_CLASS_AND_RESOURCE_PASS', loaded_absent.stdout)
+            javap = subprocess.run([java, '-m', 'jdk.jdeps/com.sun.tools.javap.Main', '-classpath', bound['classpathString'],
+                                    'org.opencv.core.Core'], text=True, capture_output=True, timeout=30)
+            self.assertEqual(javap.returncode, 0, javap.stdout + javap.stderr)
+            self.assertIn('identity()', javap.stdout)
+            prepared_sha = hashlib.sha256((absent_work / 'prepared.json').read_bytes()).hexdigest()
+            absent_stable, _ = absent_run('bound-absence', phase='run', prepared_sha=prepared_sha)
+            self.assertEqual(absent_stable.returncode, 0, absent_stable.stdout + absent_stable.stderr)
+            self.assertEqual(json.loads((absent_work / 'runtime-prepare.json').read_text()), bound)
+            if evidence:
+                (Path(evidence) / 'synthetic-bound-absence.json').write_text(json.dumps(bound, indent=2))
+            for mode in ('file', 'directory', 'symlink'):
+                appeared, _ = absent_run('bound-absence', ['-PappearanceMode=' + mode], phase='run', prepared_sha=prepared_sha)
+                self.assertNotEqual(appeared.returncode, 0, appeared.stdout + appeared.stderr)
+                target = Path(absent_entries[0]['path'])
+                with patch.object(ctl.capability, 'POLICY', policy), self.assertRaises(ctl.Failure):
+                    ctl.classpath_check(bound, authority)
+                if target.is_symlink() or target.is_file():
+                    target.unlink()
+                else:
+                    target.rmdir()
+            with patch.object(ctl.capability, 'POLICY', policy):
+                ctl.classpath_check(bound, authority)
+
+            # Producer-configuration refusal cases run after the baseline window;
+            # changing declared outputs is not expected to preserve old ancestors.
+            for flag, error in [('skipJavac', 'requires actual NO-SOURCE'),
+                                ('skipKsp', 'arbitrary skipped task'), ('disableKsp', 'did not complete successfully'),
+                                ('omitAbsentDependencies', 'did not complete successfully'),
+                                ('wrongKspOutput', 'declared property/path differs'),
+                                ('wrongJavacOutput', 'declared property/path differs'),
+                                ('wrongKspType', 'com.google.devtools.ksp.gradle.KspAATask'),
+                                ('unclassifiedMissing', 'Undeclared absent classpath directory')]:
+                rejected, _ = absent_run('refuse-' + flag, ['-P' + flag + '=true'])
+                self.assertNotEqual(rejected.returncode, 0, rejected.stdout + rejected.stderr)
+                self.assertIn(error, rejected.stdout + rejected.stderr)
 
 
 if __name__ == '__main__':

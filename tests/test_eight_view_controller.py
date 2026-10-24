@@ -253,11 +253,12 @@ def test_actual_added_removed_reordered_or_foreign_classpath_rejected(tmp_path,m
 
 
 def test_classpath_directory_bomb_is_bounded_before_hashes(tmp_path,monkeypatch):
+ monkeypatch.setattr(ctl,'classpath_schema_check',lambda *a,**kw:None)
  directory=tmp_path/'classes';directory.mkdir();(directory/'some.class').write_bytes(b'fixture')
  seen=[];original=ctl.inventory
  def bounded(*args,**kwargs):seen.append('inventory');return original(*args,**{**kwargs,'max_files':0})
  monkeypatch.setattr(ctl,'inventory',bounded);monkeypatch.setattr(ctl,'bounded_hash',lambda *a:seen.append('hash'))
- with pytest.raises(r.Failure,match='count limit'):ctl.classpath_check({'classpath':[{'path':str(directory),'directory':True,'files':[]}]})
+ with pytest.raises(r.Failure,match='count limit'):ctl.classpath_check({'classpath':[{'path':str(directory),'kind':'directory','files':[]}]})
  assert seen==['inventory']
 
 
@@ -314,8 +315,9 @@ def test_incomplete_console_withholds_secret_and_never_emits_workflow_commands(t
 
 def test_classpath_normal_work_cannot_consume_cleanup_reserve(tmp_path,monkeypatch):
  monkeypatch.setattr(ctl,'normalization_check',lambda *a,**kw:None)
+ monkeypatch.setattr(ctl,'classpath_schema_check',lambda *a,**kw:None)
  run=r.Runner(tmp_path,tmp_path/'work');path=run.work/'one.jar';path.write_bytes(b'fixture')
- record={'classpath':[{'path':str(path),'directory':False,'sha256':r.sha(path)}]}
+ record={'classpath':[{'path':str(path),'kind':'jar','sha256':r.sha(path)}]}
  run.work_end=run.clock()-1
  with pytest.raises(r.Deadline):ctl.classpath_check(record,run)
  ctl.classpath_check(record,run,cleanup=True)

@@ -123,7 +123,7 @@ are printable ASCII with safe components; digest ordering is cross-language
 unambiguous. Derived files are deterministic and immutable once written.
 
 The original extracted AAR classes archive remains unchanged as `opencvClasses`
-for ABI/source checks. Capture schema 2 replaces the obsolete singular
+for ABI/source checks. Capture schema 2 introduced replacement of the obsolete singular
 `replacedOpenCvProvider` with versioned `opencvNormalization`, binding source AAR,
 original provider indices/paths/raw hashes and ordered entry inventories, explicit
 roles, and projected identity. Groovy production captures and independent Python
@@ -140,3 +140,55 @@ third providers, changed resources/classes, reversed roles, unsafe archives,
 unsupported metadata and projection/ledger/original-input tampering. These remain
 synthetic host tests, not AGP/OpenCV execution or Android qualification. The next
 actual attempt must still validate its full resource inventory and may refuse.
+
+## Bound absence of declared optional directories (capture schema 3)
+
+Attempt `63fe19dea0264f68f91d61e95beca202a921b78a` reached later classpath
+inventory, then refused absent KSP unit-test resources. The earlier inventory
+also recorded the absent Javac unit-test classes directory; the actual Gradle
+log reports `compileDebugUnitTestJavaWithJavac NO-SOURCE`. No prepared ledger was
+retained, so this control-flow progress is not full normalization qualification.
+No pipeline invocation occurred.
+
+Schema 3 preserves every classpath position and the entire ordered classpath
+string, with strict `jar`, `directory` and `absent-declared-directory` entries.
+An absent entry is not a fabricated empty directory and is never dropped.
+Only these exact paths beneath the selected repository's canonical `app/build`
+may use the absence tag:
+
+- `generated/ksp/debugUnitTest/resources`: the pinned KSP2 task's actual
+  `kspConfig.resourceOutputDir` (`Property<File>`, `@OutputDirectory`).
+- `intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes`:
+  the real `JavaCompile.destinationDirectory`, requiring actual `NO-SOURCE`.
+
+Task type, property, declared-output membership and execution-graph membership
+must match. The producer must be enabled and have completed without failure.
+KSP permits success, up-to-date, cache restoration or no-source outcomes, never
+arbitrary `onlyIf` skipping. Javac must specifically report `state.noSource`.
+No missing task/property/type or pathname-only fallback is permitted. Volatile
+execution status is checked at capture but not embedded in immutable equality.
+The pinned source declarations were inspected in the official
+[KSP 2.1.21-2.0.1 task source](https://github.com/google/ksp/blob/2.1.21-2.0.1/gradle-plugin/src/main/kotlin/com/google/devtools/ksp/gradle/KspAATask.kt).
+
+Absence is established only by precise NOFOLLOW metadata observations and a
+readable parent-directory listing. Existing ancestors from `/` through the first
+missing component's parent are bound by canonical paths and unsigned 64-bit
+decimal device/inode identities. Permission failures, unknown errors, ENOTDIR,
+symlinks, ancestor substitutions and file/directory/symlink appearance refuse.
+The walk is bounded to 64 absolute components and 100000 parent entries. Both JVM
+capture and independent Python validation regenerate the proof; the selected
+repository binds `appBuildDirectory`, which joins immutable runtime fields.
+
+These bindings are checked at preparation, runtime preparation, before fork and
+after the selected invocation. Deliberate normal-source restoration compilation
+occurs afterward, outside that baseline window. Owner extraction still requires
+all five original owners exactly once; absent entries cannot satisfy class or
+native-owner bindings. Compilation dependencies, source-AAR normalization and
+Kotlin adapters remain unchanged.
+
+Tests distinguish the synthetic KSP declared-output model from the genuine
+Gradle `JavaCompile` task and its actual NO-SOURCE result. Actual Java classloader
+and javap checks exercise the unchanged classpath with absent slots. Cross-language
+schema 3 admission, stable recapture, producer-refusal cases and appearance/
+permission/ancestry tampering are tested. None of this certifies actual AGP/KSP
+execution, native loading, Android behavior or photo reconstruction.

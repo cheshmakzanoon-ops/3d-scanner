@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One source-bound eight-view HOST attempt. Deliberately NOT ARMED until reviewed."""
 from __future__ import annotations
-import hashlib, importlib.util, json, os, platform, re, shutil, struct, sys, time, zipfile
+import errno, hashlib, importlib.util, json, os, platform, re, shutil, stat, struct, sys, time, zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
@@ -68,14 +68,131 @@ def bounded_hash(path,maximum,run=None,cleanup=True):
         raise Failure('Classpath changed during bounded hash')
     return digest.hexdigest()
 
+# Only these task-declared optional directories may be absent. Producer execution
+# state is proved by Gradle; the immutable capture binds this exact admission tuple.
+OPTIONAL_DIRECTORY_PRODUCERS=(
+    {'task':':app:kspDebugUnitTestKotlin','taskType':'com.google.devtools.ksp.gradle.KspAATask',
+     'outputProperty':'kspConfig.resourceOutputDir','relativePath':'generated/ksp/debugUnitTest/resources','admission':'completed-optional-output'},
+    {'task':':app:compileDebugUnitTestJavaWithJavac','taskType':'org.gradle.api.tasks.compile.JavaCompile',
+     'outputProperty':'destinationDirectory','relativePath':'intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes','admission':'java-no-source-output'},
+)
+
+def classpath_schema_check(record,run=None):
+    base=set(CLASSPATH_FIELDS);enriched={'robolectricNativeDistribution','offlineFramework','runtimeProvider'}
+    if not isinstance(record,dict) or not base<=set(record) or set(record)-base-enriched:raise Failure('Unknown/incomplete classpath capture fields')
+    if (type(record.get('schema')) is not int or record['schema']!=3 or 'replacedOpenCvProvider' in record
+        or not isinstance(record.get('appBuildDirectory'),str)):
+        raise Failure('Unsupported classpath capture schema/root')
+    root=Path(record['appBuildDirectory'])
+    if str(root)!=record['appBuildDirectory'] or not root.is_absolute() or str(root)!=os.path.normpath(str(root)) or str(root.resolve())!=str(root) or not root.is_dir():
+        raise Failure('Classpath app build root alias/missing')
+    if run is not None and hasattr(run,'root'):
+        selected=Path(run.root)
+        if not selected.is_absolute() or str(selected.resolve())!=str(selected) or root!=selected/'app/build':
+            raise Failure('Classpath app build root differs from selected repository')
+    entries=record.get('classpath')
+    if not isinstance(entries,list) or not 0<len(entries)<=2000:raise Failure('Classpath entry count')
+    for entry in entries:
+        if not isinstance(entry,dict):raise Failure('Classpath entry schema')
+        kind=entry.get('kind')
+        keys={'jar':{'kind','path','sha256'},'directory':{'kind','path','files'},
+              'absent-declared-directory':{'kind','path','producer','absence'}}
+        if not isinstance(kind,str) or kind not in keys or set(entry)!=keys[kind] or not isinstance(entry['path'],str):
+            raise Failure('Unsupported typed classpath entry schema')
+        if kind!='absent-declared-directory':
+            path=Path(entry['path'])
+            try:metadata=os.stat(path,follow_symlinks=False)
+            except OSError as error:raise Failure('Required classpath input missing/unreadable') from error
+            if (not path.is_absolute() or str(path)!=entry['path'] or str(path.resolve())!=entry['path']
+                or (kind=='directory' and not stat.S_ISDIR(metadata.st_mode)) or (kind=='jar' and not stat.S_ISREG(metadata.st_mode))):
+                raise Failure('Required classpath input alias/type changed')
+        if kind=='jar':
+            if not isinstance(entry['sha256'],str) or not re.fullmatch('[0-9a-f]{64}',entry['sha256']):raise Failure('Classpath JAR hash schema')
+        elif kind=='directory':
+            if not isinstance(entry['files'],list) or len(entry['files'])>100000:raise Failure('Classpath directory file count')
+            names=[]
+            for file in entry['files']:
+                if (not isinstance(file,dict) or set(file)!={'path','sha256'} or not isinstance(file['path'],str)
+                    or not isinstance(file['sha256'],str) or not re.fullmatch('[0-9a-f]{64}',file['sha256'])):
+                    raise Failure('Classpath directory file schema')
+                names.append(file['path'])
+            if len(names)!=len(set(names)):raise Failure('Classpath directory file aliases')
+    paths=[entry['path'] for entry in entries]
+    if len(paths)!=len(set(paths)) or record.get('classpathString')!=os.pathsep.join(paths):raise Failure('Classpath order/identity string differs')
+    return root
+
+def optional_absence_proof(root,target,run=None,cleanup=False):
+    """NOFOLLOW observations; only confirmed ENOENT below existing build root qualifies.
+
+    All ancestors, including '/' and selected-repository parents, are bound by
+    device/inode. A second complete observation rejects appearance/ancestor swaps.
+    Directory timestamps are intentionally not identity: other legitimate build
+    outputs may be written without changing the declared absent directory.
+    """
+    root=Path(root);target=Path(target)
+    if (not root.is_absolute() or not target.is_absolute() or os.path.normpath(str(root))!=str(root)
+        or os.path.normpath(str(target))!=str(target) or target==root or not target.is_relative_to(root)
+        or len(target.parts)>64):raise Failure('Optional output path/root boundary')
+    def observe():
+        ancestors=[];path=Path(target.anchor)
+        paths=[path]
+        for part in target.parts[1:]:path=path/part;paths.append(path)
+        for path in paths:
+            phase_budget(run,cleanup=cleanup)
+            try:metadata=os.stat(path,follow_symlinks=False)
+            except OSError as error:
+                if error.errno!=errno.ENOENT:raise Failure('Optional output absence observation failed') from error
+                if path==root or not path.is_relative_to(root) or not any(a['path']==str(root) for a in ancestors):
+                    raise Failure('Optional output build root/ancestor missing') from error
+                try:
+                    with os.scandir(path.parent) as children:
+                        count=0
+                        for child in children:
+                            phase_budget(run,cleanup=cleanup);count+=1
+                            if count>100000:raise Failure('Optional output parent listing count limit')
+                            if child.name==path.name:raise Failure('Optional output missing child appeared')
+                except OSError as listing_error:raise Failure('Optional output parent cannot confirm absence') from listing_error
+                return {'schema':1,'root':str(root),'ancestors':ancestors,'firstMissing':str(path)}
+            if not stat.S_ISDIR(metadata.st_mode):raise Failure('Optional output ancestor is symlink/non-directory')
+            if any(type(value) is not int or not 0<=value<2**64 for value in (metadata.st_dev,metadata.st_ino)):
+                raise Failure('Unsupported optional output unsigned64 identity')
+            ancestors.append({'path':str(path),'device':str(metadata.st_dev),'inode':str(metadata.st_ino)})
+        raise Failure('Declared optional output appeared')
+    first=observe();second=observe()
+    if first!=second:raise Failure('Optional output ancestry/first missing changed during observation')
+    return first
+
+def absent_directory_check(entry,record,run=None,cleanup=False):
+    if run is None or not hasattr(run,'root'):raise Failure('Optional absence requires selected repository authority')
+    root=classpath_schema_check(record,run)
+    producer=entry['producer'];proof=entry['absence']
+    if not isinstance(producer,dict) or producer not in OPTIONAL_DIRECTORY_PRODUCERS:
+        raise Failure('Unreviewed optional output producer/admission')
+    expected=root/producer['relativePath']
+    if entry['path']!=str(expected):raise Failure('Optional output differs from exact task-declared path')
+    if (not isinstance(proof,dict) or set(proof)!={'schema','root','ancestors','firstMissing'}
+        or type(proof['schema']) is not int or proof['schema']!=1 or proof['root']!=str(root)
+        or not isinstance(proof['firstMissing'],str) or not isinstance(proof['ancestors'],list)
+        or not 0<len(proof['ancestors'])<=64):raise Failure('Unsupported optional absence proof schema')
+    for ancestor in proof['ancestors']:
+        if (not isinstance(ancestor,dict) or set(ancestor)!={'path','device','inode'} or not isinstance(ancestor['path'],str)
+            or any(not isinstance(ancestor[k],str) or not re.fullmatch('0|[1-9][0-9]{0,19}',ancestor[k]) or int(ancestor[k])>=2**64 for k in ('device','inode'))):
+            raise Failure('Optional absence ancestor identity schema')
+    if optional_absence_proof(root,expected,run,cleanup)!=proof:raise Failure('Optional output absence/ancestor identity changed')
+
 def classpath_check(record,run=None,cleanup=False):
+    classpath_schema_check(record,run)
     entries=record['classpath']
     if not isinstance(entries,list) or not 0<len(entries)<=2000:raise Failure('Classpath entry count')
     total=0;count=0;paths=[]
     for entry in entries:
         phase_budget(run,cleanup=cleanup);path=Path(entry['path']);paths.append(str(path))
+        if entry['kind']=='absent-declared-directory':
+            absent_directory_check(entry,record,run,cleanup);count+=1
+            if count>100000:raise Failure('Classpath cumulative byte/count limit')
+            continue
         if path.is_symlink() or not path.is_absolute() or str(path.resolve())!=str(path):raise Failure('Classpath alias changed')
-        if entry['directory']:
+        if entry['kind']=='directory':
             size,tree=inventory(path,max_bytes=2*1024**3-total,max_files=100000-count,seconds=phase_budget(run,cleanup=cleanup))
             total+=size;count+=len(tree)
             actual={str((path/name).resolve()):bounded_hash(path/name,512*1024**2,run,cleanup=cleanup) for name in tree if (path/name).is_file()}
@@ -250,7 +367,7 @@ def effective_owner_count(path,owner,run=None,cleanup=False):
     return matches
 
 def normalization_check(record,run=None,cleanup=False):
-    if type(record.get('schema')) is not int or record.get('schema')!=2 or 'replacedOpenCvProvider' in record:raise Failure('Unsupported classpath capture schema')
+    classpath_schema_check(record,run)
     ledger=record.get('opencvNormalization')
     if not isinstance(ledger,dict) or set(ledger)!={'schema','mode','sourceAar','sourceClasses','providers','projection'} or type(ledger['schema']) is not int or ledger['schema']!=1:
         raise Failure('Unsupported normalization ledger schema')
@@ -289,7 +406,7 @@ def normalization_check(record,run=None,cleanup=False):
         st=Path(provider['path']).stat();identities.append((st.st_dev,st.st_ino));indices.append(index);resource_lists.append(resources)
     if len(set(indices))!=expected or len(set(identities))!=expected:raise Failure('Normalization provider alias')
     def effective(index,archive):
-        if cp[index].get('directory') is not False or cp[index].get('path')!=archive['path'] or cp[index].get('sha256')!=archive['sha256']:
+        if cp[index].get('kind')!='jar' or cp[index].get('path')!=archive['path'] or cp[index].get('sha256')!=archive['sha256']:
             raise Failure('Normalization effective classpath binding')
     if expected==1:
         p=providers[0]
@@ -313,7 +430,9 @@ def normalization_check(record,run=None,cleanup=False):
     containers=[]
     for index,entry in enumerate(cp):
         phase_budget(run,cleanup=cleanup);path=Path(entry['path'])
-        if entry['directory']:
+        if entry['kind']=='absent-declared-directory':
+            absent_directory_check(entry,record,run,cleanup);continue
+        if entry['kind']=='directory':
             if any((path/name).exists() for name in source_classes):containers.append(index)
         else:
             if not path.name.endswith('.jar'):raise Failure('Unsupported effective classpath file suffix')
@@ -327,7 +446,7 @@ def prepared_record_check(run,prepared,expected_hash,cleanup=False):
     raw=bounded_bytes(run.work/'prepared.json',16*1024**2,run,cleanup=cleanup)
     if hashlib.sha256(raw).hexdigest()!=expected_hash or json.loads(raw)!=prepared:raise Failure('Immutable prepared record changed')
 
-CLASSPATH_FIELDS=('schema','task','classpath','classpathString','owners','opencvAar','opencvClasses','opencvNormalization','sourceSha')
+CLASSPATH_FIELDS=('schema','appBuildDirectory','task','classpath','classpathString','owners','opencvAar','opencvClasses','opencvNormalization','sourceSha')
 
 def runtime_classpath_proof(run,prepared):
     baseline={key:prepared[key] for key in CLASSPATH_FIELDS};proof=[]

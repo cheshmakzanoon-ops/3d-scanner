@@ -90,7 +90,15 @@ def native(candidate):
     for name in sorted(ci.NATIVE_CONFIGS):
         folder = execution / 'native' / name
         commands = []
-        for label in sorted(ci.COMMANDS):
+        # Independent producer contract: never derive fixtures from collector constants.
+        labels = ['configure', 'build', 'ctest', 'numerical', 'pytest', 'bundle-three-view',
+                  'benchmark_multiview_coverage', 'benchmark_middlebury',
+                  'benchmark_dense_middlebury', 'benchmark_surface_middlebury',
+                  'benchmark_texture_middlebury']
+        if name.endswith('-sanitize'):
+            labels += ['python-baseline-empty', 'python-baseline-numpy',
+                       'jvm-baseline-compile', 'jvm-baseline-empty']
+        for label in labels:
             path = write(folder / (label + '.log'), '100% tests passed, 0 tests failed out of 11\n' if label == 'ctest' else 'synthetic command fixture\n')
             commands.append(dict(log=str(path), log_sha256=ci.sha(path), result='PASS', reason=None, exit_code=0))
         xml(folder / 'pytest.xml')
@@ -331,3 +339,135 @@ def test_additional_source_declared_specialist_is_preserved_as_not_run(candidate
     assert result["release_qualification"] == "NOT_RUN"
     gates = {row["gate"]: row["status"] for row in result["required_specialist_gates"]}
     assert gates == {gate: "NOT_RUN" for gate in ci.DEBUG_SPECIALIST_GATES | {"dedicated_candidate_journey"}}
+
+
+def test_real_runner_success_shape_seals_with_all_controls(candidate, monkeypatch):
+    """Run real orchestration/JVM-control logic with synthetic command outputs.
+
+    No compiler/native process executes: this proves producer/consumer structure,
+    not sanitizer cleanliness. Required commands are not derived from collector.
+    """
+    import sys
+    sys.path.insert(0, str(ROOT / 'tools/qa/native_regression'))
+    import run
+    marker = start(candidate, 'native')
+    output = candidate[2] / 'native' / 'runner'
+    compiler = write(candidate[2] / 'compiler', 'synthetic compiler')
+    javac = write(candidate[2] / 'jdk/bin/javac', 'synthetic javac')
+    write(javac.with_name('java'), 'synthetic java')
+    write(javac.parents[1] / 'release', 'synthetic release')
+    scene = dict(seed=1, noise=0., outliers=0, point_count=180,
+                 rotation_error=0., median_position_error=0.,
+                 points=[[0., 1., 2.]], rotation=[1., 0., 0.], translation=[-1., 0., 0.])
+
+    def phase(argv, cwd, folder, label, env, timeout):
+        if label == 'build':
+            write(folder / 'build/librealityforge.so', 'synthetic candidate binary')
+        elif label == 'jvm-baseline-compile':
+            write(folder / 'jvm-baseline-classes/EmptyJvmControl.class', 'synthetic class')
+        elif label == 'numerical':
+            dump(folder / 'numerical.json', dict(scenes=[scene]))
+        elif label == 'pytest':
+            xml(folder / 'pytest.xml')
+        elif label.startswith('benchmark_'):
+            dump(folder / (label + '.json'), {'synthetic': True})
+        log = write(folder / (label + '.log'),
+                    '100% tests passed, 0 tests failed out of 48\n' if label == 'ctest' else 'synthetic command output\n')
+        return dict(command=list(map(str, argv)), cwd=str(cwd), exit_code=0,
+                    reason=None, result='PASS', log=str(log), log_sha256=ci.sha(log))
+
+    def query(argv, **kwargs):
+        if argv[:2] == ['git', 'rev-parse']:
+            return candidate[1] + '\n'
+        if argv[:2] == ['git', 'status']:
+            return b''
+        assert argv[1] == '--version'
+        return 'synthetic compiler version'
+
+    with monkeypatch.context() as patch:
+        patch.setattr(sys, 'argv', ['run.py', '--output', str(output)])
+        patch.setattr(run.shutil, 'which', lambda name, **kwargs: str(javac if name == 'javac' else compiler))
+        patch.setattr(run.subprocess, 'check_output', query)
+        patch.setattr(run.platform, 'platform', lambda: 'synthetic platform')
+        patch.setattr(run, 'sanitizer_python_env', lambda compiler, name, env: (env, []))
+        patch.setattr(run, 'command', phase)
+        assert run.main() == 0
+    record = output / 'evidence.json'
+    data = ci.load(record)
+    assert [len(row['commands']) for row in data['configurations']] == [11, 11, 15, 15]
+    assert len(data['comparisons']) == 3
+    ci.collect(marker, candidate[3] / 'native', native=record)
+    ci.verify_bundle(candidate[3], candidate[1], 'test-run:1', required=('native',))
+
+
+@pytest.mark.parametrize('profile', ['gcc-sanitize', 'clang-sanitize'])
+@pytest.mark.parametrize('control', ['python-baseline-empty', 'python-baseline-numpy',
+                                    'jvm-baseline-compile', 'jvm-baseline-empty'])
+@pytest.mark.parametrize('mutation', ['missing', 'failed', 'not-run', 'timeout', 'duplicate', 'tampered'])
+def test_native_controls_are_required_and_never_waived(candidate, profile, control, mutation):
+    path = native(candidate)
+    data = ci.load(path)
+    config = next(row for row in data['configurations'] if row['name'] == profile)
+    receipt = next(row for row in config['commands'] if Path(row['log']).stem == control)
+    if mutation == 'missing':
+        config['commands'].remove(receipt)
+    elif mutation == 'failed':
+        receipt['exit_code'] = 1
+        receipt['result'] = 'FAIL'
+    elif mutation == 'not-run':
+        receipt['result'] = 'NOT_RUN'
+    elif mutation == 'timeout':
+        receipt['reason'] = 'TIMEOUT'
+    elif mutation == 'duplicate':
+        config['commands'].append(receipt.copy())
+    else:
+        write(Path(receipt['log']), 'tampered baseline log')
+    dump(path, data)
+    with pytest.raises(ci.EvidenceError):
+        ci.native_record(path, candidate[1])
+
+
+@pytest.mark.parametrize('mutation', ['extra', 'duplicate-replacing-control', 'release-has-controls',
+                                    'swapped-profile', 'unknown-profile'])
+def test_native_command_contract_rejects_extras_and_wrong_profiles(candidate, mutation):
+    path = native(candidate)
+    data = ci.load(path)
+    sanitized = next(row for row in data['configurations'] if row['name'] == 'gcc-sanitize')
+    release = next(row for row in data['configurations'] if row['name'] == 'gcc-release')
+    if mutation == 'extra':
+        log = write(path.parent / 'unexpected.log', 'unexpected command')
+        sanitized['commands'].append(dict(log=str(log), log_sha256=ci.sha(log), result='PASS', exit_code=0, reason=None))
+    elif mutation == 'duplicate-replacing-control':
+        sanitized['commands'][-1] = sanitized['commands'][-2].copy()
+    elif mutation == 'release-has-controls':
+        release['commands'] += sanitized['commands'][-4:]
+    elif mutation == 'swapped-profile':
+        release['name'], sanitized['name'] = sanitized['name'], release['name']
+    else:
+        sanitized['name'] = 'unknown-sanitize'
+    dump(path, data)
+    with pytest.raises(ci.EvidenceError):
+        ci.native_record(path, candidate[1])
+
+
+@pytest.mark.parametrize('mutation', ['source', 'run-id', 'missing-control', 'tampered-control'])
+def test_sealed_native_controls_retain_candidate_and_artifact_bindings(bundle, mutation):
+    path = bundle[3] / 'native/evidence.json'
+    data = ci.load(path)
+    if mutation == 'source':
+        data['source_sha'] = '0' * 40
+    elif mutation == 'run-id':
+        data['run_id'] = 'other-run:1'
+    else:
+        artifact = next(row for row in data['artifacts']
+                        if row['original_path'].endswith('/gcc-sanitize/jvm-baseline-empty.log'))
+        target = path.parent / artifact['path']
+        if mutation == 'missing-control':
+            target.unlink()
+        else:
+            target.write_text('tampered control output')
+            # Even rehashing the outer bundle cannot bypass the native receipt.
+            artifact.update(sha256=ci.sha(target), size_bytes=target.stat().st_size)
+    dump(path, data)
+    with pytest.raises(ci.EvidenceError):
+        verify(bundle)

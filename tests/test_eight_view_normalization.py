@@ -32,8 +32,9 @@ def ledger(tmp_path,monkeypatch):
  projection=write_zip(tmp_path/'projection.jar',resources);unrelated=write_zip(tmp_path/'unrelated.jar',[('res/value.txt',b'interleaved-resource')])
  policy=tmp_path/'policy.json';policy.write_text(json.dumps({'opencvAarSha256':digest(aar.read_bytes())}));monkeypatch.setattr(ctl.capability,'POLICY',policy)
  providers=[{**archive_record(runtime),'index':0,'role':'runtime-classes'},{**archive_record(original),'index':2,'role':'aar-resources'}]
- cp=[{'path':str(p),'directory':False,'sha256':digest(p.read_bytes())} for p in (runtime,unrelated,projection)]
- value=dict(schema=2,task=':app:eightPrepare',sourceSha='a'*40,opencvAar=str(aar),opencvClasses=str(source),classpath=cp,classpathString=os.pathsep.join(e['path'] for e in cp),owners={},
+ cp=[{'path':str(p),'kind':'jar','sha256':digest(p.read_bytes())} for p in (runtime,unrelated,projection)]
+ (tmp_path/'app/build').mkdir(parents=True)
+ value=dict(schema=3,appBuildDirectory=str(tmp_path/'app/build'),task=':app:eightPrepare',sourceSha='a'*40,opencvAar=str(aar),opencvClasses=str(source),classpath=cp,classpathString=os.pathsep.join(e['path'] for e in cp),owners={},
   opencvNormalization=dict(schema=1,mode='agp-two-role-resource-projection',sourceAar=dict(path=str(aar),bytes=aar.stat().st_size,sha256=digest(aar.read_bytes())),sourceClasses=archive_record(source),providers=providers,projection={**archive_record(projection),'index':2,'sourcePath':str(original)}))
  return value
 
@@ -43,7 +44,7 @@ def test_two_role_ledger_verifies_all_current_inputs(ledger):ctl.classpath_check
 def test_single_provider_preserves_valid_domain(ledger,resource_mode):
  n=ledger['opencvNormalization'];provider=n['providers'][1 if resource_mode=='source' else 0]
  provider.update(index=0,role='single-source-resources-identical' if resource_mode=='source' else 'single-class-only-no-resource-completeness');n.update(mode='single-class-equivalent-provider',providers=[provider],projection=None)
- ledger['classpath']=[{'path':provider['path'],'directory':False,'sha256':provider['sha256']}];ledger['classpathString']=provider['path']
+ ledger['classpath']=[{'path':provider['path'],'kind':'jar','sha256':provider['sha256']}];ledger['classpathString']=provider['path']
  ctl.classpath_check(ledger)
 
 @pytest.mark.parametrize('field',['sourceAar','sourceClasses','projection','provider0','provider1'])
@@ -107,7 +108,7 @@ def test_projection_corruption_cannot_be_hidden_by_updating_ledger(ledger):
 
 @pytest.mark.parametrize('filename',['third.jar','third.zip','extensionless'])
 def test_undeclared_third_provider_rejected(ledger,tmp_path,filename):
- path=write_zip(tmp_path/filename,[('org/opencv/core/Core.class',b'core')]);ledger['classpath'].append(dict(path=str(path),directory=False,sha256=digest(path.read_bytes())))
+ path=write_zip(tmp_path/filename,[('org/opencv/core/Core.class',b'core')]);ledger['classpath'].append(dict(path=str(path),kind='jar',sha256=digest(path.read_bytes())))
  ledger['classpathString']=os.pathsep.join(e['path'] for e in ledger['classpath'])
  with pytest.raises(Failure,match='Undeclared|suffix'):ctl.classpath_check(ledger)
 
@@ -204,9 +205,9 @@ def test_partial_noncore_provider_cannot_hide_from_ledger(ledger,tmp_path,direct
  name='org/opencv/core/Mat.class'
  if directory:
   path=tmp_path/'partial';(path/name).parent.mkdir(parents=True);(path/name).write_bytes(b'mat')
-  entry=dict(path=str(path),directory=True,files=[dict(path=str(path/name),sha256=digest(b'mat'))])
+  entry=dict(path=str(path),kind='directory',files=[dict(path=str(path/name),sha256=digest(b'mat'))])
  else:
-  path=write_zip(tmp_path/'partial.jar',[(name,b'mat')]);entry=dict(path=str(path),directory=False,sha256=digest(path.read_bytes()))
+  path=write_zip(tmp_path/'partial.jar',[(name,b'mat')]);entry=dict(path=str(path),kind='jar',sha256=digest(path.read_bytes()))
  ledger['classpath'].append(entry);ledger['classpathString']=os.pathsep.join(e['path'] for e in ledger['classpath'])
  with pytest.raises(Failure,match='overlap'):ctl.classpath_check(ledger)
 
@@ -214,7 +215,7 @@ def test_partial_noncore_provider_cannot_hide_from_ledger(ledger,tmp_path,direct
 def test_single_resource_disposition_cannot_be_misrepresented(ledger,actual,claimed):
  n=ledger['opencvNormalization'];p=n['providers'][1 if actual=='source' else 0];p.update(index=0,role=claimed)
  n.update(mode='single-class-equivalent-provider',providers=[p],projection=None)
- ledger['classpath']=[dict(path=p['path'],directory=False,sha256=p['sha256'])];ledger['classpathString']=p['path']
+ ledger['classpath']=[dict(path=p['path'],kind='jar',sha256=p['sha256'])];ledger['classpathString']=p['path']
  with pytest.raises(Failure,match='disposition'):ctl.classpath_check(ledger)
 
 def test_two_role_source_identity_cannot_be_ambiguous(ledger):
