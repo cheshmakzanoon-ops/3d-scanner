@@ -3,8 +3,8 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='f1049c5ffb36b5d51c235bc125fb8abeb05d2d37'
-MESSAGE='test: run corrected eight-view host lifecycle once'
+BASE_SHA='127e7326e620f63f903707a79ac68c479b18c4de'
+MESSAGE='test: run lazy eight-view host task wiring once'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
 ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','SOURCE_MANIFEST.sha256'))  # Final independently reviewed trigger commit only; no wildcard expansion.
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'

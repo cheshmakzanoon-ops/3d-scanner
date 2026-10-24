@@ -20,9 +20,9 @@ jobs:
           toJSON(github.event.repository.private) == 'false' &&
           github.event.repository.default_branch == 'main' &&
           github.ref == 'refs/heads/main' && github.event.ref == 'refs/heads/main' &&
-          github.event.before == 'f1049c5ffb36b5d51c235bc125fb8abeb05d2d37' && github.event.after == github.sha &&
+          github.event.before == '127e7326e620f63f903707a79ac68c479b18c4de' && github.event.after == github.sha &&
           github.event.head_commit.id == github.sha &&
-          github.event.head_commit.message == 'test: run corrected eight-view host lifecycle once' &&
+          github.event.head_commit.message == 'test: run lazy eight-view host task wiring once' &&
           toJSON(github.event.created) == 'false' && toJSON(github.event.deleted) == 'false' &&
           toJSON(github.event.forced) == 'false' && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
