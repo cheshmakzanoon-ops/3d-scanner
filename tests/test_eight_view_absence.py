@@ -33,7 +33,7 @@ def test_two_exact_declared_absences_preserve_order_and_native_normalization(abs
  assert record==before and len(record['classpath'])==5
  assert record['opencvNormalization']['schema']==1
 
-@pytest.mark.parametrize('schema',[1,2,4,True,'3'])
+@pytest.mark.parametrize('schema',[1,2,3,5,True,'4'])
 def test_old_unknown_capture_schema_refused_before_any_skip(absent,schema):
  record,run=absent;record['schema']=schema
  with pytest.raises(Failure,match='schema'):ctl.classpath_check(record,run)

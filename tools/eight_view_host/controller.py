@@ -80,7 +80,7 @@ OPTIONAL_DIRECTORY_PRODUCERS=(
 def classpath_schema_check(record,run=None):
     base=set(CLASSPATH_FIELDS);enriched={'robolectricNativeDistribution','offlineFramework','runtimeProvider'}
     if not isinstance(record,dict) or not base<=set(record) or set(record)-base-enriched:raise Failure('Unknown/incomplete classpath capture fields')
-    if (type(record.get('schema')) is not int or record['schema']!=3 or 'replacedOpenCvProvider' in record
+    if (type(record.get('schema')) is not int or record['schema']!=4 or 'replacedOpenCvProvider' in record
         or not isinstance(record.get('appBuildDirectory'),str)):
         raise Failure('Unsupported classpath capture schema/root')
     root=Path(record['appBuildDirectory'])
@@ -203,6 +203,7 @@ def classpath_check(record,run=None,cleanup=False):
             if bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=entry['sha256']:raise Failure('Runtime jar changed')
     if len(set(paths))!=len(paths) or record.get('classpathString',os.pathsep.join(paths))!=os.pathsep.join(paths):raise Failure('Classpath order/identity string differs')
     normalization_check(record,run,cleanup)
+    agp_resources_check(record,run,cleanup)
 
 # Ledger digests use printable ASCII names and UTF-8 line records, not JSON bytes.
 _ARCHIVE_KEYS={'path','bytes','sha256','entries','classMapSha256','resourceMapSha256'}
@@ -442,11 +443,147 @@ def normalization_check(record,run=None,cleanup=False):
             if bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=entry['sha256']:raise Failure('Effective JAR changed during provider inspection')
     if containers!=[indices[0]]:raise Failure('Undeclared effective OpenCV class overlap/provider')
 
+AGP_CONFIG='com/android/tools/test_config.properties'
+AGP_KEYS=('android_resource_apk','android_merged_assets','android_merged_manifest','android_custom_package')
+AGP_PRODUCER={'task':':app:generateDebugUnitTestConfig','taskType':'com.android.build.gradle.tasks.GenerateTestConfig','outputProperty':'outputDirectory'}
+AGP_RESOURCE_PRODUCERS=(
+ {'task':':app:packageDebugUnitTestForUnitTest','taskType':'com.android.build.gradle.internal.tasks.PackageForHostTest','outputProperty':'apkForHostTest'},
+ {'task':':app:mergeDebugAssets','taskType':'com.android.build.gradle.tasks.MergeSourceSetFolders','outputProperty':'outputDir'},
+ {'task':':app:processDebugManifestForPackage','taskType':'com.android.build.gradle.tasks.ProcessPackagedManifestTask','outputProperty':'packageManifests'})
+
+def agp_path(value,directory=False):
+    if not isinstance(value,str):raise Failure('AGP resource path schema')
+    path=Path(value)
+    try:info=path.lstat()
+    except OSError as error:raise Failure('AGP resource missing/unreadable') from error
+    if (not path.is_absolute() or str(path)!=value or os.path.normpath(value)!=value or str(path.resolve(strict=True))!=value
+        or not (stat.S_ISDIR(info.st_mode) if directory else stat.S_ISREG(info.st_mode))):raise Failure('AGP resource alias/type/path')
+    return path
+
+def agp_file(path,run=None,cleanup=False,maximum=512*1024**2,content=False):
+    path=agp_path(str(path));before=path.stat();hashvalue=hashlib.sha256();total=0;raw=bytearray()
+    def identity(info):return (info.st_dev,info.st_ino,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+    if before.st_size>maximum:raise Failure('AGP resource file limit')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        if identity(os.fstat(fd))!=identity(before):raise Failure('AGP resource changed before read')
+        while True:
+            phase_budget(run,cleanup=cleanup);block=os.read(fd,min(65536,maximum-total+1))
+            if not block:break
+            total+=len(block)
+            if total>maximum:raise Failure('AGP resource expanded during read')
+            hashvalue.update(block)
+            if content:raw.extend(block)
+        if identity(os.fstat(fd))!=identity(before):raise Failure('AGP resource changed during read')
+    finally:os.close(fd)
+    agp_path(str(path))
+    if identity(path.stat())!=identity(before) or total!=before.st_size:raise Failure('AGP resource changed after read')
+    result={'path':str(path),'bytes':total,'sha256':hashvalue.hexdigest()}
+    return (result,bytes(raw)) if content else result
+
+def agp_sort_key(value):
+    # Java/Groovy String order is UTF-16 code-unit order, not Python code-point order.
+    try:return str(value).encode('utf-16-be')
+    except UnicodeError as error:raise Failure('Unsupported AGP resource surrogate path') from error
+
+def agp_tree(path,run=None,cleanup=False,with_directories=False,expected=None):
+    path=agp_path(str(path),True)
+    before,entries=inventory(path,max_bytes=512*1024**2,max_files=100000,seconds=phase_budget(run,cleanup=cleanup))
+    if expected is not None:
+        observed={str(path/name):size for name,size in entries.items() if (path/name).is_file()}
+        if observed!={item['path']:item['bytes'] for item in expected}:raise Failure('AGP resource inventory size/path changed before read')
+    directories=[path]+[path/name for name in sorted(entries,key=agp_sort_key) if (path/name).is_dir()]
+    def identities():
+        return {str(p):(p.stat().st_dev,p.stat().st_ino,p.stat().st_mtime_ns,p.stat().st_ctime_ns) for p in directories}
+    original_ids=identities()
+    files=[agp_file(path/name,run,cleanup) for name in sorted(entries,key=agp_sort_key) if (path/name).is_file()]
+    after,current=inventory(path,max_bytes=512*1024**2,max_files=100000,seconds=phase_budget(run,cleanup=cleanup))
+    if entries!=current or before!=after or identities()!=original_ids:raise Failure('AGP resource directory changed during read')
+    result_dirs=sorted((str(p) for p in directories),key=agp_sort_key)
+    if len(entries)+1>100000:raise Failure('AGP resource directory count limit')
+    return (files,result_dirs) if with_directories else files
+
+def agp_properties(raw):
+    props={}
+    if any(byte not in (10,13) and not 32<=byte<=126 for byte in raw):raise Failure('Unsupported AGP property bytes')
+    for line in raw.decode('latin1').splitlines():
+        if not line:continue
+        if line=='#Generated by the Android Gradle plugin':continue
+        if not re.fullmatch(r'[a-z_]+=[A-Za-z0-9_./-]+',line):raise Failure('Unsupported AGP properties encoding/value')
+        key,value=line.split('=',1)
+        if key in props:raise Failure('Duplicate AGP property')
+        props[key]=value
+    if set(props)!=set(AGP_KEYS) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)+',props['android_custom_package']):raise Failure('AGP properties fields/package')
+    return props
+
+def agp_resources_check(record,run=None,cleanup=False):
+    ledger=record.get('agpResources');fields={'schema','index','projectDirectory','producer','originalDirectory','original','originalValues','retainedOriginal','derivedDirectory','derived','properties','resources'}
+    if not isinstance(ledger,dict) or set(ledger)!=fields or type(ledger['schema']) is not int or ledger['schema']!=1:raise Failure('Unsupported AGP resource ledger schema')
+    if run is None or not hasattr(run,'root') or not hasattr(run,'work'):raise Failure('AGP resource owned run authority required')
+    project=agp_path(str(Path(run.root)/'app'),True);build=agp_path(record['appBuildDirectory'],True);work=agp_path(str(run.work),True)
+    if ledger['projectDirectory']!=str(project) or build!=project/'build' or ledger['producer']!=AGP_PRODUCER:raise Failure('AGP selected project/producer binding')
+    original_dir=agp_path(ledger['originalDirectory'],True)
+    if original_dir!=build/'intermediates/unit_test_config_directory/debugUnitTest/generateDebugUnitTestConfig/out':raise Failure('AGP original config differs from fixed producer output')
+    derived_dir=agp_path(ledger['derivedDirectory'],True)
+    if derived_dir!=work/'agp-test-config':raise Failure('AGP derived config outside fixed owned directory')
+    def config(field,path):
+        actual,raw=agp_file(path,run,cleanup,65536,True)
+        value=ledger[field]
+        if not isinstance(value,dict) or set(value)!={'path','bytes','sha256'} or type(value['bytes']) is not int or value!=actual:raise Failure('AGP '+field+' config identity mismatch')
+        return raw
+    original=config('original',original_dir/AGP_CONFIG);retained=config('retainedOriginal',work/'agp-original-test-config.properties');derived=config('derived',derived_dir/AGP_CONFIG)
+    if original!=retained:raise Failure('AGP retained original bytes differ')
+    if agp_tree(original_dir,run,cleanup)!=[ledger['original']] or agp_tree(derived_dir,run,cleanup)!=[ledger['derived']]:raise Failure('AGP config directory additional/changed content')
+    values=agp_properties(original)
+    if ledger['originalValues']!=values:raise Failure('AGP original properties differ')
+    expected=dict(values)
+    for key in AGP_KEYS[:3]:
+        value=values[key]
+        if value.startswith('/') or any(part in ('','.','..') for part in value.split('/')):raise Failure('Unsafe AGP relative property')
+        expected[key]=str(project/value)
+    if ledger['properties']!=expected or derived!=''.join(key+'='+expected[key]+'\n' for key in AGP_KEYS).encode('latin1'):raise Failure('AGP derived properties differ')
+    resources=ledger['resources']
+    if not isinstance(resources,list) or len(resources)!=3:raise Failure('AGP resource set')
+    total=0;count=0
+    for row in resources:
+        if not isinstance(row,dict) or not isinstance(row.get('files'),list) or len(row['files'])>100000:raise Failure('AGP resource file schema/count')
+        for item in row['files']:
+            if (not isinstance(item,dict) or set(item)!={'path','bytes','sha256'} or type(item['bytes']) is not int or not 0<=item['bytes']<=512*1024**2
+                or not isinstance(item['path'],str) or not isinstance(item['sha256'],str) or not re.fullmatch('[0-9a-f]{64}',item['sha256'])):raise Failure('AGP resource file identity schema')
+            total+=item['bytes'];count+=1
+        if total>512*1024**2 or count>100000:raise Failure('AGP declared resource aggregate limit')
+    total=0;count=0
+    for index,key in enumerate(AGP_KEYS[:3]):
+        row=resources[index];kind='directory' if key=='android_merged_assets' else 'file'
+        if (not isinstance(row,dict) or set(row)!={'key','kind','path','producer','files','directories'} or row['key']!=key or row['kind']!=kind or row['producer']!=AGP_RESOURCE_PRODUCERS[index] or row['path']!=expected[key]):raise Failure('AGP resource producer/path binding')
+        path=agp_path(row['path'],kind=='directory')
+        if not path.is_relative_to(build):raise Failure('AGP resource outside selected build')
+        if kind=='file' and (len(row['files'])!=1 or row['files'][0]['path']!=str(path)):raise Failure('AGP singleton resource file binding')
+        actual,directories=agp_tree(path,run,cleanup,True,expected=row['files']) if kind=='directory' else ([agp_file(path,run,cleanup,maximum=row['files'][0]['bytes'])],[])
+        if row['directories']!=directories:raise Failure('AGP resource directory topology changed')
+        if not isinstance(row['files'],list) or any(not isinstance(item,dict) or set(item)!={'path','bytes','sha256'} or type(item['bytes']) is not int for item in row['files']) or row['files']!=actual:raise Failure('AGP resource bytes/inventory changed')
+        count+=len(actual)+len(directories);total+=sum(item['bytes'] for item in actual)
+        if count>100000 or total>512*1024**2:raise Failure('AGP cumulative resource limit')
+    cp=record['classpath'];index=ledger['index']
+    if type(index) is not int or not 0<=index<len(cp) or cp[index]!={'kind':'directory','path':str(derived_dir),'files':[{'path':ledger['derived']['path'],'sha256':ledger['derived']['sha256']}]}:raise Failure('AGP same-slot effective classpath binding')
+    matches=[]
+    for i,entry in enumerate(cp):
+        phase_budget(run,cleanup=cleanup);path=Path(entry['path'])
+        if entry['kind']=='absent-declared-directory':absent_directory_check(entry,record,run,cleanup);continue
+        if entry['kind']=='directory':
+            if path==original_dir:raise Failure('AGP original directory remains effective')
+            if (path/AGP_CONFIG).exists():matches.append(i)
+        else:
+            if effective_owner_count(path,{AGP_CONFIG},run,cleanup):matches.append(i)
+            if bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=entry['sha256']:raise Failure('AGP inspected JAR changed')
+    if matches!=[index]:raise Failure('Missing/duplicate effective AGP configuration')
+
+
 def prepared_record_check(run,prepared,expected_hash,cleanup=False):
     raw=bounded_bytes(run.work/'prepared.json',16*1024**2,run,cleanup=cleanup)
     if hashlib.sha256(raw).hexdigest()!=expected_hash or json.loads(raw)!=prepared:raise Failure('Immutable prepared record changed')
 
-CLASSPATH_FIELDS=('schema','appBuildDirectory','task','classpath','classpathString','owners','opencvAar','opencvClasses','opencvNormalization','sourceSha')
+CLASSPATH_FIELDS=('schema','appBuildDirectory','task','classpath','classpathString','owners','opencvAar','opencvClasses','opencvNormalization','agpResources','sourceSha')
 
 def runtime_classpath_proof(run,prepared):
     baseline={key:prepared[key] for key in CLASSPATH_FIELDS};proof=[]
@@ -746,7 +883,7 @@ def evidence_package(run,receipt,destination):
         selected_bytes+=path.stat().st_size;selected_entries+=1
         if selected_bytes>31*1024**2 or selected_entries>1990:raise Failure('Evidence package byte/count limit')
         selected.append((path,rel))
-    names=['ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
+    names=['agp-original-test-config.properties','agp-test-config/com/android/tools/test_config.properties','ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
     for name in names:
         if (run.work/name).exists():add(run.work/name,name)
     for directory in ['logs','measurement','xml']:

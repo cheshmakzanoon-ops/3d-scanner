@@ -3,10 +3,10 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='cb26bbad38443d8671dceb303a419581ab32f989'
-MESSAGE='fix: bind scanner build-order sentinel'
+BASE_SHA='4f0490f1fb0debb661c69e4802969662e34ccef0'
+MESSAGE='fix: bind Android test resources to isolated host'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','tools/eight_view_host/native_provenance.py','tests/test_eight_view_native_provenance.py','SOURCE_MANIFEST.sha256'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'tests/test_eight_view_absence.py', 'tests/test_eight_view_agp_binding.py', 'tests/test_eight_view_agp_resources.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_gradle_lifecycle.py', 'tests/test_eight_view_normalization.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

@@ -25,6 +25,8 @@ def archive_record(path):
 
 @pytest.fixture
 def ledger(tmp_path,monkeypatch):
+ # OpenCV-only units isolate AGP projection; dedicated AGP binding tests use the real validator.
+ monkeypatch.setattr(ctl,'agp_resources_check',lambda *args,**kwargs:None)
  classes=[('org/opencv/core/Core.class',b'core'),('org/opencv/core/Mat.class',b'mat')]
  resources=[('META-INF/',b''),('META-INF/MANIFEST.MF',b'Manifest-Version: 1.0\r\n\r\n'),('res/value.txt',b'source-resource')]
  source=write_zip(tmp_path/'source.jar',classes+resources);aar=write_zip(tmp_path/'source.aar',[('classes.jar',source.read_bytes())])
@@ -34,7 +36,7 @@ def ledger(tmp_path,monkeypatch):
  providers=[{**archive_record(runtime),'index':0,'role':'runtime-classes'},{**archive_record(original),'index':2,'role':'aar-resources'}]
  cp=[{'path':str(p),'kind':'jar','sha256':digest(p.read_bytes())} for p in (runtime,unrelated,projection)]
  (tmp_path/'app/build').mkdir(parents=True)
- value=dict(schema=3,appBuildDirectory=str(tmp_path/'app/build'),task=':app:eightPrepare',sourceSha='a'*40,opencvAar=str(aar),opencvClasses=str(source),classpath=cp,classpathString=os.pathsep.join(e['path'] for e in cp),owners={},
+ value=dict(schema=4,agpResources={"schema":1},appBuildDirectory=str(tmp_path/'app/build'),task=':app:eightPrepare',sourceSha='a'*40,opencvAar=str(aar),opencvClasses=str(source),classpath=cp,classpathString=os.pathsep.join(e['path'] for e in cp),owners={},
   opencvNormalization=dict(schema=1,mode='agp-two-role-resource-projection',sourceAar=dict(path=str(aar),bytes=aar.stat().st_size,sha256=digest(aar.read_bytes())),sourceClasses=archive_record(source),providers=providers,projection={**archive_record(projection),'index':2,'sourcePath':str(original)}))
  return value
 

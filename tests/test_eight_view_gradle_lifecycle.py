@@ -41,6 +41,51 @@ abstract class SyntheticKspConfig {
 }
 '''
 
+# Explicit synthetic task API model only; actual AGP serialization/Fs lives in separate fixture.
+AGP_MODELS = {
+'GenerateTestConfig.groovy': '''package com.android.build.gradle.tasks
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.*
+import org.gradle.api.tasks.*
+abstract class GenerateTestConfig extends DefaultTask {
+ @OutputDirectory abstract DirectoryProperty getOutputDirectory()
+ @Internal abstract RegularFileProperty getProjectDir()
+ @Internal Map testConfigInputs
+ @TaskAction void generate() {
+  def values=testConfigInputs.computeProperties(project.projectDir)
+  def f=new File(outputDirectory.get().asFile,'com/android/tools/test_config.properties');f.parentFile.mkdirs()
+  f.text='android_resource_apk='+values.resourceApkFile+'\\nandroid_merged_assets='+values.mergedAssetsDir+'\\nandroid_merged_manifest='+values.mergedManifestDir+'\\nandroid_custom_package='+values.customPackage+'\\n'
+ }
+}
+''',
+'PackageForHostTest.groovy': '''package com.android.build.gradle.internal.tasks
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.*
+import org.gradle.api.tasks.*
+abstract class PackageForHostTest extends DefaultTask {
+ @OutputFile abstract RegularFileProperty getApkForHostTest()
+ @TaskAction void generate(){def f=apkForHostTest.get().asFile;f.parentFile.mkdirs();f.text='synthetic apk, not Android qualification'}
+}
+''',
+'MergeSourceSetFolders.groovy': '''package com.android.build.gradle.tasks
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.*
+import org.gradle.api.tasks.*
+abstract class MergeSourceSetFolders extends DefaultTask {
+ @OutputDirectory abstract DirectoryProperty getOutputDir()
+ @TaskAction void generate(){outputDir.get().asFile.mkdirs()}
+}
+''',
+'ProcessPackagedManifestTask.groovy': '''package com.android.build.gradle.tasks
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.*
+import org.gradle.api.tasks.*
+abstract class ProcessPackagedManifestTask extends DefaultTask {
+ @OutputDirectory abstract DirectoryProperty getPackageManifests()
+ @TaskAction void generate(){def f=new File(packageManifests.get().asFile,'AndroidManifest.xml');f.parentFile.mkdirs();f.text='<manifest package="synthetic.fixture"/>'}
+}
+'''}
+
 BUILD = '''
 buildscript { dependencies { classpath files(rootProject.file('synthetic-ksp-task.jar')) } }
 import com.google.devtools.ksp.gradle.KspAATask
@@ -56,6 +101,17 @@ configurations { syntheticRuntime; debugRuntimeClasspath }
 repositories { maven { url = uri(rootProject.file(project.findProperty('providerRepository') ?: 'synthetic-repository')) } }
 dependencies { debugRuntimeClasspath 'org.opencv:opencv:4.12.0@aar' }
 afterEvaluate {
+    def apkTask=tasks.register('packageDebugUnitTestForUnitTest',com.android.build.gradle.internal.tasks.PackageForHostTest) { apkForHostTest.set(layout.buildDirectory.file('synthetic-resources/resources.ap_')) }
+    def assetsTask=tasks.register('mergeDebugAssets',com.android.build.gradle.tasks.MergeSourceSetFolders) { outputDir.set(layout.buildDirectory.dir('synthetic-resources/assets')) }
+    def manifestTask=tasks.register('processDebugManifestForPackage',com.android.build.gradle.tasks.ProcessPackagedManifestTask) { packageManifests.set(layout.buildDirectory.dir('synthetic-resources/manifest')) }
+    tasks.register('generateDebugUnitTestConfig',com.android.build.gradle.tasks.GenerateTestConfig) {
+        dependsOn apkTask,assetsTask,manifestTask
+        if (project.hasProperty('disableAgpConfig')) enabled=false
+        if (project.hasProperty('skipAgpConfig')) onlyIf {false}
+        outputDirectory.set(layout.buildDirectory.dir('intermediates/unit_test_config_directory/debugUnitTest/generateDebugUnitTestConfig/out'));getProjectDir().set(project.projectDir)
+        testConfigInputs=[resourceApk:apkTask.flatMap {it.apkForHostTest},mergedAssets:assetsTask.flatMap {it.outputDir},mergedManifest:manifestTask.flatMap {it.packageManifests},
+          computeProperties:{File ignored -> [resourceApkFile:'build/synthetic-resources/resources.ap_',mergedAssetsDir:'build/synthetic-resources/assets',mergedManifestDir:'build/synthetic-resources/manifest/AndroidManifest.xml',customPackage:'synthetic.fixture']}]
+    }
     tasks.register('kspDebugUnitTestKotlin', project.hasProperty('wrongKspType') ? DefaultTask : KspAATask) {
         if (project.hasProperty('wrongKspType')) {
             def target = layout.buildDirectory.dir('generated/ksp/debugUnitTest/resources').get().asFile
@@ -74,7 +130,7 @@ afterEvaluate {
     tasks.register('syntheticCompile') { doLast { if (!project.hasProperty('allowSyntheticPreparation')) throw new GradleException('compile must not execute') } }
     if (!project.hasProperty('omitOrdinary')) {
         tasks.register('testDebugUnitTest', Test) {
-            dependsOn tasks.named('syntheticCompile')
+            dependsOn tasks.named('syntheticCompile'), tasks.named('generateDebugUnitTestConfig')
             // Match AGP's configuration-backed implicit Test classpath dependencies.
             def providerCase = project.findProperty('providerCase') ?: 'single'
             def providers = [rootProject.file('synthetic-classes.jar')]
@@ -104,7 +160,7 @@ afterEvaluate {
                 providers.add(3, layout.buildDirectory.file('intermediates/javac/debugUnitTest/compileDebugUnitTestJavaWithJavac/classes').get().asFile)
             }
             if (project.hasProperty('unclassifiedMissing')) providers += layout.buildDirectory.file('not-an-admitted-output').get().asFile
-            classpath = files(providers, configurations.syntheticRuntime)
+            classpath = files(providers, configurations.syntheticRuntime,layout.buildDirectory.dir('intermediates/unit_test_config_directory/debugUnitTest/generateDebugUnitTestConfig/out'))
         }
     }
     tasks.register('syntheticOracle') { doLast { throw new GradleException('oracle must not execute') } }
@@ -130,6 +186,7 @@ gradle.taskGraph.whenReady {
     }
 }
 tasks.register('inspectNormalization') {
+    dependsOn 'generateDebugUnitTestConfig'
     doLast {
         def original = tasks.getByName('hostIntegrationTest').classpath.files*.canonicalPath
         def effective = tasks.getByName('eightProbe').classpath.files*.canonicalPath
@@ -147,12 +204,12 @@ tasks.register('inspectLifecycle') {
         assert syntheticJava.dirs.size() == 1
         def prepare = tasks.getByName('eightPrepare')
         assert prepare.taskDependencies.getDependencies(prepare)*.name.toSet() ==
-            ['syntheticCompile', 'verifyHostIntegrationSdk'].toSet()
+            ['syntheticCompile', 'verifyHostIntegrationSdk', 'generateDebugUnitTestConfig'].toSet()
         assert tasks.getByName('testDebugUnitTest').taskDependencies
-            .getDependencies(tasks.getByName('testDebugUnitTest'))*.name == ['syntheticCompile']
+            .getDependencies(tasks.getByName('testDebugUnitTest'))*.name .toSet() == ['syntheticCompile', 'generateDebugUnitTestConfig'].toSet()
         assert tasks.getByName('hostIntegrationTest').taskDependencies
             .getDependencies(tasks.getByName('hostIntegrationTest'))*.name.toSet() ==
-            ['syntheticCompile', 'syntheticOracle'].toSet()
+            ['syntheticCompile', 'syntheticOracle', 'generateDebugUnitTestConfig'].toSet()
         println 'SYNTHETIC_LIFECYCLE_PASS'
     }
 }
@@ -309,10 +366,13 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             # Gradle's tracked buildscript classpath, never an unknown loader.
             model_source = root / 'SyntheticKsp.groovy'
             model_source.write_text(KSP_MODEL)
+            model_sources=[model_source]
+            for name,contents in AGP_MODELS.items():
+                path=root/name;path.write_text(contents);model_sources.append(path)
             model_classes = root / 'model-classes'
             model_classes.mkdir()
             model_compile = subprocess.run([java, '-cp', str(Path(home) / 'lib/*'),
-                'org.codehaus.groovy.tools.FileSystemCompiler', '-d', str(model_classes), str(model_source)],
+                'org.codehaus.groovy.tools.FileSystemCompiler', '-d', str(model_classes), *map(str,model_sources)],
                 text=True, capture_output=True, timeout=30)
             self.assertEqual(model_compile.returncode, 0, model_compile.stdout + model_compile.stderr)
             with zipfile.ZipFile(root / 'synthetic-ksp-task.jar', 'w') as model_jar:
@@ -369,11 +429,15 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                 ], text=True, capture_output=True, timeout=120)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 graph = json.loads((root / 'output/task-graph.json').read_text())
-                expected = {':app:syntheticCompile', ':app:verifyHostIntegrationSdk', ':app:eightPrepare'}
+                expected = {':app:syntheticCompile', ':app:verifyHostIntegrationSdk', ':app:eightPrepare', ':app:generateDebugUnitTestConfig', ':app:packageDebugUnitTestForUnitTest', ':app:mergeDebugAssets', ':app:processDebugManifestForPackage'}
                 if selected == 'eightProbe':
                     expected.add(':app:eightProbe')
                 self.assertEqual(set(graph['tasks']), expected)
                 self.assertEqual(graph['externalNativeTasks'], [])
+                self.assertFalse((root/'output/agp-test-config').exists())
+                self.assertFalse((root/'output/agp-original-test-config.properties').exists())
+                self.assertNotIn(':app:testDebugUnitTest',graph['tasks'])
+                self.assertNotIn(':app:hostIntegrationTest',graph['tasks'])
                 self.assertNotIn('EIGHT_VIEW_PROVIDER_DIAGNOSTIC ', result.stdout)
             for case, count in [('zero', 0), ('duplicate', 2), ('directory', 0), ('truncated', 0), ('mismatch', None), ('late', 2), ('bytecap', 2)]:
                 result = subprocess.run([
@@ -401,8 +465,9 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                 self.assertRegex(record['expectedAar']['sha256'], r'^[0-9a-f]{64}$')
                 self.assertRegex(record['expectedClasses']['sha256'], r'^[0-9a-f]{64}$')
                 if case == 'duplicate':
-                    self.assertEqual(len(record['entries']), 2)
-                    for entry in record['entries']:
+                    self.assertEqual(len(record['entries']), 3)
+                    self.assertTrue(record['entries'][2]['path'].endswith('generateDebugUnitTestConfig/out'))
+                    for entry in record['entries'][:2]:
                         self.assertTrue(entry['matchesExpectedClassMap'])
                         self.assertEqual(entry['classMapSha256'], record['expectedClasses']['classMapSha256'])
                         self.assertEqual(entry['coreSha256'], record['expectedClasses']['coreSha256'])
@@ -413,7 +478,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                     self.assertFalse(entry['coreHashOmitted'])
                     self.assertEqual(entry['coreSha256'], record['expectedClasses']['coreSha256'])
                 if case == 'truncated':
-                    self.assertEqual(record['entriesOmitted'], 14)
+                    self.assertEqual(record['entriesOmitted'], 15)
                 if case in ('late', 'bytecap'):
                     first = 270 if case == 'late' else 240
                     self.assertEqual([entry['index'] for entry in record['entries'][:3]], [first, first + 1, first + 2])
@@ -427,7 +492,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                     if case == 'bytecap':
                         # Fewer than256 original entries: truncation is byte-bound,
                         # and low-priority generic entries, not providers, were cut.
-                        self.assertEqual(record['classpathEntryCount'], 243)
+                        self.assertEqual(record['classpathEntryCount'], 244)
                         self.assertLess(len(record['entries']), 243)
 
             # Execute the unchanged producer under actual Gradle, then load actual
@@ -441,7 +506,8 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             single_runtime = normalization_run('single-runtime')
             self.assertEqual(single_runtime.returncode, 0, single_runtime.stdout + single_runtime.stderr)
             single_paths = json.loads((root / 'classpath-observation.json').read_text())
-            self.assertEqual(single_paths['original'], single_paths['effective'])
+            self.assertEqual(single_paths['original'][:-1], single_paths['effective'][:-1])
+            self.assertEqual(Path(single_paths['effective'][-1]).name,'agp-test-config')
             self.assertNotIn('EIGHT_VIEW_PROVIDER_DIAGNOSTIC ', single_runtime.stdout)
             valid = normalization_run('agp')
             self.assertEqual(valid.returncode, 0, valid.stdout + valid.stderr)
@@ -466,15 +532,15 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             ], text=True, capture_output=True, timeout=120)
             self.assertEqual(prepared_run.returncode, 0, prepared_run.stdout + prepared_run.stderr)
             prepared_record = json.loads((root / 'output/prepared.json').read_text())
-            self.assertEqual(prepared_record['schema'], 3)
+            self.assertEqual(prepared_record['schema'], 4)
             self.assertEqual(prepared_record['opencvNormalization']['mode'], 'agp-two-role-resource-projection')
             self.assertEqual(set(prepared_record['owners']), {'org.opencv.android.OpenCVLoader', 'org.opencv.android.StaticHelper',
                                                               'org.opencv.core.Core', 'org.opencv.core.Mat', 'com.realityforge.scanner.engine.NativeCore'})
             sys.path.insert(0, str(ROOT))
             from tools.eight_view_host import controller as ctl
             with patch.object(ctl.capability, 'POLICY', policy):
-                ctl.normalization_check(prepared_record)
-                ctl.classpath_check(prepared_record)
+                ctl.normalization_check(prepared_record,types.SimpleNamespace(root=root,work=root/'output',remaining=lambda maximum,**kwargs: maximum))
+                ctl.classpath_check(prepared_record,types.SimpleNamespace(root=root,work=root/'output',remaining=lambda maximum,**kwargs: maximum))
             evidence = os.environ.get('RF_GRADLE_EVIDENCE_DIR')
             if evidence:
                 destination = Path(evidence)
@@ -552,8 +618,8 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                 if not markers:
                     self.assertEqual(projected['bytes'], 22)  # Valid empty ZIP, no fabricated resource.
                 with patch.object(ctl.capability, 'POLICY', policy):
-                    ctl.normalization_check(variant_record)
-                    ctl.classpath_check(variant_record)
+                    ctl.normalization_check(variant_record,types.SimpleNamespace(root=root,work=variant_output,remaining=lambda maximum,**kwargs: maximum))
+                    ctl.classpath_check(variant_record,types.SimpleNamespace(root=root,work=variant_output,remaining=lambda maximum,**kwargs: maximum))
 
 
 
@@ -561,7 +627,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             # KSP is a declared-output synthetic model; JavaCompile is Gradle's
             # real built-in task and must report actual NO-SOURCE.
             policy.write_text(json.dumps({'opencvAarSha256': hashlib.sha256((artifact / 'opencv-4.12.0.aar').read_bytes()).hexdigest()}))
-            authority = types.SimpleNamespace(root=root, remaining=lambda maximum, **kwargs: maximum)
+            authority = types.SimpleNamespace(root=root, work=root/'bound-absence', remaining=lambda maximum, **kwargs: maximum)
             def absent_run(name, extra=(), phase='prepare', prepared_sha=None):
                 work = root / name
                 work.mkdir(exist_ok=True)
@@ -583,9 +649,9 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             self.assertEqual(absent_result.returncode, 0, absent_result.stdout + absent_result.stderr)
             self.assertIn(':app:compileDebugUnitTestJavaWithJavac NO-SOURCE', absent_result.stdout)
             bound = json.loads((absent_work / 'prepared.json').read_text())
-            self.assertEqual(bound['schema'], 3)
+            self.assertEqual(bound['schema'], 4)
             self.assertEqual([entry['kind'] for entry in bound['classpath']],
-                             ['jar', 'absent-declared-directory', 'jar', 'absent-declared-directory', 'jar'])
+                             ['jar', 'absent-declared-directory', 'jar', 'absent-declared-directory', 'jar', 'directory'])
             self.assertEqual(bound['classpathString'], os.pathsep.join(entry['path'] for entry in bound['classpath']))
             absent_entries = [bound['classpath'][1], bound['classpath'][3]]
             for entry in absent_entries:
@@ -626,7 +692,9 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
 
             # Producer-configuration refusal cases run after the baseline window;
             # changing declared outputs is not expected to preserve old ancestors.
-            for flag, error in [('skipJavac', 'requires actual NO-SOURCE'),
+            for flag, error in [('disableAgpConfig','AGP resource producer did not complete'),
+                                ('skipAgpConfig','AGP resource producer arbitrary skip'),
+                                ('skipJavac', 'requires actual NO-SOURCE'),
                                 ('skipKsp', 'arbitrary skipped task'), ('disableKsp', 'did not complete successfully'),
                                 ('omitAbsentDependencies', 'did not complete successfully'),
                                 ('wrongKspOutput', 'declared property/path differs'),
