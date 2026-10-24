@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.util.Log
 import com.realityforge.scanner.engine.NativeCore
+import com.realityforge.scanner.export.NativeAssetExports
 import java.io.File
 import java.lang.reflect.Modifier
 import java.security.MessageDigest
@@ -35,7 +36,8 @@ class CandidateNativeLoaderTokenHostTest {
         val loader = javaClass.classLoader
         assertTrue(loader.javaClass.name.contains("SandboxClassLoader"))
         val names = listOf("org.opencv.android.OpenCVLoader", "org.opencv.android.StaticHelper",
-            "org.opencv.core.Core", "org.opencv.core.Mat", "com.realityforge.scanner.engine.NativeCore")
+            "org.opencv.core.Core", "org.opencv.core.Mat", "com.realityforge.scanner.engine.NativeCore",
+            "com.realityforge.scanner.export.NativeAssetExports")
         for (name in names) {
             val type = Class.forName(name, false, loader)
             assertSame("Native owner must be sandbox acquired: $name", loader, type.classLoader)
@@ -46,9 +48,15 @@ class CandidateNativeLoaderTokenHostTest {
             assertEquals("Original class resource identity: $name", required("classSha.$name"), sha(bytes))
             if (name == "com.realityforge.scanner.engine.NativeCore")
                 assertEquals(capability.value.getJSONObject("inputs").getJSONObject("nativeOwner").getString("sha256"), sha(bytes))
+            if (name == "com.realityforge.scanner.export.NativeAssetExports")
+                assertEquals(capability.value.getJSONObject("inputs").getJSONObject("exportNativeOwner").getString("sha256"), sha(bytes))
         }
         assertSame(loader, Log::class.java.classLoader)
         assertTrue(Modifier.isNative(NativeCore::class.java.getDeclaredMethod("beginReconstruction").modifiers))
+        val exportMethod = NativeAssetExports::class.java.getDeclaredMethod("writeObserved",
+            String::class.java, String::class.java, Int::class.javaPrimitiveType, String::class.java, Runnable::class.java)
+        assertTrue(Modifier.isNative(exportMethod.modifiers)); assertFalse(Modifier.isStatic(exportMethod.modifiers))
+        assertEquals(Void.TYPE, exportMethod.returnType)
         assertTrue("Must be actual StaticHelper/native loading, never a substituted true", OpenCVLoader.initLocal())
         assertEquals("4.12.0", Core.getVersionString())
         assertEquals("4.12.0", Core.VERSION)
@@ -84,6 +92,15 @@ class CandidateNativeLoaderTokenHostTest {
         assertFalse(NativeCore.finishReconstruction(token))
         try { NativeCore.pollNativeProgress(token); fail("Finished token must be rejected") }
         catch (_: IllegalArgumentException) { /* actual JNI boundary rejection */ }
+        // Resolve the actual exporter JNI symbol. Its first guarded rejection precedes all file IO.
+        var exportCheckpoints = 0
+        try {
+            NativeAssetExports.writeObserved("rf-host-export-same-path", "rf-host-export-same-path", 0,
+                "0".repeat(64), Runnable { exportCheckpoints++ })
+            fail("Exporter must reject source overwrite before file IO")
+        } catch (expected: IllegalArgumentException) { assertEquals("SOURCE_OVERWRITE", expected.message) }
+        assertEquals(1, exportCheckpoints)
+        assertEquals(setOf(openCv.path, shim.path, engine.path), nativeMappings())
         capability.verifyCurrent()
     }
     private fun required(key: String) = requireNotNull(System.getProperty("rf.loader.$key"))

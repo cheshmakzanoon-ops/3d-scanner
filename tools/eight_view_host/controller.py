@@ -12,7 +12,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='af287acfa2114a866df9b043f78125322f7f389bb718282e8cd3ea8179b68b48'
+ADAPTER_MANIFEST='897d9db9d0726b4ce957da914c4e4b3da2b07ec6673a4ffb9a5c8bcd96a286f3'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -968,14 +968,20 @@ def evidence_package(run,receipt,destination):
     for directory in ['logs','measurement','xml']:
         root=run.work/directory
         if not root.exists():continue
-        _,entries=inventory(root,max_bytes=31*1024**2-selected_bytes,max_files=1990-selected_entries,seconds=phase_budget(run))
+        remaining_bytes=31*1024**2-selected_bytes;remaining_entries=1990-selected_entries
+        try:_,entries=inventory(root,max_bytes=remaining_bytes,max_files=remaining_entries,seconds=phase_budget(run))
+        except Failure as failure:
+            if str(failure)!='Owned directory size limit':raise
+            detail={'phase':'pre-copy-inventory','rootLabel':directory,'selectedBytes':selected_bytes,
+                    'selectedEntries':selected_entries,'remainingBytes':remaining_bytes,'remainingEntries':remaining_entries}
+            raise Failure('Owned directory size limit; EVIDENCE_BUDGET '+json.dumps(detail,sort_keys=True,separators=(',',':'))) from failure
         for name in sorted(entries):
             path=root/name
             if path.is_file():add(path,path.relative_to(run.work).as_posix())
             else:
                 selected_entries+=1
                 if selected_entries>1990:raise Failure('Evidence directory count limit')
-    for name in ['capability.json','pending.json','source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json','native-input-provenance.json','native-opencv-baseline-log.txt','native-opencv-build-log.txt','native-scanner-baseline-log.txt','native-scanner-build-log.txt','native-opencv-phase-generate-java-core-log.txt','native-opencv-phase-build-core-log.txt','native-opencv-phase-generate-imgproc-log.txt','native-opencv-phase-build-imgproc-log.txt','native-opencv-phase-generate-features2d-log.txt','native-opencv-phase-build-java-log.txt']:
+    for name in ['jni.d','export-jni.d','capability.json','pending.json','source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json','native-input-provenance.json','native-opencv-baseline-log.txt','native-opencv-build-log.txt','native-scanner-baseline-log.txt','native-scanner-build-log.txt','native-opencv-phase-generate-java-core-log.txt','native-opencv-phase-build-core-log.txt','native-opencv-phase-generate-imgproc-log.txt','native-opencv-phase-build-imgproc-log.txt','native-opencv-phase-generate-features2d-log.txt','native-opencv-phase-build-java-log.txt']:
         path=run.work/'capability'/name
         if path.exists():add(path,'capability/'+name)
     add(capability.POLICY,'build-policy.json')

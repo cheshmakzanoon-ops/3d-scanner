@@ -279,7 +279,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             java_source.write_text('package org.opencv.core; public class Core { public static String identity() { return "synthetic-core"; } }')
             java_sources = [java_source]
             for package, name in [('org.opencv.android', 'OpenCVLoader'), ('org.opencv.android', 'StaticHelper'),
-                                  ('org.opencv.core', 'Mat'), ('com.realityforge.scanner.engine', 'NativeCore')]:
+                                  ('org.opencv.core', 'Mat'), ('com.realityforge.scanner.engine', 'NativeCore'), ('com.realityforge.scanner.export', 'NativeAssetExports')]:
                 source_file = root / 'java-src' / package.replace('.', '/') / (name + '.java')
                 source_file.parent.mkdir(parents=True, exist_ok=True)
                 source_file.write_text('package ' + package + '; public class ' + name + ' {}')
@@ -309,6 +309,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             with zipfile.ZipFile(root / 'synthetic-middle.jar', 'w') as jar:
                 jar.writestr('shared.txt', b'middle')
                 jar.writestr('com/realityforge/scanner/engine/NativeCore.class', (compiled / 'com/realityforge/scanner/engine/NativeCore.class').read_bytes())
+                jar.writestr('com/realityforge/scanner/export/NativeAssetExports.class', (compiled / 'com/realityforge/scanner/export/NativeAssetExports.class').read_bytes())
             with zipfile.ZipFile(root / 'synthetic-empty.jar', 'w') as jar:
                 jar.writestr('unrelated.txt', b'not-a-provider')
             with zipfile.ZipFile(root / 'synthetic-mismatch.jar', 'w') as jar:
@@ -535,7 +536,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             self.assertEqual(prepared_record['schema'], 4)
             self.assertEqual(prepared_record['opencvNormalization']['mode'], 'agp-two-role-resource-projection')
             self.assertEqual(set(prepared_record['owners']), {'org.opencv.android.OpenCVLoader', 'org.opencv.android.StaticHelper',
-                                                              'org.opencv.core.Core', 'org.opencv.core.Mat', 'com.realityforge.scanner.engine.NativeCore'})
+                                                              'org.opencv.core.Core', 'org.opencv.core.Mat', 'com.realityforge.scanner.engine.NativeCore', 'com.realityforge.scanner.export.NativeAssetExports'})
             sys.path.insert(0, str(ROOT))
             from tools.eight_view_host import controller as ctl
             with patch.object(ctl.capability, 'POLICY', policy):

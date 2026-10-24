@@ -12,6 +12,7 @@ class SparsePrefixRunner(testClass: Class<*>) : RobolectricTestRunner(testClass)
             doNotInstrumentClass("org.opencv.android.OpenCVLoader")
             doNotInstrumentClass("org.opencv.android.StaticHelper")
             doNotInstrumentClass("com.realityforge.scanner.engine.NativeCore")
+            doNotInstrumentClass("com.realityforge.scanner.export.NativeAssetExports")
             addInstrumentedClass("org.opencv.android.Utils")
             // All acquired by this sandbox. Never parent preload native-owning classes.
         }.build()

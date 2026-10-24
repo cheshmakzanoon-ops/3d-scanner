@@ -1,4 +1,6 @@
-"""Real Kotlin contract tests; retained metadata replay is not live native qualification."""
+"""Real Kotlin contract tests; historical replay plus labeled synthetic exporter extension.
+No new compiler/exporter evidence is attributed to the original retained run.
+"""
 import hashlib,json,os,shutil,subprocess,xml.etree.ElementTree as ET,zipfile
 from pathlib import Path
 import pytest
@@ -22,6 +24,8 @@ object JvmContractHarness {
   fun copy(value:JSONObject)=JSONObject(value.toString())
   var refused=0;val unexpectedlyAccepted=mutableListOf<String>()
   fun reject(name:String,action:()->Unit){var failed=false;try{action()}catch(e:IllegalArgumentException){failed=true}catch(e:IllegalStateException){failed=true}catch(e:org.json.JSONException){failed=true};if(failed)refused++ else {unexpectedlyAccepted.add(name);println("ACCEPTED_INVALID_CONTRACT: $name")}}
+  val historical=JSONObject(File(root,"historical-value.json").readText())
+  reject("historical-capability-lacks-export-extension"){derive(v=historical)}
   val accepted=derive()
   check(accepted.inputs.keys==value.getJSONObject("inputs").keys().asSequence().toSet())
   val commands=producer.getJSONArray("commands")
@@ -32,9 +36,30 @@ object JvmContractHarness {
   for(field in listOf("sourceSha","runOwner","workDir")) {val n=copy(native);n.put(field,if(field=="workDir")"/foreign" else "0".repeat(if(field=="sourceSha")40 else 32));reject("native-$field"){derive(n=n)}}
   for(field in listOf("sourceSha","runOwner","workDir")) {val h=copy(header);h.put(field,if(field=="workDir")"/foreign" else "0".repeat(if(field=="sourceSha")40 else 32));reject("header-$field"){derive(h=h)}}
   for(field in listOf("schema","extra")){val n=copy(native);n.put(field,99);reject("native-$field"){derive(n=n)}}
-  for(name in listOf("compiler","native-tool-ninja","headerProviderDriver-16","native-opencv-baseline-log.txt")) {
+  for(name in listOf("compiler","native-tool-ninja","headerProviderDriver-16","native-opencv-baseline-log.txt",
+    "exportNativeOwner","exportJniSource","jniObject","exportJniObject","jniDepfile","exportJniDepfile")) {
    val v=copy(value);v.getJSONObject("inputs").remove(name);reject("missing-$name"){derive(v=v)}
   }
+  // Both real prepared-owner forms are admitted: sealed JAR snapshots or paired directory classes.
+  run {val v=copy(value);val i=v.getJSONObject("inputs");val base=expected.workDir+"/synthetic-class-directory"
+   i.getJSONObject("nativeOwner").put("path",base+"/com/realityforge/scanner/engine/NativeCore.class")
+   i.getJSONObject("exportNativeOwner").put("path",base+"/com/realityforge/scanner/export/NativeAssetExports.class")
+   derive(v=v)
+   i.getJSONObject("exportNativeOwner").put("path",expected.workDir+"/owner-com.realityforge.scanner.export.NativeAssetExports.class")
+   reject("mixed-owner-containers"){derive(v=v)}
+  }
+  for(name in listOf("exportNativeOwner","exportJniSource","jniObject","exportJniObject","jniDepfile","exportJniDepfile")) {
+   val v=copy(value);v.getJSONObject("inputs").getJSONObject(name).put("path",expected.workDir+"/wrong-"+name)
+   reject("export-path-$name"){derive(v=v)}
+  }
+  for(label in listOf("scanner-export-javap","scanner-jni-compile","scanner-export-compile")) {
+   val v=copy(value);val rows=v.getJSONObject("producer").getJSONArray("commands")
+   val row=(0 until rows.length()).map{rows.getJSONObject(it)}.single{it.getString("label")==label}
+   row.put("label",label+"-drift")
+   reject("export-label-$label"){derive(v=v)}
+  }
+  run {val v=copy(value);v.getJSONObject("inputs").getJSONObject("exportJniSource").put("sha256","0".repeat(64));reject("export-source-hash"){derive(v=v)}}
+  run {val b=copy(before);b.put(value.getJSONObject("inputs").getJSONObject("exportJniSource").getString("path"),"0".repeat(64));reject("export-source-prebuild-drift"){derive(b=b)}}
   run {val v=copy(value);v.getJSONObject("inputs").put("unknown-input",v.getJSONObject("inputs").getJSONObject("compiler"));reject("extra-input"){derive(v=v)}}
   run {val n=copy(native);n.getJSONObject("graphs").getJSONObject("opencv").put("baselineLogSha256","0".repeat(64));reject("baseline-hash"){derive(n=n)}}
   run {val n=copy(native);n.getJSONObject("graphs").getJSONObject("opencv").getJSONArray("baselineLogOutputs").put("unowned");reject("baseline-nonempty"){derive(n=n)}}
@@ -123,7 +148,7 @@ object JvmContractHarness {
    check(inputRefused){"Cached input drift did not reach compiler identity gate"};refused++
   } finally {for((key,value)in oldProperties){if(value==null)System.clearProperty(key)else System.setProperty(key,value)}}
   check(unexpectedlyAccepted.isEmpty()) {"Accepted invalid contracts: $unexpectedlyAccepted"}
-  File(root,"result.json").writeText(JSONObject().put("scope","RETAINED_METADATA_CONTRACT_NOT_LIVE_NATIVE_QUALIFICATION").put("inputs",accepted.inputs.size).put("labels",accepted.labels.size).put("refusals",refused).put("fifthRoleFixture","SYNTHETIC_ADDITION_USING_OBSERVED_DECLARED_PACKAGE_OUTPUT").toString(2))
+  File(root,"result.json").writeText(JSONObject().put("scope","RETAINED_METADATA_CONTRACT_NOT_LIVE_NATIVE_QUALIFICATION").put("inputs",accepted.inputs.size).put("labels",accepted.labels.size).put("refusals",refused).put("exportExtensionFixture","SYNTHETIC_NEW_EXPORT_JNI_ROLES_NOT_ORIGINAL_REPLAY").put("fifthRoleFixture","SYNTHETIC_ADDITION_USING_OBSERVED_DECLARED_PACKAGE_OUTPUT").toString(2))
   println("JVM_NATIVE_CONTRACT_PASS refusals=$refused")
  }
 }
@@ -148,6 +173,35 @@ def test_actual_kotlin_native_contract_retained_metadata_and_adversaries(tmp_pat
    assert z.getinfo(name).file_size<=16*1024**2
    raw=z.read(name);data[key]=json.loads(raw);(tmp_path/(key+'.json')).write_bytes(raw)
   for domain in ('opencv','scanner'):assert z.read('capability/native-'+domain+'-baseline-log.txt')==b''
+ # The retained e818 run predates exporter JNI inclusion. Preserve it as a negative,
+ # then enrich a COPY with explicitly synthetic new roles/commands, not new historical proof.
+ (tmp_path/'historical-value.json').write_text(json.dumps(data['value']))
+ value=data['value'];native=data['native'];inputs=value['inputs'];work=value['producer']['workDir']
+ assert not {'exportNativeOwner','exportJniSource','jniObject','exportJniObject','jniDepfile','exportJniDepfile'} & inputs.keys()
+ export_source=inputs['jniSource']['path'].removesuffix('/jni.cpp')+'/asset_exports_jni.cpp'
+ assert export_source in data['before'] and export_source not in data['consumed']
+ digest=data['before'][export_source]
+ inputs['exportJniSource']={'path':export_source,'sha256':digest}
+ inputs['exportNativeOwner']={'path':work+'/owner-com.realityforge.scanner.export.NativeAssetExports.class',
+                              'sha256':hashlib.sha256(b'SYNTHETIC exported owner contract metadata').hexdigest()}
+ for role,name in [('jniObject','jni.o'),('exportJniObject','export-jni.o'),('jniDepfile','jni.d'),('exportJniDepfile','export-jni.d')]:
+  inputs[role]={'path':work+'/capability/'+name,'sha256':hashlib.sha256(('SYNTHETIC direct compiler output '+role).encode()).hexdigest()}
+ data['consumed'][export_source]=digest
+ data['provenance'][export_source]={'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'}
+ for key in list(inputs):
+  if key.startswith('consumed-') and key[9:].isdigit():del inputs[key]
+ for i,path in enumerate(sorted(data['consumed'])):inputs['consumed-'+str(i)]={'path':path,'sha256':data['consumed'][path]}
+ native['inputBindings']['consumed']=hashlib.sha256(json.dumps(data['consumed'],sort_keys=True).encode()).hexdigest()
+ command=next(row for row in value['producer']['commands'] if row['label']=='scanner-javap')
+ for label in ('scanner-export-javap','scanner-jni-compile','scanner-export-compile'):
+  row=json.loads(json.dumps(command));row['label']=label
+  row['argv']=['SYNTHETIC_METADATA_EXTENSION_NOT_EXECUTED',label]
+  value['producer']['commands'].append(row)
+ for key in ('before','consumed','provenance','native'):
+  raw=(json.dumps(data[key],sort_keys=True,indent=2)+'\n').encode()
+  inputs[Path(FILES[key]).name]['sha256']=hashlib.sha256(raw).hexdigest()
+ value['nativeInputProvenance']=dict(inputs['native-input-provenance.json'])
+ for key in FILES:(tmp_path/(key+'.json')).write_text(json.dumps(data[key]))
  fifth=tmp_path/'fifth';fifth.mkdir();changed=json.loads(json.dumps(data))
  native=changed['native'];value=changed['value'];consumed=changed['consumed'];provenance=changed['provenance']
  package=next(p for p in native['generation']['packaging']['outputs'] if p.endswith('/bin/opencv-4120.jar'))

@@ -580,3 +580,19 @@ def test_mixed_profile_runtime_is_refused_before_capability_or_attempt(tmp_path,
  with pytest.raises(r.Failure,match='Mixed experiment runtime binding'):
   ctl.run_probe(run,SHA,tmp_path/'config',cfg,{},tmp_path/'cap',inputs,{},profile)
  assert run.pipeline_attempts==0 and list(tmp_path.iterdir())==[]
+
+
+@pytest.mark.parametrize('root_label',['logs','measurement','xml'])
+def test_evidence_size_refusal_retains_bounded_category_budget_only(tmp_path,monkeypatch,root_label):
+ run=r.Runner(tmp_path,tmp_path/'work')
+ (run.work/'prepared.json').write_bytes(b'{}\n')
+ directory=run.work/root_label;directory.mkdir(exist_ok=True)
+ with (directory/'private-sensitive-filename.bin').open('wb') as stream:stream.truncate(31*1024**2)
+ monkeypatch.setattr(ctl,'bounded_bytes',lambda *a,**kw:(_ for _ in ()).throw(AssertionError('no payload reads before failed inventory')))
+ with pytest.raises(r.Failure,match='Owned directory size limit; EVIDENCE_BUDGET ') as failed:
+  ctl.evidence_package(run,{'status':'FAIL'},tmp_path/'evidence')
+ message=str(failed.value);detail=json.loads(message.split('EVIDENCE_BUDGET ',1)[1])
+ assert detail=={'phase':'pre-copy-inventory','rootLabel':root_label,'selectedBytes':3,'selectedEntries':1,'remainingBytes':31*1024**2-3,'remainingEntries':1989}
+ assert len(message.encode())<512 and str(tmp_path) not in message and 'private-sensitive' not in message
+ assert isinstance(failed.value.__cause__,r.Failure) and str(failed.value.__cause__)=='Owned directory size limit'
+ assert not (tmp_path/'evidence'/'receipt.json').exists()

@@ -10,6 +10,7 @@ class SandboxNativeLoaderRunner(testClass: Class<*>) : RobolectricTestRunner(tes
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method)).apply {
             doNotInstrumentPackage("org.opencv.")
             doNotInstrumentClass("com.realityforge.scanner.engine.NativeCore")
+            doNotInstrumentClass("com.realityforge.scanner.export.NativeAssetExports")
             // Deliberately NO doNotAcquire*, loader shadows, logging shadows or Utils bridge.
         }.build()
 }

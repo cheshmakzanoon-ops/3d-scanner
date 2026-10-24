@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, get_profile
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='b97c433fff2d5a19da91b4771ec1962a3a09509e'
-MESSAGE='fix: bind full controller job state enum'
+BASE_SHA='49c91a1502f4ddbe26abd595bb4e9d2aa1601eaf'
+MESSAGE='fix: bind production export JNI in host capability'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/ReliefThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_relief_complete_enum_contract.py', 'tests/test_relief_complete_controller_source.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/CandidateNativeLoaderTokenHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/NativeCapabilityContract.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/SandboxNativeLoaderRunner.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SparsePrefixRunner.kt', 'tests/test_eight_view_capability.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_export_jni.py', 'tests/test_eight_view_gradle_lifecycle.py', 'tests/test_eight_view_jvm_contract.py', 'tools/eight_view_host/capability.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -120,9 +120,13 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         'license':out/'source'/('opencv-'+requirements['opencvCommit'])/'LICENSE',
         'aar':Path(prepared['opencvAar']),'classes':Path(prepared['opencvClasses']),
         'nativeOwner':Path(prepared['owners']['com.realityforge.scanner.engine.NativeCore']['file']),
+        'exportNativeOwner':Path(prepared['owners']['com.realityforge.scanner.export.NativeAssetExports']['file']),
         'robolectricNativeDistribution':Path(prepared['robolectricNativeDistribution']['path']),
         'androidAll':run.root/'app/build/robolectric-sdk/android-all-15-robolectric-12650502.jar',
         'generatedJar':out/'build/bin/opencv-4120.jar','jniSource':run.root/'reconstruction/src/jni.cpp','jniContract':out/'scanner-jni-contract.h',
+        'exportJniSource':run.root/'reconstruction/src/asset_exports_jni.cpp',
+        'jniObject':out/'jni.o','exportJniObject':out/'export-jni.o',
+        'jniDepfile':out/'jni.d','exportJniDepfile':out/'export-jni.d',
         **{name:out/name for name in ['source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json']}}
     consumed=json.loads((out/'consumed-inputs.json').read_text())
     if not consumed or len(consumed)>24000:raise Failure('Missing/excessive consumed header closure')
@@ -158,7 +162,7 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         or requirements['robolectricNativeProviderArchive']!='androidAll' or provider['entry']!=requirements['robolectricNativeRuntimeEntry'] or provider['entryBytes']!=requirements['robolectricNativeProviderEntryBytes'] or not 0<provider['entryBytes']<=requirements['robolectricNativeProviderMaximumBytes']):raise Failure('API35 provider is not the exact pinned framework entry')
     # The authoritative command records are held by this producer, not loaded from the manifest.
     labels=[*np.labels(native_proof),*hp.LABELS,'compiler-version','opencv-configure','opencv-build','opencv-symbols','opencv-consumed-deps','opencv-smoke-compile','opencv-smoke',
-            'scanner-configure','scanner-build','scanner-javap','scanner-shim','scanner-consumed-deps','scanner-symbols']
+            'scanner-configure','scanner-build','scanner-javap','scanner-export-javap','scanner-jni-compile','scanner-export-compile','scanner-shim','scanner-consumed-deps','scanner-symbols']
     labels += [f'opencv-{kind}-{i}' for i in range(len(requirements['nativeClasses'])) for kind in ('aar','generated')]
     labels += [prefix+'-'+part for prefix in ('opencv','scanner-engine','scanner-shim') for part in ('elf-header','elf-dynamic','ldd')]
     provenance=value.get('producer',{})
@@ -189,14 +193,27 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         if first!=second or not c.native_exports_match(owner,first,cv_exports):raise Failure('OpenCV original JNI ABI differs')
         cv_proof[owner]={'declarations':[list(pair) for pair in first],'matching':True}
     if json.loads((out/'opencv-abi.json').read_text())!=cv_proof:raise Failure('OpenCV ABI receipt differs')
-    declared=logs['scanner-javap'];declarations=c.native_declarations(declared.decode())
-    if re.search(rb'\bstatic\s+native\b',declared) or (out/'scanner-jni-contract.h').read_text()!=c.scanner_contract(declarations):raise Failure('Scanner descriptor/receiver contract differs')
+    declared=logs['scanner-javap'];export_declared=logs['scanner-export-javap']
+    declarations=c.native_declarations(declared.decode());export_declarations=c.native_declarations(export_declared.decode())
+    expected_export=[('writeObserved','(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/Runnable;)V')]
+    if export_declarations!=expected_export:raise Failure('Export JNI descriptor differs')
+    for label,owner in [('scanner-javap','com.realityforge.scanner.engine.NativeCore'),('scanner-export-javap','com.realityforge.scanner.export.NativeAssetExports')]:
+        if actual[label]['argv']!=[str(java/'bin/javap'),'-classpath',prepared['classpathString'],'-private','-s',owner]:raise Failure('JNI declaration owner/classpath command differs')
+    if re.search(rb'\bstatic\s+native\b',declared+export_declared) or (out/'scanner-jni-contract.h').read_text()!=c.scanner_contract(declarations,export_declarations):raise Failure('Scanner/export descriptor/receiver contract differs')
     symbols={x.split()[-1] for x in logs['scanner-symbols'].decode().splitlines() if x.strip() and x.split()[-1].startswith('Java_')}
     expected={c.jni_symbol('com.realityforge.scanner.engine.NativeCore',name) for name,_ in declarations}
-    if not declarations or symbols!=expected or not {'beginReconstruction','reconstructCalibratedCancellable','bundleAdjustProblemCancellable'}<={x[0] for x in declarations}:raise Failure('Current scanner JNI symbols differ')
-    if json.loads((out/'scanner-abi.json').read_text())!={'declarations':[list(pair) for pair in declarations],'symbols':sorted(symbols)}:raise Failure('Scanner ABI receipt differs')
-    argv=actual['scanner-shim']['argv'];contract=str(out/'scanner-jni-contract.h')
-    if '-include' not in argv or argv[argv.index('-include')+1]!=contract or str(run.root/'reconstruction/src/jni.cpp') not in argv:raise Failure('Scanner compile omitted generated descriptor contract/current source')
+    expected.update(c.jni_symbol('com.realityforge.scanner.export.NativeAssetExports',name) for name,_ in export_declarations)
+    if not declarations or symbols!=expected or not {'beginReconstruction','reconstructCalibratedCancellable','bundleAdjustProblemCancellable'}<={x[0] for x in declarations}:raise Failure('Current scanner/export JNI symbols differ')
+    if json.loads((out/'scanner-abi.json').read_text())!={'declarations':[list(pair) for pair in declarations],'exportDeclarations':[list(pair) for pair in export_declarations],'symbols':sorted(symbols)}:raise Failure('Scanner ABI receipt differs')
+    c.verify_scanner_outputs(run,out,cleanup=True)
+    commands=c.scanner_compile_commands(out,run.root,expected_inputs['compiler'],java,out/'scanner-jni-contract.h')
+    for label,argv in commands.items():
+        if actual[label]['argv']!=[str(arg) for arg in argv] or actual[label]['environmentBoundary']!='EXPLICIT_COMPILATION_TOOL':raise Failure('Scanner/export compile/link command differs')
+    for dep_key,object_key,source_key in [('jniDepfile','jniObject','jniSource'),('exportJniDepfile','exportJniObject','exportJniSource')]:
+        dependencies=c.parse_scanner_depfile(expected_inputs[dep_key],expected_inputs[object_key],run,cleanup=True)
+        required={str(expected_inputs[source_key]),str(expected_inputs['jniContract'])}
+        if not required<=dependencies:raise Failure('JNI dependency closure lacks current source/contract')
+        if any(name not in consumed or sha(name)!=consumed[name] for name in dependencies):raise Failure('JNI dependency closure differs from consumed inputs')
     for role,prefix in [('opencv','opencv'),('engine','scanner-engine'),('shim','scanner-shim')]:
         closure=c.parse_elf_closure(expected_native[role],logs[prefix+'-elf-header'],logs[prefix+'-elf-dynamic'],logs[prefix+'-ldd'],out/'scanner' if role=='shim' else None)
         recorded=value['opencvElf'] if role=='opencv' else value['scannerElf'][role]

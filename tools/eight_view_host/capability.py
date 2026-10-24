@@ -1,8 +1,8 @@
 """Only source-built capability creation; never admits a caller-supplied native binary."""
 from pathlib import Path, PurePosixPath
-import hashlib, json, os, re, shlex, shutil, tarfile, time, urllib.request, urllib.parse, zipfile
+import hashlib, json, os, re, shlex, shutil, stat, tarfile, time, urllib.request, urllib.parse, zipfile
 from tools.native_process import native_compile_env
-from .runtime import Failure, Blocked, sha, atomic_json, inventory, safe_display
+from .runtime import Failure, Blocked, Deadline, sha, atomic_json, inventory, safe_display
 from . import header_provider, native_provenance
 HERE=Path(__file__).resolve().parent
 POLICY=HERE/'build-policy.json'
@@ -193,12 +193,17 @@ def descriptor_types(descriptor):
     if i!=len(descriptor):raise Failure('Trailing JNI descriptor')
     return result,args
 
-def scanner_contract(declarations):
+def scanner_contract(declarations, export_declarations=None):
     if not declarations or len({name for name,_ in declarations})!=len(declarations):raise Failure('Missing/overloaded scanner native declaration')
     lines=['// Generated ONLY from the actual current compiled NativeCore javap descriptors.','#include <jni.h>']
     for name,descriptor in declarations:
         result,args=descriptor_types(descriptor)
         lines.append('extern "C" JNIEXPORT '+result+' JNICALL '+jni_symbol('com.realityforge.scanner.engine.NativeCore',name)+'('+', '.join(['JNIEnv*','jobject',*args])+');')
+    if export_declarations is not None:
+        if export_declarations!=[('writeObserved','(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/Runnable;)V')]:raise Failure('Unexpected exporter native declaration')
+        for name,descriptor in export_declarations:
+            result,args=descriptor_types(descriptor)
+            lines.append('extern \"C\" JNIEXPORT '+result+' JNICALL '+jni_symbol('com.realityforge.scanner.export.NativeAssetExports',name)+'('+', '.join(['JNIEnv*','jobject',*args])+');')
     return '\n'.join(lines)+'\n'
 
 def system_header_roots(java):
@@ -284,13 +289,90 @@ def bind_consumed(consumed,before,generated_roots):
         result[path]={'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'}
     return result
 
+def parse_scanner_depfile(path, expected_object, run=None, cleanup=False):
+    path=Path(path);expected_object=Path(expected_object)
+    if run:run.remaining(1,cleanup=cleanup)
+    if path.resolve(strict=True)!=path or not path.is_absolute():raise Failure('Aliased scanner dependency file')
+    before=path.stat(follow_symlinks=False)
+    if not stat.S_ISREG(before.st_mode) or not 0<before.st_size<=4*1024**2:raise Failure('Scanner dependency file bound/type')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        opened=os.fstat(fd)
+        if (opened.st_dev,opened.st_ino,opened.st_size)!=(before.st_dev,before.st_ino,before.st_size):raise Failure('Scanner dependency file changed')
+        chunks=[];remaining=before.st_size+1
+        while remaining:
+            if run:run.remaining(1,cleanup=cleanup)
+            part=os.read(fd,min(65536,remaining))
+            if not part:break
+            chunks.append(part);remaining-=len(part)
+        raw=b''.join(chunks);after=os.fstat(fd)
+    finally:os.close(fd)
+    final=path.stat(follow_symlinks=False)
+    signature=lambda a:(a.st_dev,a.st_ino,a.st_mode,a.st_size,a.st_mtime_ns,a.st_ctime_ns)
+    if path.resolve(strict=True)!=path:raise Failure('Scanner dependency path changed')
+    if len(raw)!=before.st_size or signature(before)!=signature(after) or signature(before)!=signature(final):raise Failure('Scanner dependency file drift')
+    text=raw.decode('utf-8').replace('\\\n',' ')
+    if text.count(':')!=1:raise Failure('Malformed scanner dependency target')
+    target,inputs=text.split(':',1)
+    if shlex.split(target)!=[str(expected_object)]:raise Failure('Scanner dependency target differs')
+    names=shlex.split(inputs)
+    if not names or len(names)>12000:raise Failure('Scanner dependency count bound')
+    result=set()
+    for name in names:
+        if run:run.remaining(1,cleanup=cleanup)
+        member=Path(name)
+        if not member.is_absolute():raise Failure('Relative scanner dependency')
+        member=member.resolve(strict=True)
+        if not member.is_file():raise Failure('Scanner dependency is not file')
+        result.add(str(member))
+    return result
+
+def scanner_output_identity(path):
+    path=Path(path)
+    if not path.is_absolute() or path.resolve(strict=True)!=path:raise Failure('Scanner direct output alias')
+    before=path.stat(follow_symlinks=False)
+    if not stat.S_ISREG(before.st_mode) or not 0<before.st_size<=16*1024**2:raise Failure('Scanner direct output type/bound')
+    identity=lambda a:[a.st_dev,a.st_ino,a.st_mode,a.st_size,a.st_mtime_ns,a.st_ctime_ns]
+    digest=hashlib.sha256();count=0
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        if identity(os.fstat(fd))!=identity(before):raise Failure('Scanner direct output replaced before read')
+        while True:
+            chunk=os.read(fd,min(65536,16*1024**2+1-count))
+            if not chunk:break
+            count+=len(chunk)
+            if count>16*1024**2:raise Failure('Scanner direct output grew past bound')
+            digest.update(chunk)
+        after=os.fstat(fd)
+    finally:os.close(fd)
+    if count!=before.st_size or identity(before)!=identity(after) or identity(before)!=identity(path.stat(follow_symlinks=False)) or path.resolve(strict=True)!=path:raise Failure('Scanner direct output drift')
+    digest=digest.hexdigest()
+    return {'path':str(path),'sha256':digest,'identity':identity(after)}
+
+def verify_scanner_outputs(run,out,cleanup=False):
+    names=('jni.o','jni.d','export-jni.o','export-jni.d')
+    owned=getattr(run,'scanner_outputs',None)
+    if not isinstance(owned,dict) or set(owned)!=set(names):raise Failure('Missing owned scanner direct outputs')
+    for name in names:
+        run.remaining(1,cleanup=cleanup)
+        if scanner_output_identity(Path(out)/name)!=owned[name]:raise Failure('Owned scanner direct output changed')
+    return owned
+
+def scanner_compile_commands(out, root, compiler, java_home, contract):
+    out=Path(out);root=Path(root);java_home=Path(java_home)
+    common=[str(compiler),'-std=c++20','-O0','-fPIC',f'-I{root}/reconstruction/include',f'-I{java_home}/include',f'-I{java_home}/include/linux']
+    commands={}
+    for label,source,obj,dep in [('scanner-jni-compile','jni.cpp','jni.o','jni.d'),('scanner-export-compile','asset_exports_jni.cpp','export-jni.o','export-jni.d')]:
+        commands[label]=common+['-MD','-MF',str(out/dep),'-MT',str(out/obj),'-include',str(contract),'-c',str(root/'reconstruction/src'/source),'-o',str(out/obj)]
+    commands['scanner-shim']=[str(compiler),'-shared',str(out/'jni.o'),str(out/'export-jni.o'),f'-L{out}/scanner','-lrealityforge','-lz','-Wl,-z,defs',f'-Wl,-rpath,{out}/scanner','-o',str(out/'librealityforge_jni.so')]
+    return commands
+
 def consumed_inputs(run,ninja,builddir,label,extra_depfile=None):
     raw,_=run.command(label+'-consumed-deps',[ninja,'-C',builddir,'-t','deps'],seconds=60,env=native_compile_env(run.env))
     paths={line.strip() for line in raw.decode().splitlines() if line.startswith('    ') and line.strip()}
     if extra_depfile:
-        text=Path(extra_depfile).read_text().replace('\\\n',' ')
-        if ':' not in text:raise Failure('Malformed compiler dependency file')
-        paths.update(shlex.split(text.split(':',1)[1]))
+        for depfile,obj in extra_depfile:
+            paths.update(parse_scanner_depfile(depfile,obj,run))
     if not paths or len(paths)>12000:raise Failure('Missing/excessive consumed compilation dependencies')
     result={}
     for name in sorted(paths):
@@ -375,30 +457,56 @@ def build(run,source_sha,prepared):
     immutable_before.update(prebuild_snapshot(run,[run.root/'reconstruction',engine_build]))
     run.command('scanner-build',[cmake,'--build',engine_build,'--target','realityforge','--parallel','2'],seconds=240,env=env)
     native_provenance.graph_after(run,native_inputs,engine_build,'scanner')
-    engine=engine_build/'librealityforge.so';shim=out/'librealityforge_jni.so';deps=out/'jni.d'
+    engine=engine_build/'librealityforge.so';shim=out/'librealityforge_jni.so'
     declared,_=run.command('scanner-javap',[javap,'-classpath',prepared['classpathString'],'-private','-s','com.realityforge.scanner.engine.NativeCore'])
-    if re.search(rb'\bstatic\s+native\b',declared):raise Failure('Unexpected static NativeCore JNI receiver')
-    declarations=native_declarations(declared.decode());contract=out/'scanner-jni-contract.h';contract.write_text(scanner_contract(declarations))
+    export_declared,_=run.command('scanner-export-javap',[javap,'-classpath',prepared['classpathString'],'-private','-s','com.realityforge.scanner.export.NativeAssetExports'])
+    if any(re.search(rb'\bstatic\s+native\b',raw) for raw in (declared,export_declared)):raise Failure('Unexpected static scanner JNI receiver')
+    declarations=native_declarations(declared.decode());export_declarations=native_declarations(export_declared.decode())
+    contract=out/'scanner-jni-contract.h';contract.write_text(scanner_contract(declarations,export_declarations))
     immutable_before[str(contract)]=sha(contract)
-    run.command('scanner-shim',[compiler,'-std=c++20','-O0','-fPIC','-shared',f'-I{run.root}/reconstruction/include',f'-I{java.parent.parent}/include',f'-I{java.parent.parent}/include/linux',
-        '-MD','-MF',deps,'-include',contract,run.root/'reconstruction/src/jni.cpp',f'-L{engine_build}','-lrealityforge','-lz','-Wl,-z,defs',f'-Wl,-rpath,{engine_build}','-o',shim],seconds=60,env=env)
-    scanner_consumed=consumed_inputs(run,ninja,engine_build,'scanner',deps)
+    commands=scanner_compile_commands(out,run.root,compiler,java.parent.parent,contract)
+    compiled={}
+    if hasattr(run,'scanner_outputs'):raise Failure('Scanner direct outputs already owned')
+    run.scanner_outputs={}
+    shim_deadline=time.monotonic()+run.remaining(60)
+    def shim_budget():
+        left=min(shim_deadline-time.monotonic(),run.remaining(60))
+        if left<=0:raise Deadline('Scanner shim shared compile/link deadline')
+        return left
+    for label,obj,dep in [('scanner-jni-compile','jni.o','jni.d'),('scanner-export-compile','export-jni.o','export-jni.d')]:
+        if os.path.lexists(out/obj) or os.path.lexists(out/dep):raise Failure('Scanner direct compiler outputs must be fresh')
+        run.command(label,commands[label],seconds=shim_budget(),env=env)
+        for name in (obj,dep):
+            path=out/name
+            if path.resolve(strict=True)!=path or not path.is_file() or path.is_symlink():raise Failure('Scanner direct compiler output type')
+            run.scanner_outputs[name]=scanner_output_identity(path)
+            compiled[name]={k:run.scanner_outputs[name][k] for k in ('path','sha256')}
+    verify_scanner_outputs(run,out)
+    run.command('scanner-shim',commands['scanner-shim'],seconds=shim_budget(),env=env)
+    for dep,obj,source in [('jni.d','jni.o','jni.cpp'),('export-jni.d','export-jni.o','asset_exports_jni.cpp')]:
+        members=parse_scanner_depfile(out/dep,out/obj,run)
+        if not {str(contract),str(run.root/'reconstruction/src'/source)}<=members:raise Failure('Scanner dependency closure omitted source/contract')
+    scanner_consumed=consumed_inputs(run,ninja,engine_build,'scanner',[(out/'jni.d',out/'jni.o'),(out/'export-jni.d',out/'export-jni.o')])
+    verify_scanner_outputs(run,out)
+    for role,name in [('jniObject','jni.o'),('exportJniObject','export-jni.o'),('jniDepfile','jni.d'),('exportJniDepfile','export-jni.d')]:receipt['inputs'][role]=compiled[name]
     if scanner_before!=source_inventory(run.root/'reconstruction'):raise Failure('Scanner source changed during native build')
     atomic_json(out/'scanner-source.json',scanner_before);checks['scannerSource']=True
     owners=prepared['owners'];entry=owners['com.realityforge.scanner.engine.NativeCore']
     receipt['inputs']['nativeOwner']=path_record(entry['file'])
+    receipt['inputs']['exportNativeOwner']=path_record(owners['com.realityforge.scanner.export.NativeAssetExports']['file'])
     receipt['runtimeProvider']=prepared['runtimeProvider']
     receipt['inputs']['robolectricNativeDistribution']=path_record(prepared['robolectricNativeDistribution']['path'])
     receipt['inputs']['androidAll']=path_record(prepared['offlineFramework']['path'])
     symbols,_=run.command('scanner-symbols',['nm','-D','--defined-only',shim])
     actual={x.split()[-1] for x in symbols.decode().splitlines() if x.strip() and x.split()[-1].startswith('Java_')}
-    declarations=native_declarations(declared.decode());expected={jni_symbol('com.realityforge.scanner.engine.NativeCore',name) for name,_ in declarations}
+    declarations=native_declarations(declared.decode());expected={jni_symbol('com.realityforge.scanner.engine.NativeCore',name) for name,_ in declarations}|{jni_symbol('com.realityforge.scanner.export.NativeAssetExports',name) for name,_ in export_declarations}
     if not declarations or actual!=expected or not {'beginReconstruction','reconstructCalibratedCancellable','bundleAdjustProblemCancellable'}<={x[0] for x in declarations}:raise Failure('Current NativeCore/shim ABI mismatch')
-    atomic_json(out/'scanner-abi.json',{'declarations':declarations,'symbols':sorted(actual)});checks['scannerAbi']=True
+    atomic_json(out/'scanner-abi.json',{'declarations':declarations,'exportDeclarations':export_declarations,'symbols':sorted(actual)});checks['scannerAbi']=True
     receipt['scannerElf']={'engine':elf(run,'scanner-engine',engine),'shim':elf(run,'scanner-shim',shim,engine_build)};checks['scannerElf']=True
     receipt['native']={k:path_record(p) for k,p in [('opencv',lib),('shim',shim),('engine',engine)]}
     receipt['inputs']['generatedJar']=path_record(generated)
     receipt['inputs']['jniSource']=path_record(run.root/'reconstruction/src/jni.cpp')
+    receipt['inputs']['exportJniSource']=path_record(run.root/'reconstruction/src/asset_exports_jni.cpp')
     receipt['inputs']['jniContract']=path_record(contract)
     combined={**opencv_consumed,**scanner_consumed}
     for i,(path,digest) in enumerate(sorted(combined.items())):
@@ -413,5 +521,6 @@ def build(run,source_sha,prepared):
         receipt['inputs'][name]=path_record(out/name)
     header_provider.validate(provider,source_sha,run)
     receipt['producer']={'runOwner':run.owner,'workDir':str(run.work),'sourceSha':source_sha,'commands':[{**record,'log':path_record(run.work/'logs'/(record['label']+'.raw.log'))} for record in run.commands if record['label'].startswith(('compiler-','opencv-','scanner-','header-provider-','native-'))]}
+    verify_scanner_outputs(run,out)
     atomic_json(out/'capability.json',receipt)
     return out/'capability.json'

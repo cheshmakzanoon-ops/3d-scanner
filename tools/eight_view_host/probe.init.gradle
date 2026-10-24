@@ -351,7 +351,7 @@ allprojects { afterEvaluate { if (path == ':app') {
  def hostProvider=tasks.named('hostIntegrationTest')
  def output=new File(cfg.work)
  def prepared=new File(output,'prepared.json')
- def ownerNames=['org.opencv.android.OpenCVLoader','org.opencv.android.StaticHelper','org.opencv.core.Core','org.opencv.core.Mat','com.realityforge.scanner.engine.NativeCore']
+ def ownerNames=['org.opencv.android.OpenCVLoader','org.opencv.android.StaticHelper','org.opencv.core.Core','org.opencv.core.Mat','com.realityforge.scanner.engine.NativeCore','com.realityforge.scanner.export.NativeAssetExports']
  def agpProjection = { List cp ->
   def descriptors=[
    android_resource_apk:[task:':app:packageDebugUnitTestForUnitTest',taskType:'com.android.build.gradle.internal.tasks.PackageForHostTest',outputProperty:'apkForHostTest'],

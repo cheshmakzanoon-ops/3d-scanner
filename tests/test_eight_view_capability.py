@@ -39,12 +39,18 @@ def fixture(tmp_path,monkeypatch):
  policy.write_text(json.dumps(original))
  source=out/'source'/('opencv-'+original['opencvCommit']);license=put(source/'LICENSE')
  jni=put(run.root/'reconstruction/src/jni.cpp');owner=put(run.work/'owner.class')
+ export_jni=put(run.root/'reconstruction/src/asset_exports_jni.cpp');export_owner=put(run.work/'export-owner.class')
+ jni_object=put(out/'jni.o');export_object=put(out/'export-jni.o')
  generated=put(out/'build/bin/opencv-4120.jar')
  declarations=[('beginReconstruction','()J'),('bundleAdjustProblemCancellable','()Ljava/lang/String;'),('reconstructCalibratedCancellable','()Ljava/lang/String;')]
- contract=put(out/'scanner-jni-contract.h',c.scanner_contract(declarations).encode())
+ export_declarations=[('writeObserved','(Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/Runnable;)V')]
+ contract=put(out/'scanner-jni-contract.h',c.scanner_contract(declarations,export_declarations).encode())
+ jni_depfile=put(out/'jni.d',f'{jni_object}: {jni} {contract} {java}/include/jni.h\n'.encode())
+ export_depfile=put(out/'export-jni.d',f'{export_object}: {export_jni} {contract} {java}/include/jni.h\n'.encode())
+ run.scanner_outputs={path.name:c.scanner_output_identity(path) for path in (jni_object,export_object,jni_depfile,export_depfile)}
  provider_record={'path':str(framework),'sha256':r.sha(framework),'entry':'native/linux/x86_64/libandroid_runtime.so','entrySha256':'f'*64,'entryBytes':20,'mappingScope':'UNIT_FIXTURE_NOT_RUNTIME'}
- prepared={'opencvAar':str(aar),'opencvClasses':str(classes),'owners':{'com.realityforge.scanner.engine.NativeCore':{'file':str(owner)}},'robolectricNativeDistribution':{'path':str(provider),'sha256':r.sha(provider)},'offlineFramework':{'path':str(framework),'sha256':r.sha(framework)},'runtimeProvider':provider_record}
- consumed={str((java/'include/jni.h').resolve()):r.sha(java/'include/jni.h'),'/usr/include/stdio.h':r.sha('/usr/include/stdio.h'),**{str(header):r.sha(header) for header in headers}}
+ prepared={'opencvAar':str(aar),'opencvClasses':str(classes),'classpathString':str(owner.parent),'owners':{'com.realityforge.scanner.engine.NativeCore':{'file':str(owner)},'com.realityforge.scanner.export.NativeAssetExports':{'file':str(export_owner)}},'robolectricNativeDistribution':{'path':str(provider),'sha256':r.sha(provider)},'offlineFramework':{'path':str(framework),'sha256':r.sha(framework)},'runtimeProvider':provider_record}
+ consumed={**{str(path):r.sha(path) for path in (jni,export_jni,contract)},str((java/'include/jni.h').resolve()):r.sha(java/'include/jni.h'),'/usr/include/stdio.h':r.sha('/usr/include/stdio.h'),**{str(header):r.sha(header) for header in headers}}
  native_proof={'schema':2,'sourceSha':SHA,'runOwner':run.owner,'workDir':str(run.work),'systemLink':{'inputs':{}},'classification':'SYNTHETIC_POLICY_FIXTURE_NOT_NATIVE_PROOF'}
  expected_native_proof=copy.deepcopy(native_proof)
  def validate_native(context,proof,used,before,source):
@@ -56,13 +62,13 @@ def fixture(tmp_path,monkeypatch):
  proof_files={
   np.FILENAME:native_proof,
   'header-provider.json':header_proof,
-  'source-files.json':{'LICENSE':r.sha(license)},'scanner-source.json':{'src/jni.cpp':r.sha(jni)},'consumed-inputs.json':consumed,'prebuild-inputs.json':consumed,'consumed-provenance.json':{name:{'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'} for name,digest in consumed.items()},
+  'source-files.json':{'LICENSE':r.sha(license)},'scanner-source.json':{'src/jni.cpp':r.sha(jni),'src/asset_exports_jni.cpp':r.sha(export_jni)},'consumed-inputs.json':consumed,'prebuild-inputs.json':consumed,'consumed-provenance.json':{name:{'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'} for name,digest in consumed.items()},
   'opencv-abi.json':{'fixture.Owner':{'declarations':[['hello','()J']],'matching':True}},
-  'scanner-abi.json':{'declarations':[list(x) for x in declarations],'symbols':sorted(c.jni_symbol('com.realityforge.scanner.engine.NativeCore',name) for name,_ in declarations)}}
+  'scanner-abi.json':{'declarations':[list(x) for x in declarations],'exportDeclarations':[list(x) for x in export_declarations],'symbols':sorted([c.jni_symbol('com.realityforge.scanner.engine.NativeCore',name) for name,_ in declarations]+[c.jni_symbol('com.realityforge.scanner.export.NativeAssetExports',name) for name,_ in export_declarations])}}
  for name,value in proof_files.items():put(out/name,(json.dumps(value)+'\n').encode())
- inputs={'native-tool-fixture':tools['ninja'],**{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release',**{'headerProviderDriver-'+str(role['major']):role['driver'] for role in providers},'policy':policy,'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':archive,'license':license,'aar':aar,'classes':classes,'nativeOwner':owner,'generatedJar':generated,'jniSource':jni,'jniContract':contract,'robolectricNativeDistribution':provider,'androidAll':framework,**{name:out/name for name in proof_files},**{'consumed-'+str(i):Path(path) for i,path in enumerate(sorted(consumed))}}
+ inputs={'native-tool-fixture':tools['ninja'],**{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release',**{'headerProviderDriver-'+str(role['major']):role['driver'] for role in providers},'policy':policy,'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':archive,'license':license,'aar':aar,'classes':classes,'nativeOwner':owner,'exportNativeOwner':export_owner,'generatedJar':generated,'jniSource':jni,'exportJniSource':export_jni,'jniContract':contract,'jniObject':jni_object,'exportJniObject':export_object,'jniDepfile':jni_depfile,'exportJniDepfile':export_depfile,'robolectricNativeDistribution':provider,'androidAll':framework,**{name:out/name for name in proof_files},**{'consumed-'+str(i):Path(path) for i,path in enumerate(sorted(consumed))}}
  native={key:put(out/rel) for key,rel in [('opencv','build/lib/libopencv_java4120.so'),('shim','librealityforge_jni.so'),('engine','scanner/librealityforge.so')]}
- logs={'native-fixture-probe':b'SYNTHETIC_NATIVE_POLICY_PROBE',**{f"header-provider-{role['major']}-version":f"Ubuntu clang version {role['major']}.0.0\n".encode() for role in providers},**{f"header-provider-{role['major']}-resource-dir":(str(role['root'].parent)+'\n').encode() for role in providers},'compiler-version':b'14.2.0\n','opencv-configure':b'To be built: core features2d imgproc java\nJava wrappers: YES (JAVA)\n','opencv-build':b'done','opencv-symbols':b'000 T Java_fixture_Owner_hello\n','opencv-consumed-deps':b'deps','opencv-smoke-compile':b'', 'opencv-smoke':b'OPENCV_REAL_SMOKE_PASS version=4.12.0 descriptors=12 gray=76,150,29,255\n','scanner-configure':b'done','scanner-build':b'done','scanner-javap':''.join(' public native long '+name+'();\n descriptor: '+desc+'\n' for name,desc in declarations).encode(),'scanner-shim':b'','scanner-consumed-deps':b'deps','scanner-symbols':''.join('000 T '+symbol+'\n' for symbol in proof_files['scanner-abi.json']['symbols']).encode(),'opencv-aar-0':b' public native long hello();\n descriptor: ()J\n','opencv-generated-0':b' public native long hello();\n descriptor: ()J\n'}
+ logs={'native-fixture-probe':b'SYNTHETIC_NATIVE_POLICY_PROBE',**{f"header-provider-{role['major']}-version":f"Ubuntu clang version {role['major']}.0.0\n".encode() for role in providers},**{f"header-provider-{role['major']}-resource-dir":(str(role['root'].parent)+'\n').encode() for role in providers},'compiler-version':b'14.2.0\n','opencv-configure':b'To be built: core features2d imgproc java\nJava wrappers: YES (JAVA)\n','opencv-build':b'done','opencv-symbols':b'000 T Java_fixture_Owner_hello\n','opencv-consumed-deps':b'deps','opencv-smoke-compile':b'', 'opencv-smoke':b'OPENCV_REAL_SMOKE_PASS version=4.12.0 descriptors=12 gray=76,150,29,255\n','scanner-configure':b'done','scanner-build':b'done','scanner-javap':''.join(' public native long '+name+'();\n descriptor: '+desc+'\n' for name,desc in declarations).encode(),'scanner-export-javap':b' public native void writeObserved();\n descriptor: (Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/Runnable;)V\n','scanner-jni-compile':b'','scanner-export-compile':b'','scanner-shim':b'','scanner-consumed-deps':b'deps','scanner-symbols':''.join('000 T '+symbol+'\n' for symbol in proof_files['scanner-abi.json']['symbols']).encode(),'opencv-aar-0':b' public native long hello();\n descriptor: ()J\n','opencv-generated-0':b' public native long hello();\n descriptor: ()J\n'}
  for prefix in ('opencv','scanner-engine','scanner-shim'):
   for part in ('elf-header','elf-dynamic','ldd'):logs[prefix+'-'+part]=b'UNIT_FIXTURE_ELF_PROOF'
  producer=[]
@@ -72,7 +78,11 @@ def fixture(tmp_path,monkeypatch):
    role=next(role for role in providers if label.startswith(f"header-provider-{role['major']}-"))
    record.update(argv=[str(role['driver']),'--version' if label.endswith('-version') else '-print-resource-dir'],environmentBoundary='EXPLICIT_COMPILATION_TOOL')
   if label=='opencv-configure':record['argv']=['cmake','-DCMAKE_SKIP_RPATH=ON',f'-DOPENCV_DOWNLOAD_PATH={out}/build/download-cache']
-  if label=='scanner-shim':record['argv']=['compiler','-include',str(contract),str(jni)]
+  commands=c.scanner_compile_commands(out,run.root,tools['g++'],java,contract)
+  if label in commands:record.update(argv=[str(x) for x in commands[label]],environmentBoundary='EXPLICIT_COMPILATION_TOOL')
+  if label in ('scanner-javap','scanner-export-javap'):
+   owner_name='com.realityforge.scanner.engine.NativeCore' if label=='scanner-javap' else 'com.realityforge.scanner.export.NativeAssetExports'
+   record['argv']=[str(java/'bin/javap'),'-classpath',prepared['classpathString'],'-private','-s',owner_name]
   run.commands.append(record);producer.append({**record,'log':c.path_record(file)})
  value={'schema':1,'classification':'HOST_SOURCE_BUILT_CAPABILITY','sourceSha':SHA,'policySha256':r.sha(policy),'headerProvider':header_proof,'nativeInputProvenance':c.path_record(out/np.FILENAME),'checks':{key:True for key in original['requiredChecks']},'native':{key:c.path_record(path) for key,path in native.items()},'inputs':{key:c.path_record(path) for key,path in inputs.items()},'producer':{'runOwner':run.owner,'workDir':str(run.work),'sourceSha':SHA,'commands':producer},'runtimeProvider':provider_record,'opencvElf':{'unitFixture':'opencv'},'scannerElf':{'engine':{'unitFixture':'engine'},'shim':{'unitFixture':'shim'}}}
  # ELF parsing and provider admission are explicitly stubbed schema units, not installed-provider proof. Separate suites test real process/header-provider contracts.
@@ -459,3 +469,98 @@ def test_snapshot_root_association_is_lexical_not_origin():
  value=json.loads(c.header_traversal_diagnostic([root,nested],path,1,[],set(),{},0,0,90,90).split(' ',1)[1])
  assert value['currentRoot']['index']==0
  assert value['rootAssociation']=='FIRST_LEXICAL_CONTAINING_ADMITTED_ROOT_NOT_TRAVERSAL_ORIGIN'
+
+# Exporter parity admission is closed to two real owner contracts, never a JNI wildcard.
+@pytest.mark.parametrize('key',['exportNativeOwner','exportJniSource','jniObject','exportJniObject','jniDepfile','exportJniDepfile'])
+def test_export_jni_required_input_cannot_be_omitted(tmp_path,monkeypatch,key):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);value['inputs'].pop(key);manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+
+def mutate_authoritative_command(run,value,label,change):
+ for record in run.commands:
+  if record['label']==label:change(record)
+ for record in value['producer']['commands']:
+  if record['label']==label:change(record)
+
+@pytest.mark.parametrize('label,mutation',[
+ ('scanner-jni-compile','omit-source'),('scanner-export-compile','omit-source'),
+ ('scanner-export-compile','wrong-object'),('scanner-export-compile','wrong-depfile'),
+ ('scanner-export-compile','omit-contract'),('scanner-export-compile','extra-flag'),
+ ('scanner-shim','omit-export-object'),('scanner-shim','extra-flag'),
+ ('scanner-export-javap','wrong-owner'),('scanner-export-javap','wrong-classpath')])
+def test_export_jni_authoritative_command_contract(tmp_path,monkeypatch,label,mutation):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ def change(record):
+  argv=record['argv'][:]
+  if mutation=='omit-source':argv.pop(argv.index('-c')+1)
+  elif mutation=='wrong-object':argv[argv.index('-o')+1]='/tmp/foreign.o'
+  elif mutation=='wrong-depfile':argv[argv.index('-MF')+1]=str(run.work/'capability/jni.d')
+  elif mutation=='omit-contract':i=argv.index('-include');del argv[i:i+2]
+  elif mutation=='extra-flag':argv+=['-DUNREVIEWED=1']
+  elif mutation=='omit-export-object':argv.remove(str(run.work/'capability/export-jni.o'))
+  elif mutation=='wrong-owner':argv[-1]='com.foreign.Owner'
+  elif mutation=='wrong-classpath':argv[argv.index('-classpath')+1]='/tmp/foreign'
+  record['argv']=argv
+ mutate_authoritative_command(run,value,label,change);manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+
+def replace_authoritative_log(run,value,label,raw):
+ log=run.work/'logs'/(label+'.raw.log');log.write_bytes(raw)
+ def change(record):record.update(bytes=len(raw),sha256=r.sha(log))
+ mutate_authoritative_command(run,value,label,change)
+ for record in value['producer']['commands']:
+  if record['label']==label:record['log']=c.path_record(log)
+
+@pytest.mark.parametrize('mode',['static','wrong-descriptor','extra-method','missing-symbol','foreign-symbol'])
+def test_export_jni_actual_declaration_and_symbol_union(tmp_path,monkeypatch,mode):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ label='scanner-export-javap' if mode in ('static','wrong-descriptor','extra-method') else 'scanner-symbols'
+ raw=(run.work/'logs'/(label+'.raw.log')).read_bytes()
+ if mode=='static':raw=raw.replace(b'public native',b'public static native')
+ elif mode=='wrong-descriptor':raw=raw.replace(b'Ljava/lang/Runnable;',b'Ljava/lang/Object;')
+ elif mode=='extra-method':raw+=b' public native void foreign();\n descriptor: ()V\n'
+ elif mode=='missing-symbol':raw=b'\n'.join(line for line in raw.splitlines() if b'NativeAssetExports' not in line)+b'\n'
+ elif mode=='foreign-symbol':raw+=b'000 T Java_foreign_Owner_injected\n'
+ replace_authoritative_log(run,value,label,raw);manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('mode',['target','omit-source','omit-header','outside-consumed'])
+def test_export_jni_depfile_rehashed_semantic_refusal(tmp_path,monkeypatch,mode):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ dep=Path(value['inputs']['exportJniDepfile']['path']);raw=dep.read_text()
+ if mode=='target':raw=raw.replace(str(run.work/'capability/export-jni.o'),str(run.work/'capability/jni.o'))
+ elif mode=='omit-source':raw=raw.replace(str(run.root/'reconstruction/src/asset_exports_jni.cpp'),'')
+ elif mode=='omit-header':raw=raw.replace(str(run.work/'capability/scanner-jni-contract.h'),'')
+ else:
+  foreign=run.root/'reconstruction/foreign.h';foreign.write_text('unconsumed');raw=raw.rstrip()+' '+str(foreign)+'\n'
+ dep.write_text(raw);value['inputs']['exportJniDepfile']=c.path_record(dep)
+ # Isolate semantic parsing even if a producer originally emitted the malformed depfile.
+ run.scanner_outputs[dep.name]=c.scanner_output_identity(dep)
+ manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('key',['jniObject','exportJniObject','jniDepfile','exportJniDepfile'])
+def test_rehashed_current_output_cannot_replace_owned_compile_snapshot(tmp_path,monkeypatch,key):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ output=Path(value['inputs'][key]['path']);output.write_bytes(output.read_bytes()+b'changed')
+ value['inputs'][key]=c.path_record(output);manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='Owned scanner direct output changed'):
+  p.verify_capability(manifest,SHA,policy,run,prepared)
+
+
+def test_serialized_outputs_cannot_replace_producer_owned_snapshot(tmp_path,monkeypatch):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ value['scanner_outputs']=run.scanner_outputs;del run.scanner_outputs;manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='Missing owned scanner direct outputs'):
+  p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('key',['jniObject','exportJniObject','jniDepfile','exportJniDepfile'])
+def test_same_byte_output_replacement_cannot_replace_owned_inode(tmp_path,monkeypatch,key):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ output=Path(value['inputs'][key]['path']);replacement=output.with_name(output.name+'.replacement')
+ replacement.write_bytes(output.read_bytes());replacement.replace(output)
+ assert c.path_record(output)==value['inputs'][key]
+ with pytest.raises(r.Failure,match='Owned scanner direct output changed'):
+  p.verify_capability(manifest,SHA,policy,run,prepared)

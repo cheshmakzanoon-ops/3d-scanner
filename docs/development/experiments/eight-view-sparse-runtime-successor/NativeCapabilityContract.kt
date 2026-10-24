@@ -22,7 +22,7 @@ internal object NativeCapabilityContract {
     private val targets = listOf(listOf("CMakeFiles/dephelper/gen_opencv_java_source", "modules/core/opencl_kernels_core.cpp"), listOf("lib/libopencv_core.a"), listOf("modules/imgproc/opencl_kernels_imgproc.cpp"), listOf("lib/libopencv_imgproc.a"), listOf("modules/features2d/opencl_kernels_features2d.cpp"), listOf("opencv_java"))
     private val packageNames = setOf("ClassFilelist", "ClearClassFiles", "Symlinks", "UseJava", "cmake", "config", "copy", "definition", "jar", "javaRelease", "javac", "list", "rootDefinition")
     private val packageOutputs = listOf("CMakeFiles/dephelper/opencv_java_jar_source_copy", "CMakeFiles/dephelper/opencv_java_jar", "modules/java/jar/opencv/java_sources", "modules/java/jar/CMakeFiles/opencv_java_jar.dir/java_compiled_opencv_java_jar", "modules/java/jar/CMakeFiles/opencv_java_jar.dir/java_class_filelist", "bin/opencv-4120.jar")
-    private val mandatory = setOf("compiler", "cc", "cmake", "ninja", "nm", "readelf", "ldd", "java", "javap", "javac", "javaRelease", "policy", "smokeSource", "archive", "license", "aar", "classes", "nativeOwner", "generatedJar", "jniSource", "jniContract", "source-files.json", "scanner-source.json", "opencv-abi.json", "scanner-abi.json", "consumed-inputs.json", "prebuild-inputs.json", "consumed-provenance.json", "robolectricNativeDistribution", "androidAll")
+    private val mandatory = setOf("compiler", "cc", "cmake", "ninja", "nm", "readelf", "ldd", "java", "javap", "javac", "javaRelease", "policy", "smokeSource", "archive", "license", "aar", "classes", "nativeOwner", "exportNativeOwner", "generatedJar", "jniSource", "exportJniSource", "jniObject", "exportJniObject", "jniDepfile", "exportJniDepfile", "jniContract", "source-files.json", "scanner-source.json", "opencv-abi.json", "scanner-abi.json", "consumed-inputs.json", "prebuild-inputs.json", "consumed-provenance.json", "robolectricNativeDistribution", "androidAll")
     data class Input(val path: String, val sha256: String, val emptyBaseline: Boolean = false)
     data class Contract(val inputs: Map<String, Input>, val labels: Set<String>, val workDir: String)
     private fun keys(obj: JSONObject) = obj.keys().asSequence().toSet()
@@ -101,6 +101,11 @@ internal object NativeCapabilityContract {
         require(header.get("schema")==2 && header.getString("sourceSha")==expected.sourceSha && header.getString("runOwner")==expected.runOwner && header.getString("workDir")==work && header.getString("status")=="ADMITTED_ROOTS_NOT_CONTENT_SNAPSHOT")
         val inputs=value.getJSONObject("inputs");require(inputs.length() in 30..25064)
         val expectedPaths=mandatory.associateWith {input(inputs.getJSONObject(it)).path}.toMutableMap()
+        // Bound postbuild outputs from the two successful direct JNI compiler commands.
+        // These are not prebuild immutable inputs and never receive that provenance label.
+        for ((role, relative) in mapOf("jniObject" to "jni.o", "exportJniObject" to "export-jni.o",
+            "jniDepfile" to "jni.d", "exportJniDepfile" to "export-jni.d"))
+            require(expectedPaths.getValue(role) == "$out/$relative")
         val providerProof=input(inputs.getJSONObject("header-provider.json"));require(providerProof.path=="$out/header-provider.json");expectedPaths["header-provider.json"]=providerProof.path
         require(same(value.getJSONObject("headerProvider"),header))
         val nativeReference=input(value.getJSONObject("nativeInputProvenance"));require(nativeReference.path=="$out/native-input-provenance.json" && nativeReference==input(inputs.getJSONObject("native-input-provenance.json")))
@@ -190,6 +195,19 @@ internal object NativeCapabilityContract {
         for((p,h) in frozen)require(beforeMap[p]==h)
         val jni=expectedPaths.getValue("jniSource");require(jni.endsWith("/reconstruction/src/jni.cpp"))
         val reconstruction=jni.removeSuffix("/src/jni.cpp")
+        val exportJni = expectedPaths.getValue("exportJniSource")
+        require(exportJni == "$reconstruction/src/asset_exports_jni.cpp")
+        require(consumedMap[exportJni] == inputs.getJSONObject("exportJniSource").getString("sha256"))
+        require(beforeMap[exportJni] == consumedMap[exportJni])
+        val nativeOwner = expectedPaths.getValue("nativeOwner")
+        val nativeOwnerSuffix = "/com/realityforge/scanner/engine/NativeCore.class"
+        val expectedExportOwner = if (nativeOwner == "$work/owner-com.realityforge.scanner.engine.NativeCore.class")
+            "$work/owner-com.realityforge.scanner.export.NativeAssetExports.class"
+        else {
+            require(nativeOwner.endsWith(nativeOwnerSuffix))
+            nativeOwner.removeSuffix(nativeOwnerSuffix) + "/com/realityforge/scanner/export/NativeAssetExports.class"
+        }
+        require(expectedPaths.getValue("exportNativeOwner") == expectedExportOwner)
         val allowedRoots=listOf(out,reconstruction,"$javaRoot/include","/usr/include","/usr/lib/gcc")+listOf(16,17,18).map {"/usr/lib/llvm-$it/lib/clang/$it/include"}
         for((i,p) in codepointSorted(consumedMap.keys).withIndex()) {
             require(p in system || allowedRoots.any {under(p,it)}) { "Consumed file outside closed source/provider roots" }
@@ -204,7 +222,7 @@ internal object NativeCapabilityContract {
         }
         require(keys(inputs)==expectedPaths.keys) { "Missing/unexpected capability input role" }
         val admitted=expectedPaths.mapValues { (name,p) -> val spec=input(inputs.getJSONObject(name),name in emptyBaselines);require(spec.path==p);spec }
-        labels.addAll(listOf("compiler-version","opencv-configure","opencv-build","opencv-symbols","opencv-consumed-deps","opencv-smoke-compile","opencv-smoke","scanner-configure","scanner-build","scanner-javap","scanner-shim","scanner-consumed-deps","scanner-symbols"))
+        labels.addAll(listOf("compiler-version","opencv-configure","opencv-build","opencv-symbols","opencv-consumed-deps","opencv-smoke-compile","opencv-smoke","scanner-configure","scanner-build","scanner-javap","scanner-export-javap","scanner-jni-compile","scanner-export-compile","scanner-shim","scanner-consumed-deps","scanner-symbols"))
         for(i in 0 until 10)for(kind in listOf("aar","generated"))labels.add("opencv-$kind-$i")
         for(prefix in listOf("opencv","scanner-engine","scanner-shim"))for(part in listOf("elf-header","elf-dynamic","ldd"))labels.add("$prefix-$part")
         require(labels.size in 40..256)
