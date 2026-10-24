@@ -11,6 +11,7 @@ import androidx.room.Room
 import com.realityforge.scanner.data.*
 import com.realityforge.scanner.data.importing.*
 import com.realityforge.scanner.data.jobs.*
+import com.realityforge.scanner.data.jobs.ReconstructionJobState as DurableJobState
 import com.realityforge.scanner.data.operations.*
 import com.realityforge.scanner.data.publication.JournaledOriginalPublicationPort
 import com.realityforge.scanner.data.publication.PublicationReadResult
@@ -104,9 +105,9 @@ class ReliefThreeCompleteControllerHostTest {
             stage = "CONTROLLER_RUNNING"
             actual.start(onUpdate = {}, onIdle = {})
             val finished = actual.jobs.observe(queued.jobId).filterNotNull().first {
-                it.state.isTerminal || it.state == ReconstructionJobState.PAUSED
+                it.state.isTerminal || it.state == DurableJobState.PAUSED
             }
-            assertEquals("Bound controller job: ${finished.outcomeCode}", ReconstructionJobState.COMPLETED, finished.state)
+            assertEquals("Bound controller job: ${finished.outcomeCode}", DurableJobState.COMPLETED, finished.state)
             assertEquals(fixture.project, finished.input.projectId)
             assertEquals(revision, finished.input.projectRevision)
             actual.awaitWorkerStopped()
@@ -123,7 +124,7 @@ class ReliefThreeCompleteControllerHostTest {
             val persisted = requireNotNull(RoomJobStore(fixture.database, fixture.database.jobDao()).snapshot(queued.jobId))
             assertEquals(finished.jobId, persisted.jobId); assertEquals(finished.input, persisted.input)
             assertEquals(finished.attempt, persisted.attempt)
-            assertEquals(ReconstructionJobState.COMPLETED, persisted.state)
+            assertEquals(DurableJobState.COMPLETED, persisted.state)
             assertEquals(ReconstructionStage.PUBLISHING, persisted.cursor.acceptedStage)
             captureImmutable(evidence, "complete-result.json", JSONObject().put("schema", 1)
                 .put("projectId", persisted.input.projectId).put("projectRevision", persisted.input.projectRevision)
@@ -173,7 +174,7 @@ class ReliefThreeCompleteControllerHostTest {
         val scope = field.get(controller) as CoroutineScope
         withTimeout(10_000) {
             val current = controller.current.value
-            if (current?.state == ReconstructionJobState.RUNNING || current?.state == ReconstructionJobState.QUEUED)
+            if (current?.state == DurableJobState.RUNNING || current?.state == DurableJobState.QUEUED)
                 controller.cancel(requireNotNull(current).jobId)
             requireNotNull(scope.coroutineContext[Job]).cancelAndJoin()
         }

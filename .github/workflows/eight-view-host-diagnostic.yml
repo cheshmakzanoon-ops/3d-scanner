@@ -20,9 +20,9 @@ jobs:
           toJSON(github.event.repository.private) == 'false' &&
           github.event.repository.default_branch == 'main' &&
           github.ref == 'refs/heads/main' && github.event.ref == 'refs/heads/main' &&
-          github.event.before == 'c3fd251d8501ea13a31f8820429aecca13d62cb2' && github.event.after == github.sha &&
+          github.event.before == 'b97c433fff2d5a19da91b4771ec1962a3a09509e' && github.event.after == github.sha &&
           github.event.head_commit.id == github.sha &&
-          github.event.head_commit.message == 'test: observe three-photo full controller prototype checkpoint' &&
+          github.event.head_commit.message == 'fix: bind full controller job state enum' &&
           toJSON(github.event.created) == 'false' && toJSON(github.event.deleted) == 'false' &&
           toJSON(github.event.forced) == 'false' && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04

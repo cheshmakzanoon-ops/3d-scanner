@@ -22,7 +22,7 @@ def test_complete_source_uses_only_observation_inputs():
 
 def test_real_controller_and_publication_barriers_are_not_sparse_fallback_success():
     source = SOURCE.read_text()
-    sequence = ['ReconstructionExecutionController(fixture.context', 'actual.awaitRecovery()', 'actual.enqueue(', 'actual.start(', 'actual.jobs.observe(queued.jobId)', 'ReconstructionJobState.COMPLETED, finished.state', 'actual.awaitWorkerStopped()', 'assertPublishedAndExport(fixture, evidence, "before-reopen", finished)', 'stopController(actual)', 'fixture.reopen()', 'assertPublishedAndExport(fixture, evidence, "after-reopen", finished)']
+    sequence = ['ReconstructionExecutionController(fixture.context', 'actual.awaitRecovery()', 'actual.enqueue(', 'actual.start(', 'actual.jobs.observe(queued.jobId)', 'DurableJobState.COMPLETED, finished.state', 'actual.awaitWorkerStopped()', 'assertPublishedAndExport(fixture, evidence, "before-reopen", finished)', 'stopController(actual)', 'fixture.reopen()', 'assertPublishedAndExport(fixture, evidence, "after-reopen", finished)']
     indices = [source.index(value) for value in sequence]
     assert indices == sorted(indices)
     assert 'ReconstructionStage.PUBLISHING, persisted.cursor.acceptedStage' in source

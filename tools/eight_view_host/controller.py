@@ -12,7 +12,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='0b6524aa4384f008f0da2706c0f8fe9d9dd778c0f61b6f87c944b67e21a2914a'
+ADAPTER_MANIFEST='af287acfa2114a866df9b043f78125322f7f389bb718282e8cd3ea8179b68b48'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)

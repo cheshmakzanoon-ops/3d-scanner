@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, get_profile
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='c3fd251d8501ea13a31f8820429aecca13d62cb2'
-MESSAGE='test: observe three-photo full controller prototype checkpoint'
+BASE_SHA='b97c433fff2d5a19da91b4771ec1962a3a09509e'
+MESSAGE='fix: bind full controller job state enum'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/ReliefThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_eight_view_complete_formats.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_complete_reference.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_measurement_reference.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_eight_view_publication_codec.py', 'tests/test_relief_complete_controller_source.py', 'tools/eight_view_host/complete_formats.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/ReliefThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_relief_complete_enum_contract.py', 'tests/test_relief_complete_controller_source.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
