@@ -109,6 +109,8 @@ def test_successful_test_cannot_override_late_cleanup_cancel(tmp_path,monkeypatc
  assert receipt['status']=='CANCELLED' and receipt['ownedCleanup']=='FAIL'
 
 def test_signal_during_final_frame_downgrades_artifact(tmp_path,monkeypatch):
+ # Signal-only fixture; actual measurement admission is exercised independently.
+ monkeypatch.setattr(ctl,'validate_measurement_reference',lambda *a:None)
  temp=main_fixture(tmp_path,monkeypatch);monkeypatch.setattr(ctl,'run_probe',lambda *args:{'test':'fixture success'})
  original=ctl.frame
  def framed(label,raw,*args):
@@ -326,6 +328,8 @@ def test_classpath_normal_work_cannot_consume_cleanup_reserve(tmp_path,monkeypat
 
 
 def test_global_deadline_after_initial_pass_seal_invalidates_artifact(tmp_path,monkeypatch):
+ # Deadline-only orchestration fixture; real measurement admission is tested separately.
+ monkeypatch.setattr(ctl,'validate_measurement_reference',lambda *a:None)
  temp=main_fixture(tmp_path,monkeypatch);monkeypatch.setattr(ctl,'run_probe',lambda *a:{'fixture':'success'})
  original=ctl.evidence_package
  def package(run,receipt,destination):
@@ -485,13 +489,13 @@ def test_pass_seal_requires_transcript_even_without_required_marker(tmp_path):
  assert 'commandTranscriptFailure' in receipt
 
 
-def test_genuine_empty_command_transcript_can_seal_pass(tmp_path):
+def test_genuine_empty_command_transcript_reference_is_valid(tmp_path):
  run=r.Runner(tmp_path,tmp_path/'work');ref=ctl.command_reference(run)
  assert ref['count']==0
  receipt={'status':'PASS','commandsReference':ref}
- out=ctl.evidence_package(run,receipt,tmp_path/'out')
- assert json.loads((out/'receipt.json').read_text())['status']=='PASS'
- assert json.loads((out/'commands.json').read_text())==[]
+ ctl.validate_command_reference(run.work,receipt,run)
+ assert receipt['status']=='PASS'
+ assert json.loads((run.work/'commands.json').read_text())==[]
 
 # Real checkpoint admission, unlike the orchestration-only mocks above.
 @pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF])

@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, get_profile
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='8319faafda1555eb41f550381a12162bd0604ddb'
-MESSAGE='test: observe three-photo sparse prototype checkpoint'
+BASE_SHA='97a69510e1e6586cd86ca39fe1950be496e06b77'
+MESSAGE='fix: retain bounded sparse measurement references'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/ReliefThreeSparsePrefixHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/relief_inputs.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_gradle_lifecycle.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_relief_three_inputs.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_measurement_reference.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

@@ -679,8 +679,10 @@ def test_command_timing_cleanup_failure_remains_secondary(tmp_path,monkeypatch):
  assert run.commands[-1]['exit']==17 and r.proc_info(run.commands[-1]['pid']) is None
  with pytest.raises(r.Failure,match='Incomplete command evidence'):run.cleanup()
 
-def test_command_timing_retained_by_exact_command_reference(tmp_path):
+def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch):
  from tools.eight_view_host import controller
+ # Timing-only fixture: reconstruction admission is independently exercised.
+ monkeypatch.setattr(controller,'validate_measurement_reference',lambda *a:None)
  run=runner(tmp_path)
  with contextlib.redirect_stdout(io.StringIO()):
   run.command('timed-retained',[sys.executable,'-c','print("fixed evidence")'])

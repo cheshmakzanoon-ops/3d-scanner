@@ -786,10 +786,50 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
     bounded_bytes(xmls[0],2*1024**2,run)  # Admit XML size/identity before the parser reads it.
     events=[json.loads(x) for x in bounded_bytes(run.work/'test-events.jsonl',256*1024,run).decode().splitlines()]
     proof=policy.junit_proof(xmls[0],events,profile=profile)
-    result=json.loads(bounded_bytes(run.work/'measurement/sparse-result.json',4*1024**2,run))
-    pairs=json.loads(bounded_bytes(run.work/'measurement/pair-events.json',8*1024**2,run))
-    identity=json.loads(bounded_bytes(run.work/'measurement/input-identity.json',64*1024,run))
-    return {'junit':proof,'measurement':policy.measurement_proof(result,pairs,identity,observed,profile=profile),'runtimeProviders':runtime_provider_proof(run,source,cap,verified),'capabilitySha256':sha(cap)}
+    return {'junit':proof,'measurement':measurement_reference(run.work,profile,run,observed=observed), 'runtimeProviders':runtime_provider_proof(run,source,cap,verified),'capabilitySha256':sha(cap)}
+
+def measurement_reference(directory,profile,run=None,*,observed=None):
+    """Validate complete retained measurements; frame only a fixed-size summary/reference."""
+    directory=Path(directory)
+    raw=bounded_bytes(directory/'measurement/sparse-result.json',4*1024**2,run)
+    inputs=[raw,bounded_bytes(directory/'measurement/pair-events.json',8*1024**2,run),
+            bounded_bytes(directory/'measurement/input-identity.json',64*1024,run),
+            bounded_bytes(directory/'observation-proof.json',64*1024,run)]
+    if any(safe_display(value)[1]=='WITHHELD_SECRET_MARKER' for value in inputs):raise Failure('Measurement proof withheld')
+    result,pairs,identity,observations=[json.loads(value) for value in inputs]
+    if observed is not None and json.dumps(observations,sort_keys=True)!=json.dumps(observed,sort_keys=True):raise Failure('Observation proof differs from staged input authority')
+    proof=policy.measurement_proof(result,pairs,identity,observations,profile=profile)
+    return {'classification':proof['classification'],'registeredCameraCount':proof['registeredCameraCount'],
+            'pairCount':proof['pairCount'],'finalSparseOutcome':proof['geometry']['finalSparseOutcome'],
+            'reference':{'path':'measurement/sparse-result.json','bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()},
+            'supportingReferences':[{'path':name,'bytes':len(value),'sha256':hashlib.sha256(value).hexdigest()}
+                for name,value in zip(('measurement/pair-events.json','measurement/input-identity.json','observation-proof.json'),inputs[1:])]}
+
+def validate_measurement_reference(destination,receipt,run=None):
+    value=receipt.get('result',{}).get('measurement') if isinstance(receipt.get('result',{}),dict) else None
+    if receipt.get('status')!='PASS' and value is None:return
+    try:
+        if receipt.get('experiment')!=experiments.ACTIVE:raise Failure('Measurement experiment differs from source-selected profile')
+        expected=measurement_reference(destination,experiments.ACTIVE,run)
+        if value!=expected or json.dumps(value,sort_keys=True)!=json.dumps(expected,sort_keys=True):raise Failure('Measurement reference/summary mismatch')
+    except (OSError,ValueError,TypeError,KeyError,Failure) as error:
+        if receipt.get('status')=='PASS':receipt['status']='FAIL'
+        receipt.setdefault('evidence',{})['complete']=False
+        receipt['measurementReferenceFailure']=failure_descriptor(error)
+
+def emit_terminal_frames(destination,receipt,run=None):
+    """Full geometry stays in the bounded artifact, never duplicated in console frames."""
+    destination=Path(destination)
+    sealed=bounded_bytes(destination/'receipt.json',256*1024,run)
+    if json.dumps(json.loads(sealed),sort_keys=True)!=json.dumps(receipt,sort_keys=True):raise Failure('Sealed receipt changed before console framing')
+    validate_measurement_reference(destination,receipt,run)
+    if 'measurementReferenceFailure' in receipt:raise Failure('Measurement reference invalid before console framing')
+    frame('terminal-receipt',sealed)
+    if isinstance(receipt.get('result'),dict) and 'measurement' in receipt['result']:
+        frame('measurement-reference',json.dumps(receipt['result']['measurement'],sort_keys=True).encode())
+    for name in ['measurement/failure.json','test-events.jsonl']:
+        if (destination/name).is_file():frame(name.replace('/','-').replace('.','-'),bounded_bytes(destination/name,256*1024,run))
+
 
 def failure_descriptor(error,phase=None):
     """Scan the entire original message before producing a bounded diagnostic preview."""
@@ -880,6 +920,7 @@ def seal_receipt(destination,receipt,run=None):
     inventory(destination,32*1024**2,2000,seconds=phase_budget(run))
     receipt.update(bounded_failures(receipt))
     validate_command_reference(destination,receipt,run)
+    validate_measurement_reference(destination,receipt,run)
     raw=(json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()
     if len(raw)>256*1024:raise Failure('Terminal receipt framing byte limit')
     if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':raise Failure('Terminal receipt withheld for secret marker')
@@ -1039,9 +1080,7 @@ def main():
             if run.signal:receipt['status']='CANCELLED';seal_receipt(output,receipt,run)
             elif run.clock()>=run.end:receipt['status']='TIMEOUT';seal_receipt(output,receipt,run)
             # Receipt is essential. Full raw logs/checkpoint evidence are in bounded artifact.
-            frame('terminal-receipt',bounded_bytes(output/'receipt.json',256*1024,run))
-            for name in ['measurement/failure.json','measurement/sparse-result.json','test-events.jsonl']:
-                if (output/name).is_file():frame(name.replace('/','-').replace('.','-'),bounded_bytes(output/name,256*1024,run))
+            emit_terminal_frames(output,receipt,run)
         except BaseException as error:
             secondary('evidence-sealing',error);receipt['status']=getattr(first,'status','FAIL') if first else 'FAIL'
             try:seal_receipt(evidence,receipt,run)
