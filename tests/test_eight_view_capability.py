@@ -378,3 +378,82 @@ def test_native_proof_packaging_keeps_existing_size_caps(tmp_path,aggregate):
  (out/np.FILENAME).write_bytes(b' '*(16*1024**2 if aggregate else 16*1024**2+1))
  if aggregate:(out/'capability.json').write_bytes(b' '*(16*1024**2))
  with pytest.raises(r.Failure,match='size|byte/count'):ctl.evidence_package(run,{'status':'FAIL'},tmp_path/'evidence')
+
+
+def traversal_record(error):
+ assert isinstance(error,r.Failure) and str(error).startswith('Prebuild header traversal limit; ')
+ payload=str(error).split('EIGHT_VIEW_HEADER_TRAVERSAL ',1)[1]
+ assert len(payload.encode('ascii'))<=3072
+ return json.loads(payload)
+
+
+def test_snapshot_elapsed_predicate_reports_actual_allocated_budget(tmp_path,monkeypatch):
+ root=tmp_path/'headers';root.mkdir()
+ ticks=iter((10.0,10.25));monkeypatch.setattr(c.time,'monotonic',lambda:next(ticks))
+ monkeypatch.setattr(c,'sha',lambda _:pytest.fail('no content read after deadline'))
+ with pytest.raises(r.Failure) as error:c.prebuild_snapshot(types.SimpleNamespace(remaining=lambda _:0.25),[root])
+ value=traversal_record(error.value)
+ assert value['predicates']=={'countExceeded':False,'elapsedExceeded':True}
+ assert value['limits']=={'entries':60000,'seconds':90,'allocatedSeconds':0.25}
+ assert value['elapsedSeconds']==0.25 and value['counts']=={'attempted':1,'pending':0,'seen':0,'hashedFiles':0,'observedFileBytes':0}
+ assert value['currentRoot']['index']==0 and value['scope']=='CURRENT_INVOCATION_NOT_RETROACTIVE'
+
+
+@pytest.mark.parametrize('expired',[False,True],ids=['count-only','count-and-time'])
+def test_snapshot_count_and_combined_predicates_without_cap_override(tmp_path,monkeypatch,expired):
+ root=tmp_path/'headers';root.mkdir();child=root/'empty';child.mkdir()
+ class Entries:
+  def __init__(self,path):self.path=path
+  def __enter__(self):return iter(types.SimpleNamespace(path=str(child)) for _ in range(60000 if self.path==root else 0))
+  def __exit__(self,*args):pass
+ # Simulated repeated directory entries exercise the existing exact60001 attempted guard;
+ # production count, queue conditions and limits are not monkeypatched or increased.
+ monkeypatch.setattr(c.os,'scandir',lambda path:Entries(path))
+ calls=0
+ def clock():
+  nonlocal calls
+  calls+=1
+  return 91.0 if expired and calls>=60002 else 0.0
+ monkeypatch.setattr(c.time,'monotonic',clock)
+ monkeypatch.setattr(c,'sha',lambda _:pytest.fail('empty directories have no payload'))
+ with pytest.raises(r.Failure) as error:c.prebuild_snapshot(types.SimpleNamespace(remaining=lambda n:n),[root])
+ value=traversal_record(error.value)
+ assert value['predicates']=={'countExceeded':True,'elapsedExceeded':expired}
+ assert value['counts']=={'attempted':60001,'pending':0,'seen':2,'hashedFiles':0,'observedFileBytes':0}
+ assert value['currentPath']['sha256']==hashlib.sha256(str(child).encode()).hexdigest()
+
+
+def test_snapshot_progress_counts_hashed_files_without_disclosing_content(tmp_path,monkeypatch):
+ root=tmp_path/'headers';root.mkdir();first=root/'first-secret-name.h';second=root/'second-secret-name.h'
+ first.write_bytes(b'private header contents');second.write_bytes(b'other confidential bytes')
+ class Entries:
+  def __enter__(self):return iter([types.SimpleNamespace(path=str(first)),types.SimpleNamespace(path=str(second))])
+  def __exit__(self,*args):pass
+ monkeypatch.setattr(c.os,'scandir',lambda _:Entries())
+ ticks=iter([0.0,0.0,0.0,90.0]);monkeypatch.setattr(c.time,'monotonic',lambda:next(ticks))
+ with pytest.raises(r.Failure) as error:c.prebuild_snapshot(types.SimpleNamespace(remaining=lambda n:n),[root])
+ value=traversal_record(error.value)
+ assert value['counts']=={'attempted':3,'pending':0,'seen':2,'hashedFiles':1,'observedFileBytes':len(b'other confidential bytes')}
+ assert set(value['currentPath'])=={'sha256','utf8Bytes'}
+ assert 'secret-name' not in str(error.value) and 'confidential' not in str(error.value) and 'private header' not in str(error.value)
+
+
+@pytest.mark.parametrize('root_text',['/'+('\U0001f600'*4000),'/password=hidden-sensitive-value','/ordinary'],ids=['unicode-bounded','secret-withheld','normal'])
+def test_snapshot_diagnostic_metadata_bounded_sanitized_without_filesystem(tmp_path,monkeypatch,root_text):
+ root=Path(root_text);path=root/'private-filename.h'
+ monkeypatch.setattr(Path,'resolve',lambda *a,**k:pytest.fail('failure formatting must not resolve paths'))
+ monkeypatch.setattr(c,'sha',lambda _:pytest.fail('failure formatting must not read payload'))
+ text=c.header_traversal_diagnostic([root],path,60001,[],set(),{},0,0.0,91.0,90)
+ assert len(text.encode('ascii'))<3200
+ value=json.loads(text.split(' ',1)[1]);identity=value['currentRoot']['identity']
+ assert identity['sha256']==hashlib.sha256(root_text.encode()).hexdigest()
+ assert len(identity['preview'].encode())<=128 and 'private-filename' not in text
+ if 'password=' in root_text:assert identity['withheld'] and identity['preview']=='' and 'hidden-sensitive-value' not in text
+ if '\U0001f600' in root_text:assert identity['truncated']
+
+
+def test_snapshot_root_association_is_lexical_not_origin():
+ root=Path('/headers');nested=root/'nested';path=nested/'file.h'
+ value=json.loads(c.header_traversal_diagnostic([root,nested],path,1,[],set(),{},0,0,90,90).split(' ',1)[1])
+ assert value['currentRoot']['index']==0
+ assert value['rootAssociation']=='FIRST_LEXICAL_CONTAINING_ADMITTED_ROOT_NOT_TRAVERSAL_ORIGIN'

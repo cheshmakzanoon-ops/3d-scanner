@@ -2,7 +2,7 @@
 from pathlib import Path, PurePosixPath
 import hashlib, json, os, re, shlex, shutil, tarfile, time, urllib.request, urllib.parse, zipfile
 from tools.native_process import native_compile_env
-from .runtime import Failure, Blocked, sha, atomic_json, inventory
+from .runtime import Failure, Blocked, sha, atomic_json, inventory, safe_display
 from . import header_provider, native_provenance
 HERE=Path(__file__).resolve().parent
 POLICY=HERE/'build-policy.json'
@@ -217,13 +217,37 @@ def header_escape_diagnostic(candidate, resolved, roots):
         if not record['admittedRoots']:raise Failure('Header diagnostic bound invariant')
         record['admittedRoots'].pop();record['rootsOmitted']+=1
 
+def header_traversal_diagnostic(roots,path,count,pending,seen,result,total,started,now,budget):
+    """Bounded failure metadata only; no additional filesystem reads or admission change."""
+    def identity(value,preview=False):
+        raw=str(value).encode('utf-8',errors='surrogatepass')
+        record={'utf8Bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+        if preview:
+            display,status=safe_display(raw);clipped=display[:128].decode('utf-8',errors='ignore')
+            record.update(preview=clipped,displayStatus=status,truncated=len(display)>128,
+                          withheld=status=='WITHHELD_SECRET_MARKER')
+        return record
+    root=next(({'index':i,'identity':identity(root,True)} for i,root in enumerate(roots)
+               if path.is_relative_to(root)),None)
+    record={'schema':1,'kind':'TRAVERSAL_GUARD','predicates':{'countExceeded':count>60000,'elapsedExceeded':now>=started+budget},
+            'limits':{'entries':60000,'seconds':90,'allocatedSeconds':budget},
+            'counts':{'attempted':count,'pending':len(pending),'seen':len(seen),'hashedFiles':len(result),'observedFileBytes':total},
+            'elapsedSeconds':round(now-started,6),'rootCount':len(roots),'currentRoot':root,
+            'rootAssociation':'FIRST_LEXICAL_CONTAINING_ADMITTED_ROOT_NOT_TRAVERSAL_ORIGIN',
+            'currentPath':identity(path),'scope':'CURRENT_INVOCATION_NOT_RETROACTIVE'}
+    encoded=json.dumps(record,sort_keys=True,ensure_ascii=True,separators=(',',':'))
+    if len(encoded.encode('ascii'))>3072:raise Failure('Prebuild header traversal limit; diagnostic byte-bound invariant')
+    return 'EIGHT_VIEW_HEADER_TRAVERSAL '+encoded
+
 def prebuild_snapshot(run,roots):
     """Pre-consumption immutable headers/source, bounded and canonical; no filesystem-wide scan."""
     roots=[Path(root).resolve(strict=True) for root in roots];pending=list(roots);seen=set();result={};total=0;count=0
-    end=time.monotonic()+min(90,run.remaining(90))
+    started=time.monotonic();budget=min(90,run.remaining(90));end=started+budget
     while pending:
         path=pending.pop();count+=1
-        if count>60000 or time.monotonic()>=end:raise Failure('Prebuild header traversal limit')
+        now=time.monotonic()
+        if count>60000 or now>=end:
+            raise Failure('Prebuild header traversal limit; '+header_traversal_diagnostic(roots,path,count,pending,seen,result,total,started,now,budget))
         candidate=path;path=path.resolve(strict=True)
         if not any(path.is_relative_to(root) for root in roots):
             raise Failure('Prebuild header symlink escapes admitted roots; '+header_escape_diagnostic(candidate,path,roots))

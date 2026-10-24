@@ -9,42 +9,19 @@ from tools.eight_view_host import capability as c,policy,header_provider as hp
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,sha,safe_display
 from tools.eight_view_host.controller import bounded_bytes,bounded_hash
 from tools.native_process import native_compile_env
-BASE='1cf744bffd4690aaf5f11d3ab942d87758d5e3da'
-MESSAGE='fix: bind header providers and upright calibration'
+BASE='23e08f975def4be72a1e4306e8b44ae34f3493fe'
+MESSAGE='test: diagnose bounded header traversal once'
 ALLOWED_PATHS=frozenset((
  '.github/workflows/host-header-diagnostic.yml','tools/eight_view_host/capability.py',
- 'tools/eight_view_host/header_provider.py','tools/eight_view_host/policy.py',
- 'tools/eight_view_host/header_diagnostic.py','tests/test_eight_view_header_provider.py',
- 'tests/test_eight_view_header_diagnostic.py','tests/test_eight_view_capability.py',
- 'app/src/androidTest/java/com/realityforge/scanner/agents/a012/ImageInspectionInstrumentedTest.kt',
- 'app/src/main/java/com/realityforge/scanner/capture/calibration/CalibrationCaptureMetadataAdapter.kt',
- 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt',
- 'app/src/main/java/com/realityforge/scanner/imaging/AndroidImageDecoder.kt',
- 'app/src/main/java/com/realityforge/scanner/imaging/ImageContracts.kt',
- 'app/src/test/java/com/realityforge/scanner/capture/calibration/CalibrationInspectedScanTest.kt',
- 'tests/test_calibration_upright_handoff.py',
- '.github/workflows/verify.yml',
- 'docs/development/NATIVE_MATRIX_EVIDENCE.md',
- 'tests/test_ci_evidence_validation.py',
- 'tests/test_ci_native_matrix.py',
- 'tests/test_ci_native_matrix_workflow.py',
- 'tests/test_native_fixture_toolchain.py',
- 'tests/test_native_jvm_baseline.py',
- 'tests/test_native_pytest_accounting_plugin.py',
- 'tests/test_native_pytest_accounting_validation.py',
- 'tools/ci/validation/evidence.py',
- 'tools/ci/validation/native_matrix.py',
- 'tools/ci/validation/pytest_accounting.py',
- 'tools/qa/native_regression/pytest_accounting.py',
- 'tools/qa/native_regression/run.py',
- 'docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md','SOURCE_MANIFEST.sha256'))
+ 'tools/eight_view_host/header_diagnostic.py','tests/test_eight_view_capability.py',
+ 'tests/test_eight_view_header_diagnostic.py','SOURCE_MANIFEST.sha256'))
 CLASSIFICATION='HOST_HEADER_ADMISSION_DIAGNOSTIC_NOT_QUALIFICATION'
 EVIDENCE_LIMIT=32*1024
 
 
 def source_guard(run,expected):
     # The full pipeline's frozen TRIGGER_PATHS deliberately do not admit this
-    # separate diagnostic. Keep its single-parent exact-thirty-one-file domain local.
+    # separate diagnostic. Keep its single-parent exact-six-file domain local.
     def git(label,*args):return run.command('header-git-'+label,['git',*args],seconds=30,limit=32*1024)[0].decode().strip()
     if git('head','rev-parse','HEAD')!=expected:raise Failure('Diagnostic checkout source mismatch')
     if git('status','status','--porcelain=v1','--untracked-files=all'):raise Failure('Diagnostic checkout is not clean')
@@ -117,12 +94,17 @@ def observe(run,receipt):
 
 def record_failure(receipt,error):
     receipt['status']='FAIL'
-    text=str(error);prefix,marker,payload=text.partition('EIGHT_VIEW_HEADER_ESCAPE ')
+    text=str(error);field='headerTraversal' if 'EIGHT_VIEW_HEADER_TRAVERSAL ' in text else 'headerEscape'
+    token='EIGHT_VIEW_HEADER_TRAVERSAL ' if field=='headerTraversal' else 'EIGHT_VIEW_HEADER_ESCAPE '
+    prefix,marker,payload=text.partition(token)
     failure={'type':type(error).__name__,'message':prefix[:1024]}
     if marker:
         try:
             raw=payload.encode('ascii')
-            if len(raw)<=16*1024:failure['headerEscape']=json.loads(raw)
+            if len(raw)<=(3072 if field=='headerTraversal' else 16*1024):
+                parsed=json.loads(raw)
+                if not isinstance(parsed,dict):raise ValueError('Diagnostic metadata must be an object')
+                failure[field]=parsed
             else:failure['diagnosticMetadata']='OVERSIZE_WITHHELD'
         except (UnicodeError,ValueError,TypeError):failure['diagnosticMetadata']='MALFORMED_WITHHELD'
     if 'failure' not in receipt:receipt['failure']=failure

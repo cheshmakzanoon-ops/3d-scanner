@@ -35,13 +35,13 @@ def fixture_repository(tmp_path,monkeypatch,extra=None,omit=None):
 def test_actual_git_single_parent_tree_and_real_manifest_guard(tmp_path,monkeypatch):
  root,head=fixture_repository(tmp_path,monkeypatch);run=GitRunner(root);record=h.source_guard(run,head)
  assert record['sourceSha']==head and record['tree']==git(root,'rev-parse','HEAD^{tree}')
- assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==31
+ assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==6
  assert 'header-source-manifest' in run.calls
  h.source_postcheck(run,record)
 
 @pytest.mark.parametrize('case',['extra','omitted','dirty','wrong-source','wrong-parent','shallow','merge'])
 def test_real_git_source_guard_refuses_widened_or_unbound_source(tmp_path,monkeypatch,case):
- root,head=fixture_repository(tmp_path,monkeypatch,extra='foreign' if case=='extra' else None,omit='tests/test_eight_view_header_provider.py' if case=='omitted' else None)
+ root,head=fixture_repository(tmp_path,monkeypatch,extra='foreign' if case=='extra' else None,omit='tests/test_eight_view_capability.py' if case=='omitted' else None)
  if case=='dirty':(root/'untracked').write_text('not allowed')
  if case=='wrong-source':head='a'*40
  if case=='wrong-parent':monkeypatch.setattr(h,'BASE','b'*40)
@@ -310,3 +310,51 @@ def test_closed_provider_proof_and_maximum_escape_metadata_fit_receipt(observati
  result=h.write_receipt(tmp_path/'budget-evidence',receipt)
  assert result['failure']['headerEscape']==metadata and result['headerProvider']==receipt['headerProvider']
  assert len((tmp_path/'budget-evidence/receipt.json').read_bytes())<=32768
+
+@pytest.mark.parametrize('payload',['not json','é','x'*3073,'[]'],ids=['invalid-json','non-ascii','over-3072-bytes','non-object'])
+def test_traversal_metadata_malformed_or_oversized_is_withheld(payload):
+ receipt={};h.record_failure(receipt,Failure('Prebuild header traversal limit; EIGHT_VIEW_HEADER_TRAVERSAL '+payload))
+ assert receipt['status']=='FAIL' and 'headerTraversal' not in receipt['failure']
+ assert receipt['failure']['diagnosticMetadata'].endswith('WITHHELD')
+
+
+def test_traversal_failure_retains_complete_bounded_metadata_with_provider_receipt(observation,tmp_path):
+ run,_,_,_=observation;receipt={'status':'FAIL','qualified':False,'pipelineAttempts':0,'source':{'sourceSha':'a'*40}}
+ h.observe(run,receipt)
+ metadata={'schema':1,'kind':'TRAVERSAL_GUARD','predicates':{'countExceeded':False,'elapsedExceeded':True},
+  'limits':{'entries':60000,'seconds':90,'allocatedSeconds':90},
+  'counts':{'attempted':100,'pending':30,'seen':99,'hashedFiles':70,'observedFileBytes':12345},
+  'elapsedSeconds':90.01,'rootCount':10,'currentRoot':{'index':3,'identity':{'preview':'/synthetic/root','utf8Bytes':15,'sha256':'a'*64,'displayStatus':'SANITIZED_DIAGNOSTIC','truncated':False,'withheld':False}},
+  'currentPath':{'utf8Bytes':40,'sha256':'b'*64},'scope':'CURRENT_INVOCATION_NOT_RETROACTIVE'}
+ # Synthetic padding proves the entrypoint retains near-cap metadata beside the provider proof.
+ metadata['budgetOnlySyntheticPadding']='x'*(3000-len(json.dumps(metadata,separators=(',',':'))))
+ payload=json.dumps(metadata,separators=(',',':'));assert len(payload)<=3072
+ receipt['snapshot']['status']='PENDING'
+ h.record_failure(receipt,Failure('Prebuild header traversal limit; EIGHT_VIEW_HEADER_TRAVERSAL '+payload))
+ h.record_failure(receipt,Failure('secondary cleanup failure'))
+ result=h.write_receipt(tmp_path/'traversal-evidence',receipt)
+ assert result['failure']['headerTraversal']==metadata and result['snapshot']['status']=='FAIL'
+ assert result['secondaryFailures'][0]['message']=='secondary cleanup failure'
+ assert result['qualified'] is False and result['pipelineAttempts']==0 and 'headerProvider' in result
+ assert (tmp_path/'traversal-evidence/receipt.json').stat().st_size<=32768
+
+
+def test_actual_traversal_guard_entrypoint_preserves_metadata_and_postchecks(observation,tmp_path,monkeypatch):
+ run,_,_,_=observation;env,event=event_fixture();event_path=tmp_path/'event.json';event_path.write_text(json.dumps(event));run.env.update(env,GITHUB_EVENT_PATH=str(event_path))
+ monkeypatch.setenv('RUNNER_TEMP',str(tmp_path));monkeypatch.setattr(sys,'argv',['header_diagnostic.py'])
+ run.install_signals=lambda:None;run.cleanup=lambda:None;run.restore_signals=lambda:None
+ monkeypatch.setattr(h,'Runner',lambda *a,**k:run);monkeypatch.setattr(h,'source_guard',lambda *a:{'sourceSha':env['GITHUB_SHA']})
+ checked=[];monkeypatch.setattr(h,'source_postcheck',lambda *a:checked.append(True))
+ original=c.prebuild_snapshot;calls=[]
+ def actual_guard(context,roots):
+  calls.append(True);times=iter([0.0,90.0])
+  with monkeypatch.context() as scoped:
+   scoped.setattr(c.time,'monotonic',lambda:next(times))
+   return original(context,roots)
+ monkeypatch.setattr(c,'prebuild_snapshot',actual_guard)
+ assert h.main()==1 and calls==[True] and checked==[True]
+ result=json.loads((tmp_path/'rf-header-evidence/receipt.json').read_text())
+ assert result['failure']['headerTraversal']['predicates']=={'countExceeded':False,'elapsedExceeded':True}
+ assert result['failure']['headerTraversal']['limits']['seconds']==90
+ assert result['snapshot']['status']=='FAIL' and result['headerProviderPostcheck']=='PASS' and result['sourcePostcheck']=='PASS'
+ assert result['pipelineAttempts']==0 and result['qualified'] is False
