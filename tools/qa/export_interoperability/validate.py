@@ -97,13 +97,31 @@ def preflight(path):
     return None
 
 
+def tool_failure(command_identity, run, *, target_exists=None):
+    """Bounded snippets, not complete logs; commands are fixed QA identities."""
+    def snippet(text):
+        raw = text.encode('utf-8', errors='replace')
+        return {'utf8_bytes': len(raw),
+                'head': raw[:512 if len(raw) > 1024 else len(raw)].decode('utf-8', errors='ignore'),
+                'tail': raw[-512:].decode('utf-8', errors='ignore') if len(raw) > 1024 else '',
+                'truncated': len(raw) > 1024}
+
+    detail = {'command': command_identity, 'exit_code': run.returncode,
+              'signal': -run.returncode if run.returncode < 0 else None,
+              'stdout': snippet(run.stdout), 'stderr': snippet(run.stderr)}
+    if target_exists is not None:
+        detail['target_exists'] = target_exists
+    return json.dumps(detail, sort_keys=True)
+
+
 def khronos(path):
     root = os.environ.get('RF_GLTF_VALIDATOR')
     if not root or not shutil.which('node'):
         raise ModuleNotFoundError('node and RF_GLTF_VALIDATOR package required')
     run = subprocess.run(['node', str(HERE / 'khronos.cjs'), str(path)],
                          capture_output=True, text=True, timeout=45)
-    require(run.returncode == 0, 'Khronos execution: ' + run.stderr[-1000:])
+    if run.returncode != 0:
+        raise Invalid('Khronos execution: ' + tool_failure('node khronos.cjs', run))
     report = json.loads(run.stdout)
     require(report['issues']['numErrors'] == 0, 'Khronos: ' + json.dumps(report['issues']))
     return {'version': '2.0.0-dev.3.10', 'errors': 0,
@@ -184,7 +202,9 @@ def roundtrip(path, before, expected):
         run = subprocess.run(['blender', '--background', '--factory-startup', '--threads', '1',
                               '--python-exit-code', '1', '--python', str(HERE / 'blender_roundtrip.py'),
                               '--', str(path.resolve()), str(target)], capture_output=True, text=True, timeout=120)
-        require(run.returncode == 0 and target.is_file(), 'Blender failed: ' + run.stdout[-1500:] + run.stderr[-500:])
+        if not (run.returncode == 0 and target.is_file()):
+            raise Invalid('Blender failed: ' + tool_failure(
+                'blender blender_roundtrip.py', run, target_exists=target.is_file()))
         preflight(target)
         if path.suffix.lower() == '.glb':
             khronos(target)

@@ -21,7 +21,7 @@ def corpus(tmp_path_factory):
 def test_valid_independent_readers(corpus, suffix):
     expected = json.loads((corpus / ('textured.expected.json' if suffix in ('glb', 'obj') else 'geometry.expected.json')).read_text())
     report = validate(corpus / ('asymmetric.' + suffix), expected)
-    assert report['status'] == 'PASS', report
+    assert report['status'] == 'PASS', json.dumps(report, indent=2, sort_keys=True)
 
 
 @pytest.mark.parametrize('name', ['invalid-index.glb', 'flipped-uv.glb', 'reversed-normal.glb', 'unproven-metric.glb', 'missing-sidecar.obj', 'traversal.obj'])
@@ -34,8 +34,8 @@ def test_adversarial_rejection(corpus, name):
 def test_blender_import_export_roundtrip(corpus, suffix):
     expected = json.loads((corpus / ('textured.expected.json' if suffix in ('glb', 'obj') else 'geometry.expected.json')).read_text())
     report = validate(corpus / ('asymmetric.' + suffix), expected, target_tool=True)
-    assert report['status'] == 'PASS', report
-    assert report['target_tool']['status'] == 'PASS'
+    assert report['status'] == 'PASS', json.dumps(report, indent=2, sort_keys=True)
+    assert report['target_tool']['status'] == 'PASS', json.dumps(report, indent=2, sort_keys=True)
 
 
 def test_wrong_scale_and_axes(corpus):
@@ -46,15 +46,16 @@ def test_wrong_scale_and_axes(corpus):
 def test_tangent_smooth_vertex_normal_is_legal(corpus):
     # A tangent vertex is valid for a smooth/hard-edge transition; the face's
     # average normal still faces outward and no vertex points behind the face.
-    assert validate(corpus / 'tangent-normal.glb')['status'] == 'PASS'
+    report = validate(corpus / 'tangent-normal.glb')
+    assert report['status'] == 'PASS', json.dumps(report, indent=2, sort_keys=True)
 
 
 def test_real066_plain_pbr_material_remains_untextured_surface():
     asset = ROOT / 'benchmarks/export_fixtures/066-metric-edit.glb'
     report = validate(asset, {'representation':'triangles','triangles':2,'textured_triangles':0,
                               'bounds':[[0,-.4,0],[2.4,0,0]]}, target_tool=True)
-    assert report['status'] == 'PASS', report
-    assert report['target_tool']['status'] == 'PASS'
+    assert report['status'] == 'PASS', json.dumps(report, indent=2, sort_keys=True)
+    assert report['target_tool']['status'] == 'PASS', json.dumps(report, indent=2, sort_keys=True)
 
 
 def test_missing_validator_is_not_run(corpus, monkeypatch):
@@ -71,7 +72,7 @@ def test_bad_glb_length(corpus, tmp_path):
 def test_baseline_sparse_is_points():
     for suffix in ('glb', 'ply'):
         report = validate(ROOT / 'benchmarks/output' / ('sparse.' + suffix), {'representation': 'points', 'triangles': 0})
-        assert report['status'] == 'PASS', report
+        assert report['status'] == 'PASS', json.dumps(report, indent=2, sort_keys=True)
         assert report['geometry']['vertices'] == 579
 
 

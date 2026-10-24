@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import shutil
 import sys
@@ -37,7 +38,8 @@ def test_current_runbook():
 
 
 def test_documented_command_smoke():
-    assert all(item['status'] == 'PASS' for item in smoke(ROOT))
+    results = smoke(ROOT)
+    assert all(item['status'] == 'PASS' for item in results), json.dumps(results, indent=2, sort_keys=True)
 
 
 def test_stale_version_rejected(tree):

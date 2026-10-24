@@ -46,7 +46,10 @@ Any control failure remains a failed command/configuration; existing numerical,
 pytest and benchmark phases still run. No early leak check replaces finalization.
 The Python suite emits an immediate, explicitly flushed copy of its first failed
 setup, call or teardown report to the existing bounded command log. This copy is
-limited to 64 KiB; the underlying pytest report is unchanged. Tests continue in
+limited to 64 KiB total across traceback and labeled captured-output sections.
+Oversized sections retain bounded head/tail snippets, including trailing leak
+summaries, with explicit truncation markers; the underlying report is unchanged.
+Tests continue in
 their original order, so this is not fail-fast, a retry or a reduced suite. A
 later timeout remains FAIL/TIMEOUT with the original deadline, even when the
 usual end-of-session traceback/JUnit output was never produced. The observer

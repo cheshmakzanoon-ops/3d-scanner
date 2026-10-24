@@ -127,3 +127,56 @@ def test_runner_loads_observer_without_fail_fast_or_limit_changes():
     assert "parser.add_argument('--timeout', type=int, default=600)" in source
     assert 'log.stat().st_size > 32 * 1024**2' in source
     assert "ASAN_OPTIONS='halt_on_error=1:detect_leaks=1'" in source
+
+
+def test_captured_child_output_and_leak_tail_survive_later_timeout(tmp_path):
+    sys.path.insert(0, str(QA))
+    from run import command
+    child = tmp_path / 'emits_diagnostics.py'
+    child.write_text('import sys\n'
+                     'print("CHILD_STDOUT_MARKER", flush=True)\n'
+                     'sys.stderr.write("CHILD_STDERR_HEAD\\n" + "x" * 100000 + '
+                     '"\\nSUMMARY: AddressSanitizer: SYNTHETIC_LSAN_TAIL\\n")\n'
+                     'sys.stderr.flush()\nraise SystemExit(7)\n')
+    source = ('import subprocess, sys\n'
+              'def test_a_child_failure():\n'
+              '    subprocess.run([sys.executable, ' + repr(str(child)) + '], check=True)\n'
+              'def test_b_later_timeout():\n'
+              '    import time\n    time.sleep(20)\n')
+    result = command(child_args(tmp_path, source), ROOT, tmp_path,
+                     'captured-before-timeout', child_env(), timeout=3)
+    assert result['result'] == 'FAIL' and result['reason'] == 'TIMEOUT'
+    log = Path(result['log']).read_text()
+    assert log.count(MARKER) == 1
+    diagnostic = log[log.index(MARKER) - 1:]
+    diagnostic = diagnostic.split('=== end first pytest failure ===', 1)[0] + '=== end first pytest failure ===\n'
+    assert len(diagnostic.encode('utf-8')) <= 64 * 1024
+    for marker in ('test_a_child_failure', 'CalledProcessError', 'Captured stdout call',
+                   'CHILD_STDOUT_MARKER', 'Captured stderr call', 'CHILD_STDERR_HEAD',
+                   'SYNTHETIC_LSAN_TAIL', 'diagnostic truncated'):
+        assert marker in diagnostic, marker
+
+
+@pytest.mark.parametrize('sections', [
+    [('Captured stdout call', 'OUT_HEAD' + 'é' * 100000 + 'OUT_TAIL'),
+     ('Captured stderr call', 'ERR_HEAD' + '界' * 100000 + 'LSAN_TAIL')],
+    [('Captured stdout setup', 'SETUP_OUTPUT'), ('Captured stdout call', 'CALL_OUTPUT'),
+     ('Captured stderr teardown', 'TEARDOWN_OUTPUT')],
+])
+def test_sections_and_traceback_share_one_budget_without_mutating_report(monkeypatch, sections):
+    mod = plugin()
+    sink = io.StringIO()
+    monkeypatch.setattr(sys, '__stdout__', sink)
+    original = 'TRACE_HEAD' + '界' * 100000 + 'TRACE_TAIL'
+    report = SimpleNamespace(failed=True, nodeid='node', when='call',
+                             longreprtext=original, sections=list(sections))
+    mod.pytest_runtest_logreport(report)
+    output = sink.getvalue()
+    assert len(output.encode('utf-8')) <= mod.MAX_REPORT_BYTES
+    assert 'TRACE_HEAD' in output and 'TRACE_TAIL' in output
+    for name, content in sections:
+        assert name in output
+        assert content[:8] in output and content[-8:] in output
+    assert report.sections == sections and report.longreprtext == original
+    mod.pytest_runtest_logreport(report)
+    assert sink.getvalue() == output
