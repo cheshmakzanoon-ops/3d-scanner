@@ -227,7 +227,8 @@ def test_actual_escape_entrypoint_exits_one_retains_first_metadata_and_never_qua
  assert record['failure']['headerEscape']['resolvedTarget']['text']==str(outside)
  assert record['snapshot']['status']=='FAIL' and record['sourcePostcheck']=='PASS'
 
-@pytest.mark.parametrize('payload',['not json','\u00e9','x'*17000])
+@pytest.mark.parametrize('payload',['not json','\u00e9','x'*17000],
+                         ids=['not-json', 'non-ascii', 'oversized-17000-bytes'])
 def test_malformed_or_oversized_embedded_metadata_remains_failure(payload):
  record={};h.record_failure(record,Failure('gate refused; EIGHT_VIEW_HEADER_ESCAPE '+payload))
  assert record['status']=='FAIL' and 'headerEscape' not in record['failure']

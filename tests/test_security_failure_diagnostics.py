@@ -73,7 +73,7 @@ def test_numeric_leak_summary_is_bounded_evidence_not_reclassification(tmp_path,
     'SUMMARY: AddressSanitizer: 123 byte(s) leaked in 4 allocation(s). ' + SECRET,
     'SUMMARY: AddressSanitizer: 123 byte(s) leaked in 4 allocation(s).\n' + 'x' * 4096,
     'SUMMARY: AddressSanitizer: ' + '1' * 10000 + ' byte(s) leaked in 4 allocation(s).',
-])
+], ids=['unrecognized-suffix', 'over-summary-budget', 'over-numeric-budget'])
 def test_unrecognized_or_out_of_budget_summary_is_not_copied(monkeypatch, stderr):
     monkeypatch.setattr(scanner.subprocess, 'run', lambda *a, **k:
                         subprocess.CompletedProcess(a[0], 17, SECRET, stderr))

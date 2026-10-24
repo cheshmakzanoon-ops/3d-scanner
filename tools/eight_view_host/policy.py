@@ -3,10 +3,18 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='1bb344421558be7020132d0f921296047bf149e8'
-MESSAGE='test: run bound-absence eight-view host once'
+BASE_SHA='44b3acc5b0145d1ae3959f9b1ba8c7f52d0616ab'
+MESSAGE='test: run eight-view host with bound header providers'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','SOURCE_MANIFEST.sha256'))  # Final independently reviewed trigger commit only; no wildcard expansion.
+ALLOWED_PATHS=frozenset((
+    '.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','SOURCE_MANIFEST.sha256',
+    'tests/test_eight_view_header_diagnostic.py',
+    'tests/test_eight_view_ndk.py',
+    'tests/test_export_interoperability_diagnostics.py',
+    'tests/test_native_pytest_identity_budget.py',
+    'tests/test_recovery_controller.py',
+    'tests/test_security_failure_diagnostics.py',
+))  # Final independently reviewed trigger commit only; no wildcard expansion.
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

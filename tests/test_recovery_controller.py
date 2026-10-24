@@ -419,7 +419,8 @@ def test_stdio_fixture_cannot_override_host_validated_transcript_counts_or_quali
     assert result['release_qualification'] == 'NOT_RUN'
 
 
-@pytest.mark.parametrize('text', ['[]', '{} {}', '{"x":1,"x":2}', '{"x":NaN}', 'x' * (stdio.MAX_INPUT + 1)])
+@pytest.mark.parametrize('text', ['[]', '{} {}', '{"x":1,"x":2}', '{"x":NaN}', 'x' * (stdio.MAX_INPUT + 1)],
+                         ids=['array', 'multiple-objects', 'duplicate-key', 'nan', 'over-input-budget'])
 def test_stdio_main_emits_one_json_failure_and_diagnostics_without_protocol_noise(text):
     output, diagnostics = io.StringIO(), io.StringIO()
     assert stdio.main(io.StringIO(text), output, diagnostics) == 0

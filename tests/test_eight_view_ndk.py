@@ -54,7 +54,8 @@ def test_metadata_changes_block(monkeypatch,old,new):
  use_fixture_license(monkeypatch)
  with pytest.raises(r.Failure):n.metadata(index_xml().replace(old,new))
 
-@pytest.mark.parametrize('raw',[b'<!DOCTYPE x><repository/>',b'<!ENTITY x "x">',b'x'*(1024**2+1)])
+@pytest.mark.parametrize('raw',[b'<!DOCTYPE x><repository/>',b'<!ENTITY x "x">',b'x'*(1024**2+1)],
+                         ids=['doctype', 'entity', 'over-one-mib'])
 def test_metadata_bounds(raw):
  with pytest.raises(r.Failure):n.metadata(raw)
 

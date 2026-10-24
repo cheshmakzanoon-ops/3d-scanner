@@ -23,7 +23,8 @@ def test_tool_summary_preserves_exit_signal_and_empty_output(code):
         assert detail[stream] == {'utf8_bytes': 0, 'head': '', 'tail': '', 'truncated': False}
 
 
-@pytest.mark.parametrize('text', ['hello', 'é' * 512, 'HEAD' + '界' * 10000 + 'TAIL'])
+@pytest.mark.parametrize('text', ['hello', 'é' * 512, 'HEAD' + '界' * 10000 + 'TAIL'],
+                         ids=['short-ascii', 'utf8-at-budget', 'utf8-over-budget-head-tail'])
 def test_tool_summary_bounds_utf8_snippets_and_labels_truncation(text):
     run = subprocess.CompletedProcess([], 1, text, text)
     encoded = m.tool_failure('node khronos.cjs', run)
