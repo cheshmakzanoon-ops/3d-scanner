@@ -5,7 +5,7 @@ import pytest
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 import tools
 SOURCE=Path(os.environ.get('RF_SOURCE_ROOT',ROOT));sys.path.append(str(SOURCE));tools.__path__.append(str(SOURCE/'tools'))
-from tools.eight_view_host import runtime as r,policy as p,capability as c,header_provider as hp
+from tools.eight_view_host import runtime as r,policy as p,capability as c,header_provider as hp,native_provenance as np
 SHA='b'*40
 
 def fixture(tmp_path,monkeypatch):
@@ -45,15 +45,24 @@ def fixture(tmp_path,monkeypatch):
  provider_record={'path':str(framework),'sha256':r.sha(framework),'entry':'native/linux/x86_64/libandroid_runtime.so','entrySha256':'f'*64,'entryBytes':20,'mappingScope':'UNIT_FIXTURE_NOT_RUNTIME'}
  prepared={'opencvAar':str(aar),'opencvClasses':str(classes),'owners':{'com.realityforge.scanner.engine.NativeCore':{'file':str(owner)}},'robolectricNativeDistribution':{'path':str(provider),'sha256':r.sha(provider)},'offlineFramework':{'path':str(framework),'sha256':r.sha(framework)},'runtimeProvider':provider_record}
  consumed={str((java/'include/jni.h').resolve()):r.sha(java/'include/jni.h'),'/usr/include/stdio.h':r.sha('/usr/include/stdio.h'),**{str(header):r.sha(header) for header in headers}}
+ native_proof={'schema':1,'sourceSha':SHA,'runOwner':run.owner,'workDir':str(run.work),'systemLink':{'inputs':{}},'classification':'SYNTHETIC_POLICY_FIXTURE_NOT_NATIVE_PROOF'}
+ expected_native_proof=copy.deepcopy(native_proof)
+ def validate_native(context,proof,used,before,source):
+  if context is not run or proof!=expected_native_proof or source!=SHA:raise r.Failure('Synthetic native proof/source/authority mismatch')
+  return {name:{'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'} for name,digest in used.items()}
+ monkeypatch.setattr(np,'validate',validate_native)
+ monkeypatch.setattr(np,'input_paths',lambda proof:{np.FILENAME:out/np.FILENAME,'native-tool-fixture':tools['ninja']})
+ monkeypatch.setattr(np,'labels',lambda proof:['native-fixture-probe'])
  proof_files={
+  np.FILENAME:native_proof,
   'header-provider.json':header_proof,
   'source-files.json':{'LICENSE':r.sha(license)},'scanner-source.json':{'src/jni.cpp':r.sha(jni)},'consumed-inputs.json':consumed,'prebuild-inputs.json':consumed,'consumed-provenance.json':{name:{'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'} for name,digest in consumed.items()},
   'opencv-abi.json':{'fixture.Owner':{'declarations':[['hello','()J']],'matching':True}},
   'scanner-abi.json':{'declarations':[list(x) for x in declarations],'symbols':sorted(c.jni_symbol('com.realityforge.scanner.engine.NativeCore',name) for name,_ in declarations)}}
  for name,value in proof_files.items():put(out/name,(json.dumps(value)+'\n').encode())
- inputs={**{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release',**{'headerProviderDriver-'+str(role['major']):role['driver'] for role in providers},'policy':policy,'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':archive,'license':license,'aar':aar,'classes':classes,'nativeOwner':owner,'generatedJar':generated,'jniSource':jni,'jniContract':contract,'robolectricNativeDistribution':provider,'androidAll':framework,**{name:out/name for name in proof_files},**{'consumed-'+str(i):Path(path) for i,path in enumerate(sorted(consumed))}}
+ inputs={'native-tool-fixture':tools['ninja'],**{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release',**{'headerProviderDriver-'+str(role['major']):role['driver'] for role in providers},'policy':policy,'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':archive,'license':license,'aar':aar,'classes':classes,'nativeOwner':owner,'generatedJar':generated,'jniSource':jni,'jniContract':contract,'robolectricNativeDistribution':provider,'androidAll':framework,**{name:out/name for name in proof_files},**{'consumed-'+str(i):Path(path) for i,path in enumerate(sorted(consumed))}}
  native={key:put(out/rel) for key,rel in [('opencv','build/lib/libopencv_java4120.so'),('shim','librealityforge_jni.so'),('engine','scanner/librealityforge.so')]}
- logs={**{f"header-provider-{role['major']}-version":f"Ubuntu clang version {role['major']}.0.0\n".encode() for role in providers},**{f"header-provider-{role['major']}-resource-dir":(str(role['root'].parent)+'\n').encode() for role in providers},'compiler-version':b'14.2.0\n','opencv-configure':b'To be built: core features2d imgproc java\nJava wrappers: YES (JAVA)\n','opencv-build':b'done','opencv-symbols':b'000 T Java_fixture_Owner_hello\n','opencv-consumed-deps':b'deps','opencv-smoke-compile':b'', 'opencv-smoke':b'OPENCV_REAL_SMOKE_PASS version=4.12.0 descriptors=12 gray=76,150,29,255\n','scanner-configure':b'done','scanner-build':b'done','scanner-javap':''.join(' public native long '+name+'();\n descriptor: '+desc+'\n' for name,desc in declarations).encode(),'scanner-shim':b'','scanner-consumed-deps':b'deps','scanner-symbols':''.join('000 T '+symbol+'\n' for symbol in proof_files['scanner-abi.json']['symbols']).encode(),'opencv-aar-0':b' public native long hello();\n descriptor: ()J\n','opencv-generated-0':b' public native long hello();\n descriptor: ()J\n'}
+ logs={'native-fixture-probe':b'SYNTHETIC_NATIVE_POLICY_PROBE',**{f"header-provider-{role['major']}-version":f"Ubuntu clang version {role['major']}.0.0\n".encode() for role in providers},**{f"header-provider-{role['major']}-resource-dir":(str(role['root'].parent)+'\n').encode() for role in providers},'compiler-version':b'14.2.0\n','opencv-configure':b'To be built: core features2d imgproc java\nJava wrappers: YES (JAVA)\n','opencv-build':b'done','opencv-symbols':b'000 T Java_fixture_Owner_hello\n','opencv-consumed-deps':b'deps','opencv-smoke-compile':b'', 'opencv-smoke':b'OPENCV_REAL_SMOKE_PASS version=4.12.0 descriptors=12 gray=76,150,29,255\n','scanner-configure':b'done','scanner-build':b'done','scanner-javap':''.join(' public native long '+name+'();\n descriptor: '+desc+'\n' for name,desc in declarations).encode(),'scanner-shim':b'','scanner-consumed-deps':b'deps','scanner-symbols':''.join('000 T '+symbol+'\n' for symbol in proof_files['scanner-abi.json']['symbols']).encode(),'opencv-aar-0':b' public native long hello();\n descriptor: ()J\n','opencv-generated-0':b' public native long hello();\n descriptor: ()J\n'}
  for prefix in ('opencv','scanner-engine','scanner-shim'):
   for part in ('elf-header','elf-dynamic','ldd'):logs[prefix+'-'+part]=b'UNIT_FIXTURE_ELF_PROOF'
  producer=[]
@@ -65,7 +74,7 @@ def fixture(tmp_path,monkeypatch):
   if label=='opencv-configure':record['argv']=['cmake','-DCMAKE_SKIP_RPATH=ON']
   if label=='scanner-shim':record['argv']=['compiler','-include',str(contract),str(jni)]
   run.commands.append(record);producer.append({**record,'log':c.path_record(file)})
- value={'schema':1,'classification':'HOST_SOURCE_BUILT_CAPABILITY','sourceSha':SHA,'policySha256':r.sha(policy),'headerProvider':header_proof,'checks':{key:True for key in original['requiredChecks']},'native':{key:c.path_record(path) for key,path in native.items()},'inputs':{key:c.path_record(path) for key,path in inputs.items()},'producer':{'runOwner':run.owner,'workDir':str(run.work),'sourceSha':SHA,'commands':producer},'runtimeProvider':provider_record,'opencvElf':{'unitFixture':'opencv'},'scannerElf':{'engine':{'unitFixture':'engine'},'shim':{'unitFixture':'shim'}}}
+ value={'schema':1,'classification':'HOST_SOURCE_BUILT_CAPABILITY','sourceSha':SHA,'policySha256':r.sha(policy),'headerProvider':header_proof,'nativeInputProvenance':c.path_record(out/np.FILENAME),'checks':{key:True for key in original['requiredChecks']},'native':{key:c.path_record(path) for key,path in native.items()},'inputs':{key:c.path_record(path) for key,path in inputs.items()},'producer':{'runOwner':run.owner,'workDir':str(run.work),'sourceSha':SHA,'commands':producer},'runtimeProvider':provider_record,'opencvElf':{'unitFixture':'opencv'},'scannerElf':{'engine':{'unitFixture':'engine'},'shim':{'unitFixture':'shim'}}}
  # ELF parsing and provider admission are explicitly stubbed schema units, not installed-provider proof. Separate suites test real process/header-provider contracts.
  monkeypatch.setattr(c,'parse_elf_closure',lambda path,*args:{'unitFixture':next(key for key,v in native.items() if path==v)})
  manifest=out/'capability.json';manifest.write_text(json.dumps(value))
@@ -101,10 +110,9 @@ def test_header_prebuild_change_or_unknown_generation_is_rejected(tmp_path):
  header=tmp_path/'include/header.h';header.parent.mkdir();header.write_text('before');before={str(header):r.sha(header)};header.write_text('after')
  with pytest.raises(r.Failure,match='changed between'):c.bind_consumed({str(header):r.sha(header)},before,[tmp_path/'build'])
  generated=tmp_path/'build/modules/java_bindings_generator/gen/cpp/core.inl.hpp';generated.parent.mkdir(parents=True);generated.write_text('generated')
- result=c.bind_consumed({str(generated):r.sha(generated)},before,[tmp_path/'build'])
- assert result[str(generated)]['scope']=='POST_GENERATION_ONLY_NOT_PRECONSUMPTION'
+ with pytest.raises(r.Failure,match='requires verified native producer provenance'):c.bind_consumed({str(generated):r.sha(generated)},before,[tmp_path/'build'])
  foreign=tmp_path/'build/arbitrary.h';foreign.write_text('unknown')
- with pytest.raises(r.Failure,match='lacks prebuild'):c.bind_consumed({str(foreign):r.sha(foreign)},before,[tmp_path/'build'])
+ with pytest.raises(r.Failure,match='requires verified native producer provenance'):c.bind_consumed({str(foreign):r.sha(foreign)},before,[tmp_path/'build'])
 
 def test_header_snapshot_bounded_canonical_alias_and_escape(tmp_path):
  root=tmp_path/'headers';root.mkdir();file=root/'header.h';file.write_text('immutable');(root/'alias.h').symlink_to(file)
@@ -255,3 +263,112 @@ def test_opencv_rpath_config_bound_to_authoritative_command(tmp_path,monkeypatch
   if record['label']=='opencv-configure':record['argv']=['cmake',*flags]
  manifest.write_text(json.dumps(value))
  with pytest.raises(r.Failure,match='explicitly omit'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('field',[np.FILENAME,'native-tool-fixture'])
+def test_native_provenance_inputs_required(tmp_path,monkeypatch,field):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ value['inputs'].pop(field);manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='Missing/unexpected capability inputs'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('rehash',[False,True])
+def test_native_provenance_forgery_rejected(tmp_path,monkeypatch,rehash):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ proof=run.work/'capability'/np.FILENAME;data=json.loads(proof.read_text());data['sourceSha']='f'*40;proof.write_text(json.dumps(data))
+ if rehash:
+  value['nativeInputProvenance']=c.path_record(proof);value['inputs'][np.FILENAME]=c.path_record(proof)
+ manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='reference differs|proof/source/authority'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('mutation',['path','hash','extra','embedded','missing'])
+def test_native_proof_reference_exact_shape_path_and_hash(tmp_path,monkeypatch,mutation):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);ref=value['nativeInputProvenance']
+ if mutation=='path':ref['path']=str(tmp_path/'foreign.json')
+ elif mutation=='hash':ref['sha256']='0'*64
+ elif mutation=='extra':ref['schema']=1
+ elif mutation=='embedded':value['nativeInputProvenance']=json.loads((run.work/'capability'/np.FILENAME).read_text())
+ else:value.pop('nativeInputProvenance')
+ manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='reference differs'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+def test_native_proof_is_referenced_without_double_embedding(tmp_path,monkeypatch):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ assert set(value['nativeInputProvenance'])=={'path','sha256'}
+ assert value['nativeInputProvenance']==value['inputs'][np.FILENAME]
+ assert p.verify_capability(manifest,SHA,policy,run,prepared)==value
+
+@pytest.mark.parametrize('kind',['oversize','alias'])
+def test_native_provenance_file_bounded_unaliased(tmp_path,monkeypatch,kind):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);proof=run.work/'capability'/np.FILENAME
+ if kind=='oversize':proof.write_bytes(b' '*(16*1024**2+1))
+ else:
+  saved=proof.with_name('other-native.json');proof.rename(saved);proof.symlink_to(saved)
+ with pytest.raises(r.Failure):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('mutation',['missing','failed','non-authoritative'])
+def test_native_producer_label_is_required_authoritative_success(tmp_path,monkeypatch,mutation):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ if mutation=='missing':value['producer']['commands']=[v for v in value['producer']['commands'] if v['label']!='native-fixture-probe']
+ elif mutation=='failed':next(v for v in run.commands if v['label']=='native-fixture-probe')['exit']=1
+ else:run.commands=[v for v in run.commands if v['label']!='native-fixture-probe']
+ manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='transcript|authoritative'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+def test_native_validator_refusal_precedes_external_payload_read(tmp_path,monkeypatch):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ def refuse(*args):raise r.Failure('native owned-state refusal')
+ monkeypatch.setattr(np,'validate',refuse)
+ with pytest.raises(r.Failure,match='native owned-state refusal'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('member',[True,False])
+def test_only_exact_verified_system_link_member_admitted(tmp_path,monkeypatch,member):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);out=run.work/'capability'
+ external=tmp_path/'system-link-fixture'/'libfixture.so';external.parent.mkdir();external.write_bytes(b'SYNTHETIC_LINK_INPUT_NOT_ELF')
+ proof=json.loads((out/np.FILENAME).read_text());proof['systemLink']['inputs']={str(external):r.sha(external)} if member else {str(external.parent/'neighbor.so'):'0'*64}
+ (out/np.FILENAME).write_text(json.dumps(proof));value['inputs'][np.FILENAME]=c.path_record(out/np.FILENAME);value['nativeInputProvenance']=c.path_record(out/np.FILENAME)
+ consumed=json.loads((out/'consumed-inputs.json').read_text());consumed[str(external)]=r.sha(external)
+ rolemap={name:{'sha256':digest,'scope':'SYNTHETIC_VERIFIED_ROLE'} for name,digest in consumed.items()}
+ monkeypatch.setattr(np,'validate',lambda *args:rolemap)  # Policy boundary only, not real system-link qualification.
+ for name,data in [('consumed-inputs.json',consumed),('consumed-provenance.json',rolemap)]:
+  (out/name).write_text(json.dumps(data));value['inputs'][name]=c.path_record(out/name)
+ value['inputs']={k:v for k,v in value['inputs'].items() if not k.startswith('consumed-') or k.endswith('.json')}
+ value['inputs'].update({'consumed-'+str(i):c.path_record(Path(path)) for i,path in enumerate(sorted(consumed))})
+ manifest.write_text(json.dumps(value))
+ if member:assert p.verify_capability(manifest,SHA,policy,run,prepared)==value
+ else:
+  original=p.sha
+  def guard(path):
+   if Path(path)==external:pytest.fail('unadmitted external payload read')
+   return original(path)
+  monkeypatch.setattr(p,'sha',guard)
+  with pytest.raises(r.Failure,match='outside source/system/JDK closure'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+def test_consumed_rolemap_must_equal_verified_native_result(tmp_path,monkeypatch):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);file=run.work/'capability/consumed-provenance.json'
+ file.write_text('{}');value['inputs']['consumed-provenance.json']=c.path_record(file);manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='prebuild provenance mismatch'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('aliased',[False,True])
+def test_native_evidence_collector_retains_exact_six_files_only(tmp_path,aliased):
+ from tools.eight_view_host import controller as ctl
+ run=r.Runner(tmp_path,tmp_path/'work');out=run.work/'capability';out.mkdir()
+ names=[np.FILENAME,'native-opencv-generation-log.txt',*[f'native-{domain}-{phase}-log.txt' for domain in ('opencv','scanner') for phase in ('baseline','build')]]
+ for name in names:(out/name).write_text('{}\n' if name.endswith('.json') else '# ninja log v6\n')
+ (out/'unlisted-native-proof.json').write_text('do not retain')
+ (out/'build').mkdir();(out/'build/native.o').write_bytes(b'NOT AN UPLOAD')
+ if aliased:
+  (out/names[0]).unlink();(out/names[0]).symlink_to(out/'unlisted-native-proof.json')
+  with pytest.raises(r.Failure,match='symlink'):ctl.evidence_package(run,{'status':'FAIL'},tmp_path/'evidence')
+ else:
+  receipt={'status':'FAIL'};dest=ctl.evidence_package(run,receipt,tmp_path/'evidence')
+  assert {f.name for f in (dest/'capability').iterdir()}==set(names)
+  assert all((dest/'capability'/name).read_bytes()==(out/name).read_bytes() for name in names)
+
+@pytest.mark.parametrize('aggregate',[False,True])
+def test_native_proof_packaging_keeps_existing_size_caps(tmp_path,aggregate):
+ from tools.eight_view_host import controller as ctl
+ run=r.Runner(tmp_path,tmp_path/'work');out=run.work/'capability';out.mkdir()
+ # A logically bounded compact proof is not a promise that a duplicated,
+ # pretty-printed receipt fits the independent artifact byte caps.
+ (out/np.FILENAME).write_bytes(b' '*(16*1024**2 if aggregate else 16*1024**2+1))
+ if aggregate:(out/'capability.json').write_bytes(b' '*(16*1024**2))
+ with pytest.raises(r.Failure,match='size|byte/count'):ctl.evidence_package(run,{'status':'FAIL'},tmp_path/'evidence')

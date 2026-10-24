@@ -3,7 +3,7 @@ from pathlib import Path, PurePosixPath
 import hashlib, json, os, re, shlex, shutil, tarfile, time, urllib.request, urllib.parse, zipfile
 from tools.native_process import native_compile_env
 from .runtime import Failure, Blocked, sha, atomic_json, inventory
-from . import header_provider
+from . import header_provider, native_provenance
 HERE=Path(__file__).resolve().parent
 POLICY=HERE/'build-policy.json'
 
@@ -242,14 +242,12 @@ def prebuild_snapshot(run,roots):
     return result
 
 def bind_consumed(consumed,before,generated_roots):
+    """Legacy immutable-only helper: generated paths require native_provenance proof."""
     result={}
     for path,digest in consumed.items():
-        if path in before:
-            if before[path]!=digest:raise Failure('Compiler input changed between prebuild snapshot and consumed dependency')
-            result[path]={'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'}
-        elif Path(path) in {generated_roots[0]/'modules/java_bindings_generator/gen/cpp'/name for name in ('core.inl.hpp','imgproc.inl.hpp','features2d.inl.hpp','opencv_jni.hpp')}:
-            result[path]={'sha256':digest,'scope':'POST_GENERATION_ONLY_NOT_PRECONSUMPTION'}
-        else:raise Failure('Consumed immutable compiler input lacks prebuild identity')
+        if path not in before:raise Failure('Consumed input requires verified native producer provenance')
+        if before[path]!=digest:raise Failure('Compiler input changed between prebuild snapshot and consumed dependency')
+        result[path]={'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'}
     return result
 
 def consumed_inputs(run,ninja,builddir,label,extra_depfile=None):
@@ -286,6 +284,7 @@ def build(run,source_sha,prepared):
     for role in header_provider.PROVIDERS:
         receipt['inputs']['headerProviderDriver-'+str(role['major'])]=path_record(role['driver'])
     atomic_json(out/'pending.json',receipt)  # Retain admission even if the next unknown escape refuses.
+    native_inputs=native_provenance.begin(run,source_sha,compiler,cc,ninja,out)
     system_roots=[*system_header_roots(java),*header_provider.validate(provider,source_sha,run)]
     original=None
     try:immutable_before=prebuild_snapshot(run,system_roots)
@@ -318,10 +317,15 @@ def build(run,source_sha,prepared):
     if len(modules)!=1 or modules[0].decode().split()!=policy['opencvModules'] or not re.search(rb'Java wrappers:\s+YES \(JAVA\)',configure):
         raise Failure('Unreviewed OpenCV module/Java build graph')
     checks['opencvModules']=True
+    native_provenance.graph_before(run,native_inputs,builddir,'opencv_java','opencv')
+    opencv_deadline=run.clock()+run.remaining(1620)
+    native_provenance.pregenerate(run,native_inputs,cmake,min(120,opencv_deadline-run.clock()))
+    if source_inventory(source)!=before:raise Failure('Official source changed during pre-generation')
     immutable_before.update(prebuild_snapshot(run,[source,builddir]))
     if shutil.disk_usage(out).free<4*1024**3:raise Blocked('Four GiB free required before native build')
-    run.command('opencv-build',[cmake,'--build',builddir,'--target','opencv_java','--parallel','2'],seconds=1620,env=env)
-    if any(not (source/p).is_file() or sha(source/p)!=h for p,h in before.items()):raise Failure('Official source changed during build')
+    run.command('opencv-build',[cmake,'--build',builddir,'--target','opencv_java','--parallel','2'],seconds=max(0,opencv_deadline-run.clock()),env=env)
+    native_provenance.graph_after(run,native_inputs,builddir,'opencv')
+    if source_inventory(source)!=before:raise Failure('Official source changed during build')
     checks['sourceIntegrity']=True
     lib=builddir/'lib/libopencv_java4120.so';generated=builddir/'bin/opencv-4120.jar'
     atomic_json(out/'opencv-abi.json',verify_abi(run,javap,classes,generated,lib,policy['nativeClasses'],'opencv'))
@@ -333,8 +337,10 @@ def build(run,source_sha,prepared):
     checks['opencvSmoke']=True
     engine_build=out/'scanner';scanner_before=source_inventory(run.root/'reconstruction')
     run.command('scanner-configure',[cmake,'-S',run.root,'-B',engine_build,'-G','Ninja','-DCMAKE_BUILD_TYPE=Release','-DRF_REQUIRE_CAMPAIGN_031_060=ON',f'-DCMAKE_CXX_COMPILER={compiler}'],seconds=60,env=env)
+    native_provenance.graph_before(run,native_inputs,engine_build,'realityforge','scanner')
     immutable_before.update(prebuild_snapshot(run,[run.root/'reconstruction',engine_build]))
     run.command('scanner-build',[cmake,'--build',engine_build,'--target','realityforge','--parallel','2'],seconds=240,env=env)
+    native_provenance.graph_after(run,native_inputs,engine_build,'scanner')
     engine=engine_build/'librealityforge.so';shim=out/'librealityforge_jni.so';deps=out/'jni.d'
     declared,_=run.command('scanner-javap',[javap,'-classpath',prepared['classpathString'],'-private','-s','com.realityforge.scanner.engine.NativeCore'])
     if re.search(rb'\bstatic\s+native\b',declared):raise Failure('Unexpected static NativeCore JNI receiver')
@@ -366,10 +372,12 @@ def build(run,source_sha,prepared):
         receipt['inputs']['consumed-'+str(i)]={'path':path,'sha256':digest}
     atomic_json(out/'consumed-inputs.json',combined)
     atomic_json(out/'prebuild-inputs.json',immutable_before)
-    atomic_json(out/'consumed-provenance.json',bind_consumed(combined,immutable_before,[builddir,engine_build]))
+    atomic_json(out/'consumed-provenance.json',native_provenance.finish(run,native_inputs,combined,immutable_before))
+    receipt['nativeInputProvenance']=path_record(out/native_provenance.FILENAME)
+    for name,path in native_provenance.input_paths(native_inputs).items():receipt['inputs'][name]=path_record(path)
     for name in ['source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json']:
         receipt['inputs'][name]=path_record(out/name)
     header_provider.validate(provider,source_sha,run)
-    receipt['producer']={'runOwner':run.owner,'workDir':str(run.work),'sourceSha':source_sha,'commands':[{**record,'log':path_record(run.work/'logs'/(record['label']+'.raw.log'))} for record in run.commands if record['label'].startswith(('compiler-','opencv-','scanner-','header-provider-'))]}
+    receipt['producer']={'runOwner':run.owner,'workDir':str(run.work),'sourceSha':source_sha,'commands':[{**record,'log':path_record(run.work/'logs'/(record['label']+'.raw.log'))} for record in run.commands if record['label'].startswith(('compiler-','opencv-','scanner-','header-provider-','native-'))]}
     atomic_json(out/'capability.json',receipt)
     return out/'capability.json'

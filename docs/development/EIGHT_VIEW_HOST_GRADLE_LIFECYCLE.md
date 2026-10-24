@@ -450,3 +450,89 @@ seven enumerated source paths and message
 600 seconds within the existing 4,200-second overall deadline, which already
 reserves 120 seconds for cleanup; the reservation is not extra runtime.
 Actual hosted OpenCV output must still pass the unmodified strict ELF gate.
+
+## Role-bound consumed inputs after actual efb OpenCV success
+
+Actual `efb0f748a45d7e7523beec336e185e86ea303ff7` passed the unchanged
+OpenCV no-RPATH gate, Java smoke, scanner build/shim and native ABI/ELF/loader
+checks. It then refused consumed-input provenance before reconstruction
+(`pipelineAttempts=0`); restoration and cleanup passed. The retained ledger
+contains 1,087 consumed inputs and 19,948 prebuild inputs: 77 missing entries,
+zero shared digest mismatches. These comprise 21 OpenCV build products,
+37 scanner objects and 19 system linker/CRT/script/library inputs. `ninja -t
+deps` includes actual linker dependency records, not only source headers.
+The old immutable-only binder therefore cannot truthfully classify them.
+
+The replacement keeps three distinct, recomputed roles:
+
+* Immutable source/configured headers remain equal to their prebuild hashes.
+* A small, source-bound C++ shared-link probe selects the existing GNU driver's
+  CRT, scripts and transitive libraries using exactly `-ldl -lpthread -lrt -lz
+  -lm`. It runs before native builds, records the selected linker identity and
+  dependency file, and snapshots only those exact canonical external members.
+  Discovery itself is restricted to canonical `/usr/lib/gcc` and
+  `/usr/lib/x86_64-linux-gnu` locations; this is not directory-wide admission.
+  The probe's own fixed object is excluded explicitly. Actual later external
+  inputs must be unchanged members; `/usr/lib` is **not** generally admitted.
+* Generated objects/archives require a non-phony declared producing edge
+  reachable from the selected target, initial absence, a new current-run
+  successful owned build log record, recursively bound graph and actual
+  compiler/linker dependencies, and current regular-file identities/hashes.
+  This role is **postbuild current-run evidence, not preconsumption bytes**.
+
+The exact hosted Ninja binary is the official 1.13.2 Linux release (SHA-256
+`607e668f90dd6cd82e1a42ae572647ad1b1fd43063964295b9547836d8c15d99`).
+The controller still probes its version authoritatively and supports only
+that exercised protocol. It uses strict targets/graph/query, dependency and
+log-v7 formats, refusing unknown formats or incomplete records. Complete
+configured graph discovery is metadata only; admission is restricted to
+selected-target reachability. Canonical aliases are retained only when the
+same explicit graph edge produces them and their input/rule and log records
+agree. Ninja's log timestamp is a command-start/restat marker, not invariably
+a file timestamp; freshness uses initial absence, a new owned phase record
+and independently bound final stat/hash, never a fabricated timestamp match.
+
+Pinned OpenCV's Java generator declares only the `gen_opencv_java_source`
+stamp, not its JNI headers. Its OpenCL generator intentionally declares only
+`.cpp`, not `.hpp`. Those side effects cannot acquire a fictional graph edge.
+An exact owned pre-generation batch therefore runs the Java target and the
+three core/imgproc/features2d OpenCL `.cpp` targets, after verifying declared
+producer reachability and configuration. The source and configured graph
+must remain unchanged. The resulting bytes are snapshotted **before native
+compilation** and assigned an explicit generation-phase preconsumption role.
+A retained generation log distinguishes that phase from compilation; changed
+bytes or regeneration (even identical bytes) are refused. No upstream source
+editing or unconditional four-header exception remains.
+
+Generation and native compilation share the existing 1,620-second OpenCV
+allowance: generation has at most 120 seconds, and compilation receives only
+the remaining allowance. Overall 4,200 seconds including its 120-second
+cleanup reserve, the 600-second selected invocation, ELF/shim rules, SDK
+license snapshots, typed BA/eight-view selector and no-oracle gates do not
+change. Discovery is bounded to 24,000 nodes, 100,000 edges, 128 manifests and
+60,000 metadata entries; command argument/environment bytes must fit the
+actual system limit with reserve. Existing 8 MiB command logs, 16 MiB proof
+file and 32 MiB complete artifact bounds remain fail-closed. Capability
+receipts reference the single retained proof by exact path/hash rather than
+embedding it twice; oversize evidence is refused, not truncated into success.
+
+Local controls use official Ninja 1.13.2 and CMake 3.31.6 with the available
+local compiler/linker, not a claim that hosted GNU 13/OpenCV has rerun. Real
+fixtures cover undeclared generated-header side effects, objects, archive,
+shared linking, linker-script/transitive-archive discovery, failed generation
+and identical-byte regeneration. Adversarial controls cover source/header/
+output/system drift, unlisted/unreachable/phony producers, cycles, partial
+records, ambiguous aliases, stale logs, unknown targets, command limits and
+cancellation. Run with `RF_NINJA_FIXTURE_ROOT` pointing to a directory
+containing `1.13.2/ninja`, `RF_CMAKE_EXECUTABLE` selecting CMake and
+`RF_REQUIRE_NATIVE_PROVENANCE_TOOLS=1` to prohibit skipped real fixtures.
+Actual full OpenCV and reconstruction qualification still require hosted
+execution under every unchanged admission gate.
+
+The next one-shot is bound to exact parent
+`4e80a5afc26ef5aad04a5c2d1b76151a4d74b10f`, the nine enumerated changed paths,
+and message `fix: bind native compiler input provenance`. Event trigger paths
+remain the original workflow/controller pair; standalone test edits do not
+activate this diagnostic. The source-only fixture proof is about 290 KiB,
+not a guarantee that the larger actual OpenCV evidence will fit; the same
+per-file and aggregate caps must admit the complete hosted evidence.

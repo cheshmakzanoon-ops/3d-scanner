@@ -3,14 +3,15 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='aa340190a3babb8877be9d37b4f7ab953a7bad9a'
-MESSAGE='fix: omit OpenCV build runtime search paths'
+BASE_SHA='4e80a5afc26ef5aad04a5c2d1b76151a4d74b10f'
+MESSAGE='fix: bind native compiler input provenance'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
 ALLOWED_PATHS=frozenset((
     '.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py',
-    'tools/eight_view_host/capability.py','tests/test_eight_view_capability.py',
-    'tests/test_eight_view_rpath.py','docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md',
-    'SOURCE_MANIFEST.sha256'))  # Exact reviewed source union; no event-trigger expansion.
+    'tools/eight_view_host/capability.py','tools/eight_view_host/controller.py',
+    'tools/eight_view_host/native_provenance.py','tests/test_eight_view_capability.py',
+    'tests/test_eight_view_native_provenance.py',
+    'docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md','SOURCE_MANIFEST.sha256'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -85,7 +86,7 @@ def measurement_proof(result,pairs,identity,observations):
 
 def verify_capability(path,source,policy,run=None,prepared=None):
     """Recheck producer records, ABI, exact paths and native closure; flags alone never qualify."""
-    from . import capability as c,header_provider as hp
+    from . import capability as c,header_provider as hp,native_provenance as np
     from .controller import bounded_bytes
     import hashlib, shutil, zipfile
     if run is None or prepared is None:raise Failure('Authoritative owned producer/runtime context required')
@@ -123,14 +124,25 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         **{name:out/name for name in ['source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json']}}
     consumed=json.loads((out/'consumed-inputs.json').read_text())
     if not consumed or len(consumed)>24000:raise Failure('Missing/excessive consumed header closure')
+    before=json.loads((out/'prebuild-inputs.json').read_text())
+    if not before or len(before)>60000:raise Failure('Missing/excessive prebuild input closure')
+    native_path=out/np.FILENAME
+    if native_path.is_symlink() or native_path.resolve()!=native_path:raise Failure('Native provenance input alias')
+    native_raw=bounded_bytes(native_path,16*1024**2,run)
+    native_ref={'path':str(native_path),'sha256':hashlib.sha256(native_raw).hexdigest()}
+    if value.get('nativeInputProvenance')!=native_ref:raise Failure('Native provenance capability/input reference differs')
+    native_proof=json.loads(native_raw)
+    native_roles=np.validate(run,native_proof,consumed,before,source)
+    system_inputs=set(native_proof['systemLink']['inputs'])
+    expected_inputs.update(np.input_paths(native_proof))
     allowed_roots=[out,run.root/'reconstruction',java/'include',Path('/usr/include'),Path('/usr/lib/gcc'),*header_roots]
     for i,(name,digest) in enumerate(sorted(consumed.items())):
         f=Path(name)
-        if not f.is_absolute() or str(f)!=name or f.resolve(strict=True)!=f or not any(f.is_relative_to(root.resolve()) for root in allowed_roots):raise Failure('Consumed compiler input outside source/system/JDK closure')
+        if not f.is_absolute() or str(f)!=name or f.resolve(strict=True)!=f or not (name in system_inputs or any(f.is_relative_to(root.resolve()) for root in allowed_roots)):raise Failure('Consumed compiler input outside source/system/JDK closure')
         if sha(f)!=digest:raise Failure('Consumed compilation input changed')
         expected_inputs['consumed-'+str(i)]=f
-    before=json.loads((out/'prebuild-inputs.json').read_text());provenance=json.loads((out/'consumed-provenance.json').read_text())
-    if not before or len(before)>60000 or provenance!=c.bind_consumed(consumed,before,[out/'build',out/'scanner']):raise Failure('Consumed input prebuild provenance mismatch')
+    provenance=json.loads((out/'consumed-provenance.json').read_text())
+    if provenance!=native_roles:raise Failure('Consumed input prebuild provenance mismatch')
     if str((java/'include/jni.h').resolve()) not in consumed:raise Failure('Consumed JDK JNI header absent')
     if not any(Path(name).is_relative_to('/usr/include') for name in consumed):raise Failure('Consumed system headers absent')
     if set(value.get('inputs',{}))!=set(expected_inputs):raise Failure('Missing/unexpected capability inputs')
@@ -143,7 +155,7 @@ def verify_capability(path,source,policy,run=None,prepared=None):
     if (prepared['offlineFramework']!=value['inputs']['androidAll'] or provider['path']!=str(expected_inputs['androidAll']) or provider['sha256']!=requirements['androidAllSha256'] or sha(expected_inputs['androidAll'])!=requirements['androidAllSha256']
         or requirements['robolectricNativeProviderArchive']!='androidAll' or provider['entry']!=requirements['robolectricNativeRuntimeEntry'] or provider['entryBytes']!=requirements['robolectricNativeProviderEntryBytes'] or not 0<provider['entryBytes']<=requirements['robolectricNativeProviderMaximumBytes']):raise Failure('API35 provider is not the exact pinned framework entry')
     # The authoritative command records are held by this producer, not loaded from the manifest.
-    labels=[*hp.LABELS,'compiler-version','opencv-configure','opencv-build','opencv-symbols','opencv-consumed-deps','opencv-smoke-compile','opencv-smoke',
+    labels=[*np.labels(native_proof),*hp.LABELS,'compiler-version','opencv-configure','opencv-build','opencv-symbols','opencv-consumed-deps','opencv-smoke-compile','opencv-smoke',
             'scanner-configure','scanner-build','scanner-javap','scanner-shim','scanner-consumed-deps','scanner-symbols']
     labels += [f'opencv-{kind}-{i}' for i in range(len(requirements['nativeClasses'])) for kind in ('aar','generated')]
     labels += [prefix+'-'+part for prefix in ('opencv','scanner-engine','scanner-shim') for part in ('elf-header','elf-dynamic','ldd')]
