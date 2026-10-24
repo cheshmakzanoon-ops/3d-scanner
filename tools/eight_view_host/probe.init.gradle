@@ -29,13 +29,92 @@ allprojects { afterEvaluate { if (path == ':app') {
   new ZipFile(aar).withCloseable { z -> assert z.getEntry('classes.jar'); bytes=z.getInputStream(z.getEntry('classes.jar')).bytes }
   File classes=new File(output,'aar-classes.jar')
   if(classes.exists()) assert sha(classes.bytes)==sha(bytes) else classes.bytes=bytes
-  def expected=zipClasses(classes);def original=hostProvider.get().classpath.files.toList();def replaced=[]
+  def expected=zipClasses(classes);def original=hostProvider.get().classpath.files.toList();def replaced=[];def coreProviders=[:]
   def cp=original.collect { f ->
    if(f.isFile() && f.name.endsWith('.jar')) {
     def content=zipClasses(f)
-    if(content.containsKey('org/opencv/core/Core.class')) { assert content==expected : 'OpenCV transformed provider differs'; replaced<<f; return classes }
+    if(content.containsKey('org/opencv/core/Core.class')) {
+     assert content==expected : 'OpenCV transformed provider differs'
+     coreProviders[f]=[classCount:content.size(),coreSha256:content['org/opencv/core/Core.class'],
+       classMapSha256:sha(JsonOutput.toJson(new TreeMap(content)).getBytes('UTF-8')),
+       owners:ownerNames.collectEntries { name -> [name,content[name.replace('.','/')+'.class']] }]
+     replaced<<f; return classes
+    }
    }
    f
+  }
+  if(replaced.size()!=1) {
+   try {
+   // Diagnostic only: never select, deduplicate, append or accept another provider.
+   // Existing command-log sanitization/byte limits apply; this record is <=256 KiB.
+   def pathInfo = { File f ->
+    String absolute=f.absolutePath;String canonical=f.canonicalPath
+    [path:absolute.take(1024),canonicalPath:canonical.take(1024),
+     pathTruncated:absolute.length()>1024,canonicalPathTruncated:canonical.length()>1024,
+     pathSha256:sha(absolute.getBytes('UTF-8')),canonicalPathSha256:sha(canonical.getBytes('UTF-8'))]
+   }
+   def fileSha = { File f ->
+    def digest=MessageDigest.getInstance('SHA-256')
+    f.withInputStream { stream -> byte[] buffer=new byte[65536];int n
+     while((n=stream.read(buffer))!=-1) digest.update(buffer,0,n)
+    };digest.digest().encodeHex().toString()
+   }
+   // Known matching JARs must survive a late classpath position. Directory
+   // discovery is metadata-only and bounded; no extra JAR scan is performed.
+   def matchingIndices=(0..<original.size()).findAll { coreProviders.containsKey(original[it]) }
+   int metadataLimit=Math.min(original.size(),4096)
+   def directoryIndices=(0..<metadataLimit).findAll { index ->
+    File f=original[index];f.isDirectory() && new File(f,'org/opencv/core/Core.class').isFile()
+   }
+   def selectedIndices=(matchingIndices+directoryIndices+(0..<Math.min(original.size(),256)).toList()).unique().take(256)
+   def rows=[]
+   selectedIndices.each { index ->
+    File f=original[index]
+    def row=pathInfo(f)+[index:index,symlink:java.nio.file.Files.isSymbolicLink(f.toPath()),
+      type:f.isDirectory()?'directory':f.isFile()?(f.name.endsWith('.jar')?'jar':'other-file'):'missing',
+      bytes:f.isFile()?f.length():null]
+    if(f.isFile() && f.name.endsWith('.jar')) {
+     row.corePresent=coreProviders.containsKey(f)
+     if(row.corePresent) row.putAll(coreProviders[f]+[matchesExpectedClassMap:true])
+    } else if(f.isDirectory()) {
+     File core=new File(f,'org/opencv/core/Core.class')
+     row.corePresent=core.isFile();row.coreSymlink=java.nio.file.Files.isSymbolicLink(core.toPath())
+     if(row.corePresent) {
+      row.coreBytes=core.length()
+      row.coreHashOmitted=row.symlink || row.coreSymlink || row.coreBytes>4*1024*1024 ||
+       core.canonicalPath!=new File(f.canonicalFile,'org/opencv/core/Core.class').absolutePath
+      if(!row.coreHashOmitted) row.coreSha256=fileSha(core)
+     }
+    } else row.corePresenceNotExamined=true
+    rows<<row
+   }
+   def diagnostic=[schema:1,reason:'existing-opencv-provider-count',phase:cfg.phase,
+     matchingJarCount:replaced.size(),classpathEntryCount:original.size(),entries:rows,
+     entryOrder:'matching-jars-then-observed-directory-core-then-original-index',
+     directoryMetadataEntriesExamined:metadataLimit,directoryMetadataEntriesOmitted:original.size()-metadataLimit,
+     directoryCoreObservedCount:directoryIndices.size(),
+     entriesOmitted:original.size()-rows.size(),truncated:original.size()>rows.size(),
+     expectedAar:pathInfo(aar)+[sha256:fileSha(aar)],
+     expectedClasses:[sha256:sha(bytes),classCount:expected.size(),
+       coreSha256:expected['org/opencv/core/Core.class'],
+       classMapSha256:sha(JsonOutput.toJson(new TreeMap(expected)).getBytes('UTF-8'))]]
+   def updateOmissions = { ->
+    diagnostic.matchingJarRowsOmitted=matchingIndices.size()-rows.count { matchingIndices.contains(it.index) }
+    diagnostic.directoryCoreRowsOmitted=directoryIndices.size()-rows.count { directoryIndices.contains(it.index) }
+   }
+   updateOmissions()
+   String encoded=JsonOutput.toJson(diagnostic)
+   while(encoded.getBytes('UTF-8').length>250*1024 && !rows.isEmpty()) {
+    rows.remove(rows.size()-1);diagnostic.entriesOmitted=original.size()-rows.size();diagnostic.truncated=true
+    updateOmissions();encoded=JsonOutput.toJson(diagnostic)
+   }
+   println('EIGHT_VIEW_PROVIDER_DIAGNOSTIC '+encoded)
+   } catch(Exception diagnosticError) {
+    // A diagnostic I/O problem must not replace the original fail-closed refusal.
+    println('EIGHT_VIEW_PROVIDER_DIAGNOSTIC '+JsonOutput.toJson([schema:1,
+      reason:'existing-opencv-provider-count',matchingJarCount:replaced.size(),
+      diagnosticIncomplete:true,errorType:diagnosticError.getClass().getName()]))
+   }
   }
   assert replaced.size()==1 : 'exactly one existing OpenCV runtime provider expected'
   assert cp.collect {it.canonicalPath}.toSet().size()==cp.size()

@@ -50,3 +50,37 @@ Without the runtime prerequisite, the runtime test explicitly skips; this is not
 qualification. Actual Gradle 8.13 synthetic lifecycle execution does not establish
 AGP compatibility, OpenCV/JNI loading, Android compilation, emulator execution,
 reconstruction quality or physical-device readiness. Those remain separate gates.
+
+## Provider-count refusal diagnostics
+
+The subsequent `c11519cffb670d0930510e40e7e1c0e1d7f91852` HOST attempt passed
+configuration and compilation, but preparation refused the existing OpenCV
+provider count. Its retained log did not report the count or paths, so zero,
+duplicate and non-JAR providers cannot be distinguished from that artifact.
+AGP's runtime `AarToClassTransform` and `AarTransform` resource path can expose
+different containers; source inspection alone does not establish this run's inputs.
+
+On that same refusal only, the probe now emits one structured
+`EIGHT_VIEW_PROVIDER_DIAGNOSTIC` record into the already-retained Gradle command
+log. It includes the actual matching-JAR count, original entry indices, kinds and path
+identities, Core presence, matching class-map/native-owner hashes, and expected
+AAR/classes hashes. Directory Core hashes are bounded and omitted for oversized
+or aliased/symlinked files. Paths are capped at 1024 characters with explicit
+truncation flags and full-path hashes. At most 256 entries are reported; the
+record is trimmed below 256 KiB with omitted-entry counts. Known matching JARs
+have priority regardless of original index, then directories with observed Core,
+then generic entries; byte trimming removes generic entries first. Directory Core
+discovery uses at most4096 metadata checks, with unexamined counts explicit. No
+additional JAR scan is performed. Matching-JAR and observed-directory omissions
+are counted separately; the execution classpath order is never changed. Diagnostic I/O failure
+is identified without replacing the original refusal. Existing log sanitization
+and artifact limits are unchanged; no class bytes or additional artifacts are
+uploaded. The successful path does not log this record.
+
+This is diagnostic-only: the exact-one-provider assertion, complete class-byte
+comparison and later owner binding remain unchanged. No provider is selected,
+dropped, deduplicated or appended as a workaround. Real Gradle synthetic tests
+cover single, zero, duplicate, directory, truncated, late providers, byte-cap
+trimming and differing-byte cases;
+these are not OpenCV/AGP runtime qualification. A further actual-run inventory is
+needed before selecting any production remediation.
