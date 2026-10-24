@@ -637,9 +637,95 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed):
     identity=json.loads(bounded_bytes(run.work/'measurement/input-identity.json',64*1024,run))
     return {'junit':proof,'measurement':policy.measurement_proof(result,pairs,identity,observed),'runtimeProviders':runtime_provider_proof(run,source,cap,verified),'capabilitySha256':sha(cap)}
 
+def failure_descriptor(error,phase=None):
+    """Scan the entire original message before producing a bounded diagnostic preview."""
+    metadata=None
+    if isinstance(error,dict):
+        kind=str(error.get('type','Failure'));status=str(error.get('status','FAIL'));message=str(error.get('message',''))
+        phase=error.get('phase',phase);candidate=error.get('messageMetadata')
+        if (isinstance(candidate,dict) and set(candidate)=={'bytes','sha256','displayStatus','truncated','withheld'}
+            and type(candidate['bytes']) is int and 0<=candidate['bytes']<=2**63-1
+            and isinstance(candidate['sha256'],str) and re.fullmatch('[0-9a-f]{64}',candidate['sha256'])
+            and candidate['displayStatus'] in ('SANITIZED_DIAGNOSTIC','WITHHELD_SECRET_MARKER')
+            and type(candidate['truncated']) is bool and type(candidate['withheld']) is bool):metadata=dict(candidate)
+    else:kind=type(error).__name__;status=getattr(error,'status','FAIL');message=str(error)
+    raw=message.encode('utf-8','replace');display,safety=safe_display(raw)
+    withheld=safety=='WITHHELD_SECRET_MARKER' or bool(metadata and metadata['withheld'])
+    preview=display[:4096].decode('utf-8','ignore') if not withheld else ''
+    if metadata is None:metadata={'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'displayStatus':safety,'truncated':False,'withheld':False}
+    metadata.update(truncated=metadata['truncated'] or len(display)>len(preview.encode()) and not withheld,
+                    withheld=withheld,displayStatus='WITHHELD_SECRET_MARKER' if withheld else 'SANITIZED_DIAGNOSTIC')
+    result={'type':kind,'status':status,'message':preview,'messageMetadata':metadata}
+    if phase is not None:result['phase']=str(phase)
+    for key in ('type','status','phase'):
+        if key not in result:continue
+        encoded=str(result[key]).encode('utf-8','replace')
+        if len(encoded)>128 or safe_display(encoded)[1]=='WITHHELD_SECRET_MARKER':
+            result[key]='WITHHELD_OR_OVERSIZED_LABEL'
+            result[key+'Metadata']={'bytes':len(encoded),'sha256':hashlib.sha256(encoded).hexdigest()}
+    if isinstance(error,dict):
+        for key in ('typeMetadata','statusMetadata','phaseMetadata'):
+            old=error.get(key)
+            if key not in result and isinstance(old,dict) and set(old)=={'bytes','sha256'} and type(old['bytes']) is int and 0<=old['bytes']<=2**63-1 and isinstance(old['sha256'],str) and re.fullmatch('[0-9a-f]{64}',old['sha256']):result[key]=dict(old)
+    return result
+
+def bounded_failures(receipt):
+    result=dict(receipt)
+    if 'firstFailure' in result:result['firstFailure']=failure_descriptor(result['firstFailure'])
+    errors=result.get('secondaryErrors',[])
+    if errors:
+        result['secondaryErrors']=[failure_descriptor(e) for e in errors[:16]]
+        if len(errors)>16:
+            raw=json.dumps(errors[16:],sort_keys=True).encode()
+            result['secondaryErrorsOmitted']={'count':len(errors)-16,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+    return result
+
+def compact_receipt(receipt):
+    safe=bounded_failures(receipt)
+    result={key:safe[key] for key in ('schema','status','sourceSha','pipelineAttempts','ownedCleanup','firstFailure','secondaryErrors','secondaryErrorsOmitted','commandsReference','commandTranscriptFailure') if key in safe}
+    result['evidence']={'complete':False,'terminalSeal':'COMPACT_INCOMPLETE_NOT_QUALIFICATION'}
+    omitted=sorted(set(receipt)-set(result));raw=json.dumps(omitted).encode()
+    result['receiptFieldsOmitted']={'count':len(omitted),'sha256':hashlib.sha256(raw).hexdigest()}
+    # Unknown top-level text is not trusted merely because it has a familiar key.
+    for key in list(result):
+        encoded=json.dumps(result[key]).encode()
+        if len(encoded)>(224*1024 if key=='secondaryErrors' else 16*1024) or safe_display(encoded)[1]=='WITHHELD_SECRET_MARKER':
+            result[key]={'withheld':True,'bytes':len(encoded),'sha256':hashlib.sha256(encoded).hexdigest()}
+    raw=(json.dumps(result,sort_keys=True,indent=2)+'\n').encode()
+    if len(raw)>256*1024:
+        for key in ('commandsReference','commandTranscriptFailure','sourceSha','ownedCleanup','pipelineAttempts','schema'):
+            result.pop(key,None)
+        result['receiptFieldsOmitted']['additionalOptionalFieldsOmitted']=True
+    if len((json.dumps(result,sort_keys=True,indent=2)+'\n').encode())>256*1024:raise Failure('Compact receipt framing byte limit')
+    return result
+
+def command_reference(run):
+    path=run.work/'commands.json'
+    if not path.exists() and not run.commands:atomic_json(path,[])  # Genuine no-command early refusal.
+    raw=bounded_bytes(path,16*1024**2,run);commands=json.loads(raw)
+    if not isinstance(commands,list) or commands!=run.commands:raise Failure('Command transcript differs from owned records')
+    return {'path':'commands.json','bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'count':len(commands)}
+
+def validate_command_reference(destination,receipt,run=None):
+    if receipt.get('status')!='PASS' and 'commandsReference' not in receipt and not receipt.get('commandTranscriptRequired'):return
+    try:
+        ref=receipt.get('commandsReference')
+        if not isinstance(ref,dict) or set(ref)!={'path','bytes','sha256','count'} or ref['path']!='commands.json' or type(ref['bytes']) is not int or type(ref['count']) is not int:raise Failure('Malformed command transcript reference')
+        raw=bounded_bytes(destination/'commands.json',16*1024**2,run)
+        if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':raise Failure('Command transcript withheld')
+        commands=json.loads(raw)
+        if not isinstance(commands,list) or len(commands)!=ref['count'] or len(raw)!=ref['bytes'] or hashlib.sha256(raw).hexdigest()!=ref['sha256']:raise Failure('Command transcript reference mismatch')
+        if run is not None and commands!=run.commands:raise Failure('Command transcript differs from owned records')
+    except (OSError,ValueError,Failure) as error:
+        if receipt.get('status')=='PASS':receipt['status']='FAIL'
+        receipt.setdefault('evidence',{})['complete']=False
+        receipt['commandTranscriptFailure']=failure_descriptor(error)
+
 def seal_receipt(destination,receipt,run=None):
     destination=Path(destination)
     inventory(destination,32*1024**2,2000,seconds=phase_budget(run))
+    receipt.update(bounded_failures(receipt))
+    validate_command_reference(destination,receipt,run)
     raw=(json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()
     if len(raw)>256*1024:raise Failure('Terminal receipt framing byte limit')
     if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':raise Failure('Terminal receipt withheld for secret marker')
@@ -704,11 +790,10 @@ def emergency_terminal_downgrade(destination,receipt):
     destination=Path(destination)
     if destination.is_symlink() or not destination.is_dir():raise Failure('Emergency evidence destination unavailable')
     if receipt.get('status')=='PASS':raise Failure('Emergency terminal path cannot publish PASS')
-    final=dict(receipt);final['evidence']={'complete':False,'terminalSeal':'EMERGENCY_INCOMPLETE_NOT_QUALIFICATION'}
+    final=bounded_failures(receipt);final['evidence']={'complete':False,'terminalSeal':'EMERGENCY_INCOMPLETE_NOT_QUALIFICATION'}
     raw=(json.dumps(final,sort_keys=True,indent=2)+'\n').encode()
     if len(raw)>256*1024 or safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
-        final={key:receipt.get(key) for key in ('schema','status','sourceSha','pipelineAttempts','ownedCleanup')}
-        final.update(firstFailureType=receipt.get('firstFailure',{}).get('type'),evidence={'complete':False,'terminalSeal':'EMERGENCY_COMPACT_INCOMPLETE'})
+        final=compact_receipt(receipt)
     # Invalidate status first; even a malformed old manifest must not preserve stale PASS.
     atomic_json(destination/'receipt.json',final)
     raw=bounded_bytes(destination/'receipt.json',256*1024)
@@ -727,11 +812,10 @@ def emergency_terminal_downgrade(destination,receipt):
 def emit_incomplete_essential(run,receipt):
     # Last bounded console attempt, even if artifact IO/deadline prevented normal sealing.
     # This is explicitly incomplete evidence, never an alternate success path.
+    receipt=bounded_failures(receipt)
     raw=(json.dumps(receipt,sort_keys=True)+'\n').encode()
     if len(raw)>256*1024 or safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
-        raw=(json.dumps({'schema':1,'status':receipt['status'],'pipelineAttempts':receipt.get('pipelineAttempts',0),
-            'sourceSha':receipt.get('sourceSha'),'firstFailureType':receipt.get('firstFailure',{}).get('type'),
-            'evidence':'INCOMPLETE_RECEIPT_WITHHELD_OR_OVERSIZE'})+'\n').encode()
+        raw=(json.dumps(compact_receipt(receipt))+'\n').encode()
     frame('terminal-incomplete',raw)
     path=run.work/'measurement/failure.json'
     if path.exists():
@@ -750,8 +834,8 @@ def main():
     first=None;sdk=None;licenses=None;restore=False;cap=None
     def secondary(label,error):
         nonlocal first
-        receipt.setdefault('secondaryErrors',[]).append({'phase':label,'type':type(error).__name__,'message':str(error)})
-        if first is None:first=error
+        receipt.setdefault('secondaryErrors',[]).append(failure_descriptor(error,label))
+        if first is None:first=error;receipt['firstFailure']=failure_descriptor(error)
     try:
         event=json.loads(Path(env['GITHUB_EVENT_PATH']).read_text());source=policy.event_guard(env,event)
         receipt.update(policy.source_guard(run,source))
@@ -763,7 +847,7 @@ def main():
         receipt['result']=run_probe(run,source,config,cfg,prepared,cap,inputs,observed)
         receipt['status']='PENDING_RESTORATION'
     except BaseException as error:
-        first=error;receipt['firstFailure']={'type':type(error).__name__,'message':str(error),'status':getattr(error,'status','FAIL')}
+        first=error;receipt['firstFailure']=failure_descriptor(error)
     finally:
         if restore and not run.signal:
             try:
@@ -794,8 +878,9 @@ def main():
         elif run.clock()>=run.end:receipt['status']='TIMEOUT'
         receipt['pipelineAttempts']=getattr(run,'pipeline_attempts',0)
         if hasattr(run,'runtime_input_postcheck'):receipt['runtimeInputPostcheck']=run.runtime_input_postcheck
-        receipt['seconds']=round(run.clock()-run.started,3);receipt['commands']=run.commands
+        receipt['seconds']=round(run.clock()-run.started,3);receipt['commandTranscriptRequired']=True
         try:
+            receipt['commandsReference']=command_reference(run)
             output=evidence_package(run,receipt,evidence)
             if run.signal:receipt['status']='CANCELLED';seal_receipt(output,receipt,run)
             elif run.clock()>=run.end:receipt['status']='TIMEOUT';seal_receipt(output,receipt,run)

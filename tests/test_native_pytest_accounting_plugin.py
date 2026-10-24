@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 from _pytest.reports import TestReport
+from tools.native_process import native_compile_env
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('accounting_plugin', ROOT / 'tools/qa/native_regression/pytest_accounting.py')
@@ -20,15 +21,28 @@ SPEC.loader.exec_module(plugin)
 
 def execute(tmp_path, source, *, hosted=False, extra=(), env_extra=None):
     (tmp_path / 'test_sample.py').write_text(source)
-    env = os.environ.copy()
+    # These fixed pytest/unittest snippets generate protocol artifacts only.
+    # Never use this launcher for candidate execution or full-suite collection.
+    env = native_compile_env()
+    for key in ('RF_NATIVE_LIBRARY', 'RF_NATIVE_CXX', 'LD_LIBRARY_PATH',
+                'PYTEST_ADDOPTS', 'PYTEST_PLUGINS', 'PYTHONHOME',
+                'PYTHONUSERBASE', 'PYTHONSTARTUP'):
+        env.pop(key, None)
     env.update(PYTHONPATH=str(ROOT), PYTEST_DISABLE_PLUGIN_AUTOLOAD='1',
                RF_PYTEST_SOURCE_SHA='a' * 40, RF_NATIVE_CONFIG='gcc-release')
     for key in ('RF_PYTEST_REPOSITORY', 'RF_PYTEST_RUN_ID'):
         env.pop(key, None)
     if hosted:
         env.update(RF_PYTEST_REPOSITORY='owner/repo', RF_PYTEST_RUN_ID='123:2')
+    if set(env_extra or {}) - {'RF_PYTEST_SOURCE_SHA', 'RF_NATIVE_CONFIG',
+                               'RF_PYTEST_REPOSITORY', 'RF_PYTEST_RUN_ID'}:
+        raise ValueError('Only accounting identity overrides are supported')
     env.update(env_extra or {})
-    result = subprocess.run([sys.executable, '-m', 'pytest', '-q', '-p',
+    config = tmp_path / 'accounting-fixture.ini'
+    config.write_text('[pytest]\n')
+    result = subprocess.run([sys.executable, '-s', '-m', 'pytest', '-q',
+                             '-c', str(config), '--rootdir=' + str(tmp_path),
+                             '--confcutdir=' + str(tmp_path), '-p',
                              'tools.qa.native_regression.pytest_accounting',
                              '--junitxml=raw.xml', '--rf-pytest-accounting=receipt.json',
                              *extra, 'test_sample.py'], cwd=tmp_path, env=env,
@@ -213,3 +227,68 @@ def test_custom_report_attributes_fail_closed(tmp_path, monkeypatch, attribute):
 def test_actual_xfail_cannot_produce_accepted_accounting(tmp_path):
     result, data = execute(tmp_path, 'import pytest\n@pytest.mark.xfail(reason="outside native accounting domain")\ndef test_xfail(): assert False\n')
     assert result.returncode != 0 and data is None
+
+
+@pytest.mark.parametrize('fails', [False, True])
+def test_artifact_child_isolates_loader_native_and_pytest_entrypoints(tmp_path, monkeypatch, fails):
+    """Actual interpreter launch, not a mocked environment assertion."""
+    parent = tmp_path / 'ancestor'
+    child = parent / 'fixture'
+    child.mkdir(parents=True)
+    marker = tmp_path / 'unexpected-plugin-executed'
+    poison = f'from pathlib import Path\nPath({str(marker)!r}).write_text("executed")\nraise RuntimeError("poison plugin")\n'
+    (parent / 'conftest.py').write_text(poison)
+    (parent / 'pytest.ini').write_text('[pytest]\naddopts = -p poison_config\n')
+    for name in ('poison_config', 'poison_env', 'poison_addopts'):
+        (child / (name + '.py')).write_text(poison)
+    injected = tmp_path / 'injected-python'
+    injected.mkdir()
+    (injected / 'sitecustomize.py').write_text(poison)
+    environment = dict(
+        LD_PRELOAD='/candidate/never-load.so', LD_AUDIT='/candidate/never-audit.so',
+        LD_LIBRARY_PATH='/candidate/libraries', RF_NATIVE_LIBRARY='/candidate/librealityforge.so',
+        RF_NATIVE_CXX='/candidate/compiler', PYTHONPATH=str(injected),
+        PYTHONHOME='/candidate/python-home', PYTHONUSERBASE='/candidate/user-base',
+        PYTHONSTARTUP=str(injected / 'sitecustomize.py'),
+        PYTEST_PLUGINS='poison_env', PYTEST_ADDOPTS='-p poison_addopts',
+        ASAN_OPTIONS='halt_on_error=1:detect_leaks=1',
+        UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
+        LSAN_OPTIONS='exitcode=23', RF_NATIVE_CONFIG='clang-sanitize')
+    for key, value in environment.items():
+        monkeypatch.setenv(key, value)
+    before = dict(os.environ)
+    source = '''import os, sys, pytest
+
+def test_artifact_boundary(subtests):
+    for key in ('LD_PRELOAD', 'LD_AUDIT', 'LD_LIBRARY_PATH', 'RF_NATIVE_LIBRARY',
+                'RF_NATIVE_CXX', 'PYTEST_PLUGINS', 'PYTEST_ADDOPTS', 'PYTHONHOME',
+                'PYTHONUSERBASE', 'PYTHONSTARTUP'):
+        assert key not in os.environ
+    assert os.environ['ASAN_OPTIONS'] == 'halt_on_error=1:detect_leaks=1'
+    assert os.environ['UBSAN_OPTIONS'] == 'halt_on_error=1:print_stacktrace=1'
+    assert os.environ['LSAN_OPTIONS'] == 'exitcode=23'
+    assert os.environ['RF_NATIVE_CONFIG'] == 'gcc-release'
+    assert os.environ['PYTEST_DISABLE_PLUGIN_AUTOLOAD'] == '1'
+    assert not any(name in sys.modules for name in
+                   ('tools.native_api', 'tools.native_test_build', 'ctypes'))
+    assert sys.flags.no_user_site == 1
+    with subtests.test(part='success'): assert True
+    with subtests.test(part='skip'): pytest.skip('retained optional subtest')
+'''
+    if fails:
+        source += '\ndef test_genuine_failure(): assert False\n'
+    result, data = execute(child, source)
+    assert result.returncode == int(fails), result.stdout
+    assert data['session_exitstatus'] == int(fails) and data['completed'] is True
+    assert any(e['outcome'] == 'failed' for e in data['events']) is fails
+    assert [e['outcome'] for e in data['events'] if e['subtest']] == ['passed', 'skipped']
+    assert not marker.exists()
+    assert 'cannot be preloaded' not in result.stdout and 'poison plugin' not in result.stdout
+    assert dict(os.environ) == before
+
+
+@pytest.mark.parametrize('key', ['LD_PRELOAD', 'RF_NATIVE_LIBRARY', 'PYTEST_PLUGINS', 'PYTHONPATH'])
+def test_artifact_launcher_overrides_cannot_reopen_execution_entrypoints(tmp_path, key):
+    with pytest.raises(ValueError, match='Only accounting identity'):
+        execute(tmp_path, 'def test_good(): pass', env_extra={key: '/candidate/injection'})
+    assert not (tmp_path / 'receipt.json').exists()

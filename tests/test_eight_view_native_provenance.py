@@ -300,3 +300,71 @@ def test_system_discovery_location_is_not_arbitrary(path):
 def test_system_discovery_checks_resolved_alias_without_reading_target(tmp_path):
  outside=tmp_path/'outside';outside.write_bytes(b'not a system input');alias=tmp_path/'alias';alias.symlink_to(outside)
  with pytest.raises(Failure,match='discovery locations'):p.system_location(alias.resolve(strict=True),tmp_path/'work')
+
+
+def generation_alias_graph():
+ base='/fixture/build';nodes={};paths={};producers={}
+ def node(name,rule,inputs=()):
+  nodes[name]={'rule':rule,'inputs':[{'name':i,'kind':'explicit'} for i in inputs]};paths[name]=base+'/'+name
+  if rule not in (None,'phony'):producers[name]='edge:'+name
+ node('source','');nodes['source']['rule']=None
+ node('java.stamp','CUSTOM_COMMAND',['source'])
+ node('nested-java','phony',['java.stamp'])
+ node(p.GEN_TARGETS[0],'phony',['nested-java'])
+ for name in p.GEN_TARGETS[1:]:node(name,'CUSTOM_COMMAND',['source'])
+ node('opencv_java','phony',['nested-java',*p.GEN_TARGETS[1:]])
+ return {'nodes':nodes,'paths':paths,'producers':producers,'reachable':p.reachable(nodes,paths,producers,'opencv_java')}
+
+
+def test_only_approved_selector_own_phony_identity_can_differ():
+ graph=generation_alias_graph();allowed,bindings=p.generation_selection(graph)
+ assert graph['paths'][p.GEN_TARGETS[0]] not in allowed
+ assert bindings[p.GEN_TARGETS[0]]['selectorOnlyPhonyException'] is True
+ assert bindings[p.GEN_TARGETS[0]]['producerEdges']==['edge:java.stamp']
+ assert all(not bindings[name]['selectorOnlyPhonyException'] for name in p.GEN_TARGETS[1:])
+ assert allowed<=set(graph['reachable'])
+
+
+@pytest.mark.parametrize('case',['leaf','producer','nested-phony','nonphony-selector','no-producer'],ids=str)
+def test_selector_equivalence_never_expands_dependency_or_producer_cone(case):
+ graph=generation_alias_graph();selector=p.GEN_TARGETS[0]
+ if case=='nonphony-selector':graph['nodes'][selector]['rule']='CUSTOM_COMMAND';graph['producers'][selector]='edge:selector'
+ elif case=='no-producer':graph['nodes'][selector]['inputs']=[{'name':'source','kind':'explicit'}]
+ else:
+  rule={'leaf':None,'producer':'CUSTOM_COMMAND','nested-phony':'phony'}[case]
+  graph['nodes']['extra']={'rule':rule,'inputs':[] if case=='leaf' else [{'name':'java.stamp','kind':'explicit'}]}
+  graph['paths']['extra']='/fixture/build/extra'
+  if rule=='CUSTOM_COMMAND':graph['producers']['extra']='edge:extra'
+  graph['nodes'][selector]['inputs'].append({'name':'extra','kind':'explicit'})
+ with pytest.raises(Failure,match='outside selected|no concrete producer'):p.generation_selection(graph)
+
+
+def test_actual_e1fee_graph_replay_binds_selector_without_new_producers():
+ import zipfile
+ filename=os.environ.get('RF_NATIVE_REPLAY_ZIP')
+ if not filename:
+  if os.environ.get('RF_REQUIRE_NATIVE_REPLAY')=='1':pytest.fail('Required retained actual graph replay artifact missing')
+  pytest.skip('Retained actual-run artifact unavailable; no hosted replay claim')
+ archive=Path(filename)
+ assert archive.stat().st_size<=32*1024**2
+ assert sha(archive)=='594ac0907f5f99633a242a6ac4ab3229b63263178c2b698586f87cc84911f075'
+ with zipfile.ZipFile(archive) as z:
+  def raw(name):
+   assert z.getinfo(name).file_size<=8*1024**2
+   return z.read(name)
+  names,producers=p.graph_info(raw('logs/native-opencv-graph.raw.log'));nodes={}
+  for index in range(0,len(names),64):nodes.update(p.parse_query(raw('logs/native-opencv-query-'+str(index//64)+'.raw.log'),names[index:index+64]))
+  build=Path('/home/runner/work/_temp/rf-eight-work/capability/build');paths={n:p.canonical(n,build) for n in names}
+  p.aliases_for(nodes,paths,producers)
+  selected=p.reachable(nodes,paths,producers,'opencv_java')
+  graph={'nodes':nodes,'paths':paths,'producers':producers,'reachable':selected}
+  allowed,bindings=p.generation_selection(graph)
+  assert len(names)==1810 and len(selected)==754
+  assert set(p.reachable(nodes,paths,producers,p.GEN_TARGETS[0]))-set(selected)=={paths[p.GEN_TARGETS[0]]}
+  assert bindings[p.GEN_TARGETS[0]]['selectorOnlyPhonyException'] is True
+  assert allowed<=set(selected)
+  assert all(not bindings[t]['selectorOnlyPhonyException'] for t in p.GEN_TARGETS[1:])
+  # All recursive inputs are retained; mutate actual graph with an extra leaf and refuse.
+  graph=copy.deepcopy(graph);graph['nodes']['foreign']={'rule':None,'inputs':[]};graph['paths']['foreign']='/foreign/unapproved'
+  graph['nodes'][p.GEN_TARGETS[0]]['inputs'].append({'name':'foreign','kind':'explicit'})
+  with pytest.raises(Failure,match='outside selected'):p.generation_selection(graph)

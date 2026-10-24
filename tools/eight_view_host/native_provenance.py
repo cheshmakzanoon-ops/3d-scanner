@@ -301,14 +301,35 @@ def graph_before(run,state,builddir,target,label):
  if manifests(build,run)!=frozen:fail('configured graph changed during observation')
  state['graphs'][label]={'target':target,'graphTargets':targets,'buildDirectory':str(build),'manifests':frozen,'dependencyRules':dependency_rules(frozen),'nodes':nodes,'paths':paths,'reachable':reachable(nodes,paths,producers,target),'queryLabels':batches,'producers':producers,'aliases':aliases,'absent':sorted(set(absent)),'baselineLogSha256':hashlib.sha256(baseline).hexdigest(),'baselineLogOutputs':sorted(ninja_log(baseline,build)) if baseline else []}
 
-def pregenerate(run,state,cmake,seconds=120):
- from .capability import prebuild_snapshot
- graph=state['graphs']['opencv'];build=Path(graph['buildDirectory']);allowed=set()
+def generation_selection(graph):
+ """Only an approved selector's own phony name may differ from the library cone.
+
+ Every recursively reachable producer, leaf and nested phony must still be
+ selected. This records a selector equivalence, not a broader producer grant.
+ """
+ if any(target not in graph['nodes'] for target in GEN_TARGETS):fail('required pre-generation target absent')
+ allowed=set();bindings={};library=set(graph['reachable'])
  for target in GEN_TARGETS:
   if target not in graph['nodes']:fail('required pre-generation target absent')
   selected=set(reachable(graph['nodes'],graph['paths'],graph['producers'],target))
-  if not selected<=set(graph['reachable']):fail('pre-generation target outside selected build')
-  allowed.update(selected)
+  selector=graph['paths'][target];node=graph['nodes'][target]
+  exception=selector not in library and node['rule']=='phony'
+  required=selected-{selector} if exception else selected
+  if not required<=library:fail('pre-generation target outside selected build')
+  edges={graph['producers'][name] for name,n in graph['nodes'].items()
+         if graph['paths'][name] in required and n['rule'] not in (None,'phony') and name in graph['producers']}
+  if not edges:fail('pre-generation selection has no concrete producer')
+  bindings[target]={'selectorPath':selector,'selectorOnlyPhonyException':exception,
+                    'requiredPaths':len(required),
+                    'requiredPathsSha256':hashlib.sha256(json.dumps(sorted(required),separators=(',',':')).encode()).hexdigest(),
+                    'producerEdges':sorted(edges)}
+  allowed.update(required)
+ return allowed,bindings
+
+def pregenerate(run,state,cmake,seconds=120):
+ from .capability import prebuild_snapshot
+ graph=state['graphs']['opencv'];build=Path(graph['buildDirectory'])
+ allowed,bindings=generation_selection(graph)
  initial=prebuild_snapshot(run,[build]);oldlog=read(build/'.ninja_log') if (build/'.ninja_log').exists() else b''
  if hashlib.sha256(oldlog).hexdigest()!=graph['baselineLogSha256']:fail('generation baseline changed')
  command(run,'native-opencv-generate',[cmake,'--build',build,'--target',*GEN_TARGETS,'--parallel','2'],seconds)
@@ -324,7 +345,7 @@ def pregenerate(run,state,cmake,seconds=120):
  frozen={name:digest for name,digest in after.items() if name not in initial and name not in metadata}
  if not frozen:fail('generation produced no frozen inputs')
  target=run.work/'capability/native-opencv-generation-log.txt';target.write_bytes(raw)
- state['generation']={'targets':list(GEN_TARGETS),'records':records,'logSha256':sha(target),'frozen':frozen,'preexisting':{n:h for n,h in initial.items() if n not in metadata}}
+ state['generation']={'targets':list(GEN_TARGETS),'selectorBindings':bindings,'records':records,'logSha256':sha(target),'frozen':frozen,'preexisting':{n:h for n,h in initial.items() if n not in metadata}}
  return after
 
 def graph_after(run,state,builddir,label):
@@ -458,6 +479,9 @@ def validate(run,state,consumed,before,source):
  if aliases!=system['aliases'] or members!=system['inputs']:fail('system linker input/alias drift')
  generation=state['generation'];build=out/'build';cmake=Path(shutil.which('cmake',path=run.env['PATH']) or '/missing').resolve()
  if generation['targets']!=list(GEN_TARGETS):fail('pre-generation target contract differs')
+ allowed,bindings=generation_selection(state['graphs']['opencv'])
+ if generation.get('selectorBindings')!=bindings:fail('generation selector proof differs')
+ if not set(generation['records'])<=allowed:fail('generation producer outside selected dependency cone')
  record(run,'native-opencv-generate',[cmake,'--build',build,'--target',*GEN_TARGETS,'--parallel','2'])
  genlog=read(out/'native-opencv-generation-log.txt')
  if hashlib.sha256(genlog).hexdigest()!=generation['logSha256'] or ninja_log(genlog,build)!=generation['records']:fail('generation log changed')

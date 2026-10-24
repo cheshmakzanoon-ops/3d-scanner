@@ -79,3 +79,23 @@ successful parent must have no normal or subtest skip. A suite containing only
 mixed passed/skipped-subtest parents is rejected, even though the receipt records
 its passed parent/subtest events honestly. Adding explicit subtest counts does not
 broaden that acceptance boundary.
+
+### Accounting protocol-test subprocess boundary
+
+The fixed pytest/unittest snippets in `test_native_pytest_accounting_plugin.execute`
+produce raw XML and accounting receipts only; they do not load or invoke candidate
+native code. Their subprocess uses the existing host-tool loader-injection boundary,
+removes candidate library/compiler selectors and inherited pytest/Python configuration
+entrypoints, and pins pytest configuration and conftest discovery to its fixture
+directory. Only the explicit accounting plugin and deliberate local fixture conftest
+are enabled. Actual interpreter-launch tests verify poisoned ancestor/config/plugin
+entrypoints do not execute, parent environment is unchanged, and genuine failures
+and skipped subtests remain recorded. Required interpreter dependencies must resolve
+without inherited candidate library paths; launch failure is not retried with them.
+
+This helper is not an arbitrary-code sandbox and must not launch candidate tests or
+full-suite collection. Parent pytest, candidate ctypes/JNI execution and independent
+Python/NumPy/JVM controls retain their original sanitizer environments and blocking
+failure semantics. No sanitizer options, leak checks, evidence requirements or
+production launchers are changed by this protocol-fixture isolation. Passing these
+fixtures restores validator coverage, not native sanitizer qualification.

@@ -351,3 +351,142 @@ def test_normal_seal_never_publishes_unexpected_receipt_secret(tmp_path):
  out=tmp_path/'out';out.mkdir()
  with pytest.raises(r.Failure,match='secret marker'):ctl.seal_receipt(out,{'status':'FAIL','message':'password=synthetic-secret'})
  assert not (out/'receipt.json').exists()
+
+@pytest.mark.parametrize('secret',[False,True])
+@pytest.mark.parametrize('compact',[False,True])
+def test_bounded_failure_preserves_original_identity_in_artifact_and_console(tmp_path,monkeypatch,secret,compact):
+ import hashlib
+ run=r.Runner(tmp_path,tmp_path/'work');out=tmp_path/'out';out.mkdir()
+ message='original reason '+('界'*100000)+(' password=late-secret' if secret else '')
+ raw=message.encode();receipt={'status':'FAIL','firstFailure':{'type':'Failure','status':'BLOCKED','message':message},'secondaryErrors':[{'type':'OSError','phase':'cleanup','message':'secondary reason'}]}
+ if compact:receipt['oversizedOtherField']='x'*300000
+ if compact:artifact=ctl.emergency_terminal_downgrade(out,receipt)
+ else:ctl.seal_receipt(out,receipt);artifact=(out/'receipt.json').read_bytes()
+ seen=[];monkeypatch.setattr(ctl,'frame',lambda label,raw,*a:seen.append(raw))
+ ctl.emit_incomplete_essential(run,receipt)
+ for payload in [artifact,*seen]:
+  assert len(payload)<=256*1024
+  value=json.loads(payload);failure=value['firstFailure']
+  assert failure['type']=='Failure' and failure['status']=='BLOCKED'
+  assert failure['messageMetadata']['bytes']==len(raw)
+  assert failure['messageMetadata']['sha256']==hashlib.sha256(raw).hexdigest()
+  assert value['secondaryErrors'][0]['message']=='secondary reason'
+  if secret:assert failure['message']=='' and failure['messageMetadata']['withheld'] and b'late-secret' not in payload
+  else:assert failure['message'].startswith('original reason ') and failure['messageMetadata']['truncated']
+
+
+def test_secondary_failure_omissions_explicit(tmp_path):
+ receipt={'status':'FAIL','secondaryErrors':[{'type':'Failure','message':str(i)} for i in range(100)]}
+ result=ctl.compact_receipt(receipt)
+ assert len(result['secondaryErrors'])==16 and result['secondaryErrorsOmitted']['count']==84
+ assert len(result['secondaryErrorsOmitted']['sha256'])==64
+
+@pytest.mark.parametrize('mutation',['missing','changed','count','hash','path','withheld','owned','missing-ref'])
+def test_command_reference_failure_cannot_seal_complete_pass(tmp_path,mutation):
+ run=r.Runner(tmp_path,tmp_path/'work');run.commands=[{'label':'synthetic','complete':True}];r.atomic_json(run.work/'commands.json',run.commands)
+ ref=ctl.command_reference(run);out=tmp_path/'out';out.mkdir();(out/'commands.json').write_bytes((run.work/'commands.json').read_bytes())
+ receipt={'status':'PASS','commandTranscriptRequired':True,'commandsReference':ref,'evidence':{'complete':True}}
+ if mutation=='missing':(out/'commands.json').unlink()
+ elif mutation=='changed':(out/'commands.json').write_text('[]')
+ elif mutation=='count':ref['count']+=1
+ elif mutation=='hash':ref['sha256']='0'*64
+ elif mutation=='path':ref['path']='../commands.json'
+ elif mutation=='withheld':(out/'commands.json').write_text('[{"message":"password=secret"}]')
+ elif mutation=='owned':run.commands=[]
+ else:receipt.pop('commandsReference')
+ ctl.seal_receipt(out,receipt,run)
+ value=json.loads((out/'receipt.json').read_text());assert value['status']=='FAIL' and value['evidence']['complete'] is False
+ assert 'commandTranscriptFailure' in value
+
+
+def test_large_command_transcript_retained_not_embedded(tmp_path):
+ run=r.Runner(tmp_path,tmp_path/'work');run.commands=[{'label':'synthetic','argv':['x'*1000]} for _ in range(300)]
+ r.atomic_json(run.work/'commands.json',run.commands);original=(run.work/'commands.json').read_bytes()
+ assert len(original)>256*1024
+ receipt={'status':'FAIL','commandsReference':ctl.command_reference(run),'commandTranscriptRequired':True,'firstFailure':ctl.failure_descriptor(r.Failure('original failure'))}
+ out=ctl.evidence_package(run,receipt,tmp_path/'evidence');value=json.loads((out/'receipt.json').read_text())
+ assert (out/'commands.json').read_bytes()==original and 'commands' not in value
+ assert value['commandsReference']['count']==300 and value['firstFailure']['message']=='original failure'
+ assert (out/'receipt.json').stat().st_size<16384
+
+
+def test_actual_retained_e1fee_command_transcript_replay(tmp_path):
+ import hashlib,zipfile
+ path=os.environ.get('RF_E1FEE_ARTIFACT')
+ if not path:pytest.skip('Explicit retained e1fee artifact required; no download in test')
+ assert hashlib.sha256(Path(path).read_bytes()).hexdigest()=='594ac0907f5f99633a242a6ac4ab3229b63263178c2b698586f87cc84911f075'
+ with zipfile.ZipFile(path) as archive:raw=archive.read('commands.json')
+ assert len(raw)==282347
+ run=r.Runner(tmp_path,tmp_path/'work');run.commands=json.loads(raw);(run.work/'commands.json').write_bytes(raw)
+ receipt={'status':'FAIL','commandsReference':ctl.command_reference(run),'commandTranscriptRequired':True,
+  'firstFailure':ctl.failure_descriptor(r.Failure('synthetic replay marker, not reconstructed historical failure'))}
+ out=ctl.evidence_package(run,receipt,tmp_path/'evidence')
+ assert (out/'commands.json').read_bytes()==raw
+ assert json.loads((out/'receipt.json').read_text())['commandsReference']['count']==len(run.commands)
+ assert (out/'receipt.json').stat().st_size<16384
+
+@pytest.mark.parametrize('package_failure',[False,True])
+def test_main_normal_and_compact_frames_keep_original_bounded_failure(tmp_path,monkeypatch,package_failure):
+ temp=main_fixture(tmp_path,monkeypatch)
+ def probe(*args):raise r.Blocked('original blocked reason '+('界'*100000))
+ monkeypatch.setattr(ctl,'run_probe',probe)
+ if package_failure:monkeypatch.setattr(ctl,'evidence_package',lambda *args:(_ for _ in ()).throw(OSError('secondary artifact error')))
+ seen=[];monkeypatch.setattr(ctl,'frame',lambda label,raw,*args:seen.append((label,json.loads(raw))))
+ with contextlib.redirect_stdout(io.StringIO()):assert ctl.main()==1
+ final=next(value for label,value in seen if label==('terminal-incomplete' if package_failure else 'terminal-receipt'))
+ assert final['status']=='BLOCKED' and final['firstFailure']['type']=='Blocked'
+ assert final['firstFailure']['message'].startswith('original blocked reason') and final['firstFailure']['messageMetadata']['truncated']
+ assert 'commands' not in final and final['commandsReference']['path']=='commands.json'
+ if package_failure:assert any(x['message']=='secondary artifact error' for x in final['secondaryErrors'])
+
+
+def test_secret_command_transcript_withheld_never_complete_pass(tmp_path):
+ run=r.Runner(tmp_path,tmp_path/'work');run.commands=[{'label':'synthetic','argv':['password=synthetic-late-secret']}]
+ r.atomic_json(run.work/'commands.json',run.commands)
+ receipt={'status':'PASS','commandTranscriptRequired':True,'commandsReference':ctl.command_reference(run)}
+ out=ctl.evidence_package(run,receipt,tmp_path/'out');raw=(out/'receipt.json').read_bytes();value=json.loads(raw)
+ assert value['status']=='FAIL' and value['evidence']['complete'] is False and not (out/'commands.json').exists()
+ assert b'synthetic-late-secret' not in raw and value['evidence']['withheld'][0]['path']=='commands.json'
+
+
+def test_compact_console_withholds_unexpected_metadata_secret(tmp_path,monkeypatch):
+ run=r.Runner(tmp_path,tmp_path/'work');seen=[];monkeypatch.setattr(ctl,'frame',lambda label,raw,*a:seen.append(raw))
+ receipt={'status':'FAIL','sourceSha':'password=secret','firstFailure':{'type':'Failure','message':'original safe reason'}}
+ ctl.emit_incomplete_essential(run,receipt)
+ assert b'password=secret' not in seen[0]
+ assert json.loads(seen[0])['firstFailure']['message']=='original safe reason'
+
+@pytest.mark.parametrize('valid_metadata',[False,True])
+def test_preformatted_failure_is_rebounded_idempotently(tmp_path,valid_metadata):
+ descriptor=ctl.failure_descriptor(r.Failure('original message'))
+ original=dict(descriptor['messageMetadata'])
+ if not valid_metadata:descriptor['messageMetadata']={'untrusted':'x'*300000}
+ descriptor.update(message='界'*200000,type='T'*300000,phase='phase'*100000)
+ receipt={'status':'FAIL','firstFailure':descriptor,'secondaryErrors':[descriptor]*17,'large':'x'*300000}
+ value=ctl.compact_receipt(receipt);raw=json.dumps(value).encode()
+ assert len(raw)<=256*1024 and value['firstFailure']['messageMetadata']['truncated']
+ assert value['firstFailure']['type']=='WITHHELD_OR_OVERSIZED_LABEL'
+ if valid_metadata:
+  assert value['firstFailure']['messageMetadata']['sha256']==original['sha256']
+  assert value['firstFailure']['messageMetadata']['bytes']==original['bytes']
+ again=ctl.compact_receipt(value)
+ assert again['firstFailure']['messageMetadata']==value['firstFailure']['messageMetadata']
+ assert len((json.dumps(again,sort_keys=True,indent=2)+'\n').encode())<=256*1024
+ out=tmp_path/'compact';out.mkdir();raw=ctl.emergency_terminal_downgrade(out,receipt)
+ assert len(raw)<=256*1024 and raw==(out/'receipt.json').read_bytes()
+
+
+def test_pass_seal_requires_transcript_even_without_required_marker(tmp_path):
+ out=tmp_path/'out';out.mkdir();receipt={'status':'PASS','evidence':{'complete':True}}
+ ctl.seal_receipt(out,receipt)
+ assert receipt['status']=='FAIL' and receipt['evidence']['complete'] is False
+ assert 'commandTranscriptFailure' in receipt
+
+
+def test_genuine_empty_command_transcript_can_seal_pass(tmp_path):
+ run=r.Runner(tmp_path,tmp_path/'work');ref=ctl.command_reference(run)
+ assert ref['count']==0
+ receipt={'status':'PASS','commandsReference':ref}
+ out=ctl.evidence_package(run,receipt,tmp_path/'out')
+ assert json.loads((out/'receipt.json').read_text())['status']=='PASS'
+ assert json.loads((out/'commands.json').read_text())==[]

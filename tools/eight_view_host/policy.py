@@ -3,15 +3,15 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='4e80a5afc26ef5aad04a5c2d1b76151a4d74b10f'
-MESSAGE='fix: bind native compiler input provenance'
+BASE_SHA='e1fee6bf82ca4d871fdac75f53a4248d9c3f3393'
+MESSAGE='fix: bind generation aliases and retain bounded failures'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
 ALLOWED_PATHS=frozenset((
     '.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py',
-    'tools/eight_view_host/capability.py','tools/eight_view_host/controller.py',
-    'tools/eight_view_host/native_provenance.py','tests/test_eight_view_capability.py',
-    'tests/test_eight_view_native_provenance.py',
-    'docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md','SOURCE_MANIFEST.sha256'))
+    'tools/eight_view_host/controller.py','tools/eight_view_host/native_provenance.py',
+    'tests/test_eight_view_controller.py','tests/test_eight_view_native_provenance.py',
+    'tests/test_native_pytest_accounting_plugin.py','docs/development/NATIVE_MATRIX_EVIDENCE.md',
+    'SOURCE_MANIFEST.sha256'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
