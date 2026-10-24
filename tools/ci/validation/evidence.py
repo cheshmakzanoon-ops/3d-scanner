@@ -96,7 +96,7 @@ def begin(root, gate, expected, run_id, output):
     return data
 
 
-def native_record(path, expected, mapped=None):
+def native_record(path, expected, mapped=None, *, profile=None):
     def resolve(value):
         if mapped is not None and str(value) not in mapped:
             raise EvidenceError("Native referenced artifact missing from sealed bundle")
@@ -105,7 +105,8 @@ def native_record(path, expected, mapped=None):
     if data.get("schema") != "realityforge.native-regression.v1" or data.get("source_sha") != expected or data.get("dirty_tree") is not False or data.get("result") != "PASS":
         raise EvidenceError("Native runner source/status mismatch")
     configs = data.get("configurations", [])
-    if len(configs) != 4 or {item.get("name") for item in configs} != NATIVE_CONFIGS:
+    expected_profiles = NATIVE_CONFIGS if profile is None else {profile}
+    if not expected_profiles <= NATIVE_CONFIGS or len(configs) != len(expected_profiles) or {item.get("name") for item in configs} != expected_profiles:
         raise EvidenceError("All four native compiler/sanitizer configurations are required")
     files, xml = [Path(path)], []
     for config in configs:
@@ -135,7 +136,8 @@ def native_record(path, expected, mapped=None):
         if not config.get("binaries") or {Path(item["path"]).name for item in config.get("artifacts", [])} != NATIVE_REPORTS:
             raise EvidenceError("Native binaries/numerical/benchmark reports missing")
     comparisons = data.get("comparisons", [])
-    if len(comparisons) != 3 or any(item.get("result") != "PASS" for item in comparisons) or {item.get("config") for item in comparisons} != NATIVE_CONFIGS - {configs[0]["name"]}:
+    expected_comparisons = expected_profiles - {configs[0]["name"]}
+    if len(comparisons) != len(expected_comparisons) or any(item.get("result") != "PASS" for item in comparisons) or {item.get("config") for item in comparisons} != expected_comparisons:
         raise EvidenceError("Native cross-compiler parity evidence incomplete")
     return files, xml
 
@@ -309,6 +311,13 @@ def verify_bundle(directory, expected, run_id, required=("native", "android", "d
         gate = item.get("gate")
         if gate in records or gate not in GATES or item.get("schema") != SCHEMA or item.get("source_sha") != expected or item.get("run_id") != run_id or item.get("status") != "PASS" or item.get("kind") != GATES[gate]:
             raise EvidenceError("Duplicate, stale or wrong-source CI evidence")
+        if item.get("native_format") is not None:
+            if gate != "native" or item["native_format"] != "matrix-v1":
+                raise EvidenceError("Unknown native evidence format")
+            sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+            from tools.ci.validation.native_matrix import verify_matrix
+            records[gate] = verify_matrix(path.parent, expected, run_id)
+            continue
         counts = item.get("tests", {})
         if counts.get("passed", 0) < 1 or counts.get("failed") != 0 or counts.get("tests") != counts.get("passed", 0) + counts.get("skipped", 0):
             raise EvidenceError("Incomplete/failed test evidence")

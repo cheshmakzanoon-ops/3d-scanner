@@ -1,7 +1,9 @@
 name: Native numerical and sanitizer matrix
 on:
-  pull_request:
+  # Verify owns main/development-branch pushes and all PRs. Preserve native
+  # coverage on other push branches without duplicating the authoritative gate.
   push:
+    branches-ignore: [main, 'agents/**', 'integration/**']
   workflow_dispatch:
 permissions:
   contents: read
