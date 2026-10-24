@@ -19,14 +19,16 @@ def fixture(tmp_path,monkeypatch):
  tools={name:put(tmp_path/'synthetic-tools'/name) for name in ('g++','gcc','cmake','ninja','nm','readelf','ldd')}
  original_which=shutil.which
  monkeypatch.setattr(shutil,'which',lambda name,**kw:str(tools[name]) if name in tools else original_which(name,**kw))
- driver=put(tmp_path/'synthetic-clang18/bin/clang');include=tmp_path/'synthetic-clang18/lib/clang/18/include';header=put(include/'fixture.h')
- monkeypatch.setattr(hp,'DRIVER',driver);monkeypatch.setattr(hp,'INCLUDE_ROOT',include)
- header_proof={'schema':1,'sourceSha':SHA,'runOwner':run.owner,'workDir':str(run.work),'status':'SYNTHETIC_SCHEMA_FIXTURE_NOT_INSTALLED_PROVIDER',
-  'driver':c.path_record(driver),'filesystem':[],'probes':[]}
+ providers=tuple({**role,'driver':put(tmp_path/f"synthetic-clang{role['major']}/bin/clang"),
+  'root':tmp_path/f"synthetic-clang{role['major']}/lib/clang/{role['major']}/include"} for role in hp.PROVIDERS)
+ headers=[put(role['root']/'fixture.h') for role in providers]
+ monkeypatch.setattr(hp,'PROVIDERS',providers)
+ header_proof={'schema':2,'sourceSha':SHA,'runOwner':run.owner,'workDir':str(run.work),'status':'SYNTHETIC_SCHEMA_FIXTURE_NOT_INSTALLED_PROVIDER',
+  'providers':[{'major':role['major'],'driver':c.path_record(role['driver'])} for role in providers],'filesystem':[]}
  expected_header_proof=copy.deepcopy(header_proof)
  def validate_header(proof,source,context):
   if proof!=expected_header_proof or source!=SHA or context is not run:raise r.Failure('Synthetic provider proof/source/authority mismatch')
-  return include
+  return [role['root'] for role in providers]
  monkeypatch.setattr(hp,'validate',validate_header)
  policy=put(tmp_path/'policy.json');archive=put(out/'opencv.tar.gz');aar=out/'aar.aar';classes=put(out/'classes.jar',b'original-classes')
  with zipfile.ZipFile(aar,'w') as z:z.writestr('classes.jar',classes.read_bytes())
@@ -42,22 +44,24 @@ def fixture(tmp_path,monkeypatch):
  contract=put(out/'scanner-jni-contract.h',c.scanner_contract(declarations).encode())
  provider_record={'path':str(framework),'sha256':r.sha(framework),'entry':'native/linux/x86_64/libandroid_runtime.so','entrySha256':'f'*64,'entryBytes':20,'mappingScope':'UNIT_FIXTURE_NOT_RUNTIME'}
  prepared={'opencvAar':str(aar),'opencvClasses':str(classes),'owners':{'com.realityforge.scanner.engine.NativeCore':{'file':str(owner)}},'robolectricNativeDistribution':{'path':str(provider),'sha256':r.sha(provider)},'offlineFramework':{'path':str(framework),'sha256':r.sha(framework)},'runtimeProvider':provider_record}
- consumed={str((java/'include/jni.h').resolve()):r.sha(java/'include/jni.h'),'/usr/include/stdio.h':r.sha('/usr/include/stdio.h'),str(header):r.sha(header)}
+ consumed={str((java/'include/jni.h').resolve()):r.sha(java/'include/jni.h'),'/usr/include/stdio.h':r.sha('/usr/include/stdio.h'),**{str(header):r.sha(header) for header in headers}}
  proof_files={
   'header-provider.json':header_proof,
   'source-files.json':{'LICENSE':r.sha(license)},'scanner-source.json':{'src/jni.cpp':r.sha(jni)},'consumed-inputs.json':consumed,'prebuild-inputs.json':consumed,'consumed-provenance.json':{name:{'sha256':digest,'scope':'PREBUILD_AND_POSTBUILD_IDENTICAL'} for name,digest in consumed.items()},
   'opencv-abi.json':{'fixture.Owner':{'declarations':[['hello','()J']],'matching':True}},
   'scanner-abi.json':{'declarations':[list(x) for x in declarations],'symbols':sorted(c.jni_symbol('com.realityforge.scanner.engine.NativeCore',name) for name,_ in declarations)}}
  for name,value in proof_files.items():put(out/name,(json.dumps(value)+'\n').encode())
- inputs={**{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release','headerProviderDriver':driver,'policy':policy,'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':archive,'license':license,'aar':aar,'classes':classes,'nativeOwner':owner,'generatedJar':generated,'jniSource':jni,'jniContract':contract,'robolectricNativeDistribution':provider,'androidAll':framework,**{name:out/name for name in proof_files},**{'consumed-'+str(i):Path(path) for i,path in enumerate(sorted(consumed))}}
+ inputs={**{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release',**{'headerProviderDriver-'+str(role['major']):role['driver'] for role in providers},'policy':policy,'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':archive,'license':license,'aar':aar,'classes':classes,'nativeOwner':owner,'generatedJar':generated,'jniSource':jni,'jniContract':contract,'robolectricNativeDistribution':provider,'androidAll':framework,**{name:out/name for name in proof_files},**{'consumed-'+str(i):Path(path) for i,path in enumerate(sorted(consumed))}}
  native={key:put(out/rel) for key,rel in [('opencv','build/lib/libopencv_java4120.so'),('shim','librealityforge_jni.so'),('engine','scanner/librealityforge.so')]}
- logs={'header-provider-version':b'Ubuntu clang version 18.1.3\n','header-provider-resource-dir':(str(include.parent)+'\n').encode(),'compiler-version':b'14.2.0\n','opencv-configure':b'To be built: core features2d imgproc java\nJava wrappers: YES (JAVA)\n','opencv-build':b'done','opencv-symbols':b'000 T Java_fixture_Owner_hello\n','opencv-consumed-deps':b'deps','opencv-smoke-compile':b'', 'opencv-smoke':b'OPENCV_REAL_SMOKE_PASS version=4.12.0 descriptors=12 gray=76,150,29,255\n','scanner-configure':b'done','scanner-build':b'done','scanner-javap':''.join(' public native long '+name+'();\n descriptor: '+desc+'\n' for name,desc in declarations).encode(),'scanner-shim':b'','scanner-consumed-deps':b'deps','scanner-symbols':''.join('000 T '+symbol+'\n' for symbol in proof_files['scanner-abi.json']['symbols']).encode(),'opencv-aar-0':b' public native long hello();\n descriptor: ()J\n','opencv-generated-0':b' public native long hello();\n descriptor: ()J\n'}
+ logs={**{f"header-provider-{role['major']}-version":f"Ubuntu clang version {role['major']}.0.0\n".encode() for role in providers},**{f"header-provider-{role['major']}-resource-dir":(str(role['root'].parent)+'\n').encode() for role in providers},'compiler-version':b'14.2.0\n','opencv-configure':b'To be built: core features2d imgproc java\nJava wrappers: YES (JAVA)\n','opencv-build':b'done','opencv-symbols':b'000 T Java_fixture_Owner_hello\n','opencv-consumed-deps':b'deps','opencv-smoke-compile':b'', 'opencv-smoke':b'OPENCV_REAL_SMOKE_PASS version=4.12.0 descriptors=12 gray=76,150,29,255\n','scanner-configure':b'done','scanner-build':b'done','scanner-javap':''.join(' public native long '+name+'();\n descriptor: '+desc+'\n' for name,desc in declarations).encode(),'scanner-shim':b'','scanner-consumed-deps':b'deps','scanner-symbols':''.join('000 T '+symbol+'\n' for symbol in proof_files['scanner-abi.json']['symbols']).encode(),'opencv-aar-0':b' public native long hello();\n descriptor: ()J\n','opencv-generated-0':b' public native long hello();\n descriptor: ()J\n'}
  for prefix in ('opencv','scanner-engine','scanner-shim'):
   for part in ('elf-header','elf-dynamic','ldd'):logs[prefix+'-'+part]=b'UNIT_FIXTURE_ELF_PROOF'
  producer=[]
  for label,raw in logs.items():
   file=put(run.work/'logs'/(label+'.raw.log'),raw);record={'label':label,'complete':True,'exit':0,'bytes':len(raw),'sha256':r.sha(file),'argv':['unit-fixture'],'runOwner':run.owner,'starttime':123,'environmentBoundary':'INHERITED_RUNTIME'}
-  if label in hp.LABELS:record.update(argv=[str(driver),'--version' if label==hp.LABELS[0] else '-print-resource-dir'],environmentBoundary='EXPLICIT_COMPILATION_TOOL')
+  if label in hp.LABELS:
+   role=next(role for role in providers if label.startswith(f"header-provider-{role['major']}-"))
+   record.update(argv=[str(role['driver']),'--version' if label.endswith('-version') else '-print-resource-dir'],environmentBoundary='EXPLICIT_COMPILATION_TOOL')
   if label=='scanner-shim':record['argv']=['compiler','-include',str(contract),str(jni)]
   run.commands.append(record);producer.append({**record,'log':c.path_record(file)})
  value={'schema':1,'classification':'HOST_SOURCE_BUILT_CAPABILITY','sourceSha':SHA,'policySha256':r.sha(policy),'headerProvider':header_proof,'checks':{key:True for key in original['requiredChecks']},'native':{key:c.path_record(path) for key,path in native.items()},'inputs':{key:c.path_record(path) for key,path in inputs.items()},'producer':{'runOwner':run.owner,'workDir':str(run.work),'sourceSha':SHA,'commands':producer},'runtimeProvider':provider_record,'opencvElf':{'unitFixture':'opencv'},'scannerElf':{'engine':{'unitFixture':'engine'},'shim':{'unitFixture':'shim'}}}
@@ -165,7 +169,7 @@ def test_header_escape_diagnostic_metadata_race_is_still_refusal(tmp_path):
  assert record['linkTarget'] is None
  assert record['linkMetadataError']['type']=='FileNotFoundError'
 
-@pytest.mark.parametrize('field',['headerProviderDriver','header-provider.json'])
+@pytest.mark.parametrize('field',['headerProviderDriver-16','headerProviderDriver-17','headerProviderDriver-18','header-provider.json'])
 def test_clang_provider_inputs_are_required_by_exact_capability_schema(tmp_path,monkeypatch,field):
  run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);value['inputs'].pop(field);manifest.write_text(json.dumps(value))
  with pytest.raises(r.Failure,match='Missing/unexpected capability inputs'):p.verify_capability(manifest,SHA,policy,run,prepared)
@@ -192,8 +196,9 @@ def test_clang_proof_input_is_bounded_and_not_aliased(tmp_path,monkeypatch,kind)
   saved=proof.with_name('other.json');proof.rename(saved);proof.symlink_to(saved)
  with pytest.raises(r.Failure):p.verify_capability(manifest,SHA,policy,run,prepared)
 
-def test_clang_driver_bytes_are_bound_capability_input(tmp_path,monkeypatch):
- run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);hp.DRIVER.write_bytes(b'changed driver')
+@pytest.mark.parametrize('major',[16,17,18])
+def test_clang_driver_bytes_are_bound_capability_input(tmp_path,monkeypatch,major):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);next(role['driver'] for role in hp.PROVIDERS if role['major']==major).write_bytes(b'changed driver')
  with pytest.raises(r.Failure,match='input/output changed'):p.verify_capability(manifest,SHA,policy,run,prepared)
 
 @pytest.mark.parametrize('label',hp.LABELS)
@@ -203,9 +208,9 @@ def test_clang_probe_authoritative_transcripts_are_required(tmp_path,monkeypatch
 
 @pytest.mark.parametrize('aliased',[False,True])
 def test_clang_consumed_closure_does_not_admit_neighbor_or_symlink_escape(tmp_path,monkeypatch,aliased):
- run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);outside=hp.INCLUDE_ROOT.parent/'not-in-include.h';outside.write_bytes(b'foreign header')
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);outside=hp.PROVIDERS[0]['root'].parent/'not-in-include.h';outside.write_bytes(b'foreign header')
  path=outside
- if aliased:path=hp.INCLUDE_ROOT/'alias.h';path.symlink_to(outside)
+ if aliased:path=hp.PROVIDERS[0]['root']/'alias.h';path.symlink_to(outside)
  file=run.work/'capability/consumed-inputs.json';data=json.loads(file.read_text());data[str(path)]=r.sha(outside);file.write_text(json.dumps(data))
  original=p.sha
  def no_outside_read(candidate):
@@ -218,3 +223,20 @@ def test_provider_validator_cannot_return_a_broader_root(tmp_path,monkeypatch):
  run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
  monkeypatch.setattr(hp,'validate',lambda *a:tmp_path)
  with pytest.raises(r.Failure,match='Unexpected admitted Clang header root'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('mutation',['missing','duplicate','reordered','extra','legacy-single'])
+def test_policy_requires_exact_ordered_closed_provider_roots(tmp_path,monkeypatch,mutation):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch);roots=[role['root'] for role in hp.PROVIDERS]
+ if mutation=='missing':roots=roots[:-1]
+ elif mutation=='duplicate':roots=[roots[0],roots[0],roots[2]]
+ elif mutation=='reordered':roots=roots[::-1]
+ elif mutation=='extra':roots=[*roots,tmp_path]
+ else:roots=roots[0]
+ monkeypatch.setattr(hp,'validate',lambda *a:roots)
+ with pytest.raises(r.Failure,match='Unexpected admitted Clang header root'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+
+def test_legacy_single_driver_input_is_not_accepted(tmp_path,monkeypatch):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ value['inputs']['headerProviderDriver']=value['inputs'].pop('headerProviderDriver-18');manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='Missing/unexpected capability inputs'):p.verify_capability(manifest,SHA,policy,run,prepared)

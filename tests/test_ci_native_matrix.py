@@ -78,6 +78,12 @@ def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch, si
     import sys
     sys.path.insert(0, str(fixtures.ROOT / 'tools/qa/native_regression'))
     import run
+    monkeypatch.setenv('GITHUB_REPOSITORY', matrix.PROJECT)
+    monkeypatch.setenv('GITHUB_RUN_ID', '123')
+    monkeypatch.setenv('GITHUB_RUN_ATTEMPT', '2')
+    monkeypatch.setenv('RF_PYTEST_SOURCE_SHA', 'b' * 40)
+    monkeypatch.setenv('RF_PYTEST_REPOSITORY', 'stale/repository')
+    monkeypatch.setenv('RF_PYTEST_RUN_ID', '999:99')
     compiler = fixtures.write(candidate[2] / 'compiler', 'synthetic compiler')
     javac = fixtures.write(candidate[2] / 'jdk/bin/javac', 'synthetic javac')
     fixtures.write(javac.with_name('java'), 'synthetic java')
@@ -100,6 +106,34 @@ def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch, si
                 rotation=[1., 0., 0.], translation=[-1., 0., 0.])]))
         elif label == 'pytest': fixtures.xml(folder / 'pytest.xml')
         elif label.startswith('benchmark_'): fixtures.dump(folder / (label + '.json'), {'synthetic': True})
+        if label == 'pytest':
+            assert env['RF_PYTEST_SOURCE_SHA'] == candidate[1]
+            assert env['RF_PYTEST_REPOSITORY'] == matrix.PROJECT
+            assert env['RF_PYTEST_RUN_ID'] == '123:2'
+            assert 'tools.qa.native_regression.pytest_accounting' in argv
+            assert '--rf-pytest-accounting=' + str(folder / 'pytest-accounting/receipt.json') in argv
+            # Explicit synthetic command outputs, shaped like observed ordinary reports.
+            import xml.etree.ElementTree as ET
+            import hashlib
+            root = ET.parse(folder / 'pytest.xml').getroot()
+            root.set('skipped', '1')
+            events = []
+            for case in root.findall('testcase'):
+                case.set('classname', 'test_fixture')
+                skipped = case.find('skipped') is not None
+                for when, outcome in [('setup', 'passed'), ('call', 'skipped' if skipped else 'passed'), ('teardown', 'passed')]:
+                    events.append(dict(sequence=len(events), nodeid='test_fixture.py::' + case.get('name'),
+                        classname='test_fixture', name=case.get('name'), when=when, outcome=outcome, subtest=False, ordinal=None))
+            wrapper = ET.Element('testsuites')
+            wrapper.append(root)
+            raw = ET.tostring(wrapper)
+            (folder / 'pytest.xml').write_bytes(raw)
+            fixtures.dump(folder / 'pytest-accounting/receipt.json', dict(
+                schema='realityforge.native-pytest-accounting.v1', source_sha=env['RF_PYTEST_SOURCE_SHA'],
+                profile=env['RF_NATIVE_CONFIG'], repository=env['RF_PYTEST_REPOSITORY'], run_id=env['RF_PYTEST_RUN_ID'],
+                pytest_version='9.0.3', junit_prefix=None, junit_family='xunit2',
+                raw_xml_sha256=hashlib.sha256(raw).hexdigest(), raw_xml_size=len(raw),
+                session_exitstatus=0, completed=True, events=events))
         log = fixtures.write(folder / (label + '.log'),
             '100% tests passed, 0 tests failed out of 48\n' if label == 'ctest' else
             '' if silent and label == 'numerical' else 'synthetic output\n')
@@ -107,7 +141,7 @@ def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch, si
                     result='PASS', log=str(log), log_sha256=ci.sha(log))
     for profile in matrix.PROFILES:
         marker = candidate[2] / profile / 'start.json'
-        matrix.begin(candidate[0], candidate[1], 'test-run:1', profile, marker)
+        matrix.begin(candidate[0], candidate[1], '123:2', profile, marker)
         output = candidate[2] / profile / 'runner'
         with monkeypatch.context() as patch:
             patch.setattr(sys, 'argv', ['run.py', '--configs', profile, '--output', str(output)])
@@ -122,7 +156,7 @@ def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch, si
         qa = [fixtures.write(candidate[2] / profile / 'qa' / name, 'synthetic QA evidence')
               for name in ('installation.json', 'blender-publisher.sha256', 'blender-install.log', 'blender-check.log')]
         matrix.seal(marker, record, incoming / profile, list(map(str, qa)))
-        sealed = matrix.verify_shard(incoming / profile, candidate[1], 'test-run:1', profile)
+        sealed = matrix.verify_shard(incoming / profile, candidate[1], '123:2', profile)
         assert len(sealed['record']['configurations']) == 1
         assert sealed['record']['comparisons'] == []
         assert sealed['mapped'][str(record)].read_bytes() == before
@@ -130,15 +164,16 @@ def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch, si
             log = next(row for row in sealed['envelope']['artifacts'] if row['original_path'].endswith('/numerical.log'))
             assert log['role'] == 'command-log' and log['size_bytes'] == 0
             assert log['sha256'] == 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-    output = aggregate((candidate, incoming))
-    assert matrix.verify_matrix(output, candidate[1], 'test-run:1')['tests']['passed'] == 8
+    output = candidate[3] / 'native'
+    matrix.aggregate(incoming, candidate[1], '123:2', output, root=candidate[0])
+    assert matrix.verify_matrix(output, candidate[1], '123:2')['tests']['passed'] == 8
     if silent:
         for profile in matrix.PROFILES:
             envelope = ci.load(output / 'files' / profile / 'shard.json')
             log = next(row for row in envelope['artifacts'] if row['original_path'].endswith('/numerical.log'))
             assert log['role'] == 'command-log' and log['size_bytes'] == 0
             assert (output / 'files' / profile / log['path']).read_bytes() == b''
-    ci.verify_bundle(candidate[3], candidate[1], 'test-run:1', required=('native',))
+    ci.verify_bundle(candidate[3], candidate[1], '123:2', required=('native',))
 
 
 @pytest.mark.parametrize('mutation', ['source', 'run', 'profile', 'status', 'time', 'missing', 'duplicate', 'foreign', 'symlink', 'traversal', 'hash', 'duplicate-artifact', 'stale-original', 'missing-qa'])

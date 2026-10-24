@@ -334,3 +334,72 @@ One reviewed activation is bound to exact parent
 controller budget, one-day retention and source/postcheck/secret guards stay
 unchanged. The full photo workflow is not re-armed. Complete hosted metadata,
 not guesses or synthetic fixtures, must inform any later provider proposal.
+
+## Closed complete Clang provider set after hosted 556d inventory
+
+The `556d673481d1a98ab703c188c7b9fbcfc5b9675d` inventory completed with
+12,117 entries, 25 symlinks and exactly four escaping aliases; errors,
+omissions, truncation and limit hits were all zero. The complete observed
+additional domain was `/usr/include/clang/{16,16.0.6}/include` resolving to
+`/usr/lib/llvm-16/lib/clang/16/include`, and corresponding `{17,17.0.6}`
+aliases resolving to `/usr/lib/llvm-17/lib/clang/17/include`. Existing
+Clang-18 admission and provider/source postchecks passed. This is hosted
+metadata evidence, not yet complete content or native qualification.
+
+Provider schema 2 admits the closed ordered set 16, 17, 18. Each fixed
+`/usr/bin/clang-N` entry must resolve to `/usr/lib/llvm-N/bin/clang`; its
+bounded real version probe must report that major, and its resource-directory
+probe must report exactly `/usr/lib/llvm-N/lib/clang/N`. Both observed aliases
+for 16/17 and the already bound 18.1.3 alias must have the exact recorded raw
+relative target and canonical include root. Missing tools or different
+outputs refuse; nothing is installed or guessed. Invalid version/resource
+outputs retain bounded hex previews, byte counts and hashes in the refusal.
+
+The immutable proof deduplicates shared NOFOLLOW filesystem identities and
+binds all three executable hashes, five aliases, exact roots, source/run
+identity and six authoritative probe records. All drivers and nodes are
+checked before and after the entire probe sequence, after the snapshot and
+build, and during existing runtime capability validation. Missing, reordered,
+duplicate or fourth providers are inadmissible. Capability inputs require
+three driver identities plus the proof file; the consumed-header closure
+adds only the three validated roots. GNU remains the actual build compiler,
+and consumed bytes/prebuild provenance, native ABI and unique runtime owner
+gates are unchanged.
+
+The focused entrypoint now returns to the actual content snapshot, not the
+metadata inventory. Six probes retain their live 10-second/4-KiB bounds;
+the snapshot receives at most 90 seconds **and no more than remaining normal
+budget**. Slow setup/probes fail closed rather than consuming cleanup reserve.
+The 270-second controller, five-minute job, 32-KiB receipt and one-day
+retention are unchanged. Combined larger-proof/maximum-escape receipt guards
+are regression-tested. Local real-process tests use explicitly synthetic
+versioned drivers; installed-provider qualification still requires hosted CI.
+
+The one-shot verification is bound to exact parent
+`1cf744bffd4690aaf5f11d3ab942d87758d5e3da`, exact thirty-one source paths and message
+`fix: bind header providers and upright calibration`. The full photo workflow
+remains unarmed until a separately reviewed content-snapshot result supports
+continuing. Snapshot success alone is not pipeline or device qualification.
+
+The final combined commit also carries the independently reviewed seven-path
+upright-calibration handoff correction unchanged, avoiding a redundant full
+CI trigger. Those paths are explicitly included in the one-shot source guard;
+they do not widen provider/root admission or alter the diagnostic budget.
+The parent silent-native-log sealing correction is preserved unchanged.
+
+With seventeen combined source paths, a long temporary-path synthetic proof
+plus maximum failure text exceeded 32 KiB and was correctly withheld. The
+receipt regression now retains that oversized negative and separately checks
+a clearly labeled fixed-production-path serialization layout, including
+maximum-width inode/device/timestamp values. Rewritten serialization fixtures
+are not filesystem/provider admission evidence. The independent real synthetic
+acquire/validate controls remain; actual hosted receipt fit is still observed
+only by the next run. No production output cap or metadata was relaxed.
+
+The same-parent final union additionally carries the independently approved
+fourteen-path native pytest/subtest producer-accounting correction unchanged.
+The exact header source guard enumerates all 31 combined paths, with the
+original message retained. The accounting proof is reviewed separately; no
+global JUnit count waiver or provider admission expansion is introduced.
+The 32-KiB receipt cap remains mandatory regardless of the longer source list;
+oversized evidence is explicitly withheld, never silently truncated to PASS.

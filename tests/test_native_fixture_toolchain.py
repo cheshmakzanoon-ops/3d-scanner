@@ -97,6 +97,10 @@ def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeyp
     monkeypatch.setenv('LSAN_OPTIONS', 'exitcode=23')
     labels, python_envs = [], []
     def phase(argv, cwd, folder, label, env, timeout):
+        if label == 'pytest':
+            proof = folder / 'pytest-accounting/receipt.json'
+            proof.parent.mkdir(parents=True, exist_ok=True)
+            proof.write_text('{}')  # Synthetic external-command stub, not an accounting claim.
         labels.append(label)
         assert timeout == (min(deadline, 30) if label.startswith('python-baseline-') else
                            min(deadline, 60) if label.startswith('jvm-baseline-') else deadline)

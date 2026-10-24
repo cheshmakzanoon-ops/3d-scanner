@@ -106,7 +106,8 @@ def test_missing_control_inputs_are_not_run_not_pass(monkeypatch, tmp_path, fixt
 
 
 @pytest.mark.parametrize('baseline_status', ['PASS', 'FAIL', 'NOT_RUN'])
-def test_failed_control_does_not_skip_candidate_phases(monkeypatch, tmp_path, baseline_status):
+@pytest.mark.parametrize('accounting_present', [True, False])
+def test_failed_control_does_not_skip_candidate_phases(monkeypatch, tmp_path, baseline_status, accounting_present):
     spec = importlib.util.spec_from_file_location('jvm_control_harness_test', QA / 'run.py')
     harness = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(harness)
@@ -120,17 +121,23 @@ def test_failed_control_does_not_skip_candidate_phases(monkeypatch, tmp_path, ba
     def command(argv, cwd, folder, label, env, timeout):
         folder.mkdir(parents=True, exist_ok=True)
         calls.append(label)
+        if label == 'pytest' and accounting_present:
+            proof = folder / 'pytest-accounting/receipt.json'
+            proof.parent.mkdir(parents=True, exist_ok=True)
+            proof.write_text('{}')  # Synthetic command output; gate validation is tested separately.
         return dict(result='PASS', command=list(map(str, argv)), exit_code=0)
     monkeypatch.setattr(harness, 'command', command)
     monkeypatch.setattr(harness, 'jvm_baseline', lambda *a: dict(commands=[dict(result=baseline_status)]))
-    assert harness.main() == (0 if baseline_status == 'PASS' else 1)
+    assert harness.main() == (0 if baseline_status == 'PASS' and accounting_present else 1)
     assert calls[:5] == ['configure', 'build', 'ctest', 'python-baseline-empty', 'python-baseline-numpy']
     assert calls[5:] == ['numerical', 'pytest', 'bundle-three-view', 'benchmark_multiview_coverage',
                          'benchmark_middlebury', 'benchmark_dense_middlebury',
                          'benchmark_surface_middlebury', 'benchmark_texture_middlebury']
     record = json.loads((tmp_path / 'out/evidence.json').read_text())['configurations'][0]
     assert record['commands'][5]['result'] == baseline_status
-    assert record['result'] == ('PASS' if baseline_status == 'PASS' else 'FAIL')
+    assert record['result'] == ('PASS' if baseline_status == 'PASS' and accounting_present else 'FAIL')
+    if not accounting_present:
+        assert next(row for row in record['commands'] if row.get('reason') == 'MISSING_PYTEST_ACCOUNTING')['result'] == 'FAIL'
 
 
 def test_java_control_source_has_snapshot_and_ordinary_exit_without_native_load():

@@ -341,7 +341,7 @@ def test_additional_source_declared_specialist_is_preserved_as_not_run(candidate
     assert gates == {gate: "NOT_RUN" for gate in ci.DEBUG_SPECIALIST_GATES | {"dedicated_candidate_journey"}}
 
 
-def test_real_runner_success_shape_seals_with_all_controls(candidate, monkeypatch):
+def test_real_runner_accounted_shape_requires_matrix_verifier(candidate, monkeypatch):
     """Run real orchestration/JVM-control logic with synthetic command outputs.
 
     No compiler/native process executes: this proves producer/consumer structure,
@@ -361,6 +361,10 @@ def test_real_runner_success_shape_seals_with_all_controls(candidate, monkeypatc
                  points=[[0., 1., 2.]], rotation=[1., 0., 0.], translation=[-1., 0., 0.])
 
     def phase(argv, cwd, folder, label, env, timeout):
+        if label == 'pytest':
+            proof = folder / 'pytest-accounting/receipt.json'
+            proof.parent.mkdir(parents=True, exist_ok=True)
+            proof.write_text('{}')  # Synthetic external-command stub, not an accounting claim.
         if label == 'build':
             write(folder / 'build/librealityforge.so', 'synthetic candidate binary')
         elif label == 'jvm-baseline-compile':
@@ -396,8 +400,10 @@ def test_real_runner_success_shape_seals_with_all_controls(candidate, monkeypatc
     data = ci.load(record)
     assert [len(row['commands']) for row in data['configurations']] == [11, 11, 15, 15]
     assert len(data['comparisons']) == 3
-    ci.collect(marker, candidate[3] / 'native', native=record)
-    ci.verify_bundle(candidate[3], candidate[1], 'test-run:1', required=('native',))
+    # This is a structural external-command stub, not an accounting receipt.
+    # New accounted records must not bypass validation via legacy serial sealing.
+    with pytest.raises(ci.EvidenceError, match='matrix verifier'):
+        ci.collect(marker, candidate[3] / 'native', native=record)
 
 
 @pytest.mark.parametrize('profile', ['gcc-sanitize', 'clang-sanitize'])
@@ -471,3 +477,16 @@ def test_sealed_native_controls_retain_candidate_and_artifact_bindings(bundle, m
     dump(path, data)
     with pytest.raises(ci.EvidenceError):
         verify(bundle)
+
+
+@pytest.mark.parametrize('marker', [1, 0, False, 'true', {}])
+def test_accounting_requirement_marker_has_exact_type(candidate, marker):
+    path = native(candidate)
+    data = ci.load(path)
+    profile = data['configurations'][0]['name']
+    data['configurations'] = data['configurations'][:1]
+    data['comparisons'] = []
+    data['configurations'][0]['pytest_accounting_required'] = marker
+    dump(path, data)
+    with pytest.raises(ci.EvidenceError, match='accounting receipt missing'):
+        ci.native_record(path, candidate[1], profile=profile)

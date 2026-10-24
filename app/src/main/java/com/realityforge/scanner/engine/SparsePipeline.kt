@@ -194,10 +194,15 @@ class SparsePipeline(
                     photo.opticalIdentitySha256 != com.realityforge.scanner.capture.metadata.CaptureMetadataCodec.opticalIdentitySha256(metadata))
                     reject(ScanStage.CALIBRATION, ScanFailureCode.INPUT_CORRUPT,
                         RecoveryAction.REVIEW_INPUTS, "scan.failure.optical_metadata_corrupt")
-                val capture = metadata?.let {
-                    com.realityforge.scanner.capture.calibration.CalibrationCaptureMetadataAdapter.forScan(it, photo.width, photo.height)
-                } ?: com.realityforge.scanner.capture.calibration.CalibrationCaptureMetadata(photo.width, photo.height,
-                    com.realityforge.scanner.capture.calibration.CalibrationOpticalMetadata(focal35mm = photo.focal35mm))
+                // Stored photo dimensions describe encoded pixels, not the EXIF-upright image.
+                // Inspect the actual original with the decoder's policy; never infer geometry from
+                // merged metadata or allocate a full image merely for calibration preflight.
+                coroutineContext.ensureActive()
+                val inspection = AndroidImageDecoder.inspectUpright(
+                    com.realityforge.scanner.imaging.DecodeRequest(repository.photoFile(photo)))
+                coroutineContext.ensureActive()
+                val capture = com.realityforge.scanner.capture.calibration.CalibrationCaptureMetadataAdapter
+                    .forInspectedScan(metadata, inspection, photo.focal35mm)
                 val compatible = com.realityforge.scanner.capture.calibration.CalibrationProfileCompatibility.evaluate(record, capture)
                 if (compatible.status == com.realityforge.scanner.capture.calibration.CalibrationCompatibilityStatus.INCOMPATIBLE)
                     reject(ScanStage.CALIBRATION, ScanFailureCode.CALIBRATION_UNAVAILABLE,

@@ -49,3 +49,33 @@ still checked. JSON, XML, binaries and QA evidence remain nonempty. Existing
 nonempty command logs with the original `artifact` role remain valid. Failure
 uploads retain numerical/benchmark JSON and pytest XML alongside logs, not raw
 build directories.
+
+
+## Native pytest subtest accounting
+
+Pinned pytest 9.0.3 increments JUnit suite counts for subtest report events while
+retaining their XML under the parent testcase. Native runs now retain the raw XML
+unchanged and a separate bounded `pytest-accounting/receipt.json`, produced from
+actual normal/SubtestReport hooks after pytest writes XML. It binds exact source,
+profile, repository/run attempt (or explicitly null local identity), version,
+raw XML hash/size, parent identities, event order, subtest ordinals and outcomes.
+No console summaries or inferred count differences are used as evidence.
+
+The native-only verifier reconstructs supported parent setup/call/teardown shapes,
+checks every observed parent/subtest against raw XML identities and skip outcomes,
+and requires exact declarations. Counts include each parent and each subtest;
+a passed parent with a skipped subtest contributes one pass and one skip. Failed,
+unknown, reordered or incomplete observations cannot qualify. Event/byte/identity
+bounds fail closed; unsupported xfail/distributed reports are not guessed.
+
+New runner records explicitly require the accounting receipt. Matrix sealing and
+final verification both validate it. Legacy native records still receive strict
+raw-JUnit validation; accounted records cannot use the legacy serial sealer to
+bypass native accounting. The general JUnit parser, including Android acceptance,
+is unchanged. Failure uploads retain the receipt alongside raw XML and logs.
+
+Native acceptance also preserves the former all-skipped floor: at least one
+successful parent must have no normal or subtest skip. A suite containing only
+mixed passed/skipped-subtest parents is rejected, even though the receipt records
+its passed parent/subtest events honestly. Adding explicit subtest counts does not
+broaden that acceptance boundary.

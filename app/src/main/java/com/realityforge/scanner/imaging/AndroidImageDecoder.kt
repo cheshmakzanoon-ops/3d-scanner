@@ -82,11 +82,18 @@ object AndroidImageDecoder {
         return bounds
     }
 
-    fun decodeBlocking(request: DecodeRequest): OwnedImage {
+    /** Validated header/EXIF inspection only: no pixel bitmap is allocated. */
+    fun inspectUpright(request: DecodeRequest): ImageInspection {
         val bounds = inspect(request)
-        val orientationRead = if (request.applyExifOrientation) readOrientation(request.file, bounds.format)
+        val orientation = if (request.applyExifOrientation) readOrientation(request.file, bounds.format)
             else OrientationRead(ExifOrientation.NORMAL, OrientationEvidence.ABSENT, emptySet())
-        val plan = DecodePlanner.plan(bounds, orientationRead.orientation, request)
+        return ImageInspection(bounds, orientation.orientation, orientation.evidence, orientation.warnings)
+    }
+
+    fun decodeBlocking(request: DecodeRequest): OwnedImage {
+        val inspection = inspectUpright(request)
+        val bounds = inspection.source
+        val plan = DecodePlanner.plan(bounds, inspection.orientation, request)
         var decoded: Bitmap? = null
         var rendered: Bitmap? = null
         try {
@@ -105,7 +112,7 @@ object AndroidImageDecoder {
             if (decoded.isRecycled || decoded.width <= 0 || decoded.height <= 0) {
                 fail(ImageDecodeFailure.DECODE_FAILED, "Decoder returned an invalid bitmap.")
             }
-            val (uprightWidth, uprightHeight) = orientationRead.orientation.outputDimensions(
+            val (uprightWidth, uprightHeight) = inspection.orientation.outputDimensions(
                 decoded.width,
                 decoded.height,
             )
@@ -116,7 +123,7 @@ object AndroidImageDecoder {
             )
             val decodedBytes = allocationBytes(decoded)
             val outputBytes = DecodePlanner.checkedBitmapBytes(outputWidth, outputHeight)
-            val requiresRender = orientationRead.orientation != ExifOrientation.NORMAL ||
+            val requiresRender = inspection.orientation != ExifOrientation.NORMAL ||
                 outputWidth != decoded.width || outputHeight != decoded.height ||
                 decoded.config != Bitmap.Config.ARGB_8888 || decoded.colorSpace?.isSrgb != true
             var measuredPeak = if (requiresRender) checkedAdd(decodedBytes, outputBytes) else decodedBytes
@@ -145,7 +152,7 @@ object AndroidImageDecoder {
                 val targetBitmap = requireNotNull(rendered)
                 val matrix = Matrix().apply {
                     setValues(
-                        orientationRead.orientation.renderMatrixValues(
+                        inspection.orientation.renderMatrixValues(
                             sourceBitmap.width,
                             sourceBitmap.height,
                             outputWidth,
@@ -163,14 +170,14 @@ object AndroidImageDecoder {
             }
             val info = DecodedImageInfo(
                 source = bounds,
-                orientation = orientationRead.orientation,
-                orientationEvidence = orientationRead.evidence,
+                orientation = inspection.orientation,
+                orientationEvidence = inspection.orientationEvidence,
                 sampleSize = plan.sampleSize,
                 width = finalBitmap.width,
                 height = finalBitmap.height,
                 estimatedPeakBytes = plan.estimatedPeakBytes,
                 measuredPeakBytes = measuredPeak,
-                warnings = orientationRead.warnings,
+                warnings = inspection.warnings,
             )
             // OwnedImage/its lock can allocate. Keep bitmap tracking live until
             // construction succeeds so a late allocation failure still recycles it.

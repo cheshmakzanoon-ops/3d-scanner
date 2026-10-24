@@ -108,6 +108,8 @@ def native_record(path, expected, mapped=None, *, profile=None):
     expected_profiles = NATIVE_CONFIGS if profile is None else {profile}
     if not expected_profiles <= NATIVE_CONFIGS or len(configs) != len(expected_profiles) or {item.get("name") for item in configs} != expected_profiles:
         raise EvidenceError("All four native compiler/sanitizer configurations are required")
+    if profile is None and any("pytest_accounting" in config or "pytest_accounting_required" in config for config in configs):
+        raise EvidenceError("Accounted native records require the source/run-bound matrix verifier")
     files, xml = [Path(path)], []
     for config in configs:
         if config.get("result") != "PASS":
@@ -128,6 +130,17 @@ def native_record(path, expected, mapped=None, *, profile=None):
             if log.stem == "pytest":
                 xml.append(resolve(log.with_name("pytest.xml")))
             files.append(resolve(log))
+        accounting = config.get("pytest_accounting")
+        required_accounting = config.get("pytest_accounting_required")
+        if (required_accounting is not None and required_accounting is not True) or (required_accounting is True and accounting is None):
+            raise EvidenceError("Required native pytest accounting receipt missing")
+        if accounting is not None:
+            if not isinstance(accounting, dict) or set(accounting) != {"path", "sha256"}:
+                raise EvidenceError("Invalid native pytest accounting reference")
+            proof = resolve(accounting["path"])
+            if sha(proof) != accounting["sha256"]:
+                raise EvidenceError("Native pytest accounting hash mismatch")
+            files.append(proof)
         for item in config.get("binaries", []) + config.get("artifacts", []):
             artifact = resolve(item["path"])
             if sha(artifact) != item.get("sha256"):

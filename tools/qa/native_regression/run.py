@@ -94,7 +94,7 @@ def main():
     failed = False
     for name in args.configs:
         compiler = shutil.which(args.gcc if name.startswith('gcc') else args.clang)
-        record = dict(name=name, compiler=compiler, commands=[], binaries=[])
+        record = dict(name=name, compiler=compiler, commands=[], binaries=[], pytest_accounting_required=True)
         evidence['configurations'].append(record)
         if not compiler:
             record.update(result='NOT_RUN', reason='Compiler not found; install supported GCC/Clang, do not substitute one compiler for both')
@@ -127,6 +127,12 @@ def main():
             lib = build / 'librealityforge.so'
             record['binaries'] = [dict(path=str(p), sha256=sha(p)) for p in sorted(build.glob('rf_*tests'))] + [dict(path=str(lib), sha256=sha(lib))]
             env.update(RF_NATIVE_LIBRARY=str(lib), RF_NATIVE_CXX=compiler, RF_NATIVE_CONFIG=name)
+            env['RF_PYTEST_SOURCE_SHA'] = evidence['source_sha']
+            env.pop('RF_PYTEST_REPOSITORY', None)
+            env.pop('RF_PYTEST_RUN_ID', None)
+            if os.environ.get('GITHUB_REPOSITORY') and os.environ.get('GITHUB_RUN_ID') and os.environ.get('GITHUB_RUN_ATTEMPT'):
+                env['RF_PYTEST_REPOSITORY'] = os.environ['GITHUB_REPOSITORY']
+                env['RF_PYTEST_RUN_ID'] = os.environ['GITHUB_RUN_ID'] + ':' + os.environ['GITHUB_RUN_ATTEMPT']
             python_ready = True
             if sanitize:
                 try:
@@ -146,15 +152,23 @@ def main():
                     record['commands'].append(receipt)
                 record['jvm_baseline'] = jvm_baseline(ROOT, folder, env, args.timeout, command)
                 record['commands'].extend(record['jvm_baseline']['commands'])
+            accounting_path = folder / 'pytest-accounting' / 'receipt.json'
             python_steps = [('numerical', [sys.executable, ROOT / 'tools/qa/native_regression/numerical.py', '--output', folder / 'numerical.json']),
                             ('pytest', [sys.executable, '-m', 'pytest', 'tests', '-q',
                                         '-p', 'tools.qa.native_regression.pytest_diagnostics',
+                                        '-p', 'tools.qa.native_regression.pytest_accounting',
+                                        '--rf-pytest-accounting=' + str(accounting_path),
                                         '--junitxml=' + str(folder / 'pytest.xml')]),
                             ('bundle-three-view', [sys.executable, 'tools/bundle_three_view.py'])]
             python_steps += [(tool, [sys.executable, 'tools/' + tool + '.py', '--gate', '--output', folder / (tool + '.json')])
                              for tool in ('benchmark_multiview_coverage', 'benchmark_middlebury', 'benchmark_dense_middlebury', 'benchmark_surface_middlebury', 'benchmark_texture_middlebury')]
             for label, argv in (python_steps if python_ready else []):
                 receipt = command(argv, ROOT, folder, label, env, args.timeout)
+                if label == 'pytest':
+                    if accounting_path.is_file() and not accounting_path.is_symlink():
+                        record['pytest_accounting'] = dict(path=str(accounting_path), sha256=sha(accounting_path))
+                    else:
+                        receipt.update(result='FAIL', reason=receipt.get('reason') or 'MISSING_PYTEST_ACCOUNTING')
                 record['commands'].append(receipt)
             if (folder / 'numerical.json').exists():
                 numeric = json.loads((folder / 'numerical.json').read_text())

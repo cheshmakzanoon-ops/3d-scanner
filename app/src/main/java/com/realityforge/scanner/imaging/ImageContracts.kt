@@ -157,6 +157,17 @@ data class ImageBounds(
     val pixelCount: Long get() = width.toLong() * height
 }
 
+/** Header-only geometry in the same EXIF policy used by pixel decoding. Source stays encoded. */
+data class ImageInspection(
+    val source: ImageBounds,
+    val orientation: ExifOrientation,
+    val orientationEvidence: OrientationEvidence,
+    val warnings: Set<ImageDecodeWarning>,
+) {
+    val uprightWidth: Int get() = if (orientation.swapsAxes) source.height else source.width
+    val uprightHeight: Int get() = if (orientation.swapsAxes) source.width else source.height
+}
+
 data class DecodeRequest(
     val file: File,
     val maxEdge: Int = ImageDecodeLimits.DEFAULT_MAX_EDGE,

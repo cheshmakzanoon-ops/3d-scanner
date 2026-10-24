@@ -283,9 +283,10 @@ def build(run,source_sha,prepared):
     receipt['headerProvider']=provider
     atomic_json(out/'header-provider.json',provider)
     receipt['inputs']['header-provider.json']=path_record(out/'header-provider.json')
-    receipt['inputs']['headerProviderDriver']=path_record(header_provider.DRIVER)
+    for role in header_provider.PROVIDERS:
+        receipt['inputs']['headerProviderDriver-'+str(role['major'])]=path_record(role['driver'])
     atomic_json(out/'pending.json',receipt)  # Retain admission even if the next unknown escape refuses.
-    system_roots=[*system_header_roots(java),header_provider.validate(provider,source_sha,run)]
+    system_roots=[*system_header_roots(java),*header_provider.validate(provider,source_sha,run)]
     original=None
     try:immutable_before=prebuild_snapshot(run,system_roots)
     except BaseException as error:original=error;raise

@@ -61,6 +61,7 @@ jobs:
             ${{ runner.temp }}/rf-ci/native/runner/*/numerical.json
             ${{ runner.temp }}/rf-ci/native/runner/*/benchmark_*.json
             ${{ runner.temp }}/rf-ci/native/runner/*/pytest.xml
+            ${{ runner.temp }}/rf-ci/native/runner/*/pytest-accounting/receipt.json
           if-no-files-found: error
   native:
     # Stable required-check identity; never turn absent/failed shards into a pass.

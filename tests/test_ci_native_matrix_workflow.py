@@ -59,7 +59,7 @@ def test_native_shards_retain_separate_current_attempt_artifacts_and_diagnostics
     assert failures['if'] == 'failure() || cancelled()'
     assert '${{ matrix.config }}' in failures['with']['name']
     assert '/runner/evidence.json' in failures['with']['path']
-    for suffix in ('/*/numerical.json', '/*/benchmark_*.json', '/*/pytest.xml'):
+    for suffix in ('/*/numerical.json', '/*/benchmark_*.json', '/*/pytest.xml', '/*/pytest-accounting/receipt.json'):
         assert '/runner' + suffix in failures['with']['path']
     assert '/runner/' not in failures['with']['path'].splitlines()
     download = next(step for step in jobs['native']['steps'] if step.get('uses', '').startswith('actions/download-artifact@'))

@@ -35,13 +35,13 @@ def fixture_repository(tmp_path,monkeypatch,extra=None,omit=None):
 def test_actual_git_single_parent_tree_and_real_manifest_guard(tmp_path,monkeypatch):
  root,head=fixture_repository(tmp_path,monkeypatch);run=GitRunner(root);record=h.source_guard(run,head)
  assert record['sourceSha']==head and record['tree']==git(root,'rev-parse','HEAD^{tree}')
- assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==7
+ assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==31
  assert 'header-source-manifest' in run.calls
  h.source_postcheck(run,record)
 
 @pytest.mark.parametrize('case',['extra','omitted','dirty','wrong-source','wrong-parent','shallow','merge'])
 def test_real_git_source_guard_refuses_widened_or_unbound_source(tmp_path,monkeypatch,case):
- root,head=fixture_repository(tmp_path,monkeypatch,extra='foreign' if case=='extra' else None,omit='tests/test_eight_view_header_inventory.py' if case=='omitted' else None)
+ root,head=fixture_repository(tmp_path,monkeypatch,extra='foreign' if case=='extra' else None,omit='tests/test_eight_view_header_provider.py' if case=='omitted' else None)
  if case=='dirty':(root/'untracked').write_text('not allowed')
  if case=='wrong-source':head='a'*40
  if case=='wrong-parent':monkeypatch.setattr(h,'BASE','b'*40)
@@ -69,25 +69,26 @@ def observation(tmp_path,monkeypatch):
    self.calls.append((label,args,kwargs))
    return (b'13.2.0\n' if label=='header-compiler-version' else b'openjdk version "17.0.fixture"\n'),0
  run=Run();read=h.bounded_bytes;which=shutil.which
- monkeypatch.setattr(c,'prebuild_snapshot',lambda *a:pytest.fail('metadata inventory must never invoke content snapshot'))
  monkeypatch.setattr(h,'bounded_bytes',lambda path,*a,**k:b'ID=ubuntu\nVERSION_ID="24.04"\n' if Path(path).name=='os-release' else read(path,*a,**k))
  monkeypatch.setattr(h.platform,'system',lambda:'Linux');monkeypatch.setattr(h.platform,'machine',lambda:'x86_64')
  monkeypatch.setattr(h.shutil,'which',lambda name,**k:str(gxx if name=='g++' else gcc) if name in ('g++','gcc') else which(name,**k))
  calls=[]
  def roots(java):calls.append(java);return [headers,home/'include']
  monkeypatch.setattr(c,'system_header_roots',roots)
- provider_root=tmp_path/'synthetic-provider/include';provider_root.mkdir(parents=True)
- monkeypatch.setattr(h.hp,'INCLUDE_ROOT',provider_root)
+ providers=tuple({**role,'root':tmp_path/f"synthetic-provider-{role['major']}/include"} for role in h.hp.PROVIDERS)
+ for role in providers:role['root'].mkdir(parents=True)
+ monkeypatch.setattr(h.hp,'PROVIDERS',providers)
+ provider_roots=[role['root'] for role in providers]
  # This fixture tests the entrypoint integration, not installed Clang admission.
- proof={'schema':1,'sourceSha':'a'*40,'status':'SYNTHETIC_PROVIDER_FIXTURE_NOT_ADMISSION'}
+ proof={'schema':2,'sourceSha':'a'*40,'status':'SYNTHETIC_PROVIDER_FIXTURE_NOT_ADMISSION'}
  monkeypatch.setattr(h.hp,'acquire',lambda context,source:copy.deepcopy(proof) if context is run and source=='a'*40 else pytest.fail('wrong source/provider context'))
- monkeypatch.setattr(h.hp,'validate',lambda actual,source,context:provider_root if actual==proof and source=='a'*40 and context is run else pytest.fail('wrong provider proof binding'))
+ monkeypatch.setattr(h.hp,'validate',lambda actual,source,context:provider_roots if actual==proof and source=='a'*40 and context is run else pytest.fail('wrong provider proof binding'))
  return run,home,headers,calls
 
 
-def test_actual_inventory_uses_shared_java_executable_roots_and_compiler_boundary(observation):
+def test_actual_snapshot_uses_shared_java_executable_roots_and_compiler_boundary(observation):
  run,home,headers,calls=observation;receipt={'source':{'sourceSha':'a'*40}};h.observe(run,receipt)
- assert calls==[home/'bin/java'] and receipt['headerInventory']['complete'] and receipt['snapshot']=={'attempted':False,'status':'NOT_RUN_METADATA_ONLY'}
+ assert calls==[home/'bin/java'] and receipt['snapshot']['files']==1 and receipt['snapshot']['secondsLimit']==90
  command=next(item for item in run.calls if item[0]=='header-compiler-version');env=command[2]['env']
  assert 'LD_PRELOAD' not in env and 'LD_AUDIT' not in env and env['ASAN_OPTIONS']=='detect_leaks=1'
  assert run.env['LD_PRELOAD']=='retained-parent.so' and run.env['LD_AUDIT']=='retained-audit.so'
@@ -101,11 +102,11 @@ def test_actual_header_escape_is_fail_metadata_only_and_bounded_artifact(observa
   reads.append(Path(path));assert Path(path)!=outside,'escaped target payload read';return original(path)
  monkeypatch.setattr(c,'sha',admitted_only)
  receipt={'schema':1,'classification':h.CLASSIFICATION,'status':'FAIL','qualified':False,'pipelineAttempts':0,'source':{'sourceSha':'a'*40}}
- with pytest.raises(Failure,match='found escapes') as error:h.observe(run,receipt)
+ with pytest.raises(Failure,match='escapes admitted roots') as error:h.observe(run,receipt)
  h.record_failure(receipt,error.value);result=h.write_receipt(tmp_path/'evidence',receipt);raw=(tmp_path/'evidence/receipt.json').read_bytes()
  assert result['status']=='FAIL' and len(raw)<=32768 and b'SENTINEL' not in raw and outside not in reads
- assert result['headerInventory']['escapes'][0]['resolvedTarget']==str(outside)
- assert result['snapshot']['status']=='NOT_RUN_METADATA_ONLY'
+ assert result['failure']['headerEscape']['resolvedTarget']['text']==str(outside)
+ assert result['snapshot']['status']=='FAIL'
 
 @pytest.mark.parametrize('name',['JAVA_TOOL_OPTIONS','JDK_JAVA_OPTIONS','_JAVA_OPTIONS','JAVA_OPTS','GRADLE_OPTS'])
 def test_jvm_overrides_refuse_without_snapshot_and_are_not_deleted(observation,name):
@@ -128,7 +129,7 @@ def test_unapproved_compiler_refuses_without_snapshot(observation):
 
 @pytest.mark.parametrize('kind',['oversize','secret'])
 def test_actual_artifact_writer_never_emits_oversize_secret_or_false_success(tmp_path,kind):
- record={'status':'INVENTORY_COMPLETE','payload':'x'*40000 if kind=='oversize' else 'password=DO_NOT_PUBLISH'}
+ record={'status':'SNAPSHOT_COMPLETED','payload':'x'*40000 if kind=='oversize' else 'password=DO_NOT_PUBLISH'}
  result=h.write_receipt(tmp_path/'evidence',record);raw=(tmp_path/'evidence/receipt.json').read_bytes()
  assert len(raw)<=32768 and result['status']=='FAIL' and result['evidenceComplete'] is False and b'DO_NOT_PUBLISH' not in raw
  assert list((tmp_path/'evidence').iterdir())==[tmp_path/'evidence/receipt.json']
@@ -189,7 +190,7 @@ def test_entrypoint_always_postchecks_source_cleans_and_returns_failure_for_refu
  receipt=json.loads((tmp_path/'rf-header-evidence/receipt.json').read_text())
  assert receipt['qualified'] is False and receipt['pipelineAttempts']==0
  assert calls==['signals','snapshot','postcheck','cleanup','restore'] and not list(tmp_path.glob('rf-header-work-*'))
- assert receipt['status']==('FAIL' if fails or secondary!='none' else 'INVENTORY_COMPLETE')
+ assert receipt['status']==('FAIL' if fails or secondary!='none' else 'SNAPSHOT_COMPLETED')
  if fails:
   assert receipt['failure']['message']=='actual header gate refusal'
   if secondary!='none':assert receipt['secondaryFailures'][0]['message']=='secondary '+secondary+' failure'
@@ -223,8 +224,8 @@ def test_actual_escape_entrypoint_exits_one_retains_first_metadata_and_never_qua
  assert h.main()==1 and checked==[True]
  record=json.loads((tmp_path/'rf-header-evidence/receipt.json').read_text())
  assert record['status']=='FAIL' and record['qualified'] is False and record['pipelineAttempts']==0
- assert record['headerInventory']['escapes'][0]['resolvedTarget']==str(outside)
- assert record['snapshot']['status']=='NOT_RUN_METADATA_ONLY' and record['sourcePostcheck']=='PASS'
+ assert record['failure']['headerEscape']['resolvedTarget']['text']==str(outside)
+ assert record['snapshot']['status']=='FAIL' and record['sourcePostcheck']=='PASS'
 
 @pytest.mark.parametrize('payload',['not json','\u00e9','x'*17000])
 def test_malformed_or_oversized_embedded_metadata_remains_failure(payload):
@@ -251,17 +252,17 @@ def test_fast_provider_postcheck_runs_after_snapshot_and_preserves_original_fail
  receipt=json.loads((tmp_path/'rf-header-evidence/receipt.json').read_text())
  assert receipt['status']=='FAIL' and receipt['headerProviderPostcheck']=='FAIL' and receipt['headerProvider']['sourceSha']==env['GITHUB_SHA']
  if snapshot_fails:
-  assert receipt['headerInventory']['escapedCount']==1 and 'found escapes' in receipt['failure']['message']
+  assert 'headerEscape' in receipt['failure']
   assert receipt['secondaryFailures'][0]['message']=='provider changed during snapshot'
  else:assert receipt['failure']['message']=='provider changed during snapshot'
  assert {call[0] for call in run.calls}=={'header-java-version','header-compiler-version'}
 
 def test_fast_entrypoint_appends_only_proved_exact_header_root(observation,monkeypatch):
- run,_,headers,_=observation;original=h.hi.scan;seen=[]
+ run,_,headers,_=observation;original=c.prebuild_snapshot;seen=[]
  def inspect(context,roots):seen.extend(roots);return original(context,roots)
- monkeypatch.setattr(h.hi,'scan',inspect)
+ monkeypatch.setattr(c,'prebuild_snapshot',inspect)
  receipt={'source':{'sourceSha':'a'*40}};h.observe(run,receipt)
- assert seen[-1]==h.hp.INCLUDE_ROOT and len(seen)==3
+ assert seen[-3:]==[role['root'] for role in h.hp.PROVIDERS] and len(seen)==5
  assert receipt['headerProvider']['status']=='SYNTHETIC_PROVIDER_FIXTURE_NOT_ADMISSION'
 
 def test_fast_entrypoint_rejects_unexpected_provider_root_before_snapshot(observation,tmp_path,monkeypatch):
@@ -269,61 +270,42 @@ def test_fast_entrypoint_rejects_unexpected_provider_root_before_snapshot(observ
  monkeypatch.setattr(c,'prebuild_snapshot',lambda *a:pytest.fail('unproved root reached snapshot'))
  with pytest.raises(Failure,match='Unexpected admitted Clang header root'):h.observe(run,{'source':{'sourceSha':'a'*40}})
 
-@pytest.mark.parametrize('cause',['entry-limit','output-limit','error','truncated-text'])
-def test_incomplete_inventory_never_becomes_admission_or_snapshot(observation,monkeypatch,cause):
+@pytest.mark.parametrize('mutation',['missing','duplicate','reordered','extra','legacy-single'])
+def test_fast_snapshot_requires_exact_ordered_closed_provider_set(observation,monkeypatch,mutation):
+ run,_,_,_=observation;roots=[role['root'] for role in h.hp.PROVIDERS]
+ if mutation=='missing':roots=roots[:-1]
+ elif mutation=='duplicate':roots=[roots[0],roots[0],roots[2]]
+ elif mutation=='reordered':roots=roots[::-1]
+ elif mutation=='extra':roots=[*roots,Path('/usr/lib')]
+ else:roots=roots[0]
+ monkeypatch.setattr(h.hp,'validate',lambda *a:roots)
+ monkeypatch.setattr(c,'prebuild_snapshot',lambda *a:pytest.fail('unproved provider set reached snapshot'))
+ with pytest.raises(Failure,match='Unexpected admitted Clang header root'):h.observe(run,{'source':{'sourceSha':'a'*40}})
+
+
+def test_fast_content_snapshot_does_not_call_metadata_inventory(observation,monkeypatch):
+ from tools.eight_view_host import header_inventory
  run,_,_,_=observation
- original=h.hi.scan
- def incomplete(context,roots):
-  value=original(context,roots);value.update(complete=False,status='INCOMPLETE')
-  if cause=='entry-limit':value['limitsHit']=['ENTRIES']
-  elif cause=='output-limit':value.update(limitsHit=['OUTPUT'],escapedRowsOmitted=1)
-  elif cause=='error':value['errors']=[{'path':'synthetic','type':'PermissionError','errno':13}]
-  else:value['textsTruncated']=1
-  return value
- monkeypatch.setattr(h.hi,'scan',incomplete)
- receipt={'source':{'sourceSha':'a'*40}}
- with pytest.raises(Failure,match='incomplete; admission refused'):h.observe(run,receipt)
- assert receipt['headerInventory']['complete'] is False
- assert receipt['snapshot']=={'attempted':False,'status':'NOT_RUN_METADATA_ONLY'}
+ monkeypatch.setattr(header_inventory,'scan',lambda *a:pytest.fail('metadata inventory substituted for actual content snapshot'))
+ original=c.prebuild_snapshot;calls=[]
+ def snapshot(context,roots):calls.append(True);return original(context,roots)
+ monkeypatch.setattr(c,'prebuild_snapshot',snapshot)
+ receipt={'source':{'sourceSha':'a'*40}};h.observe(run,receipt)
+ assert calls==[True] and receipt['snapshot']['attempted'] is True and receipt['snapshot']['status']=='COMPLETED'
+ assert 'headerInventory' not in receipt
 
 
-def test_all_escapes_retained_without_opening_any_header_payload(observation,tmp_path,monkeypatch):
- run,_,headers,_=observation
- outside=tmp_path/'external';outside.mkdir()
- for index in range(3):
-  target=outside/f'{index}.h';target.write_bytes(b'HEADER_PAYLOAD_MUST_NOT_BE_OPENED')
-  (headers/f'escape{index}.h').symlink_to(target)
- original=os.open
- def metadata_only(path,flags,*args,**kwargs):
-  # Identity checks for compiler/JDK remain allowed; header traversal may open
-  # directories only, never regular header content, even the admitted inside.h.
-  name=str(path)
-  if name.endswith('.h'):pytest.fail('metadata inventory opened header content')
-  return original(path,flags,*args,**kwargs)
- monkeypatch.setattr(os,'open',metadata_only)
- receipt={'source':{'sourceSha':'a'*40}}
- with pytest.raises(Failure,match='found escapes'):h.observe(run,receipt)
- inventory=receipt['headerInventory']
- assert inventory['complete'] is True and inventory['escapedCount']==3 and len(inventory['escapes'])==3
- assert {row['resolvedTarget'] for row in inventory['escapes']}=={str(outside/f'{i}.h') for i in range(3)}
- assert 'HEADER_PAYLOAD_MUST_NOT_BE_OPENED' not in json.dumps(receipt)
- assert receipt['snapshot']=={'attempted':False,'status':'NOT_RUN_METADATA_ONLY'}
-
-
-def test_near_limit_inventory_and_realistic_provider_identity_fit_receipt(observation,tmp_path):
+def test_closed_provider_proof_and_maximum_escape_metadata_fit_receipt(observation,tmp_path):
  run,_,_,_=observation
  receipt={'schema':1,'classification':h.CLASSIFICATION,'status':'FAIL','qualified':False,'pipelineAttempts':0,
   'source':{'sourceSha':'a'*40,'parentSha':h.BASE,'tree':'b'*40,'sourceManifestSha256':'c'*64,'changedPaths':sorted(h.ALLOWED_PATHS)}}
  h.observe(run,receipt)
- # Budget-only fixture: observed hosted provider proof was 3550 bytes. Reserve
- # 4 KiB here instead; this padding is not a forged provider admission test.
- receipt['headerProvider']['budgetOnlySyntheticPadding']='p'*4096
- inventory=receipt['headerInventory'];inventory.update(complete=False,status='INCOMPLETE',escapedCount=128,escapedRowsOmitted=1)
- inventory['escapes']=[{'path':'/usr/include/alias','rawTarget':'../outside','resolvedTarget':'/usr/outside'}]
- inventory['budgetOnlySyntheticPadding']='x'*(20480-len(json.dumps(inventory,sort_keys=True,ensure_ascii=True,separators=(',',':')).encode())-36)
- assert 20000<len(json.dumps(inventory,separators=(',',':')).encode())<=20480
+ # Budget-only padding for the deduplicated three-provider filesystem/probes;
+ # not provider-admission evidence. Keep the real artifact cap unchanged.
+ receipt['headerProvider']['budgetOnlySyntheticPadding']='p'*10000
+ metadata={'classification':'HEADER_ESCAPE_METADATA_ONLY','budgetOnlySyntheticPadding':'x'*16000}
+ h.record_failure(receipt,Failure('header gate refused; EIGHT_VIEW_HEADER_ESCAPE '+json.dumps(metadata)))
  receipt.update(headerProviderPostcheck='PASS',sourcePostcheck='PASS',ownedCleanup='PASS')
- h.record_failure(receipt,Failure('Header escape metadata inventory incomplete; admission refused'))
  result=h.write_receipt(tmp_path/'budget-evidence',receipt)
- assert result['headerInventory']==inventory and result['status']=='FAIL'
+ assert result['failure']['headerEscape']==metadata and result['headerProvider']==receipt['headerProvider']
  assert len((tmp_path/'budget-evidence/receipt.json').read_bytes())<=32768

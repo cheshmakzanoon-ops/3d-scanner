@@ -1,6 +1,7 @@
 package com.realityforge.scanner.capture.calibration
 
 import com.realityforge.scanner.capture.metadata.CaptureMetadata
+import com.realityforge.scanner.imaging.ImageInspection
 
 /**
  * Uses the same 013 capture identities for calibration and scan compatibility. Device-local camera IDs are
@@ -32,4 +33,12 @@ object CalibrationCaptureMetadataAdapter {
 
     fun forScan(metadata: CaptureMetadata, uprightWidth: Int, uprightHeight: Int) =
         CalibrationCaptureMetadata(uprightWidth, uprightHeight, optical(metadata))
+
+    /** Persisted photo sizes are encoded; only the decoder's file inspection supplies geometry.
+     * Merged/legacy metadata may be missing or disagree about orientation, but still supplies optics.
+     */
+    fun forInspectedScan(metadata: CaptureMetadata?, inspection: ImageInspection, fallbackFocal35mm: Double?) =
+        CalibrationCaptureMetadata(inspection.uprightWidth, inspection.uprightHeight,
+            metadata?.let { optical(it) } ?: CalibrationOpticalMetadata(focal35mm = fallbackFocal35mm))
+
 }

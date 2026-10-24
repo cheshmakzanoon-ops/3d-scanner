@@ -102,6 +102,21 @@ def counts(xml):
     return result
 
 
+def native_counts(xml, record, *, source_sha, profile, repository, run_id, mapped=None):
+    config = record['configurations'][0]
+    accounting = config.get('pytest_accounting')
+    if accounting is None:
+        if config.get('pytest_accounting_required') is True:
+            raise ci.EvidenceError('Required native pytest accounting missing')
+        return counts(xml)  # Legacy raw XML remains strictly checked.
+    if len(xml) != 1:
+        raise ci.EvidenceError('Exactly one accounted native pytest XML required')
+    proof = Path(accounting['path']) if mapped is None else mapped[accounting['path']]
+    from tools.ci.validation.pytest_accounting import validate
+    return validate(xml[0], proof, source_sha=source_sha, profile=profile,
+                    repository=repository, run_id=run_id)
+
+
 def inventory(directory):
     """Bound fd-anchored enumeration; never traverse a queued path/symlink."""
     directory = Path(directory)
@@ -211,6 +226,10 @@ def seal(start_path, native_path, output, artifact_patterns=(), repository=None)
     qa = ci.expanded(artifact_patterns)
     validate_qa(qa)
     referenced = [native_path, *qa]
+    accounting = config.get('pytest_accounting')
+    accounting_path = Path(accounting['path']) if accounting is not None else None
+    if accounting_path is not None:
+        referenced.append(accounting_path)
     command_logs = {}
     for command in config.get('commands', []):
         log = Path(command['log'])
@@ -243,7 +262,8 @@ def seal(start_path, native_path, output, artifact_patterns=(), repository=None)
     files = list(dict.fromkeys([*files, *xml, *qa]))
     if set(files) != set(referenced):
         raise ci.EvidenceError('Producer references changed during validation')
-    total = counts(xml)
+    total = native_counts(xml, record, source_sha=start['source_sha'], profile=start['profile'],
+                          repository=start['repository'], run_id=start['run_id'])
     output.mkdir(parents=True)
     (output / 'files').mkdir()
     artifacts = []
@@ -253,7 +273,7 @@ def seal(start_path, native_path, output, artifact_patterns=(), repository=None)
         copy_snapshot(path, output / relative, snapshots[path])
         if stable_snapshot(path, allow_empty=path in command_logs) != snapshots[path] or ci.sha(output / relative) != digest:
             raise ci.EvidenceError('Producer artifact changed during sealing')
-        role = 'native-record' if path == native_path else 'command-log' if path in command_logs else 'junit' if path in xml else 'qa' if path in qa else 'artifact'
+        role = 'native-record' if path == native_path else 'pytest-accounting' if path == accounting_path else 'command-log' if path in command_logs else 'junit' if path in xml else 'qa' if path in qa else 'artifact'
         artifacts.append(dict(identity(output / relative, relative, str(path), role),
                               produced_mtime_ns=before[4]))
     data = dict(start, status='PASS', completed_ns=time.time_ns(), tests=total, artifacts=artifacts)
@@ -297,18 +317,27 @@ def verify_shard(directory, expected, run_id, profile=None, repository=None):
     files, xml = ci.native_record(record_path, expected, mapped, profile=data['profile'])
     if len(files + xml) != len(set(files + xml)):
         raise ci.EvidenceError('Duplicate native record file reference')
-    if set(xml) != set(roles.get('junit', [])) or counts(xml) != data.get('tests'):
-        raise ci.EvidenceError('Native shard JUnit count/role mismatch')
-    command_paths = {mapped[row['log']] for row in ci.load(record_path)['configurations'][0]['commands']}
+    record = ci.load(record_path)
+    command_paths = {mapped[row['log']] for row in record['configurations'][0]['commands']}
     if not set(roles.get('command-log', [])) <= command_paths:
         raise ci.EvidenceError('Command-log role is not bound to a successful command')
+    accounting = record['configurations'][0].get('pytest_accounting')
+    expected_accounting = [] if accounting is None else [mapped[accounting['path']]]
+    if roles.get('pytest-accounting', []) != expected_accounting:
+        raise ci.EvidenceError('Native pytest accounting role mismatch')
+    if set(xml) != set(roles.get('junit', [])):
+        raise ci.EvidenceError('Native shard JUnit role mismatch')
+    total = native_counts(xml, record, source_sha=expected, profile=data['profile'],
+                          repository=data['repository'], run_id=run_id, mapped=mapped)
+    if total != data.get('tests'):
+        raise ci.EvidenceError('Native shard JUnit count mismatch')
     validate_qa([Path(row['original_path']) for row in data['artifacts'] if row['role'] == 'qa'])
     allowed = set(files) | set(xml) | set(roles.get('qa', []))
-    if allowed != set(mapped.values()) or set(roles) - {'native-record', 'command-log', 'junit', 'qa', 'artifact'}:
+    if allowed != set(mapped.values()) or set(roles) - {'native-record', 'command-log', 'pytest-accounting', 'junit', 'qa', 'artifact'}:
         raise ci.EvidenceError('Foreign native artifact role')
     record = ci.load(record_path)
     numeric_rows = [row for row in record['configurations'][0]['artifacts'] if Path(row['path']).name == 'numerical.json']
-    return dict(envelope=data, record=record, mapped=mapped, counts=counts(xml),
+    return dict(envelope=data, record=record, mapped=mapped, counts=total,
                 numerical=ci.load(mapped[numeric_rows[0]['path']]))
 
 

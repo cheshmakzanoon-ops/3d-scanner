@@ -102,13 +102,13 @@ def verify_capability(path,source,policy,run=None,prepared=None):
     if proof_path.is_symlink() or proof_path.resolve()!=proof_path:raise Failure('Clang header proof input alias')
     header_proof=json.loads(bounded_bytes(proof_path,32*1024,run))
     if value.get('headerProvider')!=header_proof:raise Failure('Clang header provider capability/input proof differs')
-    header_root=hp.validate(header_proof,source,run)  # Existing authoritative probes only; never re-probe.
-    if header_root!=hp.INCLUDE_ROOT:raise Failure('Unexpected admitted Clang header root')
+    header_roots=hp.validate(header_proof,source,run)  # Existing authoritative probes only; never re-probe.
+    if header_roots!=[role['root'] for role in hp.PROVIDERS]:raise Failure('Unexpected admitted Clang header root')
     java=Path(run.env['JAVA_HOME'])
     expected_inputs={
         **{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},
         'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release',
-        'header-provider.json':proof_path,'headerProviderDriver':hp.DRIVER,
+        'header-provider.json':proof_path,**{'headerProviderDriver-'+str(role['major']):role['driver'] for role in hp.PROVIDERS},
         'policy':Path(policy),'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':out/'opencv.tar.gz',
         'license':out/'source'/('opencv-'+requirements['opencvCommit'])/'LICENSE',
         'aar':Path(prepared['opencvAar']),'classes':Path(prepared['opencvClasses']),
@@ -119,7 +119,7 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         **{name:out/name for name in ['source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json']}}
     consumed=json.loads((out/'consumed-inputs.json').read_text())
     if not consumed or len(consumed)>24000:raise Failure('Missing/excessive consumed header closure')
-    allowed_roots=[out,run.root/'reconstruction',java/'include',Path('/usr/include'),Path('/usr/lib/gcc'),header_root]
+    allowed_roots=[out,run.root/'reconstruction',java/'include',Path('/usr/include'),Path('/usr/lib/gcc'),*header_roots]
     for i,(name,digest) in enumerate(sorted(consumed.items())):
         f=Path(name)
         if not f.is_absolute() or str(f)!=name or f.resolve(strict=True)!=f or not any(f.is_relative_to(root.resolve()) for root in allowed_roots):raise Failure('Consumed compiler input outside source/system/JDK closure')
