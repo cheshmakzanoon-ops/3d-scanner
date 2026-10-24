@@ -3,8 +3,8 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='d7caf95f6513fdf5e626d074623e120850e6d5c9'
-MESSAGE='test: inspect eight-view OpenCV provider binding once'
+BASE_SHA='c4224800a35a7e336af0983b1efc25de862f8b54'
+MESSAGE='test: run source-bound OpenCV normalization once'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
 ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','SOURCE_MANIFEST.sha256'))  # Final independently reviewed trigger commit only; no wildcard expansion.
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
