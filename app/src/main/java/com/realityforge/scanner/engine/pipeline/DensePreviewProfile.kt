@@ -8,10 +8,10 @@ enum class DensePreviewProfile {
 
 /** One canonical settings declaration is shared by stage and native-input identities. */
 internal object DenseExecutionPolicy {
-    const val SURFACE_ENGINE = "rf-observed-open-mesh-v8-exact-cleanup-provenance"
+    const val SURFACE_ENGINE = "rf-observed-open-mesh-v9-three-observed-corners"
     // Keep the native surface_checkpoint::FILENAME in sync. Provenance requires v3;
     // the immutable surface namespace changes, not the reusable depth directory.
-    const val SURFACE_CHECKPOINT_FILENAME = "surface-v3-fusion-v8.rfmesh"
+    const val SURFACE_CHECKPOINT_FILENAME = "surface-v3-fusion-v9.rfmesh"
     const val ATLAS_ENGINE = "rf-atlas-v2-groups-zlib-radiometry3"
     fun depth(profile:DensePreviewProfile) = when(profile) {
         DensePreviewProfile.Compatibility -> "cpu-compatibility-v1|discontinuityAwareConsistency=false|robustSourceAggregation=false"

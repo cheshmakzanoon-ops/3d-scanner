@@ -65,9 +65,60 @@ DiagonalFixture diagonalFixture(double shift,bool rotate,bool reverse,bool parti
  return f;
 }
 
+// Analytic observed cell: no depth/vertex exists at an omitted corner.
+DiagonalFixture observedCell(unsigned mask,bool duplicate=false,double zLast=5.,double fy=100.){
+    DiagonalFixture f;f.views.resize(2);f.dense.maps.resize(2);
+    for(int camera=0;camera<2;++camera){
+        auto& v=f.views[camera];v.width=v.height=40;v.fx=100;v.fy=fy;v.cx=v.cy=19;v.pose={rf::identity(),{0,0,0}};
+        auto& map=f.dense.maps[camera];map.width=map.height=40;map.depth.assign(1600,0);map.confidence.assign(1600,0);
+        for(int corner=0;corner<4;++corner){
+            if(!(mask&(1u<<corner)))continue;
+            const int x=15+(corner%2)*3,y=15+(corner/2)*3;const double z=corner==3?zLast:5.;
+            map.depth[y*40+x]=z;map.confidence[y*40+x]=.9f;
+            if(camera==0||duplicate)f.dense.verifiedSamples.push_back({{(x-v.cx)*z/v.fx,(y-v.cy)*z/v.fy,z},
+                {128,128,128},.9f,2,static_cast<std::uint8_t>(camera),static_cast<std::uint16_t>(x),static_cast<std::uint16_t>(y)});
+        }
+    }
+    return f;
+}
+
 int main(){
     int passed=0;
     auto test=[&](const char* name,auto fn){try{fn();++passed;std::cout<<"PASS "<<name<<'\n';}catch(const std::exception& e){std::cerr<<"FAIL "<<name<<": "<<e.what()<<'\n';throw;}};
+    test("three observed corners retain exactly one supported face in every orientation",[]{
+        for(int missing=0;missing<4;++missing){
+            const auto f=observedCell(15u^(1u<<missing));
+            const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense);
+            require(mesh.triangles.size()==1&&mesh.vertices.size()==3,"Three observed corners discarded or fabricated geometry");
+            require(mesh.acceptedSamples==3&&mesh.observations.size()==3&&mesh.unattachedObservations.empty(),"Observed corner provenance lost");
+            for(const auto& vertex:mesh.vertices)require(std::any_of(f.dense.verifiedSamples.begin(),f.dense.verifiedSamples.end(),[&](const auto& sample){
+                return vertex.xyz.x==sample.xyz.x&&vertex.xyz.y==sample.xyz.y&&vertex.xyz.z==sample.xyz.z;
+            }),"Partial cell introduced an unobserved vertex position");
+            const auto& t=mesh.triangles.front();require(t.sourceCamera==0,"Face source camera changed");
+            const auto a=mesh.vertices[t.a].xyz,b=mesh.vertices[t.b].xyz,c=mesh.vertices[t.c].xyz;
+            const double nz=(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);
+            require(nz<0&&std::abs(nz/2.+.01125)<1e-12,"Observed triangle area or camera-facing winding changed");
+            for(const auto& o:mesh.observations){const auto& input=f.dense.verifiedSamples[o.sourceSampleId];
+                require(o.camera==0&&o.x==input.x&&o.y==input.y,"Triangle invented source support");}
+        }
+    });
+    test("partial cells retain depth edge area duplicate and insufficient-support gates",[]{
+        for(unsigned mask=0;mask<16;++mask){
+            if(__builtin_popcount(mask)>=3)continue;
+            const auto f=observedCell(mask);require(rf::fuseDepthSurfaces(f.views,f.dense).triangles.empty(),"Insufficient observed corners fabricated a face");}
+        const auto full=observedCell(15);require(rf::fuseDepthSurfaces(full.views,full.dense).triangles.size()==2,"Full cell behavior changed");
+        const auto jump=observedCell(14,false,6.);require(rf::fuseDepthSurfaces(jump.views,jump.dense).triangles.empty(),"Partial cell bridged a depth discontinuity");
+        const auto flat=observedCell(7);rf::SurfaceSettings tight;tight.maximumEdgePixelFactor=1.;
+        require(rf::fuseDepthSurfaces(flat.views,flat.dense,tight).triangles.empty(),"Partial cell bypassed edge-length gate");
+        const auto thin=observedCell(7,false,5.,100000.);require(rf::fuseDepthSurfaces(thin.views,thin.dense).triangles.empty(),"Partial cell bypassed area gate");
+        auto invalid=flat;invalid.dense.maps[0].depth[15*40+15]=-1;
+        expectError([&]{rf::fuseDepthSurfaces(invalid.views,invalid.dense);});
+        const auto budget=diagonalFixture(0,false,false,false,0,false);rf::SurfaceSettings capped;capped.pixelStride=2;capped.maxTriangles=10;
+        require(rf::fuseDepthSurfaces(budget.views,budget.dense,capped).triangles.size()<=10,"Triangle budget bypassed");
+        const auto duplicate=observedCell(7,true);const auto mesh=rf::fuseDepthSurfaces(duplicate.views,duplicate.dense);
+        require(mesh.triangles.size()==1,"Repeated observed face escaped duplicate gate");
+        require(mesh.observations.size()==6&&mesh.unattachedObservations.empty(),"Duplicate face lost observed provenance");
+    });
     test("exact equal diagonal ties share a world-space tessellation across rotated views",[]{
         for(int variant=0;variant<4;++variant){
             const bool reverse=variant==1,partial=variant==2,step=variant==3;

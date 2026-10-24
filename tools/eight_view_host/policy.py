@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='11dbd41f0311fc338c3a5d6b987366a9c90fd3d7'
-MESSAGE='fix: bound complete prototype artifact capacity'
+BASE_SHA='81a23797eb08ccfa14db4ec4aa7b79602c33711b'
+MESSAGE='fix: preserve observed three-corner surface cells'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'tests/test_eight_view_artifact_budget.py', 'tests/test_eight_view_controller.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/androidTest/java/com/realityforge/scanner/agents/a002/PipelineServicesDeviceTest.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt', 'app/src/test/java/com/realityforge/scanner/agents/a009/ProductionCheckpointFilesTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/pipeline/SurfaceCacheIdentityTest.kt', 'reconstruction/include/realityforge/surface.hpp', 'reconstruction/include/realityforge/surface_checkpoint.hpp', 'reconstruction/src/surface.cpp', 'reconstruction/src/surface_checkpoint.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'reconstruction/tests/surface_fusion_test.cpp', 'reconstruction/tests/surface_test.cpp', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

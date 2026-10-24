@@ -56,7 +56,8 @@ struct SurfaceMesh {
     SurfaceQualityDiagnostics topology;
 };
 // Only verified samples (reciprocal depth, >=2 supporting cameras) can
-// contribute vertices. Faces require 4 neighboring verified source samples.
+// contribute vertices. Faces require 3 neighboring verified source samples within one grid cell.
+// A fourth verified corner retains the existing two-triangle diagonal policy.
 SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult& dense,
                               const SurfaceSettings& settings = {});
 std::string surfaceJson(const SurfaceMesh& mesh);

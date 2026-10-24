@@ -179,9 +179,9 @@ class ProductionCheckpointFilesTest {
     @Test fun fusionVersionInvalidatesOnlySurfaceAndTextureNotDepthOrSparseParents() = runBlocking {
         for (profile in DensePreviewProfile.entries) {
             val current = productionInput(profile)
-            assertEquals("rf-observed-open-mesh-v8-exact-cleanup-provenance|quality-gated", current.settings.surface)
+            assertEquals("rf-observed-open-mesh-v9-three-observed-corners|quality-gated", current.settings.surface)
             val legacy = current.copy(settings = current.settings.copy(
-                surface = "rf-observed-open-mesh-v7-canonical-world-diagonal-ties|quality-gated"))
+                surface = "rf-observed-open-mesh-v8-exact-cleanup-provenance|quality-gated"))
             val binding = ArtifactProvenanceFixtures.binding()
             for (stage in AdapterStage.entries) {
                 if (stage.ordinal <= AdapterStage.DENSE.ordinal)
@@ -199,7 +199,7 @@ class ProductionCheckpointFilesTest {
             val previous = surfaceFixture(inputOverride = legacy)
             val cache = PipelineSurfaceCache(previous.root)
             assertNotNull(requireNotNull(cache.load(previousPlan, previous.sparse)).completeTexture)
-            // The Kotlin complete-texture fast path must not bypass native v8 rejection.
+            // The Kotlin complete-texture fast path must not bypass native v9 rejection.
             assertNull(cache.load(currentPlan, previous.sparse))
             for (stage in listOf(ReconstructionStage.SPARSE, ReconstructionStage.DENSE))
                 PipelineJobCheckpointValidator.validateArtifacts(previous.root,
@@ -223,7 +223,7 @@ class ProductionCheckpointFilesTest {
         val legacy = File(accepted.depthDirectory, "surface-v2.rfmesh")
         val protectedFiles = (listOf(legacy, accepted.surfaceFile) + fixture.depthReferences.map { File(fixture.root, it) })
             .associateWith { it.readBytes() }
-        assertEquals("surface-v3-fusion-v8.rfmesh", accepted.surfaceFile.name)
+        assertEquals("surface-v3-fusion-v9.rfmesh", accepted.surfaceFile.name)
         assertNotEquals(legacy, accepted.surfaceFile)
         assertEquals(listOf("ref-0.bin", "ref-1.bin"), fixture.depthReferences.map { File(it).name })
         repeat(2) {

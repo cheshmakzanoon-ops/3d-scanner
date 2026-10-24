@@ -126,7 +126,7 @@ int main() {
     test("historical topology and fusion identities fail closed even under the current filename",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
         rf::surface_checkpoint::AcceptedSurface recovered;
-        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2",
+        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2",
                                "realityforge-observed-open-surface-fusion-v6-checkpoint-v2",
                                "realityforge-observed-open-surface-fusion-v6-checkpoint-v2-topology-v2"}) {
             const auto oldBytes=historicalBytes(domain);write(checkpoint,oldBytes);
@@ -151,8 +151,8 @@ int main() {
             referenceBytes.push_back(read(temporary.directory/name));
             write(migration.directory/name,referenceBytes.back());
         }
-        const auto oldPath=migration.directory/"surface-v2.rfmesh";
-        const auto oldBytes=historicalBytes("realityforge-observed-open-surface-fusion-v6-checkpoint-v2-topology-v2");
+        const auto oldPath=migration.directory/"surface-v3-fusion-v8.rfmesh";
+        const auto oldBytes=historicalBytes("realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2");
         write(oldPath,oldBytes);
         const auto next=migration.directory/rf::surface_checkpoint::FILENAME;
         require(next!=oldPath&&!std::filesystem::exists(next),"fusion migration did not get a fresh namespace");
@@ -168,7 +168,7 @@ int main() {
         require(newBytes==acceptedBytes&&u32(newBytes,8)==3,
                 "provenance migration omitted v3 serialization");
         require(rf::surface_checkpoint::load(next.string(),views,recovered),"new fusion checkpoint was not reusable");
-        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":8")!=std::string::npos,
+        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":9")!=std::string::npos,
                 "reopened checkpoint reports a stale fusion version");
         created=true;
         require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&created)&&!created,
@@ -278,10 +278,6 @@ int main() {
         bad=acceptedBytes;std::copy_n(bad.begin()+static_cast<std::ptrdiff_t>(firstObservation),18,
             bad.begin()+static_cast<std::ptrdiff_t>(firstObservation+18));checksum(bad);rejects(bad);
         const std::size_t unattachedOffset=firstObservation+static_cast<std::size_t>(observationCount)*18;
-        require(u32(acceptedBytes,unattachedOffset)>0,"photographic fixture must exercise unmeshed accepted evidence");
-        bad=acceptedBytes;bad[unattachedOffset+4+13]=255;checksum(bad);rejects(bad);
-        bad=acceptedBytes;std::copy_n(bad.begin()+static_cast<std::ptrdiff_t>(firstObservation+4),13,
-            bad.begin()+static_cast<std::ptrdiff_t>(unattachedOffset+4));checksum(bad);rejects(bad);
         bad=acceptedBytes;u32(bad,unattachedOffset,std::numeric_limits<std::uint32_t>::max());checksum(bad);rejects(bad);
         bad=acceptedBytes;u32(bad,8,2);checksum(bad);rejects(bad);
         bad=acceptedBytes;u32(bad,8,1);checksum(bad);rejects(bad);
@@ -292,6 +288,32 @@ int main() {
         for(int i=0;i<8;++i)bad[vertexOffset+24+static_cast<std::size_t>(i)]=static_cast<std::uint8_t>(nan>>(i*8));
         checksum(bad);rejects(bad);
         write(checkpoint,acceptedBytes);
+    });
+    test("bounded observed mesh retains unattached identities and rejects corrupted reasons",[&] {
+        // Three-corner recovery can attach every sample in the small plane.
+        // Use the existing triangle budget to deliberately retain some unmeshed
+        // observations, rather than depending on accidental holes in that plane.
+        Temp bounded;rf::depth_checkpoint::Scope scope(bounded.directory.string(),HASH);
+        const auto observed=rf::reconstructDense(views,denseSettings);
+        auto limited=meshSettings;limited.maxTriangles=200;
+        const auto partial=rf::fuseDepthSurfaces(views,observed,limited);
+        require(partial.triangles.size()==200&&!partial.unattachedObservations.empty(),"bounded fixture lacks unattached observed evidence");
+        require(rf::surface_checkpoint::store(views,observed,partial,limited),"bounded fixture checkpoint failed");
+        const auto path=bounded.directory/rf::surface_checkpoint::FILENAME;const auto bytes=read(path);
+        rf::surface_checkpoint::AcceptedSurface loaded;
+        require(rf::surface_checkpoint::load(path.string(),views,loaded),"bounded checkpoint did not reopen");
+        require(loaded.mesh.unattachedObservations.size()==partial.unattachedObservations.size(),"bounded checkpoint lost unattached observations");
+        std::size_t faceEnd=316;
+        for(std::size_t i=0;i<views.size();++i)faceEnd+=4+u32(bytes,faceEnd)*4+8;
+        faceEnd+=static_cast<std::size_t>(u32(bytes,36))*32+static_cast<std::size_t>(u32(bytes,40))*66+
+                 static_cast<std::size_t>(u32(bytes,28))*56+static_cast<std::size_t>(u32(bytes,32))*13;
+        const auto firstObservation=faceEnd+4,unattachedOffset=firstObservation+static_cast<std::size_t>(u32(bytes,faceEnd))*18;
+        require(u32(bytes,faceEnd)>0&&u32(bytes,unattachedOffset)>0,"bounded fixture needs both observation relations");
+        auto bad=bytes;bad[unattachedOffset+4+13]=255;checksum(bad);write(path,bad);
+        require(!rf::surface_checkpoint::load(path.string(),views,loaded),"invalid unattached reason loaded");
+        bad=bytes;std::copy_n(bad.begin()+static_cast<std::ptrdiff_t>(firstObservation+4),13,
+            bad.begin()+static_cast<std::ptrdiff_t>(unattachedOffset+4));checksum(bad);write(path,bad);
+        require(!rf::surface_checkpoint::load(path.string(),views,loaded),"repeated attached/unattached identity loaded");
     });
     test("even checksummed replacement depth is rejected by independent full map SHA",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);rf::surface_checkpoint::AcceptedSurface unused;

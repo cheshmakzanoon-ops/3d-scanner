@@ -316,10 +316,21 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
                 const std::size_t i=static_cast<std::size_t>(y)*width+x;
                 std::array<std::size_t,4> pix{i,i+step,i+static_cast<std::size_t>(step)*width,i+static_cast<std::size_t>(step)*width+step};
                 std::array<std::int32_t,4> ids{grid[pix[0]],grid[pix[1]],grid[pix[2]],grid[pix[3]]};
-                if(std::any_of(ids.begin(),ids.end(),[](auto id){return id<0;})){
-                    ++mesh.rejectedCells;continue;
-                }
+                const auto observed=std::count_if(ids.begin(),ids.end(),[](auto id){return id>=0;});
+                if(observed<3){++mesh.rejectedCells;continue;}
                 const std::array<float,4> d{depth[pix[0]],depth[pix[1]],depth[pix[2]],depth[pix[3]]};
+                if(observed==3){
+                    // Retain only the triangle spanned by three verified corners.
+                    // No missing depth/vertex is interpolated, and all existing
+                    // depth, edge, area, duplicate and winding checks still apply.
+                    std::array<std::int32_t,3> triangle{};std::array<float,3> depths{};
+                    std::size_t next=0;
+                    for(std::size_t corner=0;corner<4;++corner)if(ids[corner]>=0){
+                        triangle[next]=ids[corner];depths[next++]=d[corner];
+                    }
+                    if(!validTriangle(cam,triangle,depths))++mesh.rejectedTriangles;
+                    continue;
+                }
                 const auto& v=mesh.vertices;
                 const auto dist=[&](int a,int b){return norm(sub(v[static_cast<std::size_t>(ids[a])].xyz,
                                                                   v[static_cast<std::size_t>(ids[b])].xyz));};
@@ -392,7 +403,7 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<",\"unattachedObservationCount\":"<<m.unattachedObservations.size()
      <<",\"exactDuplicateSupportCount\":"<<std::count_if(m.observations.begin(),m.observations.end(),[](const auto& o){return o.relation==SurfaceObservationRelation::ExactDuplicateFace;})
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":8,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":9,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])
