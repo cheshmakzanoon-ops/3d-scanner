@@ -35,13 +35,13 @@ def fixture_repository(tmp_path,monkeypatch,extra=None,omit=None):
 def test_actual_git_single_parent_tree_and_real_manifest_guard(tmp_path,monkeypatch):
  root,head=fixture_repository(tmp_path,monkeypatch);run=GitRunner(root);record=h.source_guard(run,head)
  assert record['sourceSha']==head and record['tree']==git(root,'rev-parse','HEAD^{tree}')
- assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==10
+ assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==7
  assert 'header-source-manifest' in run.calls
  h.source_postcheck(run,record)
 
 @pytest.mark.parametrize('case',['extra','omitted','dirty','wrong-source','wrong-parent','shallow','merge'])
 def test_real_git_source_guard_refuses_widened_or_unbound_source(tmp_path,monkeypatch,case):
- root,head=fixture_repository(tmp_path,monkeypatch,extra='foreign' if case=='extra' else None,omit='tests/test_eight_view_capability.py' if case=='omitted' else None)
+ root,head=fixture_repository(tmp_path,monkeypatch,extra='foreign' if case=='extra' else None,omit='tests/test_eight_view_host.py' if case=='omitted' else None)
  if case=='dirty':(root/'untracked').write_text('not allowed')
  if case=='wrong-source':head='a'*40
  if case=='wrong-parent':monkeypatch.setattr(h,'BASE','b'*40)

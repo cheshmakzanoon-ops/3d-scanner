@@ -273,3 +273,23 @@ native/pipeline qualification. Local provider fixtures include real owned
 subprocess execution of an explicitly synthetic driver script; they do not
 claim validation of the runner's installed Clang package. The focused CI run
 must establish that separately.
+
+## Vanished task inventory after focused 48a4
+
+Run `48a45fa54eca88ec3383702ca0c33bae95327478` failed before header
+admission because Linux returned `ESRCH` while reading an exiting task's
+`/proc/<pid>/task/<pid>/children`. Snapshot execution was not attempted;
+owned cleanup passed. `child_pids` now treats only `ProcessLookupError` as
+that vanished task's empty child inventory. The existing `ENOENT` bounded
+PPID fallback remains unchanged for procfs views lacking `task/children`.
+Permission, I/O and other errors still propagate; `proc_info` already handled
+both vanished-task errors and needs no change. PID/starttime checks, pidfds,
+process groups, subreaper restoration and cleanup gates are unchanged.
+Deterministic tests exercise the exit-between-check-and-read race, subsequent
+adopted-child discovery and PID reuse refusal. Real short-lived child and
+orphaned descendant tests verify owned cleanup and subreaper restoration.
+The combined focused verification is bound to exact parent
+`48a45fa54eca88ec3383702ca0c33bae95327478`, exact seven changed paths and
+message `test: verify header admission after process race fix`. Only the
+short header workflow is re-armed; the photo workflow and all limits remain
+unchanged. Publication remains subject to independent review.

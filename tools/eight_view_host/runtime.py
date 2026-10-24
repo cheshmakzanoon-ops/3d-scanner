@@ -77,6 +77,10 @@ def inventory(root, max_bytes=8*1024**3, max_files=100000, aliases=None, seconds
 
 def child_pids(pid, end=None):
     try: return [int(x) for x in Path(f'/proc/{pid}/task/{pid}/children').read_text().split()]
+    except ProcessLookupError:
+        # The task exited between the ownership/starttime check and this read.
+        # Adopted descendants remain discoverable from the controller/subreaper.
+        return []
     except FileNotFoundError:
         # Some unprivileged procfs views omit task/children; inspect stat PPID only.
         result=[];count=0;end=min(time.monotonic()+2,end if end is not None else float('inf'))

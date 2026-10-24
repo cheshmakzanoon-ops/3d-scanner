@@ -474,3 +474,73 @@ def test_inventory_root_is_never_optional(tmp_path,kind):
  if kind=='symlink':root.symlink_to(tmp_path,target_is_directory=True)
  elif kind=='file':root.write_text('not-directory')
  with pytest.raises((r.Failure,OSError)):r.inventory(root)
+
+
+def test_child_inventory_esrch_is_vanished_not_proc_fallback(monkeypatch):
+ import errno
+ def vanished(path,*a,**k):raise ProcessLookupError(errno.ESRCH,'task vanished',str(path))
+ monkeypatch.setattr(Path,'read_text',vanished)
+ monkeypatch.setattr(r.os,'scandir',lambda *a:pytest.fail('ESRCH must not enumerate unrelated processes'))
+ assert r.child_pids(987654)==[]
+ assert r.proc_info(987654) is None
+
+
+@pytest.mark.parametrize('error',[PermissionError(13,'denied'),OSError(5,'I/O failure'),OSError(20,'not a directory')])
+@pytest.mark.parametrize('function',[r.child_pids,r.proc_info])
+def test_proc_inventory_other_errors_are_not_absence(monkeypatch,error,function):
+ def denied(path,*a,**k):raise error
+ monkeypatch.setattr(Path,'read_text',denied)
+ with pytest.raises(type(error)) as caught:function(987654)
+ assert caught.value is error
+
+
+def test_child_inventory_enoent_retains_bounded_ppid_fallback(monkeypatch):
+ def missing(path,*a,**k):raise FileNotFoundError(str(path))
+ monkeypatch.setattr(Path,'read_text',missing)
+ class Entries:
+  def __enter__(self):return iter([type('Entry',(),{'name':str(n)})() for n in (11,12)])
+  def __exit__(self,*a):pass
+ monkeypatch.setattr(r.os,'scandir',lambda path:Entries())
+ monkeypatch.setattr(r,'proc_info',lambda pid:{'pid':pid,'ppid':77 if pid==11 else 88})
+ assert r.child_pids(77)==[11]
+
+
+def test_esrch_parent_then_adopted_descendant_next_scan(monkeypatch,tmp_path):
+ import errno
+ run=runner(tmp_path);run.subreaper_before=0
+ parent=987650;child=987651;controller=os.getpid();gone=[False];closed=[]
+ def info(pid):
+  if pid==parent and not gone[0]:return {'pid':pid,'ppid':controller,'group':parent,'start':100,'state':'S'}
+  if pid==child and gone[0]:return {'pid':pid,'ppid':controller,'group':child,'start':200,'state':'S'}
+  return None
+ def children(path,*a,**k):
+  if str(path)==f'/proc/{controller}/task/{controller}/children':return str(child if gone[0] else parent)
+  if str(path)==f'/proc/{parent}/task/{parent}/children':
+   gone[0]=True;raise ProcessLookupError(errno.ESRCH,'exited after starttime check')
+  if str(path)==f'/proc/{child}/task/{child}/children':return ''
+  raise AssertionError(str(path))
+ monkeypatch.setattr(r,'proc_info',info);monkeypatch.setattr(Path,'read_text',children)
+ monkeypatch.setattr(r.os,'pidfd_open',lambda pid:pid);monkeypatch.setattr(r.os,'close',closed.append)
+ run.scan();assert run.owned=={parent:100}
+ run.scan();assert run.owned[child]==200 and child in run.pidfds and parent in closed
+ # Existing identity reuse guard is still mandatory after adoption.
+ run.owned[child]=201
+ with pytest.raises(r.Failure,match='identity changed'):run.register(child,controller)
+
+
+def test_real_short_children_and_adopted_descendant_cleanup(tmp_path):
+ run=runner(tmp_path);before=r.subreaper()
+ code=('import subprocess,sys; '
+       '[subprocess.run([sys.executable,"-c","pass"],check=True) for _ in range(8)]; '
+       'p=subprocess.Popen([sys.executable,"-c","import time; time.sleep(15)"],start_new_session=True); '
+       'print(p.pid,flush=True)')
+ try:
+  with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Deadline):
+   run.command('short-and-adopted',[sys.executable,'-c',code],seconds=3)
+  pid=int((run.work/'logs/short-and-adopted.raw.log').read_text().strip())
+  assert pid in run.owned
+  run.cleanup()
+  assert r.proc_info(pid) is None and not run.pidfds and r.subreaper()==before
+ finally:
+  # Safe owned cleanup only; never signal a stale PID directly.
+  if run.subreaper_before is not None:run.cleanup()

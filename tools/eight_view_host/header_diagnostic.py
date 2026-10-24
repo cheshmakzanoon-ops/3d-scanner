@@ -9,20 +9,20 @@ from tools.eight_view_host import capability as c,policy,header_provider as hp
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,sha,safe_display
 from tools.eight_view_host.controller import bounded_bytes,bounded_hash
 from tools.native_process import native_compile_env
-BASE='5f5a180f52d0ee57c254118592688e615c70df35'
-MESSAGE='test: verify clang header admission once'
+BASE='48a45fa54eca88ec3383702ca0c33bae95327478'
+MESSAGE='test: verify header admission after process race fix'
 ALLOWED_PATHS=frozenset((
- '.github/workflows/host-header-diagnostic.yml','tools/eight_view_host/capability.py',
- 'tools/eight_view_host/policy.py','tools/eight_view_host/header_provider.py','tests/test_eight_view_header_provider.py',
- 'tools/eight_view_host/header_diagnostic.py','tests/test_eight_view_header_diagnostic.py',
- 'tests/test_eight_view_capability.py','docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md','SOURCE_MANIFEST.sha256'))
+ '.github/workflows/host-header-diagnostic.yml','tools/eight_view_host/runtime.py',
+ 'tools/eight_view_host/header_diagnostic.py','tests/test_eight_view_host.py',
+ 'tests/test_eight_view_header_diagnostic.py',
+ 'docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md','SOURCE_MANIFEST.sha256'))
 CLASSIFICATION='HOST_HEADER_ADMISSION_DIAGNOSTIC_NOT_QUALIFICATION'
 EVIDENCE_LIMIT=32*1024
 
 
 def source_guard(run,expected):
     # The full pipeline's frozen TRIGGER_PATHS deliberately do not admit this
-    # separate diagnostic. Keep its single-parent exact-ten-file domain local.
+    # separate diagnostic. Keep its single-parent exact-seven-file domain local.
     def git(label,*args):return run.command('header-git-'+label,['git',*args],seconds=30,limit=32*1024)[0].decode().strip()
     if git('head','rev-parse','HEAD')!=expected:raise Failure('Diagnostic checkout source mismatch')
     if git('status','status','--porcelain=v1','--untracked-files=all'):raise Failure('Diagnostic checkout is not clean')
