@@ -365,13 +365,13 @@ def package_context(run,graph,cmake,before):
  for name in ('javac','jar'):
   cached=Path(cache_value(build,'Java_'+name.upper()+'_EXECUTABLE:FILEPATH')).resolve(strict=True)
   if str(cached)!=inputs[name]['path']:fail('package Java tool differs from selected JDK')
- scripts={'copy':source/'cmake/copy_files.cmake','list':source/'modules/java/jar/list_java_sources.cmake',
+ scripts={'rootDefinition':source/'CMakeLists.txt','copy':source/'cmake/copy_files.cmake','list':source/'modules/java/jar/list_java_sources.cmake',
           'definition':source/'modules/java/jar/CMakeLists.txt','config':build/'modules/java/jar/copyfiles-JAVA_SRC_COPY.cmake',
           'UseJava':modules/'UseJava.cmake','ClearClassFiles':modules/'UseJava/ClearClassFiles.cmake',
           'ClassFilelist':modules/'UseJava/ClassFilelist.cmake','Symlinks':modules/'UseJava/Symlinks.cmake'}
  for name,path in scripts.items():
   value=identity(path)
-  if name in ('copy','list','definition','config') and before.get(str(path))!=value['sha256']:fail('package script/config not initial-bound')
+  if name in ('rootDefinition','copy','list','definition','config') and before.get(str(path))!=value['sha256']:fail('package script/config not initial-bound')
   inputs[name]=value
  return {'source':str(source),'modules':str(modules),'inputs':inputs,'outputs':sorted(package_outputs(graph)),'recipes':[]}
 
@@ -395,7 +395,7 @@ def package_recipe(raw,index,context,build):
   [['cd',str(build)],[cmake,'-DCONFIG_FILE:PATH='+str(work/'copyfiles-JAVA_SRC_COPY.cmake'),'-DCOPYLIST_VAR:STRING=JAVA_SRC_COPY','-DDEPHELPER='+str(build/PACKAGE_GROUPS[0][0]),'-P',inputs['copy']['path']]],
   [['cd',str(work)],[cmake,'-E','touch',str(stamp)],[cmake,'-D','OPENCV_JAVA_DIR='+str(jdir/'java'),'-D','OUTPUT='+str(jdir/'java_sources'),'-P',inputs['list']['path']]],
   [['cd',str(source/'modules/java/jar')],[cmake,'-DCMAKE_JAVA_CLASS_OUTPUT_PATH='+str(classes),'-DCMAKE_JAR_CLASSES_PREFIX=','-P',inputs['ClearClassFiles']['path'],'--log-level','STATUS'],
-   [javac,'-encoding','utf-8','-classpath',':'+str(source/'modules/java/jar')+':'+str(build/'bin'),'-d',str(classes),'@'+str(jdir/'java_sources')],
+   [javac,'-encoding','utf-8','-classpath',':'+str(source/'modules/java/jar')+':'+str(build/'lib'),'-d',str(classes),'@'+str(jdir/'java_sources')],
    [cmake,'-E','touch',str(classes/'java_compiled_opencv_java_jar')]],
   [['cd',str(source/'modules/java/jar')],[cmake,'-DCMAKE_JAVA_CLASS_OUTPUT_PATH='+str(classes),'-DCMAKE_JAR_CLASSES_PREFIX=','-P',inputs['ClassFilelist']['path']]],
   [['cd',str(classes)],[jar,'-cfm',str(build/'bin/opencv-4120.jar'),str(jdir/'MANIFEST.MF'),'@java_class_filelist'],

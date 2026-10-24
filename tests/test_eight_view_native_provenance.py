@@ -90,7 +90,7 @@ def configure_java_packaging(source):
  with (source/'generate.cmake').open('a') as f:
   f.write('file(MAKE_DIRECTORY "${OUT}/modules/java_bindings_generator/gen/java")\nfile(WRITE "${OUT}/modules/java_bindings_generator/gen/java/Fixture.java" "public final class Fixture { public static int value() { return 19; } }\\n")\n')
  with (source/'CMakeLists.txt').open('a') as f:
-  f.write('\nset(Java_JAVA_EXECUTABLE "'+str(java/'bin/java')+'" CACHE FILEPATH "")\nset(Java_JAVAC_EXECUTABLE "'+str(java/'bin/javac')+'" CACHE FILEPATH "")\nset(Java_JAR_EXECUTABLE "'+str(java/'bin/jar')+'" CACHE FILEPATH "")\nset(Java_JAVADOC_EXECUTABLE "'+str(java/'bin/javadoc')+'" CACHE FILEPATH "")\nfind_package(Java 17 REQUIRED COMPONENTS Development)\ninclude(UseJava)\nadd_subdirectory(modules/java/jar)\nadd_dependencies(opencv_java opencv_java_jar)\n')
+  f.write('\nset(Java_JAVA_EXECUTABLE "'+str(java/'bin/java')+'" CACHE FILEPATH "")\nset(Java_JAVAC_EXECUTABLE "'+str(java/'bin/javac')+'" CACHE FILEPATH "")\nset(Java_JAR_EXECUTABLE "'+str(java/'bin/jar')+'" CACHE FILEPATH "")\nset(Java_JAVADOC_EXECUTABLE "'+str(java/'bin/javadoc')+'" CACHE FILEPATH "")\nfind_package(Java 17 REQUIRED COMPONENTS Development)\nset(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")\ninclude(UseJava)\nadd_subdirectory(modules/java/jar)\nadd_dependencies(opencv_java opencv_java_jar)\n')
  (jar/'CMakeLists.txt').write_text('''set(OPENCV_JAVA_DIR "${CMAKE_CURRENT_BINARY_DIR}/opencv")
 set(OPENCV_DEPHELPER "${CMAKE_BINARY_DIR}/CMakeFiles/dephelper")
 file(MAKE_DIRECTORY "${OPENCV_JAVA_DIR}/java")
@@ -163,14 +163,24 @@ def test_real_current_graph_and_system_link_provenance(tmp_path,version):
   assert all(rolemap[str(out/'build/modules'/m/('opencl_kernels_'+m+'.hpp'))]['scope']=='GENERATION_PHASE_PRECONSUMPTION_AND_POSTBUILD_IDENTICAL' for m in ('core','imgproc','features2d'))
   assert p.validate(run,state,consumed,before,'a'*40)==rolemap
   packaging=state['generation']['packaging']
+  root_definition=str(root/'opencv/CMakeLists.txt')
+  assert packaging['inputs']['rootDefinition']['path']==root_definition
+  unbound=dict(before);unbound.pop(root_definition)
+  with pytest.raises(Failure,match='initial-bound'):p.package_context(run,state['graphs']['opencv'],cmake,unbound)
   for index in range(len(p.PACKAGE_GROUPS)):
    raw=(run.work/'logs'/('native-opencv-package-recipe-'+str(index)+'.raw.log')).read_bytes()
    assert p.package_recipe(raw,index,packaging,out/'build')==packaging['recipes'][index]
+   if index==2:
+    expected=('-classpath :'+str(root/'opencv/modules/java/jar')+':'+str(out/'build/lib')).encode()
+    assert expected in raw
+    for replacement in (str(out/'build/bin'),str(out/'build/lib')+':/extra',str(out/'outside')):
+     bad=raw.replace(expected,('-classpath :'+str(root/'opencv/modules/java/jar')+':'+replacement).encode())
+     with pytest.raises(Failure,match='command role differs'):p.package_recipe(bad,index,packaging,out/'build')
    for bad in (raw+b'\nextra-command\n',raw.rstrip()+b' && /unapproved/tool\n',raw.rstrip()+b' ; /unapproved/tool\n',raw.rstrip()+b' | /unapproved/tool\n',raw.rstrip()+b' $(unapproved)\n',raw.replace(str(cmake).encode(),b'/unapproved/cmake'),b'x'*65537):
     with pytest.raises(Failure):p.package_recipe(bad,index,packaging,out/'build')
   assert not set(packaging['outputs']).intersection(state['generation']['frozen'])
   # Mutate only private fixture scripts, never shared official CMake/JDK files.
-  for key in ('copy','list'):
+  for key in ('copy','list','rootDefinition'):
    script=Path(packaging['inputs'][key]['path']);original=script.read_bytes();stamp=script.stat()
    script.write_bytes(original+b'# fixture drift\n')
    with pytest.raises(Failure):p.validate(run,state,consumed,before,'a'*40)
@@ -717,3 +727,39 @@ def test_real_expired_outer_deadline_refuses_before_native_phase(tmp_path):
   assert not any(r['label'].startswith('native-opencv-phase-') or r['label']=='opencv-build' for r in run.commands)
   assert not (build/'.ninja_log').exists()
  finally:run.cleanup()
+
+
+def test_actual_3fac_package_recipes_use_exact_source_bound_library_classpath():
+ """Replay retained command bytes, not live hosted tool or package qualification."""
+ import zipfile
+ filename=os.environ.get('RF_CLASSPATH_REPLAY_ZIP')
+ if not filename:
+  if os.environ.get('RF_REQUIRE_NATIVE_REPLAY')=='1':pytest.fail('Required retained Java classpath replay artifact missing')
+  pytest.skip('Retained actual-run artifact unavailable; no hosted replay claim')
+ archive=Path(filename);assert archive.stat().st_size<=32*1024**2
+ assert sha(archive)=='5a533c1edba08b463402d53055baa728a43eb62406e341a9319d91722b92b9b5'
+ with zipfile.ZipFile(archive) as z:
+  def raw(name):
+   assert z.getinfo(name).file_size<=8*1024**2
+   return z.read(name)
+  commands=json.loads(raw('commands.json'));pending=json.loads(raw('capability/pending.json'))
+  configure=[r for r in commands if r['label']=='opencv-configure'];assert len(configure)==1
+  argv=configure[0]['argv'];source=Path(argv[argv.index('-S')+1]);build=Path(argv[argv.index('-B')+1])
+  cmake=pending['inputs']['cmake']['path'];javac=pending['inputs']['javac']['path'];java=Path(pending['inputs']['java']['path'])
+  assert cmake=='/usr/local/bin/cmake' and argv[0]==cmake
+  modules=Path('/usr/local/share/cmake-3.31/Modules')
+  # Context roots/tools come from the selected configure/pending records, not the recipe under test.
+  inputs={'cmake':{'path':cmake},'javac':{'path':javac},'jar':{'path':str(java.parent/'jar')},
+          'copy':{'path':str(source/'cmake/copy_files.cmake')},'list':{'path':str(source/'modules/java/jar/list_java_sources.cmake')},
+          'ClearClassFiles':{'path':str(modules/'UseJava/ClearClassFiles.cmake')},'ClassFilelist':{'path':str(modules/'UseJava/ClassFilelist.cmake')},'Symlinks':{'path':str(modules/'UseJava/Symlinks.cmake')}}
+  context={'source':str(source),'modules':str(modules),'inputs':inputs}
+  for index,role in enumerate(('SOURCE_COPY','SOURCE_LIST','JAVA_COMPILE')):
+   label='native-opencv-package-recipe-'+str(index);data=raw('logs/'+label+'.raw.log');records=[r for r in commands if r['label']==label]
+   assert len(records)==1 and records[0]['complete'] and records[0]['exit']==0
+   assert records[0]['sha256']==hashlib.sha256(data).hexdigest() and records[0]['bytes']==len(data)
+   assert p.package_recipe(data,index,context,build)['role']==role
+   if index==2:
+    expected=('-classpath :'+str(source/'modules/java/jar')+':'+str(build/'lib')).encode();assert expected in data
+    for alternative in (str(build/'bin'),str(build/'lib')+':/extra',str(build.parent/'outside')):
+     bad=data.replace(expected,('-classpath :'+str(source/'modules/java/jar')+':'+alternative).encode())
+     with pytest.raises(Failure,match='command role differs'):p.package_recipe(bad,index,context,build)
