@@ -17,9 +17,9 @@ jobs:
           toJSON(github.event.repository.private) == 'false' &&
           github.event.repository.default_branch == 'main' &&
           github.ref == 'refs/heads/main' && github.event.ref == 'refs/heads/main' &&
-          github.event.before == '48a45fa54eca88ec3383702ca0c33bae95327478' && github.event.after == github.sha &&
+          github.event.before == '25a0176d7cd93ba451932cf65b016331ca13038b' && github.event.after == github.sha &&
           github.event.head_commit.id == github.sha &&
-          github.event.head_commit.message == 'test: verify header admission after process race fix' &&
+          github.event.head_commit.message == 'test: inventory host header escapes once' &&
           toJSON(github.event.created) == 'false' && toJSON(github.event.deleted) == 'false' &&
           toJSON(github.event.forced) == 'false' && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
@@ -30,7 +30,7 @@ jobs:
           persist-credentials: false
           ref: ${{ github.sha }}
           fetch-depth: 2
-      - name: Inspect actual fixed header domain (not capability or pipeline qualification)
+      - name: Inventory fixed header-link metadata (no snapshot or qualification)
         run: python3 -B -m tools.eight_view_host.header_diagnostic
       - name: Retain bounded original admission failure
         if: always()

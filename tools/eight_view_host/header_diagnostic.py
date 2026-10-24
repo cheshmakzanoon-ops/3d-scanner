@@ -5,15 +5,15 @@ import hashlib,json,os,platform,re,shutil,sys,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
-from tools.eight_view_host import capability as c,policy,header_provider as hp
+from tools.eight_view_host import capability as c,policy,header_provider as hp,header_inventory as hi
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,sha,safe_display
 from tools.eight_view_host.controller import bounded_bytes,bounded_hash
 from tools.native_process import native_compile_env
-BASE='48a45fa54eca88ec3383702ca0c33bae95327478'
-MESSAGE='test: verify header admission after process race fix'
+BASE='25a0176d7cd93ba451932cf65b016331ca13038b'
+MESSAGE='test: inventory host header escapes once'
 ALLOWED_PATHS=frozenset((
- '.github/workflows/host-header-diagnostic.yml','tools/eight_view_host/runtime.py',
- 'tools/eight_view_host/header_diagnostic.py','tests/test_eight_view_host.py',
+ '.github/workflows/host-header-diagnostic.yml','tools/eight_view_host/header_inventory.py',
+ 'tools/eight_view_host/header_diagnostic.py','tests/test_eight_view_header_inventory.py',
  'tests/test_eight_view_header_diagnostic.py',
  'docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md','SOURCE_MANIFEST.sha256'))
 CLASSIFICATION='HOST_HEADER_ADMISSION_DIAGNOSTIC_NOT_QUALIFICATION'
@@ -85,12 +85,14 @@ def observe(run,receipt):
     receipt['headerRoots']={'count':len(roots),'sha256':hashlib.sha256(encoded).hexdigest(),
         'paths':[str(root)[:512] for root in roots[:8]],'omitted':max(0,len(roots)-8),
         'pathTextTruncated':any(len(str(root))>512 for root in roots[:8])}
-    receipt['snapshot']={'attempted':True,'secondsLimit':90,'status':'PENDING'}
-    snapshot=c.prebuild_snapshot(run,roots)  # The unchanged actual admission gate.
-    digest=hashlib.sha256()
-    for path,value in sorted(snapshot.items()):
-        run.remaining(1);digest.update(json.dumps([path,value],ensure_ascii=True,separators=(',',':')).encode()+b'\n')
-    receipt['snapshot'].update(status='COMPLETED',files=len(snapshot),inventorySha256=digest.hexdigest())
+    receipt['snapshot']={'attempted':False,'status':'NOT_RUN_METADATA_ONLY'}
+    inventory=hi.scan(run,roots)
+    receipt['headerInventory']=inventory
+    if not inventory.get('complete') or inventory.get('status')!='COMPLETE':
+        raise Failure('Header escape metadata inventory incomplete; admission refused')
+    if inventory['escapedCount']:
+        raise Failure('Header escape metadata inventory found escapes; admission refused')
+
 
 
 def record_failure(receipt,error):
@@ -125,7 +127,7 @@ def write_receipt(destination,receipt):
 
 def main():
     receipt={'schema':1,'classification':CLASSIFICATION,'status':'FAIL','qualified':False,'pipelineAttempts':0,
-             'snapshot':{'attempted':False,'secondsLimit':90,'status':'NOT_RUN'}}
+             'snapshot':{'attempted':False,'status':'NOT_RUN_METADATA_ONLY'}}
     run=None;source=None;work=None;destination=None
     try:
         temporary=Path(os.environ.get('RUNNER_TEMP','/missing')).resolve(strict=True)
@@ -138,7 +140,7 @@ def main():
         selected=policy.event_guard(run.env,event,base=BASE,message=MESSAGE)
         source=source_guard(run,selected);receipt['source']=source
         observe(run,receipt)
-        receipt['status']='SNAPSHOT_COMPLETED'
+        receipt['status']='INVENTORY_COMPLETE'
     except BaseException as error:record_failure(receipt,error)
     finally:
         if run is not None:
@@ -164,6 +166,6 @@ def main():
         print(json.dumps({'classification':CLASSIFICATION,'status':receipt['status'],'evidence':'rf-header-evidence/receipt.json'},sort_keys=True))
     except BaseException as error:
         print(json.dumps({'classification':CLASSIFICATION,'status':'FAIL','evidenceErrorType':type(error).__name__},sort_keys=True));return 1
-    return 0 if receipt['status']=='SNAPSHOT_COMPLETED' else 1
+    return 0 if receipt['status']=='INVENTORY_COMPLETE' else 1
 
 if __name__=='__main__':raise SystemExit(main())

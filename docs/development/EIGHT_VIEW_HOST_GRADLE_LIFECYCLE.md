@@ -293,3 +293,44 @@ The combined focused verification is bound to exact parent
 message `test: verify header admission after process race fix`. Only the
 short header workflow is re-armed; the photo workflow and all limits remain
 unchanged. Publication remains subject to independent review.
+
+## Bounded all-escape metadata inventory after bafb
+
+The focused `bafb4a0b54b50ec6536ba1e432a0fe87cbfe46ca` run established that
+Clang-18 provider admission and its postcheck pass. The unchanged content
+snapshot then refused `/usr/include/clang/16/include`, resolving to
+`/usr/lib/llvm-16/lib/clang/16/include`. Rather than repeatedly admitting the
+next observed version, the next focused run inventories the complete bounded
+metadata domain first. It adds **no provider or admitted root**.
+
+This diagnostic runs **instead of** the 90-second content snapshot, never in
+addition to it. Production `prebuild_snapshot` is unchanged. The entrypoint
+marks content snapshot `NOT_RUN_METADATA_ONLY`, keeps `qualified=false` and
+`pipelineAttempts=0`, retains the verified Clang-18 proof and rechecks it.
+An inventory with escapes or incomplete coverage remains a failed admission;
+`INVENTORY_COMPLETE` without escapes is metadata observation, not content or
+native qualification.
+
+Only existing canonical roots are enumerated, using retained root directory
+FDs, component-by-component `O_NOFOLLOW` opens and directory identity checks.
+Symlinks are inspected with metadata operations but **never traversed for
+directory enumeration**. Canonical in-root directories are already reached
+through their physical tree. Escaped targets are never opened for payload or
+enumerated. Directory identity and modification metadata are checked around
+enumeration and again before completion; observed mutation makes coverage
+incomplete. This is bounded observation, not an atomic filesystem snapshot.
+
+Limits are 90 seconds, 60,000 entries, 128 escape rows, 32 error rows and
+20 KiB inventory JSON within the unchanged 32-KiB total receipt. Root/row
+omissions, text truncation, errors and limit hits are explicit and force
+`complete=false`; permission errors, broken/looped links and special files
+are never treated as absence. Cancellation/deadline stops work immediately.
+The inventory reports lexical link, raw target and canonical target for each
+retained escape. It neither repairs links nor follows arbitrary target roots.
+
+One reviewed activation is bound to exact parent
+`25a0176d7cd93ba451932cf65b016331ca13038b`, exact seven changed paths and message
+`test: inventory host header escapes once`. Five-minute job, 270-second
+controller budget, one-day retention and source/postcheck/secret guards stay
+unchanged. The full photo workflow is not re-armed. Complete hosted metadata,
+not guesses or synthetic fixtures, must inform any later provider proposal.
