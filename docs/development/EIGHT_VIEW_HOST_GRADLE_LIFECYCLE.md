@@ -227,3 +227,49 @@ activation, force-pushes and non-main/private contexts are inadmissible.
 A new runner's evidence describes that runner, not the lost 596c filesystem.
 Any admission failure is retained as failure, never promoted to capability or
 pipeline success. This workflow does not re-arm the photo diagnostic.
+
+## Exact Clang-18 resource-header provider after focused 5f5a
+
+The focused run at `5f5a180f52d0ee57c254118592688e615c70df35` retained the
+actual encountered alias `/usr/include/clang/18.1.3/include`, raw target
+`../../../lib/llvm-18/lib/clang/18/include`, and canonical target
+`/usr/lib/llvm-18/lib/clang/18/include`. That is evidence for the 5f5a runner
+image `20261012.334.1`, not retrospective identification of the 596c link.
+
+Admission is restricted to that exact installed-provider role. The fixed
+`/usr/bin/clang-18` entry must resolve to `/usr/lib/llvm-18/bin/clang`.
+Bounded, authoritative `--version` and `-print-resource-dir` probes must
+identify major 18 and the exact resource directory above (before `/include`).
+The latter flag's meaning is documented in the official
+[Clang command-line reference](https://clang.llvm.org/docs/ClangCommandLineReference.html#cmdoption-clang-print-resource-dir).
+Each probe uses the existing native compilation environment boundary, a
+10-second deadline and a live 4-KiB output cap. This does **not** select Clang
+as the build compiler: the GNU compiler contract is unchanged.
+
+The source/run-bound provider proof records the executable hash, NOFOLLOW
+ancestor/directory/link identities, exact alias target and authoritative
+probe outputs. These identities are checked before/after discovery, after
+the header snapshot, after the native build and by capability verification
+at runtime boundaries. No symlink ancestor or arbitrary LLVM/version root
+is admitted. The original dynamic system-root discovery is retained; only
+the validated exact include root is added. Unknown escapes still refuse.
+The consumed-header closure accepts that root only after independently
+validating the proof. Existing consumed-byte hashes and pre-consumption
+identity checks remain mandatory.
+
+Provider admission is explicitly `ADMITTED_ROOT_NOT_CONTENT_SNAPSHOT`.
+The proof is written into the existing retained pending capability receipt
+before traversal, so another refusal does not erase the useful provider
+finding. Full snapshot completion is separate and never asserted after a
+failure. The focused runner likewise retains admission proof while reporting
+an original failure. Artifact size/secret guards, 90-second snapshot,
+270-second controller, five-minute job, and one-day retention are unchanged.
+
+The next focused verification is limited to exact parent
+`5f5a180f52d0ee57c254118592688e615c70df35`, exact ten changed files, and message
+`test: verify clang header admission once`. It does not activate the photo
+workflow, install tools, change system permissions, skip headers, or establish
+native/pipeline qualification. Local provider fixtures include real owned
+subprocess execution of an explicitly synthetic driver script; they do not
+claim validation of the runner's installed Clang package. The focused CI run
+must establish that separately.

@@ -81,7 +81,8 @@ def measurement_proof(result,pairs,identity,observations):
 
 def verify_capability(path,source,policy,run=None,prepared=None):
     """Recheck producer records, ABI, exact paths and native closure; flags alone never qualify."""
-    from . import capability as c
+    from . import capability as c,header_provider as hp
+    from .controller import bounded_bytes
     import hashlib, shutil, zipfile
     if run is None or prepared is None:raise Failure('Authoritative owned producer/runtime context required')
     out=run.work/'capability';path=Path(path)
@@ -97,10 +98,17 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         if set(record)!={'path','sha256'} or Path(record['path'])!=Path(expected).resolve() or not re.fullmatch('[0-9a-f]{64}',record['sha256']):raise Failure('Unexpected artifact identity/path')
         if sha(expected)!=record['sha256']:raise Failure('Capability input/output changed')
     for role,expected in expected_native.items():entry(value['native'][role],expected)
+    proof_path=out/'header-provider.json'
+    if proof_path.is_symlink() or proof_path.resolve()!=proof_path:raise Failure('Clang header proof input alias')
+    header_proof=json.loads(bounded_bytes(proof_path,32*1024,run))
+    if value.get('headerProvider')!=header_proof:raise Failure('Clang header provider capability/input proof differs')
+    header_root=hp.validate(header_proof,source,run)  # Existing authoritative probes only; never re-probe.
+    if header_root!=hp.INCLUDE_ROOT:raise Failure('Unexpected admitted Clang header root')
     java=Path(run.env['JAVA_HOME'])
     expected_inputs={
         **{name:Path(shutil.which(tool,path=run.env['PATH']) or '/missing').resolve() for name,tool in [('compiler','g++'),('cc','gcc'),('cmake','cmake'),('ninja','ninja'),('nm','nm'),('readelf','readelf'),('ldd','ldd')]},
         'java':java/'bin/java','javap':java/'bin/javap','javac':java/'bin/javac','javaRelease':java/'release',
+        'header-provider.json':proof_path,'headerProviderDriver':hp.DRIVER,
         'policy':Path(policy),'smokeSource':c.HERE/'HostOpenCvSmoke.java','archive':out/'opencv.tar.gz',
         'license':out/'source'/('opencv-'+requirements['opencvCommit'])/'LICENSE',
         'aar':Path(prepared['opencvAar']),'classes':Path(prepared['opencvClasses']),
@@ -111,10 +119,10 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         **{name:out/name for name in ['source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json']}}
     consumed=json.loads((out/'consumed-inputs.json').read_text())
     if not consumed or len(consumed)>24000:raise Failure('Missing/excessive consumed header closure')
-    allowed_roots=[out,run.root/'reconstruction',java/'include',Path('/usr/include'),Path('/usr/lib/gcc')]
+    allowed_roots=[out,run.root/'reconstruction',java/'include',Path('/usr/include'),Path('/usr/lib/gcc'),header_root]
     for i,(name,digest) in enumerate(sorted(consumed.items())):
         f=Path(name)
-        if not f.is_absolute() or not any(f.is_relative_to(root.resolve()) for root in allowed_roots):raise Failure('Consumed compiler input outside source/system/JDK closure')
+        if not f.is_absolute() or str(f)!=name or f.resolve(strict=True)!=f or not any(f.is_relative_to(root.resolve()) for root in allowed_roots):raise Failure('Consumed compiler input outside source/system/JDK closure')
         if sha(f)!=digest:raise Failure('Consumed compilation input changed')
         expected_inputs['consumed-'+str(i)]=f
     before=json.loads((out/'prebuild-inputs.json').read_text());provenance=json.loads((out/'consumed-provenance.json').read_text())
@@ -131,7 +139,7 @@ def verify_capability(path,source,policy,run=None,prepared=None):
     if (prepared['offlineFramework']!=value['inputs']['androidAll'] or provider['path']!=str(expected_inputs['androidAll']) or provider['sha256']!=requirements['androidAllSha256'] or sha(expected_inputs['androidAll'])!=requirements['androidAllSha256']
         or requirements['robolectricNativeProviderArchive']!='androidAll' or provider['entry']!=requirements['robolectricNativeRuntimeEntry'] or provider['entryBytes']!=requirements['robolectricNativeProviderEntryBytes'] or not 0<provider['entryBytes']<=requirements['robolectricNativeProviderMaximumBytes']):raise Failure('API35 provider is not the exact pinned framework entry')
     # The authoritative command records are held by this producer, not loaded from the manifest.
-    labels=['compiler-version','opencv-configure','opencv-build','opencv-symbols','opencv-consumed-deps','opencv-smoke-compile','opencv-smoke',
+    labels=[*hp.LABELS,'compiler-version','opencv-configure','opencv-build','opencv-symbols','opencv-consumed-deps','opencv-smoke-compile','opencv-smoke',
             'scanner-configure','scanner-build','scanner-javap','scanner-shim','scanner-consumed-deps','scanner-symbols']
     labels += [f'opencv-{kind}-{i}' for i in range(len(requirements['nativeClasses'])) for kind in ('aar','generated')]
     labels += [prefix+'-'+part for prefix in ('opencv','scanner-engine','scanner-shim') for part in ('elf-header','elf-dynamic','ldd')]

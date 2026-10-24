@@ -35,7 +35,7 @@ def fixture_repository(tmp_path,monkeypatch,extra=None,omit=None):
 def test_actual_git_single_parent_tree_and_real_manifest_guard(tmp_path,monkeypatch):
  root,head=fixture_repository(tmp_path,monkeypatch);run=GitRunner(root);record=h.source_guard(run,head)
  assert record['sourceSha']==head and record['tree']==git(root,'rev-parse','HEAD^{tree}')
- assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==7
+ assert set(record['changedPaths'])==h.ALLOWED_PATHS and len(h.ALLOWED_PATHS)==10
  assert 'header-source-manifest' in run.calls
  h.source_postcheck(run,record)
 
@@ -75,11 +75,17 @@ def observation(tmp_path,monkeypatch):
  calls=[]
  def roots(java):calls.append(java);return [headers,home/'include']
  monkeypatch.setattr(c,'system_header_roots',roots)
+ provider_root=tmp_path/'synthetic-provider/include';provider_root.mkdir(parents=True)
+ monkeypatch.setattr(h.hp,'INCLUDE_ROOT',provider_root)
+ # This fixture tests the entrypoint integration, not installed Clang admission.
+ proof={'schema':1,'sourceSha':'a'*40,'status':'SYNTHETIC_PROVIDER_FIXTURE_NOT_ADMISSION'}
+ monkeypatch.setattr(h.hp,'acquire',lambda context,source:copy.deepcopy(proof) if context is run and source=='a'*40 else pytest.fail('wrong source/provider context'))
+ monkeypatch.setattr(h.hp,'validate',lambda actual,source,context:provider_root if actual==proof and source=='a'*40 and context is run else pytest.fail('wrong provider proof binding'))
  return run,home,headers,calls
 
 
 def test_actual_snapshot_uses_shared_java_executable_roots_and_compiler_boundary(observation):
- run,home,headers,calls=observation;receipt={};h.observe(run,receipt)
+ run,home,headers,calls=observation;receipt={'source':{'sourceSha':'a'*40}};h.observe(run,receipt)
  assert calls==[home/'bin/java'] and receipt['snapshot']['files']==1 and receipt['snapshot']['secondsLimit']==90
  command=next(item for item in run.calls if item[0]=='header-compiler-version');env=command[2]['env']
  assert 'LD_PRELOAD' not in env and 'LD_AUDIT' not in env and env['ASAN_OPTIONS']=='detect_leaks=1'
@@ -93,7 +99,7 @@ def test_actual_header_escape_is_fail_metadata_only_and_bounded_artifact(observa
  def admitted_only(path):
   reads.append(Path(path));assert Path(path)!=outside,'escaped target payload read';return original(path)
  monkeypatch.setattr(c,'sha',admitted_only)
- receipt={'schema':1,'classification':h.CLASSIFICATION,'status':'FAIL','qualified':False,'pipelineAttempts':0}
+ receipt={'schema':1,'classification':h.CLASSIFICATION,'status':'FAIL','qualified':False,'pipelineAttempts':0,'source':{'sourceSha':'a'*40}}
  with pytest.raises(Failure,match='escapes admitted roots') as error:h.observe(run,receipt)
  h.record_failure(receipt,error.value);result=h.write_receipt(tmp_path/'evidence',receipt);raw=(tmp_path/'evidence/receipt.json').read_bytes()
  assert result['status']=='FAIL' and len(raw)<=32768 and b'SENTINEL' not in raw and outside not in reads
@@ -224,3 +230,40 @@ def test_malformed_or_oversized_embedded_metadata_remains_failure(payload):
  record={};h.record_failure(record,Failure('gate refused; EIGHT_VIEW_HEADER_ESCAPE '+payload))
  assert record['status']=='FAIL' and 'headerEscape' not in record['failure']
  assert record['failure']['diagnosticMetadata'].endswith('WITHHELD')
+
+@pytest.mark.parametrize('snapshot_fails',[False,True])
+def test_fast_provider_postcheck_runs_after_snapshot_and_preserves_original_failure(observation,tmp_path,monkeypatch,snapshot_fails):
+ run,_,headers,_=observation
+ if snapshot_fails:
+  outside=tmp_path/'another-outside';outside.write_bytes(b'forbidden');(headers/'escape').symlink_to(outside)
+ env,event=event_fixture();event_path=tmp_path/'event.json';event_path.write_text(json.dumps(event));run.env.update(env,GITHUB_EVENT_PATH=str(event_path))
+ monkeypatch.setenv('RUNNER_TEMP',str(tmp_path));monkeypatch.setattr(sys,'argv',['header_diagnostic.py'])
+ run.install_signals=lambda:None;run.cleanup=lambda:None;run.restore_signals=lambda:None
+ monkeypatch.setattr(h,'Runner',lambda *a,**k:run);monkeypatch.setattr(h,'source_guard',lambda *a:{'sourceSha':env['GITHUB_SHA']});monkeypatch.setattr(h,'source_postcheck',lambda *a:None)
+ original=h.hp.validate;calls=[]
+ def changed(*args):
+  calls.append(True)
+  if len(calls)>1:raise Failure('provider changed during snapshot')
+  return original(*args)
+ monkeypatch.setattr(h.hp,'validate',changed)
+ assert h.main()==1 and len(calls)==2
+ receipt=json.loads((tmp_path/'rf-header-evidence/receipt.json').read_text())
+ assert receipt['status']=='FAIL' and receipt['headerProviderPostcheck']=='FAIL' and receipt['headerProvider']['sourceSha']==env['GITHUB_SHA']
+ if snapshot_fails:
+  assert 'headerEscape' in receipt['failure']
+  assert receipt['secondaryFailures'][0]['message']=='provider changed during snapshot'
+ else:assert receipt['failure']['message']=='provider changed during snapshot'
+ assert {call[0] for call in run.calls}=={'header-java-version','header-compiler-version'}
+
+def test_fast_entrypoint_appends_only_proved_exact_header_root(observation,monkeypatch):
+ run,_,headers,_=observation;original=c.prebuild_snapshot;seen=[]
+ def inspect(context,roots):seen.extend(roots);return original(context,roots)
+ monkeypatch.setattr(c,'prebuild_snapshot',inspect)
+ receipt={'source':{'sourceSha':'a'*40}};h.observe(run,receipt)
+ assert seen[-1]==h.hp.INCLUDE_ROOT and len(seen)==3
+ assert receipt['headerProvider']['status']=='SYNTHETIC_PROVIDER_FIXTURE_NOT_ADMISSION'
+
+def test_fast_entrypoint_rejects_unexpected_provider_root_before_snapshot(observation,tmp_path,monkeypatch):
+ run,_,_,_=observation;monkeypatch.setattr(h.hp,'validate',lambda *a:tmp_path)
+ monkeypatch.setattr(c,'prebuild_snapshot',lambda *a:pytest.fail('unproved root reached snapshot'))
+ with pytest.raises(Failure,match='Unexpected admitted Clang header root'):h.observe(run,{'source':{'sourceSha':'a'*40}})

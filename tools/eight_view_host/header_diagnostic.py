@@ -5,14 +5,15 @@ import hashlib,json,os,platform,re,shutil,sys,tempfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
-from tools.eight_view_host import capability as c,policy
+from tools.eight_view_host import capability as c,policy,header_provider as hp
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,sha,safe_display
 from tools.eight_view_host.controller import bounded_bytes,bounded_hash
 from tools.native_process import native_compile_env
-BASE='596cbee68cbf954536d9b60bdb83197082f72d60'
-MESSAGE='test: diagnose host header admission once'
+BASE='5f5a180f52d0ee57c254118592688e615c70df35'
+MESSAGE='test: verify clang header admission once'
 ALLOWED_PATHS=frozenset((
  '.github/workflows/host-header-diagnostic.yml','tools/eight_view_host/capability.py',
+ 'tools/eight_view_host/policy.py','tools/eight_view_host/header_provider.py','tests/test_eight_view_header_provider.py',
  'tools/eight_view_host/header_diagnostic.py','tests/test_eight_view_header_diagnostic.py',
  'tests/test_eight_view_capability.py','docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md','SOURCE_MANIFEST.sha256'))
 CLASSIFICATION='HOST_HEADER_ADMISSION_DIAGNOSTIC_NOT_QUALIFICATION'
@@ -21,7 +22,7 @@ EVIDENCE_LIMIT=32*1024
 
 def source_guard(run,expected):
     # The full pipeline's frozen TRIGGER_PATHS deliberately do not admit this
-    # separate diagnostic. Keep its single-parent exact-seven-file domain local.
+    # separate diagnostic. Keep its single-parent exact-ten-file domain local.
     def git(label,*args):return run.command('header-git-'+label,['git',*args],seconds=30,limit=32*1024)[0].decode().strip()
     if git('head','rev-parse','HEAD')!=expected:raise Failure('Diagnostic checkout source mismatch')
     if git('status','status','--porcelain=v1','--untracked-files=all'):raise Failure('Diagnostic checkout is not clean')
@@ -75,7 +76,11 @@ def observe(run,receipt):
     if not re.fullmatch(r'[0-9]+(?:\.[0-9]+)*',text) or int(text.split('.')[0]) not in requirements['compiler']['allowedMajorVersions']:
         raise Blocked('Unreviewed GNU compiler major')
     receipt['policySha256']=sha(c.POLICY)
-    roots=c.system_header_roots(java)  # EXACT build() helper, no caller-controlled roots.
+    header_proof=hp.acquire(run,receipt['source']['sourceSha'])
+    receipt['headerProvider']=header_proof
+    header_root=hp.validate(header_proof,receipt['source']['sourceSha'],run)
+    if header_root!=hp.INCLUDE_ROOT:raise Failure('Unexpected admitted Clang header root')
+    roots=[*c.system_header_roots(java),header_root]  # Only the exact proved provider extends unchanged roots.
     encoded=json.dumps([str(root) for root in roots],ensure_ascii=True,separators=(',',':')).encode()
     receipt['headerRoots']={'count':len(roots),'sha256':hashlib.sha256(encoded).hexdigest(),
         'paths':[str(root)[:512] for root in roots[:8]],'omitted':max(0,len(roots)-8),
@@ -137,6 +142,11 @@ def main():
     except BaseException as error:record_failure(receipt,error)
     finally:
         if run is not None:
+            if 'headerProvider' in receipt:
+                try:
+                    hp.validate(receipt['headerProvider'],source['sourceSha'],run);receipt['headerProviderPostcheck']='PASS'
+                except BaseException as error:
+                    receipt['headerProviderPostcheck']='FAIL';record_failure(receipt,error)
             if source is not None:
                 try:source_postcheck(run,source);receipt['sourcePostcheck']='PASS'
                 except BaseException as error:receipt['sourcePostcheck']='FAIL';record_failure(receipt,error)

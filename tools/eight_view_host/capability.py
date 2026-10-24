@@ -3,6 +3,7 @@ from pathlib import Path, PurePosixPath
 import hashlib, json, os, re, shlex, shutil, tarfile, time, urllib.request, urllib.parse, zipfile
 from tools.native_process import native_compile_env
 from .runtime import Failure, Blocked, sha, atomic_json, inventory
+from . import header_provider
 HERE=Path(__file__).resolve().parent
 POLICY=HERE/'build-policy.json'
 
@@ -278,8 +279,21 @@ def build(run,source_sha,prepared):
     cmake=Path(shutil.which('cmake',path=run.env['PATH']) or '/missing').resolve();ninja=Path(shutil.which('ninja',path=run.env['PATH']) or '/missing').resolve()
     java=Path(run.env['JAVA_HOME'])/'bin/java';javap=java.with_name('javap');javac=java.with_name('javac')
     for name,p in [('compiler',compiler),('cc',cc),('cmake',cmake),('ninja',ninja),('java',java),('javap',javap),('javac',javac),('nm',Path(shutil.which('nm')).resolve()),('readelf',Path(shutil.which('readelf')).resolve()),('ldd',Path(shutil.which('ldd')).resolve()),('javaRelease',java.parent.parent/'release'),('policy',POLICY),('smokeSource',HERE/'HostOpenCvSmoke.java')]:receipt['inputs'][name]=path_record(p)
-    system_roots=system_header_roots(java)
-    immutable_before=prebuild_snapshot(run,system_roots)
+    provider=header_provider.acquire(run,source_sha)
+    receipt['headerProvider']=provider
+    atomic_json(out/'header-provider.json',provider)
+    receipt['inputs']['header-provider.json']=path_record(out/'header-provider.json')
+    receipt['inputs']['headerProviderDriver']=path_record(header_provider.DRIVER)
+    atomic_json(out/'pending.json',receipt)  # Retain admission even if the next unknown escape refuses.
+    system_roots=[*system_header_roots(java),header_provider.validate(provider,source_sha,run)]
+    original=None
+    try:immutable_before=prebuild_snapshot(run,system_roots)
+    except BaseException as error:original=error;raise
+    finally:
+        try:header_provider.validate(provider,source_sha,run)
+        except BaseException as changed:
+            if original is None:raise
+            original.add_note('Header provider post-snapshot recheck failed: '+str(changed))
     archive=out/'opencv.tar.gz'
     receipt['download']=download(run,'https://github.com/opencv/opencv/archive/'+policy['opencvCommit']+'.tar.gz',archive,policy['opencvArchiveSha256'],136*1024**2)
     source=extract_source(archive,out/'source','opencv-'+policy['opencvCommit']);before=source_inventory(source)
@@ -354,6 +368,7 @@ def build(run,source_sha,prepared):
     atomic_json(out/'consumed-provenance.json',bind_consumed(combined,immutable_before,[builddir,engine_build]))
     for name in ['source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json']:
         receipt['inputs'][name]=path_record(out/name)
-    receipt['producer']={'runOwner':run.owner,'workDir':str(run.work),'sourceSha':source_sha,'commands':[{**record,'log':path_record(run.work/'logs'/(record['label']+'.raw.log'))} for record in run.commands if record['label'].startswith(('compiler-','opencv-','scanner-'))]}
+    header_provider.validate(provider,source_sha,run)
+    receipt['producer']={'runOwner':run.owner,'workDir':str(run.work),'sourceSha':source_sha,'commands':[{**record,'log':path_record(run.work/'logs'/(record['label']+'.raw.log'))} for record in run.commands if record['label'].startswith(('compiler-','opencv-','scanner-','header-provider-'))]}
     atomic_json(out/'capability.json',receipt)
     return out/'capability.json'
