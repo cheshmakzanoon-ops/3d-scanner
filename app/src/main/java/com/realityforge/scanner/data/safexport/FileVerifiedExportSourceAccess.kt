@@ -7,9 +7,11 @@ import java.security.MessageDigest
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.util.concurrent.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.coroutineContext
 
 data class ResolvedExportFile(
     val identity: ExportSourceIdentity,
@@ -74,7 +76,7 @@ class FileVerifiedExportSourceAccess(
         )
     }
 
-    override suspend fun open(source: VerifiedExportSource): InputStream = withContext(Dispatchers.IO) {
+    override suspend fun open(source: VerifiedExportSource): InputStream = openOwned(Dispatchers.IO) {
         val resolved = resolver.resolve(source.identity)
             ?: throw SourceUnavailableException("The staged source no longer exists.")
         if (resolved.identity != source.identity) {
@@ -88,5 +90,32 @@ class FileVerifiedExportSourceAccess(
 
     private fun ByteArray.toHex(): String = joinToString(separator = "") { byte ->
         "%02x".format(byte.toInt() and 0xff)
+    }
+}
+
+/** Prompt cancellation may discard a withContext return value before the caller can
+ * enter use(). Return Unit across the dispatcher boundary and retain ownership here
+ * until handoff succeeds; an undelivered descriptor must always be closed.
+ * The opener owns its resources until returning: it must not suspend after
+ * allocating the returned stream (the production FileInputStream factory does not).
+ */
+internal suspend fun openOwned(dispatcher: CoroutineDispatcher, open: suspend () -> InputStream): InputStream {
+    var owned: InputStream? = null
+    try {
+        withContext(dispatcher) {
+            coroutineContext.ensureActive()
+            owned = open()
+            coroutineContext.ensureActive()
+        }
+        val result = checkNotNull(owned)
+        owned = null
+        return result
+    } catch (failure: Throwable) {
+        try {
+            owned?.close()
+        } catch (closeFailure: Throwable) {
+            if (closeFailure !== failure) failure.addSuppressed(closeFailure)
+        }
+        throw failure
     }
 }
