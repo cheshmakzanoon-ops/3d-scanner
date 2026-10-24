@@ -3,14 +3,10 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='0104aedae4a1886ddd9fc10346564f42375bb350'
-MESSAGE='fix: stage native generation before first consumption'
+BASE_SHA='bf253bb4f951c63cdcdb1b4817b8ea4828690116'
+MESSAGE='test: observe staged host with bounded snapshot diagnostics'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset((
-    '.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py',
-    'tools/eight_view_host/controller.py','tools/eight_view_host/capability.py',
-    'tools/eight_view_host/native_provenance.py','tests/test_eight_view_capability.py',
-    'tests/test_eight_view_native_provenance.py','SOURCE_MANIFEST.sha256'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','SOURCE_MANIFEST.sha256'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
