@@ -12,7 +12,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='fb4fcaa16727837c4c1baf3aa440c4e2c3996a635e4de78619f2f670770b264a'
+ADAPTER_MANIFEST='0b6524aa4384f008f0da2706c0f8fe9d9dd778c0f61b6f87c944b67e21a2914a'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -20,7 +20,7 @@ def source_names(profile=experiments.ACTIVE):
 SOURCE_NAMES=source_names()
 # Kotlin file facades/nested classes retain their owner prefix. This additional top-level
 # object is declared in RuntimeProviderIdentity.kt, not in a same-named source file.
-PROBE_CLASS_PREFIXES=tuple(sorted({Path(name).stem for profile in (experiments.LEGACY,experiments.RELIEF) for name in source_names(profile)}))+('Api35ProviderContract',)
+PROBE_CLASS_PREFIXES=tuple(sorted({Path(name).stem for profile in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE) for name in source_names(profile)}))+('Api35ProviderContract',)
 BASE_PACKAGES=('platforms;android-36','build-tools;36.0.0')
 
 def verify_probe_classes_removed(root,run=None):
@@ -654,7 +654,7 @@ def load_adapter(root,profile=experiments.ACTIVE):
         if not re.fullmatch(r'[A-Za-z0-9_.-]+',name) or name in ('.','..','SHA256SUMS') or name in names:raise Failure('Adapter source manifest duplicate or invalid name')
         names.add(name);path=package/name
         if path.is_symlink() or not path.is_file() or path.absolute()!=path.resolve() or not re.fullmatch('[0-9a-f]{64}',h) or sha(path)!=h:raise Failure('Adapter source manifest mismatch')
-    if not {name for key in (experiments.LEGACY,experiments.RELIEF) for name in (*source_names(key),experiments.get_profile(key).input_module,'policy.json')}.issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
+    if not {name for key in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE) for name in (*source_names(key),experiments.get_profile(key).input_module,'policy.json')}.issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
     spec=importlib.util.spec_from_file_location('eight_observation_inputs',package/selected.input_module);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return package,module
 
@@ -790,6 +790,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
 
 def measurement_reference(directory,profile,run=None,*,observed=None):
     """Validate complete retained measurements; frame only a fixed-size summary/reference."""
+    if profile==experiments.COMPLETE:return complete_measurement_reference(directory,run,observed=observed)
     directory=Path(directory)
     raw=bounded_bytes(directory/'measurement/sparse-result.json',4*1024**2,run)
     inputs=[raw,bounded_bytes(directory/'measurement/pair-events.json',8*1024**2,run),
@@ -804,6 +805,26 @@ def measurement_reference(directory,profile,run=None,*,observed=None):
             'reference':{'path':'measurement/sparse-result.json','bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()},
             'supportingReferences':[{'path':name,'bytes':len(value),'sha256':hashlib.sha256(value).hexdigest()}
                 for name,value in zip(('measurement/pair-events.json','measurement/input-identity.json','observation-proof.json'),inputs[1:])]}
+
+def complete_measurement_reference(directory,run=None,*,observed=None):
+    directory=Path(directory);records=[];total=0
+    def read(name,limit):
+        nonlocal total
+        raw=bounded_bytes(directory/name,limit,run);total+=len(raw)
+        if total>31*1024**2:raise Failure('Complete measurement aggregate byte limit')
+        records.append({'path':name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
+        return raw
+    documents={name:read('measurement/'+name,4096 if name=='job-settings.json' else 4*1024**2) for name in policy.COMPLETE_DOCUMENTS}
+    identity_raw=read('measurement/input-identity.json',64*1024)
+    observations_raw=read('observation-proof.json',64*1024)
+    identity=json.loads(identity_raw);observations=json.loads(observations_raw)
+    if observed is not None and json.dumps(observations,sort_keys=True)!=json.dumps(observed,sort_keys=True):raise Failure('Observation proof differs from staged input authority')
+    hashes=json.loads(documents['before-reopen-artifacts.json'])
+    if not isinstance(hashes,dict) or len(hashes)!=9 or any(not isinstance(v,str) or not re.fullmatch('[0-9a-f]{64}',v) for v in hashes.values()):raise Failure('Malformed complete artifact inventory')
+    artifacts={name:read('measurement/'+name,16*1024**2) for name in sorted({'artifact-'+digest+'.bin' for digest in hashes.values()})}
+    summary=policy.complete_measurement_proof(documents,artifacts,identity,observations,profile=experiments.COMPLETE)
+    primary=next(item for item in records if item['path']=='measurement/complete-result.json')
+    return {**summary,'reference':primary,'supportingReferences':[item for item in records if item is not primary]}
 
 def validate_measurement_reference(destination,receipt,run=None):
     value=receipt.get('result',{}).get('measurement') if isinstance(receipt.get('result',{}),dict) else None
@@ -1025,7 +1046,7 @@ def main():
     env=dict(os.environ);base=Path(env.get('RUNNER_TEMP','/missing'))
     work=base/'rf-eight-work';evidence=base/'rf-eight-evidence'
     if not base.is_dir() or work.exists() or evidence.exists():raise Blocked('Fresh runner-owned directories required')
-    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':('SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION' if experiments.ACTIVE==experiments.RELIEF else 'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
+    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':({experiments.COMPLETE:'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY',experiments.RELIEF:'SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION',experiments.LEGACY:'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'}[experiments.ACTIVE]),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
     first=None;sdk=None;licenses=None;restore=False;cap=None
     def secondary(label,error):
         nonlocal first

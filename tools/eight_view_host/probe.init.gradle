@@ -323,7 +323,8 @@ class HostSparseExperiment {
  static Map select(Map cfg) {
   def profiles=[
    'eight-cuboid':[type:'EightViewSparsePrefixHostTest',method:'fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'],
-   'relief-three':[type:'ReliefThreeSparsePrefixHostTest',method:'fixedThreePhotosPersistSparseOrRecordUnmodifiedProductionFailure']]
+   'relief-three':[type:'ReliefThreeSparsePrefixHostTest',method:'fixedThreePhotosPersistSparseOrRecordUnmodifiedProductionFailure'],
+   'relief-three-complete':[type:'ReliefThreeCompleteControllerHostTest',method:'fixedThreePhotosCompletePublishReopenAndExportOrFail']]
   assert cfg.experiment instanceof String && profiles.containsKey(cfg.experiment) : 'Unknown closed experiment profile'
   def selected=profiles[cfg.experiment]
   def selector='com.realityforge.scanner.hostintegration.'+selected.type+'.'+selected.method

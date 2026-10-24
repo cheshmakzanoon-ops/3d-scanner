@@ -1,10 +1,11 @@
-"""Two source-reviewed experiment profiles, not configurable success thresholds."""
+"""Closed source-reviewed experiment profiles, not configurable success thresholds."""
 from dataclasses import dataclass
 from .runtime import Failure
 
 LEGACY = 'eight-cuboid'
 RELIEF = 'relief-three'
-ACTIVE = RELIEF
+COMPLETE = 'relief-three-complete'
+ACTIVE = COMPLETE
 
 @dataclass(frozen=True)
 class Profile:
@@ -26,6 +27,12 @@ _RELIEF = Profile(RELIEF,
     'benchmarks/fixtures/relief', 'relief_inputs.py',
     'ReliefThreeSparsePrefixHostTest.kt', 3, 3, 'ALL3_SPARSE_ACCEPTED_NOT_SURFACE_QUALITY')
 
+_COMPLETE = Profile(COMPLETE,
+    'com.realityforge.scanner.hostintegration.ReliefThreeCompleteControllerHostTest.fixedThreePhotosCompletePublishReopenAndExportOrFail',
+    'benchmarks/fixtures/relief', 'relief_inputs.py',
+    'ReliefThreeCompleteControllerHostTest.kt', 3, 3,
+    'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY')
+
 def get_profile(profile_id):
     if type(profile_id) is not str:
         raise Failure('Unknown closed experiment profile')
@@ -33,4 +40,6 @@ def get_profile(profile_id):
         return _LEGACY
     if profile_id == RELIEF:
         return _RELIEF
+    if profile_id == COMPLETE:
+        return _COMPLETE
     raise Failure('Unknown closed experiment profile')

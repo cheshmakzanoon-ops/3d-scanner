@@ -5,6 +5,12 @@ import pytest
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.eight_view_host import controller as c,runtime as r,experiments as e
 
+@pytest.fixture(autouse=True)
+def retained_sparse_profile_scope(monkeypatch):
+ # These retained97a/synthetic fixtures exercise the unchanged sparse-prefix contract.
+ # Complete-controller reference/sealing is independently exercised in its own module.
+ monkeypatch.setattr(e,'ACTIVE',e.RELIEF)
+
 FILES=('measurement/sparse-result.json','measurement/pair-events.json','measurement/input-identity.json','observation-proof.json')
 def stage(tmp_path,actual=False):
  work=tmp_path/'work';work.mkdir();(work/'measurement').mkdir()

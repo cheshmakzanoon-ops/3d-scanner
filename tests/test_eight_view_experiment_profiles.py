@@ -47,7 +47,7 @@ def test_records_frozen_and_caller_thresholds_not_accepted():
     forged=replace(selected,photo_count=1,pair_count=0)
     with pytest.raises(Failure):e.get_profile(forged)
     with pytest.raises(Failure):p.measurement_proof(*proof(e.RELIEF),profile=forged)
-    assert e.ACTIVE==e.RELIEF
+    assert e.ACTIVE==e.COMPLETE
 
 @pytest.mark.parametrize('profile',[e.LEGACY,e.RELIEF])
 @pytest.mark.parametrize('mutation',['classification','outcome','missing-photo','unregistered','missing-pair','duplicate-pair','wrong-pair-count','bool-ordinal','failed-phase','identity','observations'])
@@ -90,4 +90,8 @@ def test_profile_literals_do_not_follow_environment(monkeypatch):
     assert (relief.id,relief.fixture,relief.input_module,relief.test_source,relief.photo_count,relief.pair_count,relief.classification)==(
         'relief-three','benchmarks/fixtures/relief','relief_inputs.py','ReliefThreeSparsePrefixHostTest.kt',3,3,'ALL3_SPARSE_ACCEPTED_NOT_SURFACE_QUALITY')
     assert relief.selector=='com.realityforge.scanner.hostintegration.ReliefThreeSparsePrefixHostTest.fixedThreePhotosPersistSparseOrRecordUnmodifiedProductionFailure'
-    assert e.ACTIVE=='relief-three'
+    assert e.ACTIVE=='relief-three-complete'
+    complete=e.get_profile(e.COMPLETE)
+    assert complete.selector=='com.realityforge.scanner.hostintegration.ReliefThreeCompleteControllerHostTest.fixedThreePhotosCompletePublishReopenAndExportOrFail'
+    assert complete.fixture==relief.fixture and complete.input_module==relief.input_module
+    assert complete.photo_count==3 and complete.classification=='SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY'

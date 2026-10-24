@@ -2,12 +2,12 @@
 from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
-from .experiments import LEGACY, get_profile
+from .experiments import LEGACY, COMPLETE, get_profile
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='97a69510e1e6586cd86ca39fe1950be496e06b77'
-MESSAGE='fix: retain bounded sparse measurement references'
+BASE_SHA='c3fd251d8501ea13a31f8820429aecca13d62cb2'
+MESSAGE='test: observe three-photo full controller prototype checkpoint'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_measurement_reference.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/ReliefThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_eight_view_complete_formats.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_complete_reference.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_measurement_reference.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_eight_view_publication_codec.py', 'tests/test_relief_complete_controller_source.py', 'tools/eight_view_host/complete_formats.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -55,6 +55,7 @@ def junit_proof(path,events,*,profile=LEGACY):
 
 def measurement_proof(result,pairs,identity,observations,*,profile=LEGACY):
     selected=get_profile(profile)
+    if selected.id == COMPLETE:raise Failure('Complete profile requires raw publication/export measurement proof')
     required=selected.classification
     count=selected.photo_count;pair_count=selected.pair_count
     ids=result.get('inputPhotoIds',[]);registered=result.get('registeredPhotoIds',[])
@@ -205,3 +206,144 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         if not original or not isinstance(original,dict) or len(original)>30000:raise Failure('Missing/bounded source inventory required')
         if any(not (root/rel).is_file() or sha(root/rel)!=digest for rel,digest in original.items()):raise Failure('Source input changed after compilation')
     return value
+
+# Complete-controller evidence is a separate closed experiment, never sparse-prefix PASS.
+COMPLETE_DOCUMENTS=tuple(['complete-result.json','job-settings.json','modeled-resources.json']+
+    [phase+'-'+kind+'.json' for phase in ('before-reopen','after-reopen')
+     for kind in ('preview','publication','artifacts','exports')])
+COMPLETE_ARTIFACTS=(
+    ('preview','preview.json','diagnostic-report'),
+    ('sparse-glb','result.glb','sparse-points'),('sparse-ply','result.ply','sparse-points'),
+    ('dense-glb','result.dense.glb','dense-points'),('dense-ply','result.dense.ply','dense-points'),
+    ('mesh-glb','result.mesh.glb','observed-open-triangle-mesh'),
+    ('mesh-ply','result.mesh.ply','observed-open-triangle-mesh'),
+    ('textured-glb','result.textured.glb','photographic-textured-mesh'),
+    ('texture-png','result.texture.png','photographic-atlas'))
+
+
+def complete_measurement_proof(documents,artifacts,identity,observations,*,profile=COMPLETE):
+    """Recompute publication/export evidence; synthetic HOST evidence is not device quality."""
+    import hashlib,math,struct
+    from .complete_formats import validate_exports
+    def need(value,message):
+        if not value:raise Failure('Complete measurement: '+message)
+    def integer(value,minimum=0,maximum=2**63-1):
+        return type(value) is int and minimum<=value<=maximum
+    def digest(value):return type(value) is str and re.fullmatch('[0-9a-f]{64}',value) is not None
+    def token(value):return type(value) is str and re.fullmatch('[A-Za-z0-9_.-]{1,128}',value) is not None
+    def sha_bytes(raw):return hashlib.sha256(raw).hexdigest()
+    def unique(pairs):
+        value={}
+        for key,item in pairs:
+            need(key not in value,'duplicate JSON key');value[key]=item
+        return value
+    def reject(_):raise Failure('Complete measurement: nonfinite JSON')
+    def finite(text):
+        value=float(text);need(math.isfinite(value),'nonfinite JSON');return value
+    def decode(raw):
+        need(type(raw) is bytes and 0<len(raw)<=16*1024**2,'missing/oversized raw document')
+        try:value=json.loads(raw,object_pairs_hook=unique,parse_constant=reject,parse_float=finite)
+        except (ValueError,UnicodeError,RecursionError) as error:raise Failure('Complete measurement: malformed JSON') from error
+        need(type(value) is dict,'document must be object');return value
+    selected=get_profile(profile)
+    need(selected.id==COMPLETE,'wrong closed experiment profile')
+    need(type(documents) is dict and set(documents)==set(COMPLETE_DOCUMENTS),'exact document inventory required')
+    need(type(artifacts) is dict and 1<=len(artifacts)<=9,'exact raw artifact inventory required')
+    need(all(type(raw) is bytes and 0<len(raw)<=16*1024**2 for raw in [*documents.values(),*artifacts.values()]),'raw evidence byte bounds')
+    need(sum(map(len,documents.values()))+sum(map(len,artifacts.values()))<=32*1024**2,'aggregate evidence byte bound')
+    docs={name:decode(raw) for name,raw in documents.items()}
+    result=docs['complete-result.json']
+    identity_keys={'projectId','projectRevision','operationId','attempt','inputIdentitySha256','settingsIdentitySha256','engineVersion'}
+    need(set(result)=={'schema','classification','synthetic','modeledResources','jobId','originalsPreserved','exportHashes','state','acceptedStage'}|identity_keys,'result fields')
+    need(type(result['schema']) is int and result['schema']==1,'result schema')
+    need(result['classification']==selected.classification and result['synthetic'] is True and result['modeledResources'] is True and result['originalsPreserved'] is True,'result classification')
+    need(result['state']=='COMPLETED' and result['acceptedStage']=='PUBLISHING','persisted job not complete/published')
+    need(all(token(result[k]) for k in ('projectId','operationId','jobId','engineVersion')),'job identity token')
+    need(result['engineVersion']=='m19-integrated-runner-v2','unreviewed controller engine version')
+    need(type(result['projectRevision']) is int and result['projectRevision']==3 and integer(result['attempt'],1),'job revision/attempt')
+    need(all(digest(result[k]) for k in ('inputIdentitySha256','settingsIdentitySha256')),'job identity digest')
+    need(sha_bytes(documents['job-settings.json'])==result['settingsIdentitySha256'],'job settings bytes differ')
+    settings=docs['job-settings.json']
+    need(set(settings)=={'schema','focal35','resourceSelection'} and type(settings['schema']) is int and settings['schema']==2
+         and type(settings['focal35']) in (int,float) and settings['focal35']==32.88,'job settings semantics')
+    selection=settings['resourceSelection']
+    need(type(selection) is dict and set(selection)=={'schema','tier','identitySha256'}
+         and type(selection['schema']) is int and selection['schema']==1,'resource selection schema')
+    tier=selection['tier'];need(type(tier) is str and tier in ('compact','standard'),'resource selection tier')
+    params='depth=256|texture=512|views=6|samples=50000' if tier=='compact' else 'depth=384|texture=768|views=8|samples=100000'
+    selection_text='resource-selection-v1|'+tier+'|'+params+'|native-threads=1'
+    need(selection['identitySha256']==sha_bytes(selection_text.encode('ascii')),'resource selection identity')
+    model=docs['modeled-resources.json']
+    expected_model={'classification':'MODELED_HOST_RESOURCES','availableSystemBytes':2*1024**3,'thermalStatus':0,
+        'batteryPercent':80,'charging':True,'powerSave':False,'statFsBlocks':2000000,'statFsAvailableBlocks':1500000,
+        'managedHeap':'actual JVM runtime; not modeled phone heap',
+        'storageReservation':'production FileSpaceProbe and StorageBudgetService unchanged'}
+    need(model==expected_model and all(type(model[k]) is type(v) for k,v in expected_model.items()),'modeled resource disclosure differs')
+    names={row[0] for row in COMPLETE_ARTIFACTS}
+    before=docs['before-reopen-artifacts.json'];after=docs['after-reopen-artifacts.json']
+    need(set(before)==names and before==after==result['exportHashes'] and all(digest(v) for v in before.values()),'published artifact hashes/reopen differ')
+    need(set(artifacts)=={'artifact-'+value+'.bin' for value in before.values()},'raw artifact set differs')
+    payloads={name:artifacts['artifact-'+value+'.bin'] for name,value in before.items()}
+    need(all(sha_bytes(raw)==before[name] for name,raw in payloads.items()),'raw artifact hash differs')
+    need(documents['before-reopen-preview.json']==documents['after-reopen-preview.json']==payloads['preview'],'raw published preview/reopen differs')
+    publication=docs['before-reopen-publication.json']
+    need(publication==docs['after-reopen-publication.json'],'publication changed after reopen')
+    need(set(publication)=={'schema','setId','createdAtEpochMillis','purpose','entries'}|identity_keys,'publication fields')
+    need(type(publication['schema']) is int and publication['schema']==1 and publication['purpose']=='RESULT_SET','publication schema/purpose')
+    need(all(publication[k]==result[k] and type(publication[k]) is type(result[k]) for k in identity_keys),'publication/job identity differs')
+    need(integer(publication['createdAtEpochMillis']) and digest(publication['setId']),'publication timestamp/set identity')
+    entries=publication['entries'];need(type(entries) is list and len(entries)==9,'publication entry count')
+    def string(value):
+        raw=value.encode('utf-8');return struct.pack('>i',len(raw))+raw
+    encoded=struct.pack('>ii',1,0)+string(publication['projectId'])+struct.pack('>q',3)+string(publication['operationId'])+struct.pack('>q',publication['attempt'])
+    encoded+=string(publication['inputIdentitySha256'])+string(publication['settingsIdentitySha256'])+string(publication['engineVersion'])
+    encoded+=struct.pack('>qi',publication['createdAtEpochMillis'],9)
+    for entry,(name,path,representation) in zip(entries,COMPLETE_ARTIFACTS):
+        need(type(entry) is dict and set(entry)=={'logicalName','relativePath','representation','required','maxBytes','presence','bytes','sha256'},'publication entry fields')
+        need((entry['logicalName'],entry['relativePath'],entry['representation'])==(name,path,representation),'publication declaration differs')
+        need(entry['required'] is True and entry['presence']=='PRESENT','publication artifact absent/optional')
+        need(integer(entry['bytes'],1,16*1024**2) and integer(entry['maxBytes'],1,16*1024**2) and entry['bytes']==entry['maxBytes']==len(payloads[name]),'publication artifact size differs')
+        need(entry['sha256']==before[name],'publication artifact digest differs')
+        encoded+=string(name)+string(path)+string(representation)+b'\x01'+struct.pack('>qiq',entry['maxBytes'],0,entry['bytes'])+b'\x01'+string(entry['sha256'])
+    need(sha_bytes(encoded)==publication['setId'],'publication canonical set identity differs')
+    exports=docs['before-reopen-exports.json']
+    need(exports==docs['after-reopen-exports.json'] and set(exports)=={'ply','mesh.ply','textured.glb'},'export inventory/reopen differs')
+    for extension,name in [('ply','sparse-ply'),('mesh.ply','mesh-ply'),('textured.glb','textured-glb')]:
+        entry=exports[extension]
+        need(type(entry) is dict and set(entry)=={'path','bytes','sha256','publishedLogicalName'},'export entry fields')
+        need(entry['path']=='artifact-'+before[name]+'.bin' and entry['sha256']==before[name] and entry['publishedLogicalName']==name and integer(entry['bytes'],1) and entry['bytes']==len(payloads[name]),'export does not bind published bytes')
+    preview=docs['before-reopen-preview.json']
+    need(preview.get('revision')==3 and type(preview.get('revision')) is int and token(preview.get('artifactKey')),'preview publication identity')
+    need(all(preview.get(k)=='ready' for k in ('denseStatus','meshStatus','textureStatus')),'full stages not ready')
+    need(preview.get('finalSparseOutcome')=='global_typed_ba_admitted12' and type(preview.get('bundleAdjustment')) is dict,'typed sparse BA absent')
+    cameras=preview.get('cameras');need(type(cameras) is list and len(cameras)==3 and all(type(c) is dict and type(c.get('photoId')) is str for c in cameras),'registered camera identities')
+    ids=[c['photoId'] for c in cameras];need(len(set(ids))==3 and type(preview.get('registeredCameras')) is int and preview['registeredCameras']==3,'registered camera count')
+    need(type(identity) is list and len(identity)==3 and type(observations) is dict,'input identity proof')
+    expected=observations.get('images');need(type(expected) is dict and len(expected)==3 and all(digest(v) for v in expected.values()),'frozen input identities')
+    mapped={}
+    for item in identity:
+        need(type(item) is dict and set(item)=={'photoId','imageSha256','fixturePath'},'input identity fields')
+        photo=item['photoId'];path=item['fixturePath']
+        need(type(photo) is str and photo in ids and photo not in mapped and type(path) is str and path in expected and item['imageSha256']==expected[path],'input identity mismatch')
+        mapped[photo]=path
+    need(set(mapped.values())==set(expected),'input mapping not bijective')
+    sparse=preview.get('pointCount');dense=preview.get('densePreview');mesh=preview.get('meshPreview');texture=preview.get('texturePreview')
+    need(integer(sparse,1) and all(type(v) is dict for v in (dense,mesh,texture)),'stage measurements missing')
+    need(integer(dense.get('pointCount'),60) and integer(dense.get('consistentPixels'),60),'dense support below fixed minimum')
+    need(integer(mesh.get('vertexCount'),30) and integer(mesh.get('triangleCount'),40),'mesh support below fixed minimum')
+    coverage=texture.get('faceCoverage');need(type(coverage) in (int,float) and math.isfinite(coverage) and 0<coverage<=1,'photographic coverage invalid')
+    try:counts=validate_exports(payloads['sparse-ply'],payloads['mesh-ply'],payloads['textured-glb'])
+    except (ValueError,KeyError,TypeError,OverflowError,struct.error) as error:raise Failure('Complete measurement: invalid raw export format') from error
+    expected_counts={'sparsePointCount':sparse,'meshVertexCount':mesh['vertexCount'],'meshTriangleCount':mesh['triangleCount'],
+        'texturedVertexCount':texture.get('uvVertexCount'),'texturedTriangleCount':texture.get('triangleCount'),
+        'textureWidth':texture.get('atlasWidth'),'textureHeight':texture.get('atlasHeight')}
+    need(all(integer(value,1) and counts.get(key)==value for key,value in expected_counts.items()),'binary export counts differ from preview')
+    need(counts['textureSha256']==before['texture-png'],'embedded texture differs from published atlas')
+    return {'classification':selected.classification,'profile':COMPLETE,'synthetic':True,'modeledResources':True,
+        'projectId':result['projectId'],'projectRevision':3,'jobId':result['jobId'],'state':'COMPLETED','acceptedStage':'PUBLISHING',
+        'publicationSetId':publication['setId'],'registeredCameraCount':3,'artifactCount':9,'exportCount':3,
+        'formatValidationScope':'THREE_EXPORTED_FORMATS; NINE_PUBLISHED_ARTIFACTS_HASH_BOUND',
+        'inputIdentityScope':'PHOTO_HASH_MAPPING_CHECKED; SNAPSHOT_HASH_JOB_TO_PUBLICATION_BOUND_NOT_RECOMPUTED',
+        'measurements':counts,'faceCoverage':coverage,
+        'documents':{name:{'sha256':sha_bytes(raw),'bytes':len(raw)} for name,raw in sorted(documents.items())},
+        'artifacts':{name:{'sha256':before[name],'bytes':len(payloads[name])} for name in sorted(names)}}
