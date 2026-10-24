@@ -15,7 +15,10 @@ internal class QualifiedCapability private constructor(private val manifestFile:
     fun nativeFile(role: String): File = File(native.getJSONObject(role).getString("path")).canonicalFile
     fun nativeHash(role: String): String = native.getJSONObject(role).getString("sha256")
     fun verifyCurrent() {
-        require(RuntimeProviderIdentity.fileHash(manifestFile, 32L * 1024 * 1024) == manifestHash)
+        require(NativeCapabilityContract.same(NativeCapabilityContract.readJson(manifestFile,manifestHash,32L*1024*1024),value))
+        val contract=contract(value,File(required("workDir")))
+        NativeCapabilityContract.verifyInputs(contract)
+        verifyCommands(value,contract,File(required("workDir")),required("runOwner"))
         require(RuntimeProviderIdentity.fileHash(policyFile) == POLICY_SHA256)
         for (role in ROLES) require(RuntimeProviderIdentity.fileHash(nativeFile(role)) == nativeHash(role))
         val inputs=value.getJSONObject("inputs")
@@ -100,13 +103,39 @@ internal class QualifiedCapability private constructor(private val manifestFile:
             require((if(commandLog) CapabilityIdentity.logHash(file) else RuntimeProviderIdentity.fileHash(file,512L*1024*1024))==hash)
             return file
         }
+        private fun contract(value:JSONObject,work:File):NativeCapabilityContract.Contract {
+            val inputs=value.getJSONObject("inputs")
+            fun bound(name:String,maximum:Long):JSONObject {
+                val obj=inputs.getJSONObject(name);require(keys(obj)==setOf("path","sha256"))
+                val file=File(obj.getString("path"));require(file==File(work,"capability/$name") && file.path==file.canonicalPath)
+                return NativeCapabilityContract.readJson(file,obj.getString("sha256"),maximum)
+            }
+            return NativeCapabilityContract.derive(value,bound("native-input-provenance.json",16L*1024*1024),
+                bound("header-provider.json",32L*1024),bound("prebuild-inputs.json",16L*1024*1024),
+                bound("consumed-inputs.json",16L*1024*1024),bound("consumed-provenance.json",16L*1024*1024),
+                CapabilityIdentity.Producer(required("runOwner"),work.path,required("sourceSha")))
+        }
+        private fun verifyCommands(value:JSONObject,contract:NativeCapabilityContract.Contract,work:File,owner:String) {
+            val commands=value.getJSONObject("producer").getJSONArray("commands");require(commands.length() in 40..256)
+            val labels=mutableSetOf<String>()
+            for(i in 0 until commands.length()) {
+                val command=commands.getJSONObject(i);val label=command.getString("label")
+                require(label.matches(Regex("[a-z0-9-]+")) && labels.add(label))
+                CapabilityIdentity.command(command.getString("runOwner"),owner,command.getLong("starttime"),command.getLong("pid"),command.getString("environmentBoundary"))
+                require(command.get("complete")==true && command.getInt("exit")==0 && listOf("error","cleanupError","secondaryErrors").none(command::has))
+                val obj=command.getJSONObject("log");require(keys(obj)==setOf("path","sha256") && obj.getString("path")==File(work,"logs/$label.raw.log").path)
+                val log=record(obj,commandLog=true)
+                require(log.length()==command.getLong("bytes") && command.getString("sha256")==obj.getString("sha256"))
+                require(command.getJSONArray("argv").length()>0)
+            }
+            require(labels==contract.labels)
+        }
         @Synchronized fun load():QualifiedCapability {
             accepted?.let { it.verifyCurrent();return it }
             require(required("policySha256")==POLICY_SHA256) { "Unreviewed build policy" }
             val file=File(required("capabilityManifest"));require(file.isAbsolute && file.path==file.canonicalPath && file.name=="capability.json" && file.parentFile.name=="capability")
             val hash=required("capabilitySha256");require(hash.matches(Regex("[a-f0-9]{64}")))
-            require(RuntimeProviderIdentity.fileHash(file,32L*1024*1024)==hash)
-            val value=JSONObject(file.readText())
+            val value=NativeCapabilityContract.readJson(file,hash,32L*1024*1024)
             require(value.getInt("schema")==1 && value.getString("classification")=="HOST_SOURCE_BUILT_CAPABILITY")
             require(value.getString("sourceSha")==required("sourceSha") && required("sourceSha").matches(Regex("[a-f0-9]{40}")))
             require(value.getString("policySha256")==POLICY_SHA256)
@@ -117,48 +146,18 @@ internal class QualifiedCapability private constructor(private val manifestFile:
                 val f=record(native.getJSONObject(role))
                 require(f==File(file.parentFile,relative.getValue(role)).canonicalFile && f==File(required(role)).canonicalFile)
             }
-            val inputs=value.getJSONObject("inputs");require(inputs.length() in 30..25064)
-            val mandatory=setOf("compiler","cc","cmake","ninja","nm","readelf","ldd","java","javap","javac","javaRelease","policy","smokeSource","archive","license","aar","classes","nativeOwner","generatedJar","jniSource","jniContract","source-files.json","scanner-source.json","opencv-abi.json","scanner-abi.json","consumed-inputs.json","prebuild-inputs.json","consumed-provenance.json","robolectricNativeDistribution","androidAll")
-            require(keys(inputs).containsAll(mandatory) && keys(inputs).any { it.startsWith("consumed-") })
-            for(name in keys(inputs))record(inputs.getJSONObject(name))
-            val policyFile=File(inputs.getJSONObject("policy").getString("path"))
-            require(RuntimeProviderIdentity.fileHash(policyFile)==POLICY_SHA256)
+            val inputs=value.getJSONObject("inputs")
             val producer=value.getJSONObject("producer")
             require(keys(producer)==setOf("runOwner","workDir","sourceSha","commands"))
             val expectedProducer=CapabilityIdentity.Producer(required("runOwner"),required("workDir"),required("sourceSha"))
             CapabilityIdentity.producer(CapabilityIdentity.Producer(producer.getString("runOwner"),producer.getString("workDir"),producer.getString("sourceSha")),expectedProducer)
             val work=File(expectedProducer.workDir)
             require(file==File(work,"capability/capability.json"))
-            val before=JSONObject(File(inputs.getJSONObject("prebuild-inputs.json").getString("path")).readText())
-            val consumed=JSONObject(File(inputs.getJSONObject("consumed-inputs.json").getString("path")).readText())
-            val provenance=JSONObject(File(inputs.getJSONObject("consumed-provenance.json").getString("path")).readText())
-            require(before.length() in 1..60000 && consumed.length() in 1..24000 && keys(provenance)==keys(consumed))
-            val generated=setOf("core.inl.hpp","imgproc.inl.hpp","features2d.inl.hpp","opencv_jni.hpp").map { File(file.parentFile,"build/modules/java_bindings_generator/gen/cpp/$it").path }.toSet()
-            require(keys(inputs)==mandatory + (0 until consumed.length()).map { "consumed-$it" }.toSet())
-            for((index,path) in keys(consumed).sorted().withIndex()) {
-                val digest=consumed.getString(path);val item=provenance.getJSONObject(path)
-                val boundInput=inputs.getJSONObject("consumed-$index")
-                require(boundInput.getString("path")==path && boundInput.getString("sha256")==digest)
-                require(keys(item)==setOf("sha256","scope") && item.getString("sha256")==digest)
-                if(before.has(path)) require(before.getString(path)==digest && item.getString("scope")=="PREBUILD_AND_POSTBUILD_IDENTICAL")
-                else require(path in generated && item.getString("scope")=="POST_GENERATION_ONLY_NOT_PRECONSUMPTION")
-            }
-            val commands=producer.getJSONArray("commands");require(commands.length() in 40..256)
-            val labels=mutableSetOf<String>()
-            for(i in 0 until commands.length()) {
-                val command=commands.getJSONObject(i);val label=command.getString("label")
-                require(label.matches(Regex("[a-z0-9-]+")) && labels.add(label))
-                CapabilityIdentity.command(command.getString("runOwner"),expectedProducer.runOwner,command.getLong("starttime"),command.getLong("pid"),command.getString("environmentBoundary"))
-                require(command.get("complete")==true && command.getInt("exit")==0 && listOf("error","cleanupError","secondaryErrors").none(command::has))
-                val log=record(command.getJSONObject("log"),commandLog=true)
-                require(log==File(work,"logs/$label.raw.log") && log.length()==command.getLong("bytes"))
-                require(command.getString("sha256")==command.getJSONObject("log").getString("sha256"))
-                require(command.getJSONArray("argv").length()>0)
-            }
-            val expectedLabels=mutableSetOf("compiler-version","opencv-configure","opencv-build","opencv-symbols","opencv-consumed-deps","opencv-smoke-compile","opencv-smoke","scanner-configure","scanner-build","scanner-javap","scanner-shim","scanner-consumed-deps","scanner-symbols")
-            for(i in 0 until 10) for(kind in listOf("aar","generated")) expectedLabels.add("opencv-$kind-$i")
-            for(prefix in listOf("opencv","scanner-engine","scanner-shim")) for(part in listOf("elf-header","elf-dynamic","ldd")) expectedLabels.add("$prefix-$part")
-            require(labels==expectedLabels)
+            val contract=contract(value,work)
+            NativeCapabilityContract.verifyInputs(contract)
+            verifyCommands(value,contract,work,expectedProducer.runOwner)
+            val policyFile=File(inputs.getJSONObject("policy").getString("path"))
+            require(RuntimeProviderIdentity.fileHash(policyFile)==POLICY_SHA256)
             val framework=inputs.getJSONObject("androidAll")
             val offline=File(required("robolectric.dependency.dir",false)).canonicalFile
             val frameworkFile=File(framework.getString("path"))

@@ -13,7 +13,7 @@ ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE='docs/development/experiments/new-cuboid-eight-view-160x120'
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
 ADAPTER_MANIFEST='6d64c30f74751a6438af1c86687c35f8d8e1939d10611317735dbb9cf52fd8a5'
-SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
+SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 # Kotlin file facades/nested classes retain their owner prefix. This additional top-level
 # object is declared in RuntimeProviderIdentity.kt, not in a same-named source file.
 PROBE_CLASS_PREFIXES=tuple(Path(name).stem for name in SOURCE_NAMES)+('Api35ProviderContract',)
