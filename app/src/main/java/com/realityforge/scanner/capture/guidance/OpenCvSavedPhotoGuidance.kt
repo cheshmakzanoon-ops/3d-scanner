@@ -4,6 +4,7 @@ import com.realityforge.scanner.capture.session.CapturedPhoto
 import com.realityforge.scanner.capture.analysis.CaptureQualityEstimator
 import com.realityforge.scanner.capture.analysis.LumaFrame
 import com.realityforge.scanner.engine.ImageLoader
+import com.realityforge.scanner.engine.LensProjection
 import com.realityforge.scanner.engine.NativeCore
 import com.realityforge.scanner.imaging.DecodeRequest
 import java.io.File
@@ -35,7 +36,7 @@ import org.opencv.imgproc.Imgproc
  * attempted only with reported focal metadata and without dominant planar/rotation evidence.
  */
 object OpenCvSavedPhotoGuidance : SavedPhotoFeatureExtractor, SavedPhotoPairProvider {
-    private const val ENGINE = "opencv-4.12-orb-1000-ratio075-grid4-homography3-native2view-v1"
+    private const val ENGINE = "opencv-4.12-orb-1000-ratio075-grid4-homography3-native2view-pixel-centres-v2"
 
     override fun extract(photo: CapturedPhoto, maxEdge: Int, maxFeatures: Int): SavedPhotoGuidanceFeatures {
         require(maxEdge in 128..640 && maxFeatures in 1..1_000)
@@ -170,18 +171,9 @@ object OpenCvSavedPhotoGuidance : SavedPhotoFeatureExtractor, SavedPhotoPairProv
         if (matches.size < 24) return null
         val fA = a.focal35mm?.let { ImageLoader.focalPixels(a.width, a.height, it) } ?: return null
         val fB = b.focal35mm?.let { ImageLoader.focalPixels(b.width, b.height, it) } ?: return null
-        val rows = DoubleArray(matches.size * 7)
-        matches.forEachIndexed { index, match ->
-            val offset = index * 7
-            rows[offset] = (a.xy[match.queryIdx * 2] - a.width / 2.0) / fA
-            rows[offset + 1] = (a.xy[match.queryIdx * 2 + 1] - a.height / 2.0) / fA
-            rows[offset + 2] = (b.xy[match.trainIdx * 2] - b.width / 2.0) / fB
-            rows[offset + 3] = (b.xy[match.trainIdx * 2 + 1] - b.height / 2.0) / fB
-            val color = a.colors[match.queryIdx]
-            rows[offset + 4] = (color ushr 16 and 255).toDouble()
-            rows[offset + 5] = (color ushr 8 and 255).toDouble()
-            rows[offset + 6] = (color and 255).toDouble()
-        }
+        val rows = packGuidancePoseRows(a.xy, b.xy, a.colors, matches,
+            LensProjection.estimated(a.width, a.height, fA),
+            LensProjection.estimated(b.width, b.height, fB))
         val result = JSONObject(NativeCore.reconstruct(rows, (1.5 / minOf(fA, fB)).coerceAtMost(0.05)))
         if (result.has("error")) return null
         val points = result.getJSONArray("points")
