@@ -4,6 +4,17 @@ Version: 0.1 / 9 October 2026. The design below carries forward the agreed fully
 high-fidelity Android photogrammetry plan. The current deliverable is an initial engineering
 milestone; a design target is not a completed or validated capability.
 
+## Current implementation versus target
+
+As of the 24 October 2026 `37fdaf02` validation checkpoint, RealityForge is a
+buildable **0.19.0-m19 engineering preview**, not a completed implementation of
+this plan. Supported reconstruction input remains **2–12 photos**, with at most
+**eight registered dense views**; the 30–250+ photo profiles below are future
+targets, not current admission limits. APK/unit-test and native release successes
+do not close sanitizer, end-to-end reconstruction, device, topology or physical
+quality gates. See [current status](docs/MILESTONE_STATUS.md) and
+[next gates](docs/NEXT_MILESTONE.md) for the commit-specific results and blockers.
+
 ## Product contract
 
 The finished app will capture or import multiple photographs of a rigid object, reconstruct

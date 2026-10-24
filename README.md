@@ -4,12 +4,31 @@
 cloud integration. Not a completed consumer product or a guarantee of
 high-quality complete-object scanning.**
 
-Current integration and commit-specific checks are tracked in the
-[cloud validation ledger](docs/development/CLOUD_COMPLETION_STATUS.md).
-The integrated source includes service-owned durable reconstruction jobs,
-identity-bound checkpoints, library/curation/recovery routes and observed
-OBJ ZIP/STL export. Source wiring is not proof that every workflow passes on a
-device; complete-session, studio and physical-quality qualification remain open.
+## Current validation — 24 October 2026
+
+Evidence below is for commit `37fdaf02ab3d3ffe292685589df83c6e578c13de`,
+not a blanket result for later commits. **The APK builds, but a complete,
+reliable photo-to-model workflow is not yet qualified.**
+
+| Area | Verified result / remaining limit |
+| --- | --- |
+| Android | 850 unit tests + 18 HOST JVM tests passed (868 total); debug app/test APK builds passed. This is not installed-device or visual validation. |
+| Native release checks | GCC/Clang release profiles and benchmark builds passed; the overall native gate is not green. |
+| Native sanitizers | Both sanitizer profiles timed out at the 600-second test limit; no completed latest-run sanitizer proof. |
+| Eight-photo HOST attempt | Native prerequisites and provenance checks passed. The selected HOST test was invoked once but failed Android test-resource/manifest setup **before the test body and reconstruction** (1 test, 1 failure, 0 skips). No eight-photo model was produced or validated by this run. |
+| Device / visual checks | Device preflight is blocked by unavailable KVM access; physical-device capture, visual behavior and ARM64 resource/quality validation remain open. |
+| Mesh quality | A synthetic native audit still reports **509 nonmanifold edges**. Corrected UI warnings disclose the defect; they do not repair geometry or make it watertight. |
+
+Sources: [Verify run 40120401316](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
+[HOST run 40120401371](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401371),
+and [topology audit](docs/development/SURFACE_TOPOLOGY_QUALIFICATION.md#separate-native-counterexample).
+See [current status](docs/MILESTONE_STATUS.md) and [next validation gates](docs/NEXT_MILESTONE.md).
+
+The integrated source includes durable reconstruction jobs, identity-bound
+checkpoints, library/curation/recovery routes and observed OBJ ZIP/STL export.
+Source wiring is not proof that every workflow passes on a device. Production
+signing, complete sessions, model-studio qualification and physical scan quality
+remain open; there is no production-ready or commercial-scanner-equivalent claim.
 
 Capture/import photographs, estimate calibrated camera positions, reconstruct
 observed surfaces, export photograph-textured GLB models, and inspect them in
@@ -25,8 +44,7 @@ the project is deleted; export important captures before uninstalling.
 - **M15:** activates that backend in Android, sequentially decoding originals.
   Standard jobs use a maximum 384px depth edge; compact jobs use 256px. Sampling
   automatically respects the 100,000-grid-sample limit without silently dropping
-  all but the first three cameras. The unfinished source publication was recovered
-  from its checksum-verified payload and the temporary transport files removed.
+  all but the first three cameras.
 - **M16:** incremental camera registration from newly triangulated landmarks.
 - **M17:** each reconstruction now owns an opaque native cancellation token. Pause
   signals a shared atomic flag, checked during CPU depth, mesh fusion and UV
@@ -69,43 +87,27 @@ internet; scanning in the app does not. Gradle 8.13, API 36, NDK 28.2.13676358,
 CMake and Java 17 are pinned in the build setup.
 
 ```sh
-gradle --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
+./gradlew --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
 cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-Werror
 cmake --build build/host --parallel 1
 ctest --test-dir build/host --output-on-failure
 python -m pytest tests -q
 ```
 
-See [BUILDING](docs/BUILDING.md). CI also runs API-35 Android instrumentation,
-native JNI, actual GLES pixel readback, a synthetic photograph-to-textured-GLB
-session and real Middlebury stereo benchmarks. The new M16 visibility-chain test
+See [BUILDING](docs/BUILDING.md). The validation workflows include API-35 Android
+instrumentation, native JNI, actual GLES pixel readback, a synthetic
+photograph-to-textured-GLB session and real Middlebury stereo benchmarks. These
+checks are not all passing on the current candidate; device preflight remains blocked. The new M16 visibility-chain test
 uses synthetic analytic features with withheld camera poses; it does not replace
 physical captures. Check the workflow for the exact commit before claiming its
 Android build or device tests passed. Source contracts are not runtime evidence.
 
-The integrated 081–100 host suite also needs the independent format validators
+The host test suite also needs the independent format validators
 and security scanners. Use the pinned QA-only installer and activation described
-in [the campaign QA runbook](docs/BUILDING.md#integrated-campaign-qa).
+in [the host QA setup](docs/BUILDING.md#independent-host-qa-dependencies).
 The baseline scientific requirements alone do not supply those tools. Ordinary
 debug/release compatibility instrumentation leaves dedicated controller and
 physical gates explicitly unrun.
-
-## Evidence and campaign workflow
-
-The immutable audited baseline is `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42`;
-[Actions run38488820626](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/38488820626)
-records11 CTest targets,117 pytest checks and32 API35 emulator tests. These counts
-are historical evidence for that SHA, not a result for later agent branches.
-The campaign base is `ad3029193f304c70931b94ea7a0df90b69d84b07`. A branch receipt
-under `docs/agents/status/` describes only its own verified source and gates.
-Agent100 freezes integrated candidate source/artifact hashes before acceptance.
-Missing physical complete-object, resource, signing and license gates stay open.
-Do not treat a remote branch or successful build as integrated app behavior.
-
-Follow [AGENTS](AGENTS.md), the exact numbered role and the shared mechanical
-source-manifest protocol in the execution plan. Stage owned source/tests/receipt
-first; regenerate the entire manifest from staged Git blobs, stage it and verify.
-Never merge another role into a worker branch;100 handles integration and conflicts.
 
 ## Engineering records
 
@@ -114,9 +116,6 @@ Never merge another role into a worker branch;100 handles integration and confli
 [M14](docs/M14_MULTIVIEW.md) · [M15](docs/M15_ADAPTIVE_ANDROID.md) ·
 [M16](docs/M16_INCREMENTAL_REGISTRATION.md)
 
-For numbered parallel assignments, follow the
-[100-agent production execution plan](PRODUCTION_100_AGENT_EXECUTION_PLAN.md):
-each agent uses its assigned branch and Agent 100 coordinates integration into `main`.
 Native algorithms are in `reconstruction/`, Android in
 `app/`, reproducible host harnesses in `tools/`, and measured outputs in `reports/`.
 Historical milestone documents remain available. Green builds and isolated

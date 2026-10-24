@@ -50,7 +50,21 @@ def check(root):
     expect('twelve photographs' in bodies['README.md'] and 'eight registered views' in bodies['README.md'], 'README supported-limit disclosure missing')
     expect('Native computation remains\nnoninterruptible inside individual JNI calls' not in bodies['README.md'], 'Stale native cancellation statement')
     expect('It has not been executed' not in bodies['docs/BUILDING.md'], 'Stale CI evidence statement')
-    expect('isMinifyEnabled = false' in gradle and 'R8 disabled' in bodies['docs/BUILDING.md'], 'Release minification disclosure drift')
+    # The later release convention overrides the initial buildTypes defaults.
+    release = re.search(r'candidateTypes\.getByName\("release"\)\.apply\s*\{([^}]+)\}', gradle)
+    expected_release = ('setDsl("minifyEnabled", true)', 'setDsl("shrinkResources", true)',
+                        'setDsl("signingConfig", candidateSigner)')
+    expect(release is not None and all(value in release[1] for value in expected_release),
+           'Effective release convention changed; reconcile runbook')
+    expect('providers.gradleProperty("candidateSigning").orElse("test")' in gradle
+           and 'if (candidateMode == "test") candidateSigning.getByName("debug")' in gradle,
+           'Release test-signing default changed; reconcile runbook')
+    expect('enables R8 minification' in bodies['docs/BUILDING.md']
+           and 'resource shrinking' in bodies['docs/BUILDING.md']
+           and 'test-signed release candidate' in bodies['docs/BUILDING.md']
+           and 'not production' in bodies['docs/BUILDING.md']
+           and 'R8 disabled' not in bodies['docs/BUILDING.md'],
+           'Release minification/signing disclosure drift')
     links = 0
     for name, body in bodies.items():
         # Exclude code fences; relative Markdown links must resolve to real files.

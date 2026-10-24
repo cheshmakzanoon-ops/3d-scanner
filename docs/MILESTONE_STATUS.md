@@ -1,39 +1,49 @@
 # Source status — integrated engineering preview
 
-See the [cloud validation ledger](development/CLOUD_COMPLETION_STATUS.md) for
-current integration and exact-candidate evidence. The integrated source includes
-service-owned durable reconstruction jobs, revision-bound publication/checkpoint
-handling and library/curation/recovery/export routes. These are source-level
-capabilities, not a blanket runtime pass. Supported reconstruction input remains
-2–12 photographs, with at most eight registered dense views. Complete-session and
-studio qualification, physical-object geometry/texture/resource evidence and
-production signing remain open.
+## Current verified checkpoint — 24 October 2026
 
-## Historical M19 campaign baseline
+Current application version: **0.19.0-m19**. The source has progressed beyond the
+historical M19 implementation, but the product remains an engineering preview.
+Evidence here is bound to `37fdaf02ab3d3ffe292685589df83c6e578c13de`.
 
-Version0.19.0-m19; campaign base `ad3029193f304c70931b94ea7a0df90b69d84b07`.
-The baseline code includes M17 operation cancellation, M18 per-reference depth
-checkpoints and M19 persisted scan diagnostics. Sparse work remains12-photo and
-depth8-view bounded; see [README](../README.md) and [architecture](ARCHITECTURE.md).
-Physical complete-object geometry/texture/resource evidence, release signing and
-installed candidate qualification remain open. Agent branches below this campaign
-base are separate deliveries until100 integrates and verifies runtime dependencies.
+- **Builds and unit tests:** 850 Android unit tests + 18 HOST JVM tests (868 total) and debug app/test APK builds passed.
+  GCC/Clang native release profiles and benchmark builds passed.
+- **Sanitizers:** both profiles timed out at the 600-second test limit. Neither
+  timeout is a pass; the overall native qualification gate remains open.
+- **Eight-photo test invocation:** native prerequisites, including staged OpenCV
+  builds, smoke checks, scanner build/load checks and provenance admission,
+  passed. The selected HOST test was invoked once, but Android test-resource/
+  manifest setup failed before the test body and reconstruction (1 test,
+  1 failure, 0 skips). This is not a reconstructed model or complete app session.
+- **Device and visual evidence:** KVM access blocks device preflight. Current
+  physical capture, installed-app visual behavior and ARM64 performance/quality
+  are unvalidated.
+- **Topology:** the synthetic native audit has 509 nonmanifold indexed edges.
+  UI warning fixes correctly report topology limitations; the geometry remains
+  non-watertight and is not qualified for printing or complete-object use.
 
-The audited SHA `fdd16fce4aa7b1b7d365c0f43e89964d3028bf42` passed
-[Actions38488820626](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/38488820626):
-11 CTest targets,117 pytest cases and32 API35 emulator tests. These exact historical
-counts are not physical handset or later-candidate evidence. Current receipts live
-under `docs/agents/status/`; each must identify its own source/artifact and actual gates.
+Public evidence: [Verify run 40120401316](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
+[HOST run 40120401371](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401371),
+[topology counterexample](development/SURFACE_TOPOLOGY_QUALIFICATION.md#separate-native-counterexample).
+A later source fix does not retroactively change these results.
 
-The 081–100 campaign adds executable native/fuzz/corpus/quality/device/export/
-packaging/security/dependency/qualification tooling. The integrated host suite
-requires095's pinned QA-only installation rather than the original scientific
-requirements alone; see [BUILDING](BUILDING.md#integrated-campaign-qa). Tooling
-delivery alone does not establish runtime wiring or physical evidence; later
-integration and verification are recorded in the cloud ledger. The final integration applicability keeps all18 required gates
-open until their own exact-candidate records pass. Current physical/reference/
-held-out/signing/beta prerequisites remain unavailable, and known failed assets or
-sanitizer checks must stay visible in their independent reports.
+The integrated source includes service-owned durable jobs, revision-bound
+publication/checkpoints and library/curation/recovery/export routes. Supported
+input remains **2–12 photographs**, with at most **eight registered dense views**.
+Complete-session and model-studio qualification, physical reference comparisons,
+resource measurements and production signing remain open. See
+[next gates](NEXT_MILESTONE.md). The records below are historical, not current
+acceptance results.
+
+## Historical M19 baseline
+
+Version 0.19.0-m19 includes M17 operation cancellation, M18 per-reference depth
+checkpoints and M19 persisted scan diagnostics. Sparse work remains 12-photo and
+depth 8-view bounded; see [README](../README.md) and [architecture](ARCHITECTURE.md).
+Physical complete-object geometry/texture/resource evidence, production signing
+and installed-app qualification remain open. Host validation requires the pinned
+[QA dependencies](BUILDING.md#independent-host-qa-dependencies); tooling alone does
+not establish runtime behavior or physical quality.
 
 ## Historical M12 snapshot
 
@@ -81,10 +91,9 @@ See M12_SESSION_RELIABILITY.md; unchanged geometry limits and physical gates rem
   large-scene resumption, arbitrary 360-degree registration and final-quality
   topology/textures remain outstanding. Neither milestone establishes perfection.
 
-## M15 recovery and M16 incremental registration
+## M15 adaptation and M16 incremental registration
 
-M15's staged, checksum-verified eight-view Android adaptation was recovered and
-published after an interrupted session. M16 then adds first-party incremental
+M15 adds bounded eight-view Android adaptation. M16 adds first-party incremental
 registration over the current shared sparse frame, stable bounded track snapshots,
 candidate-identity conflict rejection, native pose validation, explicit remaining
 images and all-pairs final refinement. Eight JVM cases and a production-JNI

@@ -59,25 +59,33 @@ source compilation; investigate checksum mismatches instead of bypassing them.
 ./gradlew --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest :app:testDebugUnitTest :app:lintDebug
 ./gradlew --no-daemon :app:assembleRelease :app:lintRelease
 python3 tools/check_apk.py app/build/outputs/apk/debug/app-debug.apk --sdk "$ANDROID_HOME" --report reports/apk-validation.json
-python3 tools/check_apk.py app/build/outputs/apk/release/app-release-unsigned.apk --sdk "$ANDROID_HOME"
+python3 tools/check_apk.py app/build/outputs/apk/release/app-release.apk --sdk "$ANDROID_HOME"
 ```
 
 Windows uses `gradlew.bat` with the same task names. Platform-specific commands are not
 records of execution; see the audit receipts for actual evidence.
 
-The configured Gradle heap is 3 GiB. Reduce parallel workers first on constrained hosts:
-the integrated Compose compiler exhausted a 512 MiB heap during the 2026-10-20 audit.
-CI uses the checked-in configuration. Static source checks never replace compilation.
+Use the checked-in Gradle configuration and reduce parallel workers first on
+constrained hosts. Static source checks never replace compilation.
 
-Debug, instrumentation and unsigned release APKs have separate outputs. Synthetic photo
+Debug, instrumentation and release-candidate APKs have separate outputs. Synthetic photo
 fixtures, migration schema assets and the shared fault provider exist only in `androidTest`.
 `check_apk.py` rejects fixture assets in production APKs and checks merged Internet permission,
 16 KiB ZIP alignment and ELF LOAD alignment for every native library, including OpenCV.
 Source linker flags alone do not qualify the final package.
 
-Release is currently unsigned, with R8 disabled. Signing, shrinking/JNI qualification,
-distribution notices and physical release-device qualification remain separate release-owner
-gates; building `assembleRelease` does not mark them complete.
+The effective release convention in `app/build.gradle.kts` enables R8 minification
+and resource shrinking. `candidateSigning` defaults to `test`, using the debug
+signing configuration; this is a **test-signed release candidate**, not production
+signing. `-PcandidateSigning=production` requires externally supplied production
+credentials and must not be used with committed secrets. Shrinking/JNI runtime
+qualification, distribution notices and physical release-device qualification
+remain separate gates; `assembleRelease` alone does not complete them.
+
+The [24 October validation checkpoint](MILESTONE_STATUS.md) reports successful APK
+builds and 850 unit + 18 HOST JVM tests (868 total), not a successful installed photo-to-model
+session. Device preflight is blocked, and both native sanitizer profiles timed
+out; consult the exact run before describing an APK as validated.
 
 ## Android runtime checks
 
@@ -107,21 +115,23 @@ python3 -m pip install -r tools/requirements-real-benchmark.txt
 python3 -m pytest tests -q
 ```
 
-Host tests link the real native core. JNI is included only for Android and host executables
-are never packaged. Supported host sanitizers use `-DRF_SANITIZE=ON`. Windows multi-config
+Host tests link the real native core. The standard host CMake build is not an
+Android package, and host executables are never packaged in the app. Separate
+HOST JNI checks do not establish device qualification. Supported host sanitizers
+use `-DRF_SANITIZE=ON`. Windows multi-config
 builds need `--config Release`; unexecuted MSVC/sanitizer runs remain unverified.
 
 ## CI and evidence
 
 [Verify RealityForge](../.github/workflows/verify.yml) runs host tests and retained real/synthetic
-numerical benchmarks; Android debug/instrumentation/release compilation, JVM tests, lint and
-APK checks; and API 35 x86_64 emulator instrumentation on main pushes. Emulator tests can
+numerical benchmarks; Android debug/test APK and benchmark builds, JVM tests, lint
+and APK checks; and API 35 x86_64 emulator instrumentation when device preflight
+succeeds. A configured job is not evidence that its checks passed. Emulator tests can
 also be requested through workflow dispatch. Jobs retain actual reports and built APKs.
 Every Android CI command uses the committed wrapper.
 
-[The agents 001–030 audit](agents/AUDIT_001_030.md) and per-agent receipts identify the actual
-fixes, executed checks and outstanding gates. Historical milestone reports describe their
-own source revision and are not proof for a later integration tree.
+Test reports identify executed checks and outstanding gates for their source
+revision. Historical milestone reports are not proof for a later integration tree.
 
 Follow the staged-blob source-manifest protocol before committing:
 
@@ -143,7 +153,7 @@ readers. Missing tools produce NOT_RUN, never successful validation. Use isolate
 outside the checkout; the pinned, hash-verified installation entry point is:
 
 ```bash
-python3 tools/dependencies/install_qa.py --root /absolute/private/realityforge-qa
+python3 tools/dependencies/install_qa.py --root "$HOME/.local/share/realityforge-qa"
 ```
 
 See `tools/dependencies/qa-tools.json` and the sibling hashed requirements locks for the
@@ -151,11 +161,6 @@ external-only QA toolchain: trimesh 4.5.3, Khronos glTF Validator 2.0.0-dev.3.10
 Blender 4.3.2, Bandit 1.8.6, detect-secrets 1.5.0 and pip-audit 2.9.0. These are not
 Android runtime dependencies. Set `RF_GLTF_VALIDATOR` to the verified validator package,
 `RF_SECURITY_PYTHON` to the isolated scanner interpreter, and put Node and Blender on PATH.
-
-In the 2026-10-21 shared cloud checkout, the isolated QA activation file is
-`/workspace/scratch/6b683a119bde/qaenv/activate-realityforge.sh`; it does not modify the
-baseline toolenv. Its package install and test logs are local evidence, not tracked artifacts.
-No current machine-specific path is required for other developers.
 
 Rebuild `build/host/librealityforge.so` **before** running Python native regressions after
 merging native headers/sources. Loading an old library against new C++ structures can cause
@@ -179,5 +184,5 @@ Record PASS, FAIL, NOT_RUN or BLOCKED_EXTERNAL for each exact-source gate. A dep
 network failure is BLOCKED_EXTERNAL, not evidence that Android compilation succeeded.
 Missing instrumentation, zero executed tests and absent physical-device evidence remain
 open gates. Preserve full reports, APK SHA-256, device/API/ABI identity and test counts.
-The default unsigned release build does not establish production signing, R8 qualification,
+The default test-signed release build does not establish production signing, R8/JNI runtime qualification,
 store acceptance, physical 360-degree quality, thermal safety or power-loss durability.

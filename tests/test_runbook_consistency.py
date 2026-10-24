@@ -88,3 +88,21 @@ def test_pipeline_must_call_capacity_admission(tree):
     assert before in source
     path.write_text(source.replace(before, 'PipelineCapacityProfile.LEGACY_12'))
     assert check(tree)['status'] == 'FAIL'
+
+
+@pytest.mark.parametrize('before,after', [
+    ('setDsl("minifyEnabled", true)', 'setDsl("minifyEnabled", false)'),
+    ('setDsl("shrinkResources", true)', 'setDsl("shrinkResources", false)'),
+    ('setDsl("signingConfig", candidateSigner)', 'setDsl("signingConfig", null)'),
+    ('providers.gradleProperty("candidateSigning").orElse("test")', 'providers.gradleProperty("candidateSigning").orElse("production")'),
+])
+def test_effective_release_configuration_drift_rejected(tree,before,after):
+    path=tree/'app/build.gradle.kts';source=path.read_text();assert before in source
+    path.write_text(source.replace(before,after));assert check(tree)['status']=='FAIL'
+
+@pytest.mark.parametrize('text',['R8 disabled','test-signed release candidate'])
+def test_false_or_missing_release_disclosure_rejected(tree,text):
+    path=tree/'docs/BUILDING.md';source=path.read_text()
+    if text=='R8 disabled':source+='\nRelease has R8 disabled.\n'
+    else:source=source.replace(text,'production-ready release')
+    path.write_text(source);assert check(tree)['status']=='FAIL'

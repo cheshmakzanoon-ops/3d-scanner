@@ -1,8 +1,8 @@
 # Next integrated-candidate gates after M19
 
 The current engineering preview retains version 0.19.0-m19 with subsequent
-integration tracked in the [cloud validation ledger](development/CLOUD_COMPLETION_STATUS.md).
-Historical numbered-branch receipts do not certify the combined candidate.
+validation tracked in [current status](MILESTONE_STATUS.md).
+Historical milestone results do not certify the current candidate.
 Integrated paths still require commit-specific runtime and quality qualification.
 Supported reconstruction input remains 2–12 photographs; do not raise limits or
 claim a feature from a contract/document alone.
@@ -14,19 +14,43 @@ held-out texture quality, ARM64 memory/thermal/power, target-tool exported asset
 security/license inventory and signing/packaging qualification. Unavailable external
 inputs remain BLOCKED_EXTERNAL; unexecuted checks remain NOT_RUN.
 
-Before accepting the merged QA results, activate the full pinned095 host toolchain
-from [BUILDING](BUILDING.md#integrated-campaign-qa), then inspect100's generated
-delivery index and committed `docs/agents/integration/gate-applicability.json`.
-All18 candidate gates remain required. An ordinary compatibility suite excludes
-specialist controllers explicitly and cannot close full instrumentation, capture,
-recovery, offline radios, physical profiles or release journey requirements.
+Use the pinned [host QA dependencies](BUILDING.md#independent-host-qa-dependencies)
+when reproducing validation. All candidate gates remain required. An ordinary
+compatibility suite cannot close full instrumentation, capture, recovery,
+offline operation, physical profiles or release journey requirements.
 
 The integrated source now includes service-owned durable reconstruction jobs,
 operation-scoped sparse/dense cancellation and identity-validated checkpoints,
 including per-reference depth reuse. This does not establish recovery at every
 interruption boundary or successful completion of every installed-app workflow;
-those checks remain explicit gates in the cloud ledger. Unknown surfaces stay
+those checks remain explicit gates in the current status. Unknown surfaces stay
 unknown, scale stays arbitrary without measurement, and open patches stay open.
+
+## Immediate validation priorities — 24 October 2026
+
+The latest checked source is `37fdaf02ab3d3ffe292685589df83c6e578c13de`;
+see [current status](MILESTONE_STATUS.md) for its public run links.
+
+1. Correct the Android test-resource/manifest setup failure and rerun the
+   selected eight-photo HOST test. Native prerequisites now pass, but the latest
+   invocation failed before its test body and reconstruction. One invoked test
+   is not evidence of a completed photo-to-model pipeline.
+2. Obtain completed sanitizer evidence: both latest profiles timed out after
+   600 seconds. Passing release profiles do not substitute for sanitizer checks.
+3. Unblock an authorized device test environment and run installed-app
+   import → reconstruction → inspection → reopen/export, cancellation and
+   interruption checks. Current KVM preflight failure is not an application pass
+   or proof of a visual defect.
+4. Improve and remeasure actual mesh topology. The 509 nonmanifold edges in the
+   synthetic audit remain a geometry failure, despite corrected UI warnings.
+   Do not hide defects, fabricate unseen surfaces or label open meshes watertight.
+5. Validate calibrated physical ARM64 captures against reference geometry,
+   texture and resource measurements before raising the 2–12-photo/eight-dense-view
+   limits or claiming complete-object quality. Complete production signing and
+   release qualification separately from test-signed APK builds.
+
+The sections below preserve historical milestone plans; “next” in those sections
+refers to their original milestone, not work still missing from today's source.
 
 ## Historical next gate after M12 — complete-session reliability and measured scan quality
 
