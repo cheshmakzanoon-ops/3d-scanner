@@ -20,7 +20,10 @@ import com.realityforge.scanner.engine.LensProfile
 import com.realityforge.scanner.ui.PhotoGlView
 import com.realityforge.scanner.ui.PhotographicModelViewer
 import com.realityforge.scanner.viewer.PhotographicGlb
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
@@ -66,6 +69,7 @@ class ReleaseJourneyTest {
         val repository = app.repository
         val id = repository.create("099 isolated qualification ${UUID.randomUUID()}")
         val temporary = mutableListOf<File>()
+        var exportDestination: Uri? = null
         try {
             val photoCount = physicalManifest?.getJSONArray("photos")?.length() ?: 3
             require(photoCount in 3..12) { "Current candidate admits only3–12; larger supported profiles require owner integration" }
@@ -95,11 +99,16 @@ class ReleaseJourneyTest {
             val originals = repository.dao.photos(id).associate { it.id to hash(repository.photoFile(it)) }
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 lateinit var model: ScannerViewModel
-                scenario.onActivity { activity -> model = ViewModelProvider(activity)[ScannerViewModel::class.java]; model.select(id); model.reconstruct(32.88) }
-                val deadline = SystemClock.elapsedRealtime() + 180_000
-                while (model.busy.value && SystemClock.elapsedRealtime() < deadline) Thread.sleep(50)
-                assertFalse("Candidate exceeded reconstruction timeout", model.busy.value)
-                val result = requireNotNull(model.preview.value) { "Candidate reconstruction failed: ${model.notice.value}" }
+                scenario.onActivity { activity -> model = ViewModelProvider(activity)[ScannerViewModel::class.java] }
+                val revision = requireNotNull(repository.dao.project(id)).revision
+                withTimeout(30_000) { model.projects.first { rows -> rows.any { it.id == id && it.revision == revision } } }
+                scenario.onActivity { model.select(id); model.reconstruct(32.88) }
+                // Idle alone can precede admission or the asynchronous presentation refresh.
+                val result = withTimeout(180_000) {
+                    val completed = model.preview.filterNotNull().first { it.optLong("revision", -1) == revision }
+                    model.busy.first { !it }
+                    completed
+                }
                 val key = result.getString("artifactKey")
                 val artifact = repository.artifact(id, key, "textured.glb")
                 val loaded = PhotographicGlb.read(artifact)
@@ -107,12 +116,15 @@ class ReleaseJourneyTest {
                 assertEquals(key, requireNotNull(ProjectRepository(app, repository.dao).currentPreview(id)).getString("artifactKey"))
                 scenario.onActivity { activity -> activity.setContent { PhotographicModelViewer(artifact) {} } }
                 awaitFrame()
-                val destination = File.createTempFile("rf099-export-", ".glb", app.cacheDir).also { temporary.add(it) }
-                scenario.onActivity { model.export(Uri.fromFile(destination), "textured.glb") }
-                val exportDeadline = SystemClock.elapsedRealtime() + 30_000
-                while (model.busy.value && SystemClock.elapsedRealtime() < exportDeadline) Thread.sleep(50)
-                assertFalse(model.busy.value)
-                assertEquals(hash(artifact), hash(destination))
+                val destination = SharedFaultDocumentFixtures.createUri(app).also { exportDestination = it }
+                DeviceOperationAwait.verifiedArtifactExport(model) {
+                    scenario.onActivity {
+                        val requestId = requireNotNull(model.beginArtifactExportRequest("textured.glb"))
+                        model.completeArtifactExport(requestId, destination)
+                    }
+                }
+                val exportHash = SharedFaultDocumentFixtures.hash(app, destination)
+                assertEquals(hash(artifact), exportHash)
                 for (photo in repository.dao.photos(id)) assertEquals(originals[photo.id], hash(repository.photoFile(photo)))
                 repository.dao.invalidate(id)
                 assertNull("Input revision invalidates completed preview", repository.currentPreview(id))
@@ -120,11 +132,14 @@ class ReleaseJourneyTest {
                     .put("source_sha",args.getString("rf099_source_sha", "unbound"))
                     .put("artifact_sha256",hash(File(app.applicationInfo.sourceDir)))
                     .put("photo_count",photoCount).put("triangle_count",loaded.indices.size/3)
-                    .put("originals_preserved",true).put("export_sha256",hash(destination))
+                    .put("originals_preserved",true).put("export_sha256",exportHash)
                     .put("does_not_cover","camera capture, editing, upgrade, process death, offline radios, quality, resources, accessibility, signing or external beta")
                 instrumentation.sendStatus(0, Bundle().apply { putString("rf099_evidence", receipt.toString()) })
             }
-        } finally { temporary.forEach { it.delete() }; repository.delete(id) }
+        } finally {
+            try { exportDestination?.let { SharedFaultDocumentFixtures.cleanup(app, it) } }
+            finally { temporary.forEach { it.delete() }; repository.delete(id) }
+        }
     }
 
     private fun awaitFrame() {
