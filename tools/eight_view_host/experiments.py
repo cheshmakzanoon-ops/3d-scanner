@@ -1,0 +1,36 @@
+"""Two source-reviewed experiment profiles, not configurable success thresholds."""
+from dataclasses import dataclass
+from .runtime import Failure
+
+LEGACY = 'eight-cuboid'
+RELIEF = 'relief-three'
+ACTIVE = RELIEF
+
+@dataclass(frozen=True)
+class Profile:
+    id: str
+    selector: str
+    fixture: str
+    input_module: str
+    test_source: str
+    photo_count: int
+    pair_count: int
+    classification: str
+
+_LEGACY = Profile(LEGACY,
+    'com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure',
+    'docs/development/experiments/new-cuboid-eight-view-160x120', 'inputs.py',
+    'EightViewSparsePrefixHostTest.kt', 8, 28, 'ALL8_SPARSE_ACCEPTED_NOT_SURFACE_QUALITY')
+_RELIEF = Profile(RELIEF,
+    'com.realityforge.scanner.hostintegration.ReliefThreeSparsePrefixHostTest.fixedThreePhotosPersistSparseOrRecordUnmodifiedProductionFailure',
+    'benchmarks/fixtures/relief', 'relief_inputs.py',
+    'ReliefThreeSparsePrefixHostTest.kt', 3, 3, 'ALL3_SPARSE_ACCEPTED_NOT_SURFACE_QUALITY')
+
+def get_profile(profile_id):
+    if type(profile_id) is not str:
+        raise Failure('Unknown closed experiment profile')
+    if profile_id == LEGACY:
+        return _LEGACY
+    if profile_id == RELIEF:
+        return _RELIEF
+    raise Failure('Unknown closed experiment profile')

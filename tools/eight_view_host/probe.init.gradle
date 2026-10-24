@@ -318,9 +318,23 @@ class EightViewAbsentDirectories {
   [schema:1,root:root.toString(),ancestors:ancestors,firstMissing:missing.toString()]
  }
 }
+// Closed source-selected experiments. No caller-defined selectors or thresholds.
+class HostSparseExperiment {
+ static Map select(Map cfg) {
+  def profiles=[
+   'eight-cuboid':[type:'EightViewSparsePrefixHostTest',method:'fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'],
+   'relief-three':[type:'ReliefThreeSparsePrefixHostTest',method:'fixedThreePhotosPersistSparseOrRecordUnmodifiedProductionFailure']]
+  assert cfg.experiment instanceof String && profiles.containsKey(cfg.experiment) : 'Unknown closed experiment profile'
+  def selected=profiles[cfg.experiment]
+  def selector='com.realityforge.scanner.hostintegration.'+selected.type+'.'+selected.method
+  assert cfg.selector==selector : 'Mixed experiment selector'
+  [selector:selector,include:'**/'+selected.type+'.class']
+ }
+}
 // Additive task only. Original source sets/gates are unchanged after this invocation.
 allprojects { afterEvaluate { if (path == ':app') {
  def cfg = new JsonSlurper().parse(new File(project.property('eightConfig').toString()))
+ def experiment=HostSparseExperiment.select(cfg)
  def sha = { byte[] b -> MessageDigest.getInstance('SHA-256').digest(b).encodeHex().toString() }
  def writeJson = { File f, Object x -> f.parentFile.mkdirs(); f.text=JsonOutput.prettyPrint(JsonOutput.toJson(x))+'\n' }
 
@@ -579,8 +593,8 @@ allprojects { afterEvaluate { if (path == ':app') {
   testClassesDirs=hostProvider.get().testClassesDirs
   classpath=files(provider { actualClasspath(false).cp })
   setExcludes([]) // Override ONLY this explicit narrow task's blanket HOST exclusion.
-  include '**/EightViewSparsePrefixHostTest.class'
-  filter {includeTestsMatching cfg.selector;failOnNoMatchingTests=true}
+  include experiment.include
+  filter {includeTestsMatching experiment.selector;failOnNoMatchingTests=true}
   maxParallelForks=1;forkEvery=1;maxHeapSize='1g';timeout=java.time.Duration.ofSeconds(300)
   File runtimeCwd=new File(output,'runtime-cwd');File runtimeTmp=new File(output,'runtime-tmp')
   runtimeCwd.mkdirs();runtimeTmp.mkdirs()

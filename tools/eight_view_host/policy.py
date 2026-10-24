@@ -2,11 +2,12 @@
 from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
+from .experiments import LEGACY, get_profile
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='c3e39996f48a1dab17864d9f80adbbb78e929eec'
-MESSAGE='fix: bind complete adapter source inventory'
+BASE_SHA='8319faafda1555eb41f550381a12162bd0604ddb'
+MESSAGE='test: observe three-photo sparse prototype checkpoint'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_eight_view_controller.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/ReliefThreeSparsePrefixHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/relief_inputs.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_gradle_lifecycle.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_relief_three_inputs.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -38,25 +39,30 @@ def source_guard(run,expected,base=BASE_SHA,allowed=ALLOWED_PATHS):
     return {'sourceSha':expected,'parentSha':base,'tree':git('tree','rev-parse','HEAD^{tree}'),
             'sourceManifestSha256':sha(run.root/'SOURCE_MANIFEST.sha256'),'changedPaths':sorted(paths)}
 
-def junit_proof(path,events):
+def junit_proof(path,events,*,profile=LEGACY):
+    selected=get_profile(profile)
+    selector=selected.selector
+    selected_class,selected_method=selector.rsplit('.',1)
     root=ET.parse(path).getroot(); cases=root.findall('.//testcase')
     if root.tag=='testcase':cases=[root]
-    if len(cases)!=1 or cases[0].get('classname')!=CLASS or cases[0].get('name')!=METHOD:raise Failure('Wrong/missing/duplicate selected JUnit identity')
+    if len(cases)!=1 or cases[0].get('classname')!=selected_class or cases[0].get('name')!=selected_method:raise Failure('Wrong/missing/duplicate selected JUnit identity')
     if any(cases[0].find(n) is not None for n in ('failure','error','skipped')):raise Failure('Selected JUnit failed/skipped')
     suites=[root] if root.tag=='testsuite' else root.findall('.//testsuite')
     if len(suites)!=1 or any(suites[0].get(k,'0')!='0' for k in ('errors','failures','skipped')) or suites[0].get('tests')!='1':raise Failure('Inconsistent JUnit totals')
-    expected=[{'event':'start','class':CLASS,'method':METHOD},{'event':'finish','class':CLASS,'method':METHOD,'result':'SUCCESS'}]
+    expected=[{'event':'start','class':selected_class,'method':selected_method},{'event':'finish','class':selected_class,'method':selected_method,'result':'SUCCESS'}]
     if events!=expected:raise Failure('Missing/duplicate/non-success selected test events')
-    return {'selector':SELECTOR,'tests':1,'failures':0,'skipped':0,'junitSha256':sha(path)}
+    return {'selector':selector,'tests':1,'failures':0,'skipped':0,'junitSha256':sha(path)}
 
-def measurement_proof(result,pairs,identity,observations):
-    required='ALL8_SPARSE_ACCEPTED_NOT_SURFACE_QUALITY'
+def measurement_proof(result,pairs,identity,observations,*,profile=LEGACY):
+    selected=get_profile(profile)
+    required=selected.classification
+    count=selected.photo_count;pair_count=selected.pair_count
     ids=result.get('inputPhotoIds',[]);registered=result.get('registeredPhotoIds',[])
-    if (result.get('classification')!=required or len(ids)!=8 or len(set(ids))!=8 or len(registered)!=8
+    if (result.get('classification')!=required or len(ids)!=count or len(set(ids))!=count or len(registered)!=count
             or set(registered)!=set(ids) or result.get('unregisteredPhotoIds')!=[]
             or result.get('geometry',{}).get('finalSparseOutcome')!='global_typed_ba_admitted12'):
-        raise Failure('Actual eight-view reconstruction incomplete/fallback; preserved, not a full sparse success')
-    if not isinstance(identity,list) or len(identity)!=8:raise Failure('Missing input-to-photo identity proof')
+        raise Failure('Actual selected-profile reconstruction incomplete/fallback; preserved, not a full sparse success')
+    if not isinstance(identity,list) or len(identity)!=count:raise Failure('Missing input-to-photo identity proof')
     expected=observations.get('images',{})
     mapped={}
     for item in identity:
@@ -64,20 +70,20 @@ def measurement_proof(result,pairs,identity,observations):
         photo=item['photoId'];name=item['fixturePath']
         if not isinstance(photo,str) or not photo or photo in mapped or name not in expected or item['imageSha256']!=expected[name]:raise Failure('Foreign/duplicate photo identity')
         mapped[photo]=name
-    if len(expected)!=8 or set(mapped)!=set(ids) or set(mapped.values())!=set(expected):raise Failure('Eight photos do not bind to frozen inputs')
+    if len(expected)!=count or set(mapped)!=set(ids) or set(mapped.values())!=set(expected):raise Failure('Selected photos do not bind to frozen inputs')
     if not isinstance(pairs,list) or not pairs or len(pairs)>100000:raise Failure('Missing/excessive pair events')
     allowed={'pairNumber','pairCount','phase','firstDescriptorRows','secondDescriptorRows','matchCacheHit','geometryEntered'}
     for item in pairs:
         if not isinstance(item,dict) or not set(item)<=allowed or not {'pairNumber','pairCount','phase','geometryEntered'}<=set(item):raise Failure('Malformed pair event fields')
-        if type(item['pairNumber']) is not int or not 1<=item['pairNumber']<=28 or type(item['pairCount']) is not int or item['pairCount']!=28:raise Failure('Malformed pair ordinal/count')
+        if type(item['pairNumber']) is not int or not 1<=item['pairNumber']<=pair_count or type(item['pairCount']) is not int or item['pairCount']!=pair_count:raise Failure('Malformed pair ordinal/count')
         if item['phase'] not in ('LOAD_FIRST','LOAD_SECOND','MATCHING','GEOMETRY','READY') or type(item['geometryEntered']) is not bool:raise Failure('Failed/unknown pair phase/type')
         for key in ('firstDescriptorRows','secondDescriptorRows'):
             if key in item and (type(item[key]) is not int or not 0<=item[key]<=100000):raise Failure('Malformed descriptor row count')
         if 'matchCacheHit' in item and type(item['matchCacheHit']) is not bool:raise Failure('Malformed match cache flag')
     ready=[x for x in pairs if x['phase']=='READY']
-    if len(ready)!=28 or {x['pairNumber'] for x in ready}!=set(range(1,29)):
+    if len(ready)!=pair_count or {x['pairNumber'] for x in ready}!=set(range(1,pair_count+1)):
         raise Failure('Incomplete/duplicate actual pair accounting')
-    return {'classification':required,'registeredCameraCount':8,'pairCount':28,'geometry':result['geometry']}
+    return {'classification':required,'registeredCameraCount':count,'pairCount':pair_count,'geometry':result['geometry']}
 
 def verify_capability(path,source,policy,run=None,prepared=None):
     """Recheck producer records, ABI, exact paths and native closure; flags alone never qualify."""

@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
-"""One source-bound eight-view HOST attempt. Deliberately NOT ARMED until reviewed."""
+"""One source-bound selected sparse HOST attempt. Deliberately NOT ARMED until reviewed."""
 from __future__ import annotations
 import errno, hashlib, importlib.util, json, os, platform, re, shutil, stat, struct, sys, time, zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,Deadline,Cancelled,sha,atomic_json,inventory,safe_display,frame
-from tools.eight_view_host import policy,capability,ndk
+from tools.eight_view_host import policy,capability,ndk,experiments
 from tools.device.software_emulator.diagnostic import license_snapshot,verify_license_snapshot,package_metadata
 HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
-FIXTURE='docs/development/experiments/new-cuboid-eight-view-160x120'
+FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='cb85e97c1ffe8c05004157b9e632e5352beeacc39beaea288df5d9b5945a6edb'
-SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
+ADAPTER_MANIFEST='fb4fcaa16727837c4c1baf3aa440c4e2c3996a635e4de78619f2f670770b264a'
+_LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
+def source_names(profile=experiments.ACTIVE):
+    selected=experiments.get_profile(profile)
+    return tuple(selected.test_source if name=='EightViewSparsePrefixHostTest.kt' else name for name in _LEGACY_SOURCE_NAMES)
+SOURCE_NAMES=source_names()
 # Kotlin file facades/nested classes retain their owner prefix. This additional top-level
 # object is declared in RuntimeProviderIdentity.kt, not in a same-named source file.
-PROBE_CLASS_PREFIXES=tuple(Path(name).stem for name in SOURCE_NAMES)+('Api35ProviderContract',)
+PROBE_CLASS_PREFIXES=tuple(sorted({Path(name).stem for profile in (experiments.LEGACY,experiments.RELIEF) for name in source_names(profile)}))+('Api35ProviderContract',)
 BASE_PACKAGES=('platforms;android-36','build-tools;36.0.0')
 
 def verify_probe_classes_removed(root,run=None):
@@ -637,7 +641,8 @@ def gradle_args(run,cfg=None,offline=False):
     if cfg:args.extend(['-I',HERE/'probe.init.gradle','-PeightConfig='+str(cfg)])
     return args
 
-def load_adapter(root):
+def load_adapter(root,profile=experiments.ACTIVE):
+    selected=experiments.get_profile(profile)
     package=root/ADAPTER;manifest=package/'SHA256SUMS'
     if manifest.is_symlink() or not manifest.is_file() or manifest.absolute()!=manifest.resolve():raise Failure('Adapter manifest is not a canonical regular file')
     if not re.fullmatch('[0-9a-f]{64}',ADAPTER_MANIFEST) or sha(manifest)!=ADAPTER_MANIFEST:raise Blocked('Qualified adapter checkpoint is NOT ARMED')
@@ -649,17 +654,19 @@ def load_adapter(root):
         if not re.fullmatch(r'[A-Za-z0-9_.-]+',name) or name in ('.','..','SHA256SUMS') or name in names:raise Failure('Adapter source manifest duplicate or invalid name')
         names.add(name);path=package/name
         if path.is_symlink() or not path.is_file() or path.absolute()!=path.resolve() or not re.fullmatch('[0-9a-f]{64}',h) or sha(path)!=h:raise Failure('Adapter source manifest mismatch')
-    if not set(SOURCE_NAMES).union(('inputs.py','policy.json')).issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
-    spec=importlib.util.spec_from_file_location('eight_observation_inputs',package/'inputs.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    if not {name for key in (experiments.LEGACY,experiments.RELIEF) for name in (*source_names(key),experiments.get_profile(key).input_module,'policy.json')}.issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
+    spec=importlib.util.spec_from_file_location('eight_observation_inputs',package/selected.input_module);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return package,module
 
-def prepare_runtime(run,source,package,inputs):
-    staging=run.work/'observations';observed=inputs.stage(run.root/FIXTURE,staging)
+def prepare_runtime(run,source,package,inputs,profile=experiments.ACTIVE):
+    selected=experiments.get_profile(profile)
+    if Path(inputs.__file__).resolve()!=package/selected.input_module:raise Failure('Mixed experiment input module')
+    staging=run.work/'observations';observed=inputs.stage(run.root/selected.fixture,staging)
     atomic_json(run.work/'observation-proof.json',observed)
     sources=run.work/'sources';sources.mkdir()
-    for name in SOURCE_NAMES:shutil.copyfile(package/name,sources/name)
+    for name in source_names(profile):shutil.copyfile(package/name,sources/name)
     (run.work/'measurement').mkdir()
-    cfg={'schema':1,'phase':'prepare','sources':str(sources),'work':str(run.work),'sourceSha':source,'selector':policy.SELECTOR,'observations':str(staging)}
+    cfg={'schema':1,'phase':'prepare','sources':str(sources),'work':str(run.work),'sourceSha':source,'selector':selected.selector,'observations':str(staging),'experiment':selected.id,'sourceNames':list(source_names(profile))}
     config=run.work/'gradle-config.json';atomic_json(config,cfg)
     run.command('gradle-task-graph',[*gradle_args(run,config),':app:eightPrepare','--dry-run'],seconds=300)
     graph=json.loads((run.work/'task-graph.json').read_text())
@@ -732,7 +739,10 @@ def runtime_provider_proof(run,source,cap,verified):
         previous=stable;proof.append({'phase':phase,'sha256':sha(path)})
     return {'scope':'SOURCE_BOUND_OWN_JVM_MAPPINGS_AT_CAPTURE_NOT_LIVE_AFTER_EXIT','receipts':proof}
 
-def run_probe(run,source,config,cfg,prepared,cap,inputs,observed):
+def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experiments.ACTIVE):
+    selected=experiments.get_profile(profile)
+    if (cfg.get('experiment')!=selected.id or cfg.get('selector')!=selected.selector or cfg.get('sourceNames')!=list(source_names(profile))
+        or Path(inputs.__file__).resolve()!=run.root/ADAPTER/selected.input_module):raise Failure('Mixed experiment runtime binding')
     verified=policy.verify_capability(cap,source,capability.POLICY,run,prepared)
     aliases=run.work/'aliases';aliases.mkdir()
     for name,key in [('libopencv_java4.so','opencv'),('librealityforge.so','shim')]:
@@ -745,7 +755,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed):
     run.pipeline_attempts=1  # Only now is the selected invocation attempted; gates above are not attempts.
     try:
         raw,exit_code=run.command('eight-view-test',[*gradle_args(run,config,offline=True),':app:eightProbe'],seconds=600,check=False)
-        if exit_code:raise Failure('Actual eight-view invocation failed; original logs/events retained')
+        if exit_code:raise Failure('Actual selected sparse invocation failed; original logs/events retained')
     except BaseException as error:
         original=error;raise
     finally:
@@ -775,11 +785,11 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed):
     if len(xmls)!=1:raise Failure('Missing/duplicate selected JUnit report')
     bounded_bytes(xmls[0],2*1024**2,run)  # Admit XML size/identity before the parser reads it.
     events=[json.loads(x) for x in bounded_bytes(run.work/'test-events.jsonl',256*1024,run).decode().splitlines()]
-    proof=policy.junit_proof(xmls[0],events)
+    proof=policy.junit_proof(xmls[0],events,profile=profile)
     result=json.loads(bounded_bytes(run.work/'measurement/sparse-result.json',4*1024**2,run))
     pairs=json.loads(bounded_bytes(run.work/'measurement/pair-events.json',8*1024**2,run))
     identity=json.loads(bounded_bytes(run.work/'measurement/input-identity.json',64*1024,run))
-    return {'junit':proof,'measurement':policy.measurement_proof(result,pairs,identity,observed),'runtimeProviders':runtime_provider_proof(run,source,cap,verified),'capabilitySha256':sha(cap)}
+    return {'junit':proof,'measurement':policy.measurement_proof(result,pairs,identity,observed,profile=profile),'runtimeProviders':runtime_provider_proof(run,source,cap,verified),'capabilitySha256':sha(cap)}
 
 def failure_descriptor(error,phase=None):
     """Scan the entire original message before producing a bounded diagnostic preview."""
@@ -974,7 +984,7 @@ def main():
     env=dict(os.environ);base=Path(env.get('RUNNER_TEMP','/missing'))
     work=base/'rf-eight-work';evidence=base/'rf-eight-evidence'
     if not base.is_dir() or work.exists() or evidence.exists():raise Blocked('Fresh runner-owned directories required')
-    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION','status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
+    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':('SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION' if experiments.ACTIVE==experiments.RELIEF else 'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
     first=None;sdk=None;licenses=None;restore=False;cap=None
     def secondary(label,error):
         nonlocal first

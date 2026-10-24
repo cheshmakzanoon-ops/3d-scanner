@@ -167,8 +167,9 @@ def failed_probe_fixture(tmp_path,monkeypatch,error,postcheck_failure=False,expi
   if error=='nonzero':return b'original JUnit failure',1
   raise error
  run.command=command
- inputs=types.SimpleNamespace(validate=lambda path:seen.append('observations') or {'images':'fixture'})
- with pytest.raises(r.Failure if error=='nonzero' else type(error)) as caught:ctl.run_probe(run,SHA,config,{}, {},cap,inputs,{'images':'fixture'})
+ inputs=types.SimpleNamespace(__file__=str(run.root/ctl.ADAPTER/ctl.experiments.get_profile(ctl.experiments.ACTIVE).input_module),validate=lambda path:seen.append('observations') or {'images':'fixture'})
+ cfg={'experiment':ctl.experiments.ACTIVE,'selector':ctl.experiments.get_profile(ctl.experiments.ACTIVE).selector,'sourceNames':list(ctl.SOURCE_NAMES)}
+ with pytest.raises(r.Failure if error=='nonzero' else type(error)) as caught:ctl.run_probe(run,SHA,config,cfg, {},cap,inputs,{'images':'fixture'})
  if error!='nonzero':assert caught.value is error
  return run,seen,caught.value
 
@@ -193,7 +194,7 @@ def test_runtime_postcheck_exhausted_global_budget_is_not_claimed_complete(tmp_p
 
 def test_nonzero_selected_exit_precedes_changed_input_secondary(tmp_path,monkeypatch):
  run,seen,error=failed_probe_fixture(tmp_path,monkeypatch,'nonzero',postcheck_failure=True)
- assert str(error)=='Actual eight-view invocation failed; original logs/events retained'
+ assert str(error)=='Actual selected sparse invocation failed; original logs/events retained'
  assert run.runtime_input_postcheck['status']=='FAIL'
  assert any('framework hash changed' in note for note in error.__notes__)
 
@@ -493,18 +494,19 @@ def test_genuine_empty_command_transcript_can_seal_pass(tmp_path):
  assert json.loads((out/'commands.json').read_text())==[]
 
 # Real checkpoint admission, unlike the orchestration-only mocks above.
-def test_checked_in_adapter_admission_and_injected_bytes(tmp_path):
- package,module=ctl.load_adapter(ROOT)
+@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF])
+def test_checked_in_adapter_admission_and_injected_bytes(tmp_path,profile):
+ package,module=ctl.load_adapter(ROOT,profile)
  assert callable(module.stage)
  rows=dict(line.split('  ')[::-1] for line in (package/'SHA256SUMS').read_text().splitlines())
  tracked=set(git(ROOT,'ls-files','--',ctl.ADAPTER).splitlines())
  assert {str(Path(ctl.ADAPTER)/name) for name in rows}==tracked-{str(Path(ctl.ADAPTER)/'SHA256SUMS')}
  import shutil
  copied=tmp_path/'sources';copied.mkdir()
- for name in ctl.SOURCE_NAMES:
+ for name in ctl.source_names(profile):
   shutil.copyfile(package/name,copied/name)
   assert r.sha(copied/name)==rows[name]
- assert ctl.load_adapter(ROOT)[0]==package
+ assert ctl.load_adapter(ROOT,profile)[0]==package
 
 @pytest.mark.parametrize('case',['stale-qualified','stale-new','omit-new','omit-inputs','omit-policy','duplicate','malformed','listed-symlink','manifest-symlink'])
 def test_adapter_inventory_refuses_invalid_checkpoint(tmp_path,monkeypatch,case):
@@ -534,8 +536,9 @@ def test_adapter_manifest_pin_is_not_replaced_by_global_manifest(tmp_path):
  with (package/'SHA256SUMS').open('a') as out:out.write('\n')
  with pytest.raises(r.Blocked,match='NOT ARMED'):ctl.load_adapter(tmp_path)
 
-def test_real_adapter_admission_through_prepare_runtime_before_gradle(tmp_path):
- package,inputs=ctl.load_adapter(ROOT)
+@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF])
+def test_real_adapter_admission_through_prepare_runtime_before_gradle(tmp_path,profile):
+ package,inputs=ctl.load_adapter(ROOT,profile)
  class BeforeGradle(Exception):pass
  class AdmissionRun:
   root=ROOT
@@ -543,8 +546,33 @@ def test_real_adapter_admission_through_prepare_runtime_before_gradle(tmp_path):
   def command(self,label,args,**kwargs):
    assert label=='gradle-task-graph'
    assert ':app:eightPrepare' in args and '--dry-run' in args
-   assert {p.name for p in (self.work/'sources').iterdir()}==set(ctl.SOURCE_NAMES)
-   for name in ctl.SOURCE_NAMES:assert (self.work/'sources'/name).read_bytes()==(package/name).read_bytes()
+   assert {p.name for p in (self.work/'sources').iterdir()}==set(ctl.source_names(profile))
+   for name in ctl.source_names(profile):assert (self.work/'sources'/name).read_bytes()==(package/name).read_bytes()
    assert (self.work/'observation-proof.json').is_file()
    raise BeforeGradle('actual adapter staging verified; no Gradle executed')
- with pytest.raises(BeforeGradle):ctl.prepare_runtime(AdmissionRun(),SHA,package,inputs)
+ with pytest.raises(BeforeGradle):ctl.prepare_runtime(AdmissionRun(),SHA,package,inputs,profile)
+
+@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF])
+def test_mixed_profile_stager_is_refused_before_outputs(tmp_path,profile):
+ other=ctl.experiments.RELIEF if profile==ctl.experiments.LEGACY else ctl.experiments.LEGACY
+ package,module=ctl.load_adapter(ROOT,other)
+ run=types.SimpleNamespace(root=ROOT,work=tmp_path)
+ with pytest.raises(r.Failure,match='Mixed experiment input module'):
+  ctl.prepare_runtime(run,SHA,package,module,profile)
+ assert list(tmp_path.iterdir())==[]
+
+@pytest.mark.parametrize('field',['experiment','selector','sourceNames','inputModule'])
+def test_mixed_profile_runtime_is_refused_before_capability_or_attempt(tmp_path,monkeypatch,field):
+ profile=ctl.experiments.RELIEF;selected=ctl.experiments.get_profile(profile);other=ctl.experiments.get_profile(ctl.experiments.LEGACY)
+ cfg={'experiment':profile,'selector':selected.selector,'sourceNames':list(ctl.source_names(profile))}
+ inputs=types.SimpleNamespace(__file__=str(ROOT/ctl.ADAPTER/selected.input_module))
+ if field=='experiment':cfg[field]=other.id
+ elif field=='selector':cfg[field]=other.selector
+ elif field=='sourceNames':cfg[field]=list(ctl.source_names(other.id))
+ else:inputs.__file__=str(ROOT/ctl.ADAPTER/other.input_module)
+ run=types.SimpleNamespace(root=ROOT,work=tmp_path,pipeline_attempts=0)
+ def forbidden(*args,**kwargs):pytest.fail('mixed profile reached capability gate')
+ monkeypatch.setattr(p,'verify_capability',forbidden)
+ with pytest.raises(r.Failure,match='Mixed experiment runtime binding'):
+  ctl.run_probe(run,SHA,tmp_path/'config',cfg,{},tmp_path/'cap',inputs,{},profile)
+ assert run.pipeline_attempts==0 and list(tmp_path.iterdir())==[]

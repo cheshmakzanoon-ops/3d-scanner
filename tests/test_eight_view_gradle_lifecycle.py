@@ -385,7 +385,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             config = root / 'config.json'
             config.write_text(json.dumps({'sources': str(root / 'sources'), 'work': str(root / 'output'),
                                          'phase': 'prepare', 'sourceSha': 'a' * 40,
-                                         'selector': 'synthetic.NoExecution', 'observations': str(root / 'sources')}))
+                                         'experiment':'eight-cuboid', 'selector': 'com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure', 'observations': str(root / 'sources')}))
             # The predecessor realizes the host task in projectsEvaluated. Its
             # constructor traverses ordinary Test's configuration-backed inputs.
             eager = source.replace(
@@ -603,7 +603,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                 variant_config = root / (case + '-config.json')
                 variant_config.write_text(json.dumps({'schema': 1, 'phase': 'prepare', 'sourceSha': 'a' * 40,
                     'sources': str(root / 'sources'), 'work': str(variant_output),
-                    'selector': 'synthetic.NoExecution', 'observations': str(root / 'sources')}))
+                    'experiment':'eight-cuboid', 'selector': 'com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure', 'observations': str(root / 'sources')}))
                 variant_run = subprocess.run([
                     str(gradle), '--offline', '--no-daemon', '--console=plain', '--max-workers=1',
                     '-g', str(root / 'gradle-home'), '-p', str(root), '-I', str(init),
@@ -633,7 +633,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                 work.mkdir(exist_ok=True)
                 cfg = {'schema': 1, 'phase': phase, 'sourceSha': 'a' * 40,
                        'sources': str(root / 'sources'), 'work': str(work),
-                       'selector': 'synthetic.NoExecution', 'observations': str(root / 'sources')}
+                       'experiment':'eight-cuboid', 'selector': 'com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure', 'observations': str(root / 'sources')}
                 if prepared_sha:
                     cfg['preparedSha256'] = prepared_sha
                 config_path = root / (name + '.json')
