@@ -10,6 +10,10 @@ allprojects { afterEvaluate { if (path == ':app') {
  def zipClasses = { File f -> def result=[:]; new ZipFile(f).withCloseable { z -> z.entries().each { e -> if(e.name.endsWith('.class')) result[e.name]=sha(z.getInputStream(e).bytes) } }; result }
  def sourceDir=new File(cfg.sources); assert sourceDir.isDirectory()
  android.sourceSets.test.java.srcDir(sourceDir)
+ // Android and host test tasks are registered by later afterEvaluate callbacks.
+ // Keep source-set setup above in project evaluation, but resolve tasks only once
+ // every project has finished evaluation. Missing tasks still fail explicitly.
+ gradle.projectsEvaluated {
  def ordinary=tasks.getByName('testDebugUnitTest')
  def host=tasks.getByName('hostIntegrationTest')
  def output=new File(cfg.work)
@@ -125,4 +129,4 @@ allprojects { afterEvaluate { if (path == ':app') {
     compileSdk:android.compileSdk,buildTools:android.buildToolsVersion,ndkVersion:android.ndkVersion,
     externalNativeTasks:graph.allTasks.findAll {it.name==~/(?i).*(externalNative|configureCMake|buildCMake|configureNdk|buildNdk).*/}.collect {it.path}])
  }
-} } }
+} } } }
