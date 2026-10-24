@@ -382,8 +382,11 @@ def test_native_evidence_collector_retains_exact_eleven_files_only(tmp_path,alia
   assert all((dest/'capability'/name).read_bytes()==(out/name).read_bytes() for name in names)
 
 @pytest.mark.parametrize('aggregate',[False,True])
-def test_native_proof_packaging_keeps_existing_size_caps(tmp_path,aggregate):
- from tools.eight_view_host import controller as ctl
+def test_native_proof_packaging_keeps_existing_size_caps(tmp_path,aggregate,monkeypatch):
+ from tools.eight_view_host import controller as ctl, experiments
+ # This historical aggregate bound belongs to the unchanged 32/31 MiB legacy profile.
+ # COMPLETE reporting capacity is exercised independently by test_eight_view_artifact_budget.py.
+ monkeypatch.setattr(experiments,'ACTIVE',experiments.LEGACY)
  run=r.Runner(tmp_path,tmp_path/'work');out=run.work/'capability';out.mkdir()
  # A logically bounded compact proof is not a promise that a duplicated,
  # pretty-printed receipt fits the independent artifact byte caps.
