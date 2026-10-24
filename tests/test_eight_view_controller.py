@@ -491,3 +491,60 @@ def test_genuine_empty_command_transcript_can_seal_pass(tmp_path):
  out=ctl.evidence_package(run,receipt,tmp_path/'out')
  assert json.loads((out/'receipt.json').read_text())['status']=='PASS'
  assert json.loads((out/'commands.json').read_text())==[]
+
+# Real checkpoint admission, unlike the orchestration-only mocks above.
+def test_checked_in_adapter_admission_and_injected_bytes(tmp_path):
+ package,module=ctl.load_adapter(ROOT)
+ assert callable(module.stage)
+ rows=dict(line.split('  ')[::-1] for line in (package/'SHA256SUMS').read_text().splitlines())
+ tracked=set(git(ROOT,'ls-files','--',ctl.ADAPTER).splitlines())
+ assert {str(Path(ctl.ADAPTER)/name) for name in rows}==tracked-{str(Path(ctl.ADAPTER)/'SHA256SUMS')}
+ import shutil
+ copied=tmp_path/'sources';copied.mkdir()
+ for name in ctl.SOURCE_NAMES:
+  shutil.copyfile(package/name,copied/name)
+  assert r.sha(copied/name)==rows[name]
+ assert ctl.load_adapter(ROOT)[0]==package
+
+@pytest.mark.parametrize('case',['stale-qualified','stale-new','omit-new','omit-inputs','omit-policy','duplicate','malformed','listed-symlink','manifest-symlink'])
+def test_adapter_inventory_refuses_invalid_checkpoint(tmp_path,monkeypatch,case):
+ import shutil
+ package=tmp_path/ctl.ADAPTER
+ shutil.copytree(ROOT/ctl.ADAPTER,package,ignore=shutil.ignore_patterns('__pycache__'))
+ manifest=package/'SHA256SUMS';lines=manifest.read_text().splitlines()
+ if case.startswith('stale-'):
+  name='QualifiedCapability.kt' if case=='stale-qualified' else 'NativeCapabilityContract.kt'
+  with (package/name).open('a') as out:out.write('\n// drift\n')
+ elif case.startswith('omit-'):
+  name={'omit-new':'NativeCapabilityContract.kt','omit-inputs':'inputs.py','omit-policy':'policy.json'}[case]
+  lines=[line for line in lines if not line.endswith('  '+name)]
+ elif case=='duplicate':lines.append(lines[0])
+ elif case=='malformed':lines.append('invalid')
+ elif case=='listed-symlink':
+  source=package/'QualifiedCapability.kt';outside=tmp_path/'outside.kt';source.rename(outside);source.symlink_to(outside)
+ manifest.write_text('\n'.join(lines)+'\n')
+ monkeypatch.setattr(ctl,'ADAPTER_MANIFEST',r.sha(manifest)) # Deliberately repinned invalid inventory must still refuse.
+ if case=='manifest-symlink':
+  outside=tmp_path/'outside-manifest';manifest.rename(outside);manifest.symlink_to(outside)
+ with pytest.raises(r.Failure):ctl.load_adapter(tmp_path)
+
+def test_adapter_manifest_pin_is_not_replaced_by_global_manifest(tmp_path):
+ import shutil
+ package=tmp_path/ctl.ADAPTER;shutil.copytree(ROOT/ctl.ADAPTER,package,ignore=shutil.ignore_patterns('__pycache__'))
+ with (package/'SHA256SUMS').open('a') as out:out.write('\n')
+ with pytest.raises(r.Blocked,match='NOT ARMED'):ctl.load_adapter(tmp_path)
+
+def test_real_adapter_admission_through_prepare_runtime_before_gradle(tmp_path):
+ package,inputs=ctl.load_adapter(ROOT)
+ class BeforeGradle(Exception):pass
+ class AdmissionRun:
+  root=ROOT
+  work=tmp_path
+  def command(self,label,args,**kwargs):
+   assert label=='gradle-task-graph'
+   assert ':app:eightPrepare' in args and '--dry-run' in args
+   assert {p.name for p in (self.work/'sources').iterdir()}==set(ctl.SOURCE_NAMES)
+   for name in ctl.SOURCE_NAMES:assert (self.work/'sources'/name).read_bytes()==(package/name).read_bytes()
+   assert (self.work/'observation-proof.json').is_file()
+   raise BeforeGradle('actual adapter staging verified; no Gradle executed')
+ with pytest.raises(BeforeGradle):ctl.prepare_runtime(AdmissionRun(),SHA,package,inputs)

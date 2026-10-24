@@ -3,10 +3,10 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='e81803c62103efc2c419ed2c9fb5de4fb254b9ad'
-MESSAGE='fix: bind JVM capability consumer to sealed provenance'
+BASE_SHA='c3e39996f48a1dab17864d9f80adbbb78e929eec'
+MESSAGE='fix: bind complete adapter source inventory'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/NativeCapabilityContract.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/QualifiedCapability.kt', 'tests/test_eight_view_jvm_contract.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_eight_view_controller.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

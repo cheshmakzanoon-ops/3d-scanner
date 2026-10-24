@@ -12,7 +12,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE='docs/development/experiments/new-cuboid-eight-view-160x120'
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='6d64c30f74751a6438af1c86687c35f8d8e1939d10611317735dbb9cf52fd8a5'
+ADAPTER_MANIFEST='cb85e97c1ffe8c05004157b9e632e5352beeacc39beaea288df5d9b5945a6edb'
 SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 # Kotlin file facades/nested classes retain their owner prefix. This additional top-level
 # object is declared in RuntimeProviderIdentity.kt, not in a same-named source file.
@@ -639,10 +639,17 @@ def gradle_args(run,cfg=None,offline=False):
 
 def load_adapter(root):
     package=root/ADAPTER;manifest=package/'SHA256SUMS'
+    if manifest.is_symlink() or not manifest.is_file() or manifest.absolute()!=manifest.resolve():raise Failure('Adapter manifest is not a canonical regular file')
     if not re.fullmatch('[0-9a-f]{64}',ADAPTER_MANIFEST) or sha(manifest)!=ADAPTER_MANIFEST:raise Blocked('Qualified adapter checkpoint is NOT ARMED')
+    names=set()
     for line in manifest.read_text().splitlines():
-        h,name=line.split('  ')
-        if '/' in name or name in ('.','..') or not re.fullmatch('[0-9a-f]{64}',h) or sha(package/name)!=h:raise Failure('Adapter source manifest mismatch')
+        fields=line.split('  ')
+        if len(fields)!=2:raise Failure('Adapter source manifest malformed')
+        h,name=fields
+        if not re.fullmatch(r'[A-Za-z0-9_.-]+',name) or name in ('.','..','SHA256SUMS') or name in names:raise Failure('Adapter source manifest duplicate or invalid name')
+        names.add(name);path=package/name
+        if path.is_symlink() or not path.is_file() or path.absolute()!=path.resolve() or not re.fullmatch('[0-9a-f]{64}',h) or sha(path)!=h:raise Failure('Adapter source manifest mismatch')
+    if not set(SOURCE_NAMES).union(('inputs.py','policy.json')).issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
     spec=importlib.util.spec_from_file_location('eight_observation_inputs',package/'inputs.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return package,module
 
