@@ -17,6 +17,20 @@ def native_tools(version):
  return Path(cmake).resolve(),ninja.resolve(),Path(cc).resolve(),Path(cxx).resolve()
 
 
+def phase_java_home():
+ root=Path(os.environ.get('RF_PHASE_JAVA_HOME',os.environ.get('JAVA_HOME','/missing')))
+ if not all((root/'bin'/name).is_file() for name in ('java','javac','jar')):
+  if os.environ.get('RF_REQUIRE_NATIVE_PROVENANCE_TOOLS')=='1':pytest.fail('Required real phase JDK unavailable')
+  pytest.skip('Real phase JDK unavailable; no packaging qualification')
+ return root.resolve()
+
+
+def phase_env(cmake,ninja):
+ root=phase_java_home();env=dict(os.environ);env['JAVA_HOME']=str(root)
+ env['PATH']=os.pathsep.join(map(str,[root/'bin',cmake.parent,ninja.parent]))+os.pathsep+env['PATH']
+ return env
+
+
 def configure_source(source,target):
  source.mkdir(parents=True)
  (source/'main.cpp').write_text('extern "C" int generated(); extern "C" int result(){return generated();}\n')
@@ -35,35 +49,74 @@ target_link_libraries('''+target+''' PRIVATE bits m)
 
 def configure_opencv_side_effects(source):
  configure_source(source,'opencv_java')
- # Mirror pinned upstream: Java generator declares only its stamp; OpenCL declares .cpp only.
+ (source/'main.cpp').write_text('#include "generated.hpp"\nextern "C" int result(){return VALUE;}\n')
+ # Mirror actual upstream side effects AND target-order library prerequisites.
+ # A single old wrapper request compiles core/imgproc before later generators.
  (source/'openclgen.cmake').write_text('file(WRITE "${OUT}.hpp" "#define OCL_VALUE 3\\n")\nfile(WRITE "${OUT}.cpp" "#include \\\"opencl_kernels_${MODULE}.hpp\\\"\\nint ocl_${MODULE}(){return OCL_VALUE;}\\n")\n')
  (source/'CMakeLists.txt').write_text('''cmake_minimum_required(VERSION 3.20)
 project(bound_native CXX)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/java.stamp
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(stamp ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/dephelper/gen_opencv_java_source)
+add_custom_command(OUTPUT ${stamp}
+ COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/dephelper
  COMMAND ${CMAKE_COMMAND} -DOUT=${CMAKE_CURRENT_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/generate.cmake
- COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/java.stamp
+ COMMAND ${CMAKE_COMMAND} -E touch ${stamp}
  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/generate.cmake)
-add_custom_target(gen_opencv_java_source DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/java.stamp)
-set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/generated.cpp PROPERTIES GENERATED TRUE)
-add_library(bits STATIC ${CMAKE_CURRENT_BINARY_DIR}/generated.cpp)
-add_dependencies(bits gen_opencv_java_source)
+add_custom_target(gen_opencv_java_source DEPENDS ${stamp})
 foreach(module core imgproc features2d)
  set(out ${CMAKE_CURRENT_BINARY_DIR}/modules/${module}/opencl_kernels_${module})
  add_custom_command(OUTPUT ${out}.cpp
  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/modules/${module}
  COMMAND ${CMAKE_COMMAND} -DOUT=${out} -DMODULE=${module} -P ${CMAKE_CURRENT_SOURCE_DIR}/openclgen.cmake
  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/openclgen.cmake)
- target_sources(bits PRIVATE ${out}.cpp)
+ add_library(opencv_${module} STATIC ${out}.cpp)
 endforeach()
+target_link_libraries(opencv_imgproc PRIVATE opencv_core)
+target_link_libraries(opencv_features2d PRIVATE opencv_imgproc opencv_core)
 add_library(opencv_java SHARED main.cpp)
-target_link_libraries(opencv_java PRIVATE bits m)
+target_include_directories(opencv_java PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+add_dependencies(opencv_java gen_opencv_java_source)
+target_link_libraries(opencv_java PRIVATE opencv_features2d opencv_imgproc opencv_core m)
+''')
+ configure_java_packaging(source)
+
+
+def configure_java_packaging(source):
+ """Synthetic Java payload and short copy/list scripts; actual pinned UseJava tools."""
+ java=phase_java_home();jar=source/'modules/java/jar';jar.mkdir(parents=True);(source/'cmake').mkdir()
+ (source/'cmake/copy_files.cmake').write_text('include("${CONFIG_FILE}")\nfile(COPY "${FIXTURE_JAVA_SOURCE}/" DESTINATION "${FIXTURE_JAVA_DEST}")\nfile(TOUCH "${DEPHELPER}")\n')
+ (jar/'list_java_sources.cmake').write_text('file(GLOB_RECURSE sources "${OPENCV_JAVA_DIR}/*.java")\nstring(REPLACE ";" "\\n" lines "${sources}")\nfile(WRITE "${OUTPUT}" "${lines}\\n")\n')
+ with (source/'generate.cmake').open('a') as f:
+  f.write('file(MAKE_DIRECTORY "${OUT}/modules/java_bindings_generator/gen/java")\nfile(WRITE "${OUT}/modules/java_bindings_generator/gen/java/Fixture.java" "public final class Fixture { public static int value() { return 19; } }\\n")\n')
+ with (source/'CMakeLists.txt').open('a') as f:
+  f.write('\nset(Java_JAVA_EXECUTABLE "'+str(java/'bin/java')+'" CACHE FILEPATH "")\nset(Java_JAVAC_EXECUTABLE "'+str(java/'bin/javac')+'" CACHE FILEPATH "")\nset(Java_JAR_EXECUTABLE "'+str(java/'bin/jar')+'" CACHE FILEPATH "")\nset(Java_JAVADOC_EXECUTABLE "'+str(java/'bin/javadoc')+'" CACHE FILEPATH "")\nfind_package(Java 17 REQUIRED COMPONENTS Development)\ninclude(UseJava)\nadd_subdirectory(modules/java/jar)\nadd_dependencies(opencv_java opencv_java_jar)\n')
+ (jar/'CMakeLists.txt').write_text('''set(OPENCV_JAVA_DIR "${CMAKE_CURRENT_BINARY_DIR}/opencv")
+set(OPENCV_DEPHELPER "${CMAKE_BINARY_DIR}/CMakeFiles/dephelper")
+file(MAKE_DIRECTORY "${OPENCV_JAVA_DIR}/java")
+file(WRITE "${OPENCV_JAVA_DIR}/MANIFEST.MF" "Manifest-Version: 1.0\\n\\n")
+set(config "${CMAKE_CURRENT_BINARY_DIR}/copyfiles-JAVA_SRC_COPY.cmake")
+file(WRITE "${config}" "set(FIXTURE_JAVA_SOURCE \\\"${CMAKE_BINARY_DIR}/modules/java_bindings_generator/gen/java\\\")\\nset(FIXTURE_JAVA_DEST \\\"${OPENCV_JAVA_DIR}/java\\\")\\n")
+add_custom_command(OUTPUT "${OPENCV_DEPHELPER}/opencv_java_jar_source_copy"
+ COMMAND ${CMAKE_COMMAND} "-DCONFIG_FILE:PATH=${config}" "-DCOPYLIST_VAR:STRING=JAVA_SRC_COPY" "-DDEPHELPER=${OPENCV_DEPHELPER}/opencv_java_jar_source_copy" -P "${CMAKE_SOURCE_DIR}/cmake/copy_files.cmake"
+ WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+ DEPENDS "${CMAKE_SOURCE_DIR}/cmake/copy_files.cmake" gen_opencv_java_source "${OPENCV_DEPHELPER}/gen_opencv_java_source")
+add_custom_target(opencv_java_jar_source_copy DEPENDS "${OPENCV_DEPHELPER}/opencv_java_jar_source_copy")
+add_custom_command(OUTPUT "${OPENCV_DEPHELPER}/opencv_java_jar"
+ BYPRODUCTS "${OPENCV_JAVA_DIR}/java_sources"
+ DEPENDS opencv_java_jar_source_copy "${OPENCV_DEPHELPER}/opencv_java_jar_source_copy" "${OPENCV_JAVA_DIR}/MANIFEST.MF"
+ COMMAND ${CMAKE_COMMAND} -E touch "${OPENCV_DEPHELPER}/opencv_java_jar"
+ COMMAND ${CMAKE_COMMAND} -D OPENCV_JAVA_DIR="${OPENCV_JAVA_DIR}/java" -D OUTPUT="${OPENCV_JAVA_DIR}/java_sources" -P "${CMAKE_CURRENT_SOURCE_DIR}/list_java_sources.cmake")
+add_custom_target(opencv_java_jar_sources DEPENDS "${OPENCV_DEPHELPER}/opencv_java_jar")
+list(APPEND CMAKE_JAVA_COMPILE_FLAGS -encoding utf-8)
+add_jar(opencv_java_jar SOURCES "@${OPENCV_JAVA_DIR}/java_sources" MANIFEST "${OPENCV_JAVA_DIR}/MANIFEST.MF" OUTPUT_NAME "opencv-4120" OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin")
+add_dependencies(opencv_java_jar opencv_java_jar_sources)
 ''')
 
 
 @pytest.mark.parametrize('version',p.VERSIONS)
 def test_real_current_graph_and_system_link_provenance(tmp_path,version):
- cmake,ninja,cc,cxx=native_tools(version);env=dict(os.environ);env['PATH']=str(cmake.parent)+os.pathsep+str(ninja.parent)+os.pathsep+env['PATH']
+ cmake,ninja,cc,cxx=native_tools(version);env=phase_env(cmake,ninja)
  root=tmp_path/'repo';root.mkdir();run=Runner(root,tmp_path/'work',env,seconds=360);out=run.work/'capability';out.mkdir()
  try:
   state=p.begin(run,'a'*40,cxx,cc,ninja,out);before={str(Path('/usr/include/stdc-predef.h').resolve()):sha('/usr/include/stdc-predef.h')};consumed={}
@@ -75,10 +128,31 @@ def test_real_current_graph_and_system_link_provenance(tmp_path,version):
    build=out/dirname
    run.command(domain+'-configure',[cmake,'-S',source,'-B',build,'-G','Ninja',f'-DCMAKE_CXX_COMPILER={cxx}',f'-DCMAKE_MAKE_PROGRAM={ninja}'],env=native_compile_env(env))
    p.graph_before(run,state,build,target,domain)
-   if domain=='opencv':p.pregenerate(run,state,cmake)
    before.update(c.prebuild_snapshot(run,[source,build]))
-   run.command(domain+'-build',[cmake,'--build',build,'--target',target,'--parallel','2'],env=native_compile_env(env))
-   p.graph_after(run,state,build,domain)
+   if domain=='opencv':
+    source_snapshot=c.source_inventory(source)
+    def source_check():
+     if c.source_inventory(source)!=source_snapshot:raise Failure('Fixture source changed during phase')
+    p.opencv_phases(run,state,cmake,before,source_check=source_check)
+    phases=state['generation']['phases'];rules=p.phase_rules(state['graphs']['opencv'])
+    assert [(row['id'],row['kind']) for row in phases]==[(name,kind) for name,kind,_ in p.PHASES]
+    packages=p.package_outputs(state['graphs']['opencv'])
+    for row in phases:
+     assert row['records']
+     assert all((rules[path]=='CUSTOM_COMMAND')==(row['kind']=='G') or (row['id']=='build-java' and path in packages) for path in row['records'])
+    assert packages<=set(phases[-1]['records'])
+    assert not packages.intersection(state['generation']['frozen'])
+    import zipfile
+    with zipfile.ZipFile(build/'bin/opencv-4120.jar') as jar:assert 'Fixture.class' in jar.namelist()
+    assert state['generation']['firstAdmission'][str(build/'generated.hpp')]==0
+    for module,phase_index in [('core',0),('imgproc',2),('features2d',4)]:
+     header=str(build/'modules'/module/('opencl_kernels_'+module+'.hpp'))
+     assert state['generation']['firstAdmission'][header]==phase_index
+     assert header not in state['generation']['initialPaths']
+     assert phases[phase_index+1]['inputs'][header]['scope']=='PRECONSUMPTION'
+   else:
+    run.command(domain+'-build',[cmake,'--build',build,'--target',target,'--parallel','2'],env=native_compile_env(env))
+    p.graph_after(run,state,build,domain)
    part=c.consumed_inputs(run,ninja,build,domain);consumed.update(part)
   rolemap=p.finish(run,state,consumed,before)
   assert any(x['scope']=='CURRENT_SUCCESSFUL_GRAPH_POSTBUILD_NOT_PRECONSUMPTION' for x in rolemap.values())
@@ -88,6 +162,32 @@ def test_real_current_graph_and_system_link_provenance(tmp_path,version):
   assert rolemap[str(out/'build/generated.hpp')]['scope']=='GENERATION_PHASE_PRECONSUMPTION_AND_POSTBUILD_IDENTICAL'
   assert all(rolemap[str(out/'build/modules'/m/('opencl_kernels_'+m+'.hpp'))]['scope']=='GENERATION_PHASE_PRECONSUMPTION_AND_POSTBUILD_IDENTICAL' for m in ('core','imgproc','features2d'))
   assert p.validate(run,state,consumed,before,'a'*40)==rolemap
+  packaging=state['generation']['packaging']
+  for index in range(len(p.PACKAGE_GROUPS)):
+   raw=(run.work/'logs'/('native-opencv-package-recipe-'+str(index)+'.raw.log')).read_bytes()
+   assert p.package_recipe(raw,index,packaging,out/'build')==packaging['recipes'][index]
+   for bad in (raw+b'\nextra-command\n',raw.rstrip()+b' && /unapproved/tool\n',raw.rstrip()+b' ; /unapproved/tool\n',raw.rstrip()+b' | /unapproved/tool\n',raw.rstrip()+b' $(unapproved)\n',raw.replace(str(cmake).encode(),b'/unapproved/cmake'),b'x'*65537):
+    with pytest.raises(Failure):p.package_recipe(bad,index,packaging,out/'build')
+  assert not set(packaging['outputs']).intersection(state['generation']['frozen'])
+  # Mutate only private fixture scripts, never shared official CMake/JDK files.
+  for key in ('copy','list'):
+   script=Path(packaging['inputs'][key]['path']);original=script.read_bytes();stamp=script.stat()
+   script.write_bytes(original+b'# fixture drift\n')
+   with pytest.raises(Failure):p.validate(run,state,consumed,before,'a'*40)
+   script.write_bytes(original);os.utime(script,ns=(stamp.st_atime_ns,stamp.st_mtime_ns))
+   assert p.validate(run,state,consumed,before,'a'*40)==rolemap
+  # Simulate changed installed-module identity without writing shared tool files.
+  from unittest.mock import patch
+  identity=p.identity;module=packaging['inputs']['UseJava']['path'];seen=[]
+  def changed_module(path):
+   result=identity(path)
+   if str(path)==module:seen.append(module);result={**result,'sha256':'0'*64}
+   return result
+  with patch.object(p,'identity',changed_module):
+   with pytest.raises(Failure):p.validate(run,state,consumed,before,'a'*40)
+  assert seen
+  for output in packaging['outputs']:
+   if output in rolemap:assert rolemap[output]['scope']=='CURRENT_SUCCESSFUL_JAVA_PACKAGE_POSTBUILD_NOT_PRECONSUMPTION'
   # Exercise the real bounded collector with actual generated proof/log bytes.
   from tools.eight_view_host import controller as ctl
   reference={'path':str(out/p.FILENAME),'sha256':sha(out/p.FILENAME)}
@@ -110,13 +210,13 @@ def test_real_current_graph_and_system_link_provenance(tmp_path,version):
    original=file.read_bytes();file.write_bytes(original+b'changed')
    with pytest.raises(Failure):p.validate(run,state,consumed,before,'a'*40)
    file.write_bytes(original)
-  wrong=copy.deepcopy(state);wrong['generation']['targets'].append('not-reviewed')
+  wrong=copy.deepcopy(state);wrong['generation']['phases'][0]['targets'].append('not-reviewed')
   with pytest.raises(Failure):p.validate(run,wrong,consumed,before,'a'*40)
-  stale=copy.deepcopy(state);stale['graphs']['opencv']['absent'].remove(str(out/'build/libbits.a'))
+  stale=copy.deepcopy(state);stale['graphs']['opencv']['absent'].remove(str(out/'build/lib/libopencv_core.a'))
   with pytest.raises(Failure,match='predates'):p.graph_after(run,stale,out/'build','opencv')
   # Restoring the exact original retained log is test-only, after the refusal above.
   (out/'native-opencv-build-log.txt').write_bytes((out/'build/.ninja_log').read_bytes())
-  output=out/'build/libbits.a';original=output.read_bytes();output.write_bytes(original+b'changed')
+  output=out/'build/lib/libopencv_core.a';original=output.read_bytes();output.write_bytes(original+b'changed')
   with pytest.raises(Failure,match='drift'):p.validate(run,state,consumed,before,'a'*40)
   evidence=os.environ.get('RF_NATIVE_PROVENANCE_EVIDENCE_DIR')
   if evidence:
@@ -145,7 +245,7 @@ def test_grouped_deps_refuses_partial_stale_or_orphan(tmp_path):
 
 
 def small_role_state(tmp_path):
- state={'graphs':{},'systemLink':{'inputs':{}}};before={};consumed={}
+ state={'graphs':{},'systemLink':{'inputs':{}},'generation':{'packaging':{'outputs':[]}}};before={};consumed={}
  for domain,(dirname,target) in p.DOMAINS.items():
   root=tmp_path/dirname;root.mkdir();src=root/'source.c';src.write_text('int value;');obj=root/'out.o';obj.write_bytes(b'fixture object')
   source=str(src);output=str(obj);paths={target:str(root/target),'source.c':source,'out.o':output}
@@ -251,30 +351,34 @@ def test_unreviewed_generation_target_refuses_before_command(tmp_path):
  from types import SimpleNamespace
  run=SimpleNamespace(command=lambda *a,**k:pytest.fail('Unreviewed target executed'))
  with pytest.raises(Failure,match='target absent'):
-  p.pregenerate(run,{'graphs':{'opencv':{'buildDirectory':str(tmp_path),'nodes':{}}}},Path('/cmake'))
+  p.phase_cone({'nodes':{}},p.PHASES[0][2])
 
 
 def test_real_failed_generator_cannot_produce_a_generation_attestation(tmp_path):
- cmake,ninja,cc,cxx=native_tools('1.13.2');env=dict(os.environ);env['PATH']=str(cmake.parent)+os.pathsep+str(ninja.parent)+os.pathsep+env['PATH']
+ cmake,ninja,cc,cxx=native_tools('1.13.2');env=phase_env(cmake,ninja)
  root=tmp_path/'repo';root.mkdir();run=Runner(root,tmp_path/'work',env,seconds=240);out=run.work/'capability';out.mkdir()
  try:
   state=p.begin(run,'a'*40,cxx,cc,ninja,out);source=root/'opencv';configure_opencv_side_effects(source)
   (source/'generate.cmake').write_text('message(FATAL_ERROR "intentional fixture generator failure")\n')
   build=out/'build';run.command('opencv-configure',[cmake,'-S',source,'-B',build,'-G','Ninja',f'-DCMAKE_CXX_COMPILER={cxx}',f'-DCMAKE_MAKE_PROGRAM={ninja}'],env=native_compile_env(env))
   p.graph_before(run,state,build,'opencv_java','opencv')
-  with pytest.raises(Failure):p.pregenerate(run,state,cmake)
-  assert 'generation' not in state and not any(r['label']=='opencv-build' for r in run.commands)
-  assert next(r for r in run.commands if r['label']=='native-opencv-generate')['exit']!=0
+  before=c.prebuild_snapshot(run,[source,build])
+  with pytest.raises(Failure):p.opencv_phases(run,state,cmake,before)
+  assert not any(r['label']=='native-opencv-phase-build-core' for r in run.commands)
+  assert next(r for r in run.commands if r['label']=='native-opencv-phase-generate-java-core')['exit']!=0
  finally:run.cleanup()
 
 
 def test_existing_opencv_budget_is_partitioned_not_added():
  import inspect
- source=inspect.getsource(c.build)
- assert 'opencv_deadline=run.clock()+run.remaining(1620)' in source
- assert 'min(120,opencv_deadline-run.clock())' in source
- assert 'seconds=max(0,opencv_deadline-run.clock())' in source
- assert source.index('native_provenance.pregenerate(')<source.index('immutable_before.update(prebuild_snapshot(run,[source,builddir]))')<source.index("run.command('opencv-build'")
+ source=inspect.getsource(p.opencv_phases);caller=inspect.getsource(c.build)
+ assert 'deadline=min(deadline,run.clock()+run.remaining(1620)) if deadline is not None else run.clock()+run.remaining(1620)' in source
+ assert 'generation_remaining=120.0' in source
+ assert 'limit=min(limit,generation_remaining)' in source
+ assert 'generation_remaining-=elapsed' in source
+ assert caller.index('opencv_deadline=run.clock()+run.remaining(1620)')<caller.index('immutable_before.update(prebuild_snapshot(run,[source,builddir]))')<caller.index('native_provenance.opencv_phases(')
+ assert 'deadline=opencv_deadline' in caller
+ assert "run.command('opencv-build'" not in caller
 
 
 def test_manifest_discovery_and_arg_budget_fail_closed(tmp_path,monkeypatch):
@@ -368,3 +472,248 @@ def test_actual_e1fee_graph_replay_binds_selector_without_new_producers():
   graph=copy.deepcopy(graph);graph['nodes']['foreign']={'rule':None,'inputs':[]};graph['paths']['foreign']='/foreign/unapproved'
   graph['nodes'][p.GEN_TARGETS[0]]['inputs'].append({'name':'foreign','kind':'explicit'})
   with pytest.raises(Failure,match='outside selected'):p.generation_selection(graph)
+
+
+def test_real_upstream_like_wrapper_also_compiles_product_prerequisites(tmp_path):
+ """Reproduce why the former all-generators request was not pre-compilation."""
+ import subprocess
+ cmake,ninja,_,cxx=native_tools('1.13.2');source=tmp_path/'source';build=tmp_path/'build'
+ configure_opencv_side_effects(source)
+ subprocess.run(list(map(str,[cmake,'-S',source,'-B',build,'-G','Ninja',f'-DCMAKE_CXX_COMPILER={cxx}',f'-DCMAKE_MAKE_PROGRAM={ninja}'])),check=True,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=30,env=native_compile_env())
+ query=subprocess.run(list(map(str,[ninja,'-C',build,'-t','query','modules/imgproc/opencl_kernels_imgproc.cpp','modules/features2d/opencl_kernels_features2d.cpp'])),check=True,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=30,env=native_compile_env()).stdout
+ assert b'    || lib/libopencv_core.a' in query and b'    || lib/libopencv_imgproc.a' in query
+ targets=['gen_opencv_java_source',*[f'modules/{m}/opencl_kernels_{m}.cpp' for m in ('core','imgproc','features2d')]]
+ subprocess.run(list(map(str,[ninja,'-C',build,*targets])),check=True,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=30,env=native_compile_env())
+ records=p.ninja_log((build/'.ninja_log').read_bytes(),build)
+ assert str(build/'lib/libopencv_core.a') in records and str(build/'lib/libopencv_imgproc.a') in records
+ assert any(name.endswith('.cpp.o') for name in records)
+ assert not (build/'lib/libopencv_features2d.a').exists()
+
+
+def test_actual_0104_graph_requires_staged_generation_not_selector_only():
+ import zipfile
+ filename=os.environ.get('RF_PHASE_REPLAY_ZIP')
+ if not filename:
+  if os.environ.get('RF_REQUIRE_NATIVE_REPLAY')=='1':pytest.fail('Required retained staged-generation replay artifact missing')
+  pytest.skip('Retained actual-run artifact unavailable; no hosted replay claim')
+ archive=Path(filename);assert archive.stat().st_size<=32*1024**2
+ assert sha(archive)=='02e1749c3857fa47b2009d7aad880139d6ac25941538aa01b174a99933d6f912'
+ with zipfile.ZipFile(archive) as z:
+  def raw(name):
+   assert z.getinfo(name).file_size<=8*1024**2
+   return z.read(name)
+  names,producers=p.graph_info(raw('logs/native-opencv-graph.raw.log'));nodes={}
+  for index in range(0,len(names),64):nodes.update(p.parse_query(raw('logs/native-opencv-query-'+str(index//64)+'.raw.log'),names[index:index+64]))
+  build=Path('/home/runner/work/_temp/rf-eight-work/capability/build');paths={n:p.canonical(n,build) for n in names}
+  p.aliases_for(nodes,paths,producers)
+  def rules_for(target):
+   cone=set(p.reachable(nodes,paths,producers,target))
+   return {nodes[n]['rule'] for n in names if paths[n] in cone and nodes[n]['rule'] not in (None,'phony')}
+  assert rules_for('CMakeFiles/dephelper/gen_opencv_java_source')=={'CUSTOM_COMMAND'}
+  assert rules_for('modules/core/opencl_kernels_core.cpp')=={'CUSTOM_COMMAND'}
+  imgproc=nodes['modules/imgproc/opencl_kernels_imgproc.cpp']['inputs']
+  features=nodes['modules/features2d/opencl_kernels_features2d.cpp']['inputs']
+  assert {'name':'lib/libopencv_core.a','kind':'order'} in imgproc
+  assert {'name':'lib/libopencv_core.a','kind':'order'} in features
+  assert {'name':'lib/libopencv_imgproc.a','kind':'order'} in features
+  assert any(rule.startswith('CXX_COMPILER') for rule in rules_for('modules/imgproc/opencl_kernels_imgproc.cpp'))
+  assert any(rule.startswith('CXX_STATIC_LIBRARY_LINKER') for rule in rules_for('modules/features2d/opencl_kernels_features2d.cpp'))
+  # Exact archive cones never require a later OpenCL generator.
+  for module,expected in [('core',{'core'}),('imgproc',{'core','imgproc'})]:
+   cone=set(p.reachable(nodes,paths,producers,'lib/libopencv_'+module+'.a'))
+   actual={m for m in ('core','imgproc','features2d') if str(build/f'modules/{m}/opencl_kernels_{m}.cpp') in cone}
+   assert actual==expected
+  # Source-derived epoch simulation, not a claim that the timed-out run finished.
+  graph={'buildDirectory':str(build),'nodes':nodes,'paths':paths,'producers':producers,'reachable':p.reachable(nodes,paths,producers,'opencv_java'),'baselineLogOutputs':[]}
+  graph['absent']=sorted(set(paths[n] for n in names if nodes[n]['rule'] not in (None,'phony')))
+  packages=p.package_outputs(graph);previous={};counts=[]
+  for index,(phase,kind,targets) in enumerate(p.PHASES):
+   cone=p.phase_precheck(graph,kind,targets,previous,packages)
+   outputs={paths[n] for n in names if paths[n] in cone and nodes[n]['rule'] not in (None,'phony')}
+   current=dict(previous)
+   for path in outputs-set(previous):current[path]={'startMs':0,'endMs':1,'mtimeNs':1,'commandHash':'source-derived-simulation','outputs':[n for n in names if paths[n]==path]}
+   new=p.phase_delta(graph,kind,cone,previous,current,1,packages,allow_packages=(phase=='build-java'))
+   assert not packages.intersection(new) or phase=='build-java'
+   counts.append(len(new));previous=current
+  assert counts==[2,92,1,68,1,42]
+  assert packages<=set(previous) and len(packages)==6
+
+
+def phase_fixture_graph(tmp_path):
+ src=tmp_path/'source.cpp';src.write_text('int fixture;')
+ generated=tmp_path/'generated.cpp';generated.write_text('int generated;')
+ obj=tmp_path/'object.o';obj.write_bytes(b'fixture object')
+ paths={'source':str(src),'generated':str(generated),'object':str(obj),'target':str(tmp_path/'target')}
+ nodes={'source':{'rule':None,'inputs':[]},'generated':{'rule':'CUSTOM_COMMAND','inputs':[{'name':'source','kind':'explicit'}]},'object':{'rule':'COMPILE','inputs':[{'name':'generated','kind':'explicit'}]},'target':{'rule':'phony','inputs':[{'name':'object','kind':'explicit'}]}}
+ return {'nodes':nodes,'paths':paths,'producers':{'generated':'edge:g','object':'edge:o'},'reachable':list(paths.values()),'absent':[str(generated),str(obj)],'baselineLogOutputs':[],'dependencyRules':{'CUSTOM_COMMAND':None,'COMPILE':'gcc'}}
+
+
+def test_generation_cannot_run_unbuilt_product_prerequisite(tmp_path):
+ graph=phase_fixture_graph(tmp_path)
+ with pytest.raises(Failure,match='prerequisite not previously produced'):p.phase_precheck(graph,'G',['target'],{})
+ assert p.phase_precheck(graph,'G',['target'],{graph['paths']['object']:object()})
+
+
+def test_compilation_cannot_first_run_unfrozen_generator(tmp_path):
+ graph=phase_fixture_graph(tmp_path)
+ with pytest.raises(Failure,match='prerequisite not previously produced'):p.phase_precheck(graph,'B',['target'],{})
+ assert p.phase_precheck(graph,'B',['target'],{graph['paths']['generated']:object()})
+
+
+@pytest.mark.parametrize('case',['rerun','missing-prior','unknown','wrong-kind','outside-cone','stale','late-record'],ids=str)
+def test_phase_log_epoch_refuses_dirty_or_unowned_records(tmp_path,case):
+ graph=phase_fixture_graph(tmp_path);generated=graph['paths']['generated'];obj=graph['paths']['object'];r={'startMs':0,'endMs':1,'mtimeNs':1,'commandHash':'abc','outputs':['generated']}
+ previous={generated:dict(r)};current={generated:dict(r),obj:dict(r,outputs=['object'])};cone=set(graph['paths'].values());kind='B'
+ if case=='rerun':current[generated]['mtimeNs']=2
+ elif case=='missing-prior':current.pop(generated)
+ elif case=='unknown':current[str(tmp_path/'foreign')]=dict(r)
+ elif case=='wrong-kind':kind='G'
+ elif case=='outside-cone':cone.remove(obj)
+ elif case=='stale':graph['absent'].remove(obj)
+ elif case=='late-record':current[obj]['endMs']=999999
+ with pytest.raises(Failure):p.phase_delta(graph,kind,cone,previous,current,1)
+
+
+@pytest.mark.parametrize('case',['early-use','changed-bound','changed-producer','missing-deps'],ids=str)
+def test_first_consumer_does_not_accept_later_header_snapshot(tmp_path,case):
+ graph=phase_fixture_graph(tmp_path);obj=graph['paths']['object'];header=tmp_path/'future.hpp';header.write_text('future header');name=str(header)
+ deps={obj:[name]};bound={};prior={}
+ if case=='changed-bound':bound[name]='0'*64
+ elif case=='changed-producer':prior[name]={'sha256':'0'*64}
+ elif case=='missing-deps':deps={}
+ # Existence or a future phase's ability to snapshot this file is not prior binding.
+ with pytest.raises(Failure):p.phase_dependencies(graph,deps,{obj:{}},bound,prior)
+
+
+def test_first_consumer_distinguishes_prior_producer_from_immutable_input(tmp_path):
+ graph=phase_fixture_graph(tmp_path);obj=graph['paths']['object'];generated=graph['paths']['generated'];digest=sha(generated)
+ assert p.phase_dependencies(graph,{obj:[generated]},{obj:{}},{generated:digest},{})[generated]['scope']=='PRECONSUMPTION'
+ assert p.phase_dependencies(graph,{obj:[generated]},{obj:{}},{},{generated:{'sha256':digest}})[generated]['scope']=='PRIOR_SUCCESSFUL_PRODUCER'
+
+
+def test_real_compile_created_future_header_is_not_backfilled(tmp_path):
+ """A build-time side effect must fail even though a later snapshot could hash it."""
+ cmake,ninja,cc,cxx=native_tools('1.13.2');env=phase_env(cmake,ninja)
+ root=tmp_path/'repo';root.mkdir();run=Runner(root,tmp_path/'work',env,seconds=240);out=run.work/'capability';out.mkdir()
+ try:
+  state=p.begin(run,'a'*40,cxx,cc,ninja,out);source=root/'opencv';configure_opencv_side_effects(source);build=out/'build';late=build/'not-yet-bound.hpp'
+  launcher=source/'fixture-launcher.py'
+  launcher.write_text('import os,sys\nfrom pathlib import Path\nPath(sys.argv[1]).write_text("#define LATE_VALUE 7\\n")\nos.execv(sys.argv[2],sys.argv[2:])\n')
+  with (source/'CMakeLists.txt').open('a') as f:
+   f.write('\nset_property(TARGET opencv_core PROPERTY CXX_COMPILER_LAUNCHER "'+str(Path(sys.executable).resolve())+';'+str(launcher)+';'+str(late)+'")\n')
+  with (source/'openclgen.cmake').open('a') as f:
+   f.write('if(MODULE STREQUAL "core")\nfile(APPEND "${OUT}.cpp" "#include \\\"'+str(late)+'\\\"\\n")\nendif()\n')
+  run.command('opencv-configure',[cmake,'-S',source,'-B',build,'-G','Ninja',f'-DCMAKE_CXX_COMPILER={cxx}',f'-DCMAKE_MAKE_PROGRAM={ninja}'],env=native_compile_env(env))
+  p.graph_before(run,state,build,'opencv_java','opencv');before=c.prebuild_snapshot(run,[source,build]);before[str(Path('/usr/include/stdc-predef.h').resolve())]=sha('/usr/include/stdc-predef.h')
+  assert not late.exists() and str(late) not in before
+  with pytest.raises(Failure,match='before first binding'):p.opencv_phases(run,state,cmake,before)
+  assert late.is_file() and str(late) not in before
+  assert not any(r['label']=='native-opencv-phase-generate-imgproc' for r in run.commands)
+  assert next(r for r in run.commands if r['label']=='native-opencv-phase-build-core')['exit']==0
+ finally:run.cleanup()
+
+
+@pytest.mark.parametrize('case',['valid','producer-late','not-in-cone','self','custom-generator'],ids=str)
+def test_same_compile_phase_output_is_postbuild_role_not_source_snapshot(tmp_path,case):
+ source=tmp_path/'main.cpp';source.write_text('int f;');obj=tmp_path/'main.o';obj.write_bytes(b'object');archive=tmp_path/'lib.a';archive.write_bytes(b'archive')
+ paths={'source':str(source),'object':str(obj),'archive':str(archive)}
+ nodes={'source':{'rule':None,'inputs':[]},'object':{'rule':'COMPILE','inputs':[{'name':'source','kind':'explicit'}]},'archive':{'rule':'ARCHIVE','inputs':[{'name':'object','kind':'explicit'}]}}
+ graph={'nodes':nodes,'paths':paths,'producers':{'object':'edge:object','archive':'edge:archive'},'reachable':list(paths.values()),'dependencyRules':{'COMPILE':'gcc','ARCHIVE':None}}
+ new={str(obj):{'startMs':0,'endMs':1},str(archive):{'startMs':2,'endMs':3}};deps={str(obj):[str(source)],str(archive):[str(obj)]};bound={str(source):sha(source)}
+ if case=='producer-late':new[str(obj)]['endMs']=3
+ elif case=='not-in-cone':nodes['archive']['inputs']=[]
+ elif case=='self':deps[str(archive)]=[str(archive)]
+ elif case=='custom-generator':nodes['object']['rule']='CUSTOM_COMMAND';graph['dependencyRules']['CUSTOM_COMMAND']=None
+ if case=='valid':
+  result=p.phase_dependencies(graph,deps,new,bound,{})
+  assert result[str(obj)]['scope']=='CURRENT_PHASE_SUCCESSFUL_PRODUCER_POSTBUILD_NOT_PRECONSUMPTION'
+  assert str(obj) not in bound
+ else:
+  with pytest.raises(Failure):p.phase_dependencies(graph,deps,new,bound,{})
+
+
+@pytest.mark.parametrize('case',['source-drift','prior-drift','system-drift','unbound'],ids=str)
+def test_phase_immutable_leaves_are_verified_before_execution(tmp_path,case):
+ graph=phase_fixture_graph(tmp_path);source=graph['paths']['source'];bound={};prior={};system={}
+ if case=='source-drift':bound[source]='0'*64
+ elif case=='prior-drift':prior[source]={'sha256':'0'*64}
+ elif case=='system-drift':system[source]='0'*64
+ with pytest.raises(Failure):p.phase_bound_leaves(graph,set(graph['reachable']),bound,prior,system)
+
+
+def test_phase_system_link_member_has_distinct_prebound_role(tmp_path):
+ graph=phase_fixture_graph(tmp_path);obj=graph['paths']['object'];system_input=tmp_path/'fixture-crt.o';system_input.write_bytes(b'explicit fixture system identity')
+ # Parser/role unit only: this temporary path is not an admitted installed-system provider.
+ name=str(system_input);digest=sha(system_input);before={}
+ result=p.phase_dependencies(graph,{obj:[name]},{obj:{}},before,{},system={name:digest})
+ assert result[name]['scope']=='SYSTEM_LINK_PREBUILD' and name not in before
+ system_input.write_bytes(b'drift')
+ with pytest.raises(Failure):p.phase_dependencies(graph,{obj:[name]},{obj:{}},before,{},system={name:digest})
+
+
+def package_fixture_graph():
+ build=Path('/fixture/build');nodes={};paths={};producers={}
+ for index,group in enumerate(p.PACKAGE_GROUPS):
+  for name in group:
+   nodes[name]={'rule':'CUSTOM_COMMAND','inputs':[]};paths[name]=str(build/name);producers[name]='edge:package-'+str(index)
+ nodes['opencv_java']={'rule':'phony','inputs':[{'name':group[0],'kind':'explicit'} for group in p.PACKAGE_GROUPS]};paths['opencv_java']=str(build/'opencv_java')
+ return {'buildDirectory':str(build),'nodes':nodes,'paths':paths,'producers':producers,'reachable':list(paths.values()),'absent':list(paths.values()),'baselineLogOutputs':[]}
+
+
+@pytest.mark.parametrize('case',['missing','wrong-rule','extra-sibling','split-siblings','unselected','shared-edge'],ids=str)
+def test_java_package_binding_requires_exact_declared_sibling_groups(case):
+ graph=package_fixture_graph();name=p.PACKAGE_GROUPS[0][0]
+ if case=='missing':del graph['nodes'][name]
+ elif case=='wrong-rule':graph['nodes'][name]['rule']='NATIVE_COMPILE'
+ elif case=='extra-sibling':
+  graph['nodes']['unexpected']={'rule':'CUSTOM_COMMAND','inputs':[]};graph['paths']['unexpected']='/fixture/build/unexpected';graph['producers']['unexpected']=graph['producers'][name]
+ elif case=='split-siblings':graph['producers'][p.PACKAGE_GROUPS[1][1]]='edge:split'
+ elif case=='unselected':graph['reachable'].remove(graph['paths'][name])
+ elif case=='shared-edge':graph['producers'][name]=graph['producers'][p.PACKAGE_GROUPS[1][0]]
+ with pytest.raises(Failure):p.package_outputs(graph)
+
+
+def test_java_packages_are_final_build_only_not_native_generation():
+ graph=package_fixture_graph();packages=p.package_outputs(graph);assert len(packages)==6
+ assert p.phase_precheck(graph,'B',('opencv_java',),{},packages)
+ with pytest.raises(Failure):p.phase_precheck(graph,'G',('opencv_java',),{},packages)
+ name=p.PACKAGE_GROUPS[0][0]
+ with pytest.raises(Failure):p.phase_precheck(graph,'B',(name,),{},packages)
+ record={'startMs':0,'endMs':1,'mtimeNs':1,'commandHash':'fixture','outputs':[name]};current={graph['paths'][name]:record}
+ assert p.phase_delta(graph,'B',set(graph['reachable']),{},current,1,packages,allow_packages=True)==current
+ with pytest.raises(Failure):p.phase_delta(graph,'G',set(graph['reachable']),{},current,1,packages)
+ with pytest.raises(Failure):p.phase_delta(graph,'B',set(graph['reachable']),{},current,1)
+ with pytest.raises(Failure):p.phase_delta(graph,'B',set(graph['reachable']),{},current,1,packages)
+
+
+def test_actual_phase_wiring_rejects_java_package_dependency_in_generation(tmp_path):
+ """An altered G cone must refuse packaging even though those roles are known."""
+ cmake,ninja,cc,cxx=native_tools('1.13.2');env=phase_env(cmake,ninja)
+ root=tmp_path/'repo';root.mkdir();run=Runner(root,tmp_path/'work',env,seconds=240);out=run.work/'capability';out.mkdir()
+ try:
+  state=p.begin(run,'a'*40,cxx,cc,ninja,out);source=root/'opencv';configure_opencv_side_effects(source);build=out/'build'
+  # Exact known Java package chain, but moved before core generation by a target-order dependency.
+  # No cycle: package inputs require Java generation, not the native core library.
+  with (source/'CMakeLists.txt').open('a') as f:f.write('\nadd_dependencies(opencv_core opencv_java_jar)\n')
+  run.command('opencv-configure',[cmake,'-S',source,'-B',build,'-G','Ninja',f'-DCMAKE_CXX_COMPILER={cxx}',f'-DCMAKE_MAKE_PROGRAM={ninja}'],env=native_compile_env(env))
+  p.graph_before(run,state,build,'opencv_java','opencv');before=c.prebuild_snapshot(run,[source,build])
+  packages=p.package_outputs(state['graphs']['opencv'])
+  cone=p.phase_cone(state['graphs']['opencv'],p.PHASES[0][2]);assert packages<=cone
+  with pytest.raises(Failure,match='prerequisite not previously produced'):p.opencv_phases(run,state,cmake,before)
+  assert not any(r['label'].startswith('native-opencv-phase-') or r['label']=='opencv-build' for r in run.commands)
+  assert not (build/'.ninja_log').exists()
+ finally:run.cleanup()
+
+
+def test_real_expired_outer_deadline_refuses_before_native_phase(tmp_path):
+ cmake,ninja,cc,cxx=native_tools('1.13.2');env=phase_env(cmake,ninja)
+ root=tmp_path/'repo';root.mkdir();run=Runner(root,tmp_path/'work',env,seconds=240);out=run.work/'capability';out.mkdir()
+ try:
+  state=p.begin(run,'a'*40,cxx,cc,ninja,out);source=root/'opencv';configure_opencv_side_effects(source);build=out/'build'
+  run.command('opencv-configure',[cmake,'-S',source,'-B',build,'-G','Ninja',f'-DCMAKE_CXX_COMPILER={cxx}',f'-DCMAKE_MAKE_PROGRAM={ninja}'],env=native_compile_env(env))
+  p.graph_before(run,state,build,'opencv_java','opencv');before=c.prebuild_snapshot(run,[source,build])
+  with pytest.raises(Failure,match='shared native phase budget exhausted'):
+   p.opencv_phases(run,state,cmake,before,deadline=run.clock()-1)
+  assert not any(r['label'].startswith('native-opencv-phase-') or r['label']=='opencv-build' for r in run.commands)
+  assert not (build/'.ninja_log').exists()
+ finally:run.cleanup()

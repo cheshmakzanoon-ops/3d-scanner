@@ -319,12 +319,11 @@ def build(run,source_sha,prepared):
     checks['opencvModules']=True
     native_provenance.graph_before(run,native_inputs,builddir,'opencv_java','opencv')
     opencv_deadline=run.clock()+run.remaining(1620)
-    native_provenance.pregenerate(run,native_inputs,cmake,min(120,opencv_deadline-run.clock()))
-    if source_inventory(source)!=before:raise Failure('Official source changed during pre-generation')
     immutable_before.update(prebuild_snapshot(run,[source,builddir]))
     if shutil.disk_usage(out).free<4*1024**3:raise Blocked('Four GiB free required before native build')
-    run.command('opencv-build',[cmake,'--build',builddir,'--target','opencv_java','--parallel','2'],seconds=max(0,opencv_deadline-run.clock()),env=env)
-    native_provenance.graph_after(run,native_inputs,builddir,'opencv')
+    def source_check():
+        if source_inventory(source)!=before:raise Failure('Official source changed during native phase')
+    native_provenance.opencv_phases(run,native_inputs,cmake,immutable_before,source_check,deadline=opencv_deadline)
     if source_inventory(source)!=before:raise Failure('Official source changed during build')
     checks['sourceIntegrity']=True
     lib=builddir/'lib/libopencv_java4120.so';generated=builddir/'bin/opencv-4120.jar'

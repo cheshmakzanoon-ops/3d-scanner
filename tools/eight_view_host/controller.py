@@ -759,7 +759,7 @@ def evidence_package(run,receipt,destination):
             else:
                 selected_entries+=1
                 if selected_entries>1990:raise Failure('Evidence directory count limit')
-    for name in ['capability.json','pending.json','source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json','native-input-provenance.json','native-opencv-baseline-log.txt','native-opencv-build-log.txt','native-scanner-baseline-log.txt','native-scanner-build-log.txt','native-opencv-generation-log.txt']:
+    for name in ['capability.json','pending.json','source-files.json','scanner-source.json','opencv-abi.json','scanner-abi.json','consumed-inputs.json','prebuild-inputs.json','consumed-provenance.json','native-input-provenance.json','native-opencv-baseline-log.txt','native-opencv-build-log.txt','native-scanner-baseline-log.txt','native-scanner-build-log.txt','native-opencv-phase-generate-java-core-log.txt','native-opencv-phase-build-core-log.txt','native-opencv-phase-generate-imgproc-log.txt','native-opencv-phase-build-imgproc-log.txt','native-opencv-phase-generate-features2d-log.txt','native-opencv-phase-build-java-log.txt']:
         path=run.work/'capability'/name
         if path.exists():add(path,'capability/'+name)
     add(capability.POLICY,'build-policy.json')

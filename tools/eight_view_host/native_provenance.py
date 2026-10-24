@@ -11,6 +11,17 @@ FILENAME='native-input-provenance.json'
 PROBE=b'extern "C" int rf_link_input_probe(void) { return 1; }\n'
 LIBRARIES=('-ldl','-lpthread','-lrt','-lz','-lm')
 GEN_TARGETS=('gen_opencv_java_source','modules/core/opencl_kernels_core.cpp','modules/imgproc/opencl_kernels_imgproc.cpp','modules/features2d/opencl_kernels_features2d.cpp')
+PHASES=(('generate-java-core','G',('CMakeFiles/dephelper/gen_opencv_java_source','modules/core/opencl_kernels_core.cpp')),
+ ('build-core','B',('lib/libopencv_core.a',)),
+ ('generate-imgproc','G',('modules/imgproc/opencl_kernels_imgproc.cpp',)),
+ ('build-imgproc','B',('lib/libopencv_imgproc.a',)),
+ ('generate-features2d','G',('modules/features2d/opencl_kernels_features2d.cpp',)),
+ ('build-java','B',('opencv_java',)))
+PACKAGE_GROUPS=(('CMakeFiles/dephelper/opencv_java_jar_source_copy',),
+ ('CMakeFiles/dephelper/opencv_java_jar','modules/java/jar/opencv/java_sources'),
+ ('modules/java/jar/CMakeFiles/opencv_java_jar.dir/java_compiled_opencv_java_jar',),
+ ('modules/java/jar/CMakeFiles/opencv_java_jar.dir/java_class_filelist',),
+ ('bin/opencv-4120.jar',))
 DOMAINS={'opencv':('build','opencv_java'),'scanner':('scanner','realityforge')}
 
 def fail(message):raise Failure('Native provenance: '+message)
@@ -269,7 +280,7 @@ def begin(run,source,compiler,cc,ninja,out):
  if not inputs:fail('empty external linker closure')
  for value in tools.values():
   if identity(Path(value['path']))!=value:fail('tool changed during probe')
- return {'schema':1,'sourceSha':source,'runOwner':run.owner,'workDir':str(run.work),'ninjaVersion':version,'tools':tools,'systemLink':{'aliases':aliases,'inputs':inputs,'depfileSha256':sha(dep),'sourceSha256':sha(src),'objectSha256':sha(obj),'outputSha256':sha(lib)},'graphs':{}}
+ return {'schema':2,'sourceSha':source,'runOwner':run.owner,'workDir':str(run.work),'ninjaVersion':version,'tools':tools,'systemLink':{'aliases':aliases,'inputs':inputs,'depfileSha256':sha(dep),'sourceSha256':sha(src),'objectSha256':sha(obj),'outputSha256':sha(lib)},'graphs':{}}
 
 def graph_before(run,state,builddir,target,label):
  if label not in DOMAINS or DOMAINS[label]!=(Path(builddir).name,target) or label in state['graphs']:fail('graph domain')
@@ -326,27 +337,276 @@ def generation_selection(graph):
   allowed.update(required)
  return allowed,bindings
 
-def pregenerate(run,state,cmake,seconds=120):
+def package_outputs(graph):
+ build=Path(graph['buildDirectory']);selected=set(graph['reachable']);result=set();edges=set()
+ for group in PACKAGE_GROUPS:
+  if any(name not in graph['nodes'] or graph['nodes'][name]['rule']!='CUSTOM_COMMAND' for name in group):fail('Java package producer absent/type')
+  producers={graph['producers'].get(name) for name in group}
+  if len(producers)!=1 or None in producers:fail('Java package sibling producer differs')
+  edge=next(iter(producers))
+  actual={graph['paths'][name] for name,e in graph['producers'].items() if e==edge}
+  expected={str(build/name) for name in group}
+  if edge in edges or actual!=expected or not actual<=selected:fail('Java package declared sibling domain differs')
+  edges.add(edge);result.update(actual)
+ return result
+
+def cache_value(build,key):
+ values=[]
+ for line in read(Path(build)/'CMakeCache.txt').decode().splitlines():
+  if line.startswith(key+'='):values.append(line.split('=',1)[1])
+ if len(values)!=1 or not values[0]:fail('missing/ambiguous package CMake identity '+key)
+ return values[0]
+
+def package_context(run,graph,cmake,before):
+ build=Path(graph['buildDirectory']);source=Path(cache_value(build,'CMAKE_HOME_DIRECTORY:INTERNAL')).resolve(strict=True)
+ modules=Path(cache_value(build,'CMAKE_ROOT:INTERNAL')).resolve(strict=True)/'Modules'
+ java=Path(run.env.get('JAVA_HOME','/missing')).resolve(strict=True)
+ inputs={'cmake':identity(cmake),'javac':identity(java/'bin/javac'),'jar':identity(java/'bin/jar'),'javaRelease':identity(java/'release')}
+ for name in ('javac','jar'):
+  cached=Path(cache_value(build,'Java_'+name.upper()+'_EXECUTABLE:FILEPATH')).resolve(strict=True)
+  if str(cached)!=inputs[name]['path']:fail('package Java tool differs from selected JDK')
+ scripts={'copy':source/'cmake/copy_files.cmake','list':source/'modules/java/jar/list_java_sources.cmake',
+          'definition':source/'modules/java/jar/CMakeLists.txt','config':build/'modules/java/jar/copyfiles-JAVA_SRC_COPY.cmake',
+          'UseJava':modules/'UseJava.cmake','ClearClassFiles':modules/'UseJava/ClearClassFiles.cmake',
+          'ClassFilelist':modules/'UseJava/ClassFilelist.cmake','Symlinks':modules/'UseJava/Symlinks.cmake'}
+ for name,path in scripts.items():
+  value=identity(path)
+  if name in ('copy','list','definition','config') and before.get(str(path))!=value['sha256']:fail('package script/config not initial-bound')
+  inputs[name]=value
+ return {'source':str(source),'modules':str(modules),'inputs':inputs,'outputs':sorted(package_outputs(graph)),'recipes':[]}
+
+def package_recipe(raw,index,context,build):
+ if len(raw)>65536:fail('package recipe byte bound')
+ text=raw.decode('utf-8',errors='strict')
+ if len(text.splitlines())!=1 or any(x in text for x in ('\x00','\r','`','$')):fail('unsupported package recipe shell')
+ tokens=shlex.split(text);parts=[];part=[]
+ for token in tokens:
+  if token=='&&':
+   if not part:fail('empty package command')
+   parts.append(part);part=[]
+  elif token in (';','|','||','&','>','<','2>'):fail('unsupported package shell operator')
+  else:part.append(token)
+ if not part:fail('empty package command')
+ parts.append(part)
+ build=Path(build);source=Path(context['source']);modules=Path(context['modules']);inputs=context['inputs']
+ cmake=inputs['cmake']['path'];javac=inputs['javac']['path'];jar=inputs['jar']['path']
+ work=build/'modules/java/jar';classes=work/'CMakeFiles/opencv_java_jar.dir';jdir=work/'opencv';stamp=build/'CMakeFiles/dephelper/opencv_java_jar'
+ expected=[
+  [['cd',str(build)],[cmake,'-DCONFIG_FILE:PATH='+str(work/'copyfiles-JAVA_SRC_COPY.cmake'),'-DCOPYLIST_VAR:STRING=JAVA_SRC_COPY','-DDEPHELPER='+str(build/PACKAGE_GROUPS[0][0]),'-P',inputs['copy']['path']]],
+  [['cd',str(work)],[cmake,'-E','touch',str(stamp)],[cmake,'-D','OPENCV_JAVA_DIR='+str(jdir/'java'),'-D','OUTPUT='+str(jdir/'java_sources'),'-P',inputs['list']['path']]],
+  [['cd',str(source/'modules/java/jar')],[cmake,'-DCMAKE_JAVA_CLASS_OUTPUT_PATH='+str(classes),'-DCMAKE_JAR_CLASSES_PREFIX=','-P',inputs['ClearClassFiles']['path'],'--log-level','STATUS'],
+   [javac,'-encoding','utf-8','-classpath',':'+str(source/'modules/java/jar')+':'+str(build/'bin'),'-d',str(classes),'@'+str(jdir/'java_sources')],
+   [cmake,'-E','touch',str(classes/'java_compiled_opencv_java_jar')]],
+  [['cd',str(source/'modules/java/jar')],[cmake,'-DCMAKE_JAVA_CLASS_OUTPUT_PATH='+str(classes),'-DCMAKE_JAR_CLASSES_PREFIX=','-P',inputs['ClassFilelist']['path']]],
+  [['cd',str(classes)],[jar,'-cfm',str(build/'bin/opencv-4120.jar'),str(jdir/'MANIFEST.MF'),'@java_class_filelist'],
+   [cmake,'-D_JAVA_TARGET_DIR='+str(build/'bin'),'-D_JAVA_TARGET_OUTPUT_NAME=opencv-4120.jar','-D_JAVA_TARGET_OUTPUT_LINK=','-P',inputs['Symlinks']['path']]]
+ ][index]
+ if parts!=expected:fail('Java packaging command role differs '+str(index))
+ return {'sha256':hashlib.sha256(raw).hexdigest(),'bytes':len(raw),'role':('SOURCE_COPY','SOURCE_LIST','JAVA_COMPILE','CLASS_LIST','JAR_PACKAGE')[index]}
+
+def package_prepare(run,graph,cmake,before,deadline=None):
+ context=package_context(run,graph,cmake,before);ninja=Path(shutil.which('ninja',path=run.env['PATH']) or '/missing').resolve();build=Path(graph['buildDirectory'])
+ for index,group in enumerate(PACKAGE_GROUPS):
+  limit=30 if deadline is None else min(30,deadline-run.clock())
+  if limit<=0:fail('shared native phase budget exhausted')
+  raw=command(run,'native-opencv-package-recipe-'+str(index),[ninja,'-C',build,'-t','commands','-s',group[0]],limit)
+  context['recipes'].append(package_recipe(raw,index,context,build))
+ return context
+
+def phase_label(phase):
+ return 'opencv-build' if phase=='build-java' else 'native-opencv-phase-'+phase
+
+def phase_cone(graph,targets):
+ result=set()
+ for target in targets:
+  if target not in graph['nodes']:fail('phase target absent')
+  part=set(reachable(graph['nodes'],graph['paths'],graph['producers'],target))
+  if not part<=set(graph['reachable']):fail('phase outside selected library cone')
+  result.update(part)
+ return result
+
+def phase_rules(graph):
+ result={}
+ for name,node in graph['nodes'].items():
+  if node['rule'] not in (None,'phony'):
+   path=graph['paths'][name]
+   if path in result and result[path]!=node['rule']:fail('ambiguous phase producer')
+   result[path]=node['rule']
+ return result
+
+def phase_precheck(graph,kind,targets,previous,packages=()):
+ cone=phase_cone(graph,targets);rules=phase_rules(graph)
+ for path in cone:
+  if path not in rules:continue
+  if (kind=='G' and (rules[path]!='CUSTOM_COMMAND' or path in packages)) or (kind=='B' and rules[path]=='CUSTOM_COMMAND' and not (targets==('opencv_java',) and path in packages)):
+   if path not in previous:fail('phase prerequisite not previously produced')
+ return cone
+
+def phase_bound_leaves(graph,cone,bound,outputs,system=None):
+ system=system or {}
+ for name,node in graph['nodes'].items():
+  path=graph['paths'][name]
+  if path not in cone or node['rule'] is not None:continue
+  digest=identity(Path(path))['sha256']
+  if path in bound:
+   if digest!=bound[path]:fail('phase source/config input changed')
+  elif path in system:
+   if digest!=system[path]:fail('phase system prerequisite changed')
+  elif path in outputs:
+   if digest!=outputs[path]['sha256']:fail('phase prior producer input changed')
+  else:fail('phase unbound source/config prerequisite')
+
+def phase_delta(graph,kind,cone,previous,current,seconds,packages=(),allow_packages=False):
+ if any(current.get(path)!=value for path,value in previous.items()):fail('prior phase producer rerun or log removed')
+ new={path:value for path,value in current.items() if path not in previous};rules=phase_rules(graph)
+ for path,value in new.items():
+  if path not in cone or path not in rules or path not in graph['absent'] or path in graph['baselineLogOutputs']:fail('unknown/stale phase producer')
+  if kind=='G' and (rules[path]!='CUSTOM_COMMAND' or path in packages):fail('wrong producer kind in generation/compilation phase')
+  if kind=='B' and rules[path]=='CUSTOM_COMMAND' and not (allow_packages and path in packages):fail('wrong producer kind in generation/compilation phase')
+  if value['endMs']>1000*(seconds+1):fail('phase record outside owned duration')
+ return new
+
+def phase_dependencies(graph,deps,new_outputs,bound,prior_outputs,system=None):
+ """Actual first-consumer records, never later snapshot backfill."""
+ system=system or {};rules=phase_rules(graph);used={}
+ for path in new_outputs:
+  rule=rules[path]
+  if rule not in graph['dependencyRules']:fail('phase producer missing dependency rule')
+  kind=graph['dependencyRules'][rule]
+  if kind not in (None,'gcc'):fail('unsupported phase dependency rule')
+  if kind=='gcc' and (path not in deps or not deps[path]):fail('missing phase compiler dependency record')
+  for name in deps.get(path,[]):
+   digest=identity(Path(name))['sha256']
+   if name in bound:
+    if bound[name]!=digest:fail('phase immutable input changed')
+    scope='PRECONSUMPTION'
+   elif name in system:
+    if system[name]!=digest:fail('phase system input changed')
+    scope='SYSTEM_LINK_PREBUILD'
+   elif name in prior_outputs:
+    if prior_outputs[name]['sha256']!=digest:fail('prior phase output changed')
+    scope='PRIOR_SUCCESSFUL_PRODUCER'
+   elif name in new_outputs:
+    aliases=[n for n,p in graph['paths'].items() if p==path]
+    if not aliases or name==path or rules.get(name) in (None,'phony','CUSTOM_COMMAND') or name not in phase_cone(graph,(aliases[0],)):fail('unbound same-phase producer dependency')
+    if new_outputs[name]['endMs']>new_outputs[path]['startMs']:fail('same-phase producer ordering differs')
+    scope='CURRENT_PHASE_SUCCESSFUL_PRODUCER_POSTBUILD_NOT_PRECONSUMPTION'
+   else:fail('phase consumed input before first binding '+name[:256])
+   used[name]={'sha256':digest,'scope':scope}
+ return used
+
+def opencv_phases(run,state,cmake,before,source_check=None,deadline=None):
  from .capability import prebuild_snapshot
  graph=state['graphs']['opencv'];build=Path(graph['buildDirectory'])
- allowed,bindings=generation_selection(graph)
- initial=prebuild_snapshot(run,[build]);oldlog=read(build/'.ninja_log') if (build/'.ninja_log').exists() else b''
- if hashlib.sha256(oldlog).hexdigest()!=graph['baselineLogSha256']:fail('generation baseline changed')
- command(run,'native-opencv-generate',[cmake,'--build',build,'--target',*GEN_TARGETS,'--parallel','2'],seconds)
- if manifests(build,run)!=graph['manifests']:fail('graph changed during generation')
- after=prebuild_snapshot(run,[build]);metadata={str(build/'.ninja_log'),str(build/'.ninja_deps')}
- if any(after.get(name)!=digest for name,digest in initial.items() if name not in metadata):fail('preexisting configured input changed during generation')
- raw=read(build/'.ninja_log');records=ninja_log(raw,build)
- for path in records:
-  if path not in allowed or path not in graph['absent'] or path in graph['baselineLogOutputs']:fail('unapproved/stale generation producer')
- for target in GEN_TARGETS:
-  target_path=graph['paths'][target]
-  if graph['nodes'][target]['rule']!='phony' and target_path not in records:fail('declared generation output not produced')
- frozen={name:digest for name,digest in after.items() if name not in initial and name not in metadata}
- if not frozen:fail('generation produced no frozen inputs')
- target=run.work/'capability/native-opencv-generation-log.txt';target.write_bytes(raw)
- state['generation']={'targets':list(GEN_TARGETS),'selectorBindings':bindings,'records':records,'logSha256':sha(target),'frozen':frozen,'preexisting':{n:h for n,h in initial.items() if n not in metadata}}
- return after
+ deadline=min(deadline,run.clock()+run.remaining(1620)) if deadline is not None else run.clock()+run.remaining(1620)
+ generation_remaining=120.0
+ if deadline<=run.clock():fail('shared native phase budget exhausted')
+ initial=dict(before);previous={};outputs={};frozen={};admission={};phases=[]
+ packaging=package_prepare(run,graph,cmake,before,deadline)
+ raw=read(build/'.ninja_log') if (build/'.ninja_log').exists() else b''
+ if hashlib.sha256(raw).hexdigest()!=graph['baselineLogSha256'] or graph['baselineLogOutputs']:fail('phase baseline not empty/current')
+ state['generation']={'initialPaths':sorted(initial),'frozen':frozen,'firstAdmission':admission,'phases':phases,'packaging':packaging}
+ for index,(name,kind,targets) in enumerate(PHASES):
+  run.remaining(1)
+  if source_check:source_check()
+  for value in packaging['inputs'].values():
+   if identity(Path(value['path']))!=value:fail('Java package input/tool drift')
+  if manifests(build,run)!=graph['manifests']:fail('graph changed before phase')
+  for path,value in outputs.items():
+   if identity(Path(path))!=value:fail('prior phase output drift')
+  for path,digest in frozen.items():
+   if identity(Path(path))['sha256']!=digest:fail('frozen phase input changed')
+  packages=packaging['outputs']
+  cone=phase_precheck(graph,kind,targets,previous,packages)
+  phase_bound_leaves(graph,cone,before,outputs,state['systemLink']['inputs'])
+  snapshot=prebuild_snapshot(run,[build]) if kind=='G' else None
+  label=phase_label(name);limit=max(0,deadline-run.clock())
+  if kind=='G':limit=min(limit,generation_remaining)
+  if limit<=0:fail('shared native phase budget exhausted')
+  started=run.clock()
+  command(run,label,[cmake,'--build',build,'--target',*targets,'--parallel','2'],limit)
+  elapsed=run.clock()-started
+  if kind=='G':generation_remaining-=elapsed
+  if source_check:source_check()
+  for value in packaging['inputs'].values():
+   if identity(Path(value['path']))!=value:fail('Java package input/tool drift')
+  if manifests(build,run)!=graph['manifests']:fail('configured graph changed during phase')
+  raw=read(build/'.ninja_log');current=ninja_log(raw,build)
+  duration=next(r['seconds'] for r in run.commands if r['label']==label)
+  new=phase_delta(graph,kind,cone,previous,current,duration,packages,allow_packages=(name=='build-java'))
+  if any(graph['nodes'][target]['rule'] not in (None,'phony') and graph['paths'][target] not in new for target in targets):fail('selected phase output not newly produced')
+  stats={path:identity(Path(path)) for path in new}
+  phase={'id':name,'kind':kind,'targets':list(targets),'records':new,'outputStats':stats,'frozen':{},'inputs':{},'logSha256':hashlib.sha256(raw).hexdigest()}
+  log=run.work/'capability'/('native-opencv-phase-'+name+'-log.txt');log.write_bytes(raw)
+  if kind=='G':
+   after=prebuild_snapshot(run,[build]);metadata={str(build/'.ninja_log'),str(build/'.ninja_deps')}
+   if any(after.get(path)!=digest for path,digest in snapshot.items() if path not in metadata):fail('preexisting input changed during generation phase')
+   added={path:digest for path,digest in after.items() if path not in snapshot and path not in metadata}
+   if not new or not added:fail('generation phase produced no new bound outputs')
+   if any(path in before or path in frozen for path in added):fail('generation first-admission collision')
+   phase['frozen']=added;frozen.update(added);before.update(added);admission.update({path:index for path in added})
+  else:
+   dep_label='native-opencv-phase-'+name+'-deps'
+   depraw=command(run,dep_label,[state['tools']['ninja']['path'],'-C',build,'-t','deps'])
+   deps=grouped_deps(depraw,build)
+   phase['inputs']=phase_dependencies(graph,deps,new,before,outputs,state['systemLink']['inputs'])
+  for path,digest in frozen.items():
+   if identity(Path(path))['sha256']!=digest:fail('frozen generation input drift during later phase')
+  for path,value in outputs.items():
+   if identity(Path(path))!=value:fail('earlier producer output changed')
+  phases.append(phase);previous=current;outputs.update(stats)
+  if run.clock()>deadline or generation_remaining<0:fail('shared native phase budget exhausted')
+ graph_after(run,state,build,'opencv')
+ return state['generation']
+
+def validate_phases(run,state,before):
+ generation=state['generation'];graph=state['graphs']['opencv'];build=Path(graph['buildDirectory']);out=run.work/'capability'
+ if set(generation)!={'initialPaths','frozen','firstAdmission','phases','packaging'}:fail('phase ledger schema')
+ initial=generation['initialPaths']
+ if initial!=sorted(set(initial)) or len(initial)>60000 or any(path not in before or path in graph['absent'] for path in initial):fail('initial phase snapshot membership')
+ bound={path:before[path] for path in initial};previous={};outputs={};frozen={};admission={};generation_seconds=0;total_seconds=0
+ phases=generation['phases']
+ if len(phases)!=len(PHASES):fail('incomplete phase sequence')
+ cmake=Path(shutil.which('cmake',path=run.env['PATH']) or '/missing').resolve()
+ packaging=package_context(run,graph,cmake,bound)
+ for recipe_index,group in enumerate(PACKAGE_GROUPS):
+  recipe_raw=record(run,'native-opencv-package-recipe-'+str(recipe_index),[state['tools']['ninja']['path'],'-C',build,'-t','commands','-s',group[0]])
+  packaging['recipes'].append(package_recipe(recipe_raw,recipe_index,packaging,build))
+ if packaging!=generation['packaging']:fail('package command/input proof differs')
+ for index,((name,kind,targets),phase) in enumerate(zip(PHASES,phases)):
+  run.remaining(1)
+  if set(phase)!={'id','kind','targets','records','outputStats','frozen','inputs','logSha256'} or phase['id']!=name or phase['kind']!=kind or phase['targets']!=list(targets):fail('phase order/target/schema binding')
+  packages=packaging['outputs']
+  cone=phase_precheck(graph,kind,targets,previous,packages)
+  phase_bound_leaves(graph,cone,bound,outputs,state['systemLink']['inputs'])
+  label=phase_label(name);record(run,label,[cmake,'--build',build,'--target',*targets,'--parallel','2'])
+  duration=next(r['seconds'] for r in run.commands if r['label']==label)
+  if not isinstance(duration,(int,float)) or duration<0:fail('phase duration absent')
+  total_seconds+=duration
+  if kind=='G':generation_seconds+=duration
+  raw=read(out/('native-opencv-phase-'+name+'-log.txt'))
+  if hashlib.sha256(raw).hexdigest()!=phase['logSha256']:fail('phase log changed')
+  current=ninja_log(raw,build);new=phase_delta(graph,kind,cone,previous,current,duration,packages,allow_packages=(name=='build-java'))
+  if any(graph['nodes'][target]['rule'] not in (None,'phony') and graph['paths'][target] not in new for target in targets):fail('selected phase output not newly produced')
+  if new!=phase['records'] or set(new)!=set(phase['outputStats']):fail('phase output/log membership')
+  for path,value in phase['outputStats'].items():
+   if identity(Path(path))!=value:fail('phase output identity drift')
+  if kind=='G':
+   if phase['inputs'] or not phase['frozen'] or not new:fail('generation evidence missing')
+   if any(path in bound or path in frozen or path in outputs for path in phase['frozen']):fail('generation admission backfill/collision')
+   if not set(new)<=set(phase['frozen']):fail('generator declared outputs not frozen')
+   for path,digest in phase['frozen'].items():
+    if before.get(path)!=digest or identity(Path(path))['sha256']!=digest:fail('generated bytes missing preconsumption snapshot')
+   frozen.update(phase['frozen']);bound.update(phase['frozen']);admission.update({path:index for path in phase['frozen']})
+  else:
+   if phase['frozen']:fail('compilation cannot admit immutable snapshots')
+   depraw=record(run,'native-opencv-phase-'+name+'-deps',[state['tools']['ninja']['path'],'-C',build,'-t','deps'])
+   if phase_dependencies(graph,grouped_deps(depraw,build),new,bound,outputs,state['systemLink']['inputs'])!=phase['inputs']:fail('phase first-consumer evidence differs')
+  previous=current;outputs.update(phase['outputStats'])
+ if generation_seconds>120 or total_seconds>1620:fail('phase budget evidence exceeds unchanged allowance')
+ if frozen!=generation['frozen'] or admission!=generation['firstAdmission']:fail('phase first-admission ledger differs')
+ if previous!=graph['records'] or outputs!=graph['outputStats']:fail('phase/final graph output disagreement')
+ return True
 
 def graph_after(run,state,builddir,label):
  graph=state['graphs'][label];build=Path(builddir)
@@ -380,14 +640,14 @@ def validate_edge_times(graph):
   # Freshness is initial absence + new owned build record + bound final stat/hash.
 
 def labels(state):
- result=['native-opencv-generate','native-ninja-version','native-linker-select','native-linker-version','native-link-probe-compile','native-link-probe-link']
+ result=[*['native-opencv-package-recipe-'+str(i) for i in range(len(PACKAGE_GROUPS))],*[phase_label(name) for name,kind,targets in PHASES if name!='build-java'],*['native-opencv-phase-'+name+'-deps' for name,kind,targets in PHASES if kind=='B'],'native-ninja-version','native-linker-select','native-linker-version','native-link-probe-compile','native-link-probe-link']
  for label in DOMAINS:
   if label in state['graphs']:result += ['native-'+label+'-targets','native-'+label+'-graph',*state['graphs'][label]['queryLabels']]
  return result
 
 def input_paths(state):
  out=Path(state['workDir'])/'capability';probe=out/'link-input-probe'
- return {FILENAME:out/FILENAME,'native-opencv-generation-log.txt':out/'native-opencv-generation-log.txt',**{'native-tool-'+k:Path(v['path']) for k,v in state['tools'].items()},**{'native-probe-'+name:probe/name for name in ('probe.cpp','probe.o','probe.so','link.d')},**{'native-'+k+'-'+suffix+'.txt':out/('native-'+k+'-'+suffix+'.txt') for k in DOMAINS for suffix in ('build-log','baseline-log')}}
+ return {FILENAME:out/FILENAME,**{'native-package-'+k:Path(v['path']) for k,v in state['generation']['packaging']['inputs'].items()},**{'native-opencv-phase-'+name+'-log.txt':out/('native-opencv-phase-'+name+'-log.txt') for name,kind,targets in PHASES},**{'native-tool-'+k:Path(v['path']) for k,v in state['tools'].items()},**{'native-probe-'+name:probe/name for name in ('probe.cpp','probe.o','probe.so','link.d')},**{'native-'+k+'-'+suffix+'.txt':out/('native-'+k+'-'+suffix+'.txt') for k in DOMAINS for suffix in ('build-log','baseline-log')}}
 
 def roles(state,consumed,before,deps,run=None):
  if set(state['graphs'])!=set(DOMAINS):fail('incomplete native graph set')
@@ -440,13 +700,14 @@ def roles(state,consumed,before,deps,run=None):
    role={'sha256':digest,'scope':'SYSTEM_LINK_PREBUILD_AND_POSTBUILD_IDENTICAL'}
   elif path in by_path and outputs.get(path)==digest:
    visit(path);domain,name=by_path[path]
-   role={'sha256':digest,'scope':'CURRENT_SUCCESSFUL_GRAPH_POSTBUILD_NOT_PRECONSUMPTION','graph':domain,'outputs':state['graphs'][domain]['aliases'][path]}
+   scope='CURRENT_SUCCESSFUL_JAVA_PACKAGE_POSTBUILD_NOT_PRECONSUMPTION' if path in state['generation']['packaging']['outputs'] else 'CURRENT_SUCCESSFUL_GRAPH_POSTBUILD_NOT_PRECONSUMPTION'
+   role={'sha256':digest,'scope':scope,'graph':domain,'outputs':state['graphs'][domain]['aliases'][path]}
   else:fail('consumed input lacks verified role '+path[:256])
   result[path]=role
  return result
 
 def validate(run,state,consumed,before,source):
- if not isinstance(state,dict) or set(state)!={'schema','sourceSha','runOwner','workDir','ninjaVersion','tools','systemLink','graphs','inputBindings','generation'} or state['schema']!=1 or state['sourceSha']!=source or state['runOwner']!=run.owner or state['workDir']!=str(run.work):fail('foreign provenance identity/schema')
+ if not isinstance(state,dict) or set(state)!={'schema','sourceSha','runOwner','workDir','ninjaVersion','tools','systemLink','graphs','inputBindings','generation'} or state['schema']!=2 or state['sourceSha']!=source or state['runOwner']!=run.owner or state['workDir']!=str(run.work):fail('foreign provenance identity/schema')
  encoded=json.dumps(state,sort_keys=True,separators=(',',':')).encode()
  if len(encoded)>MAX_PROOF or getattr(run,'_native_provenance_owned',None)!=hashlib.sha256(encoded).hexdigest():fail('provenance differs from owned producer state')
  bindings={'consumed':hashlib.sha256(json.dumps(consumed,sort_keys=True).encode()).hexdigest(),'before':hashlib.sha256(json.dumps(before,sort_keys=True).encode()).hexdigest()}
@@ -477,18 +738,8 @@ def validate(run,state,consumed,before,source):
   system_location(q,run.work)
   aliases[name]=str(q);members[str(q)]=identity(q)['sha256']
  if aliases!=system['aliases'] or members!=system['inputs']:fail('system linker input/alias drift')
- generation=state['generation'];build=out/'build';cmake=Path(shutil.which('cmake',path=run.env['PATH']) or '/missing').resolve()
- if generation['targets']!=list(GEN_TARGETS):fail('pre-generation target contract differs')
- allowed,bindings=generation_selection(state['graphs']['opencv'])
- if generation.get('selectorBindings')!=bindings:fail('generation selector proof differs')
- if not set(generation['records'])<=allowed:fail('generation producer outside selected dependency cone')
- record(run,'native-opencv-generate',[cmake,'--build',build,'--target',*GEN_TARGETS,'--parallel','2'])
- genlog=read(out/'native-opencv-generation-log.txt')
- if hashlib.sha256(genlog).hexdigest()!=generation['logSha256'] or ninja_log(genlog,build)!=generation['records']:fail('generation log changed')
- for name,digest in {**generation['preexisting'],**generation['frozen']}.items():
-  run.remaining(1)
-  if name in generation['frozen'] and before.get(name)!=digest:fail('generated bytes missing preconsumption snapshot')
-  if identity(Path(name))['sha256']!=digest:fail('frozen generation/configured input changed')
+ generation=state['generation']
+ validate_phases(run,state,before)
  deps={}
  for domain,(dirname,target) in DOMAINS.items():
   if domain not in state['graphs']:fail('graph missing')
@@ -513,12 +764,9 @@ def validate(run,state,consumed,before,source):
   expected=[str(Path(shutil.which('cmake',path=run.env['PATH']) or '/missing').resolve()),'--build',str(build),'--target',target,'--parallel','2']
   record(run,domain+'-build',expected)
   if not isinstance(build_record.get('seconds'),(int,float)):fail('owned build duration missing')
-  for path,r in graph['records'].items():
-   limit=build_record['seconds']
-   if domain=='opencv' and path in generation['records']:
-    if r!=generation['records'][path]:fail('frozen generator regenerated during compilation')
-    limit=next(x for x in run.commands if x['label']=='native-opencv-generate')['seconds']
-   if r['endMs']>1000*(limit+1):fail('Ninja record outside current phase elapsed bound')
+  if domain!='opencv':
+   for path,r in graph['records'].items():
+    if r['endMs']>1000*(build_record['seconds']+1):fail('Ninja record outside current phase elapsed bound')
   # Canonical current output bytes must still match every declared producing edge.
   for path,digest in graph['outputs'].items():
    run.remaining(1)

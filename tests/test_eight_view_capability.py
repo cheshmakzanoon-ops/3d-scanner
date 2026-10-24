@@ -45,7 +45,7 @@ def fixture(tmp_path,monkeypatch):
  provider_record={'path':str(framework),'sha256':r.sha(framework),'entry':'native/linux/x86_64/libandroid_runtime.so','entrySha256':'f'*64,'entryBytes':20,'mappingScope':'UNIT_FIXTURE_NOT_RUNTIME'}
  prepared={'opencvAar':str(aar),'opencvClasses':str(classes),'owners':{'com.realityforge.scanner.engine.NativeCore':{'file':str(owner)}},'robolectricNativeDistribution':{'path':str(provider),'sha256':r.sha(provider)},'offlineFramework':{'path':str(framework),'sha256':r.sha(framework)},'runtimeProvider':provider_record}
  consumed={str((java/'include/jni.h').resolve()):r.sha(java/'include/jni.h'),'/usr/include/stdio.h':r.sha('/usr/include/stdio.h'),**{str(header):r.sha(header) for header in headers}}
- native_proof={'schema':1,'sourceSha':SHA,'runOwner':run.owner,'workDir':str(run.work),'systemLink':{'inputs':{}},'classification':'SYNTHETIC_POLICY_FIXTURE_NOT_NATIVE_PROOF'}
+ native_proof={'schema':2,'sourceSha':SHA,'runOwner':run.owner,'workDir':str(run.work),'systemLink':{'inputs':{}},'classification':'SYNTHETIC_POLICY_FIXTURE_NOT_NATIVE_PROOF'}
  expected_native_proof=copy.deepcopy(native_proof)
  def validate_native(context,proof,used,before,source):
   if context is not run or proof!=expected_native_proof or source!=SHA:raise r.Failure('Synthetic native proof/source/authority mismatch')
@@ -348,19 +348,25 @@ def test_consumed_rolemap_must_equal_verified_native_result(tmp_path,monkeypatch
  with pytest.raises(r.Failure,match='prebuild provenance mismatch'):p.verify_capability(manifest,SHA,policy,run,prepared)
 
 @pytest.mark.parametrize('aliased',[False,True])
-def test_native_evidence_collector_retains_exact_six_files_only(tmp_path,aliased):
+def test_native_evidence_collector_retains_exact_eleven_files_only(tmp_path,aliased):
  from tools.eight_view_host import controller as ctl
  run=r.Runner(tmp_path,tmp_path/'work');out=run.work/'capability';out.mkdir()
- names=[np.FILENAME,'native-opencv-generation-log.txt',*[f'native-{domain}-{phase}-log.txt' for domain in ('opencv','scanner') for phase in ('baseline','build')]]
+ phases=('generate-java-core','build-core','generate-imgproc','build-imgproc','generate-features2d','build-java')
+ names=[np.FILENAME,*[f'native-opencv-phase-{phase}-log.txt' for phase in phases],*[f'native-{domain}-{phase}-log.txt' for domain in ('opencv','scanner') for phase in ('baseline','build')]]
  for name in names:(out/name).write_text('{}\n' if name.endswith('.json') else '# ninja log v6\n')
  (out/'unlisted-native-proof.json').write_text('do not retain')
+ (out/'native-opencv-generation-log.txt').write_text('obsolete single-generation evidence must not be retained')
+ (out/'native-opencv-phase-unreviewed-log.txt').write_text('unknown phase must not be retained')
+ deps=[f'native-opencv-phase-{phase}-deps.raw.log' for phase in ('build-core','build-imgproc','build-java')]
+ for name in deps:(run.work/'logs'/name).write_text('synthetic authoritative dependency transcript')
  (out/'build').mkdir();(out/'build/native.o').write_bytes(b'NOT AN UPLOAD')
  if aliased:
   (out/names[0]).unlink();(out/names[0]).symlink_to(out/'unlisted-native-proof.json')
   with pytest.raises(r.Failure,match='symlink'):ctl.evidence_package(run,{'status':'FAIL'},tmp_path/'evidence')
  else:
   receipt={'status':'FAIL'};dest=ctl.evidence_package(run,receipt,tmp_path/'evidence')
-  assert {f.name for f in (dest/'capability').iterdir()}==set(names)
+  assert len(names)==11 and {f.name for f in (dest/'capability').iterdir()}==set(names)
+  assert {f.name for f in (dest/'logs').iterdir()}==set(deps)
   assert all((dest/'capability'/name).read_bytes()==(out/name).read_bytes() for name in names)
 
 @pytest.mark.parametrize('aggregate',[False,True])
