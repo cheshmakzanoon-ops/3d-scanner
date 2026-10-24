@@ -3,10 +3,10 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='e2575fb1f2b6184ae5e877fd6f51f38808535db1'
-MESSAGE='test: retain bounded host command timing'
+BASE_SHA='cb26bbad38443d8671dceb303a419581ab32f989'
+MESSAGE='fix: bind scanner build-order sentinel'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','tools/eight_view_host/runtime.py','tests/test_eight_view_host.py','SOURCE_MANIFEST.sha256'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','tools/eight_view_host/native_provenance.py','tests/test_eight_view_native_provenance.py','SOURCE_MANIFEST.sha256'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

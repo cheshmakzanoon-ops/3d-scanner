@@ -763,3 +763,128 @@ def test_actual_3fac_package_recipes_use_exact_source_bound_library_classpath():
     for alternative in (str(build/'bin'),str(build/'lib')+':/extra',str(build.parent/'outside')):
      bad=data.replace(expected,('-classpath :'+str(source/'modules/java/jar')+':'+alternative).encode())
      with pytest.raises(Failure,match='command role differs'):p.package_recipe(bad,index,context,build)
+
+
+def scanner_order_state(tmp_path):
+ from types import SimpleNamespace
+ run=SimpleNamespace(work=tmp_path,remaining=lambda *args:60)
+ (tmp_path/'capability').mkdir()
+ state,before,consumed=small_role_state(tmp_path/'capability')
+ graph=state['graphs']['scanner'];build=tmp_path/'capability/scanner'
+ parent='cmake_object_order_depends_target_realityforge'
+ graph['buildDirectory']=str(build)
+ graph['nodes']['.']={'rule':None,'inputs':[]};graph['paths']['.']=str(build)
+ graph['nodes'][parent]={'rule':'phony','inputs':[{'name':'.','kind':'order'}]};graph['paths'][parent]=str(build/parent)
+ graph['nodes']['out.o']['inputs'].append({'name':parent,'kind':'order'})
+ graph['reachable']+= [str(build),str(build/parent)]
+ graph['orderSentinel']=p.order_sentinel(graph,'scanner',run)
+ return run,state,before,consumed
+
+
+@pytest.mark.parametrize('case',['explicit','implicit','foreign-parent','extra-input','produced-dot','dot-alias','wrong-domain','wrong-target','outside-build','missing-run','dot-slash','dot-dot','absolute','foreign-explicit','foreign-implicit'],ids=str)
+def test_order_sentinel_refuses_nonexact_context(tmp_path,case):
+ run,state,before,consumed=scanner_order_state(tmp_path);g=state['graphs']['scanner'];domain='scanner';parent=g['orderSentinel']['parent']
+ if case in ('explicit','implicit'):g['nodes'][parent]['inputs'][0]['kind']=case
+ elif case=='foreign-parent':g['nodes']['out.o']['inputs'].append({'name':'.','kind':'order'})
+ elif case=='extra-input':g['nodes'][parent]['inputs'].append({'name':'source.c','kind':'order'})
+ elif case=='produced-dot':g['producers']['.']='edge:unexpected'
+ elif case=='dot-alias':g['paths']['alias']=g['paths']['.'];g['nodes']['alias']={'rule':None,'inputs':[]}
+ elif case=='wrong-domain':domain='opencv'
+ elif case=='wrong-target':g['target']='out.o'
+ elif case=='outside-build':run.work=tmp_path/'elsewhere'
+ elif case=='missing-run':run=None
+ elif case in ('dot-slash','dot-dot','absolute'):
+  name={'dot-slash':'./','dot-dot':'..','absolute':g['buildDirectory']}[case]
+  g['nodes'][name]=g['nodes'].pop('.');g['paths'][name]=g['paths'].pop('.')
+  g['nodes'][parent]['inputs'][0]['name']=name
+ elif case in ('foreign-explicit','foreign-implicit'):g['nodes']['out.o']['inputs'].append({'name':'.','kind':case.split('-')[1]})
+ with pytest.raises(Failure):p.order_sentinel(g,domain,run)
+
+
+@pytest.mark.parametrize('case',['consumed','deps','proof','inode','mode','symlink'],ids=str)
+def test_order_directory_cannot_be_file_or_drift(tmp_path,case):
+ run,state,before,consumed=scanner_order_state(tmp_path);g=state['graphs']['scanner'];root=Path(g['buildDirectory']);deps={}
+ assert p.roles(state,consumed,before,deps,run)
+ if case=='consumed':consumed[str(root)]='0'*64;before[str(root)]='0'*64
+ elif case=='deps':deps={'scanner':{g['paths']['out.o']:[str(root)]}};before[str(root)]='0'*64
+ elif case=='proof':g['orderSentinel']['directory']['inode']+=1
+ elif case=='inode':root.rename(root.with_name('old-scanner'));root.mkdir()
+ elif case=='mode':original_mode=root.stat().st_mode;root.chmod(original_mode^0o100)
+ elif case=='symlink':root.rename(root.with_name('old-scanner'));root.symlink_to(root.with_name('old-scanner'),target_is_directory=True)
+ try:
+  with pytest.raises(Failure):p.roles(state,consumed,before,deps,run)
+ finally:
+  if case=='mode':root.chmod(original_mode)
+
+
+def test_order_identity_ignores_directory_content_timestamps_not_identity(tmp_path):
+ run,state,before,consumed=scanner_order_state(tmp_path);g=state['graphs']['scanner'];original=copy.deepcopy(g['orderSentinel'])
+ (Path(g['buildDirectory'])/'ordinary-new-output').write_text('not consumed')
+ assert p.order_sentinel(g,'scanner',run)==original
+ assert p.roles(state,consumed,before,{},run)
+
+
+def test_actual_cb26_scanner_order_graph_replay(tmp_path):
+ """Raw hosted graph replay with a LOCAL directory identity, not hosted filesystem qualification."""
+ import zipfile
+ from types import SimpleNamespace
+ filename=os.environ.get('RF_SCANNER_REPLAY_ZIP')
+ if not filename:
+  if os.environ.get('RF_REQUIRE_NATIVE_REPLAY')=='1':pytest.fail('Required retained scanner graph replay artifact missing')
+  pytest.skip('Retained scanner graph unavailable; no hosted replay claim')
+ archive=Path(filename);assert archive.stat().st_size<=32*1024**2
+ assert sha(archive)=='324d030e8f3a87deb6045582e4625224626a4746d7ee7edbc8e93fb13e0dfe63'
+ with zipfile.ZipFile(archive) as z:
+  def raw(name):
+   assert z.getinfo(name).file_size<=8*1024**2
+   return z.read(name)
+  names,producers=p.graph_info(raw('logs/native-scanner-graph.raw.log'));nodes={}
+  for index in range(0,len(names),64):nodes.update(p.parse_query(raw('logs/native-scanner-query-'+str(index//64)+'.raw.log'),names[index:index+64]))
+  run=SimpleNamespace(work=tmp_path,remaining=lambda *args:60);build=tmp_path/'capability/scanner';build.mkdir(parents=True)
+  original=Path('/home/runner/work/_temp/rf-eight-work/capability/scanner')
+  paths={n:p.canonical(n,original) for n in names}
+  paths={n:str(build/Path(v).relative_to(original)) if Path(v).is_relative_to(original) else v for n,v in paths.items()}
+  selected=p.reachable(nodes,paths,producers,'realityforge')
+  graph={'target':'realityforge','nodes':nodes,'paths':paths,'producers':producers,'reachable':selected,'buildDirectory':str(build)}
+  assert len(nodes)==374 and len(selected)==79
+  proof=p.order_sentinel(graph,'scanner',run)
+  assert proof['parent']=='cmake_object_order_depends_target_realityforge'
+  assert nodes['.']=={'rule':None,'inputs':[]}
+  consumed=json.loads(raw('capability/consumed-inputs.json'))
+  assert '/home/runner/work/_temp/rf-eight-work/capability/scanner' not in consumed
+  # Unselected checkpoint ordering node remains in the parsed graph but adds no selected authority.
+  assert nodes['cmake_object_order_depends_target_rf_checkpoint_process_tests']['inputs']==[{'name':'.','kind':'order'}]
+  bad=copy.deepcopy(graph);bad['nodes'][proof['parent']]['inputs'][0]['kind']='explicit'
+  with pytest.raises(Failure):p.order_sentinel(bad,'scanner',run)
+
+
+def test_real_source_only_scanner_order_sentinel(tmp_path):
+ """Actual source-only scanner CMake graph, distinct from the preserved generated-output fixture."""
+ cmake,ninja,cc,cxx=native_tools('1.13.2');env=phase_env(cmake,ninja)
+ root=tmp_path/'repo';root.mkdir();run=Runner(root,tmp_path/'work',env,seconds=180);out=run.work/'capability';out.mkdir()
+ try:
+  state=p.begin(run,'a'*40,cxx,cc,ninja,out);source=root/'scanner';source.mkdir();build=out/'scanner'
+  (source/'scanner.cpp').write_text('extern "C" int scanner(){return 7;}\n')
+  (source/'CMakeLists.txt').write_text('cmake_minimum_required(VERSION 3.20)\nproject(scanner_fixture CXX)\nadd_library(realityforge SHARED scanner.cpp)\n')
+  run.command('scanner-configure',[cmake,'-S',source,'-B',build,'-G','Ninja',f'-DCMAKE_CXX_COMPILER={cxx}',f'-DCMAKE_MAKE_PROGRAM={ninja}'],env=native_compile_env(env))
+  p.graph_before(run,state,build,'realityforge','scanner');before=c.prebuild_snapshot(run,[source,build])
+  run.command('scanner-build',[cmake,'--build',build,'--target','realityforge','--parallel','2'],env=native_compile_env(env))
+  p.graph_after(run,state,build,'scanner');graph=state['graphs']['scanner']
+  proof=graph['orderSentinel']
+  assert proof['scope']=='ORDER_ONLY_DIRECTORY_IDENTITY_NOT_FILE_CONTENT'
+  assert proof['directory']['path']==str(build)
+  assert str(build) not in before
+  consumed=c.consumed_inputs(run,ninja,build,'scanner')
+  for path in consumed:
+   if Path(path).is_relative_to('/usr/include'):before[path]=sha(path)
+  # The roles API requires both domains; this unused sibling is explicitly synthetic,
+  # while every scanner node, output, dependency and hash above comes from actual tools.
+  fake=tmp_path/'unused-domain';fake.mkdir();stub,stub_before,_=small_role_state(fake)
+  state['graphs']['opencv']=stub['graphs']['opencv'];before.update(stub_before)
+  state['generation']={'packaging':{'outputs':[]}}
+  roles=p.roles(state,consumed,before,{'scanner':p.grouped_deps((run.work/'logs/scanner-consumed-deps.raw.log').read_bytes(),build)},run)
+  assert str(build) not in consumed and str(build) not in roles
+  assert p.order_sentinel(graph,'scanner',run)==proof
+  bad=copy.deepcopy(state);bad['graphs']['scanner']['orderSentinel']['directory']['inode']+=1
+  with pytest.raises(Failure,match='proof differs'):p.roles(bad,consumed,before,{},run)
+ finally:run.cleanup()

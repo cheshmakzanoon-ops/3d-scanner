@@ -282,6 +282,38 @@ def begin(run,source,compiler,cc,ninja,out):
   if identity(Path(value['path']))!=value:fail('tool changed during probe')
  return {'schema':2,'sourceSha':source,'runOwner':run.owner,'workDir':str(run.work),'ninjaVersion':version,'tools':tools,'systemLink':{'aliases':aliases,'inputs':inputs,'depfileSha256':sha(dep),'sourceSha256':sha(src),'objectSha256':sha(obj),'outputSha256':sha(lib)},'graphs':{}}
 
+def order_sentinel(graph,domain,run=None):
+ """One CMake scanner ordering leaf; never file/content membership or consumption."""
+ nodes=graph['nodes'];paths=graph['paths'];selected=set(graph['reachable'])
+ if 'buildDirectory' not in graph:
+  if '.' in nodes:fail('order sentinel lacks build directory')
+  return None
+ build=Path(graph['buildDirectory']);root=str(build)
+ names=[name for name,path in paths.items() if path==root and path in selected]
+ if not names:return None
+ parent='cmake_object_order_depends_target_realityforge'
+ if (domain!='scanner' or graph['target']!=DOMAINS['scanner'][1] or names!=['.'] or
+     nodes.get('.')!={'rule':None,'inputs':[]} or '.' in graph['producers'] or
+     nodes.get(parent)!={'rule':'phony','inputs':[{'name':'.','kind':'order'}]} or
+     paths.get(parent) not in selected):fail('unsupported directory ordering leaf')
+ inbound=[(name,item['name'],item['kind']) for name,node in nodes.items() if paths[name] in selected
+          for item in node['inputs'] if paths.get(item['name'])==root]
+ if inbound!=[(parent,'.','order')]:fail('directory used outside exact ordering edge')
+ if run is None or build!=run.work/'capability'/'scanner' or not build.is_absolute():
+  fail('order sentinel is not owned scanner directory')
+ run.remaining(1)
+ before=build.lstat()
+ if not stat.S_ISDIR(before.st_mode) or build.resolve(strict=True)!=build:fail('order sentinel directory type/alias')
+ fd=os.open(build,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  current=os.fstat(fd);after=build.lstat()
+  def key(info):return (info.st_dev,info.st_ino,info.st_mode)
+  if key(before)!=key(current) or key(current)!=key(after):fail('order sentinel directory changed during observation')
+ finally:os.close(fd)
+ return {'schema':1,'scope':'ORDER_ONLY_DIRECTORY_IDENTITY_NOT_FILE_CONTENT',
+         'parent':parent,'input':'.','kind':'order',
+         'directory':{'path':root,'device':before.st_dev,'inode':before.st_ino,'mode':before.st_mode}}
+
 def graph_before(run,state,builddir,target,label):
  if label not in DOMAINS or DOMAINS[label]!=(Path(builddir).name,target) or label in state['graphs']:fail('graph domain')
  build=Path(builddir);ninja=state['tools']['ninja']['path'];prefix='native-'+label
@@ -311,6 +343,7 @@ def graph_before(run,state,builddir,target,label):
  (run.work/'capability'/('native-'+label+'-baseline-log.txt')).write_bytes(baseline)
  if manifests(build,run)!=frozen:fail('configured graph changed during observation')
  state['graphs'][label]={'target':target,'graphTargets':targets,'buildDirectory':str(build),'manifests':frozen,'dependencyRules':dependency_rules(frozen),'nodes':nodes,'paths':paths,'reachable':reachable(nodes,paths,producers,target),'queryLabels':batches,'producers':producers,'aliases':aliases,'absent':sorted(set(absent)),'baselineLogSha256':hashlib.sha256(baseline).hexdigest(),'baselineLogOutputs':sorted(ninja_log(baseline,build)) if baseline else []}
+ state['graphs'][label]['orderSentinel']=order_sentinel(state['graphs'][label],label,run)
 
 def generation_selection(graph):
  """Only an approved selector's own phony name may differ from the library cone.
@@ -610,6 +643,7 @@ def validate_phases(run,state,before):
 
 def graph_after(run,state,builddir,label):
  graph=state['graphs'][label];build=Path(builddir)
+ if graph.get('orderSentinel')!=order_sentinel(graph,label,run):fail('order sentinel directory drift')
  if graph['buildDirectory']!=str(build) or manifests(build,run)!=graph['manifests']:fail('configured graph changed during build')
  raw=read(build/'.ninja_log');records=ninja_log(raw,build)
  target=run.work/'capability'/('native-'+label+'-build-log.txt');target.write_bytes(raw)
@@ -621,6 +655,7 @@ def graph_after(run,state,builddir,label):
    value=identity(Path(p))
    graph['outputs'][p]=value['sha256'];graph['outputStats'][p]=value
  validate_edge_times(graph)
+ if graph.get('orderSentinel')!=order_sentinel(graph,label,run):fail('order sentinel directory drift')
 
 def validate_edge_times(graph):
  groups={}
@@ -651,8 +686,11 @@ def input_paths(state):
 
 def roles(state,consumed,before,deps,run=None):
  if set(state['graphs'])!=set(DOMAINS):fail('incomplete native graph set')
- by_path={};outputs={};nodes={}
+ by_path={};outputs={};nodes={};sentinels={}
  for domain,graph in state['graphs'].items():
+  expected=order_sentinel(graph,domain,run)
+  if graph.get('orderSentinel')!=expected:fail('order sentinel proof differs')
+  sentinels[domain]=expected
   for name,node in graph['nodes'].items():
    path=graph['paths'][name]
    if node['rule'] and node['rule']!='phony' and path in graph['reachable']:
@@ -664,13 +702,14 @@ def roles(state,consumed,before,deps,run=None):
  visiting=set();verified=set()
  def visit(path):
   if run:run.remaining(1)
+  if any(value and path==value['directory']['path'] for value in sentinels.values()):fail('ordering directory used as file input')
   if path in verified:return
   if path in visiting or len(visiting)>=256:fail('dependency cycle/depth')
   visiting.add(path)
   if path in by_path:
    domain,name=by_path[path];graph=state['graphs'][domain];node=graph['nodes'][name]
    if path not in outputs:fail('declared output not actually produced')
-   for item in node['inputs']:walk_name(domain,item['name'])
+   for item in node['inputs']:walk_name(domain,item['name'],name,item['kind'])
    for dep in deps.get(domain,{}).get(path,[]):visit(dep)
   elif path in before:
    if identity(Path(path))['sha256']!=before[path]:fail('recursive immutable input drift')
@@ -678,19 +717,22 @@ def roles(state,consumed,before,deps,run=None):
    if identity(Path(path))['sha256']!=state['systemLink']['inputs'][path]:fail('recursive system input drift')
   else:fail('unbound recursive input '+path[:256])
   visiting.remove(path);verified.add(path)
- def walk_name(domain,name):
+ def walk_name(domain,name,parent=None,kind=None):
   graph=state['graphs'][domain]
   if name not in graph['nodes']:fail('unqueried graph dependency')
   node=graph['nodes'][name];path=graph['paths'][name]
+  sentinel=sentinels[domain]
+  if sentinel and name=='.' and parent==sentinel['parent'] and kind=='order':return
   if node['rule']=='phony':
    if path in visiting:fail('phony dependency cycle')
    visiting.add(path)
-   for item in node['inputs']:walk_name(domain,item['name'])
+   for item in node['inputs']:walk_name(domain,item['name'],name,item['kind'])
    visiting.remove(path)
   else:visit(path)
  for domain,graph in state['graphs'].items():walk_name(domain,graph['target'])
  result={}
  for path,digest in consumed.items():
+  if any(value and path==value['directory']['path'] for value in sentinels.values()):fail('ordering directory present in consumed files')
   if path in before:
    if before[path]!=digest:fail('immutable input drift')
    scope='GENERATION_PHASE_PRECONSUMPTION_AND_POSTBUILD_IDENTICAL' if path in state.get('generation',{}).get('frozen',{}) else 'PREBUILD_AND_POSTBUILD_IDENTICAL'
@@ -704,6 +746,8 @@ def roles(state,consumed,before,deps,run=None):
    role={'sha256':digest,'scope':scope,'graph':domain,'outputs':state['graphs'][domain]['aliases'][path]}
   else:fail('consumed input lacks verified role '+path[:256])
   result[path]=role
+ for domain,graph in state['graphs'].items():
+  if sentinels[domain]!=order_sentinel(graph,domain,run):fail('order sentinel directory changed during recursion')
  return result
 
 def validate(run,state,consumed,before,source):
@@ -744,6 +788,7 @@ def validate(run,state,consumed,before,source):
  for domain,(dirname,target) in DOMAINS.items():
   if domain not in state['graphs']:fail('graph missing')
   graph=state['graphs'][domain];build=out/dirname;prefix='native-'+domain
+  if graph.get('orderSentinel')!=order_sentinel(graph,domain,run):fail('order sentinel directory drift')
   if graph['buildDirectory']!=str(build) or graph['target']!=target or manifests(build,run)!=graph['manifests'] or dependency_rules(graph['manifests'])!=graph['dependencyRules']:fail('graph source changed')
   targets=target_names(record(run,prefix+'-targets',[ninja,'-C',build,'-t','targets','all']))
   if targets!=graph['graphTargets'] or target not in targets:fail('declared graph target binding')
