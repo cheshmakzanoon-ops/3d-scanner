@@ -13,6 +13,16 @@ def source_inventory(root):
     _,entries=inventory(root,max_bytes=2*1024**3,max_files=30000)
     return {name:sha(Path(root)/name) for name in sorted(entries) if (Path(root)/name).is_file()}
 
+def verify_download_cache(out,run=None,cleanup=True):
+    """The upstream module may write cache metadata, but never inside pinned source."""
+    from .controller import bounded_bytes
+    out=Path(out);cache=out/'build/download-cache'
+    if not cache.is_dir() or cache.is_symlink() or cache.resolve(strict=True)!=cache:
+        raise Failure('OpenCV download cache is not the exact owned build directory')
+    raw=bounded_bytes(out/'build/CMakeCache.txt',16*1024**2,run,cleanup=cleanup)
+    entries=re.findall(rb'^OPENCV_DOWNLOAD_PATH:([^=\r\n]+)=([^\r\n]*)$',raw,re.M)
+    if entries!=[(b'PATH',str(cache).encode())]:raise Failure('OpenCV effective download cache differs from owned build directory')
+
 def download(run,url,target,expected,maximum):
     if not re.fullmatch('[0-9a-f]{64}',expected):raise Failure('Missing download checksum')
     target=Path(target)
@@ -330,13 +340,14 @@ def build(run,source_sha,prepared):
     hooks=out/'hooks';hooks.mkdir();(hooks/'OPENCV_DOWNLOAD_PRE.cmake').write_text('message(FATAL_ERROR "Implicit dependency download forbidden: ${DL_ID} ${DL_FILENAME}")\n')
     builddir=out/'build';env=native_compile_env(run.env);env['PYTHONDONTWRITEBYTECODE']='1'
     args=[cmake,'-S',source,'-B',builddir,'-G','Ninja',f'-DCMAKE_MAKE_PROGRAM={ninja}',f'-DCMAKE_C_COMPILER={cc}',f'-DCMAKE_CXX_COMPILER={compiler}',
-          '-DCMAKE_BUILD_TYPE=Release','-DCMAKE_SKIP_RPATH=ON',f'-DCMAKE_INSTALL_PREFIX={out}/not-installed','-DBUILD_LIST=core,imgproc,features2d,java','-DBUILD_SHARED_LIBS=OFF','-DBUILD_FAT_JAVA_LIB=ON',
+          '-DCMAKE_BUILD_TYPE=Release','-DCMAKE_SKIP_RPATH=ON',f'-DOPENCV_DOWNLOAD_PATH={builddir}/download-cache',f'-DCMAKE_INSTALL_PREFIX={out}/not-installed','-DBUILD_LIST=core,imgproc,features2d,java','-DBUILD_SHARED_LIBS=OFF','-DBUILD_FAT_JAVA_LIB=ON',
           '-DBUILD_JAVA=ON','-DOPENCV_JAVA_IGNORE_ANT=ON','-DOPENCV_JAVA_SDK_BUILD_TYPE=JAVA',f'-DOPENCV_CMAKE_HOOKS_DIR={hooks}','-DOPENCV_DOWNLOAD_TRIES_LIST=',
           '-DFETCHCONTENT_FULLY_DISCONNECTED=ON','-DCPU_BASELINE=SSE3','-DCPU_DISPATCH=','-DENABLE_LTO=OFF',f'-DPYTHON_DEFAULT_EXECUTABLE={shutil.which("python3")}']
     for key in ['BUILD_TESTS','BUILD_PERF_TESTS','BUILD_EXAMPLES','BUILD_DOCS','BUILD_opencv_apps','BUILD_opencv_world','BUILD_opencv_gapi','BUILD_opencv_python2','BUILD_opencv_python3',
                 'WITH_ADE','WITH_IPP','WITH_ITT','WITH_OPENCL','WITH_CUDA','WITH_LAPACK','WITH_EIGEN','WITH_TBB','WITH_OPENMP','WITH_V4L','WITH_FFMPEG','WITH_GSTREAMER','WITH_GTK','WITH_QT',
                 'WITH_OPENGL','WITH_PROTOBUF','WITH_JPEG','WITH_PNG','WITH_TIFF','WITH_WEBP','WITH_OPENJPEG','WITH_OPENEXR','WITH_AVIF','WITH_VTK','WITH_VA']:args.append('-D'+key+'=OFF')
     configure,_=run.command('opencv-configure',args,seconds=180,env=env)
+    verify_download_cache(out,run,cleanup=False)
     modules=re.findall(rb'To be built:\s*([^\r\n]+)',configure)
     if len(modules)!=1 or modules[0].decode().split()!=policy['opencvModules'] or not re.search(rb'Java wrappers:\s+YES \(JAVA\)',configure):
         raise Failure('Unreviewed OpenCV module/Java build graph')

@@ -3,10 +3,10 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='3fac5ce30913d74be3848c20a387ffea3540effa'
-MESSAGE='fix: bind OpenCV Java library classpath'
+BASE_SHA='93acf8299630bd3c30eed2e86e18a053a63ec425'
+MESSAGE='fix: keep OpenCV download cache outside source'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','tools/eight_view_host/native_provenance.py','tests/test_eight_view_native_provenance.py','SOURCE_MANIFEST.sha256'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','tools/eight_view_host/capability.py','tests/test_eight_view_capability.py','tests/test_eight_view_source_cache.py','tests/test_agent_080_ui_evidence.py','tests/test_eight_view_host.py','tests/test_eight_view_rpath.py','SOURCE_MANIFEST.sha256'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -168,6 +168,9 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         logs[label]=raw
     rpath_flags=[arg for arg in actual['opencv-configure']['argv'] if 'CMAKE_SKIP_RPATH' in arg]
     if rpath_flags!=['-DCMAKE_SKIP_RPATH=ON']:raise Failure('OpenCV configure must explicitly omit build/install RPATH')
+    cache_flags=[arg for arg in actual['opencv-configure']['argv'] if 'OPENCV_DOWNLOAD_PATH' in arg]
+    if cache_flags!=[f'-DOPENCV_DOWNLOAD_PATH={out}/build/download-cache']:raise Failure('OpenCV configure must explicitly bind owned download cache')
+    c.verify_download_cache(out,run)
     modules=re.findall(rb'To be built:\s*([^\r\n]+)',logs['opencv-configure'])
     if len(modules)!=1 or modules[0].decode().split()!=requirements['opencvModules'] or not re.search(rb'Java wrappers:\s+YES \(JAVA\)',logs['opencv-configure']):raise Failure('Unexpected actual OpenCV module graph')
     if int(logs['compiler-version'].decode().strip().split('.')[0]) not in requirements['compiler']['allowedMajorVersions']:raise Failure('Unreviewed compiler')

@@ -71,12 +71,14 @@ def fixture(tmp_path,monkeypatch):
   if label in hp.LABELS:
    role=next(role for role in providers if label.startswith(f"header-provider-{role['major']}-"))
    record.update(argv=[str(role['driver']),'--version' if label.endswith('-version') else '-print-resource-dir'],environmentBoundary='EXPLICIT_COMPILATION_TOOL')
-  if label=='opencv-configure':record['argv']=['cmake','-DCMAKE_SKIP_RPATH=ON']
+  if label=='opencv-configure':record['argv']=['cmake','-DCMAKE_SKIP_RPATH=ON',f'-DOPENCV_DOWNLOAD_PATH={out}/build/download-cache']
   if label=='scanner-shim':record['argv']=['compiler','-include',str(contract),str(jni)]
   run.commands.append(record);producer.append({**record,'log':c.path_record(file)})
  value={'schema':1,'classification':'HOST_SOURCE_BUILT_CAPABILITY','sourceSha':SHA,'policySha256':r.sha(policy),'headerProvider':header_proof,'nativeInputProvenance':c.path_record(out/np.FILENAME),'checks':{key:True for key in original['requiredChecks']},'native':{key:c.path_record(path) for key,path in native.items()},'inputs':{key:c.path_record(path) for key,path in inputs.items()},'producer':{'runOwner':run.owner,'workDir':str(run.work),'sourceSha':SHA,'commands':producer},'runtimeProvider':provider_record,'opencvElf':{'unitFixture':'opencv'},'scannerElf':{'engine':{'unitFixture':'engine'},'shim':{'unitFixture':'shim'}}}
  # ELF parsing and provider admission are explicitly stubbed schema units, not installed-provider proof. Separate suites test real process/header-provider contracts.
  monkeypatch.setattr(c,'parse_elf_closure',lambda path,*args:{'unitFixture':next(key for key,v in native.items() if path==v)})
+ (out/'build/download-cache').mkdir()
+ put(out/'build/CMakeCache.txt',f'OPENCV_DOWNLOAD_PATH:PATH={out}/build/download-cache\n'.encode())
  manifest=out/'capability.json';manifest.write_text(json.dumps(value))
  return run,prepared,policy,manifest,value
 

@@ -36,8 +36,19 @@ def test_opencv_only_configures_no_rpath_and_parser_remains_strict():
  assert "expected=[str(engine_dir).encode()] if engine_dir else []" in source
 
 
-def test_real_cmake_install_padding_removed_at_link_time(tmp_path):
+def test_real_cmake_install_padding_removed_at_link_time(tmp_path,monkeypatch):
  t=tools();source=tmp_path/'source';source.mkdir();logs={}
+ # Every subprocess here builds or inspects this fixed ordinary toy. The ctypes
+ # load below remains in the original parent, never in a cleaned child lane.
+ monkeypatch.setenv('LD_PRELOAD',os.environ.get('LD_PRELOAD') or '/fixture/parent-preload.so')
+ monkeypatch.setenv('LD_AUDIT',os.environ.get('LD_AUDIT') or '/fixture/parent-audit.so')
+ parent=dict(os.environ);expected=native_compile_env(parent);calls=[];real_run=subprocess.run
+ def tool_run(args,**kwargs):
+  assert kwargs.get('env')==expected
+  assert dict(os.environ)==parent
+  calls.append(Path(args[0]).name)
+  return real_run(args,**kwargs)
+ monkeypatch.setattr(subprocess,'run',tool_run)
  (source/'CMakeLists.txt').write_text('''cmake_minimum_required(VERSION 3.20)
 project(rpath_placeholder C)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -47,15 +58,15 @@ target_link_libraries(rpath_fixture PRIVATE m)
 install(TARGETS rpath_fixture LIBRARY DESTINATION lib)
 ''')
  (source/'fixture.c').write_text('#include <math.h>\n#include <stdio.h>\ndouble probe(double value) { puts("fixture"); return cos(value); }\n')
- def command(label,args,compile=False):
-  result=subprocess.run(list(map(str,args)),cwd=tmp_path,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=60,env=native_compile_env() if compile else None)
+ def command(label,args):
+  result=subprocess.run(list(map(str,args)),cwd=tmp_path,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=60,env=native_compile_env())
   logs[label]=result.stdout;assert result.returncode==0,(label,result.stdout.decode(errors='replace'));return result.stdout
  version=command('cmake-version',[t['cmake'],'--version'])
  records={}
  for mode,flags in [('before',[]),('fixed',[flag_from_production()])]:
   build=tmp_path/mode
-  command(mode+'-configure',[t['cmake'],'-S',source,'-B',build,'-G','Unix Makefiles',f"-DCMAKE_MAKE_PROGRAM={t['make']}",f"-DCMAKE_C_COMPILER={t['cc']}",f'-DCMAKE_INSTALL_PREFIX={PREFIX}',*flags],True)
-  command(mode+'-build',[t['cmake'],'--build',build,'--parallel','2'],True)
+  command(mode+'-configure',[t['cmake'],'-S',source,'-B',build,'-G','Unix Makefiles',f"-DCMAKE_MAKE_PROGRAM={t['make']}",f"-DCMAKE_C_COMPILER={t['cc']}",f'-DCMAKE_INSTALL_PREFIX={PREFIX}',*flags])
+  command(mode+'-build',[t['cmake'],'--build',build,'--parallel','2'])
   library=build/'librpath_fixture.so'
   header=command(mode+'-header',[t['readelf'],'-h',library]);dynamic=command(mode+'-dynamic',[t['readelf'],'-d',library]);closure=command(mode+'-ldd',[t['ldd'],'-r',library])
   needed=re.findall(rb'\(NEEDED\).*?\[([^]]+)\]',dynamic)
@@ -68,6 +79,9 @@ install(TARGETS rpath_fixture LIBRARY DESTINATION lib)
   else:
    assert not re.search(rb'\((?:RPATH|RUNPATH)\)',dynamic)
    proof=c.parse_elf_closure(library,header,dynamic,closure);assert proof['runpath']==[]
+   for injected in (b'libasan.so.8 => /fixture/libasan.so.8 (0x123)\n',b'libclang_rt.asan-x86_64.so => /fixture/libclang_rt.asan-x86_64.so (0x123)\n'):
+    with pytest.raises(Failure,match='Unexpected/duplicate resolved provider'):c.parse_elf_closure(library,header,dynamic,closure+injected)
+   assert dict(os.environ)==parent
    loaded=ctypes.CDLL(str(library));loaded.probe.argtypes=[ctypes.c_double];loaded.probe.restype=ctypes.c_double
    assert loaded.probe(0.0)==1.0
    # Empty components remain rejected even after the construction fix.
@@ -75,12 +89,15 @@ install(TARGETS rpath_fixture LIBRARY DESTINATION lib)
     bad=dynamic+b' (RUNPATH) Library runpath: ['+invalid+b']\n'
     with pytest.raises(Failure,match='RPATH/RUNPATH'):c.parse_elf_closure(library,header,bad,closure)
    install=tmp_path/'installed'
-   command('fixed-install',[t['cmake'],'--install',build,'--prefix',install],True)
+   command('fixed-install',[t['cmake'],'--install',build,'--prefix',install])
    installed=install/'lib/librpath_fixture.so'
    installed_dynamic=command('installed-dynamic',[t['readelf'],'-d',installed])
    assert not re.search(rb'\((?:RPATH|RUNPATH)\)',installed_dynamic)
    assert re.findall(rb'\(NEEDED\).*?\[([^]]+)\]',installed_dynamic)==needed
  assert records['before']['needed']==records['fixed']['needed']
+ assert calls.count('readelf')==5 and calls.count('ldd')==2
+ assert dict(os.environ)==parent
+ assert expected=={key:value for key,value in parent.items() if key not in ('LD_PRELOAD','LD_AUDIT')}
  evidence=os.environ.get('RF_RPATH_EVIDENCE_DIR')
  if evidence:
   out=Path(evidence);out.mkdir(parents=True,exist_ok=True)

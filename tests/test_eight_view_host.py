@@ -298,22 +298,38 @@ def test_actual_compiler_rejects_same_named_wrong_jni_descriptor(tmp_path):
  bad=subprocess.run(args,env=native_compile_env(),stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=20)
  assert bad.returncode!=0 and b'conflicting declaration' in bad.stdout
 
-def test_real_elf_closure_and_forbidden_runpath(tmp_path):
+def test_real_elf_closure_and_forbidden_runpath(tmp_path,monkeypatch):
  import shutil,subprocess
  from tools.native_process import native_compile_env
  from tools.eight_view_host.capability import parse_elf_closure
+ # This fixed ordinary toy is not a candidate library. Keep loader injection out
+ # of its compiler and inspection tools; do not alter the running test process.
+ monkeypatch.setenv('LD_PRELOAD',os.environ.get('LD_PRELOAD') or '/fixture/parent-preload.so')
+ monkeypatch.setenv('LD_AUDIT',os.environ.get('LD_AUDIT') or '/fixture/parent-audit.so')
+ parent=dict(os.environ);expected=native_compile_env(parent);calls=[];real_run=subprocess.run
+ def tool_run(args,**kwargs):
+  assert kwargs.get('env')==expected
+  assert dict(os.environ)==parent
+  calls.append(Path(args[0]).name)
+  return real_run(args,**kwargs)
+ monkeypatch.setattr(subprocess,'run',tool_run)
  compiler=shutil.which('g++')
  if not compiler:pytest.skip('NOT_RUN: GNU compiler unavailable')
  source=tmp_path/'fixture.cpp';source.write_text('#include <cmath>\nextern "C" double real_fixture(double x){return std::sin(x);}\n')
  library=tmp_path/'fixture.so'
  compile_result=subprocess.run([compiler,'-shared','-fPIC',str(source),'-o',str(library)],env=native_compile_env(),stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=20)
  assert compile_result.returncode==0
- def inspect(args):return subprocess.run(args,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=True,timeout=10).stdout
+ def inspect(args):return subprocess.run(args,env=native_compile_env(),stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=True,timeout=10).stdout
  header=inspect(['readelf','-h',str(library)]);dynamic=inspect(['readelf','-d',str(library)]);closure=inspect(['ldd','-r',str(library)])
  proof=parse_elf_closure(library,header,dynamic,closure);assert 'libm.so.6' in proof['providers']
  with pytest.raises(r.Failure,match='RPATH'):parse_elf_closure(library,header,dynamic+b' (RUNPATH) Library runpath: [:/tmp]\n',closure)
  with pytest.raises(r.Failure,match='DT_NEEDED'):parse_elf_closure(library,header,dynamic+b' (NEEDED) Shared library: [libforeign.so]\n',closure)
  with pytest.raises(r.Failure,match='loader output'):parse_elf_closure(library,header,dynamic,closure+b'undefined symbol: nope\n')
+ for injected in (b'libasan.so.8 => /fixture/libasan.so.8 (0x123)\n',b'libclang_rt.asan-x86_64.so => /fixture/libclang_rt.asan-x86_64.so (0x123)\n'):
+  with pytest.raises(r.Failure,match='Unexpected/duplicate resolved provider'):parse_elf_closure(library,header,dynamic,closure+injected)
+ assert calls.count('readelf')==2 and calls.count('ldd')==1
+ assert dict(os.environ)==parent
+ assert expected=={key:value for key,value in parent.items() if key not in ('LD_PRELOAD','LD_AUDIT')}
 
 def test_scan_failure_after_spawn_cannot_skip_known_leader_stop(tmp_path,monkeypatch):
  run=runner(tmp_path);original=run.scan

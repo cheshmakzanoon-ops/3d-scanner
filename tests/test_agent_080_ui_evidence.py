@@ -3,6 +3,8 @@ from pathlib import Path
 import hashlib
 import importlib.util
 import json
+import os
+import signal
 import struct
 import subprocess
 import sys
@@ -12,6 +14,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tools/android-ui-e2e/run.py"
+_FIXED_CONTROLLERS = {}
+_FIXED_ADB = {}
 spec = importlib.util.spec_from_file_location("agent080_evidence", RUNNER)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
@@ -32,7 +36,7 @@ def png():
 
 
 def executable(path, source):
-    path.write_text(f"#!{sys.executable}\n" + source)
+    path.write_text(f"#!{sys.executable} -I\n" + source)
     path.chmod(0o755)
     return path
 
@@ -42,14 +46,16 @@ def fake_adb(tmp_path, mode="pass", physical=False):
     image.write_bytes(png())
     trace = tmp_path / "fake-adb-commands.jsonl"
     config = {"mode": mode, "image": str(image), "trace": str(trace), "physical": physical}
-    return executable(tmp_path / "fake-adb", """
-import json,pathlib,shlex,sys
+    path = executable(tmp_path / "fake-adb", """
+import json,os,pathlib,shlex,signal,sys
 C=json.loads(CONFIG)
 args=sys.argv[1:]
 with open(C['trace'],'a') as f:f.write(json.dumps(args)+'\\n')
 assert args[:2]==['-s','fixture-device']
 args=args[2:]
 if args==['get-state']:
+ if C['mode']=='process-exit':sys.exit(17)
+ if C['mode']=='process-signal':os.kill(os.getpid(),signal.SIGTERM)
  print('offline' if C['mode']=='offline' else 'device');sys.exit(0)
 if args[0]=='install':
  print('Failure [INSTALL_FAILED_TEST]' if C['mode']=='install-failed' else 'Success');sys.exit(0)
@@ -100,6 +106,8 @@ if 'PhysicalCaptureJourneyTest#' in test and C['mode']!='physical-no-evidence':
 if C['mode']!='missing-terminal':print('INSTRUMENTATION_CODE: -1')
 sys.exit(1 if C['mode']=='adb-failed' else 0)
 """.replace("CONFIG", repr(json.dumps(config))))
+    _FIXED_ADB[path] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return path
 
 
 @pytest.fixture
@@ -120,11 +128,51 @@ def candidate(tmp_path):
     return {"repo": repo, "sha": sha, "apk": apk, "test_apk": test_apk, "receipt": receipt}
 
 
+def fixed_fixture_extra(tmp_path, extra):
+    # Only this module's synthetic fixture lane may omit incidental loader injection.
+    # Never accept tool/candidate overrides or turn this into an arbitrary launcher.
+    args = list(extra)
+    seen = set()
+    index = 0
+    while index < len(args):
+        key = args[index]
+        if key in seen:
+            raise ValueError("Duplicate fixture option")
+        seen.add(key)
+        if key == "--physical-scene-authorized":
+            index += 1
+            continue
+        if key not in {"--scenario", "--physical-class", "--hardware-evidence-id", "--process-controller"}:
+            raise ValueError("Not a fixed synthetic fixture option")
+        if index + 1 >= len(args) or not isinstance(args[index + 1], str) or args[index + 1].startswith("--"):
+            raise ValueError("Missing fixture option value")
+        if key == "--process-controller":
+            path = Path(args[index + 1])
+            expected = tmp_path / "owner088-controller-double"
+            if path != expected or path.is_symlink() or not path.is_file() or _FIXED_CONTROLLERS.get(path) != hashlib.sha256(path.read_bytes()).hexdigest():
+                raise ValueError("Controller is not the unchanged owned test double")
+        index += 2
+    return args
+
+
 def run_cli(tmp_path, candidate, mode="pass", extra=(), physical=False):
+    extra = fixed_fixture_extra(tmp_path, extra)
+    if RUNNER != ROOT / "tools/android-ui-e2e/run.py" or RUNNER.is_symlink():
+        raise ValueError("Fixed UI runner identity differs")
+    for key, name in (("repo", "candidate"), ("apk", "app.apk"), ("test_apk", "test.apk"), ("receipt", "build.json")):
+        if candidate[key] != tmp_path / name or candidate[key].is_symlink():
+            raise ValueError("Candidate is not owned by the synthetic fixture")
     adb = fake_adb(tmp_path, mode, physical)
+    if adb != tmp_path / "fake-adb" or adb.is_symlink() or not adb.is_file() or _FIXED_ADB.get(adb) != hashlib.sha256(adb.read_bytes()).hexdigest():
+        raise ValueError("ADB is not the fixed test double")
     output = tmp_path / "evidence"
-    args = [sys.executable, str(RUNNER), "--repo", str(candidate["repo"]), "--source-sha", candidate["sha"], "--apk", str(candidate["apk"]), "--test-apk", str(candidate["test_apk"]), "--build-receipt", str(candidate["receipt"]), "--output", str(output), "--adb", str(adb), "--serial", "fixture-device", *extra]
-    completed = subprocess.run(args, capture_output=True, text=True)
+    args = [sys.executable, "-I", str(RUNNER), "--repo", str(candidate["repo"]), "--source-sha", candidate["sha"], "--apk", str(candidate["apk"]), "--test-apk", str(candidate["test_apk"]), "--build-receipt", str(candidate["receipt"]), "--output", str(output), "--adb", str(adb), "--serial", "fixture-device", *extra]
+    # The fresh fake APKs are data, and both executable device/controller peers
+    # are fixed test doubles. The production runner and sanitizer parent are unchanged.
+    env = dict(os.environ)
+    env.pop("LD_PRELOAD", None)
+    env.pop("LD_AUDIT", None)
+    completed = subprocess.run(args, capture_output=True, text=True, env=env)
     assert completed.stdout, completed.stderr
     return completed, json.loads(completed.stdout), output
 
@@ -261,7 +309,7 @@ def test_arbitrary_successful_test_cannot_replace_owned_physical_capture_test(tm
 def controller(tmp_path, mode):
     valid_output = instrumentation()
     config = {"mode": mode, "instrumentation": valid_output}
-    return executable(tmp_path / "owner088-controller-double", """
+    path = executable(tmp_path / "owner088-controller-double", """
 import json,sys
 C=json.loads(CONFIG);request=json.load(sys.stdin)
 response={'schema_version':1,'scenario':request['scenario'],'request_sha256':request['request_sha256'],'candidate':request['candidate'],'device_identity_sha256':request['device_identity_sha256'],'status':'PASS','original_hashes_before':{'photo':'a'*64},'original_hashes_after':{'photo':'a'*64},'previous_result_sha256_before':'b'*64,'previous_result_sha256_after':'b'*64,'test_identity':'com.example.UiTest#journey','instrumentation_stdout':C['instrumentation'],'instrumentation_returncode':0,'synthetic':True,'dataset_identity_sha256':'d'*64}
@@ -272,6 +320,8 @@ if C['mode']=='no-tests':response['instrumentation_stdout']='INSTRUMENTATION_COD
 if C['mode']=='invalid-types':response['instrumentation_stdout']=8
 print(json.dumps(response))
 """.replace("CONFIG", repr(json.dumps(config))))
+    _FIXED_CONTROLLERS[path] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return path
 
 
 @pytest.mark.parametrize("mode", ["pass", "stale", "changed-original", "lost-previous", "no-tests", "invalid-types"])
@@ -313,3 +363,81 @@ def test_completion_without_start_is_not_execution_evidence():
     result = module.parse_instrumentation(completion_only, 0, "com.example.UiTest#journey")
     assert result["status"] == "FAIL"
     assert "Started and completed test identities disagree" in result["errors"]
+
+
+def test_fixed_ui_child_environment_preserves_parent_and_sanitizer_options(tmp_path, candidate, monkeypatch):
+    monkeypatch.setenv("LD_PRELOAD", "/synthetic/not-a-runtime.so")
+    monkeypatch.setenv("LD_AUDIT", "/synthetic/not-an-auditor.so")
+    monkeypatch.setenv("ASAN_OPTIONS", "halt_on_error=1:detect_leaks=1")
+    monkeypatch.setenv("UBSAN_OPTIONS", "halt_on_error=1:print_stacktrace=1")
+    before = dict(os.environ)
+    original = subprocess.run
+    observed = []
+    def inspect(args, **kwargs):
+        if len(args) > 2 and args[:3] == [sys.executable, "-I", str(RUNNER)]:
+            observed.append(kwargs["env"].copy())
+        return original(args, **kwargs)
+    monkeypatch.setattr(subprocess, "run", inspect)
+    completed, report, _ = run_cli(tmp_path, candidate)
+    assert completed.returncode == 0 and report["status"] == "PASS"
+    assert dict(os.environ) == before
+    assert observed == [{key: value for key, value in before.items() if key not in {"LD_PRELOAD", "LD_AUDIT"}}]
+
+
+@pytest.mark.parametrize("mode,expected", [("process-exit", 17), ("process-signal", -signal.SIGTERM)])
+def test_fixed_ui_child_keeps_nonzero_and_signal_failures(tmp_path, candidate, mode, expected):
+    completed, report, _ = run_cli(tmp_path, candidate, mode)
+    assert completed.returncode == 2 and report["status"] == "BLOCKED_EXTERNAL"
+    assert report["commands"][0]["returncode"] == expected
+    assert not any("am instrument" in " ".join(row["argv"]) for row in report["commands"])
+
+
+@pytest.mark.parametrize("option", ["--adb", "--repo", "--apk", "--test-apk", "--build-receipt", "--output", "--runner", "--source-sha", "--serial"])
+def test_fixed_ui_child_refuses_execution_overrides(tmp_path, candidate, option):
+    with pytest.raises(ValueError, match="fixed synthetic fixture option"):
+        run_cli(tmp_path, candidate, extra=[option, "/outside/not-a-fixture"])
+
+
+@pytest.mark.parametrize("mutation", ["unregistered", "changed", "symlink"])
+def test_fixed_ui_child_refuses_unowned_controller(tmp_path, candidate, mutation):
+    path = controller(tmp_path, "pass")
+    if mutation == "unregistered":
+        _FIXED_CONTROLLERS.pop(path)
+    elif mutation == "changed":
+        path.write_text(path.read_text() + "\nimport ctypes; ctypes.CDLL('candidate.so')\n")
+    else:
+        other = tmp_path / "other-controller"
+        path.rename(other)
+        path.symlink_to(other)
+    with pytest.raises(ValueError, match="unchanged owned test double"):
+        run_cli(tmp_path, candidate, extra=["--process-controller", str(path)])
+
+
+def test_fixed_ui_python_startup_hooks_cannot_load_candidate(tmp_path, candidate, monkeypatch):
+    hooks = tmp_path / "startup-hooks"
+    hooks.mkdir()
+    sentinel = tmp_path / "startup-native-load-attempt"
+    (hooks / "sitecustomize.py").write_text(
+        "from pathlib import Path\nPath(" + repr(str(sentinel)) + ").write_text('unexpected startup')\n"
+        "import ctypes\nctypes.CDLL('not-an-admitted-native-candidate.so')\n")
+    monkeypatch.setenv("PYTHONPATH", str(hooks))
+    monkeypatch.setenv("PYTHONUSERBASE", str(hooks))
+    before = dict(os.environ)
+    external = controller(tmp_path, "pass")
+    completed, report, _ = run_cli(tmp_path, candidate, extra=["--scenario", "process_kill_relaunch", "--process-controller", str(external)])
+    assert completed.returncode == 0 and report["status"] == "PASS"
+    assert not sentinel.exists()
+    assert dict(os.environ) == before
+    assert (tmp_path / "fake-adb").read_text().splitlines()[0] == f"#!{sys.executable} -I"
+    assert external.read_text().splitlines()[0] == f"#!{sys.executable} -I"
+
+
+def test_fixed_ui_child_refuses_changed_adb_double(tmp_path, candidate, monkeypatch):
+    original = fake_adb
+    def changed(*args, **kwargs):
+        path = original(*args, **kwargs)
+        path.write_text(path.read_text() + "\nimport ctypes; ctypes.CDLL('candidate.so')\n")
+        return path
+    monkeypatch.setitem(globals(), "fake_adb", changed)
+    with pytest.raises(ValueError, match="fixed test double"):
+        run_cli(tmp_path, candidate)
