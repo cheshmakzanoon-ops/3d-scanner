@@ -35,7 +35,7 @@ def repository_name(value=None):
     return value
 
 
-def stable_snapshot(path):
+def stable_snapshot(path, *, allow_empty=False):
     path = Path(path)
     if path.is_symlink() or any(parent.is_symlink() for parent in path.parents):
         raise ci.EvidenceError('Symlink producer artifact')
@@ -44,7 +44,7 @@ def stable_snapshot(path):
                 value.st_mtime_ns, value.st_ctime_ns)
     with os.fdopen(os.open(path, os.O_RDONLY | os.O_NOFOLLOW), 'rb') as stream:
         before = os.fstat(stream.fileno())
-        if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= MAX_FILE_BYTES:
+        if not stat.S_ISREG(before.st_mode) or not (0 if allow_empty else 1) <= before.st_size <= MAX_FILE_BYTES:
             raise ci.EvidenceError('Invalid/oversized producer artifact')
         hasher = hashlib.sha256()
         remaining = before.st_size
@@ -211,8 +211,13 @@ def seal(start_path, native_path, output, artifact_patterns=(), repository=None)
     qa = ci.expanded(artifact_patterns)
     validate_qa(qa)
     referenced = [native_path, *qa]
+    command_logs = {}
     for command in config.get('commands', []):
         log = Path(command['log'])
+        if (command.get('result') != 'PASS' or command.get('exit_code') != 0
+                or command.get('reason') is not None or log in command_logs):
+            raise ci.EvidenceError('Failed/duplicate producer command')
+        command_logs[log] = command
         referenced.append(log)
         if log.stem == 'pytest':
             referenced.append(log.with_name('pytest.xml'))
@@ -223,8 +228,14 @@ def seal(start_path, native_path, output, artifact_patterns=(), repository=None)
     snapshots = {}
     total_bytes = 0
     for path in referenced:
-        ci.fresh(path, start['started_ns'])
-        snapshots[path] = stable_snapshot(path)
+        if path in command_logs:
+            if path.is_symlink() or not path.is_file() or path.stat().st_mtime_ns < start['started_ns']:
+                raise ci.EvidenceError('Missing/stale/symlink command log')
+        else:
+            ci.fresh(path, start['started_ns'])
+        snapshots[path] = stable_snapshot(path, allow_empty=path in command_logs)
+        if path in command_logs and snapshots[path][1] != command_logs[path].get('log_sha256'):
+            raise ci.EvidenceError('Command log differs from successful command receipt')
         total_bytes += snapshots[path][0][3]
         if total_bytes > MAX_BYTES:
             raise ci.EvidenceError('Producer byte limit')
@@ -240,9 +251,9 @@ def seal(start_path, native_path, output, artifact_patterns=(), repository=None)
         before, digest = snapshots[path]
         relative = f'files/{index}-{digest}-{path.name}'
         copy_snapshot(path, output / relative, snapshots[path])
-        if stable_snapshot(path) != snapshots[path] or ci.sha(output / relative) != digest:
+        if stable_snapshot(path, allow_empty=path in command_logs) != snapshots[path] or ci.sha(output / relative) != digest:
             raise ci.EvidenceError('Producer artifact changed during sealing')
-        role = 'native-record' if path == native_path else 'junit' if path in xml else 'qa' if path in qa else 'artifact'
+        role = 'native-record' if path == native_path else 'command-log' if path in command_logs else 'junit' if path in xml else 'qa' if path in qa else 'artifact'
         artifacts.append(dict(identity(output / relative, relative, str(path), role),
                               produced_mtime_ns=before[4]))
     data = dict(start, status='PASS', completed_ns=time.time_ns(), tests=total, artifacts=artifacts)
@@ -273,7 +284,9 @@ def verify_shard(directory, expected, run_id, profile=None, repository=None):
         if type(produced) is not int or not data['started_ns'] <= produced <= data['completed_ns']:
             raise ci.EvidenceError('Native artifact predates producer or exceeds completion')
         path = safe_file(directory, relative)
-        if type(artifact.get('size_bytes')) is not int or path.stat().st_size != artifact['size_bytes'] or ci.sha(path) != artifact['sha256']:
+        if (type(artifact.get('size_bytes')) is not int
+                or artifact['size_bytes'] < (0 if artifact['role'] == 'command-log' else 1)
+                or path.stat().st_size != artifact['size_bytes'] or ci.sha(path) != artifact['sha256']):
             raise ci.EvidenceError('Native artifact transport integrity failure')
         declared.add(relative)
         mapped[original] = path
@@ -286,9 +299,12 @@ def verify_shard(directory, expected, run_id, profile=None, repository=None):
         raise ci.EvidenceError('Duplicate native record file reference')
     if set(xml) != set(roles.get('junit', [])) or counts(xml) != data.get('tests'):
         raise ci.EvidenceError('Native shard JUnit count/role mismatch')
+    command_paths = {mapped[row['log']] for row in ci.load(record_path)['configurations'][0]['commands']}
+    if not set(roles.get('command-log', [])) <= command_paths:
+        raise ci.EvidenceError('Command-log role is not bound to a successful command')
     validate_qa([Path(row['original_path']) for row in data['artifacts'] if row['role'] == 'qa'])
     allowed = set(files) | set(xml) | set(roles.get('qa', []))
-    if allowed != set(mapped.values()) or set(roles) - {'native-record', 'junit', 'qa', 'artifact'}:
+    if allowed != set(mapped.values()) or set(roles) - {'native-record', 'command-log', 'junit', 'qa', 'artifact'}:
         raise ci.EvidenceError('Foreign native artifact role')
     record = ci.load(record_path)
     numeric_rows = [row for row in record['configurations'][0]['artifacts'] if Path(row['path']).name == 'numerical.json']
@@ -332,13 +348,14 @@ def aggregate(directory, expected, run_id, output, root=None, repository=None):
     total = dict(tests=0, passed=0, skipped=0, failed=0)
     for profile in PROFILES:
         destination = output / 'files' / profile
+        command_logs = {row['path'] for row in shards[profile]['envelope']['artifacts'] if row['role'] == 'command-log'}
         for name in sorted(inventory(origins[profile])):
             source_file = safe_file(origins[profile], name)
             target_file = destination / name
             target_file.parent.mkdir(parents=True, exist_ok=True)
-            snapshot = stable_snapshot(source_file)
+            snapshot = stable_snapshot(source_file, allow_empty=name in command_logs)
             copy_snapshot(source_file, target_file, snapshot)
-            if stable_snapshot(source_file) != snapshot:
+            if stable_snapshot(source_file, allow_empty=name in command_logs) != snapshot:
                 raise ci.EvidenceError('Imported shard changed during aggregation')
         relative = f'files/{profile}/shard.json'
         manifest['shards'].append(dict(profile=profile, path=relative, sha256=ci.sha(output / relative)))

@@ -72,7 +72,8 @@ def test_original_provenance_survives_transport(transport):
         assert (output / 'files' / profile / 'shard.json').read_bytes() == (incoming / ('download-' + profile) / 'shard.json').read_bytes()
 
 
-def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch):
+@pytest.mark.parametrize('silent', [False, True])
+def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch, silent):
     """Four independent --configs invocations; no receipt splitting or rewriting."""
     import sys
     sys.path.insert(0, str(fixtures.ROOT / 'tools/qa/native_regression'))
@@ -100,7 +101,8 @@ def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch):
         elif label == 'pytest': fixtures.xml(folder / 'pytest.xml')
         elif label.startswith('benchmark_'): fixtures.dump(folder / (label + '.json'), {'synthetic': True})
         log = fixtures.write(folder / (label + '.log'),
-            '100% tests passed, 0 tests failed out of 48\n' if label == 'ctest' else 'synthetic output\n')
+            '100% tests passed, 0 tests failed out of 48\n' if label == 'ctest' else
+            '' if silent and label == 'numerical' else 'synthetic output\n')
         return dict(command=list(map(str, argv)), cwd=str(cwd), exit_code=0, reason=None,
                     result='PASS', log=str(log), log_sha256=ci.sha(log))
     for profile in matrix.PROFILES:
@@ -124,8 +126,18 @@ def test_actual_runner_orchestration_to_sealed_matrix(candidate, monkeypatch):
         assert len(sealed['record']['configurations']) == 1
         assert sealed['record']['comparisons'] == []
         assert sealed['mapped'][str(record)].read_bytes() == before
+        if silent:
+            log = next(row for row in sealed['envelope']['artifacts'] if row['original_path'].endswith('/numerical.log'))
+            assert log['role'] == 'command-log' and log['size_bytes'] == 0
+            assert log['sha256'] == 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
     output = aggregate((candidate, incoming))
     assert matrix.verify_matrix(output, candidate[1], 'test-run:1')['tests']['passed'] == 8
+    if silent:
+        for profile in matrix.PROFILES:
+            envelope = ci.load(output / 'files' / profile / 'shard.json')
+            log = next(row for row in envelope['artifacts'] if row['original_path'].endswith('/numerical.log'))
+            assert log['role'] == 'command-log' and log['size_bytes'] == 0
+            assert (output / 'files' / profile / log['path']).read_bytes() == b''
     ci.verify_bundle(candidate[3], candidate[1], 'test-run:1', required=('native',))
 
 
@@ -339,3 +351,123 @@ def test_inventory_directory_swap_cannot_follow_symlink(tmp_path, monkeypatch):
     with pytest.raises((OSError, ci.EvidenceError)):
         matrix.inventory(root)
     assert swapped
+
+
+@pytest.mark.parametrize('mutation', ['missing', 'truncated', 'rehash-truncated'])
+def test_silent_log_allowance_does_not_accept_lost_output(transport, mutation):
+    candidate, incoming = transport
+    folder = incoming / 'download-gcc-release'
+    envelope = ci.load(folder / 'shard.json')
+    artifact = next(row for row in envelope['artifacts'] if row['original_path'].endswith('/numerical.log'))
+    path = folder / artifact['path']
+    assert path.stat().st_size > 0
+    if mutation == 'missing':
+        path.unlink()
+    else:
+        path.write_bytes(b'')
+        if mutation == 'rehash-truncated':
+            artifact.update(size_bytes=0, sha256=ci.sha(path))
+            fixtures.dump(folder / 'shard.json', envelope)
+    with pytest.raises(ci.EvidenceError):
+        aggregate(transport)
+
+
+@pytest.mark.parametrize('name', ['numerical.json', 'lib.so', 'pytest.xml', 'installation.json'])
+@pytest.mark.parametrize('relabel', [False, True])
+def test_non_command_evidence_never_gets_empty_allowance(transport, name, relabel):
+    candidate, incoming = transport
+    folder = incoming / 'download-gcc-release'
+    envelope = ci.load(folder / 'shard.json')
+    artifact = next(row for row in envelope['artifacts'] if Path(row['original_path']).name == name)
+    path = folder / artifact['path']
+    path.write_bytes(b'')
+    artifact.update(size_bytes=0, sha256=ci.sha(path))
+    if relabel:
+        artifact['role'] = 'command-log'
+    fixtures.dump(folder / 'shard.json', envelope)
+    with pytest.raises((ci.EvidenceError, ValueError)):
+        aggregate(transport)
+
+
+def test_previous_nonempty_command_artifact_roles_remain_valid(transport):
+    candidate, incoming = transport
+    for folder in incoming.iterdir():
+        envelope = ci.load(folder / 'shard.json')
+        for artifact in envelope['artifacts']:
+            if artifact['role'] == 'command-log':
+                assert artifact['size_bytes'] > 0
+                artifact['role'] = 'artifact'
+        fixtures.dump(folder / 'shard.json', envelope)
+    aggregate(transport)
+    ci.verify_bundle(candidate[3], candidate[1], 'test-run:1', required=('native',))
+
+
+def test_snapshot_empty_requires_explicit_command_allowance(tmp_path):
+    path = fixtures.write(tmp_path / 'empty.log', '')
+    with pytest.raises(ci.EvidenceError, match='Invalid/oversized'):
+        matrix.stable_snapshot(path)
+    snapshot = matrix.stable_snapshot(path, allow_empty=True)
+    assert snapshot[0][3] == 0
+    assert snapshot[1] == 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+
+
+def test_final_verifier_rejects_rehashed_truncated_command_log(transport):
+    candidate, _ = transport
+    output = aggregate(transport)
+    folder = output / 'files/gcc-release'
+    envelope = ci.load(folder / 'shard.json')
+    artifact = next(row for row in envelope['artifacts'] if row['original_path'].endswith('/numerical.log'))
+    path = folder / artifact['path']
+    path.write_bytes(b'')
+    artifact.update(size_bytes=0, sha256=ci.sha(path))
+    fixtures.dump(folder / 'shard.json', envelope)
+    manifest = ci.load(output / 'matrix.json')
+    manifest['shards'][0]['sha256'] = ci.sha(folder / 'shard.json')
+    fixtures.dump(output / 'matrix.json', manifest)
+    outer = ci.load(output / 'evidence.json')
+    outer['artifacts'] = [matrix.identity(output / 'matrix.json', 'matrix.json', 'matrix.json', 'native-matrix')]
+    fixtures.dump(output / 'evidence.json', outer)
+    with pytest.raises(ci.EvidenceError, match='command/log failed integrity'):
+        ci.verify_bundle(candidate[3], candidate[1], 'test-run:1', required=('native',))
+
+
+def test_empty_command_log_does_not_waive_freshness(transport):
+    candidate, _ = transport
+    profile = 'gcc-release'
+    record_path = candidate[2] / profile / 'runner.json'
+    record = ci.load(record_path)
+    command = next(row for row in record['configurations'][0]['commands'] if row['log'].endswith('/numerical.log'))
+    log = Path(command['log'])
+    log.write_bytes(b'')
+    command['log_sha256'] = ci.sha(log)
+    fixtures.dump(record_path, record)
+    os.utime(log, ns=(1, 1))
+    qa = list((candidate[2] / profile / 'qa').iterdir())
+    with pytest.raises(ci.EvidenceError, match='Missing/stale/symlink command log'):
+        matrix.seal(candidate[2] / profile / 'start.json', record_path,
+                    candidate[2] / 'stale-empty-log-output', list(map(str, qa)))
+
+
+@pytest.mark.parametrize('mutation', ['failed', 'nonzero', 'timeout', 'not-run'])
+def test_empty_command_output_never_waives_execution_failure(transport, mutation):
+    candidate, incoming = transport
+    folder = incoming / 'download-gcc-release'
+    envelope = ci.load(folder / 'shard.json')
+    record_artifact = next(row for row in envelope['artifacts'] if row['role'] == 'native-record')
+    record_path = folder / record_artifact['path']
+    record = ci.load(record_path)
+    command = next(row for row in record['configurations'][0]['commands'] if row['log'].endswith('/numerical.log'))
+    artifact = next(row for row in envelope['artifacts'] if row['original_path'] == command['log'])
+    path = folder / artifact['path']
+    path.write_bytes(b'')
+    artifact.update(size_bytes=0, sha256=ci.sha(path))
+    command['log_sha256'] = ci.sha(path)
+    if mutation == 'failed': command['result'] = 'FAIL'
+    elif mutation == 'nonzero': command['exit_code'] = 17
+    elif mutation == 'timeout': command['reason'] = 'TIMEOUT'
+    else: command['result'] = 'NOT_RUN'
+    fixtures.dump(record_path, record)
+    record_artifact.update(size_bytes=record_path.stat().st_size, sha256=ci.sha(record_path))
+    fixtures.dump(folder / 'shard.json', envelope)
+    with pytest.raises(ci.EvidenceError, match='command/log failed integrity'):
+        aggregate(transport)

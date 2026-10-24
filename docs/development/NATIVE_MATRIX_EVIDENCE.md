@@ -40,3 +40,12 @@ again after copying, the sealer compares no-follow file-descriptor identity,
 size, mtime, ctime and SHA-256; copied bytes must match the original snapshot.
 Downloaded mtimes have no execution-freshness meaning. Each shard must retain
 installation.json, publisher hash, install logs and tool-check logs.
+
+Successful commands may legitimately emit zero stdout/stderr bytes. Only command
+logs explicitly bound to PASS, exit 0, no execution-failure reason and the exact
+recorded log hash may carry the `command-log` role and be empty. Their original
+freshness, regular-file identity, transported size/hash and command receipt are
+still checked. JSON, XML, binaries and QA evidence remain nonempty. Existing
+nonempty command logs with the original `artifact` role remain valid. Failure
+uploads retain numerical/benchmark JSON and pytest XML alongside logs, not raw
+build directories.

@@ -58,6 +58,9 @@ jobs:
             ${{ runner.temp }}/rf-qa/downloads/blender-publisher.sha256
             ${{ runner.temp }}/rf-ci/native/runner/evidence.json
             ${{ runner.temp }}/rf-ci/native/runner/**/*.log
+            ${{ runner.temp }}/rf-ci/native/runner/*/numerical.json
+            ${{ runner.temp }}/rf-ci/native/runner/*/benchmark_*.json
+            ${{ runner.temp }}/rf-ci/native/runner/*/pytest.xml
           if-no-files-found: error
   native:
     # Stable required-check identity; never turn absent/failed shards into a pass.
