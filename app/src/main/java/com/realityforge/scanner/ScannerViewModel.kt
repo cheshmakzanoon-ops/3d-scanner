@@ -1013,7 +1013,7 @@ class ScannerViewModel(
         "json" -> "Exported revision-checked reconstruction diagnostic JSON with scan metadata and point data."
         "textured.glb" -> "Exported photo-textured GLB with embedded PNG and indexed UVs. Open surfaces, arbitrary scale."
         "texture.png" -> "Exported actual rectified photographic atlas PNG."
-        "mesh.glb", "mesh.ply" -> "Exported verified open surface mesh ($extension), vertex colors and arbitrary scale."
+        "mesh.glb", "mesh.ply" -> "Exported observed indexed open surface mesh ($extension), vertex colors and arbitrary scale."
         else -> "Exported $extension point cloud. Your document provider controls the destination."
     }
 

@@ -568,10 +568,11 @@ fun AuditedScannerWorkspace(model: ScannerViewModel, onBack: (() -> Unit)? = nul
                                 var wireframe by rememberSaveable { mutableStateOf(false) }
                                 Card {
                                     Column(Modifier.padding(16.dp),verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        Text("${mesh.optInt("triangleCount")} verified triangles · ${mesh.optInt("vertexCount")} fused vertices",
+                                        Text("${mesh.optInt("triangleCount")} indexed triangles · ${mesh.optInt("vertexCount")} mesh vertices",
                                             style=MaterialTheme.typography.titleLarge)
                                         Text("Real indexed mesh, vertex colors, open surfaces and arbitrary scale. Missing areas stay open.",
                                             style=MaterialTheme.typography.bodySmall)
+                                        SurfaceTopologyQualification(requireNotNull(preparedGeometry).surfaceTopology)
                                         SurfaceMeshViewer(meshGeometry,Modifier.fillMaxWidth().height(320.dp),wireframe)
                                         Row(verticalAlignment=Alignment.CenterVertically) {
                                             Switch(checked=wireframe,onCheckedChange={wireframe=it})
@@ -803,7 +804,8 @@ private fun PreviousResultCard(geometry: PreparedPreviewGeometry, inputRevision:
                 PointCloudViewer(dense, Modifier.fillMaxWidth().height(280.dp))
             }
             geometry.mesh?.let { mesh ->
-                Text("${mesh.sourceTriangleCount} observed triangles", style = MaterialTheme.typography.titleMedium)
+                Text("${mesh.sourceTriangleCount} indexed triangles", style = MaterialTheme.typography.titleMedium)
+                SurfaceTopologyQualification(geometry.surfaceTopology)
                 SurfaceMeshViewer(mesh, Modifier.fillMaxWidth().height(300.dp))
             }
             if (photographicAvailable) OutlinedButton(onClick = onPhotographic) { Text("Inspect previous photographic model") }

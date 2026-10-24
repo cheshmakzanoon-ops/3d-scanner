@@ -2,6 +2,7 @@ package com.realityforge.scanner.data.reopening
 
 import com.realityforge.scanner.engine.PhotographicCoverage
 import com.realityforge.scanner.engine.ScanQualityReport
+import com.realityforge.scanner.engine.SurfaceTopologySummary
 import com.realityforge.scanner.engine.diagnostics.DiagnosticReportExpectation
 import org.json.JSONArray
 import org.json.JSONObject
@@ -25,6 +26,7 @@ data class ScanDisplayModel(
     val capabilities: Set<ScanRepresentation>,
     val unavailableReasons: Map<String, String>,
     val previousResult: Boolean = false,
+    val surfaceTopology: SurfaceTopologySummary = SurfaceTopologySummary(),
 )
 
 sealed interface ReopenResult {
@@ -168,17 +170,18 @@ object PreviewSchemaValidator {
             if (texture.has("exposureSamples")) integer(texture, "exposureSamples", 0, 100_000_000)
             capabilities += ScanRepresentation.PHOTOGRAPHIC_MESH
         }
-        if (json.has("scanDiagnostics")) {
+        val validatedDiagnostics = if (json.has("scanDiagnostics")) {
             val diagnostics = json.get("scanDiagnostics") as? JSONObject ?: error("Diagnostics must be an object.")
             // M19 report schema 1 carries no independent identity. Its enclosing preview is
             // checked above; migration keeps the report identity unknown instead of fabricating it.
             val expectation = if (integer(diagnostics, "schema", 1, 2) == 1L) DiagnosticReportExpectation()
                 else DiagnosticReportExpectation(sourceRevision = expectedRevision, artifactId = expectedArtifactKey)
             ScanQualityReport.validateAndRedact(diagnostics, expectation)
-        }
+        } else null
         checkCancelled()
         ReopenResult.Ready(ScanDisplayModel(schema, revision, expectedArtifactKey, points, densePoints,
-            vertices, triangles, Collections.unmodifiableSet(capabilities), Collections.unmodifiableMap(missing), previousResult))
+            vertices, triangles, Collections.unmodifiableSet(capabilities), Collections.unmodifiableMap(missing), previousResult,
+            SurfaceTopologySummary.fromValidatedReport(validatedDiagnostics)))
     } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled
     } catch (failure: Exception) {
         ReopenResult.Invalid("invalid_preview", failure.message?.take(300) ?: "Saved preview validation failed.")

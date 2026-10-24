@@ -222,7 +222,10 @@ fun ScannerApp(model: ScannerViewModel, features: ScannerFeatureServices? = null
                     }
                     "studio" -> StudioRoute(preview, model, modifier) { route = "export" }
                     "export" -> selected?.let { id ->
-                        ExportRoute(id, exportSource, modifier, !mutable, onExport = { identity, option ->
+                        ExportRoute(id, exportSource, modifier, !mutable,
+                            expectedRevision = project?.takeIf { it.id == id }?.revision,
+                            expectedArtifactKey = project?.takeIf { it.id == id }?.resultKey,
+                            onExport = { identity, option ->
                             if (option.id == "mesh.stl") stlConfirmation = identity to option
                             else export(identity, option)
                         }, onArchive = { exportArchive("realityforge-capture.zip") })

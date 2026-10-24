@@ -1,5 +1,6 @@
 package com.realityforge.scanner.data.reopening
 
+import com.realityforge.scanner.engine.SurfaceTopologySummary
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -39,6 +40,7 @@ data class PreparedPreviewGeometry(
     val mesh: PreparedSurface?,
     val capabilities: Set<ScanRepresentation>,
     val unavailableReasons: Map<String, String>,
+    val surfaceTopology: SurfaceTopologySummary = SurfaceTopologySummary(),
 )
 
 /**
@@ -83,7 +85,7 @@ suspend fun preparePreviewGeometry(model: ScanDisplayModel): PreparedPreviewGeom
     checkCancelled()
     PreparedPreviewGeometry(model.revision, model.artifactKey, model.previousResult, sparse, dense, mesh,
         Collections.unmodifiableSet(LinkedHashSet(model.capabilities)),
-        Collections.unmodifiableMap(LinkedHashMap(model.unavailableReasons)))
+        Collections.unmodifiableMap(LinkedHashMap(model.unavailableReasons)), model.surfaceTopology)
 }
 
 private fun normalize(points: List<DisplayPoint>, checkCancelled: () -> Unit): PreparedPointCloud {

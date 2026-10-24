@@ -66,6 +66,12 @@ internal data class ScanQualitySummary(
 internal object ScanQualityRecommendationCatalog {
     private val values = listOf(
         ScanQualityFinding(
+            "SURFACE_TOPOLOGY_DEFECTS",
+            "Measured non-manifold edges or intersecting faces were detected. Inspect the observed mesh before downstream use; exporting does not repair topology.",
+            RecoveryAction.INSPECT_OPEN_SURFACE,
+            "scan.guidance.surface_topology_defects",
+        ),
+        ScanQualityFinding(
             "FEW_REGISTERED_CAMERAS",
             "Add overlapping photographs from distinct sideways viewpoints, then reconstruct again.",
             RecoveryAction.RECAPTURE_OVERLAP,
@@ -190,6 +196,9 @@ internal object ScanQualityEvidence {
         val findings = ArrayList<ScanQualityFinding>()
         fun add(code: String) { findings += ScanQualityRecommendationCatalog.require(code) }
 
+        if (data.meshTriangles > 0 && data.meshVertices > 0 &&
+            (topology.nonManifoldEdges?.let { it > 0 } == true ||
+                topology.selfIntersections?.let { it > 0 } == true)) add("SURFACE_TOPOLOGY_DEFECTS")
         if (data.registeredCameras < 3 && data.importedPhotos >= 3) add("FEW_REGISTERED_CAMERAS")
         if (registeredFraction < .75) add("PHOTOS_NOT_REGISTERED")
         if (data.medianParallaxDegrees != null && data.medianParallaxDegrees < 1.5) add("LOW_PARALLAX")

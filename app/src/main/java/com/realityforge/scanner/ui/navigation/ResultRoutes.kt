@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.realityforge.scanner.R
 import com.realityforge.scanner.ScannerViewModel
 import com.realityforge.scanner.export.*
+import com.realityforge.scanner.engine.SurfaceTopologySummary
 import com.realityforge.scanner.ui.*
 import com.realityforge.scanner.ui.designsystem.LabelledToggle
 import kotlinx.coroutines.Dispatchers
@@ -85,6 +86,7 @@ fun StudioRoute(result: JSONObject?, model: ScannerViewModel, modifier: Modifier
                 }
                 else -> PointCloudViewer(geometry.sparse, Modifier.fillMaxWidth().height(440.dp))
             }
+            if (geometry.mesh != null) SurfaceTopologyQualification(geometry.surfaceTopology)
             if (current.photographic != null) Button(onClick = { photographicOpen = true },
                 modifier = Modifier.fillMaxWidth().testTag("a071-open-photographic")) { Text(stringResource(R.string.a071_open_photographic)) }
             Button(onClick = onExport, modifier = Modifier.fillMaxWidth().testTag("a071-open-export")) { Text(stringResource(R.string.a071_open_export)) }
@@ -95,23 +97,46 @@ fun StudioRoute(result: JSONObject?, model: ScannerViewModel, modifier: Modifier
     if (photographicOpen) current?.photographic?.let { file -> PhotographicModelViewer(file) { photographicOpen = false } }
 }
 
-private data class ExportCatalog(val identity:ArtifactIdentity?=null,val options:List<ExportOption> = emptyList(),val loading:Boolean=true,val failed:Boolean=false)
+private data class ExportCatalog(val selection: SurfaceExportSelection,
+    val identity:ArtifactIdentity?=null,val options:List<ExportOption> = emptyList(),
+    val topology: SurfaceTopologyExportEvidence? = null, val loading:Boolean=true,val failed:Boolean=false)
 @Composable
 fun ExportRoute(projectId:String,source:RepositoryExportSource,modifier:Modifier,busy:Boolean,
+    expectedRevision: Long?, expectedArtifactKey: String?,
     onExport:(ArtifactIdentity,ExportOption)->Unit,onArchive:()->Unit) {
-    val catalog by produceState(ExportCatalog(),projectId,source,busy) {
-        value=withContext(Dispatchers.IO) {
-            runCatching {
+    val selection = SurfaceExportSelection(projectId, expectedRevision, expectedArtifactKey)
+    val loadedCatalog by produceState(ExportCatalog(selection),selection,source,busy) {
+        value = ExportCatalog(selection)
+        value = withContext(Dispatchers.IO) {
+            try {
                 val identity=source.snapshot(projectId)
-                ExportCatalog(identity,if(identity==null) emptyList() else source.available(identity),loading=false)
-            }.getOrElse {ExportCatalog(loading=false,failed=true)}
+                if (identity == null || !selection.matches(identity)) ExportCatalog(selection, loading=false)
+                else {
+                    val options = source.available(identity)
+                    // Qualification is advisory: a failed read must not remove otherwise valid export choices.
+                    val topology = if (options.any { it.isSurfaceMesh() }) try {
+                        source.surfaceTopology(identity)
+                    } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                      catch (_: Exception) { null }
+                    else null
+                    if (source.isCurrent(identity)) ExportCatalog(selection, identity, options, topology, loading=false)
+                    else ExportCatalog(selection, loading=false)
+                }
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+              catch (_: Exception) { ExportCatalog(selection,loading=false,failed=true) }
         }
     }
+    // produceState retains its old value until the new effect runs. Fence display immediately too.
+    val catalog = loadedCatalog.takeIf { it.selection == selection &&
+        (it.identity == null || selection.matches(it.identity)) } ?: ExportCatalog(selection)
     Column(modifier.verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.a071_export_help))
         if(catalog.loading) CircularProgressIndicator()
         if(catalog.failed) Text(stringResource(R.string.a071_error),color=MaterialTheme.colorScheme.error)
         if(!catalog.loading && catalog.options.isEmpty()) Text(stringResource(R.string.a071_no_result))
+        if (catalog.options.any { it.isSurfaceMesh() }) {
+            SurfaceTopologyQualification(catalog.identity?.let { catalog.topology?.forArtifact(it) } ?: SurfaceTopologySummary())
+        }
         catalog.options.forEach { option ->
             val label=stringResource(when(option.representation) {
                 AssetRepresentation.SPARSE_POINTS->R.string.a071_sparse

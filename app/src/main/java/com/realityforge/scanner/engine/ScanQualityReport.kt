@@ -600,7 +600,8 @@ internal object ScanQualityReport {
             conditions += EvidenceCondition.TEXTURE_UNAVAILABLE
         }
         val recommendations = readCanonicalRecommendations(legacy.optJSONArray("recommendations"))
-            .toMutableList()
+            // Schema 1 has no topology counters; supplied copy cannot establish a measured defect.
+            .filterNot { it.code == "SURFACE_TOPOLOGY_DEFECTS" }.toMutableList()
         listOf(EvidenceCondition.TEXTURE_UNAVAILABLE, EvidenceCondition.SCALE_UNKNOWN,
             EvidenceCondition.UNOBSERVED_SURFACES_UNKNOWN)
             .filter { it in conditions }
@@ -693,6 +694,8 @@ internal object ScanQualityReport {
         val recommendations = canonicalRecommendations(
             readCanonicalRecommendations(input.optJSONArray("recommendations")),
             conditions,
+            topology,
+            meshTriangles > 0 && meshVertices > 0,
         )
         val events = parseEvents(input.optJSONArray("events"), identity)
         val progress = parseProgressEvents(input.optJSONArray("progressEvents"), identity)
@@ -763,9 +766,17 @@ internal object ScanQualityReport {
     private fun canonicalRecommendations(
         supplied: List<ScanQualityFinding>,
         conditions: Set<EvidenceCondition>,
+        topology: TopologyEvidence,
+        hasSurface: Boolean,
     ): List<ScanQualityFinding> {
         val result = LinkedHashMap<String, ScanQualityFinding>()
-        supplied.forEach { result[it.code] = it }
+        // Re-derive this finding from measured evidence, including historical reports.
+        // A stale supplied warning must not survive corrected or unavailable counters.
+        if (hasSurface && (topology.nonManifoldEdges?.let { it > 0 } == true ||
+            topology.selfIntersections?.let { it > 0 } == true)) {
+            result["SURFACE_TOPOLOGY_DEFECTS"] = ScanQualityRecommendationCatalog.require("SURFACE_TOPOLOGY_DEFECTS")
+        }
+        supplied.filterNot { it.code == "SURFACE_TOPOLOGY_DEFECTS" }.forEach { result[it.code] = it }
         listOf(
             EvidenceCondition.SPARSE_FALLBACK_RETAINED,
             EvidenceCondition.TEXTURE_UNAVAILABLE,

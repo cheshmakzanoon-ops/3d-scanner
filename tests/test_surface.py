@@ -102,7 +102,7 @@ def test_android_mesh_is_shown_and_exportable_without_network_calls():
     assert 'SurfaceMeshViewer(mesh,' in screen
     assert 'mesh.glb' in screen and 'mesh.ply' in screen
     assert 'mesh.glb' in repo and 'mesh.ply' in repo
-    assert 'triangle mesh' in screen.lower() or 'verified triangles' in screen
+    assert 'triangle mesh' in screen.lower() or 'indexed triangles' in screen
     assert 'drawPath(path' in viewer
 
 

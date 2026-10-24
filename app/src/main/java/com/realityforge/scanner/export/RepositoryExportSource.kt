@@ -32,6 +32,14 @@ class RepositoryExportSource(private val repository: ProjectRepository, private 
         val identity = ArtifactIdentity(projectId, p.revision, requireNotNull(p.resultKey), ExportCoordinator.digest(json))
         return identity.takeIf { isCurrent(it) }
     }
+    /** Reopen through the existing validator and retain the same revision/hash lease as the choices. */
+    suspend fun surfaceTopology(identity: ArtifactIdentity): SurfaceTopologyExportEvidence? {
+        if (!isCurrent(identity)) return null
+        val reopened = repository.reopen(identity.projectId, false)
+            as? com.realityforge.scanner.data.reopening.ReopenResult.Ready ?: return null
+        val evidence = SurfaceTopologyExportEvidence.fromReopened(identity, reopened.model) ?: return null
+        return evidence.takeIf { isCurrent(identity) }
+    }
     override suspend fun available(identity: ArtifactIdentity): List<ExportOption> {
         if (!isCurrent(identity)) return emptyList()
         val metadata = repository.currentPreview(identity.projectId) ?: return emptyList()
