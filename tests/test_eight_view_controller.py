@@ -312,7 +312,8 @@ def test_incomplete_console_withholds_secret_and_never_emits_workflow_commands(t
  assert [name for name,_ in seen]==['terminal-incomplete','original-failure-withheld']
 
 
-def test_classpath_normal_work_cannot_consume_cleanup_reserve(tmp_path):
+def test_classpath_normal_work_cannot_consume_cleanup_reserve(tmp_path,monkeypatch):
+ monkeypatch.setattr(ctl,'normalization_check',lambda *a,**kw:None)
  run=r.Runner(tmp_path,tmp_path/'work');path=run.work/'one.jar';path.write_bytes(b'fixture')
  record={'classpath':[{'path':str(path),'directory':False,'sha256':r.sha(path)}]}
  run.work_end=run.clock()-1

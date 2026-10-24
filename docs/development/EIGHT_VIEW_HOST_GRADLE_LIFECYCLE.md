@@ -70,7 +70,7 @@ truncation flags and full-path hashes. At most 256 entries are reported; the
 record is trimmed below 256 KiB with omitted-entry counts. Known matching JARs
 have priority regardless of original index, then directories with observed Core,
 then generic entries; byte trimming removes generic entries first. Directory Core
-discovery uses at most4096 metadata checks, with unexamined counts explicit. No
+discovery uses at most 4096 metadata checks, with unexamined counts explicit. No
 additional JAR scan is performed. Matching-JAR and observed-directory omissions
 are counted separately; the execution classpath order is never changed. Diagnostic I/O failure
 is identified without replacing the original refusal. Existing log sanitization
@@ -84,3 +84,59 @@ cover single, zero, duplicate, directory, truncated, late providers, byte-cap
 trimming and differing-byte cases;
 these are not OpenCV/AGP runtime qualification. A further actual-run inventory is
 needed before selecting any production remediation.
+
+
+## Proven equivalent AGP representations: explicit resource projection
+
+Attempt `0508afab6` retained a complete 217-entry inventory: entries 118 and 213
+were the AGP runtime JAR and extracted AAR `classes.jar`. Both had
+212 identical class entries matching the pinned AAR; all four OpenCV native-owner
+hashes matched and neither contained scanner `NativeCore`. This proves the
+class equivalence of those observed inputs, not their unrecorded resources or
+successful pipeline execution. The attempt stopped before any pipeline call.
+
+The supplementary probe now admits only these explicit modes:
+
+- `single-class-equivalent-provider`: one complete class map equals the pinned
+  AAR. It remains unchanged. Role `single-source-resources-identical` means its
+  ordered resources match the source; `single-class-only-no-resource-completeness`
+  means no non-class file payload was observed (directory markers are retained).
+  The latter does **not** claim resource completeness or add AAR resources.
+- `agp-two-role-resource-projection`: exactly one provider's raw SHA/size equals
+  the extracted AAR classes archive; the other has the complete identical class
+  map and no non-class file payload. The runtime role must precede the resource
+  role. Keep the runtime JAR unchanged and replace only the resource-role slot
+  with a deterministic resources-only archive. All non-class bytes, directory
+  markers, entry order and resource lookup multiplicity stay at that position.
+  Unrelated classpath entries/order stay unchanged. Resource URLs at that slot
+  intentionally change; the ledger explicitly records the mapping.
+
+No role is inferred from filenames, observed indices or arbitrary first-match
+selection. Third/partial providers, canonical-class directory overlaps, different
+class bytes, ambiguous/reversed roles and unsupported resource/loader metadata
+fail closed. Discovery reads bounded metadata for any canonical AAR class name,
+not just Core; unrelated JAR payloads are not scanned for normalization. Candidate
+archives reject unsafe/duplicate names, symlinks/special entries, signatures,
+multi-release/sealing/Class-Path metadata, ZIP64 and multi-disk layouts. Limits
+are 512 MiB raw/expanded, 2000 entries, 16 MiB per entry and derived archive. ZIP names
+are printable ASCII with safe components; digest ordering is cross-language
+unambiguous. Derived files are deterministic and immutable once written.
+
+The original extracted AAR classes archive remains unchanged as `opencvClasses`
+for ABI/source checks. Capture schema 2 replaces the obsolete singular
+`replacedOpenCvProvider` with versioned `opencvNormalization`, binding source AAR,
+original provider indices/paths/raw hashes and ordered entry inventories, explicit
+roles, and projected identity. Groovy production captures and independent Python
+validation re-read original and projected inputs with before/after identity checks
+at preparation, before fork and postcheck. Prepared-record immutability and the
+existing unique-native-owner and Kotlin single canonical class-resource URL gates
+are preserved; the pinned adapter is unchanged.
+
+Tests execute actual Gradle 8.13 with compiled synthetic Java classes and use
+isolated Java URLClassLoaders to compare interleaved resource contents/order/
+multiplicity and unique class ownership. A real Gradle-produced schema 2 capture
+is admitted by Python's independent validator. Negative cases cover partial and
+third providers, changed resources/classes, reversed roles, unsafe archives,
+unsupported metadata and projection/ledger/original-input tampering. These remain
+synthetic host tests, not AGP/OpenCV execution or Android qualification. The next
+actual attempt must still validate its full resource inventory and may refuse.

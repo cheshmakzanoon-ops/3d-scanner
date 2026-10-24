@@ -2,12 +2,165 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 import java.security.MessageDigest
 import java.util.zip.ZipFile
+// Bounded, content-defined normalization. No runtime owner/adapter policy changes.
+class EightViewProviderArchives {
+ static final long RAW_LIMIT=512L*1024*1024, ENTRY_LIMIT=16L*1024*1024
+ static String digest(byte[] value) { MessageDigest.getInstance('SHA-256').digest(value).encodeHex().toString() }
+ static Map identity(File file) {
+  assert file.isFile() && !java.nio.file.Files.isSymbolicLink(file.toPath()) && file.canonicalPath==file.absoluteFile.toPath().normalize().toString() : 'Provider alias/missing file'
+  def before=java.nio.file.Files.readAttributes(file.toPath(),java.nio.file.attribute.BasicFileAttributes)
+  assert before.size() in 1..RAW_LIMIT : 'Provider raw byte limit'
+  def hash=MessageDigest.getInstance('SHA-256');long total=0
+  file.withInputStream { input -> byte[] buffer=new byte[65536];int n
+   while((n=input.read(buffer))!=-1) { total+=n;assert total<=RAW_LIMIT;hash.update(buffer,0,n) }
+  }
+  def after=java.nio.file.Files.readAttributes(file.toPath(),java.nio.file.attribute.BasicFileAttributes)
+  assert before.size()==total && after.size()==total && before.lastModifiedTime()==after.lastModifiedTime() && before.fileKey()==after.fileKey() : 'Provider changed during read'
+  [path:file.canonicalPath,bytes:(int)total,sha256:hash.digest().encodeHex().toString()]
+ }
+ static void safeName(String name) {
+  assert name && name.length()<=4096 && !name.startsWith('/') && !name.contains('\\') && !name.contains(':') && name.toCharArray().every { ((int)it)>=32 && ((int)it)<=126 } : 'Unsafe ZIP name'
+  String path=name.endsWith('/')?name.substring(0,name.length()-1):name
+  assert path && path.split('/',-1).every { it && !(it in ['.','..']) } : 'Unsafe ZIP path'
+ }
+ static byte[] readEntry(ZipFile zip, java.util.zip.ZipEntry entry) {
+  assert entry.size>=0 && entry.size<=ENTRY_LIMIT : 'ZIP entry byte limit'
+  def out=new ByteArrayOutputStream()
+  zip.getInputStream(entry).withCloseable { input -> byte[] buffer=new byte[65536];int n
+   while((n=input.read(buffer))!=-1) { assert out.size()+n<=ENTRY_LIMIT;out.write(buffer,0,n) }
+  }
+  assert out.size()==entry.size : 'ZIP entry size changed'
+  out.toByteArray()
+ }
+ static void centralDirectory(File file) {
+  // ZipFile does not expose Unix external attributes. Read only bounded headers,
+  // never extract paths; ZIP64/multi-disk/symlink/special entries are unsupported.
+  new RandomAccessFile(file,'r').withCloseable { input ->
+   int length=(int)Math.min(input.length(),65557L);byte[] tail=new byte[length]
+   input.seek(input.length()-length);input.readFully(tail)
+   def end=java.nio.ByteBuffer.wrap(tail).order(java.nio.ByteOrder.LITTLE_ENDIAN);int offset=-1
+   for(int i=length-22;i>=0;i--) if(end.getInt(i)==0x06054b50 && i+22+(end.getShort(i+20)&0xffff)==length) { offset=i;break }
+   assert offset>=0 : 'ZIP end record missing'
+   assert end.getShort(offset+4)==0 && end.getShort(offset+6)==0 : 'Multi-disk ZIP unsupported'
+   int count=end.getShort(offset+10)&0xffff
+   assert count<=2000 && count==(end.getShort(offset+8)&0xffff) : 'ZIP64/count unsupported'
+   long size=end.getInt(offset+12)&0xffffffffL;long start=end.getInt(offset+16)&0xffffffffL
+   assert start!=0xffffffffL && size!=0xffffffffL && start+size==input.length()-length+offset : 'ZIP64/central directory layout unsupported'
+   input.seek(start)
+   for(int i=0;i<count;i++) {
+    byte[] bytes=new byte[46];input.readFully(bytes)
+    def header=java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+    assert header.getInt(0)==0x02014b50 : 'Invalid ZIP central header'
+    int flags=header.getShort(8)&0xffff;int method=header.getShort(10)&0xffff
+    assert (flags&~0x80e)==0 && method in [0,8] && header.getShort(34)==0 : 'Encrypted/unsupported ZIP entry'
+    int type=(int)((header.getInt(38)>>>16)&0xf000)
+    assert type in [0,0x8000,0x4000] : 'ZIP symlink/special entry'
+    int name=header.getShort(28)&0xffff;int extra=header.getShort(30)&0xffff;int comment=header.getShort(32)&0xffff
+    assert name in 1..4096 && input.filePointer+name+extra+comment<=start+size : 'ZIP header bounds'
+    assert [20,24,42].every { (header.getInt(it)&0xffffffffL)!=0xffffffffL } : 'ZIP64 entry unsupported'
+    byte[] rawName=new byte[name];input.readFully(rawName)
+    assert type==0 || (type==0x4000)==(rawName[name-1]==(byte)47) : 'ZIP directory type/name mismatch'
+    byte[] extraBytes=new byte[extra];input.readFully(extraBytes)
+    def fields=java.nio.ByteBuffer.wrap(extraBytes).order(java.nio.ByteOrder.LITTLE_ENDIAN);int position=0
+    while(position<extra) {
+     assert position+4<=extra : 'ZIP extra field header'
+     int tag=fields.getShort(position)&0xffff;int fieldSize=fields.getShort(position+2)&0xffff
+     assert tag!=1 && position+4+fieldSize<=extra : 'ZIP64/invalid extra field'
+     position+=4+fieldSize
+    }
+    input.seek(input.filePointer+comment)
+   }
+   assert input.filePointer==start+size : 'ZIP central entry count differs'
+  }
+ }
+ static Map archive(File file) {
+  def before=identity(file);centralDirectory(file);def entries=[];def names=[] as Set;long expanded=0
+  new ZipFile(file).withCloseable { zip -> zip.entries().each { entry ->
+   assert entries.size()<2000 : 'ZIP entry count limit';safeName(entry.name)
+   assert names.add(entry.name) : 'Duplicate ZIP entry'
+   String upper=entry.name.toUpperCase(Locale.ROOT)
+   assert !upper.startsWith('META-INF/VERSIONS/') && !(upper.startsWith('META-INF/') && (upper.endsWith('.SF') || upper.endsWith('.RSA') || upper.endsWith('.DSA') || upper.endsWith('.EC') || upper.tokenize('/').last().startsWith('SIG-'))) : 'Unsupported signed/multi-release archive'
+   byte[] bytes=readEntry(zip,entry);expanded+=bytes.length;assert expanded<=RAW_LIMIT : 'ZIP expanded byte limit'
+   assert !entry.directory || bytes.length==0 : 'Directory ZIP entry payload'
+   if(upper=='META-INF/MANIFEST.MF') {
+    def manifest=new java.util.jar.Manifest(new ByteArrayInputStream(bytes))
+    assert manifest.entries.isEmpty() && manifest.mainAttributes.keySet().every { it.toString().toLowerCase(Locale.ROOT) in ['manifest-version','created-by','build-jdk','built-by'] } : 'Unsupported loader-affecting manifest'
+   }
+   entries<<[name:entry.name,directory:entry.directory,bytes:bytes.length,sha256:digest(bytes)]
+  } }
+  assert identity(file)==before : 'Archive changed during inspection'
+  def classes=entries.findAll { !it.directory && it.name.endsWith('.class') }
+  def resources=entries.findAll { it.directory || !it.name.endsWith('.class') }
+  before+[entries:entries,
+   classMapSha256:digest(classes.sort { it.name }.collect { it.sha256+'  '+it.name+'\n' }.join('').getBytes('UTF-8')),
+   resourceMapSha256:digest(resources.collect { (it.directory?'d':'f')+' '+it.sha256+' '+it.bytes+' '+it.name+'\n' }.join('').getBytes('UTF-8'))]
+ }
+ static List classes(Map record) { record.entries.findAll { !it.directory && it.name.endsWith('.class') }.sort { it.name } }
+ static List resources(Map record) { record.entries.findAll { it.directory || !it.name.endsWith('.class') } }
+ static void immutableWrite(File target,byte[] bytes) {
+  assert bytes.length<=ENTRY_LIMIT : 'Derived archive byte limit'
+  if(target.exists()) { assert identity(target).sha256==digest(bytes) : 'Derived archive changed' }
+  else java.nio.file.Files.write(target.toPath(),bytes,java.nio.file.StandardOpenOption.CREATE_NEW)
+ }
+ static Map extract(File aar,File classes,String expectedSha) {
+  def before=identity(aar);centralDirectory(aar);assert before.sha256==expectedSha : 'Source OpenCV AAR differs from pinned policy'
+  byte[] extracted;def names=[] as Set;int count=0
+  new ZipFile(aar).withCloseable { zip -> zip.entries().each { entry ->
+   assert ++count<=2000 : 'AAR entry count limit';safeName(entry.name);assert names.add(entry.name) : 'Duplicate AAR entry'
+   if(entry.name=='classes.jar') { assert !entry.directory;extracted=readEntry(zip,entry) }
+  } }
+  assert extracted!=null && identity(aar)==before : 'AAR classes missing/changed'
+  immutableWrite(classes,extracted);before
+ }
+ static Map projectResources(File source,Map expected,File target) {
+  def output=new ByteArrayOutputStream()
+  new java.util.zip.ZipOutputStream(output).withCloseable { result ->
+   new ZipFile(source).withCloseable { zip -> resources(expected).each { entry ->
+    def original=zip.getEntry(entry.name);assert original!=null
+    byte[] bytes=readEntry(zip,original);assert digest(bytes)==entry.sha256 && bytes.length==entry.bytes && original.directory==entry.directory : 'Projection source entry changed'
+    def projected=new java.util.zip.ZipEntry(entry.name);projected.setTime(0L)
+    result.putNextEntry(projected);result.write(bytes);result.closeEntry()
+    assert output.size()<=ENTRY_LIMIT : 'Projection byte limit'
+   } }
+  }
+  assert archive(source)==expected : 'Projection source changed'
+  immutableWrite(target,output.toByteArray())
+  def projected=archive(target)
+  assert projected.entries==resources(expected) && classes(projected).isEmpty() : 'Projection resource identity/order differs'
+  projected
+ }
+ static Map normalize(List<File> original,List<File> providers,File aar,Map aarIdentity,File sourceClasses,File output) {
+  def source=archive(sourceClasses);def originals=providers.collect { file -> archive(file)+[index:original.indexOf(file)] }
+  assert originals.size() in [1,2] : 'One equivalent provider or exact AGP two-role pair required'
+  originals.each { assert classes(it)==classes(source) : 'OpenCV transformed provider differs' }
+  assert originals.collect { it.path }.toSet().size()==originals.size() : 'Provider aliases'
+  if(originals.size()==2) assert !java.nio.file.Files.isSameFile(new File(originals[0].path).toPath(),new File(originals[1].path).toPath()) : 'Hardlinked provider aliases'
+  def cp=new ArrayList(original);def projection=null;String mode
+  if(originals.size()==1) {
+   def only=originals[0]
+   assert resources(only)==resources(source) || resources(only).every { it.directory } : 'Single-provider resources differ'
+   only.role=resources(only)==resources(source)?'single-source-resources-identical':'single-class-only-no-resource-completeness';mode='single-class-equivalent-provider'
+  } else {
+   def sourceRoles=originals.findAll { it.sha256==source.sha256 && it.bytes==source.bytes }
+   assert sourceRoles.size()==1 : 'Ambiguous source-AAR resource role'
+   def resourceRole=sourceRoles[0];def runtime=originals.find { it.path!=resourceRole.path }
+   assert resources(runtime).every { it.directory } : 'Runtime class role has non-class payload'
+   assert runtime.index<resourceRole.index : 'Unsupported reversed AGP roles'
+   runtime.role='runtime-classes';resourceRole.role='aar-resources'
+   projection=projectResources(new File(resourceRole.path),resourceRole.findAll { k,v -> !(k in ['index','role']) },new File(output,'opencv-resources-only.jar'))+[index:resourceRole.index,sourcePath:resourceRole.path]
+   cp[resourceRole.index]=new File(projection.path);mode='agp-two-role-resource-projection'
+  }
+  assert identity(aar)==aarIdentity && archive(sourceClasses)==source : 'Source binding changed during normalization'
+  originals.each { record -> assert archive(new File(record.path))==record.findAll { k,v -> !(k in ['index','role']) } : 'Original provider changed during normalization' }
+  [cp:cp,ledger:[schema:1,mode:mode,sourceAar:aarIdentity,sourceClasses:source,providers:originals,projection:projection]]
+ }
+}
 // Additive task only. Original source sets/gates are unchanged after this invocation.
 allprojects { afterEvaluate { if (path == ':app') {
  def cfg = new JsonSlurper().parse(new File(project.property('eightConfig').toString()))
  def sha = { byte[] b -> MessageDigest.getInstance('SHA-256').digest(b).encodeHex().toString() }
  def writeJson = { File f, Object x -> f.parentFile.mkdirs(); f.text=JsonOutput.prettyPrint(JsonOutput.toJson(x))+'\n' }
- def zipClasses = { File f -> def result=[:]; new ZipFile(f).withCloseable { z -> z.entries().each { e -> if(e.name.endsWith('.class')) result[e.name]=sha(z.getInputStream(e).bytes) } }; result }
+
  def sourceDir=new File(cfg.sources); assert sourceDir.isDirectory()
  android.sourceSets.test.java.srcDir(sourceDir)
  // Android and host test tasks are registered by later afterEvaluate callbacks.
@@ -25,15 +178,27 @@ allprojects { afterEvaluate { if (path == ':app') {
   def artifacts=configurations.getByName('debugRuntimeClasspath').resolvedConfiguration.resolvedArtifacts
   def cv=artifacts.findAll { it.moduleVersion.id.group=='org.opencv' && it.moduleVersion.id.name=='opencv' && it.moduleVersion.id.version=='4.12.0' }
   assert cv.size()==1 && cv[0].file.name.endsWith('.aar') : 'exact current OpenCV AAR'
-  File aar=cv[0].file;byte[] bytes
-  new ZipFile(aar).withCloseable { z -> assert z.getEntry('classes.jar'); bytes=z.getInputStream(z.getEntry('classes.jar')).bytes }
+  File aar=cv[0].file
   File classes=new File(output,'aar-classes.jar')
-  if(classes.exists()) assert sha(classes.bytes)==sha(bytes) else classes.bytes=bytes
-  def expected=zipClasses(classes);def original=hostProvider.get().classpath.files.toList();def replaced=[];def coreProviders=[:]
+  def buildPolicy=new JsonSlurper().parse(rootProject.file('tools/eight_view_host/build-policy.json'))
+  def aarIdentity=EightViewProviderArchives.extract(aar,classes,buildPolicy.opencvAarSha256)
+  byte[] bytes=classes.bytes
+  def expected=EightViewProviderArchives.classes(EightViewProviderArchives.archive(classes)).collectEntries { [it.name,it.sha256] }
+  def original=hostProvider.get().classpath.files.toList();assert original.size()<=2000 : 'Classpath entry count limit'
+  def replaced=[];def coreProviders=[:]
+  def overlapsCanonicalClasses = { File file ->
+   assert file.length()<=EightViewProviderArchives.RAW_LIMIT : 'Classpath JAR byte limit'
+   boolean found=false
+   new ZipFile(file).withCloseable { zip ->
+    assert zip.size()<=100000 : 'Classpath JAR metadata count limit'
+    // Discovery inspects metadata only; candidate contents use the bounded parser.
+    found=zip.entries().any { expected.containsKey(it.name) }
+   };found
+  }
   def cp=original.collect { f ->
    if(f.isFile() && f.name.endsWith('.jar')) {
-    def content=zipClasses(f)
-    if(content.containsKey('org/opencv/core/Core.class')) {
+    if(overlapsCanonicalClasses(f)) {
+     def content=EightViewProviderArchives.classes(EightViewProviderArchives.archive(f)).collectEntries { [it.name,it.sha256] }
      assert content==expected : 'OpenCV transformed provider differs'
      coreProviders[f]=[classCount:content.size(),coreSha256:content['org/opencv/core/Core.class'],
        classMapSha256:sha(JsonOutput.toJson(new TreeMap(content)).getBytes('UTF-8')),
@@ -43,7 +208,11 @@ allprojects { afterEvaluate { if (path == ':app') {
    }
    f
   }
-  if(replaced.size()!=1) {
+  def normalized=null;def normalizationFailure=null
+  try { normalized=EightViewProviderArchives.normalize(original,replaced,aar,aarIdentity,classes,output) }
+  catch(AssertionError failure) { normalizationFailure=failure }
+  catch(Exception failure) { normalizationFailure=failure }
+  if(normalizationFailure!=null) {
    try {
    // Diagnostic only: never select, deduplicate, append or accept another provider.
    // Existing command-log sanitization/byte limits apply; this record is <=256 KiB.
@@ -116,9 +285,13 @@ allprojects { afterEvaluate { if (path == ':app') {
       diagnosticIncomplete:true,errorType:diagnosticError.getClass().getName()]))
    }
   }
-  assert replaced.size()==1 : 'exactly one existing OpenCV runtime provider expected'
+  if(normalizationFailure!=null) throw normalizationFailure
+  cp=normalized.cp
+  original.findAll { it.isDirectory() }.each { directory ->
+   assert !expected.keySet().any { name -> new File(directory,name).isFile() } : 'Unclassified canonical class directory provider'
+  }
   assert cp.collect {it.canonicalPath}.toSet().size()==cp.size()
-  [cp:cp,aar:aar,classes:classes,replaced:replaced]
+  [cp:cp,aar:aar,classes:classes,normalization:normalized.ledger]
  }
  def capture = { String stage ->
   def resolved=actualClasspath();def cp=resolved.cp;def owners=[:].withDefault {[]};def inventory=[]
@@ -138,9 +311,9 @@ allprojects { afterEvaluate { if (path == ':app') {
    }
   }
   ownerNames.each {assert owners[it].size()==1 : 'native owner ambiguous: '+it}
-  def record=[schema:1,task:':app:eightPrepare',classpath:inventory,classpathString:cp.collect {it.canonicalPath}.join(File.pathSeparator),
+  def record=[schema:2,task:':app:eightPrepare',classpath:inventory,classpathString:cp.collect {it.canonicalPath}.join(File.pathSeparator),
     owners:owners.collectEntries {k,v->[k,v[0]]},opencvAar:resolved.aar.canonicalPath,opencvClasses:resolved.classes.canonicalPath,
-    replacedOpenCvProvider:resolved.replaced[0].canonicalPath,sourceSha:cfg.sourceSha]
+    opencvNormalization:resolved.normalization,sourceSha:cfg.sourceSha]
   if(stage=='prepare') {
    assert cfg.phase=='prepare' && !prepared.exists() : 'immutable preparation baseline must be fresh'
    writeJson(prepared,record)

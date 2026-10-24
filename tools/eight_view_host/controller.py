@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One source-bound eight-view HOST attempt. Deliberately NOT ARMED until reviewed."""
 from __future__ import annotations
-import hashlib, importlib.util, json, os, platform, re, shutil, sys, time, zipfile
+import hashlib, importlib.util, json, os, platform, re, shutil, struct, sys, time, zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
@@ -32,7 +32,7 @@ def verify_probe_classes_removed(root,run=None):
 def phase_budget(run,maximum=10,cleanup=True):
     return maximum if run is None else min(maximum,run.remaining(maximum,cleanup=cleanup))
 
-def bounded_bytes(path,maximum,run=None):
+def bounded_bytes(path,maximum,run=None,cleanup=True):
     path=Path(path)
     if path.is_symlink() or not path.is_file():raise Failure('Bounded evidence/input is not a regular file')
     before=path.stat()
@@ -40,7 +40,7 @@ def bounded_bytes(path,maximum,run=None):
     raw=bytearray()
     with path.open('rb') as stream:
         while True:
-            phase_budget(run)
+            phase_budget(run,cleanup=cleanup)
             block=stream.read(min(65536,maximum-len(raw)+1))
             if not block:break
             raw.extend(block)
@@ -74,7 +74,7 @@ def classpath_check(record,run=None,cleanup=False):
     total=0;count=0;paths=[]
     for entry in entries:
         phase_budget(run,cleanup=cleanup);path=Path(entry['path']);paths.append(str(path))
-        if path.is_symlink():raise Failure('Classpath alias changed')
+        if path.is_symlink() or not path.is_absolute() or str(path.resolve())!=str(path):raise Failure('Classpath alias changed')
         if entry['directory']:
             size,tree=inventory(path,max_bytes=2*1024**3-total,max_files=100000-count,seconds=phase_budget(run,cleanup=cleanup))
             total+=size;count+=len(tree)
@@ -85,8 +85,249 @@ def classpath_check(record,run=None,cleanup=False):
             if total>2*1024**3 or count>100000:raise Failure('Classpath cumulative byte/count limit')
             if bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=entry['sha256']:raise Failure('Runtime jar changed')
     if len(set(paths))!=len(paths) or record.get('classpathString',os.pathsep.join(paths))!=os.pathsep.join(paths):raise Failure('Classpath order/identity string differs')
+    normalization_check(record,run,cleanup)
 
-CLASSPATH_FIELDS=('schema','task','classpath','classpathString','owners','opencvAar','opencvClasses','replacedOpenCvProvider','sourceSha')
+# Ledger digests use printable ASCII names and UTF-8 line records, not JSON bytes.
+_ARCHIVE_KEYS={'path','bytes','sha256','entries','classMapSha256','resourceMapSha256'}
+
+def normalization_path(value):
+    if not isinstance(value,str):raise Failure('Normalization path type')
+    path=Path(value)
+    if not path.is_absolute() or str(path.resolve())!=value or path.is_symlink() or not path.is_file():
+        raise Failure('Normalization path alias or missing file')
+    return path
+
+def normalization_zip_metadata(path,run=None,cleanup=False):
+    # Read bounded central headers before ZipFile allocates its entry inventory.
+    size=path.stat().st_size
+    if not 22<=size<=512*1024**2:raise Failure('Normalization ZIP raw size')
+    with path.open('rb') as stream:
+        stream.seek(max(0,size-65557));tail=stream.read(65557);offset=tail.rfind(b'PK\x05\x06')
+        if offset<0 or offset+22>len(tail):raise Failure('Missing normalization ZIP end record')
+        disk,central_disk,count_disk,count,length,position,comment=struct.unpack_from('<4H2IH',tail,offset+4)
+        absolute=size-len(tail)+offset
+        if (disk or central_disk or count_disk!=count or count>2000 or count==65535 or length==0xffffffff or position==0xffffffff
+            or offset+22+comment!=len(tail) or position+length!=absolute):raise Failure('Unsupported normalization ZIP layout')
+        stream.seek(position);names=set()
+        for _ in range(count):
+            phase_budget(run,cleanup=cleanup);header=stream.read(46)
+            if len(header)!=46 or header[:4]!=b'PK\x01\x02':raise Failure('Malformed normalization ZIP central header')
+            flags,method=struct.unpack_from('<HH',header,8)
+            compressed,expanded=struct.unpack_from('<II',header,20)
+            namesize,extrasize,commentsize,startdisk=struct.unpack_from('<4H',header,28)
+            attrs,local=struct.unpack_from('<II',header,38)
+            mode=(attrs>>16)&0o170000
+            if (flags&~0x80e or method not in (0,8) or mode not in (0,0o100000,0o040000) or startdisk
+                or compressed==0xffffffff or expanded==0xffffffff or local==0xffffffff or not 0<namesize<=4096):
+                raise Failure('Unsupported normalization ZIP metadata')
+            name=stream.read(namesize);extra=stream.read(extrasize)
+            if len(name)!=namesize or len(extra)!=extrasize:raise Failure('Truncated normalization ZIP metadata')
+            parts=name[:-1].split(b'/') if name.endswith(b'/') else name.split(b'/')
+            if (name in names or any(c<32 or c>126 for c in name) or b'\\' in name or b':' in name
+                or any(p in (b'',b'.',b'..') for p in parts)):
+                raise Failure('Unsafe or duplicate normalization ZIP name')
+            names.add(name)
+            if mode==0o040000 and not name.endswith(b'/') or mode==0o100000 and name.endswith(b'/'):
+                raise Failure('Inconsistent normalization ZIP file type/name')
+            i=0
+            while i<len(extra):
+                if i+4>len(extra):raise Failure('Malformed normalization ZIP extra field')
+                tag,n=struct.unpack_from('<HH',extra,i);i+=4
+                if tag==1 or i+n>len(extra):raise Failure('Unsupported normalization ZIP64/extra field')
+                i+=n
+            stream.seek(commentsize,1)
+        if stream.tell()!=position+length:raise Failure('Normalization ZIP central extent')
+
+def normalization_archive(value,run=None,cleanup=False,extra=()):
+    if not isinstance(value,dict) or set(value)!=_ARCHIVE_KEYS|set(extra):raise Failure('Normalization archive schema')
+    if (type(value['bytes']) is not int or not isinstance(value['entries'],list) or len(value['entries'])>2000
+        or any(not isinstance(value[k],str) or not re.fullmatch('[0-9a-f]{64}',value[k]) for k in ('sha256','classMapSha256','resourceMapSha256'))):
+        raise Failure('Normalization archive identity types')
+    for entry in value['entries']:
+        if (not isinstance(entry,dict) or set(entry)!={'name','directory','bytes','sha256'} or not isinstance(entry['name'],str)
+            or type(entry['directory']) is not bool or type(entry['bytes']) is not int or not isinstance(entry['sha256'],str)
+            or not re.fullmatch('[0-9a-f]{64}',entry['sha256'])):raise Failure('Normalization entry schema')
+    path=normalization_path(value['path']);before=path.stat()
+    digest=bounded_hash(path,512*1024**2,run,cleanup=cleanup)
+    normalization_zip_metadata(path,run,cleanup)
+    entries=[];classes={};resources=[];total=0;seen=set()
+    try:
+        with zipfile.ZipFile(path) as archive:
+            infos=archive.infolist()
+            if len(infos)>2000:raise Failure('Normalization entry count')
+            for info in infos:
+                phase_budget(run,cleanup=cleanup)
+                name=info.filename;directory=info.is_dir();parts=name.rstrip('/').split('/')
+                if (not name or len(name)>4096 or ':' in name or any(ord(c)<32 or ord(c)>126 for c in name) or '\\' in name or name.startswith('/')
+                    or any(p in ('','.','..') for p in parts) or name in seen or info.orig_filename!=name
+                    or info.flag_bits&1 or info.compress_type not in (zipfile.ZIP_STORED,zipfile.ZIP_DEFLATED)
+                    or (info.external_attr>>16)&0o170000 not in (0,0o100000,0o040000)):
+                    raise Failure('Unsafe normalization ZIP entry')
+                seen.add(name);upper=name.upper()
+                if upper.startswith('META-INF/VERSIONS/') or (upper.startswith('META-INF/') and
+                    (upper.endswith(('.SF','.RSA','.DSA','.EC')) or upper.rsplit('/',1)[-1].startswith('SIG-'))):
+                    raise Failure('Unsupported signed or multi-release archive')
+                if info.file_size>16*1024**2 or info.file_size<0:raise Failure('Normalization entry size')
+                total+=info.file_size
+                if total>512*1024**2:raise Failure('Normalization expanded size')
+                h=hashlib.sha256();size=0;manifest=bytearray()
+                with archive.open(info) as stream:
+                    while True:
+                        phase_budget(run,cleanup=cleanup);block=stream.read(65536)
+                        if not block:break
+                        size+=len(block)
+                        if size>16*1024**2:raise Failure('Normalization expanded entry size')
+                        h.update(block)
+                        if upper=='META-INF/MANIFEST.MF':manifest.extend(block)
+                if size!=info.file_size or directory and size:raise Failure('Normalization entry size mismatch')
+                if upper=='META-INF/MANIFEST.MF':
+                    # Same deliberately narrow manifest domain as the JVM reader.
+                    lines=bytes(manifest).replace(b'\r\n',b'\n').replace(b'\r',b'\n').split(b'\n')
+                    ended=False;attribute=False
+                    for line in lines:
+                        if not line:ended=True;continue
+                        if ended:raise Failure('Unsupported normalization manifest section')
+                        if line.startswith(b' '):
+                            if not attribute:raise Failure('Malformed normalization manifest continuation')
+                            continue
+                        key,separator,_=line.partition(b': ')
+                        if not separator or key.lower() not in (b'manifest-version',b'created-by',b'build-jdk',b'built-by'):
+                            raise Failure('Unsupported normalization manifest metadata')
+                        attribute=True
+                entry={'name':name,'directory':directory,'bytes':size,'sha256':h.hexdigest()};entries.append(entry)
+                if not directory and name.endswith('.class'):classes[name]=h.hexdigest()
+                else:resources.append(entry)
+    except Failure:raise
+    except (zipfile.BadZipFile,RuntimeError,ValueError,NotImplementedError) as error:
+        raise Failure('Unreadable normalization archive') from error
+    actual={'path':str(path),'bytes':before.st_size,'sha256':digest,'entries':entries,
+        'classMapSha256':hashlib.sha256(''.join(f'{classes[n]}  {n}\n' for n in sorted(classes)).encode('utf-8')).hexdigest(),
+        'resourceMapSha256':hashlib.sha256(''.join(f'{"d" if e["directory"] else "f"} {e["sha256"]} {e["bytes"]} {e["name"]}\n' for e in resources).encode('utf-8')).hexdigest()}
+    after=path.stat()
+    if ((before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns)!=(after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns)
+        or bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=digest):raise Failure('Normalization archive changed during inspection')
+    if actual!={k:value[k] for k in _ARCHIVE_KEYS}:raise Failure('Normalization archive identity differs')
+    return classes,resources
+
+def effective_owner_count(path,owner,run=None,cleanup=False):
+    """Stream unrelated JAR metadata without constructing an unbounded ZipInfo list.
+
+    Unlike normalized providers, unrelated dependencies may legitimately use ZIP64.
+    The existing 100000-file inspection cap applies per archive here.
+    """
+    size=path.stat().st_size;matches=0
+    targets={name.encode('ascii') for name in ([owner] if isinstance(owner,str) else owner)}
+    target_lengths={len(name) for name in targets}
+    if not 22<=size<=512*1024**2:raise Failure('Effective JAR size limit')
+    with path.open('rb') as stream:
+        stream.seek(max(0,size-65557));tail=stream.read(65557);offset=tail.rfind(b'PK\x05\x06')
+        if offset<0 or offset+22>len(tail):raise Failure('Missing effective JAR end record')
+        disk,central_disk,count_disk,count,length,position,comment=struct.unpack_from('<4H2IH',tail,offset+4)
+        end=size-len(tail)+offset
+        if disk or central_disk or offset+22+comment!=len(tail):raise Failure('Unsupported effective JAR layout')
+        if count==65535 or count_disk==65535 or length==0xffffffff or position==0xffffffff:
+            stream.seek(end-20);locator=stream.read(20)
+            if len(locator)!=20 or locator[:4]!=b'PK\x06\x07':raise Failure('Missing effective JAR ZIP64 locator')
+            zipdisk,zipoffset,disks=struct.unpack_from('<IQI',locator,4)
+            if zipdisk or disks!=1 or zipoffset+56>end-20:raise Failure('Unsupported effective JAR ZIP64 layout')
+            stream.seek(zipoffset);header=stream.read(56)
+            if len(header)!=56 or header[:4]!=b'PK\x06\x06':raise Failure('Missing effective JAR ZIP64 end')
+            recordsize=struct.unpack_from('<Q',header,4)[0]
+            disk,central_disk,count_disk,count,length,position=struct.unpack_from('<IIQQQQ',header,16)
+            if recordsize<44 or zipoffset+12+recordsize!=end-20 or disk or central_disk:raise Failure('Unsupported effective JAR ZIP64 extent')
+            end=zipoffset
+        if count_disk!=count or count>100000 or position+length!=end:raise Failure('Effective JAR metadata count/extent')
+        stream.seek(position)
+        for _ in range(count):
+            phase_budget(run,cleanup=cleanup);header=stream.read(46)
+            if len(header)!=46 or header[:4]!=b'PK\x01\x02':raise Failure('Malformed effective JAR central header')
+            namesize,extrasize,commentsize=struct.unpack_from('<3H',header,28)
+            if stream.tell()+namesize+extrasize+commentsize>position+length:raise Failure('Effective JAR metadata extent')
+            if namesize in target_lengths:matches+=stream.read(namesize) in targets
+            else:stream.seek(namesize,1)
+            stream.seek(extrasize+commentsize,1)
+        if stream.tell()!=position+length:raise Failure('Effective JAR central extent')
+    return matches
+
+def normalization_check(record,run=None,cleanup=False):
+    if type(record.get('schema')) is not int or record.get('schema')!=2 or 'replacedOpenCvProvider' in record:raise Failure('Unsupported classpath capture schema')
+    ledger=record.get('opencvNormalization')
+    if not isinstance(ledger,dict) or set(ledger)!={'schema','mode','sourceAar','sourceClasses','providers','projection'} or type(ledger['schema']) is not int or ledger['schema']!=1:
+        raise Failure('Unsupported normalization ledger schema')
+    if record.get('task')!=':app:eightPrepare' or not re.fullmatch('[0-9a-f]{40}',record.get('sourceSha','')):raise Failure('Normalization capture task/source binding')
+    mode=ledger['mode']
+    if mode not in ('single-class-equivalent-provider','agp-two-role-resource-projection'):raise Failure('Unsupported normalization mode')
+    aar=ledger['sourceAar'];source=ledger['sourceClasses']
+    if not isinstance(aar,dict) or set(aar)!={'path','bytes','sha256'} or type(aar['bytes']) is not int:raise Failure('Normalization source AAR schema')
+    path=normalization_path(aar['path']);aar_before=path.stat()
+    if aar['path']!=record['opencvAar'] or source['path']!=record['opencvClasses']:raise Failure('Normalization source path binding')
+    pinned=json.loads(capability.POLICY.read_text())['opencvAarSha256']
+    if aar['sha256']!=pinned or bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=pinned or path.stat().st_size!=aar['bytes']:
+        raise Failure('Normalization source AAR identity')
+    source_classes,source_resources=normalization_archive(source,run,cleanup)
+    if not source_classes:raise Failure('Normalization source classes empty')
+    normalization_zip_metadata(path,run,cleanup)
+    with zipfile.ZipFile(path) as archive:
+        matches=[i for i in archive.infolist() if i.filename=='classes.jar']
+        if len(matches)!=1 or matches[0].file_size>16*1024**2:raise Failure('Normalization AAR classes entry')
+        with archive.open(matches[0]) as stream:
+            raw=stream.read(16*1024**2+1)
+        if len(raw)!=source['bytes'] or hashlib.sha256(raw).hexdigest()!=source['sha256']:raise Failure('Normalization extracted classes binding')
+    if bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=pinned:raise Failure('Normalization AAR changed')
+    aar_after=path.stat()
+    if (aar_before.st_dev,aar_before.st_ino,aar_before.st_size,aar_before.st_mtime_ns)!=(aar_after.st_dev,aar_after.st_ino,aar_after.st_size,aar_after.st_mtime_ns):
+        raise Failure('Normalization AAR changed during extraction verification')
+    providers=ledger['providers'];cp=record['classpath'];projection=ledger['projection']
+    expected=1 if mode=='single-class-equivalent-provider' else 2
+    if not isinstance(providers,list) or len(providers)!=expected:raise Failure('Normalization provider count')
+    identities=[];indices=[];resource_lists=[]
+    for provider in providers:
+        classes,resources=normalization_archive(provider,run,cleanup,('index','role'))
+        if classes!=source_classes:raise Failure('Normalization provider class map')
+        index=provider['index']
+        if type(index) is not int or not 0<=index<len(cp):raise Failure('Normalization provider index')
+        st=Path(provider['path']).stat();identities.append((st.st_dev,st.st_ino));indices.append(index);resource_lists.append(resources)
+    if len(set(indices))!=expected or len(set(identities))!=expected:raise Failure('Normalization provider alias')
+    def effective(index,archive):
+        if cp[index].get('directory') is not False or cp[index].get('path')!=archive['path'] or cp[index].get('sha256')!=archive['sha256']:
+            raise Failure('Normalization effective classpath binding')
+    if expected==1:
+        p=providers[0]
+        if projection is not None:raise Failure('Normalization single mode projection')
+        disposition='single-source-resources-identical' if resource_lists[0]==source_resources else 'single-class-only-no-resource-completeness'
+        if p['role']!=disposition:raise Failure('Normalization single resource disposition')
+        if resource_lists[0]!=source_resources and any(not e['directory'] for e in resource_lists[0]):raise Failure('Normalization single provider resources')
+        effective(indices[0],p)
+    else:
+        runtime,original=providers
+        if runtime['role']!='runtime-classes' or original['role']!='aar-resources' or indices[0]>=indices[1]:raise Failure('Normalization two-role ordering')
+        if any(not e['directory'] for e in resource_lists[0]) or original['sha256']!=source['sha256'] or runtime['sha256']==source['sha256']:raise Failure('Normalization provider role content')
+        classes,resources=normalization_archive(projection,run,cleanup,('index','sourcePath'))
+        if classes or resources!=source_resources or type(projection['index']) is not int or projection['bytes']>16*1024**2 or projection['index']!=indices[1] or projection['sourcePath']!=original['path']:
+            raise Failure('Normalization resource projection binding')
+        st=Path(projection['path']).stat()
+        if (st.st_dev,st.st_ino) in identities or projection['path'] in (source['path'],aar['path']):raise Failure('Normalization projection alias')
+        effective(indices[0],runtime);effective(indices[1],projection)
+        if original['path'] in [e['path'] for e in cp]:raise Failure('Original duplicate provider remains effective')
+    # No unclassified partial or full provider may overlap ANY canonical class.
+    containers=[]
+    for index,entry in enumerate(cp):
+        phase_budget(run,cleanup=cleanup);path=Path(entry['path'])
+        if entry['directory']:
+            if any((path/name).exists() for name in source_classes):containers.append(index)
+        else:
+            if not path.name.endswith('.jar'):raise Failure('Unsupported effective classpath file suffix')
+            matches=effective_owner_count(path,source_classes,run,cleanup)
+            if index==indices[0] and matches!=len(source_classes):raise Failure('Incomplete or duplicate canonical OpenCV class entries')
+            if matches:containers.append(index)
+            if bounded_hash(path,512*1024**2,run,cleanup=cleanup)!=entry['sha256']:raise Failure('Effective JAR changed during provider inspection')
+    if containers!=[indices[0]]:raise Failure('Undeclared effective OpenCV class overlap/provider')
+
+def prepared_record_check(run,prepared,expected_hash,cleanup=False):
+    raw=bounded_bytes(run.work/'prepared.json',16*1024**2,run,cleanup=cleanup)
+    if hashlib.sha256(raw).hexdigest()!=expected_hash or json.loads(raw)!=prepared:raise Failure('Immutable prepared record changed')
+
+CLASSPATH_FIELDS=('schema','task','classpath','classpathString','owners','opencvAar','opencvClasses','opencvNormalization','sourceSha')
 
 def runtime_classpath_proof(run,prepared):
     baseline={key:prepared[key] for key in CLASSPATH_FIELDS};proof=[]
@@ -162,7 +403,8 @@ def prepare_runtime(run,source,package,inputs):
     if graph.get('externalNativeTasks'):raise Blocked('Unexpected Android native tasks in HOST graph; configuration-only NDK does not authorize native execution')
     if graph.get('compileSdk') not in (36,'android-36') or graph.get('buildTools')!='36.0.0' or graph.get('ndkVersion')!=ndk.REVISION:raise Failure('Unexpected actual Android compilation configuration')
     run.command('gradle-prepare',[*gradle_args(run,config),':app:eightPrepare'],seconds=900)
-    prepared=json.loads((run.work/'prepared.json').read_text())
+    prepared=json.loads(bounded_bytes(run.work/'prepared.json',16*1024**2,run,cleanup=False))
+    if prepared.get('sourceSha')!=source:raise Failure('Prepared source differs from selected source')
     classpath_check(prepared,run)
     pinned=json.loads(capability.POLICY.read_text())
     natives=[entry for entry in prepared['classpath'] if Path(entry['path']).name=='nativeruntime-dist-compat-1.0.16.jar']
@@ -235,6 +477,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed):
     cfg.update(phase='run',runOwner=run.owner,preparedSha256=sha(run.work/'prepared.json'),capability=str(cap),capabilitySha256=sha(cap),policySha256=sha(capability.POLICY),aliasDir=str(aliases))
     atomic_json(config,cfg)
     classpath_check(prepared,run)
+    prepared_record_check(run,prepared,cfg['preparedSha256'])
     original=None
     run.pipeline_attempts=1  # Only now is the selected invocation attempted; gates above are not attempts.
     try:
@@ -249,6 +492,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed):
         try:
             run.remaining(1,cleanup=True)
             policy.verify_capability(cap,source,capability.POLICY,run,prepared)
+            prepared_record_check(run,prepared,cfg['preparedSha256'],cleanup=True)
             run.remaining(1,cleanup=True);classpath_check(prepared,run,cleanup=True)
             run.runtime_input_postcheck['actualClasspathCaptures']=runtime_classpath_proof(run,prepared)
             run.remaining(1,cleanup=True)

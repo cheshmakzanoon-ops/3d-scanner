@@ -1,10 +1,14 @@
 """Real Gradle lifecycle regression; synthetic extension is not Android qualification."""
+import hashlib
 import io
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
+from unittest.mock import patch
 import unittest
 import zipfile
 
@@ -28,16 +32,17 @@ def syntheticJava = new SyntheticSourceDirectory()
 ext.android = [sourceSets: [test: [java: syntheticJava]],
                compileSdk: 35, buildToolsVersion: '35.0.0', ndkVersion: 'synthetic-not-installed']
 configurations { syntheticRuntime; debugRuntimeClasspath }
-repositories { maven { url = uri(rootProject.file('synthetic-repository')) } }
+repositories { maven { url = uri(rootProject.file(project.findProperty('providerRepository') ?: 'synthetic-repository')) } }
 dependencies { debugRuntimeClasspath 'org.opencv:opencv:4.12.0@aar' }
 afterEvaluate {
-    tasks.register('syntheticCompile') { doLast { throw new GradleException('compile must not execute') } }
+    tasks.register('syntheticCompile') { doLast { if (!project.hasProperty('allowSyntheticPreparation')) throw new GradleException('compile must not execute') } }
     if (!project.hasProperty('omitOrdinary')) {
         tasks.register('testDebugUnitTest', Test) {
             dependsOn tasks.named('syntheticCompile')
             // Match AGP's configuration-backed implicit Test classpath dependencies.
             def providerCase = project.findProperty('providerCase') ?: 'single'
             def providers = [rootProject.file('synthetic-classes.jar')]
+            if (providerCase == 'single-runtime') providers = [rootProject.file('synthetic-runtime.jar')]
             if (providerCase == 'zero') providers = [rootProject.file('synthetic-empty.jar')]
             if (providerCase == 'duplicate') providers += rootProject.file('synthetic-copy.jar')
             if (providerCase == 'directory') providers = [rootProject.file('synthetic-directory')]
@@ -47,6 +52,16 @@ afterEvaluate {
                 [rootProject.file('synthetic-classes.jar'), rootProject.file('synthetic-copy.jar'), rootProject.file('synthetic-directory')]
             if (providerCase == 'bytecap') providers = rootProject.file('long-directories').readLines().collect { file(it) } +
                 [rootProject.file('synthetic-classes.jar'), rootProject.file('synthetic-copy.jar'), rootProject.file('synthetic-directory')]
+            if (providerCase in ['agp', 'third', 'runtime-resource', 'signed', 'unsafe', 'symlink-entry', 'mr', 'loader-manifest', 'reverse', 'changed-resources', 'partial', 'partial-directory', 'duplicate-entry', 'oversized']) {
+                def runtimeName = providerCase in ['runtime-resource', 'signed', 'unsafe', 'symlink-entry', 'mr', 'loader-manifest', 'duplicate-entry', 'oversized'] ? providerCase : 'runtime'
+                providers = [rootProject.file('synthetic-' + runtimeName + '.jar'), rootProject.file('synthetic-middle.jar'), rootProject.file(providerCase == 'changed-resources' ? 'synthetic-changed-resources.jar' : 'synthetic-classes.jar')]
+                if (providerCase == 'partial') providers += rootProject.file('synthetic-partial.jar')
+                if (providerCase == 'partial-directory') providers += rootProject.file('synthetic-partial-directory')
+                if (providerCase == 'third') providers += rootProject.file('synthetic-copy.jar')
+                if (providerCase == 'reverse') providers = providers.reverse()
+            }
+            if (providerCase in ['agp-empty', 'agp-directories']) providers = [rootProject.file('synthetic-runtime.jar'),
+                rootProject.file('synthetic-middle.jar'), rootProject.file(providerCase + '-source.jar')]
             classpath = files(providers, configurations.syntheticRuntime)
         }
     }
@@ -58,7 +73,14 @@ afterEvaluate {
         dependsOn(ordinary.taskDependencies.getDependencies(ordinary))
         dependsOn tasks.named('syntheticOracle')
     }
-    tasks.register('verifyHostIntegrationSdk') { doLast { throw new GradleException('SDK check must not execute') } }
+    tasks.register('verifyHostIntegrationSdk') { doLast { if (!project.hasProperty('allowSyntheticPreparation')) throw new GradleException('SDK check must not execute') } }
+}
+tasks.register('inspectNormalization') {
+    doLast {
+        def original = tasks.getByName('hostIntegrationTest').classpath.files*.canonicalPath
+        def effective = tasks.getByName('eightProbe').classpath.files*.canonicalPath
+        rootProject.file('classpath-observation.json').text = groovy.json.JsonOutput.toJson([original:original,effective:effective])
+    }
 }
 tasks.register('inspectLifecycle') {
     doLast {
@@ -81,6 +103,34 @@ tasks.register('inspectLifecycle') {
     }
 }
 '''
+
+
+HARNESS = r"""import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+public class Harness {
+ static URL[] urls(String text) throws Exception {
+  var values=new ArrayList<URL>();for(String p:text.split(java.io.File.pathSeparator)) values.add(new java.io.File(p).toURI().toURL());return values.toArray(URL[]::new);
+ }
+ static List<String> resources(ClassLoader loader,String name) throws Exception {
+  var values=new ArrayList<String>();var found=loader.getResources(name);
+  while(found.hasMoreElements())try(var input=found.nextElement().openStream()){values.add(Base64.getEncoder().encodeToString(input.readAllBytes()));}
+  return values;
+ }
+ public static void main(String[] args) throws Exception {
+  try(var before=new URLClassLoader(urls(args[0]),null);var after=new URLClassLoader(urls(args[1]),null)) {
+   for(String name:List.of("shared.txt","META-INF/services/example.Service","META-INF/MANIFEST.MF","assets/","assets/only.txt"))
+    if(!resources(before,name).equals(resources(after,name)))throw new AssertionError("Resource contents/order/multiplicity changed: "+name);
+   var shared=resources(after,"shared.txt");
+   if(!shared.equals(List.of(Base64.getEncoder().encodeToString("middle".getBytes(StandardCharsets.UTF_8)),Base64.getEncoder().encodeToString("opencv".getBytes(StandardCharsets.UTF_8)))))throw new AssertionError("Interleaved resource precedence changed");
+   var old=Class.forName("org.opencv.core.Core",true,before);var now=Class.forName("org.opencv.core.Core",true,after);
+   if(!old.getMethod("identity").invoke(null).equals(now.getMethod("identity").invoke(null)))throw new AssertionError("Class identity changed");
+   if(Collections.list(before.getResources("org/opencv/core/Core.class")).size()!=2 || Collections.list(after.getResources("org/opencv/core/Core.class")).size()!=1)throw new AssertionError("Class-resource normalization failed");
+   System.out.println("SYNTHETIC_JAVA_CLASS_AND_RESOURCE_PASS");
+  }
+ }
+}
+"""
 
 
 class EightViewGradleLifecycleTests(unittest.TestCase):
@@ -110,21 +160,77 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                                      text=True, capture_output=True, timeout=30)
             self.assertEqual(version.returncode, 0, version.stderr)
             self.assertIn('Gradle 8.13\n', version.stdout)
-            # Inert bytes in a LOCAL synthetic artifact, never an OpenCV runtime.
-            # This allows the unchanged init script's provider to resolve during
-            # dry-run graph construction, without replacing its classpath code.
+            # Compile a minimal synthetic Java class, never a real OpenCV runtime.
+            java = shutil.which('java')
+            self.assertIsNotNone(java)
+            java_source = root / 'java-src/org/opencv/core/Core.java'
+            java_source.parent.mkdir(parents=True)
+            java_source.write_text('package org.opencv.core; public class Core { public static String identity() { return "synthetic-core"; } }')
+            java_sources = [java_source]
+            for package, name in [('org.opencv.android', 'OpenCVLoader'), ('org.opencv.android', 'StaticHelper'),
+                                  ('org.opencv.core', 'Mat'), ('com.realityforge.scanner.engine', 'NativeCore')]:
+                source_file = root / 'java-src' / package.replace('.', '/') / (name + '.java')
+                source_file.parent.mkdir(parents=True, exist_ok=True)
+                source_file.write_text('package ' + package + '; public class ' + name + ' {}')
+                java_sources.append(source_file)
+            compiled = root / 'compiled'
+            compiled.mkdir()
+            compile_result = subprocess.run([java, '-m', 'jdk.compiler/com.sun.tools.javac.Main',
+                                             '-d', str(compiled), *map(str, java_sources)], capture_output=True, text=True, timeout=30)
+            self.assertEqual(compile_result.returncode, 0, compile_result.stdout + compile_result.stderr)
+            core_bytes = (compiled / 'org/opencv/core/Core.class').read_bytes()
+            cv_classes = {path.relative_to(compiled).as_posix(): path.read_bytes() for path in sorted((compiled / 'org/opencv').rglob('*.class'))}
+            def write_cv(jar):
+                for name, value in cv_classes.items():
+                    jar.writestr(name, value)
             classes = io.BytesIO()
-            with zipfile.ZipFile(classes, 'w') as jar:
-                jar.writestr('org/opencv/core/Core.class', b'synthetic-not-bytecode')
+            resource_entries = [('META-INF/', b''), ('META-INF/MANIFEST.MF', b'Manifest-Version: 1.0\r\nCreated-By: synthetic\r\n\r\n'),
+                                ('shared.txt', b'opencv'), ('META-INF/services/example.Service', b'example.Synthetic\n'),
+                                ('assets/', b''), ('assets/only.txt', b'preserve')]
+            with zipfile.ZipFile(classes, 'w', compression=zipfile.ZIP_DEFLATED) as jar:
+                write_cv(jar)
+                for name, value in resource_entries:
+                    jar.writestr(name, value)
             (root / 'synthetic-classes.jar').write_bytes(classes.getvalue())
             (root / 'synthetic-copy.jar').write_bytes(classes.getvalue())
+            with zipfile.ZipFile(root / 'synthetic-runtime.jar', 'w') as jar:
+                write_cv(jar)
+            with zipfile.ZipFile(root / 'synthetic-middle.jar', 'w') as jar:
+                jar.writestr('shared.txt', b'middle')
+                jar.writestr('com/realityforge/scanner/engine/NativeCore.class', (compiled / 'com/realityforge/scanner/engine/NativeCore.class').read_bytes())
             with zipfile.ZipFile(root / 'synthetic-empty.jar', 'w') as jar:
                 jar.writestr('unrelated.txt', b'not-a-provider')
             with zipfile.ZipFile(root / 'synthetic-mismatch.jar', 'w') as jar:
                 jar.writestr('org/opencv/core/Core.class', b'different-synthetic-bytes')
+            with zipfile.ZipFile(root / 'synthetic-changed-resources.jar', 'w') as jar:
+                write_cv(jar)
+                for name, value in resource_entries:
+                    jar.writestr(name, b'changed' if name == 'shared.txt' else value)
+            for case, name, value in [('runtime-resource', 'unexpected.txt', b'no'),
+                                      ('signed', 'META-INF/TEST.SF', b'no'), ('unsafe', '../outside', b'no'),
+                                      ('mr', 'META-INF/versions/9/extra.txt', b'no'),
+                                      ('loader-manifest', 'META-INF/MANIFEST.MF', b'Manifest-Version: 1.0\r\nClass-Path: other.jar\r\n\r\n')]:
+                with zipfile.ZipFile(root / ('synthetic-' + case + '.jar'), 'w') as jar:
+                    write_cv(jar)
+                    jar.writestr(name, value)
+            with zipfile.ZipFile(root / 'synthetic-symlink-entry.jar', 'w') as jar:
+                write_cv(jar)
+                link = zipfile.ZipInfo('link');link.create_system = 3;link.external_attr = 0o120777 << 16
+                jar.writestr(link, b'target')
+            with zipfile.ZipFile(root / 'synthetic-partial.jar', 'w') as jar:
+                jar.writestr('org/opencv/core/Mat.class', cv_classes['org/opencv/core/Mat.class'])
+            with zipfile.ZipFile(root / 'synthetic-duplicate-entry.jar', 'w') as jar:
+                write_cv(jar)
+                jar.writestr('org/opencv/core/Core.class', core_bytes)
+            with zipfile.ZipFile(root / 'synthetic-oversized.jar', 'w', compression=zipfile.ZIP_DEFLATED) as jar:
+                write_cv(jar)
+                jar.writestr('oversized.txt', b'x' * (16 * 1024 * 1024 + 1))
+            partial = root / 'synthetic-partial-directory/org/opencv/core/Mat.class'
+            partial.parent.mkdir(parents=True)
+            partial.write_bytes(cv_classes['org/opencv/core/Mat.class'])
             core = root / 'synthetic-directory/org/opencv/core/Core.class'
             core.parent.mkdir(parents=True)
-            core.write_bytes(b'synthetic-not-bytecode')
+            core.write_bytes(core_bytes)
             for index in range(270):
                 (root / ('empty-' + str(index))).mkdir()
             long_parent = root
@@ -142,13 +248,16 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
             (artifact / 'opencv-4.12.0.pom').write_text(
                 '<project><modelVersion>4.0.0</modelVersion><groupId>org.opencv</groupId>'
                 '<artifactId>opencv</artifactId><version>4.12.0</version><packaging>aar</packaging></project>')
+            policy = root / 'tools/eight_view_host/build-policy.json'
+            policy.parent.mkdir(parents=True)
+            policy.write_text(json.dumps({'opencvAarSha256': hashlib.sha256((artifact / 'opencv-4.12.0.aar').read_bytes()).hexdigest()}))
             (root / 'app').mkdir()
             (root / 'sources').mkdir()
             (root / 'settings.gradle').write_text("rootProject.name='synthetic-lifecycle'; include ':app'\n")
             (root / 'app/build.gradle').write_text(BUILD)
             config = root / 'config.json'
             config.write_text(json.dumps({'sources': str(root / 'sources'), 'work': str(root / 'output'),
-                                         'phase': 'prepare', 'sourceSha': 'synthetic-not-a-source-receipt',
+                                         'phase': 'prepare', 'sourceSha': 'a' * 40,
                                          'selector': 'synthetic.NoExecution', 'observations': str(root / 'sources')}))
             # The predecessor realizes the host task in projectsEvaluated. Its
             # constructor traverses ordinary Test's configuration-backed inputs.
@@ -213,7 +322,7 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                     self.assertIn('OpenCV transformed provider differs', log)
                     self.assertNotIn(marker, log)
                     continue
-                self.assertIn('exactly one existing OpenCV runtime provider expected', log)
+                self.assertIn('Ambiguous source-AAR resource role' if count == 2 else 'One equivalent provider or exact AGP two-role pair required', log)
                 records = [line.removeprefix(marker) for line in log.splitlines() if line.startswith(marker)]
                 self.assertEqual(len(records), 1, log)
                 self.assertLess(len(records[0].encode('utf-8')), 256 * 1024)
@@ -253,6 +362,133 @@ class EightViewGradleLifecycleTests(unittest.TestCase):
                         # and low-priority generic entries, not providers, were cut.
                         self.assertEqual(record['classpathEntryCount'], 243)
                         self.assertLess(len(record['entries']), 243)
+
+            # Execute the unchanged producer under actual Gradle, then load actual
+            # Java bytecode/resources using two isolated URLClassLoaders.
+            def normalization_run(case):
+                return subprocess.run([
+                    str(gradle), '--offline', '--no-daemon', '--console=plain', '--max-workers=1',
+                    '-g', str(root / 'gradle-home'), '-p', str(root), '-I', str(init),
+                    '-PeightConfig=' + str(config), '-PproviderCase=' + case, ':app:inspectNormalization',
+                ], text=True, capture_output=True, timeout=120)
+            single_runtime = normalization_run('single-runtime')
+            self.assertEqual(single_runtime.returncode, 0, single_runtime.stdout + single_runtime.stderr)
+            single_paths = json.loads((root / 'classpath-observation.json').read_text())
+            self.assertEqual(single_paths['original'], single_paths['effective'])
+            self.assertNotIn('EIGHT_VIEW_PROVIDER_DIAGNOSTIC ', single_runtime.stdout)
+            valid = normalization_run('agp')
+            self.assertEqual(valid.returncode, 0, valid.stdout + valid.stderr)
+            paths = json.loads((root / 'classpath-observation.json').read_text())
+            self.assertEqual(paths['effective'][:2], paths['original'][:2])
+            self.assertEqual(len(paths['effective']), len(paths['original']))
+            projection = Path(paths['effective'][2])
+            self.assertEqual(projection.name, 'opencv-resources-only.jar')
+            with zipfile.ZipFile(projection) as jar:
+                self.assertEqual([(entry.filename, jar.read(entry)) for entry in jar.infolist()], resource_entries)
+                self.assertFalse(any(name.endswith('.class') for name in jar.namelist()))
+            harness = root / 'Harness.java'
+            harness.write_text(HARNESS)
+            loaded = subprocess.run([java, str(harness), os.pathsep.join(paths['original']), os.pathsep.join(paths['effective'])],
+                                    text=True, capture_output=True, timeout=30)
+            self.assertEqual(loaded.returncode, 0, loaded.stdout + loaded.stderr)
+            self.assertIn('SYNTHETIC_JAVA_CLASS_AND_RESOURCE_PASS', loaded.stdout)
+            prepared_run = subprocess.run([
+                str(gradle), '--offline', '--no-daemon', '--console=plain', '--max-workers=1',
+                '-g', str(root / 'gradle-home'), '-p', str(root), '-I', str(init),
+                '-PeightConfig=' + str(config), '-PproviderCase=agp', '-PallowSyntheticPreparation=true', ':app:eightPrepare',
+            ], text=True, capture_output=True, timeout=120)
+            self.assertEqual(prepared_run.returncode, 0, prepared_run.stdout + prepared_run.stderr)
+            prepared_record = json.loads((root / 'output/prepared.json').read_text())
+            self.assertEqual(prepared_record['schema'], 2)
+            self.assertEqual(prepared_record['opencvNormalization']['mode'], 'agp-two-role-resource-projection')
+            self.assertEqual(set(prepared_record['owners']), {'org.opencv.android.OpenCVLoader', 'org.opencv.android.StaticHelper',
+                                                              'org.opencv.core.Core', 'org.opencv.core.Mat', 'com.realityforge.scanner.engine.NativeCore'})
+            sys.path.insert(0, str(ROOT))
+            from tools.eight_view_host import controller as ctl
+            with patch.object(ctl.capability, 'POLICY', policy):
+                ctl.normalization_check(prepared_record)
+                ctl.classpath_check(prepared_record)
+            evidence = os.environ.get('RF_GRADLE_EVIDENCE_DIR')
+            if evidence:
+                destination = Path(evidence)
+                destination.mkdir(parents=True, exist_ok=True)
+                (destination / 'synthetic-prepared.json').write_text(json.dumps(prepared_record, indent=2))
+            projection.write_bytes(b'tampered')
+            tampered = normalization_run('agp')
+            self.assertNotEqual(tampered.returncode, 0)
+            self.assertIn('Derived archive changed', tampered.stdout + tampered.stderr)
+            projection.unlink()
+            negative = {'third': 'One equivalent provider or exact AGP two-role pair required',
+                        'runtime-resource': 'Runtime class role has non-class payload',
+                        'signed': 'Unsupported signed/multi-release archive',
+                        'unsafe': 'Unsafe ZIP path', 'symlink-entry': 'ZIP symlink/special entry',
+                        'mr': 'Unsupported signed/multi-release archive',
+                        'loader-manifest': 'Unsupported loader-affecting manifest',
+                        'reverse': 'Unsupported reversed AGP roles',
+                        'changed-resources': 'Ambiguous source-AAR resource role',
+                        'partial': 'OpenCV transformed provider differs',
+                        'partial-directory': 'Unclassified canonical class directory provider',
+                        'duplicate-entry': 'Duplicate ZIP entry', 'oversized': 'ZIP entry byte limit'}
+            for case, error in negative.items():
+                failed = normalization_run(case)
+                self.assertNotEqual(failed.returncode, 0, failed.stdout + failed.stderr)
+                self.assertIn(error, failed.stdout + failed.stderr)
+            # Re-enter actual preparation in run phase against the immutable
+            # producer receipt, then prove original-provider byte drift refuses.
+            cfg = json.loads(config.read_text())
+            cfg.update(phase='run', preparedSha256=hashlib.sha256((root / 'output/prepared.json').read_bytes()).hexdigest())
+            config.write_text(json.dumps(cfg))
+            runtime_args = [str(gradle), '--offline', '--no-daemon', '--console=plain', '--max-workers=1',
+                            '-g', str(root / 'gradle-home'), '-p', str(root), '-I', str(init),
+                            '-PeightConfig=' + str(config), '-PproviderCase=agp', '-PallowSyntheticPreparation=true', ':app:eightPrepare']
+            stable = subprocess.run(runtime_args, text=True, capture_output=True, timeout=120)
+            self.assertEqual(stable.returncode, 0, stable.stdout + stable.stderr)
+            self.assertEqual(json.loads((root / 'output/runtime-prepare.json').read_text()), prepared_record)
+            with zipfile.ZipFile(root / 'synthetic-runtime.jar', 'a') as jar:
+                jar.comment = b'original-provider-byte-drift'
+            drift = subprocess.run(runtime_args, text=True, capture_output=True, timeout=120)
+            self.assertNotEqual(drift.returncode, 0)
+            self.assertIn('actual ordered runtime classpath/owners differ from baseline', drift.stdout + drift.stderr)
+            # The observed real AAR's resource inventory was not captured. Empty
+            # and directory-only projections must therefore be tested explicitly.
+            for case, markers in [('agp-empty', []), ('agp-directories', ['META-INF/', 'assets/'])]:
+                source_jar = root / (case + '-source.jar')
+                with zipfile.ZipFile(source_jar, 'w', compression=zipfile.ZIP_DEFLATED) as jar:
+                    write_cv(jar)
+                    for marker in markers:
+                        jar.writestr(marker, b'')
+                repository = root / (case + '-repository')
+                variant_artifact = repository / 'org/opencv/opencv/4.12.0'
+                variant_artifact.mkdir(parents=True)
+                variant_aar = variant_artifact / 'opencv-4.12.0.aar'
+                with zipfile.ZipFile(variant_aar, 'w') as aar:
+                    aar.writestr('classes.jar', source_jar.read_bytes())
+                shutil.copyfile(artifact / 'opencv-4.12.0.pom', variant_artifact / 'opencv-4.12.0.pom')
+                policy.write_text(json.dumps({'opencvAarSha256': hashlib.sha256(variant_aar.read_bytes()).hexdigest()}))
+                variant_output = root / (case + '-output')
+                variant_output.mkdir()
+                variant_config = root / (case + '-config.json')
+                variant_config.write_text(json.dumps({'schema': 1, 'phase': 'prepare', 'sourceSha': 'a' * 40,
+                    'sources': str(root / 'sources'), 'work': str(variant_output),
+                    'selector': 'synthetic.NoExecution', 'observations': str(root / 'sources')}))
+                variant_run = subprocess.run([
+                    str(gradle), '--offline', '--no-daemon', '--console=plain', '--max-workers=1',
+                    '-g', str(root / 'gradle-home'), '-p', str(root), '-I', str(init),
+                    '-PeightConfig=' + str(variant_config), '-PproviderCase=' + case,
+                    '-PproviderRepository=' + repository.name, '-PallowSyntheticPreparation=true', ':app:eightPrepare',
+                ], text=True, capture_output=True, timeout=120)
+                self.assertEqual(variant_run.returncode, 0, variant_run.stdout + variant_run.stderr)
+                variant_record = json.loads((variant_output / 'prepared.json').read_text())
+                projected = variant_record['opencvNormalization']['projection']
+                self.assertEqual([entry['name'] for entry in projected['entries']], markers)
+                self.assertTrue(all(entry['directory'] and entry['bytes'] == 0 for entry in projected['entries']))
+                if not markers:
+                    self.assertEqual(projected['bytes'], 22)  # Valid empty ZIP, no fabricated resource.
+                with patch.object(ctl.capability, 'POLICY', policy):
+                    ctl.normalization_check(variant_record)
+                    ctl.classpath_check(variant_record)
+
+
 
 
 if __name__ == '__main__':
