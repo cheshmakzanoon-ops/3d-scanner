@@ -4,33 +4,43 @@
 
 Current application version: **0.19.0-m19**. The source has progressed beyond the
 historical M19 implementation, but the product remains an engineering preview.
-Evidence here is bound to `37fdaf02ab3d3ffe292685589df83c6e578c13de`.
+The full-controller result is bound to `660b94480160e0d52ecbf5879008040d9518f79c`.
+Current source `1d01072779dc1d0b0d407b6299ad24edb6bd30b6` changes a legacy test
+fixture; its production implementation is unchanged from that checkpoint.
 
-- **Builds and unit tests:** 850 Android unit tests + 18 HOST JVM tests (868 total) and debug app/test APK builds passed.
-  GCC/Clang native release profiles and benchmark builds passed.
-- **Sanitizers:** both profiles timed out at the 600-second test limit. Neither
-  timeout is a pass; the overall native qualification gate remains open.
-- **Eight-photo test invocation:** native prerequisites, including staged OpenCV
-  builds, smoke checks, scanner build/load checks and provenance admission,
-  passed. The selected HOST test was invoked once, but Android test-resource/
-  manifest setup failed before the test body and reconstruction (1 test,
-  1 failure, 0 skips). This is not a reconstructed model or complete app session.
-- **Device and visual evidence:** KVM access blocks device preflight. Current
-  physical capture, installed-app visual behavior and ARM64 performance/quality
-  are unvalidated.
-- **Topology:** the synthetic native audit has 509 nonmanifold indexed edges.
-  UI warning fixes correctly report topology limitations; the geometry remains
-  non-watertight and is not qualified for printing or complete-object use.
+- **Synthetic full-controller journey — PASS:** three fixed relief photographs
+  passed through the actual reconstruction controller, dense reconstruction,
+  mesh and photographic texture generation. All three cameras registered,
+  producing **904 sparse points**, **17,522 textured triangles** and a
+  **1548 × 1164 texture atlas**. Nine artifacts were published and hash-checked;
+  sparse PLY, mesh PLY and textured GLB exports were structurally validated.
+  Publication identity and export bytes remained consistent after Room database
+  reopen, and the original photographs were preserved.
+- **Scope:** `SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY`.
+  This is a synthetic HOST test with modeled resources, not installed GLES/SAF
+  interaction, physical capture, handset performance or store qualification.
+  Nine hash-checked artifacts do not mean nine independently validated formats.
+  The eight-photo low-resolution fixture remains unsuccessful.
+- **Build baseline:** earlier `37fdaf02` validation passed 850 Android unit tests
+  + 18 HOST JVM tests (868 total), debug app/test APK builds, GCC/Clang release
+  profiles and benchmark builds. These are source-bound results, not a blanket
+  pass for every later commit.
+- **Remaining CI/device gates:** the full candidate CI is not green. Sanitizer
+  and device gates remain open; earlier sanitizer profiles timed out at 600
+  seconds, and KVM preflight blocked device tests. Physical capture, installed-app
+  visual behavior and ARM64 performance/quality remain unvalidated.
+- **Topology:** the separate synthetic native audit reports 509 nonmanifold
+  indexed edges. UI warnings disclose that defect; the new HOST result does not
+  establish watertightness, printing suitability or complete-object quality.
 
-Public evidence: [Verify run 40120401316](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
-[HOST run 40120401371](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401371),
+Public evidence: [full-controller HOST run 40142555215](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40142555215),
+[earlier build baseline](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
 [topology counterexample](development/SURFACE_TOPOLOGY_QUALIFICATION.md#separate-native-counterexample).
-A later source fix does not retroactively change these results.
 
 The integrated source includes service-owned durable jobs, revision-bound
 publication/checkpoints and library/curation/recovery/export routes. Supported
 input remains **2–12 photographs**, with at most **eight registered dense views**.
-Complete-session and model-studio qualification, physical reference comparisons,
+Installed-app complete-session and model-studio qualification, physical reference comparisons,
 resource measurements and production signing remain open. See
 [next gates](NEXT_MILESTONE.md). The records below are historical, not current
 acceptance results.

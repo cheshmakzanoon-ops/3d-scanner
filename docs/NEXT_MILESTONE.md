@@ -28,15 +28,19 @@ unknown, scale stays arbitrary without measurement, and open patches stay open.
 
 ## Immediate validation priorities — 24 October 2026
 
-The latest checked source is `37fdaf02ab3d3ffe292685589df83c6e578c13de`;
-see [current status](MILESTONE_STATUS.md) for its public run links.
+The synthetic three-photo full-controller HOST journey passed on `660b9448`;
+current `1d010727` changes only a legacy test fixture. See
+[current status](MILESTONE_STATUS.md) for the source-bound result and public run.
+This closes that synthetic controller/publication/reopen/export checkpoint,
+not installed-app or physical-quality qualification.
 
-1. Correct the Android test-resource/manifest setup failure and rerun the
-   selected eight-photo HOST test. Native prerequisites now pass, but the latest
-   invocation failed before its test body and reconstruction. One invoked test
-   is not evidence of a completed photo-to-model pipeline.
-2. Obtain completed sanitizer evidence: both latest profiles timed out after
-   600 seconds. Passing release profiles do not substitute for sanitizer checks.
+1. Extend reconstruction evidence beyond the successful three-photo synthetic
+   relief fixture. Diagnose the unsuccessful eight-photo low-resolution fixture
+   and validate additional observed scenes without relaxing registration,
+   geometry or photographic-texture acceptance gates.
+2. Obtain completed sanitizer evidence and a green full-candidate CI result.
+   Earlier profiles timed out after 600 seconds; passing release profiles and
+   the new full-controller HOST result do not substitute for sanitizer checks.
 3. Unblock an authorized device test environment and run installed-app
    import → reconstruction → inspection → reopen/export, cancellation and
    interruption checks. Current KVM preflight failure is not an application pass

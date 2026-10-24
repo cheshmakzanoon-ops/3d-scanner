@@ -6,28 +6,28 @@ high-quality complete-object scanning.**
 
 ## Current validation — 24 October 2026
 
-Evidence below is for commit `37fdaf02ab3d3ffe292685589df83c6e578c13de`,
-not a blanket result for later commits. **The APK builds, but a complete,
-reliable photo-to-model workflow is not yet qualified.**
+The full-controller result below is bound to `660b94480160e0d52ecbf5879008040d9518f79c`.
+Current source `1d01072779dc1d0b0d407b6299ad24edb6bd30b6` changes a legacy test
+fixture, not that production implementation. **A synthetic photo-to-model
+journey now passes; reliable installed-device scanning is not yet qualified.**
 
 | Area | Verified result / remaining limit |
 | --- | --- |
-| Android | 850 unit tests + 18 HOST JVM tests passed (868 total); debug app/test APK builds passed. This is not installed-device or visual validation. |
-| Native release checks | GCC/Clang release profiles and benchmark builds passed; the overall native gate is not green. |
-| Native sanitizers | Both sanitizer profiles timed out at the 600-second test limit; no completed latest-run sanitizer proof. |
-| Eight-photo HOST attempt | Native prerequisites and provenance checks passed. The selected HOST test was invoked once but failed Android test-resource/manifest setup **before the test body and reconstruction** (1 test, 1 failure, 0 skips). No eight-photo model was produced or validated by this run. |
-| Device / visual checks | Device preflight is blocked by unavailable KVM access; physical-device capture, visual behavior and ARM64 resource/quality validation remain open. |
-| Mesh quality | A synthetic native audit still reports **509 nonmanifold edges**. Corrected UI warnings disclose the defect; they do not repair geometry or make it watertight. |
+| Three-photo full-controller HOST test | **Passed:** three fixed synthetic relief photographs → actual reconstruction controller → dense points, mesh and photographic texture → nine published artifacts → three validated export formats and Room database reopen. All three cameras registered; 904 sparse points, 17,522 textured triangles and a 1548 × 1164 texture atlas. |
+| Test scope | `SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY`: modeled HOST resources, not a physical capture, installed GLES viewer, Android SAF flow or store/release qualification. The eight-photo low-resolution fixture remains unsuccessful. |
+| Android build baseline | Earlier `37fdaf02` validation passed 850 unit tests + 18 HOST JVM tests (868 total) and debug app/test APK builds. This is not installed-device or visual validation. |
+| Remaining CI gates | The full candidate CI is not green: sanitizer and device gates remain open. Earlier sanitizer profiles timed out at 600 seconds; release-profile successes do not substitute for them. |
+| Mesh quality | A separate synthetic native audit reports **509 nonmanifold edges**. Corrected UI warnings do not repair geometry; the new HOST success does not establish watertight or complete-object quality. |
 
-Sources: [Verify run 40120401316](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
-[HOST run 40120401371](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401371),
+Sources: [full-controller HOST run 40142555215](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40142555215),
+[earlier build baseline](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
 and [topology audit](docs/development/SURFACE_TOPOLOGY_QUALIFICATION.md#separate-native-counterexample).
 See [current status](docs/MILESTONE_STATUS.md) and [next validation gates](docs/NEXT_MILESTONE.md).
 
 The integrated source includes durable reconstruction jobs, identity-bound
 checkpoints, library/curation/recovery routes and observed OBJ ZIP/STL export.
 Source wiring is not proof that every workflow passes on a device. Production
-signing, complete sessions, model-studio qualification and physical scan quality
+signing, installed-app complete sessions, model-studio qualification and physical scan quality
 remain open; there is no production-ready or commercial-scanner-equivalent claim.
 
 Capture/import photographs, estimate calibrated camera positions, reconstruct
