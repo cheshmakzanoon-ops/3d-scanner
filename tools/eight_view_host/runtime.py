@@ -2,6 +2,7 @@
 from __future__ import annotations
 import base64, ctypes, hashlib, json, os, re, selectors, shutil, signal, stat, subprocess, time
 from pathlib import Path
+from contextlib import contextmanager
 
 class Failure(RuntimeError): status = 'FAIL'
 class Blocked(Failure): status = 'BLOCKED'
@@ -210,56 +211,96 @@ class Runner:
         previous_phase=(getattr(self,'phase_end',None),getattr(self,'phase_cleanup',None))
         self.phase_end=deadline;self.phase_cleanup=cleanup
         failure=None
+        # Fixed-size diagnostic counters only. A separate monotonic clock never
+        # participates in admission/deadlines, and no per-process trace is retained.
+        timing_started=time.perf_counter()
+        operations={name:{'calls':0,'seconds':0.0} for name in (
+            'preflight_disk_guard','activate_lifecycle','spawn','initial_scan',
+            'loop_disk_guard','loop_scan','selector_wait','read_output','exit_poll','eof_wait',
+            'cleanup_scan','cleanup_signal','cleanup_wait','cleanup_close','cleanup_owned')}
+        timing={'schema':1,'clock':'PERF_COUNTER_DIAGNOSTIC_ONLY','phaseBudgetSeconds':deadline-start,
+            'operations':operations,'lastOperation':None,'firstFailedOperation':None}
+        record['timing']=timing
+        @contextmanager
+        def measured(name):
+            began=time.perf_counter();timing['lastOperation']=name;operations[name]['calls']+=1
+            try:yield
+            except BaseException:
+                if timing['firstFailedOperation'] is None:timing['firstFailedOperation']=name
+                raise
+            finally:operations[name]['seconds']+=max(0.0,time.perf_counter()-began)
         try:
-            self.disk_guard()
-            self.activate_lifecycle()
-            proc=subprocess.Popen(record['argv'],cwd=self.root if cwd is None else cwd,env=self.env if env is None else env,
-                stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
+            with measured('preflight_disk_guard'):self.disk_guard()
+            with measured('activate_lifecycle'):self.activate_lifecycle()
+            with measured('spawn'):
+                proc=subprocess.Popen(record['argv'],cwd=self.root if cwd is None else cwd,env=self.env if env is None else env,
+                    stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
             record['pid']=proc.pid
             identity=proc_info(proc.pid)
             if not identity:raise Failure('Owned leader identity unavailable')
-            record['starttime']=identity['start']; self.scan(proc.pid,cleanup=cleanup); os.set_blocking(proc.stdout.fileno(),False)
+            record['starttime']=identity['start']
+            with measured('initial_scan'):self.scan(proc.pid,cleanup=cleanup)
+            os.set_blocking(proc.stdout.fileno(),False)
             with selectors.DefaultSelector() as selector:
                 selector.register(proc.stdout, selectors.EVENT_READ); eof=False
                 while True:
-                    self.remaining(1,cleanup); self.disk_guard(); self.scan(proc.pid,cleanup=cleanup)
+                    self.remaining(1,cleanup)
+                    with measured('loop_disk_guard'):self.disk_guard()
+                    with measured('loop_scan'):self.scan(proc.pid,cleanup=cleanup)
                     if self.clock() >= deadline: raise Deadline(label+' timed out')
-                    for key,_ in selector.select(min(.2,max(0,deadline-self.clock()))) if not eof else []:
-                        chunk=os.read(key.fd,65536)
+                    with measured('selector_wait'):
+                        ready=selector.select(min(.2,max(0,deadline-self.clock()))) if not eof else []
+                    for key,_ in ready:
+                        with measured('read_output'):chunk=os.read(key.fd,65536)
                         if not chunk: selector.unregister(proc.stdout);eof=True
                         elif len(raw)+len(chunk)>limit:
                             raw.extend(chunk[:max(0,limit-len(raw))]);raise Failure(label+' output limit')
                         else: raw.extend(chunk)
-                    exited=os.waitid(os.P_PID,proc.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+                    with measured('exit_poll'):
+                        exited=os.waitid(os.P_PID,proc.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
                     if eof and exited:
                         record.update(complete=True,exit=exited.si_status if exited.si_code==os.CLD_EXITED else 128+exited.si_status)
                         if check and record['exit']: raise Failure(label+' exit '+str(record['exit']))
                         return bytes(raw),record['exit']
-                    if eof: time.sleep(.05)
+                    if eof:
+                        with measured('eof_wait'):time.sleep(.05)
         except BaseException as error:
             failure=error;record['error']=type(error).__name__+': '+str(error);raise
         finally:
+            cleanup_started=time.perf_counter()
+            timing['lastOperationBeforeCleanup']=timing['lastOperation']
+            timing['failedOperationBeforeCleanup']=timing['firstFailedOperation']
+            timing['phaseElapsedBeforeCleanupSeconds']=max(0.0,cleanup_started-timing_started)
             for name,value in zip(('phase_end','phase_cleanup'),previous_phase):
                 if value is None:self.__dict__.pop(name,None)
                 else:setattr(self,name,value)
             cleanup_errors=[]
             if proc:
-                try:self.scan(proc.pid,cleanup=True)
+                try:
+                    with measured('cleanup_scan'):self.scan(proc.pid,cleanup=True)
                 except BaseException as error:cleanup_errors.append(error)
                 # Known unreaped session leader retains its process group identity even if discovery fails.
                 try:
-                    for sig in (signal.SIGTERM,signal.SIGKILL):
-                        try:os.killpg(proc.pid,sig)
-                        except ProcessLookupError:break
-                        if sig==signal.SIGTERM:time.sleep(.25)
+                    with measured('cleanup_signal'):
+                        for sig in (signal.SIGTERM,signal.SIGKILL):
+                            try:os.killpg(proc.pid,sig)
+                            except ProcessLookupError:break
+                            if sig==signal.SIGTERM:time.sleep(.25)
                 except BaseException as error:cleanup_errors.append(error)
-                try:proc.wait(timeout=2)
+                try:
+                    with measured('cleanup_wait'):proc.wait(timeout=2)
                 except BaseException as error:cleanup_errors.append(error)
-                try:proc.stdout.close()
+                try:
+                    with measured('cleanup_close'):proc.stdout.close()
                 except BaseException as error:cleanup_errors.append(error)
-                try:self.terminate_owned()
+                try:
+                    with measured('cleanup_owned'):self.terminate_owned()
                 except BaseException as error:cleanup_errors.append(error)
                 if cleanup_errors:record['cleanupError']='; '.join(type(e).__name__+': '+str(e) for e in cleanup_errors)
+            timing['cleanupSeconds']=max(0.0,time.perf_counter()-cleanup_started)
+            for value in operations.values():value['seconds']=round(value['seconds'],6)
+            for key in ('phaseBudgetSeconds','phaseElapsedBeforeCleanupSeconds','cleanupSeconds'):
+                timing[key]=round(timing[key],6)
             record.update(seconds=round(self.clock()-start,3),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
             secondary=list(cleanup_errors)
             try:

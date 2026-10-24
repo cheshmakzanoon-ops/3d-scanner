@@ -3,10 +3,10 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='93acf8299630bd3c30eed2e86e18a053a63ec425'
-MESSAGE='fix: keep OpenCV download cache outside source'
+BASE_SHA='e2575fb1f2b6184ae5e877fd6f51f38808535db1'
+MESSAGE='test: retain bounded host command timing'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','tools/eight_view_host/capability.py','tests/test_eight_view_capability.py','tests/test_eight_view_source_cache.py','tests/test_agent_080_ui_evidence.py','tests/test_eight_view_host.py','tests/test_eight_view_rpath.py','SOURCE_MANIFEST.sha256'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','tools/eight_view_host/runtime.py','tests/test_eight_view_host.py','SOURCE_MANIFEST.sha256'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

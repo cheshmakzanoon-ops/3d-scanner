@@ -560,3 +560,136 @@ def test_real_short_children_and_adopted_descendant_cleanup(tmp_path):
  finally:
   # Safe owned cleanup only; never signal a stale PID directly.
   if run.subreaper_before is not None:run.cleanup()
+
+# Timing metadata is diagnostic, never authority to extend a phase or accept a child.
+def timing_record(run):
+ value=run.commands[-1]['timing']
+ assert value['schema']==1 and value['clock']=='PERF_COUNTER_DIAGNOSTIC_ONLY'
+ assert len(value['operations'])==15 and len(json.dumps(value).encode())<4096
+ assert all(isinstance(row['calls'],int) and row['calls']>=0 and row['seconds']>=0 for row in value['operations'].values())
+ retained=json.loads((run.work/'commands.json').read_text())[-1]['timing']
+ assert retained==value
+ return value
+
+@pytest.mark.parametrize('code',[0,17])
+def test_command_timing_keeps_child_exit_and_fixed_size(tmp_path,code):
+ run=runner(tmp_path)
+ with contextlib.redirect_stdout(io.StringIO()):
+  output,status=run.command('timed-exit',[sys.executable,'-c',f'print("payload");raise SystemExit({code})'],check=False)
+ assert status==code and output==b'payload\n'
+ value=timing_record(run)
+ assert value['failedOperationBeforeCleanup'] is None
+ assert value['lastOperationBeforeCleanup']=='exit_poll'
+ for name in ('preflight_disk_guard','activate_lifecycle','spawn','initial_scan','cleanup_scan','cleanup_signal','cleanup_wait','cleanup_close','cleanup_owned'):
+  assert value['operations'][name]['calls']==1
+ assert value['operations']['read_output']['calls']>=1
+ assert value['cleanupSeconds']>=value['operations']['cleanup_wait']['seconds']
+ assert b'payload' not in json.dumps(value).encode()
+ run.cleanup()
+
+def test_command_timing_preflight_exhaustion_not_scanner_cost(tmp_path,monkeypatch):
+ offset=[0.0];real_clock=time.monotonic;real_diagnostic=time.perf_counter
+ run=r.Runner(tmp_path,tmp_path/'owned',clock=lambda:real_clock()+offset[0],seconds=300)
+ monkeypatch.setattr(r.time,'perf_counter',lambda:real_diagnostic()+offset[0])
+ monkeypatch.setattr(run,'disk_guard',lambda:offset.__setitem__(0,offset[0]+4))
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Deadline,match='Process ownership scan deadline'):
+  run.command('preflight-exhausted',[sys.executable,'-c','print("hello")'],seconds=2)
+ value=timing_record(run)
+ assert value['phaseBudgetSeconds']==2
+ assert value['operations']['preflight_disk_guard']['seconds']>=4
+ assert value['failedOperationBeforeCleanup']=='initial_scan'
+ assert value['operations']['initial_scan']['seconds']<1
+ assert value['operations']['read_output']['calls']==0
+ assert value['phaseElapsedBeforeCleanupSeconds']>=4
+ assert r.proc_info(run.commands[-1]['pid']) is None
+ run.cleanup()
+
+def test_command_timing_zero_retained_bytes_does_not_prove_child_hang(tmp_path,monkeypatch):
+ import select
+ offset=[0.0];real_clock=time.monotonic;real_diagnostic=time.perf_counter
+ run=r.Runner(tmp_path,tmp_path/'owned',clock=lambda:real_clock()+offset[0],seconds=300)
+ monkeypatch.setattr(r.time,'perf_counter',lambda:real_diagnostic()+offset[0])
+ children=[];real_popen=r.subprocess.Popen;observed={};calls=[0]
+ def spawn(*args,**kwargs):
+  child=real_popen(*args,**kwargs);children.append(child);return child
+ monkeypatch.setattr(r.subprocess,'Popen',spawn)
+ def guard():
+  calls[0]+=1
+  if calls[0]!=2:return
+  child=children[0];end=real_clock()+3
+  while real_clock()<end:
+   exited=os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+   if exited:break
+   time.sleep(.01)
+  assert exited and exited.si_status==0
+  observed['pipeReady']=bool(select.select([child.stdout],[],[],0)[0])
+  offset[0]+=4
+ monkeypatch.setattr(run,'disk_guard',guard)
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Deadline,match='Process ownership scan deadline'):
+  run.command('loop-guard-exhausted',[sys.executable,'-c','print("already emitted",flush=True)'],seconds=2)
+ value=timing_record(run)
+ assert observed['pipeReady'] and run.commands[-1]['bytes']==0
+ assert value['failedOperationBeforeCleanup']=='loop_scan'
+ assert value['operations']['loop_disk_guard']['seconds']>=4
+ assert value['operations']['loop_scan']['seconds']<1
+ assert value['operations']['read_output']['calls']==0
+ assert not run.commands[-1]['complete'] and r.proc_info(run.commands[-1]['pid']) is None
+ run.cleanup()
+
+def test_command_timing_scan_exception_preserves_primary_and_cleanup(tmp_path,monkeypatch):
+ run=runner(tmp_path);original=run.scan
+ def fail_initial(*args,**kwargs):
+  if not kwargs.get('cleanup'):raise PermissionError('owned scan permission refusal')
+  return original(*args,**kwargs)
+ monkeypatch.setattr(run,'scan',fail_initial)
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(PermissionError,match='owned scan permission refusal'):
+  run.command('timed-scan-error',[sys.executable,'-c','import time;time.sleep(10)'])
+ value=timing_record(run)
+ assert value['failedOperationBeforeCleanup']=='initial_scan'
+ assert value['operations']['cleanup_owned']['calls']==1
+ assert r.proc_info(run.commands[-1]['pid']) is None
+ run.cleanup()
+
+def test_command_timing_spawn_failure_has_no_fabricated_cleanup(tmp_path,monkeypatch):
+ run=runner(tmp_path)
+ def refused(*args,**kwargs):raise FileNotFoundError('controlled missing executable')
+ monkeypatch.setattr(r.subprocess,'Popen',refused)
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(FileNotFoundError,match='controlled missing executable'):
+  run.command('timed-spawn-error',['/controlled/not-an-executable'])
+ value=timing_record(run)
+ assert value['failedOperationBeforeCleanup']=='spawn'
+ assert all(row['calls']==0 for name,row in value['operations'].items() if name.startswith('cleanup_'))
+ run.cleanup()
+
+def test_command_timing_cleanup_failure_remains_secondary(tmp_path,monkeypatch):
+ run=runner(tmp_path);original=run.scan;failed=[False]
+ def scan(*args,**kwargs):
+  if kwargs.get('cleanup') and not failed[0]:
+   failed[0]=True;raise PermissionError('controlled cleanup scan refusal')
+  return original(*args,**kwargs)
+ monkeypatch.setattr(run,'scan',scan)
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Failure,match='timed-secondary exit 17') as caught:
+  run.command('timed-secondary',[sys.executable,'-c','raise SystemExit(17)'])
+ value=timing_record(run)
+ assert value['failedOperationBeforeCleanup'] is None
+ assert value['firstFailedOperation']=='cleanup_scan'
+ assert value['lastOperationBeforeCleanup']=='exit_poll'
+ assert 'controlled cleanup scan refusal' in run.commands[-1]['cleanupError']
+ assert any('controlled cleanup scan refusal' in note for note in caught.value.__notes__)
+ assert run.commands[-1]['exit']==17 and r.proc_info(run.commands[-1]['pid']) is None
+ with pytest.raises(r.Failure,match='Incomplete command evidence'):run.cleanup()
+
+def test_command_timing_retained_by_exact_command_reference(tmp_path):
+ from tools.eight_view_host import controller
+ run=runner(tmp_path)
+ with contextlib.redirect_stdout(io.StringIO()):
+  run.command('timed-retained',[sys.executable,'-c','print("fixed evidence")'])
+ timing_record(run);raw=(run.work/'commands.json').read_bytes()
+ receipt={'status':'PASS','commandTranscriptRequired':True,'commandsReference':controller.command_reference(run)}
+ out=controller.evidence_package(run,receipt,tmp_path/'evidence')
+ stored=json.loads((out/'receipt.json').read_text())
+ assert stored['status']=='PASS' and stored['evidence']['complete'] is True
+ assert stored['commandsReference']['sha256']==hashlib.sha256(raw).hexdigest()
+ assert (out/'commands.json').read_bytes()==raw and 'commands' not in stored
+ assert json.loads(raw)[0]['timing']==run.commands[0]['timing']
+ run.cleanup()
