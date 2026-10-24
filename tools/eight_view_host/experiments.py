@@ -43,3 +43,9 @@ def get_profile(profile_id):
     if profile_id == COMPLETE:
         return _COMPLETE
     raise Failure('Unknown closed experiment profile')
+
+
+def artifact_budget(profile):
+    """Reporting capacity only; never changes reconstruction or quality admission."""
+    selected=get_profile(profile)
+    return (56 if selected.id==COMPLETE else 32)*1024**2

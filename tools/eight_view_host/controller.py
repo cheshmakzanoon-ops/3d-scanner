@@ -779,7 +779,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
             run.evidence_errors.append('Runtime input postcheck incomplete: '+str(postcheck))
     total=0;count=0;trees={}
     for name in ('xml','measurement'):
-        size,entries=inventory(run.work/name,max_bytes=31*1024**2-total,max_files=1990-count,seconds=phase_budget(run))
+        size,entries=inventory(run.work/name,max_bytes=experiments.artifact_budget(profile)-1024**2-total,max_files=1990-count,seconds=phase_budget(run))
         total+=size;count+=len(entries);trees[name]=entries
     xmls=[run.work/'xml'/name for name in trees['xml'] if '/' not in name and re.fullmatch(r'TEST-.*\.xml',name)]
     if len(xmls)!=1:raise Failure('Missing/duplicate selected JUnit report')
@@ -811,7 +811,7 @@ def complete_measurement_reference(directory,run=None,*,observed=None):
     def read(name,limit):
         nonlocal total
         raw=bounded_bytes(directory/name,limit,run);total+=len(raw)
-        if total>31*1024**2:raise Failure('Complete measurement aggregate byte limit')
+        if total>experiments.artifact_budget(experiments.COMPLETE)-1024**2:raise Failure('Complete measurement aggregate byte limit')
         records.append({'path':name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
         return raw
     documents={name:read('measurement/'+name,4096 if name=='job-settings.json' else 4*1024**2) for name in policy.COMPLETE_DOCUMENTS}
@@ -937,8 +937,8 @@ def validate_command_reference(destination,receipt,run=None):
         receipt['commandTranscriptFailure']=failure_descriptor(error)
 
 def seal_receipt(destination,receipt,run=None):
-    destination=Path(destination)
-    inventory(destination,32*1024**2,2000,seconds=phase_budget(run))
+    destination=Path(destination);artifact_limit=experiments.artifact_budget(experiments.ACTIVE)
+    inventory(destination,artifact_limit,2000,seconds=phase_budget(run))
     receipt.update(bounded_failures(receipt))
     validate_command_reference(destination,receipt,run)
     validate_measurement_reference(destination,receipt,run)
@@ -946,21 +946,22 @@ def seal_receipt(destination,receipt,run=None):
     if len(raw)>256*1024:raise Failure('Terminal receipt framing byte limit')
     if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':raise Failure('Terminal receipt withheld for secret marker')
     phase_budget(run);atomic_json(destination/'receipt.json',receipt)
-    _,entries=inventory(destination,32*1024**2,2000,seconds=phase_budget(run))
-    manifest=''.join(f'{bounded_hash(destination/name,32*1024**2,run)}  {name}\n' for name in sorted(entries) if (destination/name).is_file() and name!='SHA256SUMS')
+    _,entries=inventory(destination,artifact_limit,2000,seconds=phase_budget(run))
+    manifest=''.join(f'{bounded_hash(destination/name,16*1024**2,run)}  {name}\n' for name in sorted(entries) if (destination/name).is_file() and name!='SHA256SUMS')
     phase_budget(run);(destination/'SHA256SUMS').write_text(manifest)
-    inventory(destination,32*1024**2,2000,seconds=phase_budget(run))
+    inventory(destination,artifact_limit,2000,seconds=phase_budget(run))
 
 def evidence_package(run,receipt,destination):
     destination=Path(destination)
     if destination.exists():raise Failure('Evidence destination must be fresh')
+    selected_limit=experiments.artifact_budget(experiments.ACTIVE)-1024**2
     phase_budget(run);destination.mkdir();selected=[];selected_bytes=0;selected_entries=0
     def add(path,rel):
         nonlocal selected_bytes,selected_entries
         phase_budget(run)
         if path.is_symlink() or not path.is_file() or path.stat().st_size>16*1024**2:raise Failure('Evidence symlink/per-file size')
         selected_bytes+=path.stat().st_size;selected_entries+=1
-        if selected_bytes>31*1024**2 or selected_entries>1990:raise Failure('Evidence package byte/count limit')
+        if selected_bytes>selected_limit or selected_entries>1990:raise Failure('Evidence package byte/count limit')
         selected.append((path,rel))
     names=['agp-original-test-config.properties','agp-test-config/com/android/tools/test_config.properties','ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
     for name in names:
@@ -968,7 +969,7 @@ def evidence_package(run,receipt,destination):
     for directory in ['logs','measurement','xml']:
         root=run.work/directory
         if not root.exists():continue
-        remaining_bytes=31*1024**2-selected_bytes;remaining_entries=1990-selected_entries
+        remaining_bytes=selected_limit-selected_bytes;remaining_entries=1990-selected_entries
         try:_,entries=inventory(root,max_bytes=remaining_bytes,max_files=remaining_entries,seconds=phase_budget(run))
         except Failure as failure:
             if str(failure)!='Owned directory size limit':raise
@@ -988,7 +989,7 @@ def evidence_package(run,receipt,destination):
     total=0;files=[];withheld=[]
     for path,rel in selected:
         raw=bounded_bytes(path,16*1024**2,run);total+=len(raw)
-        if total>31*1024**2:raise Failure('Evidence package expanded past byte limit')
+        if total>selected_limit:raise Failure('Evidence package expanded past byte limit')
         binary=rel.startswith('measurement/') and (path.suffix in ('.rfac','.rfsm','.rfis') or re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',path.name))
         if binary:
             if raw.startswith((b'\x7fELF',b'PK\x03\x04',b'MZ')):raise Failure('Executable/library archive is not checkpoint evidence')

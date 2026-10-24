@@ -587,12 +587,12 @@ def test_evidence_size_refusal_retains_bounded_category_budget_only(tmp_path,mon
  run=r.Runner(tmp_path,tmp_path/'work')
  (run.work/'prepared.json').write_bytes(b'{}\n')
  directory=run.work/root_label;directory.mkdir(exist_ok=True)
- with (directory/'private-sensitive-filename.bin').open('wb') as stream:stream.truncate(31*1024**2)
+ with (directory/'private-sensitive-filename.bin').open('wb') as stream:stream.truncate(ctl.experiments.artifact_budget(ctl.experiments.ACTIVE)-1024**2)
  monkeypatch.setattr(ctl,'bounded_bytes',lambda *a,**kw:(_ for _ in ()).throw(AssertionError('no payload reads before failed inventory')))
  with pytest.raises(r.Failure,match='Owned directory size limit; EVIDENCE_BUDGET ') as failed:
   ctl.evidence_package(run,{'status':'FAIL'},tmp_path/'evidence')
  message=str(failed.value);detail=json.loads(message.split('EVIDENCE_BUDGET ',1)[1])
- assert detail=={'phase':'pre-copy-inventory','rootLabel':root_label,'selectedBytes':3,'selectedEntries':1,'remainingBytes':31*1024**2-3,'remainingEntries':1989}
+ assert detail=={'phase':'pre-copy-inventory','rootLabel':root_label,'selectedBytes':3,'selectedEntries':1,'remainingBytes':ctl.experiments.artifact_budget(ctl.experiments.ACTIVE)-1024**2-3,'remainingEntries':1989}
  assert len(message.encode())<512 and str(tmp_path) not in message and 'private-sensitive' not in message
  assert isinstance(failed.value.__cause__,r.Failure) and str(failed.value.__cause__)=='Owned directory size limit'
  assert not (tmp_path/'evidence'/'receipt.json').exists()
