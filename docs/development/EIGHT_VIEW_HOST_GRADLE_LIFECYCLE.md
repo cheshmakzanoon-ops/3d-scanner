@@ -192,3 +192,38 @@ and javap checks exercise the unchanged classpath with absent slots. Cross-langu
 schema 3 admission, stable recapture, producer-refusal cases and appearance/
 permission/ancestry tampering are tested. None of this certifies actual AGP/KSP
 execution, native loading, Android behavior or photo reconstruction.
+
+## Focused system-header admission diagnostic after actual 596c
+
+Actual `596cbee68cbf954536d9b60bdb83197082f72d60` completed the 33-task
+Gradle preparation and retained schema-3 `prepared.json`. Its 217-entry
+classpath records the two bound absent outputs at indices 2/3. The actual
+OpenCV normalization ledger has 212 matching classes in each original
+provider, the unchanged class-only runtime at index 118, and a 2,718-byte
+resource projection at index 213 preserving 17 directory markers and the
+65-byte Kotlin module metadata. This establishes actual preparation, **not**
+JNI loading, photo execution, sparse reconstruction, or device qualification.
+
+The next failure is the first system-header prebuild snapshot refusing an
+escaping symlink. The old exception retained neither the encountered link
+nor its resolved target; the artifact cannot identify it retrospectively.
+No particular package or target is presumed and the admitted roots are not
+expanded. The new `EIGHT_VIEW_HEADER_ESCAPE` record supplies only lexical
+candidate, resolved target, readlink metadata, and admitted roots. Every text
+field has a bounded preview, complete-text hash/byte length and explicit
+truncation; root omissions are counted. JSON is at most 16 KiB. No escaped
+target payload is opened by the diagnostic and the original refusal remains.
+Existing terminal secret-marker withholding still applies.
+
+The focused one-shot workflow runs the same `prebuild_snapshot` and shared,
+unchanged `system_header_roots(java)` domain on a fresh Ubuntu 24.04 public
+runner with the same preinstalled JDK-17 selection and compiler environment.
+It needs no Gradle, Android SDK/NDK setup, OpenCV download, or photos. Actual
+inventory is bounded to 90 seconds; a five-minute job records at most 32 KiB
+of JSON for one day. Source/event guards bind the exact single parent
+`596cbee68cbf954536d9b60bdb83197082f72d60`, exact seven changed paths and message
+`test: diagnose host header admission once`; reruns, arbitrary roots, manual
+activation, force-pushes and non-main/private contexts are inadmissible.
+A new runner's evidence describes that runner, not the lost 596c filesystem.
+Any admission failure is retained as failure, never promoted to capability or
+pipeline success. This workflow does not re-arm the photo diagnostic.

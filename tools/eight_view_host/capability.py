@@ -190,6 +190,32 @@ def scanner_contract(declarations):
         lines.append('extern "C" JNIEXPORT '+result+' JNICALL '+jni_symbol('com.realityforge.scanner.engine.NativeCore',name)+'('+', '.join(['JNIEnv*','jobject',*args])+');')
     return '\n'.join(lines)+'\n'
 
+def system_header_roots(java):
+    """The existing build header domain, shared verbatim with the focused diagnostic."""
+    roots=[Path('/usr/include'),Path(java).parent.parent/'include']
+    roots.extend(path for path in Path('/usr/lib/gcc').glob('*/*/include*') if path.is_dir())
+    return roots
+
+def header_escape_diagnostic(candidate, resolved, roots):
+    """Bounded path metadata only; never opens the escaped target or changes admission."""
+    def text_record(value):
+        value=str(value);raw=value.encode('utf-8',errors='surrogatepass')
+        return {'text':value[:256],'utf8Bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),
+                'truncated':len(value)>256}
+    record={'schema':1,'lexicalCandidate':text_record(candidate),'resolvedTarget':text_record(resolved),
+            'admittedRoots':[text_record(root) for root in roots[:8]],'rootsTotal':len(roots),
+            'rootsOmitted':max(0,len(roots)-8),'linkTarget':None,'linkMetadataError':None}
+    try:
+        # readlink inspects only the encountered directory entry, not target contents.
+        record['linkTarget']=text_record(os.readlink(candidate))
+    except OSError as error:
+        record['linkMetadataError']={'type':type(error).__name__,'errno':error.errno}
+    while True:
+        encoded=json.dumps(record,sort_keys=True,ensure_ascii=True,separators=(',',':'))
+        if len(encoded.encode('ascii'))<=16*1024:return 'EIGHT_VIEW_HEADER_ESCAPE '+encoded
+        if not record['admittedRoots']:raise Failure('Header diagnostic bound invariant')
+        record['admittedRoots'].pop();record['rootsOmitted']+=1
+
 def prebuild_snapshot(run,roots):
     """Pre-consumption immutable headers/source, bounded and canonical; no filesystem-wide scan."""
     roots=[Path(root).resolve(strict=True) for root in roots];pending=list(roots);seen=set();result={};total=0;count=0
@@ -197,8 +223,9 @@ def prebuild_snapshot(run,roots):
     while pending:
         path=pending.pop();count+=1
         if count>60000 or time.monotonic()>=end:raise Failure('Prebuild header traversal limit')
-        path=path.resolve(strict=True)
-        if not any(path.is_relative_to(root) for root in roots):raise Failure('Prebuild header symlink escapes admitted roots')
+        candidate=path;path=path.resolve(strict=True)
+        if not any(path.is_relative_to(root) for root in roots):
+            raise Failure('Prebuild header symlink escapes admitted roots; '+header_escape_diagnostic(candidate,path,roots))
         if path in seen:continue
         seen.add(path)
         if path.is_dir():
@@ -251,8 +278,7 @@ def build(run,source_sha,prepared):
     cmake=Path(shutil.which('cmake',path=run.env['PATH']) or '/missing').resolve();ninja=Path(shutil.which('ninja',path=run.env['PATH']) or '/missing').resolve()
     java=Path(run.env['JAVA_HOME'])/'bin/java';javap=java.with_name('javap');javac=java.with_name('javac')
     for name,p in [('compiler',compiler),('cc',cc),('cmake',cmake),('ninja',ninja),('java',java),('javap',javap),('javac',javac),('nm',Path(shutil.which('nm')).resolve()),('readelf',Path(shutil.which('readelf')).resolve()),('ldd',Path(shutil.which('ldd')).resolve()),('javaRelease',java.parent.parent/'release'),('policy',POLICY),('smokeSource',HERE/'HostOpenCvSmoke.java')]:receipt['inputs'][name]=path_record(p)
-    system_roots=[Path('/usr/include'),java.parent.parent/'include']
-    system_roots.extend(path for path in Path('/usr/lib/gcc').glob('*/*/include*') if path.is_dir())
+    system_roots=system_header_roots(java)
     immutable_before=prebuild_snapshot(run,system_roots)
     archive=out/'opencv.tar.gz'
     receipt['download']=download(run,'https://github.com/opencv/opencv/archive/'+policy['opencvCommit']+'.tar.gz',archive,policy['opencvArchiveSha256'],136*1024**2)

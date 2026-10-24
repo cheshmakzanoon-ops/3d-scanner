@@ -104,3 +104,49 @@ def test_compat_archive_cannot_impersonate_api35_provider(tmp_path,monkeypatch):
  wrong={**value['runtimeProvider'],**prepared['robolectricNativeDistribution']}
  prepared['runtimeProvider']=wrong;value['runtimeProvider']=wrong;manifest.write_text(json.dumps(value))
  with pytest.raises(r.Failure,match='exact pinned framework'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('directory,chain',[(False,False),(True,False),(False,True)])
+def test_header_escape_diagnostic_metadata_only(tmp_path,monkeypatch,directory,chain):
+ root=tmp_path/'headers';root.mkdir();outside=tmp_path/'outside'
+ if directory:outside.mkdir();(outside/'secret.h').write_text('do not read')
+ else:outside.write_text('do not read')
+ link=root/'escape.h';target=outside
+ if chain:
+  target=tmp_path/'second-link';target.symlink_to(outside)
+ link.symlink_to(target)
+ monkeypatch.setattr(c,'sha',lambda path:pytest.fail('escaped target content must not be read'))
+ with pytest.raises(r.Failure,match='escapes') as error:c.prebuild_snapshot(types.SimpleNamespace(remaining=lambda n:n),[root])
+ record=json.loads(str(error.value).split('EIGHT_VIEW_HEADER_ESCAPE ',1)[1])
+ assert record['lexicalCandidate']['text']==str(link)
+ assert record['resolvedTarget']['text']==str(outside)
+ assert record['linkTarget']['text']==str(target)
+ assert record['admittedRoots'][0]['text']==str(root)
+ assert record['rootsOmitted']==0 and record['linkMetadataError'] is None
+
+
+def test_header_escape_diagnostic_bounded_unicode_and_packaging(tmp_path,monkeypatch):
+ value='\U0001f600\n\x00'*5000
+ monkeypatch.setattr(c.os,'readlink',lambda path:value)
+ marker=c.header_escape_diagnostic(value,value,[value]*100)
+ raw=marker.split(' ',1)[1];assert len(raw.encode('ascii'))<=16*1024
+ record=json.loads(raw)
+ assert record['rootsTotal']==100
+ assert record['rootsOmitted']+len(record['admittedRoots'])==100
+ for key in ['lexicalCandidate','resolvedTarget','linkTarget']:
+  assert record[key]['truncated'] and record[key]['utf8Bytes']==len(value.encode())
+  assert record[key]['sha256']==hashlib.sha256(value.encode()).hexdigest()
+ # Existing terminal receipt stores the whole message as JSON; no new artifact channel.
+ receipt={'firstFailure':{'type':'Failure','message':marker,'status':'FAIL'}}
+ out=tmp_path/'receipt.json';r.atomic_json(out,receipt)
+ assert json.loads(out.read_text())==receipt
+ assert r.safe_display(out.read_bytes())[1]!='WITHHELD_SECRET_MARKER'
+ from tools.eight_view_host import controller
+ controller.seal_receipt(tmp_path,receipt)
+ assert json.loads(out.read_text())==receipt
+ assert (tmp_path/'SHA256SUMS').is_file()
+
+
+def test_header_escape_diagnostic_metadata_race_is_still_refusal(tmp_path):
+ record=json.loads(c.header_escape_diagnostic(tmp_path/'vanished',tmp_path/'outside',[tmp_path]).split(' ',1)[1])
+ assert record['linkTarget'] is None
+ assert record['linkMetadataError']['type']=='FileNotFoundError'
