@@ -759,12 +759,17 @@ def parse_instrumentation(output):
 
 
 def junit_xml(proof, receipt):
-    suite = ET.Element("testsuite", name="unsupported-software-emulator-focused", tests="4",
+    names = {"UNSUPPORTED_TCG": "unsupported-software-emulator-focused",
+             "KVM_REQUIRED_NO_FALLBACK": "accelerated-atd-focused"}
+    mode = receipt.get("cpuMode")
+    if mode not in names:
+        raise Failure("Unknown CPU mode in diagnostic JUnit receipt")
+    suite = ET.Element("testsuite", name=names[mode], tests="4",
                        failures="0", errors="0", skipped="0")
     properties = ET.SubElement(suite, "properties")
     for name, value in (("sourceSha", receipt["sourceSha"]), ("appSha256", receipt["appSha256"]),
                         ("testSha256", receipt["testSha256"]), ("rawSha256", proof["rawSha256"]),
-                        ("scope", receipt["scope"]), ("cpuMode", "UNSUPPORTED_TCG")):
+                        ("scope", receipt["scope"]), ("cpuMode", mode)):
         ET.SubElement(properties, "property", name=name, value=value)
     for selector in EXPECTED:
         owner, method = selector.split("#")
@@ -1294,6 +1299,12 @@ class Controller:
             time.sleep(.1)
         raise Deadline("Private ADB server did not establish an owned listener in 30 seconds")
 
+    def emulator_command(self, name):
+        self.env["ANDROID_I_WANT_MY_TCG"] = "yes"
+        return [self.emulator_path, "-avd", name, "-accel", "off", "-gpu", "software",
+                "-no-window", "-no-snapshot", "-no-boot-anim", "-no-audio", "-memory", "2048",
+                "-cores", "2", "-port", "5580", "-camera-back", "none", "-camera-front", "none"]
+
     def boot(self):
         if shutil.disk_usage(self.temp).free < 3 * 1024**3:
             raise Blocked("Less than 3 GiB remains for disposable AVD storage")
@@ -1313,10 +1324,7 @@ class Controller:
                     reservation.bind(("127.0.0.1", port))
                 except OSError as error:
                     raise Blocked("Disposable emulator port is unavailable: " + str(port)) from error
-        self.env["ANDROID_I_WANT_MY_TCG"] = "yes"
-        args = [self.emulator_path, "-avd", name, "-accel", "off", "-gpu", "software",
-                "-no-window", "-no-snapshot", "-no-boot-anim", "-no-audio", "-memory", "2048",
-                "-cores", "2", "-port", "5580", "-camera-back", "none", "-camera-front", "none"]
+        args = self.emulator_command(name)
         self.receipt["emulatorOptions"] = args[1:]
         self.emulator_output = tempfile.TemporaryFile(dir=self.temp)
         self.emulator = subprocess.Popen(args, cwd=self.root, env={**self.env, **self.emulator_library_env}, stdin=subprocess.DEVNULL,

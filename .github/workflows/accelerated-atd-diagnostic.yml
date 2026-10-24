@@ -1,0 +1,25 @@
+name: Focused accelerated Android ATD checks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: accelerated-atd-diagnostic-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  focused-runtime:
+    # Manual-only public standard runner. No KVM mutation or license acceptance.
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' &&
+          github.repository == 'cheshmakzanoon-ops/3d-scanner' &&
+          github.ref == 'refs/heads/main' &&
+          toJSON(github.event.repository.private) == 'false' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - name: Four non-UI checks with existing KVM access (not full qualification)
+        run: python3 tools/device/accelerated_emulator/diagnostic.py
