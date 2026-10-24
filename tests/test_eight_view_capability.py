@@ -62,6 +62,7 @@ def fixture(tmp_path,monkeypatch):
   if label in hp.LABELS:
    role=next(role for role in providers if label.startswith(f"header-provider-{role['major']}-"))
    record.update(argv=[str(role['driver']),'--version' if label.endswith('-version') else '-print-resource-dir'],environmentBoundary='EXPLICIT_COMPILATION_TOOL')
+  if label=='opencv-configure':record['argv']=['cmake','-DCMAKE_SKIP_RPATH=ON']
   if label=='scanner-shim':record['argv']=['compiler','-include',str(contract),str(jni)]
   run.commands.append(record);producer.append({**record,'log':c.path_record(file)})
  value={'schema':1,'classification':'HOST_SOURCE_BUILT_CAPABILITY','sourceSha':SHA,'policySha256':r.sha(policy),'headerProvider':header_proof,'checks':{key:True for key in original['requiredChecks']},'native':{key:c.path_record(path) for key,path in native.items()},'inputs':{key:c.path_record(path) for key,path in inputs.items()},'producer':{'runOwner':run.owner,'workDir':str(run.work),'sourceSha':SHA,'commands':producer},'runtimeProvider':provider_record,'opencvElf':{'unitFixture':'opencv'},'scannerElf':{'engine':{'unitFixture':'engine'},'shim':{'unitFixture':'shim'}}}
@@ -240,3 +241,17 @@ def test_legacy_single_driver_input_is_not_accepted(tmp_path,monkeypatch):
  run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
  value['inputs']['headerProviderDriver']=value['inputs'].pop('headerProviderDriver-18');manifest.write_text(json.dumps(value))
  with pytest.raises(r.Failure,match='Missing/unexpected capability inputs'):p.verify_capability(manifest,SHA,policy,run,prepared)
+
+@pytest.mark.parametrize('flags',[
+ [],['-DCMAKE_SKIP_RPATH=OFF'],['-DCMAKE_SKIP_RPATH=ON','-DCMAKE_SKIP_RPATH=OFF'],
+ ['-DCMAKE_SKIP_RPATH=ON','-DCMAKE_SKIP_RPATH=ON'],['-DCMAKE_SKIP_RPATH:BOOL=ON'],
+ ['-DCMAKE_SKIP_RPATH=ON','-D','CMAKE_SKIP_RPATH=OFF'],
+],ids=['missing','off','conflicting','duplicate','unapproved-spelling','split-override'])
+def test_opencv_rpath_config_bound_to_authoritative_command(tmp_path,monkeypatch,flags):
+ run,prepared,policy,manifest,value=fixture(tmp_path,monkeypatch)
+ for record in run.commands:
+  if record['label']=='opencv-configure':record['argv']=['cmake',*flags]
+ for record in value['producer']['commands']:
+  if record['label']=='opencv-configure':record['argv']=['cmake',*flags]
+ manifest.write_text(json.dumps(value))
+ with pytest.raises(r.Failure,match='explicitly omit'):p.verify_capability(manifest,SHA,policy,run,prepared)

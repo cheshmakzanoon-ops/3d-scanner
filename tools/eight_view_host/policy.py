@@ -3,18 +3,14 @@ from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='44b3acc5b0145d1ae3959f9b1ba8c7f52d0616ab'
-MESSAGE='test: run eight-view host with bound header providers'
+BASE_SHA='aa340190a3babb8877be9d37b4f7ab953a7bad9a'
+MESSAGE='fix: omit OpenCV build runtime search paths'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
 ALLOWED_PATHS=frozenset((
-    '.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py','SOURCE_MANIFEST.sha256',
-    'tests/test_eight_view_header_diagnostic.py',
-    'tests/test_eight_view_ndk.py',
-    'tests/test_export_interoperability_diagnostics.py',
-    'tests/test_native_pytest_identity_budget.py',
-    'tests/test_recovery_controller.py',
-    'tests/test_security_failure_diagnostics.py',
-))  # Final independently reviewed trigger commit only; no wildcard expansion.
+    '.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/policy.py',
+    'tools/eight_view_host/capability.py','tests/test_eight_view_capability.py',
+    'tests/test_eight_view_rpath.py','docs/development/EIGHT_VIEW_HOST_GRADLE_LIFECYCLE.md',
+    'SOURCE_MANIFEST.sha256'))  # Exact reviewed source union; no event-trigger expansion.
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -163,6 +159,8 @@ def verify_capability(path,source,policy,run=None,prepared=None):
         log=run.work/'logs'/(label+'.raw.log');entry(record['log'],log);raw=log.read_bytes()
         if len(raw)!=asserted.get('bytes') or hashlib.sha256(raw).hexdigest()!=asserted.get('sha256'):raise Failure('Producer raw transcript mismatch')
         logs[label]=raw
+    rpath_flags=[arg for arg in actual['opencv-configure']['argv'] if 'CMAKE_SKIP_RPATH' in arg]
+    if rpath_flags!=['-DCMAKE_SKIP_RPATH=ON']:raise Failure('OpenCV configure must explicitly omit build/install RPATH')
     modules=re.findall(rb'To be built:\s*([^\r\n]+)',logs['opencv-configure'])
     if len(modules)!=1 or modules[0].decode().split()!=requirements['opencvModules'] or not re.search(rb'Java wrappers:\s+YES \(JAVA\)',logs['opencv-configure']):raise Failure('Unexpected actual OpenCV module graph')
     if int(logs['compiler-version'].decode().strip().split('.')[0]) not in requirements['compiler']['allowedMajorVersions']:raise Failure('Unreviewed compiler')

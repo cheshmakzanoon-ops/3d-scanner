@@ -307,7 +307,7 @@ def build(run,source_sha,prepared):
     hooks=out/'hooks';hooks.mkdir();(hooks/'OPENCV_DOWNLOAD_PRE.cmake').write_text('message(FATAL_ERROR "Implicit dependency download forbidden: ${DL_ID} ${DL_FILENAME}")\n')
     builddir=out/'build';env=native_compile_env(run.env);env['PYTHONDONTWRITEBYTECODE']='1'
     args=[cmake,'-S',source,'-B',builddir,'-G','Ninja',f'-DCMAKE_MAKE_PROGRAM={ninja}',f'-DCMAKE_C_COMPILER={cc}',f'-DCMAKE_CXX_COMPILER={compiler}',
-          '-DCMAKE_BUILD_TYPE=Release',f'-DCMAKE_INSTALL_PREFIX={out}/not-installed','-DBUILD_LIST=core,imgproc,features2d,java','-DBUILD_SHARED_LIBS=OFF','-DBUILD_FAT_JAVA_LIB=ON',
+          '-DCMAKE_BUILD_TYPE=Release','-DCMAKE_SKIP_RPATH=ON',f'-DCMAKE_INSTALL_PREFIX={out}/not-installed','-DBUILD_LIST=core,imgproc,features2d,java','-DBUILD_SHARED_LIBS=OFF','-DBUILD_FAT_JAVA_LIB=ON',
           '-DBUILD_JAVA=ON','-DOPENCV_JAVA_IGNORE_ANT=ON','-DOPENCV_JAVA_SDK_BUILD_TYPE=JAVA',f'-DOPENCV_CMAKE_HOOKS_DIR={hooks}','-DOPENCV_DOWNLOAD_TRIES_LIST=',
           '-DFETCHCONTENT_FULLY_DISCONNECTED=ON','-DCPU_BASELINE=SSE3','-DCPU_DISPATCH=','-DENABLE_LTO=OFF',f'-DPYTHON_DEFAULT_EXECUTABLE={shutil.which("python3")}']
     for key in ['BUILD_TESTS','BUILD_PERF_TESTS','BUILD_EXAMPLES','BUILD_DOCS','BUILD_opencv_apps','BUILD_opencv_world','BUILD_opencv_gapi','BUILD_opencv_python2','BUILD_opencv_python3',

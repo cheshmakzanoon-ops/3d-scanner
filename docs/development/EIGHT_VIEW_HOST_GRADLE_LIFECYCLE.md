@@ -403,3 +403,50 @@ original message retained. The accounting proof is reviewed separately; no
 global JUnit count waiver or provider admission expansion is introduced.
 The 32-KiB receipt cap remains mandatory regardless of the longer source list;
 oversized evidence is explicitly withheld, never silently truncated to PASS.
+
+## OpenCV build/install RPATH omission after actual aa340
+
+Actual `aa340190a3babb8877be9d37b4f7ab953a7bad9a` completed its OpenCV
+native build but the unchanged ELF closure gate refused a RUNPATH consisting
+of exactly 66 colons. The system dependency closure contained libz, libm,
+libstdc++, libgcc_s and libc; `ldd -r` showed no unresolved symbols. The
+selected photo invocation had not started (`pipelineAttempts=0`); restoration
+and cleanup passed without secondary errors.
+
+Pinned OpenCV commit `49486f61fb25722cbcf586b7f4320921d46fb38e` sets
+`CMAKE_INSTALL_RPATH` to `${CMAKE_INSTALL_PREFIX}/${OPENCV_LIB_INSTALL_PATH}`
+in `cmake/OpenCVInstallLayout.cmake`. The JNI target is SHARED for
+`BUILD_FAT_JAVA_LIB` and has an install rule. The actual prefix plus `/lib`
+is 66 characters long. CMake reserves build-tree RPATH space for later
+installation editing; a real small CMake 3.31.6 ELF fixture with that exact
+prefix reproduces all 66 colon padding characters.
+
+The fix adds only `-DCMAKE_SKIP_RPATH=ON` to the **OpenCV** configure command.
+Official [CMake 3.31 documentation](https://cmake.org/cmake/help/v3.31/variable/CMAKE_SKIP_RPATH.html)
+and the installed 3.31.6 help describe omission of runtime path information;
+[INSTALL_RPATH](https://cmake.org/cmake/help/v3.31/prop_tgt/INSTALL_RPATH.html)
+describes build/install editing. The exact same real fixture, rebuilt with
+this flag, has **neither DT_RPATH nor DT_RUNPATH in the build output before
+installation**, retains identical DT_NEEDED entries, resolves `ldd -r`, and
+loads/executes successfully. Its installed copy likewise has no RPATH tag.
+No `patchelf`, post-build removal, empty-path admission or ELF parser waiver
+is used. This small fixture proves construction behavior, not a fresh OpenCV
+or reconstruction run.
+
+Capability verification also requires exactly one authoritative configure
+argument `-DCMAKE_SKIP_RPATH=ON`; omission, OFF, duplicate or conflicting forms
+are refused. The strict ELF parser is unchanged. Scanner configuration and
+the scanner JNI shim's required explicit engine RUNPATH remain unchanged.
+The existing source/ABI/dependency/provider/SDK-license gates and all budgets
+are unchanged. Local reproduction uses the official Kitware CMake 3.31.6
+Linux archive with publisher SHA-256
+`5a1133ff103c71eb5120e2cc3de922733e7d8a26a98ae716397e8676adb367bf`.
+Set `RF_CMAKE_EXECUTABLE` to that tool and `RF_REQUIRE_RPATH_TOOLS=1` when
+requiring the real fixture; no missing-tool skip may count as qualification.
+
+The reviewed source-fix plus one-shot rearm is bound to exact aa340 parent,
+seven enumerated source paths and message
+`fix: omit OpenCV build runtime search paths`. Production invocation remains
+600 seconds within the existing 4,200-second overall deadline, which already
+reserves 120 seconds for cleanup; the reservation is not extra runtime.
+Actual hosted OpenCV output must still pass the unmodified strict ELF gate.
