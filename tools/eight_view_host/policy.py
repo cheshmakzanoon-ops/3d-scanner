@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='e493872e5455444e3a7cc32f9476927b14eb3b35'
-MESSAGE='test: retain bounded sanitizer progress evidence'
+BASE_SHA='0a6d4ec8061de7f32a6d9ece1d38afe58302651f'
+MESSAGE='fix: preserve runbook fixture dependency closure'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'tests/test_eight_view_host.py', 'tests/test_native_pytest_progress.py', 'tools/eight_view_host/policy.py', 'tools/qa/native_regression/README.md', 'tools/qa/native_regression/pytest_progress.py', 'tools/qa/native_regression/run.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-process-deadline-scope.md', 'tests/test_eight_view_host.py', 'tests/test_eight_view_process_deadline_scope.py', 'tests/test_runbook_consistency.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/runtime.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

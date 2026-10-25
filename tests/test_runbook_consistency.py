@@ -13,6 +13,8 @@ from tools.docs.check_runbook import check, smoke, DOCS
 def tree(tmp_path):
     paths = list(DOCS) + ['.github/workflows/verify.yml', 'VERSION', 'app/build.gradle.kts', 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt', 'app/src/main/java/com/realityforge/scanner/engine/DenseWorkload.kt',
                             'app/src/main/java/com/realityforge/scanner/engine/pipeline/PipelineContract.kt']
+    # This runbook link is outside docs/tools; copy the real tracked QA README.
+    paths.append('reconstruction/qa/exact_planar_owner/README.md')
     # Keep linked/script paths real without copying generated/build directories.
     for name in paths:
         destination = tmp_path / name
@@ -52,6 +54,14 @@ def test_broken_local_link_rejected(tree):
     path = tree / 'README.md'
     path.write_text(path.read_text() + '\n[missing](docs/absent.md)\n')
     assert check(tree)['status'] == 'FAIL'
+
+
+def test_missing_linked_planar_qa_readme_rejected(tree):
+    (tree / 'reconstruction/qa/exact_planar_owner/README.md').unlink()
+    report = check(tree)
+    assert report['status'] == 'FAIL'
+    assert any('broken/escaping local link ../reconstruction/qa/exact_planar_owner/README.md'
+               in failure for failure in report['failures'])
 
 
 def test_source_limit_drift_rejected(tree):

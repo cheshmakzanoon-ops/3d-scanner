@@ -174,9 +174,13 @@ class Runner:
         self.owned[pid]=after['start'];self.pidfds[pid]=fd
     def scan(self, leader=None, cleanup=False):
         if self.subreaper_before is None: return
-        left=(self.end if cleanup else min(self.work_end,getattr(self,'phase_end',self.work_end)))-self.clock()
-        if left<=0:raise Deadline('Process ownership scan deadline')
+        outer=self.end if cleanup else self.work_end
+        phase=outer if cleanup else getattr(self,'phase_end',outer)
+        scope='COMMAND_PHASE' if phase<outer else ('OVERALL_CLEANUP' if cleanup else 'OVERALL_WORK')
+        left=min(outer,phase)-self.clock()
+        if left<=0:raise Deadline('Process ownership scan deadline; deadlineScope='+scope+'; scanStarted=false')
         scan_end=time.monotonic()+min(2,left)
+        traversal_scope='OWNERSHIP_TRAVERSAL' if left>2 else scope
         # Only self/direct descendants: no unrelated /proc enumeration or environment reads.
         for pid,fd in list(self.pidfds.items()):
             info=proc_info(pid)
@@ -184,7 +188,7 @@ class Runner:
                 os.close(fd);del self.pidfds[pid]
         pending=[os.getpid()];seen=set()
         while pending:
-            if time.monotonic()>=scan_end:raise Deadline('Process ownership traversal limit')
+            if time.monotonic()>=scan_end:raise Deadline('Process ownership traversal limit; deadlineScope='+traversal_scope+'; scanStarted=true')
             parent=pending.pop()
             if parent in seen: continue
             seen.add(parent)
