@@ -1,0 +1,124 @@
+name: Bounded exact planar owner host QA (not app qualification)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/exact-planar-owner-qa.yml
+      - reconstruction/qa/exact_planar_owner/**
+      - docs/development/experiments/coherent-planar-owner-reference/**
+      - tests/test_coherent_planar_owner_reference.py
+      - tools/requirements.lock
+      - tools/source_manifest.py
+      - CMakeLists.txt
+permissions:
+  contents: read
+concurrency:
+  group: exact-planar-owner-qa-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  exact-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Bind source and verify official Boost headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/exact-qa-evidence" "$RUNNER_TEMP/exact-qa-deps"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rev-parse HEAD > "$RUNNER_TEMP/exact-qa-evidence/source-commit.txt"
+          python tools/source_manifest.py verify --source "$GITHUB_SHA" | tee "$RUNNER_TEMP/exact-qa-evidence/committed-manifest.json"
+          python tools/source_manifest.py verify --source worktree | tee "$RUNNER_TEMP/exact-qa-evidence/worktree-manifest.json"
+          sha256sum SOURCE_MANIFEST.sha256 > "$RUNNER_TEMP/exact-qa-evidence/manifest-sha256.txt"
+          git ls-files -z CMakeLists.txt reconstruction/qa/exact_planar_owner \
+            .github/workflows/exact-planar-owner-qa.yml tools/requirements.lock \
+            docs/development/experiments/coherent-planar-owner-reference \
+            tests/test_coherent_planar_owner_reference.py | \
+            xargs -0 sha256sum > "$RUNNER_TEMP/exact-qa-evidence/source-sha256.txt"
+          cd "$RUNNER_TEMP/exact-qa-deps"
+          curl --fail --location --max-time 120 --retry 2 \
+            https://archives.boost.io/release/1.86.0/source/boost_1_86_0.tar.bz2 -o boost_1_86_0.tar.bz2
+          echo '1bed88e40401b2cb7a1f76d4bab499e352fa4d0c5f31c0dbae64e24d34d7513b  boost_1_86_0.tar.bz2' | sha256sum --check
+          tar -xjf boost_1_86_0.tar.bz2 boost_1_86_0/boost boost_1_86_0/LICENSE_1_0.txt
+          sha256sum boost_1_86_0.tar.bz2 boost_1_86_0/LICENSE_1_0.txt > "$RUNNER_TEMP/exact-qa-evidence/dependency-sha256.txt"
+      - name: Reuse hash-locked pytest dependency subset
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -E '^(iniconfig|packaging|pluggy|Pygments|pytest)==' tools/requirements.lock > "$RUNNER_TEMP/exact-qa-deps/pytest.lock"
+          test "$(wc -l < "$RUNNER_TEMP/exact-qa-deps/pytest.lock")" -eq 5
+          python -m pip install --require-hashes --only-binary=:all: -r "$RUNNER_TEMP/exact-qa-deps/pytest.lock"
+      - name: Standalone native ASan UBSan and leak detection
+        shell: bash
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          set -euo pipefail
+          cmake -S . -B "$RUNNER_TEMP/exact-qa-sanitize" -DCMAKE_BUILD_TYPE=Debug \
+            -DRF_EXACT_PLANAR_OWNER_QA=ON -DRF_SANITIZE=ON \
+            -DRF_QA_BOOST_ROOT="$RUNNER_TEMP/exact-qa-deps/boost_1_86_0" \
+            2>&1 | tee "$RUNNER_TEMP/exact-qa-evidence/sanitize-configure.log"
+          cmake --build "$RUNNER_TEMP/exact-qa-sanitize" --target rf_exact_planar_owner_tests rf_exact_planar_owner_cli -j2 \
+            2>&1 | tee "$RUNNER_TEMP/exact-qa-evidence/sanitize-build.log"
+          (
+            cd "$RUNNER_TEMP/exact-qa-sanitize/reconstruction/qa/exact_planar_owner"
+            sha256sum rf_exact_planar_owner_tests rf_exact_planar_owner_cli > "$RUNNER_TEMP/exact-qa-evidence/sanitize-binary-sha256.txt"
+            for binary in rf_exact_planar_owner_tests rf_exact_planar_owner_cli; do
+              ldd "./$binary" > "$RUNNER_TEMP/exact-qa-evidence/$binary.ldd.txt"
+              grep -q 'libasan\.so' "$RUNNER_TEMP/exact-qa-evidence/$binary.ldd.txt"
+              grep -q 'libubsan\.so' "$RUNNER_TEMP/exact-qa-evidence/$binary.ldd.txt"
+            done
+          )
+          test -z "${LD_PRELOAD:-}"
+          ctest --test-dir "$RUNNER_TEMP/exact-qa-sanitize" -R '^native_exact_planar_owner_qa$' --output-on-failure \
+            --timeout 120 --output-junit "$RUNNER_TEMP/exact-qa-evidence/native.xml" \
+            2>&1 | tee "$RUNNER_TEMP/exact-qa-evidence/sanitize-test.log"
+      - name: Differential oracle against standalone sanitized CLI
+        if: ${{ !cancelled() }}
+        shell: bash
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          set -euo pipefail
+          # The child is linked to sanitizers; Python receives no injected library.
+          test -z "${LD_PRELOAD:-}"
+          RF_EXACT_PLANAR_OWNER_CLI="$RUNNER_TEMP/exact-qa-sanitize/reconstruction/qa/exact_planar_owner/rf_exact_planar_owner_cli" \
+            timeout --signal=TERM --kill-after=10s 180s python -m pytest -q \
+            reconstruction/qa/exact_planar_owner/differential_qa.py \
+            --junitxml="$RUNNER_TEMP/exact-qa-evidence/sanitized-differential.xml" \
+            2>&1 | tee "$RUNNER_TEMP/exact-qa-evidence/sanitized-differential.log"
+      - name: Independent Python oracle with separate release CLI
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cmake -S . -B "$RUNNER_TEMP/exact-qa-release" -DCMAKE_BUILD_TYPE=Release \
+            -DRF_EXACT_PLANAR_OWNER_QA=ON \
+            -DRF_QA_BOOST_ROOT="$RUNNER_TEMP/exact-qa-deps/boost_1_86_0"
+          cmake --build "$RUNNER_TEMP/exact-qa-release" --target rf_exact_planar_owner_cli -j2
+          (
+            cd "$RUNNER_TEMP/exact-qa-release/reconstruction/qa/exact_planar_owner"
+            sha256sum rf_exact_planar_owner_cli > "$RUNNER_TEMP/exact-qa-evidence/release-binary-sha256.txt"
+          )
+          RF_EXACT_PLANAR_OWNER_CLI="$RUNNER_TEMP/exact-qa-release/reconstruction/qa/exact_planar_owner/rf_exact_planar_owner_cli" \
+            timeout --signal=TERM --kill-after=10s 120s python -m pytest -q reconstruction/qa/exact_planar_owner/differential_qa.py \
+            tests/test_coherent_planar_owner_reference.py \
+            --junitxml="$RUNNER_TEMP/exact-qa-evidence/differential.xml" \
+            2>&1 | tee "$RUNNER_TEMP/exact-qa-evidence/differential.log"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: exact-planar-owner-qa-${{ github.sha }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/exact-qa-evidence/
+          if-no-files-found: error
+          retention-days: 14

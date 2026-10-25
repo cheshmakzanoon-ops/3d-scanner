@@ -59,17 +59,22 @@ axis rotations/scales, one-ULP folds, thin layers, opposing orientation, budgets
 and cancellation. This is algorithm evidence on analytic fixtures, not real
 object reconstruction quality or a formal proof of all inputs.
 
-## Portable native / integration roadmap (not implemented)
+## Portable native QA counterpart and remaining integration roadmap
+
+A separate [bounded C++ host QA counterpart](../../../../reconstruction/qa/exact_planar_owner/README.md)
+now implements this algorithm with checked fixed-width arithmetic and conservative
+whole-patch refusal. It is opt-in, has no float mesh adapter, and is not linked to
+the production engine. This Python reference itself still has no allocator bound.
+Production/native-mobile integration below remains unimplemented.
 
 1. Reproduce the production translated-plane nonconforming-overlap defect
    independently. A passing analytic reference does not fix the current mesher.
-2. Port only the validated primitive to an opt-in native QA target. Candidate
-   arithmetic is a pinned/reviewed Boost Software License header-only checked
-   fixed-width multiprecision integer plus rational wrapper; cap every arithmetic
-   construction and predicate, catch overflow and return unchanged. Alternatively
-   constrain an explicit integer-coordinate admitted domain with proven bounds.
-   A long-double epsilon predicate is NOT an exact replacement. No dependency is
-   added by this reference; Android size/toolchain/license review remains open.
+2. The opt-in host QA counterpart uses pinned Boost 1.86.0 checked 4096-bit
+   fixed-width integers and a rational wrapper; intermediate overflow, work and
+   allocation caps refuse atomically. Its dedicated host sanitizer/oracle lane
+   is supplementary evidence, not production qualification. A long-double epsilon
+   predicate is NOT an exact replacement. No dependency is added to Android or
+   this Python reference; Android size/toolchain/license review remains open.
 3. Before accepting rational-to-binary64 conversion, reconstruct exact rationals
    from the rounded binary64 output and independently recertify orientation,
    zero overlaps, conforming shared edges, source containment, complete support

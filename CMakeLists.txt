@@ -235,3 +235,9 @@ if(NOT ANDROID)
     target_link_libraries(rf_surface_provenance_tests PRIVATE realityforge)
     add_test(NAME native_surface_provenance COMMAND rf_surface_provenance_tests)
 endif()
+
+# Isolated exact-rational experiment: OFF by default, never an app mesher.
+option(RF_EXACT_PLANAR_OWNER_QA "Build bounded exact planar ownership host QA" OFF)
+if(RF_EXACT_PLANAR_OWNER_QA)
+    add_subdirectory(reconstruction/qa/exact_planar_owner)
+endif()
