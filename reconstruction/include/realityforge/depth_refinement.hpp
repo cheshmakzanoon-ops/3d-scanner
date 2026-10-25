@@ -6,7 +6,7 @@
 #include <span>
 #include <stdexcept>
 namespace rf::refinement {
-inline constexpr unsigned SETTINGS_VERSION=3;
+inline constexpr unsigned SETTINGS_VERSION=4;
 inline constexpr double NORMAL_PERTURBATION=.035;
 inline constexpr double MINIMUM_PLANE_RAY_COSINE=.15;
 inline constexpr double MAXIMUM_PLANE_DEPTH_RATIO=2.;
@@ -75,9 +75,12 @@ inline float propagate(const DenseDepthMap& coarse,double x,double y,double maxi
  if(coarse.width<2||coarse.height<2||stride<1||stride>8||origin<0||coarse.depth.size()!=static_cast<std::size_t>(coarse.width)*coarse.height||!std::isfinite(x)||!std::isfinite(y)||x<origin||y<origin||x>=coarse.width-1||y>=coarse.height-1||!std::isfinite(maximumRelativeSpread)||maximumRelativeSpread<0||maximumRelativeSpread>1)return 0;
  int ix=origin+static_cast<int>(std::floor((x-origin)/stride))*stride,iy=origin+static_cast<int>(std::floor((y-origin)/stride))*stride;
  if(ix+stride>=coarse.width||iy+stride>=coarse.height)return 0;
- double lo=1e300,hi=0,z=0,fx=(x-ix)/stride,fy=(y-iy)/stride;
- for(int dy=0;dy<2;++dy)for(int dx=0;dx<2;++dx){double d=coarse.depth[(iy+dy*stride)*coarse.width+ix+dx*stride];if(!std::isfinite(d)||d<=0)return 0;lo=std::min(lo,d);hi=std::max(hi,d);z+=d*(dx?fx:1-fx)*(dy?fy:1-fy);}
- return (hi-lo)/hi<=maximumRelativeSpread?static_cast<float>(z):0;
+ double lo=1e300,hi=0,inverseDepth=0,fx=(x-ix)/stride,fy=(y-iy)/stride;
+ for(int dy=0;dy<2;++dy)for(int dx=0;dx<2;++dx){double d=coarse.depth[(iy+dy*stride)*coarse.width+ix+dx*stride];if(!std::isfinite(d)||d<=0)return 0;lo=std::min(lo,d);hi=std::max(hi,d);inverseDepth+=(dx?fx:1-fx)*(dy?fy:1-fy)/d;}
+ // Inverse camera-z, not z, is affine on a projective plane. Keep the
+ // existing full-cell support and discontinuity admission unchanged.
+ const double z=1./inverseDepth;
+ return (hi-lo)/hi<=maximumRelativeSpread&&std::isfinite(z)&&z>0?static_cast<float>(z):0;
 }
 
 // Camera-coordinate normal; +Z is the frontoparallel convention. `observed`

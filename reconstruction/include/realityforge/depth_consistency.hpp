@@ -24,15 +24,20 @@ inline Sample sampleDepth(const DenseDepthMap& map,double x,double y,int step,in
     const double fx=(x-ix)/step,fy=(y-iy)/step;
     const std::array<double,4>weight{(1-fx)*(1-fy),fx*(1-fy),(1-fx)*fy,fx*fy};
     const std::array<std::int64_t,4>xs{ix,ix+step,ix,ix+step},ys{iy,iy,iy+step,iy+step};
-    double lo=1e300,hi=0,z=0,c=0;
+    double lo=1e300,hi=0,inverseDepth=0,c=0;
     for(int k=0;k<4;++k){
         if(weight[k]<1e-12)continue;
         if(xs[k]<0||ys[k]<0||xs[k]>=map.width||ys[k]>=map.height)return {Visibility::Outside};
         const auto i=static_cast<std::size_t>(ys[k])*map.width+xs[k];const double d=map.depth[i],q=map.confidence[i];
         if(!std::isfinite(d)||!std::isfinite(q)||d<=0||q<0||q>1)return {};
-        lo=std::min(lo,d);hi=std::max(hi,d);z+=weight[k]*d;c+=weight[k]*q;
+        lo=std::min(lo,d);hi=std::max(hi,d);inverseDepth+=weight[k]/d;c+=weight[k]*q;
     }
     if((hi-lo)/hi>maximumRelativeSpread)return {Visibility::Discontinuity};
+    // A plane obeys 1/z = (n.x*(x-cx)/fx + n.y*(y-cy)/fy + n.z)/offset.
+    // Interpolate inverse camera-z in image space, not Euclidean camera-z.
+    // Only the same independently observed, continuous cell participates.
+    const double z=1./inverseDepth;
+    if(!std::isfinite(z)||z<=0)return {};
     return {Visibility::Supported,z,c,x,y};
 }
 struct Verification { Visibility classification{Visibility::Unknown}; double relativeError{},reprojectionError{}; };
@@ -45,7 +50,7 @@ inline Verification verify(const Sample& sample,double predictedDepth,double rep
     if(error>relativeTolerance)return {predictedDepth>sample.depth?Visibility::Occluded:Visibility::Inconsistent,error,reprojectionError};
     return {reprojectionError<=pixelTolerance?Visibility::Supported:Visibility::Inconsistent,error,reprojectionError};
 }
-inline constexpr unsigned NORMAL_SETTINGS_VERSION=2;
+inline constexpr unsigned NORMAL_SETTINGS_VERSION=3;
 struct SurfaceNormal { Vec3 cameraNormal{}; double confidence{}; bool valid{}; };
 // A normal needs four independent neighboring observations, continuous depth,
 // and agreement between two local triangles. Missing/unstable evidence remains

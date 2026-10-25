@@ -7,8 +7,8 @@
 #include <limits>
 int main(){
  rf::DenseDepthMap m{8,8,std::vector<float>(64,0),std::vector<float>(64,0)};
- for(int y=1;y<8;y+=2)for(int x=1;x<8;x+=2){m.depth[y*8+x]=5+.01*x+.02*y;m.confidence[y*8+x]=.8;}
- auto a=rf::consistency::sampleDepth(m,2,2,2,1);assert(a.classification==rf::consistency::Visibility::Supported&&std::abs(a.depth-5.06)<1e-6);
+ for(int y=1;y<8;y+=2)for(int x=1;x<8;x+=2){m.depth[y*8+x]=5./(1.+.002*x+.004*y);m.confidence[y*8+x]=.8;}
+ auto a=rf::consistency::sampleDepth(m,2,2,2,1);assert(a.classification==rf::consistency::Visibility::Supported&&std::abs(a.depth-5./1.012)<1e-6);
  m.depth[3*8+3]=3;assert(rf::consistency::sampleDepth(m,2,2,2,1).classification==rf::consistency::Visibility::Discontinuity);
  m.depth[3*8+3]=0;assert(rf::consistency::sampleDepth(m,2,2,2,1).classification==rf::consistency::Visibility::Unknown);
  assert(rf::consistency::sampleDepth(m,-1,2,2,1).classification==rf::consistency::Visibility::Outside);
@@ -37,6 +37,19 @@ int main(){
  const auto plane=[&](rf::Vec3 normal,double offset){rf::DenseDepthMap d{51,51,std::vector<float>(51*51,0),std::vector<float>(51*51,0)};
   for(int y=1;y<51;y+=2)for(int x=1;x<51;x+=2){const double ray=normal.x*(x-25)/100.+normal.y*(y-25)/100.+normal.z;d.depth[y*51+x]=offset/ray;d.confidence[y*51+x]=.9;}
   return d;};
+ // Fractional-grid sampling must reproduce a calibrated plane, not a
+ // bilinear z approximation. Test both slope signs, asymmetric fractions,
+ // exact-grid samples, and arbitrary SfM units. Float inputs set the tolerance.
+ for(double sceneScale:{1e-30,1e-6,1.,1e6,1e30})for(double slope:{-.9,.9}){
+  const rf::Vec3 n{slope,.7,1};const auto d=plane(n,4*sceneScale);
+  for(double x:{19.,19.2,19.7,20.5})for(double y:{23.,23.3,24.6}){
+   const auto sampled=rf::consistency::sampleDepth(d,x,y,2,1);
+   const double expected=4*sceneScale/(n.x*(x-25)/100.+n.y*(y-25)/100.+n.z);
+   assert(sampled.classification==V::Supported);
+   assert(std::abs(sampled.depth/expected-1)<8e-8);
+   assert(std::abs(sampled.confidence-.9)<1e-6);
+  }
+ }
  const rf::Vec3 worldNormal{.25,-.15,1};auto tilted=plane(worldNormal,4);
  auto normal=rf::consistency::estimateNormal(camera,tilted,25,25,2,1);assert(normal.valid);
  const double scale=std::hypot(worldNormal.x,worldNormal.y,worldNormal.z);
@@ -80,7 +93,7 @@ int main(){
  auto overflow=camera;overflow.fx=1e-300;overflow.fy=1e-300;
  assert(!rf::consistency::estimateNormal(overflow,flat,25,25,2,1).valid);
  // Normal settings participate in dense input identity, preventing stale reuse.
- static_assert(rf::consistency::NORMAL_SETTINGS_VERSION==2);
+ static_assert(rf::consistency::NORMAL_SETTINGS_VERSION==3);
  auto invalid=camera;invalid.fx=0;assert(!rf::consistency::estimateNormal(invalid,sourceMap,25,25,2,1).valid);
  auto enormous=normal;enormous.cameraNormal={1e300,1e300,1e300};assert(rf::consistency::verifyNormals(enormous,camera.pose,normal,camera.pose).classification==V::Unknown);
  auto invalidPose=camera.pose;invalidPose.rotation[0]=2;assert(rf::consistency::verifyNormals(normal,invalidPose,normal,camera.pose).classification==V::Unknown);

@@ -88,6 +88,31 @@ void peakSupportTests(){
  const double legacy=1./planes[3]+(1./planes[4]-1./planes[3])*(.5*(2.-.2)/(2.-2*.1+.2));
  assert(1./legacy>planes[3]*1.027);
 }
+void projectivePropagationTests(){
+ using rf::refinement::propagate;
+ const auto v=camera();
+ for(double scale:{1e-30,1e-6,1.,1e6,1e30})for(double slope:{-.45,.45}){
+  const auto truth=[&](double x,double y){return scale*5./(1+slope*(x-v.cx)/v.fx+.3*(y-v.cy)/v.fy);};
+  for(int stride:{1,2,4,8}){
+   const auto map=observed(v,stride,1,truth);
+   for(double fx:{0.,.2,.5,.9})for(double fy:{0.,.3,.7}){
+    const double x=1+stride*(1+fx),y=1+stride*(1+fy);
+    const double actual=propagate(map,x,y,.055,stride,1);
+    assert(actual>0&&std::abs(actual/truth(x,y)-1)<1.2e-7);
+   }
+  }
+ }
+ // All four samples are still required, even for a zero-weight corner.
+ auto map=observed(v,2,1,[](double,double){return 4.;});
+ for(float invalid:{0.f,-1.f,std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::infinity()}){
+  auto bad=map;bad.depth[5*v.width+5]=invalid;
+  assert(propagate(bad,3,3,.055,2,1)==0);
+  assert(propagate(bad,4,4,.055,2,1)==0);
+ }
+ map.depth[5*v.width+5]=2;
+ assert(propagate(map,4,4,.055,2,1)==0); // no foreground/background bridge
+ static_assert(rf::refinement::SETTINGS_VERSION==4);
+}
 void planeTests(){
  using namespace rf::refinement;
  const auto v=camera();const auto truth=unit({.45,-.3,1});
@@ -179,6 +204,7 @@ int main(){
  rf::DenseDepthMap m{2,2,{5,5.02f,5.03f,5.05f},{1,1,1,1}};assert(propagate(m,.5,.5)>5);
  m.depth[3]=2;assert(propagate(m,.5,.5)==0);m.depth[3]=0;assert(propagate(m,.5,.5)==0);
  rf::DenseDepthMap sparse{5,5,std::vector<float>(25,0),std::vector<float>(25,0)};for(int y=0;y<5;y+=2)for(int x=0;x<5;x+=2)sparse.depth[y*5+x]=5+.01f*x;assert(propagate(sparse,1,1,.05,2,0)>5);sparse.depth[2*5+2]=0;assert(propagate(sparse,1,1,.05,2,0)==0);
+ projectivePropagationTests();
  peakBoundaryTests();
  peakSupportTests();
  planeTests();

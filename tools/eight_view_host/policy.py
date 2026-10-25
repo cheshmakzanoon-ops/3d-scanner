@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='61c9b5a09b1aabff9946f268ffeb451858f86652'
-MESSAGE='test: observe dense photometric rejection reasons'
+BASE_SHA='9158fe0d504eb867b3139ba25e3bab47bae5a946'
+MESSAGE='fix: interpolate projective depth consistently'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'reconstruction/include/realityforge/dense.hpp', 'reconstruction/src/dense.cpp', 'reconstruction/tests/dense_test.cpp', 'reconstruction/tests/depth_checkpoint_test.cpp', 'reconstruction/tests/depth_tiles_test.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt', 'app/src/test/java/com/realityforge/scanner/agents/a009/ProductionCheckpointFilesTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/pipeline/DenseExecutionPolicyTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/pipeline/SurfaceCacheIdentityTest.kt', 'reconstruction/include/realityforge/depth_consistency.hpp', 'reconstruction/include/realityforge/depth_refinement.hpp', 'reconstruction/include/realityforge/surface_checkpoint.hpp', 'reconstruction/src/surface.cpp', 'reconstruction/src/surface_checkpoint.cpp', 'reconstruction/tests/depth_consistency_test.cpp', 'reconstruction/tests/depth_refinement_test.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'reconstruction/tests/surface_fusion_test.cpp', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

@@ -5,7 +5,7 @@
 namespace rf::surface_checkpoint {
 // Experimental v3 carries direct versus exact-duplicate support plus unattached
 // accepted identities. Prior immutable meshes coexist under the same depth scope.
-inline constexpr char FILENAME[]="surface-v3-fusion-v9.rfmesh";
+inline constexpr char FILENAME[]="surface-v3-fusion-v10.rfmesh";
 inline constexpr std::size_t MAX_FILE_BYTES=12*1024*1024;
 
 struct AcceptedSurface {

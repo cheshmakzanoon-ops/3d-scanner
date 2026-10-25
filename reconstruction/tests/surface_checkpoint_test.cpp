@@ -137,7 +137,7 @@ int main() {
     test("historical topology and fusion identities fail closed even under the current filename",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
         rf::surface_checkpoint::AcceptedSurface recovered;
-        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2",
+        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v9-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2",
                                "realityforge-observed-open-surface-fusion-v6-checkpoint-v2",
                                "realityforge-observed-open-surface-fusion-v6-checkpoint-v2-topology-v2"}) {
             const auto oldBytes=historicalBytes(domain);write(checkpoint,oldBytes);
@@ -162,8 +162,8 @@ int main() {
             referenceBytes.push_back(read(temporary.directory/name));
             write(migration.directory/name,referenceBytes.back());
         }
-        const auto oldPath=migration.directory/"surface-v3-fusion-v8.rfmesh";
-        const auto oldBytes=historicalBytes("realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2");
+        const auto oldPath=migration.directory/"surface-v3-fusion-v9.rfmesh";
+        const auto oldBytes=historicalBytes("realityforge-observed-open-surface-fusion-v9-checkpoint-v3-provenance-v1-topology-v2");
         write(oldPath,oldBytes);
         const auto next=migration.directory/rf::surface_checkpoint::FILENAME;
         require(next!=oldPath&&!std::filesystem::exists(next),"fusion migration did not get a fresh namespace");
@@ -179,7 +179,7 @@ int main() {
         require(newBytes==acceptedBytes&&u32(newBytes,8)==3,
                 "provenance migration omitted v3 serialization");
         require(rf::surface_checkpoint::load(next.string(),views,recovered),"new fusion checkpoint was not reusable");
-        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":9")!=std::string::npos,
+        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":10")!=std::string::npos,
                 "reopened checkpoint reports a stale fusion version");
         created=true;
         require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&created)&&!created,
