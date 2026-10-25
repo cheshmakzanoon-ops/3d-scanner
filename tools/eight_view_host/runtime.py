@@ -28,8 +28,12 @@ def inventory(root, max_bytes=8*1024**3, max_files=100000, aliases=None, seconds
     relative to the retained root FD, no-follow, checking identities before enumeration.
     Already encountered entries still count when removed; files already sized remain counted.
     """
-    root = Path(root); entries = {}; total = 0; count = 0; end = time.monotonic()+seconds
+    root = Path(root); entries = {}; total = 0; count = 0; started = time.monotonic(); end = started+seconds
     aliases = {} if aliases is None else aliases
+    def limit(reason):
+        detail={'reason':reason,'visitedEntries':count,'observedBytes':total,
+                'maximumEntries':max_files,'budgetSeconds':seconds,'elapsedSeconds':round(max(0,time.monotonic()-started),6)}
+        return Failure('Owned directory traversal/count limit; INVENTORY_LIMIT '+json.dumps(detail,sort_keys=True,separators=(',',':')))
     def identity(info): return (info.st_dev,info.st_ino,stat.S_IFMT(info.st_mode))
     root_info=root.lstat();root_identity=identity(root_info)
     if not stat.S_ISDIR(root_info.st_mode):raise Failure('Owned inventory root is not a directory')
@@ -41,11 +45,11 @@ def inventory(root, max_bytes=8*1024**3, max_files=100000, aliases=None, seconds
         if identity(os.fstat(root_fd))!=root_identity:raise Failure('Owned inventory root identity changed')
         pending=[((),())]
         while pending:
-            if time.monotonic()>=end:raise Failure('Owned directory traversal/count limit')
+            if time.monotonic()>=end:raise limit('TIME')
             root_unchanged();parts,expected=pending.pop();fd=os.dup(root_fd);missing=False
             try:
                 for part,wanted in zip(parts,expected):
-                    if time.monotonic()>=end:raise Failure('Owned directory traversal/count limit')
+                    if time.monotonic()>=end:raise limit('TIME')
                     try:child=os.open(part,flags,dir_fd=fd)
                     except FileNotFoundError:
                         root_unchanged();missing=True;break  # Previously discovered descendant only.
@@ -58,11 +62,12 @@ def inventory(root, max_bytes=8*1024**3, max_files=100000, aliases=None, seconds
                 with os.scandir(fd) as iterator:
                     for entry in iterator:
                         count+=1
-                        if count>max_files or time.monotonic()>=end:raise Failure('Owned directory traversal/count limit')
-                        p=root.joinpath(*parts,entry.name)
+                        if count>max_files:raise limit('COUNT')
+                        if time.monotonic()>=end:raise limit('TIME')
                         try:info=entry.stat(follow_symlinks=False)
                         except FileNotFoundError:continue  # Concurrent owned temporary entry disappeared.
                         if stat.S_ISLNK(info.st_mode):
+                            p=root.joinpath(*parts,entry.name)
                             if str(p) not in aliases or p.resolve(strict=True)!=Path(aliases[str(p)]).resolve(strict=True):
                                 raise Failure('Unexpected symlink in owned tree: '+str(p))
                         elif stat.S_ISDIR(info.st_mode):pending.append((parts+(entry.name,),expected+(identity(info),)))
@@ -70,7 +75,10 @@ def inventory(root, max_bytes=8*1024**3, max_files=100000, aliases=None, seconds
                             total+=info.st_size
                             if total>max_bytes:raise Failure('Owned directory size limit')
                         else:raise Failure('Unexpected special file in owned tree')
-                        entries[p.relative_to(root).as_posix()]=info.st_size if stat.S_ISREG(info.st_mode) else 0
+                        # parts originate only from scandir names below the retained
+                        # root FD. Lexical keys need no per-file absolute Path roundtrip;
+                        # all no-follow stat/open and ancestry checks above remain intact.
+                        entries['/'.join((*parts,entry.name))]=info.st_size if stat.S_ISREG(info.st_mode) else 0
             finally:os.close(fd)
         root_unchanged()
     finally:os.close(root_fd)
@@ -197,11 +205,19 @@ class Runner:
                 value=min(10,end-self.clock())
                 if value<=0:raise Deadline('Owned disk inventory deadline')
                 return value
-            total, files = inventory(self.work,aliases=self.aliases,seconds=left())
+            def scan(root,role):
+                try:return inventory(root,aliases=self.aliases,seconds=left())
+                except Deadline as error:
+                    raise Deadline(str(error)+'; OWNED_ROOT_ROLE '+role) from error
+                except Failure as error:
+                    if str(error).startswith('Owned directory traversal/count limit'):
+                        raise Failure(str(error)+'; OWNED_ROOT_ROLE '+role) from error
+                    raise
+            total, files = scan(self.work,'work')
             count=len(files)
-            for root in self.extra_owned_roots:
+            for index,root in enumerate(self.extra_owned_roots):
                 if root.exists():
-                    size,entries=inventory(root,aliases=self.aliases,seconds=left());total+=size;count+=len(entries)
+                    size,entries=scan(root,'extra-owned-'+str(index));total+=size;count+=len(entries)
             if total>8*1024**3 or count>100000:raise Failure('Combined owned build directory size/count limit')
             self.last_scan = self.clock()
     def command(self, label, args, seconds=60, env=None, cwd=None, limit=8*1024**2, check=True, cleanup=False):

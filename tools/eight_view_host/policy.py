@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='788e75b8dcd1489d4ecae67e7e3fa932db2cc9ea'
-MESSAGE='test: inspect exact real-photo pair rejection'
+BASE_SHA='22e1cb63537e149279281cf23a0f46e50c87668a'
+MESSAGE='perf: reduce bounded HOST inventory overhead'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedStereoCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_real_stereo_complete.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-owned-inventory-cost.md', 'tests/test_eight_view_inventory_cost.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/runtime.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
