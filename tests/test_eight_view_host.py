@@ -704,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='0055f87552c9a90151155288a6f8e47bc5c535b2'
- assert p.MESSAGE=='test: retain bounded partial-model roundtrip evidence'
+ assert p.BASE_SHA=='b469ed1972cab56bd9d8c3e1386574bd6b57d84c'
+ assert p.MESSAGE=='fix: stabilize physical-view correspondence ordering'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -717,7 +717,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/real-three-controller-profile.md', 'tests/stdlib_cli_boundary.py', 'tests/test_agent_100_campaign.py', 'tests/test_eight_view_header_diagnostic.py', 'tests/test_eight_view_host.py', 'tests/test_native_cabi_replay.py', 'tests/test_published_validation_receipts.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_partial_diagnostic.py', 'tests/test_source_manifest_tool.py', 'tests/test_stdlib_cli_boundary.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py', 'tools/qa/native_cabi_replay/README.md', 'tools/qa/native_cabi_replay/run.py', 'tools/qa/native_cabi_replay/verify.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt', 'app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt', 'app/src/test/java/com/realityforge/scanner/engine/matching/MatchInputOrderTest.kt', 'tests/test_eight_view_host.py', 'tests/test_match_input_order.py', 'tools/eight_view_host/policy.py', 'tools/feature_matcher_validation/HostRunner.kt', 'tools/feature_matcher_validation/ProductionMatcherHostTest.kt', 'tools/feature_matcher_validation/README.md', 'tools/feature_matcher_validation/validate.py'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_THREE
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2

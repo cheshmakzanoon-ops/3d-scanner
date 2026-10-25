@@ -968,17 +968,17 @@ class SparsePipeline(
         val rows = DoubleArray(tentative.count * 7)
         val firstKeys = IntArray(tentative.count)
         val secondKeys = IntArray(tentative.count)
-        for ((index, m) in tentative.matches.withIndex()) {
-            val firstKey = if (canonical) m.firstKey else m.secondKey
-            val secondKey = if (canonical) m.secondKey else m.firstKey
+        for ((index, m) in tentative.inInputOrder(a.features.photoId, a.colors).withIndex()) {
+            val firstKey = m.firstKey
+            val secondKey = m.secondKey
             firstKeys[index] = firstKey
             secondKeys[index] = secondKey
             val base = index * 7
-            rows[base] = if (canonical) m.ax else m.bx
-            rows[base + 1] = if (canonical) m.ay else m.by
-            rows[base + 2] = if (canonical) m.bx else m.ax
-            rows[base + 3] = if (canonical) m.by else m.ay
-            val color = a.colors[firstKey]
+            rows[base] = m.ax
+            rows[base + 1] = m.ay
+            rows[base + 2] = m.bx
+            rows[base + 3] = m.by
+            val color = m.argb
             rows[base + 4] = (color shr 16 and 255).toDouble()
             rows[base + 5] = (color shr 8 and 255).toDouble()
             rows[base + 6] = (color and 255).toDouble()

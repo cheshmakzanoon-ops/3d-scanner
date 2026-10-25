@@ -37,6 +37,30 @@ class ProductionMatcherHostTest {
    }else null }
   } finally {f.forEach{it.release()};r.forEach{it.release()};matcher.clear()}
  } }
+ @Test fun fixedFramesOppositeImportUuidsHaveIdenticalPhysicalRows() {
+  val physicalA=randomRows(7,55L)
+  val physicalB=physicalA.reversed()
+  fun run(firstId:String,secondId:String):List<FeatureCorrespondence> =
+   frame(firstId,physicalA).use { a -> frame(secondId,physicalB).use { b ->
+    val first=if(a.photoId<b.photoId)a else b
+    val second=if(a.photoId<b.photoId)b else a
+    val tentative=FeatureMatcher(blockSize=2).match(first,second,
+     PairCandidate(first.photoId,second.photoId,0.0,"uuid-regression"))
+    assertEquals(7,tentative.count)
+    if(a.photoId>b.photoId)assertNotEquals((0..6).toList(),tentative.matches.map{it.secondKey})
+    val physical=tentative.inInputOrder(a.photoId,a.colors())
+    assertEquals((0..6).toList(),physical.map{it.firstKey})
+    assertEquals((6 downTo 0).toList(),physical.map{it.secondKey})
+    physical.forEach { m ->
+     assertEquals(a.normalized(m.firstKey),m.ax to m.ay)
+     assertEquals(b.normalized(m.secondKey),m.bx to m.by)
+     assertEquals(a.colors()[m.firstKey],m.argb)
+    }
+    physical
+   } }
+  assertEquals(run("20f7bcc9-9648-40ba-869f-5ca323430bac","255c9f31-c949-42a1-a9ea-f5542b01b694"),
+   run("e644cf9b-0aad-4a9b-8be9-ff56c39ef072","4b752c6b-cece-40da-8aba-0a9de30dce1b"))
+ }
  @Test fun descriptorEndpointAndInvalidInputs() {
   frame("a",List(4){scalar(0f)}).use { a ->
    for(v in listOf(0f,Math.nextDown(512f),512f))frame("b",List(4){scalar(v)}).use { b->assertEquals(0,FeatureMatcher().match(a,b,pair).count) }

@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='0055f87552c9a90151155288a6f8e47bc5c535b2'
-MESSAGE='test: retain bounded partial-model roundtrip evidence'
+BASE_SHA='b469ed1972cab56bd9d8c3e1386574bd6b57d84c'
+MESSAGE='fix: stabilize physical-view correspondence ordering'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/real-three-controller-profile.md', 'tests/stdlib_cli_boundary.py', 'tests/test_agent_100_campaign.py', 'tests/test_eight_view_header_diagnostic.py', 'tests/test_eight_view_host.py', 'tests/test_native_cabi_replay.py', 'tests/test_published_validation_receipts.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_partial_diagnostic.py', 'tests/test_source_manifest_tool.py', 'tests/test_stdlib_cli_boundary.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py', 'tools/qa/native_cabi_replay/README.md', 'tools/qa/native_cabi_replay/run.py', 'tools/qa/native_cabi_replay/verify.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt', 'app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt', 'app/src/test/java/com/realityforge/scanner/engine/matching/MatchInputOrderTest.kt', 'tests/test_eight_view_host.py', 'tests/test_match_input_order.py', 'tools/eight_view_host/policy.py', 'tools/feature_matcher_validation/HostRunner.kt', 'tools/feature_matcher_validation/ProductionMatcherHostTest.kt', 'tools/feature_matcher_validation/README.md', 'tools/feature_matcher_validation/validate.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
