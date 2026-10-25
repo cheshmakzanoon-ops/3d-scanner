@@ -2,7 +2,7 @@
 """Opt-in production frontend integration host gate; no downloads, native builds, Gradle or app-class reuse."""
 import argparse,hashlib,json,os,subprocess,uuid,zipfile
 from pathlib import Path
-SOURCES=['NativeCore.kt','LensGeometry.kt','features/FeatureFrame.kt','features/GrayFeatureExtraction.kt','features/RootSift.kt','matching/FeatureMatcher.kt','matching/PairCandidate.kt','matching/VerifiedMatches.kt','matching/PairWorkTiming.kt']
+SOURCES=['NativeCore.kt','LensGeometry.kt','features/FeatureFrame.kt','features/GrayFeatureExtraction.kt','matching/FeatureMatcher.kt','matching/PairCandidate.kt','matching/VerifiedMatches.kt','matching/PairWorkTiming.kt']
 FIXTURES={'view-01.jpg':'66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c','view-02.jpg':'c275db33a1d10d84fe5a9bf78c55a7ea31de002ac305e00fd521e54b351b391b','calibration.json':'284c73d64c92bbed50f762a5bc74b6f39d0a3955a0bd219217b6d23bbd7fd593'}
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def hashes(root):

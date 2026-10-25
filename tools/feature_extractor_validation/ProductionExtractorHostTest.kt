@@ -42,44 +42,16 @@ class ProductionExtractorHostTest {
                 }
                 val bounded=desc.rowRange(0,a.count)
                 try {a.withDescriptors { own ->
-                    val raw=FloatArray(128);val actual=FloatArray(128)
-                    for(row in 0 until a.count) {
-                        assertEquals(512,bounded.get(row,0,raw));assertEquals(512,own.get(row,0,actual))
-                        val sum=raw.sumOf { it.toDouble() };assertTrue(sum>0.0)
-                        val expected=FloatArray(128){kotlin.math.sqrt(raw[it].toDouble()/sum).toFloat()}
-                        assertArrayEquals(expected,actual,0f)
-                        assertEquals(1.0,actual.sumOf { it.toDouble()*it },1e-6)
-                    }
+                    assertEquals(0.0,Core.norm(own,bounded),0.0)
                     b.withDescriptors {assertEquals(0.0,Core.norm(own,it),0.0)}
                 }} finally {bounded.release()}
-                assertNotEquals("446c29d247055c57d9a45085db05c846470fa351aadfedf34f97c853b590c746",a.settingsIdentity)
+                assertEquals("446c29d247055c57d9a45085db05c846470fa351aadfedf34f97c853b590c746",a.settingsIdentity)
                 assertEquals(settings.identity("host-synthetic-gray"),a.settingsIdentity)
                 assertEquals("synthetic",a.photoId);assertEquals("0".repeat(64),a.contentSha256)
                 assertEquals("host-synthetic-gray",a.decoderIdentity)
                 assertEquals(gray.cols(),a.width);assertEquals(gray.rows(),a.height)
             }}
         } finally {sift.clear();keys.release();desc.release();mask.release();gray.release()}
-    }
-    @Test fun floatRowTransfersReturnBytesAndOnlyTouchRequestedRow() {
-        val mat=Mat.zeros(2,128,CvType.CV_32F)
-        try {
-            val input=FloatArray(128){(it+1).toFloat()};val output=FloatArray(128)
-            assertEquals(512,mat.put(1,0,input));assertEquals(512,mat.get(1,0,output))
-            assertArrayEquals(input,output,0f)
-            assertEquals(512,mat.get(0,0,output));assertTrue(output.all{it==0f})
-        }finally{mat.release()}
-    }
-    @Test fun cancellationDuringNormalizationDoesNotPublishOrMutateBorrowedGray() {
-        val gray=texture();val original=gray.clone()
-        try {
-            val count=run(gray).use{it.count};var samples=0;var normalizationChecks=0
-            assertThrows(CancellationException::class.java){run(gray,
-                sample={x,y->samples++;color(x,y)},
-                cancelled={if(samples==count){normalizationChecks++;normalizationChecks==2}else false})}
-            assertEquals(count,samples);assertEquals(2,normalizationChecks)
-            assertEquals(0.0,Core.norm(gray,original),0.0)
-            run(gray).use{assertEquals(count,it.count)}
-        }finally{gray.release();original.release()}
     }
     @Test fun configuredCapAndNormalizationStayRowAligned() {
         val gray=texture()
