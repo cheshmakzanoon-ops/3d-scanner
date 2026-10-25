@@ -11,9 +11,12 @@ class FeatureSettingsIdentityTest {
     @Test fun unicodeIdentityUsesEncodedByteLengthAndChangesWithSettings() {
         val settings=ExtractorSettings()
         val decoder="upright-\u00e9-\uD83D\uDE00"
-        val canonical="rf-sift-v2\n3500\n1600\n${Core.VERSION}\n${decoder.toByteArray(Charsets.UTF_8).size}:$decoder"
+        val canonical="rf-sift-v3|rf-rootsift-l1-sqrt-v1\n3500\n1600\n${Core.VERSION}\n${decoder.toByteArray(Charsets.UTF_8).size}:$decoder"
         val expected=MessageDigest.getInstance("SHA-256").digest(canonical.toByteArray(Charsets.UTF_8)).joinToString(""){"%02x".format(it)}
         assertEquals(expected,settings.identity(decoder))
+        val oldCanonical=canonical.replace("rf-sift-v3|rf-rootsift-l1-sqrt-v1","rf-sift-v2")
+        val old=MessageDigest.getInstance("SHA-256").digest(oldCanonical.toByteArray(Charsets.UTF_8)).joinToString(""){"%02x".format(it)}
+        assertNotEquals(old,settings.identity(decoder))
         assertNotEquals(settings.identity(decoder),settings.copy(maxFeatures=3499).identity(decoder))
         assertNotEquals(settings.identity(decoder),settings.copy(analysisEdge=1599).identity(decoder))
     }

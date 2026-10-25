@@ -213,6 +213,24 @@ double reprojection(const CameraPose& pose, const Observation& o){
 std::vector<std::size_t> inliers(const CameraPose& pose,std::span<const Observation> rows,double threshold){
     std::vector<std::size_t> ids;for(std::size_t i=0;i<rows.size();++i)if(reprojection(pose,rows[i])<threshold)ids.push_back(i);return ids;
 }
+// Bounded allowlisted counters only: no coordinates, IDs, paths or input text.
+// Existing callers retain Error/"error" classification and the message prefix;
+// IncrementalRegistration persists at most 200 characters. All values below are
+// already bounded by registerCamera admission (5000 rows / 450 hypotheses).
+std::string failureEvidence(const char* prefix,std::size_t raw,std::size_t distinct,
+        std::size_t required,std::size_t best,std::size_t tested,std::size_t valid,
+        const CameraPose* pose=nullptr,std::size_t finalCount=std::numeric_limits<std::size_t>::max()) {
+    std::ostringstream out;out.imbue(std::locale::classic());
+    out<<prefix<<" [pnp1 raw="<<raw<<" distinct="<<distinct<<" required="<<required
+       <<" best="<<best<<" tested="<<tested<<" valid="<<valid<<" model=";
+    if(pose) {
+        out<<(pose->usedPlanarInitialization?"plane":"dlt");
+        if(std::isfinite(pose->worldPlanarityRatio))
+            out<<" planarity="<<std::fixed<<std::setprecision(6)<<pose->worldPlanarityRatio;
+    } else out<<"none";
+    if(finalCount!=std::numeric_limits<std::size_t>::max())out<<" final="<<finalCount;
+    out<<']';return out.str();
+}
 double median(std::vector<double> x){if(x.empty())return std::numeric_limits<double>::infinity();std::nth_element(x.begin(),x.begin()+x.size()/2,x.end());return x[x.size()/2];}
 }
 CameraPose registerCamera(std::span<const Observation> observations,double threshold,std::uint32_t seed){
@@ -238,7 +256,7 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
         }
     }
     cancellation::checkpoint();
-    if(unique.size()<16)throw Error("PnP needs at least 16 distinct 3D-2D observations");
+    if(unique.size()<16)throw Error(failureEvidence("PnP needs at least 16 distinct 3D-2D observations",rawInputCount,unique.size(),16,0,0,0));
     observations=std::span<const Observation>(unique);
     std::mt19937 random(seed);std::uniform_int_distribution<std::size_t> pick(0,observations.size()-1);
     CameraPose best;best.inputCount=observations.size();
@@ -246,7 +264,7 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
     // Sparse work-unit1 counts tested PnP hypotheses; adaptive termination
     // means remaining work is unknown, never a fabricated whole-scan percentage.
     progress::begin(progress::Stage::Sparse,0,1);
-    std::size_t hypotheses=0;
+    std::size_t hypotheses=0,validHypotheses=0;
     for(int iter=0;iter<450;++iter){
         ++hypotheses;
         cancellation::checkpoint();
@@ -254,13 +272,18 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
         while(sample.size()<8){auto i=pick(random);if(std::find(sample.begin(),sample.end(),i)==sample.end())sample.push_back(i);}
         try {
             auto pose=dlt(observations,sample);
+            ++validHypotheses;
             auto hits=inliers(pose,observations,threshold);
             if(hits.size()>best.inliers.size()) {best=std::move(pose);best.inliers=std::move(hits);}
         }catch(const cancellation::Cancelled&){throw;}catch(const Error&){}
         progress::advance(static_cast<std::uint64_t>(iter+1));
         if(iter>=60 && best.inliers.size()>=observations.size()*.93)break;
     }
-    if(best.inliers.size()<minValid)throw Error("Third-camera registration failed: insufficient consistent 2D-3D tracks");
+    const std::size_t ransacBestInliers=best.inliers.size();
+    if(best.inliers.size()<minValid)throw Error(failureEvidence(
+        "Third-camera registration failed: insufficient consistent 2D-3D tracks",
+        rawInputCount,observations.size(),minValid,ransacBestInliers,hypotheses,validHypotheses,
+        best.inliers.empty()?nullptr:&best));
     // Reestimate from all inliers and minimize the actual reprojection error.
     for(int pass=0;pass<3;++pass){
         try{
@@ -274,7 +297,9 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
     // Final refit on the stable consensus, no unverified extra points introduced.
     refine(best,observations,best.inliers,threshold);
     best.inliers=inliers(best,observations,threshold);
-    if(best.inliers.size()<minValid)throw Error("Pose refinement lost consensus");
+    if(best.inliers.size()<minValid)throw Error(failureEvidence("Pose refinement lost consensus",
+        rawInputCount,observations.size(),minValid,ransacBestInliers,hypotheses,validHypotheses,
+        &best,best.inliers.size()));
     std::vector<double> errors;errors.reserve(best.inliers.size());for(auto i:best.inliers)errors.push_back(reprojection(best,observations[i]));
     best.medianError=median(errors);
     if(determinant(best.rotation)<.99||determinant(best.rotation)>1.01)throw Error("Nonrigid camera pose");

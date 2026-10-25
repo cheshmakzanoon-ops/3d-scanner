@@ -8,6 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tools.security.scan import scan
 from tools.security.scan import apply_suppressions
+from security_cli_boundary import scan_external
 import hashlib
 
 
@@ -21,7 +22,7 @@ def scanner():
 def test_real_scanners_detect_hostile_source_without_leaking_secret(tmp_path, scanner):
     secret = 'AKIA' + 'Q7Y9J2L5Z8P3R6TN'
     (tmp_path / 'hostile.py').write_text('import os\n' + 'aws_access_key_id = "' + secret + '"\n' + 'eval(input())\n')
-    report = scan(tmp_path, scanner)
+    report = scan_external(tmp_path, scanner)
     assert report['status'] == 'FAIL', json.dumps(report.get('scanner_failure', {}))
     assert report['checks']['static'] == 'FAIL'
     assert report['checks']['secrets'] == 'FAIL'
@@ -35,7 +36,7 @@ def test_real_dependency_audit_rejects_known_vulnerable_pin(tmp_path, scanner):
     (source / 'safe.py').write_text('print("synthetic security fixture")\n')
     requirements = tmp_path / 'requirements.txt'
     requirements.write_text('requests==2.19.1\n')
-    report = scan(source, scanner, requirements)
+    report = scan_external(source, scanner, requirements)
     assert report['checks'].get('dependencies') == 'FAIL', json.dumps(report.get('scanner_failure', {}))
     assert any(f.get('package') == 'requests' for f in report['findings'])
 
@@ -47,7 +48,7 @@ def test_missing_scanner_fails_closed(tmp_path):
 
 def test_missing_dependency_audit_never_full_pass(tmp_path, scanner):
     (tmp_path / 'safe.py').write_text('x = 3\n')
-    report = scan(tmp_path, scanner)
+    report = scan_external(tmp_path, scanner)
     assert report['status'] == 'NOT_RUN', report
     assert report['checks'].get('dependencies') == 'NOT_RUN', json.dumps(report.get('scanner_failure', {}))
 
@@ -74,7 +75,9 @@ def test_suppression_binds_exact_source_and_expires(tmp_path):
 
 def test_canonical_scanner_paths_and_source_identity(tmp_path, scanner):
     (tmp_path/'safe.py').write_text('answer = 3\n')
-    report = scan(tmp_path, scanner)
+    report = scan_external(tmp_path, scanner)
+    assert report['status'] == 'NOT_RUN'
+    assert report['checks'] == {'static': 'PASS', 'secrets': 'PASS', 'dependencies': 'NOT_RUN'}
     assert report['source_sha'] is None
     assert report['source_files_count'] == 1
     assert len(report['source_files_sha256']) == 64
@@ -138,7 +141,7 @@ def test_new_secret_does_not_inherit_checksum_file_review(tmp_path, scanner):
     policy=tmp_path.parent/(tmp_path.name+'-policy.json');policy.write_text(json.dumps({'schema':1,'entries':[entry]}))
     secret='AKIA'+'Q7Y9J2L5Z8P3R6TN'
     source.write_text(json.dumps({'artifact_sha256':'a'*64,'aws_access_key_id':secret})+'\n')
-    report=scan(tmp_path,scanner,suppressions=policy)
+    report=scan_external(tmp_path,scanner,suppressions=policy)
     assert report['status']=='FAIL' and report['checks']['secrets']=='FAIL', json.dumps(report.get('scanner_failure', {}))
     assert not report['suppressed']
     assert report['finding_counts']['raw']==report['finding_counts']['active']>0
@@ -153,7 +156,7 @@ def test_real_audit_includes_vulnerable_nested_requirements(tmp_path, scanner):
     included.write_text('requests==2.19.1\n')
     requirements = tmp_path/'requirements.txt'
     requirements.write_text('-r included.txt\n')
-    report = scan(source, scanner, requirements)
+    report = scan_external(source, scanner, requirements)
     assert report['status'] == 'FAIL', json.dumps(report.get('scanner_failure', {}))
     assert report['checks']['dependencies'] == 'FAIL'
     assert report['requirements_packages_count'] == 1

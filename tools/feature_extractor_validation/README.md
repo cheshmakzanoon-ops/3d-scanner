@@ -47,3 +47,9 @@ the borrowed gray Mat synchronously in STARTED to provoke an actual SIFT
 empty-image failure; this is invalid-owner test injection, not supported caller
 behavior or concurrent memory mutation. Tests check the native exception class
 and diagnostic plus suppressed observer identity, not unobserved native identity.
+
+RootSIFT successor: 13 host tests retain independent raw-SIFT keypoint/color/order
+comparisons, independently compute sqrt(L1) descriptors, and exercise512-byte
+float-row transfers plus cancellation during owned-row normalization. Source
+receipts additionally bind features/RootSift.kt. Older11-test receipts do not
+qualify this successor.

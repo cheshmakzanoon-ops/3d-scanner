@@ -5,7 +5,7 @@ from pathlib import Path
 SDK_NAME='android-all-15-robolectric-12650502.jar'
 SDK_SHA='6c0670454f6fcee9f1b17aa393e81d71bf26e7e6ae7c5777ed3924b062191d5b'
 FIXTURE_SHA='66fa84499c73e4a6cbb4af03880e6494433f7d4d32f288476c575a71aa82ab7c'
-SOURCES=['engine/NativeCore.kt','engine/ImageLoader.kt','engine/LensGeometry.kt','engine/features/FeatureExtractor.kt','engine/features/GrayFeatureExtraction.kt','engine/features/FeatureFrame.kt','imaging/AnalysisPixels.kt','imaging/AndroidImageDecoder.kt','imaging/ImageContracts.kt','imaging/OwnedImage.kt']
+SOURCES=['engine/NativeCore.kt','engine/ImageLoader.kt','engine/LensGeometry.kt','engine/features/FeatureExtractor.kt','engine/features/GrayFeatureExtraction.kt','engine/features/RootSift.kt','engine/features/FeatureFrame.kt','imaging/AnalysisPixels.kt','imaging/AndroidImageDecoder.kt','imaging/ImageContracts.kt','imaging/OwnedImage.kt']
 HELPERS=['AdapterRunner.kt','HostOpenCvLoader.kt','OpaqueBitmapBridge.kt','FeatureAdapterProbeTest.kt']
 def require(ok,message):
  if not ok:raise ValueError(message)

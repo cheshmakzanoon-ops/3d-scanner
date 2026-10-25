@@ -14,7 +14,7 @@ data class ExtractorSettings(val maxFeatures: Int=3500,val analysisEdge: Int=160
     init { require(maxFeatures in 32..20000 && analysisEdge in 32..4096) }
     fun identity(decoderIdentity: String): String {
         val decoderBytes=validatedFeatureText(decoderIdentity,4096)
-        val value="rf-sift-v2\n$maxFeatures\n$analysisEdge\n${Core.VERSION}\n${decoderBytes.size}:$decoderIdentity"
+        val value="rf-sift-v3|${RootSift.POLICY}\n$maxFeatures\n$analysisEdge\n${Core.VERSION}\n${decoderBytes.size}:$decoderIdentity"
         return MessageDigest.getInstance("SHA-256").digest(value.toByteArray(Charsets.UTF_8)).joinToString(""){"%02x".format(it)}
     }
 }
@@ -68,6 +68,19 @@ internal fun extractGrayFeatures(
         }
         val owned=if(count==0)Mat() else desc.rowRange(0,count).useClone()
         retained=owned
+        // Normalize once per extracted row, on our clone, never on borrowed pixels or keys.
+        // OpenCV 4.12 float[] get/put return BYTES (Mat.cpp mat_copy_data), not elements.
+        if(count>0) {
+            require(owned.type()==CvType.CV_32F && owned.cols()==RootSift.DIMENSIONS && owned.rows()==count)
+            val rawRow=FloatArray(RootSift.DIMENSIONS)
+            val rootRow=FloatArray(RootSift.DIMENSIONS)
+            for(i in 0 until count) {
+                checkCancelled()
+                require(owned.get(i,0,rawRow)==RootSift.ROW_BYTES) { "Incomplete SIFT row read" }
+                RootSift.normalizeRow(rawRow,rootRow)
+                require(owned.put(i,0,rootRow)==RootSift.ROW_BYTES) { "Incomplete RootSIFT row write" }
+            }
+        }
         checkCancelled()
         val frame=FeatureFrame(photoId,contentSha256,decoderIdentity,identity,width,height,xy,colors,owned,lens)
         retained=null

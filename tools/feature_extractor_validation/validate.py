@@ -2,7 +2,7 @@
 """Opt-in production extractor host gate; no downloads, native builds, Gradle or app-class reuse."""
 import argparse,hashlib,json,os,subprocess,uuid,zipfile
 from pathlib import Path
-SOURCES=['LensGeometry.kt','features/FeatureFrame.kt','features/GrayFeatureExtraction.kt']
+SOURCES=['LensGeometry.kt','features/FeatureFrame.kt','features/GrayFeatureExtraction.kt','features/RootSift.kt']
 def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
 def hashes(root):
  result={}
@@ -76,6 +76,6 @@ def main(argv=None):
   cmd=[str(java),'-Xmx256m','-XX:ActiveProcessorCount=2','-cp',str(output)+os.pathsep+cp,'HostRunnerKt',str(lib)]
   with (work/'run.log').open('w') as log:subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,env=env,timeout=90,check=True)
   if inputs()!=before or receipt['classes']!=hashes(output) or sha(extracted)!=before['aarClasses']:raise ValueError('Inputs or outputs changed during run')
-  write(work/'run-receipt.json',{'inputs':before,'classes':receipt['classes'],'compileReceipt':sha(work/'compile-receipt.json'),'runLog':sha(work/'run.log'),'status':'PASS','expectedTests':11,'limits':{'seconds':90,'heap':'256m','processors':2,'opencvThreads':2}})
+  write(work/'run-receipt.json',{'inputs':before,'classes':receipt['classes'],'compileReceipt':sha(work/'compile-receipt.json'),'runLog':sha(work/'run.log'),'status':'PASS','expectedTests':13,'limits':{'seconds':90,'heap':'256m','processors':2,'opencvThreads':2}})
  print(a.mode+' PASS')
 if __name__=='__main__':main()

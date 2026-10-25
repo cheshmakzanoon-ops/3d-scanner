@@ -704,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='369457833ab2c8d0cbf9d548239b2d864894fa24'
- assert p.MESSAGE=='fix: extend established landmarks with distinct pose support'
+ assert p.BASE_SHA=='a573f0cc9dbdcd4715a076008bec0d0d9cdc20a0'
+ assert p.MESSAGE=='feat: apply RootSIFT with explicit pose failure evidence'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -717,7 +717,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt', 'app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/NativePnpObservationPolicyTest.kt', 'docs/development/DISTINCT_PNP_OBSERVATIONS.md', 'docs/development/ESTABLISHED_LANDMARK_EXTENSION.md', 'reconstruction/src/pnp.cpp', 'reconstruction/tests/pnp_robustness_test.cpp', 'tests/test_eight_view_host.py', 'tests/test_eight_view_matcher_supplement.py', 'tests/test_multiview.py', 'tests/test_project_contracts.py', 'tests/test_runbook_smoke_evidence.py', 'tools/docs/check_runbook.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/matcher_supplement.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/feature_matcher_validation/HostRunner.kt', 'tools/feature_matcher_validation/README.md'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'CMakeLists.txt', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt', 'app/src/main/java/com/realityforge/scanner/engine/features/RootSift.kt', 'app/src/test/java/com/realityforge/scanner/agents/a032/FeatureSettingsIdentityTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/PnpFailureEvidenceTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/features/RootSiftTest.kt', 'docs/PNP_FAILURE_EVIDENCE.md', 'docs/development/ROOTSIFT_DESCRIPTOR_POLICY.md', 'docs/development/experiments/skull-colmap-reference.md', 'reconstruction/src/pnp.cpp', 'reconstruction/tests/pnp_failure_evidence_test.cpp', 'tests/SECURITY_CLI_BOUNDARY.md', 'tests/security_cli_boundary.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_host.py', 'tests/test_pnp_failure_evidence.py', 'tests/test_rootsift_extraction_contract.py', 'tests/test_security_cli_boundary.py', 'tests/test_security_evidence.py', 'tests/test_skull_reference.py', 'tools/eight_view_host/policy.py', 'tools/feature_adapter_validation/validate.py', 'tools/feature_extractor_validation/HostRunner.kt', 'tools/feature_extractor_validation/ProductionExtractorHostTest.kt', 'tools/feature_extractor_validation/README.md', 'tools/feature_extractor_validation/validate.py', 'tools/frontend_integration_validation/validate.py', 'tools/qa/skull_reference.py'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_THREE
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2

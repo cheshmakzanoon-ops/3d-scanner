@@ -75,6 +75,11 @@ class MainRunner(r.Runner):
   if getattr(self,'late_cancel',False):self.signal=15
   if self.signal:raise r.Cancelled('external cancellation')
 
+def synthetic_supplement(run,*args,status='PASS'):
+ result={'schema':1,'status':status,'classification':'SYNTHETIC_UNIT_FIXTURE_NOT_JNI_EVIDENCE'}
+ r.atomic_json(run.work/'matcher-supplement.json',result)
+ return result
+
 def main_fixture(tmp_path,monkeypatch):
  # Orchestration is mocked, but source-selected immutable license evidence is real.
  adapter=ctl.load_adapter(ROOT,ctl.experiments.ACTIVE)
@@ -83,6 +88,10 @@ def main_fixture(tmp_path,monkeypatch):
  monkeypatch.setattr(p,'event_guard',lambda *a:SHA);monkeypatch.setattr(p,'source_guard',lambda *a:{'sourceSha':SHA})
  monkeypatch.setattr(ctl,'load_adapter',lambda *a:adapter);monkeypatch.setattr(ctl,'prepare_environment',lambda *a:(None,None,{'fixture':'not-runtime'}))
  monkeypatch.setattr(ctl,'prepare_runtime',lambda *a:(None,{}, {},{}));monkeypatch.setattr(ctl.capability,'build',lambda *a:None)
+ # This fixture already replaces preparation/capability/probe boundaries. The separate
+ # supplementary JNI boundary must also be explicit: it cannot consume those fake inputs.
+ # This labeled fixture receipt is orchestration evidence only, never a runtime PASS.
+ monkeypatch.setattr(ctl.matcher_supplement,'execute',synthetic_supplement)
  return temp
 
 def test_original_probe_failure_survives_restoration_failure(tmp_path,monkeypatch):
@@ -598,3 +607,50 @@ def test_evidence_size_refusal_retains_bounded_category_budget_only(tmp_path,mon
  assert len(message.encode())<512 and str(tmp_path) not in message and 'private-sensitive' not in message
  assert isinstance(failed.value.__cause__,r.Failure) and str(failed.value.__cause__)=='Owned directory size limit'
  assert not (tmp_path/'evidence'/'receipt.json').exists()
+
+
+@pytest.mark.parametrize('probe_fails',[False,True])
+def test_supplementary_assertion_failure_still_runs_strict_probe_and_preserves_original(tmp_path,monkeypatch,probe_fails):
+ temp=main_fixture(tmp_path,monkeypatch);calls=[]
+ monkeypatch.setattr(ctl.matcher_supplement,'execute',lambda run,*a:synthetic_supplement(run,status='FAIL'))
+ def probe(run,*args):
+  calls.append('strict-probe');run.pipeline_attempts=1
+  if probe_fails:raise r.Failure('original strict photographic failure')
+  return {'test':'synthetic strict success'}
+ monkeypatch.setattr(ctl,'run_probe',probe)
+ with contextlib.redirect_stdout(io.StringIO()):assert ctl.main()==1
+ receipt=json.loads((temp/'rf-eight-evidence/receipt.json').read_text())
+ assert calls==['strict-probe'] and receipt['pipelineAttempts']==1 and receipt['status']=='FAIL'
+ assert receipt['matcherSupplement']['status']=='FAIL'
+ expected='original strict photographic failure' if probe_fails else 'Supplementary matcher failed; strict photo result retained separately'
+ assert receipt['firstFailure']['message']==expected
+ if not probe_fails:assert receipt['result']=={'test':'synthetic strict success'}
+
+
+@pytest.mark.parametrize('error,status',[
+ (r.Failure('supplement integrity failure'),'FAIL'),
+ (r.Cancelled('supplement cancelled'),'CANCELLED'),
+ (r.Deadline('supplement deadline'),'TIMEOUT')])
+def test_fatal_supplementary_boundary_never_invokes_photographic_probe(tmp_path,monkeypatch,error,status):
+ temp=main_fixture(tmp_path,monkeypatch);calls=[]
+ def supplement(*args):raise error
+ monkeypatch.setattr(ctl.matcher_supplement,'execute',supplement)
+ monkeypatch.setattr(ctl,'run_probe',lambda *a:calls.append('must-not-run'))
+ with contextlib.redirect_stdout(io.StringIO()):assert ctl.main()==1
+ receipt=json.loads((temp/'rf-eight-evidence/receipt.json').read_text())
+ assert calls==[] and receipt['pipelineAttempts']==0 and receipt['status']==status
+ assert receipt['firstFailure']['message']==str(error)
+ assert 'matcherSupplement' not in receipt
+
+
+def test_actual_supplement_does_not_accept_missing_prepared_context(tmp_path,monkeypatch):
+ actual_execute=ctl.matcher_supplement.execute
+ temp=main_fixture(tmp_path,monkeypatch);calls=[]
+ monkeypatch.setattr(ctl.matcher_supplement,'execute',actual_execute)
+ monkeypatch.setattr(ctl,'run_probe',lambda *a:calls.append('must-not-run'))
+ with contextlib.redirect_stdout(io.StringIO()):assert ctl.main()==1
+ receipt=json.loads((temp/'rf-eight-evidence/receipt.json').read_text())
+ assert calls==[] and receipt['pipelineAttempts']==0 and receipt['status']=='FAIL'
+ assert receipt['firstFailure']['type']=='FileNotFoundError'
+ assert 'prepared.json' in receipt['firstFailure']['message']
+ assert 'matcherSupplement' not in receipt
