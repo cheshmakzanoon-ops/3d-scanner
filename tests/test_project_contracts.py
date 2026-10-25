@@ -375,7 +375,7 @@ def test_distinct_pnp_policy_invalidates_sparse_and_frontier_reuse():
     folder = ROOT / 'app/src/main/java/com/realityforge/scanner/engine'
     frontier = (folder / 'IncrementalRegistration.kt').read_text()
     snapshot = (folder / 'pipeline/ProductionPipelineSnapshot.kt').read_text()
-    assert 'const val PNP_POLICY = "native-pnp-exact-observation-support-v1"' in frontier
+    assert 'const val PNP_POLICY = "native-pnp-exact-observation-support-centered-translation-v2"' in frontier
     assert 'registration-frontier-v3|$POLICY|$PNP_POLICY' in frontier
     assert '${com.realityforge.scanner.engine.IncrementalRegistration.PNP_POLICY}' in snapshot
     # Exact geometric support dedup follows, never masks, duplicate feature-ID rejection.

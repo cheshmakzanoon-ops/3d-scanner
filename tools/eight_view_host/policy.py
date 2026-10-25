@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='80925b88371d7dac2a5fc18698d5a3acb94c77e7'
-MESSAGE='test: retain fixed-capture pose replay evidence'
+BASE_SHA='4b23941e8424b59ba2056f54c18a3b4bfff634bd'
+MESSAGE='fix: denormalize rigid camera translation consistently'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/REAL_THREE_PNP_REPLAY.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealThreePnpReplay.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealThreePnpReplayCheck.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_eight_view_host.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_pnp_replay.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/pnp_replay.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'CMakeLists.txt', 'README.md', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt', 'app/src/test/java/com/realityforge/scanner/engine/NativePnpObservationPolicyTest.kt', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/PNP_CENTERED_TRANSLATION.md', 'reconstruction/src/pnp.cpp', 'reconstruction/tests/pnp_origin_equivariance_test.cpp', 'tests/test_eight_view_host.py', 'tests/test_project_contracts.py', 'tests/test_real_three_pnp_replay.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

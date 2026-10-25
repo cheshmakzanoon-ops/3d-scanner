@@ -14,13 +14,51 @@ class NativePnpObservationPolicyTest {
     @Test fun nativePolicyInvalidatesSparseDescendantsButNotFeatureMatching() {
         val old=PipelineInputSnapshot("p",1,listOf(PipelinePhotoInput("a","a".repeat(64),128,128,100,26.0),
             PipelinePhotoInput("b","b".repeat(64),128,128,100,26.0)),"calibration","engine",
-            PipelineStageSettings("features","matches","sparse-before-pnp-fix","dense","surface","texture","export"))
-        assertEquals("native-pnp-exact-observation-support-v1",IncrementalRegistration.PNP_POLICY)
-        val next=old.copy(settings=old.settings.copy(sparse=old.settings.sparse+"|"+IncrementalRegistration.PNP_POLICY))
+            PipelineStageSettings("features","matches","sparse|native-pnp-exact-observation-support-v1","dense","surface","texture","export"))
+        assertEquals("native-pnp-exact-observation-support-centered-translation-v2",IncrementalRegistration.PNP_POLICY)
+        val next=old.copy(settings=old.settings.copy(sparse=old.settings.sparse.replace("native-pnp-exact-observation-support-v1",IncrementalRegistration.PNP_POLICY)))
         for(stage in PipelineStage.entries) {
             if(stage in listOf(PipelineStage.FEATURES,PipelineStage.MATCHING))assertEquals(old.identity(stage),next.identity(stage))
-            else assertNotEquals(old.identity(stage),next.identity(stage))
+            else {
+                assertNotEquals(old.identity(stage),next.identity(stage))
+                val artifact=PipelineArtifactReference.forStage(old.identity(stage),"old-${stage.name}.bin",contentSha256="a".repeat(64))
+                val checkpoint=PipelineCheckpoint(old.identity(stage),artifact)
+                assertFalse(checkpoint.isReusable(next.identity(stage)))
+                assertThrows(IllegalArgumentException::class.java) { checkpoint.rebound(next.identity(stage)) }
+            }
         }
+    }
+
+    @Test fun priorPnpPolicyFrontierCannotResumeEvenWithUnchangedFeatures()=runBlocking {
+        val views=listOf(view(),view(tx=-.5),view());val ids=listOf("c","a","b")
+        val digest=java.security.MessageDigest.getInstance("SHA-256")
+        digest.update("registration-frontier-v3|${IncrementalRegistration.POLICY}|native-pnp-exact-observation-support-v1".toByteArray())
+        for(index in views.indices.sortedBy { ids[it] }) {
+            val v=views[index];digest.update(ids[index].toByteArray());digest.update(0.toByte())
+            digest.update(java.nio.ByteBuffer.allocate(20).putInt(v.width).putInt(v.height).putDouble(v.focalPixels).putInt(v.colors.size).array())
+            for(value in v.xy)digest.update(java.nio.ByteBuffer.allocate(4).putFloat(value).array())
+            digest.update(v.projection.toString().toByteArray())
+        }
+        val previous=digest.digest().joinToString(""){"%02x".format(it)}
+        val current=IncrementalRegistration.inputIdentity(views,ids)
+        assertNotEquals(previous,current)
+        val anchors=listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1]))
+        val old=RegistrationFrontier(previous,ids,anchors.map {FrontierCamera(ids[it.photo],it.view.rotation.toList(),it.view.translation.toList())},emptyMap())
+        try {
+            IncrementalRegistration.grow(views,anchors,{_,_->error("Stale policy matched")},
+                {_,_,_->error("Stale policy triangulated")},{_,_->error("Stale policy registered")},photoIds=ids,resume=old)
+            fail("Pre-correction PnP frontier reused")
+        } catch(failure:IllegalArgumentException) { assertEquals("Stale registration frontier",failure.message) }
+        val directory=java.nio.file.Files.createTempDirectory("pnp-centered-policy").toFile()
+        try {
+            val store=com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore(directory)
+            assertTrue(store.publish(previous,old.encode()){false})
+            assertNull(store.load(current){false})
+            val cache=java.io.File(directory,com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore.DIRECTORY_NAME)
+            java.io.File(cache,"$previous.frontier").copyTo(java.io.File(cache,"$current.frontier"))
+            assertNull(store.load(current){false})
+            assertArrayEquals(old.encode(),store.load(previous){false})
+        } finally { directory.deleteRecursively() }
     }
 
     @Test fun oldRawCountFrontierIdentityCannotResume()=runBlocking {

@@ -53,7 +53,7 @@ def test_invalid_numeric_rows_even_with_other_valid_fields(cell):
  v=value();v['rows'][0][0]=cell
  with pytest.raises(Failure):p.validate(raw(v),e.REAL_THREE)
 
-@pytest.mark.parametrize('encoded',[b'',b'{}',b'[]',b'null',b'x'*65537,b'{"schema":1,"schema":1}'])
+@pytest.mark.parametrize('encoded',[b'',b'{}',b'[]',b'null',b'x'*65537,b'{"schema":1,"schema":1}'],ids=['empty','empty-object','array','null','oversized-bytes','duplicate-schema'])
 def test_malformed_size_duplicates(encoded):
  with pytest.raises(Failure):p.validate(encoded,e.REAL_THREE)
 

@@ -44,7 +44,9 @@ internal data class RegistrationGrowth(
  * Does not estimate intrinsics, invent unseen features, or alter the first two camera poses.
  */
 internal object IncrementalRegistration {
-    const val PNP_POLICY = "native-pnp-exact-observation-support-v1"
+    // DLT projects its fitted matrix to rigid R before undoing the world centroid.
+    // Bind this geometry change into both sparse-stage and resumable-frontier identity.
+    const val PNP_POLICY = "native-pnp-exact-observation-support-centered-translation-v2"
     const val POLICY = "incremental-frontier-supported-landmark-single-link-v2"
     /** Stable across caller ordering; binds every original keypoint and lens model.
      * Public only within this module so the durable wrapper can reject stale bytes before work. */

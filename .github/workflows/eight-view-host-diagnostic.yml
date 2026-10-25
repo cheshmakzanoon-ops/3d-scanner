@@ -20,9 +20,9 @@ jobs:
           toJSON(github.event.repository.private) == 'false' &&
           github.event.repository.default_branch == 'main' &&
           github.ref == 'refs/heads/main' && github.event.ref == 'refs/heads/main' &&
-          github.event.before == '80925b88371d7dac2a5fc18698d5a3acb94c77e7' && github.event.after == github.sha &&
+          github.event.before == '4b23941e8424b59ba2056f54c18a3b4bfff634bd' && github.event.after == github.sha &&
           github.event.head_commit.id == github.sha &&
-          github.event.head_commit.message == 'test: retain fixed-capture pose replay evidence' &&
+          github.event.head_commit.message == 'fix: denormalize rigid camera translation consistently' &&
           toJSON(github.event.created) == 'false' && toJSON(github.event.deleted) == 'false' &&
           toJSON(github.event.forced) == 'false' && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04

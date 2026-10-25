@@ -32,24 +32,37 @@ The three-photo synthetic full-controller HOST journey passed on `5beb2d3`;
 the selected installed Filament lifecycle test passed on `7ff6395`. Neither
 closes installed import → reconstruction → inspection → reopen/export or
 physical-quality qualification. See [current status](MILESTONE_STATUS.md) for
-source-bound results and failures. The `f506d2f` Android checks pass with 902
-tests and its bounded partial-model roundtrip is VERIFIED_NOT_FULL_THREE.
-The strict three-view HOST profile still fails; installed workflows remain unqualified.
+source-bound results and failures. Android checks on `80925b8` and `df49877`
+pass with 919 tests; `80925b8` also passed four software-only native/cache checks.
+The recovered `df49877` partial-model roundtrip is not a strict three-view pass,
+and installed UI/real-photo workflows remain unqualified.
 
-**Engineering APK update warning:** the `0055f87` signer differs from `066dcd3`
-and `0a6d4ec`; an in-place update is not verified. Preserve/export important
-captures and models before considering uninstalling. Do not assume an app backup
-exists or that uninstalling preserves app-private data.
+**Engineering APK update warning:** these builds use ephemeral test certificates;
+compatible in-place updates are not verified. Export important original captures
+and models before considering uninstalling. Do not assume a backup exists or that
+uninstalling preserves app-private data. These are not production-signed releases.
 
 1. Complete the corrected installed synthetic journey. The `7ff6395` run failed
    at DocumentsUI selection before import/reconstruction; `c3f26f3` repairs the
    driver without bypassing the picker. Run and retain actual rendered UI, SAF,
    reconstruction, reopen/export, cancellation and interruption evidence.
-2. Qualify real-photo reconstruction beyond the partial `f506d2f` result:
+   The [4/4 software ATD native/cache pass](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214618133)
+   is not UI/SAF/Filament or ARM64 qualification; ordinary KVM preflight remains blocked.
+2. Qualify real-photo reconstruction beyond the recovered `df49877` result:
    2/3 registered cameras and no global bundle adjustment still fail the strict
    fixed three-photo HOST profile. Its 220 sparse / 1,623 dense points and
    884 textured triangles passed bounded export/reopen checks, not the full
-   three-view journey. Preserve that distinction. The supplementary
+   three-view journey. Third-camera PnP has 45 distinct tracks but only one best
+   inlier from 450 valid hypotheses, below the required 16. Diagnose that failure
+   without lowering pose gates. The `4b23941`
+   [read-only replay](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40217424869)
+   now retains bounded 45-row source/projection/anchor evidence and exact failure
+   agreement, with source/cache/schema/privacy checks passing. Its
+   [documented scope](https://github.com/cheshmakzanoon-ops/3d-scanner/blob/4b23941e8424b59ba2056f54c18a3b4bfff634bd/docs/development/REAL_THREE_PNP_REPLAY.md)
+   is READ_ONLY_REPLAY_NOT_ORIGINAL_CALL_NOT_QUALITY, not a third-camera pass.
+   The failed `af6c3fb` RootSIFT trial was rolled
+   back, not promoted. Use the [independent three-camera COLMAP reference](development/experiments/skull-colmap-reference.md)
+   as a comparison, not a scanner pass. The supplementary
    C-ABI diagnostic pass is not a release gate. Preserve registration, geometry
    and photographic-texture acceptance; exact-pair support deduplication does not
    resolve every pose-conditioning problem. Earlier stereo and low-resolution
@@ -57,7 +70,7 @@ exists or that uninstalling preserves app-private data.
 3. Continue measured topology repair beyond the supported-diagonal change.
    The `5beb2d3` synthetic result still has 653 nonmanifold edges,
    113 components and 9,542 boundary edges; intersection analysis is incomplete.
-   The real `f506d2f` partial mesh has 1,032 vertices, 982 boundary edges and
+   The recovered real `df49877` partial mesh has 1,032 vertices, 982 boundary edges and
    411 reported intersections despite zero nonmanifold edges; it remains visibly
    fragmented and is not watertight.
    Exact-quad consistency is not general surface fusion or hole repair. Do not
@@ -65,12 +78,16 @@ exists or that uninstalling preserves app-private data.
    The `813f312` exact planar ownership QA passes its dedicated sanitizer and
    release cases but remains OFF by default; production integration and mobile
    qualification require separate evidence. It has not repaired this mesh.
-4. Fix full-candidate sanitizer failures and obtain a green result. Both full
-   `f506d2f` suites completed 4,261 cases each: 4,211 passed, 22 failed,
-   28 skipped and zero errors. Native/candidate aggregate gates fail. The
-   [Android build](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141070),
-   release profiles, benchmark compilation, planar QA and supplementary C-ABI
-   diagnostic passes do not close these failures or the installed-device gates.
+4. Fix full-candidate sanitizer failures and obtain a green result. On
+   [`80925b8`](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214617937),
+   GCC and Clang each completed 4,457 cases: 4,412 passed, 17 failed, 28 skipped,
+   zero errors. All jobs are terminal; native/candidate aggregate gates fail.
+   Diagnose the shared 17 failures without waiving them. Later `4b23941`
+   release/sanitizer suites aborted on an oversized autogenerated test ID;
+   verify the reviewed ID-only correction in actual CI before claiming recovery.
+   The test payload and 8,192-byte identity cap are unchanged. Android/release builds,
+   benchmark compilation and supplementary diagnostics do not replace these
+   native gates or qualify installed workflows.
 5. Validate calibrated physical ARM64 captures against independent reference
    geometry, texture and resource measurements before raising the enforced
    2–12-photo/eight-dense-view limits or claiming complete-object quality.

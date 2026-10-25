@@ -125,9 +125,9 @@ CameraPose dlt(std::span<const Observation> points,const std::vector<std::size_t
         m[3+j]=s3*(p[4+j]/s2+uv.y*p[8+j]);
         m[6+j]=s3*p[8+j];
     }
-    t.x=p[3]/s2+uv.x*p[11]-dot(row(m,0),center);
-    t.y=p[7]/s2+uv.y*p[11]-dot(row(m,1),center);
-    t.z=p[11]-dot(row(m,2),center);
+    t.x=p[3]/s2+uv.x*p[11];
+    t.y=p[7]/s2+uv.y*p[11];
+    t.z=p[11];
     double k=(norm(row(m,0))+norm(row(m,1))+norm(row(m,2)))/3.;
     if(k<1e-14||!std::isfinite(k))throw Error("Degenerate camera matrix");
     if(determinant(m)<0)k=-k;
@@ -138,6 +138,10 @@ CameraPose dlt(std::span<const Observation> points,const std::vector<std::size_t
     Vec3 b=normalized(sub(row(m,1),mul(a,dot(a,row(m,1)))));
     Vec3 c=cross(a,b);
     Mat3 r{};setRow(r,0,a);setRow(r,1,b);setRow(r,2,c);
+    // Keep the fitted centered translation until the linear block is rigid.
+    // Subtracting m*center before projection breaks world-origin equivariance:
+    // a world shift must change translation by -r*shift, not -m*shift.
+    t=sub(t,multiply(r,center));
     CameraPose result{r,t,{},points.size(),0};
     result.worldPlanarityRatio=std::max(0.,shape.values[0])/std::max(shape.values[2],1e-30);
     return result;
