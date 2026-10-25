@@ -183,3 +183,31 @@ def test_real_replay_reads_verified_rows_only_after_worker_join_and_never_change
         assert token in method
     for forbidden in ['cache.load(','.sorted(','.sort(','.store(','.save(','.getString("error")','result.toString(','.descriptors()']:
         assert forbidden not in method
+
+
+@pytest.mark.parametrize('outcome',['INSUFFICIENT_OVERLAP','CAMERA_REGISTRATION_FAILED'])
+@pytest.mark.parametrize('replay_code',['WEAK_BASELINE','PLANAR_AMBIGUITY','ROTATION_ONLY',
+    'ACCEPTED_DIAGNOSTIC_ONLY','UNRECOGNIZED_REJECTION'])
+def test_replay_preserves_both_closed_original_failure_outcomes(outcome,replay_code):
+    value=replay_fixture(replay_code);value['originalOutcomeCode']=outcome
+    c.validate_real_match_replay(json.dumps(value).encode())
+    assert value['originalJobState']=='FAILED'
+    assert value['classification']=='DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED'
+    assert 'match-replay.json' not in p.COMPLETE_DOCUMENTS
+
+
+@pytest.mark.parametrize('outcome',['RESOURCE_EXHAUSTED','CANCELLED','NATIVE_FAILURE',
+    'UNKNOWN_NATIVE_FAILURE','INTERNAL_FAILURE','INPUT_UNSUPPORTED','COMPLETED',
+    'WEAK_BASELINE','private file:/image.jpg','',None,[],{}])
+def test_replay_original_outcome_allowlist_remains_closed(outcome):
+    value=replay_fixture();value['originalOutcomeCode']=outcome
+    with pytest.raises(r.Failure):c.validate_real_match_replay(json.dumps(value).encode())
+
+
+def test_replay_producer_preserves_actual_closed_outcome_and_failed_completion_assertion():
+    source=(Path(__file__).parents[1]/'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedStereoCompleteControllerHostTest.kt').read_text()
+    assert 'finished.outcomeCode in setOf("INSUFFICIENT_OVERLAP", "CAMERA_REGISTRATION_FAILED")' in source
+    assert 'job.outcomeCode in setOf("INSUFFICIENT_OVERLAP", "CAMERA_REGISTRATION_FAILED")' in source
+    assert '.put("originalOutcomeCode", job.outcomeCode)' in source
+    assert '.put("originalOutcomeCode", "INSUFFICIENT_OVERLAP")' not in source
+    assert 'assertEquals("Bound controller job: ${finished.outcomeCode}", DurableJobState.COMPLETED, finished.state)' in source

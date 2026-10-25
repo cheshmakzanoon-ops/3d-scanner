@@ -13,7 +13,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='9528cff4e0c9a26238a9704cae274d29a0f102f084cdb5fb21c1b2361a5a22ae'
+ADAPTER_MANIFEST='f5d772ef1559ac6dc5317558c985de00ba44d0bce5a6f1a7be2070903bbaafb6'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -987,7 +987,7 @@ def validate_real_match_replay(raw):
         require(set(value)=={'schema','classification','status'});return
     require(set(value)=={'schema','classification','status','originalJobState','originalOutcomeCode',
                         'originalAcceptedStage','photos','pair'} and value['status']=='REPLAYED')
-    require(value['originalJobState']=='FAILED' and value['originalOutcomeCode']=='INSUFFICIENT_OVERLAP' and
+    require(value['originalJobState']=='FAILED' and value['originalOutcomeCode'] in ('INSUFFICIENT_OVERLAP','CAMERA_REGISTRATION_FAILED') and
             value['originalAcceptedStage']=='MATCHES')
     def integer(v,low,high):return type(v) is int and low<=v<=high
     def finite(v,low,high):return type(v) in (float,int) and math.isfinite(v) and low<=v<=high

@@ -1,6 +1,7 @@
 package com.realityforge.scanner.ui.navigation
 
 import android.content.Context
+import com.realityforge.scanner.R
 import com.realityforge.scanner.ScannerViewModel
 import com.realityforge.scanner.application.ProjectCommandAdapter
 import com.realityforge.scanner.data.curation.*
@@ -50,7 +51,12 @@ fun installedScannerFeatures(model: ScannerViewModel, context: Context): Scanner
             root.database.jobDao().observeLatestForProject(projectId, revision).map { row ->
                 row?.toSnapshot()?.let {
                     DurableJobUiAdapter.map(it, revision, false,
-                        { stage -> stage.name.lowercase().replace('_', ' ') }, { code -> code.replace('_', ' ') })
+                        { stage -> stage.name.lowercase().replace('_', ' ') }, { code ->
+                            when (code) {
+                                "CAMERA_REGISTRATION_FAILED" -> context.getString(R.string.a074_geometry_unestablished)
+                                else -> code.replace('_', ' ')
+                            }
+                        })
                 }
             }
         },

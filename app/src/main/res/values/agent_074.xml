@@ -1,4 +1,5 @@
 <resources>
+<string name="a074_geometry_unestablished">Camera geometry could not be established; it may be weak or ambiguous. Take photos from distinct sideways viewpoints while retaining overlap and keeping the object still. Turning the phone in place is not enough.</string>
 <string name="a074_action_unconfirmed">That action could not be confirmed. Check the current job state before trying again.</string>
 <string name="a074_stale">Inputs changed; this attempt is stale</string><string name="a074_blocked">Waiting for an external requirement</string>
 <string name="a074_title">Processing</string><string name="a074_queued">Queued</string><string name="a074_running">Running</string><string name="a074_paused">Paused</string><string name="a074_interrupted">Interrupted</string><string name="a074_failed">Could not complete</string><string name="a074_cancelled">Cancelled</string><string name="a074_completed">Completed</string>

@@ -308,6 +308,7 @@ class SparsePipeline(
         var anchorPair: Pair<Int, Int>? = null
         var anchorMatches: PairMatches? = null
         val failures = JSONArray()
+        val anchorRejections = AnchorRejectionSummary()
         for ((index, pair) in candidates.withIndex()) {
             coroutineContext.ensureActive()
             measured(ScanStage.MATCHING, index, candidates.size, ProgressUnit.PAIRS)
@@ -351,8 +352,14 @@ class SparsePipeline(
                                 best = result; bestScore = score
                                 anchorPair = pair; anchorMatches = rows
                             }
-                        } else failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", result.getString("error")))
-                    } else failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", "Fewer than 20 reciprocal SIFT matches"))
+                        } else {
+                            anchorRejections.record(result.optString("errorCode"))
+                            failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", result.getString("error")))
+                        }
+                    } else {
+                        anchorRejections.record(null)
+                        failures.put(JSONObject().put("pair", "${pair.first + 1}/${pair.second + 1}").put("reason", "Fewer than 20 reciprocal SIFT matches"))
+                    }
                 } }
                 pairOutcome = PairWorkPhase.READY
             } catch (failure: Throwable) {
@@ -373,8 +380,11 @@ class SparsePipeline(
         // correspondences; native geometry is reverified when this checkpoint is resumed.
         val matchFiles = matchCache.save(candidates.associateWith { savedMatches.getValue(it) }) { matchingContext.ensureActive() }
         artifacts.record(ArtifactStage.MATCHES, matchFiles, "bounded-reciprocal-match-graph")
-        var output = best ?: reject(ScanStage.MATCHING, ScanFailureCode.INSUFFICIENT_OVERLAP,
-            RecoveryAction.RECAPTURE_OVERLAP, "scan.failure.insufficient_overlap")
+        var output = best ?: run {
+            val failure = anchorRejections.failure()
+            activeDiagnosticStage = failure.stage
+            throw DiagnosticOperationException(failure)
+        }
         diagnosticRecorder?.outcome(ScanStage.MATCHING, StageOutcome.SUCCEEDED)
         activeDiagnosticStage = ScanStage.CAMERA_REGISTRATION
         artifacts.starting(ArtifactStage.ALIGNMENT)

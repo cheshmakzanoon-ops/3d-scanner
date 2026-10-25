@@ -111,7 +111,7 @@ class RealLicensedStereoCompleteControllerHostTest {
             actual.awaitWorkerStopped()
             if (finished.state == DurableJobState.FAILED &&
                 finished.cursor.acceptedStage == ReconstructionStage.MATCHES &&
-                finished.outcomeCode == "INSUFFICIENT_OVERLAP") {
+                finished.outcomeCode in setOf("INSUFFICIENT_OVERLAP", "CAMERA_REGISTRATION_FAILED")) {
                 try { withTimeout(3_000) { captureFailedMatchReplay(fixture, evidence, finished) } }
                 catch (_: Exception) {
                     // No exception message or native payload may expose private input data.
@@ -181,6 +181,8 @@ class RealLicensedStereoCompleteControllerHostTest {
 
     /** Replays only the verified persisted graph, after worker join; never recomputes SIFT/matches. */
     private suspend fun captureFailedMatchReplay(f: Fixture, evidence: File, job: JobSnapshot) = coroutineScope {
+        require(job.state == DurableJobState.FAILED && job.cursor.acceptedStage == ReconstructionStage.MATCHES &&
+            job.outcomeCode in setOf("INSUFFICIENT_OVERLAP", "CAMERA_REGISTRATION_FAILED"))
         f.assertOriginals()
         val input = f.repository.inputSnapshot(f.project)
         require(input.revision == job.input.projectRevision && input.photos.size == 2)
@@ -250,7 +252,7 @@ class RealLicensedStereoCompleteControllerHostTest {
         ensureActive()
         val report = JSONObject().put("schema", 1).put("classification", "DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED")
             .put("status", "REPLAYED").put("originalJobState", "FAILED")
-            .put("originalOutcomeCode", "INSUFFICIENT_OVERLAP").put("originalAcceptedStage", "MATCHES")
+            .put("originalOutcomeCode", job.outcomeCode).put("originalAcceptedStage", "MATCHES")
             .put("photos", JSONArray(frames.mapIndexed { i, frame -> JSONObject()
                 .put("ordinal", i).put("width", frame.width).put("height", frame.height).put("featureCount", frame.count)
                 .put("focalAuthority", "PERSISTED_FALLBACK_35MM").put("focal35", settings.getDouble("focal35"))

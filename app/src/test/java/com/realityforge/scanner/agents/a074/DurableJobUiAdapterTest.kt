@@ -25,4 +25,16 @@ class DurableJobUiAdapterTest {
         assertFalse(state.inputsCurrent);assertFalse(state.can(JobCommand.RETRY))
         val gate=JobActionGate();assertFalse(gate.admit(state,JobAction(state.identity.copy(attempt=2),JobCommand.PAUSE)))
     }
+    @Test fun persistedCameraFailureCodeReachesOutcomePresentationUnchanged() {
+        val snapshot = snapshot(ReconstructionJobState.FAILED).copy(outcomeCode = "CAMERA_REGISTRATION_FAILED")
+        val seen = mutableListOf<String>()
+        val state = DurableJobUiAdapter.map(snapshot, 4, true, { it.name }, { code ->
+            seen.add(code)
+            "localized geometry guidance"
+        })
+        assertEquals(listOf("CAMERA_REGISTRATION_FAILED"), seen)
+        assertEquals("localized geometry guidance", state.message)
+        assertEquals(JobPhase.FAILED, state.phase)
+        assertTrue(state.hasPreviousResult)
+    }
 }
