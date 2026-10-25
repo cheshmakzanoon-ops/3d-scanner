@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """One source-bound selected sparse HOST attempt. Deliberately NOT ARMED until reviewed."""
 from __future__ import annotations
+import math
 import errno, hashlib, importlib.util, json, os, platform, re, shutil, stat, struct, sys, time, zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
@@ -12,7 +13,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='4a6064205e8f4018533ffd8003725d7ddea430e1729499aeef4bc176a015e790'
+ADAPTER_MANIFEST='9528cff4e0c9a26238a9704cae274d29a0f102f084cdb5fb21c1b2361a5a22ae'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -968,6 +969,47 @@ def seal_receipt(destination,receipt,run=None):
     phase_budget(run);(destination/'SHA256SUMS').write_text(manifest)
     inventory(destination,artifact_limit,2000,seconds=phase_budget(run))
 
+def validate_real_match_replay(raw):
+    """Closed aggregate-only diagnostic; never qualifies a failed job as complete."""
+    def require(ok):
+        if not ok:raise Failure('Invalid aggregate-only match replay evidence')
+    require(len(raw)<=4096)
+    def unique(pairs):
+        result={}
+        for key,value in pairs:
+            require(key not in result);result[key]=value
+        return result
+    try:value=json.loads(raw,parse_constant=lambda _: None,object_pairs_hook=unique)
+    except (ValueError,UnicodeError):raise Failure('Invalid match replay JSON')
+    require(isinstance(value,dict) and type(value.get('schema')) is int and value['schema']==1 and
+            value.get('classification')=='DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED')
+    if value.get('status')=='UNAVAILABLE':
+        require(set(value)=={'schema','classification','status'});return
+    require(set(value)=={'schema','classification','status','originalJobState','originalOutcomeCode',
+                        'originalAcceptedStage','photos','pair'} and value['status']=='REPLAYED')
+    require(value['originalJobState']=='FAILED' and value['originalOutcomeCode']=='INSUFFICIENT_OVERLAP' and
+            value['originalAcceptedStage']=='MATCHES')
+    def integer(v,low,high):return type(v) is int and low<=v<=high
+    def finite(v,low,high):return type(v) in (float,int) and math.isfinite(v) and low<=v<=high
+    require(isinstance(value['photos'],list) and len(value['photos'])==2)
+    for i,photo in enumerate(value['photos']):
+        require(isinstance(photo,dict) and set(photo)=={'ordinal','width','height','featureCount',
+                'focalAuthority','focal35','fx','fy','cx','cy'})
+        require(integer(photo['ordinal'],i,i) and integer(photo['width'],3,1600) and integer(photo['height'],3,1600) and
+                integer(photo['featureCount'],0,3500) and photo['focalAuthority']=='PERSISTED_FALLBACK_35MM' and
+                finite(photo['focal35'],88,88) and finite(photo['fx'],1,10000) and finite(photo['fy'],1,10000) and
+                finite(photo['cx'],0,1599) and finite(photo['cy'],0,1599))
+    pair=value['pair']
+    require(isinstance(pair,dict) and set(pair)=={'firstOrdinal','secondOrdinal','matchCount',
+            'thresholdNormalized','parameterSha256','resultCode'})
+    require(integer(pair['firstOrdinal'],0,0) and integer(pair['secondOrdinal'],1,1) and integer(pair['matchCount'],0,3500) and
+            finite(pair['thresholdNormalized'],1e-9,.05) and isinstance(pair['parameterSha256'],str) and
+            re.fullmatch('[0-9a-f]{64}',pair['parameterSha256']) and isinstance(pair['resultCode'],str) and pair['resultCode'] in {
+                'FEWER_THAN_20_MATCHES','ACCEPTED_DIAGNOSTIC_ONLY','INVALID_INPUT','COLLINEAR_FEATURES',
+                'PLANAR_AMBIGUITY','ROTATION_ONLY','INSUFFICIENT_CONSENSUS','WEAK_BASELINE',
+                'RESOURCE_EXHAUSTED','CANCELLED','NATIVE_FAILURE','UNKNOWN_NATIVE_FAILURE','UNRECOGNIZED_REJECTION'})
+    require(pair['thresholdNormalized']==1.5/min(photo[axis] for photo in value['photos'] for axis in ('fx','fy')))
+
 def real_evidence_privacy_check(rel,raw,run=None):
     """Closed real-profile artifact types; original metadata is never public evidence."""
     public_license=rel in ('real-input-license-readme.md','real-input-provenance.json','real-input-attribution.txt')
@@ -997,7 +1039,8 @@ def real_evidence_privacy_check(rel,raw,run=None):
         cursor=at
     if rel.startswith('measurement/'):
         name=rel.removeprefix('measurement/')
-        allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json',
+        if name=='match-replay.json':validate_real_match_replay(raw)
+        allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json','match-replay.json',
             'runtime-providers-after-bitmap-room.json','runtime-providers-after-room-reopen.json'}
         binary=re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',name)
         if name not in allowed and not binary:raise Failure('Unreviewed real measurement evidence path')

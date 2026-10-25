@@ -132,3 +132,54 @@ def test_private_log_is_not_copied_to_public_package(tmp_path,monkeypatch):
         c.evidence_package(run,{'status':'FAIL'},out)
     assert not (out/'logs/eight-view-test.raw.log').exists()
     assert all(b'untagged-private-serial' not in file.read_bytes() for file in out.rglob('*') if file.is_file())
+
+
+def replay_fixture(code='WEAK_BASELINE'):
+    return {'schema':1,'classification':'DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED','status':'REPLAYED',
+        'originalJobState':'FAILED','originalOutcomeCode':'INSUFFICIENT_OVERLAP','originalAcceptedStage':'MATCHES',
+        'photos':[{'ordinal':i,'width':1600,'height':1067,'featureCount':1000,'focalAuthority':'PERSISTED_FALLBACK_35MM',
+                   'focal35':88,'fx':3911.487220,'fy':3911.487220,'cx':799.5,'cy':533.0} for i in range(2)],
+        'pair':{'firstOrdinal':0,'secondOrdinal':1,'matchCount':268,'thresholdNormalized':1.5/3911.487220,
+                'parameterSha256':'a'*64,'resultCode':code}}
+
+
+@pytest.mark.parametrize('code',['WEAK_BASELINE','ACCEPTED_DIAGNOSTIC_ONLY','FEWER_THAN_20_MATCHES'])
+def test_replay_is_admitted_only_as_failed_job_diagnostic(code):
+    value=replay_fixture(code)
+    c.real_evidence_privacy_check('measurement/match-replay.json',json.dumps(value).encode())
+    assert value['originalJobState']=='FAILED'
+    assert 'match-replay.json' not in p.COMPLETE_DOCUMENTS
+
+
+@pytest.mark.parametrize('change',[
+    lambda v:v.update(originalJobState='COMPLETED'),lambda v:v.update(rawDescriptors=[]),
+    lambda v:v['pair'].update(resultCode='private native message'),lambda v:v['pair'].update(thresholdNormalized=float('nan')),
+    lambda v:v['photos'][0].update(fx=float('inf')),lambda v:v['photos'][0].update(featureCount=3501),
+    lambda v:v['photos'][0].update(ordinal=False),lambda v:v.update(schema=True),
+    lambda v:v['pair'].update(parameterSha256='private'),lambda v:v['pair'].update(firstKeys=[1,2]),
+    lambda v:v['pair'].update(resultCode=[]),lambda v:v['pair'].update(thresholdNormalized=.01),
+])
+def test_replay_rejects_unreviewed_private_or_nonfinite_fields(change):
+    value=replay_fixture();change(value)
+    with pytest.raises(r.Failure):c.real_evidence_privacy_check('measurement/match-replay.json',json.dumps(value).encode())
+
+
+def test_replay_unavailable_is_closed_and_duplicate_keys_rejected():
+    value={'schema':1,'classification':'DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED','status':'UNAVAILABLE'}
+    c.validate_real_match_replay(json.dumps(value).encode())
+    with pytest.raises(r.Failure):c.validate_real_match_replay(json.dumps(value).replace('"schema": 1','"schema": 1, "schema": 1').encode())
+    with pytest.raises(r.Failure):c.validate_real_match_replay(b' '*4097)
+
+
+def test_real_replay_reads_verified_rows_only_after_worker_join_and_never_changes_job():
+    source=(Path(__file__).parents[1]/'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedStereoCompleteControllerHostTest.kt').read_text()
+    assert source.index('actual.awaitWorkerStopped()') < source.index('captureFailedMatchReplay(fixture') < source.index('"Bound controller job:')
+    method=source[source.index('private suspend fun captureFailedMatchReplay'):source.index('private suspend fun stopController')]
+    for token in ['FeatureCacheFormat.decode','SparseFeatureCache.identity','InputPhotoIdentity.snapshotSha256',
+        'checksumBefore.contentEquals','graphBefore.contentEquals','matches.getValue(0 to 1)',
+        'CalibratedInitializerInput.create','record.rows','calibrated.observed, calibrated.domains, threshold, token',
+        'CoroutineStart.UNDISPATCHED','watchdog.cancelAndJoin()','NativeCore.finishReconstruction(token)',
+        'DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED','bytes.size <= 4096']:
+        assert token in method
+    for forbidden in ['cache.load(','.sorted(','.sort(','.store(','.save(','.getString("error")','result.toString(','.descriptors()']:
+        assert forbidden not in method

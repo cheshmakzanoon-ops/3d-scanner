@@ -16,6 +16,10 @@ import com.realityforge.scanner.data.operations.*
 import com.realityforge.scanner.data.publication.JournaledOriginalPublicationPort
 import com.realityforge.scanner.data.publication.PublicationReadResult
 import com.realityforge.scanner.engine.*
+import com.realityforge.scanner.engine.features.*
+import com.realityforge.scanner.engine.pipeline.*
+import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
+import org.json.JSONArray
 import com.realityforge.scanner.export.RepositoryExportSource
 import com.realityforge.scanner.viewer.PhotographicGlb
 import com.realityforge.scanner.work.execution.ReconstructionExecutionController
@@ -103,6 +107,19 @@ class RealLicensedStereoCompleteControllerHostTest {
             val finished = actual.jobs.observe(queued.jobId).filterNotNull().first {
                 it.state.isTerminal || it.state == DurableJobState.PAUSED
             }
+            // Join the actual worker before any read-only cache diagnosis. A replay is never a job result.
+            actual.awaitWorkerStopped()
+            if (finished.state == DurableJobState.FAILED &&
+                finished.cursor.acceptedStage == ReconstructionStage.MATCHES &&
+                finished.outcomeCode == "INSUFFICIENT_OVERLAP") {
+                try { withTimeout(3_000) { captureFailedMatchReplay(fixture, evidence, finished) } }
+                catch (_: Exception) {
+                    // No exception message or native payload may expose private input data.
+                    captureImmutable(evidence, "match-replay.json", JSONObject()
+                        .put("schema", 1).put("classification", "DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED")
+                        .put("status", "UNAVAILABLE").toString().toByteArray())
+                }
+            }
             assertEquals("Bound controller job: ${finished.outcomeCode}", DurableJobState.COMPLETED, finished.state)
             assertEquals(fixture.project, finished.input.projectId)
             assertEquals(revision, finished.input.projectRevision)
@@ -160,6 +177,90 @@ class RealLicensedStereoCompleteControllerHostTest {
                 primary?.let { throw it }
             }
         }
+    }
+
+    /** Replays only the verified persisted graph, after worker join; never recomputes SIFT/matches. */
+    private suspend fun captureFailedMatchReplay(f: Fixture, evidence: File, job: JobSnapshot) = coroutineScope {
+        f.assertOriginals()
+        val input = f.repository.inputSnapshot(f.project)
+        require(input.revision == job.input.projectRevision && input.photos.size == 2)
+        require(InputPhotoIdentity.snapshotSha256(input) == job.input.inputSha256)
+        require(sha(job.input.settingsJson.toByteArray()) == job.input.settingsSha256)
+        val settings = JSONObject(job.input.settingsJson)
+        require(settings.getInt("schema") == 2 && settings.getDouble("focal35") == 88.0)
+        val resources = ResourceWorkloadSelection.decode(settings.getJSONObject("resourceSelection"))
+        require(!LensCalibration.file(f.repository, f.project).exists())
+        val snapshot = ProductionPipelineSnapshot.create(input,
+            ProductionPipelineSnapshot.calibrationSha256(LensCalibration.file(f.repository, f.project)),
+            settings.getDouble("focal35"), resources)
+        val root = f.repository.directory(f.project)
+        fun owned(file: File): File {
+            require(file.canonicalFile.toPath() == file.absoluteFile.toPath().normalize())
+            require(file.toPath().startsWith(root.toPath()) && file != root)
+            require(Files.isRegularFile(file.toPath(), LinkOption.NOFOLLOW_LINKS))
+            return file
+        }
+        val featureDirectory = File(root, "features")
+        require(Files.isDirectory(featureDirectory.toPath(), LinkOption.NOFOLLOW_LINKS))
+        require(featureDirectory.canonicalFile == featureDirectory.absoluteFile)
+        val cache = SparseFeatureCache(featureDirectory)
+        val frames = input.photos.map { photo ->
+            require(photo.focal35mm == null) // This fixed fixture's authority is the persisted fallback.
+            val record = FeatureCacheFormat.decode(boundedBytes(owned(cache.artifactFile(photo.sha256))),
+                SparseFeatureCache.identity(photo.sha256))
+            require(record.width <= SparseFeatureCache.ANALYSIS_EDGE && record.height <= SparseFeatureCache.ANALYSIS_EDGE &&
+                record.count <= ExtractorSettings().maxFeatures)
+            record
+        }
+        val lenses = frames.map { LensProjection.estimated(it.width, it.height,
+            ImageLoader.focalPixels(it.width, it.height, settings.getDouble("focal35"))) }
+        val matchCache = FeatureMatchCache(root, snapshot.identity(PipelineStage.MATCHING), 2)
+        val graphBefore = boundedBytes(owned(matchCache.file))
+        val checksum = File(root, matchCache.file.name + ".sha256")
+        val checksumBefore = boundedBytes(owned(checksum))
+        val matches = requireNotNull(matchCache.load { ensureActive() })
+        require(graphBefore.contentEquals(boundedBytes(owned(matchCache.file))) &&
+            checksumBefore.contentEquals(boundedBytes(owned(checksum))))
+        require(matches.keys == setOf(0 to 1))
+        val record = matches.getValue(0 to 1) // Keep exact persisted row/key order.
+        val threshold = 1.5 / minOf(lenses[0].fx, lenses[0].fy, lenses[1].fx, lenses[1].fy)
+        val calibrated = CalibratedInitializerInput.create(lenses[0], frames[0].width, frames[0].height,
+            frames[0].coordinates(), record.firstKeys, lenses[1], frames[1].width, frames[1].height,
+            frames[1].coordinates(), record.secondKeys)
+        val parameterHash = sha((calibrated.domains.toList().toString() + "|" + threshold + "|" +
+            snapshot.identity(PipelineStage.MATCHING).digest + "|" + CalibratedInitializerInput.POLICY).toByteArray())
+        val resultCode = if (record.firstKeys.size < 20) "FEWER_THAN_20_MATCHES" else {
+            val token = NativeCore.beginReconstruction()
+            // Existing diagnostic timeout cooperatively cancels this independently owned native call.
+            val watchdog = launch(Dispatchers.Default, start = CoroutineStart.UNDISPATCHED) {
+                try { awaitCancellation() } finally { NativeCore.cancelReconstruction(token) }
+            }
+            try {
+                val result = JSONObject(NativeCore.reconstructCalibratedCancellable(record.rows,
+                    calibrated.observed, calibrated.domains, threshold, token))
+                if (!result.has("error")) "ACCEPTED_DIAGNOSTIC_ONLY" else
+                    result.optString("errorCode").takeIf { it in setOf("INVALID_INPUT", "COLLINEAR_FEATURES",
+                        "PLANAR_AMBIGUITY", "ROTATION_ONLY", "INSUFFICIENT_CONSENSUS", "WEAK_BASELINE",
+                        "RESOURCE_EXHAUSTED", "CANCELLED", "NATIVE_FAILURE", "UNKNOWN_NATIVE_FAILURE") }
+                        ?: "UNRECOGNIZED_REJECTION"
+            } finally {
+                withContext(NonCancellable) { watchdog.cancelAndJoin(); check(NativeCore.finishReconstruction(token)) }
+            }
+        }
+        ensureActive()
+        val report = JSONObject().put("schema", 1).put("classification", "DIAGNOSTIC_ONLY_ORIGINAL_JOB_FAILED")
+            .put("status", "REPLAYED").put("originalJobState", "FAILED")
+            .put("originalOutcomeCode", "INSUFFICIENT_OVERLAP").put("originalAcceptedStage", "MATCHES")
+            .put("photos", JSONArray(frames.mapIndexed { i, frame -> JSONObject()
+                .put("ordinal", i).put("width", frame.width).put("height", frame.height).put("featureCount", frame.count)
+                .put("focalAuthority", "PERSISTED_FALLBACK_35MM").put("focal35", settings.getDouble("focal35"))
+                .put("fx", lenses[i].fx).put("fy", lenses[i].fy).put("cx", lenses[i].cx).put("cy", lenses[i].cy) }))
+            .put("pair", JSONObject().put("firstOrdinal", 0).put("secondOrdinal", 1)
+                .put("matchCount", record.firstKeys.size).put("thresholdNormalized", threshold)
+                .put("parameterSha256", parameterHash).put("resultCode", resultCode))
+        val bytes = report.toString(2).toByteArray()
+        require(bytes.size <= 4096)
+        captureImmutable(evidence, "match-replay.json", bytes)
     }
 
     private suspend fun stopController(controller: ReconstructionExecutionController) {
