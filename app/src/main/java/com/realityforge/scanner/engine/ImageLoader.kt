@@ -1,7 +1,7 @@
 package com.realityforge.scanner.engine
 
 import android.graphics.Bitmap
-import androidx.exifinterface.media.ExifInterface
+import com.realityforge.scanner.capture.metadata.ExifFocalMetadata
 import com.realityforge.scanner.imaging.AnalysisPixels
 import com.realityforge.scanner.imaging.AndroidImageDecoder
 import com.realityforge.scanner.imaging.DecodeRequest
@@ -42,11 +42,9 @@ object ImageLoader {
         }
     }
 
-    /** Optional 35 mm-equivalent focal metadata. Missing or malformed EXIF remains unknown. */
+    /** Optional diagonal-equivalent prior, not calibration. Invalid/anisotropic EXIF remains unknown. */
     fun focal35(file: File): Double? = runCatching {
-        ExifInterface(file)
-            .getAttributeDouble(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM, 0.0)
-            .takeIf { it in 10.0..600.0 }
+        ExifFocalMetadata.read(file).value
     }.getOrNull()
 
     fun focalPixels(width: Int, height: Int, focal35: Double): Double =

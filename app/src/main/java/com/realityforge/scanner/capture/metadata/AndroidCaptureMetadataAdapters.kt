@@ -59,8 +59,16 @@ object ExifCaptureMetadataAdapter {
         }
 
         val focalMm = positiveDouble(exif, ExifInterface.TAG_FOCAL_LENGTH, issues)
-        val focal35 = positiveDouble(exif, ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM, issues)
-        val zoom = positiveDouble(exif, ExifInterface.TAG_DIGITAL_ZOOM_RATIO, issues)
+        val directFocal35 = positiveDouble(exif, ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM, issues)
+        val focal35 = if (exif.getAttribute(ExifInterface.TAG_FOCAL_LENGTH_IN_35MM_FILM) != null) directFocal35
+            else ExifFocalMetadata.read(file, exif)
+        // CIPA Exif: a zero numerator means digital zoom was not used. Our
+        // optical metadata stores a positive scale, so normalize to unit zoom
+        // as derived evidence rather than flagging a valid EXIF value invalid.
+        val zoom = if (exif.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO) != null &&
+            runCatching { exif.getAttributeDouble(ExifInterface.TAG_DIGITAL_ZOOM_RATIO, Double.NaN) }.getOrNull() == 0.0)
+            FieldEvidence.derived(1.0, setOf(EvidenceOrigin.EXIF))
+        else positiveDouble(exif, ExifInterface.TAG_DIGITAL_ZOOM_RATIO, issues)
         val make = textEvidence(exif, ExifInterface.TAG_MAKE)
         val model = textEvidence(exif, ExifInterface.TAG_MODEL)
         val lensMake = textEvidence(exif, ExifInterface.TAG_LENS_MAKE)
