@@ -74,10 +74,19 @@ int main(){
   auto first=rf::reconstructDense(images,settings);assert(first.writtenDepthTiles==first.totalTiles);
   for(int camera=0;camera<3;++camera)std::filesystem::remove(directory/("ref-"+std::to_string(camera)+".bin"));
   auto replay=rf::reconstructDense(images,settings);assert(replay.resumedDepthTiles==first.totalTiles&&replay.recomputedDepthTiles==0);
+  assert(replay.photometricDiagnostics.evaluatedSamples==0);
+  assert(rf::denseJson(replay).find("\"rejectionCounts\":null")!=std::string::npos);
   for(std::size_t i=0;i<first.maps.size();++i)assert(first.maps[i].depth==replay.maps[i].depth&&first.maps[i].confidence==replay.maps[i].confidence);
   for(int camera=0;camera<3;++camera)std::filesystem::remove(directory/("ref-"+std::to_string(camera)+".bin"));
   {std::ofstream corrupt(directory/"tile-0-1.bin",std::ios::app|std::ios::binary);corrupt.put('X');}
   auto repaired=rf::reconstructDense(images,settings);assert(repaired.resumedDepthTiles+1==first.totalTiles&&repaired.recomputedDepthTiles==1&&repaired.writtenDepthTiles==1&&repaired.rejectedDepthTiles==1);
+  const auto& d=repaired.photometricDiagnostics;
+  assert(d.available&&d.evaluatedSamples>0&&d.evaluatedSamples<repaired.sampledPixels);
+  assert(d.acceptedSamples+d.lowVariance+d.invalidOrBoundaryBest+d.ncc+d.uniqueness+d.invalidInverseDepth==d.evaluatedSamples);
+  const auto diagnosticJson=rf::denseJson(repaired);
+  assert(diagnosticJson.find("\"coverage\":\"PARTIAL\"")!=std::string::npos);
+  assert(diagnosticJson.find("\"unknownSamples\":"+std::to_string(repaired.sampledPixels-d.evaluatedSamples))!=std::string::npos);
+  for(std::size_t i=0;i<first.maps.size();++i)assert(first.maps[i].depth==repaired.maps[i].depth&&first.maps[i].confidence==repaired.maps[i].confidence);
  }
  std::filesystem::remove_all(directory);
  // Coarse images below are derived from input photographs by exact2x area

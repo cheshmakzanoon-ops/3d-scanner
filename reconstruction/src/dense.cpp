@@ -169,6 +169,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     cancellation::checkpoint();
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
+    result.photometricDiagnostics.available=true;
     auto admitted=tiles::admit(views.size(),static_cast<std::size_t>(views[0].width)*views[0].height,MAX_DENSE_SAMPLES,settings.maxPoints,settings.depthPlanes,settings.workingSetBudgetBytes,settings.referenceMode);
     result.admittedWorkingSetBytes=admitted.totalBytes;
     if(inputs){
@@ -286,8 +287,9 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
           cancellation::checkpoint();
           for(int x=tile.x0;x<tile.x1;x+=step){
             ++result.sampledPixels;progress::advance(++tileWork);
+            ++result.photometricDiagnostics.evaluatedSamples;
             auto reference=referencePatch(image,x,y,r);
-            if(reference.var<18.)continue; // no reliable photometric texture
+            if(reference.var<18.){++result.photometricDiagnostics.lowVariance;continue;} // no reliable photometric texture
             std::fill(costs.begin(),costs.end(),2.);
             for(int k=0;k<settings.depthPlanes;++k){
                 if((k&7)==0)cancellation::checkpoint();
@@ -301,9 +303,10 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             }
             const auto distinct=matching::distinctMinimum(costs);
             const int best=static_cast<int>(distinct.best);
-            if(!distinct.valid||best<2||best>=settings.depthPlanes-2||costs[best]>1-settings.minimumNcc)continue;
+            if(!distinct.valid||best<2||best>=settings.depthPlanes-2){++result.photometricDiagnostics.invalidOrBoundaryBest;continue;}
+            if(costs[best]>1-settings.minimumNcc){++result.photometricDiagnostics.ncc;continue;}
             const double margin=distinct.margin;
-            if(margin<settings.minUniqueness)continue;
+            if(margin<settings.minUniqueness){++result.photometricDiagnostics.uniqueness;continue;}
             double inverse=refinement::parabolicInverseDepth(costs,planes,static_cast<std::size_t>(best));
             double selectedCost=-1.;
             if(settings.localRefinementIterations){
@@ -362,12 +365,13 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                     }
                 }
             }
-            if(inverse<=0)continue;
+            if(inverse<=0){++result.photometricDiagnostics.invalidInverseDepth;continue;}
             auto idx=static_cast<std::size_t>(y)*w+x;
             map.depth[idx]=static_cast<float>(1./inverse);
             map.confidence[idx]=static_cast<float>(std::clamp(margin/.20,0.,1.)*
                 std::clamp((1.-costs[best])/.9,0.,1.));
             ++result.photometricPixels;
+            ++result.photometricDiagnostics.acceptedSamples;
           }
         }
          if(!settings.referenceMode&&depth_checkpoint::enabled()){
@@ -474,6 +478,18 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
 std::string denseJson(const DenseResult& result){
     std::ostringstream out;out.imbue(std::locale::classic());out<<std::setprecision(11);
     out<<"{\"schema\":7,\"representation\":\"dense_points\",\"technique\":\"bounded_cpu_plane_sweep_zncc\",";
+    const auto& diagnostic=result.photometricDiagnostics;
+    const bool observed=diagnostic.available&&diagnostic.evaluatedSamples>0;
+    const auto unknown=observed?result.sampledPixels-diagnostic.evaluatedSamples:result.sampledPixels;
+    out<<"\"photometricDiagnostics\":{\"schema\":1,\"scope\":\"ORIGINATING_DENSE_EVALUATION\",\"available\":"<<(observed?"true":"false")
+       <<",\"coverage\":\""<<(observed?(unknown?"PARTIAL":"COMPLETE"):"UNAVAILABLE")<<"\",\"unknownSamples\":"<<unknown;
+    if(observed){
+        out<<",\"evaluatedSamples\":"<<diagnostic.evaluatedSamples<<",\"acceptedSamples\":"<<diagnostic.acceptedSamples
+           <<",\"rejectionCounts\":{\"lowVariance\":"<<diagnostic.lowVariance
+           <<",\"invalidOrBoundaryBest\":"<<diagnostic.invalidOrBoundaryBest<<",\"ncc\":"<<diagnostic.ncc
+           <<",\"uniqueness\":"<<diagnostic.uniqueness<<",\"invalidInverseDepth\":"<<diagnostic.invalidInverseDepth<<"}";
+    }else out<<",\"evaluatedSamples\":null,\"acceptedSamples\":null,\"rejectionCounts\":null";
+    out<<"},";
     out<<"\"scale\":\"arbitrary\",\"triangleCount\":0,\"textured\":false,\"pointCount\":"<<result.points.size()
        <<",\"sampledPixels\":"<<result.sampledPixels<<",\"photometricPixels\":"<<result.photometricPixels
        <<",\"consistentPixels\":"<<result.consistentPixels<<",\"medianConfidence\":"<<result.medianConfidence<<",\"points\":[";

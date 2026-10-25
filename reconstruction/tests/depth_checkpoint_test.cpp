@@ -110,9 +110,18 @@ int main(){
         rf::DenseResult initial;
         {rf::depth_checkpoint::Scope scope(t.dir.string(),HASH);initial=rf::reconstructDense(images,s);}
         require(initial.writtenDepthMaps==3&&initial.resumedDepthMaps==0,"initial maps missing");
+        require(initial.photometricDiagnostics.evaluatedSamples==initial.sampledPixels,
+                "fresh map evaluation coverage missing");
         rf::DenseResult replay;
         {rf::depth_checkpoint::Scope scope(t.dir.string(),HASH);replay=rf::reconstructDense(images,s);}
         require(replay.resumedDepthMaps==3&&replay.writtenDepthMaps==0,"resume did not reuse all cameras");
+        require(replay.photometricDiagnostics.evaluatedSamples==0,
+                "cached maps invented fresh rejection counters");
+        const auto diagnostics=rf::denseJson(replay);
+        require(diagnostics.find("\"coverage\":\"UNAVAILABLE\"")!=std::string::npos&&
+                diagnostics.find("\"rejectionCounts\":null")!=std::string::npos&&
+                diagnostics.find("\"unknownSamples\":"+std::to_string(replay.sampledPixels))!=std::string::npos,
+                "cached map diagnostics must be explicitly unknown");
         require(replay.maps.size()==initial.maps.size(),"camera count differs");
         for(std::size_t i=0;i<replay.maps.size();++i){
             require(replay.maps[i].depth==initial.maps[i].depth,"depth changed after resume");

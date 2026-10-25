@@ -86,7 +86,15 @@ struct VerifiedDepthSample {
     float normalConfidence{};
     std::uint8_t normalSupportingViews{};
 };
+// Diagnostic coverage only; never serialized into depth/surface checkpoint wires.
+// Defaults unknown for recovered results; acceptedSamples counts fresh evaluation only.
+struct DensePhotometricDiagnostics {
+    bool available{};
+    std::size_t evaluatedSamples{}, acceptedSamples{};
+    std::size_t lowVariance{}, invalidOrBoundaryBest{}, ncc{}, uniqueness{}, invalidInverseDepth{};
+};
 struct DenseResult {
+    DensePhotometricDiagnostics photometricDiagnostics;
     std::vector<DenseDepthMap> maps;
     std::vector<DensePoint> points;
     std::vector<VerifiedDepthSample> verifiedSamples; // bounded, transient; omitted from M07 JSON

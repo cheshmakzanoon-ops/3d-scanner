@@ -10,6 +10,16 @@
 
 namespace {
 void require(bool condition,const char* message){if(!condition)throw std::runtime_error(message);}
+void requireCompleteDiagnostics(const rf::DenseResult& result){
+    const auto& d=result.photometricDiagnostics;
+    require(d.available&&d.evaluatedSamples==result.sampledPixels,"Fresh photometric coverage is incomplete");
+    require(d.acceptedSamples==result.photometricPixels,"Photometric accepted count differs from observed output");
+    require(d.acceptedSamples+d.lowVariance+d.invalidOrBoundaryBest+d.ncc+d.uniqueness+d.invalidInverseDepth==d.evaluatedSamples,
+            "Photometric branch accounting is not exhaustive and exclusive");
+    const auto json=rf::denseJson(result);
+    require(json.find(R"("coverage":"COMPLETE","unknownSamples":0)")!=std::string::npos,"Fresh diagnostic coverage serialized incorrectly");
+    require(json.find(R"("scope":"ORIGINATING_DENSE_EVALUATION")")!=std::string::npos,"Diagnostic scope missing");
+}
 void expectError(auto&& callback){bool failed=false;try{callback();}catch(const rf::Error&){failed=true;}require(failed,"invalid geometry accepted");}
 // A textured physically planar surface, observed by cameras at different positions.
 // Images are actually rendered from world coordinates, not copied and shifted arbitrarily.
@@ -50,6 +60,15 @@ int main(){
         rf::DenseSettings s;s.nearDepth=3.1;s.farDepth=7.0;s.depthPlanes=64;s.pixelStride=2;
         auto r=rf::reconstructDense(images,s);
         std::cout<<"found "<<r.points.size()<<" candidate="<<r.photometricPixels<<" reciprocal="<<r.consistentPixels<<" confidence="<<r.medianConfidence<<"\n";
+        requireCompleteDiagnostics(r);
+        const auto& diagnostics=r.photometricDiagnostics;
+        require(diagnostics.invalidOrBoundaryBest>0&&diagnostics.ncc>0&&diagnostics.uniqueness>0,
+                "Rendered fixture did not exercise reachable minimum/NCC/uniqueness rejection branches");
+        // Positive admitted depth planes do not exercise this defensive guard.
+        // Zero is observed here, not a claim of invalid-inverse branch coverage.
+        require(diagnostics.invalidInverseDepth==0,"Admitted plane unexpectedly produced invalid inverse depth");
+        std::cout<<"diagnostic branches minimum="<<diagnostics.invalidOrBoundaryBest<<" ncc="<<diagnostics.ncc
+                 <<" uniqueness="<<diagnostics.uniqueness<<" lowVariance="<<diagnostics.lowVariance<<'\n';
         require(r.maps.size()==3,"lost image depth maps");
         require(r.points.size()>100,"insufficient reciprocal depth support");
         std::vector<double> depths;for(auto& p:r.points)depths.push_back(p.xyz.z);
@@ -61,10 +80,14 @@ int main(){
     test("uniform image contains no invented surface",[]{
         auto r=rf::reconstructDense(fixture(3,false));
         require(r.points.empty(),"textureless input generated fictitious geometry");
+        requireCompleteDiagnostics(r);
+        require(r.photometricDiagnostics.lowVariance==r.sampledPixels&&r.sampledPixels>0,
+                "Uniform input rejection was not attributed entirely to observed low variance");
     });
     test("occluded view does not corrupt nonoccluded geometry",[]{
         auto r=rf::reconstructDense(fixture(3,true,true));
         require(r.points.size()>50,"occlusion unexpectedly erased reliable regions");
+        requireCompleteDiagnostics(r);
     });
     test("coincident camera centers explicitly rejected",[]{
         auto images=fixture(2);images[1].pose=images[0].pose;

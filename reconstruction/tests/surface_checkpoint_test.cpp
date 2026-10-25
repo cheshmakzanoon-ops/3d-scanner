@@ -49,6 +49,13 @@ int main() {
         rf::surface_checkpoint::AcceptedSurface recovered;
         require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"valid observed mesh checkpoint was rejected");
         require(rf::surfaceJson(mesh)==rf::surfaceJson(recovered.mesh),"accepted positions/normals/colors/confidence changed");
+        require(!recovered.dense.photometricDiagnostics.available&&recovered.dense.photometricDiagnostics.evaluatedSamples==0,
+                "Surface checkpoint invented unstored photometric branch evidence");
+        const auto diagnosticJson=rf::denseJson(recovered.dense);
+        require(diagnosticJson.find(R"("available":false,"coverage":"UNAVAILABLE")")!=std::string::npos&&
+                diagnosticJson.find("\"unknownSamples\":"+std::to_string(recovered.dense.sampledPixels))!=std::string::npos&&
+                diagnosticJson.find(R"("evaluatedSamples":null,"acceptedSamples":null,"rejectionCounts":null)")!=std::string::npos,
+                "Decoded surface checkpoint serialized missing diagnostics as measured zeros");
         require(recovered.settings.maxVoxelOccupancy==meshSettings.maxVoxelOccupancy&&
                 recovered.settings.maxFusionCandidates==meshSettings.maxFusionCandidates,"fusion settings lost in checkpoint");
         require(recovered.mesh.observations.size()==mesh.observations.size(),"surface observation provenance lost");
@@ -74,6 +81,10 @@ int main() {
         }
 
         auto replay=dense;replay.resumedDepthMaps=views.size();replay.writtenDepthMaps=0;replay.peakLuminanceBytes=0;
+        // Branch counters intentionally are not in the accepted-surface wire format.
+        // Compare every previously serialized dense field after marking only that
+        // explicitly unavailable diagnostic field unknown on the originating copy.
+        replay.photometricDiagnostics={};
         require(rf::denseJson(replay)==rf::denseJson(recovered.dense),"accepted dense points and measured counts changed");
         bool written=true;
         require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&written),"replayed evidence no longer has identical canonical bytes");
