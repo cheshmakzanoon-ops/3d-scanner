@@ -134,3 +134,27 @@ def test_missing_runtime_records_not_run_and_does_not_launch_python(tmp_path, mo
     assert config['commands'][-1]['result'] == 'NOT_RUN'
     assert names[missing_index] in config['commands'][-1]['reason']
     assert 'python_preloads' not in config
+
+
+@pytest.mark.parametrize('config', ['gcc-sanitize', 'clang-sanitize'])
+def test_artifact_boundary_does_not_change_native_execution(monkeypatch, tmp_path, config):
+    from tools import native_test_build
+    from tools.qa.export_interoperability.validate import _artifact_consumer_env
+    candidate = tmp_path / 'selected' / 'librealityforge.so'
+    monkeypatch.setattr(native_test_build, '_selected_library', lambda: candidate)
+    values = dict(LD_PRELOAD='/runtime/asan.so:/runtime/cxx.so', LD_AUDIT='/runtime/audit.so',
+                  ASAN_OPTIONS='halt_on_error=1:detect_leaks=1', LSAN_OPTIONS='exitcode=23',
+                  UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
+                  RF_NATIVE_LIBRARY=str(candidate), RF_NATIVE_CONFIG=config,
+                  RF_NATIVE_CXX='/selected/compiler', LD_LIBRARY_PATH='/dependencies')
+    for key, value in values.items():
+        monkeypatch.setenv(key, value)
+    before = dict(os.environ)
+    artifact = _artifact_consumer_env()
+    assert artifact == {k: v for k, v in before.items() if k not in ('LD_PRELOAD', 'LD_AUDIT')}
+    native = native_test_build.native_run_env()
+    assert native == before | {'LD_LIBRARY_PATH': str(candidate.parent) + os.pathsep + '/dependencies'}
+    flags = native_test_build.native_compile_prefix()
+    assert '-fsanitize=address,undefined,float-cast-overflow' in flags
+    assert ('-shared-libasan' in flags) == config.startswith('clang')
+    assert os.environ == before

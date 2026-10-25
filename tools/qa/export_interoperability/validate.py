@@ -114,12 +114,26 @@ def tool_failure(command_identity, run, *, target_exists=None):
     return json.dumps(detail, sort_keys=True)
 
 
+def _artifact_consumer_env():
+    """Loader boundary for the two external, serialized-artifact consumers only.
+
+    khronos.cjs and blender_roundtrip.py read exported files, never the scanner
+    library. Injecting its sanitizer runtime instruments these unrelated host
+    tools instead. Do not use this environment for Python/ctypes, native/JNI
+    executions, or their intentional sanitizer baseline controls.
+    """
+    environment = dict(os.environ)
+    for key in ('LD_PRELOAD', 'LD_AUDIT'):
+        environment.pop(key, None)
+    return environment
+
+
 def khronos(path):
     root = os.environ.get('RF_GLTF_VALIDATOR')
     if not root or not shutil.which('node'):
         raise ModuleNotFoundError('node and RF_GLTF_VALIDATOR package required')
     run = subprocess.run(['node', str(HERE / 'khronos.cjs'), str(path)],
-                         capture_output=True, text=True, timeout=45)
+                         capture_output=True, text=True, timeout=45, env=_artifact_consumer_env())
     if run.returncode != 0:
         raise Invalid('Khronos execution: ' + tool_failure('node khronos.cjs', run))
     report = json.loads(run.stdout)
@@ -201,7 +215,8 @@ def roundtrip(path, before, expected):
         target = Path(tmp) / ('roundtrip' + path.suffix.lower())
         run = subprocess.run(['blender', '--background', '--factory-startup', '--threads', '1',
                               '--python-exit-code', '1', '--python', str(HERE / 'blender_roundtrip.py'),
-                              '--', str(path.resolve()), str(target)], capture_output=True, text=True, timeout=120)
+                              '--', str(path.resolve()), str(target)], capture_output=True, text=True, timeout=120,
+                             env=_artifact_consumer_env())
         if not (run.returncode == 0 and target.is_file()):
             raise Invalid('Blender failed: ' + tool_failure(
                 'blender blender_roundtrip.py', run, target_exists=target.is_file()))
