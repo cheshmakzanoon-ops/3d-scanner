@@ -32,11 +32,14 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "89d9e3387bb19e5243017f28461040372615736b"
-PUSH_MESSAGE = "test: bound non-UI Android checks on official ATD"
+PUSH_BASE_SHA = "df49877b6c3b736f795ac2f45a6c2029bf2000f7"
+PUSH_MESSAGE = "test: verify software-only Android native smoke checks"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
-PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | frozenset(("tests/test_software_emulator_diagnostic.py",
+PUSH_ADDED_PATHS = frozenset(("tests/skull_reference_fixture.py",
+                              "tests/test_skull_reference_fixture.py"))
+PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | PUSH_ADDED_PATHS | frozenset((
+    "tests/test_software_emulator_diagnostic.py", "tests/test_skull_reference.py",
     "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256"))
 IMAGE = "system-images;android-35;aosp_atd;x86_64"
 IMAGE_REVISION = "1"
@@ -376,7 +379,8 @@ def validate_push_tree(source_sha, parents, message, changes):
         raise Blocked("Malformed one-shot changed-file evidence")
     paths = []
     for status, path in zip(fields[::2], fields[1::2]):
-        if status != "M" or path not in PUSH_ALLOWED_PATHS or path in paths:
+        expected_status = "A" if path in PUSH_ADDED_PATHS else "M"
+        if status != expected_status or path not in PUSH_ALLOWED_PATHS or path in paths:
             raise Blocked("One-shot push changed an unreviewed path or file status")
         paths.append(path)
     if not PUSH_TRIGGER_PATHS.issubset(paths):

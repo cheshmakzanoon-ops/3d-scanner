@@ -49,20 +49,33 @@ fails rather than silently changing mode or downgrading.
 
 ### One-shot push admission
 
+This source-reviewed re-arm requests one current-source **NON-UI**, unsupported
+TCG attempt after the raw-SIFT rollback. The unchanged four selectors test native
+Android JNI and private feature-cache behavior only; they do not exercise RootSIFT
+extraction, real-photo reconstruction, Activities, rendering, Filament or SAF.
+The earlier ATD pass is historical evidence, not a pass for this new source.
+KVM access approval remains separate; no accelerated workflow is invoked here.
+
+
 Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
 repository's `refs/heads/main`, on attempt 1, with all of the following:
 
-- Previous head exactly `89d9e3387bb19e5243017f28461040372615736b`.
-- Exact commit message `test: bound non-UI Android checks on official ATD`.
+- Previous head exactly `df49877b6c3b736f795ac2f45a6c2029bf2000f7`.
+- Exact commit message `test: verify software-only Android native smoke checks`.
 - A normal update, not a created/deleted branch or forced push.
 - Event `after`, head-commit ID and `GITHUB_SHA` all identical.
 - One non-merge commit whose actual parent is that previous head; the committed
   message must also match the event's explicit opt-in.
 - Only modifications to `.github/workflows/software-emulator-diagnostic.yml`,
   `tools/device/software_emulator/diagnostic.py`,
-  `tests/test_software_emulator_diagnostic.py`, this document and
-  `SOURCE_MANIFEST.sha256`. Both the workflow and controller must change.
-  Added/deleted/renamed paths, unrelated changes and missing history are rejected.
+  `tests/test_software_emulator_diagnostic.py`, `tests/test_skull_reference.py`,
+  this document and `SOURCE_MANIFEST.sha256`; additions only for
+  `tests/skull_reference_fixture.py` and `tests/test_skull_reference_fixture.py`.
+  The three reference-fixture paths are the separately reviewed host signal-fixture
+  repair, not added Android selectors or production behavior. Both the workflow
+  and controller must change. Wrong statuses (including modification rather than
+  addition of the two new fixture files), other additions, deletions, renames,
+  unrelated paths and missing history are rejected.
 
 The workflow filters pushes by the two exact workflow/controller paths and has a
 job-level event guard. The controller independently checks the event, clean exact

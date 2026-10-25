@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 
 from tools.qa import skull_reference as ref
+from skull_reference_fixture import signal_supervisor
 
 
 @pytest.fixture
@@ -296,25 +297,11 @@ def test_real_synthetic_worker_is_killed_and_reaped_after_signal(tmp_path, signu
     import time
     worker_pid_file = tmp_path / 'worker.pid'
     reaped_file = tmp_path / 'reaped.json'
-    # No photos, COLMAP, network or scanner. The worker deliberately ignores TERM
-    # to ensure the supervisor uses its owned group rather than cooperative exit.
-    worker = ("import os,signal,time,pathlib; signal.signal(signal.SIGTERM,signal.SIG_IGN); "
-              f"pathlib.Path({str(worker_pid_file)!r}).write_text(str(os.getpid())); time.sleep(3)")
-    harness = f"""
-import json,pathlib,sys
-from tools.qa import skull_reference as ref
-original = ref.subprocess.Popen
-owned = []
-def popen(command, **kwargs):
-    p = original([sys.executable, '-c', {worker!r}], **kwargs)
-    owned.append(p)
-    return p
-ref.subprocess.Popen = popen
-code = ref.run_child(pathlib.Path('unused'), pathlib.Path({str(tmp_path)!r}))
-pathlib.Path({str(reaped_file)!r}).write_text(json.dumps({{'returncode': owned[0].returncode}}))
-sys.exit(code)
-"""
-    supervisor = subprocess.Popen([ref.sys.executable, '-c', harness], start_new_session=True,
+    # The closed generated stdlib fixture loads only hash-verified benchmark
+    # bytes and replaces its exact worker command; no production native run is
+    # stripped of instrumentation. All interruption/cleanup assertions remain.
+    command, fixture_env = signal_supervisor(tmp_path)
+    supervisor = subprocess.Popen(command, env=fixture_env, start_new_session=True,
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     worker_pid = None
     try:

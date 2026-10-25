@@ -238,7 +238,8 @@ class OneShotPushPolicy(unittest.TestCase):
             "after": self.env["GITHUB_SHA"], "head_commit": {"id": self.env["GITHUB_SHA"],
             "message": diag.PUSH_MESSAGE}, "created": False, "deleted": False, "forced": False}
         self.parents = self.env["GITHUB_SHA"] + " " + diag.PUSH_BASE_SHA
-        self.changes = "".join("M\0" + path + "\0" for path in sorted(diag.PUSH_ALLOWED_PATHS))
+        self.changes = "".join(("A" if path in diag.PUSH_ADDED_PATHS else "M") + "\0" + path + "\0"
+                               for path in sorted(diag.PUSH_ALLOWED_PATHS))
 
     def test_exact_one_shot_push_and_tree_are_admitted(self):
         launch = diag.validate_policy(self.env, self.event)
@@ -246,6 +247,28 @@ class OneShotPushPolicy(unittest.TestCase):
         self.assertEqual(launch["before"], diag.PUSH_BASE_SHA)
         self.assertEqual(diag.validate_push_tree(self.env["GITHUB_SHA"], self.parents,
             diag.PUSH_MESSAGE, self.changes), sorted(diag.PUSH_ALLOWED_PATHS))
+
+    def test_rearm_is_exactly_df498_native_smoke_with_finite_fixture_statuses(self):
+        self.assertEqual(diag.PUSH_BASE_SHA, "df49877b6c3b736f795ac2f45a6c2029bf2000f7")
+        self.assertEqual(diag.PUSH_MESSAGE, "test: verify software-only Android native smoke checks")
+        self.assertEqual(diag.PUSH_ADDED_PATHS, {
+            "tests/skull_reference_fixture.py", "tests/test_skull_reference_fixture.py"})
+        self.assertEqual(diag.PUSH_ALLOWED_PATHS, {
+            ".github/workflows/software-emulator-diagnostic.yml",
+            "tools/device/software_emulator/diagnostic.py",
+            "tests/test_software_emulator_diagnostic.py",
+            "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256",
+            "tests/test_skull_reference.py", "tests/skull_reference_fixture.py",
+            "tests/test_skull_reference_fixture.py"})
+        for path in sorted(diag.PUSH_ALLOWED_PATHS):
+            good = "A" if path in diag.PUSH_ADDED_PATHS else "M"
+            for wrong in ({"A", "M", "D", "T", "R100"} - {good}):
+                changes = self.changes.replace(good + "\0" + path + "\0", wrong + "\0" + path + "\0")
+                with self.subTest(path=path, status=wrong), self.assertRaises(diag.Blocked):
+                    diag.validate_push_tree(self.env["GITHUB_SHA"], self.parents, diag.PUSH_MESSAGE, changes)
+        for previous in ("89d9e3387bb19e5243017f28461040372615736b", self.env["GITHUB_SHA"]):
+            with self.subTest(previous=previous), self.assertRaises(diag.Blocked):
+                diag.validate_policy(self.env, {**self.event, "before": previous})
 
     def test_wrong_environment_identity_ref_attempt_and_event_fail_closed(self):
         for key, value in (("GITHUB_REPOSITORY", "fork/scanner"), ("GITHUB_REF", "refs/tags/main"),
@@ -342,7 +365,7 @@ class OneShotPushPolicy(unittest.TestCase):
             def git(where, *args):
                 return subprocess.check_output(["git", "-C", str(where), *args], text=True, stderr=subprocess.PIPE).strip()
             git(origin, "init", "--quiet")
-            for path in sorted(diag.PUSH_ALLOWED_PATHS):
+            for path in sorted(diag.PUSH_ALLOWED_PATHS - diag.PUSH_ADDED_PATHS):
                 target = origin / path
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text("before\n")
