@@ -9,6 +9,20 @@ ANDROID="{http://schemas.android.com/apk/res/android}"
 TOOLS="{http://schemas.android.com/tools}"
 
 
+def test_surface_fusion_version_matches_policy_and_device_assertion():
+    native=(ROOT/"reconstruction/src/surface.cpp").read_text()
+    policy=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt").read_text()
+    device=(ROOT/"app/src/androidTest/java/com/realityforge/scanner/agents/a002/PipelineServicesDeviceTest.kt").read_text()
+    # A producer-version migration must update the real instrumentation equality too.
+    native_versions=re.findall(r'\\"fusionVersion\\":(\d+)', native)
+    policy_versions=re.findall(r'const val SURFACE_ENGINE = "rf-observed-open-mesh-v(\d+)-', policy)
+    device_versions=re.findall(
+        r'assertEquals\("Surface producer must match the stage policy",\s*(\d+),\s*'
+        r'result\.getJSONObject\("meshPreview"\)\.getInt\("fusionVersion"\)\)', device)
+    assert len(native_versions)==len(policy_versions)==len(device_versions)==1
+    assert native_versions==policy_versions==device_versions
+
+
 def test_manifest_strips_network_permissions():
     manifest=ET.parse(ROOT/"app/src/main/AndroidManifest.xml").getroot()
     permissions={x.attrib[ANDROID+"name"]:x.attrib for x in manifest.findall("uses-permission")}
