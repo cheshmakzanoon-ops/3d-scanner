@@ -1,0 +1,82 @@
+name: Authorized installed synthetic scanner journey
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/installed-journey-once.yml
+      - tools/device/installed_journey/kvm_lease.py
+permissions:
+  contents: read
+concurrency:
+  group: installed-scanner-journey-once
+  cancel-in-progress: false
+jobs:
+  installed-journey:
+    if: >-
+      ${{ github.repository == 'cheshmakzanoon-ops/3d-scanner' &&
+          github.event.before == '5beb2d301b98713ca106247f7230655d099612f0' &&
+          github.event.head_commit.message == 'test: run authorized installed synthetic scanner journey' &&
+          github.run_attempt == 1 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 65
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+          ref: ${{ github.sha }}
+      - name: Admit only the authorized source-bound first attempt
+        run: |
+          python3 tools/device/installed_journey/kvm_lease.py admit
+          python3 tools/source_manifest.py verify --source HEAD
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+      - run: python3 tools/ci/install_android_sdk.py
+      - uses: gradle/actions/setup-gradle@0b6dd653ba04f4f93bf581ec31e66cbd7dcb644d # v4
+        with:
+          gradle-version: '8.13'
+          cache-read-only: true
+      - name: Build the exact debug application and test APK
+        run: ./gradlew --no-daemon --max-workers=2 --no-parallel :app:assembleDebug :app:assembleDebugAndroidTest
+      - name: Bind APK bytes to the checked-out source
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          app = Path('app/build/outputs/apk/debug/app-debug.apk')
+          test = Path('app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk')
+          receipt = {'source_sha': os.environ['GITHUB_SHA'], 'apk_sha256': hashlib.sha256(app.read_bytes()).hexdigest(), 'test_apk_sha256': hashlib.sha256(test.read_bytes()).hexdigest()}
+          (Path(os.environ['RUNNER_TEMP']) / 'rf-installed-build.json').write_text(json.dumps(receipt))
+          PY
+      - name: Install official ACL utility if absent
+        run: |
+          if ! command -v setfacl >/dev/null || ! command -v getfacl >/dev/null; then
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y acl
+          fi
+      - name: Lease KVM access to this runner user only
+        run: python3 tools/device/installed_journey/kvm_lease.py acquire
+      - uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2 peeled commit
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          disable-linux-hw-accel: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot -accel on
+          script: python3 tools/device/installed_journey/run.py
+      - name: Restore original KVM permissions even after a failed test
+        if: always()
+        run: python3 tools/device/installed_journey/kvm_lease.py release
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: installed-synthetic-journey-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/rf-installed-build.json
+            ${{ runner.temp }}/rf-installed-journey/
+          if-no-files-found: error
+          retention-days: 1
