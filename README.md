@@ -1,3 +1,5 @@
+> **Development paused at the owner's request.** The latest checkpoint contains work that is not fully integrated or runtime-qualified. See [checkpoint status](docs/DEVELOPMENT_PAUSED.md).
+
 # RealityForge — offline Android photo-to-3D scanner
 
 ## Latest source-bound context — 25 October 2026

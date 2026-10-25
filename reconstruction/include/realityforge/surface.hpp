@@ -83,6 +83,10 @@ static_assert(3*(sizeof(DenseLossDiagnostics)+sizeof(SurfaceLossDiagnostics))<=3
 struct SurfaceMesh {
     std::vector<SurfaceVertex> vertices;
     std::vector<SurfaceTriangle> triangles;
+    // Appended topology-only vertices directly alias the canonical prefix.
+    // Aliases are not observations and never increase confidence or view support.
+    std::vector<std::uint32_t> topologyAliasSources;
+    std::size_t preAliasInvalidVertexLinks{},postAliasInvalidVertexLinks{},unsupportedAliasStars{};
     std::size_t inputSamples{},acceptedSamples{},rejectedCells{},rejectedTriangles{},fusedObservations{};
     float medianConfidence{};
     std::vector<SurfaceObservationRef> observations;

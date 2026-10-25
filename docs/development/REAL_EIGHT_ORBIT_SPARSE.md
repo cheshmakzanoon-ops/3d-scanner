@@ -97,3 +97,50 @@ regression preserved. Estimated 88-mm-equivalent optics are not measured lens
 calibration. The failed source-bound invocation does not establish registration or quality.
 The corrected-source rerun remains NOT_RUN; missing evidence cannot be inferred
 from successful local checks or the import repair.
+
+## Read-only cache-support diagnostic candidate (not executed)
+
+The [corrected `c445fefd54` HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40241476529)
+retained complete failure evidence. All eight feature phases and all 28 scheduled
+pair jobs reached READY, but only pair ordinal 14 reached the geometry caller-entry
+phase (not proof of completed native initialization).
+The source-bound exception was `scan.failure.insufficient_overlap` at the
+`best == null` branch, before camera registration/frontier/BA. No initial anchor
+was admitted. This aggregate code does **not** prove low physical capture overlap.
+The original native rejection category and per-pair reciprocal-match counts were
+not retained. The unordered descriptor counts are
+`950, 1063, 1280, 1579, 1833, 1877, 1912, 2231`; ordinal 14 had descriptor rows
+`1877/1833`, not that many reciprocal matches. No physical pair identity is inferred
+from the ordinal. The older `f2d4e3ac88` original invocation cause stays unknown.
+
+The next diagnostic candidate reads already-persisted feature/match caches after
+the same fixed-input invocation fails, only after its worker joins and before
+owned cleanup. Production snapshot/manifest verification, feature/match decoders,
+feature-summary scheduling and projection helpers must reproduce the exact
+input/order/plan and agree with all actual pair events. It does not rematch,
+reschedule the pipeline or change inputs, thresholds, resource limits or engines.
+
+A new `cache-pair-summary.json` is capped at **32 KiB**, inside the unchanged
+32-MiB aggregate evidence limit. It retains only source-bound UUID/hash identities,
+feature dimensions/counts, scheduled pair identities, raw reciprocal-match counts,
+exact distinct key-pair counts, observed-pixel quadruple counts and normalized-ray
+quadruple counts. Signed zero is treated as numerically equal. The two coordinate
+domains are distinct: these derived counts are **not** accepted-native inlier or
+consensus counts. No descriptors, image pixels, cache payloads, paths or arbitrary
+native error text are published. Consumed-file content hashes, identity/type/size, creation/modification times and
+Unix owner/group/mode/change-time metadata must remain unchanged. OS-managed
+access-time movement is recorded separately as read-access bookkeeping, not a
+qualification failure; timestamps are never restored. Unsupported Unix metadata
+checks or a failed binding/immutability check yield no partial count report.
+
+The report is admitted only with a failed receipt, matching imported identities,
+all 28 original READY events, geometry-entry agreement and no sparse result.
+Replay is explicitly `NOT_RUN / REPLAY_UNAVAILABLE`: the complete original native
+call context has not been independently established. Persisted rows exist for the
+future capture; this is not a claim that the current retained ZIP contains them.
+No native replay is implemented. Only the remaining original 90-second allowance
+may be used for cache inspection; the 120-second JUnit and all outer caps remain.
+
+This candidate still requires independent review, actual Kotlin compilation and
+a separately approved source-bound invocation. Local schema/unit checks do not
+establish matching support, camera registration, BA, dense output or model quality.

@@ -93,7 +93,7 @@ object PreviewSchemaValidator {
             val ledgerFields = listOf("observationLedgerVersion", "attachedObservationCount",
                 "unattachedObservationCount", "exactDuplicateSupportCount")
             if (ledgerFields.any(mesh::has)) {
-                integer(mesh, "observationLedgerVersion", 1, 1)
+                integer(mesh, "observationLedgerVersion", 1, 2)
                 val input = integer(mesh, "inputSamples", 0, 100_000)
                 val accepted = integer(mesh, "acceptedSamples", 0, input)
                 val attached = integer(mesh, "attachedObservationCount", 0, accepted)
@@ -103,6 +103,41 @@ object PreviewSchemaValidator {
             }
             require(mesh.get("textured") == false && mesh.get("watertight") == false && string(mesh, "scale") == "arbitrary")
             vertices = pointRows(mesh, "vertices", "vertexCount", MAX_VERTICES, checkCancelled)
+            // Aliases are representation vertices, never additional observations.
+            // Version 1 and pre-ledger previews remain readable without these fields.
+            val aliasFields = listOf("topologyAliasSources", "canonicalVertexCount",
+                "preAliasInvalidVertexLinks", "postAliasInvalidVertexLinks", "unsupportedAliasStars")
+            val aliasLedger = mesh.has("observationLedgerVersion") &&
+                integer(mesh, "observationLedgerVersion", 1, 2) == 2L
+            if (mesh.has("fusionVersion") && integer(mesh, "fusionVersion", 1, 13) == 13L)
+                require(aliasLedger) { "Fusion version 13 requires explicit topology provenance." }
+            if (aliasLedger || aliasFields.any(mesh::has)) {
+                require(aliasLedger) { "Topology aliases require provenance version 2." }
+                integer(mesh, "fusionVersion", 13, 13)
+                val canonical = integer(mesh, "canonicalVertexCount", 1, vertices.size.toLong()).toInt()
+                val aliases = array(mesh, "topologyAliasSources")
+                require(aliases.length() == vertices.size - canonical) { "Topology alias count does not reconcile." }
+                integer(mesh, "preAliasInvalidVertexLinks", 0, canonical.toLong())
+                integer(mesh, "postAliasInvalidVertexLinks", 0, vertices.size.toLong())
+                integer(mesh, "unsupportedAliasStars", 0, canonical.toLong())
+                val vertexRows = array(mesh, "vertices")
+                for (i in 0 until vertexRows.length()) {
+                    if (i % 256 == 0) checkCancelled()
+                    require(vertexRows.getJSONArray(i).length() == 11) { "Provenance version 2 requires complete vertex attributes." }
+                }
+                for (i in 0 until aliases.length()) {
+                    if (i % 256 == 0) checkCancelled()
+                    val source = strictInteger(aliases.get(i), 0, canonical.toLong() - 1).toInt()
+                    val original = vertexRows.getJSONArray(source)
+                    val alias = vertexRows.getJSONArray(canonical + i)
+                    require(original.length() == alias.length()) { "Topology alias attributes differ." }
+                    for (j in 0 until original.length()) {
+                        require(original.getDouble(j).toBits() == alias.getDouble(j).toBits()) {
+                            "Topology alias attributes differ."
+                        }
+                    }
+                }
+            }
             val rows = array(mesh, "triangles")
             val count = integer(mesh, "triangleCount", 1, MAX_TRIANGLES.toLong()).toInt()
             require(rows.length() == count) { "Triangle count does not match rows." }

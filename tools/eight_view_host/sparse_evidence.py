@@ -22,7 +22,7 @@ INPUT_HASHES = dict(zip(('images/%02d.JPG'%i for i in range(1,16,2)), (
     '06074dbb72eaf56786bfcb9d69da66aa47657f076090d9e470ba2e5c19169700',
     '3366c2efb3f7b70114b94792b9c6b85141b4631111f8bb0f447d370ca0fb098f')))
 JSON_FILES = frozenset(('input-identity.json','failure.json','sparse-result.json',
-    'pair-events.json','sparse-diagnostics.json','sparse-timing.json','artifact-inventory.json',
+    'pair-events.json','cache-pair-summary.json','sparse-diagnostics.json','sparse-timing.json','artifact-inventory.json',
     'runtime-providers-after-bitmap-room.json','runtime-providers-after-room-reopen.json'))
 
 def require(ok):
@@ -167,6 +167,71 @@ def inventory(v):
         text(row['sha256'],r'[0-9a-f]{64}');integer(row['bytes'],1,128*1024**2)
         key=(row['stage'],row['sha256']);require(key not in seen);seen.add(key)
 
+def cache_summary(v):
+    fields(v,('schema','scope','snapshotRecordSha256','matchingStageSha256','cacheProofs',
+        'features','pairs','coordinatePairDomain','metadataPolicy','originalNativeCategory','replay'))
+    integer(v['schema'],1,1)
+    require(v['scope']=='FAILED_INITIALIZER_CACHE_DIAGNOSTIC')
+    require(v['coordinatePairDomain']=='OBSERVED_PIXEL_QUADRUPLE_EXACT')
+    require(v['metadataPolicy']=='CONTENT_IDENTITY_SIZE_CREATION_MODIFIED_UNIX_OWNER_MODE_CHANGE_TIME')
+    require(v['originalNativeCategory']=='NOT_RETAINED')
+    for k in ('snapshotRecordSha256','matchingStageSha256'):text(v[k],r'[0-9a-f]{64}')
+    fields(v['replay'],('status','reason'))
+    require(v['replay']=={'status':'NOT_RUN','reason':'REPLAY_UNAVAILABLE'})
+    rows(v['cacheProofs'],13,13);roles={}
+    for proof in v['cacheProofs']:
+        fields(proof,('role','index','bytes','beforeSha256','afterSha256','accessTimeChanged'))
+        require(type(proof['accessTimeChanged']) is bool)
+        require(proof['role'] in ('FEATURE','MATCHES','MATCHES_CHECKSUM','MANIFEST','INPUT_RECORD'))
+        integer(proof['index'],0,7)
+        limits={'FEATURE':12*1024**2,'MATCHES':128+28*(12+4000*64),'MATCHES_CHECKSUM':64,'MANIFEST':1024**2,'INPUT_RECORD':2*1024**2}
+        integer(proof['bytes'],64 if proof['role']=='MATCHES_CHECKSUM' else 1,limits[proof['role']])
+        for k in ('beforeSha256','afterSha256'):text(proof[k],r'[0-9a-f]{64}')
+        require(proof['beforeSha256']==proof['afterSha256'])
+        roles.setdefault(proof['role'],[]).append(proof['index'])
+    require(set(roles)=={'FEATURE','MATCHES','MATCHES_CHECKSUM','MANIFEST','INPUT_RECORD'})
+    require(roles['FEATURE']==list(range(8)))
+    for role in ('MATCHES','MATCHES_CHECKSUM','INPUT_RECORD'):require(roles[role]==[0])
+    require(roles['MANIFEST']==[0,1])
+    require(sum(p['bytes'] for p in v['cacheProofs'] if p['role']=='FEATURE')<=32*1024**2)
+    require(next(p['beforeSha256'] for p in v['cacheProofs'] if p['role']=='INPUT_RECORD')==v['snapshotRecordSha256'])
+    rows(v['features'],8,8);photo_ids=[];hashes=[]
+    for f in v['features']:
+        fields(f,('photoId','imageSha256','width','height','featureCount'))
+        text(f['photoId'],UUID);text(f['imageSha256'],r'[0-9a-f]{64}')
+        integer(f['width'],3,1600);integer(f['height'],3,1600);integer(f['featureCount'],0,4000)
+        photo_ids.append(f['photoId']);hashes.append(f['imageSha256'])
+    require(len(set(photo_ids))==8 and set(hashes)==set(INPUT_HASHES.values()))
+    rows(v['pairs'],28,28);seen=set();features={f['photoId']:f for f in v['features']}
+    for ordinal,p in enumerate(v['pairs'],1):
+        fields(p,('ordinal','firstPhotoId','secondPhotoId','firstDescriptorRows','secondDescriptorRows',
+            'reciprocalMatchCount','distinctKeyPairCount','distinctCoordinatePairCount','distinctNormalizedRayPairCount','geometryEntered'))
+        integer(p['ordinal'],ordinal,ordinal)
+        a,b=p['firstPhotoId'],p['secondPhotoId']
+        require(a in features and b in features and photo_ids.index(a)<photo_ids.index(b))
+        require((a,b) not in seen);seen.add((a,b))
+        for k in ('firstDescriptorRows','secondDescriptorRows','reciprocalMatchCount','distinctKeyPairCount','distinctCoordinatePairCount','distinctNormalizedRayPairCount'):integer(p[k],0,4000)
+        require(p['firstDescriptorRows']==features[a]['featureCount'] and p['secondDescriptorRows']==features[b]['featureCount'])
+        count=p['reciprocalMatchCount']
+        require(count<=min(p['firstDescriptorRows'],p['secondDescriptorRows']))
+        require(p['distinctKeyPairCount']==count and 0<=p['distinctCoordinatePairCount']<=count)
+        require((p['distinctCoordinatePairCount']==0)==(count==0))
+        require(0<=p['distinctNormalizedRayPairCount']<=count and (p['distinctNormalizedRayPairCount']==0)==(count==0))
+        require(type(p['geometryEntered']) is bool and p['geometryEntered']==(count>=20))
+
+
+def validate_cache_records(summary,identities,events):
+    cache_summary(summary);identity(identities);pairs(events)
+    require([(f['photoId'],f['imageSha256']) for f in summary['features']]==
+            [(f['photoId'],f['imageSha256']) for f in identities])
+    ready=[p for p in events if p['phase']=='READY']
+    require(len(ready)==28 and [p['pairNumber'] for p in ready]==list(range(1,29)))
+    for row,event in zip(summary['pairs'],ready):
+        for k in ('firstDescriptorRows','secondDescriptorRows','geometryEntered'):require(row[k]==event.get(k))
+        require(event.get('matchCacheHit') is False)
+    require(sorted(p['pairNumber'] for p in events if p['phase']=='GEOMETRY')==
+            [p['ordinal'] for p in summary['pairs'] if p['geometryEntered']])
+
 def provider(v,name):
     fields(v,('schema','phase','status','capabilitySha256','policySha256','sourceSha','sqliteVersion','activity','observedMappings','scannerElfDependencies','scannerProviders','androidRuntimeProvider'))
     integer(v['schema'],1,1);require(name=='runtime-providers-'+v['phase']+'.json')
@@ -189,7 +254,9 @@ def provider(v,name):
     require({(r['path'],r['inode']) for r in v['observedMappings']}=={(r['path'],r['inode']) for r in v['scannerProviders']}|{(p['path'],p['inode'])})
 
 def validate_path(name,raw):
-    require(name in JSON_FILES);v=parse(raw)
+    require(name in JSON_FILES)
+    if name=='cache-pair-summary.json':require(len(raw)<=32768)
+    v=parse(raw)
     try:
         if name=='sparse-result.json':result_record(v)
         elif name=='input-identity.json':identity(v)
@@ -197,6 +264,7 @@ def validate_path(name,raw):
         elif name=='sparse-timing.json':timings(v)
         elif name=='pair-events.json':pairs(v)
         elif name=='artifact-inventory.json':inventory(v)
+        elif name=='cache-pair-summary.json':cache_summary(v)
         elif name=='failure.json':
             fields(v,('schema','status','phase'));integer(v['schema'],1,1)
             require(v['status']=='FAILED_NOT_QUALITY_PASS' and v['phase']=='BEFORE_OR_AT_SPARSE')

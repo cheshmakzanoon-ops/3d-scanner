@@ -1,0 +1,45 @@
+{
+  "baseline": {
+    "canonicalVertices": 1625,
+    "renderVertices": 1702,
+    "aliases": 77,
+    "faces": 1353,
+    "acceptedUniqueSamples": 2522,
+    "attached": 1625,
+    "unattached": 897,
+    "observationsAndUnattachedExactlyEqual": true,
+    "orderedFaceAttributesAndSourceCameraExactlyEqual": true,
+    "evidenceStatisticsExactlyEqual": true,
+    "preInvalid": 77,
+    "postInvalid": 0,
+    "unsupported": 0,
+    "nativeIntersections": 600,
+    "nativeAmbiguousPairs": 3415,
+    "intersectionPairsExact": true
+  },
+  "local6": {
+    "canonicalVertices": 1666,
+    "renderVertices": 1742,
+    "aliases": 76,
+    "faces": 1401,
+    "acceptedUniqueSamples": 2538,
+    "attached": 1666,
+    "unattached": 872,
+    "observationsAndUnattachedExactlyEqual": true,
+    "orderedFaceAttributesAndSourceCameraExactlyEqual": true,
+    "evidenceStatisticsExactlyEqual": true,
+    "preInvalid": 76,
+    "postInvalid": 0,
+    "unsupported": 0,
+    "nativeIntersections": 842,
+    "nativeAmbiguousPairs": 3565,
+    "intersectionPairsExact": true
+  },
+  "inputSha256": {
+    "frozen-baseline.case": "4ac1007c4dbcb7dc247f941a7a75ac5181cf0ad24adaae9ce99c7b1301233daa",
+    "frozen-local6.case": "6ea9d78a63f41481420da3e406ff45679aa14ab29ac55ff8856ab8a3d21d0854",
+    "rgba.bin": "f6089f272961172d635ec734c95b33cfdde3145a6edc878ec93373a94803c32b",
+    "cameras.bin": "e4abe214237fdf449ccc9eef477d759f8b05549791fc0d1cb20935e4bfb459c9"
+  },
+  "scope": "FROZEN_PUBLIC_REPLAY_NOT_PRODUCTION_LEDGER_OR_PHYSICAL_QUALITY"
+}

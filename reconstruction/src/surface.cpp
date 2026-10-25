@@ -1,5 +1,6 @@
 #include "realityforge/c_abi_support.hpp"
 #include "realityforge/surface.hpp"
+#include "realityforge/surface_alias.hpp"
 #include "realityforge/surface_checkpoint.hpp"
 #include "realityforge/surface_provenance.hpp"
 #include "realityforge/cancellation.hpp"
@@ -114,7 +115,7 @@ void validateMesh(const SurfaceMesh& m,bool requireFaces=true){
                                     f.a==f.b||f.b==f.c||f.c==f.a)throw Error("Invalid surface face");
 }
 }
-SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult& dense,const SurfaceSettings& s){
+static SurfaceMesh fuseCanonicalDepthSurfaces(std::span<const DenseView> views,const DenseResult& dense,const SurfaceSettings& s){
     if(views.size()<2||views.size()>MAX_DENSE_VIEWS||dense.maps.size()!=views.size()||
        s.pixelStride<2||s.pixelStride>8||!std::isfinite(s.minimumConfidence)||
        s.minimumConfidence<0||s.minimumConfidence>1||
@@ -548,9 +549,16 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     mesh.medianConfidence=median(scores);
     return mesh;
 }
+SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult& dense,const SurfaceSettings& s){
+    // Release fusion scratch before bounded, transactional representation normalization.
+    auto mesh=fuseCanonicalDepthSurfaces(views,dense,s);
+    normalizeSurfaceAliases(mesh,s.maxVertices);
+    return mesh;
+}
 std::string surfaceJson(const SurfaceMesh& m){
     // Empty diagnostic results are valid, but NaN/Inf are not JSON numbers.
     validateMesh(m,false);
+    validateSurfaceAliases(m);
     if(m.lossDiagnostics.available&&(m.lossDiagnostics.viewCount<2||m.lossDiagnostics.viewCount>MAX_DENSE_VIEWS))
         throw Error("Invalid surface diagnostic view count");
     std::ostringstream s;s.imbue(std::locale::classic());s<<std::setprecision(10);
@@ -558,16 +566,21 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<"\"textured\":false,\"watertight\":false,\"material\":\"vertex_colors\",\"vertexCount\":"<<m.vertices.size()
      <<",\"triangleCount\":"<<m.triangles.size()<<",\"inputSamples\":"<<m.inputSamples
      <<",\"acceptedSamples\":"<<m.acceptedSamples<<",\"fusedObservations\":"<<m.fusedObservations
-     <<",\"observationLedgerVersion\":1,\"attachedObservationCount\":"<<m.observations.size()
+     <<",\"observationLedgerVersion\":2,\"attachedObservationCount\":"<<m.observations.size()
      <<",\"unattachedObservationCount\":"<<m.unattachedObservations.size()
      <<",\"exactDuplicateSupportCount\":"<<std::count_if(m.observations.begin(),m.observations.end(),[](const auto& o){return o.relation==SurfaceObservationRelation::ExactDuplicateFace;})
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":12,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":13,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])
          <<','<<v.normal.x<<','<<v.normal.y<<','<<v.normal.z<<','<<v.confidence<<','<<int(v.supportingViews)<<']';
     }
+    s<<"],\"canonicalVertexCount\":"<<m.vertices.size()-m.topologyAliasSources.size()
+     <<",\"preAliasInvalidVertexLinks\":"<<m.preAliasInvalidVertexLinks
+     <<",\"postAliasInvalidVertexLinks\":"<<m.postAliasInvalidVertexLinks
+     <<",\"unsupportedAliasStars\":"<<m.unsupportedAliasStars<<",\"topologyAliasSources\":[";
+    for(std::size_t i=0;i<m.topologyAliasSources.size();++i){if(i)s<<',';s<<m.topologyAliasSources[i];}
     s<<"],\"triangles\":[";
     for(std::size_t i=0;i<m.triangles.size();++i){if(i)s<<',';auto t=m.triangles[i];s<<'['<<t.a<<','<<t.b<<','<<t.c<<']';}
     s<<"],\"lossDiagnostics\":{\"schema\":1,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
@@ -602,7 +615,7 @@ std::string surfaceJson(const SurfaceMesh& m){
     s<<"}}";return s.str();
 }
 void writeSurfacePly(const SurfaceMesh& m,const std::string& filename){
-    validateMesh(m);StagedSurfaceFile stage(filename);std::ofstream o(stage.path);if(!o)throw Error("Cannot create surface PLY");
+    validateMesh(m);validateSurfaceAliases(m);StagedSurfaceFile stage(filename);std::ofstream o(stage.path);if(!o)throw Error("Cannot create surface PLY");
     o.imbue(std::locale::classic());o<<std::setprecision(9);
     o<<"ply\nformat ascii 1.0\ncomment RealityForge observed open surface; arbitrary scale; no UV textures\n"
      <<"element vertex "<<m.vertices.size()<<"\nproperty float x\nproperty float y\nproperty float z\n"
@@ -616,7 +629,7 @@ void writeSurfacePly(const SurfaceMesh& m,const std::string& filename){
     o.flush();if(!o)throw Error("Surface PLY write failed");o.close();if(!o)throw Error("Surface PLY close failed");stage.publish();
 }
 void writeSurfaceGlb(const SurfaceMesh& m,const std::string& filename){
-    validateMesh(m);
+    validateMesh(m);validateSurfaceAliases(m);
     const auto vertexCount=static_cast<std::uint32_t>(m.vertices.size());
     const auto indexCount=static_cast<std::uint32_t>(m.triangles.size()*3);
     const auto posBytes=vertexCount*12,normalBytes=vertexCount*12,colorBytes=vertexCount*4,indexBytes=indexCount*4;

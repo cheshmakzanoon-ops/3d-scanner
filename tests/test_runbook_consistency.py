@@ -2,10 +2,16 @@ import json
 from pathlib import Path
 import shutil
 import sys
+import os
+import subprocess
+from types import SimpleNamespace
+
+from stdlib_cli_boundary import runbook_help_cli
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+from tools.docs import check_runbook
 from tools.docs.check_runbook import check, smoke, DOCS
 
 
@@ -40,8 +46,26 @@ def test_current_runbook():
 
 
 def test_documented_command_smoke():
-    results = smoke(ROOT)
+    # Only this test's three stdlib help children use the reviewed boundary.
+    # Production smoke and the global subprocess module remain unchanged.
+    environment = dict(os.environ)
+    calls = []
+    def run_help(argv, **kwargs):
+        assert kwargs == dict(cwd=ROOT, capture_output=True, text=True, timeout=30)
+        command, child_env = runbook_help_cli(argv)
+        result = subprocess.run(command, env=child_env, **kwargs)
+        calls.append(argv)
+        assert result.returncode == 0, result.stderr
+        assert 'usage:' in result.stdout.lower()
+        assert result.stderr == ''
+        return result
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(check_runbook, 'subprocess', SimpleNamespace(run=run_help))
+        results = smoke(ROOT)
     assert all(item['status'] == 'PASS' for item in results), json.dumps(results, indent=2, sort_keys=True)
+    assert calls == [[sys.executable, str(ROOT/'tools'/name), '--help'] for name in (
+        'capture_audit.py', 'check_apk.py', 'benchmark_multiview_coverage.py')]
+    assert dict(os.environ) == environment
 
 
 def test_stale_version_rejected(tree):

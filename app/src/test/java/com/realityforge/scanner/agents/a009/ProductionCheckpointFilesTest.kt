@@ -179,9 +179,9 @@ class ProductionCheckpointFilesTest {
     @Test fun fusionVersionInvalidatesOnlySurfaceAndTextureNotDepthOrSparseParents() = runBlocking {
         for (profile in DensePreviewProfile.entries) {
             val current = productionInput(profile)
-            assertEquals("rf-observed-open-mesh-v12-topology-safe-weld-admission|quality-gated", current.settings.surface)
+            assertEquals("rf-observed-open-mesh-v13-provenance-topology-alias|quality-gated", current.settings.surface)
             val legacy = current.copy(settings = current.settings.copy(
-                surface = "rf-observed-open-mesh-v11-shared-admissible-diagonal|quality-gated"))
+                surface = "rf-observed-open-mesh-v12-topology-safe-weld-admission|quality-gated"))
             val binding = ArtifactProvenanceFixtures.binding()
             for (stage in AdapterStage.entries) {
                 if (stage.ordinal <= AdapterStage.DENSE.ordinal)
@@ -220,10 +220,10 @@ class ProductionCheckpointFilesTest {
         val plan = PipelineArtifactSession.identityPlan(current, ArtifactProvenanceFixtures.binding())
         val cache = PipelineSurfaceCache(fixture.root)
         val accepted = requireNotNull(cache.load(plan, fixture.sparse))
-        val legacy = File(accepted.depthDirectory, "surface-v3-fusion-v11.rfmesh")
+        val legacy = File(accepted.depthDirectory, "surface-v3-fusion-v12.rfmesh")
         val protectedFiles = (listOf(legacy, accepted.surfaceFile) + fixture.depthReferences.map { File(fixture.root, it) })
             .associateWith { it.readBytes() }
-        assertEquals("surface-v3-fusion-v12.rfmesh", accepted.surfaceFile.name)
+        assertEquals("surface-v4-fusion-v13.rfmesh", accepted.surfaceFile.name)
         assertNotEquals(legacy, accepted.surfaceFile)
         assertEquals(listOf("ref-0.bin", "ref-1.bin"), fixture.depthReferences.map { File(it).name })
         repeat(2) {
@@ -370,7 +370,7 @@ class ProductionCheckpointFilesTest {
             .put("densePreview", dense).put("meshPreview", mesh).put("texturePreview", texture)
         file("$key.json", preview.toString().toByteArray())
         for (extension in listOf("dense.glb", "dense.ply", "mesh.glb", "mesh.ply", "textured.glb", "texture.png")) file("$key.$extension")
-        if (includeLegacySurface) file(".depth-checkpoints-m18/$depthIdentity/surface-v3-fusion-v11.rfmesh")
+        if (includeLegacySurface) file(".depth-checkpoints-m18/$depthIdentity/surface-v3-fusion-v12.rfmesh")
         for (name in listOf("ref-0.bin", "ref-1.bin", DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME)) file(".depth-checkpoints-m18/$depthIdentity/$name")
         repeat(extraTiles) { index -> file(".depth-checkpoints-m18/$depthIdentity/tile-0-$index.bin") }
         file(".depth-checkpoints-m18/$depthIdentity/ref-0.bin.partial")

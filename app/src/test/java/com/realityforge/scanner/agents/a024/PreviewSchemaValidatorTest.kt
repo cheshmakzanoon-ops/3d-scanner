@@ -102,6 +102,62 @@ class PreviewSchemaValidatorTest {
         }
     }
 
+    @Test fun topologyAliasesKeepUniqueEvidenceAndRejectMissingMixedOrChangedAttributes() {
+        val current = texturedFixture().apply {
+            getJSONObject("meshPreview")
+                .put("observationLedgerVersion", 2).put("fusionVersion", 13)
+                .put("inputSamples", 8).put("acceptedSamples", 7)
+                .put("attachedObservationCount", 6).put("unattachedObservationCount", 1)
+                .put("exactDuplicateSupportCount", 3)
+                .put("canonicalVertexCount", 3).put("topologyAliasSources", JSONArray("[0]"))
+                .put("preAliasInvalidVertexLinks", 1).put("postAliasInvalidVertexLinks", 0)
+                .put("unsupportedAliasStars", 0).put("vertexCount", 4)
+                .put("vertices", JSONArray("[[0,0,0,255,0,0,0,0,1,0.8,2],[1,0,0,0,255,0,0,0,1,0.8,2],[0,1,0,0,0,255,0,0,1,0.8,2],[0,0,0,255,0,0,0,0,1,0.8,2]]"))
+                .put("triangles", JSONArray("[[3,1,2]]"))
+        }
+        val original = current.toString()
+        for (candidate in listOf(current, JSONObject(original))) {
+            val result = PreviewSchemaValidator.validate(candidate, 3, key)
+            assertTrue(result.toString(), result is ReopenResult.Ready)
+            assertEquals(4, (result as ReopenResult.Ready).model.meshVertices.size)
+            assertEquals(listOf(DisplayTriangle(3, 1, 2)), result.model.triangles)
+            assertEquals(7, candidate.getJSONObject("meshPreview").getInt("acceptedSamples"))
+        }
+        assertEquals(original, current.toString())
+        val mutations = listOf<(JSONObject) -> Unit>(
+            { it.remove("topologyAliasSources") }, { it.remove("canonicalVertexCount") },
+            { it.remove("preAliasInvalidVertexLinks") }, { it.remove("postAliasInvalidVertexLinks") },
+            { it.remove("unsupportedAliasStars") }, { it.put("unsupportedAliasStars", -1) },
+            { it.remove("observationLedgerVersion") }, { it.put("observationLedgerVersion", 1) },
+            { it.put("fusionVersion", 12) }, { it.put("canonicalVertexCount", 4) },
+            { it.put("canonicalVertexCount", 0) }, { it.put("topologyAliasSources", JSONArray("[3]")) },
+            { it.put("topologyAliasSources", JSONArray("[-1]")) },
+            { it.put("topologyAliasSources", JSONArray("[0.0]")) },
+            { it.put("topologyAliasSources", JSONArray("[0,0]")) },
+            { it.put("preAliasInvalidVertexLinks", 4) }, { it.put("postAliasInvalidVertexLinks", 5) },
+            { it.getJSONArray("vertices").getJSONArray(3).put(0, 0.01) },
+            { it.getJSONArray("vertices").getJSONArray(3).put(6, 0.01) },
+            { it.getJSONArray("vertices").getJSONArray(3).put(9, 0.9) },
+            { it.getJSONArray("vertices").getJSONArray(3).put(10, 3) },
+            { it.getJSONArray("vertices").put(3, JSONArray("[0,0,0,255,0,0]")) },
+            { it.put("attachedObservationCount", 7) })
+        for (mutate in mutations) {
+            val changed = JSONObject(original); mutate(changed.getJSONObject("meshPreview"))
+            assertTrue(changed.toString(), PreviewSchemaValidator.validate(changed, 3, key) is ReopenResult.Invalid)
+        }
+        val stripped = JSONObject(original).apply { getJSONObject("meshPreview").apply {
+            remove("observationLedgerVersion"); remove("attachedObservationCount")
+            remove("unattachedObservationCount"); remove("exactDuplicateSupportCount")
+            remove("topologyAliasSources"); remove("canonicalVertexCount")
+            remove("preAliasInvalidVertexLinks"); remove("postAliasInvalidVertexLinks"); remove("unsupportedAliasStars")
+        } }
+        assertTrue(PreviewSchemaValidator.validate(stripped, 3, key) is ReopenResult.Invalid)
+        val noAliases = JSONObject(original).apply { getJSONObject("meshPreview")
+            .put("canonicalVertexCount", 4).put("topologyAliasSources", JSONArray())
+            .put("preAliasInvalidVertexLinks", 0) }
+        assertTrue(PreviewSchemaValidator.validate(noAliases, 3, key) is ReopenResult.Ready)
+    }
+
     @Test fun compactNativeSchemaPreservesGeometryAndInapplicableCountersWithoutCheckpoint() {
         val json = texturedFixture()
         val encoded = json.toString()

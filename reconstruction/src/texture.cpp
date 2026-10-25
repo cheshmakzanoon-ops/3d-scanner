@@ -1,5 +1,6 @@
 #include "realityforge/c_abi_support.hpp"
 #include "realityforge/texture.hpp"
+#include "realityforge/surface_alias.hpp"
 #include "realityforge/surface_checkpoint.hpp"
 #include "realityforge/cancellation.hpp"
 #include "realityforge/texture_png.hpp"
@@ -97,11 +98,12 @@ bool sampleLinear(const TextureSource& image,const Projected& uv,std::array<doub
 ExposureBalance measuredBalance(const SurfaceMesh& mesh,std::span<const DenseView> views,
     std::span<const DenseDepthMap> maps,std::span<const TextureSource> photos,const TextureSettings& settings) {
     std::vector<ExposureSample> samples;
-    const auto stride=std::max<std::size_t>(1,(mesh.vertices.size()+1999)/2000);
+    const auto canonicalCount=mesh.vertices.size()-mesh.topologyAliasSources.size();
+    const auto stride=std::max<std::size_t>(1,(canonicalCount+1999)/2000);
     for (std::size_t a=0;a<photos.size();++a) for (std::size_t b=a+1;b<photos.size();++b) {
         std::vector<ExposureSample> pair;
         double minX=photos[a].width,maxX=0,minY=photos[a].height,maxY=0;
-        for (std::size_t i=0;i<mesh.vertices.size();i+=stride) {
+        for (std::size_t i=0;i<canonicalCount;i+=stride) {
             const auto& v=mesh.vertices[i];
             if (v.confidence<.10) continue;
             Projected pa{},pb{};
@@ -141,6 +143,7 @@ std::size_t seamCount(const SurfaceMesh& mesh,const std::vector<int>& labels) {
     return switches;
 }
 void checkMesh(const SurfaceMesh& mesh){
+    validateSurfaceAliases(mesh);
     if(mesh.triangles.empty()||mesh.vertices.empty()||mesh.vertices.size()>40000||mesh.triangles.size()>80000)
         throw Error("M09 requires a bounded nonempty observed triangle mesh");
     for(const auto& v:mesh.vertices)if(!finite(v.xyz)||!finite(v.normal))throw Error("Invalid texture geometry");

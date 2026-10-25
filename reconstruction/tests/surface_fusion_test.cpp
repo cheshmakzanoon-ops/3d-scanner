@@ -103,7 +103,7 @@ int main(){
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::infinity()},{0,0,1}),"infinite normal accepted");
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::quiet_NaN()},{0,0,1}),"NaN normal accepted");
     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
-    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":12")!=std::string::npos,"local footprint algorithm version missing");
+    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":13")!=std::string::npos,"local footprint algorithm version missing");
     diagnostics(mesh);
     check(mesh.lossDiagnostics.views[0].missingDepthNeighborhoods>0&&mesh.lossDiagnostics.views[0].normalValidity[0]>0,"fixture does not distinguish missing neighborhoods from supported normals");
     auto zeroConfidence=dense;for(auto& map:zeroConfidence.maps)for(auto& c:map.confidence)if(c>0)c=0;

@@ -22,6 +22,13 @@ int main(){
  auto large=m;large.triangles.assign(50000,{0,1,2,0});auto lp=rf::planMeshCleanup(large);assert(lp.removedFaces.size()==49999&&lp.sourceFaceForResult.size()==1);
  auto copy=rf::applyMeshCleanup(large,lp);assert(copy.mesh.triangles.size()==1&&large.triangles.size()==50000);
 
+ // A public copy/deletion helper must not silently invalidate topology aliases.
+ auto aliased=m;aliased.vertices.push_back(m.vertices[0]);aliased.topologyAliasSources={0};
+ aliased.triangles={{0,1,2,0},{7,4,5,0}}; // second component has exact zero area
+ const auto retained=aliased.triangles;
+ rejected=false;try{rf::planMeshCleanup(aliased);}catch(const rf::Error&){rejected=true;}assert(rejected);
+ rejected=false;try{rf::applyMeshCleanup(aliased,rf::CleanupPlan{});}catch(const rf::Error&){rejected=true;}assert(rejected);
+ assert(aliased.triangles.size()==retained.size()&&aliased.triangles[1].a==7&&aliased.topologyAliasSources==std::vector<std::uint32_t>{0});
  auto twoSided=m;twoSided.triangles={{0,1,2,0},{2,1,0,1}};assert(rf::planMeshCleanup(twoSided).removedFaces.empty());
  auto duplicateCoordinates=m;duplicateCoordinates.vertices.push_back(m.vertices[0]);duplicateCoordinates.vertices.push_back(m.vertices[1]);duplicateCoordinates.vertices.push_back(m.vertices[2]);duplicateCoordinates.triangles={{0,1,2,0},{7,8,9,1}};
  assert((rf::planMeshCleanup(duplicateCoordinates).removedFaces==std::vector<std::size_t>{1}));

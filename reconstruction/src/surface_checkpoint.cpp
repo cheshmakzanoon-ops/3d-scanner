@@ -1,4 +1,5 @@
 #include "realityforge/surface_checkpoint.hpp"
+#include "realityforge/surface_alias.hpp"
 #include "realityforge/depth_checkpoint.hpp"
 #include "realityforge/cancellation.hpp"
 #include <algorithm>
@@ -20,7 +21,7 @@
 
 namespace rf::surface_checkpoint {
 namespace {
-constexpr std::array<std::uint8_t,8> MAGIC{'R','F','M','S','H','0','0','3'};
+constexpr std::array<std::uint8_t,8> MAGIC{'R','F','M','S','H','0','0','4'};
 constexpr std::size_t BLOCK=64*1024;
 constexpr std::size_t MAX_POINTS=50000,MAX_VERTICES=40000,MAX_TRIANGLES=80000;
 constexpr std::size_t POINT_BYTES=32,SAMPLE_BYTES=66,VERTEX_BYTES=56,TRIANGLE_BYTES=13;
@@ -30,12 +31,13 @@ constexpr std::size_t MIN_BYTES=316+32;
 constexpr std::size_t MAX_GEOMETRY_BYTES=10*1024*1024;
 constexpr std::size_t OBSERVATION_BYTES=18,UNATTACHED_BYTES=14;
 bool withinMemoryBudget(std::size_t points,std::size_t samples,std::size_t vertices,
-                        std::size_t triangles,std::size_t observations,std::size_t unattached=0){
+                        std::size_t triangles,std::size_t observations,std::size_t unattached=0,std::size_t aliases=0){
     if(points>MAX_POINTS||samples>MAX_DENSE_SAMPLES||vertices>MAX_VERTICES||
-       triangles>MAX_TRIANGLES||observations>MAX_DENSE_SAMPLES||unattached>MAX_DENSE_SAMPLES-observations)return false;
+       triangles>MAX_TRIANGLES||observations>MAX_DENSE_SAMPLES||unattached>MAX_DENSE_SAMPLES-observations||aliases>vertices)return false;
     return points*sizeof(DensePoint)+samples*sizeof(VerifiedDepthSample)+
         vertices*sizeof(SurfaceVertex)+triangles*sizeof(SurfaceTriangle)+
-        observations*sizeof(SurfaceObservationRef)+unattached*sizeof(SurfaceUnattachedObservation)<MAX_GEOMETRY_BYTES;
+        observations*sizeof(SurfaceObservationRef)+unattached*sizeof(SurfaceUnattachedObservation)+aliases*sizeof(std::uint32_t)+
+        (6*vertices+12*triangles+8192)<MAX_GEOMETRY_BYTES;
 }
 std::atomic<std::uint64_t> nextTemporary{1};
 
@@ -128,8 +130,9 @@ void validSettings(const SurfaceSettings& settings) {
 void validGeometry(std::span<const DenseView> views,const DenseResult& dense,const SurfaceMesh& mesh,
     const SurfaceSettings& settings) {
     validSettings(settings);
+    validateSurfaceAliasDiagnostics(mesh);
     if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),
-                           mesh.triangles.size(),mesh.observations.size(),mesh.unattachedObservations.size()))throw Error("Accepted geometry exceeds cache memory budget");
+                           mesh.triangles.size(),mesh.observations.size(),mesh.unattachedObservations.size(),mesh.topologyAliasSources.size()))throw Error("Accepted geometry exceeds cache memory budget");
     if(views.size()<2||views.size()>MAX_DENSE_VIEWS||dense.points.empty()||dense.points.size()>MAX_POINTS||
         dense.verifiedSamples.empty()||dense.verifiedSamples.size()>MAX_DENSE_SAMPLES||
         mesh.vertices.empty()||mesh.vertices.size()>settings.maxVertices||mesh.triangles.size()<8||
@@ -268,9 +271,13 @@ std::vector<std::uint8_t> encode(const depth_checkpoint::Scope& scope,std::span<
     const DenseResult& dense,const SurfaceMesh& mesh,const SurfaceSettings& settings) {
     validGeometry(views,dense,mesh,settings);
     Writer out;
-    out.bytes.reserve(512+views.size()*24+mesh.vertices.size()*VERTEX_BYTES+mesh.triangles.size()*TRIANGLE_BYTES+
-        dense.points.size()*POINT_BYTES+dense.verifiedSamples.size()*SAMPLE_BYTES);
-    out.data(MAGIC);out.integer(std::uint32_t{3});out.integer(std::uint32_t{0});
+    const auto reserveBytes=1024+views.size()*24+mesh.vertices.size()*VERTEX_BYTES+mesh.triangles.size()*TRIANGLE_BYTES+
+        dense.points.size()*POINT_BYTES+dense.verifiedSamples.size()*SAMPLE_BYTES+
+        mesh.observations.size()*OBSERVATION_BYTES+mesh.unattachedObservations.size()*UNATTACHED_BYTES+
+        mesh.topologyAliasSources.size()*sizeof(std::uint32_t);
+    if(reserveBytes>MAX_FILE_BYTES)throw Error("Accepted geometry exceeds serialized byte budget");
+    out.bytes.reserve(reserveBytes);
+    out.data(MAGIC);out.integer(std::uint32_t{4});out.integer(std::uint32_t{0});
     out.integer(static_cast<std::uint32_t>(views.front().width));out.integer(static_cast<std::uint32_t>(views.front().height));
     out.integer(static_cast<std::uint32_t>(views.size()));out.integer(static_cast<std::uint32_t>(mesh.vertices.size()));
     out.integer(static_cast<std::uint32_t>(mesh.triangles.size()));out.integer(static_cast<std::uint32_t>(dense.points.size()));
@@ -300,6 +307,11 @@ std::vector<std::uint8_t> encode(const depth_checkpoint::Scope& scope,std::span<
     for(const auto& observation:mesh.observations){step();out.integer(observation.vertex);out.integer(observation.camera);out.integer(observation.x);out.integer(observation.y);out.integer(static_cast<std::uint64_t>(observation.sourceSampleId));out.integer(static_cast<std::uint8_t>(observation.relation));}
     out.integer(static_cast<std::uint32_t>(mesh.unattachedObservations.size()));
     for(const auto& observation:mesh.unattachedObservations){step();out.integer(observation.camera);out.integer(observation.x);out.integer(observation.y);out.integer(static_cast<std::uint64_t>(observation.sourceSampleId));out.integer(static_cast<std::uint8_t>(observation.reason));}
+    out.integer(static_cast<std::uint32_t>(mesh.topologyAliasSources.size()));
+    for(const auto source:mesh.topologyAliasSources){step();out.integer(source);}
+    out.integer(static_cast<std::uint64_t>(mesh.preAliasInvalidVertexLinks));
+    out.integer(static_cast<std::uint64_t>(mesh.postAliasInvalidVertexLinks));
+    out.integer(static_cast<std::uint64_t>(mesh.unsupportedAliasStars));
     for(const auto count:{mesh.topology.boundaryEdges,mesh.topology.components,mesh.topology.nonmanifoldEdges,
                          mesh.topology.intersections,mesh.topology.ambiguousPairs,mesh.topology.removedExactDefects})out.integer(static_cast<std::uint64_t>(count));
     out.integer(static_cast<std::uint8_t>(mesh.topology.intersectionBudgetExceeded));
@@ -376,7 +388,7 @@ checkpoint::Digest geometryIdentity(std::span<const DenseView> views) {
 checkpoint::Digest algorithmIdentity(const SurfaceSettings& settings) {
     validSettings(settings);
     // Observation relationships must be recomputed, without changing depth identities.
-    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v12-checkpoint-v3-provenance-v1-topology-v2");
+    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v13-checkpoint-v4-provenance-v2-topology-v3");
     hashInteger(digest,std::bit_cast<std::uint32_t>(settings.minimumConfidence));
     hashReal(digest,settings.maximumRelativeDepthJump);hashReal(digest,settings.maximumEdgePixelFactor);
     hashInteger(digest,static_cast<std::uint32_t>(settings.maxVertices));hashInteger(digest,static_cast<std::uint32_t>(settings.maxTriangles));
@@ -422,7 +434,7 @@ bool store(std::span<const DenseView> views,const DenseResult& dense,const Surfa
     cancellation::checkpoint();
     if(dense.resumedDepthMaps+dense.writtenDepthMaps!=views.size())return reject(diagnostic,StoreStage::DepthMaps);
     auto dir=directory(*scope,diagnostic);if(!dir)return false;
-    if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),mesh.triangles.size(),mesh.observations.size(),mesh.unattachedObservations.size()))return reject(diagnostic,StoreStage::MemoryBudget);
+    if(!withinMemoryBudget(dense.points.size(),dense.verifiedSamples.size(),mesh.vertices.size(),mesh.triangles.size(),mesh.observations.size(),mesh.unattachedObservations.size(),mesh.topologyAliasSources.size()))return reject(diagnostic,StoreStage::MemoryBudget);
     const auto bytes=encode(*scope,views,dense,mesh,settings);
     struct stat existing{};
     if(::fstatat(dir.get(),FILENAME,&existing,AT_SYMLINK_NOFOLLOW)==0)
@@ -486,7 +498,7 @@ bool load(const std::string& checkpointPath,std::span<const DenseView> views,Acc
             const auto actual=checksum.finish();
             if(!std::equal(actual.begin(),actual.end(),bytes.end()-32))return false;
             Reader in{std::span(bytes.data(),bytes.size()-32)};
-            if(!std::equal(MAGIC.begin(),MAGIC.end(),in.data(8).begin())||in.integer<std::uint32_t>()!=3||in.integer<std::uint32_t>()!=bytes.size())return false;
+            if(!std::equal(MAGIC.begin(),MAGIC.end(),in.data(8).begin())||in.integer<std::uint32_t>()!=4||in.integer<std::uint32_t>()!=bytes.size())return false;
             const auto width=in.integer<std::uint32_t>(),height=in.integer<std::uint32_t>(),cameras=in.integer<std::uint32_t>();
             const auto vertices=in.integer<std::uint32_t>(),triangles=in.integer<std::uint32_t>();
             const auto points=in.integer<std::uint32_t>(),samples=in.integer<std::uint32_t>();
@@ -554,6 +566,18 @@ bool load(const std::string& checkpointPath,std::span<const DenseView> views,Acc
                 observation.reason=static_cast<SurfaceUnattachedReason>(in.integer<std::uint8_t>());
                 mesh.unattachedObservations.push_back(observation);
             }
+            const auto aliases=in.integer<std::uint32_t>();
+            if(aliases>vertices||!withinMemoryBudget(points,samples,vertices,triangles,observationCount,unattachedCount,aliases)||
+               static_cast<std::size_t>(aliases)*sizeof(std::uint32_t)+24>in.bytes.size()-in.offset)return false;
+            mesh.topologyAliasSources.reserve(aliases);
+            for(std::size_t i=0;i<aliases;++i){
+                if((i&1023)==0)cancellation::checkpoint();
+                mesh.topologyAliasSources.push_back(in.integer<std::uint32_t>());
+            }
+            mesh.preAliasInvalidVertexLinks=in.integer<std::uint64_t>();
+            mesh.postAliasInvalidVertexLinks=in.integer<std::uint64_t>();
+            mesh.unsupportedAliasStars=in.integer<std::uint64_t>();
+            validateSurfaceAliasDiagnostics(mesh);
             mesh.topology.boundaryEdges=in.integer<std::uint64_t>();
             mesh.topology.components=in.integer<std::uint64_t>();
             mesh.topology.nonmanifoldEdges=in.integer<std::uint64_t>();

@@ -1,4 +1,5 @@
 #include "surface_checkpoint_fixture.hpp"
+#include "realityforge/surface_alias.hpp"
 
 // Checkpoint wire excludes originating diagnostic counters, never geometry.
 std::string surfaceGeometryJson(rf::SurfaceMesh mesh){mesh.lossDiagnostics={};return rf::surfaceJson(mesh);}
@@ -66,6 +67,11 @@ int main() {
         require(recovered.settings.maxVoxelOccupancy==meshSettings.maxVoxelOccupancy&&
                 recovered.settings.maxFusionCandidates==meshSettings.maxFusionCandidates,"fusion settings lost in checkpoint");
         require(recovered.mesh.observations.size()==mesh.observations.size(),"surface observation provenance lost");
+        require(recovered.mesh.topologyAliasSources==mesh.topologyAliasSources&&
+                recovered.mesh.preAliasInvalidVertexLinks==mesh.preAliasInvalidVertexLinks&&
+                recovered.mesh.postAliasInvalidVertexLinks==mesh.postAliasInvalidVertexLinks&&
+                recovered.mesh.unsupportedAliasStars==mesh.unsupportedAliasStars,
+                "topology aliases or source/link diagnostics lost");
         require(recovered.mesh.topology.components==mesh.topology.components&&
                 recovered.mesh.topology.ambiguousPairs==mesh.topology.ambiguousPairs&&
                 recovered.mesh.topology.removedExactDefects==mesh.topology.removedExactDefects,
@@ -99,6 +105,120 @@ int main() {
         require(std::filesystem::file_size(checkpoint)<rf::surface_checkpoint::MAX_FILE_BYTES,"checkpoint exceeded byte bound");
     });
     const auto acceptedBytes=read(checkpoint);
+    test("explicit topology aliases round-trip without duplicating accepted observations",[&] {
+        Temp aliased;
+        rf::depth_checkpoint::Scope scope(aliased.directory.string(),HASH);
+        for(std::size_t i=0;i<dense.maps.size();++i)
+            write(aliased.directory/("ref-"+std::to_string(i)+".bin"),read(temporary.directory/("ref-"+std::to_string(i)+".bin")));
+        auto representation=mesh;
+        const auto previousCanonical=representation.vertices.size()-representation.topologyAliasSources.size();
+        // Explicit synthetic isolated bowtie: five new canonical fixture vertices
+        // and two fixture faces avoid touching any unsupported original star.
+        // Production normalization never adds these observations or faces.
+        std::array<rf::SurfaceVertex,5> synthetic;
+        for(auto& v:synthetic)v=representation.vertices.front();
+        const auto base=synthetic.front().xyz;
+        synthetic[1].xyz.x=base.x+1;synthetic[2].xyz.y=base.y+1;
+        synthetic[3].xyz.x=base.x-1;synthetic[4].xyz.y=base.y-1;
+        representation.vertices.insert(representation.vertices.begin()+static_cast<std::ptrdiff_t>(previousCanonical),synthetic.begin(),synthetic.end());
+        for(auto& t:representation.triangles)for(auto* id:std::array<std::uint32_t*,3>{&t.a,&t.b,&t.c})
+            if(*id>=previousCanonical)*id+=5;
+        const auto canonical=previousCanonical+5;
+        const auto original=static_cast<std::uint32_t>(previousCanonical);
+        const auto duplicate=static_cast<std::uint32_t>(representation.vertices.size());
+        representation.vertices.push_back(representation.vertices[original]);
+        representation.topologyAliasSources.push_back(original);
+        representation.triangles.push_back({original,original+1,original+2,0});
+        representation.triangles.push_back({duplicate,original+3,original+4,0});
+        representation.preAliasInvalidVertexLinks=representation.postAliasInvalidVertexLinks=representation.unsupportedAliasStars=0;
+        {
+            const rf::surface_alias_detail::Links sourceLinks(representation,true),resultLinks(representation,false);
+            for(std::size_t i=0;i<canonical;++i){
+                const auto star=rf::surface_alias_detail::star(representation,sourceLinks,i,true);
+                representation.preAliasInvalidVertexLinks+=star.unsupported||star.components>1;
+                representation.unsupportedAliasStars+=star.unsupported;
+            }
+            for(std::size_t i=0;i<representation.vertices.size();++i){
+                const auto star=rf::surface_alias_detail::star(representation,resultLinks,i,false);
+                representation.postAliasInvalidVertexLinks+=star.unsupported||star.components>1;
+            }
+        }
+        const auto path=aliased.directory/rf::surface_checkpoint::FILENAME;
+        require(rf::surface_checkpoint::store(views,dense,representation,meshSettings),"explicit alias was not serializable");
+        const auto bytes=read(path);
+        rf::surface_checkpoint::AcceptedSurface recovered;
+        require(rf::surface_checkpoint::load(path.string(),views,recovered),"explicit alias did not reopen");
+        require(surfaceGeometryJson(representation)==rf::surfaceJson(recovered.mesh),"alias representation changed during roundtrip");
+        require(recovered.mesh.topologyAliasSources==representation.topologyAliasSources&&
+                recovered.mesh.observations.size()==mesh.observations.size()&&recovered.mesh.acceptedSamples==mesh.acceptedSamples&&
+                recovered.mesh.medianConfidence==mesh.medianConfidence,"alias duplicated measurement evidence or changed confidence");
+        std::size_t vertexOffset=316;
+        for(std::size_t i=0;i<views.size();++i)vertexOffset+=4+u32(bytes,vertexOffset)*4+8;
+        vertexOffset+=static_cast<std::size_t>(u32(bytes,36))*32+static_cast<std::size_t>(u32(bytes,40))*66;
+        const auto faceEnd=vertexOffset+static_cast<std::size_t>(u32(bytes,28))*56+static_cast<std::size_t>(u32(bytes,32))*13;
+        const auto unattached=faceEnd+4+static_cast<std::size_t>(u32(bytes,faceEnd))*18;
+        const auto aliases=unattached+4+static_cast<std::size_t>(u32(bytes,unattached))*14;
+        require(u32(bytes,aliases)==representation.topologyAliasSources.size(),"alias wire position mismatch");
+        const auto rejects=[&](std::vector<std::uint8_t> bad){
+            checksum(bad);write(path,bad);
+            const auto retained=rf::surfaceJson(recovered.mesh);
+            require(!rf::surface_checkpoint::load(path.string(),views,recovered),"checksummed malformed alias loaded");
+            require(rf::surfaceJson(recovered.mesh)==retained,"failed alias load partially published");
+        };
+        auto bad=bytes;u32(bad,aliases,std::numeric_limits<std::uint32_t>::max());rejects(bad);
+        bad=bytes;u32(bad,aliases+4+4*(representation.topologyAliasSources.size()-1),duplicate);rejects(bad); // self-cycle
+        bad=bytes;bad[vertexOffset+static_cast<std::size_t>(duplicate)*56]^=1;rejects(bad); // position bit drift
+        bad=bytes;u32(bad,aliases+4+4*representation.topologyAliasSources.size(),40001);rejects(bad); // forged pre-split diagnostic
+        bad=bytes;u32(bad,faceEnd+4,duplicate);rejects(bad); // observation attached to alias rather than evidence vertex
+        write(path,bytes);
+        require(rf::surface_checkpoint::load(path.string(),views,recovered),"valid alias restoration failed");
+    });
+    test("no-alias checkpoints reject forged in-range topology diagnostics",[&] {
+        Temp plain;
+        rf::depth_checkpoint::Scope scope(plain.directory.string(),HASH);
+        for(std::size_t i=0;i<dense.maps.size();++i)
+            write(plain.directory/("ref-"+std::to_string(i)+".bin"),read(temporary.directory/("ref-"+std::to_string(i)+".bin")));
+        auto original=mesh;
+        const auto count=original.vertices.size()-original.topologyAliasSources.size();
+        for(auto& t:original.triangles)for(auto* corner:std::array<std::uint32_t*,3>{&t.a,&t.b,&t.c})
+            if(*corner>=count)*corner=original.topologyAliasSources[*corner-count];
+        original.vertices.resize(count);original.topologyAliasSources.clear();
+        original.preAliasInvalidVertexLinks=original.postAliasInvalidVertexLinks=original.unsupportedAliasStars=0;
+        {
+            const rf::surface_alias_detail::Links links(original,false);
+            for(std::size_t i=0;i<count;++i){const auto star=rf::surface_alias_detail::star(original,links,i,false);
+                original.preAliasInvalidVertexLinks+=star.unsupported||star.components>1;
+                original.unsupportedAliasStars+=star.unsupported;
+            }
+            original.postAliasInvalidVertexLinks=original.preAliasInvalidVertexLinks;
+        }
+        const auto path=plain.directory/rf::surface_checkpoint::FILENAME;
+        require(rf::surface_checkpoint::store(views,dense,original,meshSettings),"valid no-alias diagnostic fixture rejected");
+        const auto bytes=read(path);
+        rf::surface_checkpoint::AcceptedSurface recovered;
+        require(rf::surface_checkpoint::load(path.string(),views,recovered),"valid no-alias diagnostic fixture did not reopen");
+        for(int field=0;field<3;++field){
+            auto bad=original;
+            const std::array<std::size_t*,3> fields{&bad.preAliasInvalidVertexLinks,&bad.postAliasInvalidVertexLinks,&bad.unsupportedAliasStars};
+            *fields[field]=(*fields[field]+1)%(count+1);
+            bool rejected=false;try{rejected=!rf::surface_checkpoint::store(views,dense,bad,meshSettings);}catch(const rf::Error&){rejected=true;}
+            require(rejected&&read(path)==bytes,"forged no-alias diagnostics were accepted or changed immutable bytes");
+        }
+        std::size_t faceEnd=316;
+        for(std::size_t i=0;i<views.size();++i)faceEnd+=4+u32(bytes,faceEnd)*4+8;
+        faceEnd+=static_cast<std::size_t>(u32(bytes,36))*32+static_cast<std::size_t>(u32(bytes,40))*66+
+                 static_cast<std::size_t>(u32(bytes,28))*56+static_cast<std::size_t>(u32(bytes,32))*13;
+        const auto unattached=faceEnd+4+static_cast<std::size_t>(u32(bytes,faceEnd))*18;
+        const auto aliases=unattached+4+static_cast<std::size_t>(u32(bytes,unattached))*14;
+        require(u32(bytes,aliases)==0,"no-alias fixture unexpectedly serialized aliases");
+        for(std::size_t field=0;field<3;++field){
+            auto bad=bytes;const auto offset=aliases+4+8*field;
+            u32(bad,offset,(u32(bytes,offset)+1)%static_cast<std::uint32_t>(count+1));checksum(bad);write(path,bad);
+            require(!rf::surface_checkpoint::load(path.string(),views,recovered),"checksummed no-alias diagnostic forgery loaded");
+            require(surfaceGeometryJson(original)==rf::surfaceJson(recovered.mesh),"rejected diagnostic forgery changed caller output");
+        }
+        write(path,bytes);
+    });
     test("accepted surface cannot bypass older solver reference invalidation",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
         rf::surface_checkpoint::AcceptedSurface recovered;
@@ -144,7 +264,7 @@ int main() {
     test("historical topology and fusion identities fail closed even under the current filename",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);
         rf::surface_checkpoint::AcceptedSurface recovered;
-        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v11-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v10-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v9-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2",
+        for(const auto* domain:{"realityforge-observed-open-surface-fusion-v12-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v11-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v10-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v9-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v8-checkpoint-v3-provenance-v1-topology-v2","realityforge-observed-open-surface-fusion-v7-checkpoint-v2-topology-v2",
                                "realityforge-observed-open-surface-fusion-v6-checkpoint-v2",
                                "realityforge-observed-open-surface-fusion-v6-checkpoint-v2-topology-v2"}) {
             const auto oldBytes=historicalBytes(domain);write(checkpoint,oldBytes);
@@ -169,8 +289,8 @@ int main() {
             referenceBytes.push_back(read(temporary.directory/name));
             write(migration.directory/name,referenceBytes.back());
         }
-        const auto oldPath=migration.directory/"surface-v3-fusion-v11.rfmesh";
-        const auto oldBytes=historicalBytes("realityforge-observed-open-surface-fusion-v11-checkpoint-v3-provenance-v1-topology-v2");
+        const auto oldPath=migration.directory/"surface-v3-fusion-v12.rfmesh";
+        const auto oldBytes=historicalBytes("realityforge-observed-open-surface-fusion-v12-checkpoint-v3-provenance-v1-topology-v2");
         write(oldPath,oldBytes);
         const auto next=migration.directory/rf::surface_checkpoint::FILENAME;
         require(next!=oldPath&&!std::filesystem::exists(next),"fusion migration did not get a fresh namespace");
@@ -183,10 +303,10 @@ int main() {
         require(rf::surface_checkpoint::store(views,dense,mesh,meshSettings,&created)&&created,
                 "legacy immutable surface blocked new checkpoint publication");
         const auto newBytes=read(next);
-        require(newBytes==acceptedBytes&&u32(newBytes,8)==3,
-                "provenance migration omitted v3 serialization");
+        require(newBytes==acceptedBytes&&u32(newBytes,8)==4,
+                "provenance migration omitted v4 serialization");
         require(rf::surface_checkpoint::load(next.string(),views,recovered),"new fusion checkpoint was not reusable");
-        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":12")!=std::string::npos,
+        require(rf::surfaceJson(recovered.mesh).find("\"fusionVersion\":13")!=std::string::npos,
                 "reopened checkpoint reports a stale fusion version");
         created=true;
         require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&created)&&!created,
@@ -217,6 +337,9 @@ int main() {
         bad=mesh;bad.unattachedObservations.push_back({bad.observations[0].camera,bad.observations[0].x,bad.observations[0].y,bad.observations[0].sourceSampleId,rf::SurfaceUnattachedReason::NoRetainedFace});
         ++bad.acceptedSamples;rejectsMesh(bad);
         bad=mesh;bad.observations.pop_back();rejectsMesh(bad);
+        bad=mesh;bad.topologyAliasSources.push_back(static_cast<std::uint32_t>(bad.vertices.size()));rejectsMesh(bad);
+        bad=mesh;bad.vertices.push_back(bad.vertices[0]);bad.topologyAliasSources.push_back(0);bad.vertices.back().color[0]^=1;rejectsMesh(bad);
+
     });
     test("texture-only C ABI changes atlas while accepted mesh and depth hashes stay equal",[&] {
         std::vector<std::vector<std::uint8_t>> originalDepth;
@@ -297,6 +420,8 @@ int main() {
             bad.begin()+static_cast<std::ptrdiff_t>(firstObservation+18));checksum(bad);rejects(bad);
         const std::size_t unattachedOffset=firstObservation+static_cast<std::size_t>(observationCount)*18;
         bad=acceptedBytes;u32(bad,unattachedOffset,std::numeric_limits<std::uint32_t>::max());checksum(bad);rejects(bad);
+        bad=acceptedBytes;bad[7]='3';checksum(bad);rejects(bad);
+        bad=acceptedBytes;u32(bad,8,3);checksum(bad);rejects(bad);
         bad=acceptedBytes;u32(bad,8,2);checksum(bad);rejects(bad);
         bad=acceptedBytes;u32(bad,8,1);checksum(bad);rejects(bad);
         bad=acceptedBytes;std::size_t vertexOffset=316;

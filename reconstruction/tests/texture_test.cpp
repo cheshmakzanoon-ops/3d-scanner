@@ -1,4 +1,5 @@
 #include "realityforge/texture.hpp"
+#include "realityforge/surface_alias.hpp"
 #include "realityforge/cancellation.hpp"
 #include <filesystem>
 #if defined(__unix__) || defined(__ANDROID__)
@@ -188,6 +189,55 @@ int main(){
         check(baked.exposure.acceptedSamples==0&&baked.exposure.supportedPairs==0,
               "nearby background depth incorrectly authorized an occluded radiometric sample");
         check(baked.exposure.gains[1]==std::array<double,3>{1,1,1},"unsupported camera changed radiometry");
+    });
+    test("topology aliases do not reweight exposure or change its sampling stride",[&]{
+        // Synthetic two-face bowtie plus unused canonical evidence points. Exactly
+        // 2000 -> 2001 render vertices crosses the old radiometry stride boundary.
+        std::vector<rf::DenseView> views(2);std::vector<rf::DenseDepthMap> maps(2);
+        for(std::size_t camera=0;camera<2;++camera){
+            auto& view=views[camera];view.width=32;view.height=32;view.fx=24;view.fy=24;view.cx=15.5;view.cy=15.5;
+            view.pose={rf::identity(),{0,0,0}};view.rgba.resize(32*32*4);
+            for(std::size_t pixel=0;pixel<32*32;++pixel){
+                for(std::size_t channel=0;channel<3;++channel)view.rgba[pixel*4+channel]=camera?160:190;
+                view.rgba[pixel*4+3]=255;
+            }
+            auto& map=maps[camera];map.width=32;map.height=32;map.depth.assign(32*32,5);map.confidence.assign(32*32,1);
+        }
+        rf::SurfaceMesh original;
+        for(std::size_t i=0;i<2000;++i){
+            rf::SurfaceVertex v;v.xyz={(4.+23.*(i%40)/39.-15.5)*5/24.,(4.+23.*(i/40)/49.-15.5)*5/24.,5};
+            v.normal={0,0,-1};v.confidence=.9;v.supportingViews=1;original.vertices.push_back(v);
+        }
+        original.vertices[0].xyz={0,0,5};original.vertices[1].xyz={.5,0,5};original.vertices[2].xyz={0,.5,5};
+        original.vertices[3].xyz={-.5,0,5};original.vertices[4].xyz={0,-.5,5};
+        original.triangles={{0,2,1,0},{0,4,3,0}};
+        // Six separate supported faces satisfy the legacy baker's eight-face
+        // admission without introducing additional disconnected vertex stars.
+        for(std::uint32_t face=0;face<6;++face){
+            const auto a=5+3*face;const double x=-1.+.5*(face%3),y=.8+.4*(face/3);
+            original.vertices[a].xyz={x,y,5};original.vertices[a+1].xyz={x+.2,y,5};original.vertices[a+2].xyz={x,y+.2,5};
+            original.triangles.push_back({a,a+2,a+1,0});
+        }
+        auto split=original;rf::normalizeSurfaceAliases(split);
+        check(split.vertices.size()==2001&&split.topologyAliasSources==std::vector<std::uint32_t>{0},"synthetic bowtie did not cross stride boundary");
+        auto photos=sources(views,1);
+        for(bool compact:{false,true}){
+            rf::TextureSettings settings;settings.compactCharts=compact;settings.chartTexelsPerUnit=32;
+            const auto before=rf::bakePhotographicAtlas(original,views,maps,photos,settings);
+            const auto after=rf::bakePhotographicAtlas(split,views,maps,photos,settings);
+            check(before.exposure.acceptedSamples>1000,"radiometry control lacks accepted evidence");
+            check(before.exposure.acceptedSamples==after.exposure.acceptedSamples&&before.exposure.heldOutSamples==after.exposure.heldOutSamples&&
+                  before.exposure.rejectedSamples==after.exposure.rejectedSamples&&before.exposure.supportedPairs==after.exposure.supportedPairs,
+                  "representation aliases changed radiometric evidence counts");
+            check(before.exposure.gains==after.exposure.gains&&before.exposure.cameraConfidence==after.exposure.cameraConfidence&&
+                  before.exposure.cameraSupported==after.exposure.cameraSupported&&before.exposure.correctionAccepted==after.exposure.correctionAccepted,
+                  "representation aliases changed exposure fit");
+            check(before.exposure.medianLogErrorBefore==after.exposure.medianLogErrorBefore&&before.exposure.medianLogErrorAfter==after.exposure.medianLogErrorAfter&&
+                  before.exposure.heldOutLogErrorBefore==after.exposure.heldOutLogErrorBefore&&before.exposure.heldOutLogErrorAfter==after.exposure.heldOutLogErrorAfter,
+                  "representation aliases changed exposure residuals");
+            check(before.atlasRgba==after.atlasRgba&&before.atlasWidth==after.atlasWidth&&before.atlasHeight==after.atlasHeight,
+                  "representation aliases changed photographic atlas pixels");
+        }
     });
     std::cout<<done<<" texture cases passed\n";
 }

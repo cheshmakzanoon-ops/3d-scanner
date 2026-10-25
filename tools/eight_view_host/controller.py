@@ -13,7 +13,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='4eaa368e05ae033edda215ee784540e097a268903121296efb529c68bff15e14'
+ADAPTER_MANIFEST='e7d706f0e692a15fae197b6b2330536fb49bf8b4a13bc95c9ae87952ea3c26e6'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -1121,6 +1121,12 @@ def validate_real_sparse_package(run):
     if result is not None or diagnostic is not None:
         if result is None or diagnostic is None or identity is None:raise Failure('Incomplete retained sparse record binding')
         sparse_evidence.validate_records(result,diagnostic,identity)
+    summary=records.get('cache-pair-summary.json')
+    if summary is not None:
+        if (identity is None or 'pair-events.json' not in records or 'failure.json' not in records or
+            any(name in records for name in ('sparse-result.json','sparse-diagnostics.json','artifact-inventory.json'))):
+            raise Failure('Missing or inconsistent failed cache diagnostic context')
+        sparse_evidence.validate_cache_records(summary,identity,records['pair-events.json'])
 
 def evidence_package(run,receipt,destination):
     destination=Path(destination)
@@ -1135,6 +1141,8 @@ def evidence_package(run,receipt,destination):
         pnp_replay.validate(bounded_bytes(replay,65536,run),experiments.ACTIVE)
         if receipt.get('status')!='FAIL' or (run.work/'measurement/complete-result.json').exists():
             raise Failure('PnP replay requires failed receipt and no complete result')
+    if (run.work/'measurement/cache-pair-summary.json').exists() and (experiments.ACTIVE!=experiments.REAL_EIGHT_ORBIT or receipt.get('status')!='FAIL'):
+        raise Failure('Cache summary requires failed eight-orbit receipt')
     selected_limit=experiments.artifact_budget(experiments.ACTIVE)-1024**2
     phase_budget(run);destination.mkdir();selected=[];selected_bytes=0;selected_entries=0
     def add(path,rel):

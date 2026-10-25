@@ -42,6 +42,9 @@ inline bool cleanupProvesZeroArea(Vec3 a,Vec3 b,Vec3 c) {
 }
 }
 inline CleanupPlan planMeshCleanup(const SurfaceMesh& mesh,const CleanupSettings& s={}) {
+    // Cleanup precedes representation normalization. Deleting faces afterward
+    // would stale the alias component partition and its unique evidence mapping.
+    if(!mesh.topologyAliasSources.empty())throw Error("Mesh cleanup requires canonical pre-alias geometry");
     if(s.maxVertices>1000000||s.maxTriangles>2000000||mesh.vertices.size()>s.maxVertices||mesh.triangles.size()>s.maxTriangles)
         throw Error("Mesh cleanup budget exceeded");
     for(const auto& v:mesh.vertices) for(double d:{v.xyz.x,v.xyz.y,v.xyz.z,v.normal.x,v.normal.y,v.normal.z})

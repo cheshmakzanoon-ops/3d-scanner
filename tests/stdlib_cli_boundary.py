@@ -22,6 +22,9 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 PINS = {
+    'help-capture_audit.py': '4a32a06e632ef698f24192d9c603fcd474aee364e6e50a718499b1d7c143a364',
+    'help-check_apk.py': '3404baa382199f0e5f8d6ce858509a0e453182a8a6fd800845e234d3c6a0fbb7',
+    'help-benchmark_multiview_coverage.py': 'a92f0edbdc19ec9b0cbfaf007dba7e9a3b2c6a969466567f6f812e4aac05d1d7',
     'manifest': '41c38c8320e27ce8e1c4720fa8abde872a4e62b6a8fda11b17a988a7680b1ad8',
     'archive': '17e76332693dddf44f94e5ea6bb9eb49f83a11a2d0221902b3248abf5863965c',
     'receipt': 'e9fd81aef899a0310f6688e1d5505548bb444cdf55b04b9a074e059b84db5e0d',
@@ -84,6 +87,21 @@ def manifest_cli(repo, argv, parent=None):
                                ('verify', '--source', 'HEAD')}:
         raise ValueError('Unreviewed manifest argv')
     return _launch(_source(script, 'manifest'), args[2:], parent, args[0])
+
+
+def runbook_help_cli(argv, parent=None):
+    """Only three reviewed stdlib argparse --help closures, never execution.
+
+    Optional image/APK/native imports follow parse_args in these exact sources.
+    No valid command, alternate flag, module or arbitrary script is admitted.
+    """
+    args = list(map(str, argv))
+    scripts = {str(ROOT/'tools'/name): name for name in (
+        'capture_audit.py', 'check_apk.py', 'benchmark_multiview_coverage.py')}
+    if len(args) != 3 or args[1] not in scripts or args[2] != '--help':
+        raise ValueError('Unreviewed runbook help path or argv')
+    script = _source(args[1], 'help-' + scripts[args[1]])
+    return _launch(script, ['--help'], parent, args[0])
 
 
 def sdk_rejected_argument_cli(argv, parent=None):
