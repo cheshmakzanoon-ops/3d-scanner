@@ -704,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='759ca3ef7bd133325a6ab1064b9b988b219e1f6d'
- assert p.MESSAGE=='fix: reject topology-invalid surface welds'
+ assert p.BASE_SHA=='8c42d3a285ce3c9577859a7d5944f95f9c3b63b4'
+ assert p.MESSAGE=='test: validate fixed eight-photo sparse registration'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -717,9 +717,9 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'CMakeLists.txt', 'README.md', 'SOURCE_MANIFEST.sha256', 'app/src/androidTest/java/com/realityforge/scanner/agents/a002/PipelineServicesDeviceTest.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt', 'app/src/test/java/com/realityforge/scanner/agents/a009/ProductionCheckpointFilesTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/pipeline/SurfaceCacheIdentityTest.kt', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/TOPOLOGY_SAFE_FUSION.md', 'docs/development/DENSE_SURFACE_DIAGNOSTIC_STATUS.md', 'reconstruction/include/realityforge/surface.hpp', 'reconstruction/include/realityforge/surface_checkpoint.hpp', 'reconstruction/include/realityforge/surface_weld_topology.hpp', 'reconstruction/src/surface.cpp', 'reconstruction/src/surface_checkpoint.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'reconstruction/tests/surface_fusion_test.cpp', 'reconstruction/tests/surface_test.cpp', 'reconstruction/tests/topology_fusion_admission_test.cpp', 'tests/test_dense_loss_diagnostics.py', 'tests/test_eight_view_host.py', 'tools/eight_view_host/policy.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/development/REAL_EIGHT_ORBIT_SPARSE.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedEightOrbitSparsePrefixHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/real_eight_orbit_inputs.py', 'tests/test_cli_lazy_imports.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_controller.py', 'tests/test_real_three_complete.py', 'tests/stdlib_cli_boundary.py', 'tests/test_release_missing_records_boundary.py', 'tests/test_release_qualification.py', 'tests/test_real_stereo_complete.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_real_eight_orbit_evidence.py', 'tests/test_real_eight_orbit_inputs.py', 'tests/test_real_eight_orbit_sparse.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/eight_view_host/sparse_evidence.py'))
  from tools.eight_view_host import experiments
- assert experiments.ACTIVE==experiments.REAL_THREE
+ assert experiments.ACTIVE==experiments.REAL_EIGHT_ORBIT
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2
  env,event=valid_event();event['before']=p.BASE_SHA;event['head_commit']['message']=p.MESSAGE
  assert p.event_guard(env,event)==SHA

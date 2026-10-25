@@ -297,7 +297,8 @@ def test_evidence_expired_deadline_never_claims_sealed_success(tmp_path):
 def test_artifact_io_failure_still_frames_original_failure(tmp_path,monkeypatch):
  temp=main_fixture(tmp_path,monkeypatch)
  def probe(run,*args):
-  (run.work/'measurement').mkdir();(run.work/'measurement/failure.json').write_text('{"reason":"original production failure"}')
+  run.real_private_markers=()
+  (run.work/'measurement').mkdir();(run.work/'measurement/failure.json').write_text('{"schema":1,"status":"FAILED_NOT_QUALITY_PASS","phase":"BEFORE_OR_AT_SPARSE"}')
   raise r.Failure('original pipeline failure')
  monkeypatch.setattr(ctl,'run_probe',probe)
  monkeypatch.setattr(ctl,'evidence_package',lambda *a:(_ for _ in ()).throw(OSError('artifact filesystem unavailable')))
@@ -306,7 +307,7 @@ def test_artifact_io_failure_still_frames_original_failure(tmp_path,monkeypatch)
  with contextlib.redirect_stdout(io.StringIO()):assert ctl.main()==1
  terminal=next(value for label,value in seen if label=='terminal-incomplete')
  assert terminal['firstFailure']['message']=='original pipeline failure' and terminal['status']=='FAIL'
- assert ('original-failure-incomplete-package',{'reason':'original production failure'}) in seen
+ assert ('original-failure-incomplete-package',{'schema':1,'status':'FAILED_NOT_QUALITY_PASS','phase':'BEFORE_OR_AT_SPARSE'}) in seen
 
 
 def test_bounded_read_and_hash_check_cleanup_deadline(tmp_path):
@@ -324,7 +325,8 @@ def test_incomplete_console_withholds_secret_and_never_emits_workflow_commands(t
  seen=[];monkeypatch.setattr(ctl,'frame',lambda label,raw,*a:seen.append((label,raw)))
  ctl.emit_incomplete_essential(run,{'status':'FAIL','firstFailure':{'type':'Failure','message':'password=synthetic-secret\n::warning::never-raw'}})
  assert all(b'synthetic-secret' not in raw and b'::warning::' not in raw for _,raw in seen)
- assert [name for name,_ in seen]==['terminal-incomplete','original-failure-withheld']
+ # The closed sparse profile refuses malformed/raw failure JSON before framing.
+ assert [name for name,_ in seen]==['terminal-incomplete']
 
 
 def test_classpath_normal_work_cannot_consume_cleanup_reserve(tmp_path,monkeypatch):
@@ -611,6 +613,8 @@ def test_evidence_size_refusal_retains_bounded_category_budget_only(tmp_path,mon
 
 @pytest.mark.parametrize('probe_fails',[False,True])
 def test_supplementary_assertion_failure_still_runs_strict_probe_and_preserves_original(tmp_path,monkeypatch,probe_fails):
+ # Historical REAL_THREE-only supplement; new sparse profile intentionally has none.
+ monkeypatch.setattr(ctl.experiments,'ACTIVE',ctl.experiments.REAL_THREE)
  temp=main_fixture(tmp_path,monkeypatch);calls=[]
  monkeypatch.setattr(ctl.matcher_supplement,'execute',lambda run,*a:synthetic_supplement(run,status='FAIL'))
  def probe(run,*args):
@@ -632,6 +636,8 @@ def test_supplementary_assertion_failure_still_runs_strict_probe_and_preserves_o
  (r.Cancelled('supplement cancelled'),'CANCELLED'),
  (r.Deadline('supplement deadline'),'TIMEOUT')])
 def test_fatal_supplementary_boundary_never_invokes_photographic_probe(tmp_path,monkeypatch,error,status):
+ # Historical REAL_THREE-only supplement; new sparse profile intentionally has none.
+ monkeypatch.setattr(ctl.experiments,'ACTIVE',ctl.experiments.REAL_THREE)
  temp=main_fixture(tmp_path,monkeypatch);calls=[]
  def supplement(*args):raise error
  monkeypatch.setattr(ctl.matcher_supplement,'execute',supplement)
@@ -644,6 +650,8 @@ def test_fatal_supplementary_boundary_never_invokes_photographic_probe(tmp_path,
 
 
 def test_actual_supplement_does_not_accept_missing_prepared_context(tmp_path,monkeypatch):
+ # Historical REAL_THREE-only supplement; new sparse profile intentionally has none.
+ monkeypatch.setattr(ctl.experiments,'ACTIVE',ctl.experiments.REAL_THREE)
  actual_execute=ctl.matcher_supplement.execute
  temp=main_fixture(tmp_path,monkeypatch);calls=[]
  monkeypatch.setattr(ctl.matcher_supplement,'execute',actual_execute)

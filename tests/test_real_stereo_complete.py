@@ -36,7 +36,7 @@ def test_real_profile_full_binding_and_unchanged_synthetic():
     value=p.complete_measurement_proof(*fixture(),profile=e.REAL_STEREO)
     assert value['registeredCameraCount']==value['projectRevision']==2
     assert value['synthetic'] is False and value['classification']==e.get_profile(e.REAL_STEREO).classification
-    assert e.ACTIVE==e.REAL_THREE
+    assert e.ACTIVE==e.REAL_EIGHT_ORBIT
     assert e.artifact_budget(e.REAL_STEREO)==e.artifact_budget(e.COMPLETE)==56*1024**2
     assert p.complete_measurement_proof(*helpers().fixture())['registeredCameraCount']==3
 

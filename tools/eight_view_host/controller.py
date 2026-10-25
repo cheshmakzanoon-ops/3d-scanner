@@ -13,7 +13,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='b6307a01711eb29dd21149daa7189156c02285097a6e4e39c40fbd78502a25c3'
+ADAPTER_MANIFEST='4eaa368e05ae033edda215ee784540e097a268903121296efb529c68bff15e14'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -710,7 +710,7 @@ def prepare_runtime(run,source,package,inputs,profile=experiments.ACTIVE):
     if inputs.validate(staging)!=observed:raise Failure('Observation input changed during preparation')
     return config,cfg,prepared,observed
 
-def runtime_provider_proof(run,source,cap,verified):
+def runtime_provider_proof(run,source,cap,verified,*,phases=('after-bitmap-room','after-room-reopen')):
     """Source-bound own-JVM observed identity receipts, not post-exit live mapping claims."""
     previous=None;proof=[]
     expected_dependencies={}
@@ -719,7 +719,8 @@ def runtime_provider_proof(run,source,cap,verified):
             path=provider['path'];digest=provider['sha256']
             if path in expected_dependencies and expected_dependencies[path]!=digest:raise Failure('Conflicting native provider closure')
             expected_dependencies[path]=digest
-    for phase in ('after-bitmap-room','after-room-reopen'):
+    if not phases or any(p not in ('after-bitmap-room','after-room-reopen') for p in phases):raise Failure('Unknown runtime provider phase')
+    for phase in phases:
         path=run.work/'measurement'/('runtime-providers-'+phase+'.json')
         if path.is_symlink() or not path.is_file() or path.stat().st_size>256*1024:raise Failure('Missing/bounded runtime provider receipt')
         value=json.loads(bounded_bytes(path,256*1024,run))
@@ -753,6 +754,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
     if (cfg.get('experiment')!=selected.id or cfg.get('selector')!=selected.selector or cfg.get('sourceNames')!=list(source_names(profile))
         or Path(inputs.__file__).resolve()!=run.root/ADAPTER/selected.input_module):raise Failure('Mixed experiment runtime binding')
     verified=policy.verify_capability(cap,source,capability.POLICY,run,prepared)
+    if profile==experiments.REAL_EIGHT_ORBIT:run.real_sparse_runtime_context=(source,cap,verified)
     aliases=run.work/'aliases';aliases.mkdir()
     for name,key in [('libopencv_java4.so','opencv'),('librealityforge.so','shim')]:
         target=verified['native'][key]['path'];(aliases/name).symlink_to(target);run.aliases[str(aliases/name)]=target
@@ -799,7 +801,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
 
 def measurement_reference(directory,profile,run=None,*,observed=None):
     """Validate complete retained measurements; frame only a fixed-size summary/reference."""
-    if profile in (experiments.COMPLETE,*experiments.REAL_PROFILES):return complete_measurement_reference(directory,run,observed=observed,profile=profile)
+    if profile in experiments.COMPLETE_PROFILES:return complete_measurement_reference(directory,run,observed=observed,profile=profile)
     directory=Path(directory)
     raw=bounded_bytes(directory/'measurement/sparse-result.json',4*1024**2,run)
     inputs=[raw,bounded_bytes(directory/'measurement/pair-events.json',8*1024**2,run),
@@ -809,11 +811,21 @@ def measurement_reference(directory,profile,run=None,*,observed=None):
     result,pairs,identity,observations=[json.loads(value) for value in inputs]
     if observed is not None and json.dumps(observations,sort_keys=True)!=json.dumps(observed,sort_keys=True):raise Failure('Observation proof differs from staged input authority')
     proof=policy.measurement_proof(result,pairs,identity,observations,profile=profile)
+    additional=[]
+    if profile==experiments.REAL_EIGHT_ORBIT:
+        from . import sparse_evidence
+        if result.get('synthetic') is not False:raise Failure('Licensed sparse fixture mislabeled synthetic')
+        for name in ('sparse-diagnostics.json','sparse-timing.json'):
+            extra=bounded_bytes(directory/'measurement'/name,4*1024**2,run)
+            parsed=json.loads(extra)
+            if name=='sparse-diagnostics.json':sparse_evidence.validate_records(result,parsed,identity)
+            else:sparse_evidence.timings(parsed)
+            additional.append({'path':'measurement/'+name,'bytes':len(extra),'sha256':hashlib.sha256(extra).hexdigest()})
     return {'classification':proof['classification'],'registeredCameraCount':proof['registeredCameraCount'],
             'pairCount':proof['pairCount'],'finalSparseOutcome':proof['geometry']['finalSparseOutcome'],
             'reference':{'path':'measurement/sparse-result.json','bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()},
             'supportingReferences':[{'path':name,'bytes':len(value),'sha256':hashlib.sha256(value).hexdigest()}
-                for name,value in zip(('measurement/pair-events.json','measurement/input-identity.json','observation-proof.json'),inputs[1:])]}
+                for name,value in zip(('measurement/pair-events.json','measurement/input-identity.json','observation-proof.json'),inputs[1:])]+additional}
 
 def complete_measurement_reference(directory,run=None,*,observed=None,profile=experiments.COMPLETE):
     directory=Path(directory);records=[];total=0
@@ -1061,6 +1073,18 @@ def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
         cursor=at
     if rel.startswith('measurement/'):
         name=rel.removeprefix('measurement/')
+        if profile==experiments.REAL_EIGHT_ORBIT:
+            if run is None or not hasattr(run,'real_private_markers'):
+                raise Failure('Real sparse privacy preparation missing')
+            from . import sparse_evidence
+            sparse_evidence.validate_path(name,raw)
+            if name.startswith('runtime-providers-'):
+                context=getattr(run,'real_sparse_runtime_context',None)
+                if context is None:raise Failure('Missing sparse runtime provider authority')
+                path=run.work/'measurement'/name
+                if bounded_bytes(path,256*1024,run)!=raw:raise Failure('Runtime provider evidence changed')
+                runtime_provider_proof(run,*context,phases=(name[len('runtime-providers-'):-len('.json')],))
+            return
         if name=='partial-roundtrip.json':validate_real_three_partial_roundtrip(raw,profile)
         if name=='pnp-replay.json':pnp_replay.validate(raw,profile)
         if name=='match-replay.json':
@@ -1074,6 +1098,29 @@ def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
             raise Failure('Real artifact privacy preparation missing')
         if binary and not raw.startswith((b'glTF',b'ply\n',b'\x89PNG\r\n\x1a\n',b'{')):
             raise Failure('Unreviewed real artifact encoding')
+
+def validate_real_sparse_package(run):
+    """Bind retained partial/failure records too; success-only proof is insufficient."""
+    from . import sparse_evidence
+    root=run.work/'measurement'
+    if not root.exists():return
+    records={}
+    for path in root.iterdir():
+        if path.is_symlink() or not path.is_file():raise Failure('Unexpected sparse measurement entry')
+        raw=bounded_bytes(path,16*1024**2,run)
+        # Includes private-marker scanning and authoritative successful runtime-provider checks.
+        real_evidence_privacy_check('measurement/'+path.name,raw,run,profile=experiments.REAL_EIGHT_ORBIT)
+        records[path.name]=sparse_evidence.validate_path(path.name,raw)
+    identity=records.get('input-identity.json')
+    if identity is not None:
+        _,licensed=load_adapter(ROOT,experiments.REAL_EIGHT_ORBIT)
+        expected={'images/'+name:digest for name,digest in licensed.HASHES.items()}
+        actual={item['fixturePath']:item['imageSha256'] for item in identity}
+        if actual!=expected or len(identity)!=len(expected):raise Failure('Sparse retained identities differ from pinned originals')
+    result=records.get('sparse-result.json');diagnostic=records.get('sparse-diagnostics.json')
+    if result is not None or diagnostic is not None:
+        if result is None or diagnostic is None or identity is None:raise Failure('Incomplete retained sparse record binding')
+        sparse_evidence.validate_records(result,diagnostic,identity)
 
 def evidence_package(run,receipt,destination):
     destination=Path(destination)
@@ -1130,6 +1177,8 @@ def evidence_package(run,receipt,destination):
         path=run.work/'capability'/name
         if path.exists():add(path,'capability/'+name)
     add(capability.POLICY,'build-policy.json')
+    # Preserve byte/count admission BEFORE any sparse payload read, including failures.
+    if experiments.ACTIVE==experiments.REAL_EIGHT_ORBIT:validate_real_sparse_package(run)
     total=0;files=[];withheld=[]
     for path,rel in selected:
         raw=bounded_bytes(path,16*1024**2,run);total+=len(raw)
@@ -1206,7 +1255,7 @@ def main():
     env=dict(os.environ);base=Path(env.get('RUNNER_TEMP','/missing'))
     work=base/'rf-eight-work';evidence=base/'rf-eight-evidence'
     if not base.is_dir() or work.exists() or evidence.exists():raise Blocked('Fresh runner-owned directories required')
-    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':({experiments.REAL_THREE:'REAL_LICENSED_THREE_PARTIAL_ARC_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.REAL_STEREO:'REAL_LICENSED_STEREO_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.COMPLETE:'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY',experiments.RELIEF:'SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION',experiments.LEGACY:'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'}[experiments.ACTIVE]),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
+    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':({experiments.REAL_EIGHT_ORBIT:experiments.get_profile(experiments.REAL_EIGHT_ORBIT).classification,experiments.REAL_THREE:'REAL_LICENSED_THREE_PARTIAL_ARC_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.REAL_STEREO:'REAL_LICENSED_STEREO_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.COMPLETE:'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY',experiments.RELIEF:'SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION',experiments.LEGACY:'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'}[experiments.ACTIVE]),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
     first=None;sdk=None;licenses=None;restore=False;cap=None
     def secondary(label,error):
         nonlocal first

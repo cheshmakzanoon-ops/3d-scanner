@@ -7,6 +7,7 @@ from pathlib import Path
 import subprocess
 import sys
 import pytest
+from stdlib_cli_boundary import missing_release_records_cli
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -146,15 +147,23 @@ def test_cli_missing_records_cannot_succeed(tmp_path):
     # while this test is developed, and dirty trees must never qualify.
     source = tmp_path / 'source'
     source.mkdir()
-    subprocess.run(['git','init','-q',str(source)],check=True)
+    subprocess.run(['git','init','-q','-b','fixture-source',str(source)],check=True)
     (source/'source.txt').write_text('SYNTHETIC UNIT SOURCE\n')
     subprocess.run(['git','-C',str(source),'add','source.txt'],check=True)
     subprocess.run(['git','-C',str(source),'-c','user.name=Unit Fixture','-c','user.email=unit@example.invalid','commit','-qm','Synthetic fixture'],check=True)
     candidate['source_sha'] = subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip()
     path.write_text(json.dumps(candidate))
-    run = subprocess.run([sys.executable, '-m', 'tools.release.qualification.aggregate', '--candidate', str(path), '--records', str(records), '--evidence-root', str(tmp_path), '--candidate-apk',str(apk),'--source-root',str(source),'--output', str(output)], cwd=ROOT, capture_output=True, text=True)
+    args, env = missing_release_records_cli(tmp_path, [sys.executable, '-m', 'tools.release.qualification.aggregate', '--candidate', str(path), '--records', str(records), '--evidence-root', str(tmp_path), '--candidate-apk',str(apk),'--source-root',str(source),'--output', str(output)])
+    run = subprocess.run(args, env=env, cwd=ROOT, capture_output=True, text=True, timeout=10)
     assert run.returncode == 2
-    assert json.loads(output.read_text())['status'] == 'BLOCKED_EXTERNAL'
+    assert run.stderr == ''
+    report = json.loads(output.read_text())
+    summary = json.loads(run.stdout)
+    assert summary['status'] == report['status'] == 'BLOCKED_EXTERNAL'
+    assert summary['rejected_records'] == report['rejected_records'] == []
+    assert summary['blockers'] == report['blockers'] == [
+        'BLOCKED_EXTERNAL: at least two authorized independent physical scene/reference bundles required',
+        'BLOCKED_EXTERNAL: physical ARM64 supported-device matrix required']
 
 
 def instrumentation_fixture(source_sha='1'*40, apk_sha256='2'*64):

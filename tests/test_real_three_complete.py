@@ -27,7 +27,7 @@ def test_closed_three_profile_and_budgets():
     selected=e.get_profile(e.REAL_THREE)
     assert selected.photo_count==selected.pair_count==3
     assert 'PARTIAL_ARC' in selected.classification
-    assert e.ACTIVE==e.REAL_THREE # closed one-shot profile
+    assert e.get_profile(e.REAL_THREE).id==e.REAL_THREE # preserved historical profile, independent of active diagnostic
     assert e.artifact_budget(e.REAL_THREE)==56*1024**2
     value=p.complete_measurement_proof(*fixture(),profile=e.REAL_THREE)
     assert value['registeredCameraCount']==3 and value['synthetic'] is False

@@ -1,0 +1,286 @@
+"""Closed real-input admission controls; tiny synthetic bytes are not a pipeline/quality run."""
+import hashlib
+import importlib.util
+from pathlib import Path
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+PATH = ROOT / 'docs/development/experiments/eight-view-sparse-runtime-successor/real_eight_orbit_inputs.py'
+
+def load():
+    spec = importlib.util.spec_from_file_location('real_eight_orbit_test_inputs', PATH)
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    return module
+
+def jpeg(width=4272, height=2848):
+    return b'\xff\xd8\xff\xc0\x00\x11\x08' + height.to_bytes(2,'big') + width.to_bytes(2,'big') + b'\x03' + b'\x01\x11\x00\x02\x11\x00\x03\x11\x00' + b'\xff\xd9'
+
+@pytest.fixture
+def controlled(tmp_path, monkeypatch):
+    m = load(); files = {name: jpeg() + bytes([i]) for i,name in enumerate(m.HASHES)}; files['README.md'] = b'closed license fixture'
+    monkeypatch.setattr(m, 'SIZES', {k:len(v) for k,v in files.items()})
+    monkeypatch.setattr(m, 'SOURCE_HASHES', {k:m.digest(v) for k,v in files.items()})
+    monkeypatch.setattr(m, 'LICENSE_README_BYTES', files['README.md'])
+    monkeypatch.setitem(m.LICENSE_EVIDENCE, 'real-input-license-readme.md', files['README.md'])
+    monkeypatch.setattr(m, 'HASHES', {k:m.digest(files[k]) for k in m.HASHES})
+    monkeypatch.setattr(m, 'GIT_BLOBS', {k:hashlib.sha1(b'blob '+str(len(files[k])).encode()+b'\0'+files[k]).hexdigest() for k in m.HASHES})
+    source = tmp_path/'source'; source.mkdir()
+    for name,data in files.items(): (source/name).write_bytes(data)
+    return m, source, files
+
+def test_literal_pins_and_manifest():
+    m=load()
+    assert list(m.HASHES)==['01.JPG','03.JPG','05.JPG','07.JPG','09.JPG','11.JPG','13.JPG','15.JPG']
+    assert sum(m.SIZES[n] for n in m.HASHES)==26064282
+    assert m.HASHES['13.JPG']=='06074dbb72eaf56786bfcb9d69da66aa47657f076090d9e470ba2e5c19169700'
+    assert m.HASHES['15.JPG']=='3366c2efb3f7b70114b94792b9c6b85141b4631111f8bb0f447d370ca0fb098f'
+    assert m.GIT_BLOBS['13.JPG']=='55456bcf71eb13f67f82952741e72f1ac601f69d'
+    assert m.GIT_BLOBS['15.JPG']=='a639b7d0c9631d03f3a8f115139f9cc2fe96c242'
+    assert m.digest(m.LICENSE_README_BYTES)==m.README_SHA256
+    assert len(m.LICENSE_README_BYTES)==m.SIZES['README.md']==1205
+    assert m.COMMIT=='0f31c229ac289a615b3ae981a5f584856bb24c47'
+    assert m.URLS=={name:'https://gitlab.com/api/v4/projects/8724498/repository/files/'+name+'/raw?ref='+m.COMMIT for name in m.SIZES}
+    assert m.digest(m.MANIFEST_BYTES)=='a69abe719ba5d0ea0de96d36dc452d9a3889a4167a22bccf080f9c1bd8ad33e0'
+    assert m.MANIFEST['synthetic'] is False and m.MANIFEST['nominalFocal35']==88.0
+    assert m.MANIFEST['intrinsicsProvenance']=='ESTIMATED_35MM_EQUIVALENT_88_NO_CALIBRATION_PROFILE'
+    assert set(m.MANIFEST)=={'schema','dataset','synthetic','width','height','intrinsicsProvenance','nominalFocal35','images'}
+    import json
+    provenance=json.loads(m.PROVENANCE_BYTES)
+    assert provenance['selectionDeclarationSha256']=='c7295eac14abc1d829d972a64a4a947542294673fb7e6415cc197ec610f9bf1f'
+    assert 'before any eight-view feature/geometry evaluation' in provenance['selection']
+    assert 'whole-object coverage are not guaranteed' in provenance['selection']
+    assert provenance['scope']=='REAL_LICENSED_EIGHT_WIDER_ORBIT_HOST_SPARSE_PREFIX_NOT_DEVICE_OR_SURFACE_QUALITY'
+
+def test_original_bytes_stage_and_minimal_evidence(controlled,tmp_path):
+    m,source,files=controlled
+    observed=m.stage(source,tmp_path/'observations')
+    assert observed['images']=={'images/'+k:v for k,v in m.HASHES.items()}
+    for name in m.HASHES: assert (tmp_path/'observations/images'/name).read_bytes()==files[name]==(source/name).read_bytes()
+    evidence=m.public_evidence(source)
+    assert set(evidence)=={'real-input-license-readme.md','real-input-provenance.json','real-input-attribution.txt'}
+    assert evidence['real-input-license-readme.md']==files['README.md']
+    assert all(not v.startswith(b'\xff\xd8') for v in evidence.values())
+    assert b'derivative' in evidence['real-input-attribution.txt']
+    assert b'# 01' in evidence['real-input-attribution.txt'] and b'# 11' in evidence['real-input-attribution.txt']
+    assert b'https://alansartlog.com' in evidence['real-input-attribution.txt']
+
+@pytest.mark.parametrize('kind',['missing','extra','hash','short','large','symlink','dimensions','license'])
+def test_source_admission_rejects(controlled,tmp_path,kind,monkeypatch):
+    m,source,files=controlled; target=source/'01.JPG'
+    if kind=='missing': (source/'15.JPG').unlink()
+    if kind=='extra': (source/'camera-truth.json').write_text('{}')
+    if kind=='hash': target.write_bytes(b'x'+files['01.JPG'][1:])
+    if kind=='short': target.write_bytes(files['01.JPG'][:-1])
+    if kind=='large': target.write_bytes(files['01.JPG']+b'x')
+    if kind=='symlink': target.unlink();target.symlink_to(source/'11.JPG')
+    if kind=='dimensions':
+        data=jpeg(width=800,height=600);target.write_bytes(data)
+        monkeypatch.setitem(m.SOURCE_HASHES,'01.JPG',m.digest(data))
+    if kind=='license': (source/'README.md').write_bytes(b'x'*len(files['README.md']))
+    with pytest.raises(ValueError): m.stage(source,tmp_path/'rejected')
+    assert not (tmp_path/'rejected').exists()
+
+@pytest.mark.parametrize('kind',['extra','manifest','synthetic','image-missing','image-extra','image-hash','directory-alias'])
+def test_staged_inventory_rejects(controlled,tmp_path,kind):
+    m,source,files=controlled; dest=tmp_path/'observations';m.stage(source,dest)
+    if kind=='extra': (dest/'poses.json').write_text('{}')
+    if kind=='manifest': (dest/'observation-inputs.json').write_bytes(b'x'*len(m.MANIFEST_BYTES))
+    if kind=='synthetic':
+        import json
+        value=json.loads(m.MANIFEST_BYTES);value['synthetic']=True
+        (dest/'observation-inputs.json').write_bytes(m.encoded(value))
+    if kind=='image-missing': (dest/'images/15.JPG').unlink()
+    if kind=='image-extra': (dest/'images/16.JPG').write_bytes(files['01.JPG'])
+    if kind=='image-hash': (dest/'images/01.JPG').write_bytes(b'x'*len(files['01.JPG']))
+    if kind=='directory-alias':
+        alias=tmp_path/'alias';alias.symlink_to(dest,target_is_directory=True);dest=alias
+    with pytest.raises(ValueError): m.validate(dest)
+
+class FakeRun:
+    def __init__(self, files, response=b'200', *, work):
+        self.work=work
+        self.env={'GITHUB_ACTIONS':'true','GITHUB_REPOSITORY':'cheshmakzanoon-ops/3d-scanner'}
+        self.files=files;self.response=response;self.calls=[];self.deadlines=[]
+    def remaining(self,seconds): self.deadlines.append(seconds);return seconds
+    def command(self,label,args,**kwargs):
+        self.calls.append((label,args,kwargs));target=Path(args[args.index('--output')+1]);target.write_bytes(self.files[target.name])
+        return self.response,0
+
+def test_fetch_fixed_https_no_redirect_retry_or_byte_log(controlled,tmp_path):
+    m,_,files=controlled;run=FakeRun(files,work=tmp_path);dest=tmp_path/'licensed-source'
+    assert m.fetch(run,dest)==dest
+    assert [c[0] for c in run.calls]==['licensed-input-license', *['licensed-input-'+n[:2] for n in m.HASHES]]
+    for (_,args,kwargs),name in zip(run.calls,('README.md',*m.HASHES)):
+        assert args[:2]==['curl','-q'] and args[-2:]==['--',m.URLS[name]]
+        assert args[args.index('--proto')+1]=='=https'
+        assert args[args.index('--max-time')+1]=='60'
+        assert args[args.index('--max-filesize')+1]==str(m.SIZES[name])
+        assert args[args.index('--write-out')+1]=='%{http_code}'
+        assert not set(args)&{'--location','-L','--retry','--insecure','-k','--verbose','-v'}
+        assert kwargs=={'seconds':60,'limit':4096}
+    assert run.deadlines==[60]*9
+
+@pytest.mark.parametrize('response',[b'301',b'302',b'404',b'200\n',b''])
+def test_fetch_rejects_nonexact_http(controlled,tmp_path,response):
+    m,_,files=controlled;run=FakeRun(files,response,work=tmp_path)
+    with pytest.raises(ValueError): m.fetch(run,tmp_path/'licensed-source')
+    assert len(run.calls)==1
+
+def test_license_mismatch_stops_before_photos(controlled,tmp_path):
+    m,_,files=controlled;run=FakeRun({**files,'README.md':b'x'*len(files['README.md'])},work=tmp_path)
+    with pytest.raises(ValueError): m.fetch(run,tmp_path/'licensed-source')
+    assert len(run.calls)==1
+
+@pytest.mark.parametrize('key,value',[('GITHUB_ACTIONS','false'),('GITHUB_REPOSITORY','other/repo')])
+def test_no_nonci_fetch(controlled,tmp_path,key,value):
+    m,_,files=controlled;run=FakeRun(files,work=tmp_path);run.env[key]=value
+    with pytest.raises(ValueError): m.fetch(run,tmp_path/'licensed-source')
+    assert run.calls==[] and not (tmp_path/'licensed-source').exists()
+
+def test_fetch_existing_destination_refused(controlled,tmp_path):
+    m,_,files=controlled;run=FakeRun(files,work=tmp_path);dest=tmp_path/'licensed-source';dest.mkdir()
+    with pytest.raises(ValueError): m.fetch(run,dest)
+    assert run.calls==[]
+
+@pytest.mark.parametrize('data',[b'',b'not jpeg',b'\xff\xd8',b'\xff\xd8\xff\xc2\x00\x02',b'\xff\xd8\xff\xda\x00\x02'])
+def test_malformed_jpeg_rejected(data):
+    with pytest.raises(ValueError): load().jpeg_dimensions(data)
+
+
+def test_fetch_refuses_other_destination(controlled,tmp_path):
+    m,_,files=controlled;run=FakeRun(files,work=tmp_path)
+    with pytest.raises(ValueError): m.fetch(run,tmp_path/'other')
+    assert run.calls==[] and not (tmp_path/'other').exists()
+
+
+def test_private_marker_encodings_and_padding():
+    m=load(); values=[('  private-é<&\"\'\x00', 'utf-8'),
+                     (b'ASCII\0\0\0private-comment\0\0', 'comment'),
+                     ('private-xp'.encode('utf-16-le'), 'utf-16-le'),
+                     (b'\0\x01opaque-private', 'opaque'), ('\0 \t\r\n', 'utf-8')]
+    markers=m._marker_variants(values)
+    assert 'private-é<&\"\''.encode() in markers
+    assert b'private-\\u00e9<&\\"\'' in markers
+    assert 'private-é&lt;&amp;&quot;&#x27;'.encode() in markers
+    assert b'private-comment' in markers and b'private-xp' in markers
+    assert b'\0\x01opaque-private' in markers
+    assert b'' not in markers
+    assert m._marker_variants([('x','utf-8')])==(b'x',)
+
+
+def test_private_marker_bounds_and_exception_no_values():
+    m=load()
+    for values in ([('PRIVATE-VALUE-'*2000,'utf-8')],
+                   [(f'PRIVATE-VALUE-{n}','utf-8') for n in range(129)],
+                   [('PRIVATE-VALUE-'+str(n)+'x'*16360,'utf-8') for n in range(5)]):
+        with pytest.raises(ValueError) as exc: m._marker_variants(values)
+        assert 'PRIVATE-VALUE' not in str(exc.value)
+
+
+
+def test_private_marker_reader_requires_preparation(controlled):
+    m,source,_=controlled
+    with pytest.raises(ValueError,match='not prepared'): m.private_markers(source)
+
+
+@pytest.mark.parametrize('gps',[False,True])
+def test_private_marker_selected_tags_only(controlled,monkeypatch,gps):
+    m,source,_=controlled
+    class Exif(dict):
+        def get_ifd(self,key):
+            if key==34853:return {1:'GPS-PRIVATE'} if gps else {}
+            assert key==34665
+            return {42032:'PRIVATE-OWNER',42033:'PRIVATE-BODY',42037:'PRIVATE-LENS',
+                    37510:b'ASCII\0\0\0PRIVATE-COMMENT\0',37500:b'PRIVATE-MAKER',37386:55}
+    class Image:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def getexif(self):return Exif({315:'PRIVATE-ARTIST',33432:'PRIVATE-COPYRIGHT',
+                                    270:'PRIVATE-DESCRIPTION',40093:'PRIVATE-XP'.encode('utf-16-le'),271:'NOT-A-PRIVATE-TAG'})
+    class Reader:
+        def open(self,source):return Image()
+    monkeypatch.setattr(m._stereo,'_verify_privacy_reader',lambda:None)
+    monkeypatch.setattr(m._stereo,'_PRIVACY_READER',Reader())
+    if gps:
+        with pytest.raises(ValueError) as exc:m.private_markers(source)
+        assert str(exc.value)=='private original metadata inspection failed'
+    else:
+        markers=m.private_markers(source)
+        assert {b'PRIVATE-OWNER',b'PRIVATE-BODY',b'PRIVATE-LENS',b'PRIVATE-COMMENT',b'PRIVATE-MAKER',
+                b'PRIVATE-ARTIST',b'PRIVATE-COPYRIGHT',b'PRIVATE-DESCRIPTION',b'PRIVATE-XP'}<=set(markers)
+        assert b'NOT-A-PRIVATE-TAG' not in markers
+
+
+def test_reader_exception_does_not_reveal_value(controlled,monkeypatch):
+    m,source,_=controlled
+    class Reader:
+        def open(self,source): raise ValueError('PRIVATE-NOT-FOR-LOGS')
+    monkeypatch.setattr(m._stereo,'_verify_privacy_reader',lambda:None)
+    monkeypatch.setattr(m._stereo,'_PRIVACY_READER',Reader())
+    with pytest.raises(ValueError) as exc:m.private_markers(source)
+    assert str(exc.value)=='private original metadata inspection failed'
+    assert exc.value.__suppress_context__
+
+
+def test_stereo_module_authority_unchanged():
+    m=load()
+    assert set(m._stereo.HASHES)=={'10.JPG','11.JPG'}
+    assert m._stereo.DATASET.endswith('10-11')
+    assert m._stereo.digest(m._stereo.MANIFEST_BYTES)=='a6ef5caca61f975026d1e4c04fa1e380ba310dad001643f521ac657e4619d901'
+    assert m.prepare_privacy_reader is m._stereo.prepare_privacy_reader
+    assert m.LICENSE_README_BYTES is m._stereo.LICENSE_README_BYTES
+
+
+def test_eighth_photo_private_values_are_checked(controlled,monkeypatch):
+    m,source,files=controlled;visited=[]
+    class Exif(dict):
+        def get_ifd(self,key):return {}
+    class Image:
+        def __init__(self,data): self.data=data
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def getexif(self): return Exif({315:'PRIVATE-EIGHTH' if self.data==files['15.JPG'] else 'PRIVATE-FIRST'})
+    class Reader:
+        def open(self,stream):
+            data=stream.read();visited.append(data);return Image(data)
+    monkeypatch.setattr(m._stereo,'_verify_privacy_reader',lambda:None)
+    monkeypatch.setattr(m._stereo,'_PRIVACY_READER',Reader())
+    assert b'PRIVATE-EIGHTH' in m.private_markers(source)
+    assert visited==[files[name] for name in m.HASHES]
+
+
+def test_eight_view_public_attribution_scope_and_closed_prior():
+    import json
+    m=load();value=json.loads(m.PROVENANCE_BYTES)
+    assert value['dataset'].endswith('01-03-05-07-09-11-13-15')
+    assert value['scope']=='REAL_LICENSED_EIGHT_WIDER_ORBIT_HOST_SPARSE_PREFIX_NOT_DEVICE_OR_SURFACE_QUALITY'
+    assert [row['name'] for row in value['images']]==list(m.HASHES)
+    assert value['nominalFocal35']==88.0
+    assert value['intrinsicsProvenance']=='ESTIMATED_35MM_EQUIVALENT_88_NO_CALIBRATION_PROFILE'
+    assert all(('# '+n[:2]).encode() in m.ATTRIBUTION_BYTES for n in m.HASHES)
+    assert b'Eight-view wider-orbit sparse-prefix' in m.ATTRIBUTION_BYTES
+    assert b'not complete-object, surface, metric or device quality' in m.ATTRIBUTION_BYTES
+
+
+def test_eighth_photo_checksum_admitted_independently(controlled,tmp_path):
+    m,source,files=controlled
+    (source/'15.JPG').write_bytes(files['15.JPG'][:-1]+b'x')
+    with pytest.raises(ValueError,match='fixed source checksum'):
+        m.stage(source,tmp_path/'rejected')
+    assert not (tmp_path/'rejected').exists()
+
+
+def test_retained_license_bytes_are_exact_even_if_source_pin_changed(controlled,monkeypatch):
+    m,source,files=controlled
+    replacement=b'x'*len(files['README.md'])
+    (source/'README.md').write_bytes(replacement)
+    monkeypatch.setitem(m.SOURCE_HASHES,'README.md',m.digest(replacement))
+    with pytest.raises(ValueError,match='license bytes differ'):
+        m.public_evidence(source)
+
+
+def test_git_blob_identity_is_independently_checked(controlled,tmp_path,monkeypatch):
+    m,source,_=controlled
+    monkeypatch.setitem(m.GIT_BLOBS,'13.JPG','0'*40)
+    with pytest.raises(ValueError,match='Git blob identity'):m.stage(source,tmp_path/'rejected')
+    assert not (tmp_path/'rejected').exists()

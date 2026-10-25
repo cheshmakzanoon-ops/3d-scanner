@@ -1,5 +1,25 @@
 # Source status — integrated engineering preview
 
+## Latest source-bound context — 25 October 2026
+
+- `0df4a2df5e` real-three HOST journey **PASS**, with unchanged fragmented model;
+  v12 diagnostics report **80 source links and zero proposed welds**. This is
+  attribution/coverage evidence, not improved mesh or complete-object quality.
+- Both `0df4a2df5e` sanitizer suites: **4,500 passed, 16 failed, 28 skipped**.
+  Full native qualification remains failing; passing HOST does not waive it.
+- `8c42d3a285` [CI is terminal](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40236046514):
+  GCC and Clang each completed **4,571 cases: 4,522 passed, 21 failed, 28 skipped,
+  zero errors**, with the same 21 failed identities. The SDK unexpected-arguments
+  test resolved; six new parser-child exit failures and 15 remaining baseline
+  failures persist, including runbook help. Native/candidate gates **FAIL**.
+  Android **920 tests**, both release profiles and benchmark compilation passed;
+  ordinary device KVM preflight failed. The staged parser/import-order test
+  correction targets those six identities but has **no new CI result** yet.
+- The separately pinned [eight-image wider-orbit sparse diagnostic](development/REAL_EIGHT_ORBIT_SPARSE.md)
+  is **NOT_RUN**. It stops at persisted SPARSE, preserves the existing three-photo
+  fixture, and makes no dense/full-object/device-quality claim.
+
+
 ## Current verified checkpoint — 25 October 2026
 
 Current application version: **0.19.0-m19**, an engineering preview. Validation

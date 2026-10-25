@@ -7,9 +7,11 @@ RELIEF = 'relief-three'
 COMPLETE = 'relief-three-complete'
 REAL_STEREO = 'real-licensed-stereo-complete'
 REAL_THREE = 'real-licensed-three-complete'
-REAL_PROFILES = (REAL_STEREO, REAL_THREE)
+REAL_EIGHT_ORBIT = 'real-licensed-eight-orbit-sparse'
+COMPLETE_PROFILES = (COMPLETE, REAL_STEREO, REAL_THREE)
+REAL_PROFILES = (REAL_STEREO, REAL_THREE, REAL_EIGHT_ORBIT)
 ALL_PROFILES = (LEGACY, RELIEF, COMPLETE, *REAL_PROFILES)
-ACTIVE = REAL_THREE
+ACTIVE = REAL_EIGHT_ORBIT
 
 @dataclass(frozen=True)
 class Profile:
@@ -49,6 +51,12 @@ _REAL_THREE = Profile(REAL_THREE,
     'RealLicensedThreeCompleteControllerHostTest.kt', 3, 3,
     'REAL_LICENSED_THREE_PARTIAL_ARC_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY')
 
+_REAL_EIGHT_ORBIT = Profile(REAL_EIGHT_ORBIT,
+    'com.realityforge.scanner.hostintegration.RealLicensedEightOrbitSparsePrefixHostTest.fixedEightLicensedOrbitPhotosPersistSparseOrRecordUnmodifiedProductionFailure',
+    'CI_ONLY_IMMUTABLE_LICENSED_EIGHT_ORBIT', 'real_eight_orbit_inputs.py',
+    'RealLicensedEightOrbitSparsePrefixHostTest.kt', 8, 28,
+    'REAL_LICENSED_EIGHT_WIDER_ORBIT_HOST_SPARSE_PREFIX_NOT_DEVICE_OR_SURFACE_QUALITY')
+
 def get_profile(profile_id):
     if type(profile_id) is not str:
         raise Failure('Unknown closed experiment profile')
@@ -62,10 +70,12 @@ def get_profile(profile_id):
         return _REAL_STEREO
     if profile_id == REAL_THREE:
         return _REAL_THREE
+    if profile_id == REAL_EIGHT_ORBIT:
+        return _REAL_EIGHT_ORBIT
     raise Failure('Unknown closed experiment profile')
 
 
 def artifact_budget(profile):
     """Reporting capacity only; never changes reconstruction or quality admission."""
     selected=get_profile(profile)
-    return (56 if selected.id in (COMPLETE, *REAL_PROFILES) else 32)*1024**2
+    return (56 if selected.id in COMPLETE_PROFILES else 32)*1024**2
