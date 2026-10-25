@@ -695,3 +695,30 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
  assert (out/'commands.json').read_bytes()==raw and 'commands' not in stored
  assert json.loads(raw)[0]['timing']==run.commands[0]['timing']
  run.cleanup()
+
+
+def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
+ workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
+ assert p.BASE_SHA=='e493872e5455444e3a7cc32f9476927b14eb3b35'
+ assert p.MESSAGE=='test: retain bounded sanitizer progress evidence'
+ assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
+ assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
+ for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
+  "github.event.ref == 'refs/heads/main'", "github.event.repository.default_branch == 'main'",
+  "toJSON(github.event.repository.private) == 'false'", "toJSON(github.event.created) == 'false'",
+  "toJSON(github.event.deleted) == 'false'", "toJSON(github.event.forced) == 'false'",
+  "github.run_attempt == '1'", 'github.event.after == github.sha',
+  'github.event.head_commit.id == github.sha', 'persist-credentials: false',
+  'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
+  assert clause in workflow
+ assert 'workflow_dispatch' not in workflow
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'tests/test_eight_view_host.py', 'tests/test_native_pytest_progress.py', 'tools/eight_view_host/policy.py', 'tools/qa/native_regression/README.md', 'tools/qa/native_regression/pytest_progress.py', 'tools/qa/native_regression/run.py'))
+ from tools.eight_view_host import experiments
+ assert experiments.ACTIVE==experiments.REAL_STEREO
+ assert experiments.artifact_budget(experiments.REAL_STEREO)==56*1024**2
+ env,event=valid_event();event['before']=p.BASE_SHA;event['head_commit']['message']=p.MESSAGE
+ assert p.event_guard(env,event)==SHA
+ event['head_commit']['message']+='\n'
+ with pytest.raises(r.Failure):p.event_guard(env,event)
+ event['head_commit']['message']=p.MESSAGE;event['before']='22e1cb63537e149279281cf23a0f46e50c87668a'
+ with pytest.raises(r.Failure):p.event_guard(env,event)

@@ -85,3 +85,21 @@ Compiler parity uses rtol=1e-5/atol=1e-6 (the exact geometry/float32 export cont
 with scene IDs/order unchanged. Nonfinite values fail. This measures numerical
 regression, not physical scan quality. Deliberately invalid numerical fixtures and
 subprocess failures are exercised by `tests/test_native_regression_harness.py`.
+
+### Interrupted pytest timing diagnostics
+
+The runner loads `pytest_progress` to append `RF_PYTEST_PROGRESS` JSON records
+to the existing `pytest.log`, retained by the native failure-artifact upload.
+Every setup/call/teardown start and end is flushed immediately; pair records by
+`phase_id` and compare `duration_s` or session-relative monotonic `elapsed_s`.
+An unmatched start identifies interrupted/in-flight work, not its outcome. End
+records do **not** mean PASS; only the existing exit status, JUnit and required
+accounting validation determine acceptance. No timeout or sanitizer setting changes.
+
+Records expose only allowlisted relative test paths/names (otherwise `<redacted>`),
+never parameter values, captured output or absolute paths. Parameter cases retain
+distinct phase IDs even when their displayed names are identical. Added output is
+bounded to 4 MiB and 100,000 phase records plus at most one `limit` marker; that
+marker means diagnostics are incomplete. Output errors disable this optional
+observer without replacing test failures. This is process-kill diagnostic evidence,
+not a power-loss durability guarantee or a replacement for sanitizer qualification.

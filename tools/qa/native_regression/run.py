@@ -156,6 +156,7 @@ def main():
             python_steps = [('numerical', [sys.executable, ROOT / 'tools/qa/native_regression/numerical.py', '--output', folder / 'numerical.json']),
                             ('pytest', [sys.executable, '-m', 'pytest', 'tests', '-q',
                                         '-p', 'tools.qa.native_regression.pytest_diagnostics',
+                                        '-p', 'tools.qa.native_regression.pytest_progress',
                                         '-p', 'tools.qa.native_regression.pytest_accounting',
                                         '--rf-pytest-accounting=' + str(accounting_path),
                                         '--junitxml=' + str(folder / 'pytest.xml')]),

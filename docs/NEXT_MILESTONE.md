@@ -32,14 +32,20 @@ The three-photo synthetic full-controller HOST journey passed on `5beb2d3`;
 the selected installed Filament lifecycle test passed on `7ff6395`. Neither
 closes installed import → reconstruction → inspection → reopen/export or
 physical-quality qualification. See [current status](MILESTONE_STATUS.md) for
-source-bound results and failures.
+source-bound results and failures. The latest shared APK remains the `707a10e`
+engineering preview, not an installed validation of `e493872` guidance.
 
 1. Complete the corrected installed synthetic journey. The `7ff6395` run failed
    at DocumentsUI selection before import/reconstruction; `c3f26f3` repairs the
    driver without bypassing the picker. Run and retain actual rendered UI, SAF,
    reconstruction, reopen/export, cancellation and interruption evidence.
-2. Extend reconstruction evidence beyond three synthetic relief photographs and
-   isolated stereo pairs. Validate real observed scenes without relaxing camera
+2. Resolve the real licensed stereo controller failure on `68ef9b7`: run
+   [40176715540](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715540)
+   failed at `MATCHES` and produced no model. Read-only persisted-match replay
+   reported `WEAK_BASELINE`, not a physical-baseline diagnosis. The `e493872`
+   Android build/lint and 888 tests now pass, but persisted failure guidance
+   and resource-backed advice still need installed-app verification. Validate
+   real observed scenes without relaxing camera
    registration, geometry or photographic-texture acceptance gates. The failed
    low-resolution eight-photo fixture remains a failure, not an alternate pass.
 3. Continue measured topology repair beyond the supported-diagonal change.
@@ -47,10 +53,19 @@ source-bound results and failures.
    113 components and 9,542 boundary edges; intersection analysis is incomplete.
    Exact-quad consistency is not general surface fusion or hole repair. Do not
    hide defects, fabricate unseen surfaces or label open meshes watertight.
+   The `813f312` exact planar ownership QA passes its dedicated sanitizer and
+   release cases but remains OFF by default; production integration and mobile
+   qualification require separate evidence. It has not repaired this mesh.
 4. Obtain completed sanitizer evidence and a green full-candidate CI result.
-   Both `707a10e` sanitizer pytest executions exceeded 600 seconds; numerical
-   and benchmark failures also remain unresolved. Passed release builds, HOST
-   controller tests and selected emulator tests do not replace these gates.
+   Both `68ef9b7` sanitizer pytest executions exceeded 600 seconds and ordinary
+   device KVM preflight failed in
+   [40176715542](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715542).
+   The later `e493872` run
+   [40179213109](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40179213109)
+   passes 888 Android tests, both release profiles and benchmark compilation,
+   but device checks failed and sanitizer jobs remain running at this checkpoint.
+   Full CI is not green. These passes and selected emulator tests do not replace
+   the outstanding gates or close the historical failures.
 5. Validate calibrated physical ARM64 captures against independent reference
    geometry, texture and resource measurements before raising the enforced
    2–12-photo/eight-dense-view limits or claiming complete-object quality.

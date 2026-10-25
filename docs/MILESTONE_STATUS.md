@@ -22,10 +22,15 @@ release qualification remain open.
   capture, handset performance or store qualification. Nine artifacts are not
   nine independently validated formats. The low-resolution eight-photo fixture
   remains unsuccessful.
-- **Android build — PASS on `707a10e`:** debug app/test APK builds, lint,
+- **Android build — PASS on `68ef9b7`:** debug app/test APK builds, lint,
   **864 unit tests + 18 HOST JVM tests = 882 tests**, with no failures, errors or
   skips in those reports. GCC/Clang release profiles and benchmark compilation
   also passed; benchmark compilation is not a measured phone-performance result.
+- **Exact planar ownership native QA — PASS on `813f312`:** the dedicated
+  ASan/UBSan/LSan run passed one native CTest and 83 differential cases; the
+  release run passed 137 cases. This bounded [QA module](../reconstruction/qa/exact_planar_owner/README.md)
+  is **OFF by default**, not production surface integration, a repaired scanner
+  mesh, or mobile qualification.
 - **Selected installed graphics test — PASS on `7ff6395`:**
   `PhotographicViewerTest#filamentRestoresCameraPausesAndRejectsOversizedResize`
   passed on an API-35 emulator. It checks optional Filament idle-frame stability,
@@ -33,6 +38,14 @@ release qualification remain open.
   application viewer remains GLES; no handset power-saving claim follows.
 
 ### Open failures and limits
+
+- **Real licensed stereo full-controller HOST journey — FAIL on `68ef9b7`:**
+  run `40176715540` failed at `MATCHES`; no model was produced. Read-only native
+  replay of the persisted 276 reciprocal matches returned `WEAK_BASELINE`.
+  The two 1600 × 1067 photographs yielded 1,010 and 1,280 SIFT features; the
+  estimated 35mm-equivalent focal length was 88mm. These aggregate diagnostics
+  neither establish the physical camera baseline nor turn the failed controller
+  journey into a pass.
 
 - **Installed synthetic complete journey — FAIL on `7ff6395`:** the UI driver
   rejected a correctly identified DocumentsUI thumbnail row because the row was
@@ -47,13 +60,14 @@ release qualification remain open.
   runs are not byte-identical raw-depth replays and do not establish a broad
   quality improvement. Intersection analyses hit their work budget, so their
   counters cannot prove the absence or reduction of intersections.
-- **Full-candidate CI — FAIL on `707a10e`.** GCC and Clang sanitizer pytest
-  executions timed out after 600.170s and 600.120s respectively (exit −9).
-  Both configurations built and passed their 48 CTests, but unresolved control,
-  numerical and native benchmark failures also remain in their reports. These
-  cannot be dismissed as exclusively external-runtime failures or waived by the
-  passing release profiles. Ordinary device preflight and the aggregate checks
-  failed. The separate selected emulator result does not replace those gates.
+- **Full-candidate CI — FAIL on `68ef9b7`.** In run `40176715542`, GCC and
+  Clang sanitizer pytest executions exceeded their 600-second limit. Ordinary
+  device KVM preflight and aggregate checks also failed. Passing release shards,
+  benchmark compilation and 882 Android tests do not replace these gates.
+  Historical `707a10e` sanitizer runs timed out after 600.170s and 600.120s
+  (exit −9); both passed 48 CTests but retained control, numerical and native
+  benchmark failures. That evidence is not resolved by a later build pass. The selected emulator result does not
+  replace ordinary device or complete installed-session gates.
   Cancelled or superseded runs are not passes. Physical reference geometry,
   complete-object texture quality, ARM64 resource/thermal measurements,
   production signing and store acceptance remain unqualified.
@@ -76,7 +90,26 @@ remains unknown. Its 25 Kotlin and 110 affected Python tests passed; the new
 actual-JPEG instrumentation cases compiled in the `707a10e` Android build but
 remain unrun. Host tests and successful compilation do not qualify those device cases.
 
-Public evidence: [supported-diagonal full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162711185),
+`e493872` adds [no-anchor failure guidance](reconstruction/ANCHOR_FAILURE_GUIDANCE.md).
+Only uniformly allowlisted `WEAK_BASELINE`, `PLANAR_AMBIGUITY` or `ROTATION_ONLY`
+pair rejections select the persisted `CAMERA_REGISTRATION_FAILED` outcome;
+any low-match, missing, unknown or non-allowlisted rejection retains the
+insufficient-overlap fallback, even alongside an allowlisted rejection.
+Android string resources provide qualified weak/ambiguous-geometry recapture
+advice. Geometry acceptance is unchanged; this is not recovery or evidence that
+real captures now reconstruct. Its
+[Android build, lint and tests](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40179213109)
+passed: **870 unit tests + 18 HOST JVM tests = 888**, with zero failures, errors
+or skips. Both release profiles and benchmark compilation also passed. Device
+checks failed; sanitizer jobs remain running at this checkpoint, not passes.
+Full-candidate CI is not green, and installed guidance remains unqualified.
+The latest shared APK is still the `707a10e` engineering preview, without this
+new runtime guidance.
+
+Public evidence: [real licensed stereo HOST failure](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715540),
+[`68ef9b7` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715542),
+[dedicated exact planar ownership QA](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40168651012),
+[supported-diagonal full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162711185),
 [depth-corrected full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162345022),
 [earlier `1b4e91c` HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40147098954),
 [`707a10e` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40164183394),
