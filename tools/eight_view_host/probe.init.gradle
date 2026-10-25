@@ -589,6 +589,22 @@ allprojects { afterEvaluate { if (path == ':app') {
   dependsOn(tasks.getByName('verifyHostIntegrationSdk'))
   doLast {capture(cfg.phase=='prepare' ? 'prepare' : 'runtime-prepare')}
  }
+ // Supplementary matcher compiler inputs only: offline caller, existing Kotlin plugin
+ // configuration, no app/native build dependencies and no legacy capability receipts.
+ tasks.register('eightMatcherCompiler') {
+  doLast {
+   assert cfg.phase=='prepare'
+   File target=new File(output,'matcher-compiler.json');assert !target.exists()
+   def files=configurations.getByName('kotlinCompilerClasspath').resolve().toList().sort {it.canonicalPath}
+   assert files.size() in 1..32
+   def entries=files.collect { f ->
+    assert f.isFile() && !java.nio.file.Files.isSymbolicLink(f.toPath()) && f.name.endsWith('.jar')
+    assert f.length()>0 && f.length()<=128L*1024*1024
+    [path:f.canonicalPath,sha256:sha(f.bytes)]
+   }
+   writeJson(target,[schema:1,sourceSha:cfg.sourceSha,configuration:'kotlinCompilerClasspath',entries:entries])
+  }
+ }
  tasks.register('eightProbe', org.gradle.api.tasks.testing.Test) {
   dependsOn(tasks.getByName('eightPrepare'))
   // Read the task directly under normal task configuration, not a mapped provider
@@ -637,7 +653,7 @@ allprojects { afterEvaluate { if (path == ':app') {
   afterTest { d,r -> new File(output,'test-events.jsonl') << JsonOutput.toJson([event:'finish',class:d.className,method:d.name,result:r.resultType.toString()])+'\n' }
  }
  gradle.taskGraph.whenReady { graph ->
-  writeJson(new File(output,'task-graph.json'),[tasks:graph.allTasks.collect {it.path},
+  writeJson(new File(output,graph.hasTask(':app:eightMatcherCompiler') ? 'matcher-task-graph.json' : 'task-graph.json'),[tasks:graph.allTasks.collect {it.path},
     compileSdk:android.compileSdk,buildTools:android.buildToolsVersion,ndkVersion:android.ndkVersion,
     externalNativeTasks:graph.allTasks.findAll {it.name==~/(?i).*(externalNative|configureCMake|buildCMake|configureNdk|buildNdk).*/}.collect {it.path}])
  }

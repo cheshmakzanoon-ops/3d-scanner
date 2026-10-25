@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,Deadline,Cancelled,sha,atomic_json,inventory,safe_display,frame
-from tools.eight_view_host import policy,capability,ndk,experiments
+from tools.eight_view_host import policy,capability,ndk,experiments,matcher_supplement
 from tools.device.software_emulator.diagnostic import license_snapshot,verify_license_snapshot,package_metadata
 HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
@@ -1091,7 +1091,7 @@ def evidence_package(run,receipt,destination):
         selected_bytes+=path.stat().st_size;selected_entries+=1
         if selected_bytes>selected_limit or selected_entries>1990:raise Failure('Evidence package byte/count limit')
         selected.append((path,rel))
-    names=['agp-original-test-config.properties','agp-test-config/com/android/tools/test_config.properties','ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
+    names=['agp-original-test-config.properties','agp-test-config/com/android/tools/test_config.properties','ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl','matcher-compiler.json','matcher-task-graph.json','matcher-supplement.json']
     if experiments.ACTIVE in experiments.REAL_PROFILES:
         # Derivative assets may never be retained without the immutable public license notice.
         _,licensed=load_adapter(ROOT,experiments.ACTIVE)
@@ -1214,7 +1214,17 @@ def main():
         restore=True
         config,cfg,prepared,observed=prepare_runtime(run,source,package,inputs)
         cap=capability.build(run,source,prepared)
+        # Separate fixed-descriptor regression, never a substitute for the strict photo journey.
+        # Integrity/cancellation/resource errors propagate; ordinary compiler/test failure is
+        # retained while the unchanged selected photographic invocation still executes once.
+        supplement=None
+        if experiments.ACTIVE==experiments.REAL_THREE:
+            supplement=matcher_supplement.execute(run,source,config,prepared,cap)
+            receipt['matcherSupplement']={'status':supplement['status'],'path':'matcher-supplement.json',
+                'sha256':sha(run.work/'matcher-supplement.json'),'classification':supplement['classification']}
         receipt['result']=run_probe(run,source,config,cfg,prepared,cap,inputs,observed)
+        if supplement is not None and supplement['status']!='PASS':
+            raise Failure('Supplementary matcher failed; strict photo result retained separately')
         receipt['status']='PENDING_RESTORATION'
     except BaseException as error:
         first=error;receipt['firstFailure']=failure_descriptor(error)

@@ -704,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='b469ed1972cab56bd9d8c3e1386574bd6b57d84c'
- assert p.MESSAGE=='fix: stabilize physical-view correspondence ordering'
+ assert p.BASE_SHA=='369457833ab2c8d0cbf9d548239b2d864894fa24'
+ assert p.MESSAGE=='fix: extend established landmarks with distinct pose support'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -717,7 +717,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt', 'app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt', 'app/src/test/java/com/realityforge/scanner/engine/matching/MatchInputOrderTest.kt', 'tests/test_eight_view_host.py', 'tests/test_match_input_order.py', 'tools/eight_view_host/policy.py', 'tools/feature_matcher_validation/HostRunner.kt', 'tools/feature_matcher_validation/ProductionMatcherHostTest.kt', 'tools/feature_matcher_validation/README.md', 'tools/feature_matcher_validation/validate.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt', 'app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/NativePnpObservationPolicyTest.kt', 'docs/development/DISTINCT_PNP_OBSERVATIONS.md', 'docs/development/ESTABLISHED_LANDMARK_EXTENSION.md', 'reconstruction/src/pnp.cpp', 'reconstruction/tests/pnp_robustness_test.cpp', 'tests/test_eight_view_host.py', 'tests/test_eight_view_matcher_supplement.py', 'tests/test_multiview.py', 'tests/test_project_contracts.py', 'tests/test_runbook_smoke_evidence.py', 'tools/docs/check_runbook.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/matcher_supplement.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/feature_matcher_validation/HostRunner.kt', 'tools/feature_matcher_validation/README.md'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_THREE
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2

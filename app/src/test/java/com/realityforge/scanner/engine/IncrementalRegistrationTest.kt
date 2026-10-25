@@ -1,5 +1,6 @@
 package com.realityforge.scanner.engine
 
+import com.realityforge.scanner.engine.pipeline.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
@@ -21,11 +22,24 @@ class IncrementalRegistrationTest {
         assertEquals(.2,rows[0],0.0)
         assertEquals(.04,rows[3],1e-6)
     }
-    @Test fun singleViewSupportAndConflictingCandidateKeysAreRejected() {
+    @Test fun establishedLandmarkNeedsOneLinkButConflictingCandidateKeysAreRejected() {
         val xyz=listOf(doubleArrayOf(.2,0.0,5.0));val group=listOf(mapOf(0 to 0,1 to 0))
-        assertEquals(0,IncrementalRegistration.candidateRows(xyz,group,mapOf(0 to mapOf(0 to 2)),view()).size)
+        assertEquals(5,IncrementalRegistration.candidateRows(xyz,group,mapOf(0 to mapOf(0 to 2)),view()).size)
         assertEquals(0,IncrementalRegistration.candidateRows(xyz,group,
             mapOf(0 to mapOf(0 to 2),1 to mapOf(0 to 3)),view()).size)
+    }
+    @Test fun singleSourceObservationCannotEstablishALandmarkAtCandidateBoundary() {
+        val xyz=listOf(doubleArrayOf(.2,0.0,5.0))
+        for(group in listOf(emptyMap(),mapOf(0 to 0))) {
+            assertEquals(0,IncrementalRegistration.candidateRows(xyz,listOf(group),
+                mapOf(0 to mapOf(0 to 2),1 to mapOf(0 to 2)),view()).size)
+        }
+    }
+    @Test fun duplicateSingleLinkTargetRejectsEveryCompetingLandmark() {
+        assertEquals(0,IncrementalRegistration.candidateRows(
+            listOf(doubleArrayOf(.2,0.0,5.0),doubleArrayOf(.4,0.0,7.0)),
+            listOf(mapOf(0 to 0,1 to 0),mapOf(0 to 1,1 to 1)),
+            mapOf(0 to mapOf(0 to 2),1 to mapOf(1 to 2)),view()).size)
     }
     @Test fun duplicateCandidateFeatureRejectsBothCompetingLandmarks() {
         val rows=IncrementalRegistration.candidateRows(
@@ -89,6 +103,59 @@ class IncrementalRegistrationTest {
         assertTrue(result.attempts.single().reason.contains("reprojection"))
     }
 
+    /** Actual Kotlin scheduler/geometry checks; analytic callbacks are not JNI qualification. */
+    @Test fun twoAnchorsAndOnlyOneCandidateEdgeCanRegisterWithoutATriangle()=runBlocking {
+        val views=listOf(view(20),view(20,tx=-.5),view(20,tx=-1.0))
+        var calls=0
+        val directory=java.nio.file.Files.createTempDirectory("single-link-admitted-session").toFile()
+        try {
+        val session=AdmittedRegistrationSession.grow(directory,"a".repeat(64),listOf("a","b","c"),views,
+            listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1])),
+            {a,b->if(a==0&&b==2) FeaturePairs(intArrayOf(),intArrayOf())
+                  else FeaturePairs(IntArray(20){it},IntArray(20){it})},
+            {poses,observations,_->
+                assertEquals(24,poses.size) // exactly two registered anchors
+                assertEquals(40,observations.size/7)
+                List(20){FrontierPoint(it,doubleArrayOf(it*.1,0.0,5.0),listOf(0,1))}
+            },
+            {rows,threshold->
+                calls++;assertEquals(20,rows.size/5);assertEquals(.02,threshold,0.0)
+                FrontierPose(views[2].rotation,views[2].translation,IntArray(20){it})
+            })
+        val result=session.growth
+        assertEquals(1,calls);assertEquals(3,result.cameras.size);assertTrue(result.unregistered.isEmpty())
+        assertEquals(20,result.attempts.single().tracks)
+        assertTrue(session.persistedCheckpoints>0);assertEquals(0,session.failedCheckpointWrites)
+        } finally {directory.deleteRecursively()}
+    }
+    @Test fun oneLinkDoesNotBypassSourceGeometryPoseConsensusOrCancellation()=runBlocking {
+        for(mode in listOf("source-depth","source-reprojection","source-support","pose", "inliers", "cancel")) {
+            val views=listOf(view(20),view(20,tx=-.5),view(20,tx=-1.0))
+            var called=false
+            try {
+                val result=IncrementalRegistration.grow(views,
+                    listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1])),
+                    {a,b->if(a==0&&b==2) FeaturePairs(intArrayOf(),intArrayOf())
+                          else FeaturePairs(IntArray(20){it},IntArray(20){it})},
+                    {_,_,_->List(20){FrontierPoint(it,
+                        doubleArrayOf(it*.1,if(mode=="source-reprojection")10.0 else 0.0,if(mode=="source-depth")-5.0 else 5.0),
+                        if(mode=="source-support")listOf(0) else listOf(0,1))}},
+                    {_,_->
+                        called=true
+                        if(mode=="cancel")throw CancellationException("cancel single-link PnP")
+                        FrontierPose(views[2].rotation,
+                            if(mode=="pose")doubleArrayOf(100.0,0.0,0.0) else views[2].translation,
+                            IntArray(if(mode=="inliers")15 else 20){it})
+                    })
+                assertNotEquals("Cancellation must propagate", "cancel", mode)
+                assertEquals(2,result.cameras.size);assertEquals(listOf(2),result.unregistered)
+                assertEquals(mode in listOf("pose","inliers"),called)
+            } catch(failure:CancellationException) {
+                assertEquals("cancel",mode);assertTrue(called)
+            }
+        }
+    }
+
     @Test fun frontierCheckpointRoundTripAndStaleInputRejection() = runBlocking {
         val views=listOf(view(),view(tx=-.5),view());var checkpoint:com.realityforge.scanner.engine.registration.RegistrationFrontier?=null
         val initial=listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1]))
@@ -101,6 +168,53 @@ class IncrementalRegistrationTest {
         assertThrows(IllegalArgumentException::class.java){com.realityforge.scanner.engine.registration.RegistrationFrontier.decode(bytes)}
         try { run(views.toMutableList().also{it[2]=view(tx=.1)},decoded);fail("Stale input accepted") } catch(_:IllegalArgumentException){}
     }
+    @Test fun formerFrontierIdentityCannotResumeDespiteUnchangedInputs()=runBlocking {
+        val views=listOf(view(),view(tx=-.5),view());val ids=listOf("a","b","c")
+        // Independently reproduce the former exact input identity, not the new implementation.
+        val digest=java.security.MessageDigest.getInstance("SHA-256")
+        digest.update("registration-frontier-v2".toByteArray())
+        for(index in views.indices) {
+            val v=views[index];digest.update(ids[index].toByteArray());digest.update(0.toByte())
+            digest.update(java.nio.ByteBuffer.allocate(20).putInt(v.width).putInt(v.height).putDouble(v.focalPixels).putInt(v.colors.size).array())
+            for(value in v.xy)digest.update(java.nio.ByteBuffer.allocate(4).putFloat(value).array())
+            digest.update(v.projection.toString().toByteArray())
+        }
+        val old=digest.digest().joinToString(""){"%02x".format(it)}
+        assertNotEquals(old,IncrementalRegistration.inputIdentity(views,ids))
+        val initial=listOf(RegisteredFrame(0,views[0]),RegisteredFrame(1,views[1]))
+        val stale=com.realityforge.scanner.engine.registration.RegistrationFrontier(old,ids,
+            initial.map {com.realityforge.scanner.engine.registration.FrontierCamera(ids[it.photo],it.view.rotation.toList(),it.view.translation.toList())},emptyMap())
+        try {
+            IncrementalRegistration.grow(views,initial,{_,_->error("Stale frontier matched")},
+                {_,_,_->error("Stale frontier triangulated")},{_,_->error("Stale frontier registered")},
+                photoIds=ids,resume=stale)
+            fail("Former frontier policy accepted")
+        } catch(failure:IllegalArgumentException) {assertEquals("Stale registration frontier",failure.message)}
+    }
+    @Test fun admissionPolicyInvalidatesSparseDescendantsAndRenamedFrontierButReusesFeaturesMatches() {
+        val old=PipelineInputSnapshot("project",1,listOf(
+            PipelinePhotoInput("a","a".repeat(64),128,128,100,26.0),
+            PipelinePhotoInput("b","b".repeat(64),128,128,100,26.0)),"calibration","engine",
+            PipelineStageSettings("features","matches","incremental-frontier-v1|unchanged-tail","dense","surface","texture","export"))
+        val next=old.copy(settings=old.settings.copy(sparse=IncrementalRegistration.POLICY+"|unchanged-tail"))
+        assertEquals("incremental-frontier-supported-landmark-single-link-v2",IncrementalRegistration.POLICY)
+        for(stage in PipelineStage.entries) {
+            if(stage in listOf(PipelineStage.FEATURES,PipelineStage.MATCHING))
+                assertEquals(old.identity(stage),next.identity(stage))
+            else assertNotEquals(old.identity(stage),next.identity(stage))
+        }
+        val directory=java.nio.file.Files.createTempDirectory("landmark-policy-frontier").toFile()
+        try {
+            val store=com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore(directory)
+            val before=old.identity(PipelineStage.SPARSE).digest;val after=next.identity(PipelineStage.SPARSE).digest
+            val bytes=byteArrayOf(1,2,3)
+            assertTrue(store.publish(before,bytes){false});assertNull(store.load(after){false})
+            val cache=java.io.File(directory,com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore.DIRECTORY_NAME)
+            java.io.File(cache,"$before.frontier").copyTo(java.io.File(cache,"$after.frontier"))
+            assertNull(store.load(after){false});assertArrayEquals(bytes,store.load(before){false})
+        } finally {directory.deleteRecursively()}
+    }
+
     @Test fun largerPhotoManifestsRemainExplicitlyDisconnected() = runBlocking {
         for(count in listOf(30,80,250)){
             val views=List(count){view(tx=if(it==1)-.5 else 0.0)};var pairCalls=0

@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='b469ed1972cab56bd9d8c3e1386574bd6b57d84c'
-MESSAGE='fix: stabilize physical-view correspondence ordering'
+BASE_SHA='369457833ab2c8d0cbf9d548239b2d864894fa24'
+MESSAGE='fix: extend established landmarks with distinct pose support'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt', 'app/src/main/java/com/realityforge/scanner/engine/matching/VerifiedMatches.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt', 'app/src/test/java/com/realityforge/scanner/engine/matching/MatchInputOrderTest.kt', 'tests/test_eight_view_host.py', 'tests/test_match_input_order.py', 'tools/eight_view_host/policy.py', 'tools/feature_matcher_validation/HostRunner.kt', 'tools/feature_matcher_validation/ProductionMatcherHostTest.kt', 'tools/feature_matcher_validation/README.md', 'tools/feature_matcher_validation/validate.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/ProductionPipelineSnapshot.kt', 'app/src/test/java/com/realityforge/scanner/engine/IncrementalRegistrationTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/NativePnpObservationPolicyTest.kt', 'docs/development/DISTINCT_PNP_OBSERVATIONS.md', 'docs/development/ESTABLISHED_LANDMARK_EXTENSION.md', 'reconstruction/src/pnp.cpp', 'reconstruction/tests/pnp_robustness_test.cpp', 'tests/test_eight_view_host.py', 'tests/test_eight_view_matcher_supplement.py', 'tests/test_multiview.py', 'tests/test_project_contracts.py', 'tests/test_runbook_smoke_evidence.py', 'tools/docs/check_runbook.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/matcher_supplement.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/feature_matcher_validation/HostRunner.kt', 'tools/feature_matcher_validation/README.md'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

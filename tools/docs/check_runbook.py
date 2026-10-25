@@ -87,7 +87,23 @@ def smoke(root):
     results = []
     for script in ('tools/capture_audit.py', 'tools/check_apk.py', 'tools/benchmark_multiview_coverage.py'):
         run = subprocess.run([sys.executable, str(root / script), '--help'], cwd=root, capture_output=True, text=True, timeout=30)
-        results.append({'script': script, 'status': 'PASS' if run.returncode == 0 and 'usage:' in run.stdout.lower() else 'FAIL'})
+        usage_present = 'usage:' in run.stdout.lower()
+        # Keep only fixed-schema evidence, never CLI output, paths or stack text.
+        # These are UTF-8 sizes of the already text-decoded streams (not raw pipe
+        # byte counts). Only an exact numeric leak summary in the bounded stderr
+        # tail is retained; its presence does not attribute cause or waive failure.
+        summary = re.search(
+            r'^SUMMARY: (?:AddressSanitizer|LeakSanitizer): ([0-9]{1,20}) byte\(s\) leaked in ([0-9]{1,20}) allocation\(s\)\.$',
+            run.stderr[-4096:], re.MULTILINE)
+        results.append({
+            'script': script,
+            'status': 'PASS' if run.returncode == 0 and usage_present else 'FAIL',
+            'returncode': run.returncode, 'usage_present': usage_present,
+            'stdout_utf8_bytes': len(run.stdout.encode('utf-8')),
+            'stderr_utf8_bytes': len(run.stderr.encode('utf-8')),
+            'sanitizer_summary': ({'leaked_bytes': int(summary[1]), 'allocations': int(summary[2])}
+                                  if summary else None),
+        })
     return results
 
 

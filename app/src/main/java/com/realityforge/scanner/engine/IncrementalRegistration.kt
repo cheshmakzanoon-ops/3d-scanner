@@ -39,15 +39,18 @@ internal data class RegistrationGrowth(
 /**
  * Grow the sparse coordinate frame instead of requiring every image to see both anchors.
  * All landmarks are freshly triangulated in the current, shared frame. A candidate feature
- * must agree through at least TWO already-registered, reprojection-supported observations.
+ * needs one unambiguous link to a landmark established by at least TWO independently
+ * positive-depth/reprojection-supported registered observations. Conflicting links never vote.
  * Does not estimate intrinsics, invent unseen features, or alter the first two camera poses.
  */
 internal object IncrementalRegistration {
+    const val PNP_POLICY = "native-pnp-exact-observation-support-v1"
+    const val POLICY = "incremental-frontier-supported-landmark-single-link-v2"
     /** Stable across caller ordering; binds every original keypoint and lens model.
      * Public only within this module so the durable wrapper can reject stale bytes before work. */
     internal fun inputIdentity(templates:List<SparseView>,photoIds:List<String>,checkpoint:()->Unit={}):String {
         require(templates.size==photoIds.size && templates.size in 2..250 && photoIds.distinct().size==photoIds.size)
-        val digest=MessageDigest.getInstance("SHA-256");digest.update("registration-frontier-v2".toByteArray())
+        val digest=MessageDigest.getInstance("SHA-256");digest.update("registration-frontier-v3|$POLICY|$PNP_POLICY".toByteArray())
         val coordinate=ByteBuffer.allocate(4)
         for(index in templates.indices.sortedBy {photoIds[it]}) {
             checkpoint();digest.update(photoIds[index].toByteArray());digest.update(0.toByte());val view=templates[index]
@@ -82,9 +85,12 @@ internal object IncrementalRegistration {
         for (i in world.indices) {
             val xyz=world[i]
             require(xyz.size == 3 && xyz.all { it.isFinite() })
+            // A single descriptor edge may extend an established 3D landmark,
+            // but can never establish that landmark from one source observation.
+            if (featureGroups[i].size < 2) continue
             val identities=featureGroups[i].mapNotNull { (photo,key) -> destinationBySource[photo]?.get(key) }
             // A disagreement is not resolved by a majority vote over possibly incorrect matches.
-            if (identities.size < 2 || identities.toSet().size != 1) continue
+            if (identities.isEmpty() || identities.toSet().size != 1) continue
             val key=identities.first()
             if (key !in candidate.colors.indices) continue
             val uv=runCatching { candidate.normalized(key) }.getOrNull() ?: continue
@@ -92,7 +98,19 @@ internal object IncrementalRegistration {
             candidates.add(key to doubleArrayOf(xyz[0],xyz[1],xyz[2],uv.first,uv.second))
         }
         val frequencies=candidates.groupingBy { it.first }.eachCount()
-        val unique=candidates.filter { frequencies[it.first] == 1 }.take(5000)
+        // Reject all competing feature identities BEFORE geometric deduplication.
+        // Compare the full finite XYZ+UV tuple, with numeric +/-0 equality; no
+        // tolerance, digest-only identity, or collapsing conflicting observations.
+        val geometry=java.util.TreeSet<DoubleArray>(Comparator { a,b ->
+            var order=0
+            for(i in 0 until 5) {
+                if(a[i]<b[i]) {order=-1;break}
+                if(a[i]>b[i]) {order=1;break}
+            }
+            order
+        })
+        val unique=candidates.filter { frequencies[it.first] == 1 }
+            .filter { geometry.add(it.second) }.take(5000)
         return DoubleArray(unique.size*5) { unique[it/5].second[it%5] }
     }
 
@@ -207,7 +225,7 @@ internal object IncrementalRegistration {
             }
             if(landmarks.size<16){for(photo in pending)failures[photoIds[photo]]="Insufficient positive-depth reprojection-supported landmarks";break}
             var added=false
-            // Rank actual unambiguous two-view landmark support, independent of
+            // Rank actual unambiguous established-landmark links, independent of
             // import ordering. Retain only8 bounded candidate row buffers.
             val ranked=mutableListOf<Pair<Int,DoubleArray>>()
             for(photo in pending.sortedBy {photoIds[it]}){
@@ -215,7 +233,7 @@ internal object IncrementalRegistration {
                 for(camera in window){if(neighbors!=null && photo !in neighbors(camera.photo) && camera.photo !in neighbors(photo))continue
                     val links=pair(camera.photo,photo);maps[camera.photo]=links.first.indices.associate { links.first[it] to links.second[it] }}
                 val rows=candidateRows(landmarks.map {it.xyz},landmarks.map {it.features},maps,templates[photo])
-                if(rows.size/5<16){val reason="Fewer than16 unambiguous two-view-supported landmarks";failures[photoIds[photo]]=reason
+                if(rows.size/5<16){val reason="Fewer than16 unambiguous established-landmark links";failures[photoIds[photo]]=reason
                     attempts.add(RegistrationAttempt(photo,cameras.size,rows.size/5,false,reason));continue}
                 ranked.add(photo to rows);ranked.sortWith(compareByDescending<Pair<Int,DoubleArray>>{it.second.size}.thenBy {photoIds[it.first]});if(ranked.size>8)ranked.removeAt(ranked.lastIndex)
             }
@@ -225,7 +243,7 @@ internal object IncrementalRegistration {
                 progress("Registering beyond the anchor pair",step,ranked.size)
                 val count=rows.size/5
                 if(count<16) {
-                    attempts.add(RegistrationAttempt(photo,cameras.size,count,false,"Fewer than 16 unambiguous two-view-supported landmarks"))
+                    attempts.add(RegistrationAttempt(photo,cameras.size,count,false,"Fewer than 16 unambiguous established-landmark links"))
                     continue
                 }
                 val gate=2.0/templates[photo].focalPixels

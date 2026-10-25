@@ -13,6 +13,7 @@
 #include <numeric>
 #include <random>
 #include <sstream>
+#include <set>
 
 namespace rf {
 namespace {
@@ -216,9 +217,29 @@ double median(std::vector<double> x){if(x.empty())return std::numeric_limits<dou
 }
 CameraPose registerCamera(std::span<const Observation> observations,double threshold,std::uint32_t seed){
     if(observations.size()<16||observations.size()>5000||!std::isfinite(threshold)||threshold<=1e-6||threshold>.05)throw Error("Invalid PnP input size or threshold");
-    for(auto& o:observations){
+    cancellation::checkpoint();
+    const std::size_t rawInputCount=observations.size();
+    for(std::size_t i=0;i<observations.size();++i){
+        if(i%128==0)cancellation::checkpoint();
+        const auto& o=observations[i];
         for(double v:{o.world.x,o.world.y,o.world.z,o.image.x,o.image.y})if(!std::isfinite(v)||std::abs(v)>100000)throw Error("Non-finite or unreasonable PnP coordinate");
     }
+    // Exact finite XYZ+normalized-UV tuples are observations, not independent
+    // evidence each time a descriptor orientation supplies the same tuple.
+    // Numeric ordering equates +/-0; distinct conflicting tuples are NOT merged.
+    std::set<std::array<double,5>> seen;
+    std::vector<Observation> unique;unique.reserve(observations.size());
+    std::vector<std::size_t> originalRows;originalRows.reserve(observations.size());
+    for(std::size_t i=0;i<observations.size();++i){
+        if(i%128==0)cancellation::checkpoint();
+        const auto& o=observations[i];
+        if(seen.insert({o.world.x,o.world.y,o.world.z,o.image.x,o.image.y}).second){
+            unique.push_back(o);originalRows.push_back(i);
+        }
+    }
+    cancellation::checkpoint();
+    if(unique.size()<16)throw Error("PnP needs at least 16 distinct 3D-2D observations");
+    observations=std::span<const Observation>(unique);
     std::mt19937 random(seed);std::uniform_int_distribution<std::size_t> pick(0,observations.size()-1);
     CameraPose best;best.inputCount=observations.size();
     const std::size_t minValid=std::max<std::size_t>(16,static_cast<std::size_t>(std::ceil(.28*observations.size())));
@@ -258,6 +279,9 @@ CameraPose registerCamera(std::span<const Observation> observations,double thres
     best.medianError=median(errors);
     if(determinant(best.rotation)<.99||determinant(best.rotation)>1.01)throw Error("Nonrigid camera pose");
     best.hypothesesTested=hypotheses;
+    // Preserve the public raw-buffer provenance contract, never unique-array IDs.
+    for(auto& index:best.inliers)index=originalRows[index];
+    best.inputCount=rawInputCount;
     return best;
 }
 std::string cameraJson(const CameraPose& p){

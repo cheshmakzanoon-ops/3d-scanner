@@ -247,7 +247,12 @@ def test_incremental_registration_uses_shared_triangulation_and_verified_landmar
     source=(folder/"IncrementalRegistration.kt").read_text()
     bridge=(folder/"NativeFrontierGeometry.kt").read_text()
     pipeline=(folder/"SparsePipeline.kt").read_text()
-    assert "identities.size < 2" in source and "frequencies[it.first] == 1" in source
+    assert "featureGroups[i].size < 2" in source and "supported.size>=2" in source
+    assert "identities.isEmpty() || identities.toSet().size != 1" in source
+    assert "frequencies[it.first] == 1" in source
+    identity=(folder/"pipeline/ProductionPipelineSnapshot.kt").read_text()
+    assert "${com.realityforge.scanner.engine.IncrementalRegistration.POLICY}" in identity
+    assert "registration-frontier-v3|$POLICY" in source
     assert "validatePose(" in source and "projectedError(" in source
     assert "NativeCore.reconstructMultiview" in bridge and "NativeCore.registerCamera" in bridge
     session=(folder/"AdmittedRegistrationSession.kt").read_text()
@@ -364,3 +369,14 @@ def test_m19_persisted_scan_evidence_and_local_export():
     assert "model.completeArtifactExport(captured, uri)" in ui
     assert '"json", "glb"' in model
     assert "ScanQualityReportDeviceTest" in (ROOT/"app/src/androidTest/java/com/realityforge/scanner/ScanQualityReportDeviceTest.kt").read_text()
+
+
+def test_distinct_pnp_policy_invalidates_sparse_and_frontier_reuse():
+    folder = ROOT / 'app/src/main/java/com/realityforge/scanner/engine'
+    frontier = (folder / 'IncrementalRegistration.kt').read_text()
+    snapshot = (folder / 'pipeline/ProductionPipelineSnapshot.kt').read_text()
+    assert 'const val PNP_POLICY = "native-pnp-exact-observation-support-v1"' in frontier
+    assert 'registration-frontier-v3|$POLICY|$PNP_POLICY' in frontier
+    assert '${com.realityforge.scanner.engine.IncrementalRegistration.PNP_POLICY}' in snapshot
+    # Exact geometric support dedup follows, never masks, duplicate feature-ID rejection.
+    assert frontier.index('frequencies[it.first] == 1') < frontier.index('geometry.add(it.second)')

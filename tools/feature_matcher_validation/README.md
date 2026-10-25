@@ -22,3 +22,28 @@ Limits: fresh classes, compilation120s/384MiB; execution90s/256MiB; two JVM proc
 This is synthetic-descriptor production matching on a Linux build, **not** Android Bitmap/decoder/FeatureExtractor, full SparsePipeline, physical scan quality or device performance. Cancellation checks occur before/after noninterruptible BF calls; no in-flight native interruption claim. Geometry verification uses only the existing <20 early rejection path, so scanner reconstruction JNI is not loaded or qualified here.
 
 Official-source native prerequisite recipe and provenance schema: [OPENCV_BUILD.md](OPENCV_BUILD.md).
+
+## Source-bound real-three HOST supplement
+
+The separately admitted `tools/eight_view_host/controller.py` REAL_THREE profile can execute
+these same nine synthetic-descriptor tests using its existing verified
+`HOST_SOURCE_BUILT_CAPABILITY`. `matcher_supplement.py` does not convert that capability
+into the older `validation.json`/`aar-input.json` format. An offline, strict Gradle task
+captures the already-resolved `kotlinCompilerClasspath`; every compiler JAR is checked
+against the repository's dependency verification hashes. Fresh compilation uses only the
+listed production sources, this test/runner, exact verified AAR classes, and the small
+explicit runtime-JAR subset of `prepared.json`—never previously compiled app classes.
+
+Compilation (384 MiB/120 seconds) and execution (256 MiB/90 seconds) run through the
+existing owned Runner, within its unchanged overall deadline. Compiler capture has a
+90-second cap; there are no new downloads or native builds. Inputs and fresh output hashes
+are checked across execution, and the existing runner checks actual OpenCV mappings.
+`matcher-supplement.json` and its command logs are supplementary evidence, separate from
+the selected real-photo JUnit result. An ordinary compiler failure or reserved JUnit-failure exit 10 records FAIL
+but still permits the strict photographic invocation. Exit 10 is emitted only after the
+runner verifies the exact nine-test count, post-test native mappings, and that every
+JUnit failure is an AssertionError (not OOM, linkage, cancellation or other exceptions); all other
+nonzero test-process exits fail closed. cancellation, deadline, signaled
+processes and integrity/resource errors fail closed. Supplementary PASS never overrides
+a strict real-three failure. This integration does not arm a new workflow attempt or
+qualify Android/device/real-photo quality.

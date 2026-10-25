@@ -92,3 +92,74 @@ def test_third_photo_ground_truth(three_camera):
     assert rotation_error<1.
     # PnP output lives in the initial *unit-baseline* anchor reconstruction world frame.
     np.testing.assert_allclose(three_camera['thirdCamera']['translation'],np.array(cameras[2]['t'])/anchor_scale,atol=.045,rtol=0)
+
+
+@pytest.mark.parametrize('planar', [False, True])
+@pytest.mark.parametrize('distinct', [1, 8, 15])
+def test_pnp_duplicate_rows_cannot_inflate_minimum_support(engine, planar, distinct):
+    rows, *_ = synthetic(n=distinct, planar=planar)
+    inflated = np.tile(rows, (max(2, 32 // distinct + 1), 1))
+    assert len(inflated) >= 16
+    with pytest.raises(ValueError, match='16 distinct'):
+        engine.register_camera(inflated)
+
+
+@pytest.mark.parametrize('planar', [False, True])
+def test_pnp_duplicates_preserve_baseline_pose_and_first_original_row_indices(engine, planar):
+    rows, *_ = synthetic(n=40, planar=planar)
+    baseline = engine.register_camera(rows)
+    duplicated = np.repeat(rows, 3, axis=0)
+    actual = engine.register_camera(duplicated)
+    assert actual['inputTracks'] == len(duplicated)
+    assert actual['inlierIndices'] == [3 * i for i in baseline['inlierIndices']]
+    assert actual['inlierCount'] == baseline['inlierCount'] == 40
+    for field in ('rotation', 'translation', 'medianErrorNormalized', 'hypothesesTested',
+                  'worldPlanarityRatio', 'initializationModel'):
+        assert actual[field] == baseline[field]
+
+
+@pytest.mark.parametrize('planar', [False, True])
+def test_pnp_numeric_signed_zero_is_the_same_observation(engine, planar):
+    rows, *_ = synthetic(n=32, planar=planar)
+    rows[:, 0] -= rows[0, 0]  # Include exact positive zero; regenerate correct observations.
+    angle = .16
+    rotation = np.array([[np.cos(angle), 0, np.sin(angle)], [0, 1, 0],
+                         [-np.sin(angle), 0, np.cos(angle)]])
+    projected = rows[:, :3] @ rotation.T + np.array([-1.25, .11, .17])
+    rows[:, 3:] = projected[:, :2] / projected[:, 2, None]
+    baseline = engine.register_camera(rows)
+    extra = rows.copy()
+    extra[extra == 0] = -0.0
+    actual = engine.register_camera(np.vstack([rows, extra]))
+    assert actual['inlierIndices'] == baseline['inlierIndices']
+    assert actual['inlierCount'] == baseline['inlierCount']
+    assert actual['rotation'] == baseline['rotation']
+
+
+@pytest.mark.parametrize('column', range(5))
+def test_pnp_does_not_approximately_merge_distinct_observation_tuples(engine, column):
+    rows, *_ = synthetic(n=15)
+    extra = rows[0].copy()
+    extra[column] = np.nextafter(extra[column], np.inf)
+    actual = engine.register_camera(np.vstack([rows, extra]))
+    assert actual['inputTracks'] == actual['inlierCount'] == 16
+    assert actual['inlierIndices'] == list(range(16))
+
+
+def test_pnp_conflicting_observation_does_not_hide_later_valid_same_xyz(engine):
+    rows, *_ = synthetic(n=40)
+    conflict = rows[0].copy()
+    conflict[3:] = [9.0, -9.0]
+    actual = engine.register_camera(np.vstack([conflict, rows, rows]))
+    assert actual['inputTracks'] == 81
+    assert actual['inlierIndices'] == list(range(1, 41))
+    assert actual['inlierCount'] == 40
+
+
+@pytest.mark.parametrize('bad', [np.nan, np.inf, 100001.])
+def test_pnp_validates_all_raw_rows_before_deduplication(engine, bad):
+    rows, *_ = synthetic(n=15)
+    duplicated = np.tile(rows, (3, 1))
+    duplicated[-1, 4] = bad
+    with pytest.raises(ValueError, match='PnP coordinate'):
+        engine.register_camera(duplicated)
