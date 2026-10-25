@@ -699,8 +699,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='0a6d4ec8061de7f32a6d9ece1d38afe58302651f'
- assert p.MESSAGE=='fix: preserve runbook fixture dependency closure'
+ assert p.BASE_SHA=='482938f2ef29037ab8ceeb6cd1db8798e07b8980'
+ assert p.MESSAGE=='test: validate fixed licensed three-view controller profile'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -712,10 +712,10 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-process-deadline-scope.md', 'tests/test_eight_view_host.py', 'tests/test_eight_view_process_deadline_scope.py', 'tests/test_runbook_consistency.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/runtime.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/real_three_inputs.py', 'docs/development/experiments/real-three-controller-profile.md', 'tests/conftest.py', 'tests/test_ci_candidate_isolation.py', 'tests/test_ci_evidence_validation.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_native_pytest_progress.py', 'tests/test_real_stereo_complete.py', 'tests/test_real_three_complete.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_inputs.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/qa/native_regression/pytest_progress.py'))
  from tools.eight_view_host import experiments
- assert experiments.ACTIVE==experiments.REAL_STEREO
- assert experiments.artifact_budget(experiments.REAL_STEREO)==56*1024**2
+ assert experiments.ACTIVE==experiments.REAL_THREE
+ assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2
  env,event=valid_event();event['before']=p.BASE_SHA;event['head_commit']['message']=p.MESSAGE
  assert p.event_guard(env,event)==SHA
  event['head_commit']['message']+='\n'

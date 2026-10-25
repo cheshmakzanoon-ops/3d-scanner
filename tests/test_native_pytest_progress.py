@@ -181,16 +181,18 @@ def test_clock_failure_disables_only_optional_diagnostics(monkeypatch, stage):
     mod = plugin()
     sink = io.StringIO()
     monkeypatch.setattr(sys, '__stdout__', sink)
-    def broken():
-        raise OSError('synthetic clock failure')
-    if stage == 'init':
-        monkeypatch.setattr(mod, 'time', SimpleNamespace(monotonic=broken))
+    calls = 0
+    fail_at = {'init': 1, 'begin': 2, 'end': 3}[stage]
+    def clock():
+        nonlocal calls
+        calls += 1
+        if calls == fail_at:
+            raise OSError('synthetic clock failure')
+        return float(calls)
+    # Inject before construction: the observer owns this callable afterward.
+    monkeypatch.setattr(mod, 'time', SimpleNamespace(monotonic=clock))
     observer = mod.Progress()
-    if stage == 'begin':
-        monkeypatch.setattr(mod, 'time', SimpleNamespace(monotonic=broken))
     identity, started = observer.begin('tests/test_x.py::test_x', 'call')
-    if stage == 'end':
-        monkeypatch.setattr(mod, 'time', SimpleNamespace(monotonic=broken))
     observer.end(identity, started)
     assert observer.stopped
 
@@ -204,3 +206,23 @@ def test_configured_sink_survives_test_level_stdout_replacement(monkeypatch):
     identity, started = observer.begin('tests/test_x.py::test_x', 'call')
     observer.end(identity, started)
     assert len(records(sink.getvalue())) == 2 and not observer.stopped
+
+
+def test_real_shared_clock_patch_keeps_later_progress_under_default_capture():
+    # This real regression patches the shared time module with a two-value
+    # iterator. It must not exhaust the observer clock or hide later tests.
+    env = dict(os.environ, PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
+    env.pop('PYTEST_ADDOPTS', None)
+    result = subprocess.run([
+        sys.executable, '-m', 'pytest', '-q', '-p', PLUGIN,
+        'tests/test_eight_view_capability.py::test_snapshot_elapsed_predicate_reports_actual_allocated_budget',
+        'tests/test_native_pytest_progress.py::test_parameters_never_leave_safe_identity',
+    ], cwd=ROOT, env=env, text=True, capture_output=True, timeout=30)
+    assert result.returncode == 0 and '2 passed' in result.stdout, result.stdout + result.stderr
+    events = records(result.stdout)
+    assert len(events) == 12
+    assert [(row['phase'], row['event']) for row in events] == [
+        (phase, event) for _ in range(2)
+        for phase in ('setup', 'call', 'teardown') for event in ('start', 'end')]
+    assert events[-1]['nodeid'].endswith('::test_parameters_never_leave_safe_identity')
+    assert all(row.get('duration_s', 0) >= 0 for row in events)

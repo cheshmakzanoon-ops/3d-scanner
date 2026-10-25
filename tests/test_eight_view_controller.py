@@ -500,7 +500,7 @@ def test_genuine_empty_command_transcript_reference_is_valid(tmp_path):
  assert json.loads((run.work/'commands.json').read_text())==[]
 
 # Real checkpoint admission, unlike the orchestration-only mocks above.
-@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF,ctl.experiments.COMPLETE,ctl.experiments.REAL_STEREO])
+@pytest.mark.parametrize('profile',ctl.experiments.ALL_PROFILES)
 def test_checked_in_adapter_admission_and_injected_bytes(tmp_path,profile):
  package,module=ctl.load_adapter(ROOT,profile)
  assert callable(module.stage)
@@ -558,7 +558,7 @@ def test_real_adapter_admission_through_prepare_runtime_before_gradle(tmp_path,p
    raise BeforeGradle('actual adapter staging verified; no Gradle executed')
  with pytest.raises(BeforeGradle):ctl.prepare_runtime(AdmissionRun(),SHA,package,inputs,profile)
 
-@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF,ctl.experiments.COMPLETE,ctl.experiments.REAL_STEREO])
+@pytest.mark.parametrize('profile',ctl.experiments.ALL_PROFILES)
 def test_mixed_profile_stager_is_refused_before_outputs(tmp_path,profile):
  other=ctl.experiments.RELIEF if profile==ctl.experiments.LEGACY else ctl.experiments.LEGACY
  package,module=ctl.load_adapter(ROOT,other)

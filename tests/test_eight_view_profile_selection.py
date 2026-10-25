@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 import pytest
 ROOT=Path(__file__).resolve().parents[1]
 PROFILES={
+    'real-licensed-three-complete':('RealLicensedThreeCompleteControllerHostTest','fixedThreeLicensedPhotosCompletePublishReopenAndExportOrFail'),
     'real-licensed-stereo-complete':('RealLicensedStereoCompleteControllerHostTest','fixedTwoLicensedPhotosCompletePublishReopenAndExportOrFail'),
     'eight-cuboid':('EightViewSparsePrefixHostTest','fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'),
     'relief-three':('ReliefThreeSparsePrefixHostTest','fixedThreePhotosPersistSparseOrRecordUnmodifiedProductionFailure'),
@@ -69,7 +70,7 @@ tasks.register('selectedProbe',Test) {
   assert len(cases)==1 and cases[0].attrib['name']==method and cases[0].attrib['classname']==PACKAGE+name
   observations.append({'profile':profile,'selector':selector,'tests':1,'status':'ONLY_SELECTED_SYNTHETIC_JUNIT_CLASS_AND_METHOD'})
  legacy=PACKAGE+'.'.join(PROFILES['eight-cuboid']);relief=PACKAGE+'.'.join(PROFILES['relief-three'])
- for label,profile,selector,extra in [('mixed-eight','eight-cuboid',relief,[]),('mixed-relief','relief-three',legacy,[]),('mixed-complete','relief-three-complete',relief,[]),('mixed-real','real-licensed-stereo-complete',relief,[]),('unknown','not-reviewed',relief,[]),('numeric','relief-three',relief,['-PnumericProfile=true'])]:
+ for label,profile,selector,extra in [('mixed-eight','eight-cuboid',relief,[]),('mixed-relief','relief-three',legacy,[]),('mixed-complete','relief-three-complete',relief,[]),('mixed-real','real-licensed-stereo-complete',relief,[]),('mixed-three','real-licensed-three-complete',relief,[]),('unknown','not-reviewed',relief,[]),('numeric','relief-three',relief,['-PnumericProfile=true'])]:
   marker=tmp_path/(label+'.marker')
   result=run(['selectedProbe','-PfixtureProfile='+profile,'-PfixtureSelector='+selector,'-PfixtureMarker='+str(marker),*extra])
   assert result.returncode!=0

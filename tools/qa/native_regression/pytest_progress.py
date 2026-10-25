@@ -40,7 +40,10 @@ class Progress:
         self.stopped = False
         self.stream = sys.__stdout__
         try:
-            self.started = time.monotonic()
+            # Tests may replace the shared time module clock; observation must
+            # retain its own original clock just as it retains its output sink.
+            self.clock = time.monotonic
+            self.started = self.clock()
         except Exception:
             self.stopped = True
 
@@ -68,7 +71,7 @@ class Progress:
             return None, None
         try:
             self.phases += 1
-            started = time.monotonic()
+            started = self.clock()
             identity = dict(phase_id=self.phases, nodeid=safe_nodeid(nodeid), phase=phase)
             self.emit(dict(identity, event='start', elapsed_s=round(started - self.started, 6)))
             return identity, started
@@ -80,7 +83,7 @@ class Progress:
         if self.stopped or identity is None:
             return
         try:
-            now = time.monotonic()
+            now = self.clock()
             self.emit(dict(identity, event='end', elapsed_s=round(now - self.started, 6),
                            duration_s=round(now - started, 6)))
         except Exception:

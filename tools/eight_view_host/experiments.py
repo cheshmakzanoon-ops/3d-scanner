@@ -6,7 +6,10 @@ LEGACY = 'eight-cuboid'
 RELIEF = 'relief-three'
 COMPLETE = 'relief-three-complete'
 REAL_STEREO = 'real-licensed-stereo-complete'
-ACTIVE = REAL_STEREO
+REAL_THREE = 'real-licensed-three-complete'
+REAL_PROFILES = (REAL_STEREO, REAL_THREE)
+ALL_PROFILES = (LEGACY, RELIEF, COMPLETE, *REAL_PROFILES)
+ACTIVE = REAL_THREE
 
 @dataclass(frozen=True)
 class Profile:
@@ -40,6 +43,12 @@ _REAL_STEREO = Profile(REAL_STEREO,
     'RealLicensedStereoCompleteControllerHostTest.kt', 2, 1,
     'REAL_LICENSED_STEREO_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY')
 
+_REAL_THREE = Profile(REAL_THREE,
+    'com.realityforge.scanner.hostintegration.RealLicensedThreeCompleteControllerHostTest.fixedThreeLicensedPhotosCompletePublishReopenAndExportOrFail',
+    'CI_ONLY_IMMUTABLE_LICENSED_THREE', 'real_three_inputs.py',
+    'RealLicensedThreeCompleteControllerHostTest.kt', 3, 3,
+    'REAL_LICENSED_THREE_PARTIAL_ARC_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY')
+
 def get_profile(profile_id):
     if type(profile_id) is not str:
         raise Failure('Unknown closed experiment profile')
@@ -51,10 +60,12 @@ def get_profile(profile_id):
         return _COMPLETE
     if profile_id == REAL_STEREO:
         return _REAL_STEREO
+    if profile_id == REAL_THREE:
+        return _REAL_THREE
     raise Failure('Unknown closed experiment profile')
 
 
 def artifact_budget(profile):
     """Reporting capacity only; never changes reconstruction or quality admission."""
     selected=get_profile(profile)
-    return (56 if selected.id in (COMPLETE, REAL_STEREO) else 32)*1024**2
+    return (56 if selected.id in (COMPLETE, *REAL_PROFILES) else 32)*1024**2

@@ -83,7 +83,7 @@ def test_complete_raw_publication_export_proof():
 
 
 def test_complete_profile_activation_does_not_weaken_prefix():
-    assert e.ACTIVE==e.REAL_STEREO
+    assert e.ACTIVE==e.REAL_THREE
     assert e.get_profile(e.COMPLETE).test_source=='ReliefThreeCompleteControllerHostTest.kt'
     assert e.get_profile(e.COMPLETE).selector.endswith('.fixedThreePhotosCompletePublishReopenAndExportOrFail')
     with pytest.raises(Failure):p.measurement_proof({},[],[],{},profile=e.COMPLETE)

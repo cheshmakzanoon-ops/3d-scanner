@@ -325,6 +325,7 @@ class HostSparseExperiment {
    'eight-cuboid':[type:'EightViewSparsePrefixHostTest',method:'fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'],
    'relief-three':[type:'ReliefThreeSparsePrefixHostTest',method:'fixedThreePhotosPersistSparseOrRecordUnmodifiedProductionFailure'],
    'relief-three-complete':[type:'ReliefThreeCompleteControllerHostTest',method:'fixedThreePhotosCompletePublishReopenAndExportOrFail'],
+   'real-licensed-three-complete':[type:'RealLicensedThreeCompleteControllerHostTest',method:'fixedThreeLicensedPhotosCompletePublishReopenAndExportOrFail'],
    'real-licensed-stereo-complete':[type:'RealLicensedStereoCompleteControllerHostTest',method:'fixedTwoLicensedPhotosCompletePublishReopenAndExportOrFail']]
   assert cfg.experiment instanceof String && profiles.containsKey(cfg.experiment) : 'Unknown closed experiment profile'
   def selected=profiles[cfg.experiment]

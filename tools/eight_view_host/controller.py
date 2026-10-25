@@ -13,7 +13,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='f5d772ef1559ac6dc5317558c985de00ba44d0bce5a6f1a7be2070903bbaafb6'
+ADAPTER_MANIFEST='130c788c7f9b1451f8e18ae5d853e6e54237f5b234f56c4f21b2eb3f8f61917e'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -21,7 +21,7 @@ def source_names(profile=experiments.ACTIVE):
 SOURCE_NAMES=source_names()
 # Kotlin file facades/nested classes retain their owner prefix. This additional top-level
 # object is declared in RuntimeProviderIdentity.kt, not in a same-named source file.
-PROBE_CLASS_PREFIXES=tuple(sorted({Path(name).stem for profile in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE,experiments.REAL_STEREO) for name in source_names(profile)}))+('Api35ProviderContract',)
+PROBE_CLASS_PREFIXES=tuple(sorted({Path(name).stem for profile in experiments.ALL_PROFILES for name in source_names(profile)}))+('Api35ProviderContract',)
 BASE_PACKAGES=('platforms;android-36','build-tools;36.0.0')
 
 def verify_probe_classes_removed(root,run=None):
@@ -655,7 +655,7 @@ def load_adapter(root,profile=experiments.ACTIVE):
         if not re.fullmatch(r'[A-Za-z0-9_.-]+',name) or name in ('.','..','SHA256SUMS') or name in names:raise Failure('Adapter source manifest duplicate or invalid name')
         names.add(name);path=package/name
         if path.is_symlink() or not path.is_file() or path.absolute()!=path.resolve() or not re.fullmatch('[0-9a-f]{64}',h) or sha(path)!=h:raise Failure('Adapter source manifest mismatch')
-    if not {name for key in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE,experiments.REAL_STEREO) for name in (*source_names(key),experiments.get_profile(key).input_module,'policy.json')}.issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
+    if not {name for key in experiments.ALL_PROFILES for name in (*source_names(key),experiments.get_profile(key).input_module,'policy.json')}.issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
     spec=importlib.util.spec_from_file_location('eight_observation_inputs',package/selected.input_module);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return package,module
 
@@ -663,7 +663,7 @@ def prepare_runtime(run,source,package,inputs,profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
     if Path(inputs.__file__).resolve()!=package/selected.input_module:raise Failure('Mixed experiment input module')
     fixture_source=run.root/selected.fixture
-    if profile==experiments.REAL_STEREO:
+    if profile in experiments.REAL_PROFILES:
         fixture_source=run.work/'licensed-source'
         inputs.fetch(run,fixture_source)
         inputs.prepare_privacy_reader(run)
@@ -799,7 +799,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
 
 def measurement_reference(directory,profile,run=None,*,observed=None):
     """Validate complete retained measurements; frame only a fixed-size summary/reference."""
-    if profile in (experiments.COMPLETE,experiments.REAL_STEREO):return complete_measurement_reference(directory,run,observed=observed,profile=profile)
+    if profile in (experiments.COMPLETE,*experiments.REAL_PROFILES):return complete_measurement_reference(directory,run,observed=observed,profile=profile)
     directory=Path(directory)
     raw=bounded_bytes(directory/'measurement/sparse-result.json',4*1024**2,run)
     inputs=[raw,bounded_bytes(directory/'measurement/pair-events.json',8*1024**2,run),
@@ -823,7 +823,7 @@ def complete_measurement_reference(directory,run=None,*,observed=None,profile=ex
         if total>experiments.artifact_budget(profile)-1024**2:raise Failure('Complete measurement aggregate byte limit')
         records.append({'path':name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
         return raw
-    if profile==experiments.REAL_STEREO:
+    if profile in experiments.REAL_PROFILES:
         _,licensed=load_adapter(ROOT,profile)
         for name,expected in licensed.LICENSE_EVIDENCE.items():
             if read(name,64*1024)!=expected:raise Failure('Licensed source attribution/provenance differs')
@@ -858,14 +858,14 @@ def emit_terminal_frames(destination,receipt,run=None):
     if json.dumps(json.loads(sealed),sort_keys=True)!=json.dumps(receipt,sort_keys=True):raise Failure('Sealed receipt changed before console framing')
     validate_measurement_reference(destination,receipt,run)
     if 'measurementReferenceFailure' in receipt:raise Failure('Measurement reference invalid before console framing')
-    if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check('receipt.json',sealed,run)
+    if experiments.ACTIVE in experiments.REAL_PROFILES:real_evidence_privacy_check('receipt.json',sealed,run)
     frame('terminal-receipt',sealed)
     if isinstance(receipt.get('result'),dict) and 'measurement' in receipt['result']:
         frame('measurement-reference',json.dumps(receipt['result']['measurement'],sort_keys=True).encode())
     for name in ['measurement/failure.json','test-events.jsonl']:
         if (destination/name).is_file():
             raw=bounded_bytes(destination/name,256*1024,run)
-            if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check(name,raw,run)
+            if experiments.ACTIVE in experiments.REAL_PROFILES:real_evidence_privacy_check(name,raw,run)
             frame(name.replace('/','-').replace('.','-'),raw)
 
 
@@ -962,7 +962,7 @@ def seal_receipt(destination,receipt,run=None):
     raw=(json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()
     if len(raw)>256*1024:raise Failure('Terminal receipt framing byte limit')
     if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':raise Failure('Terminal receipt withheld for secret marker')
-    if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check('receipt.json',raw,run)
+    if experiments.ACTIVE in experiments.REAL_PROFILES:real_evidence_privacy_check('receipt.json',raw,run)
     phase_budget(run);atomic_json(destination/'receipt.json',receipt)
     _,entries=inventory(destination,artifact_limit,2000,seconds=phase_budget(run))
     manifest=''.join(f'{bounded_hash(destination/name,16*1024**2,run)}  {name}\n' for name in sorted(entries) if (destination/name).is_file() and name!='SHA256SUMS')
@@ -1010,11 +1010,13 @@ def validate_real_match_replay(raw):
                 'RESOURCE_EXHAUSTED','CANCELLED','NATIVE_FAILURE','UNKNOWN_NATIVE_FAILURE','UNRECOGNIZED_REJECTION'})
     require(pair['thresholdNormalized']==1.5/min(photo[axis] for photo in value['photos'] for axis in ('fx','fy')))
 
-def real_evidence_privacy_check(rel,raw,run=None):
+def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
     """Closed real-profile artifact types; original metadata is never public evidence."""
+    profile=experiments.ACTIVE if profile is None else profile
+    if profile not in experiments.REAL_PROFILES:raise Failure('Real privacy profile required')
     public_license=rel in ('real-input-license-readme.md','real-input-provenance.json','real-input-attribution.txt')
     if public_license:
-        _,licensed=load_adapter(ROOT,experiments.REAL_STEREO)
+        _,licensed=load_adapter(ROOT,profile)
         if raw!=licensed.LICENSE_EVIDENCE[rel]:raise Failure('Immutable public attribution differs')
     if not public_license and any(marker in raw for marker in getattr(run,'real_private_markers',())):
         raise Failure('Private source metadata withheld from public diagnostic evidence')
@@ -1039,7 +1041,9 @@ def real_evidence_privacy_check(rel,raw,run=None):
         cursor=at
     if rel.startswith('measurement/'):
         name=rel.removeprefix('measurement/')
-        if name=='match-replay.json':validate_real_match_replay(raw)
+        if name=='match-replay.json':
+            if profile!=experiments.REAL_STEREO:raise Failure('Two-photo replay not admitted for this profile')
+            validate_real_match_replay(raw)
         allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json','match-replay.json',
             'runtime-providers-after-bitmap-room.json','runtime-providers-after-room-reopen.json'}
         binary=re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',name)
@@ -1062,9 +1066,9 @@ def evidence_package(run,receipt,destination):
         if selected_bytes>selected_limit or selected_entries>1990:raise Failure('Evidence package byte/count limit')
         selected.append((path,rel))
     names=['agp-original-test-config.properties','agp-test-config/com/android/tools/test_config.properties','ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
-    if experiments.ACTIVE==experiments.REAL_STEREO:
+    if experiments.ACTIVE in experiments.REAL_PROFILES:
         # Derivative assets may never be retained without the immutable public license notice.
-        _,licensed=load_adapter(ROOT,experiments.REAL_STEREO)
+        _,licensed=load_adapter(ROOT,experiments.ACTIVE)
         has_assets=any((run.work/'measurement').glob('artifact-*.bin'))
         for name,expected in licensed.LICENSE_EVIDENCE.items():
             path=run.work/name
@@ -1098,7 +1102,7 @@ def evidence_package(run,receipt,destination):
     for path,rel in selected:
         raw=bounded_bytes(path,16*1024**2,run);total+=len(raw)
         if total>selected_limit:raise Failure('Evidence package expanded past byte limit')
-        if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check(rel,raw,run)
+        if experiments.ACTIVE in experiments.REAL_PROFILES:real_evidence_privacy_check(rel,raw,run)
         binary=rel.startswith('measurement/') and (path.suffix in ('.rfac','.rfsm','.rfis') or re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',path.name))
         if binary:
             if raw.startswith((b'\x7fELF',b'PK\x03\x04',b'MZ')):raise Failure('Executable/library archive is not checkpoint evidence')
@@ -1126,7 +1130,7 @@ def emergency_terminal_downgrade(destination,receipt,run=None):
     raw=(json.dumps(final,sort_keys=True,indent=2)+'\n').encode()
     if len(raw)>256*1024 or safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
         final=compact_receipt(receipt)
-    if experiments.ACTIVE==experiments.REAL_STEREO:
+    if experiments.ACTIVE in experiments.REAL_PROFILES:
         try:real_evidence_privacy_check('receipt.json',json.dumps(final).encode(),run)
         except Failure:
             final={'status':'FAIL','evidence':{'complete':False,'terminalSeal':'PRIVATE_EVIDENCE_WITHHELD_NOT_PASS'}}
@@ -1152,7 +1156,7 @@ def emit_incomplete_essential(run,receipt):
     raw=(json.dumps(receipt,sort_keys=True)+'\n').encode()
     if len(raw)>256*1024 or safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
         raw=(json.dumps(compact_receipt(receipt))+'\n').encode()
-    if experiments.ACTIVE==experiments.REAL_STEREO:
+    if experiments.ACTIVE in experiments.REAL_PROFILES:
         try:real_evidence_privacy_check('receipt.json',raw,run)
         except Failure:raw=b'{"status":"FAIL","scope":"PRIVATE_EVIDENCE_WITHHELD_NOT_PASS"}'
     frame('terminal-incomplete',raw)
@@ -1160,7 +1164,7 @@ def emit_incomplete_essential(run,receipt):
     if path.exists():
         try:
             raw=bounded_bytes(path,256*1024)
-            if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check('measurement/failure.json',raw,run)
+            if experiments.ACTIVE in experiments.REAL_PROFILES:real_evidence_privacy_check('measurement/failure.json',raw,run)
             if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
                 frame('original-failure-withheld',json.dumps({'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'scope':'WITHHELD_NOT_RAW_PROOF'}).encode())
             else:frame('original-failure-incomplete-package',raw)
@@ -1170,7 +1174,7 @@ def main():
     env=dict(os.environ);base=Path(env.get('RUNNER_TEMP','/missing'))
     work=base/'rf-eight-work';evidence=base/'rf-eight-evidence'
     if not base.is_dir() or work.exists() or evidence.exists():raise Blocked('Fresh runner-owned directories required')
-    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':({experiments.REAL_STEREO:'REAL_LICENSED_STEREO_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.COMPLETE:'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY',experiments.RELIEF:'SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION',experiments.LEGACY:'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'}[experiments.ACTIVE]),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
+    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':({experiments.REAL_THREE:'REAL_LICENSED_THREE_PARTIAL_ARC_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.REAL_STEREO:'REAL_LICENSED_STEREO_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.COMPLETE:'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY',experiments.RELIEF:'SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION',experiments.LEGACY:'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'}[experiments.ACTIVE]),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
     first=None;sdk=None;licenses=None;restore=False;cap=None
     def secondary(label,error):
         nonlocal first

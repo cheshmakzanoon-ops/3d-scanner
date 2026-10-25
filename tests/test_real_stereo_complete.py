@@ -36,7 +36,7 @@ def test_real_profile_full_binding_and_unchanged_synthetic():
     value=p.complete_measurement_proof(*fixture(),profile=e.REAL_STEREO)
     assert value['registeredCameraCount']==value['projectRevision']==2
     assert value['synthetic'] is False and value['classification']==e.get_profile(e.REAL_STEREO).classification
-    assert e.ACTIVE==e.REAL_STEREO
+    assert e.ACTIVE==e.REAL_THREE
     assert e.artifact_budget(e.REAL_STEREO)==e.artifact_budget(e.COMPLETE)==56*1024**2
     assert p.complete_measurement_proof(*helpers().fixture())['registeredCameraCount']==3
 
@@ -59,11 +59,11 @@ def test_real_cannot_use_prefix_measurement():
  ('logs/test.log',b'BodySerialNumber=redacted'),('logs/test.log',b'Exif\0\0'),
 ])
 def test_real_original_or_private_metadata_refused(rel,raw):
-    with pytest.raises(r.Failure):c.real_evidence_privacy_check(rel,raw)
+    with pytest.raises(r.Failure):c.real_evidence_privacy_check(rel,raw,profile=e.REAL_STEREO)
 
 def test_real_publication_outputs_allowed_without_rewriting():
     for raw in (b'glTFpayload',b'ply\npayload',b'{}'):
-        c.real_evidence_privacy_check('measurement/artifact-'+'a'*64+'.bin',raw)
+        c.real_evidence_privacy_check('measurement/artifact-'+'a'*64+'.bin',raw,profile=e.REAL_STEREO)
 
 @pytest.mark.parametrize('missing',[False,True])
 def test_real_collector_requires_exact_license_for_assets(tmp_path,monkeypatch,missing):
@@ -80,7 +80,7 @@ def test_real_collector_requires_exact_license_for_assets(tmp_path,monkeypatch,m
 @pytest.mark.parametrize('prefix',[b'',b'glTFembedded'])
 def test_real_png_private_chunks_refused(kind,prefix):
     raw=prefix+b'\x89PNG\r\n\x1a\n'+(0).to_bytes(4,'big')+kind+b'crc!'
-    with pytest.raises(r.Failure):c.real_evidence_privacy_check('measurement/artifact-'+'a'*64+'.bin',raw)
+    with pytest.raises(r.Failure):c.real_evidence_privacy_check('measurement/artifact-'+'a'*64+'.bin',raw,profile=e.REAL_STEREO)
 
 @pytest.mark.parametrize('rel',['logs/eight-view-test.raw.log','xml/TEST-real.xml','measurement/failure.json','receipt.json'])
 @pytest.mark.parametrize('raw',[b'untagged-private-serial',b'{"message":"untagged-private-serial"}'])
@@ -88,7 +88,7 @@ def test_private_source_values_rejected_without_exif_keys(rel,raw):
     from types import SimpleNamespace
     run=SimpleNamespace(real_private_markers=(b'untagged-private-serial',))
     with pytest.raises(r.Failure,match='Private source metadata'):
-        c.real_evidence_privacy_check(rel,raw,run)
+        c.real_evidence_privacy_check(rel,raw,run,profile=e.REAL_STEREO)
 
 def test_private_values_never_reach_fallback_frames(tmp_path,monkeypatch):
     run=r.Runner(tmp_path,tmp_path/'work');run.real_private_markers=(b'untagged-private-serial',)
@@ -119,7 +119,7 @@ def test_license_name_is_not_a_private_data_bypass():
     from types import SimpleNamespace
     run=SimpleNamespace(real_private_markers=(b'private-value',))
     with pytest.raises(r.Failure):
-        c.real_evidence_privacy_check('real-input-attribution.txt',b'private-value',run)
+        c.real_evidence_privacy_check('real-input-attribution.txt',b'private-value',run,profile=e.REAL_STEREO)
 
 def test_private_log_is_not_copied_to_public_package(tmp_path,monkeypatch):
     _,licensed=c.load_adapter(c.ROOT,e.REAL_STEREO)
@@ -146,7 +146,7 @@ def replay_fixture(code='WEAK_BASELINE'):
 @pytest.mark.parametrize('code',['WEAK_BASELINE','ACCEPTED_DIAGNOSTIC_ONLY','FEWER_THAN_20_MATCHES'])
 def test_replay_is_admitted_only_as_failed_job_diagnostic(code):
     value=replay_fixture(code)
-    c.real_evidence_privacy_check('measurement/match-replay.json',json.dumps(value).encode())
+    c.real_evidence_privacy_check('measurement/match-replay.json',json.dumps(value).encode(),profile=e.REAL_STEREO)
     assert value['originalJobState']=='FAILED'
     assert 'match-replay.json' not in p.COMPLETE_DOCUMENTS
 
@@ -161,7 +161,7 @@ def test_replay_is_admitted_only_as_failed_job_diagnostic(code):
 ])
 def test_replay_rejects_unreviewed_private_or_nonfinite_fields(change):
     value=replay_fixture();change(value)
-    with pytest.raises(r.Failure):c.real_evidence_privacy_check('measurement/match-replay.json',json.dumps(value).encode())
+    with pytest.raises(r.Failure):c.real_evidence_privacy_check('measurement/match-replay.json',json.dumps(value).encode(),profile=e.REAL_STEREO)
 
 
 def test_replay_unavailable_is_closed_and_duplicate_keys_rejected():

@@ -2,12 +2,12 @@
 from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
-from .experiments import LEGACY, COMPLETE, REAL_STEREO, get_profile, artifact_budget
+from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='0a6d4ec8061de7f32a6d9ece1d38afe58302651f'
-MESSAGE='fix: preserve runbook fixture dependency closure'
+BASE_SHA='482938f2ef29037ab8ceeb6cd1db8798e07b8980'
+MESSAGE='test: validate fixed licensed three-view controller profile'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-process-deadline-scope.md', 'tests/test_eight_view_host.py', 'tests/test_eight_view_process_deadline_scope.py', 'tests/test_runbook_consistency.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/runtime.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/real_three_inputs.py', 'docs/development/experiments/real-three-controller-profile.md', 'tests/conftest.py', 'tests/test_ci_candidate_isolation.py', 'tests/test_ci_evidence_validation.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_native_pytest_progress.py', 'tests/test_real_stereo_complete.py', 'tests/test_real_three_complete.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_inputs.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/qa/native_regression/pytest_progress.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -55,7 +55,7 @@ def junit_proof(path,events,*,profile=LEGACY):
 
 def measurement_proof(result,pairs,identity,observations,*,profile=LEGACY):
     selected=get_profile(profile)
-    if selected.id in (COMPLETE, REAL_STEREO):raise Failure('Complete profile requires raw publication/export measurement proof')
+    if selected.id in (COMPLETE, REAL_STEREO, REAL_THREE):raise Failure('Complete profile requires raw publication/export measurement proof')
     required=selected.classification
     count=selected.photo_count;pair_count=selected.pair_count
     ids=result.get('inputPhotoIds',[]);registered=result.get('registeredPhotoIds',[])
@@ -263,7 +263,7 @@ def complete_measurement_proof(documents,artifacts,identity,observations,*,profi
         except (ValueError,UnicodeError,RecursionError) as error:raise Failure('Complete measurement: malformed JSON') from error
         need(type(value) is dict,'document must be object');return value
     selected=get_profile(profile)
-    need(selected.id in (COMPLETE, REAL_STEREO),'wrong closed experiment profile')
+    need(selected.id in (COMPLETE, REAL_STEREO, REAL_THREE),'wrong closed experiment profile')
     count=selected.photo_count
     synthetic=selected.id==COMPLETE
     focal=32.88 if synthetic else 88.0

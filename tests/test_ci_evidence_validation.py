@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import struct
+import shutil
 import subprocess
 import zlib
 
@@ -64,9 +65,9 @@ def suite_record(repo):
                 fullQualification="NOT_RUN")
 
 
-@pytest.fixture
-def candidate(tmp_path):
-    repo = tmp_path / 'repo'
+def make_candidate_repository(parent):
+    """Build only synthetic source; no execution markers or evidence are reusable."""
+    repo = parent / 'repo'
     repo.mkdir()
     subprocess.run(['git', 'init', '-q', str(repo)], check=True)
     write(repo / 'README', 'synthetic test repository')
@@ -74,7 +75,21 @@ def candidate(tmp_path):
     for args in [('config', 'user.name', 'CI Test'), ('config', 'user.email', 'ci@example.invalid'), ('add', '.'), ('commit', '-qm', 'synthetic fixture')]:
         subprocess.run(['git', '-C', str(repo), *args], check=True)
     commit = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
+    return repo, commit
+
+
+def copy_candidate(template, tmp_path):
+    source, commit = template
+    repo = tmp_path / 'repo'
+    # Full byte copies, including objects/index/refs: never clone with hardlinks,
+    # use alternates, or share a mutable Git directory with another test.
+    shutil.copytree(source, repo)
     return repo, commit, tmp_path / 'execution', tmp_path / 'bundles'
+
+
+@pytest.fixture
+def candidate(tmp_path, ci_repository_template):
+    return copy_candidate(ci_repository_template, tmp_path)
 
 
 def start(candidate, gate):
