@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import android.provider.MediaStore
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -467,12 +469,44 @@ internal class UiJourneyDriver {
         val list=documentList() ?: return null
         val rows=nodes(list).filter { node -> node.isVisibleToUser &&
             documentLabelMatches(displayName,node.text?.toString(),node.contentDescription?.toString())
-        }.mapNotNull { clickableWithin(it,list) }.distinct()
+        }.mapNotNull { documentItemWithin(it,list) }.distinct()
         check(rows.size<=1) { "Ambiguous DocumentsUI row: $displayName" }
         return rows.singleOrNull()
     }
+    /** DocumentsUI can dispatch grid touches at its list while every item reports isClickable=false. */
+    private fun documentItemWithin(node:AccessibilityNodeInfo,list:AccessibilityNodeInfo):AccessibilityNodeInfo? {
+        var item=node
+        while(item!=list) {
+            if(item.isEditable || !item.isVisibleToUser || !item.isEnabled) return null
+            val parent=item.parent ?: return null
+            if(parent==list) return item
+            item=parent
+        }
+        return null
+    }
+    private fun clickDocumentRow(displayName:String):Boolean {
+        val row=documentRow(displayName) ?: return false
+        if(row.isClickable && row.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return true
+        val list=documentList() ?: return false
+        fun bounds(node:AccessibilityNodeInfo):DocumentRowBounds {
+            val rect=android.graphics.Rect().also(node::getBoundsInScreen)
+            return DocumentRowBounds(rect.left,rect.top,rect.right,rect.bottom)
+        }
+        val controls=nodes(row).filter { it!=row && it.isVisibleToUser && it.isEnabled && it.isClickable }.map(::bounds)
+        val point=documentRowTapPoint(bounds(row),bounds(list),controls) ?: return false
+        val downTime=SystemClock.uptimeMillis()
+        fun send(action:Int):Boolean {
+            val event=MotionEvent.obtain(downTime,SystemClock.uptimeMillis(),action,point.first,point.second,0)
+            event.source=InputDevice.SOURCE_TOUCHSCREEN
+            return try {instrumentation.uiAutomation.injectInputEvent(event,true)} finally {event.recycle()}
+        }
+        if(!send(MotionEvent.ACTION_DOWN)) return false
+        var released=false
+        return try { released=send(MotionEvent.ACTION_UP); released }
+        finally { if(!released) runCatching {send(MotionEvent.ACTION_CANCEL)} }
+    }
     private fun selectDocumentRow(displayName:String) = await {
-        if(documentRow(displayName)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)==true) true
+        if(clickDocumentRow(displayName)) true
         else { documentList()?.performAction(AccessibilityNodeInfo.ACTION_SCROLL_FORWARD); false }
     }
     private fun openDocumentsRoot(label:String) {
@@ -509,9 +543,9 @@ internal class UiJourneyDriver {
     }
     fun documentsSelect(displayName:String) {
         awaitDocuments()
-        if(documentRow(displayName)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)!=true) {
+        if(!clickDocumentRow(displayName)) {
             openDocumentsRoot("Downloads")
-            if(documentRow(displayName)?.performAction(AccessibilityNodeInfo.ACTION_CLICK)!=true) {
+            if(!clickDocumentRow(displayName)) {
                 selectDocumentRow("RealityForgeUiFixtures")
                 awaitDocumentDirectory("RealityForgeUiFixtures")
                 selectDocumentRow(displayName)
