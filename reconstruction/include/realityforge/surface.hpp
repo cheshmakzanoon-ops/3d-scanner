@@ -46,6 +46,39 @@ struct SurfaceQualityDiagnostics {
     std::size_t boundaryEdges{},components{},nonmanifoldEdges{},intersections{},ambiguousPairs{},removedExactDefects{};
     bool intersectionBudgetExceeded{};
 };
+// Observational, originating-call evidence only. Not part of surface checkpoint wires.
+// Fixed per-view storage: no pixel coordinates, images, identities or spatial maps.
+enum class SurfaceFusionGate : std::size_t {
+    SameCamera, MissingNormal, NormalMismatch, NotCloser, OutsideRadius,
+    CurrentVisibility, ProposedAnchorMetric, ProposedVisibility, PairMetric,
+    AnchorSeesSample, SampleSeesAnchor, MemberAnchorMetric, MemberSeesProposed,
+    Accepted, Count
+};
+enum class SurfaceTriangleRejection : std::size_t {
+    MissingOrRepeatedVertex, DepthJump, EdgeLength, Area, DuplicateFace, Count
+};
+struct SurfaceLossView {
+    std::size_t inputSamples{}, confidenceRejected{}, vertexLimitRejected{}, acceptedSamples{};
+    // NormalValidity order: Supported, SparseSupport, Discontinuity, IllConditioned, Invalid.
+    std::array<std::size_t,5> normalValidity{};
+    // Mutually exclusive witness classes, measured only after an unsuccessful normal fit.
+    std::size_t missingDepthNeighborhoods{}, depthJumpNeighborhoods{}, zeroConfidenceNeighborhoods{};
+    std::size_t outsideDepthNeighborhoods{}, unsupportedNormalBounds{}, fusionCandidates{};
+    std::array<std::size_t,static_cast<std::size_t>(SurfaceFusionGate::Count)> fusionCandidateGates{};
+    std::array<std::size_t,5> cellCornerCounts{};
+    std::array<std::size_t,static_cast<std::size_t>(SurfaceTriangleRejection::Count)> triangleRejections{};
+    std::size_t acceptedTriangleAttempts{}, attachedObservations{}, unattachedObservations{};
+};
+struct SurfaceLossDiagnostics {
+    bool available{}; // false for default/decoded old checkpoints; absence is NOT measured zero
+    std::size_t viewCount{}, removedExactFaces{};
+    bool triangleLimitReached{}; // visited-cell counters may be partial when true
+    std::array<SurfaceLossView,MAX_DENSE_VIEWS> views{};
+};
+static_assert(sizeof(SurfaceLossDiagnostics)<=4096);
+// Fixed diagnostics and conservative simultaneous value copies stay below half
+// of the existing 64KiB dense scratch reserve; no allocation budget is raised.
+static_assert(3*(sizeof(DenseLossDiagnostics)+sizeof(SurfaceLossDiagnostics))<=32*1024);
 struct SurfaceMesh {
     std::vector<SurfaceVertex> vertices;
     std::vector<SurfaceTriangle> triangles;
@@ -54,6 +87,7 @@ struct SurfaceMesh {
     std::vector<SurfaceObservationRef> observations;
     std::vector<SurfaceUnattachedObservation> unattachedObservations;
     SurfaceQualityDiagnostics topology;
+    SurfaceLossDiagnostics lossDiagnostics;
 };
 // Only verified samples (reciprocal depth, >=2 supporting cameras) can
 // contribute vertices. Faces require 3 neighboring verified source samples within one grid cell.

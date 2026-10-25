@@ -93,8 +93,34 @@ struct DensePhotometricDiagnostics {
     std::size_t evaluatedSamples{}, acceptedSamples{};
     std::size_t lowVariance{}, invalidOrBoundaryBest{}, ncc{}, uniqueness{}, invalidInverseDepth{};
 };
+// Originating-call branch evidence, never depth/surface checkpoint data. Fixed
+// arrays bound storage independently of image size; cached photometric work is
+// unknown while reciprocal checks are measured again in the current call.
+struct DenseViewLossDiagnostics {
+    std::size_t sampled{}, evaluated{}, photometricAccepted{};
+    std::size_t invalidReferencePatch{}, validLowVariance{}, invalidOrBoundaryBest{}, ncc{}, uniqueness{}, invalidInverseDepth{};
+    // Nonspatial 16-level patch-mean bins; not a foreground/object classification.
+    // Recorded only from the existing valid reference.mean, without pixel traversal.
+    std::array<std::size_t,16> validReferenceMeanHistogram{}, validLowVarianceMeanHistogram{};
+    std::size_t reciprocalEvaluated{}, invalidWorld{}, noConfirmation{}, reciprocalAccepted{};
+    std::size_t sourcePairs{}, invalidSourceProjection{}, sourceDepthUnavailable{}, depthMismatch{};
+    // Exhaustive subreasons for sourceDepthUnavailable. The first three apply
+    // to nearest-grid compatibility sampling; strict interpolation has its own
+    // unsupported class without pretending its missing/discontinuous fit is a point.
+    std::size_t sourceOutsideImage{}, sourceGridRejected{}, sourceMissingDepth{}, sourceInterpolationUnsupported{};
+    std::size_t invalidReverseProjection{}, reverseReprojection{}, normalMismatch{}, confirmedPairs{};
+    std::array<std::size_t,MAX_DENSE_VIEWS> confirmationHistogram{};
+};
+struct DenseLossDiagnostics {
+    bool available{};
+    std::size_t viewCount{};
+    std::array<DenseViewLossDiagnostics,MAX_DENSE_VIEWS> views{};
+};
+// Fits in the existing 64 KiB fixed scratch allowance; no admission budget change.
+static_assert(sizeof(DenseLossDiagnostics)<=8192);
 struct DenseResult {
     DensePhotometricDiagnostics photometricDiagnostics;
+    DenseLossDiagnostics lossDiagnostics;
     std::vector<DenseDepthMap> maps;
     std::vector<DensePoint> points;
     std::vector<VerifiedDepthSample> verifiedSamples; // bounded, transient; omitted from M07 JSON

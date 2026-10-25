@@ -75,6 +75,9 @@ int main(){
   for(int camera=0;camera<3;++camera)std::filesystem::remove(directory/("ref-"+std::to_string(camera)+".bin"));
   auto replay=rf::reconstructDense(images,settings);assert(replay.resumedDepthTiles==first.totalTiles&&replay.recomputedDepthTiles==0);
   assert(replay.photometricDiagnostics.evaluatedSamples==0);
+  assert(replay.lossDiagnostics.available&&replay.lossDiagnostics.viewCount==3);
+  for(std::size_t i=0;i<3;++i){const auto& d=replay.lossDiagnostics.views[i];assert(d.evaluated==0&&d.invalidReferencePatch==0&&d.validLowVariance==0);
+   assert(d.confirmationHistogram==first.lossDiagnostics.views[i].confirmationHistogram);}
   assert(rf::denseJson(replay).find("\"rejectionCounts\":null")!=std::string::npos);
   for(std::size_t i=0;i<first.maps.size();++i)assert(first.maps[i].depth==replay.maps[i].depth&&first.maps[i].confidence==replay.maps[i].confidence);
   for(int camera=0;camera<3;++camera)std::filesystem::remove(directory/("ref-"+std::to_string(camera)+".bin"));
@@ -83,6 +86,12 @@ int main(){
   const auto& d=repaired.photometricDiagnostics;
   assert(d.available&&d.evaluatedSamples>0&&d.evaluatedSamples<repaired.sampledPixels);
   assert(d.acceptedSamples+d.lowVariance+d.invalidOrBoundaryBest+d.ncc+d.uniqueness+d.invalidInverseDepth==d.evaluatedSamples);
+  std::size_t splitEvaluated=0,splitLowVariance=0;
+  for(std::size_t i=0;i<3;++i){const auto& loss=repaired.lossDiagnostics.views[i];splitEvaluated+=loss.evaluated;splitLowVariance+=loss.validLowVariance+loss.invalidReferencePatch;
+   std::size_t validHistogram=0,lowHistogram=0;for(std::size_t k=0;k<16;++k){validHistogram+=loss.validReferenceMeanHistogram[k];lowHistogram+=loss.validLowVarianceMeanHistogram[k];}
+   assert(validHistogram==loss.evaluated-loss.invalidReferencePatch&&lowHistogram==loss.validLowVariance);
+   assert(loss.confirmationHistogram==first.lossDiagnostics.views[i].confirmationHistogram);}
+  assert(splitEvaluated==d.evaluatedSamples&&splitLowVariance==d.lowVariance);
   const auto diagnosticJson=rf::denseJson(repaired);
   assert(diagnosticJson.find("\"coverage\":\"PARTIAL\"")!=std::string::npos);
   assert(diagnosticJson.find("\"unknownSamples\":"+std::to_string(repaired.sampledPixels-d.evaluatedSamples))!=std::string::npos);

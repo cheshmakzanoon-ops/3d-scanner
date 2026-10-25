@@ -142,6 +142,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         if(!std::isfinite(map.depth[i])||map.depth[i]<0||map.depth[i]>1e6||!std::isfinite(map.confidence[i])||map.confidence[i]<0||map.confidence[i]>1)throw Error("Invalid surface depth-map values");
     }
     SurfaceMesh mesh;mesh.inputSamples=dense.verifiedSamples.size();
+    mesh.lossDiagnostics.available=true;mesh.lossDiagnostics.viewCount=views.size();
     if(dense.verifiedSamples.empty())return mesh;
     std::vector<PreparedSource> prepared(dense.verifiedSamples.size());std::size_t validationIndex=0;
     std::unordered_set<std::size_t> sourcePixels;
@@ -161,11 +162,30 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     for(std::size_t i=0;i<prepared.size();++i){
         const auto& sample=dense.verifiedSamples[i];auto& source=prepared[i];
         const auto evidence=estimateDepthNeighborhoodNormal(views[sample.camera],dense.maps[sample.camera],sample.x,sample.y,s.pixelStride,s.maximumRelativeDepthJump);
+        auto& loss=mesh.lossDiagnostics.views[sample.camera];++loss.inputSamples;
+        static_assert(static_cast<std::size_t>(NormalValidity::Invalid)==4);
+        ++loss.normalValidity[static_cast<std::size_t>(evidence.validity)];
+        // Read-only witnesses explain missing support without changing the normal
+        // estimator, its nine-sample covariance, weights, branches or arithmetic.
+        if(evidence.validity!=NormalValidity::Supported&&sample.x>=s.pixelStride&&sample.y>=s.pixelStride&&
+           sample.x<width-s.pixelStride&&sample.y<height-s.pixelStride){
+            const auto& map=dense.maps[sample.camera];const double z=map.depth[static_cast<std::size_t>(sample.y)*width+sample.x];
+            bool missing=false,jump=false,zeroConfidence=false;
+            for(int dy=-1;dy<=1;++dy)for(int dx=-1;dx<=1;++dx){
+                const auto pixel=static_cast<std::size_t>(sample.y+dy*s.pixelStride)*width+sample.x+dx*s.pixelStride;
+                const double depth=map.depth[pixel];missing=missing||depth<=0;
+                jump=jump||(z>0&&std::abs(depth-z)/z>s.maximumRelativeDepthJump);
+                zeroConfidence=zeroConfidence||map.confidence[pixel]==0;
+            }
+            if(missing)++loss.missingDepthNeighborhoods;
+            else if(jump)++loss.depthJumpNeighborhoods;
+            else if(zeroConfidence)++loss.zeroConfidenceNeighborhoods;
+        }else if(evidence.validity!=NormalValidity::Supported)++loss.outsideDepthNeighborhoods;
         source.supported=evidence.validity==NormalValidity::Supported&&surface_fusion::unitNormal(evidence.direction,source.normal);
         source.bound=source.frontRadius;
         if(source.supported){
             const auto bound=surface_fusion::planePixelEnclosingRadius(views[sample.camera],sample,source.normal,source.frontRadius,s.pixelStride);
-            source.supported=bound.has_value();if(bound)source.bound=*bound;
+            source.supported=bound.has_value();if(bound)source.bound=*bound;else ++loss.unsupportedNormalBounds;
         }
         progress::advance(i+1);
     }
@@ -191,7 +211,9 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         const auto& sample=dense.verifiedSamples[sourceId];
         progress::advance(prepared.size()+processed++);
         const auto& source=prepared[sourceId];const bool normalSupported=source.supported;
-        if(sample.confidence<s.minimumConfidence)continue;
+        auto& loss=mesh.lossDiagnostics.views[sample.camera];
+        const auto gate=[&](SurfaceFusionGate reason){++loss.fusionCandidateGates[static_cast<std::size_t>(reason)];};
+        if(sample.confidence<s.minimumConfidence){++loss.confidenceRejected;continue;}
         const std::size_t pixel=static_cast<std::size_t>(sample.y)*width+sample.x;
         if(imageVertices[sample.camera][pixel]>=0)continue;
         const double fusionRadius=source.bound;
@@ -206,24 +228,32 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
                 for(auto index:it->second){
                     if(++candidateVisits>s.maxFusionCandidates)throw Error("Surface fusion spatial candidate budget exceeded");
                     if((candidateVisits&63u)==0)cancellation::checkpoint();
+                    ++loss.fusionCandidates;
                     const auto& a=accum[index];
-                    if(a.viewMask & (1u<<sample.camera))continue;
-                    if(!normalSupported||!a.supportedNormal||!surface_fusion::compatibleNormal(a.weightedNormal,source.normal))continue;
+                    if(a.viewMask & (1u<<sample.camera)){gate(SurfaceFusionGate::SameCamera);continue;}
+                    if(!normalSupported||!a.supportedNormal){gate(SurfaceFusionGate::MissingNormal);continue;}
+                    if(!surface_fusion::compatibleNormal(a.weightedNormal,source.normal)){gate(SurfaceFusionGate::NormalMismatch);continue;}
                     const auto avg=mul(a.weightedPosition,1./a.weight);
                     const double d=norm(sub(avg,sample.xyz));
-                    if(d>=minDist||d>fusionRadius||d>a.fusionRadius)continue;
-                    if(!visibleIn(sample.camera,avg))continue;
+                    if(d>=minDist){gate(SurfaceFusionGate::NotCloser);continue;}
+                    if(d>fusionRadius||d>a.fusionRadius){gate(SurfaceFusionGate::OutsideRadius);continue;}
+                    if(!visibleIn(sample.camera,avg)){gate(SurfaceFusionGate::CurrentVisibility);continue;}
                     const auto proposed=mul(add(a.weightedPosition,mul(sample.xyz,w)),1./(a.weight+w));
-                    bool admissible=surface_fusion::originalAnchorMetric(views[sample.camera],sample,source.normal,source.frontRadius,source.bound,proposed,s.pixelStride)&&visibleIn(sample.camera,proposed);
+                    bool admissible=surface_fusion::originalAnchorMetric(views[sample.camera],sample,source.normal,source.frontRadius,source.bound,proposed,s.pixelStride);
+                    if(!admissible)gate(SurfaceFusionGate::ProposedAnchorMetric);
+                    else if(!visibleIn(sample.camera,proposed)){admissible=false;gate(SurfaceFusionGate::ProposedVisibility);}
                     for(std::size_t member=0;member<a.sourceCount&&admissible;++member){
                         const auto anchorId=a.sourceIds[member];const auto& anchor=dense.verifiedSamples[anchorId];const auto& evidence=prepared[anchorId];
                         admissible=surface_fusion::originalPairMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,
-                            views[sample.camera],sample,source.normal,source.frontRadius,source.bound,s.pixelStride)&&
-                            visibleIn(anchor.camera,sample.xyz)&&visibleIn(sample.camera,anchor.xyz)&&
-                            surface_fusion::originalAnchorMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,proposed,s.pixelStride)&&visibleIn(anchor.camera,proposed);
+                            views[sample.camera],sample,source.normal,source.frontRadius,source.bound,s.pixelStride);
+                        if(!admissible)gate(SurfaceFusionGate::PairMetric);
+                        else if(!visibleIn(anchor.camera,sample.xyz)){admissible=false;gate(SurfaceFusionGate::AnchorSeesSample);}
+                        else if(!visibleIn(sample.camera,anchor.xyz)){admissible=false;gate(SurfaceFusionGate::SampleSeesAnchor);}
+                        else if(!surface_fusion::originalAnchorMetric(views[anchor.camera],anchor,evidence.normal,evidence.frontRadius,evidence.bound,proposed,s.pixelStride)){admissible=false;gate(SurfaceFusionGate::MemberAnchorMetric);}
+                        else if(!visibleIn(anchor.camera,proposed)){admissible=false;gate(SurfaceFusionGate::MemberSeesProposed);}
                     }
                     if(!admissible)continue;
-                    best=index;minDist=d;
+                    gate(SurfaceFusionGate::Accepted);best=index;minDist=d;
                 }
             }
         }
@@ -255,7 +285,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
             }
             ++mesh.fusedObservations;
         } else {
-            if(accum.size()>=s.maxVertices)continue;
+            if(accum.size()>=s.maxVertices){++loss.vertexLimitRejected;continue;}
             assigned=static_cast<std::uint32_t>(accum.size());
             Accum a;a.weightedPosition=mul(sample.xyz,w);a.weight=w;a.fusionRadius=fusionRadius;a.sourceIds[0]=static_cast<std::uint32_t>(sourceId);a.sourceCount=1;
             a.radiusLevel=surface_fusion::radiusLevel(fusionRadius);a.cell=voxel(sample.xyz,surface_fusion::radiusCellSize(a.radiusLevel));
@@ -269,7 +299,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         }
         imageVertices[sample.camera][pixel]=static_cast<std::int32_t>(assigned);
         mesh.observations.push_back({assigned,sample.camera,sample.x,sample.y,sourceId});
-        ++mesh.acceptedSamples;
+        ++mesh.acceptedSamples;++loss.acceptedSamples;
     }
     mesh.vertices.reserve(accum.size());
     for(auto& a:accum){
@@ -282,35 +312,36 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     std::unordered_set<FaceKey,FaceHash> faces;
     faces.reserve(s.maxTriangles);
     const int step=s.pixelStride;
-    auto admissibleTriangle=[&](std::size_t cam,std::array<std::int32_t,3> ids,std::array<float,3> depths){
-        if(ids[0]<0||ids[1]<0||ids[2]<0||ids[0]==ids[1]||ids[1]==ids[2]||ids[0]==ids[2])return false;
+    auto admissibleTriangle=[&](std::size_t cam,std::array<std::int32_t,3> ids,std::array<float,3> depths,bool record=false){
+        const auto reject=[&](SurfaceTriangleRejection reason){if(record)++mesh.lossDiagnostics.views[cam].triangleRejections[static_cast<std::size_t>(reason)];return false;};
+        if(ids[0]<0||ids[1]<0||ids[2]<0||ids[0]==ids[1]||ids[1]==ids[2]||ids[0]==ids[2])return reject(SurfaceTriangleRejection::MissingOrRepeatedVertex);
         const auto& view=views[cam];
         const double maxZ=std::max({depths[0],depths[1],depths[2]});
         const double minZ=std::min({depths[0],depths[1],depths[2]});
-        if(minZ<=0||(maxZ-minZ)/maxZ>s.maximumRelativeDepthJump)return false;
+        if(minZ<=0||(maxZ-minZ)/maxZ>s.maximumRelativeDepthJump)return reject(SurfaceTriangleRejection::DepthJump);
         const auto& A=mesh.vertices[static_cast<std::size_t>(ids[0])].xyz;
         const auto& B=mesh.vertices[static_cast<std::size_t>(ids[1])].xyz;
         const auto& C=mesh.vertices[static_cast<std::size_t>(ids[2])].xyz;
         const double footprint=maxZ*step/std::min(view.fx,view.fy);
         const double limit=footprint*s.maximumEdgePixelFactor;
-        if(norm(sub(A,B))>limit||norm(sub(A,C))>limit||norm(sub(B,C))>limit)return false;
+        if(norm(sub(A,B))>limit||norm(sub(A,C))>limit||norm(sub(B,C))>limit)return reject(SurfaceTriangleRejection::EdgeLength);
         const Vec3 normal=cross(sub(B,A),sub(C,A));
-        if(norm(normal)<footprint*footprint*.015)return false;
+        if(norm(normal)<footprint*footprint*.015)return reject(SurfaceTriangleRejection::Area);
         return true;
     };
     auto validTriangle=[&](std::size_t cam,std::array<std::int32_t,3> ids,std::array<float,3> depths){
-        if(!admissibleTriangle(cam,ids,depths))return false;
+        if(!admissibleTriangle(cam,ids,depths,true))return false;
         const auto& A=mesh.vertices[static_cast<std::size_t>(ids[0])].xyz;
         const auto& B=mesh.vertices[static_cast<std::size_t>(ids[1])].xyz;
         const auto& C=mesh.vertices[static_cast<std::size_t>(ids[2])].xyz;
         const Vec3 normal=cross(sub(B,A),sub(C,A));
         std::array<std::uint32_t,3> sorted{static_cast<std::uint32_t>(ids[0]),static_cast<std::uint32_t>(ids[1]),static_cast<std::uint32_t>(ids[2])};
         std::sort(sorted.begin(),sorted.end());
-        if(!faces.insert({sorted[0],sorted[1],sorted[2]}).second)return false;
+        if(!faces.insert({sorted[0],sorted[1],sorted[2]}).second){++mesh.lossDiagnostics.views[cam].triangleRejections[static_cast<std::size_t>(SurfaceTriangleRejection::DuplicateFace)];return false;}
         auto tri=SurfaceTriangle{static_cast<std::uint32_t>(ids[0]),static_cast<std::uint32_t>(ids[1]),static_cast<std::uint32_t>(ids[2]),static_cast<std::uint8_t>(cam)};
         const Vec3 centroid=mul(add(add(A,B),C),1./3);
         if(dot(normal,sub(cameraCenter(views[cam]),centroid))<0)std::swap(tri.b,tri.c);
-        mesh.triangles.push_back(tri);
+        mesh.triangles.push_back(tri);++mesh.lossDiagnostics.views[cam].acceptedTriangleAttempts;
         return true;
     };
     using WorldPoint=std::array<double,3>;
@@ -367,6 +398,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
                 std::array<std::size_t,4> pix{i,i+step,i+static_cast<std::size_t>(step)*width,i+static_cast<std::size_t>(step)*width+step};
                 std::array<std::int32_t,4> ids{grid[pix[0]],grid[pix[1]],grid[pix[2]],grid[pix[3]]};
                 const auto observed=std::count_if(ids.begin(),ids.end(),[](auto id){return id>=0;});
+                ++mesh.lossDiagnostics.views[cam].cellCornerCounts[static_cast<std::size_t>(observed)];
                 if(observed<3){++mesh.rejectedCells;continue;}
                 const std::array<float,4> d{depth[pix[0]],depth[pix[1]],depth[pix[2]],depth[pix[3]]};
                 if(observed==3){
@@ -402,6 +434,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
             }
         }
     }
+    mesh.lossDiagnostics.triangleLimitReached=mesh.triangles.size()>=s.maxTriangles;
     progress::advance(2*prepared.size());
     std::vector<std::int32_t> exactObservationTargets;
     {
@@ -411,6 +444,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         auto cleaned=applyMeshCleanup(mesh,plan);
         mesh=std::move(cleaned.mesh);
         mesh.topology.removedExactDefects=cleaned.plan.removedFaces.size();
+        mesh.lossDiagnostics.removedExactFaces=cleaned.plan.removedFaces.size();
     } // release first diagnostic/copy before normal compaction and final report
     // Area-weighted normals from accepted geometry; no normal guesses in holes.
     for(auto& t:mesh.triangles){
@@ -433,6 +467,8 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     auto ledger=compactSurfaceObservations(mesh.observations,remap,exactObservationTargets);
     mesh.observations=std::move(ledger.attached);
     mesh.unattachedObservations=std::move(ledger.unattached);
+    for(const auto& observation:mesh.observations)++mesh.lossDiagnostics.views[observation.camera].attachedObservations;
+    for(const auto& observation:mesh.unattachedObservations)++mesh.lossDiagnostics.views[observation.camera].unattachedObservations;
     mesh.vertices=std::move(compact);
     const auto report=analyzeMeshTopology(mesh);
     mesh.topology.boundaryEdges=report.boundaryEdges;mesh.topology.components=report.components;mesh.topology.nonmanifoldEdges=report.nonmanifoldEdges;mesh.topology.intersections=report.intersections.size();mesh.topology.ambiguousPairs=report.ambiguousPairs.size();mesh.topology.intersectionBudgetExceeded=report.intersectionBudgetExceeded;
@@ -444,6 +480,8 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
 std::string surfaceJson(const SurfaceMesh& m){
     // Empty diagnostic results are valid, but NaN/Inf are not JSON numbers.
     validateMesh(m,false);
+    if(m.lossDiagnostics.available&&(m.lossDiagnostics.viewCount<2||m.lossDiagnostics.viewCount>MAX_DENSE_VIEWS))
+        throw Error("Invalid surface diagnostic view count");
     std::ostringstream s;s.imbue(std::locale::classic());s<<std::setprecision(10);
     s<<"{\"schema\":8,\"representation\":\"observed_open_triangle_mesh\",\"scale\":\"arbitrary\","
      <<"\"textured\":false,\"watertight\":false,\"material\":\"vertex_colors\",\"vertexCount\":"<<m.vertices.size()
@@ -461,7 +499,33 @@ std::string surfaceJson(const SurfaceMesh& m){
     }
     s<<"],\"triangles\":[";
     for(std::size_t i=0;i<m.triangles.size();++i){if(i)s<<',';auto t=m.triangles[i];s<<'['<<t.a<<','<<t.b<<','<<t.c<<']';}
-    s<<"]}";return s.str();
+    s<<"],\"lossDiagnostics\":{\"schema\":1,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
+    if(!m.lossDiagnostics.available)s<<",\"viewCount\":null,\"removedExactFaces\":null,\"views\":null,\"triangleLimitReached\":null";
+    else {
+        const auto counts=[&](const auto& names,const auto& values){
+            s<<'{';for(std::size_t i=0;i<names.size();++i){if(i)s<<',';s<<'\"'<<names[i]<<"\":"<<values[i];}s<<'}';
+        };
+        const std::array normalNames{"supported","sparseSupport","discontinuity","illConditioned","invalid"};
+        const std::array gateNames{"sameCamera","missingNormal","normalMismatch","notCloser","outsideRadius","currentVisibility",
+            "proposedAnchorMetric","proposedVisibility","pairMetric","anchorSeesSample","sampleSeesAnchor","memberAnchorMetric","memberSeesProposed","accepted"};
+        const std::array triangleNames{"missingOrRepeatedVertex","depthJump","edgeLength","area","duplicateFace"};
+        s<<",\"viewCount\":"<<m.lossDiagnostics.viewCount<<",\"removedExactFaces\":"<<m.lossDiagnostics.removedExactFaces<<",\"triangleLimitReached\":"<<(m.lossDiagnostics.triangleLimitReached?"true":"false")<<",\"views\":[";
+        for(std::size_t camera=0;camera<m.lossDiagnostics.viewCount;++camera){
+            if(camera)s<<',';
+            const auto& d=m.lossDiagnostics.views[camera];
+            s<<"{\"camera\":"<<camera<<",\"inputSamples\":"<<d.inputSamples<<",\"confidenceRejected\":"<<d.confidenceRejected
+             <<",\"vertexLimitRejected\":"<<d.vertexLimitRejected<<",\"acceptedSamples\":"<<d.acceptedSamples<<",\"normalValidity\":";
+            counts(normalNames,d.normalValidity);
+            s<<",\"missingDepthNeighborhoods\":"<<d.missingDepthNeighborhoods<<",\"depthJumpNeighborhoods\":"<<d.depthJumpNeighborhoods
+             <<",\"zeroConfidenceNeighborhoods\":"<<d.zeroConfidenceNeighborhoods<<",\"outsideDepthNeighborhoods\":"<<d.outsideDepthNeighborhoods<<",\"unsupportedNormalBounds\":"<<d.unsupportedNormalBounds<<",\"fusionCandidates\":"<<d.fusionCandidates
+             <<",\"fusionCandidateFirstGate\":";counts(gateNames,d.fusionCandidateGates);
+            s<<",\"cellCornerCounts\":[";for(std::size_t i=0;i<d.cellCornerCounts.size();++i){if(i)s<<',';s<<d.cellCornerCounts[i];}s<<']';
+            s<<",\"triangleRejections\":";counts(triangleNames,d.triangleRejections);
+            s<<",\"acceptedTriangleAttempts\":"<<d.acceptedTriangleAttempts<<",\"attachedObservations\":"<<d.attachedObservations
+             <<",\"unattachedObservations\":"<<d.unattachedObservations<<'}';
+        }s<<']';
+    }
+    s<<"}}";return s.str();
 }
 void writeSurfacePly(const SurfaceMesh& m,const std::string& filename){
     validateMesh(m);StagedSurfaceFile stage(filename);std::ofstream o(stage.path);if(!o)throw Error("Cannot create surface PLY");

@@ -18,9 +18,9 @@ Results below belong to the named source revisions, not automatically to later c
 | Real licensed stereo full-controller HOST test (`68ef9b7`) | **Failed at `MATCHES`; no model produced.** Read-only replay of persisted matches returned native `WEAK_BASELINE`; this is not a diagnosis of the physical camera baseline. |
 | Android build (`f6cdd12`) | Android checks passed with **920 tests**; release profiles and benchmark compilation also passed. These are not installed photo-to-model qualification. |
 | Fixed real three-photo HOST profile (`f6cdd12`) | **PASS:** all 3 cameras registered, third camera supported by 45 tracks, global typed bundle adjustment completed. 324 sparse / 2,469 dense points, 1,618 mesh vertices and 1,296 triangles; nine blobs, three exports, publication and reopen verified. Still fragmented: 1,580 boundary edges, 558 reported intersections, 0 nonmanifold edges—not watertight or device-qualified. |
-| Software-only Android native/cache smoke (`80925b8`) | **4/4 passed** on a non-KVM software ATD. Native/cache checks only—not UI, SAF, Filament, a real-photo journey, ARM64 or physical-quality qualification. |
+| Software-only Android native/cache/PnP smoke (`fac55e9`) | **5/5 passed**, zero failures/skips, after actual SDK build/install on API35 x86_64 unsupported software TCG. Includes corrected numeric PnP JNI; not UI, SAF, Filament, a real-photo journey, ARM64 or physical-quality qualification. |
 | Installed emulator tests (`7ff6395`) | The synthetic UI journey failed in DocumentsUI selection **before import/reconstruction**. The separate optional Filament rendering/lifecycle test passed. The selector repair in `c3f26f3` still needs a completed installed rerun. |
-| Remaining CI gates (`f6cdd12`) | **Failed:** GCC and Clang each completed 4,513 cases: 4,468 passed, 17 failed, 28 skipped. All jobs are terminal; native/candidate/device gates failed. A new five-check Android PnP candidate remains **NOT_RUN**; the older 4/4 non-UI smoke result belongs only to `80925b8`. |
+| Remaining CI gates (`f6cdd12`) | **Failed:** GCC and Clang each completed 4,513 cases: 4,468 passed, 17 failed, 28 skipped. All jobs are terminal; native/candidate/device gates failed. The later `fac55e9` Android build passed 920 tests; its native gates are still pending, not green. |
 | Exact planar ownership QA (`813f312`) | Dedicated ASan/UBSan/LSan run: 1 native CTest and 83 differential cases passed; 137 release cases passed. **OFF by default**, native QA only—not production integration or mobile qualification. |
 | Mesh quality (`5beb2d3`) | The synthetic result still has 113 components, 9,542 boundary edges and **653 nonmanifold edges**. Intersection analysis is budget-incomplete. The supported-diagonal fix does not establish watertight, overlap-free or complete-object quality. |
 
@@ -69,7 +69,9 @@ A [conservative EXIF focal prior](docs/reconstruction/EXIF_FOCAL_PLANE_PRIOR.md)
 now handles valid isotropic focal-plane metadata when a direct 35mm tag is absent;
 it remains derived, not measured lens calibration, and declines inconsistent inputs.
 
-Evidence: [`f6cdd12` real three-photo HOST pass](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40220547113),
+Evidence: [`fac55e9` five-check Android smoke](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40225784945),
+[`fac55e9` build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40225784831),
+[`f6cdd12` real three-photo HOST pass](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40220547113),
 [`80925b8` build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214617937),
 [software-only native/cache smoke](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214618133),
 [`df49877` recovered partial HOST result](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40211662023),

@@ -44,10 +44,10 @@ uninstalling preserves app-private data. These are not production-signed release
    at DocumentsUI selection before import/reconstruction; `c3f26f3` repairs the
    driver without bypassing the picker. Run and retain actual rendered UI, SAF,
    reconstruction, reopen/export, cancellation and interruption evidence.
-   The [4/4 software ATD native/cache pass](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214618133)
-   belongs only to `80925b8`, not UI/SAF/Filament or ARM64 qualification. The
-   new five-check Android PnP candidate is NOT_RUN; obtain its actual result
-   without treating it as a complete installed UI/real-photo journey.
+   The [5/5 software ATD native/cache/PnP pass](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40225784945)
+   belongs to `fac55e9`: actual SDK build/install and numeric JNI, zero skips or
+   failures, on API35 x86_64 unsupported software TCG. It is not UI/SAF/Filament,
+   ARM64, a complete real-photo journey or physical-quality qualification.
 2. Improve dense coverage and investigate the **zero cross-view fusion** reported
    by the `f6cdd12` diagnostics. Third-camera registration is no longer the blocker
    on this fixed fixture: all three register, with 45 tracks for the third camera
@@ -70,7 +70,8 @@ uninstalling preserves app-private data. These are not production-signed release
    qualification require separate evidence. It has not repaired this mesh.
 4. Fix full-candidate sanitizer failures and obtain a green result. On `f6cdd12`,
    GCC and Clang each completed 4,513 cases: 4,468 passed, 17 failed, 28 skipped.
-   All jobs are terminal; native/candidate/device gates fail. Diagnose the 17
+   All `f6cdd12` jobs are terminal; native/candidate/device gates fail. Later
+   `fac55e9` native gates remain pending; its Android build passed 920 tests. Diagnose the 17
    failures without waiving them. Android/release builds, benchmark compilation
    and the actual HOST journey pass do not replace these gates or qualify
    installed workflows. Historical test-ID aborts are not current full-suite passes.

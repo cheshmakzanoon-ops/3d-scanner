@@ -117,11 +117,30 @@ int main(){
         require(replay.resumedDepthMaps==3&&replay.writtenDepthMaps==0,"resume did not reuse all cameras");
         require(replay.photometricDiagnostics.evaluatedSamples==0,
                 "cached maps invented fresh rejection counters");
+        require(replay.lossDiagnostics.available&&replay.lossDiagnostics.viewCount==3,
+                "Re-executed reciprocal diagnostic scope unavailable");
+        for(std::size_t i=0;i<3;++i){const auto& d=replay.lossDiagnostics.views[i];
+            require(d.evaluated==0&&d.photometricAccepted==0&&d.invalidReferencePatch==0&&d.validLowVariance==0,
+                    "Cached photometric work fabricated originating split counts");
+            require(std::all_of(d.validReferenceMeanHistogram.begin(),d.validReferenceMeanHistogram.end(),[](auto n){return n==0;})&&
+                    std::all_of(d.validLowVarianceMeanHistogram.begin(),d.validLowVarianceMeanHistogram.end(),[](auto n){return n==0;}),
+                    "Cached photometric work invented patch-mean evidence");
+            require(d.sampled==initial.lossDiagnostics.views[i].sampled&&
+                    d.reciprocalAccepted==initial.lossDiagnostics.views[i].reciprocalAccepted&&
+                    d.sourcePairs==initial.lossDiagnostics.views[i].sourcePairs&&
+                    d.confirmationHistogram==initial.lossDiagnostics.views[i].confirmationHistogram,
+                    "Replayed depth did not preserve re-executed reciprocal evidence");
+        }
         const auto diagnostics=rf::denseJson(replay);
         require(diagnostics.find("\"coverage\":\"UNAVAILABLE\"")!=std::string::npos&&
                 diagnostics.find("\"rejectionCounts\":null")!=std::string::npos&&
                 diagnostics.find("\"unknownSamples\":"+std::to_string(replay.sampledPixels))!=std::string::npos,
                 "cached map diagnostics must be explicitly unknown");
+        require(diagnostics.find("\"photometric\":{\"coverage\":\"UNAVAILABLE\"")!=std::string::npos&&
+                diagnostics.find("\"reciprocal\":{\"coverage\":\"COMPLETE\"")!=std::string::npos,
+                "Cached photometric and re-executed reciprocal coverage were conflated");
+        require(diagnostics.find("\"validReferenceMeanHistogram\":null,\"validLowVarianceMeanHistogram\":null")!=std::string::npos,
+                "Cached patch-mean histogram serialized unknown work as measured zero bins");
         require(replay.maps.size()==initial.maps.size(),"camera count differs");
         for(std::size_t i=0;i<replay.maps.size();++i){
             require(replay.maps[i].depth==initial.maps[i].depth,"depth changed after resume");

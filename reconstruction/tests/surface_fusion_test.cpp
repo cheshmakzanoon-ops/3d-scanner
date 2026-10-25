@@ -5,8 +5,31 @@
 #include <iostream>
 #include <stdexcept>
 #include <set>
+#include <numeric>
 namespace {
 void check(bool c,const char* message){if(!c)throw std::runtime_error(message);}
+void diagnostics(const rf::SurfaceMesh& mesh){
+    const auto& all=mesh.lossDiagnostics;check(all.available&&all.viewCount>=2&&all.viewCount<=rf::MAX_DENSE_VIEWS,"originating surface diagnostics unavailable");
+    std::size_t input=0,accepted=0,attached=0,unattached=0,rejectedCells=0,rejectedTriangles=0,triangles=0,fusionAccepted=0;
+    const auto sum=[](const auto& values){return std::accumulate(values.begin(),values.end(),std::size_t{});};
+    for(std::size_t i=0;i<all.viewCount;++i){const auto& d=all.views[i];
+        check(sum(d.normalValidity)==d.inputSamples,"normal classifications do not account for each sample");
+        check(d.inputSamples==d.confidenceRejected+d.vertexLimitRejected+d.acceptedSamples,"sample admission loss accounting incomplete");
+        check(d.missingDepthNeighborhoods+d.depthJumpNeighborhoods+d.zeroConfidenceNeighborhoods+d.outsideDepthNeighborhoods<=d.inputSamples-d.normalValidity[0],"normal witnesses overcount rejected neighborhoods");
+        check(d.unsupportedNormalBounds<=d.normalValidity[0],"bound rejection has no supported normal");
+        check(sum(d.fusionCandidateGates)==d.fusionCandidates,"candidate first-gate accounting not exclusive/exhaustive");
+        input+=d.inputSamples;accepted+=d.acceptedSamples;attached+=d.attachedObservations;unattached+=d.unattachedObservations;
+        rejectedCells+=d.cellCornerCounts[0]+d.cellCornerCounts[1]+d.cellCornerCounts[2];
+        rejectedTriangles+=sum(d.triangleRejections);triangles+=d.acceptedTriangleAttempts;
+        fusionAccepted+=d.fusionCandidateGates[static_cast<std::size_t>(rf::SurfaceFusionGate::Accepted)];
+    }
+    check(input==mesh.inputSamples&&accepted==mesh.acceptedSamples,"legacy sample counts changed");
+    check(attached==mesh.observations.size()&&unattached==mesh.unattachedObservations.size(),"observation attachment counts changed");
+    check(rejectedCells==mesh.rejectedCells&&rejectedTriangles==mesh.rejectedTriangles,"legacy rejection counts changed");
+    check(triangles==mesh.triangles.size()+all.removedExactFaces,"pre-cleanup triangle attempts do not reconcile");
+    check(fusionAccepted>=mesh.fusedObservations,"fused observation lacks accepted candidate");
+    check(rf::surfaceJson(mesh).find(R"("scope":"ORIGINATING_SURFACE_EVALUATION","available":true)")!=std::string::npos,"surface diagnostic provenance omitted");
+}
 std::pair<std::vector<rf::DenseView>,rf::DenseResult> plane(bool opposite){
     std::vector<rf::DenseView> views(2);rf::DenseResult dense;dense.maps.resize(2);
     for(int camera=0;camera<2;++camera){
@@ -81,6 +104,17 @@ int main(){
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::quiet_NaN()},{0,0,1}),"NaN normal accepted");
     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
     auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":11")!=std::string::npos,"local footprint algorithm version missing");
+    diagnostics(mesh);
+    check(mesh.lossDiagnostics.views[0].missingDepthNeighborhoods>0&&mesh.lossDiagnostics.views[0].normalValidity[0]>0,"fixture does not distinguish missing neighborhoods from supported normals");
+    auto zeroConfidence=dense;for(auto& map:zeroConfidence.maps)for(auto& c:map.confidence)if(c>0)c=0;
+    const auto zeroMesh=rf::fuseDepthSurfaces(views,zeroConfidence);diagnostics(zeroMesh);
+    check(zeroMesh.lossDiagnostics.views[0].zeroConfidenceNeighborhoods>0,"zero-confidence normal evidence not diagnosed");
+    auto noConfidence=dense;noConfidence.verifiedSamples.front().confidence=0;
+    const auto rejectedConfidence=rf::fuseDepthSurfaces(views,noConfidence);diagnostics(rejectedConfidence);
+    check(rejectedConfidence.lossDiagnostics.views[0].confidenceRejected==1,"confidence rejection not diagnosed");
+    rf::SurfaceMesh unknown;check(rf::surfaceJson(unknown).find(R"("available":false,"viewCount":null,"removedExactFaces":null,"views":null)")!=std::string::npos,"default diagnostics fabricated zeros");
+    unknown.lossDiagnostics.available=true;unknown.lossDiagnostics.viewCount=rf::MAX_DENSE_VIEWS+1;bool invalidDiagnostic=false;
+    try{(void)rf::surfaceJson(unknown);}catch(const rf::Error&){invalidDiagnostic=true;}check(invalidDiagnostic,"unbounded surface diagnostic view count accepted");
     // Confidence is an admitted observation weight, not a normal-vector length.
     // Identical supported planes must associate identically above the configured
     // minimum confidence; changing weights must not rotate or invalidate normals.
@@ -88,18 +122,22 @@ int main(){
     for(auto& map:lowerConfidence.maps)for(auto& confidence:map.confidence)if(confidence>0)confidence=.20f;
     for(auto& sample:lowerConfidence.verifiedSamples)sample.confidence=.20f;
     const auto lowMesh=rf::fuseDepthSurfaces(views,lowerConfidence);
+    diagnostics(lowMesh);
     check(lowMesh.fusedObservations==mesh.fusedObservations,"admitted confidence weights invalidated identical supported normal directions");
     check(lowMesh.triangles.size()==mesh.triangles.size(),"confidence-only change altered exact plane topology");
     check(lowMesh.medianConfidence<=.20f,"fusion inflated admitted observation confidence");
     auto [farViews,farDepth]=depthPatches(false);const auto farOnly=rf::fuseDepthSurfaces(farViews,farDepth);
     auto [mixedViews,mixedDepth]=depthPatches(true);const auto mixed=rf::fuseDepthSurfaces(mixedViews,mixedDepth);
+    diagnostics(farOnly);diagnostics(mixed);
     check(farFusions(farOnly)>100,"calibrated far-plane observations did not associate");
     check(farFusions(mixed)==farFusions(farOnly),"unrelated near geometry changed far-plane association resolution");
     auto [movingViews,movingDepth]=movingCentroid();const auto moving=rf::fuseDepthSurfaces(movingViews,movingDepth);
+    diagnostics(moving);
     check(moving.fusedObservations==7,"moved multiview centroid became undiscoverable in a stale spatial bucket");
     rf::SurfaceSettings bounded;bounded.maxFusionCandidates=1;bool budgetRejected=false;
     try{(void)rf::fuseDepthSurfaces(mixedViews,mixedDepth,bounded);}catch(const rf::Error&){budgetRejected=true;}check(budgetRejected,"candidate work limit was bypassed");
     auto [chainViews,chainDepth]=movingCentroid(true);const auto chained=rf::fuseDepthSurfaces(chainViews,chainDepth);
+    diagnostics(chained);
     check(chained.fusedObservations<7,"centroid chaining escaped the original observed anchors");
     auto [tiltViews,tiltDepth]=tiltedPlane();
     const auto& first=tiltDepth.verifiedSamples[0];const auto& second=tiltDepth.verifiedSamples[1];
@@ -124,7 +162,7 @@ int main(){
     check(!rf::surface_fusion::originalPairMetric(tiltViews[0],first,{0,0,-1},.036,*firstBound,offView,offPixel,{0,0,-1},.036,*secondBound,3),"unsupported exact reprojection was admitted");
     auto duplicate=dense;duplicate.verifiedSamples.push_back(duplicate.verifiedSamples.front());bool duplicateRejected=false;try{(void)rf::fuseDepthSurfaces(views,duplicate);}catch(const rf::Error&){duplicateRejected=true;}check(duplicateRejected,"duplicate source identity accepted");
     auto reversed=dense;std::reverse(reversed.verifiedSamples.begin(),reversed.verifiedSamples.end());const auto reordered=rf::fuseDepthSurfaces(views,reversed);check(rf::surfaceJson(mesh)==rf::surfaceJson(reordered),"sample order changed fused geometry");
-    auto [thinViews,thinDense]=plane(true);const auto thin=rf::fuseDepthSurfaces(thinViews,thinDense);check(thin.fusedObservations==0,"opposite thin sides were merged");check(thin.triangles.size()>100,"thin observations disappeared");
+    auto [thinViews,thinDense]=plane(true);const auto thin=rf::fuseDepthSurfaces(thinViews,thinDense);diagnostics(thin);check(thin.fusedObservations==0,"opposite thin sides were merged");check(thin.triangles.size()>100,"thin observations disappeared");
     bool malformed=false;thinViews[0].pose.rotation[0]=2;try{(void)rf::fuseDepthSurfaces(thinViews,thinDense);}catch(const rf::Error&){malformed=true;}check(malformed,"improper source pose accepted");
     malformed=false;dense.verifiedSamples[0].xyz.x=1e300;try{(void)rf::fuseDepthSurfaces(views,dense);}catch(const rf::Error&){malformed=true;}check(malformed,"extreme source position accepted");
     std::atomic_bool stopped=true;rf::cancellation::Scope scope(&stopped);bool cancelled=false;try{(void)rf::fuseDepthSurfaces(views,plane(false).second);}catch(const rf::cancellation::Cancelled&){cancelled=true;}check(cancelled,"surface cancellation ignored");

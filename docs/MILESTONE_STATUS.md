@@ -28,9 +28,14 @@ release qualification remain open.
 - **`f6cdd12` CI:** Android **920 tests PASS**, both release profiles and benchmark
   compilation PASS. GCC and Clang sanitizer suites each completed **4,513 cases:
   4,468 passed, 17 failed, 28 skipped**. All jobs are terminal; native/candidate/
-  device gates **FAIL**. The forthcoming five-check Android PnP candidate is
-  **NOT_RUN**. The older `80925b8` four-check software ATD result below remains
-  native/cache-only and does not transfer automatically to this revision.
+  device gates **FAIL**. The older `80925b8` four-check software ATD result below
+  remains source-bound and does not transfer automatically to later revisions.
+- **`fac55e9` five-check Android [smoke — PASS](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40225784945):**
+  actual SDK build/install and **5/5 tests**, zero failures/skips, including the
+  corrected numeric PnP JNI regression. API35 x86_64 unsupported software TCG
+  only—not UI, SAF, Filament, ARM64, a real-photo journey or physical quality.
+  Its [ordinary Android build](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40225784831)
+  passed **920 tests**; native gates are still pending, not a full-CI pass.
 
 ### Earlier source-bound diagnostic checkpoints
 

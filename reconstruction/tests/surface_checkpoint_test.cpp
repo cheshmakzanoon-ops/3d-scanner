@@ -1,5 +1,7 @@
 #include "surface_checkpoint_fixture.hpp"
 
+// Checkpoint wire excludes originating diagnostic counters, never geometry.
+std::string surfaceGeometryJson(rf::SurfaceMesh mesh){mesh.lossDiagnostics={};return rf::surfaceJson(mesh);}
 int main() {
     int passed=0;
     const auto test=[&](const char* name,auto&& body){body();++passed;std::cout<<"PASS "<<name<<'\n';};
@@ -48,7 +50,12 @@ int main() {
                 "successful store retained stale diagnostic");
         rf::surface_checkpoint::AcceptedSurface recovered;
         require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),"valid observed mesh checkpoint was rejected");
-        require(rf::surfaceJson(mesh)==rf::surfaceJson(recovered.mesh),"accepted positions/normals/colors/confidence changed");
+        require(surfaceGeometryJson(mesh)==rf::surfaceJson(recovered.mesh),"accepted positions/normals/colors/confidence changed");
+        require(mesh.lossDiagnostics.available&&!recovered.mesh.lossDiagnostics.available,
+                "Surface checkpoint invented originating surface-loss diagnostics");
+        require(rf::surfaceJson(recovered.mesh).find(R"("available":false,"viewCount":null,"removedExactFaces":null,"views":null)")!=std::string::npos,
+                "Missing surface loss diagnostics were reported as measured zeros");
+        require(!recovered.dense.lossDiagnostics.available,"Surface checkpoint invented dense loss diagnostics");
         require(!recovered.dense.photometricDiagnostics.available&&recovered.dense.photometricDiagnostics.evaluatedSamples==0,
                 "Surface checkpoint invented unstored photometric branch evidence");
         const auto diagnosticJson=rf::denseJson(recovered.dense);
@@ -84,7 +91,7 @@ int main() {
         // Branch counters intentionally are not in the accepted-surface wire format.
         // Compare every previously serialized dense field after marking only that
         // explicitly unavailable diagnostic field unknown on the originating copy.
-        replay.photometricDiagnostics={};
+        replay.photometricDiagnostics={};replay.lossDiagnostics={};
         require(rf::denseJson(replay)==rf::denseJson(recovered.dense),"accepted dense points and measured counts changed");
         bool written=true;
         require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&written),"replayed evidence no longer has identical canonical bytes");
@@ -150,7 +157,7 @@ int main() {
         write(checkpoint,acceptedBytes);
         require(rf::surface_checkpoint::load(checkpoint.string(),views,recovered),
                 "current algorithm identity checkpoint was rejected");
-        require(rf::surfaceJson(mesh)==rf::surfaceJson(recovered.mesh),
+        require(surfaceGeometryJson(mesh)==rf::surfaceJson(recovered.mesh),
                 "current algorithm identity changed round-trip geometry");
     });
     test("fusion migration preserves old mesh and depth while publishing and reusing the new namespace",[&] {
@@ -223,7 +230,7 @@ int main() {
             require(result.find("\"writtenDepthMaps\":0")!=std::string::npos,"texture replay wrote depth checkpoints");
             require(result.find("\"surfaceCheckpointAvailable\":true")!=std::string::npos&&result.find("\"surfaceCheckpointWritten\":false")!=std::string::npos,"texture replay fabricated a surface-checkpoint write");
             require(result.find("\"peakLuminanceBytes\":0")!=std::string::npos,"texture replay reported depth luminance work");
-            require(result.find("\"mesh\":"+rf::surfaceJson(mesh))!=std::string::npos,"texture replay changed accepted mesh evidence");
+            require(result.find("\"mesh\":"+surfaceGeometryJson(mesh))!=std::string::npos,"texture replay changed accepted mesh evidence");
             return read(png);
         };
         const auto first=call(packed.rgba,104,76,"first");
@@ -248,7 +255,7 @@ int main() {
         require(output.find("\"surfaceCheckpointWritten\":true")!=std::string::npos,"combined production path did not persist accepted mesh");
         rf::surface_checkpoint::AcceptedSurface reopened;
         require(rf::surface_checkpoint::load((other.directory/rf::surface_checkpoint::FILENAME).string(),views,reopened),"combined writer produced unreopenable geometry");
-        require(rf::surfaceJson(reopened.mesh)==rf::surfaceJson(mesh),"combined checkpoint changed real native surface");
+        require(rf::surfaceJson(reopened.mesh)==surfaceGeometryJson(mesh),"combined checkpoint changed real native surface");
     });
     test("optical geometry pixels algorithm and depth identity changes never reuse stale evidence",[&] {
         rf::depth_checkpoint::Scope scope(temporary.directory.string(),HASH);rf::surface_checkpoint::AcceptedSurface unused;
@@ -363,7 +370,7 @@ int main() {
         rf::surface_checkpoint::AcceptedSurface recovered;
         require(rf::surface_checkpoint::load(saved.string(),views,recovered),
                 "accepted geometry could not reopen beneath searchable ancestor");
-        require(rf::surfaceJson(recovered.mesh)==rf::surfaceJson(mesh),"search-only replay changed accepted mesh");
+        require(rf::surfaceJson(recovered.mesh)==surfaceGeometryJson(mesh),"search-only replay changed accepted mesh");
         created=true;
         require(rf::surface_checkpoint::store(views,recovered.dense,recovered.mesh,recovered.settings,&created)&&!created,
                 "search-only replay replaced accepted bytes");
@@ -459,7 +466,7 @@ int main() {
         const auto result=text(rf_texture_accepted_surface_json(packed.rgba.data(),104,76,missing.data(),104,76,
             packed.cameras.data(),views.size(),checkpoint.c_str(),glb.c_str(),png.c_str(),temporary.directory.c_str(),HASH));
         require(result.find("\"textureError\"")!=std::string::npos&&result.find("\"texture\":{")==std::string::npos,"missing photographic evidence became successful texture");
-        require(result.find("\"mesh\":"+rf::surfaceJson(mesh))!=std::string::npos,"texture fallback lost accepted mesh");
+        require(result.find("\"mesh\":"+surfaceGeometryJson(mesh))!=std::string::npos,"texture fallback lost accepted mesh");
         require(!std::filesystem::exists(glb)&&!std::filesystem::exists(png),"missing texture produced output files");
     });
     std::cout<<passed<<" accepted-surface checkpoint cases passed; synthetic measured vertices="<<mesh.vertices.size()

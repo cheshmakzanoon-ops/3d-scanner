@@ -60,14 +60,14 @@ Bilinear sample(const GrayView& cached,double x,double y){
     auto value=[&](std::size_t i){return cached.pixels.empty()?(77.f*image.rgba[i*4]+150.f*image.rgba[i*4+1]+29.f*image.rgba[i*4+2])/256.f:cached.pixels[i];};
     return {value(pos[0])*(1-fx)*(1-fy)+value(pos[1])*fx*(1-fy)+value(pos[2])*(1-fx)*fy+value(pos[3])*fx*fy,true};
 }
-struct Patch {double mean{},var{};std::array<double,49> pixels{};};
+struct Patch {double mean{},var{};std::array<double,49> pixels{};bool valid{};};
 Patch referencePatch(const GrayView& v,int x,int y,int radius){
     Patch p;int n=0;double sum=0,sumSq=0;
     for(int dy=-radius;dy<=radius;++dy)for(int dx=-radius;dx<=radius;++dx){
         auto s=sample(v,x+dx,y+dy);if(!s.valid)return {};
         p.pixels[n++]=s.gray;sum+=s.gray;sumSq+=s.gray*s.gray;
     }
-    p.mean=sum/n;p.var=std::max(0.,sumSq/n-p.mean*p.mean);return p;
+    p.mean=sum/n;p.var=std::max(0.,sumSq/n-p.mean*p.mean);p.valid=true;return p;
 }
 // Algebraically identical calibrated fronto-parallel warp. Relative transforms
 // are prepared once per pair; the hot loop never reconstructs world points.
@@ -107,13 +107,21 @@ double planeNcc(const GrayView& neighbor,const detail::StereoWarp& warp,
 
 float relativeDifference(double a,double b){return static_cast<float>(std::abs(a-b)/std::max(a,b));}
 // Nearest *sampled* depth neighbor in the sparse grid, with a small reprojection budget.
-float neighborDepth(const DenseDepthMap& depth,double x,double y,int step,int radius){
-    if(!std::isfinite(x)||!std::isfinite(y)||x<0||y<0||x>=depth.width||y>=depth.height)return 0;
+enum class NeighborDepthFailure { None, OutsideImage, GridRejected, MissingDepth };
+float neighborDepth(const DenseDepthMap& depth,double x,double y,int step,int radius,NeighborDepthFailure* failure=nullptr){
+    if(failure)*failure=NeighborDepthFailure::None;
+    if(!std::isfinite(x)||!std::isfinite(y)||x<0||y<0||x>=depth.width||y>=depth.height){
+        if(failure)*failure=NeighborDepthFailure::OutsideImage;
+        return 0;}
     int ix=static_cast<int>(std::round((x-radius)/step))*step+radius;
     int iy=static_cast<int>(std::round((y-radius)/step))*step+radius;
     if(ix<0||iy<0||ix>=depth.width||iy>=depth.height||
-       std::abs(ix-x)>step*.65||std::abs(iy-y)>step*.65)return 0;
-    return depth.depth[static_cast<std::size_t>(iy)*depth.width+ix];
+       std::abs(ix-x)>step*.65||std::abs(iy-y)>step*.65){
+        if(failure)*failure=NeighborDepthFailure::GridRejected;
+        return 0;}
+    const auto value=depth.depth[static_cast<std::size_t>(iy)*depth.width+ix];
+    if(failure&&value<=0)*failure=NeighborDepthFailure::MissingDepth;
+    return value;
 }
 struct Voxel {
     long long x{},y{},z{};
@@ -159,6 +167,75 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
     }
     if(norm(sub(center(views[0]),center(views[1])))<.02)throw Error("Insufficient stereo baseline for a reliable depth map");
 }
+void writeLossDiagnostics(std::ostream& out,const DenseLossDiagnostics& d){
+    out<<"\"lossDiagnostics\":{\"schema\":1,\"scope\":\"ORIGINATING_DENSE_BRANCHES\",\"available\":"<<(d.available?"true":"false");
+    if(!d.available){out<<",\"viewCount\":null,\"views\":null}";return;}
+    if(d.viewCount<2||d.viewCount>MAX_DENSE_VIEWS)throw Error("Invalid dense diagnostic view count");
+    out<<",\"viewCount\":"<<d.viewCount<<",\"views\":[";
+    std::size_t sampledTotal=0;
+    for(std::size_t i=0;i<d.viewCount;++i){
+        const auto& v=d.views[i];
+        if(v.sampled>MAX_DENSE_SAMPLES||v.evaluated>v.sampled||v.reciprocalEvaluated>v.sampled||
+           v.photometricAccepted>v.evaluated||v.invalidReferencePatch>v.evaluated||v.validLowVariance>v.evaluated||
+           v.invalidOrBoundaryBest>v.evaluated||v.ncc>v.evaluated||v.uniqueness>v.evaluated||v.invalidInverseDepth>v.evaluated||
+           v.photometricAccepted+v.invalidReferencePatch+v.validLowVariance+v.invalidOrBoundaryBest+v.ncc+v.uniqueness+v.invalidInverseDepth!=v.evaluated||
+           v.invalidWorld>v.reciprocalEvaluated||v.noConfirmation>v.reciprocalEvaluated||v.reciprocalAccepted>v.reciprocalEvaluated||
+           v.invalidWorld+v.noConfirmation+v.reciprocalAccepted!=v.reciprocalEvaluated||v.sourcePairs>3*v.reciprocalEvaluated)
+            throw Error("Invalid dense diagnostic sample accounting");
+        const std::array<std::size_t,7> pairs{v.invalidSourceProjection,v.sourceDepthUnavailable,v.depthMismatch,
+            v.invalidReverseProjection,v.reverseReprojection,v.normalMismatch,v.confirmedPairs};
+        const std::array<std::size_t,4> unavailable{v.sourceOutsideImage,v.sourceGridRejected,v.sourceMissingDepth,v.sourceInterpolationUnsupported};
+        std::size_t unavailableTotal=0;
+        for(auto value:unavailable){if(value>v.sourceDepthUnavailable)throw Error("Invalid dense diagnostic lookup accounting");unavailableTotal+=value;}
+        if(unavailableTotal!=v.sourceDepthUnavailable)throw Error("Inconsistent dense diagnostic lookup totals");
+        std::size_t validReferenceTotal=0,validLowVarianceTotal=0;
+        for(std::size_t k=0;k<v.validReferenceMeanHistogram.size();++k){
+            const auto valid=v.validReferenceMeanHistogram[k],low=v.validLowVarianceMeanHistogram[k];
+            if(valid>v.evaluated||low>valid||low>v.validLowVariance)throw Error("Invalid dense diagnostic patch-mean histogram");
+            validReferenceTotal+=valid;validLowVarianceTotal+=low;
+        }
+        if(validReferenceTotal!=v.evaluated-v.invalidReferencePatch||validLowVarianceTotal!=v.validLowVariance)
+            throw Error("Inconsistent dense diagnostic patch-mean totals");
+        std::size_t pairTotal=0,histogramTotal=0,confirmedTotal=0;
+        for(auto value:pairs){if(value>v.sourcePairs)throw Error("Invalid dense diagnostic pair accounting");pairTotal+=value;}
+        for(std::size_t k=0;k<v.confirmationHistogram.size();++k){
+            const auto value=v.confirmationHistogram[k];
+            if(value>v.reciprocalEvaluated||(k>3&&value))throw Error("Invalid dense diagnostic support histogram");
+            histogramTotal+=value;confirmedTotal+=k*value;
+        }
+        if(pairTotal!=v.sourcePairs||histogramTotal+v.invalidWorld!=v.reciprocalEvaluated||
+           v.confirmationHistogram[0]!=v.noConfirmation||confirmedTotal!=v.confirmedPairs)
+            throw Error("Inconsistent dense diagnostic branch totals");
+        sampledTotal+=v.sampled;if(sampledTotal>MAX_DENSE_SAMPLES)throw Error("Dense diagnostic sample budget exceeded");
+        if(i)out<<',';
+        const bool observed=v.evaluated>0;
+        out<<"{\"referenceView\":"<<i<<",\"photometric\":{\"coverage\":\""<<(observed?(v.evaluated==v.sampled?"COMPLETE":"PARTIAL"):"UNAVAILABLE")
+           <<"\",\"sampledSamples\":"<<v.sampled<<",\"unknownSamples\":"<<v.sampled-v.evaluated;
+        if(observed){
+            out<<",\"evaluatedSamples\":"<<v.evaluated<<",\"acceptedSamples\":"<<v.photometricAccepted
+               <<",\"rejectionCounts\":{\"invalidReferencePatch\":"<<v.invalidReferencePatch<<",\"validLowVariance\":"<<v.validLowVariance
+               <<",\"invalidOrBoundaryBest\":"<<v.invalidOrBoundaryBest<<",\"ncc\":"<<v.ncc<<",\"uniqueness\":"<<v.uniqueness
+               <<",\"invalidInverseDepth\":"<<v.invalidInverseDepth<<"}";
+            out<<",\"validReferenceMeanHistogram\":[";
+            for(std::size_t k=0;k<v.validReferenceMeanHistogram.size();++k){if(k)out<<',';out<<v.validReferenceMeanHistogram[k];}
+            out<<"],\"validLowVarianceMeanHistogram\":[";
+            for(std::size_t k=0;k<v.validLowVarianceMeanHistogram.size();++k){if(k)out<<',';out<<v.validLowVarianceMeanHistogram[k];}
+            out<<']';
+        }else out<<",\"evaluatedSamples\":null,\"acceptedSamples\":null,\"rejectionCounts\":null,\"validReferenceMeanHistogram\":null,\"validLowVarianceMeanHistogram\":null";
+        out<<"},\"reciprocal\":{\"coverage\":\"COMPLETE\",\"evaluatedSamples\":"<<v.reciprocalEvaluated
+           <<",\"acceptedSamples\":"<<v.reciprocalAccepted<<",\"invalidWorldSamples\":"<<v.invalidWorld
+           <<",\"noConfirmationSamples\":"<<v.noConfirmation<<",\"sourcePairs\":"<<v.sourcePairs
+           <<",\"pairFirstRejectionCounts\":{\"invalidSourceProjection\":"<<v.invalidSourceProjection
+           <<",\"sourceDepthUnavailable\":"<<v.sourceDepthUnavailable<<",\"depthMismatch\":"<<v.depthMismatch
+           <<",\"invalidReverseProjection\":"<<v.invalidReverseProjection<<",\"reverseReprojection\":"<<v.reverseReprojection
+           <<",\"normalMismatch\":"<<v.normalMismatch<<"},\"sourceDepthUnavailableReasons\":{\"outsideImage\":"<<v.sourceOutsideImage
+           <<",\"sampledGridRejected\":"<<v.sourceGridRejected<<",\"missingPhotometricDepth\":"<<v.sourceMissingDepth
+           <<",\"strictInterpolationUnsupported\":"<<v.sourceInterpolationUnsupported<<"},\"confirmedPairs\":"<<v.confirmedPairs<<",\"confirmationHistogram\":[";
+        for(std::size_t k=0;k<v.confirmationHistogram.size();++k){if(k)out<<',';out<<v.confirmationHistogram[k];}
+        out<<"]}}";
+    }
+    out<<"]}";
+}
 }
 
 DenseRefinementScope::DenseRefinementScope(const DenseRefinementInputs* inputs) noexcept:previous_(currentRefinementInputs){currentRefinementInputs=inputs;}
@@ -170,6 +247,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     validate(views,settings);
     DenseResult result;result.pointBudget=settings.maxPoints;
     result.photometricDiagnostics.available=true;
+    result.lossDiagnostics.available=true;result.lossDiagnostics.viewCount=views.size();
     auto admitted=tiles::admit(views.size(),static_cast<std::size_t>(views[0].width)*views[0].height,MAX_DENSE_SAMPLES,settings.maxPoints,settings.depthPlanes,settings.workingSetBudgetBytes,settings.referenceMode);
     result.admittedWorkingSetBytes=admitted.totalBytes;
     if(inputs){
@@ -234,6 +312,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     result.verifiedSamples.reserve(std::min<std::size_t>(settings.maxPoints * 2,MAX_DENSE_SAMPLES));
     for(std::size_t ref=0;ref<views.size();++ref){
         cancellation::checkpoint();
+        auto& loss=result.lossDiagnostics.views[ref];
         DenseDepthMap map;map.width=w;map.height=h;map.depth.assign(n,0);map.confidence.assign(n,0);
         // Reuse only fully validated, input-identity-bound depth maps. Camera-z
         // consistency, meshing and UV projection still run afresh on every scan.
@@ -244,6 +323,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
         if(checkpointCompatible&&depth_checkpoint::load(ref,map)){
             for(int y=r+1;y<h-r-2;y+=step)for(int x=r+1;x<w-r-2;x+=step){
                 ++result.sampledPixels;
+                ++loss.sampled;
                 if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;
             }
             result.peakLuminanceBytes=std::max(result.peakLuminanceBytes,(settings.referenceMode?(1+sources.size())*n*sizeof(float):0));
@@ -271,7 +351,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
          DenseDepthMap retainedTile;depth_checkpoint::TileLoadStatus cacheStatus=depth_checkpoint::TileLoadStatus::Unavailable;
          if(!settings.referenceMode&&depth_checkpoint::loadTile(tileKey,retainedTile,&cacheStatus)){
             for(int y=tile.y0;y<tile.y1;++y)for(int x=tile.x0;x<tile.x1;++x){const auto dst=static_cast<std::size_t>(y)*w+x,src=static_cast<std::size_t>(y-tile.y0)*retainedTile.width+x-tile.x0;map.depth[dst]=retainedTile.depth[src];map.confidence[dst]=retainedTile.confidence[src];}
-            for(int y=tile.y0;y<tile.y1;y+=step)for(int x=tile.x0;x<tile.x1;x+=step){++result.sampledPixels;if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;}
+            for(int y=tile.y0;y<tile.y1;y+=step)for(int x=tile.x0;x<tile.x1;x+=step){++result.sampledPixels;++loss.sampled;if(map.depth[static_cast<std::size_t>(y)*w+x]>0)++result.photometricPixels;}
             progress::begin(progress::Stage::Depth,ref,tileIndex,tileSamples);progress::advance(tileSamples);
             ++result.resumedDepthTiles;++result.completedTiles;continue;
          }
@@ -288,8 +368,18 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
           for(int x=tile.x0;x<tile.x1;x+=step){
             ++result.sampledPixels;progress::advance(++tileWork);
             ++result.photometricDiagnostics.evaluatedSamples;
+            ++loss.sampled;++loss.evaluated;
             auto reference=referencePatch(image,x,y,r);
-            if(reference.var<18.){++result.photometricDiagnostics.lowVariance;continue;} // no reliable photometric texture
+            std::size_t meanBucket=0;
+            if(reference.valid){
+                // Existing valid 8-bit luminance patch mean is finite in [0,255].
+                // These bins contain no coordinates and never classify foreground.
+                meanBucket=static_cast<std::size_t>(std::clamp(static_cast<int>(reference.mean/16),0,15));
+                ++loss.validReferenceMeanHistogram[meanBucket];
+            }
+            if(reference.var<18.){++result.photometricDiagnostics.lowVariance;
+                if(reference.valid){++loss.validLowVariance;++loss.validLowVarianceMeanHistogram[meanBucket];}else ++loss.invalidReferencePatch;
+                continue;} // legacy counter/decision unchanged, including invalid reference patches
             std::fill(costs.begin(),costs.end(),2.);
             for(int k=0;k<settings.depthPlanes;++k){
                 if((k&7)==0)cancellation::checkpoint();
@@ -303,10 +393,10 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             }
             const auto distinct=matching::distinctMinimum(costs);
             const int best=static_cast<int>(distinct.best);
-            if(!distinct.valid||best<2||best>=settings.depthPlanes-2){++result.photometricDiagnostics.invalidOrBoundaryBest;continue;}
-            if(costs[best]>1-settings.minimumNcc){++result.photometricDiagnostics.ncc;continue;}
+            if(!distinct.valid||best<2||best>=settings.depthPlanes-2){++result.photometricDiagnostics.invalidOrBoundaryBest;++loss.invalidOrBoundaryBest;continue;}
+            if(costs[best]>1-settings.minimumNcc){++result.photometricDiagnostics.ncc;++loss.ncc;continue;}
             const double margin=distinct.margin;
-            if(margin<settings.minUniqueness){++result.photometricDiagnostics.uniqueness;continue;}
+            if(margin<settings.minUniqueness){++result.photometricDiagnostics.uniqueness;++loss.uniqueness;continue;}
             double inverse=refinement::parabolicInverseDepth(costs,planes,static_cast<std::size_t>(best));
             double selectedCost=-1.;
             if(settings.localRefinementIterations){
@@ -365,13 +455,14 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
                     }
                 }
             }
-            if(inverse<=0){++result.photometricDiagnostics.invalidInverseDepth;continue;}
+            if(inverse<=0){++result.photometricDiagnostics.invalidInverseDepth;++loss.invalidInverseDepth;continue;}
             auto idx=static_cast<std::size_t>(y)*w+x;
             map.depth[idx]=static_cast<float>(1./inverse);
             map.confidence[idx]=static_cast<float>(std::clamp(margin/.20,0.,1.)*
                 std::clamp((1.-costs[best])/.9,0.,1.));
             ++result.photometricPixels;
             ++result.photometricDiagnostics.acceptedSamples;
+            ++loss.photometricAccepted;
           }
         }
          if(!settings.referenceMode&&depth_checkpoint::enabled()){
@@ -395,6 +486,7 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
     for(std::size_t ref=0;ref<views.size();++ref){
         cancellation::checkpoint();
         const auto& camera=views[ref];const auto& map=result.maps[ref];
+        auto& loss=result.lossDiagnostics.views[ref];
         progress::begin(progress::Stage::Consistency,ref,0);
         std::size_t checkedPixels=0;
         for(int y=r+1;y<h-r-2;y+=step){
@@ -403,35 +495,47 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             progress::advance(++checkedPixels);
             std::size_t idx=static_cast<std::size_t>(y)*w+x;
             float depth=map.depth[idx];if(depth<=0)continue;
+            ++loss.reciprocalEvaluated;
             auto world=fromDepth(camera,x,y,depth);
-            if(!finite(world))continue;
+            if(!finite(world)){++loss.invalidWorld;continue;}
             int confirmations=0,normalConfirmations=0;double normalConfidence=1;
             const auto referenceNormal=settings.normalConsistency?consistency::estimateNormal(camera,map,x,y,step,r+1,settings.depthConsistencyFraction):consistency::SurfaceNormal{};
             for(std::size_t src:result.sourceViews[ref]){
-                auto q=cameraPoint(views[src],world);if(q.z<=.01||!finite(q))continue;
+                ++loss.sourcePairs;
+                auto q=cameraPoint(views[src],world);if(q.z<=.01||!finite(q)){++loss.invalidSourceProjection;continue;}
                 double sx=views[src].fx*q.x/q.z+views[src].cx;
                 double sy=views[src].fy*q.y/q.z+views[src].cy;
                 const auto continuous=settings.discontinuityAwareConsistency?consistency::sampleDepth(result.maps[src],sx,sy,step,r+1,settings.depthConsistencyFraction):consistency::Sample{};
-                float d=settings.discontinuityAwareConsistency?(continuous.classification==consistency::Visibility::Supported?static_cast<float>(continuous.depth):0):neighborDepth(result.maps[src],sx,sy,step,r+1);
-                if(d<=0||relativeDifference(q.z,d)>settings.depthConsistencyFraction)continue;
+                NeighborDepthFailure lookupFailure{};
+                float d=settings.discontinuityAwareConsistency?(continuous.classification==consistency::Visibility::Supported?static_cast<float>(continuous.depth):0):neighborDepth(result.maps[src],sx,sy,step,r+1,&lookupFailure);
+                if(d<=0){++loss.sourceDepthUnavailable;
+                    if(settings.discontinuityAwareConsistency)++loss.sourceInterpolationUnsupported;
+                    else if(lookupFailure==NeighborDepthFailure::OutsideImage)++loss.sourceOutsideImage;
+                    else if(lookupFailure==NeighborDepthFailure::GridRejected)++loss.sourceGridRejected;
+                    else ++loss.sourceMissingDepth;
+                    continue;}
+                if(relativeDifference(q.z,d)>settings.depthConsistencyFraction){++loss.depthMismatch;continue;}
                 // Reverse reprojection rejects nearest-grid mistakes at depth discontinuities.
                 auto back=fromDepth(views[src],settings.discontinuityAwareConsistency?sx:std::round((sx-(r+1))/step)*step+(r+1),
                                     settings.discontinuityAwareConsistency?sy:std::round((sy-(r+1))/step)*step+(r+1),d);
                 auto refCamera=cameraPoint(camera,back);
-                if(refCamera.z<=0||!finite(refCamera))continue;
+                if(refCamera.z<=0||!finite(refCamera)){++loss.invalidReverseProjection;continue;}
                 double px=camera.fx*refCamera.x/refCamera.z+camera.cx;
                 double py=camera.fy*refCamera.y/refCamera.z+camera.cy;
-                if(std::hypot(px-x,py-y)>step*1.6)continue;
+                if(std::hypot(px-x,py-y)>step*1.6){++loss.reverseReprojection;continue;}
                 if(settings.normalConsistency){
                     const auto sourceNormal=consistency::estimateNormal(views[src],result.maps[src],sx,sy,step,r+1,settings.depthConsistencyFraction);
                     const auto agreement=consistency::verifyNormals(referenceNormal,camera.pose,sourceNormal,views[src].pose,settings.normalMaxAngleDegrees);
-                    if(agreement.classification==consistency::Visibility::Inconsistent){++result.normalRejectedPairs;continue;}
+                    if(agreement.classification==consistency::Visibility::Inconsistent){++result.normalRejectedPairs;++loss.normalMismatch;continue;}
                     if(agreement.classification==consistency::Visibility::Supported){++result.normalSupportPairs;++normalConfirmations;normalConfidence=std::min({normalConfidence,referenceNormal.confidence,sourceNormal.confidence});}
                     else ++result.normalUnknownPairs;
                 }
                 ++confirmations;
+                ++loss.confirmedPairs;
             }
-            if(confirmations==0)continue;
+            ++loss.confirmationHistogram[static_cast<std::size_t>(confirmations)];
+            if(confirmations==0){++loss.noConfirmation;continue;}
+            ++loss.reciprocalAccepted;
             ++result.consistentPixels;
             ++result.consistentPixelsPerView[ref];
             auto i=idx*4;
@@ -490,6 +594,7 @@ std::string denseJson(const DenseResult& result){
            <<",\"uniqueness\":"<<diagnostic.uniqueness<<",\"invalidInverseDepth\":"<<diagnostic.invalidInverseDepth<<"}";
     }else out<<",\"evaluatedSamples\":null,\"acceptedSamples\":null,\"rejectionCounts\":null";
     out<<"},";
+    writeLossDiagnostics(out,result.lossDiagnostics);out<<',';
     out<<"\"scale\":\"arbitrary\",\"triangleCount\":0,\"textured\":false,\"pointCount\":"<<result.points.size()
        <<",\"sampledPixels\":"<<result.sampledPixels<<",\"photometricPixels\":"<<result.photometricPixels
        <<",\"consistentPixels\":"<<result.consistentPixels<<",\"medianConfidence\":"<<result.medianConfidence<<",\"points\":[";

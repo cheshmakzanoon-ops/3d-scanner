@@ -48,6 +48,20 @@ are involved. The emulator is explicitly launched with `-accel off`, process-loc
 and two virtual cores. An older installed emulator that cannot honor these flags
 fails rather than silently changing mode or downgrading.
 
+### Verified five-check execution — 25 October 2026
+
+Source `fac55e969e6b3a696daf2640836e618e959c3e91`, tree
+`ae28f733510337d4d9db5ad38f049c3051a120a4`,
+[run 40225784945](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40225784945)
+completed actual SDK compilation, install and **5/5 selected tests**, zero failures
+or skips, including corrected numeric camera-registration JNI. This is API35
+x86_64 unsupported software TCG evidence only—not UI, SAF, Filament, ARM64,
+real-photo reconstruction, physical quality or the ordinary installed-device gate.
+The accelerated controller's four-method scope and KVM permissions are unchanged.
+The separate ordinary Android build passed 920 tests; native qualification remains
+pending, not waived by this smoke result. The admission below identifies that
+completed source-bound attempt, not permission for another automatic run.
+
 ### One-shot push admission
 
 This source-reviewed re-arm requests one current-source **NON-UI**, unsupported

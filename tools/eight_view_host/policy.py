@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='4b23941e8424b59ba2056f54c18a3b4bfff634bd'
-MESSAGE='fix: denormalize rigid camera translation consistently'
+BASE_SHA='fac55e969e6b3a696daf2640836e618e959c3e91'
+MESSAGE='test: retain bounded dense and surface loss diagnostics'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'CMakeLists.txt', 'README.md', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/IncrementalRegistration.kt', 'app/src/test/java/com/realityforge/scanner/engine/NativePnpObservationPolicyTest.kt', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/PNP_CENTERED_TRANSLATION.md', 'reconstruction/src/pnp.cpp', 'reconstruction/tests/pnp_origin_equivariance_test.cpp', 'tests/test_eight_view_host.py', 'tests/test_project_contracts.py', 'tests/test_real_three_pnp_replay.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/development/DENSE_SURFACE_LOSS_DIAGNOSTICS.md', 'docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md', 'reconstruction/include/realityforge/dense.hpp', 'reconstruction/include/realityforge/surface.hpp', 'reconstruction/src/dense.cpp', 'reconstruction/src/surface.cpp', 'reconstruction/tests/dense_test.cpp', 'reconstruction/tests/depth_checkpoint_test.cpp', 'reconstruction/tests/depth_tiles_test.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'reconstruction/tests/surface_fusion_test.cpp', 'tests/test_dense_loss_diagnostics.py', 'tests/test_eight_view_host.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
