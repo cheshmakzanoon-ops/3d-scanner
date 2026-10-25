@@ -239,6 +239,11 @@ class PhotographicViewerTest {
                 fail("Filament did not submit a fixture frame; inspect actual driver support")
             }
             awaitFrame(0)
+            inst.waitForIdleSync()
+            Thread.sleep(250) // Let initial Surface/layout notifications settle.
+            val idleFrames=frames()
+            Thread.sleep(250)
+            assertEquals("Static inspection must not redraw continuously",idleFrames,frames())
             var restoredPose=FloatArray(0)
             var restoredModel=FloatArray(0)
             inst.runOnMainSync {
@@ -251,6 +256,15 @@ class PhotographicViewerTest {
             inst.runOnMainSync {
                 assertFalse(restoredPose.contentEquals(current.get()!!.cameraViewMatrix()))
                 assertFalse(restoredModel.contentEquals(current.get()!!.displayModelMatrix()))
+            }
+            // Every display mutation must wake the otherwise idle renderer.
+            for (change in listOf<(FilamentStudioView)->Unit>(
+                { it.orbit(5f,3f) }, { it.pan(.1f,.1f) }, { it.magnify(1.1f) },
+                { it.surfaceChanged(it.holder,android.graphics.PixelFormat.RGBA_8888,it.width,it.height) },
+            )) {
+                val before=frames()
+                inst.runOnMainSync { change(current.get()!!) }
+                awaitFrame(before)
             }
             inst.runOnMainSync { current.get()!!.pauseRendering() }
             val paused=frames(); Thread.sleep(150); assertEquals(paused,frames())

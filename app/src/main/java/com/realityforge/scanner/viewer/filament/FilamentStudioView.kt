@@ -19,6 +19,7 @@ class FilamentStudioView(
     private var backend: FilamentBackend? = null
     private var resumed = true
     private var scheduled = false
+    private val frameDemand = FrameDemand()
     private var closed = false
     private var pendingYaw = 0f
     private var pendingPitch = 0f
@@ -43,19 +44,19 @@ class FilamentStudioView(
             current.reset(); current.orbit(pendingYaw,pendingPitch)
             current.magnify(pendingZoom); current.pan(pendingPanX,pendingPanY)
             current.attach(holder.surface,width.coerceAtLeast(1),height.coerceAtLeast(1))
-            schedule()
+            requestFrame()
         } catch (failure: Exception) { failed(failure.message ?: "Filament could not load this model.") }
         catch (failure: LinkageError) { failed("Filament native library is unavailable for this device.") }
     }
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         if (closed || width <= 0 || height <= 0) return
-        try { backend?.resize(width,height) }
+        try { backend?.resize(width,height); requestFrame() }
         catch (failure: Exception) { failed(failure.message ?: "Filament viewport is unavailable.") }
     }
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         unschedule(); backend?.detach()
     }
-    override fun resumeRendering() { if (!closed) { resumed=true; schedule() } }
+    override fun resumeRendering() { if (!closed) { resumed=true; requestFrame() } }
     override fun pauseRendering() { resumed=false; unschedule() }
     override fun close() = dispose()
     fun dispose() {
@@ -66,8 +67,14 @@ class FilamentStudioView(
     private fun failed(message: String) {
         dispose(); onFailure(message)
     }
+    private fun requestFrame() {
+        // Static inspection has no animation or temporal post-processing. Submit again only
+        // after a display change, or when Filament declined the previous beginFrame.
+        frameDemand.invalidate()
+        schedule()
+    }
     private fun schedule() {
-        if (!closed && resumed && holder.surface.isValid && backend != null && !scheduled) {
+        if (frameDemand.pending && !closed && resumed && holder.surface.isValid && backend != null && !scheduled) {
             scheduled=true; Choreographer.getInstance().postFrameCallback(this)
         }
     }
@@ -78,7 +85,7 @@ class FilamentStudioView(
     override fun doFrame(frameTimeNanos: Long) {
         scheduled=false
         if (closed || !resumed || !holder.surface.isValid) return
-        try { backend?.draw(frameTimeNanos); schedule() }
+        try { frameDemand.draw { backend?.draw(frameTimeNanos) == true }; schedule() }
         catch (failure: Exception) { failed(failure.message ?: "Filament frame failed.") }
     }
     override fun orbit(horizontalDegrees: Float, verticalDegrees: Float) {
@@ -86,20 +93,24 @@ class FilamentStudioView(
         pendingYaw=(pendingYaw+horizontalDegrees)%360f
         pendingPitch=(pendingPitch+verticalDegrees).coerceIn(-89f,89f)
         backend?.orbit(horizontalDegrees,verticalDegrees)
+        requestFrame()
     }
     override fun pan(horizontal: Float, vertical: Float) {
         require(horizontal.isFinite() && vertical.isFinite())
         pendingPanX=(pendingPanX+horizontal).coerceIn(-2f,2f)
         pendingPanY=(pendingPanY+vertical).coerceIn(-2f,2f)
         backend?.pan(horizontal,vertical)
+        requestFrame()
     }
     override fun magnify(factor: Float) {
         require(factor.isFinite() && factor>0)
         pendingZoom=(pendingZoom*factor).coerceIn(.35f,5f); backend?.magnify(factor)
+        requestFrame()
     }
     override fun reset() {
         pendingYaw=0f; pendingPitch=0f; pendingZoom=1f; pendingPanX=0f; pendingPanY=0f
         backend?.reset()
+        requestFrame()
     }
     override fun onDetachedFromWindow() { dispose(); super.onDetachedFromWindow() }
 }
