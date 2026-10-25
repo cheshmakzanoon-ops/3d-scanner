@@ -15,21 +15,26 @@ Results below belong to the named source revisions, not automatically to later c
 | Three-photo full-controller HOST test (`5beb2d3`) | **Passed:** three fixed synthetic relief photographs → actual reconstruction controller → dense points, mesh and photographic texture → nine published artifacts → three validated export formats and Room database reopen. All three cameras registered; 904 sparse points, 22,259 textured triangles and a 1548 × 1164 atlas. |
 | Test scope | `SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY`: modeled HOST resources, not physical capture, installed GLES/SAF interaction or release qualification. The eight-photo low-resolution fixture remains unsuccessful. |
 | Real licensed stereo full-controller HOST test (`68ef9b7`) | **Failed at `MATCHES`; no model produced.** Read-only replay of persisted matches returned native `WEAK_BASELINE`; this is not a diagnosis of the physical camera baseline. |
-| Android build (`68ef9b7`) | Debug app/test APK builds, lint, 864 unit tests and 18 HOST JVM tests passed (882 tests total). These do not establish a passing installed photo-to-model journey. |
+| Android build (`f506d2f`) | Android checks passed with **902 tests**; release profiles and benchmark compilation also passed. These are not installed photo-to-model qualification. |
+| Fixed real three-photo HOST profile (`f506d2f`) | **Strict FAIL:** only 2/3 cameras registered, no global bundle adjustment. Partial model export/reopen is **VERIFIED_NOT_FULL_THREE**: 220 sparse / 1,623 dense points, 1,032 mesh vertices and 884 textured triangles. Its 982 boundary edges and 411 reported intersections remain despite 0 nonmanifold edges. Visibly fragmented, not watertight or device-qualified. |
 | Installed emulator tests (`7ff6395`) | The synthetic UI journey failed in DocumentsUI selection **before import/reconstruction**. The separate optional Filament rendering/lifecycle test passed. The selector repair in `c3f26f3` still needs a completed installed rerun. |
-| Remaining CI gates (`68ef9b7`) | **Failed:** GCC and Clang sanitizer profiles exceeded their 600-second pytest limit; ordinary device KVM preflight also failed. Full-candidate CI is not green. Passed release builds and selected tests do not replace these gates. |
+| Remaining CI gates (`f506d2f`) | **Failed:** each full sanitizer suite completed 4,261 cases: 4,211 passed, 22 failed, 28 skipped, 0 errors. Native/candidate aggregate gates failed; full CI is not green. |
 | Exact planar ownership QA (`813f312`) | Dedicated ASan/UBSan/LSan run: 1 native CTest and 83 differential cases passed; 137 release cases passed. **OFF by default**, native QA only—not production integration or mobile qualification. |
 | Mesh quality (`5beb2d3`) | The synthetic result still has 113 components, 9,542 boundary edges and **653 nonmanifold edges**. Intersection analysis is budget-incomplete. The supported-diagonal fix does not establish watertight, overlap-free or complete-object quality. |
 
 Source `e493872` adds [persisted camera-failure guidance](docs/reconstruction/ANCHOR_FAILURE_GUIDANCE.md)
 for uniformly allowlisted weak/ambiguous pair rejections and resource-backed
-recapture advice, without weakening acceptance gates. Its
-[Android build and checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40179213109)
-passed with **888 tests** (870 unit + 18 HOST JVM; no failures, errors or skips);
-release profiles and benchmark compilation also passed. Device checks failed and
-sanitizer jobs remain running at this checkpoint: full CI is not green, and
-installed guidance is not qualified. The latest shared APK is still the `707a10e`
-engineering preview; it does not contain this new runtime guidance.
+recapture advice, without weakening acceptance gates. Installed guidance remains
+unqualified. `0055f87` adds [exact distinct-pair support and sparse policy v2](docs/CALIBRATED_INITIALIZER.md),
+not a fix for all pose-conditioning problems. `f506d2f` verifies a bounded partial
+model roundtrip, not a full three-view reconstruction. Its supplementary C-ABI diagnostic passed after
+repairing the exact 194-raw / 162-distinct / 159-support case; this is
+**diagnostic-only**, not a release gate.
+
+**Engineering APK update warning:** the `0055f87` signer differs from `066dcd3`
+and `0a6d4ec`; an in-place update is not verified. Preserve/export important
+captures and models before considering uninstalling. Do not assume an app backup
+exists or that uninstalling preserves app-private data.
 
 Recent source fixes correct inverse-depth interpolation on projective planes,
 choose a consistent supported diagonal for identical observed full quads, and
@@ -40,7 +45,10 @@ A [conservative EXIF focal prior](docs/reconstruction/EXIF_FOCAL_PLANE_PRIOR.md)
 now handles valid isotropic focal-plane metadata when a direct 35mm tag is absent;
 it remains derived, not measured lens calibration, and declines inconsistent inputs.
 
-Evidence: [full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162711185),
+Evidence: [`f506d2f` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141070),
+[real three-photo HOST profile and partial roundtrip](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141048),
+[`f506d2f` supplementary C-ABI diagnostic](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141080),
+[full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162711185),
 [real licensed stereo HOST failure](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715540),
 [`68ef9b7` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715542),
 [dedicated exact planar ownership QA](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40168651012),

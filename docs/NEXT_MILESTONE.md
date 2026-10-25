@@ -32,40 +32,45 @@ The three-photo synthetic full-controller HOST journey passed on `5beb2d3`;
 the selected installed Filament lifecycle test passed on `7ff6395`. Neither
 closes installed import → reconstruction → inspection → reopen/export or
 physical-quality qualification. See [current status](MILESTONE_STATUS.md) for
-source-bound results and failures. The latest shared APK remains the `707a10e`
-engineering preview, not an installed validation of `e493872` guidance.
+source-bound results and failures. The `f506d2f` Android checks pass with 902
+tests and its bounded partial-model roundtrip is VERIFIED_NOT_FULL_THREE.
+The strict three-view HOST profile still fails; installed workflows remain unqualified.
+
+**Engineering APK update warning:** the `0055f87` signer differs from `066dcd3`
+and `0a6d4ec`; an in-place update is not verified. Preserve/export important
+captures and models before considering uninstalling. Do not assume an app backup
+exists or that uninstalling preserves app-private data.
 
 1. Complete the corrected installed synthetic journey. The `7ff6395` run failed
    at DocumentsUI selection before import/reconstruction; `c3f26f3` repairs the
    driver without bypassing the picker. Run and retain actual rendered UI, SAF,
    reconstruction, reopen/export, cancellation and interruption evidence.
-2. Resolve the real licensed stereo controller failure on `68ef9b7`: run
-   [40176715540](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715540)
-   failed at `MATCHES` and produced no model. Read-only persisted-match replay
-   reported `WEAK_BASELINE`, not a physical-baseline diagnosis. The `e493872`
-   Android build/lint and 888 tests now pass, but persisted failure guidance
-   and resource-backed advice still need installed-app verification. Validate
-   real observed scenes without relaxing camera
-   registration, geometry or photographic-texture acceptance gates. The failed
-   low-resolution eight-photo fixture remains a failure, not an alternate pass.
+2. Qualify real-photo reconstruction beyond the partial `f506d2f` result:
+   2/3 registered cameras and no global bundle adjustment still fail the strict
+   fixed three-photo HOST profile. Its 220 sparse / 1,623 dense points and
+   884 textured triangles passed bounded export/reopen checks, not the full
+   three-view journey. Preserve that distinction. The supplementary
+   C-ABI diagnostic pass is not a release gate. Preserve registration, geometry
+   and photographic-texture acceptance; exact-pair support deduplication does not
+   resolve every pose-conditioning problem. Earlier stereo and low-resolution
+   eight-photo failures remain source-bound failures, not alternate passes.
 3. Continue measured topology repair beyond the supported-diagonal change.
    The `5beb2d3` synthetic result still has 653 nonmanifold edges,
    113 components and 9,542 boundary edges; intersection analysis is incomplete.
+   The real `f506d2f` partial mesh has 1,032 vertices, 982 boundary edges and
+   411 reported intersections despite zero nonmanifold edges; it remains visibly
+   fragmented and is not watertight.
    Exact-quad consistency is not general surface fusion or hole repair. Do not
    hide defects, fabricate unseen surfaces or label open meshes watertight.
    The `813f312` exact planar ownership QA passes its dedicated sanitizer and
    release cases but remains OFF by default; production integration and mobile
    qualification require separate evidence. It has not repaired this mesh.
-4. Obtain completed sanitizer evidence and a green full-candidate CI result.
-   Both `68ef9b7` sanitizer pytest executions exceeded 600 seconds and ordinary
-   device KVM preflight failed in
-   [40176715542](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715542).
-   The later `e493872` run
-   [40179213109](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40179213109)
-   passes 888 Android tests, both release profiles and benchmark compilation,
-   but device checks failed and sanitizer jobs remain running at this checkpoint.
-   Full CI is not green. These passes and selected emulator tests do not replace
-   the outstanding gates or close the historical failures.
+4. Fix full-candidate sanitizer failures and obtain a green result. Both full
+   `f506d2f` suites completed 4,261 cases each: 4,211 passed, 22 failed,
+   28 skipped and zero errors. Native/candidate aggregate gates fail. The
+   [Android build](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141070),
+   release profiles, benchmark compilation, planar QA and supplementary C-ABI
+   diagnostic passes do not close these failures or the installed-device gates.
 5. Validate calibrated physical ARM64 captures against independent reference
    geometry, texture and resource measurements before raising the enforced
    2–12-photo/eight-dense-view limits or claiming complete-object quality.

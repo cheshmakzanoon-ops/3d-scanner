@@ -8,7 +8,51 @@ Supported input remains **2–12 photographs**, with at most **eight registered
 dense views**. Physical scan quality, complete installed workflows and production
 release qualification remain open.
 
-### Completed evidence
+### Latest source-bound checkpoint
+
+- **Current `f506d2f` [verification](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141070):**
+  Android checks passed with **902 tests**; both release profiles and benchmark
+  compilation passed. Full GCC and Clang sanitizer suites each completed
+  **4,261 cases: 4,211 passed, 22 failed, 28 skipped, zero errors**.
+  Native/candidate aggregate gates **FAIL**; full CI is not green.
+- **Current real three-photo [HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141048)
+  on `f506d2f` — strict FAIL:** **2/3 cameras registered**, no global bundle
+  adjustment. Bounded partial-model export/reopen is **VERIFIED_NOT_FULL_THREE**:
+  **220 sparse points, 1,623 dense points, 1,032 mesh vertices / 884 triangles**;
+  the textured representation has **1,126 UV vertices / 884 triangles**, a
+  **1548 × 518 atlas** and a published **1,418,476-byte GLB**. Independent checks
+  verified 190 checksums, nine blobs, all three exports and before/after-reopen
+  records. The mesh is visibly fragmented, with **982 boundary edges, 411
+  reported intersections and zero nonmanifold edges**. This does not establish
+  watertightness, full-object/high-quality reconstruction or device qualification.
+- **App/native source `0055f87`:** [Android checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40192904648)
+  passed with **902 tests**. Release profiles, benchmark compilation and planar
+  QA passed. The full GCC and Clang sanitizer suites each completed with
+  **4,125 passed, 39 failed and 27 skipped**: both gates **FAIL**, not timeouts
+  or green full-candidate CI. Earlier results below remain source-bound history.
+- **Fixed real three-photo HOST profile on `0055f87` — strict FAIL:** partial
+  output registered **2/3 cameras**, with **41 sparse points, 965 dense points,
+  299 mesh vertices and 185 textured triangles**. It reports **297 boundary
+  edges, 77 recorded intersections and zero nonmanifold edges**. Zero nonmanifold
+  edges does not make this open, intersecting partial mesh watertight, complete
+  or high quality. Export/reopen assertions were **not reached** in this run.
+- `f506d2f` adds test/diagnostic changes to the `0055f87` app/native source.
+  Its verified partial roundtrip does not change the strict three-view failure.
+  Its separate
+  [C-ABI diagnostic](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141080)
+  is **PASS_SUPPLEMENTARY_DIAGNOSTIC_ONLY**, after repair of the exact
+  **194 raw / 162 distinct / 159 support** case. It is not a release gate.
+- [Exact distinct-pair support policy](CALIBRATED_INITIALIZER.md) in `0055f87`
+  collapses exact duplicate coordinate pairs for model support and versions sparse
+  policy/caches to v2. Numerical, spatial, baseline and pose gates remain;
+  this does not establish that all pose-conditioning problems are fixed.
+
+**Engineering APK update warning:** the `0055f87` signer differs from `066dcd3`
+and `0a6d4ec`; an in-place update is not verified. Preserve/export important
+captures and models before considering uninstalling. Do not assume an app backup
+exists or that uninstalling preserves app-private data.
+
+### Earlier completed evidence
 
 - **Synthetic full-controller journey — PASS on `5beb2d3`:** three fixed relief
   photographs passed through the actual reconstruction controller, dense stage,
@@ -100,11 +144,9 @@ advice. Geometry acceptance is unchanged; this is not recovery or evidence that
 real captures now reconstruct. Its
 [Android build, lint and tests](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40179213109)
 passed: **870 unit tests + 18 HOST JVM tests = 888**, with zero failures, errors
-or skips. Both release profiles and benchmark compilation also passed. Device
-checks failed; sanitizer jobs remain running at this checkpoint, not passes.
-Full-candidate CI is not green, and installed guidance remains unqualified.
-The latest shared APK is still the `707a10e` engineering preview, without this
-new runtime guidance.
+or skips. Both release profiles and benchmark compilation also passed. These are
+historical `e493872` results, not qualification of current installed guidance.
+See the latest `f506d2f` checkpoint above for current build and failure evidence.
 
 Public evidence: [real licensed stereo HOST failure](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715540),
 [`68ef9b7` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715542),
