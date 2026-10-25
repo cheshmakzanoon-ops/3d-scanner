@@ -116,3 +116,70 @@ Sixteen additional pure Kotlin regression controls pass for empty successful log
 The prior90e56198aa3223843477979ac70d45e7f8cfe135c6e7c283afe078522ffabdff checkpoint incorrectly named the compat archive as the source of libandroid_runtime.so. That failed provider assumption is preserved in the separate review2 checkpoint. Assessor's static inspection of the checksum-pinned loader and actual ZIP64 directories established API35 selection from the pinned android-all15 framework. This successor adds mandatory inputs.androidAll, exact prepared offline-framework path via robolectric.dependency.dir, framework SHA and unique offline inventory. runtimeProvider now binds that framework archive, exact native entry and15,526,048-byte size, with32MiB streaming/mapped-file refusal bounds. Compat remains mandatory separately; there is no fallback basename/archive or relaxed hash. Policy binding updated coherently to4d727401861b7d460f3e6c4a30a99b34d7db59a0f3a930920d169d872a3b1820.
 
 Ten pure Kotlin regressions cover correct metadata, wrong compat archive/old basename, missing/wrong/oversize bytes and bounded synthetic ZIP streaming. All earlier producer/log/classloader/sandbox fixes remain. These tests do not load the actual framework or qualify pipeline/native execution.
+
+## Separate licensed two-photo controller profile — not run
+
+The closed `real-licensed-stereo-complete` profile is a separate experiment, not a
+replacement for the three synthetic relief images or a change to production gates.
+Its intended result classification is
+`REAL_LICENSED_STEREO_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY`. Adding this profile
+does not arm the source-bound workflow or establish a reconstruction result.
+
+Inputs are the unchanged original `10.JPG` and `11.JPG` from alansartlog's
+“Photogrammetry Test Set: Skull - Cameramoves - Flash - No Background” at immutable
+GitLab project 8724498 commit `0f31c229ac289a615b3ae981a5f584856bb24c47`.
+The author README explicitly licenses the work CC BY 4.0. The CI-only preparer
+downloads the fixed README before the two photos, checks exact byte counts and
+SHA-256, and stages only those two 4272×2848 JPEGs plus an observation manifest.
+See `real_stereo_inputs.py` for exact pins and immutable URLs.
+
+Pair 10/11 was selected after a separate native-core preflight, not as a held-out
+quality benchmark. No preflight features, poses, points, masks, or calibration
+profile enter this controller run. Production import, feature extraction,
+registration, bundle adjustment, depth, publication and export remain responsible
+for their own results. The supplied 88mm 35mm-equivalent value is an **estimate**,
+not measured calibration. EXIF focal-plane values are anisotropic and rejected
+by the current scalar metadata fallback; the original metadata is not rewritten.
+
+Both photos must import and remain hash-identical, both cameras must register,
+typed BA must be admitted, and the unchanged dense/mesh/texture readiness and
+support thresholds must pass. All nine publication artifacts and three parsed
+exports must retain identical hashes after Room reopen, with persisted
+COMPLETED/PUBLISHING job state. The 90-second work deadline, 120-second JUnit
+deadline, 600-second invocation bound, 4200-second overall bound and 56MiB complete
+evidence budget remain unchanged. Failures are retained as failures, not accepted
+by reducing thresholds.
+
+Originals contain unrelated owner/serial metadata (no GPS IFD was found). Neither
+original JPEGs, raw EXIF, imported databases nor thumbnails are retained as public
+evidence or checked into source. Minimal hashes/URLs/dimensions and the author's
+public README, image-number attribution and derivative-output notice accompany
+retained reconstructed assets. Production export bytes are unchanged. The
+real-profile collector additionally refuses unreviewed measurement paths,
+JPEG/TIFF/EXIF payloads and PNG ancillary metadata, including embedded atlas PNGs.
+Production capture metadata reads only the approved photographic fields, and the
+native atlas encoder produces new pixel-based PNGs, not copies of input metadata.
+The real test failure record excludes arbitrary exception messages/progress.
+
+This flash-lit, two-view partial arc has no independent surface reference, metric
+scale or full-object coverage. Host resources are modeled, Bitmap/Mat interop is
+the existing reviewed bridge, and no physical Android/device quality is claimed.
+
+Private scalar/opaque EXIF values are inspected with the repository-pinned official
+Pillow13.0.0 CPython3.12 wheel in an owned CI work directory, never in production
+reconstruction. Exact input hashes are checked before parsing. The bounded private
+marker set exists only in controller memory, includes raw/JSON/XML-escaped forms,
+and is never printed or serialized. Logs, JSON and terminal/emergency failure
+output containing these values are refused/withheld, not published as a success.
+Only exact immutable attribution/provenance files are exempt for public author
+credit. The additional ~7.14MB wheel download is work-only; artifact/deadline bounds
+are unchanged.
+
+A local source-sliced Kotlin check executed the unchanged enqueue JSON expression,
+resource-selection producer and SHA-256 function with project-pinned
+org.json20250517. Integral `88.0` serializes as `"focal35":88`; the standard-tier
+settings bytes hash to
+`7ccd2db5d64857a5aa1e944a94c133a8ae00846d5effac0feb1cc624643cfb6f`.
+The validator compares the raw settings hash before semantic numeric admission,
+never reconstructing settings JSON. This focused producer-expression check is not
+full app compilation or a real-photo reconstruction result.

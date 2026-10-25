@@ -76,10 +76,12 @@ class MainRunner(r.Runner):
   if self.signal:raise r.Cancelled('external cancellation')
 
 def main_fixture(tmp_path,monkeypatch):
+ # Orchestration is mocked, but source-selected immutable license evidence is real.
+ adapter=ctl.load_adapter(ROOT,ctl.experiments.ACTIVE)
  root=tmp_path/'repo';root.mkdir();event=tmp_path/'event.json';event.write_text('{}');temp=tmp_path/'runner';temp.mkdir()
  monkeypatch.setenv('RUNNER_TEMP',str(temp));monkeypatch.setenv('GITHUB_EVENT_PATH',str(event));monkeypatch.setattr(ctl,'ROOT',root);monkeypatch.setattr(ctl,'Runner',MainRunner)
  monkeypatch.setattr(p,'event_guard',lambda *a:SHA);monkeypatch.setattr(p,'source_guard',lambda *a:{'sourceSha':SHA})
- monkeypatch.setattr(ctl,'load_adapter',lambda *a:(root,object()));monkeypatch.setattr(ctl,'prepare_environment',lambda *a:(None,None,{'fixture':'not-runtime'}))
+ monkeypatch.setattr(ctl,'load_adapter',lambda *a:adapter);monkeypatch.setattr(ctl,'prepare_environment',lambda *a:(None,None,{'fixture':'not-runtime'}))
  monkeypatch.setattr(ctl,'prepare_runtime',lambda *a:(None,{}, {},{}));monkeypatch.setattr(ctl.capability,'build',lambda *a:None)
  return temp
 
@@ -498,7 +500,7 @@ def test_genuine_empty_command_transcript_reference_is_valid(tmp_path):
  assert json.loads((run.work/'commands.json').read_text())==[]
 
 # Real checkpoint admission, unlike the orchestration-only mocks above.
-@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF,ctl.experiments.COMPLETE])
+@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF,ctl.experiments.COMPLETE,ctl.experiments.REAL_STEREO])
 def test_checked_in_adapter_admission_and_injected_bytes(tmp_path,profile):
  package,module=ctl.load_adapter(ROOT,profile)
  assert callable(module.stage)
@@ -556,7 +558,7 @@ def test_real_adapter_admission_through_prepare_runtime_before_gradle(tmp_path,p
    raise BeforeGradle('actual adapter staging verified; no Gradle executed')
  with pytest.raises(BeforeGradle):ctl.prepare_runtime(AdmissionRun(),SHA,package,inputs,profile)
 
-@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF,ctl.experiments.COMPLETE])
+@pytest.mark.parametrize('profile',[ctl.experiments.LEGACY,ctl.experiments.RELIEF,ctl.experiments.COMPLETE,ctl.experiments.REAL_STEREO])
 def test_mixed_profile_stager_is_refused_before_outputs(tmp_path,profile):
  other=ctl.experiments.RELIEF if profile==ctl.experiments.LEGACY else ctl.experiments.LEGACY
  package,module=ctl.load_adapter(ROOT,other)

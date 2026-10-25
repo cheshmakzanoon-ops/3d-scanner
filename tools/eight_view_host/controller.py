@@ -12,7 +12,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='897d9db9d0726b4ce957da914c4e4b3da2b07ec6673a4ffb9a5c8bcd96a286f3'
+ADAPTER_MANIFEST='4a6064205e8f4018533ffd8003725d7ddea430e1729499aeef4bc176a015e790'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -20,7 +20,7 @@ def source_names(profile=experiments.ACTIVE):
 SOURCE_NAMES=source_names()
 # Kotlin file facades/nested classes retain their owner prefix. This additional top-level
 # object is declared in RuntimeProviderIdentity.kt, not in a same-named source file.
-PROBE_CLASS_PREFIXES=tuple(sorted({Path(name).stem for profile in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE) for name in source_names(profile)}))+('Api35ProviderContract',)
+PROBE_CLASS_PREFIXES=tuple(sorted({Path(name).stem for profile in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE,experiments.REAL_STEREO) for name in source_names(profile)}))+('Api35ProviderContract',)
 BASE_PACKAGES=('platforms;android-36','build-tools;36.0.0')
 
 def verify_probe_classes_removed(root,run=None):
@@ -654,14 +654,22 @@ def load_adapter(root,profile=experiments.ACTIVE):
         if not re.fullmatch(r'[A-Za-z0-9_.-]+',name) or name in ('.','..','SHA256SUMS') or name in names:raise Failure('Adapter source manifest duplicate or invalid name')
         names.add(name);path=package/name
         if path.is_symlink() or not path.is_file() or path.absolute()!=path.resolve() or not re.fullmatch('[0-9a-f]{64}',h) or sha(path)!=h:raise Failure('Adapter source manifest mismatch')
-    if not {name for key in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE) for name in (*source_names(key),experiments.get_profile(key).input_module,'policy.json')}.issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
+    if not {name for key in (experiments.LEGACY,experiments.RELIEF,experiments.COMPLETE,experiments.REAL_STEREO) for name in (*source_names(key),experiments.get_profile(key).input_module,'policy.json')}.issubset(names):raise Failure('Adapter source manifest lacks required runtime input')
     spec=importlib.util.spec_from_file_location('eight_observation_inputs',package/selected.input_module);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     return package,module
 
 def prepare_runtime(run,source,package,inputs,profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
     if Path(inputs.__file__).resolve()!=package/selected.input_module:raise Failure('Mixed experiment input module')
-    staging=run.work/'observations';observed=inputs.stage(run.root/selected.fixture,staging)
+    fixture_source=run.root/selected.fixture
+    if profile==experiments.REAL_STEREO:
+        fixture_source=run.work/'licensed-source'
+        inputs.fetch(run,fixture_source)
+        inputs.prepare_privacy_reader(run)
+        run.real_private_markers=inputs.private_markers(fixture_source)
+        for name,raw in inputs.public_evidence(fixture_source).items():
+            inputs.write_fresh(run.work/name,raw)
+    staging=run.work/'observations';observed=inputs.stage(fixture_source,staging)
     atomic_json(run.work/'observation-proof.json',observed)
     sources=run.work/'sources';sources.mkdir()
     for name in source_names(profile):shutil.copyfile(package/name,sources/name)
@@ -790,7 +798,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
 
 def measurement_reference(directory,profile,run=None,*,observed=None):
     """Validate complete retained measurements; frame only a fixed-size summary/reference."""
-    if profile==experiments.COMPLETE:return complete_measurement_reference(directory,run,observed=observed)
+    if profile in (experiments.COMPLETE,experiments.REAL_STEREO):return complete_measurement_reference(directory,run,observed=observed,profile=profile)
     directory=Path(directory)
     raw=bounded_bytes(directory/'measurement/sparse-result.json',4*1024**2,run)
     inputs=[raw,bounded_bytes(directory/'measurement/pair-events.json',8*1024**2,run),
@@ -806,14 +814,18 @@ def measurement_reference(directory,profile,run=None,*,observed=None):
             'supportingReferences':[{'path':name,'bytes':len(value),'sha256':hashlib.sha256(value).hexdigest()}
                 for name,value in zip(('measurement/pair-events.json','measurement/input-identity.json','observation-proof.json'),inputs[1:])]}
 
-def complete_measurement_reference(directory,run=None,*,observed=None):
+def complete_measurement_reference(directory,run=None,*,observed=None,profile=experiments.COMPLETE):
     directory=Path(directory);records=[];total=0
     def read(name,limit):
         nonlocal total
         raw=bounded_bytes(directory/name,limit,run);total+=len(raw)
-        if total>experiments.artifact_budget(experiments.COMPLETE)-1024**2:raise Failure('Complete measurement aggregate byte limit')
+        if total>experiments.artifact_budget(profile)-1024**2:raise Failure('Complete measurement aggregate byte limit')
         records.append({'path':name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
         return raw
+    if profile==experiments.REAL_STEREO:
+        _,licensed=load_adapter(ROOT,profile)
+        for name,expected in licensed.LICENSE_EVIDENCE.items():
+            if read(name,64*1024)!=expected:raise Failure('Licensed source attribution/provenance differs')
     documents={name:read('measurement/'+name,4096 if name=='job-settings.json' else 4*1024**2) for name in policy.COMPLETE_DOCUMENTS}
     identity_raw=read('measurement/input-identity.json',64*1024)
     observations_raw=read('observation-proof.json',64*1024)
@@ -822,7 +834,7 @@ def complete_measurement_reference(directory,run=None,*,observed=None):
     hashes=json.loads(documents['before-reopen-artifacts.json'])
     if not isinstance(hashes,dict) or len(hashes)!=9 or any(not isinstance(v,str) or not re.fullmatch('[0-9a-f]{64}',v) for v in hashes.values()):raise Failure('Malformed complete artifact inventory')
     artifacts={name:read('measurement/'+name,16*1024**2) for name in sorted({'artifact-'+digest+'.bin' for digest in hashes.values()})}
-    summary=policy.complete_measurement_proof(documents,artifacts,identity,observations,profile=experiments.COMPLETE)
+    summary=policy.complete_measurement_proof(documents,artifacts,identity,observations,profile=profile)
     primary=next(item for item in records if item['path']=='measurement/complete-result.json')
     return {**summary,'reference':primary,'supportingReferences':[item for item in records if item is not primary]}
 
@@ -845,11 +857,15 @@ def emit_terminal_frames(destination,receipt,run=None):
     if json.dumps(json.loads(sealed),sort_keys=True)!=json.dumps(receipt,sort_keys=True):raise Failure('Sealed receipt changed before console framing')
     validate_measurement_reference(destination,receipt,run)
     if 'measurementReferenceFailure' in receipt:raise Failure('Measurement reference invalid before console framing')
+    if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check('receipt.json',sealed,run)
     frame('terminal-receipt',sealed)
     if isinstance(receipt.get('result'),dict) and 'measurement' in receipt['result']:
         frame('measurement-reference',json.dumps(receipt['result']['measurement'],sort_keys=True).encode())
     for name in ['measurement/failure.json','test-events.jsonl']:
-        if (destination/name).is_file():frame(name.replace('/','-').replace('.','-'),bounded_bytes(destination/name,256*1024,run))
+        if (destination/name).is_file():
+            raw=bounded_bytes(destination/name,256*1024,run)
+            if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check(name,raw,run)
+            frame(name.replace('/','-').replace('.','-'),raw)
 
 
 def failure_descriptor(error,phase=None):
@@ -945,11 +961,50 @@ def seal_receipt(destination,receipt,run=None):
     raw=(json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()
     if len(raw)>256*1024:raise Failure('Terminal receipt framing byte limit')
     if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':raise Failure('Terminal receipt withheld for secret marker')
+    if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check('receipt.json',raw,run)
     phase_budget(run);atomic_json(destination/'receipt.json',receipt)
     _,entries=inventory(destination,artifact_limit,2000,seconds=phase_budget(run))
     manifest=''.join(f'{bounded_hash(destination/name,16*1024**2,run)}  {name}\n' for name in sorted(entries) if (destination/name).is_file() and name!='SHA256SUMS')
     phase_budget(run);(destination/'SHA256SUMS').write_text(manifest)
     inventory(destination,artifact_limit,2000,seconds=phase_budget(run))
+
+def real_evidence_privacy_check(rel,raw,run=None):
+    """Closed real-profile artifact types; original metadata is never public evidence."""
+    public_license=rel in ('real-input-license-readme.md','real-input-provenance.json','real-input-attribution.txt')
+    if public_license:
+        _,licensed=load_adapter(ROOT,experiments.REAL_STEREO)
+        if raw!=licensed.LICENSE_EVIDENCE[rel]:raise Failure('Immutable public attribution differs')
+    if not public_license and any(marker in raw for marker in getattr(run,'real_private_markers',())):
+        raise Failure('Private source metadata withheld from public diagnostic evidence')
+    if (raw.startswith((b'\xff\xd8',b'II*\x00',b'MM\x00*')) or b'Exif\x00\x00' in raw
+        or any(key in raw for key in (b'BodySerialNumber',b'LensSerialNumber',b'CameraOwnerName',b'MakerNote',b'UserComment'))):
+        raise Failure('Original image/private metadata is not licensed diagnostic evidence')
+    # The current native encoder emits IHDR/IDAT/IEND only. Check standalone
+    # atlas PNG and any PNG embedded in a GLB; ancillary text/EXIF is not admitted.
+    signature=b'\x89PNG\r\n\x1a\n'
+    cursor=0
+    while True:
+        start=raw.find(signature,cursor)
+        if start<0:break
+        at=start+8;chunks=0
+        while True:
+            if at+12>len(raw) or chunks>=10000:raise Failure('Real PNG evidence chunk bound')
+            length=int.from_bytes(raw[at:at+4],'big');kind=raw[at+4:at+8]
+            if length>len(raw)-at-12 or kind not in (b'IHDR',b'IDAT',b'IEND'):
+                raise Failure('Real PNG evidence contains unreviewed metadata/chunks')
+            chunks+=1;at+=length+12
+            if kind==b'IEND':break
+        cursor=at
+    if rel.startswith('measurement/'):
+        name=rel.removeprefix('measurement/')
+        allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json',
+            'runtime-providers-after-bitmap-room.json','runtime-providers-after-room-reopen.json'}
+        binary=re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',name)
+        if name not in allowed and not binary:raise Failure('Unreviewed real measurement evidence path')
+        if binary and run is not None and not hasattr(run,'real_private_markers'):
+            raise Failure('Real artifact privacy preparation missing')
+        if binary and not raw.startswith((b'glTF',b'ply\n',b'\x89PNG\r\n\x1a\n',b'{')):
+            raise Failure('Unreviewed real artifact encoding')
 
 def evidence_package(run,receipt,destination):
     destination=Path(destination)
@@ -964,6 +1019,16 @@ def evidence_package(run,receipt,destination):
         if selected_bytes>selected_limit or selected_entries>1990:raise Failure('Evidence package byte/count limit')
         selected.append((path,rel))
     names=['agp-original-test-config.properties','agp-test-config/com/android/tools/test_config.properties','ndk-prerequisite.json','commands.json','prepared.json','task-graph.json','effective-test-config.json','runtime-prepare.json','runtime-before-fork.json','observation-proof.json','test-events.jsonl']
+    if experiments.ACTIVE==experiments.REAL_STEREO:
+        # Derivative assets may never be retained without the immutable public license notice.
+        _,licensed=load_adapter(ROOT,experiments.REAL_STEREO)
+        has_assets=any((run.work/'measurement').glob('artifact-*.bin'))
+        for name,expected in licensed.LICENSE_EVIDENCE.items():
+            path=run.work/name
+            if path.exists():
+                if bounded_bytes(path,64*1024,run)!=expected:raise Failure('Licensed evidence notice changed')
+                names.append(name)
+            elif has_assets:raise Failure('Derivative evidence missing license notice')
     for name in names:
         if (run.work/name).exists():add(run.work/name,name)
     for directory in ['logs','measurement','xml']:
@@ -990,6 +1055,7 @@ def evidence_package(run,receipt,destination):
     for path,rel in selected:
         raw=bounded_bytes(path,16*1024**2,run);total+=len(raw)
         if total>selected_limit:raise Failure('Evidence package expanded past byte limit')
+        if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check(rel,raw,run)
         binary=rel.startswith('measurement/') and (path.suffix in ('.rfac','.rfsm','.rfis') or re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',path.name))
         if binary:
             if raw.startswith((b'\x7fELF',b'PK\x03\x04',b'MZ')):raise Failure('Executable/library archive is not checkpoint evidence')
@@ -1004,7 +1070,7 @@ def evidence_package(run,receipt,destination):
     seal_receipt(destination,receipt,run)
     return destination
 
-def emergency_terminal_downgrade(destination,receipt):
+def emergency_terminal_downgrade(destination,receipt,run=None):
     """Fixed-size final invalidation after deadline; never scan/hash the artifact tree or PASS.
 
     File IO may still fail (reported by caller). Existing evidence is retained, but its
@@ -1017,6 +1083,10 @@ def emergency_terminal_downgrade(destination,receipt):
     raw=(json.dumps(final,sort_keys=True,indent=2)+'\n').encode()
     if len(raw)>256*1024 or safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
         final=compact_receipt(receipt)
+    if experiments.ACTIVE==experiments.REAL_STEREO:
+        try:real_evidence_privacy_check('receipt.json',json.dumps(final).encode(),run)
+        except Failure:
+            final={'status':'FAIL','evidence':{'complete':False,'terminalSeal':'PRIVATE_EVIDENCE_WITHHELD_NOT_PASS'}}
     # Invalidate status first; even a malformed old manifest must not preserve stale PASS.
     atomic_json(destination/'receipt.json',final)
     raw=bounded_bytes(destination/'receipt.json',256*1024)
@@ -1039,11 +1109,15 @@ def emit_incomplete_essential(run,receipt):
     raw=(json.dumps(receipt,sort_keys=True)+'\n').encode()
     if len(raw)>256*1024 or safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
         raw=(json.dumps(compact_receipt(receipt))+'\n').encode()
+    if experiments.ACTIVE==experiments.REAL_STEREO:
+        try:real_evidence_privacy_check('receipt.json',raw,run)
+        except Failure:raw=b'{"status":"FAIL","scope":"PRIVATE_EVIDENCE_WITHHELD_NOT_PASS"}'
     frame('terminal-incomplete',raw)
     path=run.work/'measurement/failure.json'
     if path.exists():
         try:
             raw=bounded_bytes(path,256*1024)
+            if experiments.ACTIVE==experiments.REAL_STEREO:real_evidence_privacy_check('measurement/failure.json',raw,run)
             if safe_display(raw)[1]=='WITHHELD_SECRET_MARKER':
                 frame('original-failure-withheld',json.dumps({'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'scope':'WITHHELD_NOT_RAW_PROOF'}).encode())
             else:frame('original-failure-incomplete-package',raw)
@@ -1053,7 +1127,7 @@ def main():
     env=dict(os.environ);base=Path(env.get('RUNNER_TEMP','/missing'))
     work=base/'rf-eight-work';evidence=base/'rf-eight-evidence'
     if not base.is_dir() or work.exists() or evidence.exists():raise Blocked('Fresh runner-owned directories required')
-    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':({experiments.COMPLETE:'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY',experiments.RELIEF:'SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION',experiments.LEGACY:'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'}[experiments.ACTIVE]),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
+    run=Runner(ROOT,work,env=env);run.install_signals();receipt={'schema':1,'classification':({experiments.REAL_STEREO:'REAL_LICENSED_STEREO_HOST_FULL_CONTROLLER_NOT_DEVICE_QUALITY',experiments.COMPLETE:'SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY',experiments.RELIEF:'SUPPLEMENTARY_THREE_PHOTO_HOST_SPARSE_NOT_QUALIFICATION',experiments.LEGACY:'SUPPLEMENTARY_EIGHT_VIEW_HOST_SPARSE_NOT_QUALIFICATION'}[experiments.ACTIVE]),'experiment':experiments.ACTIVE,'status':'RUNNING','startedUtc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'pipelineAttempts':0}
     first=None;sdk=None;licenses=None;restore=False;cap=None
     def secondary(label,error):
         nonlocal first
@@ -1113,7 +1187,7 @@ def main():
             secondary('evidence-sealing',error);receipt['status']=getattr(first,'status','FAIL') if first else 'FAIL'
             try:seal_receipt(evidence,receipt,run)
             except BaseException:
-                try:emergency_terminal_downgrade(evidence,receipt)
+                try:emergency_terminal_downgrade(evidence,receipt,run)
                 except BaseException:pass  # Original failure survives unavailable artifact IO; console attempt follows.
             print('RF_EIGHT_EVIDENCE_FAILURE '+type(error).__name__,flush=True)
             try:emit_incomplete_essential(run,receipt)
@@ -1124,7 +1198,7 @@ def main():
                 try:seal_receipt(evidence,receipt,run);frame('terminal-cancellation',bounded_bytes(evidence/'receipt.json',256*1024,run))
                 except BaseException as error:
                     print('RF_EIGHT_FINAL_CANCEL_EVIDENCE_FAILURE '+type(error).__name__,flush=True)
-                    try:frame('terminal-emergency-invalidation',emergency_terminal_downgrade(evidence,receipt))
+                    try:frame('terminal-emergency-invalidation',emergency_terminal_downgrade(evidence,receipt,run))
                     except BaseException as emergency:print('RF_EIGHT_EMERGENCY_INVALIDATION_UNAVAILABLE '+type(emergency).__name__,flush=True)
             run.restore_signals()
     return 0 if receipt['status']=='PASS' and not first and not run.signal else 1

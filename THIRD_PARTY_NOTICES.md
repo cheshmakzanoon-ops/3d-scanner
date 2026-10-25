@@ -103,3 +103,20 @@ arm64-v8a/x86_64 matched their resolved GNU build identities (the two first-part
 native entries are checked separately through source provenance). The 26 dependency
 regression tests passed. This evidence applies to that exact debug APK, not a later
 rebuild, release APK/AAB, physical-device behavior, or legal distribution approval.
+
+## Optional CI-only licensed real-photo controller fixture
+
+“Photogrammetry Test Set: Skull - Cameramoves - Flash - No Background # 10” and
+“# 11” by [alansartlog](https://alansartlog.com), licensed
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+[Author dataset](https://gitlab.com/photogrammetry-test-sets/skull-cameramoves-flash-no-background),
+immutable commit `0f31c229ac289a615b3ae981a5f584856bb24c47`, project 8724498.
+[Original author license README](https://gitlab.com/api/v4/projects/8724498/repository/files/README.md/raw?ref=0f31c229ac289a615b3ae981a5f584856bb24c47).
+
+The two unchanged original JPEGs are fetched only for the separately admitted CI
+diagnostic and are not included in this repository or public diagnostic evidence.
+Retained reconstructed geometry, photographic texture atlases and exports are
+scanner-produced derivative outputs, not original author-provided models; analysis
+resampling and reconstruction change the representation. No author endorsement is
+implied. The evidence includes the exact public author README and image-number
+attribution. This source does not imply measured calibration or physical quality.

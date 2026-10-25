@@ -2,12 +2,12 @@
 from pathlib import Path
 import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
-from .experiments import LEGACY, COMPLETE, get_profile, artifact_budget
+from .experiments import LEGACY, COMPLETE, REAL_STEREO, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='aa9e693fca20981c4e81243c06546cac99058228'
-MESSAGE='fix: select consistent supported surface diagonals'
+BASE_SHA='21273348e1cadb431072b90406f5bf1a5c9a780c'
+MESSAGE='test: exercise licensed real-photo controller journey'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt', 'app/src/test/java/com/realityforge/scanner/agents/a009/ProductionCheckpointFilesTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/pipeline/SurfaceCacheIdentityTest.kt', 'reconstruction/include/realityforge/surface.hpp', 'reconstruction/include/realityforge/surface_checkpoint.hpp', 'reconstruction/src/surface.cpp', 'reconstruction/src/surface_checkpoint.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'reconstruction/tests/surface_fusion_test.cpp', 'reconstruction/tests/surface_test.cpp', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'THIRD_PARTY_NOTICES.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/README.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedStereoCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/real_stereo_inputs.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_real_stereo_complete.py', 'tests/test_real_stereo_inputs.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 
@@ -55,7 +55,7 @@ def junit_proof(path,events,*,profile=LEGACY):
 
 def measurement_proof(result,pairs,identity,observations,*,profile=LEGACY):
     selected=get_profile(profile)
-    if selected.id == COMPLETE:raise Failure('Complete profile requires raw publication/export measurement proof')
+    if selected.id in (COMPLETE, REAL_STEREO):raise Failure('Complete profile requires raw publication/export measurement proof')
     required=selected.classification
     count=selected.photo_count;pair_count=selected.pair_count
     ids=result.get('inputPhotoIds',[]);registered=result.get('registeredPhotoIds',[])
@@ -263,26 +263,29 @@ def complete_measurement_proof(documents,artifacts,identity,observations,*,profi
         except (ValueError,UnicodeError,RecursionError) as error:raise Failure('Complete measurement: malformed JSON') from error
         need(type(value) is dict,'document must be object');return value
     selected=get_profile(profile)
-    need(selected.id==COMPLETE,'wrong closed experiment profile')
+    need(selected.id in (COMPLETE, REAL_STEREO),'wrong closed experiment profile')
+    count=selected.photo_count
+    synthetic=selected.id==COMPLETE
+    focal=32.88 if synthetic else 88.0
     need(type(documents) is dict and set(documents)==set(COMPLETE_DOCUMENTS),'exact document inventory required')
     need(type(artifacts) is dict and 1<=len(artifacts)<=9,'exact raw artifact inventory required')
     need(all(type(raw) is bytes and 0<len(raw)<=16*1024**2 for raw in [*documents.values(),*artifacts.values()]),'raw evidence byte bounds')
-    need(sum(map(len,documents.values()))+sum(map(len,artifacts.values()))<=artifact_budget(COMPLETE)-1024**2,'aggregate evidence byte bound')
+    need(sum(map(len,documents.values()))+sum(map(len,artifacts.values()))<=artifact_budget(profile)-1024**2,'aggregate evidence byte bound')
     docs={name:decode(raw) for name,raw in documents.items()}
     result=docs['complete-result.json']
     identity_keys={'projectId','projectRevision','operationId','attempt','inputIdentitySha256','settingsIdentitySha256','engineVersion'}
     need(set(result)=={'schema','classification','synthetic','modeledResources','jobId','originalsPreserved','exportHashes','state','acceptedStage'}|identity_keys,'result fields')
     need(type(result['schema']) is int and result['schema']==1,'result schema')
-    need(result['classification']==selected.classification and result['synthetic'] is True and result['modeledResources'] is True and result['originalsPreserved'] is True,'result classification')
+    need(result['classification']==selected.classification and result['synthetic'] is synthetic and result['modeledResources'] is True and result['originalsPreserved'] is True,'result classification')
     need(result['state']=='COMPLETED' and result['acceptedStage']=='PUBLISHING','persisted job not complete/published')
     need(all(token(result[k]) for k in ('projectId','operationId','jobId','engineVersion')),'job identity token')
     need(result['engineVersion']=='m19-integrated-runner-v2','unreviewed controller engine version')
-    need(type(result['projectRevision']) is int and result['projectRevision']==3 and integer(result['attempt'],1),'job revision/attempt')
+    need(type(result['projectRevision']) is int and result['projectRevision']==count and integer(result['attempt'],1),'job revision/attempt')
     need(all(digest(result[k]) for k in ('inputIdentitySha256','settingsIdentitySha256')),'job identity digest')
     need(sha_bytes(documents['job-settings.json'])==result['settingsIdentitySha256'],'job settings bytes differ')
     settings=docs['job-settings.json']
     need(set(settings)=={'schema','focal35','resourceSelection'} and type(settings['schema']) is int and settings['schema']==2
-         and type(settings['focal35']) in (int,float) and settings['focal35']==32.88,'job settings semantics')
+         and type(settings['focal35']) in (int,float) and settings['focal35']==focal,'job settings semantics')
     selection=settings['resourceSelection']
     need(type(selection) is dict and set(selection)=={'schema','tier','identitySha256'}
          and type(selection['schema']) is int and selection['schema']==1,'resource selection schema')
@@ -312,7 +315,7 @@ def complete_measurement_proof(documents,artifacts,identity,observations,*,profi
     entries=publication['entries'];need(type(entries) is list and len(entries)==9,'publication entry count')
     def string(value):
         raw=value.encode('utf-8');return struct.pack('>i',len(raw))+raw
-    encoded=struct.pack('>ii',1,0)+string(publication['projectId'])+struct.pack('>q',3)+string(publication['operationId'])+struct.pack('>q',publication['attempt'])
+    encoded=struct.pack('>ii',1,0)+string(publication['projectId'])+struct.pack('>q',count)+string(publication['operationId'])+struct.pack('>q',publication['attempt'])
     encoded+=string(publication['inputIdentitySha256'])+string(publication['settingsIdentitySha256'])+string(publication['engineVersion'])
     encoded+=struct.pack('>qi',publication['createdAtEpochMillis'],9)
     for entry,(name,path,representation) in zip(entries,COMPLETE_ARTIFACTS):
@@ -330,13 +333,13 @@ def complete_measurement_proof(documents,artifacts,identity,observations,*,profi
         need(type(entry) is dict and set(entry)=={'path','bytes','sha256','publishedLogicalName'},'export entry fields')
         need(entry['path']=='artifact-'+before[name]+'.bin' and entry['sha256']==before[name] and entry['publishedLogicalName']==name and integer(entry['bytes'],1) and entry['bytes']==len(payloads[name]),'export does not bind published bytes')
     preview=docs['before-reopen-preview.json']
-    need(preview.get('revision')==3 and type(preview.get('revision')) is int and token(preview.get('artifactKey')),'preview publication identity')
+    need(preview.get('revision')==count and type(preview.get('revision')) is int and token(preview.get('artifactKey')),'preview publication identity')
     need(all(preview.get(k)=='ready' for k in ('denseStatus','meshStatus','textureStatus')),'full stages not ready')
     need(preview.get('finalSparseOutcome')=='global_typed_ba_admitted12' and type(preview.get('bundleAdjustment')) is dict,'typed sparse BA absent')
-    cameras=preview.get('cameras');need(type(cameras) is list and len(cameras)==3 and all(type(c) is dict and type(c.get('photoId')) is str for c in cameras),'registered camera identities')
-    ids=[c['photoId'] for c in cameras];need(len(set(ids))==3 and type(preview.get('registeredCameras')) is int and preview['registeredCameras']==3,'registered camera count')
-    need(type(identity) is list and len(identity)==3 and type(observations) is dict,'input identity proof')
-    expected=observations.get('images');need(type(expected) is dict and len(expected)==3 and all(digest(v) for v in expected.values()),'frozen input identities')
+    cameras=preview.get('cameras');need(type(cameras) is list and len(cameras)==count and all(type(c) is dict and type(c.get('photoId')) is str for c in cameras),'registered camera identities')
+    ids=[c['photoId'] for c in cameras];need(len(set(ids))==count and type(preview.get('registeredCameras')) is int and preview['registeredCameras']==count,'registered camera count')
+    need(type(identity) is list and len(identity)==count and type(observations) is dict,'input identity proof')
+    expected=observations.get('images');need(type(expected) is dict and len(expected)==count and all(digest(v) for v in expected.values()),'frozen input identities')
     mapped={}
     for item in identity:
         need(type(item) is dict and set(item)=={'photoId','imageSha256','fixturePath'},'input identity fields')
@@ -356,9 +359,9 @@ def complete_measurement_proof(documents,artifacts,identity,observations,*,profi
         'textureWidth':texture.get('atlasWidth'),'textureHeight':texture.get('atlasHeight')}
     need(all(integer(value,1) and counts.get(key)==value for key,value in expected_counts.items()),'binary export counts differ from preview')
     need(counts['textureSha256']==before['texture-png'],'embedded texture differs from published atlas')
-    return {'classification':selected.classification,'profile':COMPLETE,'synthetic':True,'modeledResources':True,
-        'projectId':result['projectId'],'projectRevision':3,'jobId':result['jobId'],'state':'COMPLETED','acceptedStage':'PUBLISHING',
-        'publicationSetId':publication['setId'],'registeredCameraCount':3,'artifactCount':9,'exportCount':3,
+    return {'classification':selected.classification,'profile':selected.id,'synthetic':synthetic,'modeledResources':True,
+        'projectId':result['projectId'],'projectRevision':count,'jobId':result['jobId'],'state':'COMPLETED','acceptedStage':'PUBLISHING',
+        'publicationSetId':publication['setId'],'registeredCameraCount':count,'artifactCount':9,'exportCount':3,
         'formatValidationScope':'THREE_EXPORTED_FORMATS; NINE_PUBLISHED_ARTIFACTS_HASH_BOUND',
         'inputIdentityScope':'PHOTO_HASH_MAPPING_CHECKED; SNAPSHOT_HASH_JOB_TO_PUBLICATION_BOUND_NOT_RECOMPUTED',
         'measurements':counts,'faceCoverage':coverage,
