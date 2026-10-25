@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from stdlib_cli_boundary import receipt_cli
 
 HERE = Path(__file__).resolve().parents[1] / "reports" / "published-validation"
 
@@ -83,11 +84,8 @@ class ReceiptVerifierTest(unittest.TestCase):
         if raw_transform:
             target = self.reports / self.names[0]
             target.write_text(raw_transform(target.read_text()))
-        command = [sys.executable, str(self.reports / "published-validation/verify.py"),
-                   "--repo", str(repo or self.repo)]
-        if strict:
-            command.append("--require-retained-source-objects")
-        return subprocess.run([*command, *extra], capture_output=True, text=True)
+        command, environment = receipt_cli(self.reports, repo or self.repo, strict, extra)
+        return subprocess.run(command, env=environment, capture_output=True, text=True)
 
     def test_fresh_public_objectstore_is_explicitly_partial(self):
         result = self.run_verifier(self.public_repo)

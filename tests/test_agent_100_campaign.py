@@ -1,3 +1,4 @@
+from stdlib_cli_boundary import manifest_cli
 import importlib.util
 from pathlib import Path
 import subprocess
@@ -212,7 +213,9 @@ def test_real_merge_helper_rejects_postcheck_source_change(tmp_path, mutation):
         shutil.copyfile(ROOT / name, target)
     def commit(message):
         run('add', '.')
-        subprocess.run([sys.executable, str(tmp_path / 'tools/source_manifest.py'), 'generate', '--source', 'index'],
+        manifest_args, manifest_env = manifest_cli(tmp_path, [sys.executable,
+            str(tmp_path / 'tools/source_manifest.py'), 'generate', '--source', 'index'])
+        subprocess.run(manifest_args, env=manifest_env,
                        cwd=tmp_path, check=True, capture_output=True)
         run('add', 'SOURCE_MANIFEST.sha256'); run('commit', '-qm', message)
         return run('rev-parse', 'HEAD')

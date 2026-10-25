@@ -13,7 +13,7 @@ HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='130c788c7f9b1451f8e18ae5d853e6e54237f5b234f56c4f21b2eb3f8f61917e'
+ADAPTER_MANIFEST='99d62809a4c4597a622676ecfae65e5b191ec7664a0b93fdbab93b5e51b28002'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
@@ -817,6 +817,7 @@ def measurement_reference(directory,profile,run=None,*,observed=None):
 
 def complete_measurement_reference(directory,run=None,*,observed=None,profile=experiments.COMPLETE):
     directory=Path(directory);records=[];total=0
+    if (directory/'measurement/partial-roundtrip.json').exists():raise Failure('NOT_FULL_THREE diagnostic cannot qualify as complete')
     def read(name,limit):
         nonlocal total
         raw=bounded_bytes(directory/name,limit,run);total+=len(raw)
@@ -1010,6 +1011,25 @@ def validate_real_match_replay(raw):
                 'RESOURCE_EXHAUSTED','CANCELLED','NATIVE_FAILURE','UNKNOWN_NATIVE_FAILURE','UNRECOGNIZED_REJECTION'})
     require(pair['thresholdNormalized']==1.5/min(photo[axis] for photo in value['photos'] for axis in ('fx','fy')))
 
+def validate_real_three_partial_roundtrip(raw,profile):
+    """Closed failure-tail label, never a full-controller measurement or PASS."""
+    def require(ok):
+        if not ok:raise Failure('Invalid NOT_FULL_THREE diagnostic marker')
+    require(profile==experiments.REAL_THREE and type(raw) is bytes and 0<len(raw)<=4096)
+    def unique(pairs):
+        result={}
+        for key,value in pairs:
+            require(key not in result);result[key]=value
+        return result
+    try:value=json.loads(raw,object_pairs_hook=unique)
+    except (ValueError,UnicodeError,RecursionError):raise Failure('Invalid NOT_FULL_THREE JSON') from None
+    expected={'schema':1,'classification':'NOT_FULL_THREE','profile':experiments.REAL_THREE,
+        'requiredCameraCount':3,'registeredCameraCount':2,'finalSparseOutcome':'verified_anchor_fallback',
+        'roundTripVerified':True,'originalFailureType':'java.lang.AssertionError'}
+    require(type(value) is dict and value==expected and
+            all(type(value[key]) is type(expected[key]) for key in expected))
+
+
 def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
     """Closed real-profile artifact types; original metadata is never public evidence."""
     profile=experiments.ACTIVE if profile is None else profile
@@ -1041,10 +1061,11 @@ def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
         cursor=at
     if rel.startswith('measurement/'):
         name=rel.removeprefix('measurement/')
+        if name=='partial-roundtrip.json':validate_real_three_partial_roundtrip(raw,profile)
         if name=='match-replay.json':
             if profile!=experiments.REAL_STEREO:raise Failure('Two-photo replay not admitted for this profile')
             validate_real_match_replay(raw)
-        allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json','match-replay.json',
+        allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json','match-replay.json','partial-roundtrip.json',
             'runtime-providers-after-bitmap-room.json','runtime-providers-after-room-reopen.json'}
         binary=re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',name)
         if name not in allowed and not binary:raise Failure('Unreviewed real measurement evidence path')
@@ -1056,6 +1077,11 @@ def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
 def evidence_package(run,receipt,destination):
     destination=Path(destination)
     if destination.exists():raise Failure('Evidence destination must be fresh')
+    marker=run.work/'measurement/partial-roundtrip.json'
+    if marker.exists():
+        validate_real_three_partial_roundtrip(bounded_bytes(marker,4096,run),experiments.ACTIVE)
+        if receipt.get('status')!='FAIL' or (run.work/'measurement/complete-result.json').exists():
+            raise Failure('NOT_FULL_THREE requires failed receipt and no complete result')
     selected_limit=experiments.artifact_budget(experiments.ACTIVE)-1024**2
     phase_budget(run);destination.mkdir();selected=[];selected_bytes=0;selected_entries=0
     def add(path,rel):

@@ -314,10 +314,15 @@ def test_replay_workload_coverage_is_exact(fault):
 
 def calibrated_outputs(tmp_path):
     from tools.qa.native_cabi_replay.verify import CALIBRATED_ERRORS
+    from tools.qa.native_cabi_replay.prepare import calibrated_arrays
+    rows, _, _ = calibrated_arrays(Path(__file__).resolve().parents[1])
+    first = {}
+    for i, row in enumerate(rows): first.setdefault(tuple(row[:4]), i)
+    assert len(rows) == 194 and len(first) == 162
     result = {'representation': 'sparse_points', 'initializerModel': 'HOMOGRAPHY', 'scale': 'arbitrary',
-              'registeredCameras': 2, 'inputMatches': 194, 'pointCount': 170, 'homographyInliers': 170,
-              'modelInliers': 170, 'inliers': 170,
-              'points': [[0, 0, 1, 120, 130, 140, 0, 1, i] for i in range(170)]}
+              'registeredCameras': 2, 'inputMatches': 194, 'pointCount': 159, 'homographyInliers': 159,
+              'modelInliers': 159, 'inliers': 159,
+              'points': [[0, 0, 1, 120, 130, 140, 0, 1, i] for i in list(first.values())[:159]]}
     for i in range(2):
         directory = tmp_path / str(i)
         directory.mkdir()
@@ -336,7 +341,8 @@ def test_calibrated_verifier_valid_contract(tmp_path):
 
 @pytest.mark.parametrize('fault', ['missing-call', 'extra-call', 'missing-repeat', 'repeat-error', 'wrong-code',
                                    'partial-error', 'equivalence', 'wrong-model', 'lost-support', 'provenance',
-                                   'conflicting-model', 'bool-index', 'success-error-code'])
+                                   'conflicting-model', 'bool-index', 'success-error-code', 'later-duplicate',
+                                   'historical-inflation', 'support-mismatch', 'three-cameras', 'fewer-points', 'colors'])
 def test_calibrated_verifier_fails_closed(tmp_path, fault):
     from tools.qa.native_cabi_replay.verify import verify
     result = calibrated_outputs(tmp_path)
@@ -350,6 +356,25 @@ def test_calibrated_verifier_fails_closed(tmp_path, fault):
         (tmp_path / '1/null-rows.json').write_text(json.dumps(value))
     elif fault == 'equivalence': (tmp_path / '0/undistorted-equivalent.json').write_text('{}')
     else:
+        if fault == 'later-duplicate':
+            from tools.qa.native_cabi_replay.prepare import calibrated_arrays
+            rows, _, _ = calibrated_arrays(Path(__file__).resolve().parents[1])
+            first = {}
+            for i, row in enumerate(rows):
+                pair = tuple(row[:4])
+                if pair in first:
+                    result['points'][0][8] = i
+                    break
+                first[pair] = i
+        if fault == 'historical-inflation':
+            result['points'] = [[0, 0, 1, 120, 130, 140, 0, 1, i] for i in range(191)]
+            for key in ('pointCount', 'homographyInliers', 'modelInliers', 'inliers'): result[key] = 191
+        if fault == 'support-mismatch': result['homographyInliers'] = 160
+        if fault == 'three-cameras': result['registeredCameras'] = 3
+        if fault == 'colors': result['points'][0][3] = 1
+        if fault == 'fewer-points':
+            result['points'].pop()
+            for key in ('pointCount', 'homographyInliers', 'modelInliers', 'inliers'): result[key] = 158
         if fault == 'wrong-model': result['initializerModel'] = 'ESSENTIAL'
         if fault == 'conflicting-model': result['epipolarInliers'] = 170
         if fault == 'bool-index': result['points'][0][8] = False
@@ -361,3 +386,25 @@ def test_calibrated_verifier_fails_closed(tmp_path, fault):
                 (tmp_path / str(i) / (name + '.json')).write_text(json.dumps(result))
     with pytest.raises(RuntimeError):
         verify('calibrated-planar', tmp_path)
+
+
+def test_calibrated_verifier_reads_selected_snapshot_and_rejects_changed_distinct_count(tmp_path):
+    import re
+    from tools.qa.native_cabi_replay.verify import verify
+    output = tmp_path / 'output'
+    output.mkdir()
+    expected = calibrated_outputs(output)
+    source = tmp_path / 'snapshot'
+    header = source / 'reconstruction/tests/calibrated_initializer_fixtures.hpp'
+    header.parent.mkdir(parents=True)
+    original = (Path(__file__).resolve().parents[1] / header.relative_to(source)).read_text()
+    header.write_text(original)
+    assert verify('calibrated-planar', output, source=source) == expected
+    # Preserve the raw buffer shape but collapse geometry. Reading the working
+    # tree instead of the selected snapshot would silently pass this mutation.
+    changed = re.sub(r'(inline constexpr std::array<double,776> anchor\{\{).*?(\}\};)',
+                     lambda m: m[1] + ','.join(['0'] * 776) + m[2], original, flags=re.S)
+    assert changed != original
+    header.write_text(changed)
+    with pytest.raises(RuntimeError, match='distinct-pair identity'):
+        verify('calibrated-planar', output, source=source)

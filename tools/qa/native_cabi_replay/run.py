@@ -261,7 +261,7 @@ def execute(runner, config, compiler):
         require(digest(path) == metadata['sha256'], 'Input identity changed')
         output = runner.output / 'results' / case
         require_native_log(runner.command('replay-' + case, [executable, path, output, 2], env))
-        results[case] = verify(case, output)
+        results[case] = verify(case, output, source=source)
     malformed(runner, executable, env)
     if config == 'normal':
         expected = runner.output / 'normal-expected.json'

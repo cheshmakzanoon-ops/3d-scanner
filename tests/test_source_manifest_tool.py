@@ -8,6 +8,7 @@ import sys
 import tarfile
 
 import pytest
+from stdlib_cli_boundary import archive_cli
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("source_manifest", ROOT / "tools/source_manifest.py")
@@ -42,7 +43,8 @@ def regenerate(repo):
 
 
 def run_archive(repo, command, *args):
-    return subprocess.run([sys.executable, str(ARCHIVE), command, "--repo", str(repo), "--revision", "HEAD", *map(str, args)], capture_output=True, text=True)
+    command, environment = archive_cli(repo, command, args)
+    return subprocess.run(command, env=environment, capture_output=True, text=True)
 
 
 def test_staged_content_add_delete_rename_and_unstaged_isolation(repo):

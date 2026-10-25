@@ -1,6 +1,7 @@
 """Standalone admission/evidence controls; synthetic host fixture, not qualification."""
 import copy,json,os,shutil,subprocess,sys,types
 from pathlib import Path
+from stdlib_cli_boundary import manifest_cli
 import pytest
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.eight_view_host import header_diagnostic as h,capability as c
@@ -14,20 +15,31 @@ def git(root,*args):
 class GitRunner:
  def __init__(self,root):self.root=root;self.calls=[]
  def command(self,label,args,**kwargs):
-  self.calls.append(label);value=subprocess.run([str(v) for v in args],cwd=self.root,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=kwargs.get('seconds',10))
+  self.calls.append(label)
+  launch = [str(v) for v in args]; options = {}
+  if label == 'header-source-manifest':
+   if launch != ['python3','tools/source_manifest.py','verify','--source','HEAD']:
+    raise ValueError('Unreviewed header manifest command')
+   launch, options['env'] = manifest_cli(self.root, launch)
+  value=subprocess.run(launch,cwd=self.root,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=kwargs.get('seconds',10),**options)
   if value.returncode or len(value.stdout)>kwargs.get('limit',32768):raise Failure('Fixture command failed: '+label)
   return value.stdout,0
+
+def generate_manifest(root):
+ args, env = manifest_cli(root, [sys.executable,'tools/source_manifest.py','generate'])
+ subprocess.run(args,env=env,cwd=root,check=True,stdout=subprocess.PIPE)
+
 
 def fixture_repository(tmp_path,monkeypatch,extra=None,omit=None):
  root=tmp_path/'repo';root.mkdir();git(root,'init','-q')
  (root/'tools').mkdir();shutil.copyfile(ROOT/'tools/source_manifest.py',root/'tools/source_manifest.py')
  for name in h.ALLOWED_PATHS:
   path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text('base fixture\n')
- git(root,'add','.');subprocess.run([sys.executable,'tools/source_manifest.py','generate'],cwd=root,check=True,stdout=subprocess.PIPE);git(root,'add','SOURCE_MANIFEST.sha256');git(root,'commit','-qm','fixture base');base=git(root,'rev-parse','HEAD')
+ git(root,'add','.');generate_manifest(root);git(root,'add','SOURCE_MANIFEST.sha256');git(root,'commit','-qm','fixture base');base=git(root,'rev-parse','HEAD')
  for name in h.ALLOWED_PATHS-{'SOURCE_MANIFEST.sha256'}:
   if name!=omit:(root/name).write_text('changed fixture\n')
  if extra:(root/extra).write_text('foreign change\n')
- git(root,'add','.');subprocess.run([sys.executable,'tools/source_manifest.py','generate'],cwd=root,check=True,stdout=subprocess.PIPE);git(root,'add','SOURCE_MANIFEST.sha256');git(root,'commit','-qm','fixture diagnostic');head=git(root,'rev-parse','HEAD')
+ git(root,'add','.');generate_manifest(root);git(root,'add','SOURCE_MANIFEST.sha256');git(root,'commit','-qm','fixture diagnostic');head=git(root,'rev-parse','HEAD')
  monkeypatch.setattr(h,'BASE',base)
  return root,head
 

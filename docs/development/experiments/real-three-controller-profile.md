@@ -53,3 +53,29 @@ runtime/tool-dependent checks. The new partial-registration adversary also
 rejects a coherent hash-bound publication missing its third camera (28 new
 measurement/privacy tests passed after that strengthening). These are policy
 and source tests, not an actual three-view controller result.
+
+## Failure-tail collection for the already observed partial output
+
+The 0055 source-bound attempt published a ready partial model but failed the
+unchanged three-camera assertion before export/reopen verification. Its preview
+reported two cameras, `verified_anchor_fallback`, no bundle adjustment, and 185
+textured triangles. Those observations are not full-three qualification, and
+that run retained no binary model/export payloads.
+
+The revised fixture first executes the same strict assertions. Only their
+original `AssertionError`, with exactly two registered imported cameras and
+ready anchor-fallback stages, permits bounded diagnostic collection. The
+original error is always rethrown; collection/export/reopen errors are secondary
+and cannot manufacture a pass. All numerical support bounds, immutable
+publication checks, original preservation, actual repository export validation,
+reopen identity/hash checks, and existing budgets remain in force. No app or
+geometry code, input selection, focal prior or reconstruction setting changes.
+
+Only after verified roundtrip can `partial-roundtrip.json` say `NOT_FULL_THREE`.
+It has a closed three-profile-only schema; it is not `complete-result.json` or a
+complete measurement. Packaging requires FAIL and rejects a coexisting complete
+result. Full measurement reference admission rejects the diagnostic marker.
+All derivative payloads still need the immutable license notices and private
+metadata/PNG checks. A marker proves only that the asserted diagnostic path
+finished; independent inspection of retained binary formats remains necessary.
+This source change is not evidence that the failure-tail path has run.

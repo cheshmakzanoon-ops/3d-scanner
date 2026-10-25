@@ -59,8 +59,9 @@ Depth inputs are228×154; texture photographs are608×410; parameters remain
   domain, and successful recovery. Every returned JSON uses the same RAII `rf_free`
   ownership path. This API has no export parameters; it does not substitute an
   export test for the original workloads. The verifier requires the exact call set,
-  homography/sparse/arbitrary-scale representation, at least170 retained points and unique
-  original match indices, deterministic success/error replies, and exact recovery
+  homography/sparse/arbitrary-scale representation, exactly159 retained points from
+  the194raw/162distinct-pair anchor and unique **first-occurrence original row**
+  indices, deterministic success/error replies, and exact recovery
   and domain-equivalence output. Ordinary ctypes parity uses a diagnostic-local
   calibrated signature and `finally` release, not a new production Python wrapper.
 - File extents, format, dimensions, architecture and repetition bounds are checked
@@ -69,6 +70,15 @@ Depth inputs are228×154; texture photographs are608×410; parameters remain
 - The controller checks JSON error/partial-result contracts, deterministic repeated
   responses/artifacts, finite JSON values, sparse versus triangle representation and exact photographic
   PNG embedding. Only `normal` additionally compares actual ordinary ctypes JSON.
+
+The old calibrated-planar verifier required at least170 points and previously
+observed191 duplicate-inflated rows. Those results remain historical evidence, not
+current support. The distinct-pair native regression independently establishes
+194raw/162distinct/159supported for this unchanged fixture. Its verifier now
+checks those exact counts and derives first-row representatives from the source
+snapshot fixture; it does not lower an independent physical-quality threshold.
+Two registered cameras remain two, not global three-view success. A changed
+fixture cardinality, fewer points, inflated duplicates or later-row IDs fails.
 
 The controller requires all four expected workload names and modes; missing,
 extra or substituted modes fail. Calibrated binary truncation, trailing bytes and

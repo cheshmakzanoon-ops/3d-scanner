@@ -2,7 +2,8 @@
 import json
 import math
 import struct
-from .prepare import require
+from pathlib import Path
+from .prepare import calibrated_arrays, require
 
 
 def strict_json(text):
@@ -34,7 +35,18 @@ CALIBRATED_ERRORS = ('observed-count', 'domain-count', 'null-rows', 'null-observ
                      'null-domains', 'swapped-domains', 'invalid-dimensions', 'mismatched-pixels', 'nonfinite-pixels')
 
 
-def verify_calibrated(output, repeats):
+def verify_calibrated(output, repeats, source):
+    # This fixed anchor has 194 rows but only 162 exact geometric pairs. The
+    # distinct-pair initializer regression independently establishes 159 supported
+    # points, replacing the historical 191 duplicate-inflated rows. This is a
+    # fixture cardinality/provenance contract, not a physical-quality threshold.
+    rows, _, _ = calibrated_arrays(source)
+    first_rows = {}
+    for index, row in enumerate(rows):
+        first_rows.setdefault(tuple(row[:4]), index)
+    require(len(rows) == 194 and len(first_rows) == 162,
+            'Calibrated fixture distinct-pair identity changed')
+    representatives = set(first_rows.values())
     names = ('success', 'recovery', 'undistorted-equivalent', *CALIBRATED_ERRORS)
     values = []
     for index in range(repeats):
@@ -50,11 +62,11 @@ def verify_calibrated(output, repeats):
                 and result['scale'] == 'arbitrary' and result['registeredCameras'] == 2
                 and result['inputMatches'] == 194 and 'epipolarInliers' not in result,
                 'Calibrated representation/model differs')
-        require(result['pointCount'] == len(result['points']) >= 170
-                and result['homographyInliers'] == result['modelInliers'] == result['inliers'] >= result['pointCount'],
+        require(result['pointCount'] == len(result['points']) == 159
+                and result['homographyInliers'] == result['modelInliers'] == result['inliers'] == 159,
                 'Calibrated fixture lost support')
         indices = [point[8] for point in result['points']]
-        require(len(set(indices)) == len(indices) and all(type(i) is int and 0 <= i < 194 for i in indices),
+        require(len(set(indices)) == len(indices) and all(type(i) is int and i in representatives for i in indices),
                 'Calibrated match provenance differs')
         require(all(point[3:6] == [120, 130, 140] for point in result['points']), 'Calibrated colors differ')
         for name in CALIBRATED_ERRORS:
@@ -67,11 +79,11 @@ def verify_calibrated(output, repeats):
     return values[0]['success']
 
 
-def verify(case, output, repeats=2):
+def verify(case, output, repeats=2, source=None):
     require(case in CASES, 'Unknown replay workload')
     require({p.name for p in output.iterdir()} == {str(i) for i in range(repeats)}, 'Replay repetition coverage differs')
     if case == 'calibrated-planar':
-        return verify_calibrated(output, repeats)
+        return verify_calibrated(output, repeats, source or Path(__file__).resolve().parents[3])
     values = []
     for index in range(repeats):
         directory = output / str(index)

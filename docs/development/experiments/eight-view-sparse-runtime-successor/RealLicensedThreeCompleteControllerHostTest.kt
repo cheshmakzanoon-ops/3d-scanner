@@ -84,6 +84,8 @@ class RealLicensedThreeCompleteControllerHostTest {
         var primary: Throwable? = null
         var stage = "INITIALIZING"
         var jobId: JobId? = null
+        var partialDiagnosticStatus: String? = null
+        var partialDiagnosticStage: String? = null
         try {
             fixture.initialize()
             fixture.captureIdentity(evidence)
@@ -113,6 +115,54 @@ class RealLicensedThreeCompleteControllerHostTest {
             actual.awaitWorkerStopped()
             assertCompletePersistedPairGraph(fixture, finished)
             stage = "VALIDATING_PUBLISHED_RESULT"
+            // Run the unchanged strict assertion first, before writing diagnostic records.
+            try {
+                assertStrictPreview(fixture, requireNotNull(fixture.repository.currentPreview(fixture.project)))
+            } catch (original: AssertionError) {
+                preserveStrictFailure(original) {
+                    try {
+                        partialDiagnosticStage = "ELIGIBILITY"
+                        assertEligiblePartialPreview(fixture, requireNotNull(fixture.repository.currentPreview(fixture.project)))
+                        stage = "DIAGNOSING_NOT_FULL_THREE_ROUNDTRIP"
+                        partialDiagnosticStage = "EXPORT_BEFORE"
+                        val partialBefore = assertPublishedAndExport(fixture, evidence, "before-reopen", finished, partialDiagnostic = true)
+                        fixture.assertOriginals()
+                        partialDiagnosticStage = "REOPEN"
+                        stopController(actual); controller = null
+                        fixture.reopen()
+                        fixture.captureRuntime(evidence, "after-room-reopen")
+                        partialDiagnosticStage = "EXPORT_AFTER"
+                        assertEquals(partialBefore, assertPublishedAndExport(fixture, evidence, "after-reopen", finished, partialDiagnostic = true))
+                        fixture.assertOriginals()
+                        partialDiagnosticStage = "VERIFY_REOPEN"
+                        for (suffix in listOf("preview.json", "publication.json", "artifacts.json", "exports.json")) {
+                            require(boundedBytes(File(evidence, "before-reopen-$suffix")).contentEquals(
+                                boundedBytes(File(evidence, "after-reopen-$suffix"))))
+                        }
+                        val reopenedJob = requireNotNull(RoomJobStore(fixture.database, fixture.database.jobDao()).snapshot(queued.jobId))
+                        assertEquals(finished.jobId, reopenedJob.jobId); assertEquals(finished.input, reopenedJob.input)
+                        assertEquals(finished.attempt, reopenedJob.attempt)
+                        assertEquals(DurableJobState.COMPLETED, reopenedJob.state)
+                        assertEquals(ReconstructionStage.PUBLISHING, reopenedJob.cursor.acceptedStage)
+                        val marker = JSONObject().put("schema", 1).put("classification", "NOT_FULL_THREE")
+                            .put("profile", "real-licensed-three-complete").put("requiredCameraCount", 3)
+                            .put("registeredCameraCount", 2).put("finalSparseOutcome", "verified_anchor_fallback")
+                            .put("roundTripVerified", true).put("originalFailureType", original.javaClass.name)
+                            .toString(2).toByteArray()
+                        require(original.javaClass == AssertionError::class.java && marker.size <= 4096)
+                        currentCoroutineContext().ensureActive()
+                        captureImmutable(evidence, "partial-roundtrip.json", marker)
+                        partialDiagnosticStatus = "VERIFIED_NOT_FULL_THREE"
+                    } catch (diagnostic: Throwable) {
+                        partialDiagnosticStatus = when (diagnostic) {
+                            is TimeoutCancellationException -> "TIMED_OUT"
+                            is CancellationException -> "CANCELLED"
+                            else -> "FAILED"
+                        }
+                        throw diagnostic
+                    }
+                }
+            }
             val before = assertPublishedAndExport(fixture, evidence, "before-reopen", finished)
             fixture.assertOriginals()
             stopController(actual); controller = null
@@ -142,6 +192,8 @@ class RealLicensedThreeCompleteControllerHostTest {
                 val snapshot = jobId?.let { controller?.jobs?.snapshot(it) }
                 captureImmutable(evidence, "failure.json", JSONObject().put("status", "FAILED_NOT_QUALITY_PASS")
                     .put("stage", stage).put("type", failure.javaClass.name)
+                    .put("partialDiagnosticStatus", partialDiagnosticStatus)
+                    .put("partialDiagnosticStage", partialDiagnosticStage)
                     .put("jobState", snapshot?.state?.name)
                     .put("acceptedStage", snapshot?.cursor?.acceptedStage?.name).put("outcomeCode", snapshot?.outcomeCode)
                     .toString(2).toByteArray())
@@ -234,7 +286,51 @@ class RealLicensedThreeCompleteControllerHostTest {
             .toString(2).toByteArray())
     }
 
-    private suspend fun assertPublishedAndExport(f: Fixture, evidence: File, phase: String, expectedJob: JobSnapshot): Map<String, String> {
+    private suspend fun preserveStrictFailure(original: AssertionError, diagnostic: suspend () -> Unit): Nothing {
+        try { diagnostic() }
+        catch (secondary: Throwable) { if (secondary !== original) original.addSuppressed(secondary) }
+        throw original
+    }
+
+    /** Qualification is unchanged; the partial tail may never turn this failure into success. */
+    private suspend fun assertStrictPreview(f: Fixture, preview: JSONObject) {
+        for (name in listOf("denseStatus", "meshStatus", "textureStatus")) assertEquals(preview.toString().take(4000), "ready", preview.optString(name))
+        val importedIds = f.database.dao().photos(f.project).map { it.id }.toSet()
+        val cameras = preview.getJSONArray("cameras")
+        val registeredIds = (0 until cameras.length()).map { cameras.getJSONObject(it).getString("photoId") }
+        assertEquals(3, importedIds.size); assertEquals(3, cameras.length())
+        assertEquals(importedIds, registeredIds.toSet())
+        assertEquals(3, preview.getInt("registeredCameras"))
+        assertEquals("global_typed_ba_admitted12", preview.getString("finalSparseOutcome"))
+        assertTrue(preview.has("bundleAdjustment"))
+        assertTrue(preview.getInt("pointCount") > 0)
+        assertTrue(preview.getJSONObject("densePreview").getInt("pointCount") >= 60)
+        assertTrue(preview.getJSONObject("densePreview").getInt("consistentPixels") >= 60)
+        assertTrue(preview.getJSONObject("meshPreview").getInt("vertexCount") >= 30)
+        assertTrue(preview.getJSONObject("meshPreview").getInt("triangleCount") >= 40)
+        assertTrue(preview.getJSONObject("texturePreview").getInt("triangleCount") > 0)
+        assertTrue(preview.getJSONObject("texturePreview").getDouble("faceCoverage") > 0.0)
+    }
+
+    private suspend fun assertEligiblePartialPreview(f: Fixture, preview: JSONObject) {
+        val importedIds = f.database.dao().photos(f.project).map { it.id }.toSet()
+        val cameras = preview.getJSONArray("cameras")
+        val registeredIds = (0 until cameras.length()).map { cameras.getJSONObject(it).getString("photoId") }
+        require(importedIds.size == 3 && cameras.length() == 2 && registeredIds.toSet().size == 2)
+        require(importedIds.containsAll(registeredIds))
+        require(preview.getInt("registeredCameras") == 2)
+        require(preview.getString("finalSparseOutcome") == "verified_anchor_fallback")
+        require(listOf("denseStatus", "meshStatus", "textureStatus").all { preview.optString(it) == "ready" })
+        assertTrue(preview.getInt("pointCount") > 0)
+        assertTrue(preview.getJSONObject("densePreview").getInt("pointCount") >= 60)
+        assertTrue(preview.getJSONObject("densePreview").getInt("consistentPixels") >= 60)
+        assertTrue(preview.getJSONObject("meshPreview").getInt("vertexCount") >= 30)
+        assertTrue(preview.getJSONObject("meshPreview").getInt("triangleCount") >= 40)
+        assertTrue(preview.getJSONObject("texturePreview").getInt("triangleCount") > 0)
+        assertTrue(preview.getJSONObject("texturePreview").getDouble("faceCoverage") > 0.0)
+    }
+
+    private suspend fun assertPublishedAndExport(f: Fixture, evidence: File, phase: String, expectedJob: JobSnapshot, partialDiagnostic: Boolean = false): Map<String, String> {
         val row = requireNotNull(f.database.dao().project(f.project))
         assertEquals(3L, row.revision); assertEquals(row.revision, row.resultRevision)
         val key = requireNotNull(row.resultKey)
@@ -265,22 +361,7 @@ class RealLicensedThreeCompleteControllerHostTest {
         captureImmutable(evidence, "$phase-preview.json", publishedPreviewBytes)
         val preview = requireNotNull(f.repository.currentPreview(f.project))
         assertEquals(key, preview.getString("artifactKey")); assertEquals(row.revision, preview.getLong("revision"))
-        for (name in listOf("denseStatus", "meshStatus", "textureStatus")) assertEquals(preview.toString().take(4000), "ready", preview.optString(name))
-        val importedIds = f.database.dao().photos(f.project).map { it.id }.toSet()
-        val cameras = preview.getJSONArray("cameras")
-        val registeredIds = (0 until cameras.length()).map { cameras.getJSONObject(it).getString("photoId") }
-        assertEquals(3, importedIds.size); assertEquals(3, cameras.length())
-        assertEquals(importedIds, registeredIds.toSet())
-        assertEquals(3, preview.getInt("registeredCameras"))
-        assertEquals("global_typed_ba_admitted12", preview.getString("finalSparseOutcome"))
-        assertTrue(preview.has("bundleAdjustment"))
-        assertTrue(preview.getInt("pointCount") > 0)
-        assertTrue(preview.getJSONObject("densePreview").getInt("pointCount") >= 60)
-        assertTrue(preview.getJSONObject("densePreview").getInt("consistentPixels") >= 60)
-        assertTrue(preview.getJSONObject("meshPreview").getInt("vertexCount") >= 30)
-        assertTrue(preview.getJSONObject("meshPreview").getInt("triangleCount") >= 40)
-        assertTrue(preview.getJSONObject("texturePreview").getInt("triangleCount") > 0)
-        assertTrue(preview.getJSONObject("texturePreview").getDouble("faceCoverage") > 0.0)
+        if (partialDiagnostic) assertEligiblePartialPreview(f, preview) else assertStrictPreview(f, preview)
         val names = listOf("preview", "sparse-glb", "sparse-ply", "dense-glb", "dense-ply", "mesh-glb", "mesh-ply", "textured-glb", "texture-png")
         assertEquals(names.toSet(), verified.manifest.entries.map { it.declaration.logicalName }.toSet())
         val artifactHashes = names.associateWith { name ->

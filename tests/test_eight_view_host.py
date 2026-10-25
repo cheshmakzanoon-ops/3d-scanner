@@ -704,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='066dcd311aefe64d27437f4d45558518bf9f5104'
- assert p.MESSAGE=='fix: count distinct initializer correspondence pairs'
+ assert p.BASE_SHA=='0055f87552c9a90151155288a6f8e47bc5c535b2'
+ assert p.MESSAGE=='test: retain bounded partial-model roundtrip evidence'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -717,7 +717,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'CMakeLists.txt', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/CalibratedInitializerInput.kt', 'app/src/test/java/com/realityforge/scanner/agents/a002/PipelineGraphTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/CalibratedInitializerInputTest.kt', 'docs/CALIBRATED_INITIALIZER.md', 'reconstruction/include/realityforge/core.hpp', 'reconstruction/src/calibrated_initializer.inc', 'reconstruction/src/core.cpp', 'reconstruction/tests/calibrated_initializer_test.cpp', 'reconstruction/tests/distinct_pair_initializer_test.cpp', 'tests/synthetic_child_env.py', 'tests/test_agent_082_fuzz_runner.py', 'tests/test_android_sdk_install.py', 'tests/test_device_failure_logcat.py', 'tests/test_eight_view_host.py', 'tests/test_native_cabi_replay.py', 'tests/test_native_pytest_progress.py', 'tests/test_native_regression_harness.py', 'tests/test_software_emulator_diagnostic.py', 'tests/test_synthetic_child_env.py', 'tools/eight_view_host/policy.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/real-three-controller-profile.md', 'tests/stdlib_cli_boundary.py', 'tests/test_agent_100_campaign.py', 'tests/test_eight_view_header_diagnostic.py', 'tests/test_eight_view_host.py', 'tests/test_native_cabi_replay.py', 'tests/test_published_validation_receipts.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_partial_diagnostic.py', 'tests/test_source_manifest_tool.py', 'tests/test_stdlib_cli_boundary.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py', 'tools/qa/native_cabi_replay/README.md', 'tools/qa/native_cabi_replay/run.py', 'tools/qa/native_cabi_replay/verify.py'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_THREE
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2
