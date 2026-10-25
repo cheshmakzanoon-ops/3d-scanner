@@ -9,12 +9,11 @@ import argparse
 import json
 from pathlib import Path
 import time
-import cv2
-import numpy as np
-from native_api import NativeEngine
 
 
 def fixture(count: int = 8, width: int = 104, height: int = 76):
+    import cv2
+    import numpy as np
     if not 2 <= count <= 8:
         raise ValueError('Fixture supports two to eight camera photographs')
     rng = np.random.default_rng(140013)
@@ -35,6 +34,7 @@ def fixture(count: int = 8, width: int = 104, height: int = 76):
 
 def evaluate(points, cameras, width=104, height=76):
     """Fraction of fixed 0.15-unit cells observed by >=2 cameras with a nearby correct-depth point."""
+    import numpy as np
     points = np.asarray(points,float)
     # Same domain in first-three/eight-view comparisons; no changing denominators.
     xs, ys = np.meshgrid(np.arange(-2.0,6.51,.15), np.arange(-1.2,1.21,.15))
@@ -56,6 +56,7 @@ def evaluate(points, cameras, width=104, height=76):
 
 
 def run():
+    from native_api import NativeEngine
     images,cameras=fixture()
     engine=NativeEngine(); results={}
     for count in (3,8):

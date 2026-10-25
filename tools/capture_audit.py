@@ -16,9 +16,6 @@ import struct
 import zlib
 import zipfile
 
-import cv2
-import numpy as np
-
 MAX_IMAGES = 250
 MAX_IMAGE_BYTES = 150 * 1024 * 1024
 MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
@@ -36,6 +33,7 @@ def _safe_path(value: str) -> bool:
 
 
 def _json(data: bytes):
+    import numpy as np
     def unique(pairs):
         result = {}
         for key, value in pairs:
@@ -120,6 +118,7 @@ def _image_header(data):
 
 
 def _matching_count(a: np.ndarray | None, b: np.ndarray | None) -> int:
+    import cv2
     if a is None or b is None or min(len(a), len(b)) < 2:
         return 0
     matcher = cv2.BFMatcher(cv2.NORM_L2)
@@ -133,6 +132,7 @@ def _matching_count(a: np.ndarray | None, b: np.ndarray | None) -> int:
 
 
 def inspect_zip(path: Path) -> dict:
+    import cv2
     try:
         return _inspect_zip(path)
     except (zipfile.BadZipFile, cv2.error, zlib.error, NotImplementedError, RuntimeError) as error:
@@ -140,6 +140,8 @@ def inspect_zip(path: Path) -> dict:
 
 
 def _inspect_zip(path: Path) -> dict:
+    import cv2
+    import numpy as np
     if not path.is_file():
         raise ValueError("Scan capture archive not found")
     _preflight_directory(path)

@@ -2,7 +2,6 @@
 """Validate a built APK with privacy, native ABI, ELF/ZIP alignment and signature gates."""
 import argparse,json,os
 from pathlib import Path
-from release.package_validation.apk import validate
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('apk',type=Path)
@@ -11,6 +10,7 @@ def main():
     p.add_argument('--abis',default='arm64-v8a,x86_64');p.add_argument('--signing-mode',choices=['test','production'],default='test')
     p.add_argument('--certificate-sha256');p.add_argument('--require-notices',action='store_true')
     args=p.parse_args()
+    from release.package_validation.apk import validate
     result=validate(args.apk,args.sdk,release=args.release,abis=args.abis.split(','),mode=args.signing_mode,
                     certificate=args.certificate_sha256,required_notices=args.require_notices)
     text=json.dumps(result,indent=2)+'\n'

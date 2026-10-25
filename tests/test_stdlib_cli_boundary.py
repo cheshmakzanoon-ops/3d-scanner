@@ -21,6 +21,71 @@ def parent_env(**extra):
     return dict(os.environ, PATH=str(Path(sys.executable).parent) + ':/usr/bin:/bin', **extra)
 
 
+@pytest.fixture
+def copied_sdk(tmp_path, monkeypatch):
+    script = tmp_path / 'tools/ci/install_android_sdk.py'
+    script.parent.mkdir(parents=True)
+    shutil.copyfile(boundary.ROOT / 'tools/ci/install_android_sdk.py', script)
+    monkeypatch.setattr(boundary, 'ROOT', tmp_path)
+    return script
+
+
+def test_sdk_rejection_environment_is_local_and_preserves_sanitizer_options(copied_sdk):
+    injected = dict(LD_PRELOAD='/unexecuted/asan.so', LD_AUDIT='/unexecuted/audit.so',
+                    LD_LIBRARY_PATH='/unexecuted/libs', PYTHONPATH='/unexecuted/python',
+                    RF_NATIVE_LIBRARY='/unexecuted/native.so')
+    parent = parent_env(**injected, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+                        LSAN_OPTIONS='exitcode=23', UBSAN_OPTIONS='halt_on_error=1')
+    before = dict(parent)
+    args, env = boundary.sdk_rejected_argument_cli([sys.executable, copied_sdk, '--licenses'], parent)
+    assert args == [sys.executable, '-I', '-S', str(copied_sdk), '--licenses']
+    assert parent == before and env is not parent
+    assert not set(injected).intersection(env)
+    for key in ('ASAN_OPTIONS', 'LSAN_OPTIONS', 'UBSAN_OPTIONS'):
+        assert env[key] == parent[key]
+
+
+@pytest.mark.parametrize('tail', [(), ('--help',), ('--unknown',), ('--licenses', '--extra'),
+                                 ('-c', 'import ctypes'), ('--licenses', '--')])
+def test_sdk_valid_install_and_other_arguments_are_not_isolated(copied_sdk, tail):
+    with pytest.raises(ValueError, match='argv'):
+        boundary.sdk_rejected_argument_cli([sys.executable, copied_sdk, *tail], parent_env())
+
+
+@pytest.mark.parametrize('change', ['native-source', 'path', 'symlink', 'interpreter'])
+def test_sdk_foreign_native_closure_is_refused(copied_sdk, change):
+    script = copied_sdk
+    executable = sys.executable
+    if change == 'native-source':
+        script.write_text(script.read_text() + '\nimport ctypes; ctypes.CDLL("unexecuted.so")\n')
+    elif change == 'path':
+        script = script.with_name('unreviewed.py')
+        shutil.copyfile(copied_sdk, script)
+    elif change == 'symlink':
+        saved = script.with_suffix('.saved')
+        script.rename(saved)
+        script.symlink_to(saved)
+    else:
+        executable = '/usr/bin/false'
+    with pytest.raises(ValueError, match='identity|path|symlink|interpreter'):
+        boundary.sdk_rejected_argument_cli([executable, script, '--licenses'], parent_env())
+
+
+def test_sdk_rejection_ignores_startup_and_script_directory_shadows(copied_sdk):
+    marker = copied_sdk.parent / 'poison-ran'
+    poison = 'from pathlib import Path\nPath(' + repr(str(marker)) + ').touch()\nraise RuntimeError("startup executed")\n'
+    for name in ('sitecustomize.py', 'usercustomize.py', 'subprocess.py', 'selectors.py'):
+        (copied_sdk.parent / name).write_text(poison)
+    parent = parent_env(PYTHONPATH=str(copied_sdk.parent),
+                        PYTHONSTARTUP=str(copied_sdk.parent / 'sitecustomize.py'))
+    args, env = boundary.sdk_rejected_argument_cli([sys.executable, copied_sdk, '--licenses'], parent)
+    result = subprocess.run(args, env=env, cwd=copied_sdk.parent, capture_output=True, timeout=3)
+    assert result.returncode == 2
+    assert result.stdout == b''
+    assert result.stderr == b'This helper takes no arguments; SDK package pins are fixed.\n'
+    assert not marker.exists()
+
+
 def test_parent_native_instrumentation_and_options_stay_intact(copied_manifest):
     repo, script = copied_manifest
     injected = dict(LD_PRELOAD='/unexecuted/asan.so', LD_AUDIT='/unexecuted/audit.so',

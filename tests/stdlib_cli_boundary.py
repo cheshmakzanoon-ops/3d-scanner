@@ -1,6 +1,6 @@
-"""TEST ONLY: three reviewed stdlib/Git CLI closures, never an engine runner.
+"""TEST ONLY: reviewed stdlib/Git CLI closures, never an engine runner.
 
-Hash pins describe reviewed 0055 source, not a generic Python exception. Unknown
+Hash pins describe reviewed source identities, not a generic Python exception. Unknown
 code/argv is refused before launch. -I -S preserves the real script entrypoint
 while excluding cwd, PYTHONPATH and site initialization. Archive alone adds its
 own tools directory; check that directory cannot shadow a stdlib import.
@@ -21,6 +21,8 @@ PINS = {
     'manifest': '41c38c8320e27ce8e1c4720fa8abde872a4e62b6a8fda11b17a988a7680b1ad8',
     'archive': '17e76332693dddf44f94e5ea6bb9eb49f83a11a2d0221902b3248abf5863965c',
     'receipt': 'e9fd81aef899a0310f6688e1d5505548bb444cdf55b04b9a074e059b84db5e0d',
+    # SDK main rejects this one argument before install()/any subprocess call.
+    'sdk-rejected-argument': '295e5f72bb56c13cc9e5c96b887ebf5fc1ba37cc4cdcdffaf70f9934d0e4fcb9',
 }
 _LOADER_KEYS = frozenset({
     'LD_PRELOAD', 'LD_AUDIT', 'LD_LIBRARY_PATH',
@@ -76,6 +78,20 @@ def manifest_cli(repo, argv, parent=None):
                                ('verify', '--source', 'HEAD')}:
         raise ValueError('Unreviewed manifest argv')
     return _launch(_source(script, 'manifest'), args[2:], parent, args[0])
+
+
+def sdk_rejected_argument_cli(argv, parent=None):
+    """Only the fixed --licenses rejection; never the installer or run_attempt.
+
+    The reviewed entrypoint imports stdlib only and returns 2 before install().
+    No valid install invocation, alternate script, help or arbitrary flag is
+    admitted. Parent/native environment and sanitizer options remain unchanged.
+    """
+    args = list(map(str, argv))
+    script = ROOT / 'tools/ci/install_android_sdk.py'
+    if len(args) != 3 or args[1:] != [str(script), '--licenses']:
+        raise ValueError('Unreviewed SDK rejection path or argv')
+    return _launch(_source(script, 'sdk-rejected-argument'), ['--licenses'], parent, args[0])
 
 
 def archive_cli(repo, command, args, parent=None):

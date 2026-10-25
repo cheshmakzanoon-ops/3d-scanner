@@ -10,6 +10,7 @@ import time
 
 import pytest
 from synthetic_child_env import synthetic_child_env
+from stdlib_cli_boundary import sdk_rejected_argument_cli
 from tools.native_process import native_compile_env
 from tools.native_test_build import native_compile_prefix
 
@@ -161,9 +162,22 @@ def test_package_pins_and_workflow_wiring():
 
 
 def test_unexpected_cli_arguments_rejected():
-    result = subprocess.run([sys.executable, str(PATH), '--licenses'], capture_output=True)
+    args, env = sdk_rejected_argument_cli([sys.executable, str(PATH), '--licenses'])
+    result = subprocess.run(args, env=env, capture_output=True, timeout=3)
     assert result.returncode == 2
-    assert b'no arguments' in result.stderr
+    assert result.stdout == b''
+    assert result.stderr == b'This helper takes no arguments; SDK package pins are fixed.\n'
+
+
+def test_rejected_argument_never_enters_install(monkeypatch, capsys):
+    def forbidden():
+        raise AssertionError('Rejected CLI argument entered installer')
+    monkeypatch.setattr(m, 'install', forbidden)
+    monkeypatch.setattr(sys, 'argv', [str(PATH), '--licenses'])
+    assert m.main() == 2
+    captured = capsys.readouterr()
+    assert captured.out == ''
+    assert captured.err == 'This helper takes no arguments; SDK package pins are fixed.\n'
 
 
 def test_cancellation_before_spawn(monkeypatch):

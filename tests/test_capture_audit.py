@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 import zipfile
 import pytest
+import cv2
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools"))
@@ -75,7 +76,7 @@ def test_duplicate_archive_entries_rejected_before_read(tmp_path, name, monkeypa
     with zipfile.ZipFile(path, 'a') as archive:
         with pytest.warns(UserWarning):
             archive.writestr(name, b'x')
-    monkeypatch.setattr(capture_audit.cv2, 'imdecode', lambda *args: pytest.fail('decode reached'))
+    monkeypatch.setattr(cv2, 'imdecode', lambda *args: pytest.fail('decode reached'))
     with pytest.raises(ValueError, match='Duplicate'):
         inspect_zip(path)
 
@@ -97,7 +98,7 @@ def test_compression_bomb_rejected_before_decode(tmp_path, monkeypatch):
     path = sample(tmp_path)
     with zipfile.ZipFile(path, 'a') as archive:
         archive.writestr('photos/bomb.jpg', b'0' * 100_000, compress_type=zipfile.ZIP_DEFLATED)
-    monkeypatch.setattr(capture_audit.cv2, 'imdecode', lambda *args: pytest.fail('decode reached'))
+    monkeypatch.setattr(cv2, 'imdecode', lambda *args: pytest.fail('decode reached'))
     with pytest.raises(ValueError, match='compression-bomb'):
         inspect_zip(path)
 
@@ -110,7 +111,7 @@ def test_pixel_bomb_header_rejected_before_decode(tmp_path, monkeypatch):
         manifest['photos'][0]['sha256'] = hashlib.sha256(header).hexdigest()
         return [(name, header if name == 'photos/photo-0.jpg' else json.dumps(manifest).encode() if name == 'session.json' else data) for name, data in entries]
     rewrite(path, change)
-    monkeypatch.setattr(capture_audit.cv2, 'imdecode', lambda *args: pytest.fail('decode reached'))
+    monkeypatch.setattr(cv2, 'imdecode', lambda *args: pytest.fail('decode reached'))
     with pytest.raises(ValueError, match='pixel safety'):
         inspect_zip(path)
 
