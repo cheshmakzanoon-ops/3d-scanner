@@ -1,27 +1,36 @@
 # RealityForge — offline Android photo-to-3D scanner
 
 **Engineering preview based on M19, version 0.19.0-m19, with subsequent
-cloud integration. Not a completed consumer product or a guarantee of
+correctness and integration work. Not a completed consumer product or a guarantee of
 high-quality complete-object scanning.**
 
-## Current validation — 24 October 2026
+## Current validation — 25 October 2026
 
-The full-controller result below is bound to `660b94480160e0d52ecbf5879008040d9518f79c`.
-Current source `1d01072779dc1d0b0d407b6299ad24edb6bd30b6` changes a legacy test
-fixture, not that production implementation. **A synthetic photo-to-model
-journey now passes; reliable installed-device scanning is not yet qualified.**
+**A synthetic photo-to-model controller journey passes; reliable installed-device
+scanning and high-quality complete-object reconstruction are not yet qualified.**
+Results below belong to the named source revisions, not automatically to later commits.
 
 | Area | Verified result / remaining limit |
 | --- | --- |
-| Three-photo full-controller HOST test | **Passed:** three fixed synthetic relief photographs → actual reconstruction controller → dense points, mesh and photographic texture → nine published artifacts → three validated export formats and Room database reopen. All three cameras registered; 904 sparse points, 17,522 textured triangles and a 1548 × 1164 texture atlas. |
-| Test scope | `SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY`: modeled HOST resources, not a physical capture, installed GLES viewer, Android SAF flow or store/release qualification. The eight-photo low-resolution fixture remains unsuccessful. |
-| Android build baseline | Earlier `37fdaf02` validation passed 850 unit tests + 18 HOST JVM tests (868 total) and debug app/test APK builds. This is not installed-device or visual validation. |
-| Remaining CI gates | The full candidate CI is not green: sanitizer and device gates remain open. Earlier sanitizer profiles timed out at 600 seconds; release-profile successes do not substitute for them. |
-| Mesh quality | A separate synthetic native audit reports **509 nonmanifold edges**. Corrected UI warnings do not repair geometry; the new HOST success does not establish watertight or complete-object quality. |
+| Three-photo full-controller HOST test (`5beb2d3`) | **Passed:** three fixed synthetic relief photographs → actual reconstruction controller → dense points, mesh and photographic texture → nine published artifacts → three validated export formats and Room database reopen. All three cameras registered; 904 sparse points, 22,259 textured triangles and a 1548 × 1164 atlas. |
+| Test scope | `SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY`: modeled HOST resources, not physical capture, installed GLES/SAF interaction or release qualification. The eight-photo low-resolution fixture remains unsuccessful. |
+| Android build (`707a10e`) | Debug app/test APK builds, lint, 864 unit tests and 18 HOST JVM tests passed (882 tests total). These do not establish a passing installed photo-to-model journey. |
+| Installed emulator tests (`7ff6395`) | The synthetic UI journey failed in DocumentsUI selection **before import/reconstruction**. The separate optional Filament rendering/lifecycle test passed. The selector repair in `c3f26f3` still needs a completed installed rerun. |
+| Remaining CI gates (`707a10e`) | **Failed:** GCC and Clang sanitizer profiles exceeded their 600-second pytest limit; ordinary device preflight also failed. Full-candidate CI is not green. Passed release builds and selected tests do not replace these gates. |
+| Mesh quality (`5beb2d3`) | The synthetic result still has 113 components, 9,542 boundary edges and **653 nonmanifold edges**. Intersection analysis is budget-incomplete. The supported-diagonal fix does not establish watertight, overlap-free or complete-object quality. |
 
-Sources: [full-controller HOST run 40142555215](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40142555215),
-[earlier build baseline](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
-and [topology audit](docs/development/SURFACE_TOPOLOGY_QUALIFICATION.md#separate-native-counterexample).
+Recent source fixes correct inverse-depth interpolation on projective planes,
+choose a consistent supported diagonal for identical observed full quads, and
+stop idle redraws in the optional Filament backend. The default GLES viewer was
+already demand-driven. These are scoped correctness improvements, not proof of
+physical scan accuracy, general overlap removal or measured battery savings.
+A [conservative EXIF focal prior](docs/reconstruction/EXIF_FOCAL_PLANE_PRIOR.md)
+now handles valid isotropic focal-plane metadata when a direct 35mm tag is absent;
+it remains derived, not measured lens calibration, and declines inconsistent inputs.
+
+Evidence: [full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162711185),
+[Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40164183394),
+[installed UI and Filament test](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162907075).
 See [current status](docs/MILESTONE_STATUS.md) and [next validation gates](docs/NEXT_MILESTONE.md).
 
 The integrated source includes durable reconstruction jobs, identity-bound
@@ -97,7 +106,8 @@ python -m pytest tests -q
 See [BUILDING](docs/BUILDING.md). The validation workflows include API-35 Android
 instrumentation, native JNI, actual GLES pixel readback, a synthetic
 photograph-to-textured-GLB session and real Middlebury stereo benchmarks. These
-checks are not all passing on the current candidate; device preflight remains blocked. The new M16 visibility-chain test
+checks are not all passing on the current candidate. A selected emulator run reached
+installed tests, but the full photo-to-model UI journey remains unqualified. The M16 visibility-chain test
 uses synthetic analytic features with withheld camera poses; it does not replace
 physical captures. Check the workflow for the exact commit before claiming its
 Android build or device tests passed. Source contracts are not runtime evidence.

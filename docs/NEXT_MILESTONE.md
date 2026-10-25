@@ -26,32 +26,36 @@ interruption boundary or successful completion of every installed-app workflow;
 those checks remain explicit gates in the current status. Unknown surfaces stay
 unknown, scale stays arbitrary without measurement, and open patches stay open.
 
-## Immediate validation priorities — 24 October 2026
+## Immediate validation priorities — 25 October 2026
 
-The synthetic three-photo full-controller HOST journey passed on `660b9448`;
-current `1d010727` changes only a legacy test fixture. See
-[current status](MILESTONE_STATUS.md) for the source-bound result and public run.
-This closes that synthetic controller/publication/reopen/export checkpoint,
-not installed-app or physical-quality qualification.
+The three-photo synthetic full-controller HOST journey passed on `5beb2d3`;
+the selected installed Filament lifecycle test passed on `7ff6395`. Neither
+closes installed import → reconstruction → inspection → reopen/export or
+physical-quality qualification. See [current status](MILESTONE_STATUS.md) for
+source-bound results and failures.
 
-1. Extend reconstruction evidence beyond the successful three-photo synthetic
-   relief fixture. Diagnose the unsuccessful eight-photo low-resolution fixture
-   and validate additional observed scenes without relaxing registration,
-   geometry or photographic-texture acceptance gates.
-2. Obtain completed sanitizer evidence and a green full-candidate CI result.
-   Earlier profiles timed out after 600 seconds; passing release profiles and
-   the new full-controller HOST result do not substitute for sanitizer checks.
-3. Unblock an authorized device test environment and run installed-app
-   import → reconstruction → inspection → reopen/export, cancellation and
-   interruption checks. Current KVM preflight failure is not an application pass
-   or proof of a visual defect.
-4. Improve and remeasure actual mesh topology. The 509 nonmanifold edges in the
-   synthetic audit remain a geometry failure, despite corrected UI warnings.
-   Do not hide defects, fabricate unseen surfaces or label open meshes watertight.
-5. Validate calibrated physical ARM64 captures against reference geometry,
-   texture and resource measurements before raising the 2–12-photo/eight-dense-view
-   limits or claiming complete-object quality. Complete production signing and
-   release qualification separately from test-signed APK builds.
+1. Complete the corrected installed synthetic journey. The `7ff6395` run failed
+   at DocumentsUI selection before import/reconstruction; `c3f26f3` repairs the
+   driver without bypassing the picker. Run and retain actual rendered UI, SAF,
+   reconstruction, reopen/export, cancellation and interruption evidence.
+2. Extend reconstruction evidence beyond three synthetic relief photographs and
+   isolated stereo pairs. Validate real observed scenes without relaxing camera
+   registration, geometry or photographic-texture acceptance gates. The failed
+   low-resolution eight-photo fixture remains a failure, not an alternate pass.
+3. Continue measured topology repair beyond the supported-diagonal change.
+   The `5beb2d3` synthetic result still has 653 nonmanifold edges,
+   113 components and 9,542 boundary edges; intersection analysis is incomplete.
+   Exact-quad consistency is not general surface fusion or hole repair. Do not
+   hide defects, fabricate unseen surfaces or label open meshes watertight.
+4. Obtain completed sanitizer evidence and a green full-candidate CI result.
+   Both `707a10e` sanitizer pytest executions exceeded 600 seconds; numerical
+   and benchmark failures also remain unresolved. Passed release builds, HOST
+   controller tests and selected emulator tests do not replace these gates.
+5. Validate calibrated physical ARM64 captures against independent reference
+   geometry, texture and resource measurements before raising the enforced
+   2–12-photo/eight-dense-view limits or claiming complete-object quality.
+   Complete production signing and release qualification separately from
+   test-signed APK builds.
 
 The sections below preserve historical milestone plans; “next” in those sections
 refers to their original milestone, not work still missing from today's source.

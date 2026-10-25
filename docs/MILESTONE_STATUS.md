@@ -1,48 +1,87 @@
 # Source status — integrated engineering preview
 
-## Current verified checkpoint — 24 October 2026
+## Current verified checkpoint — 25 October 2026
 
-Current application version: **0.19.0-m19**. The source has progressed beyond the
-historical M19 implementation, but the product remains an engineering preview.
-The full-controller result is bound to `660b94480160e0d52ecbf5879008040d9518f79c`.
-Current source `1d01072779dc1d0b0d407b6299ad24edb6bd30b6` changes a legacy test
-fixture; its production implementation is unchanged from that checkpoint.
+Current application version: **0.19.0-m19**, an engineering preview. Validation
+is source-bound: a passing earlier artifact does not certify subsequent source.
+Supported input remains **2–12 photographs**, with at most **eight registered
+dense views**. Physical scan quality, complete installed workflows and production
+release qualification remain open.
 
-- **Synthetic full-controller journey — PASS:** three fixed relief photographs
-  passed through the actual reconstruction controller, dense reconstruction,
-  mesh and photographic texture generation. All three cameras registered,
-  producing **904 sparse points**, **17,522 textured triangles** and a
-  **1548 × 1164 texture atlas**. Nine artifacts were published and hash-checked;
-  sparse PLY, mesh PLY and textured GLB exports were structurally validated.
-  Publication identity and export bytes remained consistent after Room database
-  reopen, and the original photographs were preserved.
+### Completed evidence
+
+- **Synthetic full-controller journey — PASS on `5beb2d3`:** three fixed relief
+  photographs passed through the actual reconstruction controller, dense stage,
+  observed mesh and photographic texture generation. All three cameras registered:
+  **904 sparse points, 22,259 textured triangles, 1548 × 1164 atlas**. Nine
+  artifacts were published and hash-checked; sparse PLY, mesh PLY and textured GLB
+  exports were structurally validated. Publication identities and exported bytes
+  survived Room database reopen; original photographs were preserved.
 - **Scope:** `SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY`.
-  This is a synthetic HOST test with modeled resources, not installed GLES/SAF
-  interaction, physical capture, handset performance or store qualification.
-  Nine hash-checked artifacts do not mean nine independently validated formats.
-  The eight-photo low-resolution fixture remains unsuccessful.
-- **Build baseline:** earlier `37fdaf02` validation passed 850 Android unit tests
-  + 18 HOST JVM tests (868 total), debug app/test APK builds, GCC/Clang release
-  profiles and benchmark builds. These are source-bound results, not a blanket
-  pass for every later commit.
-- **Remaining CI/device gates:** the full candidate CI is not green. Sanitizer
-  and device gates remain open; earlier sanitizer profiles timed out at 600
-  seconds, and KVM preflight blocked device tests. Physical capture, installed-app
-  visual behavior and ARM64 performance/quality remain unvalidated.
-- **Topology:** the separate synthetic native audit reports 509 nonmanifold
-  indexed edges. UI warnings disclose that defect; the new HOST result does not
-  establish watertightness, printing suitability or complete-object quality.
+  HOST resources are modeled. This is not installed GLES/SAF interaction, physical
+  capture, handset performance or store qualification. Nine artifacts are not
+  nine independently validated formats. The low-resolution eight-photo fixture
+  remains unsuccessful.
+- **Android build — PASS on `707a10e`:** debug app/test APK builds, lint,
+  **864 unit tests + 18 HOST JVM tests = 882 tests**, with no failures, errors or
+  skips in those reports. GCC/Clang release profiles and benchmark compilation
+  also passed; benchmark compilation is not a measured phone-performance result.
+- **Selected installed graphics test — PASS on `7ff6395`:**
+  `PhotographicViewerTest#filamentRestoresCameraPausesAndRejectsOversizedResize`
+  passed on an API-35 emulator. It checks optional Filament idle-frame stability,
+  control/resize wakeups, pause/resume and lifecycle behavior. The default
+  application viewer remains GLES; no handset power-saving claim follows.
 
-Public evidence: [full-controller HOST run 40142555215](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40142555215),
-[earlier build baseline](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40120401316),
-[topology counterexample](development/SURFACE_TOPOLOGY_QUALIFICATION.md#separate-native-counterexample).
+### Open failures and limits
 
-The integrated source includes service-owned durable jobs, revision-bound
-publication/checkpoints and library/curation/recovery/export routes. Supported
-input remains **2–12 photographs**, with at most **eight registered dense views**.
-Installed-app complete-session and model-studio qualification, physical reference comparisons,
-resource measurements and production signing remain open. See
-[next gates](NEXT_MILESTONE.md). The records below are historical, not current
+- **Installed synthetic complete journey — FAIL on `7ff6395`:** the UI driver
+  rejected a correctly identified DocumentsUI thumbnail row because the row was
+  exposed as non-clickable. Import and reconstruction had not begun. This is not
+  evidence of an engine failure or a passing complete session. Source `c3f26f3`
+  repairs selection through real touch inside the uniquely identified item,
+  preserving navigation/import assertions; its installed rerun remains unrun.
+- **Topology remains unacceptable for watertight/printing claims.** The `5beb2d3`
+  synthetic result reports 113 components, 9,542 boundary edges and 653 nonmanifold
+  edges. With the same three original photographs, the preceding `aa9e693` result
+  had 656 nonmanifold edges and the earlier `1b4e91c` result had 646. These paired
+  runs are not byte-identical raw-depth replays and do not establish a broad
+  quality improvement. Intersection analyses hit their work budget, so their
+  counters cannot prove the absence or reduction of intersections.
+- **Full-candidate CI — FAIL on `707a10e`.** GCC and Clang sanitizer pytest
+  executions timed out after 600.170s and 600.120s respectively (exit −9).
+  Both configurations built and passed their 48 CTests, but unresolved control,
+  numerical and native benchmark failures also remain in their reports. These
+  cannot be dismissed as exclusively external-runtime failures or waived by the
+  passing release profiles. Ordinary device preflight and the aggregate checks
+  failed. The separate selected emulator result does not replace those gates.
+  Cancelled or superseded runs are not passes. Physical reference geometry,
+  complete-object texture quality, ARM64 resource/thermal measurements,
+  production signing and store acceptance remain unqualified.
+
+### Subsequent source changes, not blanket qualification
+
+`aa9e693` corrects continuous-cell inverse-depth interpolation and versions affected
+cache identities. `5beb2d3` chooses a shared supported diagonal across identical
+observed full quads, rather than discarding a valid half-face or choosing conflicting
+splits across views. It does not invent vertices, lower geometry gates or solve
+arbitrary nearby overlapping surfaces. The synthetic full-controller journey
+passes, but the topology defects above remain.
+The source retains original photographs and refuses stale derived caches.
+
+`707a10e` adds a [conservative EXIF focal prior](reconstruction/EXIF_FOCAL_PLANE_PRIOR.md)
+for valid isotropic focal-plane metadata when the direct 35mm tag is absent.
+Explicit calibration/direct-tag precedence remains intact; derived evidence is not
+a measured sensor or distortion model. Anisotropic, stale or malformed metadata
+remains unknown. Its 25 Kotlin and 110 affected Python tests passed; the new
+actual-JPEG instrumentation cases compiled in the `707a10e` Android build but
+remain unrun. Host tests and successful compilation do not qualify those device cases.
+
+Public evidence: [supported-diagonal full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162711185),
+[depth-corrected full-controller HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162345022),
+[earlier `1b4e91c` HOST run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40147098954),
+[`707a10e` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40164183394),
+[selected installed tests](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40162907075).
+See [next gates](NEXT_MILESTONE.md). Records below are historical, not current
 acceptance results.
 
 ## Historical M19 baseline
