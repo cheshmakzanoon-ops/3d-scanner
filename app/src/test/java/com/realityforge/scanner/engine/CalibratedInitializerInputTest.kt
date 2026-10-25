@@ -24,10 +24,30 @@ class CalibratedInitializerInputTest {
         }
         invalid(floatArrayOf(50f,50f),intArrayOf(1));invalid(floatArrayOf(100f,50f),intArrayOf(0));invalid(floatArrayOf(Float.NaN,50f),intArrayOf(0));invalid(floatArrayOf(50f,50f),intArrayOf(0),intArrayOf())
     }
+    @Test fun oldFrontierCannotBeLoadedOrRenamedIntoCurrentPolicy() {
+        val old = snapshot("calibrated-h-observed-pixels-sticky-dominance-v1").identity(PipelineStage.SPARSE).digest
+        val current = snapshot(CalibratedInitializerInput.POLICY).identity(PipelineStage.SPARSE).digest
+        val directory = java.nio.file.Files.createTempDirectory("distinct-pairs-frontier").toFile()
+        try {
+            val store = com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore(directory)
+            val payload = byteArrayOf(1, 2, 3)
+            assertTrue(store.publish(old, payload) { false })
+            assertArrayEquals(payload, store.load(old) { false })
+            assertNull(store.load(current) { false })
+            val cache = java.io.File(directory, com.realityforge.scanner.engine.artifacts.SparseFrontierCheckpointStore.DIRECTORY_NAME)
+            java.io.File(cache, "$old.frontier").copyTo(java.io.File(cache, "$current.frontier"))
+            assertNull("Embedded stage identity must reject renamed stale bytes", store.load(current) { false })
+            assertArrayEquals(payload, store.load(old) { false })
+        } finally { directory.deleteRecursively() }
+    }
+    private fun snapshot(policy: String) = PipelineInputSnapshot("project",1,listOf(
+        PipelinePhotoInput("a","a".repeat(64),384,288,100,26.0),
+        PipelinePhotoInput("b","b".repeat(64),384,288,100,26.0)),"calibration","engine",
+        PipelineStageSettings("features","matches",policy,"dense","surface","texture","export"))
     @Test fun newSparsePolicyInvalidatesSparseAndDescendantsNotFeaturesOrMatches() {
-        val old=PipelineInputSnapshot("project",1,listOf(PipelinePhotoInput("a","a".repeat(64),384,288,100,26.0),PipelinePhotoInput("b","b".repeat(64),384,288,100,26.0)),"calibration","engine",PipelineStageSettings("features","matches","sparse-v3","dense","surface","texture","export"))
-        val next=old.copy(settings=old.settings.copy(sparse="sparse-v4|${CalibratedInitializerInput.POLICY}"))
-        assertEquals("calibrated-h-observed-pixels-sticky-dominance-v1",CalibratedInitializerInput.POLICY)
+        val old=PipelineInputSnapshot("project",1,listOf(PipelinePhotoInput("a","a".repeat(64),384,288,100,26.0),PipelinePhotoInput("b","b".repeat(64),384,288,100,26.0)),"calibration","engine",PipelineStageSettings("features","matches","incremental-frontier-v1|complete-source-window-typed-ba-frontier-admitted12-v4|calibrated-h-observed-pixels-sticky-dominance-v1|assumed-focal35=26.0","dense","surface","texture","export"))
+        val next=old.copy(settings=old.settings.copy(sparse=old.settings.sparse.replace("calibrated-h-observed-pixels-sticky-dominance-v1",CalibratedInitializerInput.POLICY)))
+        assertEquals("calibrated-h-observed-pixels-sticky-dominance-distinct-pairs-v2",CalibratedInitializerInput.POLICY)
         for(stage in PipelineStage.entries)if(stage.ordinal<PipelineStage.SPARSE.ordinal)assertEquals(old.identity(stage).digest,next.identity(stage).digest) else assertNotEquals(old.identity(stage).digest,next.identity(stage).digest)
     }
 }

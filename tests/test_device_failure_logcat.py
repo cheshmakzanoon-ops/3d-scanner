@@ -11,6 +11,7 @@ import sys
 from types import SimpleNamespace
 
 import pytest
+from synthetic_child_env import synthetic_child_env
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('failure_logcat_runner', ROOT / 'tools/device/compatibility/runner.py')
@@ -20,12 +21,33 @@ from device.compatibility import failure_logcat as logcat
 
 
 def spawn_python(source, commands, processes):
+    # Only inline stdlib fake adb clients use this adapter; never a real tool.
     def spawn(argv, **kwargs):
         commands.append((argv, kwargs.copy()))
-        process = subprocess.Popen([sys.executable, '-c', source], **kwargs)
+        kwargs['env'] = synthetic_child_env(kwargs.get('env'))
+        process = subprocess.Popen([sys.executable, '-I', '-S', '-c', source], **kwargs)
         processes.append(process)
         return process
     return spawn
+
+
+def capture_diagnostic(result):
+    # Keep failures useful without dumping client output or environment values.
+    return {key: result.get(key) for key in (
+        'status', 'exitCode', 'observedBytes', 'retainedBytes', 'timedOut')}
+
+
+def test_fake_client_environment_does_not_change_production_forwarding(tmp_path, monkeypatch):
+    monkeypatch.setenv('LD_PRELOAD', '/synthetic/never-loaded.so')
+    monkeypatch.setenv('ASAN_OPTIONS', 'detect_leaks=1')
+    result, commands, _ = run_capture(tmp_path,
+        "import os; assert 'LD_PRELOAD' not in os.environ; "
+        "assert os.environ['ASAN_OPTIONS'] == 'detect_leaks=1'; print('synthetic')")
+    assert result['status'] == 'CAPTURED', capture_diagnostic(result)
+    # capture() must still request normal environment inheritance for real adb.
+    assert 'env' not in commands[0][1]
+    assert os.environ['LD_PRELOAD'] == '/synthetic/never-loaded.so'
+    assert os.environ['ASAN_OPTIONS'] == 'detect_leaks=1'
 
 
 def subreaper_state():
@@ -85,7 +107,7 @@ def run_capture(tmp_path, source, *, owned_orphans=False, **limits):
 def test_capture_is_serial_bound_and_does_not_clear_or_escalate(tmp_path):
     result, commands, processes = run_capture(tmp_path,
         "print('--------- beginning of crash'); print('AndroidRuntime: synthetic failure')")
-    assert result['status'] == 'CAPTURED' and result['exitCode'] == 0
+    assert result['status'] == 'CAPTURED' and result['exitCode'] == 0, capture_diagnostic(result)
     assert result['buffersRequested'] == ['main', 'system', 'crash']
     assert result['buffersObserved'] == ['crash'] and result['bufferAvailability'] == 'NOT_VERIFIED'
     assert commands[0][0] == ['adb', '-s', 'emulator-5554', 'logcat', '-d', '-t', '4000',
@@ -105,7 +127,7 @@ def test_byte_cap_is_streamed_utf8_safe_tail_not_unbounded_communicate(tmp_path,
     result, _, _ = run_capture(tmp_path,
         "import sys; sys.stdout.buffer.write(('é' * 100000 + 'TAIL').encode()); sys.stdout.flush()", max_bytes=1023)
     raw = (tmp_path / 'logcat.txt').read_bytes()
-    assert len(raw) <= 1023 and raw.decode('utf-8').endswith('TAIL')
+    assert len(raw) <= 1023 and raw.decode('utf-8').endswith('TAIL'), capture_diagnostic(result)
     assert result['truncated'] is True and result['observedBytes'] == 200004
     assert result['retainedBytes'] == len(raw) and result['status'] == 'CAPTURED'
 
@@ -114,7 +136,7 @@ def test_invalid_utf8_does_not_expand_the_byte_cap(tmp_path):
     result, _, _ = run_capture(tmp_path,
         "import sys; sys.stdout.buffer.write(b'\\xff' * 4096 + b'END')", max_bytes=64)
     assert result['retainedBytes'] <= 64 and result['truncated']
-    assert (tmp_path / 'logcat.txt').read_text() == 'END'
+    assert (tmp_path / 'logcat.txt').read_text() == 'END', capture_diagnostic(result)
 
 
 def test_timeout_preserves_partial_tail_and_reaps_its_client(tmp_path):
@@ -141,13 +163,13 @@ def test_descendant_without_inherited_pipe_is_still_terminated(tmp_path):
         "import os,time\nchild=os.fork()\n"
         "if child == 0:\n os.close(1); os.close(2); time.sleep(60)\n"
         "else:\n print('child='+str(child),flush=True)\n", owned_orphans=True)
-    assert result['status'] == 'CAPTURED' and result['residualGroupTerminated'] is True
+    assert result['status'] == 'CAPTURED' and result['residualGroupTerminated'] is True, capture_diagnostic(result)
     assert processes[0].poll() == 0
 
 
 def test_invalid_only_output_is_explicitly_empty_not_captured(tmp_path):
     result, _, _ = run_capture(tmp_path, "import sys; sys.stdout.buffer.write(b'\\xff' * 12)")
-    assert result['status'] == 'EMPTY' and result['omittedInvalidUtf8Bytes'] == 12
+    assert result['status'] == 'EMPTY' and result['omittedInvalidUtf8Bytes'] == 12, capture_diagnostic(result)
     assert result['retainedBytes'] == 0
 
 
@@ -165,7 +187,7 @@ def test_missing_adb_and_empty_logs_have_explicit_receipts(tmp_path):
     assert result['status'] == 'ERROR' and 'missing adb' in result['error']
     assert 'artifact' not in result and not (tmp_path / 'logcat.txt').exists()
     result, _, _ = run_capture(tmp_path, 'pass')
-    assert result['status'] == 'EMPTY' and result['retainedBytes'] == 0
+    assert result['status'] == 'EMPTY' and result['retainedBytes'] == 0, capture_diagnostic(result)
 
 
 @pytest.mark.parametrize('serial,emulator', [('physical', False), ('physical', True), ('emulator-5554', False), (None, True)])
@@ -272,7 +294,7 @@ def test_capture_write_failure_is_reported_and_client_is_closed(tmp_path):
     result = logcat.capture('emulator-5554', True, destination,
         popen=spawn_python("print('synthetic log')", commands, processes))
     assert result['status'] == 'ERROR' and result['artifactError']
-    assert processes[0].poll() == 0 and processes[0].stdout.closed
+    assert processes[0].poll() == 0 and processes[0].stdout.closed, capture_diagnostic(result)
 
 
 def test_missing_apk_cannot_capture_unverified_device(tmp_path):
@@ -334,9 +356,9 @@ def test_owned_orphan_fixture_natural_drain_restores_state():
     previous = subreaper_state()[1]
     processes = []
     with owned_orphan_client(processes) as scope:
-        process = subprocess.Popen([sys.executable, '-c',
+        process = subprocess.Popen([sys.executable, '-I', '-S', '-c',
             "import os,time\nchild=os.fork()\nif child == 0: time.sleep(0.05)"],
-            start_new_session=True)
+            start_new_session=True, env=synthetic_child_env())
         processes.append(process)
         assert process.wait(timeout=2) == 0
     assert not scope.escaped and not scope.errors and scope.snapshot('test_final') == []

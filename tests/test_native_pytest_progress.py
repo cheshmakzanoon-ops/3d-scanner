@@ -26,14 +26,30 @@ def records(text):
     return [json.loads(line) for line in re.findall(r'RF_PYTEST_PROGRESS (\{[^\n]*\})', text)]
 
 
+def generated_control_env():
+    """Only fixed generated Python observer snippets, never scanner execution.
+
+    Loader injection instruments the external Python interpreter, not these
+    protocol assertions. Match the accounting-plugin synthetic control boundary;
+    keep sanitizer options intact and never alter the invoking process environment.
+    The real repository clock regression below deliberately does not use this.
+    """
+    env = dict(os.environ)
+    for key in ('LD_PRELOAD', 'LD_AUDIT', 'LD_LIBRARY_PATH',
+                'RF_NATIVE_LIBRARY', 'RF_NATIVE_CXX', 'RF_NATIVE_CONFIG',
+                'PYTEST_ADDOPTS', 'PYTEST_PLUGINS', 'PYTHONHOME',
+                'PYTHONUSERBASE', 'PYTHONSTARTUP'):
+        env.pop(key, None)
+    env.update(PYTHONPATH=str(ROOT), PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
+    return env
+
+
 def child(tmp_path, source):
     (tmp_path / 'tests').mkdir()
     test = tmp_path / 'tests/test_synthetic_progress.py'
     test.write_text(source)
-    env = dict(os.environ, PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
-    env.pop('PYTEST_ADDOPTS', None)
-    env['PYTHONPATH'] = str(ROOT) + os.pathsep + env.get('PYTHONPATH', '')
-    return ([sys.executable, '-m', 'pytest', '-c', '/dev/null', str(test), '-q',
+    env = generated_control_env()
+    return ([sys.executable, '-s', '-m', 'pytest', '-c', '/dev/null', str(test), '-q',
              '--rootdir=' + str(tmp_path), '--confcutdir=' + str(tmp_path),
              '--tb=no', '-p', PLUGIN], env)
 
@@ -226,3 +242,83 @@ def test_real_shared_clock_patch_keeps_later_progress_under_default_capture():
         for phase in ('setup', 'call', 'teardown') for event in ('start', 'end')]
     assert events[-1]['nodeid'].endswith('::test_parameters_never_leave_safe_identity')
     assert all(row.get('duration_s', 0) >= 0 for row in events)
+
+
+def test_generated_control_environment_is_copied_and_narrow(monkeypatch, tmp_path):
+    injected = {
+        'LD_PRELOAD': '/synthetic/asan.so', 'LD_AUDIT': '/synthetic/audit.so',
+        'LD_LIBRARY_PATH': '/synthetic/libs', 'RF_NATIVE_LIBRARY': '/synthetic/scanner.so',
+        'RF_NATIVE_CXX': '/synthetic/cxx', 'RF_NATIVE_CONFIG': 'clang-sanitize',
+        'PYTEST_ADDOPTS': '-x', 'PYTEST_PLUGINS': 'untrusted_plugin',
+        'PYTHONHOME': '/synthetic/python', 'PYTHONUSERBASE': '/synthetic/user',
+        'PYTHONSTARTUP': '/synthetic/startup', 'PYTHONPATH': '/synthetic/injected',
+        'ASAN_OPTIONS': 'halt_on_error=1:detect_leaks=1',
+        'LSAN_OPTIONS': 'exitcode=23', 'UBSAN_OPTIONS': 'halt_on_error=1:print_stacktrace=1',
+        'PYTHONMALLOC': 'malloc', 'UNRELATED_CONTROL_SENTINEL': 'unchanged',
+    }
+    for key, value in injected.items():
+        monkeypatch.setenv(key, value)
+    parent = dict(os.environ)
+    argv, env = child(tmp_path, 'def test_a():\n    pass\n')
+    assert dict(os.environ) == parent
+    removed = set(injected) - {'PYTHONPATH', 'ASAN_OPTIONS', 'LSAN_OPTIONS',
+                              'UBSAN_OPTIONS', 'PYTHONMALLOC', 'UNRELATED_CONTROL_SENTINEL'}
+    assert all(key not in env for key in removed)
+    changed = removed | {'PYTHONPATH', 'PYTEST_DISABLE_PLUGIN_AUTOLOAD'}
+    assert {k: v for k, v in env.items() if k not in changed} == {
+        k: v for k, v in parent.items() if k not in changed}
+    assert env['PYTHONPATH'] == str(ROOT) and env['PYTEST_DISABLE_PLUGIN_AUTOLOAD'] == '1'
+    assert '--confcutdir=' + str(tmp_path) in argv and '-c' in argv
+
+
+def test_generated_control_boundary_is_not_used_for_real_repository_tests():
+    import ast
+    tree = ast.parse(Path(__file__).read_text())
+    callers = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)
+               and any(isinstance(call, ast.Call) and isinstance(call.func, ast.Name)
+                       and call.func.id == 'generated_control_env' for call in ast.walk(node))}
+    assert callers == {'child'}
+    runner = (ROOT / 'tools/qa/native_regression/run.py').read_text()
+    assert 'generated_control_env' not in runner
+    assert "ASAN_OPTIONS='halt_on_error=1:detect_leaks=1'" in runner
+
+
+@pytest.mark.parametrize('fails', [False, True])
+def test_generated_child_isolates_injection_but_preserves_real_failure(tmp_path, monkeypatch, fails):
+    ancestor = tmp_path / 'ancestor'
+    target = ancestor / 'fixture'
+    target.mkdir(parents=True)
+    marker = tmp_path / 'injected-code-ran'
+    poison = 'from pathlib import Path\nPath(' + repr(str(marker)) + ').write_text("ran")\nraise RuntimeError("poison")\n'
+    (ancestor / 'conftest.py').write_text(poison)
+    (ancestor / 'pytest.ini').write_text('[pytest]\naddopts = -p poison\n')
+    injected = tmp_path / 'injected'
+    injected.mkdir()
+    for name in ('poison.py', 'sitecustomize.py'):
+        (injected / name).write_text(poison)
+    for key, value in {'LD_PRELOAD': '/never/load.so', 'LD_AUDIT': '/never/audit.so',
+                       'RF_NATIVE_LIBRARY': '/never/scanner.so', 'PYTHONPATH': str(injected),
+                       'PYTEST_PLUGINS': 'poison', 'PYTEST_ADDOPTS': '-p poison',
+                       'ASAN_OPTIONS': 'halt_on_error=1:detect_leaks=1',
+                       'LSAN_OPTIONS': 'exitcode=23',
+                       'UBSAN_OPTIONS': 'halt_on_error=1:print_stacktrace=1'}.items():
+        monkeypatch.setenv(key, value)
+    before = dict(os.environ)
+    source = """import os, sys
+
+def test_boundary():
+    assert not any(key in os.environ for key in ('LD_PRELOAD', 'LD_AUDIT', 'RF_NATIVE_LIBRARY', 'PYTEST_PLUGINS', 'PYTEST_ADDOPTS'))
+    assert os.environ['ASAN_OPTIONS'] == 'halt_on_error=1:detect_leaks=1'
+    assert os.environ['LSAN_OPTIONS'] == 'exitcode=23'
+    assert os.environ['UBSAN_OPTIONS'] == 'halt_on_error=1:print_stacktrace=1'
+    assert sys.flags.no_user_site == 1
+    assert not any(name in sys.modules for name in ('tools.native_api', 'tools.native_test_build', 'ctypes'))
+"""
+    if fails:
+        source += '\ndef test_genuine_failure():\n    assert False\n'
+    argv, env = child(target, source)
+    result = subprocess.run(argv, cwd=ROOT, env=env, text=True, capture_output=True, timeout=20)
+    assert result.returncode == int(fails), result.stdout + result.stderr
+    assert '1 passed' in result.stdout and (('1 failed' in result.stdout) is fails)
+    assert not marker.exists() and 'cannot be preloaded' not in result.stderr
+    assert dict(os.environ) == before

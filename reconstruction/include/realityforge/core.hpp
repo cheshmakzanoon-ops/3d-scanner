@@ -26,7 +26,9 @@ struct Result {
     Mat3 rotation{};
     Vec3 translation{}; // unit baseline, NOT meters
     std::vector<Point> points;
-    // Legacy member name; calibrated results qualify this generic model-support count below.
+    // inputMatches is raw admitted row count. epipolarInliers is distinct-pair
+    // model support (legacy member name), not statistically independent support.
+    // Published point.matchIndex always addresses the first original input row.
     std::size_t inputMatches{}, epipolarInliers{};
     double medianError{}, medianParallax{};
     PointRepresentation representation{PointRepresentation::SparsePoints};

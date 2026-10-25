@@ -1,4 +1,5 @@
 """Behavioral failure-path tests for the QA gate, independent of native geometry."""
+from synthetic_child_env import synthetic_child_env, child_evidence
 import json
 import os
 import sys
@@ -72,6 +73,6 @@ def test_pytest_deadline_rejects_invalid_before_any_execution(tmp_path, monkeypa
 
 
 def test_command_receipt_preserves_effective_deadline(tmp_path):
-    result = command([sys.executable, '-c', 'pass'], tmp_path, tmp_path, 'budget', timeout=7)
-    assert result['result'] == 'PASS'
+    result = command([sys.executable, '-I', '-S', '-c', 'pass'], tmp_path, tmp_path, 'budget', timeout=7, env=synthetic_child_env())
+    assert result['result'] == 'PASS', child_evidence(result.get('exit_code'), (tmp_path / 'budget.log').read_bytes())
     assert result['timeout_seconds'] == 7

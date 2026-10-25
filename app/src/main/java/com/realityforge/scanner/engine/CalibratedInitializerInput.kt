@@ -3,7 +3,10 @@ package com.realityforge.scanner.engine
 /** Actual observed pixels (not K times undistorted rays), preserving pair row/key order. */
 internal data class CalibratedInitializerInput(val observed: DoubleArray, val domains: DoubleArray) {
     companion object {
-        const val POLICY = "calibrated-h-observed-pixels-sticky-dominance-v1"
+        // Both essential and homography support count distinct exact geometric pairs.
+        // This is not a claim of statistical independence. Sparse identity (and every
+        // descendant) changes, while cached feature/match bytes require re-verification.
+        const val POLICY = "calibrated-h-observed-pixels-sticky-dominance-distinct-pairs-v2"
         fun create(first: LensProjection, firstWidth: Int, firstHeight: Int,
                    firstXY: FloatArray, firstKeys: IntArray,
                    second: LensProjection, secondWidth: Int, secondHeight: Int,

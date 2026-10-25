@@ -1,3 +1,4 @@
+from synthetic_child_env import synthetic_child_env, child_evidence
 import importlib.util
 import json
 import subprocess
@@ -28,8 +29,8 @@ def test_checkpoint_seed_has_real_format_and_crc_and_bad_variant(tmp_path):
 
 def test_failing_subprocess_preserves_nonzero_status_and_log(tmp_path):
     log = tmp_path / 'failure.log'
-    r = module.invoke([sys.executable, '-c', 'print("diagnostic"); raise SystemExit(17)'], log, 5)
-    assert r['status'] == 'FAIL' and r['exit_code'] == 17
+    r = module.invoke([sys.executable, '-I', '-S', '-c', 'print("diagnostic"); raise SystemExit(17)'], log, 5, environment=synthetic_child_env())
+    assert r['status'] == 'FAIL' and r['exit_code'] == 17, child_evidence(r['exit_code'], log.read_bytes())
     assert log.read_text().strip() == 'diagnostic'
     assert len(r['log_sha256']) == 64
 

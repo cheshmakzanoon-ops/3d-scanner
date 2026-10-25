@@ -1,4 +1,5 @@
 """Host checks for the supplemental controller; these are not Android execution."""
+from synthetic_child_env import synthetic_child_env, child_evidence
 import contextlib
 import base64
 import copy
@@ -630,7 +631,8 @@ class ObservedLoaderTrace(unittest.TestCase):
         raw = b"BEGIN-important\n" + b"x" * 60000 + b"\nEND\x00\r\n"
         output, identity = io.StringIO(), {}
         with contextlib.redirect_stdout(output):
-            result, code = diag.Controller().command("emulator-loader-probe", [sys.executable, "-c", "import sys; sys.stdout.buffer.write(" + repr(raw) + ")"],
+            result, code = diag.Controller().command("emulator-loader-probe", [sys.executable, "-I", "-S", "-c", "import sys; sys.stdout.buffer.write(" + repr(raw) + ")"],
+                env=synthetic_child_env(),
                 limit=diag.LOADER_TRACE_LIMIT, identity=identity, check=False)
         failure_metadata = {"exit": code, "outputBytes": len(result.encode()), "expectedBytes": len(raw),
             "sanitizerMarkerCounts": {name: result.count(name) for name in
@@ -1000,7 +1002,7 @@ class SubprocessAndReceipts(unittest.TestCase):
     def test_command_stdin_is_closed(self):
         ctl = diag.Controller()
         with contextlib.redirect_stdout(io.StringIO()):
-            value, code = ctl.command("closed-stdin", [sys.executable, "-c", "import sys; print(repr(sys.stdin.read()))"], check=False)
+            value, code = ctl.command("closed-stdin", [sys.executable, "-I", "-S", "-c", "import sys; print(repr(sys.stdin.read()))"], check=False, env=synthetic_child_env())
         # Failure metadata only: preserve gate failure without leaking streams, paths or env.
         metadata = {"exit": code, "bytes": len(value.encode()),
             "asanMarkers": value.count("AddressSanitizer"), "lsanMarkers": value.count("LeakSanitizer"),

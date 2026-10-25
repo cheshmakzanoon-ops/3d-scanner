@@ -14,6 +14,7 @@
 #include <numeric>
 #include <random>
 #include <sstream>
+#include <set>
 
 namespace rf {
 namespace {
@@ -109,6 +110,38 @@ std::vector<std::size_t> inliers(std::span<const Match> m,const Mat3& e,double t
 }
 #include "calibrated_initializer.inc"
 
+// Exact geometric pairs only: distinct pairs are not a claim of statistical
+// independence. Keep first-row order, color and observation metadata, and retain
+// original row IDs for SparsePipeline's track/observation lookup. Call only after
+// validating every raw row (NaN is not a valid ordered-set key). Numeric equality
+// intentionally treats -0 and +0 alike; there is no near-duplicate tolerance.
+struct DistinctPairs {
+    std::vector<Match> matches;
+    std::vector<ObservedMatch> observed;
+    std::vector<std::size_t> originalRows;
+};
+DistinctPairs distinctPairs(std::span<const Match> matches,
+                            std::span<const ObservedMatch> observed = {}) {
+    DistinctPairs out;
+    out.matches.reserve(matches.size());
+    out.originalRows.reserve(matches.size());
+    if (!observed.empty()) out.observed.reserve(matches.size());
+    std::set<std::array<double, 4>> seen;
+    for (std::size_t i = 0; i < matches.size(); ++i) {
+        if (i % 128 == 0) cancellation::checkpoint();
+        const auto& m = matches[i];
+        if (!seen.insert({m.a.x, m.a.y, m.b.x, m.b.y}).second) continue;
+        out.matches.push_back(m);
+        out.originalRows.push_back(i);
+        if (!observed.empty()) out.observed.push_back(observed[i]);
+    }
+    return out;
+}
+void restoreOriginalRows(Result& result, const DistinctPairs& pairs, std::size_t rawCount) {
+    result.inputMatches = rawCount;
+    for (auto& point : result.points) point.matchIndex = pairs.originalRows[point.matchIndex];
+}
+
 void validateResult(const Result& r) {
     if(r.representation!=PointRepresentation::SparsePoints && r.representation!=PointRepresentation::DensePoints)throw Error("Unsupported point representation");
     if(r.points.empty())throw Error("No reconstructed points to export");
@@ -144,6 +177,12 @@ Result reconstruct(std::span<const Match> matches,const Settings& s) {
         throw InitializationError(InitializationFailure::InvalidInput,"Invalid reconstruction settings or excessive work budget");
     for(auto& m:matches)for(double x:{m.a.x,m.a.y,m.b.x,m.b.y})if(!std::isfinite(x)||std::abs(x)>100)throw Error("Invalid normalized image coordinates");
     cancellation::checkpoint();
+    const auto rawCount = matches.size();
+    const auto distinct = distinctPairs(matches);
+    matches = distinct.matches;
+    if (matches.size() < std::max(std::size_t{8}, s.minInliers))
+        throw InitializationError(InitializationFailure::InvalidInput,
+                                  "Too few distinct correspondence pairs");
     // Reject collinear image support before sampling. A count alone is not rank.
     for(bool second:{false,true}){
         Vec2 center{};for(auto& m:matches){auto p=second?m.b:m.a;center.x+=p.x;center.y+=p.y;}
@@ -188,18 +227,31 @@ Result reconstruct(std::span<const Match> matches,const Settings& s) {
     if(out.points.size()<s.minInliers||out.points.size()<bestInliers.size()*0.65)throw InitializationError(InitializationFailure::WeakBaseline,"Weak baseline or ambiguous pose; move sideways and keep the object in view");
     std::vector<double>errors,angles;for(auto& p:out.points){errors.push_back(p.error);angles.push_back(p.parallax);}
     out.medianError=median(errors);out.medianParallax=median(angles);
+    restoreOriginalRows(out, distinct, rawCount);
     return out;
 }
 Result reconstructCalibrated(std::span<const Match> matches,std::span<const ObservedMatch> observed,
     const std::array<CalibratedImageDomain,2>& domains,const Settings& settings) {
-    auto diagnostic=planar::select(matches,domains,settings,observed);
+    // Admission and validation use raw rows, so repetition cannot bypass either
+    // the work budget or invalid-row checks. Both model routes then score only
+    // distinct geometric pairs, with the raw-count H iteration cap preserved.
+    const auto rawCount = matches.size();
+    const int hIterations = planar::validate(matches, settings);
+    cancellation::checkpoint();
+    planar::validateObservations(matches, observed, domains);
+    const auto distinct = distinctPairs(matches, observed);
+    matches = distinct.matches;
+    observed = distinct.observed;
+    auto diagnostic=planar::select(matches,domains,settings,observed,hIterations);
     if(diagnostic.status=="H_NOT_DOMINANT") {
         auto result=reconstruct(matches,settings);
         result.initializerModel=InitializerModel::Essential;
+        restoreOriginalRows(result, distinct, rawCount);
         return result;
     }
     if(diagnostic.status=="ACCEPTED") {
         diagnostic.result.initializerModel=InitializerModel::Homography;
+        restoreOriginalRows(diagnostic.result, distinct, rawCount);
         return diagnostic.result;
     }
     if(diagnostic.status=="PlanarAmbiguity:H_SUPPORT_UNSTABLE")

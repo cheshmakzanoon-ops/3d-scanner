@@ -117,8 +117,9 @@ int validate(std::span<const Match> ms, const Settings &s) {
         std::min({std::size_t{1200}, static_cast<std::size_t>(s.iterations), capacity - reserved}));
 }
 Diagnostic select(std::span<const Match> ms, const std::array<ImageDomain, 2> &domains,
-                  const Settings &settings, std::span<const ObservedMatch> observed) {
-    const int hIterations = validate(ms, settings);
+                  const Settings &settings, std::span<const ObservedMatch> observed,
+                  int rawIterationCap = 1200) {
+    const int hIterations = std::min(validate(ms, settings), rawIterationCap);
     cancellation::checkpoint();
     validateObservations(ms, observed, domains);
 

@@ -1,4 +1,5 @@
 """Supplementary diagnostic guards; these tests are not sanitizer evidence."""
+from synthetic_child_env import synthetic_child_env, child_evidence
 import json
 import os
 from pathlib import Path
@@ -162,8 +163,11 @@ def test_ordinary_parity_child_imports_snapshot_not_working_tree(tmp_path):
     expected = tmp_path / 'expected.json'
     expected.write_text('{"snapshot": true}')
     command = list(map(str, run.ordinary_parity_command(source, tmp_path / 'unused.so', tmp_path, expected)))
-    result = subprocess.run(command, capture_output=True, text=True, timeout=10)
-    assert result.returncode == 0, result.stderr
+    # This exact source snapshot contains only the sentinel above, not ctypes.
+    command[1:1] = ['-I', '-S']
+    result = subprocess.run(command, capture_output=True, text=True, timeout=10,
+                            env=synthetic_child_env())
+    assert result.returncode == 0, child_evidence(result.returncode, result.stderr)
     assert result.stdout.strip() == 'SNAPSHOT_CONTROLLER_SELECTED'
 
 

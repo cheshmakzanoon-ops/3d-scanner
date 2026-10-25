@@ -2,6 +2,7 @@
 import contextlib, hashlib, importlib.util, io, json, os, signal, sys, tarfile, time
 from pathlib import Path
 import pytest
+from synthetic_child_env import synthetic_child_env
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 # The candidate's tools namespace also needs the original compiler-only boundary.
@@ -88,6 +89,8 @@ def test_display_secret_and_frame_roundtrip():
  lines=out.getvalue().splitlines();meta=json.loads(lines[0].split(' ',1)[1]);restored=b''.join(base64.b64decode(x.split(' ',3)[3]) for x in lines[1:])
  assert restored==raw and meta['sha256']==hashlib.sha256(raw).hexdigest()
 
+# Only explicit generated Python child commands below use synthetic_child_env.
+# Real compiler/JNI/ELF commands and Runner runtime inheritance remain unchanged.
 def runner(tmp_path):
  result=r.Runner(tmp_path,tmp_path/'owned',seconds=180)
  result.disk_guard=lambda:None
@@ -95,7 +98,7 @@ def runner(tmp_path):
 
 def test_real_closed_stdin_and_retained_hash(tmp_path):
  run=runner(tmp_path)
- with contextlib.redirect_stdout(io.StringIO()):raw,code=run.command('stdin',[sys.executable,'-c','import sys; print(repr(sys.stdin.read()))'])
+ with contextlib.redirect_stdout(io.StringIO()):raw,code=run.command('stdin',[sys.executable,'-I','-S','-c','import sys; print(repr(sys.stdin.read()))'],env=synthetic_child_env())
  assert code==0 and raw==b"''\n",{'exit':code,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
  assert run.commands[0]['complete'] and (run.work/'logs/stdin.raw.log').read_bytes()==raw
  run.cleanup()
@@ -128,8 +131,8 @@ def test_private_tree_symlink_refused(tmp_path):
 
 def test_inherited_child_pipe_timeout_kills_owned_group(tmp_path):
  run=runner(tmp_path)
- code='import subprocess,sys; p=subprocess.Popen([sys.executable,"-c","import time; time.sleep(10)"]); print(p.pid,flush=True)'
- with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Deadline):run.command('child-pipe',[sys.executable,'-c',code],seconds=.3)
+ code='import subprocess,sys; p=subprocess.Popen([sys.executable,"-I","-S","-c","import time; time.sleep(10)"]); print(p.pid,flush=True)'
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Deadline):run.command('child-pipe',[sys.executable,'-I','-S','-c',code],seconds=.3,env=synthetic_child_env())
  pid=int((run.work/'logs/child-pipe.raw.log').read_text().strip())
  assert (i:=r.proc_info(pid)) is None or i['state']=='Z'
  run.cleanup()
@@ -197,7 +200,7 @@ def test_evidence_io_does_not_mask_primary_timeout(tmp_path,monkeypatch):
 def test_success_with_evidence_io_failure_is_not_success(tmp_path,monkeypatch):
  run=runner(tmp_path)
  monkeypatch.setattr(r,'atomic_json',lambda *a:(_ for _ in ()).throw(OSError('injected receipt failure')))
- with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Failure,match='evidence incomplete'):run.command('success-no-receipt',[sys.executable,'-c','print("done")'])
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Failure,match='evidence incomplete'):run.command('success-no-receipt',[sys.executable,'-I','-S','-c','print("done")'],env=synthetic_child_env())
  assert run.commands[0]['exit']==0 and run.evidence_errors
 
 def test_disk_failure_before_spawn_is_retained(tmp_path):
@@ -376,14 +379,14 @@ def test_cleanup_restore_error_does_not_mask_primary_or_leak_fd(tmp_path,monkeyp
 
 def test_cleanup_command_can_use_reserved_deadline(tmp_path):
  run=runner(tmp_path);run.work_end=run.clock()-.1;run.end=run.clock()+10
- with contextlib.redirect_stdout(io.StringIO()):raw,code=run.command('reserved-cleanup',[sys.executable,'-c','print("cleanup")'],seconds=2,cleanup=True)
+ with contextlib.redirect_stdout(io.StringIO()):raw,code=run.command('reserved-cleanup',[sys.executable,'-I','-S','-c','print("cleanup")'],seconds=2,cleanup=True,env=synthetic_child_env())
  assert raw==b'cleanup\n' and code==0
  with pytest.raises(r.Deadline):run.remaining(1)
  run.cleanup()
 
 def test_command_phase_budget_does_not_leak_into_later_noncommand_work(tmp_path):
  run=runner(tmp_path)
- with contextlib.redirect_stdout(io.StringIO()):run.command('short-phase',[sys.executable,'-c','pass'],seconds=1)
+ with contextlib.redirect_stdout(io.StringIO()):run.command('short-phase',[sys.executable,'-I','-S','-c','pass'],seconds=1,env=synthetic_child_env())
  assert not hasattr(run,'phase_end') and not hasattr(run,'phase_cleanup')
  run.cleanup()
 
@@ -547,12 +550,12 @@ def test_esrch_parent_then_adopted_descendant_next_scan(monkeypatch,tmp_path):
 def test_real_short_children_and_adopted_descendant_cleanup(tmp_path):
  run=runner(tmp_path);before=r.subreaper()
  code=('import subprocess,sys; '
-       '[subprocess.run([sys.executable,"-c","pass"],check=True) for _ in range(8)]; '
-       'p=subprocess.Popen([sys.executable,"-c","import time; time.sleep(15)"],start_new_session=True); '
+       '[subprocess.run([sys.executable,"-I","-S","-c","pass"],check=True) for _ in range(8)]; '
+       'p=subprocess.Popen([sys.executable,"-I","-S","-c","import time; time.sleep(15)"],start_new_session=True); '
        'print(p.pid,flush=True)')
  try:
   with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Deadline):
-   run.command('short-and-adopted',[sys.executable,'-c',code],seconds=3)
+   run.command('short-and-adopted',[sys.executable,'-I','-S','-c',code],seconds=3,env=synthetic_child_env())
   pid=int((run.work/'logs/short-and-adopted.raw.log').read_text().strip())
   assert pid in run.owned
   run.cleanup()
@@ -575,8 +578,10 @@ def timing_record(run):
 def test_command_timing_keeps_child_exit_and_fixed_size(tmp_path,code):
  run=runner(tmp_path)
  with contextlib.redirect_stdout(io.StringIO()):
-  output,status=run.command('timed-exit',[sys.executable,'-c',f'print("payload");raise SystemExit({code})'],check=False)
- assert status==code and output==b'payload\n'
+  output,status=run.command('timed-exit',[sys.executable,'-I','-S','-c',f'print("payload");raise SystemExit({code})'],check=False,env=synthetic_child_env())
+ assert status==code and output==b'payload\n', {'exit':status,'bytes':len(output),
+  'sanitizerMarkers':{name:output.count(name.encode()) for name in
+                      ('AddressSanitizer','LeakSanitizer','UndefinedBehaviorSanitizer')}}
  value=timing_record(run)
  assert value['failedOperationBeforeCleanup'] is None
  assert value['lastOperationBeforeCleanup']=='exit_poll'
@@ -626,7 +631,7 @@ def test_command_timing_zero_retained_bytes_does_not_prove_child_hang(tmp_path,m
   offset[0]+=4
  monkeypatch.setattr(run,'disk_guard',guard)
  with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Deadline,match='Process ownership scan deadline'):
-  run.command('loop-guard-exhausted',[sys.executable,'-c','print("already emitted",flush=True)'],seconds=2)
+  run.command('loop-guard-exhausted',[sys.executable,'-I','-S','-c','print("already emitted",flush=True)'],seconds=2,env=synthetic_child_env())
  value=timing_record(run)
  assert observed['pipeReady'] and run.commands[-1]['bytes']==0
  assert value['failedOperationBeforeCleanup']=='loop_scan'
@@ -669,7 +674,7 @@ def test_command_timing_cleanup_failure_remains_secondary(tmp_path,monkeypatch):
   return original(*args,**kwargs)
  monkeypatch.setattr(run,'scan',scan)
  with contextlib.redirect_stdout(io.StringIO()),pytest.raises(r.Failure,match='timed-secondary exit 17') as caught:
-  run.command('timed-secondary',[sys.executable,'-c','raise SystemExit(17)'])
+  run.command('timed-secondary',[sys.executable,'-I','-S','-c','raise SystemExit(17)'],env=synthetic_child_env())
  value=timing_record(run)
  assert value['failedOperationBeforeCleanup'] is None
  assert value['firstFailedOperation']=='cleanup_scan'
@@ -685,7 +690,7 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
  monkeypatch.setattr(controller,'validate_measurement_reference',lambda *a:None)
  run=runner(tmp_path)
  with contextlib.redirect_stdout(io.StringIO()):
-  run.command('timed-retained',[sys.executable,'-c','print("fixed evidence")'])
+  run.command('timed-retained',[sys.executable,'-I','-S','-c','print("fixed evidence")'],env=synthetic_child_env())
  timing_record(run);raw=(run.work/'commands.json').read_bytes()
  receipt={'status':'PASS','commandTranscriptRequired':True,'commandsReference':controller.command_reference(run)}
  out=controller.evidence_package(run,receipt,tmp_path/'evidence')
@@ -699,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='cdfc094e598f6f3ca5a21625bd811e713b980607'
- assert p.MESSAGE=='fix: report partial reconstruction outcomes accurately'
+ assert p.BASE_SHA=='066dcd311aefe64d27437f4d45558518bf9f5104'
+ assert p.MESSAGE=='fix: count distinct initializer correspondence pairs'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -712,7 +717,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', '.github/workflows/native-sanitizers.yml', '.github/workflows/verify.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt', 'app/src/main/java/com/realityforge/scanner/engine/FinalSparseExecution.kt', 'app/src/main/java/com/realityforge/scanner/engine/MeshPublicationDecision.kt', 'app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt', 'app/src/main/java/com/realityforge/scanner/engine/SparseFinalizationDiagnostics.kt', 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt', 'app/src/main/java/com/realityforge/scanner/ui/navigation/ResultRoutes.kt', 'app/src/main/java/com/realityforge/scanner/ui/processing/ProcessingScreen.kt', 'app/src/main/res/values/agent_071.xml', 'app/src/main/res/values/agent_074.xml', 'app/src/test/java/com/realityforge/scanner/agents/a024/PreviewUiSummaryTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/MeshPublicationDecisionTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/SparseFinalizationDiagnosticsTest.kt', 'tests/test_ci_native_matrix_workflow.py', 'tests/test_eight_view_host.py', 'tests/test_native_fixture_toolchain.py', 'tests/test_native_regression_harness.py', 'tests/test_partial_result_guidance.py', 'tests/test_project_contracts.py', 'tests/test_publication_diagnostic_contracts.py', 'tools/eight_view_host/policy.py', 'tools/qa/native_regression/README.md', 'tools/qa/native_regression/run.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'CMakeLists.txt', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/CalibratedInitializerInput.kt', 'app/src/test/java/com/realityforge/scanner/agents/a002/PipelineGraphTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/CalibratedInitializerInputTest.kt', 'docs/CALIBRATED_INITIALIZER.md', 'reconstruction/include/realityforge/core.hpp', 'reconstruction/src/calibrated_initializer.inc', 'reconstruction/src/core.cpp', 'reconstruction/tests/calibrated_initializer_test.cpp', 'reconstruction/tests/distinct_pair_initializer_test.cpp', 'tests/synthetic_child_env.py', 'tests/test_agent_082_fuzz_runner.py', 'tests/test_android_sdk_install.py', 'tests/test_device_failure_logcat.py', 'tests/test_eight_view_host.py', 'tests/test_native_cabi_replay.py', 'tests/test_native_pytest_progress.py', 'tests/test_native_regression_harness.py', 'tests/test_software_emulator_diagnostic.py', 'tests/test_synthetic_child_env.py', 'tools/eight_view_host/policy.py'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_THREE
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2
@@ -722,3 +727,25 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  with pytest.raises(r.Failure):p.event_guard(env,event)
  event['head_commit']['message']=p.MESSAGE;event['before']='e493872e5455444e3a7cc32f9476927b14eb3b35'
  with pytest.raises(r.Failure):p.event_guard(env,event)
+
+
+def test_synthetic_policy_does_not_change_native_runner_boundary(tmp_path, monkeypatch):
+ # Do not execute the synthetic library: observe the real default launch contract.
+ monkeypatch.setenv('LD_PRELOAD', '/synthetic/retained-native-runtime.so')
+ monkeypatch.setenv('RF_NATIVE_LIBRARY', '/synthetic/retained-candidate.so')
+ monkeypatch.setenv('ASAN_OPTIONS', 'detect_leaks=1:halt_on_error=1')
+ observed=[]
+ def capture(argv, **kwargs):
+  observed.append((argv,kwargs.get('env')))
+  raise OSError('synthetic spawn observation')
+ monkeypatch.setattr(r.subprocess,'Popen',capture)
+ run=runner(tmp_path)
+ with contextlib.redirect_stdout(io.StringIO()),pytest.raises(OSError,match='synthetic spawn observation'):
+  run.command('native-boundary',['/synthetic/native-candidate'])
+ assert len(observed)==1
+ for key in ('LD_PRELOAD','RF_NATIVE_LIBRARY','ASAN_OPTIONS'):
+  assert observed[0][1][key]==os.environ[key], key
+ assert run.commands[0]['environmentBoundary']=='INHERITED_RUNTIME'
+ assert os.environ['LD_PRELOAD']=='/synthetic/retained-native-runtime.so'
+ assert os.environ['RF_NATIVE_LIBRARY']=='/synthetic/retained-candidate.so'
+ assert os.environ['ASAN_OPTIONS']=='detect_leaks=1:halt_on_error=1'

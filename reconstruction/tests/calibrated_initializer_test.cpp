@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <map>
 #include <numeric>
 #include <random>
 #include <thread>
@@ -64,15 +65,24 @@ int main() {
         progress::Scope scope(state);
         a = reconstructCalibrated(anchor, observed, k, s);
     }
-    assert(a.points.size() == 191);
+    // The retained fixture has 194 raw rows but only 162 exact coordinate pairs.
+    // Its previous 191-point result counted 32 duplicate rows as support.
+    std::map<std::array<double,4>,std::size_t> firstRows;
+    for(std::size_t i=0;i<anchor.size();++i) {
+        auto m=anchor[i];firstRows.emplace(std::array<double,4>{m.a.x,m.a.y,m.b.x,m.b.y},i);
+    }
+    assert(anchor.size()==194 && firstRows.size()==162);
+    assert(a.inputMatches==194 && a.points.size()==159);
     assert(a.initializerModel == InitializerModel::Homography);
-    assert(resultJson(a).find("\"homographyInliers\":191") != std::string::npos);
+    assert(resultJson(a).find("\"homographyInliers\":159") != std::string::npos);
     auto snap = state->snapshot();
     assert(snap.stage == progress::Stage::Sparse && snap.tile == 1 && snap.completed == 1200 &&
            snap.total == 1200);
     for (auto p : a.points) {
         assert(p.matchIndex < anchor.size());
         assert(p.color == anchor[p.matchIndex].color);
+        auto m=anchor[p.matchIndex];
+        assert(firstRows.at({m.a.x,m.a.y,m.b.x,m.b.y})==p.matchIndex);
     }
     auto lost = matches(fixtures::lost);
     auto lostPixels = pixels(lost, wide);
@@ -121,7 +131,10 @@ int main() {
               InitializationFailure::InvalidInput);
     }
     auto strict = s;
-    strict.minInliers = 192;
+    strict.minInliers = 192; // Raw rows cannot satisfy a distinct-pair minimum.
+    fails([&] { reconstructCalibrated(anchor, observed, k, strict); },
+          InitializationFailure::InvalidInput);
+    strict.minInliers = 160; // 162 distinct inputs, but only 159 H-consensus points.
     fails([&] { reconstructCalibrated(anchor, observed, k, strict); },
           InitializationFailure::PlanarAmbiguity);
     strict = s;
@@ -231,7 +244,7 @@ int main() {
         rf_free(output);
         return text;
     };
-    assert(invoke(flatPixels.size(), 22).find("\"pointCount\":191") != std::string::npos);
+    assert(invoke(flatPixels.size(), 22).find("\"pointCount\":159") != std::string::npos);
     assert(invoke(flatPixels.size() - 1, 22).find("INVALID_INPUT") != std::string::npos);
     assert(invoke(flatPixels.size(), 21).find("INVALID_INPUT") != std::string::npos);
     domains[9] = 384.5;

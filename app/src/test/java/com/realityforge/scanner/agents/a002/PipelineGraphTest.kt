@@ -98,6 +98,30 @@ class PipelineGraphTest {
         assertTrace(result, PipelineStage.TEXTURE, PipelineTraceAction.RECOMPUTED)
     }
 
+    @Test fun distinctPairPolicyRecomputesSparseAndDescendantsWithoutReusingOldGeometry() = runBlocking {
+        val store = MemoryCheckpointStore()
+        val backend = CountingBackend()
+        val graph = PipelineGraph(store, backend.runners)
+        val base = snapshot().let { it.copy(settings = it.settings.copy(
+            sparse = "calibrated-h-observed-pixels-sticky-dominance-v1")) }
+        val previous = graph.run(base)
+        val changed = base.copy(settings = base.settings.copy(
+            sparse = com.realityforge.scanner.engine.CalibratedInitializerInput.POLICY))
+        val result = graph.run(changed)
+        for (stage in PipelineStage.entries) {
+            val reusable = stage.ordinal < PipelineStage.SPARSE.ordinal
+            assertTrace(result, stage, if (reusable) PipelineTraceAction.REUSED else PipelineTraceAction.RECOMPUTED)
+            assertEquals(if (reusable) 1 else 2, backend.counts[stage])
+            val old = previous.artifacts.getValue(stage)
+            val checkpoint = PipelineCheckpoint(old.identity, old)
+            assertEquals(reusable, checkpoint.isReusable(changed.identity(stage)))
+            if (!reusable) {
+                try { checkpoint.rebound(changed.identity(stage)); fail("Old geometry was rebound as current") }
+                catch (_: IllegalArgumentException) { }
+            }
+        }
+    }
+
     @Test fun changedPhotoInvalidatesEveryStage() = runBlocking {
         val store = MemoryCheckpointStore()
         val backend = CountingBackend()

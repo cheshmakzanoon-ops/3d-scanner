@@ -9,6 +9,7 @@ import sys
 import time
 
 import pytest
+from synthetic_child_env import synthetic_child_env
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = ROOT / 'tools/ci/install_android_sdk.py'
@@ -117,6 +118,9 @@ def test_cancel_during_spawn_acquires_cleanup_ownership(monkeypatch):
     assert children[0].poll() is not None
 
 
+# These generated wrappers import only the stdlib-only installer controller and
+# replace run_attempt before install(), so no SDK/native tool can be launched.
+# The actual installer CLI test below retains the inherited runtime environment.
 @pytest.mark.parametrize('sig,status', [(signal.SIGTERM, 143), (signal.SIGINT, 130)])
 def test_real_signal_interrupts_blocked_stdout_without_retry(tmp_path, sig, status):
     ready = tmp_path/'ready'
@@ -124,10 +128,11 @@ def test_real_signal_interrupts_blocked_stdout_without_retry(tmp_path, sig, stat
 spec=importlib.util.spec_from_file_location("sdk",{str(PATH)!r})
 m=importlib.util.module_from_spec(spec);sys.modules[spec.name]=m;spec.loader.exec_module(m)
 original=m.run_attempt
-m.run_attempt=lambda command,cancel: original([sys.executable,"-c", "import os,time; open({str(ready)!r},'w').write(str(os.getpid())); time.sleep(60)"],cancel,timeout=5)
+m.run_attempt=lambda command,cancel: original([sys.executable,"-I","-S","-c", "import os,time; open({str(ready)!r},'w').write(str(os.getpid())); time.sleep(60)"],cancel,timeout=5)
 sys.exit(m.install())
 '''
-    proc = subprocess.Popen([sys.executable, '-c', helper], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen([sys.executable, '-I', '-S', '-c', helper], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            env=synthetic_child_env())
     try:
         deadline = time.monotonic()+4
         while not ready.exists() and time.monotonic()<deadline:
@@ -191,7 +196,8 @@ m.run_attempt=attempt
 sys.exit(m.install())
 '''
     started = time.monotonic()
-    result = subprocess.run([sys.executable, '-c', helper], capture_output=True, timeout=3)
+    result = subprocess.run([sys.executable, '-I', '-S', '-c', helper], capture_output=True, timeout=3,
+                            env=synthetic_child_env())
     assert result.returncode == 143, result.stderr
     assert time.monotonic() - started < 2
 
@@ -205,10 +211,11 @@ spec=importlib.util.spec_from_file_location("sdk",{str(PATH)!r})
 m=importlib.util.module_from_spec(spec);sys.modules[spec.name]=m;spec.loader.exec_module(m)
 original=m.run_attempt
 child="import os; open({str(ready)!r},'w').write(str(os.getpid())); \\nwhile True: os.write(1,b'x'*65536)"
-m.run_attempt=lambda command,cancel: original([sys.executable,"-c",child],cancel,timeout=.8)
+m.run_attempt=lambda command,cancel: original([sys.executable,"-I","-S","-c",child],cancel,timeout=.8)
 sys.exit(m.install())
 '''
-    proc = subprocess.Popen([sys.executable, '-c', helper], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen([sys.executable, '-I', '-S', '-c', helper], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            env=synthetic_child_env())
     try:
         deadline=time.monotonic()+4
         while not ready.exists() and time.monotonic()<deadline:
@@ -254,5 +261,11 @@ def test_leader_pid_remains_reserved_until_group_cleanup(monkeypatch):
         observed.append((signum,state is not None))
         real_signal(pid,signum)
     monkeypatch.setattr(m,'_signal_group',checked)
-    assert m.run_attempt([sys.executable,'-c','pass'],m.Cancellation(),timeout=2,output=io.BytesIO()) == (0,False)
+    # This API has no per-child environment parameter; preserve its runtime boundary.
+    output = io.BytesIO()
+    result = m.run_attempt([sys.executable,'-c','pass'],m.Cancellation(),timeout=2,output=output)
+    raw = output.getvalue()
+    assert result == (0,False), {'result': result, 'output_bytes': len(raw),
+                                'sanitizer_markers': {name: raw.count(name.encode()) for name in
+                                                     ('AddressSanitizer', 'LeakSanitizer', 'UndefinedBehaviorSanitizer')}}
     assert observed == [(signal.SIGTERM,True),(signal.SIGKILL,True)]
