@@ -80,6 +80,16 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
     loss = mesh['lossDiagnostics']
     assert loss['schema'] == 1 and loss['available']
     assert loss['viewCount'] == len(loss['views']) == 3
+    admission = loss['topologyAdmission']
+    assert set(admission) == {'passes', 'proposedWeldGroups', 'rolledBackWeldGroups',
+                              'restoredSourceVertices', 'unresolvedSourceVertexLinks'}
+    assert 1 <= admission['passes'] <= 3
+    assert 0 <= admission['rolledBackWeldGroups'] <= admission['proposedWeldGroups']
+    assert 2*admission['rolledBackWeldGroups'] <= admission['restoredSourceVertices'] <= mesh['acceptedSamples']
+    if admission['rolledBackWeldGroups']:
+        assert admission['passes'] >= 2
+    else:
+        assert admission['restoredSourceVertices'] == 0
     assert len(json.dumps(loss)) < 32768
     bounded_counts(loss)
     views = loss['views']

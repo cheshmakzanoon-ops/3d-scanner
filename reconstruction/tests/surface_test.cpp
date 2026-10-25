@@ -233,9 +233,24 @@ int main(){
         const auto f=diagonalFixture(.01,false,false,false,0,false);
         rf::SurfaceSettings settings;settings.pixelStride=2;
         const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense,settings);
-        require(mesh.topology.nonmanifoldEdges>0&&mesh.topology.intersections>0,
-                "Narrow exact-tie repair must not silently filter generic overlapping grids");
-        require(mesh.acceptedSamples==578&&mesh.observations.size()==578,"Translated control discarded observations");
+        // Baseline225welds made56nonmanifoldedges/632faces. Topology admission
+        // now restores the measured per-camera grids:1024faces, still overlapping.
+        require(mesh.topology.nonmanifoldEdges==0&&mesh.topology.intersections>0,
+                "Topology repair hid generic overlaps or retained unsafe edge welds");
+        require(mesh.triangles.size()==1024&&mesh.fusedObservations==0&&mesh.lossDiagnostics.proposedWeldGroups==225&&
+                mesh.lossDiagnostics.rolledBackWeldGroups==225&&mesh.lossDiagnostics.restoredSourceVertices==450&&mesh.lossDiagnostics.topologyAdmissionPasses==3,
+                "Translated control did not restore the complete measured source grids");
+        require(mesh.acceptedSamples==578&&mesh.observations.size()==578&&mesh.unattachedObservations.empty(),"Translated control discarded observations");
+        std::vector<bool> seen(f.dense.verifiedSamples.size());
+        for(const auto& observation:mesh.observations){
+            require(observation.sourceSampleId<seen.size()&&!seen[observation.sourceSampleId],"Translated rollback corrupted original source IDs");
+            seen[observation.sourceSampleId]=true;const auto& original=f.dense.verifiedSamples[observation.sourceSampleId];
+            require(observation.camera==original.camera&&observation.x==original.x&&observation.y==original.y,"Translated rollback changed source camera/pixel");
+            const auto p=mesh.vertices[observation.vertex].xyz;
+            if(original.x>3&&original.x<35&&original.y>3&&original.y<35)
+                require(p.x==original.xyz.x&&p.y==original.xyz.y&&p.z==original.xyz.z,"Rolled-back interior copied an averaged position");
+            else require(std::hypot(p.x-original.xyz.x,p.y-original.xyz.y,p.z-original.xyz.z)<1e-14,"Untouched source position changed");
+        }
     });
     test("nonfinite observed sample is rejected before diagonal ordering",[]{
         auto f=diagonalFixture(0,true,false,false,0,false);

@@ -91,7 +91,7 @@ class PipelineServicesDeviceTest {
             val sourceIds=result.getJSONArray("sparseSourceTrackIds")
             assertTrue(sourceIds.length()>0)
             for(i in 0 until sourceIds.length())assertTrue(sourceIds.getString(i).matches(Regex("[0-9a-f]{64}")))
-            assertEquals("Surface producer must match the stage policy",11,result.getJSONObject("meshPreview").getInt("fusionVersion"))
+            assertEquals("Surface producer must match the stage policy",12,result.getJSONObject("meshPreview").getInt("fusionVersion"))
             val dense=result.getJSONObject("densePreview")
             assertEquals("verified_sparse_tracks",dense.getString("selectionMethod"))
             assertEquals("VerifiedRefinedCompact",dense.getString("executionProfile"))

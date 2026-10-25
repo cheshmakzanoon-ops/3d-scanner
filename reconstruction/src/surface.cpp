@@ -4,6 +4,7 @@
 #include "realityforge/surface_provenance.hpp"
 #include "realityforge/cancellation.hpp"
 #include "realityforge/surface_fusion.hpp"
+#include "realityforge/surface_weld_topology.hpp"
 #include "realityforge/mesh_topology.hpp"
 #include "realityforge/mesh_cleanup.hpp"
 #include "realityforge/depth_consistency.hpp"
@@ -27,6 +28,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <tuple>
+#include <type_traits>
 
 namespace rf {
 namespace {
@@ -301,6 +303,12 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         mesh.observations.push_back({assigned,sample.camera,sample.x,sample.y,sourceId});
         ++mesh.acceptedSamples;++loss.acceptedSamples;
     }
+    const auto preparedCount=prepared.size();
+    const auto topologyScratchAllowance=preparedCount*sizeof(PreparedSource)+32*1024;
+    // Fusion is complete. Release its preparation/spatial workspace before any
+    // topology-admission scratch is allocated; never retain both work phases.
+    std::vector<PreparedSource>().swap(prepared);
+    for(auto& bucket:buckets){std::decay_t<decltype(bucket)> empty;bucket.swap(empty);}
     mesh.vertices.reserve(accum.size());
     for(auto& a:accum){
         SurfaceVertex v;v.xyz=mul(a.weightedPosition,1./a.weight);
@@ -309,6 +317,12 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         v.supportingViews=static_cast<std::uint8_t>(__builtin_popcount(static_cast<unsigned int>(a.viewMask)));
         mesh.vertices.push_back(v);
     }
+    // At most three complete source-grid triangulations: initial admission,
+    // implicated weld rollback, then conservative all-weld rollback if needed.
+    // This lambda owns/releases its face/quad workspaces before link inspection.
+    const auto triangulateSources=[&]{
+        mesh.triangles.clear();mesh.rejectedCells=0;mesh.rejectedTriangles=0;
+        for(auto& loss:mesh.lossDiagnostics.views){loss.cellCornerCounts={};loss.triangleRejections={};loss.acceptedTriangleAttempts=0;}
     std::unordered_set<FaceKey,FaceHash> faces;
     faces.reserve(s.maxTriangles);
     const int step=s.pixelStride;
@@ -435,7 +449,63 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         }
     }
     mesh.lossDiagnostics.triangleLimitReached=mesh.triangles.size()>=s.maxTriangles;
-    progress::advance(2*prepared.size());
+    };
+    std::vector<std::uint8_t> rollback(accum.size());
+    for(const auto& a:accum)if(a.sourceCount>1)++mesh.lossDiagnostics.proposedWeldGroups;
+    const auto restoreSources=[&]{
+        std::size_t count=0;
+        for(std::size_t i=0;i<accum.size();++i){if((i&127u)==0)cancellation::checkpoint();count+=rollback[i]?accum[i].sourceCount:1;if(count>s.maxVertices)throw Error("Surface topology rollback exceeds vertex budget");}
+        mesh.vertices.clear();mesh.vertices.reserve(count);mesh.fusedObservations=0;
+        for(std::size_t i=0;i<accum.size();++i){
+            if((i&127u)==0)cancellation::checkpoint();
+            const auto& a=accum[i];
+            if(rollback[i]){
+                for(std::size_t j=0;j<a.sourceCount;++j){const auto& sample=dense.verifiedSamples[a.sourceIds[j]];
+                    SurfaceVertex v;v.xyz=sample.xyz;v.color=sample.color;v.confidence=sample.confidence;v.supportingViews=1;
+                    imageVertices[sample.camera][static_cast<std::size_t>(sample.y)*width+sample.x]=static_cast<std::int32_t>(mesh.vertices.size());mesh.vertices.push_back(v);
+                }
+            }else{
+                SurfaceVertex v;v.xyz=mul(a.weightedPosition,1./a.weight);
+                for(int k=0;k<3;++k)v.color[k]=static_cast<std::uint8_t>(std::clamp(std::round(a.weightedColor[k]/a.weight),0.,255.));
+                v.confidence=a.maxConfidence;v.supportingViews=static_cast<std::uint8_t>(__builtin_popcount(static_cast<unsigned int>(a.viewMask)));
+                for(std::size_t j=0;j<a.sourceCount;++j){const auto& sample=dense.verifiedSamples[a.sourceIds[j]];imageVertices[sample.camera][static_cast<std::size_t>(sample.y)*width+sample.x]=static_cast<std::int32_t>(mesh.vertices.size());}
+                mesh.vertices.push_back(v);mesh.fusedObservations+=a.sourceCount-1;
+            }
+        }
+        std::size_t rebound=0;
+        for(auto& o:mesh.observations){if((rebound++&127u)==0)cancellation::checkpoint();o.vertex=static_cast<std::uint32_t>(imageVertices[o.camera][static_cast<std::size_t>(o.y)*width+o.x]);}
+    };
+    for(std::size_t pass=0;pass<3;++pass){
+        cancellation::checkpoint();triangulateSources();++mesh.lossDiagnostics.topologyAdmissionPasses;
+        // With no retained welds this policy has nothing to admit. Existing final
+        // topology analysis still reports source-grid defects (never fabricates zero).
+        if(mesh.fusedObservations==0)break;
+        auto exact=planMeshCleanup(mesh);
+        // Inspect the complement of exact removals; do not retain a second full
+        // face-index copy alongside the corner-link workspace.
+        std::vector<std::size_t>().swap(exact.sourceFaceForResult);
+        const auto topologyScratchBytes=exact.removedFaces.capacity()*sizeof(std::size_t)
+            +rollback.capacity()*sizeof(std::uint8_t)+mesh.vertices.size()*5+mesh.triangles.size()*12+8192;
+        if(topologyScratchBytes>topologyScratchAllowance)throw Error("Surface topology admission scratch budget exceeded");
+        const auto topology=surface_weld_topology::inspect(mesh,exact.removedFaces,true);
+        // Each group contains at most one source per camera, so a camera-local
+        // source star is injective. Reject invalid links at welded vertices,
+        // not unrelated single-camera defects in neighboring stars.
+        mesh.lossDiagnostics.unresolvedSourceVertexLinks=topology.invalidVertexCount;
+        bool conflict=false;
+        for(std::size_t i=0;i<accum.size();++i){if((i&127u)==0)cancellation::checkpoint();if(rollback[i]||accum[i].sourceCount<2)continue;
+            const auto& sample=dense.verifiedSamples[accum[i].sourceIds[0]];
+            const auto vertex=static_cast<std::size_t>(imageVertices[sample.camera][static_cast<std::size_t>(sample.y)*width+sample.x]);
+            if(topology.invalidLinks[vertex]){conflict=true;if(pass==0)rollback[i]=1;}
+        }
+        if(!conflict)break;
+        if(pass==2)throw Error("Unresolved unsafe surface weld after bounded rollback");
+        if(pass==1)for(std::size_t i=0;i<accum.size();++i)if(accum[i].sourceCount>1)rollback[i]=1;
+        mesh.lossDiagnostics.rolledBackWeldGroups=0;mesh.lossDiagnostics.restoredSourceVertices=0;
+        for(std::size_t i=0;i<accum.size();++i)if(rollback[i]){++mesh.lossDiagnostics.rolledBackWeldGroups;mesh.lossDiagnostics.restoredSourceVertices+=accum[i].sourceCount;}
+        restoreSources();
+    }
+    progress::advance(2*preparedCount);
     std::vector<std::int32_t> exactObservationTargets;
     {
         const auto initialTopology=analyzeMeshTopology(mesh);
@@ -471,6 +541,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     for(const auto& observation:mesh.unattachedObservations)++mesh.lossDiagnostics.views[observation.camera].unattachedObservations;
     mesh.vertices=std::move(compact);
     const auto report=analyzeMeshTopology(mesh);
+    mesh.lossDiagnostics.unresolvedSourceVertexLinks=report.nonmanifoldVertices;
     mesh.topology.boundaryEdges=report.boundaryEdges;mesh.topology.components=report.components;mesh.topology.nonmanifoldEdges=report.nonmanifoldEdges;mesh.topology.intersections=report.intersections.size();mesh.topology.ambiguousPairs=report.ambiguousPairs.size();mesh.topology.intersectionBudgetExceeded=report.intersectionBudgetExceeded;
     std::vector<float> scores;scores.reserve(mesh.vertices.size());
     for(auto& v:mesh.vertices)scores.push_back(v.confidence);
@@ -491,7 +562,7 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<",\"unattachedObservationCount\":"<<m.unattachedObservations.size()
      <<",\"exactDuplicateSupportCount\":"<<std::count_if(m.observations.begin(),m.observations.end(),[](const auto& o){return o.relation==SurfaceObservationRelation::ExactDuplicateFace;})
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":11,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":12,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])
@@ -500,7 +571,7 @@ std::string surfaceJson(const SurfaceMesh& m){
     s<<"],\"triangles\":[";
     for(std::size_t i=0;i<m.triangles.size();++i){if(i)s<<',';auto t=m.triangles[i];s<<'['<<t.a<<','<<t.b<<','<<t.c<<']';}
     s<<"],\"lossDiagnostics\":{\"schema\":1,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
-    if(!m.lossDiagnostics.available)s<<",\"viewCount\":null,\"removedExactFaces\":null,\"views\":null,\"triangleLimitReached\":null";
+    if(!m.lossDiagnostics.available)s<<",\"viewCount\":null,\"removedExactFaces\":null,\"views\":null,\"triangleLimitReached\":null,\"topologyAdmission\":null";
     else {
         const auto counts=[&](const auto& names,const auto& values){
             s<<'{';for(std::size_t i=0;i<names.size();++i){if(i)s<<',';s<<'\"'<<names[i]<<"\":"<<values[i];}s<<'}';
@@ -509,6 +580,9 @@ std::string surfaceJson(const SurfaceMesh& m){
         const std::array gateNames{"sameCamera","missingNormal","normalMismatch","notCloser","outsideRadius","currentVisibility",
             "proposedAnchorMetric","proposedVisibility","pairMetric","anchorSeesSample","sampleSeesAnchor","memberAnchorMetric","memberSeesProposed","accepted"};
         const std::array triangleNames{"missingOrRepeatedVertex","depthJump","edgeLength","area","duplicateFace"};
+        s<<",\"topologyAdmission\":{\"passes\":"<<m.lossDiagnostics.topologyAdmissionPasses
+         <<",\"proposedWeldGroups\":"<<m.lossDiagnostics.proposedWeldGroups<<",\"rolledBackWeldGroups\":"<<m.lossDiagnostics.rolledBackWeldGroups
+         <<",\"restoredSourceVertices\":"<<m.lossDiagnostics.restoredSourceVertices<<",\"unresolvedSourceVertexLinks\":"<<m.lossDiagnostics.unresolvedSourceVertexLinks<<'}';
         s<<",\"viewCount\":"<<m.lossDiagnostics.viewCount<<",\"removedExactFaces\":"<<m.lossDiagnostics.removedExactFaces<<",\"triangleLimitReached\":"<<(m.lossDiagnostics.triangleLimitReached?"true":"false")<<",\"views\":[";
         for(std::size_t camera=0;camera<m.lossDiagnostics.viewCount;++camera){
             if(camera)s<<',';

@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='fac55e969e6b3a696daf2640836e618e959c3e91'
-MESSAGE='test: retain bounded dense and surface loss diagnostics'
+BASE_SHA='759ca3ef7bd133325a6ab1064b9b988b219e1f6d'
+MESSAGE='fix: reject topology-invalid surface welds'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/development/DENSE_SURFACE_LOSS_DIAGNOSTICS.md', 'docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md', 'reconstruction/include/realityforge/dense.hpp', 'reconstruction/include/realityforge/surface.hpp', 'reconstruction/src/dense.cpp', 'reconstruction/src/surface.cpp', 'reconstruction/tests/dense_test.cpp', 'reconstruction/tests/depth_checkpoint_test.cpp', 'reconstruction/tests/depth_tiles_test.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'reconstruction/tests/surface_fusion_test.cpp', 'tests/test_dense_loss_diagnostics.py', 'tests/test_eight_view_host.py', 'tools/eight_view_host/policy.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'CMakeLists.txt', 'README.md', 'SOURCE_MANIFEST.sha256', 'app/src/androidTest/java/com/realityforge/scanner/agents/a002/PipelineServicesDeviceTest.kt', 'app/src/main/java/com/realityforge/scanner/engine/pipeline/DensePreviewProfile.kt', 'app/src/test/java/com/realityforge/scanner/agents/a009/ProductionCheckpointFilesTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/pipeline/SurfaceCacheIdentityTest.kt', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/TOPOLOGY_SAFE_FUSION.md', 'docs/development/DENSE_SURFACE_DIAGNOSTIC_STATUS.md', 'reconstruction/include/realityforge/surface.hpp', 'reconstruction/include/realityforge/surface_checkpoint.hpp', 'reconstruction/include/realityforge/surface_weld_topology.hpp', 'reconstruction/src/surface.cpp', 'reconstruction/src/surface_checkpoint.cpp', 'reconstruction/tests/surface_checkpoint_test.cpp', 'reconstruction/tests/surface_fusion_test.cpp', 'reconstruction/tests/surface_test.cpp', 'reconstruction/tests/topology_fusion_admission_test.cpp', 'tests/test_dense_loss_diagnostics.py', 'tests/test_eight_view_host.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

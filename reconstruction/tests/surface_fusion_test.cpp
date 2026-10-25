@@ -103,7 +103,7 @@ int main(){
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::infinity()},{0,0,1}),"infinite normal accepted");
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::quiet_NaN()},{0,0,1}),"NaN normal accepted");
     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
-    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":11")!=std::string::npos,"local footprint algorithm version missing");
+    auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":12")!=std::string::npos,"local footprint algorithm version missing");
     diagnostics(mesh);
     check(mesh.lossDiagnostics.views[0].missingDepthNeighborhoods>0&&mesh.lossDiagnostics.views[0].normalValidity[0]>0,"fixture does not distinguish missing neighborhoods from supported normals");
     auto zeroConfidence=dense;for(auto& map:zeroConfidence.maps)for(auto& c:map.confidence)if(c>0)c=0;
@@ -129,8 +129,22 @@ int main(){
     auto [farViews,farDepth]=depthPatches(false);const auto farOnly=rf::fuseDepthSurfaces(farViews,farDepth);
     auto [mixedViews,mixedDepth]=depthPatches(true);const auto mixed=rf::fuseDepthSurfaces(mixedViews,mixedDepth);
     diagnostics(farOnly);diagnostics(mixed);
-    check(farFusions(farOnly)>100,"calibrated far-plane observations did not associate");
-    check(farFusions(mixed)==farFusions(farOnly),"unrelated near geometry changed far-plane association resolution");
+    // Baseline proposed196far/588mixed welds but produced66/146 nonmanifold
+    // edges. Keep the calibrated candidate-search proof, not those unsafe welds.
+    auto nearDepth=mixedDepth;
+    nearDepth.verifiedSamples.erase(std::remove_if(nearDepth.verifiedSamples.begin(),nearDepth.verifiedSamples.end(),[](const auto& sample){return sample.xyz.z>25;}),nearDepth.verifiedSamples.end());
+    for(auto& map:nearDepth.maps)for(std::size_t i=0;i<map.depth.size();++i)if(map.depth[i]>25){map.depth[i]=0;map.confidence[i]=0;}
+    const auto nearOnly=rf::fuseDepthSurfaces(mixedViews,nearDepth);diagnostics(nearOnly);
+    check(farOnly.lossDiagnostics.proposedWeldGroups==196&&nearOnly.lossDiagnostics.proposedWeldGroups==392&&
+          mixed.lossDiagnostics.proposedWeldGroups==farOnly.lossDiagnostics.proposedWeldGroups+nearOnly.lossDiagnostics.proposedWeldGroups,
+          "Unrelated near/far geometry changed bounded calibrated candidate association");
+    for(const auto* result:{&farOnly,&mixed}){
+        check(result->lossDiagnostics.topologyAdmissionPasses==3&&result->lossDiagnostics.rolledBackWeldGroups==result->lossDiagnostics.proposedWeldGroups,
+              "Known nonmanifold source-grid welds escaped bounded rollback");
+        check(result->fusedObservations==0&&farFusions(*result)==0&&result->topology.nonmanifoldEdges==0&&result->observations.size()==result->inputSamples&&result->unattachedObservations.empty(),
+              "Unsafe weld repair lost observations or retained nonmanifold edges");
+    }
+    check(farOnly.triangles.size()==928&&mixed.triangles.size()==3016,"Restored measured source-grid faces were discarded");
     auto [movingViews,movingDepth]=movingCentroid();const auto moving=rf::fuseDepthSurfaces(movingViews,movingDepth);
     diagnostics(moving);
     check(moving.fusedObservations==7,"moved multiview centroid became undiscoverable in a stale spatial bucket");

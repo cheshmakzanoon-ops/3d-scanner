@@ -28,7 +28,7 @@ unknown, scale stays arbitrary without measurement, and open patches stay open.
 
 ## Immediate validation priorities — 25 October 2026
 
-The fixed licensed three-photo [HOST journey passes on `f6cdd12`](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40220547113):
+The fixed licensed three-photo [HOST journey passes on `c215632`](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40227532716):
 all three cameras register, global typed bundle adjustment completes, and nine
 blobs / three exports / publication / reopen are verified. This is not installed
 UI or physical-quality qualification. Android checks pass with 920 tests;
@@ -48,12 +48,18 @@ uninstalling preserves app-private data. These are not production-signed release
    belongs to `fac55e9`: actual SDK build/install and numeric JNI, zero skips or
    failures, on API35 x86_64 unsupported software TCG. It is not UI/SAF/Filament,
    ARM64, a complete real-photo journey or physical-quality qualification.
-2. Improve dense coverage and investigate the **zero cross-view fusion** reported
-   by the `f6cdd12` diagnostics. Third-camera registration is no longer the blocker
-   on this fixed fixture: all three register, with 45 tracks for the third camera
-   and global typed bundle adjustment. Preserve that verified progress while
-   measuring why the 2,469 dense points / 1,296 triangles still form a fragmented
-   result; do not lower geometry gates or invent missing surfaces.
+2. Improve measured depth/normal support and dense coverage. Fresh `c215632`
+   accounting shows only **10/2,510 supported normals** and all **3,181
+   cross-camera candidate visits** rejected at `missingNormal`; later association
+   gates were not exercised. The observed nine-sample normal neighborhood often
+   lacks depth. Do not fabricate missing samples or loosen gates from these counts.
+   Partial-normal policies failed independent safety controls and are not promoted;
+   see the [diagnostic/experiment record](development/DENSE_SURFACE_DIAGNOSTIC_STATUS.md).
+   The separate six-iteration local-depth probe also worsened topology despite
+   seven fusions; its different-pixel local replay is not a promoted setting or
+   production HOST improvement.
+   Third-camera registration is resolved on this fixed fixture; investigate dense
+   loss without discarding that verified result or claiming full-object coverage.
    The earlier failed RootSIFT trial remains rolled back. The
    [independent COLMAP reference](development/experiments/skull-colmap-reference.md)
    remains a comparison, not physical ground truth or scanner quality acceptance.
@@ -68,13 +74,15 @@ uninstalling preserves app-private data. These are not production-signed release
    The `813f312` exact planar ownership QA passes its dedicated sanitizer and
    release cases but remains OFF by default; production integration and mobile
    qualification require separate evidence. It has not repaired this mesh.
-4. Fix full-candidate sanitizer failures and obtain a green result. On `f6cdd12`,
-   GCC and Clang each completed 4,513 cases: 4,468 passed, 17 failed, 28 skipped.
-   All `f6cdd12` jobs are terminal; native/candidate/device gates fail. Later
-   `fac55e9` native gates remain pending; its Android build passed 920 tests. Diagnose the 17
-   failures without waiving them. Android/release builds, benchmark compilation
-   and the actual HOST journey pass do not replace these gates or qualify
-   installed workflows. Historical test-ID aborts are not current full-suite passes.
+4. Fix full-candidate sanitizer failures and obtain a green result. Both `c215632`
+   suites completed 4,542 cases: 4,497 passed, 17 failed, 28 skipped;
+   native/candidate/device gates fail. `fac55e9` sanitizer runs were superseded/
+   cancelled, not completed full-suite evidence. On `759ca3e`, GCC and Clang each
+   completed 4,544 cases: 4,500 passed, 16 failed, 28 skipped, zero errors; only
+   the SDK leader-cleanup failure resolved. Both retain the same 16 failures;
+   all jobs are terminal and native/candidate/device gates still fail.
+   Android builds and the actual HOST pass do not waive remaining failures or
+   qualify installed workflows.
 5. Validate calibrated physical ARM64 captures against independent reference
    geometry, texture and resource measurements before raising the enforced
    2–12-photo/eight-dense-view limits or claiming complete-object quality.

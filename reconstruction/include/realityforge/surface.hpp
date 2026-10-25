@@ -72,6 +72,7 @@ struct SurfaceLossView {
 struct SurfaceLossDiagnostics {
     bool available{}; // false for default/decoded old checkpoints; absence is NOT measured zero
     std::size_t viewCount{}, removedExactFaces{};
+    std::size_t topologyAdmissionPasses{},proposedWeldGroups{},rolledBackWeldGroups{},restoredSourceVertices{},unresolvedSourceVertexLinks{};
     bool triangleLimitReached{}; // visited-cell counters may be partial when true
     std::array<SurfaceLossView,MAX_DENSE_VIEWS> views{};
 };

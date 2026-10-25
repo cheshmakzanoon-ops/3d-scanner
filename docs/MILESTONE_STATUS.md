@@ -10,6 +10,31 @@ release qualification remain open.
 
 ### Latest source-bound checkpoint
 
+- **`c215632` [HOST journey — PASS](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40227532716):**
+  all three cameras and verified publication/export/reopen remain successful;
+  mesh counts are unchanged from `f6cdd12`: **1,618 vertices, 1,296 triangles,
+  1,580 boundary edges, 558 reported intersections, zero nonmanifold edges**.
+  Fresh diagnostics report **10 supported normals / 2,510 samples**; all
+  **3,181 cross-camera candidate visits** reject at **missingNormal**. The later
+  association gates were not exercised, so they are not qualified by this run.
+  This is better failure attribution, not improved mesh quality. See the
+  [bounded diagnostic/experiment record](development/DENSE_SURFACE_DIAGNOSTIC_STATUS.md).
+- **`c215632` [CI](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40227532652):**
+  Android **920 tests PASS**; both full sanitizer suites completed **4,542 cases:
+  4,497 passed, 17 failed, 28 skipped**. Native/candidate/device gates **FAIL**.
+  `fac55e9` sanitizer runs were superseded/cancelled, without completed full-suite
+  counts. Its separate five-check software result remains valid only for that source.
+- **`759ca3e` [CI](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40230409587):**
+  the SDK process-cleanup test correction does not change reconstruction code.
+  GCC and Clang each completed **4,544 cases: 4,500 passed, 16 failed, 28 skipped,
+  zero errors**, with the same 16 failed identities. Only the SDK leader-cleanup
+  failure resolved; no new failures appeared. All jobs are terminal; native and
+  candidate gates **FAIL**. Android **920 tests**, both release profiles and
+  benchmark compilation passed; the ordinary device KVM preflight failed.
+  Reconstruction settings remain unchanged.
+
+### Earlier source-bound runtime checkpoints
+
 - **`f6cdd12` real three-photo [HOST journey — PASS](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40220547113):**
   all **3 cameras registered**, including the third camera with **45 tracks**;
   global typed bundle adjustment completed. Output contains **324 sparse points,
@@ -35,7 +60,8 @@ release qualification remain open.
   corrected numeric PnP JNI regression. API35 x86_64 unsupported software TCG
   only—not UI, SAF, Filament, ARM64, a real-photo journey or physical quality.
   Its [ordinary Android build](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40225784831)
-  passed **920 tests**; native gates are still pending, not a full-CI pass.
+  passed **920 tests**; sanitizer runs were subsequently superseded/cancelled,
+  not completed full-suite passes.
 
 ### Earlier source-bound diagnostic checkpoints
 
@@ -81,7 +107,7 @@ release qualification remain open.
   fixture. This is not scanner success, physical ground truth or a mesh-quality
   measurement; detector/matcher/track-building differences remain explicit.
 
-### Earlier source-bound runtime checkpoints
+### Historical source-bound runtime checkpoints
 
 - **`f506d2f` [verification](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141070):**
   Android checks passed with **902 tests**; both release profiles and benchmark
@@ -219,7 +245,7 @@ real captures now reconstruct. Its
 passed: **870 unit tests + 18 HOST JVM tests = 888**, with zero failures, errors
 or skips. Both release profiles and benchmark compilation also passed. These are
 historical `e493872` results, not qualification of current installed guidance.
-See the latest `f6cdd12` checkpoint above for current evidence.
+See the latest `c215632` checkpoint above for current evidence.
 
 Public evidence: [real licensed stereo HOST failure](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715540),
 [`68ef9b7` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715542),

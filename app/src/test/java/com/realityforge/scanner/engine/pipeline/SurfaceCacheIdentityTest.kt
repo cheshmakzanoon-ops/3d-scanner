@@ -5,7 +5,7 @@ import org.junit.Test
 
 /** Portable production identity regressions; native byte migration is tested by CTest. */
 class SurfaceCacheIdentityTest {
-    @Test fun sharedAdmissibleDiagonalPolicyPreservesParentIdentitiesAndInvalidatesSurfaceAndTexture() {
+    @Test fun topologySafeWeldPolicyPreservesParentIdentitiesAndInvalidatesSurfaceAndTexture() {
         for (profile in DensePreviewProfile.entries) {
             val current = PipelineInputSnapshot("synthetic-surface-migration", 1, listOf(
                 PipelinePhotoInput("photo-a", sha256Utf8("a"), 104, 76, 1000, 26.0),
@@ -14,21 +14,31 @@ class SurfaceCacheIdentityTest {
                 PipelineStageSettings("features", "matching", "sparse", DenseExecutionPolicy.depth(profile),
                     DenseExecutionPolicy.SURFACE_ENGINE, DenseExecutionPolicy.texture(profile), "export"))
             val previous = current.copy(settings = current.settings.copy(
-                surface = "rf-observed-open-mesh-v10-projective-depth-sampling"))
+                surface = "rf-observed-open-mesh-v11-shared-admissible-diagonal"))
             for (stage in PipelineStage.entries) {
                 if (stage.ordinal <= PipelineStage.DENSE.ordinal)
                     assertEquals(previous.identity(stage), current.identity(stage))
-                else assertNotEquals(previous.identity(stage), current.identity(stage))
+                else {
+                    assertNotEquals(previous.identity(stage), current.identity(stage))
+                    val oldIdentity = previous.identity(stage)
+                    val oldArtifact = PipelineArtifactReference.forStage(oldIdentity,
+                        "previous-${stage.name}.bin", contentSha256 = "a".repeat(64))
+                    val checkpoint = PipelineCheckpoint(oldIdentity, oldArtifact)
+                    assertFalse(checkpoint.isReusable(current.identity(stage)))
+                    assertThrows(IllegalArgumentException::class.java) {
+                        checkpoint.rebound(current.identity(stage))
+                    }
+                }
             }
             assertEquals(current.identity(PipelineStage.SURFACE).digest,
                 current.identity(PipelineStage.TEXTURE).parentDigest)
         }
     }
 
-    @Test fun sharedAdmissibleDiagonalNamespaceChangesWithoutChangingWireFormat() {
-        assertEquals("rf-observed-open-mesh-v11-shared-admissible-diagonal", DenseExecutionPolicy.SURFACE_ENGINE)
-        assertEquals("surface-v3-fusion-v11.rfmesh", DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME)
-        assertNotEquals("surface-v3-fusion-v10.rfmesh", DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME)
+    @Test fun topologySafeWeldNamespaceChangesWithoutChangingWireFormat() {
+        assertEquals("rf-observed-open-mesh-v12-topology-safe-weld-admission", DenseExecutionPolicy.SURFACE_ENGINE)
+        assertEquals("surface-v3-fusion-v12.rfmesh", DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME)
+        assertNotEquals("surface-v3-fusion-v11.rfmesh", DenseExecutionPolicy.SURFACE_CHECKPOINT_FILENAME)
     }
     @Test fun projectiveRefinementInvalidatesDenseAndDescendantsButPreservesSparse() {
         val current = PipelineInputSnapshot("synthetic-depth-migration", 1, listOf(
