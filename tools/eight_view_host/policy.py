@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='af6c3fb02a88fa596d618cfac8b78cb3fc693785'
-MESSAGE='fix: restore raw SIFT after real-capture regression'
+BASE_SHA='80925b88371d7dac2a5fc18698d5a3acb94c77e7'
+MESSAGE='test: retain fixed-capture pose replay evidence'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt', 'app/src/main/java/com/realityforge/scanner/engine/features/RootSift.kt', 'app/src/test/java/com/realityforge/scanner/agents/a032/FeatureSettingsIdentityTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/features/RootSiftTest.kt', 'docs/development/ROOTSIFT_DESCRIPTOR_POLICY.md', 'tests/test_eight_view_host.py', 'tests/test_rootsift_extraction_contract.py', 'tools/eight_view_host/policy.py', 'tools/feature_adapter_validation/validate.py', 'tools/feature_extractor_validation/HostRunner.kt', 'tools/feature_extractor_validation/ProductionExtractorHostTest.kt', 'tools/feature_extractor_validation/README.md', 'tools/feature_extractor_validation/validate.py', 'tools/frontend_integration_validation/validate.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/REAL_THREE_PNP_REPLAY.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealThreePnpReplay.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealThreePnpReplayCheck.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_eight_view_host.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_pnp_replay.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/pnp_replay.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

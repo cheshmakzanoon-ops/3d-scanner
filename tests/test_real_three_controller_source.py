@@ -60,7 +60,8 @@ def test_three_controller_closed_manifest_and_original_checks():
 def test_three_pair_proof_follows_join_and_completed_job_without_reconstruction():
     source = SOURCE.read_text()
     assert source.index('actual.awaitWorkerStopped()') < source.index('DurableJobState.COMPLETED, finished.state)') < source.index('assertCompletePersistedPairGraph(fixture, finished)')
-    method = source[source.index('private suspend fun assertCompletePersistedPairGraph'):source.index('private suspend fun stopController')]
+    start = source.index('private suspend fun assertCompletePersistedPairGraph')
+    method = source[start:source.index('\n    private suspend fun ', start + 1)]
     for forbidden in ('NativeCore.', '.save(', '.store(', 'captureImmutable', '.coordinates()', '.descriptors()'):
         assert forbidden not in method
 

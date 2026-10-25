@@ -7,17 +7,17 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
 from tools.eight_view_host.runtime import Runner,Failure,Blocked,Deadline,Cancelled,sha,atomic_json,inventory,safe_display,frame
-from tools.eight_view_host import policy,capability,ndk,experiments,matcher_supplement
+from tools.eight_view_host import policy,capability,ndk,experiments,matcher_supplement,pnp_replay
 from tools.device.software_emulator.diagnostic import license_snapshot,verify_license_snapshot,package_metadata
 HERE=Path(__file__).resolve().parent
 ADAPTER='docs/development/experiments/eight-view-sparse-runtime-successor'
 FIXTURE=experiments.get_profile(experiments.ACTIVE).fixture
 # Final qualified successor package is separately reviewed, never mutate frozen checkpoint2.
-ADAPTER_MANIFEST='99d62809a4c4597a622676ecfae65e5b191ec7664a0b93fdbab93b5e51b28002'
+ADAPTER_MANIFEST='b6307a01711eb29dd21149daa7189156c02285097a6e4e39c40fbd78502a25c3'
 _LEGACY_SOURCE_NAMES=('CandidateNativeLoaderTokenHostTest.kt','EightViewSparsePrefixHostTest.kt','EvidenceFailureHandling.kt','QualifiedCapability.kt','NativeCapabilityContract.kt','RuntimeProviderIdentity.kt','CapabilityIdentity.kt','OpaqueBitmapBridge.kt','SparsePrefixRunner.kt','SandboxNativeLoaderRunner.kt')
 def source_names(profile=experiments.ACTIVE):
     selected=experiments.get_profile(profile)
-    return tuple(selected.test_source if name=='EightViewSparsePrefixHostTest.kt' else name for name in _LEGACY_SOURCE_NAMES)
+    return tuple(selected.test_source if name=='EightViewSparsePrefixHostTest.kt' else name for name in _LEGACY_SOURCE_NAMES)+(('RealThreePnpReplay.kt',) if profile==experiments.REAL_THREE else ())
 SOURCE_NAMES=source_names()
 # Kotlin file facades/nested classes retain their owner prefix. This additional top-level
 # object is declared in RuntimeProviderIdentity.kt, not in a same-named source file.
@@ -1062,10 +1062,11 @@ def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
     if rel.startswith('measurement/'):
         name=rel.removeprefix('measurement/')
         if name=='partial-roundtrip.json':validate_real_three_partial_roundtrip(raw,profile)
+        if name=='pnp-replay.json':pnp_replay.validate(raw,profile)
         if name=='match-replay.json':
             if profile!=experiments.REAL_STEREO:raise Failure('Two-photo replay not admitted for this profile')
             validate_real_match_replay(raw)
-        allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json','match-replay.json','partial-roundtrip.json',
+        allowed=set(policy.COMPLETE_DOCUMENTS)|{'input-identity.json','failure.json','match-replay.json','partial-roundtrip.json','pnp-replay.json',
             'runtime-providers-after-bitmap-room.json','runtime-providers-after-room-reopen.json'}
         binary=re.fullmatch(r'artifact-[0-9a-f]{64}\.bin',name)
         if name not in allowed and not binary:raise Failure('Unreviewed real measurement evidence path')
@@ -1082,6 +1083,11 @@ def evidence_package(run,receipt,destination):
         validate_real_three_partial_roundtrip(bounded_bytes(marker,4096,run),experiments.ACTIVE)
         if receipt.get('status')!='FAIL' or (run.work/'measurement/complete-result.json').exists():
             raise Failure('NOT_FULL_THREE requires failed receipt and no complete result')
+    replay=run.work/'measurement/pnp-replay.json'
+    if replay.exists():
+        pnp_replay.validate(bounded_bytes(replay,65536,run),experiments.ACTIVE)
+        if receipt.get('status')!='FAIL' or (run.work/'measurement/complete-result.json').exists():
+            raise Failure('PnP replay requires failed receipt and no complete result')
     selected_limit=experiments.artifact_budget(experiments.ACTIVE)-1024**2
     phase_budget(run);destination.mkdir();selected=[];selected_bytes=0;selected_entries=0
     def add(path,rel):

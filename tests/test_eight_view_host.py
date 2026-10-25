@@ -704,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='af6c3fb02a88fa596d618cfac8b78cb3fc693785'
- assert p.MESSAGE=='fix: restore raw SIFT after real-capture regression'
+ assert p.BASE_SHA=='80925b88371d7dac2a5fc18698d5a3acb94c77e7'
+ assert p.MESSAGE=='test: retain fixed-capture pose replay evidence'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -717,7 +717,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/features/GrayFeatureExtraction.kt', 'app/src/main/java/com/realityforge/scanner/engine/features/RootSift.kt', 'app/src/test/java/com/realityforge/scanner/agents/a032/FeatureSettingsIdentityTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/features/RootSiftTest.kt', 'docs/development/ROOTSIFT_DESCRIPTOR_POLICY.md', 'tests/test_eight_view_host.py', 'tests/test_rootsift_extraction_contract.py', 'tools/eight_view_host/policy.py', 'tools/feature_adapter_validation/validate.py', 'tools/feature_extractor_validation/HostRunner.kt', 'tools/feature_extractor_validation/ProductionExtractorHostTest.kt', 'tools/feature_extractor_validation/README.md', 'tools/feature_extractor_validation/validate.py', 'tools/frontend_integration_validation/validate.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/REAL_THREE_PNP_REPLAY.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealThreePnpReplay.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealThreePnpReplayCheck.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'tests/test_eight_view_host.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_pnp_replay.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/pnp_replay.py', 'tools/eight_view_host/policy.py'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_THREE
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2

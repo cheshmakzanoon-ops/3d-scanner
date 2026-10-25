@@ -17,6 +17,8 @@ import com.realityforge.scanner.data.publication.JournaledOriginalPublicationPor
 import com.realityforge.scanner.data.publication.PublicationReadResult
 import com.realityforge.scanner.engine.*
 import com.realityforge.scanner.engine.pipeline.*
+import com.realityforge.scanner.engine.features.SparseFeatureCache
+import com.realityforge.scanner.engine.registration.FrontierCamera
 import com.realityforge.scanner.processing.resources.ResourceWorkloadSelection
 import com.realityforge.scanner.export.RepositoryExportSource
 import com.realityforge.scanner.viewer.PhotographicGlb
@@ -107,7 +109,7 @@ class RealLicensedThreeCompleteControllerHostTest {
             val finished = actual.jobs.observe(queued.jobId).filterNotNull().first {
                 it.state.isTerminal || it.state == DurableJobState.PAUSED
             }
-            // Join the actual production worker; no native-only diagnostic replay is admitted.
+            // Join the actual production worker before assertions or optional read-only failure-tail replay.
             actual.awaitWorkerStopped()
             assertEquals("Bound controller job: ${finished.outcomeCode}", DurableJobState.COMPLETED, finished.state)
             assertEquals(fixture.project, finished.input.projectId)
@@ -123,6 +125,9 @@ class RealLicensedThreeCompleteControllerHostTest {
                     try {
                         partialDiagnosticStage = "ELIGIBILITY"
                         assertEligiblePartialPreview(fixture, requireNotNull(fixture.repository.currentPreview(fixture.project)))
+                        // The strict assertion has already failed and the production worker stopped.
+                        // Optional read-only replay cannot replace that failure or publish a pose.
+                        capturePnpReplay(fixture, finished, evidence)
                         stage = "DIAGNOSING_NOT_FULL_THREE_ROUNDTRIP"
                         partialDiagnosticStage = "EXPORT_BEFORE"
                         val partialBefore = assertPublishedAndExport(fixture, evidence, "before-reopen", finished, partialDiagnostic = true)
@@ -250,6 +255,54 @@ class RealLicensedThreeCompleteControllerHostTest {
         require(matches.keys == setOf(0 to 1, 0 to 2, 1 to 2))
         require(graphBefore.contentEquals(boundedBytes(owned(cache.file))) &&
             checksumBefore.contentEquals(boundedBytes(checksum)))
+    }
+
+    private suspend fun capturePnpReplay(f: Fixture, job: JobSnapshot, evidence: File) {
+        var token=0L
+        val report=try { withTimeout(30_000) {
+            f.assertOriginals()
+            val input=f.repository.inputSnapshot(f.project)
+            require(input.revision==job.input.projectRevision && input.photos.size==3)
+            require(InputPhotoIdentity.snapshotSha256(input)==job.input.inputSha256)
+            require(sha(job.input.settingsJson.toByteArray())==job.input.settingsSha256)
+            val settings=JSONObject(job.input.settingsJson)
+            require(settings.getInt("schema")==2 && settings.getDouble("focal35")==88.0)
+            require(input.photos.all{it.focal35mm==null})
+            require(!LensCalibration.file(f.repository,f.project).exists())
+            val snapshot=ProductionPipelineSnapshot.create(input,
+                ProductionPipelineSnapshot.calibrationSha256(LensCalibration.file(f.repository,f.project)),
+                88.0,ResourceWorkloadSelection.decode(settings.getJSONObject("resourceSelection")))
+            val preview=requireNotNull(f.repository.currentPreview(f.project))
+            val attempts=preview.getJSONObject("incrementalRegistration").getJSONArray("attempts")
+            require(attempts.length()==1 && !attempts.getJSONObject(0).getBoolean("accepted"))
+            val attempt=attempts.getJSONObject(0)
+            require(attempt.getInt("registeredBasis")==2)
+            val before=requireNotNull(RoomJobStore(f.database,f.database.jobDao()).snapshot(job.jobId))
+            require(before==job)
+            token=NativeCore.beginReconstruction();require(token>0)
+            val watchdog=launch(Dispatchers.Default,start=CoroutineStart.UNDISPATCHED) {
+                try {awaitCancellation()} finally {NativeCore.cancelReconstruction(token)}
+            }
+            try {
+            val value=RealThreePnpReplay.replay(f.repository.directory(f.project),
+                input.photos.map{RealThreePnpReplay.Photo(it.id,SparseFeatureCache.identity(it.sha256))},
+                snapshot.identity(PipelineStage.MATCHING).digest,snapshot.identity(PipelineStage.SPARSE).digest,
+                attempt.getInt("candidateTracks"),attempt.getString("reason"),attempt.getString("photoId"),
+                (0 until preview.getJSONArray("cameras").length()).map{i->val c=preview.getJSONArray("cameras").getJSONObject(i)
+                    FrontierCamera(c.getString("photoId"),List(9){c.getJSONArray("rotation").getDouble(it)},
+                        List(3){c.getJSONArray("translation").getDouble(it)})},NativeFrontierGeometry.forOperation(token))
+            require(before==RoomJobStore(f.database,f.database.jobDao()).snapshot(job.jobId))
+            f.assertOriginals();value
+            } finally { withContext(NonCancellable) {
+                watchdog.cancelAndJoin()
+                val finished=NativeCore.finishReconstruction(token);token=0L
+                check(finished)
+            } }
+        }} catch(cancelled:CancellationException) {throw cancelled}
+        catch(failure:Exception) {RealThreePnpReplay.failure()}
+        finally {if(token>0)check(NativeCore.finishReconstruction(token))}
+        val bytes=report.toString().toByteArray(Charsets.UTF_8);require(bytes.size<=65536)
+        captureImmutable(evidence,"pnp-replay.json",bytes)
     }
 
     private suspend fun stopController(controller: ReconstructionExecutionController) {
