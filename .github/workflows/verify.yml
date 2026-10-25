@@ -37,7 +37,7 @@ jobs:
       - name: Install pinned QA-only interchange and security tools
         run: python tools/dependencies/install_qa.py --root "$RUNNER_TEMP/rf-qa" --github-env "$GITHUB_ENV" --github-path "$GITHUB_PATH" --require-portable-blender
       - name: Execute Agent 081 compiler, sanitizer, numerical and real-image gates
-        run: python tools/qa/native_regression/run.py --configs "${{ matrix.config }}" --output "$RUNNER_TEMP/rf-ci/native/runner"
+        run: python tools/qa/native_regression/run.py --configs "${{ matrix.config }}" --output "$RUNNER_TEMP/rf-ci/native/runner" --pytest-timeout ${{ endsWith(matrix.config, '-sanitize') && 1800 || 600 }}
       - name: Validate native completion and seal exact artifacts
         run: python tools/ci/validation/native_matrix.py seal --start "$RUNNER_TEMP/rf-ci/native/start.json" --native-record "$RUNNER_TEMP/rf-ci/native/runner/evidence.json" --artifact "$RUNNER_TEMP/rf-qa/installation.json" --artifact "$RUNNER_TEMP/rf-qa/*-install.log" --artifact "$RUNNER_TEMP/rf-qa/*-check.log" --artifact "$RUNNER_TEMP/rf-qa/downloads/blender-publisher.sha256" --output "$RUNNER_TEMP/rf-ci/native/sealed"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

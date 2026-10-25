@@ -15,7 +15,9 @@ internal object FinalSparseExecution {
         checkpoint:()->Unit={},onSeedReceipt:(BoundedSparseCoordinator.Receipt)->Unit={},
         triangulate:(BoundedSparseCoordinator.Window)->List<BoundedSparseCoordinator.Candidate>,
         bundle:(TypedBundleAdapter.Input)->JSONObject):Result {
-        require(views.size in 3..12 && minimumAcceptedPoints>=0)
+        require(minimumAcceptedPoints>=0)
+        if (views.size == 2) throw SparseFinalizationDiagnostics.TwoCameraAdmission()
+        require(views.size in 3..12)
         checkpoint()
         val plan=BoundedSparseCoordinator.prepare(photoIds,views,snapshot,
             BoundedSparseCoordinator.Budget(maxCameras=12),anchorPhotoIds=photoIds.take(2),checkpoint=checkpoint)

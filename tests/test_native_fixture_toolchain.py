@@ -71,13 +71,16 @@ def test_all_candidate_linked_agent_fixtures_use_matching_compile_prefix():
 @pytest.mark.parametrize('config', ['gcc-release', 'clang-release', 'gcc-sanitize', 'clang-sanitize'])
 @pytest.mark.parametrize('failed_phase', [None, 'python-baseline-empty', 'python-baseline-numpy', 'jvm-baseline-empty', 'numerical', 'pytest'])
 @pytest.mark.parametrize('deadline', [7, 600])
-def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeypatch, config, failed_phase, deadline):
+@pytest.mark.parametrize('pytest_deadline', [None, 1, 1800])
+def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeypatch, config, failed_phase, deadline, pytest_deadline):
     sys.path.insert(0, str(ROOT / 'tools/qa/native_regression'))
     import run
     compiler = tmp_path / 'exact compiler'
     compiler.write_bytes(b'synthetic compiler; never executed')
     output = tmp_path / 'evidence'
     monkeypatch.setattr(sys, 'argv', ['run.py', '--configs', config, '--output', str(output), '--timeout', str(deadline)])
+    if pytest_deadline is not None:
+        sys.argv += ['--pytest-timeout', str(pytest_deadline)]
     monkeypatch.setattr(run.shutil, 'which', lambda _: str(compiler))
     monkeypatch.setattr(run.platform, 'platform', lambda: 'synthetic platform')
     def query(argv, **kwargs):
@@ -103,7 +106,10 @@ def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeyp
             proof.write_text('{}')  # Synthetic external-command stub, not an accounting claim.
         labels.append(label)
         assert timeout == (min(deadline, 30) if label.startswith('python-baseline-') else
-                           min(deadline, 60) if label.startswith('jvm-baseline-') else deadline)
+                           min(deadline, 60) if label.startswith('jvm-baseline-') else
+                           pytest_deadline if label == 'pytest' and pytest_deadline is not None else deadline)
+        if label == 'ctest':
+            assert argv[argv.index('--timeout') + 1] == str(deadline)
         if label == 'build':
             build = folder / 'build'
             build.mkdir(parents=True)
@@ -140,6 +146,8 @@ def test_runner_hands_selected_toolchain_to_every_python_phase(tmp_path, monkeyp
     assert evidence['result'] == ('FAIL' if expected_failure else 'PASS')
     record = evidence['configurations'][0]
     assert record['result'] == evidence['result']
+    assert record['resource_limits']['command_timeout_seconds'] == deadline
+    assert record['resource_limits']['pytest_timeout_seconds'] == (deadline if pytest_deadline is None else pytest_deadline)
     assert [receipt['label'] for receipt in record['commands']] == labels
     assert [receipt['exit_code'] for receipt in record['commands']] == [17 if label == failed_phase else 0 for label in labels]
 

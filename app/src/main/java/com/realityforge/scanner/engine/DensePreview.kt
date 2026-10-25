@@ -371,10 +371,8 @@ internal object DensePreview {
             val composite=JSONObject().put("dense",output)
                 .put("geometryReused", geometryReused)
             val mesh=result.optJSONObject("mesh")
-            if (mesh!=null && mesh.optInt("triangleCount")>=40 &&
-                mesh.optInt("vertexCount")>=30 &&
-                glbPartial.isFile && plyPartial.isFile &&
-                glbPartial.length()>100 && plyPartial.length()>100) {
+            val meshRejection=MeshPublicationDecision.rejection(result, glbPartial, plyPartial)
+            if (meshRejection==null) {
                 coroutineContext.ensureActive()
                 FileOutputStream(glbPartial,true).use { it.fd.sync() }
                 FileOutputStream(plyPartial,true).use { it.fd.sync() }
@@ -407,8 +405,8 @@ internal object DensePreview {
                 } else composite.put("textureError",textureInputFailure ?: result.optString("textureError",
                     "Insufficient visible photo coverage for UV texturing"))
             } else {
-                composite.put("meshError",result.optString("meshError",
-                    "Surface confidence/coverage gate rejected geometry"))
+                composite.put("meshError",meshRejection.message)
+                    .put("meshErrorCode",meshRejection.code)
             }
             val outcomes = pipelineSnapshot?.let { snapshot ->
                 typedOutcomes(snapshot, artifactKey, composite, glb, ply, texturedGlb, atlasPng)

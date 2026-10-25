@@ -699,8 +699,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='482938f2ef29037ab8ceeb6cd1db8798e07b8980'
- assert p.MESSAGE=='test: validate fixed licensed three-view controller profile'
+ assert p.BASE_SHA=='cdfc094e598f6f3ca5a21625bd811e713b980607'
+ assert p.MESSAGE=='fix: report partial reconstruction outcomes accurately'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -712,7 +712,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'SOURCE_MANIFEST.sha256', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedThreeCompleteControllerHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/real_three_inputs.py', 'docs/development/experiments/real-three-controller-profile.md', 'tests/conftest.py', 'tests/test_ci_candidate_isolation.py', 'tests/test_ci_evidence_validation.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_profile_selection.py', 'tests/test_native_pytest_progress.py', 'tests/test_real_stereo_complete.py', 'tests/test_real_three_complete.py', 'tests/test_real_three_controller_source.py', 'tests/test_real_three_inputs.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/qa/native_regression/pytest_progress.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', '.github/workflows/native-sanitizers.yml', '.github/workflows/verify.yml', 'SOURCE_MANIFEST.sha256', 'app/src/main/java/com/realityforge/scanner/engine/DensePreview.kt', 'app/src/main/java/com/realityforge/scanner/engine/FinalSparseExecution.kt', 'app/src/main/java/com/realityforge/scanner/engine/MeshPublicationDecision.kt', 'app/src/main/java/com/realityforge/scanner/engine/ScanQualityReport.kt', 'app/src/main/java/com/realityforge/scanner/engine/SparseFinalizationDiagnostics.kt', 'app/src/main/java/com/realityforge/scanner/engine/SparsePipeline.kt', 'app/src/main/java/com/realityforge/scanner/ui/navigation/ResultRoutes.kt', 'app/src/main/java/com/realityforge/scanner/ui/processing/ProcessingScreen.kt', 'app/src/main/res/values/agent_071.xml', 'app/src/main/res/values/agent_074.xml', 'app/src/test/java/com/realityforge/scanner/agents/a024/PreviewUiSummaryTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/MeshPublicationDecisionTest.kt', 'app/src/test/java/com/realityforge/scanner/engine/SparseFinalizationDiagnosticsTest.kt', 'tests/test_ci_native_matrix_workflow.py', 'tests/test_eight_view_host.py', 'tests/test_native_fixture_toolchain.py', 'tests/test_native_regression_harness.py', 'tests/test_partial_result_guidance.py', 'tests/test_project_contracts.py', 'tests/test_publication_diagnostic_contracts.py', 'tools/eight_view_host/policy.py', 'tools/qa/native_regression/README.md', 'tools/qa/native_regression/run.py'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_THREE
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2

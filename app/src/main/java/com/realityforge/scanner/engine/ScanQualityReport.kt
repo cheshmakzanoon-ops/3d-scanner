@@ -324,7 +324,7 @@ internal object ScanQualityReport {
                 ScanFailureCode.SPARSE_REFINEMENT_UNAVAILABLE,
                 ScanStage.BUNDLE_ADJUSTMENT,
                 StageOutcome.PARTIAL,
-                RecoveryAction.RECALIBRATE,
+                SparseFinalizationDiagnostics.recovery(result),
                 "scan.failure.sparse_refinement_unavailable",
             ))
         }

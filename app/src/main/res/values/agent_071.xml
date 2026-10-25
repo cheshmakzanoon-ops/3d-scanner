@@ -1,4 +1,5 @@
 <resources>
+    <string name="a071_points_only">Point-cloud result only. No surface mesh or photographic model is available. Points are not a complete object or a printable surface.</string>
     <string name="a071_review">Photograph review</string>
     <string name="a071_processing">Processing and recovery</string>
     <string name="a071_studio">Model studio</string>

@@ -46,7 +46,7 @@ def command(argv, cwd, folder, label, env=None, timeout=600):
             stream.write(str(error).encode())
             code, reason = 127, 'EXEC_FAILURE'
     return dict(command=list(map(str, argv)), cwd=str(cwd), exit_code=code, reason=reason,
-                seconds=round(time.monotonic() - started, 3), log=str(log), log_sha256=sha(log),
+                seconds=round(time.monotonic() - started, 3), timeout_seconds=timeout, log=str(log), log_sha256=sha(log),
                 result='PASS' if code == 0 and reason is None else 'FAIL')
 
 
@@ -78,9 +78,14 @@ def main():
     parser.add_argument('--gcc', default='g++')
     parser.add_argument('--clang', default='clang++')
     parser.add_argument('--timeout', type=int, default=600)
+    parser.add_argument('--pytest-timeout', type=int, default=None,
+                        help='Override only the full pytest process deadline (1..1800 seconds)')
     args = parser.parse_args()
     if not 1 <= args.timeout <= 3600:
         parser.error('timeout must be 1..3600 seconds per command')
+    if args.pytest_timeout is not None and not 1 <= args.pytest_timeout <= 1800:
+        parser.error('pytest-timeout must be 1..1800 seconds')
+    pytest_timeout = args.timeout if args.pytest_timeout is None else args.pytest_timeout
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     if (output / 'evidence.json').exists():
@@ -109,7 +114,7 @@ def main():
         env.update(OMP_NUM_THREADS='1', OPENBLAS_NUM_THREADS='1', MKL_NUM_THREADS='1',
                    ASAN_OPTIONS='halt_on_error=1:detect_leaks=1', UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
                    PYTHONMALLOC='malloc')
-        record['resource_limits'] = dict(command_timeout_seconds=args.timeout, log_bytes=32 * 1024**2, compile_jobs=1, numeric_seed_count=5)
+        record['resource_limits'] = dict(command_timeout_seconds=args.timeout, pytest_timeout_seconds=pytest_timeout, log_bytes=32 * 1024**2, compile_jobs=1, numeric_seed_count=5)
         sanitize = name.endswith('sanitize')
         record['sanitizer_options'] = dict(ASAN_OPTIONS=env['ASAN_OPTIONS'], UBSAN_OPTIONS=env['UBSAN_OPTIONS']) if sanitize else None
         steps = [('configure', ['cmake', '-S', ROOT, '-B', build, '-G', 'Ninja',
@@ -164,7 +169,9 @@ def main():
             python_steps += [(tool, [sys.executable, 'tools/' + tool + '.py', '--gate', '--output', folder / (tool + '.json')])
                              for tool in ('benchmark_multiview_coverage', 'benchmark_middlebury', 'benchmark_dense_middlebury', 'benchmark_surface_middlebury', 'benchmark_texture_middlebury')]
             for label, argv in (python_steps if python_ready else []):
-                receipt = command(argv, ROOT, folder, label, env, args.timeout)
+                # Explicit test-resource allowance, not a wider native/app budget.
+                deadline = pytest_timeout if label == 'pytest' else args.timeout
+                receipt = command(argv, ROOT, folder, label, env, deadline)
                 if label == 'pytest':
                     if accounting_path.is_file() and not accounting_path.is_symlink():
                         record['pytest_accounting'] = dict(path=str(accounting_path), sha256=sha(accounting_path))

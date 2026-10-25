@@ -30,6 +30,7 @@ fun ProcessingScreen(state: JobUiState, onAction: suspend (JobAction)->Boolean, 
             JobPhase.INTERRUPTED->R.string.a074_interrupted; JobPhase.FAILED->R.string.a074_failed; JobPhase.CANCELLED->R.string.a074_cancelled; JobPhase.COMPLETED->R.string.a074_completed; JobPhase.STALE->R.string.a074_stale; JobPhase.BLOCKED_EXTERNAL->R.string.a074_blocked })
         Text(phaseLabel,Modifier.semantics { liveRegion=LiveRegionMode.Polite; heading() },style=MaterialTheme.typography.titleLarge)
         state.stage?.let { Text(it) }
+        if (state.phase == JobPhase.COMPLETED) Text(stringResource(R.string.a074_completed_scope))
         if (state.phase == JobPhase.RUNNING || state.phase == JobPhase.QUEUED) {
             val fraction=state.stageFraction
             if(fraction==null) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text(stringResource(R.string.a074_unknown)) }

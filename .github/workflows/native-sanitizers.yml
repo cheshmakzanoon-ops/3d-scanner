@@ -27,7 +27,7 @@ jobs:
       - name: Prepare pinned full-suite QA tools
         run: python tools/dependencies/install_qa.py --root "$RUNNER_TEMP/rf-qa" --github-env "$GITHUB_ENV" --github-path "$GITHUB_PATH" --require-portable-blender
       - name: Compile and execute current native implementation
-        run: python tools/qa/native_regression/run.py --configs '${{ matrix.config }}' --output '${{ runner.temp }}/native-${{ matrix.config }}'
+        run: python tools/qa/native_regression/run.py --configs '${{ matrix.config }}' --output '${{ runner.temp }}/native-${{ matrix.config }}' --pytest-timeout ${{ endsWith(matrix.config, '-sanitize') && 1800 || 600 }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

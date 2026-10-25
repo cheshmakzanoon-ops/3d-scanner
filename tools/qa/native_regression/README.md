@@ -18,7 +18,17 @@ Those commands can acquire the licensed skimage dataset via its normal verified
 cache; network access is a development dependency, never an app requirement.
 
 Each process has a 600-second default deadline (configurable 1..3600), 32-MiB log
-limit and one native build job; BLAS/OpenMP threads are limited to one. Timeouts
+limit and one native build job; BLAS/OpenMP threads are limited to one.
+`--pytest-timeout` explicitly overrides only the full single-process pytest phase
+with an integer 1..1800-second allowance; when omitted, pytest inherits `--timeout`.
+CI opts only sanitizer profiles into 1800 seconds; release profiles and other
+ordinary commands retain 600 seconds, and control limits remain unchanged.
+This is a test-resource budget increase, not a performance optimization or a pass:
+up to 1200 extra seconds per sanitizer profile (40 additional runner-minutes across
+two profiles). The outer CI job ceiling remains 50 minutes; completion is not
+guaranteed. No app/HOST admission, version-probe or security deadline changes.
+Receipts record the ordinary-command and effective pytest budgets in
+`resource_limits`, and each command records its actual `timeout_seconds`. Timeouts
 kill the entire process group. ASan shadow memory prevents meaningful virtual
 address limits; CTest and process deadlines bound this trusted regression suite.
 ASan/UBSan halt on errors, and leak detection stays enabled. Sanitized Python uses

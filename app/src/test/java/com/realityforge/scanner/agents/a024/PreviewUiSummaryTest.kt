@@ -7,6 +7,27 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class PreviewUiSummaryTest {
+    @Test fun pointOnlyPartialResultRetainsUnavailableSurfaceAndTextureStatus() {
+        // Synthetic scalar fixture models the observed outcome; it contains no real capture data.
+        val source = fixture().apply {
+            put("pointCount", 37).put("registeredCameras", 2).put("photosExamined", 3)
+            put("denseStatus", "ready").put("meshStatus", "unavailable").put("textureStatus", "unavailable")
+            remove("meshPreview"); remove("texturePreview")
+            put("meshFailure", "Surface confidence or coverage rejected")
+            put("textureFailure", "Surface unavailable")
+        }
+        val summary = PreviewUiSummary.fromValidated(source)
+        assertEquals(37, summary.getInt("pointCount"))
+        assertEquals(2, summary.getInt("registeredCameras"))
+        assertEquals("ready", summary.getString("denseStatus"))
+        assertEquals("unavailable", summary.getString("meshStatus"))
+        assertEquals("unavailable", summary.getString("textureStatus"))
+        assertFalse(summary.has("meshPreview"))
+        assertFalse(summary.has("texturePreview"))
+        assertEquals("artifact-summary-v1", summary.getString("artifactKey"))
+        assertEquals(9L, summary.getLong("revision"))
+    }
+
     @Test fun exactViewerIdentityAndAllCurrentUiMeasurementsSurviveProjection() {
         val source = fixture()
         val summary = PreviewUiSummary.fromValidated(source)

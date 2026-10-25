@@ -624,9 +624,7 @@ class SparsePipeline(
         } catch (cancelled: java.util.concurrent.CancellationException) { throw cancelled }
         catch (failure: Exception) {
             rethrowOperationalFailure(failure)
-            output.put("finalSparseOutcome", "verified_anchor_fallback")
-                .put("finalSparseFailure", failure.message ?: "Invalid complete sparse observations")
-                .put("bundleAdjustmentFailure", failure.message ?: "Global sparse finalization failed")
+            SparseFinalizationDiagnostics.record(output, failure)
             geometryWarning = "Complete sparse finalization unavailable: ${failure.message ?: "invalid observations"}. Retained the verified M02 anchor point cloud; no global sparse result was published."
         }
         output.put("cameras", cameraArray).put("registeredCameras", cameraArray.length())
@@ -673,7 +671,7 @@ class SparsePipeline(
             RecoveryAction.RECAPTURE_OVERLAP, "scan.failure.sparse_fallback_retained")
         if (output.has("bundleAdjustment") || output.has("bundleAdjustmentFailure"))
             outcome(ScanStage.BUNDLE_ADJUSTMENT, output.has("bundleAdjustment"), ScanFailureCode.SPARSE_REFINEMENT_UNAVAILABLE,
-                RecoveryAction.RECALIBRATE, "scan.failure.sparse_refinement_unavailable")
+                SparseFinalizationDiagnostics.recovery(output), "scan.failure.sparse_refinement_unavailable")
         activeDiagnosticStage = ScanStage.DENSE_DEPTH
         artifacts.starting(ArtifactStage.DENSE_DEPTH)
         // M09: retain all accepted geometry if appearance reconstruction is unavailable.
@@ -718,6 +716,7 @@ class SparsePipeline(
             } else {
                 output.put("meshStatus","unavailable")
                 output.put("meshFailure",surface.optString("meshError","Insufficient supported surface geometry"))
+                surface.optString("meshErrorCode").takeIf { it.isNotEmpty() }?.let { output.put("meshFailureCode",it) }
                 output.put("textureStatus","unavailable")
                 output.put("textureFailure","A supported triangle mesh is required before UV projection")
             }

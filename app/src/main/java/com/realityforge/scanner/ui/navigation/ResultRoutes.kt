@@ -75,6 +75,7 @@ fun StudioRoute(result: JSONObject?, model: ScannerViewModel, modifier: Modifier
         if (current == null) Text(failure ?: stringResource(R.string.a071_no_result))
         else {
             val geometry = current.geometry
+            if (geometry.mesh == null) Text(stringResource(R.string.a071_points_only))
             FilterChip(representation == "sparse", { representation = "sparse" }, label = { Text(stringResource(R.string.a071_sparse)) })
             if (geometry.dense != null) FilterChip(representation == "dense", { representation = "dense" }, label = { Text(stringResource(R.string.a071_dense)) })
             if (geometry.mesh != null) FilterChip(representation == "surface", { representation = "surface" }, label = { Text(stringResource(R.string.a071_surface)) })

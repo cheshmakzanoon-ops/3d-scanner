@@ -54,3 +54,24 @@ def test_parity_retains_scene_identity_and_tolerances():
 def test_timeout_preserves_failure_record(tmp_path):
     result = command([sys.executable, '-c', 'import time; time.sleep(10)'], tmp_path, tmp_path, 'timeout', timeout=.1)
     assert result['result'] == 'FAIL' and result['reason'] == 'TIMEOUT'
+
+
+@pytest.mark.parametrize('value', ['0', '-1', '1801', '3600', 'nan', 'NaN', 'inf', '-inf', '1.5', 'true'])
+def test_pytest_deadline_rejects_invalid_before_any_execution(tmp_path, monkeypatch, value):
+    import run
+    output = tmp_path / 'not-created'
+    monkeypatch.setattr(sys, 'argv', ['run.py', '--output', str(output), '--pytest-timeout=' + value])
+    def unexpected(*args, **kwargs):
+        pytest.fail('Invalid deadline reached external execution')
+    monkeypatch.setattr(run.subprocess, 'check_output', unexpected)
+    monkeypatch.setattr(run, 'command', unexpected)
+    with pytest.raises(SystemExit) as error:
+        run.main()
+    assert error.value.code == 2
+    assert not output.exists()
+
+
+def test_command_receipt_preserves_effective_deadline(tmp_path):
+    result = command([sys.executable, '-c', 'pass'], tmp_path, tmp_path, 'budget', timeout=7)
+    assert result['result'] == 'PASS'
+    assert result['timeout_seconds'] == 7

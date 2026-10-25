@@ -167,7 +167,9 @@ def test_sparse_publication_is_staged_before_fallible_progress_and_reference_swa
     assert "progress(" not in after and "measured(" not in after
     assert "JSONObject(original.toString())" in publication and "JSONArray(originalCameras.toString())" in publication
     assert "result.input.photoIds.indexOf(sourcePhotoIds[camera])" in publication
-    assert "verified_anchor_fallback" in pipeline
+    diagnostics=(ROOT/"app/src/main/java/com/realityforge/scanner/engine/SparseFinalizationDiagnostics.kt").read_text()
+    assert "SparseFinalizationDiagnostics.record(output, failure)" in pipeline
+    assert 'output.put("finalSparseOutcome", "verified_anchor_fallback")' in diagnostics
 
 
 def test_dense_source_is_bounded_cpu_reference_and_preserves_sparse_fallback():

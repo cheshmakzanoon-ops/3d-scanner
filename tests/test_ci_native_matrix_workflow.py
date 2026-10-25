@@ -24,7 +24,7 @@ def test_verify_runs_each_profile_once_and_keeps_native_aggregate_identity():
         'gcc-release', 'clang-release', 'gcc-sanitize', 'clang-sanitize']}}
     assert shards['timeout-minutes'] == '50'
     runner = [step['run'] for step in shards['steps'] if 'run.py --configs' in step.get('run', '')]
-    assert runner == ['python tools/qa/native_regression/run.py --configs "${{ matrix.config }}" --output "$RUNNER_TEMP/rf-ci/native/runner"']
+    assert runner == ['python tools/qa/native_regression/run.py --configs "${{ matrix.config }}" --output "$RUNNER_TEMP/rf-ci/native/runner" --pytest-timeout ${{ endsWith(matrix.config, \'-sanitize\') && 1800 || 600 }}']
     assert 'source_manifest.py verify --source HEAD' in commands(shards)
     assert 'native_matrix.py begin --repository "$GITHUB_REPOSITORY" --profile "${{ matrix.config }}"' in commands(shards)
     assert '--run-id "$GITHUB_RUN_ID:$GITHUB_RUN_ATTEMPT"' in commands(shards)
@@ -88,3 +88,15 @@ def test_native_event_partition_preserves_other_branch_coverage_without_overlap(
     for workflow in (verify, standalone):
         assert workflow['permissions'] == {'contents': 'read'}
         assert all(job['runs-on'] == 'ubuntu-24.04' for job in workflow['jobs'].values())
+
+
+def test_only_sanitizer_pytest_allowance_in_both_native_workflows():
+    for workflow, job in [('verify.yml', 'native-shards'), ('native-sanitizers.yml', 'native')]:
+        native = load(workflow)['jobs'][job]
+        assert native['timeout-minutes'] == '50'
+        runners = [step['run'] for step in native['steps']
+                   if 'native_regression/run.py' in step.get('run', '')]
+        assert len(runners) == 1
+        assert "--pytest-timeout ${{ endsWith(matrix.config, '-sanitize') && 1800 || 600 }}" in runners[0]
+        assert '--timeout ' not in runners[0]
+        assert native['strategy']['fail-fast'] == 'false'
