@@ -10,6 +10,8 @@ import time
 
 import pytest
 from synthetic_child_env import synthetic_child_env
+from tools.native_process import native_compile_env
+from tools.native_test_build import native_compile_prefix
 
 ROOT = Path(__file__).resolve().parents[1]
 PATH = ROOT / 'tools/ci/install_android_sdk.py'
@@ -251,7 +253,33 @@ def test_forwarder_preserves_inherited_pipe_flags():
         os.close(read_fd);os.close(write_fd)
 
 
-def test_leader_pid_remains_reserved_until_group_cleanup(monkeypatch):
+def _compile_exit_fixture(directory):
+    """No-op process, not a CPython shutdown or scanner-engine qualification.
+
+    Instrument generated code with the selected matrix ABI. Only the compiler
+    uses the existing build-tool environment boundary; execution inherits every
+    parent loader/sanitizer setting through unchanged run_attempt.
+    """
+    source = directory / 'reserved_leader.cpp'
+    binary = directory / 'reserved_leader'
+    source.write_text('int main() { return 0; }\n')
+    subprocess.run([*native_compile_prefix(), str(source), '-o', str(binary)],
+                   env=native_compile_env(), check=True, capture_output=True, timeout=30)
+    return binary
+
+
+@pytest.mark.parametrize('failure', ['missing', 'nonzero'])
+def test_leader_fixture_compiler_failure_is_fatal(tmp_path, monkeypatch, failure):
+    prefix = ['/missing/fixture-compiler'] if failure == 'missing' else ['/usr/bin/false']
+    monkeypatch.setattr(sys.modules[__name__], 'native_compile_prefix', lambda: prefix)
+    error = FileNotFoundError if failure == 'missing' else subprocess.CalledProcessError
+    with pytest.raises(error):
+        _compile_exit_fixture(tmp_path)
+    assert not (tmp_path / 'reserved_leader').exists()
+
+
+def test_leader_pid_remains_reserved_until_group_cleanup(monkeypatch, tmp_path):
+    binary = _compile_exit_fixture(tmp_path)
     monkeypatch.setattr(m, 'CLEANUP_GRACE_SECONDS', .01)
     real_signal = m._signal_group
     observed=[]
@@ -261,11 +289,26 @@ def test_leader_pid_remains_reserved_until_group_cleanup(monkeypatch):
         observed.append((signum,state is not None))
         real_signal(pid,signum)
     monkeypatch.setattr(m,'_signal_group',checked)
-    # This API has no per-child environment parameter; preserve its runtime boundary.
+    # Preserve the actual runtime boundary, including preload and LSan options.
+    real_popen = m.subprocess.Popen
+    environment = dict(os.environ)
+    owned = []
+    def inherited_popen(command, **kwargs):
+        assert command == [str(binary)]
+        assert 'env' not in kwargs
+        assert dict(os.environ) == environment
+        proc = real_popen(command, **kwargs)
+        owned.append(proc)
+        return proc
+    monkeypatch.setattr(m.subprocess, 'Popen', inherited_popen)
     output = io.BytesIO()
-    result = m.run_attempt([sys.executable,'-c','pass'],m.Cancellation(),timeout=2,output=output)
+    result = m.run_attempt([str(binary)],m.Cancellation(),timeout=2,output=output)
     raw = output.getvalue()
     assert result == (0,False), {'result': result, 'output_bytes': len(raw),
                                 'sanitizer_markers': {name: raw.count(name.encode()) for name in
                                                      ('AddressSanitizer', 'LeakSanitizer', 'UndefinedBehaviorSanitizer')}}
     assert observed == [(signal.SIGTERM,True),(signal.SIGKILL,True)]
+    assert raw == b'', 'No-op native fixture must not emit sanitizer diagnostics'
+    assert len(owned) == 1 and owned[0].returncode == 0
+    with pytest.raises(ChildProcessError):
+        os.waitid(os.P_PID, owned[0].pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
