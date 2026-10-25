@@ -6,8 +6,9 @@ high-quality complete-object scanning.**
 
 ## Current validation — 25 October 2026
 
-**A synthetic photo-to-model controller journey passes; reliable installed-device
-scanning and high-quality complete-object reconstruction are not yet qualified.**
+**The fixed licensed three-photo HOST journey now passes with all three cameras
+registered; installed-device scanning and high-quality complete-object
+reconstruction are still not qualified.**
 Results below belong to the named source revisions, not automatically to later commits.
 
 | Area | Verified result / remaining limit |
@@ -15,17 +16,21 @@ Results below belong to the named source revisions, not automatically to later c
 | Three-photo full-controller HOST test (`5beb2d3`) | **Passed:** three fixed synthetic relief photographs → actual reconstruction controller → dense points, mesh and photographic texture → nine published artifacts → three validated export formats and Room database reopen. All three cameras registered; 904 sparse points, 22,259 textured triangles and a 1548 × 1164 atlas. |
 | Test scope | `SYNTHETIC_HOST_FULL_CONTROLLER_EXPORT_NOT_DEVICE_QUALITY`: modeled HOST resources, not physical capture, installed GLES/SAF interaction or release qualification. The eight-photo low-resolution fixture remains unsuccessful. |
 | Real licensed stereo full-controller HOST test (`68ef9b7`) | **Failed at `MATCHES`; no model produced.** Read-only replay of persisted matches returned native `WEAK_BASELINE`; this is not a diagnosis of the physical camera baseline. |
-| Android build (`80925b8`; also `df49877`) | Android checks passed with **919 tests**; release profiles and benchmark compilation also passed. These are not installed photo-to-model qualification. |
-| Fixed real three-photo HOST profile (`df49877`) | **Strict FAIL:** only 2/3 cameras registered, no global bundle adjustment. Partial model export/reopen is **VERIFIED_NOT_FULL_THREE**: 220 sparse / 1,623 dense points, 1,032 mesh vertices and 884 textured triangles. Its 982 boundary edges and 411 reported intersections remain despite 0 nonmanifold edges. Visibly fragmented, not watertight or device-qualified. |
+| Android build (`f6cdd12`) | Android checks passed with **920 tests**; release profiles and benchmark compilation also passed. These are not installed photo-to-model qualification. |
+| Fixed real three-photo HOST profile (`f6cdd12`) | **PASS:** all 3 cameras registered, third camera supported by 45 tracks, global typed bundle adjustment completed. 324 sparse / 2,469 dense points, 1,618 mesh vertices and 1,296 triangles; nine blobs, three exports, publication and reopen verified. Still fragmented: 1,580 boundary edges, 558 reported intersections, 0 nonmanifold edges—not watertight or device-qualified. |
 | Software-only Android native/cache smoke (`80925b8`) | **4/4 passed** on a non-KVM software ATD. Native/cache checks only—not UI, SAF, Filament, a real-photo journey, ARM64 or physical-quality qualification. |
 | Installed emulator tests (`7ff6395`) | The synthetic UI journey failed in DocumentsUI selection **before import/reconstruction**. The separate optional Filament rendering/lifecycle test passed. The selector repair in `c3f26f3` still needs a completed installed rerun. |
-| Remaining CI gates (`80925b8`) | **Failed:** GCC and Clang each completed 4,457 cases: 4,412 passed, 17 failed, 28 skipped, 0 errors. All `80925b8` jobs are terminal; native/candidate aggregate gates failed. Ordinary installed-device preflight remains KVM-blocked. |
+| Remaining CI gates (`f6cdd12`) | **Failed:** GCC and Clang each completed 4,513 cases: 4,468 passed, 17 failed, 28 skipped. All jobs are terminal; native/candidate/device gates failed. A new five-check Android PnP candidate remains **NOT_RUN**; the older 4/4 non-UI smoke result belongs only to `80925b8`. |
 | Exact planar ownership QA (`813f312`) | Dedicated ASan/UBSan/LSan run: 1 native CTest and 83 differential cases passed; 137 release cases passed. **OFF by default**, native QA only—not production integration or mobile qualification. |
 | Mesh quality (`5beb2d3`) | The synthetic result still has 113 components, 9,542 boundary edges and **653 nonmanifold edges**. Intersection analysis is budget-incomplete. The supported-diagonal fix does not establish watertight, overlap-free or complete-object quality. |
 
-The `af6c3fb` RootSIFT trial regressed to `MATCHES` with no model and was
+Current priorities are dense coverage and the zero cross-view fusion reported
+by the `f6cdd12` diagnostics, not the now-resolved third-camera pose failure
+on this fixed fixture. A HOST pass does not establish full-object or metric quality.
+
+Historically, the `af6c3fb` RootSIFT trial regressed to `MATCHES` with no model and was
 rolled back, not promoted. `df49877` restored raw SIFT and recovered the earlier
-partial result; it did not solve third-camera registration. Its third-camera PnP
+partial result; that revision did not solve third-camera registration. Its third-camera PnP
 had 45 distinct tracks, required 16 inliers, and found only one best inlier across
 450 valid hypotheses. The [independent COLMAP reference](docs/development/experiments/skull-colmap-reference.md)
 registered three cameras with 250 tracks / 235 unique XY locations per image;
@@ -39,8 +44,7 @@ cache, schema and privacy checks passed. This is
 and partial roundtrip are unchanged. See the [replay record](https://github.com/cheshmakzanoon-ops/3d-scanner/blob/4b23941e8424b59ba2056f54c18a3b4bfff634bd/docs/development/REAL_THREE_PNP_REPLAY.md).
 Its release/sanitizer suites aborted on an oversized autogenerated test ID;
 the reviewed fix shortens only that ID, preserving the payload and 8,192-byte
-cap. CI recovery is not yet established; `80925b8` remains the last completed
-full-suite checkpoint above.
+cap. Later `f6cdd12` full suites completed, but the 17 failures above remain.
 
 Source `e493872` adds [persisted camera-failure guidance](docs/reconstruction/ANCHOR_FAILURE_GUIDANCE.md)
 for uniformly allowlisted weak/ambiguous pair rejections and resource-backed
@@ -65,7 +69,8 @@ A [conservative EXIF focal prior](docs/reconstruction/EXIF_FOCAL_PLANE_PRIOR.md)
 now handles valid isotropic focal-plane metadata when a direct 35mm tag is absent;
 it remains derived, not measured lens calibration, and declines inconsistent inputs.
 
-Evidence: [`80925b8` build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214617937),
+Evidence: [`f6cdd12` real three-photo HOST pass](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40220547113),
+[`80925b8` build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214617937),
 [software-only native/cache smoke](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214618133),
 [`df49877` recovered partial HOST result](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40211662023),
 [`f506d2f` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40198141070),

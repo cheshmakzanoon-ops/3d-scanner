@@ -7,6 +7,8 @@ import hashlib
 import importlib.util
 import io
 import json
+import math
+import struct
 import os
 import signal
 import shutil
@@ -30,7 +32,7 @@ diag = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(diag)
 
 
-def event(selector, index, code, total=4):
+def event(selector, index, code, total=5):
     owner, method = selector.split("#")
     return (f"INSTRUMENTATION_STATUS: class={owner}\n"
             f"INSTRUMENTATION_STATUS: test={method}\n"
@@ -41,7 +43,7 @@ def event(selector, index, code, total=4):
 
 def transcript(selectors=diag.EXPECTED):
     return "".join(event(test, index, 1) + event(test, index, 0)
-                   for index, test in enumerate(selectors, 1)) + "\nOK (4 tests)\nINSTRUMENTATION_CODE: -1\n"
+                   for index, test in enumerate(selectors, 1)) + "\nOK (5 tests)\nINSTRUMENTATION_CODE: -1\n"
 
 
 def receipt():
@@ -78,7 +80,7 @@ class RawInstrumentationEvidence(unittest.TestCase):
         metadata, raw = self.capture(transcript())
         proof = diag.parse_instrumentation(raw.decode("utf-8"))
         self.assertEqual(proof["rawSha256"], metadata["sha256"])
-        self.assertEqual(proof["passed"], 4)
+        self.assertEqual(proof["passed"], 5)
 
     def test_oversized_transcript_fails_before_emitting_any_evidence(self):
         output = io.StringIO()
@@ -88,16 +90,28 @@ class RawInstrumentationEvidence(unittest.TestCase):
 
 
 class InstrumentationProof(unittest.TestCase):
-    def test_requires_four_real_start_and_terminal_events(self):
+    def test_requires_five_real_start_and_terminal_events(self):
         proof = diag.parse_instrumentation(transcript())
-        self.assertEqual((proof["tests"], proof["passed"], proof["skipped"], len(proof["events"])), (4, 4, 0, 8))
+        self.assertEqual((proof["tests"], proof["passed"], proof["skipped"], len(proof["events"])), (5, 5, 0, 10))
 
     def test_junit_execution_order_may_differ_but_identities_must_match(self):
-        self.assertEqual(diag.parse_instrumentation(transcript(tuple(reversed(diag.EXPECTED))))["passed"], 4)
+        self.assertEqual(diag.parse_instrumentation(transcript(tuple(reversed(diag.EXPECTED))))["passed"], 5)
 
     def test_adb_exit_and_ok_summary_alone_cannot_pass(self):
         with self.assertRaises(diag.Failure):
-            diag.parse_instrumentation("OK (4 tests)\nINSTRUMENTATION_CODE: -1\n")
+            diag.parse_instrumentation("OK (5 tests)\nINSTRUMENTATION_CODE: -1\n")
+
+    def test_previous_four_passes_cannot_satisfy_new_software_scope(self):
+        old = "".join(event(test, i, code, total=4)
+                      for i, test in enumerate(diag.ORIGINAL_EXPECTED, 1) for code in (1, 0))
+        old += "\nOK (4 tests)\nINSTRUMENTATION_CODE: -1\n"
+        with self.assertRaises(diag.Failure):
+            diag.parse_instrumentation(old)
+        self.assertEqual(diag.parse_instrumentation(old, "KVM_REQUIRED_NO_FALLBACK")["passed"], 4)
+        with self.assertRaises(diag.Failure):
+            diag.parse_instrumentation(transcript(), "KVM_REQUIRED_NO_FALLBACK")
+        with self.assertRaises(diag.Failure):
+            diag.parse_instrumentation(transcript(), "unknown")
 
     def test_skip_assumption_failure_error_and_unknown_codes_fail(self):
         for code in (-4, -3, -2, -1, 7):
@@ -119,8 +133,8 @@ class InstrumentationProof(unittest.TestCase):
             diag.parse_instrumentation(transcript().replace(diag.EXPECTED[0].split("#")[1], "unrelatedTest"))
 
     def test_total_index_summary_and_final_code_must_be_consistent(self):
-        replacements = (("numtests=4", "numtests=5"), ("current=2", "current=1"),
-                        ("OK (4 tests)", "OK (3 tests)"), ("INSTRUMENTATION_CODE: -1", "INSTRUMENTATION_CODE: 0"))
+        replacements = (("numtests=5", "numtests=4"), ("current=2", "current=1"),
+                        ("OK (5 tests)", "OK (3 tests)"), ("INSTRUMENTATION_CODE: -1", "INSTRUMENTATION_CODE: 0"))
         for old, new in replacements:
             with self.subTest(old=old), self.assertRaises(diag.Failure):
                 diag.parse_instrumentation(transcript().replace(old, new))
@@ -154,7 +168,7 @@ class InstrumentationProof(unittest.TestCase):
     def test_junit_is_bound_to_proof_candidate_and_exact_test_names(self):
         proof = diag.parse_instrumentation(transcript())
         xml = ET.fromstring(diag.junit_xml(proof, receipt()))
-        self.assertEqual(xml.attrib["tests"], "4")
+        self.assertEqual(xml.attrib["tests"], "5")
         self.assertEqual(xml.attrib["failures"], "0")
         self.assertEqual(xml.attrib["skipped"], "0")
         self.assertEqual({node.attrib["classname"] + "#" + node.attrib["name"] for node in xml.findall("testcase")}, set(diag.EXPECTED))
@@ -219,12 +233,43 @@ class Policy(unittest.TestCase):
         self.assertEqual(diag.BUDGETS["instrumentation"], 900)
         self.assertLess(diag.BUDGETS["controller"], diag.BUDGETS["workflow"])
 
-    def test_selected_tests_remain_exactly_four_source_methods(self):
+    def test_selected_tests_remain_exactly_five_source_methods(self):
         for selector in diag.EXPECTED:
             owner, method = selector.split("#")
             source = ROOT / "app/src/androidTest/java" / (owner.replace(".", "/") + ".kt")
             self.assertIn("@Test fun " + method + "(", source.read_text())
-        self.assertEqual(len(set(diag.EXPECTED)), 4)
+        self.assertEqual(len(set(diag.EXPECTED)), 5)
+
+
+class PnpNumericFixture(unittest.TestCase):
+    def test_hash_shape_threshold_and_public_numeric_provenance_are_fixed(self):
+        path = ROOT / "app/src/androidTest/assets/pnp/centered-translation-45.json"
+        raw = path.read_bytes()
+        digest = "661a975f2bebcd509538ad9f7507f86c8cf63170b9f4c67714ac99e4d6bdd12a"
+        self.assertEqual(len(raw), 4223)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), digest)
+        value = json.loads(raw)
+        self.assertEqual(set(value), {"schema", "classification", "sourceReplaySha256", "count", "threshold", "rows"})
+        self.assertEqual(value["count"], 45)
+        self.assertEqual(value["threshold"], 5.113144661933157E-4)
+        self.assertEqual(value["sourceReplaySha256"], "d7dcb3daa08de6be743da959d05e19599ce7aa2ae01cc3b20c8f5f9a89808361")
+        self.assertEqual(len(value["rows"]), 45)
+        self.assertEqual(len({tuple(row) for row in value["rows"]}), 45)
+        for row in value["rows"]:
+            self.assertEqual(len(row), 5)
+            for i, number in enumerate(row):
+                self.assertTrue(math.isfinite(number) and abs(number) < (16 if i < 3 else 2))
+        packed = struct.pack(">225d", *(number for row in value["rows"] for number in row))
+        self.assertEqual(hashlib.sha256(packed).hexdigest(), "9c36eb4c0587023c845ed3a71545bcadd98ef19109820b8ed13ae9182721cfe7")
+        source = (ROOT / "app/src/androidTest/java/com/realityforge/scanner/CenteredTranslationPnpNativeTest.kt").read_text()
+        self.assertIn(digest, source)
+        for required in ("NativeCore.registerCameraCancellable", "NativeCore.beginReconstruction()",
+                         "finally", "NativeCore.finishReconstruction(token)", "in 40..45", "< THRESHOLD"):
+            self.assertIn(required, source)
+        attribution = path.with_name("README.md").read_text()
+        self.assertIn("alansartlog", attribution)
+        self.assertIn("https://creativecommons.org/licenses/by/4.0/", attribution)
+        self.assertIn(value["sourceReplaySha256"], attribution)
 
 
 class OneShotPushPolicy(unittest.TestCase):
@@ -248,25 +293,30 @@ class OneShotPushPolicy(unittest.TestCase):
         self.assertEqual(diag.validate_push_tree(self.env["GITHUB_SHA"], self.parents,
             diag.PUSH_MESSAGE, self.changes), sorted(diag.PUSH_ALLOWED_PATHS))
 
-    def test_rearm_is_exactly_df498_native_smoke_with_finite_fixture_statuses(self):
-        self.assertEqual(diag.PUSH_BASE_SHA, "df49877b6c3b736f795ac2f45a6c2029bf2000f7")
-        self.assertEqual(diag.PUSH_MESSAGE, "test: verify software-only Android native smoke checks")
+    def test_rearm_is_exactly_f6_pnp_smoke_with_finite_fixture_statuses(self):
+        self.assertEqual(diag.PUSH_BASE_SHA, "f6cdd12b937bc85d3958ca7b6f5dcf8f3035058d")
+        self.assertEqual(diag.PUSH_MESSAGE, "test: verify corrected pose registration on Android")
         self.assertEqual(diag.PUSH_ADDED_PATHS, {
-            "tests/skull_reference_fixture.py", "tests/test_skull_reference_fixture.py"})
+            "app/src/androidTest/java/com/realityforge/scanner/CenteredTranslationPnpNativeTest.kt",
+            "app/src/androidTest/assets/pnp/centered-translation-45.json",
+            "app/src/androidTest/assets/pnp/README.md"})
         self.assertEqual(diag.PUSH_ALLOWED_PATHS, {
             ".github/workflows/software-emulator-diagnostic.yml",
             "tools/device/software_emulator/diagnostic.py",
             "tests/test_software_emulator_diagnostic.py",
             "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256",
-            "tests/test_skull_reference.py", "tests/skull_reference_fixture.py",
-            "tests/test_skull_reference_fixture.py"})
+            "README.md", "docs/MILESTONE_STATUS.md", "docs/NEXT_MILESTONE.md",
+            "tools/device/accelerated_emulator/diagnostic.py", "tests/test_accelerated_atd_diagnostic.py",
+            "app/src/androidTest/java/com/realityforge/scanner/CenteredTranslationPnpNativeTest.kt",
+            "app/src/androidTest/assets/pnp/centered-translation-45.json",
+            "app/src/androidTest/assets/pnp/README.md"})
         for path in sorted(diag.PUSH_ALLOWED_PATHS):
             good = "A" if path in diag.PUSH_ADDED_PATHS else "M"
             for wrong in ({"A", "M", "D", "T", "R100"} - {good}):
                 changes = self.changes.replace(good + "\0" + path + "\0", wrong + "\0" + path + "\0")
                 with self.subTest(path=path, status=wrong), self.assertRaises(diag.Blocked):
                     diag.validate_push_tree(self.env["GITHUB_SHA"], self.parents, diag.PUSH_MESSAGE, changes)
-        for previous in ("89d9e3387bb19e5243017f28461040372615736b", self.env["GITHUB_SHA"]):
+        for previous in ("89d9e3387bb19e5243017f28461040372615736b", "df49877b6c3b736f795ac2f45a6c2029bf2000f7", self.env["GITHUB_SHA"]):
             with self.subTest(previous=previous), self.assertRaises(diag.Blocked):
                 diag.validate_policy(self.env, {**self.event, "before": previous})
 
@@ -373,6 +423,7 @@ class OneShotPushPolicy(unittest.TestCase):
             git(origin, "-c", "user.name=Host fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", "base")
             parent = git(origin, "rev-parse", "HEAD")
             for path in sorted(diag.PUSH_ALLOWED_PATHS):
+                (origin / path).parent.mkdir(parents=True, exist_ok=True)
                 (origin / path).write_text("after\n")
             git(origin, "add", ".")
             git(origin, "-c", "user.name=Host fixture", "-c", "user.email=fixture@example.invalid", "commit", "--quiet", "-m", diag.PUSH_MESSAGE)
@@ -1123,7 +1174,7 @@ class SubprocessAndReceipts(unittest.TestCase):
             self.assertEqual(ctl.run(), 0)
         lines = output.getvalue().splitlines()
         xml = next(line for line in lines if line.startswith("RF_DIAGNOSTIC_JUNIT "))
-        self.assertEqual(len(ET.fromstring(xml.split(" ", 1)[1]).findall("testcase")), 4)
+        self.assertEqual(len(ET.fromstring(xml.split(" ", 1)[1]).findall("testcase")), 5)
         final = json.loads(next(line for line in lines if line.startswith("RF_DIAGNOSTIC_RECEIPT ")).split(" ", 1)[1])
         self.assertEqual(final["status"], "PASS")
         self.assertEqual(set(final["qualification"].values()), {"NOT_RUN"})
@@ -1382,7 +1433,7 @@ class DeviceCrashContext(unittest.TestCase):
         command.assert_called_once()
         self.assertNotIn("crashContext", self.ctl.receipt)
         self.assertEqual(self.ctl.receipt["instrumentation"]["status"], "EVENTS_VERIFIED")
-        self.assertEqual(self.ctl.receipt["testProof"]["passed"], 4)
+        self.assertEqual(self.ctl.receipt["testProof"]["passed"], 5)
         self.assertIn("junitXml", self.ctl.receipt)
 
     def test_command_nonzero_timeout_and_signal_failures_keep_original_and_no_junit(self):

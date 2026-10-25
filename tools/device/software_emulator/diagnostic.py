@@ -2,7 +2,7 @@
 """Explicitly opted-in, non-qualifying Android TCG experiment. Never accepts licenses.
 
 All evidence is bounded normal job output; no remote artifact/cache upload. A PASS
-means exactly four synthetic x86_64 runtime tests, not the existing device gate.
+means four synthetic contracts plus one numeric PnP regression, not the existing device gate.
 """
 from __future__ import annotations
 
@@ -32,26 +32,47 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PUSH_REPOSITORY = "cheshmakzanoon-ops/3d-scanner"
-PUSH_BASE_SHA = "df49877b6c3b736f795ac2f45a6c2029bf2000f7"
-PUSH_MESSAGE = "test: verify software-only Android native smoke checks"
+PUSH_BASE_SHA = "f6cdd12b937bc85d3958ca7b6f5dcf8f3035058d"
+PUSH_MESSAGE = "test: verify corrected pose registration on Android"
 PUSH_TRIGGER_PATHS = frozenset((".github/workflows/software-emulator-diagnostic.yml",
                                 "tools/device/software_emulator/diagnostic.py"))
-PUSH_ADDED_PATHS = frozenset(("tests/skull_reference_fixture.py",
-                              "tests/test_skull_reference_fixture.py"))
+PUSH_ADDED_PATHS = frozenset((
+    "app/src/androidTest/java/com/realityforge/scanner/CenteredTranslationPnpNativeTest.kt",
+    "app/src/androidTest/assets/pnp/centered-translation-45.json",
+    "app/src/androidTest/assets/pnp/README.md"))
 PUSH_ALLOWED_PATHS = PUSH_TRIGGER_PATHS | PUSH_ADDED_PATHS | frozenset((
-    "tests/test_software_emulator_diagnostic.py", "tests/test_skull_reference.py",
-    "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256"))
+    "tests/test_software_emulator_diagnostic.py", "tests/test_accelerated_atd_diagnostic.py",
+    "tools/device/accelerated_emulator/diagnostic.py",
+    "docs/development/SOFTWARE_EMULATOR_DIAGNOSTIC.md", "SOURCE_MANIFEST.sha256",
+    "README.md", "docs/MILESTONE_STATUS.md", "docs/NEXT_MILESTONE.md"))
 IMAGE = "system-images;android-35;aosp_atd;x86_64"
 IMAGE_REVISION = "1"
 PACKAGES = ("platform-tools", "emulator", "platforms;android-36", "build-tools;36.0.0",
             "ndk;28.2.13676358", "cmake;3.22.1", IMAGE)
 PREFIX = "com.realityforge.scanner."
-EXPECTED = (
+ORIGINAL_EXPECTED = (
     PREFIX + "agents.a037.CalibratedInitializerNativeTest#calibratedPlaneReportsModelAndSupportWithoutChangingLegacyContract",
     PREFIX + "agents.a037.CalibratedInitializerNativeTest#calibratedJniRejectsMalformedDomainShapeAndMisalignedPixels",
     PREFIX + "agents.a037.CalibratedInitializerNativeTest#cancelledCalibratedCallHonorsScopedOperationLease",
     PREFIX + "agents.a033.FeatureCacheDeviceTest#privateAndroidCacheHitsCorruptionRecomputesAndEvictionPreservesUnownedFiles",
 )
+EXPECTED = ORIGINAL_EXPECTED + (
+    PREFIX + "CenteredTranslationPnpNativeTest#realNumericRowsKeepStrongSupportAcrossBoundedOriginShift",
+)
+SCOPES = {
+    "UNSUPPORTED_TCG": "five NON-UI Android x86_64 checks: four synthetic contracts plus numeric PnP replay on UI-stripped AOSP ATD",
+    "KVM_REQUIRED_NO_FALLBACK": "four synthetic Android x86_64 ART/Bionic/JNI/filesystem tests on UI-stripped AOSP ATD",
+}
+
+
+def selected_tests(cpu_mode="UNSUPPORTED_TCG"):
+    if cpu_mode == "UNSUPPORTED_TCG":
+        return EXPECTED
+    if cpu_mode == "KVM_REQUIRED_NO_FALLBACK":
+        return ORIGINAL_EXPECTED
+    raise Failure("Unknown CPU mode for closed test selection")
+
+
 APP = "com.realityforge.scanner"
 RUNNER = APP + ".test/androidx.test.runner.AndroidJUnitRunner"
 SERIAL = "emulator-5580"
@@ -292,16 +313,16 @@ def associate_app_anr_dropbox(logcat, dropbox, before, after, fingerprint):
         return unavailable
 
 
-def base_receipt():
+def base_receipt(cpu_mode="UNSUPPORTED_TCG"):
     return {"schema": "realityforge.software-emulator-diagnostic.v1", "status": "NOT_RUN",
-            "scope": "four synthetic Android x86_64 ART/Bionic/JNI/filesystem tests on UI-stripped AOSP ATD",
+            "scope": SCOPES[cpu_mode],
             "systemImageProfile": {"package": IMAGE, "revision": IMAGE_REVISION,
                 "uiRendering": "expected-factory-disabled", "qualificationEquivalent": False},
-            "cpuMode": "UNSUPPORTED_TCG", "graphicsMode": "software",
+            "cpuMode": cpu_mode, "graphicsMode": "software",
             "qualification": {name: "NOT_RUN" for name in (
                 "originalDeviceGate", "fullInstrumentation", "physicalCapture", "arm64",
                 "performance", "graphicsQualification", "runtime16kb")},
-            "budgetsSeconds": BUDGETS.copy(), "expectedSelectors": list(EXPECTED),
+            "budgetsSeconds": BUDGETS.copy(), "expectedSelectors": list(selected_tests(cpu_mode)),
             "startedAtUtc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
 
 
@@ -707,15 +728,17 @@ def verify_license_snapshot(sdk, expected):
         raise Blocked("SDK license records changed; no new terms may be accepted")
 
 
-def parse_instrumentation(output):
-    """Require real, complete JUnit start/finish events for exactly four identities."""
+def parse_instrumentation(output, cpu_mode="UNSUPPORTED_TCG"):
+    """Require complete events for the closed five-software/four-accelerated scope."""
+    expected = selected_tests(cpu_mode)
+    count = len(expected)
     if len(output.encode()) > INSTRUMENTATION_LIMIT:
         raise Failure("Instrumentation evidence exceeds bounded size")
     if any(x in output for x in ("FAILURES!!!", "INSTRUMENTATION_FAILED", "Process crashed",
                                 "INSTRUMENTATION_ABORTED", "INSTRUMENTATION_RESULT: shortMsg=")):
         raise Failure("Instrumentation crash/failure marker")
-    if re.findall(r"^OK \((\d+) tests?\)\s*$", output, re.M) != ["4"]:
-        raise Failure("Missing or inconsistent four-test JUnit summary")
+    if re.findall(r"^OK \((\d+) tests?\)\s*$", output, re.M) != [str(count)]:
+        raise Failure("Missing or inconsistent selected-test JUnit summary")
     fields, started, completed, active, events = {}, set(), set(), None, []
     final_seen = False
     for line in output.splitlines():
@@ -740,7 +763,7 @@ def parse_instrumentation(output):
                 index, total = int(fields["current"]), int(fields["numtests"])
             except ValueError as error:
                 raise Failure("Noninteger instrumentation event") from error
-            if identity not in EXPECTED or total != 4 or not 1 <= index <= 4:
+            if identity not in expected or total != count or not 1 <= index <= count:
                 raise Failure("Unexpected test identity/count")
             if code == 1:
                 if active or identity in started or index != len(started) + 1:
@@ -756,9 +779,9 @@ def parse_instrumentation(output):
                 raise Failure("A selected test failed, skipped or had an assumption failure")
             events.append({"selector": identity, "current": index, "total": total, "code": code})
             fields = {}
-    if not final_seen or fields or active or started != set(EXPECTED) or completed != set(EXPECTED) or len(events) != 8:
+    if not final_seen or fields or active or started != set(expected) or completed != set(expected) or len(events) != 2 * count:
         raise Failure("Missing, partial or duplicate selected-test proof")
-    return {"tests": 4, "passed": 4, "failed": 0, "skipped": 0, "events": events,
+    return {"tests": count, "passed": count, "failed": 0, "skipped": 0, "events": events,
             "rawSha256": hashlib.sha256(output.encode()).hexdigest()}
 
 
@@ -768,14 +791,17 @@ def junit_xml(proof, receipt):
     mode = receipt.get("cpuMode")
     if mode not in names:
         raise Failure("Unknown CPU mode in diagnostic JUnit receipt")
-    suite = ET.Element("testsuite", name=names[mode], tests="4",
+    expected = selected_tests(mode)
+    if proof["tests"] != len(expected) or proof["passed"] != len(expected):
+        raise Failure("JUnit proof does not match selected CPU-mode scope")
+    suite = ET.Element("testsuite", name=names[mode], tests=str(len(expected)),
                        failures="0", errors="0", skipped="0")
     properties = ET.SubElement(suite, "properties")
     for name, value in (("sourceSha", receipt["sourceSha"]), ("appSha256", receipt["appSha256"]),
                         ("testSha256", receipt["testSha256"]), ("rawSha256", proof["rawSha256"]),
                         ("scope", receipt["scope"]), ("cpuMode", mode)):
         ET.SubElement(properties, "property", name=name, value=value)
-    for selector in EXPECTED:
+    for selector in expected:
         owner, method = selector.split("#")
         ET.SubElement(suite, "testcase", classname=owner, name=method)
     return ET.tostring(suite, encoding="unicode")
@@ -893,11 +919,13 @@ def private_environment(env, temp, adb_port):
 
 
 class Controller:
+    CPU_MODE = "UNSUPPORTED_TCG"
+
     def __init__(self, root=ROOT, env=None, clock=time.monotonic):
         self.root, self.env, self.clock = root, dict(os.environ if env is None else env), clock
         self.started = clock()
         self.ends = self.started + BUDGETS["controller"]
-        self.receipt = base_receipt()
+        self.receipt = base_receipt(self.CPU_MODE)
         self.emulator = None
         self.emulator_output = None
         self.adb_server = None
@@ -1591,11 +1619,11 @@ class Controller:
         try:
             record["effectiveTimeoutSeconds"] = self.remaining(BUDGETS["instrumentation"])
             output, _ = self.command("instrumentation", self.adb_args("-s", SERIAL, "shell", "am", "instrument", "-w", "-r",
-                           "-e", "class", ",".join(EXPECTED), RUNNER), timeout=record["effectiveTimeoutSeconds"],
+                           "-e", "class", ",".join(selected_tests(self.receipt["cpuMode"])), RUNNER), timeout=record["effectiveTimeoutSeconds"],
                                     limit=INSTRUMENTATION_LIMIT, identity=record["process"])
             emit("instrumentation-full", output, INSTRUMENTATION_LIMIT)
             emit_raw_instrumentation(output)
-            proof = parse_instrumentation(output)
+            proof = parse_instrumentation(output, self.receipt["cpuMode"])
             record["status"] = "EVENTS_VERIFIED"
         except Exception as error:
             record.update(status=getattr(error, "status", "FAIL"), error=str(error)[:1024],

@@ -55,13 +55,15 @@ class AcceleratedControls(unittest.TestCase):
                           (diag.Controller, "accelerated-atd-focused")):
             receipt = cls(env={}).receipt
             receipt.update(sourceSha="a" * 40, appSha256="b" * 64, testSha256="c" * 64)
-            xml = ET.fromstring(diag.base.junit_xml({"rawSha256": "d" * 64}, receipt))
+            xml = ET.fromstring(diag.base.junit_xml({"rawSha256": "d" * 64, "tests": len(receipt["expectedSelectors"]),
+                "passed": len(receipt["expectedSelectors"])}, receipt))
             self.assertEqual(xml.get("name"), name)
             properties = {p.get("name"): p.get("value") for p in xml.findall("properties/property")}
             self.assertEqual(properties["cpuMode"], receipt["cpuMode"])
         receipt["cpuMode"] = "UNKNOWN"
         with self.assertRaises(diag.base.Failure):
-            diag.base.junit_xml({"rawSha256": "d" * 64}, receipt)
+            diag.base.junit_xml({"rawSha256": "d" * 64, "tests": len(receipt["expectedSelectors"]),
+                "passed": len(receipt["expectedSelectors"])}, receipt)
 
     def test_kvm_query_closes_owned_descriptor(self):
         with mock.patch.object(diag.os, "open", return_value=73) as opened, \
@@ -117,6 +119,14 @@ class AcceleratedControls(unittest.TestCase):
             boot.assert_not_called()
             self.assertEqual(stop.call_count, 2)
             self.assertNotIn("RF_DIAGNOSTIC_JUNIT", stream.getvalue())
+
+    def test_accelerated_scope_remains_four_without_new_software_pnp_selector(self):
+        obj = diag.Controller(env={})
+        self.assertEqual(obj.receipt["expectedSelectors"], list(diag.base.ORIGINAL_EXPECTED))
+        self.assertEqual(len(obj.receipt["expectedSelectors"]), 4)
+        self.assertNotIn("CenteredTranslation", " ".join(obj.receipt["expectedSelectors"]))
+        self.assertEqual(diag.base.Controller(env={}).receipt["expectedSelectors"], list(diag.base.EXPECTED))
+        self.assertEqual(len(diag.base.EXPECTED), 5)
 
     def test_workflow_manual_without_mutators_or_acceptance(self):
         text = (diag.ROOT / ".github/workflows/accelerated-atd-diagnostic.yml").read_text()

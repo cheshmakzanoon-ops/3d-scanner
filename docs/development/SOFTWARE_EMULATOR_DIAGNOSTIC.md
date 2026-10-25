@@ -1,7 +1,8 @@
 # Focused software-emulator experiment — not candidate qualification
 
-This **explicitly opted-in, supplementary diagnostic** tests four synthetic Android
-x86_64 ART/Bionic/JNI/filesystem contracts. CPU software emulation (TCG) is
+This **explicitly opted-in, supplementary diagnostic** tests **five NON-UI Android
+x86_64 contracts**: four unchanged synthetic JNI/filesystem checks plus one
+real-capture-derived numeric PnP regression. It does not reconstruct photographs. CPU software emulation (TCG) is
 explicitly unsupported by current Android Emulator documentation and can be very
 slow. A successful experiment is useful runtime evidence; it does **not** replace
 the accelerated device gate, the full compatibility suite, physical ARM64 tests,
@@ -28,7 +29,7 @@ device selectors are removed. No key or signing material is printed or uploaded.
 Implementation and host tests do not execute Android. Publishing the exact
 opted-in commit intentionally requests one automatic attempt under the existing
 authorized repository CI; it is not a credential or permissions workaround.
-The latest 89d9 invocation failed before any selected test event: the invocation is **FAIL**,
+The historical 89d9 invocation failed before any selected test event: that invocation is **FAIL**,
 with zero demonstrated test executions/completions. Boot or installation alone is
 narrower evidence, not an instrumentation pass.
 
@@ -50,32 +51,34 @@ fails rather than silently changing mode or downgrading.
 ### One-shot push admission
 
 This source-reviewed re-arm requests one current-source **NON-UI**, unsupported
-TCG attempt after the raw-SIFT rollback. The unchanged four selectors test native
-Android JNI and private feature-cache behavior only; they do not exercise RootSIFT
-extraction, real-photo reconstruction, Activities, rendering, Filament or SAF.
-The earlier ATD pass is historical evidence, not a pass for this new source.
+TCG attempt on the corrected pose implementation. The original four methods are
+unchanged; a fifth exercises numeric camera-registration JNI with 45 licensed
+reference-derived rows. No Activities, rendering, Filament or SAF are exercised.
+Earlier four-test passes do not satisfy this five-test scope. The separate
+accelerated ATD controller retains exactly its original four methods through a
+closed CPU-mode selector mapping; its permissions and launch behavior are unchanged.
 KVM access approval remains separate; no accelerated workflow is invoked here.
-
 
 Automatic execution is limited to the public `cheshmakzanoon-ops/3d-scanner`
 repository's `refs/heads/main`, on attempt 1, with all of the following:
 
-- Previous head exactly `df49877b6c3b736f795ac2f45a6c2029bf2000f7`.
-- Exact commit message `test: verify software-only Android native smoke checks`.
+- Previous head exactly `f6cdd12b937bc85d3958ca7b6f5dcf8f3035058d`.
+- Exact commit message `test: verify corrected pose registration on Android`.
 - A normal update, not a created/deleted branch or forced push.
 - Event `after`, head-commit ID and `GITHUB_SHA` all identical.
 - One non-merge commit whose actual parent is that previous head; the committed
   message must also match the event's explicit opt-in.
 - Only modifications to `.github/workflows/software-emulator-diagnostic.yml`,
   `tools/device/software_emulator/diagnostic.py`,
-  `tests/test_software_emulator_diagnostic.py`, `tests/test_skull_reference.py`,
-  this document and `SOURCE_MANIFEST.sha256`; additions only for
-  `tests/skull_reference_fixture.py` and `tests/test_skull_reference_fixture.py`.
-  The three reference-fixture paths are the separately reviewed host signal-fixture
-  repair, not added Android selectors or production behavior. Both the workflow
-  and controller must change. Wrong statuses (including modification rather than
-  addition of the two new fixture files), other additions, deletions, renames,
-  unrelated paths and missing history are rejected.
+  `tools/device/accelerated_emulator/diagnostic.py`,
+  `tests/test_software_emulator_diagnostic.py`, `tests/test_accelerated_atd_diagnostic.py`,
+  this document, `README.md`, `docs/MILESTONE_STATUS.md`, `docs/NEXT_MILESTONE.md`
+  and `SOURCE_MANIFEST.sha256`; additions only for
+  `app/src/androidTest/java/com/realityforge/scanner/CenteredTranslationPnpNativeTest.kt`,
+  `app/src/androidTest/assets/pnp/centered-translation-45.json` and
+  `app/src/androidTest/assets/pnp/README.md`.
+  Both workflow and software controller must change. Wrong statuses, other additions,
+  production changes, deletions, renames, unrelated paths and missing history block.
 
 The workflow filters pushes by the two exact workflow/controller paths and has a
 job-level event guard. The controller independently checks the event, clean exact
@@ -186,7 +189,7 @@ A true initial missing-library failure can occur before backend initialization.
 That narrow case requires exit 127, a paired owned launcher startup, no other PID,
 and exactly one canonical SDK-backend missing-SONAME loader-error line. Ambiguous
 or differently shaped failures block rather than guessing the backend or repairing
-libraries. The normal four-test runtime acceptance gates are unchanged.
+libraries. The normal selected-test runtime acceptance gates are unchanged.
 
 Unknown backend/loader output, inherited `LD_*` overrides, `GLIBC_TUNABLES` or
 system-library preference overrides block rather than guessing a search order.
@@ -273,7 +276,7 @@ SHA-256, chunk count and a `complete` flag. Require every numbered chunk exactly
 once in order, strict base64 decoding, and matching length/hash before review.
 `complete=false` marks partial timeout/overflow capture and cannot establish a
 complete probe or a successful setup. This changes neither instrumentation's
-separate transcript format nor its strict four-test proof requirements.
+separate transcript format nor its strict selected-test proof requirements.
 
 `hostLibraries.launcherProbe` is attached to the receipt before execution; it
 records the owned PID, captured byte count/hash, completion and exit when known.
@@ -807,7 +810,7 @@ tests plus 11 native-process environment-boundary checks). Independent review
 passed all 130 diagnostic tests and 290 subtests. These are host checks, not ATD
 execution evidence.
 
-## Exactly four tests
+## Exactly five software-mode tests (four original methods unchanged)
 
 All methods in `agents.a037.CalibratedInitializerNativeTest`:
 
@@ -819,9 +822,25 @@ And `agents.a033.FeatureCacheDeviceTest`:
 
 - `privateAndroidCacheHitsCorruptionRecomputesAndEvictionPreservesUnownedFiles`
 
-Each selector is fully qualified under `com.realityforge.scanner` in the
-controller. No camera/Compose/viewer activity is launched by these tests. Fixtures
-remain synthetic; no reconstruction-quality or complete-object claim follows.
+And `CenteredTranslationPnpNativeTest`:
+
+- `realNumericRowsKeepStrongSupportAcrossBoundedOriginShift`
+
+The fifth test loads a hash-pinned, numeric-only 45-row fixture derived from
+validated replay `pnp-replay-4b239.json` (SHA-256
+`d7dcb3daa08de6be743da959d05e19599ce7aa2ae01cc3b20c8f5f9a89808361`).
+At the original threshold `5.113144661933157E-4`, actual cancellable Android JNI
+must return >=40/45 support, with proper rotation, positive depth and strict
+reprojection for every reported row. A bounded origin shift checks
+`t_shift = t - R*d`; native tokens are owned and finished in `finally`.
+No exact hypothesis-count expectation is imposed across ABIs. Asset attribution,
+numeric derivation and license are retained alongside it; no JPEG, database or
+descriptor data is packaged. Shape/finite/bounds/hash checks fail closed.
+
+Each selector is fully qualified under `com.realityforge.scanner`. No camera,
+Compose, viewer or SAF activity is launched. Four synthetic checks plus this
+reference-derived numeric regression do not establish real-photo reconstruction,
+quality, complete objects, UI behavior or ARM64 portability.
 
 ## Fail-closed evidence
 
@@ -841,11 +860,11 @@ recorded-version experiment, not a claim that the mutable runner image is pinned
 
 `adb` exit code is insufficient. The raw AndroidJUnitRunner output must contain:
 
-- Each of the four exact method identities, once, with one matching start and
+- Each of the five exact software-mode method identities, once, with one matching start and
   successful terminal event, consistent totals and sequential indices.
 - No failure, ignored test, assumption failure, duplicate, missing event, crash
   marker, incomplete output, unexpected selector or extra test.
-- Exactly one `OK (4 tests)` summary and one final instrumentation code `-1`.
+- Exactly one `OK (5 tests)` summary and one final instrumentation code `-1`.
 
 Only after all checks and cleanup succeed are `RF_DIAGNOSTIC_JUNIT` (one XML line)
 and `RF_DIAGNOSTIC_RECEIPT` (one JSON line) emitted. JUnit is generated from the
@@ -868,7 +887,7 @@ required or produced.
 
 `PASS` always retains `NOT_RUN` for all original/physical/performance qualification
 fields. `BLOCKED`, `TIMEOUT`, `CANCELLED`, `FAIL`, skipped jobs or missing receipts
-do not establish the four-test result. Host unit tests exercise parser/policy and
+do not establish the five-test software result. Host unit tests exercise parser/policy and
 process control only; they are not Android execution evidence.
 
 ## Reviewed official references

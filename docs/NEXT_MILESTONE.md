@@ -28,14 +28,12 @@ unknown, scale stays arbitrary without measurement, and open patches stay open.
 
 ## Immediate validation priorities — 25 October 2026
 
-The three-photo synthetic full-controller HOST journey passed on `5beb2d3`;
-the selected installed Filament lifecycle test passed on `7ff6395`. Neither
-closes installed import → reconstruction → inspection → reopen/export or
-physical-quality qualification. See [current status](MILESTONE_STATUS.md) for
-source-bound results and failures. Android checks on `80925b8` and `df49877`
-pass with 919 tests; `80925b8` also passed four software-only native/cache checks.
-The recovered `df49877` partial-model roundtrip is not a strict three-view pass,
-and installed UI/real-photo workflows remain unqualified.
+The fixed licensed three-photo [HOST journey passes on `f6cdd12`](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40220547113):
+all three cameras register, global typed bundle adjustment completes, and nine
+blobs / three exports / publication / reopen are verified. This is not installed
+UI or physical-quality qualification. Android checks pass with 920 tests;
+full native CI still fails. The synthetic `5beb2d3` journey and selected `7ff6395`
+Filament lifecycle pass remain historical source-bound evidence.
 
 **Engineering APK update warning:** these builds use ephemeral test certificates;
 compatible in-place updates are not verified. Export important original captures
@@ -47,47 +45,35 @@ uninstalling preserves app-private data. These are not production-signed release
    driver without bypassing the picker. Run and retain actual rendered UI, SAF,
    reconstruction, reopen/export, cancellation and interruption evidence.
    The [4/4 software ATD native/cache pass](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214618133)
-   is not UI/SAF/Filament or ARM64 qualification; ordinary KVM preflight remains blocked.
-2. Qualify real-photo reconstruction beyond the recovered `df49877` result:
-   2/3 registered cameras and no global bundle adjustment still fail the strict
-   fixed three-photo HOST profile. Its 220 sparse / 1,623 dense points and
-   884 textured triangles passed bounded export/reopen checks, not the full
-   three-view journey. Third-camera PnP has 45 distinct tracks but only one best
-   inlier from 450 valid hypotheses, below the required 16. Diagnose that failure
-   without lowering pose gates. The `4b23941`
-   [read-only replay](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40217424869)
-   now retains bounded 45-row source/projection/anchor evidence and exact failure
-   agreement, with source/cache/schema/privacy checks passing. Its
-   [documented scope](https://github.com/cheshmakzanoon-ops/3d-scanner/blob/4b23941e8424b59ba2056f54c18a3b4bfff634bd/docs/development/REAL_THREE_PNP_REPLAY.md)
-   is READ_ONLY_REPLAY_NOT_ORIGINAL_CALL_NOT_QUALITY, not a third-camera pass.
-   The failed `af6c3fb` RootSIFT trial was rolled
-   back, not promoted. Use the [independent three-camera COLMAP reference](development/experiments/skull-colmap-reference.md)
-   as a comparison, not a scanner pass. The supplementary
-   C-ABI diagnostic pass is not a release gate. Preserve registration, geometry
-   and photographic-texture acceptance; exact-pair support deduplication does not
-   resolve every pose-conditioning problem. Earlier stereo and low-resolution
-   eight-photo failures remain source-bound failures, not alternate passes.
+   belongs only to `80925b8`, not UI/SAF/Filament or ARM64 qualification. The
+   new five-check Android PnP candidate is NOT_RUN; obtain its actual result
+   without treating it as a complete installed UI/real-photo journey.
+2. Improve dense coverage and investigate the **zero cross-view fusion** reported
+   by the `f6cdd12` diagnostics. Third-camera registration is no longer the blocker
+   on this fixed fixture: all three register, with 45 tracks for the third camera
+   and global typed bundle adjustment. Preserve that verified progress while
+   measuring why the 2,469 dense points / 1,296 triangles still form a fragmented
+   result; do not lower geometry gates or invent missing surfaces.
+   The earlier failed RootSIFT trial remains rolled back. The
+   [independent COLMAP reference](development/experiments/skull-colmap-reference.md)
+   remains a comparison, not physical ground truth or scanner quality acceptance.
 3. Continue measured topology repair beyond the supported-diagonal change.
    The `5beb2d3` synthetic result still has 653 nonmanifold edges,
    113 components and 9,542 boundary edges; intersection analysis is incomplete.
-   The recovered real `df49877` partial mesh has 1,032 vertices, 982 boundary edges and
-   411 reported intersections despite zero nonmanifold edges; it remains visibly
+   The real `f6cdd12` mesh has 1,618 vertices, 1,580 boundary edges and
+   558 reported intersections despite zero nonmanifold edges; it remains visibly
    fragmented and is not watertight.
    Exact-quad consistency is not general surface fusion or hole repair. Do not
    hide defects, fabricate unseen surfaces or label open meshes watertight.
    The `813f312` exact planar ownership QA passes its dedicated sanitizer and
    release cases but remains OFF by default; production integration and mobile
    qualification require separate evidence. It has not repaired this mesh.
-4. Fix full-candidate sanitizer failures and obtain a green result. On
-   [`80925b8`](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40214617937),
-   GCC and Clang each completed 4,457 cases: 4,412 passed, 17 failed, 28 skipped,
-   zero errors. All jobs are terminal; native/candidate aggregate gates fail.
-   Diagnose the shared 17 failures without waiving them. Later `4b23941`
-   release/sanitizer suites aborted on an oversized autogenerated test ID;
-   verify the reviewed ID-only correction in actual CI before claiming recovery.
-   The test payload and 8,192-byte identity cap are unchanged. Android/release builds,
-   benchmark compilation and supplementary diagnostics do not replace these
-   native gates or qualify installed workflows.
+4. Fix full-candidate sanitizer failures and obtain a green result. On `f6cdd12`,
+   GCC and Clang each completed 4,513 cases: 4,468 passed, 17 failed, 28 skipped.
+   All jobs are terminal; native/candidate/device gates fail. Diagnose the 17
+   failures without waiving them. Android/release builds, benchmark compilation
+   and the actual HOST journey pass do not replace these gates or qualify
+   installed workflows. Historical test-ID aborts are not current full-suite passes.
 5. Validate calibrated physical ARM64 captures against independent reference
    geometry, texture and resource measurements before raising the enforced
    2–12-photo/eight-dense-view limits or claiming complete-object quality.

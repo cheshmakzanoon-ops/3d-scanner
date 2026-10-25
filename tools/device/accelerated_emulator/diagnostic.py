@@ -45,6 +45,8 @@ def check_kvm():
 
 
 class Controller(base.Controller):
+    CPU_MODE = "KVM_REQUIRED_NO_FALLBACK"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.env.pop("ANDROID_I_WANT_MY_TCG", None)
