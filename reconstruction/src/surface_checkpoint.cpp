@@ -376,7 +376,7 @@ checkpoint::Digest geometryIdentity(std::span<const DenseView> views) {
 checkpoint::Digest algorithmIdentity(const SurfaceSettings& settings) {
     validSettings(settings);
     // Observation relationships must be recomputed, without changing depth identities.
-    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v10-checkpoint-v3-provenance-v1-topology-v2");
+    checkpoint::Sha256 digest;digest.update("realityforge-observed-open-surface-fusion-v11-checkpoint-v3-provenance-v1-topology-v2");
     hashInteger(digest,std::bit_cast<std::uint32_t>(settings.minimumConfidence));
     hashReal(digest,settings.maximumRelativeDepthJump);hashReal(digest,settings.maximumEdgePixelFactor);
     hashInteger(digest,static_cast<std::uint32_t>(settings.maxVertices));hashInteger(digest,static_cast<std::uint32_t>(settings.maxTriangles));

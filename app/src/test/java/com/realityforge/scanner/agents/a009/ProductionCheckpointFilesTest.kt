@@ -179,7 +179,7 @@ class ProductionCheckpointFilesTest {
     @Test fun fusionVersionInvalidatesOnlySurfaceAndTextureNotDepthOrSparseParents() = runBlocking {
         for (profile in DensePreviewProfile.entries) {
             val current = productionInput(profile)
-            assertEquals("rf-observed-open-mesh-v10-projective-depth-sampling|quality-gated", current.settings.surface)
+            assertEquals("rf-observed-open-mesh-v11-shared-admissible-diagonal|quality-gated", current.settings.surface)
             val legacy = current.copy(settings = current.settings.copy(
                 surface = "rf-observed-open-mesh-v9-three-observed-corners|quality-gated"))
             val binding = ArtifactProvenanceFixtures.binding()
@@ -223,7 +223,7 @@ class ProductionCheckpointFilesTest {
         val legacy = File(accepted.depthDirectory, "surface-v2.rfmesh")
         val protectedFiles = (listOf(legacy, accepted.surfaceFile) + fixture.depthReferences.map { File(fixture.root, it) })
             .associateWith { it.readBytes() }
-        assertEquals("surface-v3-fusion-v10.rfmesh", accepted.surfaceFile.name)
+        assertEquals("surface-v3-fusion-v11.rfmesh", accepted.surfaceFile.name)
         assertNotEquals(legacy, accepted.surfaceFile)
         assertEquals(listOf("ref-0.bin", "ref-1.bin"), fixture.depthReferences.map { File(it).name })
         repeat(2) {

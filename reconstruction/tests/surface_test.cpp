@@ -85,6 +85,86 @@ DiagonalFixture observedCell(unsigned mask,bool duplicate=false,double zLast=5.,
 int main(){
     int passed=0;
     auto test=[&](const char* name,auto fn){try{fn();++passed;std::cout<<"PASS "<<name<<'\n';}catch(const std::exception& e){std::cerr<<"FAIL "<<name<<": "<<e.what()<<'\n';throw;}};
+    test("four observed corners choose the admissible diagonal before discarding faces",[]{
+        for(double scale:{.01,1.,100.})for(int quarterTurns=0;quarterTurns<4;++quarterTurns)for(bool duplicate:{false,true}){
+            auto f=observedCell(15,duplicate);
+            // A measured cell near a depth discontinuity. Its shorter 0--3 diagonal
+            // straddles rejected depth ranges in both faces; 0--1--2 is supported.
+            const std::array<float,4> depths{4.99766506f,5.35574276f,4.95924027f,4.58438952f};
+            for(auto& view:f.views)view.cx=0;
+            for(auto& map:f.dense.maps){std::fill(map.depth.begin(),map.depth.end(),0);std::fill(map.confidence.begin(),map.confidence.end(),0);}
+            for(std::size_t i=0;i<f.dense.verifiedSamples.size();++i){
+                auto& sample=f.dense.verifiedSamples[i];const auto& view=f.views[sample.camera];
+                const float z=static_cast<float>(depths[i%4]*scale);
+                sample.xyz={(sample.x-view.cx)*z/view.fx,(sample.y-view.cy)*z/view.fy,z};
+            }
+            // Rotate the camera-local sampling grid, not the physical surface.
+            // All four cases preserve exact source points and observed depths.
+            for(int turn=0;turn<quarterTurns;++turn){
+                const std::array<double,9> r{0,-1,0,1,0,0,0,0,1};
+                for(auto& view:f.views){const double oldCx=view.cx;view.cx=33-view.cy;view.cy=oldCx;view.pose.rotation=rf::multiply(r,view.pose.rotation);}
+                for(auto& sample:f.dense.verifiedSamples){const auto oldX=sample.x;sample.x=33-sample.y;sample.y=oldX;}
+            }
+            for(const auto& sample:f.dense.verifiedSamples)for(auto& map:f.dense.maps){
+                map.depth[sample.y*map.width+sample.x]=static_cast<float>(sample.xyz.z);
+                map.confidence[sample.y*map.width+sample.x]=sample.confidence;
+            }
+            const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense);
+            require(mesh.triangles.size()==1&&mesh.vertices.size()==3,"Short diagonal discarded an admissible observed triangle");
+            const std::size_t sources=duplicate?2:1;
+            require(mesh.acceptedSamples==4*sources&&mesh.observations.size()==3*sources&&mesh.unattachedObservations.size()==sources,"Adaptive diagonal lost source ledger");
+            require(mesh.topology.nonmanifoldEdges==0&&mesh.topology.intersections==0&&!mesh.topology.intersectionBudgetExceeded,
+                    "Adaptive diagonal introduced invalid topology");
+            for(const auto& observation:mesh.observations){
+                require(observation.sourceSampleId%4<3,"Adaptive diagonal bridged rejected fourth corner");
+                const auto& input=f.dense.verifiedSamples[observation.sourceSampleId];
+                const auto& output=mesh.vertices[observation.vertex];
+                require(std::abs(input.xyz.x-output.xyz.x)<=scale*1e-12&&std::abs(input.xyz.y-output.xyz.y)<=scale*1e-12&&std::abs(input.xyz.z-output.xyz.z)<=scale*1e-12,
+                        "Adaptive diagonal changed an observed position");
+                require(observation.camera==input.camera&&observation.x==input.x&&observation.y==input.y,
+                        "Adaptive diagonal changed source provenance");
+            }
+            const auto& t=mesh.triangles.front();const auto& a=mesh.vertices[t.a];const auto& b=mesh.vertices[t.b];const auto& c=mesh.vertices[t.c];
+            require(t.sourceCamera==0,"Adaptive diagonal changed source camera");
+            const double facing=a.normal.x*a.xyz.x+a.normal.y*a.xyz.y+a.normal.z*a.xyz.z;
+            require(facing<0,"Adaptive diagonal reversed camera-facing winding");
+            const double maxZ=std::max({a.xyz.z,b.xyz.z,c.xyz.z}),minZ=std::min({a.xyz.z,b.xyz.z,c.xyz.z});
+            require((maxZ-minZ)/maxZ<=rf::SurfaceSettings{}.maximumRelativeDepthJump,"Adaptive diagonal relaxed the depth gate");
+            for(const auto& observation:mesh.unattachedObservations)require(observation.sourceSampleId%4==3,"Rejected corner vanished from unattached evidence");
+        }
+    });
+    test("exact quads share one diagonal across camera-local admission differences",[]{
+        for(bool reverse:{false,true})for(int rotatedCamera:{-1,0,1}){
+            auto f=observedCell(15,true);
+            const std::array<float,4> depths{4.99766506f,5.35574276f,4.95924027f,4.99766506f*.92f};
+            for(auto& view:f.views)view.cx=0;
+            for(auto& map:f.dense.maps){std::fill(map.depth.begin(),map.depth.end(),0);std::fill(map.confidence.begin(),map.confidence.end(),0);}
+            for(std::size_t i=0;i<f.dense.verifiedSamples.size();++i){
+                auto& sample=f.dense.verifiedSamples[i];const auto& view=f.views[sample.camera];const auto z=depths[i%4];
+                sample.xyz={(sample.x-view.cx)*z/view.fx,(sample.y-view.cy)*z/view.fy,z};
+            }
+            if(rotatedCamera>=0){
+                auto& view=f.views[rotatedCamera];view.cx=14;view.cy=0;view.pose.rotation={0,-1,0,1,0,0,0,0,1};
+                for(auto& sample:f.dense.verifiedSamples)if(sample.camera==rotatedCamera){const auto oldX=sample.x;sample.x=33-sample.y;sample.y=oldX;}
+            }
+            for(std::size_t i=0;i<f.dense.verifiedSamples.size();++i){
+                const auto& sample=f.dense.verifiedSamples[i];auto& map=f.dense.maps[sample.camera];
+                // Both maps satisfy the existing 0.001 source-depth agreement.
+                // Their ±0.0005 uncertainty straddles the 0.08 face gate.
+                const double sign=(sample.camera==0)^reverse?1.:-1.;
+                const double perturb=i%4==0?sign:i%4==3?-sign:0.;
+                map.depth[sample.y*map.width+sample.x]=static_cast<float>(sample.xyz.z*(1+perturb*.0005));
+                map.confidence[sample.y*map.width+sample.x]=sample.confidence;
+            }
+            const auto mesh=rf::fuseDepthSurfaces(f.views,f.dense);
+            require(mesh.triangles.size()==1,"Different camera gates introduced crossing exact-quad triangulations");
+            require(mesh.topology.nonmanifoldEdges==0&&mesh.topology.intersections==0&&!mesh.topology.intersectionBudgetExceeded,
+                    "Shared diagonal introduced a cross-view topology defect");
+            require(mesh.acceptedSamples==8&&mesh.observations.size()+mesh.unattachedObservations.size()==8,"Shared diagonal lost source observations");
+            require(mesh.triangles.front().sourceCamera==(reverse?0:1),"Shared diagonal accepted a face from the rejecting camera");
+            for(const auto& o:mesh.observations)require(o.sourceSampleId%4!=1,"Shared diagonal emitted the conflicting alternative face");
+        }
+    });
     test("three observed corners retain exactly one supported face in every orientation",[]{
         for(int missing=0;missing<4;++missing){
             const auto f=observedCell(15u^(1u<<missing));

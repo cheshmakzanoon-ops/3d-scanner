@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <limits>
 #include <locale>
+#include <map>
 #include <numeric>
 #include <sstream>
 #include <unordered_map>
@@ -281,7 +282,7 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
     std::unordered_set<FaceKey,FaceHash> faces;
     faces.reserve(s.maxTriangles);
     const int step=s.pixelStride;
-    auto validTriangle=[&](std::size_t cam,std::array<std::int32_t,3> ids,std::array<float,3> depths){
+    auto admissibleTriangle=[&](std::size_t cam,std::array<std::int32_t,3> ids,std::array<float,3> depths){
         if(ids[0]<0||ids[1]<0||ids[2]<0||ids[0]==ids[1]||ids[1]==ids[2]||ids[0]==ids[2])return false;
         const auto& view=views[cam];
         const double maxZ=std::max({depths[0],depths[1],depths[2]});
@@ -295,21 +296,70 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
         if(norm(sub(A,B))>limit||norm(sub(A,C))>limit||norm(sub(B,C))>limit)return false;
         const Vec3 normal=cross(sub(B,A),sub(C,A));
         if(norm(normal)<footprint*footprint*.015)return false;
+        return true;
+    };
+    auto validTriangle=[&](std::size_t cam,std::array<std::int32_t,3> ids,std::array<float,3> depths){
+        if(!admissibleTriangle(cam,ids,depths))return false;
+        const auto& A=mesh.vertices[static_cast<std::size_t>(ids[0])].xyz;
+        const auto& B=mesh.vertices[static_cast<std::size_t>(ids[1])].xyz;
+        const auto& C=mesh.vertices[static_cast<std::size_t>(ids[2])].xyz;
+        const Vec3 normal=cross(sub(B,A),sub(C,A));
         std::array<std::uint32_t,3> sorted{static_cast<std::uint32_t>(ids[0]),static_cast<std::uint32_t>(ids[1]),static_cast<std::uint32_t>(ids[2])};
         std::sort(sorted.begin(),sorted.end());
         if(!faces.insert({sorted[0],sorted[1],sorted[2]}).second)return false;
         auto tri=SurfaceTriangle{static_cast<std::uint32_t>(ids[0]),static_cast<std::uint32_t>(ids[1]),static_cast<std::uint32_t>(ids[2]),static_cast<std::uint8_t>(cam)};
         const Vec3 centroid=mul(add(add(A,B),C),1./3);
-        if(dot(normal,sub(cameraCenter(view),centroid))<0)std::swap(tri.b,tri.c);
+        if(dot(normal,sub(cameraCenter(views[cam]),centroid))<0)std::swap(tri.b,tri.c);
         mesh.triangles.push_back(tri);
         return true;
     };
+    using WorldPoint=std::array<double,3>;
+    using DiagonalKey=std::array<WorldPoint,2>;
+    using QuadKey=std::array<DiagonalKey,2>;
+    const auto pointKey=[&](std::int32_t id){const auto& p=mesh.vertices[static_cast<std::size_t>(id)].xyz;return WorldPoint{p.x,p.y,p.z};};
+    const auto diagonalKey=[&](const auto& ids,int a,int b){
+        DiagonalKey key{pointKey(ids[a]),pointKey(ids[b])};std::sort(key.begin(),key.end());return key;
+    };
+    // A camera-local validity decision must not make identical world-space quads
+    // choose crossing diagonals in different views. Gather the admissible halves
+    // for each exact pair of possible diagonals before selecting one shared split.
+    // Exact keys deliberately do not weld or quantize nearby/ambiguous surfaces,
+    // resolve general overlaps, or arbitrate three-corner versus full-quad faces.
+    // Validated finite source coordinates and bounded positive accumulation keep
+    // these ordered keys finite; no NaN can enter the map comparator.
+    std::map<QuadKey,std::array<std::uint8_t,2>> quadSupport;
+    constexpr int start=3;
+    for(std::size_t cam=0;cam<views.size();++cam){
+        const auto& grid=imageVertices[cam];const auto& depth=dense.maps[cam].depth;
+        for(int y=start;y+step<height-3;y+=step){
+            cancellation::checkpoint();
+            for(int x=start;x+step<width-3;x+=step){
+                const auto i=static_cast<std::size_t>(y)*width+x;
+                const std::array<std::size_t,4> pix{i,i+step,i+static_cast<std::size_t>(step)*width,i+static_cast<std::size_t>(step)*width+step};
+                const std::array<std::int32_t,4> ids{grid[pix[0]],grid[pix[1]],grid[pix[2]],grid[pix[3]]};
+                if(std::any_of(ids.begin(),ids.end(),[](auto id){return id<0;}))continue;
+                const auto key03=diagonalKey(ids,0,3),key12=diagonalKey(ids,1,2);
+                const bool first03=key03<key12;QuadKey key{key03,key12};std::sort(key.begin(),key.end());
+                auto& support=quadSupport[key];
+                // Every source cell is anchored to a distinct verified top-left
+                // sample, so the table is bounded by admitted observation count.
+                if(quadSupport.size()>dense.verifiedSamples.size())throw Error("Surface quad support budget exceeded");
+                const auto collect=[&](int a,int b,int c,std::size_t diagonal,std::uint8_t half){
+                    if(admissibleTriangle(cam,{ids[a],ids[b],ids[c]},{depth[pix[a]],depth[pix[b]],depth[pix[c]]}))support[diagonal]|=half;
+                };
+                const bool first12=pointKey(ids[1])<pointKey(ids[2]),first03Endpoint=pointKey(ids[0])<pointKey(ids[3]);
+                collect(0,1,3,first03?0:1,first12?1:2);
+                collect(0,3,2,first03?0:1,first12?2:1);
+                collect(0,1,2,first03?1:0,first03Endpoint?1:2);
+                collect(1,3,2,first03?1:0,first03Endpoint?2:1);
+            }
+        }
+    }
     for(std::size_t cam=0;cam<views.size();++cam){
         cancellation::checkpoint();
         const auto& grid=imageVertices[cam]; const auto& depth=dense.maps[cam].depth;
         // M07 samples patch centres at r+1; its default radius is 2.
         // We explicitly couple to that CPU reference, not arbitrary resampling.
-        constexpr int start=3;
         for(int y=start;y+step<height-3 && mesh.triangles.size()<s.maxTriangles;y+=step){
             cancellation::checkpoint();
             for(int x=start;x+step<width-3 && mesh.triangles.size()<s.maxTriangles;x+=step){
@@ -334,16 +384,16 @@ SurfaceMesh fuseDepthSurfaces(std::span<const DenseView> views,const DenseResult
                 const auto& v=mesh.vertices;
                 const auto dist=[&](int a,int b){return norm(sub(v[static_cast<std::size_t>(ids[a])].xyz,
                                                                   v[static_cast<std::size_t>(ids[b])].xyz));};
-                // Only exact length ties canonicalize the common world-space
-                // endpoint pair across camera-local grid orientations. No epsilon:
-                // the strictly shorter-diagonal decision remains unchanged.
-                const auto diagonalKey=[&](int a,int b){
-                    const auto& A=v[static_cast<std::size_t>(ids[a])].xyz;const auto& B=v[static_cast<std::size_t>(ids[b])].xyz;
-                    std::array<std::array<double,3>,2> key{{{A.x,A.y,A.z},{B.x,B.y,B.z}}};
-                    std::sort(key.begin(),key.end());return key;
-                };
+                const auto key03=diagonalKey(ids,0,3),key12=diagonalKey(ids,1,2);
+                QuadKey key{key03,key12};std::sort(key.begin(),key.end());
+                const auto& support=quadSupport.at(key);
+                const auto count=[](std::uint8_t mask){return (mask&1u)+((mask>>1u)&1u);};
+                const auto supported03=count(support[key03<key12?0:1]),supported12=count(support[key03<key12?1:0]);
                 const double d03=dist(0,3),d12=dist(1,2);
-                const bool diag03=d03<d12||(d03==d12&&diagonalKey(0,3)<diagonalKey(1,2));
+                // More supported halves wins. Equal support preserves the previous
+                // shortest diagonal and exact world-space canonical tie behavior.
+                const bool diag03=supported03>supported12||(supported03==supported12&&
+                    (d03<d12||(d03==d12&&key03<key12)));
                 const auto face=[&](int a,int b,int c){
                     if(mesh.triangles.size()>=s.maxTriangles)return;
                     if(!validTriangle(cam,{ids[a],ids[b],ids[c]},{d[a],d[b],d[c]}))++mesh.rejectedTriangles;
@@ -403,7 +453,7 @@ std::string surfaceJson(const SurfaceMesh& m){
      <<",\"unattachedObservationCount\":"<<m.unattachedObservations.size()
      <<",\"exactDuplicateSupportCount\":"<<std::count_if(m.observations.begin(),m.observations.end(),[](const auto& o){return o.relation==SurfaceObservationRelation::ExactDuplicateFace;})
      <<",\"rejectedCells\":"<<m.rejectedCells<<",\"rejectedTriangles\":"<<m.rejectedTriangles
-     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":10,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
+     <<",\"medianConfidence\":"<<m.medianConfidence<<",\"fusionVersion\":11,\"boundaryEdges\":"<<m.topology.boundaryEdges<<",\"nonmanifoldEdges\":"<<m.topology.nonmanifoldEdges<<",\"intersections\":"<<m.topology.intersections<<",\"topologyIncomplete\":"<<(m.topology.intersectionBudgetExceeded?"true":"false")<<",\"vertices\":[";
     for(std::size_t i=0;i<m.vertices.size();++i){
         const auto& v=m.vertices[i];if(i)s<<',';
         s<<'['<<v.xyz.x<<','<<v.xyz.y<<','<<v.xyz.z<<','<<int(v.color[0])<<','<<int(v.color[1])<<','<<int(v.color[2])
