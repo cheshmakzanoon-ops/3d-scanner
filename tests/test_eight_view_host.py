@@ -704,8 +704,8 @@ def test_command_timing_retained_by_exact_command_reference(tmp_path,monkeypatch
 
 def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
  workflow=(ROOT/'.github/workflows/eight-view-host-diagnostic.yml').read_text()
- assert p.BASE_SHA=='8c42d3a285ce3c9577859a7d5944f95f9c3b63b4'
- assert p.MESSAGE=='test: validate fixed eight-photo sparse registration'
+ assert p.BASE_SHA=='f2d4e3ac88e1b5b181898d086aee24d87732cc7f'
+ assert p.MESSAGE=='fix: retain eight-photo sparse evidence in script mode'
  assert "github.event.before == '"+p.BASE_SHA+"'" in workflow
  assert "github.event.head_commit.message == '"+p.MESSAGE+"'" in workflow
  for clause in ("github.event_name == 'push'", "github.ref == 'refs/heads/main'",
@@ -717,7 +717,7 @@ def test_next_reviewed_host_guard_matches_workflow_and_keeps_closed_scope():
   'contents: read', 'timeout-minutes: 75', 'fetch-depth: 2', 'retention-days: 1'):
   assert clause in workflow
  assert 'workflow_dispatch' not in workflow
- assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/development/REAL_EIGHT_ORBIT_SPARSE.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedEightOrbitSparsePrefixHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/real_eight_orbit_inputs.py', 'tests/test_cli_lazy_imports.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_controller.py', 'tests/test_real_three_complete.py', 'tests/stdlib_cli_boundary.py', 'tests/test_release_missing_records_boundary.py', 'tests/test_release_qualification.py', 'tests/test_real_stereo_complete.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_real_eight_orbit_evidence.py', 'tests/test_real_eight_orbit_inputs.py', 'tests/test_real_eight_orbit_sparse.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/eight_view_host/sparse_evidence.py'))
+ assert p.ALLOWED_PATHS==frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/development/REAL_EIGHT_ORBIT_SPARSE.md', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_host.py', 'tests/test_real_eight_orbit_script.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
  from tools.eight_view_host import experiments
  assert experiments.ACTIVE==experiments.REAL_EIGHT_ORBIT
  assert experiments.artifact_budget(experiments.REAL_THREE)==56*1024**2

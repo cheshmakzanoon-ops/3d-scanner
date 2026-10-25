@@ -1,13 +1,32 @@
 # Separate licensed eight-image wider-orbit sparse diagnostic
 
-This candidate activates the closed `real-licensed-eight-orbit-sparse` profile
-for one forward push from `8c42d3a285ce3c9577859a7d5944f95f9c3b63b4`, exact
-message `test: validate fixed eight-photo sparse registration`, main/public
+This correction retains the closed `real-licensed-eight-orbit-sparse` profile
+for one forward push from `f2d4e3ac88e1b5b181898d086aee24d87732cc7f`, exact
+message `fix: retain eight-photo sparse evidence in script mode`, main/public
 repository and attempt 1 only. No manual dispatch, permissions or resource
 limits change. The existing real-three profile and original fixture are preserved.
-There has been **no eight-input production invocation**; runtime is NOT_RUN.
-Execution remains pending. Only a completed Actions run bound to this exact
-source can establish a runtime result; local checks do not replace that run.
+
+The [source-bound `f2d4e3ac88` run](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40238971460)
+**failed**: the selected invocation exited unsuccessfully, then three script-context
+relative imports blocked diagnostic validation/sealing. The retained artifact has
+only the failure receipt and checksum manifest, not the original invocation output
+or registration/BA evidence. **Registration and bundle-adjustment outcome remain
+unknown**, and the original invocation failure cause is unresolved. This is not
+proof of failed registration or successful reconstruction.
+
+The correction uses the established absolute package imports and script-context
+privacy/measurement/sealing regressions; it does not change the engine, inputs,
+thresholds or caps. Its source-bound rerun is **NOT_RUN and unqualified**. Only a
+completed Actions run bound to the corrected source can establish a runtime result;
+local checks do not replace that run.
+
+Ordinary [`f2d4e3ac88` CI is terminal](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40238971406):
+both sanitizer suites completed **4,716 cases: 4,674 passed, 14 failed, 28 skipped,
+zero errors**, with identical failed identities. All six parser cases and the
+release-missing-records test now pass, with no new failures versus `8c42d3a285`;
+runbook help still fails. Android **920 tests**, both release profiles and benchmark
+compilation passed; device/native/candidate gates remain **FAIL**. Ordinary CI does
+not establish the missing sparse registration evidence or qualify this correction.
 
 ## Fixed acquisition selection
 
@@ -75,5 +94,6 @@ underside, cavities, whole-object or watertight coverage. More photographs are a
 changed acquisition condition, not an algorithm improvement. Compare engine
 changes on the same fixed inputs/settings, with the original three-photo
 regression preserved. Estimated 88-mm-equivalent optics are not measured lens
-calibration. Compilation, HOST execution, runtime, memory and registration
-results remain NOT_RUN until a source-bound invocation completes.
+calibration. The failed source-bound invocation does not establish registration or quality.
+The corrected-source rerun remains NOT_RUN; missing evidence cannot be inferred
+from successful local checks or the import repair.

@@ -16,8 +16,20 @@
   ordinary device KVM preflight failed. The staged parser/import-order test
   correction targets those six identities but has **no new CI result** yet.
 - The separately pinned [eight-image wider-orbit sparse diagnostic](development/REAL_EIGHT_ORBIT_SPARSE.md)
-  is **NOT_RUN**. It stops at persisted SPARSE, preserves the existing three-photo
-  fixture, and makes no dense/full-object/device-quality claim.
+  [failed on `f2d4e3ac88`](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40238971460):
+  the selected invocation failed, then a script-context import error prevented
+  evidence sealing and lost the original output. Registration and bundle-adjustment
+  outcome are **unknown**; the original invocation cause is unresolved. The narrow
+  import correction is locally tested, but its source-bound rerun is **NOT_RUN**
+  and unqualified. The fixed eight inputs, sparse-only stopping rule and existing
+  three-photo fixture remain unchanged; no dense/full-object/device-quality claim.
+- Ordinary [`f2d4e3ac88` CI is terminal](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40238971406):
+  both sanitizer suites completed **4,716 cases: 4,674 passed, 14 failed, 28 skipped,
+  zero errors**, with identical failed identities. All six parser cases and the
+  release-missing-records test now pass; no new failures versus the 21 on `8c42d3a285`.
+  Runbook help still fails. Android **920 tests**, both release profiles and benchmark
+  compilation passed; device/native/candidate gates remain **FAIL**. These results
+  do not qualify the unrun sparse-evidence correction.
 
 
 The current engineering preview retains version 0.19.0-m19 with subsequent

@@ -4,10 +4,10 @@ import json, re, xml.etree.ElementTree as ET
 from .runtime import Failure, Blocked, sha
 from .experiments import LEGACY, COMPLETE, REAL_STEREO, REAL_THREE, get_profile, artifact_budget
 REPOSITORY='cheshmakzanoon-ops/3d-scanner'
-BASE_SHA='8c42d3a285ce3c9577859a7d5944f95f9c3b63b4'
-MESSAGE='test: validate fixed eight-photo sparse registration'
+BASE_SHA='f2d4e3ac88e1b5b181898d086aee24d87732cc7f'
+MESSAGE='fix: retain eight-photo sparse evidence in script mode'
 TRIGGER_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml','tools/eight_view_host/controller.py'))
-ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/development/REAL_EIGHT_ORBIT_SPARSE.md', 'docs/development/experiments/eight-view-sparse-runtime-successor/RealLicensedEightOrbitSparsePrefixHostTest.kt', 'docs/development/experiments/eight-view-sparse-runtime-successor/SHA256SUMS', 'docs/development/experiments/eight-view-sparse-runtime-successor/real_eight_orbit_inputs.py', 'tests/test_cli_lazy_imports.py', 'tests/test_eight_view_host.py', 'tests/test_eight_view_controller.py', 'tests/test_real_three_complete.py', 'tests/stdlib_cli_boundary.py', 'tests/test_release_missing_records_boundary.py', 'tests/test_release_qualification.py', 'tests/test_real_stereo_complete.py', 'tests/test_eight_view_complete_measurement.py', 'tests/test_eight_view_experiment_profiles.py', 'tests/test_real_eight_orbit_evidence.py', 'tests/test_real_eight_orbit_inputs.py', 'tests/test_real_eight_orbit_sparse.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/experiments.py', 'tools/eight_view_host/policy.py', 'tools/eight_view_host/probe.init.gradle', 'tools/eight_view_host/sparse_evidence.py'))
+ALLOWED_PATHS=frozenset(('.github/workflows/eight-view-host-diagnostic.yml', 'README.md', 'SOURCE_MANIFEST.sha256', 'docs/MILESTONE_STATUS.md', 'docs/NEXT_MILESTONE.md', 'docs/development/REAL_EIGHT_ORBIT_SPARSE.md', 'tests/test_eight_view_controller.py', 'tests/test_eight_view_host.py', 'tests/test_real_eight_orbit_script.py', 'tools/eight_view_host/controller.py', 'tools/eight_view_host/policy.py'))
 SELECTOR='com.realityforge.scanner.hostintegration.EightViewSparsePrefixHostTest.fixedEightPhotosPersistSparseOrRecordUnmodifiedProductionFailure'
 CLASS,METHOD=SELECTOR.rsplit('.',1)
 

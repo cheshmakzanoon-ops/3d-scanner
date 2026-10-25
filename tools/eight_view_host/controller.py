@@ -766,7 +766,7 @@ def run_probe(run,source,config,cfg,prepared,cap,inputs,observed,profile=experim
     run.pipeline_attempts=1  # Only now is the selected invocation attempted; gates above are not attempts.
     try:
         raw,exit_code=run.command('eight-view-test',[*gradle_args(run,config,offline=True),':app:eightProbe'],seconds=600,check=False)
-        if exit_code:raise Failure('Actual selected sparse invocation failed; original logs/events retained')
+        if exit_code:raise Failure('Actual selected sparse invocation failed')
     except BaseException as error:
         original=error;raise
     finally:
@@ -813,7 +813,7 @@ def measurement_reference(directory,profile,run=None,*,observed=None):
     proof=policy.measurement_proof(result,pairs,identity,observations,profile=profile)
     additional=[]
     if profile==experiments.REAL_EIGHT_ORBIT:
-        from . import sparse_evidence
+        from tools.eight_view_host import sparse_evidence
         if result.get('synthetic') is not False:raise Failure('Licensed sparse fixture mislabeled synthetic')
         for name in ('sparse-diagnostics.json','sparse-timing.json'):
             extra=bounded_bytes(directory/'measurement'/name,4*1024**2,run)
@@ -1076,7 +1076,7 @@ def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
         if profile==experiments.REAL_EIGHT_ORBIT:
             if run is None or not hasattr(run,'real_private_markers'):
                 raise Failure('Real sparse privacy preparation missing')
-            from . import sparse_evidence
+            from tools.eight_view_host import sparse_evidence
             sparse_evidence.validate_path(name,raw)
             if name.startswith('runtime-providers-'):
                 context=getattr(run,'real_sparse_runtime_context',None)
@@ -1101,7 +1101,7 @@ def real_evidence_privacy_check(rel,raw,run=None,*,profile=None):
 
 def validate_real_sparse_package(run):
     """Bind retained partial/failure records too; success-only proof is insufficient."""
-    from . import sparse_evidence
+    from tools.eight_view_host import sparse_evidence
     root=run.work/'measurement'
     if not root.exists():return
     records={}

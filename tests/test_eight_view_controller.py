@@ -207,7 +207,7 @@ def test_runtime_postcheck_exhausted_global_budget_is_not_claimed_complete(tmp_p
 
 def test_nonzero_selected_exit_precedes_changed_input_secondary(tmp_path,monkeypatch):
  run,seen,error=failed_probe_fixture(tmp_path,monkeypatch,'nonzero',postcheck_failure=True)
- assert str(error)=='Actual selected sparse invocation failed; original logs/events retained'
+ assert str(error)=='Actual selected sparse invocation failed'
  assert run.runtime_input_postcheck['status']=='FAIL'
  assert any('framework hash changed' in note for note in error.__notes__)
 
