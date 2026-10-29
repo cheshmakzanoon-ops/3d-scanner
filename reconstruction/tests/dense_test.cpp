@@ -53,7 +53,7 @@ void requireCompleteDiagnostics(const rf::DenseResult& result){
     require(sampled==result.sampledPixels&&evaluated==d.evaluatedSamples&&accepted==d.acceptedSamples&&lowVariance==d.lowVariance,
             "New split counters changed legacy aggregate accounting");
     require(reciprocal==result.photometricPixels&&confirmed==result.consistentPixels,"Reciprocal totals do not match originating result");
-    require(json.find(R"("lossDiagnostics":{"schema":1,"scope":"ORIGINATING_DENSE_BRANCHES","available":true)")!=std::string::npos,
+    require(json.find(R"("lossDiagnostics":{"schema":2,"scope":"ORIGINATING_DENSE_BRANCHES","available":true)")!=std::string::npos,
             "Versioned loss diagnostics missing");
 }
 void expectError(auto&& callback){bool failed=false;try{callback();}catch(const rf::Error&){failed=true;}require(failed,"invalid geometry accepted");}
@@ -152,7 +152,7 @@ int main(){
     test("unobserved branch diagnostics serialize unknown rather than measured zeros",[]{
         rf::DenseResult absent;
         const auto json=rf::denseJson(absent);
-        require(json.find(R"("lossDiagnostics":{"schema":1,"scope":"ORIGINATING_DENSE_BRANCHES","available":false,"viewCount":null,"views":null})")!=std::string::npos,
+        require(json.find(R"("lossDiagnostics":{"schema":2,"scope":"ORIGINATING_DENSE_BRANCHES","available":false,"viewCount":null,"views":null})")!=std::string::npos,
                 "Recovered/absent diagnostics invented measured zeros");
     });
     test("diagnostic JSON rejects impossible view and counter bounds",[]{

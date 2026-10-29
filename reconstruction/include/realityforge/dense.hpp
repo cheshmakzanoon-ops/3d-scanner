@@ -99,6 +99,10 @@ struct DensePhotometricDiagnostics {
 struct DenseViewLossDiagnostics {
     std::size_t sampled{}, evaluated{}, photometricAccepted{};
     std::size_t invalidReferencePatch{}, validLowVariance{}, invalidOrBoundaryBest{}, ncc{}, uniqueness{}, invalidInverseDepth{};
+    // Mutually exclusive subreasons for invalidOrBoundaryBest; they sum to it.
+    // Additive evidence only: the legacy counter and every rejection decision
+    // keep their existing semantics.
+    std::size_t ambiguousMinimum{}, nearBoundaryBest{}, farBoundaryBest{};
     // Nonspatial 16-level patch-mean bins; not a foreground/object classification.
     // Recorded only from the existing valid reference.mean, without pixel traversal.
     std::array<std::size_t,16> validReferenceMeanHistogram{}, validLowVarianceMeanHistogram{};

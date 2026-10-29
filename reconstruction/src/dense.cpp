@@ -168,7 +168,7 @@ void validate(std::span<const DenseView> views,const DenseSettings& s){
     if(norm(sub(center(views[0]),center(views[1])))<.02)throw Error("Insufficient stereo baseline for a reliable depth map");
 }
 void writeLossDiagnostics(std::ostream& out,const DenseLossDiagnostics& d){
-    out<<"\"lossDiagnostics\":{\"schema\":1,\"scope\":\"ORIGINATING_DENSE_BRANCHES\",\"available\":"<<(d.available?"true":"false");
+    out<<"\"lossDiagnostics\":{\"schema\":2,\"scope\":\"ORIGINATING_DENSE_BRANCHES\",\"available\":"<<(d.available?"true":"false");
     if(!d.available){out<<",\"viewCount\":null,\"views\":null}";return;}
     if(d.viewCount<2||d.viewCount>MAX_DENSE_VIEWS)throw Error("Invalid dense diagnostic view count");
     out<<",\"viewCount\":"<<d.viewCount<<",\"views\":[";
@@ -179,6 +179,7 @@ void writeLossDiagnostics(std::ostream& out,const DenseLossDiagnostics& d){
            v.photometricAccepted>v.evaluated||v.invalidReferencePatch>v.evaluated||v.validLowVariance>v.evaluated||
            v.invalidOrBoundaryBest>v.evaluated||v.ncc>v.evaluated||v.uniqueness>v.evaluated||v.invalidInverseDepth>v.evaluated||
            v.photometricAccepted+v.invalidReferencePatch+v.validLowVariance+v.invalidOrBoundaryBest+v.ncc+v.uniqueness+v.invalidInverseDepth!=v.evaluated||
+           v.ambiguousMinimum+v.nearBoundaryBest+v.farBoundaryBest!=v.invalidOrBoundaryBest||
            v.invalidWorld>v.reciprocalEvaluated||v.noConfirmation>v.reciprocalEvaluated||v.reciprocalAccepted>v.reciprocalEvaluated||
            v.invalidWorld+v.noConfirmation+v.reciprocalAccepted!=v.reciprocalEvaluated||v.sourcePairs>3*v.reciprocalEvaluated)
             throw Error("Invalid dense diagnostic sample accounting");
@@ -214,7 +215,9 @@ void writeLossDiagnostics(std::ostream& out,const DenseLossDiagnostics& d){
         if(observed){
             out<<",\"evaluatedSamples\":"<<v.evaluated<<",\"acceptedSamples\":"<<v.photometricAccepted
                <<",\"rejectionCounts\":{\"invalidReferencePatch\":"<<v.invalidReferencePatch<<",\"validLowVariance\":"<<v.validLowVariance
-               <<",\"invalidOrBoundaryBest\":"<<v.invalidOrBoundaryBest<<",\"ncc\":"<<v.ncc<<",\"uniqueness\":"<<v.uniqueness
+               <<",\"invalidOrBoundaryBest\":"<<v.invalidOrBoundaryBest
+               <<",\"invalidOrBoundaryBestReasons\":{\"ambiguousMinimum\":"<<v.ambiguousMinimum<<",\"nearBoundaryBest\":"<<v.nearBoundaryBest
+               <<",\"farBoundaryBest\":"<<v.farBoundaryBest<<"},\"ncc\":"<<v.ncc<<",\"uniqueness\":"<<v.uniqueness
                <<",\"invalidInverseDepth\":"<<v.invalidInverseDepth<<"}";
             out<<",\"validReferenceMeanHistogram\":[";
             for(std::size_t k=0;k<v.validReferenceMeanHistogram.size();++k){if(k)out<<',';out<<v.validReferenceMeanHistogram[k];}
@@ -393,7 +396,14 @@ DenseResult reconstructDense(std::span<const DenseView> views,const DenseSetting
             }
             const auto distinct=matching::distinctMinimum(costs);
             const int best=static_cast<int>(distinct.best);
-            if(!distinct.valid||best<2||best>=settings.depthPlanes-2){++result.photometricDiagnostics.invalidOrBoundaryBest;++loss.invalidOrBoundaryBest;continue;}
+            if(!distinct.valid||best<2||best>=settings.depthPlanes-2){
+                ++result.photometricDiagnostics.invalidOrBoundaryBest;++loss.invalidOrBoundaryBest;
+                // Additive subreason; the legacy counter and this branch's decision are unchanged.
+                if(!distinct.valid)++loss.ambiguousMinimum;
+                else if(best<2)++loss.nearBoundaryBest;
+                else ++loss.farBoundaryBest;
+                continue;
+            }
             if(costs[best]>1-settings.minimumNcc){++result.photometricDiagnostics.ncc;++loss.ncc;continue;}
             const double margin=distinct.margin;
             if(margin<settings.minUniqueness){++result.photometricDiagnostics.uniqueness;++loss.uniqueness;continue;}

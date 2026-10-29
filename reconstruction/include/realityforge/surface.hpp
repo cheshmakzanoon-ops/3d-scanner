@@ -64,6 +64,10 @@ struct SurfaceLossView {
     // Mutually exclusive witness classes, measured only after an unsuccessful normal fit.
     std::size_t missingDepthNeighborhoods{}, depthJumpNeighborhoods{}, zeroConfidenceNeighborhoods{};
     std::size_t outsideDepthNeighborhoods{}, unsupportedNormalBounds{}, fusionCandidates{};
+    // Missing-normal attribution. The gate previously could not distinguish an
+    // unsupported source normal from an unsupported accumulator normal; these
+    // counters are additive and sum to the MissingNormal first-gate count.
+    std::uint32_t missingSourceNormal{}, missingAccumulatorNormal{}, missingBothNormals{};
     std::array<std::size_t,static_cast<std::size_t>(SurfaceFusionGate::Count)> fusionCandidateGates{};
     std::array<std::size_t,5> cellCornerCounts{};
     std::array<std::size_t,static_cast<std::size_t>(SurfaceTriangleRejection::Count)> triangleRejections{};

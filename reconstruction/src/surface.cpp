@@ -234,7 +234,13 @@ static SurfaceMesh fuseCanonicalDepthSurfaces(std::span<const DenseView> views,c
                     ++loss.fusionCandidates;
                     const auto& a=accum[index];
                     if(a.viewMask & (1u<<sample.camera)){gate(SurfaceFusionGate::SameCamera);continue;}
-                    if(!normalSupported||!a.supportedNormal){gate(SurfaceFusionGate::MissingNormal);continue;}
+                    if(!normalSupported||!a.supportedNormal){
+                        gate(SurfaceFusionGate::MissingNormal);
+                        if(!normalSupported&&!a.supportedNormal)++loss.missingBothNormals;
+                        else if(!normalSupported)++loss.missingSourceNormal;
+                        else ++loss.missingAccumulatorNormal;
+                        continue;
+                    }
                     if(!surface_fusion::compatibleNormal(a.weightedNormal,source.normal)){gate(SurfaceFusionGate::NormalMismatch);continue;}
                     const auto avg=mul(a.weightedPosition,1./a.weight);
                     const double d=norm(sub(avg,sample.xyz));
@@ -583,7 +589,7 @@ std::string surfaceJson(const SurfaceMesh& m){
     for(std::size_t i=0;i<m.topologyAliasSources.size();++i){if(i)s<<',';s<<m.topologyAliasSources[i];}
     s<<"],\"triangles\":[";
     for(std::size_t i=0;i<m.triangles.size();++i){if(i)s<<',';auto t=m.triangles[i];s<<'['<<t.a<<','<<t.b<<','<<t.c<<']';}
-    s<<"],\"lossDiagnostics\":{\"schema\":1,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
+    s<<"],\"lossDiagnostics\":{\"schema\":2,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
     if(!m.lossDiagnostics.available)s<<",\"viewCount\":null,\"removedExactFaces\":null,\"views\":null,\"triangleLimitReached\":null,\"topologyAdmission\":null";
     else {
         const auto counts=[&](const auto& names,const auto& values){
@@ -603,7 +609,8 @@ std::string surfaceJson(const SurfaceMesh& m){
             s<<"{\"camera\":"<<camera<<",\"inputSamples\":"<<d.inputSamples<<",\"confidenceRejected\":"<<d.confidenceRejected
              <<",\"vertexLimitRejected\":"<<d.vertexLimitRejected<<",\"acceptedSamples\":"<<d.acceptedSamples<<",\"normalValidity\":";
             counts(normalNames,d.normalValidity);
-            s<<",\"missingDepthNeighborhoods\":"<<d.missingDepthNeighborhoods<<",\"depthJumpNeighborhoods\":"<<d.depthJumpNeighborhoods
+            s<<",\"missingNormalReasons\":{\"sourceNormal\":"<<d.missingSourceNormal<<",\"accumulatorNormal\":"<<d.missingAccumulatorNormal
+             <<",\"bothNormals\":"<<d.missingBothNormals<<"},\"missingDepthNeighborhoods\":"<<d.missingDepthNeighborhoods<<",\"depthJumpNeighborhoods\":"<<d.depthJumpNeighborhoods
              <<",\"zeroConfidenceNeighborhoods\":"<<d.zeroConfidenceNeighborhoods<<",\"outsideDepthNeighborhoods\":"<<d.outsideDepthNeighborhoods<<",\"unsupportedNormalBounds\":"<<d.unsupportedNormalBounds<<",\"fusionCandidates\":"<<d.fusionCandidates
              <<",\"fusionCandidateFirstGate\":";counts(gateNames,d.fusionCandidateGates);
             s<<",\"cellCornerCounts\":[";for(std::size_t i=0;i<d.cellCornerCounts.size();++i){if(i)s<<',';s<<d.cellCornerCounts[i];}s<<']';

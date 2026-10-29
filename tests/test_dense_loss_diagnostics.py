@@ -54,7 +54,7 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
     result = NativeEngine().surface(images,cameras,3.1,7.0,56,3)
     dense = result['dense']
     diagnostic = dense['lossDiagnostics']
-    assert diagnostic['schema'] == 1 and diagnostic['available']
+    assert diagnostic['schema'] == 2 and diagnostic['available']
     assert diagnostic['viewCount'] == len(diagnostic['views']) == 3
     assert len(json.dumps(diagnostic)) < 32768
     bounded_counts(diagnostic)
@@ -65,6 +65,9 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
     assert actual == dense['photometricDiagnostics']['rejectionCounts']['lowVariance']
     for view in views:
         photo = view['photometric']
+        reasons = photo['rejectionCounts']['invalidOrBoundaryBestReasons']
+        assert sum(reasons.values()) == photo['rejectionCounts']['invalidOrBoundaryBest']
+        assert photo['rejectionCounts']['invalidOrBoundaryBest'] == reasons['ambiguousMinimum'] + reasons['nearBoundaryBest'] + reasons['farBoundaryBest']
         assert len(photo['validReferenceMeanHistogram']) == len(photo['validLowVarianceMeanHistogram']) == 16
         assert sum(photo['validReferenceMeanHistogram']) == photo['evaluatedSamples']-photo['rejectionCounts']['invalidReferencePatch']
         assert sum(photo['validLowVarianceMeanHistogram']) == photo['rejectionCounts']['validLowVariance']
@@ -78,7 +81,7 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
         return
     mesh = result['mesh']
     loss = mesh['lossDiagnostics']
-    assert loss['schema'] == 1 and loss['available']
+    assert loss['schema'] == 2 and loss['available']
     assert loss['viewCount'] == len(loss['views']) == 3
     admission = loss['topologyAdmission']
     assert set(admission) == {'passes', 'proposedWeldGroups', 'rolledBackWeldGroups',
@@ -103,6 +106,8 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
     for v in views:
         assert sum(v['normalValidity'].values()) == v['inputSamples']
         assert sum(v['fusionCandidateFirstGate'].values()) == v['fusionCandidates']
+        missing = v['missingNormalReasons']
+        assert missing['sourceNormal'] + missing['accumulatorNormal'] + missing['bothNormals'] == v['fusionCandidateFirstGate']['missingNormal']
 
 
 def test_originating_counters_are_isolated_between_concurrent_native_calls():
