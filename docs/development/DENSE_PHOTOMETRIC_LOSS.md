@@ -77,8 +77,49 @@ normal — consistent with sparse depth maps, not with an accumulator-side defec
 
 Because every candidate records exactly one first-failure gate and the per-gate
 counts sum to `fusionCandidates`, the full gate funnel is derivable by
-subtraction: `passed(g) = fusionCandidates − Σ failures(g′ ≤ g)`. No additional
-funnel instrumentation is required.
+subtraction — no engine instrumentation is added:
+
+```
+reached(g) = fusionCandidates - sum(failures of gates before g)
+```
+
+`tools/qa/dense_loss_report.py` performs that derivation for any artifact that
+carries `mesh.lossDiagnostics` (receipt schema 2), using the engine's evaluation
+order rather than an alphabetical one. It refuses an artifact whose gate set is
+not exactly the emitted set, whose gate outcomes do not sum to
+`fusionCandidates`, or whose missing-normal subreasons do not sum to the
+`missingNormal` gate. The remainder left after the last gate equals the reported
+accepted count by construction, so it is reported rather than presented as
+independent evidence.
+
+### Reached-conditional funnel (56x3, same fixture)
+
+| gate | failed | reached | failure of reached | share of all visits |
+|---|---|---|---|---|
+| sameCamera | 16,651 | 31,355 | 53.1% | 53.1% |
+| missingNormal | 5,899 | 14,704 | 40.1% | 18.8% |
+| normalMismatch | 192 | 8,805 | 2.2% | 0.6% |
+| notCloser | 1,390 | 8,613 | 16.1% | 4.4% |
+| outsideRadius | 5,274 | 7,223 | **73.0%** | 16.8% |
+| currentVisibility | 0 | 1,949 | 0.0% | 0.0% |
+| proposedAnchorMetric | 439 | 1,949 | 22.5% | 1.4% |
+| proposedVisibility | 0 | 1,510 | 0.0% | 0.0% |
+| pairMetric | 898 | 1,510 | **59.5%** | 2.9% |
+| anchorSeesSample | 0 | 612 | 0.0% | 0.0% |
+| sampleSeesAnchor | 0 | 612 | 0.0% | 0.0% |
+| memberAnchorMetric | 0 | 612 | 0.0% | 0.0% |
+| memberSeesProposed | 0 | 612 | 0.0% | 0.0% |
+
+Two readings change when the denominator is the candidates that actually reach a
+gate. `missingNormal` accounts for 40.1% of the 14,704 candidates that survive
+the same-camera check, not 18.8% of all visits. `outsideRadius` then rejects
+73.0% of the 7,223 candidates that passed the normal, mismatch and proximity
+checks — the largest conditional loss in the chain — and `pairMetric` rejects
+59.5% of the 1,510 that reach it. The association chain is therefore not merely
+starved by absent normals; among otherwise plausible candidates it is dominated
+by radius and pair-metric admissibility. Both are geometric acceptance
+conditions, and changing either is a production gate decision that this record
+does not authorize.
 
 ## Decision rule (pre-declared, unchanged by results)
 

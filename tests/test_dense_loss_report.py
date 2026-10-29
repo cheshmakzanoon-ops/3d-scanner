@@ -175,3 +175,113 @@ def test_accepts_surface_wrapper_and_reports_real_producer_output():
     assert built.evaluated > 0 and built.accepted <= built.evaluated
     assert built.rejected == sum(built.totals.values())
     assert "SYNTHETIC" not in report.render_markdown(built)
+    funnel = report.build_surface_report(result)
+    assert funnel is not None and funnel.candidates > 0
+    steps = funnel.funnel()
+    assert steps[0].reached == funnel.candidates
+    assert funnel.accepted == funnel.candidates - sum(step.failed for step in steps)
+    assert sum(funnel.missing_normal.values()) == funnel.gates["missingNormal"]
+
+
+def surface_view(camera, accepted=0, **gates):
+    counts = {gate: gates.get(gate, 0) for gate in report.SURFACE_GATES}
+    counts[report.SURFACE_ACCEPTED] = accepted
+    return {
+        "camera": camera,
+        "fusionCandidates": sum(counts.values()),
+        "fusionCandidateFirstGate": counts,
+        "missingNormalReasons": {
+            "sourceNormal": counts["missingNormal"],
+            "accumulatorNormal": 0,
+            "bothNormals": 0,
+        },
+    }
+
+
+def surface_document(*views):
+    return {
+        "mesh": {
+            "lossDiagnostics": {
+                "schema": 3,
+                "scope": report.SURFACE_SCOPE,
+                "available": True,
+                "viewCount": len(views),
+                "views": list(views),
+            }
+        }
+    }
+
+
+def test_surface_funnel_derives_reached_counts_from_first_gate():
+    built = report.build_surface_report(
+        surface_document(
+            surface_view(0, accepted=5, sameCamera=60, missingNormal=10, outsideRadius=5),
+            surface_view(1, accepted=2, sameCamera=40, notCloser=2),
+        )
+    )
+    assert built.candidates == 124 and built.accepted == 7
+    funnel = {step.gate: step for step in built.funnel()}
+    assert (funnel["sameCamera"].reached, funnel["sameCamera"].failed) == (124, 100)
+    assert (funnel["missingNormal"].reached, funnel["missingNormal"].failed) == (24, 10)
+    assert (funnel["notCloser"].reached, funnel["notCloser"].failed) == (14, 2)
+    assert (funnel["outsideRadius"].reached, funnel["outsideRadius"].failed) == (12, 5)
+    assert funnel["sameCamera"].failure_share == pytest.approx(100 / 124)
+    assert funnel["memberSeesProposed"].passed == 7
+    carried = report.surface_receipt(built)
+    assert carried["acceptedCandidateVisits"] == 7
+    assert carried["funnel"][0] == {
+        "gate": "sameCamera",
+        "reached": 124,
+        "failed": 100,
+        "passed": 24,
+    }
+    text = report.render_surface_markdown(built, "unit")
+    assert "Surface fusion gate funnel - unit" in text
+    assert "not retained fusions" in text
+
+
+def test_surface_gate_outcomes_must_sum_to_candidates():
+    drifted = surface_document(
+        surface_view(0, accepted=2, sameCamera=4), surface_view(1, accepted=0)
+    )
+    drifted["mesh"]["lossDiagnostics"]["views"][0]["fusionCandidateFirstGate"][
+        "sameCamera"
+    ] = 3
+    with pytest.raises(report.MalformedDiagnostics):
+        report.build_surface_report(drifted)
+    renamed = surface_document(surface_view(0, accepted=1), surface_view(1, accepted=1))
+    gates = renamed["mesh"]["lossDiagnostics"]["views"][0]["fusionCandidateFirstGate"]
+    gates["accepted"] = gates.pop(report.SURFACE_ACCEPTED)
+    with pytest.raises(report.MalformedDiagnostics):
+        report.build_surface_report(renamed)
+
+
+def test_surface_missing_normal_attribution_must_reconcile():
+    upgraded = surface_document(
+        surface_view(0, missingNormal=4), surface_view(1, sameCamera=3, accepted=3)
+    )
+    upgraded["mesh"]["lossDiagnostics"]["views"][0]["missingNormalReasons"][
+        "sourceNormal"
+    ] = 3
+    with pytest.raises(report.MalformedDiagnostics):
+        report.build_surface_report(upgraded)
+
+
+def test_surface_only_artifact_reports_a_funnel(tmp_path, capsys):
+    artifact = tmp_path / "surface.json"
+    artifact.write_text(
+        json.dumps(
+            surface_document(
+                surface_view(0, accepted=2, sameCamera=8), surface_view(1, accepted=1)
+            )
+        )
+    )
+    out = tmp_path / "funnel.json"
+    assert report.main(
+        ["--input", str(artifact), "--json-out", str(out), "--label", "surface"]
+    ) == 0
+    assert "Surface fusion gate funnel - surface" in capsys.readouterr().out
+    carried = json.loads(out.read_text())
+    assert carried["schema"] == 2 and carried["views"] is None
+    assert carried["surface"]["candidates"] == 11
+    assert carried["surface"]["acceptedCandidateVisits"] == 3

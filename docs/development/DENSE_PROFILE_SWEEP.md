@@ -45,26 +45,34 @@ Findings:
 ## Fusion gate funnel (56x3)
 
 Every candidate visit records exactly one first-failure gate, and the counts sum
-to `fusionCandidates = 31,355`:
+to `fusionCandidates = 31,355`. `reached` is derived by subtraction in the
+engine's evaluation order by `tools/qa/dense_loss_report.py`, which rejects a
+gate set that does not match the emitted set or outcomes that do not sum to
+`fusionCandidates`:
 
-| gate | candidates | share |
-|---|---|---|
-| sameCamera | 16,651 | 53.1% |
-| missingNormal | 5,899 | 18.8% |
-| outsideRadius | 5,274 | 16.8% |
-| notCloser | 1,390 | 4.4% |
-| pairMetric | 898 | 2.9% |
-| proposedAnchorMetric | 439 | 1.4% |
-| normalMismatch | 192 | 0.6% |
-| **acceptedCandidateVisits** | **612** | 2.0% |
-| currentVisibility / proposedVisibility / anchorSeesSample / sampleSeesAnchor / memberAnchorMetric / memberSeesProposed | 0 | 0% |
+| gate | failed | reached | failure of reached | share of all visits |
+|---|---|---|---|---|
+| sameCamera | 16,651 | 31,355 | 53.1% | 53.1% |
+| missingNormal | 5,899 | 14,704 | 40.1% | 18.8% |
+| normalMismatch | 192 | 8,805 | 2.2% | 0.6% |
+| notCloser | 1,390 | 8,613 | 16.1% | 4.4% |
+| outsideRadius | 5,274 | 7,223 | **73.0%** | 16.8% |
+| currentVisibility | 0 | 1,949 | 0.0% | 0.0% |
+| proposedAnchorMetric | 439 | 1,949 | 22.5% | 1.4% |
+| proposedVisibility | 0 | 1,510 | 0.0% | 0.0% |
+| pairMetric | 898 | 1,510 | **59.5%** | 2.9% |
+| anchorSeesSample / sampleSeesAnchor / memberAnchorMetric / memberSeesProposed | 0 | 612 | 0.0% | 0.0% |
+| **acceptedCandidateVisits** | — | 612 | — | 2.0% |
 
-This is the "later gates were not exercised" gap, exercised. With 1,410
-supported normals on this fixture, `missingNormal` is only 18.8% of visits;
-`outsideRadius` and `notCloser` together account for 21.2%, and the association
-chain does accept 612 visits. On the production fixture, by contrast, normals
-are 10/2,510 and missingNormal takes essentially everything — so the two
-fixtures fail for different reasons and neither can be generalised.
+This is the "later gates were not exercised" gap, exercised, and the conditional
+denominator changes which gate looks responsible. `missingNormal` takes 40.1% of
+the candidates that reach it, but the largest conditional losses sit later:
+`outsideRadius` rejects 73.0% of the 7,223 candidates that pass the normal,
+mismatch and proximity checks, and `pairMetric` rejects 59.5% of the 1,510 that
+reach it. Both are geometric acceptance conditions. On the production fixture,
+by contrast, normals are 10/2,510 and `missingNormal` takes essentially
+everything, so the two fixtures fail for different reasons and neither can be
+generalised.
 
 ## Resolved — topology rollback, not a merge or reporting defect
 
