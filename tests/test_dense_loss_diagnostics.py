@@ -81,7 +81,7 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
         return
     mesh = result['mesh']
     loss = mesh['lossDiagnostics']
-    assert loss['schema'] == 2 and loss['available']
+    assert loss['schema'] == 3 and loss['available']
     assert loss['viewCount'] == len(loss['views']) == 3
     admission = loss['topologyAdmission']
     assert set(admission) == {'passes', 'proposedWeldGroups', 'rolledBackWeldGroups',

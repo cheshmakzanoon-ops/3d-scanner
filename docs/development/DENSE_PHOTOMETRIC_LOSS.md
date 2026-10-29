@@ -28,7 +28,7 @@ acceptedSamples + invalidReferencePatch + validLowVariance
 ```
 
 This work adds `invalidOrBoundaryBestReasons` (dense, schema 2) and
-`missingNormalReasons` (surface, schema 2), both validated against their parent
+`missingNormalReasons` (surface, schema 3), both validated against their parent
 counter. `tools/qa/dense_loss_report.py` re-checks the identity and renders the
 breakdown; it is read-only and never runs the engine.
 

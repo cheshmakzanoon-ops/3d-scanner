@@ -56,7 +56,7 @@ to `fusionCandidates = 31,355`:
 | pairMetric | 898 | 2.9% |
 | proposedAnchorMetric | 439 | 1.4% |
 | normalMismatch | 192 | 0.6% |
-| **accepted** | **612** | 2.0% |
+| **acceptedCandidateVisits** | **612** | 2.0% |
 | currentVisibility / proposedVisibility / anchorSeesSample / sampleSeesAnchor / memberAnchorMetric / memberSeesProposed | 0 | 0% |
 
 This is the "later gates were not exercised" gap, exercised. With 1,410
@@ -66,26 +66,47 @@ chain does accept 612 visits. On the production fixture, by contrast, normals
 are 10/2,510 and missingNormal takes essentially everything — so the two
 fixtures fail for different reasons and neither can be generalised.
 
-## Open contradiction — reported, not resolved
+## Resolved — topology rollback, not a merge or reporting defect
 
-`fusionCandidateFirstGate.accepted = 612`, but the same mesh JSON reports
-`fusedObservations = 0`, `vertexCount = 2087` and `acceptedSamples = 2087`
-(vertex count equals accepted samples exactly). An accepted candidate should
-merge its source into an existing accumulator, which must reduce the accumulator
-count and increment `fusedObservations`.
+The 612 entries counted under the old `"accepted"` key are **admissible
+candidate visits**, not retained fusions. The merge path does run: **583 weld
+groups** were formed (`proposedWeldGroups = 583`). Topology admission then ran
+three passes and **rolled back all 583** (`rolledBackWeldGroups = 583`,
+`restoredSourceVertices = 1,195`), because the welded vertex stars were not
+admissible. The rollback rebuild in `reconstruction/src/surface.cpp` restores
+one vertex per source sample, sets `fusedObservations = 0` and recomputes it as
+`sum(sourceCount - 1)` over retained groups, which is zero when every group is
+rolled back. Hence `vertexCount = acceptedSamples = 2,087`,
+`canonicalVertexCount = 2,087` and an empty `topologyAliasSources`.
 
-Two possibilities remain and are **not distinguished** here:
+So neither earlier hypothesis held:
 
-1. The accepted counter records admissibility while the merge path is not taken
-   (a real fusion defect), or
-2. `normalizeSurfaceAliases` rebuilds the mesh without carrying
-   `fusedObservations`, so the published counter under-reports (a reporting
-   defect), while vertex expansion from alias separation masks the merge.
+- **No missing-merge defect.** 583 groups were merged; the rollback removed them
+  deliberately.
+- **No lost-counter defect.** `fusedObservations` is recomputed on rebuild; it
+  was never dropped by `normalizeSurfaceAliases`.
+- **The defect was the counter name and this document's reading of it.** The key
+  is now emitted as `"acceptedCandidateVisits"` (surface loss diagnostics schema
+  3) so it cannot be read as retained fusion.
 
-Both are receipt-visible inconsistencies and must be settled before any
-association or topology repair, because they change what "zero cross-view
-fusion" actually means. This record does not choose between them and does not
-alter either path.
+Exact divergence: `surface.cpp` increments the accepted gate where a candidate
+is *admissible*, while the retained count is only produced by the merge and then
+recomputed by `restoreSources` during topology rollback. 612 visits exceed 583
+groups because a candidate can be admissible and later superseded by a closer
+one (`minDist`), so visits do not map one-to-one onto weld groups.
+
+**Does cross-view fusion demonstrably occur on the dense fixture?** It is
+demonstrably attempted and geometrically accepted — 583 weld groups — but it is
+**not retained**: topology admission rejects every group on this fixture. The
+measured reason is welded-topology inadmissibility, not absent observations,
+absent normals or a lost counter.
+
+A controlled overlapping-plane fixture does retain fusion: the native
+`surface_fusion_test` asserts `fusedObservations > 20`, that retained vertices
+are fewer than accepted samples, that not every proposed group was rolled back,
+and that the reported JSON carries the same value. That test is the executed
+proof that the retention path works when the topology is admissible; the dense
+fixture's zero is a rollback result.
 
 ## Reproduction
 

@@ -589,7 +589,7 @@ std::string surfaceJson(const SurfaceMesh& m){
     for(std::size_t i=0;i<m.topologyAliasSources.size();++i){if(i)s<<',';s<<m.topologyAliasSources[i];}
     s<<"],\"triangles\":[";
     for(std::size_t i=0;i<m.triangles.size();++i){if(i)s<<',';auto t=m.triangles[i];s<<'['<<t.a<<','<<t.b<<','<<t.c<<']';}
-    s<<"],\"lossDiagnostics\":{\"schema\":2,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
+    s<<"],\"lossDiagnostics\":{\"schema\":3,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
     if(!m.lossDiagnostics.available)s<<",\"viewCount\":null,\"removedExactFaces\":null,\"views\":null,\"triangleLimitReached\":null,\"topologyAdmission\":null";
     else {
         const auto counts=[&](const auto& names,const auto& values){
@@ -597,7 +597,7 @@ std::string surfaceJson(const SurfaceMesh& m){
         };
         const std::array normalNames{"supported","sparseSupport","discontinuity","illConditioned","invalid"};
         const std::array gateNames{"sameCamera","missingNormal","normalMismatch","notCloser","outsideRadius","currentVisibility",
-            "proposedAnchorMetric","proposedVisibility","pairMetric","anchorSeesSample","sampleSeesAnchor","memberAnchorMetric","memberSeesProposed","accepted"};
+            "proposedAnchorMetric","proposedVisibility","pairMetric","anchorSeesSample","sampleSeesAnchor","memberAnchorMetric","memberSeesProposed","acceptedCandidateVisits"};
         const std::array triangleNames{"missingOrRepeatedVertex","depthJump","edgeLength","area","duplicateFace"};
         s<<",\"topologyAdmission\":{\"passes\":"<<m.lossDiagnostics.topologyAdmissionPasses
          <<",\"proposedWeldGroups\":"<<m.lossDiagnostics.proposedWeldGroups<<",\"rolledBackWeldGroups\":"<<m.lossDiagnostics.rolledBackWeldGroups

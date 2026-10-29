@@ -104,6 +104,15 @@ int main(){
     check(!rf::surface_fusion::compatibleNormal({0,0,std::numeric_limits<double>::quiet_NaN()},{0,0,1}),"NaN normal accepted");
     bool overflow=false;try{(void)rf::surface_fusion::checkedVoxel({1e300,0,0},.01);}catch(const rf::Error&){overflow=true;}check(overflow,"voxel integer overflow accepted");
     auto [views,dense]=plane(false);const auto mesh=rf::fuseDepthSurfaces(views,dense);check(mesh.fusedObservations>20,"overlapping supported plane did not fuse");check(!mesh.observations.empty(),"source provenance lost");check(rf::surfaceJson(mesh).find("\"fusionVersion\":13")!=std::string::npos,"local footprint algorithm version missing");
+    // Controlled-fusion invariant: admitted overlapping observations must leave
+    // fewer retained vertices than accepted samples, and the reported surface
+    // must publish that same retained count. A later topology rollback may
+    // legitimately restore every source vertex (see the dense fixture), but it
+    // must do so by recomputing this counter, never by losing it.
+    check(mesh.vertices.size()<mesh.acceptedSamples,"retained fusion did not reduce the retained vertex count");
+    check(mesh.lossDiagnostics.rolledBackWeldGroups<mesh.lossDiagnostics.proposedWeldGroups,"controlled fixture rolled back every weld, so fusion retention is untested");
+    const auto reported="\"fusedObservations\":"+std::to_string(mesh.fusedObservations);
+    check(rf::surfaceJson(mesh).find(reported)!=std::string::npos,"reported surface dropped the retained fusion count");
     diagnostics(mesh);
     check(mesh.lossDiagnostics.views[0].missingDepthNeighborhoods>0&&mesh.lossDiagnostics.views[0].normalValidity[0]>0,"fixture does not distinguish missing neighborhoods from supported normals");
     auto zeroConfidence=dense;for(auto& map:zeroConfidence.maps)for(auto& c:map.confidence)if(c>0)c=0;
