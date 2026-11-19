@@ -1,0 +1,611 @@
+{
+  "schema": 1,
+  "classification": "AGENT_ASSIGNMENT_RECORD_NOT_QUALIFICATION",
+  "recordStatus": "COMPLETED_ASSIGNMENTS",
+  "repository": "cheshmakzanoon-ops/3d-scanner",
+  "baselineCommit": "a373aff43a03bd736edb16707cbf5edabf5f2156",
+  "campaignDate": "2026-11-19",
+  "campaignScope": "M20 software preparation; physical M20 and release qualification remain separate",
+  "requestedAgentCount": 60,
+  "observedAssignedCount": 60,
+  "waveCount": 10,
+  "assignmentsPerWave": 6,
+  "maxConcurrentChildAgents": 3,
+  "coordinatorIncludedInAssignmentCount": false,
+  "statusCounts": {
+    "COMPLETED": 60
+  },
+  "sourceAssignmentLedgerSha256": "c8b42102507bb2264035d62089c9bc74f664a168462ca74d79703e4d3b2c25e0",
+  "statusSnapshot": "All 60 actual assignments completed, including the observed terminal full host run and final independent handoff review.",
+  "notes": [
+    "Each row records a distinct actual delegated assignment, not a simultaneous worker slot.",
+    "Wave numbers group six assignments; independent work could overlap between wave groups.",
+    "COMPLETED describes completion of the assigned work, not a passing test result or completed product milestone.",
+    "The initial full host run remains FAIL; the final full run must retain its own source identity and observed result.",
+    "Assignment 52 completed with its observed terminal exit 0 and exact source identities; assignment completion does not waive physical, sanitizer, Android or release gates."
+  ],
+  "waves": [
+    {
+      "wave": 1,
+      "firstAssignment": 1,
+      "lastAssignment": 6,
+      "focus": "Roadmap, baseline and mechanism diagnosis",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Identified M20 external gates and the software, topology-accounting and fuzz-output prerequisites."
+    },
+    {
+      "wave": 2,
+      "firstAssignment": 7,
+      "lastAssignment": 12,
+      "focus": "Initial qualification and native attribution implementation",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Implemented stricter qualification and schema-4 native attribution, then identified further report hardening needs."
+    },
+    {
+      "wave": 3,
+      "firstAssignment": 13,
+      "lastAssignment": 18,
+      "focus": "Report validation, immutable IO and parity tooling",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Added strict report/state validation, immutable IO, saved-envelope handling and a reusable parity runner."
+    },
+    {
+      "wave": 4,
+      "firstAssignment": 19,
+      "lastAssignment": 24,
+      "focus": "Adversarial accounting, provenance and output review",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Found and corrected population/provenance gaps; reviewed preservation and parity evidence."
+    },
+    {
+      "wave": 5,
+      "firstAssignment": 25,
+      "lastAssignment": 30,
+      "focus": "Compatibility, loaded-library correction and physical handoff",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Preserved formats and limits; corrected stale library loading and parity output isolation; prepared physical instructions."
+    },
+    {
+      "wave": 6,
+      "firstAssignment": 31,
+      "lastAssignment": 36,
+      "focus": "Documentation, preserved gates and validation protocol",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Updated current status and diagnostic interpretation; documented failing sanitizer evidence and exact manifest protocol."
+    },
+    {
+      "wave": 7,
+      "firstAssignment": 37,
+      "lastAssignment": 42,
+      "focus": "Initial full qualification and evidence review",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Retained the initial full-run FAIL with one existing-test failure; independently checked native and receipt evidence."
+    },
+    {
+      "wave": 8,
+      "firstAssignment": 43,
+      "lastAssignment": 48,
+      "focus": "Integration failure diagnosis and independent review",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Corrected synthetic fixture instability without production gate changes and identified two CLI error-message gaps."
+    },
+    {
+      "wave": 9,
+      "firstAssignment": 49,
+      "lastAssignment": 54,
+      "focus": "Final corrections, refreshed evidence and full qualification",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Fixed CLI errors, regenerated and packaged receipts, reviewed CI/shipping, and completed the final full host run with exit 0: 4,964 parent passes, 362 subtest passes and 33 unchanged skips."
+    },
+    {
+      "wave": 10,
+      "firstAssignment": 55,
+      "lastAssignment": 60,
+      "focus": "Acceptance, source fidelity and campaign handoff",
+      "statusCounts": {
+        "COMPLETED": 6
+      },
+      "summary": "Completed acceptance, diff, source, transport and final scope reviews, and prepared this ledger; publication remains subject to the actual final host result and final source checks."
+    }
+  ],
+  "agents": [
+    {
+      "ordinal": 1,
+      "wave": 1,
+      "task": "w01_a01_roadmap",
+      "role": "roadmap audit",
+      "status": "COMPLETED",
+      "outcome": "Identified physical M20 as the next named milestone and separated implementable software preparation from unavailable physical evidence."
+    },
+    {
+      "ordinal": 2,
+      "wave": 1,
+      "task": "w01_a02_native",
+      "role": "dense and fusion audit",
+      "status": "COMPLETED",
+      "outcome": "Audited dense and fusion behavior and identified qualification and attribution gaps without changing reconstruction thresholds."
+    },
+    {
+      "ordinal": 3,
+      "wave": 1,
+      "task": "w01_a03_validation",
+      "role": "validation toolchain audit",
+      "status": "COMPLETED",
+      "outcome": "Audited the available toolchain and the separate native, Android, sanitizer and physical validation gates."
+    },
+    {
+      "ordinal": 4,
+      "wave": 1,
+      "task": "w01_a04_report",
+      "role": "retention accounting design",
+      "status": "COMPLETED",
+      "outcome": "Derived retained-fusion conservation rules and the distinction between accepted candidate visits and retained groups."
+    },
+    {
+      "ordinal": 5,
+      "wave": 1,
+      "task": "w01_a05_topology",
+      "role": "topology attribution design",
+      "status": "COMPLETED",
+      "outcome": "Designed bounded reason-mask and pass attribution that preserves existing topology admission decisions."
+    },
+    {
+      "ordinal": 6,
+      "wave": 1,
+      "task": "w01_a06_fuzz",
+      "role": "scheduled fuzz diagnosis",
+      "status": "COMPLETED",
+      "outcome": "Diagnosed the scheduled fuzz runner invalidating its source snapshot through in-checkout evidence output."
+    },
+    {
+      "ordinal": 7,
+      "wave": 2,
+      "task": "w02_a07_sweep",
+      "role": "fail-closed profile qualification",
+      "status": "COMPLETED",
+      "outcome": "Implemented conservative profile decisions, complete topology prerequisites, strict metrics and baseline handling."
+    },
+    {
+      "ordinal": 8,
+      "wave": 2,
+      "task": "w02_a08_retention",
+      "role": "retention report implementation",
+      "status": "COMPLETED",
+      "outcome": "Implemented aggregate retention validation and explicit unknown legacy or standalone evidence."
+    },
+    {
+      "ordinal": 9,
+      "wave": 2,
+      "task": "w02_a09_native_attribution",
+      "role": "native pass attribution",
+      "status": "COMPLETED",
+      "outcome": "Implemented native surface diagnostic schema 4 and bounded pass attribution; native geometry and admission decisions remain unchanged."
+    },
+    {
+      "ordinal": 10,
+      "wave": 2,
+      "task": "w02_a10_fuzz_fix",
+      "role": "fuzz workflow repair",
+      "status": "COMPLETED",
+      "outcome": "Moved bounded fuzz evidence outside the checkout and added source-integrity regression controls; actual new CI fuzz qualification remained separate."
+    },
+    {
+      "ordinal": 11,
+      "wave": 2,
+      "task": "w02_a11_native_json_tests",
+      "role": "native C ABI regressions",
+      "status": "COMPLETED",
+      "outcome": "Added actual native C-ABI diagnostic accounting and concurrent-call isolation regression coverage."
+    },
+    {
+      "ordinal": 12,
+      "wave": 2,
+      "task": "w02_a12_integration_review",
+      "role": "adversarial integration review",
+      "status": "COMPLETED",
+      "outcome": "Found strictness and evidence-preservation gaps that subsequent assignments corrected."
+    },
+    {
+      "ordinal": 13,
+      "wave": 3,
+      "task": "w03_a13_pass_validation",
+      "role": "schema4 state machine validation",
+      "status": "COMPLETED",
+      "outcome": "Implemented the schema-4 pass state-machine validator and focused malformed-accounting controls."
+    },
+    {
+      "ordinal": 14,
+      "wave": 3,
+      "task": "w03_a14_dense_parser",
+      "role": "dense evidence validation",
+      "status": "COMPLETED",
+      "outcome": "Hardened dense diagnostic types, coverage partitions and histogram consistency."
+    },
+    {
+      "ordinal": 15,
+      "wave": 3,
+      "task": "w03_a15_cli_safety",
+      "role": "immutable report IO",
+      "status": "COMPLETED",
+      "outcome": "Implemented exclusive immutable receipt publication and input/alias preservation controls."
+    },
+    {
+      "ordinal": 16,
+      "wave": 3,
+      "task": "w03_a16_controller_artifacts",
+      "role": "published controller artifact ingestion",
+      "status": "COMPLETED",
+      "outcome": "Implemented native and saved-preview envelope ingestion with historical evidence and conflicting aliases handled explicitly."
+    },
+    {
+      "ordinal": 17,
+      "wave": 3,
+      "task": "w03_a17_sanitizer_triage",
+      "role": "historical sanitizer failure triage",
+      "status": "COMPLETED",
+      "outcome": "Triaged the exact baseline sanitizer failures and scanner-free controls without waiving sanitizer or ordinary-exit requirements."
+    },
+    {
+      "ordinal": 18,
+      "wave": 3,
+      "task": "w03_a18_parity_runner",
+      "role": "isolated baseline/candidate export comparison tool",
+      "status": "COMPLETED",
+      "outcome": "Implemented separate-process baseline/candidate geometry and actual GLB/PLY parity verification."
+    },
+    {
+      "ordinal": 19,
+      "wave": 4,
+      "task": "w04_a19_native_review",
+      "role": "independent native invariants review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed native invariants independently and found no blocking behavior or resource-bound issue."
+    },
+    {
+      "ordinal": 20,
+      "wave": 4,
+      "task": "w04_a20_report_review",
+      "role": "independent report semantic review",
+      "status": "COMPLETED",
+      "outcome": "Found population contradictions and unavailable surface records retaining measurements; assignment 23 corrected them."
+    },
+    {
+      "ordinal": 21,
+      "wave": 4,
+      "task": "w04_a21_receipt_provenance",
+      "role": "input and native receipt provenance",
+      "status": "COMPLETED",
+      "outcome": "Added exact input, fixture, helper and selected-library identities with call-owned provenance and explicit unavailable build attestation."
+    },
+    {
+      "ordinal": 22,
+      "wave": 4,
+      "task": "w04_a22_io_review",
+      "role": "immutable publication and malformed input review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed immutable IO and identified the oversized-integer diagnostic gap, which was corrected."
+    },
+    {
+      "ordinal": 23,
+      "wave": 4,
+      "task": "w04_a23_population_fix",
+      "role": "surface sample population validation",
+      "status": "COMPLETED",
+      "outcome": "Enforced producer-shaped sample partitions, enclosing totals and nullability for unavailable surface diagnostics."
+    },
+    {
+      "ordinal": 24,
+      "wave": 4,
+      "task": "w04_a24_parity_review",
+      "role": "independent parity evidence review",
+      "status": "COMPLETED",
+      "outcome": "Verified retained parity evidence and found clean-checkout output self-invalidation; assignment 26 corrected it."
+    },
+    {
+      "ordinal": 25,
+      "wave": 5,
+      "task": "w05_a25_cache_compatibility",
+      "role": "JNI cache and exported format compatibility",
+      "status": "COMPLETED",
+      "outcome": "Reviewed JNI, Android JSON retention, checkpoint and export compatibility; no format or geometry version bump was warranted."
+    },
+    {
+      "ordinal": 26,
+      "wave": 5,
+      "task": "w05_a26_parity_output_fix",
+      "role": "clean-checkout parity output correction",
+      "status": "COMPLETED",
+      "outcome": "Required new parity evidence directories outside the source checkout and retained genuine source-change rejection."
+    },
+    {
+      "ordinal": 27,
+      "wave": 5,
+      "task": "w05_a27_provenance_review",
+      "role": "independent receipt provenance review",
+      "status": "COMPLETED",
+      "outcome": "Reproduced stale dlopen handle reuse causing a false native byte identity; assignment 29 corrected it."
+    },
+    {
+      "ordinal": 28,
+      "wave": 5,
+      "task": "w05_a28_diagnostic_docs",
+      "role": "diagnostic and report documentation",
+      "status": "COMPLETED",
+      "outcome": "Updated diagnostic and report documentation with schema, accounting, provenance, IO and execution-scope semantics."
+    },
+    {
+      "ordinal": 29,
+      "wave": 5,
+      "task": "w05_a29_loaded_library_fix",
+      "role": "verified unique native library loading",
+      "status": "COMPLETED",
+      "outcome": "Loaded a unique verified native copy per sweep and documented process-lifetime mapping limits without unsafe unloading."
+    },
+    {
+      "ordinal": 30,
+      "wave": 5,
+      "task": "w05_a30_physical_handoff",
+      "role": "physical M20 executable handoff",
+      "status": "COMPLETED",
+      "outcome": "Wrote an executable physical M20 handoff with explicit resource-measurement and external-evidence gaps."
+    },
+    {
+      "ordinal": 31,
+      "wave": 6,
+      "task": "w06_a31_status_docs",
+      "role": "current milestone and resume status",
+      "status": "COMPLETED",
+      "outcome": "Updated current milestone and resume status while preserving source-bound historical outcomes."
+    },
+    {
+      "ordinal": 32,
+      "wave": 6,
+      "task": "w06_a32_sweep_docs_review",
+      "role": "promotion rule and synthetic interpretation",
+      "status": "COMPLETED",
+      "outcome": "Corrected profile conclusions and independently confirmed all five alternatives are rejected on the fixed fixture."
+    },
+    {
+      "ordinal": 33,
+      "wave": 6,
+      "task": "w06_a33_sanitizer_record",
+      "role": "source-bound sanitizer failure record",
+      "status": "COMPLETED",
+      "outcome": "Recorded exact baseline sanitizer accounting and local environment restrictions without claiming a sanitizer pass."
+    },
+    {
+      "ordinal": 34,
+      "wave": 6,
+      "task": "w06_a34_fuzz_workflow_review",
+      "role": "independent fuzz workflow and source-integrity review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed fuzz triggers, external output and preserved sanitizer/completion/source-integrity gates."
+    },
+    {
+      "ordinal": 35,
+      "wave": 6,
+      "task": "w06_a35_resource_offline_review",
+      "role": "resource privacy and offline contract review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed fixed resource bounds, offline behavior, original preservation and private evidence scope; no blocker found."
+    },
+    {
+      "ordinal": 36,
+      "wave": 6,
+      "task": "w06_a36_manifest_validation_plan",
+      "role": "mechanical manifest and qualification protocol",
+      "status": "COMPLETED",
+      "outcome": "Defined correct staged-blob manifest verification and precommit versus exact-commit validation attribution."
+    },
+    {
+      "ordinal": 37,
+      "wave": 7,
+      "task": "w07_a37_full_candidate_pytest",
+      "role": "full candidate host regression execution",
+      "status": "COMPLETED",
+      "outcome": "Completed the initial full host run: 4955 parent passes, 362 passing subtests, one failure and 33 skips. Its outcome remains FAIL."
+    },
+    {
+      "ordinal": 38,
+      "wave": 7,
+      "task": "w07_a38_loaded_runtime_review",
+      "role": "native library runtime and sanitizer integration review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed isolated loading and executed a narrow instrumented two-load control; ordinary exit remained BLOCKED_ENVIRONMENT, not PASS."
+    },
+    {
+      "ordinal": 39,
+      "wave": 7,
+      "task": "w07_a39_final_receipts_audit",
+      "role": "independent final native receipt audit",
+      "status": "COMPLETED",
+      "outcome": "Independently audited native receipt, fixture, helper, library, geometry and export identities."
+    },
+    {
+      "ordinal": 40,
+      "wave": 7,
+      "task": "w07_a40_status_truth_review",
+      "role": "independent status and qualification-claim review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed status and qualification claims; preserved incomplete M20, physical and release gates."
+    },
+    {
+      "ordinal": 41,
+      "wave": 7,
+      "task": "w07_a41_saved_artifact_cli_check",
+      "role": "actual legacy and saved-envelope CLI checks",
+      "status": "COMPLETED",
+      "outcome": "Executed legacy and saved-envelope host CLI checks, contradiction rejection and no-overwrite controls without claiming Android execution."
+    },
+    {
+      "ordinal": 42,
+      "wave": 7,
+      "task": "w07_a42_native_test_review",
+      "role": "native reason and pass regression coverage review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed meaningful native reason, pass, cancellation, accounting and C-ABI coverage; no blocking gap found."
+    },
+    {
+      "ordinal": 43,
+      "wave": 8,
+      "task": "w08_a43_test_hermeticity",
+      "role": "new test portability and prerequisite review",
+      "status": "COMPLETED",
+      "outcome": "Reviewed new tests for hermeticity, actual native use, scoped mutations and unchanged skip/sanitizer boundaries."
+    },
+    {
+      "ordinal": 44,
+      "wave": 8,
+      "task": "w08_a44_physical_command_review",
+      "role": "independent physical handoff command validation",
+      "status": "COMPLETED",
+      "outcome": "Verified physical handoff commands and frozen protocols while keeping trace integrity distinct from resource acceptance."
+    },
+    {
+      "ordinal": 45,
+      "wave": 8,
+      "task": "w08_a45_header_failure_triage",
+      "role": "shared-ancestor fixture failure diagnosis and correction",
+      "status": "COMPLETED",
+      "outcome": "Reproduced shared-ancestor fixture instability and corrected only the synthetic test boundary; 101 focused tests passed and production proof stayed unchanged."
+    },
+    {
+      "ordinal": 46,
+      "wave": 8,
+      "task": "w08_a46_full_result_accounting",
+      "role": "independent full-suite and baseline accounting",
+      "status": "COMPLETED",
+      "outcome": "Independently reconciled the initial full run with baseline: 488 new identities all passed, all 33 skips matched, and one existing test changed to FAIL."
+    },
+    {
+      "ordinal": 47,
+      "wave": 8,
+      "task": "w08_a47_cli_error_review",
+      "role": "CLI failure-boundary review",
+      "status": "COMPLETED",
+      "outcome": "Confirmed two fail-closed CLI diagnostic gaps: native ValueError and deeply nested JSON RecursionError; assignment 49 corrected them."
+    },
+    {
+      "ordinal": 48,
+      "wave": 8,
+      "task": "w08_a48_header_proof_review",
+      "role": "independent compiler-proof threat-model review",
+      "status": "COMPLETED",
+      "outcome": "Independently approved the test-only ancestor correction and preserved production proof timestamps, schema and integrity gates."
+    },
+    {
+      "ordinal": 49,
+      "wave": 9,
+      "task": "w09_a49_cli_error_fix",
+      "role": "clean native-error and deep-JSON CLI rejection",
+      "status": "COMPLETED",
+      "outcome": "Fixed the two CLI error boundaries; 154 focused tests passed without changing validation rules or unavailable statuses."
+    },
+    {
+      "ordinal": 50,
+      "wave": 9,
+      "task": "w09_a50_refresh_native_receipts",
+      "role": "final helper-bound native evidence regeneration",
+      "status": "COMPLETED",
+      "outcome": "Regenerated final native receipts after helper corrections: five alternative profiles rejected and all three geometry/export comparisons passed."
+    },
+    {
+      "ordinal": 51,
+      "wave": 9,
+      "task": "w09_a51_evidence_bundle",
+      "role": "compact immutable evidence packaging",
+      "status": "COMPLETED",
+      "outcome": "Packaged compact byte-identical evidence with the initial host failure and original source contexts preserved."
+    },
+    {
+      "ordinal": 52,
+      "wave": 9,
+      "task": "w09_a52_final_full_pytest",
+      "role": "final full host regression after integration corrections",
+      "status": "COMPLETED",
+      "outcome": "Executed the final full host suite once: exit 0, 4,964 parent tests and 362 subtests passed, 33 unchanged skips, zero failures/errors; verified tested tree and manifest remained unchanged."
+    },
+    {
+      "ordinal": 53,
+      "wave": 9,
+      "task": "w09_a53_ci_publication_review",
+      "role": "remote publication and CI gate readiness",
+      "status": "COMPLETED",
+      "outcome": "Reviewed live main and publication policy, plus exact-commit CI requirements; no observed head change or policy blocker."
+    },
+    {
+      "ordinal": 54,
+      "wave": 9,
+      "task": "w09_a54_shipping_evidence_review",
+      "role": "independent evidence shipping and scope review",
+      "status": "COMPLETED",
+      "outcome": "Approved the compact evidence shipping scope, byte identity, local links and claim attribution."
+    },
+    {
+      "ordinal": 55,
+      "wave": 10,
+      "task": "w10_a55_acceptance_matrix",
+      "role": "final M20 acceptance and remaining-gate matrix",
+      "status": "COMPLETED",
+      "outcome": "Reviewed the M20 acceptance matrix and retained the distinction between software preparation and unfinished physical/release qualification."
+    },
+    {
+      "ordinal": 56,
+      "wave": 10,
+      "task": "w10_a56_final_error_diff_review",
+      "role": "independent final integration-delta review",
+      "status": "COMPLETED",
+      "outcome": "Approved the final CLI and synthetic-fixture deltas, confirming unchanged production provider code and native reconstruction."
+    },
+    {
+      "ordinal": 57,
+      "wave": 10,
+      "task": "w10_a57_final_source_mapping",
+      "role": "independent test-tree and receipt-source mapping",
+      "status": "COMPLETED",
+      "outcome": "Verified baseline, initial tested tree, final tested tree, native helper and receipt mapping without relabeling the initial failure."
+    },
+    {
+      "ordinal": 58,
+      "wave": 10,
+      "task": "w10_a58_manifest_transport_review",
+      "role": "lossless Git tree and manifest transport review",
+      "status": "COMPLETED",
+      "outcome": "Independently reconstructed the staged tree and verified manifest, UTF-8 content, modes and safe publication checks."
+    },
+    {
+      "ordinal": 59,
+      "wave": 10,
+      "task": "w10_a59_campaign_ledger",
+      "role": "actual sixty-assignment and ten-wave ledger",
+      "status": "COMPLETED",
+      "outcome": "Prepared and validated the actual sixty-assignment, ten-wave ledger with running work explicitly identified."
+    },
+    {
+      "ordinal": 60,
+      "wave": 10,
+      "task": "w10_a60_final_handoff_review",
+      "role": "independent final publication and milestone-scope review",
+      "status": "COMPLETED",
+      "outcome": "Completed independent final review: no unresolved implementation or scope blocker; publication remains subject to final manifest and commit-specific CI checks."
+    }
+  ]
+}

@@ -152,12 +152,36 @@ retains structural/ownership checks and full owned-node metadata. Production
 unchanged. All 101 focused provider tests pass, including sibling-activity and
 owned-node mutation controls. The subsequent full run has its own result.
 
+The final complete host run **passed with exit 0**: **4,964 parent tests and
+362 subtests passed, 33 skipped, zero failures and zero errors**, in 346.17
+seconds. All **496 added parent-test identities** passed; none were removed,
+and the 33 skip identities/reasons matched the immutable baseline. The two
+warnings also matched the baseline. No failure or skip was waived.
+
+That full run tested staged tree
+`05620a73a9ee59813667e9ac41fe722ef3498fd7`, with manifest SHA-256
+`82edba9bc753b15324b504c1e88069a90a052035fb7a7e9fe007d07357949aeb`.
+The tree is preserved in implementation commit
+[`63a6249a6bc3031e5e923bf10a4823d0fe7f6651`](https://github.com/cheshmakzanoon-ops/3d-scanner/commit/63a6249a6bc3031e5e923bf10a4823d0fe7f6651).
+Execution occurred before that commit was created. The later evidence and
+documentation commit adds these results and the completed ledger; it does not
+relabel the full run as execution against a different tree. Final manifest and
+project-contract checks cover those mechanical/documentation additions.
+
+The [final host result](evidence/m20-2026-11-19/final-host-pytest.json) and
+[source context](evidence/m20-2026-11-19/final-host-source.json) retain the
+commands, exact identities, skip accounting and full log/JUnit hashes.
+
 The exact remote candidate remains subject to its own GitHub checks; historical
 green jobs do not qualify a later commit. See also the separate
 [sanitizer evidence record](M20_SANITIZER_STATUS.md).
 
 ## Ten-wave assignment record
 
-The completed assignment ledger and final full-suite outcome are recorded after
-the remaining integration checks finish. Only actual assignments and executed
-checks belong in that record.
+All **60 actual agent assignments completed**, grouped into **ten waves of six**.
+At most three child agents ran concurrently; the coordinator is outside the
+60-assignment count. Independent assignments could overlap between wave groups.
+The [wave summary](evidence/m20-2026-11-19/agent-wave-summary.md) explains each
+group's contribution, and the [complete ledger](evidence/m20-2026-11-19/agent-assignments.json)
+records every task, role and outcome. Assignment completion does not turn the
+retained initial failure into a pass or close physical M20 and release gates.

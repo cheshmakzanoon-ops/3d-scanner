@@ -8,7 +8,7 @@ physical ARM64 benchmarks and topology evidence**. Version **0.19.0-m19** and
 the supported 2–12 photographs / eight registered dense views remain unchanged.
 The campaign begins at `a373aff43a03bd736edb16707cbf5edabf5f2156`; the
 [campaign record](development/M20_PREPARATION_2026_11_19.md) identifies the final
-candidate evidence and subsequent CI results.
+local candidate evidence; the published commit's own CI must qualify that source.
 
 The implemented preparation includes stricter profile promotion, diagnostic
 schema 4 with bounded per-pass local/fallback rollback attribution, strict
@@ -23,7 +23,9 @@ was relaxed, and no improved physical geometry is claimed.
 | Native Release build and CTest | **PASS: 53/53** cases on both baseline and candidate. |
 | Immutable baseline full pytest | **4,468 passed, 362 subtests passed, 33 skipped** on `a373aff`; this is baseline host evidence. |
 | Intermediate candidate report integration | **460 passed** across the focused report, provenance, controller and population suites. Later changes require their own final verification. |
-| Final candidate full pytest and new Android CI | Pending in the campaign record; no result is inferred from the baseline or focused suites. |
+| Final candidate full host pytest | **PASS: 4,964 tests plus 362 subtests, 33 unchanged skips, zero failures/errors** on tested tree `05620a73a9ee59813667e9ac41fe722ef3498fd7`. All 496 added test identities pass. The initial failed run remains retained separately. |
+| Candidate Android and compiler-matrix CI | Commit-specific evidence is required; inspect the published commit's own Verify run. Local host results do not replace these gates. |
+| Sixty-agent preparation campaign | **60 actual assignments completed in ten waves of six**, with at most three child agents executing concurrently. The ledger distinguishes assignment completion from passing product gates. |
 | Local GCC sanitizer | Compilation **PASS**; runtime **BLOCKED_ENVIRONMENT** by LeakSanitizer's ptrace restriction. An empty instrumented C++ control fails the same way. This is not a sanitizer pass. |
 | Baseline [Verify run 40944757140](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40944757140) | Sanitizer qualification remains **FAIL**. The reviewed artifact contains **4,863 cases: 4,822 passed, 13 failed, 28 skipped**. These failures are retained; no gate is waived. |
 | Physical M20 capture and device measurements | **BLOCKED_EXTERNAL**: no authorized ARM64 handset/capture/reference evidence was supplied for this campaign. |

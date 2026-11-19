@@ -1,0 +1,111 @@
+Test project /workspace/scratch/7c42079ae707/3d-scanner/build/host
+      Start  1: native_core
+ 1/53 Test  #1: native_core ...........................   Passed    0.04 sec
+      Start  2: native_multiview
+ 2/53 Test  #2: native_multiview ......................   Passed    0.01 sec
+      Start  3: native_bundle_adjustment
+ 3/53 Test  #3: native_bundle_adjustment ..............   Passed    0.02 sec
+      Start  4: native_dense_mvs
+ 4/53 Test  #4: native_dense_mvs ......................   Passed    0.65 sec
+      Start  5: native_surface_mesh
+ 5/53 Test  #5: native_surface_mesh ...................   Passed    1.92 sec
+      Start  6: native_texture_atlas
+ 6/53 Test  #6: native_texture_atlas ..................   Passed    3.27 sec
+      Start  7: native_photometric
+ 7/53 Test  #7: native_photometric ....................   Passed    0.01 sec
+      Start  8: native_stereo_warp
+ 8/53 Test  #8: native_stereo_warp ....................   Passed    0.01 sec
+      Start  9: native_dense_selection
+ 9/53 Test  #9: native_dense_selection ................   Passed    0.82 sec
+      Start 10: native_cancellation
+10/53 Test #10: native_cancellation ...................   Passed    0.02 sec
+      Start 11: native_depth_checkpoint
+11/53 Test #11: native_depth_checkpoint ...............   Passed    0.06 sec
+      Start 12: native_boundary_contract
+12/53 Test #12: native_boundary_contract ..............   Passed    0.00 sec
+      Start 13: native_surface_checkpoint
+13/53 Test #13: native_surface_checkpoint .............   Passed    2.24 sec
+      Start 14: rf_legacy_asset_export_tests
+14/53 Test #14: rf_legacy_asset_export_tests ..........   Passed    0.00 sec
+      Start 15: rf_asset_glb_tests
+15/53 Test #15: rf_asset_glb_tests ....................   Passed    0.01 sec
+      Start 16: rf_obj_export_tests
+16/53 Test #16: rf_obj_export_tests ...................   Passed    0.00 sec
+      Start 17: rf_stl_export_tests
+17/53 Test #17: rf_stl_export_tests ...................   Passed    0.00 sec
+      Start 18: rf_ply_export_tests
+18/53 Test #18: rf_ply_export_tests ...................   Passed    0.00 sec
+      Start 19: rf_mesh_lod_tests
+19/53 Test #19: rf_mesh_lod_tests .....................   Passed    0.15 sec
+      Start 20: rf_asset_edit_tests
+20/53 Test #20: rf_asset_edit_tests ...................   Passed    0.01 sec
+      Start 21: rf_bundle_problem_bridge_tests
+21/53 Test #21: rf_bundle_problem_bridge_tests ........   Passed    0.02 sec
+      Start 22: rf_initializer_degeneracy_tests
+22/53 Test #22: rf_initializer_degeneracy_tests .......   Passed    0.01 sec
+      Start 23: rf_pnp_robustness_tests
+23/53 Test #23: rf_pnp_robustness_tests ...............   Passed    0.12 sec
+      Start 24: rf_pnp_origin_equivariance_tests
+24/53 Test #24: rf_pnp_origin_equivariance_tests ......   Passed    0.36 sec
+      Start 25: rf_pnp_failure_evidence_tests
+25/53 Test #25: rf_pnp_failure_evidence_tests .........   Passed    0.09 sec
+      Start 26: rf_triangulation_conditioning_tests
+26/53 Test #26: rf_triangulation_conditioning_tests ...   Passed    0.00 sec
+      Start 27: rf_intrinsics_tests
+27/53 Test #27: rf_intrinsics_tests ...................   Passed    0.00 sec
+      Start 28: rf_loop_closure_tests
+28/53 Test #28: rf_loop_closure_tests .................   Passed    0.01 sec
+      Start 29: rf_depth_tiles_tests
+29/53 Test #29: rf_depth_tiles_tests ..................   Passed    3.09 sec
+      Start 30: rf_robust_local_objective_tests
+30/53 Test #30: rf_robust_local_objective_tests .......   Passed    0.55 sec
+      Start 31: rf_depth_refinement_tests
+31/53 Test #31: rf_depth_refinement_tests .............   Passed    0.01 sec
+      Start 32: rf_dense_incumbent_tests
+32/53 Test #32: rf_dense_incumbent_tests ..............   Passed    0.57 sec
+      Start 33: rf_matching_cost_tests
+33/53 Test #33: rf_matching_cost_tests ................   Passed    0.00 sec
+      Start 34: rf_depth_consistency_tests
+34/53 Test #34: rf_depth_consistency_tests ............   Passed    0.00 sec
+      Start 35: rf_depth_cache_manifest_tests
+35/53 Test #35: rf_depth_cache_manifest_tests .........   Passed    0.00 sec
+      Start 36: rf_progress_tests
+36/53 Test #36: rf_progress_tests .....................   Passed    0.00 sec
+      Start 37: rf_surface_fusion_tests
+37/53 Test #37: rf_surface_fusion_tests ...............   Passed    0.32 sec
+      Start 38: rf_topology_fusion_admission_tests
+38/53 Test #38: rf_topology_fusion_admission_tests ....   Passed    0.30 sec
+      Start 39: rf_surface_alias_tests
+39/53 Test #39: rf_surface_alias_tests ................   Passed    0.00 sec
+      Start 40: rf_surface_evidence_tests
+40/53 Test #40: rf_surface_evidence_tests .............   Passed    0.00 sec
+      Start 41: rf_mesh_topology_tests
+41/53 Test #41: rf_mesh_topology_tests ................   Passed    0.10 sec
+      Start 42: rf_mesh_cleanup_tests
+42/53 Test #42: rf_mesh_cleanup_tests .................   Passed    0.01 sec
+      Start 43: rf_texture_visibility_tests
+43/53 Test #43: rf_texture_visibility_tests ...........   Passed    0.00 sec
+      Start 44: rf_uv_atlas_tests
+44/53 Test #44: rf_uv_atlas_tests .....................   Passed    0.77 sec
+      Start 45: rf_texture_blend_tests
+45/53 Test #45: rf_texture_blend_tests ................   Passed    0.00 sec
+      Start 46: rf_photometric_adversarial_tests
+46/53 Test #46: rf_photometric_adversarial_tests ......   Passed    0.00 sec
+      Start 47: rf_texture_c_abi_failure_tests
+47/53 Test #47: rf_texture_c_abi_failure_tests ........   Passed    0.00 sec
+      Start 48: rf_texture_png_tests
+48/53 Test #48: rf_texture_png_tests ..................   Passed    0.00 sec
+      Start 49: rf_tile_process_tests
+49/53 Test #49: rf_tile_process_tests .................   Passed    0.10 sec
+      Start 50: rf_checkpoint_process_tests
+50/53 Test #50: rf_checkpoint_process_tests ...........   Passed    0.02 sec
+      Start 51: native_distinct_pair_initializer
+51/53 Test #51: native_distinct_pair_initializer ......   Passed    0.63 sec
+      Start 52: native_calibrated_initializer
+52/53 Test #52: native_calibrated_initializer .........   Passed    0.28 sec
+      Start 53: native_surface_provenance
+53/53 Test #53: native_surface_provenance .............   Passed    0.01 sec
+
+100% tests passed out of 53
+
+Total Test time (real) =  16.69 sec

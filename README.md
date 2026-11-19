@@ -23,10 +23,13 @@ and strengthens the evidence used to judge reconstruction changes:
 - The bounded native fuzz workflow writes evidence outside the checkout so its
   reports cannot invalidate the source-integrity check.
 
-The native Release build and **53/53 CTest cases passed**. Full candidate pytest,
-new Android CI and sanitizer qualification are tracked separately in the
+The native Release build and **53/53 CTest cases passed**. The final full host
+suite passed **4,964 tests plus 362 subtests**, with **33 unchanged prerequisite
+skips** and no failures. The completed **60-agent, ten-wave** preparation and
+exact tested source are retained in the
 [campaign evidence record](docs/development/M20_PREPARATION_2026_11_19.md);
-earlier passing results do not certify later source. Physical handsets, authorized
+commit-specific CI and sanitizer/device qualification remain separate gates.
+Earlier passing results do not certify later source. Physical handsets, authorized
 captures and reference geometry remain **BLOCKED_EXTERNAL**. Follow the
 [M20 physical handoff](docs/development/M20_PHYSICAL_HANDOFF.md) for the remaining
 measurements and installed offline journey. M20 and release qualification remain

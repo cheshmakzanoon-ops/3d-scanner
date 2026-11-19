@@ -1,0 +1,131 @@
+{
+  "classification": "LOCAL_DIRTY_WORKTREE_VALIDATION_NOT_COMMIT_QUALIFICATION",
+  "status": "PASS",
+  "exitCode": 0,
+  "sourceIdentity": {
+    "schema": 1,
+    "classification": "LOCAL_DIRTY_WORKTREE_VALIDATION_NOT_COMMIT_QUALIFICATION",
+    "baselineCommit": "a373aff43a03bd736edb16707cbf5edabf5f2156",
+    "candidateTestedTree": "05620a73a9ee59813667e9ac41fe722ef3498fd7",
+    "candidateManifest": {
+      "sha256": "82edba9bc753b15324b504c1e88069a90a052035fb7a7e9fe007d07357949aeb",
+      "byteCount": 439997
+    },
+    "nativeLibrary": {
+      "sha256": "56b5eec450e36c6a97f1ac7f4e5efeb22dafec73b9b40030c57ec5afe247d42c",
+      "byteCount": 1549384
+    },
+    "nativeConfiguration": {
+      "buildType": "Release",
+      "warningsAsErrors": true,
+      "sanitizers": false
+    },
+    "limitations": [
+      "The staged tree identifies precommit tested source; baseline HEAD is not attributed as the candidate commit",
+      "Later documentation/evidence additions require a new manifest and contract checks; preserve this tested tree identity",
+      "Ordinary host pytest is not the complete native regression matrix or Android/device qualification"
+    ],
+    "validationRun": "final-candidate-pytest"
+  },
+  "sourceIntegrityAfterRun": {
+    "stagedTree": "05620a73a9ee59813667e9ac41fe722ef3498fd7",
+    "manifestSha256": "82edba9bc753b15324b504c1e88069a90a052035fb7a7e9fe007d07357949aeb",
+    "worktreeMatchesIndex": true,
+    "nativeLibrary": {
+      "sha256": "56b5eec450e36c6a97f1ac7f4e5efeb22dafec73b9b40030c57ec5afe247d42c",
+      "bytes": 1549384
+    }
+  },
+  "counts": {
+    "passedParentTests": 4964,
+    "passedSubtests": 362,
+    "failed": 0,
+    "skipped": 33,
+    "errors": 0,
+    "warnings": 2,
+    "totalCases": 5359,
+    "parentTestcaseElements": 4997
+  },
+  "terminalSeconds": 346.17,
+  "junitSeconds": 346.113,
+  "failures": [],
+  "skipReasonCounts": {
+    "Actual Kotlin/JDK tools unavailable": 1,
+    "Actual pinned Kotlin/JDK tools unavailable": 1,
+    "Actual resource failure archive unavailable; no replay claim": 1,
+    "Actual selection tools unavailable; no execution qualification": 1,
+    "Explicit pinned upstream module and official CMake3.31.6 required; no test downloads": 1,
+    "Explicit retained e1fee artifact required; no download in test": 1,
+    "Gradle 8.13 not supplied; NOT runtime qualification": 1,
+    "JDK compiler unavailable; actual JVM JNI gate NOT_RUN": 1,
+    "JDK compiler unavailable; actual JVM mapping detector control NOT_RUN": 1,
+    "JDK/Kotlin compiler unavailable; bounded cache JVM regression NOT_RUN": 1,
+    "Kotlin compiler/JVM unavailable for isolated failure-precedence helper": 1,
+    "NOT_RUN: actual JDK17 headers/GNU compiler unavailable": 1,
+    "NOT_RUN: actual javac unavailable": 1,
+    "Official fixture tools unavailable; no runtime qualification": 1,
+    "Pinned NDK shader compiler unavailable; NOT_RUN shader gate": 1,
+    "Real CMake/Ninja tools unavailable; no qualification": 9,
+    "Real contract fixture prerequisites unavailable; no runtime qualification": 1,
+    "Real exporter JNI fixture prerequisites unavailable": 1,
+    "Requires Android/Kotlin setup and real android-json host artifact; run Android corpus otherwise.": 1,
+    "Retained 97a artifact explicitly required for actual replay": 1,
+    "Retained actual-run artifact unavailable; no hosted replay claim": 3,
+    "Retained scanner graph unavailable; no hosted replay claim": 1,
+    "clang++ unavailable; compile/link regression NOT_RUN": 1
+  },
+  "baselineComparison": {
+    "newParentTests": 496,
+    "allNewParentTestsPassed": true,
+    "removedParentTests": 0,
+    "changedExistingOutcomes": [],
+    "skipIdentitiesMatch": true,
+    "skipReasonsMatch": true,
+    "warningTextMatches": true,
+    "newTestsByModule": {
+      "tests.test_agent_082_fuzz_runner": 3,
+      "tests.test_dense_controller_report": 53,
+      "tests.test_dense_loss_diagnostics": 2,
+      "tests.test_dense_loss_report": 38,
+      "tests.test_dense_profile_sweep": 76,
+      "tests.test_dense_qa_cli_io": 20,
+      "tests.test_dense_receipt_provenance": 25,
+      "tests.test_dense_report_validation": 55,
+      "tests.test_eight_view_header_provider": 6,
+      "tests.test_surface_diagnostics_parity": 38,
+      "tests.test_surface_pass_report": 116,
+      "tests.test_surface_population_report": 64
+    },
+    "skipRawXmlTextMatches": false,
+    "skipTextAfterCheckoutPrefixRemovalMatches": true,
+    "skipLocationNormalization": "Removed only the known scanner-baseline/ and 3d-scanner/ absolute checkout prefixes from skipped-element text; message attributes match without normalization"
+  },
+  "initialFailedRunPreserved": true,
+  "artifacts": {
+    "final-candidate-pytest.xml": {
+      "sha256": "4f96c19fcda4c1b70af85e511a9cb5003b108783f5d504247f1e9616350afc15",
+      "bytes": 788426
+    },
+    "final-candidate-pytest.log": {
+      "sha256": "8fab74efa9b97cf92b91603c5b41b42547dcf2e1e3619e975a3fca3727c3c9d1",
+      "bytes": 6550
+    },
+    "final-candidate-pytest-exit.txt": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    }
+  },
+  "command": "python -m pytest tests -q --junitxml=/workspace/scratch/7c42079ae707/m20-final-evidence/final-candidate-pytest.xml",
+  "environment": {
+    "activation": "/workspace/scratch/7c42079ae707/rf-qa/activate.sh",
+    "python": "/workspace/scratch/7c42079ae707/rf-qa/qa-python/bin/python",
+    "pathPrefix": "/workspace/scratch/7c42079ae707/scanner-venv/bin",
+    "nativeLibrary": "/workspace/scratch/7c42079ae707/3d-scanner/build/host/librealityforge.so"
+  },
+  "accountingPluginEnabled": false,
+  "limitations": [
+    "Host release pytest only; not the complete native regression matrix, sanitizer qualification, Android execution or physical quality",
+    "This result identifies the frozen staged tree, not the eventual published commit",
+    "All 33 environment skips remain unexecuted checks"
+  ]
+}
