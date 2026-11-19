@@ -29,6 +29,12 @@ skips** and no failures. The completed **60-agent, ten-wave** preparation and
 exact tested source are retained in the
 [campaign evidence record](docs/development/M20_PREPARATION_2026_11_19.md);
 commit-specific CI and sanitizer/device qualification remain separate gates.
+The first published candidate `2d96fbc` passed Clang Release CI, **921 Android
+JVM/HOST tests**, and **30,000 bounded native fuzz runs**. Overall Verify failed:
+three native jobs stopped at Blender dependency setup, the benchmark job failed
+plugin metadata verification, and device tests stopped at KVM preflight. The
+reviewed dependency bootstrap corrections require their own CI outcome; see
+the source-specific campaign record above.
 Earlier passing results do not certify later source. Physical handsets, authorized
 captures and reference geometry remain **BLOCKED_EXTERNAL**. Follow the
 [M20 physical handoff](docs/development/M20_PHYSICAL_HANDOFF.md) for the remaining

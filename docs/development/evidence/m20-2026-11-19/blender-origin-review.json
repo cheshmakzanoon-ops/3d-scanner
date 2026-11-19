@@ -1,0 +1,38 @@
+{
+  "reviewed_at_utc": "2026-11-19T05:45:12.477710+00:00",
+  "scope": "read-only official mirror discovery; no repository change or archive download",
+  "authorization_sources": [
+    "https://projects.blender.org/infrastructure/mirror/wiki",
+    "https://mirror.blender.org/release/Blender4.3/"
+  ],
+  "primary_checksum_url": "https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256",
+  "alternate_checksum_url": "https://mirror.dotsrc.org/blender/release/Blender4.3/blender-4.3.2.sha256",
+  "alternate_archive_url": "https://mirror.dotsrc.org/blender/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz",
+  "checksum_file_bytes": 871,
+  "checksum_file_sha256": "eee745a32c28b3e6ae90d246474dacfde6d2e05291c118b153d8ef72cff45c7f",
+  "archive_name": "blender-4.3.2-linux-x64.tar.xz",
+  "archive_publisher_sha256": "4da1c956673c0485e63054e563ee69198cc8f80d8157dd7592dffc8a6a5592e6",
+  "comparison": "Primary current GET, official listed Dotsrc GET and retained a373 publisher file byte-identical",
+  "archive_probe": {
+    "requested_url": "https://mirror.dotsrc.org/blender/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz",
+    "method": "HEAD",
+    "archive_body_downloaded": false,
+    "status": 200,
+    "final_url": "https://mirror.dotsrc.org/blender/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz",
+    "content_length": "368852356",
+    "content_type": "application/octet-stream",
+    "last_modified": "Tue, 17 Dec 2024 08:40:55 GMT"
+  },
+  "limitations": [
+    "Archive bytes were not downloaded or verified in this review",
+    "Success from this environment does not establish future availability from GitHub runners",
+    "Official mirror service endpoint mirror.blender.org returned HTTP403 here"
+  ],
+  "recommended_boundary": [
+    "Fixed reviewed HTTPS origins only",
+    "Pin the independently confirmed exact archive SHA256",
+    "Advance only for transport errors; mismatch, malformed or duplicate publisher entry remains fatal",
+    "Preserve partial-file cleanup and verification before publication",
+    "Record actual requested and final successful origins, hash identities and prior transport failures; never infer an origin for preexisting cache"
+  ]
+}

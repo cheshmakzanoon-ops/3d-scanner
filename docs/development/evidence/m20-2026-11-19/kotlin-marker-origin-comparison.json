@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "recordedAtUtc": "2026-11-19T05:43:28.014497+00:00",
+  "retrievedOnUtc": "2026-11-19",
+  "method": "Read-only HTTPS urllib requests, SHA-256 over returned bytes, XML dependency parse for Compose/KSP and inspected Android XML. This records observed upstream bytes, not the unretained CI download.",
+  "sourceCommit": "2d96fbc0b89abdd6e9bec00b72f471a7ee24679b",
+  "ci": {
+    "runId": 44465913139,
+    "benchmarkJobId": 135363536712,
+    "failure": "Kotlin Android marker POM dependency verification from Gradle Central Plugin Repository before compilation",
+    "downloadedArtifactSha256": null,
+    "initialCache": "Gradle User Home cache not found; initialized empty",
+    "whyCentralWasNotSelected": "UNKNOWN; console has no HTTP status or debug repository trace"
+  },
+  "markers": [
+    {
+      "coordinate": "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:2.1.21",
+      "packaging": "pom",
+      "mavenCentral": {
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/android/org.jetbrains.kotlin.android.gradle.plugin/2.1.21/org.jetbrains.kotlin.android.gradle.plugin-2.1.21.pom",
+        "bytes": 1413,
+        "sha256": "57d7767806f6c0230a9a60f66818a2d4c307ed15f79def268c2367a5001f1e91"
+      },
+      "gradlePluginPortal": {
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlin/android/org.jetbrains.kotlin.android.gradle.plugin/2.1.21/org.jetbrains.kotlin.android.gradle.plugin-2.1.21.pom",
+        "bytes": 681,
+        "sha256": "c9027c3c5bef33e8ee4d5d61543a1043e9552b79f0f3ad4452574f80239cd832"
+      },
+      "dependency": "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.21",
+      "sameDependencySemantics": true,
+      "matchingExistingApprovedSha256": "57d7767806f6c0230a9a60f66818a2d4c307ed15f79def268c2367a5001f1e91"
+    },
+    {
+      "coordinate": "org.jetbrains.kotlin.plugin.compose:org.jetbrains.kotlin.plugin.compose.gradle.plugin:2.1.21",
+      "packaging": "pom",
+      "mavenCentral": {
+        "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/plugin/compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin/2.1.21/org.jetbrains.kotlin.plugin.compose.gradle.plugin-2.1.21.pom",
+        "bytes": 1455,
+        "sha256": "113c478d0db3fdd5e32ad31bd5801d75eea8cee8eb9b31b5102c6e53f5918c8a"
+      },
+      "gradlePluginPortal": {
+        "url": "https://plugins.gradle.org/m2/org/jetbrains/kotlin/plugin/compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin/2.1.21/org.jetbrains.kotlin.plugin.compose.gradle.plugin-2.1.21.pom",
+        "bytes": 705,
+        "sha256": "f87ebb0ce868f9f052704f05ee5646116c6edadf3d297198ba46b02a5b638355"
+      },
+      "dependency": "org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.1.21",
+      "sameDependencySemantics": true,
+      "matchingExistingApprovedSha256": "113c478d0db3fdd5e32ad31bd5801d75eea8cee8eb9b31b5102c6e53f5918c8a"
+    },
+    {
+      "coordinate": "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.1.21-2.0.1",
+      "packaging": "pom",
+      "mavenCentral": {
+        "url": "https://repo.maven.apache.org/maven2/com/google/devtools/ksp/com.google.devtools.ksp.gradle.plugin/2.1.21-2.0.1/com.google.devtools.ksp.gradle.plugin-2.1.21-2.0.1.pom",
+        "bytes": 1334,
+        "sha256": "ba1951a3dab18a8bc2c939d7a230b0d953bc6ae362dd520a477cdf5cb14718e1"
+      },
+      "gradlePluginPortal": {
+        "url": "https://plugins.gradle.org/m2/com/google/devtools/ksp/com.google.devtools.ksp.gradle.plugin/2.1.21-2.0.1/com.google.devtools.ksp.gradle.plugin-2.1.21-2.0.1.pom",
+        "bytes": 1334,
+        "sha256": "ba1951a3dab18a8bc2c939d7a230b0d953bc6ae362dd520a477cdf5cb14718e1"
+      },
+      "dependency": "com.google.devtools.ksp:symbol-processing-gradle-plugin:2.1.21-2.0.1",
+      "sameDependencySemantics": true,
+      "matchingExistingApprovedSha256": "ba1951a3dab18a8bc2c939d7a230b0d953bc6ae362dd520a477cdf5cb14718e1"
+    }
+  ],
+  "routingRemediation": "Two exact Kotlin marker modules exclusively routed to dedicated Maven Central repository; ordinary repositories retained, hashes and versions unchanged. KSP unchanged.",
+  "gradleDocumentation": [
+    "https://docs.gradle.org/8.13/userguide/filtering_repository_content.html",
+    "https://docs.gradle.org/8.13/userguide/dependency_caching.html"
+  ],
+  "limits": [
+    "No proof of actual failed CI POM byte hash",
+    "No proof why the benchmark runner selected Portal",
+    "Routing fails closed if Central is unavailable",
+    "Source contract checks do not substitute for actual Gradle compilation"
+  ]
+}

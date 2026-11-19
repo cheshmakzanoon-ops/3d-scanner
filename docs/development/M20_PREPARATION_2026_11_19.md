@@ -172,9 +172,45 @@ The [final host result](evidence/m20-2026-11-19/final-host-pytest.json) and
 [source context](evidence/m20-2026-11-19/final-host-source.json) retain the
 commands, exact identities, skip accounting and full log/JUnit hashes.
 
-The exact remote candidate remains subject to its own GitHub checks; historical
-green jobs do not qualify a later commit. See also the separate
-[sanitizer evidence record](M20_SANITIZER_STATUS.md).
+## First published candidate CI and bootstrap corrections
+
+The exact published candidate `2d96fbc0b89abdd6e9bec00b72f471a7ee24679b`
+completed [Verify run 44465913139](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139)
+with an overall **FAILURE**. The [retained summary](evidence/m20-2026-11-19/first-published-ci.json)
+keeps each result attached to that source:
+
+| Gate | Actual result on `2d96fbc` |
+| --- | --- |
+| Clang Release | **PASS**: 53 CTest cases; 4,969 passing parent tests plus 362 passing subtests, 28 skips and zero failures; numerical and benchmark commands exited successfully. All 80 sealed artifact hashes were verified after download. |
+| Android build and HOST/JVM tests | **PASS**: 903 JVM unit tests plus 18 HOST integration tests; debug and instrumentation APK assembly, both ARM64/x86_64 native builds and package checks succeeded. Lint reported zero errors, 102 warnings and three hints. |
+| Bounded native fuzz | Separate [run 44465913110](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913110) **PASS**: numeric, checkpoint and export targets each completed 10,000 runs, with ordinary exit 0, no crash artifact and no reported sanitizer error. The source remained clean; all 172 recorded source files matched the commit. |
+| GCC Release, GCC sanitizer and Clang sanitizer | **BLOCKED_EXTERNAL_DEPENDENCY**: Blender publisher-checksum HTTP403 during QA setup; the native runners and their tests were **NOT_RUN**. Historical sanitizer failure counts must not be reused as these candidate results. |
+| Benchmark build | **FAIL** before compilation: Kotlin Android plugin-marker metadata from Plugin Portal failed dependency verification. The actual failed POM hash was not retained. |
+| Installed-device tests | **BLOCKED_ENVIRONMENT** at initial KVM preflight: no existing read/write `/dev/kvm` access. Installation and instrumentation were **NOT_RUN**. |
+| Complete candidate evidence | **FAIL** because all required runtime jobs did not pass. |
+
+The resulting bootstrap corrections bind the two exact Kotlin marker modules to
+the already approved Maven Central metadata, without adding verification hashes
+or changing versions/locks. Independent upstream retrieval found different
+Central/Portal POM bytes; it does not prove the bytes of the unretained CI response
+or why Central was not selected in that job. The
+[origin comparison](evidence/m20-2026-11-19/kotlin-marker-origin-comparison.json)
+preserves those limits.
+
+The Blender installer now pins both the publisher document and archive, permits
+the exact publisher-listed Dotsrc mirror only after eligible transport failures,
+and records actual origins. TLS, content, redirect, publisher-entry and local
+filesystem failures stay fatal. The
+[mirror review](evidence/m20-2026-11-19/blender-origin-review.json) retained an actual
+871-byte checksum fetch and archive HEAD response; it did not download the
+368 MB archive. Forty-five focused installer tests passed, and the new helper
+verified the real primary checksum. Archive extraction and actual Gradle
+configuration still require CI on the correction's own source.
+
+These fixes are follow-ups by existing campaign agents 25, 33 and 35, reviewed
+without increasing the 60-agent count. They do not alter reconstruction output,
+waive sanitizer/device gates, or qualify a later commit from earlier green jobs.
+See also the separate [sanitizer evidence record](M20_SANITIZER_STATUS.md).
 
 ## Ten-wave assignment record
 

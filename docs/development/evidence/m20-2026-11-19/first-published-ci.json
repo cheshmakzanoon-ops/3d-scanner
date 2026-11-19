@@ -1,0 +1,420 @@
+{
+  "schemaVersion": 1,
+  "sourceSha": "2d96fbc0b89abdd6e9bec00b72f471a7ee24679b",
+  "scope": "First published M20 preparation candidate; observed CI results, not qualification of later bootstrap corrections",
+  "verify": {
+    "id": 44465913139,
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139",
+    "updatedAtUtc": "2026-11-19T05:48:41Z"
+  },
+  "clangRelease": {
+    "jobId": 135363536632,
+    "conclusion": "success",
+    "artifactId": 14503090142,
+    "artifactZipSha256": "a6b45ff762bfc3004efb6a34aebb776eff12aa7681c3bcc21459bb650566b19a",
+    "retainedArtifactHashesVerified": 80,
+    "tests": {
+      "failed": 0,
+      "passed": 5331,
+      "skipped": 28,
+      "tests": 5359,
+      "passedParentTests": 4969,
+      "passedSubtests": 362
+    },
+    "ctest": {
+      "passed": 53,
+      "failed": 0
+    },
+    "sourceDirty": false,
+    "result": "PASS",
+    "commands": [
+      {
+        "command": [
+          "cmake",
+          "-S",
+          "/home/runner/work/3d-scanner/3d-scanner",
+          "-B",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/build",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
+          "-DCMAKE_CXX_FLAGS=-Werror",
+          "-DRF_SANITIZE=OFF"
+        ],
+        "exitCode": 0,
+        "seconds": 0.602
+      },
+      {
+        "command": [
+          "cmake",
+          "--build",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/build",
+          "--parallel",
+          "1"
+        ],
+        "exitCode": 0,
+        "seconds": 113.799
+      },
+      {
+        "command": [
+          "ctest",
+          "--test-dir",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/build",
+          "--output-on-failure",
+          "--timeout",
+          "600",
+          "--no-tests=error"
+        ],
+        "exitCode": 0,
+        "seconds": 10.123
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "/home/runner/work/3d-scanner/3d-scanner/tools/qa/native_regression/numerical.py",
+          "--output",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/numerical.json"
+        ],
+        "exitCode": 0,
+        "seconds": 0.301
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "-p",
+          "tools.qa.native_regression.pytest_diagnostics",
+          "-p",
+          "tools.qa.native_regression.pytest_progress",
+          "-p",
+          "tools.qa.native_regression.pytest_accounting",
+          "--rf-pytest-accounting=/home/runner/work/_temp/rf-ci/native/runner/clang-release/pytest-accounting/receipt.json",
+          "--junitxml=/home/runner/work/_temp/rf-ci/native/runner/clang-release/pytest.xml"
+        ],
+        "exitCode": 0,
+        "seconds": 270.624
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "tools/bundle_three_view.py"
+        ],
+        "exitCode": 0,
+        "seconds": 0.403
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "tools/benchmark_multiview_coverage.py",
+          "--gate",
+          "--output",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/benchmark_multiview_coverage.json"
+        ],
+        "exitCode": 0,
+        "seconds": 1.803
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "tools/benchmark_middlebury.py",
+          "--gate",
+          "--output",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/benchmark_middlebury.json"
+        ],
+        "exitCode": 0,
+        "seconds": 0.603
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "tools/benchmark_dense_middlebury.py",
+          "--gate",
+          "--output",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/benchmark_dense_middlebury.json"
+        ],
+        "exitCode": 0,
+        "seconds": 0.501
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "tools/benchmark_surface_middlebury.py",
+          "--gate",
+          "--output",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/benchmark_surface_middlebury.json"
+        ],
+        "exitCode": 0,
+        "seconds": 0.802
+      },
+      {
+        "command": [
+          "/home/runner/work/_temp/rf-qa/qa-python/bin/python",
+          "tools/benchmark_texture_middlebury.py",
+          "--gate",
+          "--output",
+          "/home/runner/work/_temp/rf-ci/native/runner/clang-release/benchmark_texture_middlebury.json"
+        ],
+        "exitCode": 0,
+        "seconds": 0.802
+      }
+    ]
+  },
+  "gccRelease": {
+    "jobId": 135363536357,
+    "conclusion": "failure",
+    "phase": "QA dependency installation before native runner",
+    "failedUrl": "https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256",
+    "error": "HTTP 403",
+    "nativeRunner": "NOT_RUN"
+  },
+  "sanitizers": {
+    "source": "2d96fbc0b89abdd6e9bec00b72f471a7ee24679b",
+    "run_id": "44465913139:1",
+    "run_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139",
+    "classification": "BLOCKED_EXTERNAL_DEPENDENCY",
+    "candidate_test_outcome": "NOT_RUN",
+    "candidate_test_counts": null,
+    "baseline_comparison": {
+      "baseline_source": "a373aff43a03bd736edb16707cbf5edabf5f2156",
+      "baseline_failed_identities": 13,
+      "new_failed_identities": null,
+      "resolved_failed_identities": null,
+      "reason": "Candidate runner never executed; no candidate JUnit/accounting exists."
+    },
+    "failed_fetch": "https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256",
+    "failure": "urllib.error.HTTPError: HTTP Error 403: Forbidden",
+    "location": "tools/dependencies/install_qa.py:77",
+    "shards": [
+      {
+        "profile": "gcc-sanitize",
+        "job_id": 135363536577,
+        "job_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139/job/135363536577",
+        "job_conclusion": "failure",
+        "source_manifest": "PASS (3343 files)",
+        "native_runner": "NOT_RUN",
+        "ctest": "NOT_RUN",
+        "pytest": "NOT_RUN",
+        "artifact_id": 14502720432,
+        "artifact_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139/artifacts/14502720432",
+        "artifact_files": [
+          "rf-ci/native/start.json",
+          "rf-qa/qa-python-check.log",
+          "rf-qa/qa-python-install.log",
+          "rf-qa/security-python-check.log",
+          "rf-qa/security-python-install.log"
+        ],
+        "artifact_zip_sha256": "9d4ba5e9ebbb64b90fb26808e2d77a1c4e099e6c204d2a9125876762939f92cf",
+        "job_log_sha256": "9a6d7160c69c1bb495e4591a78b3e288e110c515fd3f33c82533be17eb3a54a8"
+      },
+      {
+        "profile": "clang-sanitize",
+        "job_id": 135363536659,
+        "job_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139/job/135363536659",
+        "job_conclusion": "failure",
+        "source_manifest": "PASS (3343 files)",
+        "native_runner": "NOT_RUN",
+        "ctest": "NOT_RUN",
+        "pytest": "NOT_RUN",
+        "artifact_id": 14502670463,
+        "artifact_url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139/artifacts/14502670463",
+        "artifact_files": [
+          "rf-ci/native/start.json",
+          "rf-qa/qa-python-check.log",
+          "rf-qa/qa-python-install.log",
+          "rf-qa/security-python-check.log",
+          "rf-qa/security-python-install.log"
+        ],
+        "artifact_zip_sha256": "d86275c65d636a0b1e55700a56541cba3e693b9611bbc8ad4d4933a84a59407a",
+        "job_log_sha256": "762bcfb99c77065e324e5b999889a8c13707e36620ab20625687945a95a983c8"
+      }
+    ]
+  },
+  "android": {
+    "sourceSha": "2d96fbc0b89abdd6e9bec00b72f471a7ee24679b",
+    "runId": 44465913139,
+    "artifactId": 14502228243,
+    "zipSha256": "5ba3156b0a4f0bcb7ed6fea740a7bb15d5c5ae0a57341d70eca3cea21450533c",
+    "junit": {
+      "testDebugUnitTest": {
+        "xmlFiles": 162,
+        "tests": 903,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "hostIntegrationTest": {
+        "xmlFiles": 7,
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "lint": {
+      "reports/lint-results-debug.xml": {
+        "issues": 105,
+        "bySeverity": {
+          "Warning": 102,
+          "Hint": 3
+        },
+        "byId": {
+          "AndroidGradlePluginVersion": 1,
+          "GradleDependency": 18,
+          "NewerVersionAvailable": 6,
+          "ConfigurationScreenWidthHeight": 2,
+          "PluralsCandidate": 16,
+          "ObsoleteSdkInt": 1,
+          "AutoboxingStateCreation": 3,
+          "UnusedResources": 43,
+          "UsableSpace": 7,
+          "ViewConstructor": 2,
+          "UseKtx": 6
+        }
+      }
+    },
+    "workflow": {
+      "id": 44465913139,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139",
+      "updatedAtUtc": "2026-11-19T05:48:41Z"
+    },
+    "android": {
+      "jobId": 135363536576,
+      "conclusion": "success",
+      "nativeAbisCompiled": [
+        "arm64-v8a",
+        "x86_64"
+      ],
+      "debugApkSha256": "23dda14556cd4a86e20ce2dd16149909d712f0dfbd9d9e9ecca3e1305ab99223",
+      "version": "0.19.0-m19",
+      "apkArtifactId": 14502293342,
+      "sealedEvidenceArtifactId": 14502273449
+    },
+    "benchmark": {
+      "jobId": 135363536712,
+      "conclusion": "failure",
+      "phase": "Plugin metadata dependency verification before compilation",
+      "coordinate": "org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:2.1.21",
+      "repository": "Gradle Central Plugin Repository",
+      "actualFailedArtifactHash": null,
+      "retainedBenchmarkArtifact": false
+    },
+    "device": {
+      "jobId": 135368271187,
+      "conclusion": "failure",
+      "phase": "Initial KVM preflight",
+      "detail": "Runner lacks existing read/write access to /dev/kvm",
+      "instrumentation": "NOT_RUN",
+      "installedApp": "NOT_RUN",
+      "retainedDeviceEvidence": false
+    },
+    "candidateEvidence": {
+      "jobId": 135368555616,
+      "conclusion": "failure",
+      "phase": "Require every runtime job to execute successfully",
+      "completeEvidenceVerification": "NOT_RUN"
+    },
+    "limits": [
+      "Android results apply only to source2d96fbc, not the uncommitted marker-routing correction",
+      "Host JVM and APK assembly do not qualify installed Android operation or physical ARM64 captures",
+      "Lint has102warnings and3hints despite zeroerrors",
+      "Independent current upstream POM identities do not prove bytes in unretained failed benchmark download"
+    ]
+  },
+  "boundedNativeFuzz": {
+    "source_sha": "2d96fbc0b89abdd6e9bec00b72f471a7ee24679b",
+    "status": "PASS",
+    "compiler": "Ubuntu clang version 18.1.3 (1ubuntu1)",
+    "source_dirty": false,
+    "source_fingerprint": "7682692638d2907f95ffcd0b2dd9bed42bfffe4b09dc37d20fd23bb78e82d6a8",
+    "sourceFilesVerifiedAgainstGit": 172,
+    "buildstampSha256": "20b6302a7626c752df700ef95260f4816326fb82324ad52d3847ebe1253d0e21",
+    "nativeLibrary": {
+      "path": "/home/runner/work/3d-scanner/3d-scanner/build/fuzz/native/librealityforge.so",
+      "sha256": "1ef83e21730c12839622623294c8a76d0891c414e2a54e1227e0db31f559a964",
+      "bytes": 19729296
+    },
+    "steps": [
+      {
+        "target": "numeric",
+        "status": "PASS",
+        "exit_code": 0,
+        "completed_runs": [
+          10000
+        ],
+        "reported_seconds": 0,
+        "requested_runs": 10000,
+        "time_budget_seconds": 60,
+        "budget_completion": "runs",
+        "seconds": 0.6158769319999919,
+        "log_sha256": "dde11ed9351566f1acea17d8267484129be3213ebec4081ce8ad27499c815624",
+        "binary_sha256": "339e5696368e744a2405b55c558233ebb31abb8d385c2f4802a0f5ddd5ad42c6"
+      },
+      {
+        "target": "checkpoint",
+        "status": "PASS",
+        "exit_code": 0,
+        "completed_runs": [
+          10000
+        ],
+        "reported_seconds": 0,
+        "requested_runs": 10000,
+        "time_budget_seconds": 60,
+        "budget_completion": "runs",
+        "seconds": 0.9162348980000274,
+        "log_sha256": "5c3076a8a1fd3263e511b736b84f78351c4039c3ab5de0ab0f2c175e7a2b2678",
+        "binary_sha256": "febfd16be6ed29b92fe116f6fcfc34e7c0dd36e39f19e900bc615934b6ce873f"
+      },
+      {
+        "target": "exports",
+        "status": "PASS",
+        "exit_code": 0,
+        "completed_runs": [
+          10000
+        ],
+        "reported_seconds": 0,
+        "requested_runs": 10000,
+        "time_budget_seconds": 60,
+        "budget_completion": "runs",
+        "seconds": 0.7667420129999982,
+        "log_sha256": "9e013a5977fb8a6a0d4487c11fd2df3975c2dd01642a763c40e56a29e032f0b8",
+        "binary_sha256": "c9e7dca1a872f79c464dcf32ff596f02be52085efd5785eeda0d7f49c2f9e7c1"
+      }
+    ],
+    "allFiveLogHashesVerified": true,
+    "crashArtifacts": 0,
+    "android_jni_instrumentation": "NOT_RUN",
+    "runId": 44465913110,
+    "jobId": 135363536019,
+    "artifactId": 14501454064,
+    "artifactZipSha256": "13306cb45809aeb164b4aa5a0dc13ad8548316d6e764f637149fc278810fe803",
+    "runUrl": "https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913110"
+  },
+  "otherWorkflows": [
+    {
+      "runId": 44465913193,
+      "name": "source export",
+      "conclusion": "success"
+    },
+    {
+      "runId": 44465913151,
+      "name": "supplementary C ABI replay diagnostic",
+      "conclusion": "success",
+      "releaseQualification": false
+    }
+  ],
+  "limits": [
+    "Verify aggregate remains FAILURE; selected green jobs do not replace required missing gates.",
+    "The first candidate sanitizer tests did not execute. Historical a373aff sanitizer failures are not candidate test counts.",
+    "Android build and HOST/JVM tests do not establish installed device workflows or physical ARM64 quality.",
+    "The benchmark failed POM was not retained; independently fetched upstream hashes do not prove the bytes of that failed CI response.",
+    "No bootstrap correction described after this run was present in this source."
+  ]
+}

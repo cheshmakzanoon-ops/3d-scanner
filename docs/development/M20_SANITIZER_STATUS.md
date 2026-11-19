@@ -7,7 +7,23 @@ scanner-free controls, or diagnostic/export parity.
 
 This report reviews already executed artifacts for the
 [M20 preparation campaign](M20_PREPARATION_2026_11_19.md). It records no new
-sanitizer execution and does not qualify a later candidate commit.
+local sanitizer execution and does not qualify a later candidate commit.
+
+## First published candidate CI
+
+On `2d96fbc0b89abdd6e9bec00b72f471a7ee24679b`,
+[Verify run 44465913139](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/44465913139)
+failed both sanitizer jobs during QA dependency setup: the Blender4.3.2
+publisher checksum URL returned HTTP403. Neither native runner executed; CTest,
+pytest and candidate failure counts are **NOT_RUN / unavailable**. These jobs
+cannot be compared with the baseline's 13 failed identities. The
+[candidate summary](evidence/m20-2026-11-19/first-published-ci.json) retains the
+job/artifact identities and this boundary. The reviewed pinned mirror fallback
+requires its own source-bound CI; it does not retroactively pass these jobs.
+
+The separate bounded fuzz workflow on the same source passed 10,000 runs each
+for numeric, checkpoint and export targets with ordinary exit 0 and no reported
+sanitizer errors. That scope does not replace the complete sanitizer profiles.
 
 ## Source-specific baseline CI
 

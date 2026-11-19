@@ -17,7 +17,12 @@
     "version": "4.3.2",
     "archive": "blender-4.3.2-linux-x64.tar.xz",
     "url": "https://download.blender.org/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz",
+    "fallbackUrl": "https://mirror.dotsrc.org/blender/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz",
+    "sha256": "4da1c956673c0485e63054e563ee69198cc8f80d8157dd7592dffc8a6a5592e6",
     "checksumSource": "https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256",
+    "checksumFallbackSource": "https://mirror.dotsrc.org/blender/release/Blender4.3/blender-4.3.2.sha256",
+    "checksumSha256": "eee745a32c28b3e6ae90d246474dacfde6d2e05291c118b153d8ef72cff45c7f",
+    "mirrorAuthority": "https://projects.blender.org/infrastructure/mirror/wiki",
     "license": "GPL-3.0-or-later; external QA executable, not linked or shipped in Android"
   }
 }

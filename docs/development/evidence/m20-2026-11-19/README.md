@@ -2,8 +2,9 @@
 
 The execution receipts and control summaries are byte-identical copies of their
 observed local records. The completed assignment ledger records the campaign.
+The later CI summary identifies its own published source and downloaded artifacts.
 They support the [campaign record](../../M20_PREPARATION_2026_11_19.md); they do
-not establish physical M20 completion, Android execution or release readiness.
+not establish physical M20 completion, installed Android execution or release readiness.
 
 ## What each file establishes
 
@@ -20,6 +21,9 @@ not establish physical M20 completion, Android execution or release readiness.
 | [agent-assignments.json](agent-assignments.json) / [wave summary](agent-wave-summary.md) | All 60 actual assignments completed in ten groups of six, with outcomes and qualification limits kept distinct. |
 | [host-synthetic-cli.json](host-synthetic-cli.json) | Earlier host CLI checks for schema 3, a constructed schema-4 saved-preview envelope, immutable output and contradictory-input rejection. The envelope was synthetic; no Android controller ran. |
 | [shared-ancestor-control.json](shared-ancestor-control.json) | A controlled reproduction showing unrelated shared-directory activity changed ancestor metadata while provider-subtree metadata and driver hashes stayed unchanged. This is diagnostic evidence for the synthetic fixture correction, not compiler qualification. |
+| [first-published-ci.json](first-published-ci.json) | Observed summary for `2d96fbc`: successful Clang Release, Android JVM/HOST build/tests and bounded fuzz; overall Verify failure with dependency setup, benchmark verification and KVM blockers kept distinct. |
+| [kotlin-marker-origin-comparison.json](kotlin-marker-origin-comparison.json) | Actual independently retrieved Central/Portal metadata identities; the failed CI response hash and reason for repository selection remain unknown. |
+| [blender-origin-review.json](blender-origin-review.json) | Reviewed primary/mirror checksum identities and mirror archive HEAD response. The archive body was not downloaded during this review. |
 
 ## Source and interpretation boundaries
 
@@ -53,8 +57,9 @@ cannot retroactively replace these observations.
 Synthetic parity and diagnostic consistency do not measure physical accuracy,
 completeness, appearance, handset resources or installed offline workflows.
 Physical inputs remain **BLOCKED_EXTERNAL**, local sanitizer execution remains
-**BLOCKED_ENVIRONMENT**, and unexecuted Android/release checks remain **NOT_RUN**.
-Candidate CI must supply its own commit-specific outcome.
+**BLOCKED_ENVIRONMENT**, and unexecuted installed-device/release checks remain **NOT_RUN**.
+The first published CI record covers its named source only; later bootstrap
+corrections require their own commit-specific outcome.
 
 ## Copied-file identities
 
@@ -70,3 +75,6 @@ Candidate CI must supply its own commit-specific outcome.
 | `final-host-pytest.json` | 5,947 | `96623cdc0bec7aee8d7d360b56f558737c9c2e55719ff7304e9cba4f7e505c86` |
 | `final-host-source.json` | 1,027 | `5f703da79880ba01cc32d62417efb46f37ce8c75bc9ccc16e7f70f4c1303de16` |
 | `native-release-ctest.log` | 6,352 | `fb74572f74ba735c3634f6f80df664b71f337ab90ba0d16d4c6e0f06f8190565` |
+| `first-published-ci.json` | 14,654 | `4bb828e234095ad15daedca4b0410ffc28424bd8e2336c6e7819d387448350bf` |
+| `kotlin-marker-origin-comparison.json` | 4,565 | `4dd2736636b8c49c3da59557cd0bc6eac65b4ac0287ac2786d32130264f8094b` |
+| `blender-origin-review.json` | 2,191 | `ba8637a1be896981ecc967f3d77c882ea0991b7b83008efc8a7811fd28162ca4` |

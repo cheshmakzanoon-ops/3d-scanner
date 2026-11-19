@@ -51,19 +51,36 @@ classpath or system Python is changed. Optional --qa-wheelhouse and
 Node's committed archive SHA256 comes from its official SHASUMS manifest; Khronos's
 exact archive SHA512 comes from the resolved npm integrity record. Blender reuses an
 already-installed exact4.3.2 executable and records its binary hash, or downloads the
-official portable4.3.2 archive and verifies its exact filename entry against Blender's
-authoritative release SHA256 manifest before extraction. --require-portable-blender
-forces that path. Tar extraction uses Python's safe data filter and cached corrupted
-artifacts fail closed. There is no verification bypass.
+official portable4.3.2 archive. The publisher checksum document and archive both have
+reviewed fixed SHA256 pins in `qa-tools.json`; exactly one matching publisher entry
+must agree with the archive pin before download/extraction. Eligible transport
+failures at the primary origin permit the exact Dotsrc URLs listed by Blender's
+[mirror authority](https://projects.blender.org/infrastructure/mirror/wiki).
+TLS, origin, content, publisher-entry and local filesystem failures remain fatal.
+The download receipt records actual requested/final URLs and prior transport
+failures; verified cached files have null origins. `--require-portable-blender`
+forces that path. Tar extraction uses Python's safe data filter and corrupted
+cached artifacts fail closed. There is no verification bypass.
 
 An empty fresh setup of both Python environments plus verified Node/Khronos and the
 existing system Blender4.3.2 passed the real090 interoperability and096 scanner suites:
-**25 tests passed in8.08s**. The cloud proxy denies download.blender.org, so the fresh
-portable Blender download branch could not run here; current functional evidence uses
-the recorded installed system binary, not an invented portable archive hash. CI needs
-HTTPS access to download.blender.org, nodejs.org, registry.npmjs.org, pypi.org and
-files.pythonhosted.org. Publisher-checksum matching, corruption rejection and archive
-escape rejection have independent regression tests.
+**25 tests passed in8.08s**. In that historical setup, the cloud proxy denied
+download.blender.org and the portable path could not execute. The November M20
+candidate later encountered HTTP403 from that origin in three CI jobs. The reviewed
+fallback has 45 focused tests and a successful real checksum-only fetch; these do
+not establish archive download/extraction. Its own CI must execute the complete
+path. See the [source-specific record](../../docs/development/M20_PREPARATION_2026_11_19.md).
+CI needs HTTPS access to the approved Blender sources, nodejs.org, registry.npmjs.org,
+pypi.org and files.pythonhosted.org. Publisher-checksum matching, corruption rejection
+and archive escape rejection have independent regression tests.
+
+The two Kotlin2.1.21 plugin marker modules for Android and Compose are exclusive
+to Maven Central in `settings.gradle.kts`. Central and Plugin Portal publish
+different POM bytes for those coordinates; the committed verification metadata
+already approves the Central identities. Routing preserves those approved bytes,
+versions and dependency locks and fails closed if that origin is unavailable.
+The [origin comparison](../../docs/development/evidence/m20-2026-11-19/kotlin-marker-origin-comparison.json)
+does not reconstruct the unretained failed benchmark response.
 
 Benchmark-only46-module dependency evidence lives in evidence/benchmark. Test compile/
 runtime graphs live in evidence/tests. They are distinct from shipped123-module app

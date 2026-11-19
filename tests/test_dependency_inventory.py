@@ -182,3 +182,187 @@ def test_variant_copies_nested_notices_and_hash_binds_them(tmp_path):
  out=tmp_path/'debug';variant_notices.generate(r,{'variant':'debug','modules':[]},{'modules':[]},base,out)
  assert (out/nested.relative_to(base)).read_bytes()==nested.read_bytes()
  assert nested.relative_to(base).as_posix() in json.loads((out/'NOTICE_INDEX.json').read_text())['files']
+
+
+@pytest.fixture
+def blender_download_fixture():
+    manifest=json.loads((ROOT/'tools/dependencies/qa-tools.json').read_text())['blender']
+    archive=b'Synthetic reviewed archive fixture; never extracted as Blender.\n'
+    manifest['sha256']=hashlib.sha256(archive).hexdigest()
+    publisher=(manifest['sha256']+'  '+manifest['archive']+'\n').encode()
+    manifest['checksumSha256']=hashlib.sha256(publisher).hexdigest()
+    return manifest,publisher,archive
+
+
+def blender_responses(monkeypatch,replies):
+    import io
+    calls=[]
+    class Response(io.BytesIO):
+        def __init__(self,data,url):super().__init__(data);self.url=url
+        def geturl(self):return self.url
+    class Opener:
+        def open(self,url,timeout):
+            calls.append(url)
+            reply=replies[url]
+            if isinstance(reply,BaseException):raise reply
+            if hasattr(reply,'geturl'):return reply
+            data,final=reply if isinstance(reply,tuple) else (reply,url)
+            return Response(data,final)
+    monkeypatch.setattr(installer.urllib.request,'build_opener',lambda handler:Opener())
+    return calls
+
+
+def test_blender_manifest_pins_independently_reviewed_publisher_and_archive():
+    manifest=json.loads((ROOT/'tools/dependencies/qa-tools.json').read_text())['blender']
+    assert manifest['version']=='4.3.2'
+    assert manifest['sha256']=='4da1c956673c0485e63054e563ee69198cc8f80d8157dd7592dffc8a6a5592e6'
+    assert manifest['checksumSha256']=='eee745a32c28b3e6ae90d246474dacfde6d2e05291c118b153d8ef72cff45c7f'
+    assert manifest['mirrorAuthority']=='https://projects.blender.org/infrastructure/mirror/wiki'
+
+
+def test_blender_primary_403_uses_reviewed_fallback_and_records_actual_sources(tmp_path,monkeypatch,blender_download_fixture):
+    from urllib.error import HTTPError
+    manifest,publisher,archive=blender_download_fixture
+    replies={manifest['checksumSource']:HTTPError(manifest['checksumSource'],403,'Forbidden',{},None),
+             manifest['checksumFallbackSource']:publisher,
+             manifest['url']:HTTPError(manifest['url'],403,'Forbidden',{},None),manifest['fallbackUrl']:archive}
+    calls=blender_responses(monkeypatch,replies)
+    path,origins=installer.blender_archive(manifest,tmp_path)
+    assert path.read_bytes()==archive
+    assert (tmp_path/'blender-publisher.sha256').read_bytes()==publisher
+    assert calls==[manifest['checksumSource'],manifest['checksumFallbackSource'],manifest['url'],manifest['fallbackUrl']]
+    for key,primary,fallback in [('publisherChecksum','checksumSource','checksumFallbackSource'),('archive','url','fallbackUrl')]:
+        origin=origins[key]
+        assert not origin['cached'] and origin['requestedUrl']==origin['finalUrl']==manifest[fallback]
+        assert origin['transportFailures']==[{'requestedUrl':manifest[primary],'errorType':'HTTPError','httpStatus':403}]
+    assert not list(tmp_path.glob('*.partial'))
+
+
+@pytest.mark.parametrize('stage',['publisher','archive'])
+def test_blender_content_mismatch_never_tries_another_origin(tmp_path,monkeypatch,blender_download_fixture,stage):
+    manifest,publisher,archive=blender_download_fixture
+    replies={manifest['checksumSource']:publisher if stage=='archive' else b'changed publisher bytes',
+             manifest['url']:b'changed archive bytes'}
+    calls=blender_responses(monkeypatch,replies)
+    with pytest.raises(ValueError,match='Checksum mismatch'):installer.blender_archive(manifest,tmp_path)
+    assert calls==[manifest['checksumSource']]+([manifest['url']] if stage=='archive' else [])
+    assert not (tmp_path/manifest['archive']).exists()
+    assert not list(tmp_path.glob('*.partial'))
+
+
+@pytest.mark.parametrize('problem',['wrong-name','duplicate','wrong-hash'])
+def test_blender_semantically_invalid_publisher_entry_never_fetches_archive(tmp_path,monkeypatch,blender_download_fixture,problem):
+    manifest,publisher,_=blender_download_fixture
+    if problem=='wrong-name':publisher=publisher.replace(manifest['archive'].encode(),b'other.tar.xz')
+    elif problem=='duplicate':publisher*=2
+    else:publisher=publisher.replace(manifest['sha256'].encode(),b'0'*64)
+    manifest['checksumSha256']=hashlib.sha256(publisher).hexdigest()
+    calls=blender_responses(monkeypatch,{manifest['checksumSource']:publisher})
+    with pytest.raises(ValueError,match='publisher checksum|pinned Blender archive'):
+        installer.blender_archive(manifest,tmp_path)
+    assert calls==[manifest['checksumSource']]
+    assert not (tmp_path/manifest['archive']).exists()
+
+
+@pytest.mark.parametrize('stage',['publisher','archive'])
+def test_blender_all_origins_fail_and_partial_download_is_removed(tmp_path,monkeypatch,blender_download_fixture,stage):
+    import io
+    from urllib.error import HTTPError
+    manifest,publisher,_=blender_download_fixture
+    primary=manifest['checksumSource' if stage=='publisher' else 'url']
+    fallback=manifest['checksumFallbackSource' if stage=='publisher' else 'fallbackUrl']
+    class Interrupted(io.BytesIO):
+        reads=0
+        def geturl(self):return primary
+        def read(self,size=-1):
+            self.reads+=1
+            if self.reads==1:return b'incomplete transport bytes'
+            raise ConnectionResetError('Synthetic connection interruption')
+    replies={primary:Interrupted(),fallback:HTTPError(fallback,503,'Unavailable',{},None)}
+    if stage=='archive':replies[manifest['checksumSource']]=publisher
+    calls=blender_responses(monkeypatch,replies)
+    with pytest.raises(OSError,match='Approved Blender sources unavailable'):
+        installer.blender_archive(manifest,tmp_path)
+    assert calls==([manifest['checksumSource']] if stage=='archive' else [])+[primary,fallback]
+    assert not (tmp_path/manifest['archive']).exists()
+    assert not list(tmp_path.glob('*.partial'))
+
+
+def test_blender_verified_cache_has_no_invented_download_origin(tmp_path,monkeypatch,blender_download_fixture):
+    manifest,publisher,archive=blender_download_fixture
+    (tmp_path/'blender-publisher.sha256').write_bytes(publisher)
+    (tmp_path/manifest['archive']).write_bytes(archive)
+    calls=blender_responses(monkeypatch,{})
+    path,origins=installer.blender_archive(manifest,tmp_path)
+    assert path.read_bytes()==archive and calls==[]
+    for key,payload in [('publisherChecksum',publisher),('archive',archive)]:
+        origin=origins[key]
+        assert origin['cached'] and origin['requestedUrl'] is None and origin['finalUrl'] is None
+        assert origin['transportFailures']==[]
+        assert origin['sha256']==hashlib.sha256(payload).hexdigest() and origin['byteCount']==len(payload)
+
+
+@pytest.mark.parametrize('stage',['publisher','archive'])
+def test_blender_corrupted_cache_is_preserved_and_never_redownloaded(tmp_path,monkeypatch,blender_download_fixture,stage):
+    manifest,publisher,archive=blender_download_fixture
+    publisher_path=tmp_path/'blender-publisher.sha256';publisher_path.write_bytes(publisher)
+    archive_path=tmp_path/manifest['archive'];archive_path.write_bytes(archive)
+    corrupted=publisher_path if stage=='publisher' else archive_path
+    corrupted.write_bytes(b'corrupted cache bytes')
+    calls=blender_responses(monkeypatch,{})
+    with pytest.raises(ValueError,match='Checksum mismatch'):installer.blender_archive(manifest,tmp_path)
+    assert calls==[] and corrupted.read_bytes()==b'corrupted cache bytes'
+
+
+@pytest.mark.parametrize('kind',['authentication','tls'])
+def test_blender_authentication_and_tls_failures_do_not_try_fallback(tmp_path,monkeypatch,blender_download_fixture,kind):
+    import ssl
+    from urllib.error import HTTPError,URLError
+    manifest,_,_=blender_download_fixture
+    error=HTTPError(manifest['checksumSource'],401,'Unauthorized',{},None) if kind=='authentication' else URLError(ssl.SSLCertVerificationError(1,'Synthetic invalid certificate'))
+    calls=blender_responses(monkeypatch,{manifest['checksumSource']:error})
+    with pytest.raises(type(error)):installer.blender_archive(manifest,tmp_path)
+    assert calls==[manifest['checksumSource']] and list(tmp_path.iterdir())==[]
+
+
+def test_blender_local_write_failure_does_not_try_fallback(tmp_path,monkeypatch,blender_download_fixture):
+    manifest,publisher,_=blender_download_fixture
+    calls=blender_responses(monkeypatch,{manifest['checksumSource']:publisher})
+    def denied(**kwargs):raise PermissionError('Synthetic local filesystem denial')
+    monkeypatch.setattr(installer.tempfile,'NamedTemporaryFile',denied)
+    with pytest.raises(PermissionError):installer.blender_archive(manifest,tmp_path)
+    assert calls==[manifest['checksumSource']] and list(tmp_path.iterdir())==[]
+
+
+def test_blender_actual_redirect_origin_is_recorded(tmp_path,monkeypatch,blender_download_fixture):
+    manifest,publisher,archive=blender_download_fixture
+    calls=blender_responses(monkeypatch,{manifest['checksumSource']:(publisher,manifest['checksumFallbackSource']),manifest['url']:archive})
+    _,origins=installer.blender_archive(manifest,tmp_path)
+    assert origins['publisherChecksum']['requestedUrl']==manifest['checksumSource']
+    assert origins['publisherChecksum']['finalUrl']==manifest['checksumFallbackSource']
+    assert origins['publisherChecksum']['transportFailures']==[]
+    assert calls==[manifest['checksumSource'],manifest['url']]
+
+
+@pytest.mark.parametrize('target',['http://download.blender.org/release/Blender4.3/blender-4.3.2.sha256','https://unreviewed.example/blender-4.3.2.sha256'])
+def test_blender_redirects_cannot_leave_reviewed_https_sources(tmp_path,monkeypatch,blender_download_fixture,target):
+    manifest,publisher,_=blender_download_fixture
+    urls=(manifest['checksumSource'],manifest['checksumFallbackSource'])
+    handler=installer.BlenderRedirects(urls)
+    request=installer.urllib.request.Request(urls[0])
+    with pytest.raises(ValueError,match='Unapproved Blender redirect'):
+        handler.redirect_request(request,None,302,'Found',{},target)
+    assert handler.redirect_request(request,None,302,'Found',{},urls[1]).full_url==urls[1]
+    calls=blender_responses(monkeypatch,{urls[0]:(publisher,target)})
+    with pytest.raises(ValueError,match='Unapproved Blender response origin'):
+        installer.blender_archive(manifest,tmp_path)
+    assert calls==[urls[0]] and list(tmp_path.iterdir())==[]
+
+
+def test_blender_configuration_cannot_add_an_unreviewed_mirror(tmp_path,monkeypatch,blender_download_fixture):
+    manifest,_,_=blender_download_fixture
+    manifest['checksumFallbackSource']='https://unreviewed.example/blender-4.3.2.sha256'
+    calls=blender_responses(monkeypatch,{})
+    with pytest.raises(ValueError,match='Unapproved Blender download URLs'):
+        installer.blender_archive(manifest,tmp_path)
+    assert calls==[] and list(tmp_path.iterdir())==[]
