@@ -1,9 +1,10 @@
 name: Native bounded input regressions
 on:
   pull_request:
-    paths: ['reconstruction/**', 'tools/qa/fuzz/**', '.github/workflows/native-fuzz.yml']
+    paths: ['CMakeLists.txt', 'reconstruction/**', 'tools/qa/fuzz/**', 'tests/test_agent_082_fuzz_runner.py', '.github/workflows/native-fuzz.yml']
   push:
-    branches: ['agents/082-native-jni-parser-fuzzing', 'agents/100-integration-lead']
+    branches: [main, 'agents/082-native-jni-parser-fuzzing', 'agents/100-integration-lead']
+    paths: ['CMakeLists.txt', 'reconstruction/**', 'tools/qa/fuzz/**', 'tests/test_agent_082_fuzz_runner.py', '.github/workflows/native-fuzz.yml']
   workflow_dispatch:
   schedule:
     - cron: '31 4 * * 1'
@@ -25,10 +26,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build cmake
       - name: Run bounded synthetic input regressions with sanitizers
         run: |
-          python tools/qa/fuzz/run.py --compiler /usr/bin/clang++-18 --runs 10000 --seconds 60 --output reports/fuzz
+          # Evidence must not change the checkout's source-integrity snapshot.
+          python tools/qa/fuzz/run.py --compiler /usr/bin/clang++-18 --runs 10000 --seconds 60 --output "$RUNNER_TEMP/rf-fuzz"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: native-inputs-${{ github.sha }}
-          path: reports/fuzz/
+          path: ${{ runner.temp }}/rf-fuzz/
           if-no-files-found: error

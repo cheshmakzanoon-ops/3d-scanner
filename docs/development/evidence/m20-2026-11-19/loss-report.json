@@ -1,0 +1,272 @@
+{
+  "classification": "DESCRIPTIVE_PHOTOMETRIC_LOSS_NOT_QUALITY_SCORE",
+  "dominant": {
+    "band": "DECISIVE",
+    "reason": "invalidOrBoundaryBest",
+    "share": 0.840426
+  },
+  "label": "synthetic-textured-three-view-56x3",
+  "limitations": [
+    "Fixture and settings specific",
+    "Not object coverage, accuracy or watertightness",
+    "No threshold or gate changed by this report",
+    "Gate funnel is derived from first-gate counts; it is not a retained-fusion count",
+    "Counts describe the originating geometry evaluation retained in the artifact; importing or reopening this report does not establish fresh reconstruction work"
+  ],
+  "provenance": {
+    "input": {
+      "byteCount": 997148,
+      "sha256": "f745e3e76c96a8edcf851383cfb7dc6209ff7cefca2162f34a499adb9e5a0f08"
+    }
+  },
+  "schema": 3,
+  "surface": {
+    "acceptedCandidateVisits": 612,
+    "candidates": 31355,
+    "firstGateCounts": {
+      "acceptedCandidateVisits": 612,
+      "anchorSeesSample": 0,
+      "currentVisibility": 0,
+      "memberAnchorMetric": 0,
+      "memberSeesProposed": 0,
+      "missingNormal": 5899,
+      "normalMismatch": 192,
+      "notCloser": 1390,
+      "outsideRadius": 5274,
+      "pairMetric": 898,
+      "proposedAnchorMetric": 439,
+      "proposedVisibility": 0,
+      "sameCamera": 16651,
+      "sampleSeesAnchor": 0
+    },
+    "funnel": [
+      {
+        "failed": 16651,
+        "gate": "sameCamera",
+        "passed": 14704,
+        "reached": 31355
+      },
+      {
+        "failed": 5899,
+        "gate": "missingNormal",
+        "passed": 8805,
+        "reached": 14704
+      },
+      {
+        "failed": 192,
+        "gate": "normalMismatch",
+        "passed": 8613,
+        "reached": 8805
+      },
+      {
+        "failed": 1390,
+        "gate": "notCloser",
+        "passed": 7223,
+        "reached": 8613
+      },
+      {
+        "failed": 5274,
+        "gate": "outsideRadius",
+        "passed": 1949,
+        "reached": 7223
+      },
+      {
+        "failed": 0,
+        "gate": "currentVisibility",
+        "passed": 1949,
+        "reached": 1949
+      },
+      {
+        "failed": 439,
+        "gate": "proposedAnchorMetric",
+        "passed": 1510,
+        "reached": 1949
+      },
+      {
+        "failed": 0,
+        "gate": "proposedVisibility",
+        "passed": 1510,
+        "reached": 1510
+      },
+      {
+        "failed": 898,
+        "gate": "pairMetric",
+        "passed": 612,
+        "reached": 1510
+      },
+      {
+        "failed": 0,
+        "gate": "anchorSeesSample",
+        "passed": 612,
+        "reached": 612
+      },
+      {
+        "failed": 0,
+        "gate": "sampleSeesAnchor",
+        "passed": 612,
+        "reached": 612
+      },
+      {
+        "failed": 0,
+        "gate": "memberAnchorMetric",
+        "passed": 612,
+        "reached": 612
+      },
+      {
+        "failed": 0,
+        "gate": "memberSeesProposed",
+        "passed": 612,
+        "reached": 612
+      }
+    ],
+    "missingNormalReasons": {
+      "accumulatorNormal": 1572,
+      "bothNormals": 1280,
+      "sourceNormal": 3047
+    },
+    "retention": {
+      "acceptedSamples": 2087,
+      "derivedFields": [
+        "retainedWeldGroups",
+        "selectedMergesBeforeTopology"
+      ],
+      "fusedObservations": 0,
+      "passAttribution": {
+        "fallbackRolledBackWeldGroups": 14,
+        "locallyRolledBackWeldGroups": 569,
+        "passDetails": [
+          {
+            "inspected": true,
+            "invalidLinkReasons": {
+              "branchingLink": 523,
+              "directionConflict": 523,
+              "disconnectedLink": 48,
+              "invalidEndpointCount": 0
+            },
+            "invalidWeldGroups": 569,
+            "pass": 1,
+            "restoredSourceVertices": 1167,
+            "retainedWeldGroups": 583,
+            "rolledBackWeldGroups": 569
+          },
+          {
+            "inspected": true,
+            "invalidLinkReasons": {
+              "branchingLink": 12,
+              "directionConflict": 12,
+              "disconnectedLink": 2,
+              "invalidEndpointCount": 0
+            },
+            "invalidWeldGroups": 14,
+            "pass": 2,
+            "restoredSourceVertices": 28,
+            "retainedWeldGroups": 14,
+            "rolledBackWeldGroups": 14
+          },
+          {
+            "inspected": false,
+            "invalidLinkReasons": null,
+            "invalidWeldGroups": null,
+            "pass": 3,
+            "restoredSourceVertices": null,
+            "retainedWeldGroups": null,
+            "rolledBackWeldGroups": null
+          }
+        ],
+        "passes": 3,
+        "proposedWeldGroups": 583,
+        "restoredSourceVertices": 1195,
+        "retainedWeldGroups": 0,
+        "rolledBackWeldGroups": 583,
+        "unresolvedSourceVertexLinks": 0
+      },
+      "passAttributionStatus": "AVAILABLE",
+      "passes": 3,
+      "proposedWeldGroups": 583,
+      "restoredSourceVertices": 1195,
+      "retainedWeldGroups": 0,
+      "rolledBackWeldGroups": 583,
+      "scope": "FUSION_SURVIVING_TOPOLOGY_ADMISSION_BEFORE_COMPACTION",
+      "selectedMergesBeforeTopology": 612,
+      "unresolvedSourceVertexLinks": 0
+    },
+    "retentionStatus": "AVAILABLE",
+    "scope": "ORIGINATING_SURFACE_EVALUATION"
+  },
+  "tool": "dense_loss_report",
+  "totals": {
+    "accepted": 2089,
+    "evaluated": 2277,
+    "rejected": 188,
+    "rejectionCounts": {
+      "invalidInverseDepth": 0,
+      "invalidOrBoundaryBest": 158,
+      "invalidReferencePatch": 0,
+      "ncc": 30,
+      "uniqueness": 0,
+      "validLowVariance": 0
+    }
+  },
+  "views": [
+    {
+      "accepted": 663,
+      "evaluated": 759,
+      "invalidOrBoundaryBestReasons": {
+        "ambiguousMinimum": 72,
+        "farBoundaryBest": 7,
+        "nearBoundaryBest": 0
+      },
+      "rejected": 96,
+      "rejectionCounts": {
+        "invalidInverseDepth": 0,
+        "invalidOrBoundaryBest": 79,
+        "invalidReferencePatch": 0,
+        "ncc": 17,
+        "uniqueness": 0,
+        "validLowVariance": 0
+      },
+      "sampled": 759,
+      "view": 0
+    },
+    {
+      "accepted": 759,
+      "evaluated": 759,
+      "invalidOrBoundaryBestReasons": {
+        "ambiguousMinimum": 0,
+        "farBoundaryBest": 0,
+        "nearBoundaryBest": 0
+      },
+      "rejected": 0,
+      "rejectionCounts": {
+        "invalidInverseDepth": 0,
+        "invalidOrBoundaryBest": 0,
+        "invalidReferencePatch": 0,
+        "ncc": 0,
+        "uniqueness": 0,
+        "validLowVariance": 0
+      },
+      "sampled": 759,
+      "view": 1
+    },
+    {
+      "accepted": 667,
+      "evaluated": 759,
+      "invalidOrBoundaryBestReasons": {
+        "ambiguousMinimum": 69,
+        "farBoundaryBest": 10,
+        "nearBoundaryBest": 0
+      },
+      "rejected": 92,
+      "rejectionCounts": {
+        "invalidInverseDepth": 0,
+        "invalidOrBoundaryBest": 79,
+        "invalidReferencePatch": 0,
+        "ncc": 13,
+        "uniqueness": 0,
+        "validLowVariance": 0
+      },
+      "sampled": 759,
+      "view": 2
+    }
+  ]
+}

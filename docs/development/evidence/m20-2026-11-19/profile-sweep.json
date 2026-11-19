@@ -1,0 +1,220 @@
+{
+  "classification": "SYNTHETIC_PROFILE_SWEEP_NOT_QUALITY_NOT_DEFAULT",
+  "fixture": "synthetic textured plane, 3 registered views, seeded 504",
+  "limitations": [
+    "Synthetic fixture; real licensed three-photo artifact NOT_RUN",
+    "Host ctypes path, not Android/controller pixels",
+    "No production default, limit or cache identity changed",
+    "Library hashes identify tested bytes; helper-source identities do not establish library build provenance"
+  ],
+  "profiles": [
+    {
+      "accepted": 2086,
+      "ambiguous_minimum": 171,
+      "boundary_edge": 11,
+      "boundary_edges": 336,
+      "decision": "REJECT",
+      "decisionReasons": [
+        "boundary_edges_increased",
+        "intersections_increased"
+      ],
+      "evaluated": 2277,
+      "fused_observations": 0,
+      "fusion_candidates": 31670,
+      "intersection_budget_exceeded": false,
+      "intersections": 4725,
+      "ncc": 9,
+      "nonmanifold_edges": 0,
+      "profile": "40x3",
+      "rejected": 191,
+      "supported_normals": 1335,
+      "triangle_count": 3836,
+      "vertex_count": 2082
+    },
+    {
+      "accepted": 2089,
+      "ambiguous_minimum": 141,
+      "boundary_edge": 17,
+      "boundary_edges": 324,
+      "decision": "BASELINE",
+      "decisionReasons": [
+        "baseline_profile"
+      ],
+      "evaluated": 2277,
+      "fused_observations": 0,
+      "fusion_candidates": 31355,
+      "intersection_budget_exceeded": false,
+      "intersections": 4464,
+      "ncc": 30,
+      "nonmanifold_edges": 0,
+      "profile": "56x3",
+      "rejected": 188,
+      "supported_normals": 1410,
+      "triangle_count": 3852,
+      "vertex_count": 2087
+    },
+    {
+      "accepted": 2086,
+      "ambiguous_minimum": 140,
+      "boundary_edge": 17,
+      "boundary_edges": 340,
+      "decision": "REJECT",
+      "decisionReasons": [
+        "boundary_edges_increased"
+      ],
+      "evaluated": 2277,
+      "fused_observations": 0,
+      "fusion_candidates": 31227,
+      "intersection_budget_exceeded": false,
+      "intersections": 4216,
+      "ncc": 31,
+      "nonmanifold_edges": 0,
+      "profile": "72x3",
+      "rejected": 191,
+      "supported_normals": 1295,
+      "triangle_count": 3836,
+      "vertex_count": 2084
+    },
+    {
+      "accepted": 2056,
+      "ambiguous_minimum": 138,
+      "boundary_edge": 16,
+      "boundary_edges": 448,
+      "decision": "REJECT",
+      "decisionReasons": [
+        "boundary_edges_increased"
+      ],
+      "evaluated": 2277,
+      "fused_observations": 0,
+      "fusion_candidates": 29204,
+      "intersection_budget_exceeded": false,
+      "intersections": 3933,
+      "ncc": 33,
+      "nonmanifold_edges": 0,
+      "profile": "96x3",
+      "rejected": 221,
+      "supported_normals": 1184,
+      "triangle_count": 3704,
+      "vertex_count": 2054
+    },
+    {
+      "accepted": 4697,
+      "ambiguous_minimum": 320,
+      "boundary_edge": 20,
+      "boundary_edges": 576,
+      "decision": "REJECT",
+      "decisionReasons": [
+        "boundary_edges_increased",
+        "intersections_increased"
+      ],
+      "evaluated": 5145,
+      "fused_observations": 0,
+      "fusion_candidates": 122981,
+      "intersection_budget_exceeded": false,
+      "intersections": 8273,
+      "ncc": 106,
+      "nonmanifold_edges": 0,
+      "profile": "56x2",
+      "rejected": 448,
+      "supported_normals": 2549,
+      "triangle_count": 8840,
+      "vertex_count": 4692
+    },
+    {
+      "accepted": 4688,
+      "ambiguous_minimum": 318,
+      "boundary_edge": 22,
+      "boundary_edges": 629,
+      "decision": "REJECT",
+      "decisionReasons": [
+        "boundary_edges_increased",
+        "intersections_increased"
+      ],
+      "evaluated": 5145,
+      "fused_observations": 0,
+      "fusion_candidates": 124572,
+      "intersection_budget_exceeded": false,
+      "intersections": 7918,
+      "ncc": 104,
+      "nonmanifold_edges": 0,
+      "profile": "72x2",
+      "rejected": 457,
+      "supported_normals": 2410,
+      "triangle_count": 8777,
+      "vertex_count": 4676
+    }
+  ],
+  "provenance": {
+    "execution": "HOST_CTYPES_NATIVE_SURFACE",
+    "fixture": {
+      "cameras": {
+        "byteCount": 384,
+        "dtype": "<f8",
+        "order": "C",
+        "sha256": "efda2878d204f2ddeb6969847fd1647e750446b2dcc91880e778d089458acee6",
+        "shape": [
+          3,
+          16
+        ]
+      },
+      "rgba": {
+        "byteCount": 94848,
+        "dtype": "|u1",
+        "order": "C",
+        "sha256": "7490a3bd0aa8c6189dafb295243f04399885b4f92628e02dd0e866c16df7ff2a",
+        "shape": [
+          3,
+          76,
+          104,
+          4
+        ]
+      }
+    },
+    "helperSources": {
+      "tools/native_api.py": {
+        "byteCount": 11961,
+        "sha256": "1e7366a6de926a0d78659ab3068eeb61414c8a60993e12a2d9a6cdf9e09a1ec1"
+      },
+      "tools/qa/dense_loss_report.py": {
+        "byteCount": 42093,
+        "sha256": "5e621b99bac61ccf963588ef78d19e7cfd5911d3e11c2a29e61ebdf05788ec8d"
+      },
+      "tools/qa/dense_profile_sweep.py": {
+        "byteCount": 21194,
+        "sha256": "6febc31713033f8809f5ecc9302008e8cee428c274ae792ae6f70bbd0be51473"
+      },
+      "tools/qa/dense_receipt_provenance.py": {
+        "byteCount": 8690,
+        "sha256": "100c8da5071d4ee088f84f99fa6abc3cd7f260305fd2f2876098157d39120d97"
+      },
+      "tools/qa/report_io.py": {
+        "byteCount": 1849,
+        "sha256": "e63d578bdb3b59eec0bdef8e37d891831416ef9c0f4b7c7483eda6dffe7c06c2"
+      },
+      "tools/qa/surface_pass_report.py": {
+        "byteCount": 7402,
+        "sha256": "d8f77301b272b54e37ee49fae84defa2953dedff753a62b000348c9973080a4f"
+      }
+    },
+    "limitations": [
+      "A unique native library mapping may remain resident until interpreter exit; repeat bounded sweeps in separate CLI processes"
+    ],
+    "measurementsSha256": "b2ad0420aa020b46fcd3fd6a692b8f66c1155ec30a4421a9fefb4a15896b127a",
+    "nativeLibrary": {
+      "byteCount": 1549384,
+      "sha256": "56b5eec450e36c6a97f1ac7f4e5efeb22dafec73b9b40030c57ec5afe247d42c"
+    },
+    "nativeLibraryBuildProvenance": null,
+    "nativeLibraryLoadIsolation": "UNIQUE_VERIFIED_COPY",
+    "sourceGitDirty": true,
+    "sourceGitHEAD": "a373aff43a03bd736edb16707cbf5edabf5f2156"
+  },
+  "rule": {
+    "baseline": "56x3",
+    "inconclusive": "incomplete topology evidence or no gain on both improvement axes",
+    "promote": "normals up AND fusions up AND boundaries not up AND intersections not up AND nonmanifold not up AND both topology checks complete",
+    "reject": "known boundary, nonmanifold or intersection regression takes precedence over incomplete evidence"
+  },
+  "schema": 2,
+  "tool": "dense_profile_sweep"
+}

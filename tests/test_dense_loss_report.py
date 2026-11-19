@@ -181,6 +181,12 @@ def test_accepts_surface_wrapper_and_reports_real_producer_output():
     assert steps[0].reached == funnel.candidates
     assert funnel.accepted == funnel.candidates - sum(step.failed for step in steps)
     assert sum(funnel.missing_normal.values()) == funnel.gates["missingNormal"]
+    retained = funnel.retention
+    assert retained is not None
+    admission = result["mesh"]["lossDiagnostics"]["topologyAdmission"]
+    assert retained.retained_weld_groups == admission["proposedWeldGroups"] - admission["rolledBackWeldGroups"]
+    assert retained.fused_observations == result["mesh"]["fusedObservations"]
+    assert retained.selected_merges_before_topology <= funnel.accepted
 
 
 def surface_view(camera, accepted=0, **gates):
@@ -188,6 +194,10 @@ def surface_view(camera, accepted=0, **gates):
     counts[report.SURFACE_ACCEPTED] = accepted
     return {
         "camera": camera,
+        "inputSamples": 20,
+        "acceptedSamples": 20,
+        "confidenceRejected": 0,
+        "vertexLimitRejected": 0,
         "fusionCandidates": sum(counts.values()),
         "fusionCandidateFirstGate": counts,
         "missingNormalReasons": {
@@ -201,12 +211,24 @@ def surface_view(camera, accepted=0, **gates):
 def surface_document(*views):
     return {
         "mesh": {
+            "inputSamples": sum(row["inputSamples"] for row in views),
+            "acceptedSamples": sum(row["acceptedSamples"] for row in views),
+            "fusedObservations": 0,
             "lossDiagnostics": {
                 "schema": 3,
                 "scope": report.SURFACE_SCOPE,
                 "available": True,
                 "viewCount": len(views),
                 "views": list(views),
+                "removedExactFaces": 0,
+                "triangleLimitReached": False,
+                "topologyAdmission": {
+                    "passes": 1,
+                    "proposedWeldGroups": 0,
+                    "rolledBackWeldGroups": 0,
+                    "restoredSourceVertices": 0,
+                    "unresolvedSourceVertexLinks": 0,
+                },
             }
         }
     }
@@ -282,6 +304,183 @@ def test_surface_only_artifact_reports_a_funnel(tmp_path, capsys):
     ) == 0
     assert "Surface fusion gate funnel - surface" in capsys.readouterr().out
     carried = json.loads(out.read_text())
-    assert carried["schema"] == 2 and carried["views"] is None
+    assert carried["schema"] == 3 and carried["views"] is None
     assert carried["surface"]["candidates"] == 11
     assert carried["surface"]["acceptedCandidateVisits"] == 3
+
+
+def retention_document(*, proposed=3, rolled_back=1, restored=3, fused=3, passes=2, views=3):
+    """Explicitly synthetic aggregate fixture; no rendered geometry is inferred."""
+    artifact = surface_document(*(surface_view(i, accepted=8) for i in range(views)))
+    artifact["mesh"]["fusedObservations"] = fused
+    artifact["mesh"]["lossDiagnostics"]["topologyAdmission"].update(
+        passes=passes,
+        proposedWeldGroups=proposed,
+        rolledBackWeldGroups=rolled_back,
+        restoredSourceVertices=restored,
+    )
+    return artifact
+
+
+@pytest.mark.parametrize(
+    "settings,retained,selected",
+    [
+        ({"proposed": 0, "rolled_back": 0, "restored": 0, "fused": 0, "passes": 1}, 0, 0),
+        ({"rolled_back": 0, "restored": 0, "fused": 4, "passes": 1}, 3, 4),
+        ({}, 2, 5),
+        ({"rolled_back": 3, "restored": 7, "fused": 0}, 0, 4),
+        ({"views": 8, "restored": 8, "fused": 14}, 2, 21),
+    ],
+    ids=["no-weld", "retained", "partial-rollback", "complete-rollback", "eight-views"],
+)
+def test_retention_reconciles_topology_groups_without_equating_visits(settings, retained, selected):
+    built = report.build_surface_report(retention_document(**settings))
+    assert built.retention.retained_weld_groups == retained
+    assert built.retention.selected_merges_before_topology == selected
+    assert built.accepted > selected  # Visits are deliberately not merge counts.
+    carried = report.surface_receipt(built)
+    assert carried["retentionStatus"] == "AVAILABLE"
+    assert carried["retention"]["retainedWeldGroups"] == retained
+    assert carried["retention"]["selectedMergesBeforeTopology"] == selected
+    assert "Topology admission and fusion retention" in report.render_surface_markdown(built)
+
+
+def test_retention_does_not_infer_fusion_from_compacted_or_aliased_vertex_counts():
+    artifact = retention_document()
+    artifact["mesh"]["vertexCount"] = 1
+    original = report.build_surface_report(artifact).retention
+    artifact["mesh"]["vertexCount"] = 1000
+    artifact["mesh"]["topologyAliasSources"] = [0, 0, 0]
+    assert report.build_surface_report(artifact).retention == original
+
+
+@pytest.mark.parametrize(
+    "settings,reason",
+    [
+        ({"proposed": 0}, "exceed proposed"),
+        ({"restored": 1}, "Restored source"),
+        ({"restored": 4}, "Restored source"),
+        ({"rolled_back": 0, "restored": 1}, "Restored source"),
+        ({"passes": 1}, "another topology"),
+        ({"passes": 0}, "1 to 3"),
+        ({"passes": 4}, "bounded"),
+        ({"fused": 1}, "Fused observations"),
+        ({"fused": 5}, "Fused observations"),
+        ({"rolled_back": 3, "restored": 6, "fused": 1}, "Fused observations"),
+    ],
+)
+def test_retention_rejects_impossible_group_accounting(settings, reason):
+    with pytest.raises(report.MalformedDiagnostics, match=reason):
+        report.build_surface_report(retention_document(**settings))
+
+
+@pytest.mark.parametrize("bad", [True, -1, 1.5, "3", None, 100001])
+def test_retention_counts_are_bounded_integers(bad):
+    artifact = retention_document()
+    artifact["mesh"]["lossDiagnostics"]["topologyAdmission"]["proposedWeldGroups"] = bad
+    with pytest.raises(report.MalformedDiagnostics, match="bounded non-negative integer"):
+        report.build_surface_report(artifact)
+
+
+def test_retention_rejects_more_sources_than_accepted_and_more_merges_than_visits():
+    artifact = retention_document()
+    for row in artifact["mesh"]["lossDiagnostics"]["views"]:
+        row.update(inputSamples=2, acceptedSamples=2)
+    artifact["mesh"].update(inputSamples=6, acceptedSamples=6)
+    with pytest.raises(report.MalformedDiagnostics, match="sources exceed"):
+        report.build_surface_report(artifact)
+
+    artifact = retention_document()
+    for row in artifact["mesh"]["lossDiagnostics"]["views"]:
+        row["fusionCandidates"] = 1
+        row["fusionCandidateFirstGate"][report.SURFACE_ACCEPTED] = 1
+    with pytest.raises(report.MalformedDiagnostics, match="Selected merges"):
+        report.build_surface_report(artifact)
+
+
+@pytest.mark.parametrize("missing", ["topologyAdmission", "fusedObservations", "acceptedSamples", "viewAcceptedSamples"])
+def test_full_mesh_cannot_silently_drop_retention_evidence(missing):
+    artifact = retention_document()
+    if missing == "topologyAdmission":
+        del artifact["mesh"]["lossDiagnostics"][missing]
+    elif missing == "viewAcceptedSamples":
+        del artifact["mesh"]["lossDiagnostics"]["views"][0]["acceptedSamples"]
+    else:
+        del artifact["mesh"][missing]
+    with pytest.raises(report.MalformedDiagnostics):
+        report.build_surface_report(artifact)
+
+
+def test_retention_requires_surface_sample_reconciliation():
+    artifact = retention_document()
+    artifact["mesh"]["acceptedSamples"] += 1
+    with pytest.raises(report.MalformedDiagnostics, match="acceptedSamples do not reconcile"):
+        report.build_surface_report(artifact)
+
+
+def test_explicitly_empty_surface_matches_producer_early_return():
+    artifact = retention_document(proposed=0, rolled_back=0, restored=0, fused=0, passes=0)
+    artifact["mesh"].update(inputSamples=0, acceptedSamples=0)
+    for row in artifact["mesh"]["lossDiagnostics"]["views"]:
+        row.update(inputSamples=0, acceptedSamples=0, fusionCandidates=0)
+        row["fusionCandidateFirstGate"][report.SURFACE_ACCEPTED] = 0
+    built = report.build_surface_report(artifact)
+    assert built.retention.passes == 0
+    assert built.retention.retained_weld_groups == 0
+    assert report.surface_receipt(built)["retentionStatus"] == "AVAILABLE"
+    artifact["mesh"]["inputSamples"] = 1
+    artifact["mesh"]["lossDiagnostics"]["views"][0].update(
+        inputSamples=1, confidenceRejected=1,
+    )
+    with pytest.raises(report.MalformedDiagnostics, match="1 to 3 passes"):
+        report.build_surface_report(artifact)
+
+
+@pytest.mark.parametrize("schema", [3, 4])
+def test_standalone_surface_diagnostics_keep_retention_unknown(schema, tmp_path, capsys):
+    standalone = retention_document()["mesh"]["lossDiagnostics"]
+    standalone["schema"] = schema
+    built = report.build_surface_report(standalone)
+    assert built.retention is None
+    assert report.surface_receipt(built)["retention"] is None
+    assert "Retention unavailable" in report.render_surface_markdown(built)
+    artifact, output = tmp_path / "standalone.json", tmp_path / "receipt.json"
+    artifact.write_text(json.dumps(standalone))
+    assert report.main(["--input", str(artifact), "--json-out", str(output)]) == 0
+    assert json.loads(output.read_text())["surface"]["retention"] is None
+
+
+def test_direct_mesh_artifact_retains_topology_accounting(tmp_path):
+    artifact, output = tmp_path / "mesh.json", tmp_path / "receipt.json"
+    artifact.write_text(json.dumps(retention_document()["mesh"]))
+    assert report.main(["--input", str(artifact), "--json-out", str(output)]) == 0
+    assert json.loads(output.read_text())["surface"]["retention"]["fusedObservations"] == 3
+
+
+def test_wrapped_standalone_diagnostics_do_not_invent_mesh_aggregates():
+    artifact = {"lossDiagnostics": retention_document()["mesh"]["lossDiagnostics"]}
+    built = report.build_surface_report(artifact)
+    assert built.retention is None
+    assert report.surface_receipt(built)["retentionStatus"] == "UNAVAILABLE_WITHOUT_MESH_COUNTS"
+
+
+def test_unavailable_checkpoint_is_never_measured_as_zero_retention(tmp_path, capsys):
+    artifact = retention_document()
+    artifact["mesh"]["lossDiagnostics"].update(
+        available=False, viewCount=None, removedExactFaces=None, views=None,
+        triangleLimitReached=None, topologyAdmission=None,
+    )
+    with pytest.raises(report.UnavailableDiagnostics):
+        report.build_surface_report(artifact)
+    path, output = tmp_path / "checkpoint.json", tmp_path / "receipt.json"
+    path.write_text(json.dumps(artifact))
+    assert report.main(["--input", str(path), "--json-out", str(output)]) == 2
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("field,value", [("available", "true"), ("available", 1), ("viewCount", 3.0), ("schema", 3.0)])
+def test_surface_metadata_requires_exact_scalar_types(field, value):
+    artifact = retention_document()
+    artifact["mesh"]["lossDiagnostics"][field] = value
+    with pytest.raises(report.MalformedDiagnostics):
+        report.build_surface_report(artifact)

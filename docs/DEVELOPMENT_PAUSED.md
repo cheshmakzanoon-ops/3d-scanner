@@ -1,4 +1,21 @@
-# Development paused — 25 October 2026
+# Development pause and resumption record
+
+## Resumed — 19 November 2026
+
+The owner explicitly requested the next repository phase and a new 60-agent,
+10-wave implementation campaign. That instruction supersedes the October pause.
+Development resumes from `a373aff43a03bd736edb16707cbf5edabf5f2156` with M20
+preparation: trustworthy reconstruction diagnostics, qualification receipts and
+validation workflow repairs. See the
+[campaign record](development/M20_PREPARATION_2026_11_19.md),
+[current status](MILESTONE_STATUS.md) and
+[physical M20 handoff](development/M20_PHYSICAL_HANDOFF.md).
+
+This resumption does not qualify the earlier paused checkpoint or establish
+completed M20, installed-device behavior or release readiness. The historical
+record below remains unchanged in scope.
+
+## Historical pause — 25 October 2026
 
 Development was stopped at the owner's request. This final checkpoint preserves the latest work; it is not a release or a claim of completed software.
 
@@ -11,4 +28,6 @@ The combined checkpoint has not completed integrated CI, Android runtime or phys
 
 The last completed wider-orbit HOST run on `c445fefd54aa777fb19084348673bb1ad9be1815` retained an insufficient-overlap failure before an initial camera pair was accepted. It did not establish camera registration, bundle adjustment or a model. Both completed sanitizer suites on that revision retained 14 failures. Earlier status documents remain source-bound historical records.
 
-No new one-shot HOST diagnostic is activated by this final checkpoint. Further development and validation require a new instruction from the owner.
+No new one-shot HOST diagnostic was activated by that final checkpoint. At the
+time, further development and validation required a new instruction from the
+owner; the 19 November instruction above now provides it.

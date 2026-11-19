@@ -1,10 +1,24 @@
 # Originating dense and surface loss diagnostics
 
-`dense.lossDiagnostics` and `mesh.lossDiagnostics` are additive schema-1,
-originating-call counters. They do not change thresholds, depth sampling,
+The current native producer emits **dense loss schema 2** and **surface loss
+schema 4**. These are originating-call counters: they describe the evaluation
+that produced the geometry. They do not change thresholds, depth sampling,
 refinement profiles, normal estimation, fusion, triangle selection or export
-geometry. Existing JSON fields, C/JNI signatures and checkpoint wires remain
-unchanged. C++ result structs grow and their consumers must be rebuilt together.
+geometry. Surface geometry schema 8, fusion version 13, C/JNI signatures and
+checkpoint wires remain unchanged. C++ result structs grow and their consumers
+must be rebuilt together.
+
+| Record | Current schema | Meaning |
+|---|---|---|
+| `dense.lossDiagnostics` / `densePreview.lossDiagnostics` | 2 | Originating dense branch counts and photometric subreasons |
+| `mesh.lossDiagnostics` / `meshPreview.lossDiagnostics` | 4 | Originating surface counts, retained fusion and topology pass attribution |
+| `dense_loss_report` JSON receipt | 3 | Validated read-only interpretation of a supplied artifact |
+
+The report reader accepts dense schemas 1 and 2 and surface schemas 3 and 4.
+Missing older evidence remains unknown. See the
+[19 November M20 preparation record](M20_PREPARATION_2026_11_19.md) for campaign
+results and outstanding qualification gates; a schema change is not a device or
+physical-quality result.
 
 ## Dense evidence
 
@@ -37,6 +51,16 @@ Those retained counts describe the original geometry evaluation, not work in the
 current call. A prior preview without these fields remains unknown. Reopening
 the same publication preserves its bytes; it is not another reconstruction.
 
+The report reader validates strict integer counts, view identities and histogram
+bins; booleans are not accepted as counts. `sampledSamples` must equal evaluated
+plus unknown samples. `COMPLETE` requires positive evaluated samples and no
+unknown samples; `PARTIAL` requires both positive evaluated and unknown samples.
+`UNAVAILABLE` requires null measured counts and histograms, with all sampled
+samples unknown. Each low-variance histogram bin must fit within the matching
+valid-reference bin, and both histograms must reconcile with their populations.
+An unavailable view does not hide a malformed sibling view. The aggregate sample
+budget remains 100,000 across at most eight views.
+
 ## Surface evidence
 
 Per-view normal validity, missing/jumping/zero-confidence neighborhood witnesses,
@@ -64,12 +88,81 @@ These counts locate evidence loss, not whole-object completeness, physical
 accuracy, watertightness, or production readiness. The refined/coarse/sparse-prior
 path remains opt-in and unchanged. Missing depth is never filled by diagnostics.
 
+### Population and retained-fusion accounting
+
+Every reported surface view must satisfy:
+
+```text
+inputSamples = acceptedSamples + confidenceRejected + vertexLimitRejected
+```
+
+The sum of per-view inputs and the sum of per-view accepted samples must equal
+the corresponding enclosing mesh counts. Counts are bounded nonnegative
+integers, and total input cannot exceed 100,000. Standalone surface diagnostics
+can establish their view populations and gate funnel, but omit the enclosing
+mesh's `fusedObservations` and aggregate sample counts. Their retention is
+therefore reported as unknown rather than inferred from final vertex counts.
+
+For a complete mesh artifact, the reader reconciles proposed weld groups,
+rolled-back groups, restored source vertices and retained fusion. A weld group
+has at least two sources and at most one source per view. Consequently, each
+rolled-back group restores between two and the view count's worth of source
+vertices; each retained group contributes between one and `viewCount - 1`
+fused observations. These sources cannot exceed accepted samples. The selected
+merges before topology admission are
+`fusedObservations + restoredSourceVertices - rolledBackWeldGroups`, bounded by
+the proposed group count and accepted candidate visits. A zero-pass admission
+record is valid only for an explicitly measured empty input/result.
+
+`fusedObservations` describes fusion surviving topology admission, before unused
+vertex cleanup and topology aliases. Final mesh vertex counts cannot recover
+this number. Accepted candidate visits also cannot substitute for retained
+fusion: several admissible visits can compete for the same selected merge, and
+topology admission can later restore its sources.
+
+### Schema 4 topology pass attribution
+
+`topologyAdmission` adds `locallyRolledBackWeldGroups`,
+`fallbackRolledBackWeldGroups`, `retainedWeldGroups` and up to three entries in
+`passDetails`. The aggregate retained count equals proposed minus rolled-back
+groups; local and fallback rollback totals sum to all rolled-back groups.
+
+| Pass behavior | Recorded action |
+|---|---|
+| First triangulation | Inspect retained welds and roll back the invalid groups locally |
+| Second triangulation, if needed | Reinspect remaining welds; if an invalid weld remains, conservatively roll back every remaining weld group |
+| Final triangulation after fallback | Triangulate without retained welds; the weld inspector does not run |
+
+Processing stops as soon as an inspected pass has no invalid welds. A
+triangulation that starts without welds also skips the inspector. Such a final
+entry has `inspected=false` and null measurement fields, not measured zeros.
+An empty input returns before triangulation with zero passes and an empty
+`passDetails` array.
+
+Each inspected entry records its one-based `pass`, `retainedWeldGroups` at the
+start of that pass, `invalidWeldGroups`, `rolledBackWeldGroups`,
+`restoredSourceVertices` and `invalidLinkReasons`. The reason keys are
+`branchingLink`, `directionConflict`, `disconnectedLink` and
+`invalidEndpointCount`. **Reasons overlap:** one invalid weld can have several
+flags. Each reason is bounded by the invalid-group count, while their sum can
+exceed it and must never be presented as a count of distinct weld groups.
+
+The reader validates the pass sequence, local/fallback policy, nullability,
+remaining-group transitions and aggregate totals. Schema 3 artifacts retain
+their aggregate retention accounting; their absent pass attribution remains
+unknown. The implementation is in
+[`surface_pass_report.py`](../../tools/qa/surface_pass_report.py).
+
 ## Resource and verification contract
 
-Storage is fixed independent of image dimensions. On the current 64-bit host,
-`DenseLossDiagnostics` is 4,176 bytes and `SurfaceLossDiagnostics` is 2,720 bytes.
-Static assertions bound each and conservative simultaneous copies below half the
-existing 64 KiB fixed scratch reserve. No admission/default budget is raised.
+Storage is fixed independent of image dimensions. The campaign's 64-bit host
+size probe measured `SurfaceLossDiagnostics` at **3,128 bytes** and each
+`SurfaceTopologyAdmissionPass` at **72 bytes**. The conservative allowance for
+three simultaneous dense-plus-surface diagnostic copies is **22,488 bytes**.
+Static assertions bound surface diagnostics to 4,096 bytes and that three-copy
+allowance to 32 KiB, within the existing 64 KiB fixed scratch reserve. These are
+host structure sizes and compile-time bounds, not measured ARM64 process RSS.
+No admission/default budget is raised.
 Mutable state belongs to the call/result; there is no process-global collector.
 The only extra neighborhood scan reads at most nine entries after an unsupported
 normal result. Existing cancellation and resource errors remain errors.
@@ -82,6 +175,29 @@ unchanged legacy fields, geometry arrays and GLB/PLY bytes against the exact
 baseline in separate processes on frozen inputs. HOST, Android/device quality and
 real-object loss attribution require their own source-bound runs.
 
+The parity runner uses separate ordinary-exit processes for each library on
+three labelled synthetic fixtures: textured three-view, masked three-view and
+textured two-view. It compares every native result field except
+`lossDiagnostics`, plus the actual GLB/PLY bytes. A child timeout, nonzero exit,
+missing export or source/library change prevents a passing receipt. Sanitizer
+environment settings are inherited unchanged.
+
+From the repository root, with separately built baseline and candidate
+libraries, use a **new directory outside the repository**:
+
+```sh
+python -m tools.qa.surface_diagnostics_parity \
+  --baseline-library /absolute/path/to/baseline/librealityforge.so \
+  --candidate-library "$PWD/build/host/librealityforge.so" \
+  --output ../surface-parity-001
+```
+
+The output directory must not exist or traverse symlinks. An external location
+keeps generated evidence from changing the checkout's dirty state. The receipt
+identifies tested library bytes, helper sources, fixture buffers and child
+artifacts; a library hash does not establish which source built that library.
+Parity establishes only same-input equivalence on these synthetic fixtures.
+
 ## Controller and HOST retention
 
 `NativeResultJson.decode` retains the complete native object. `DensePreview`
@@ -90,6 +206,13 @@ forwards its dense/mesh objects, and `SparsePipeline` writes them as
 manifests refer to that exact file; no diagnostic whitelist discards these keys.
 `PreviewUiSummary` intentionally omits diagnostics only in its display projection,
 not in saved or published evidence.
+
+The report reader accepts both native `dense`/`mesh` sections and saved Android
+`densePreview`/`meshPreview` sections, as well as direct result objects and
+standalone diagnostic objects. Conflicting native/preview aliases or ambiguous
+direct/enclosed records fail validation. A missing historical diagnostic object
+is unavailable. An explicit `available=false` surface object must not retain
+measured view, cleanup, triangle-limit or topology-admission fields.
 
 The fixed licensed three-photo HOST fixture starts a new UUID project/root and
 retains the immutable published preview in `before-reopen-preview.json` and

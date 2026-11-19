@@ -7,9 +7,18 @@ two additive subreason breakdowns. No threshold, gate, algorithm or cache
 identity is changed, and nothing here is evidence of object coverage, accuracy or
 watertightness.
 
+The measurement tables below preserve the synthetic results documented at
+baseline `a373aff43a03bd736edb16707cbf5edabf5f2156`; they are not a new
+licensed-photo or current-candidate run. The
+[19 November M20 preparation record](M20_PREPARATION_2026_11_19.md) tracks the
+campaign's source-bound validation. The reader contract below describes the
+current code: dense loss schemas 1/2, surface loss schemas 3/4 and report receipt
+schema 3.
+
 ## Why this exists
 
-The three-photo HOST journey reports `31,374 sampled → 4,887 photometric →
+The historical `c215632` three-photo HOST journey reports
+`31,374 sampled → 4,887 photometric →
 2,510 reciprocal → 2,469 exported` dense representatives, and only
 `10/2,510` supported normals. The downstream consequence is measured: all
 `3,181` cross-camera candidate visits reject at `missingNormal`. Two upstream
@@ -27,10 +36,12 @@ acceptedSamples + invalidReferencePatch + validLowVariance
 + invalidOrBoundaryBest + ncc + uniqueness + invalidInverseDepth == evaluatedSamples
 ```
 
-This work adds `invalidOrBoundaryBestReasons` (dense, schema 2) and
-`missingNormalReasons` (surface, schema 3), both validated against their parent
-counter. `tools/qa/dense_loss_report.py` re-checks the identity and renders the
-breakdown; it is read-only and never runs the engine.
+Dense schema 2 introduced `invalidOrBoundaryBestReasons`; surface schema 3
+introduced the current `missingNormalReasons`/accepted-visit reporting contract.
+Surface schema 4 retains those counters and adds topology pass attribution.
+Subreason totals are validated against their parent counter.
+[`dense_loss_report.py`](../../tools/qa/dense_loss_report.py) re-checks the
+identity and renders the breakdown; it is read-only and never runs the engine.
 
 ## Measured result — photometric stage
 
@@ -83,14 +94,25 @@ subtraction — no engine instrumentation is added:
 reached(g) = fusionCandidates - sum(failures of gates before g)
 ```
 
-`tools/qa/dense_loss_report.py` performs that derivation for any artifact that
-carries `mesh.lossDiagnostics` (receipt schema 2), using the engine's evaluation
+`tools/qa/dense_loss_report.py` performs that derivation for supported surface
+diagnostics, including `mesh.lossDiagnostics` and saved
+`meshPreview.lossDiagnostics` (receipt schema 3), using the engine's evaluation
 order rather than an alphabetical one. It refuses an artifact whose gate set is
 not exactly the emitted set, whose gate outcomes do not sum to
 `fusionCandidates`, or whose missing-normal subreasons do not sum to the
 `missingNormal` gate. The remainder left after the last gate equals the reported
-accepted count by construction, so it is reported rather than presented as
+`acceptedCandidateVisits` count by construction, so it is reported rather than presented as
 independent evidence.
+
+The reader also validates per-view input/accepted/rejected populations and their
+mesh totals. When an enclosing mesh supplies the required aggregate counts, it
+reconciles proposed welds, local/fallback rollback, restored source vertices and
+`fusedObservations` surviving topology admission. A standalone surface
+diagnostic object has no complete mesh retention evidence; its retention remains
+unknown. Schema 4 pass attribution validates the bounded local/fallback policy
+and distinguishes an uninspected pass's null fields from measured zeros.
+Its link reasons overlap and cannot be summed as distinct invalid groups. See
+the [surface diagnostics contract](DENSE_SURFACE_LOSS_DIAGNOSTICS.md#schema-4-topology-pass-attribution).
 
 ### Reached-conditional funnel (56x3, same fixture)
 
@@ -144,25 +166,72 @@ A band never authorizes a threshold change. Any intervention must be re-measured
 on the same fixture and must not regress intersections, nonmanifold edges or
 boundary edges.
 
-## Reproduce
+## Read an existing artifact
+
+The report command consumes retained JSON and does not require a native build.
+It accepts native `dense`/`mesh` objects, saved Android
+`densePreview`/`meshPreview` envelopes, direct result objects and supported
+standalone diagnostics. Conflicting aliases and ambiguous direct/enclosed
+objects are rejected. Choose an existing parent directory and a new receipt
+filename for each run:
 
 ```sh
-cmake -S . -B build/host -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build/host --target realityforge --parallel 4
-PYTHONPATH=. python -m tools.qa.dense_loss_report \
-  --input DENSE_OR_SURFACE_RESULT.json \
+python -m tools.qa.dense_loss_report \
+  --input /absolute/path/to/published-preview.json \
   --label "fixture/settings label" \
-  --json-out loss-receipt.json
+  --json-out /absolute/path/to/existing-evidence-directory/loss-receipt-001.json
 ```
 
-Exit codes: `0` report produced, `1` malformed artifact or broken accounting,
-`2` diagnostics unavailable (`available=false`, null counters). Schema-1
-artifacts remain readable; the subreason split appears only for schema 2.
+Omit `--json-out` to print only Markdown. When a JSON receipt is requested, the
+CLI reads the input bytes once, parses those same bytes and records their exact
+SHA-256 and byte count under `provenance.input`. It does not copy the input path
+into that identity. The hash identifies the supplied artifact; it does not
+establish its original producer, build source or freshness. Pure Python
+`receipt(...)` calls have `provenance: null` unless the calling CLI supplies
+actual input-byte evidence.
+
+| Exit | Meaning |
+|---|---|
+| `0` | At least one valid dense or surface report was produced, and any requested receipt was published |
+| `1` | Malformed input, contradictory accounting, read/decode error or receipt-publication failure |
+| `2` | No reportable originating dense or surface diagnostics are available |
+
+Dense schemas 1 and 2 remain readable; the boundary subreason split appears only
+when present. Surface schema 3 remains readable with aggregate retention;
+schema 4 adds per-pass attribution. Absence is never silently converted to zero.
+The dense reader checks coverage labels, evaluated/unknown sample partitions and
+bounded histogram bins. It validates other views before treating an unavailable
+view as missing evidence, so a reused map cannot hide a malformed fresh view.
+An invalid surface section likewise fails the command even if its dense sibling
+is valid.
+
+The output filename must be unused, including no existing symlink, hardlink
+alias or directory. Publication writes and fsyncs a sibling temporary file,
+then uses an exclusive hard link to expose the complete JSON without replacing
+an existing destination. A destination created by another writer after preflight
+is preserved. Filesystems without hardlink support fail explicitly. The helper
+does not fsync the parent directory, so atomic visibility is not a guarantee of
+persistence through sudden power loss. Successful report stdout follows any
+requested receipt publication.
+
+Saved counts describe the **originating geometry evaluation**. A reused preview
+may retain them with `geometryReused=true`; reopening or importing that artifact
+does not establish fresh reconstruction. A checkpoint without originating
+diagnostics reports unavailable/null fields. Inspect reuse, resumed-depth and
+per-view coverage records before claiming a fresh full evaluation.
+
+For an actual baseline/candidate comparison, use the separate
+[synthetic parity procedure](DENSE_SURFACE_LOSS_DIAGNOSTICS.md#resource-and-verification-contract)
+with independently built libraries and a new output directory outside the
+repository. Reading an existing report does not execute that comparison.
 
 ## Open evidence
 
-- Real licensed three-photo artifact: **NOT_RUN** (inputs are not in this repository).
-- Android/controller pixel path: **NOT_RUN** (host ctypes path only).
-- Effect of any depth-range, spacing or patch-size change: **NOT_RUN**; no such
-  change is made or recommended by this record.
+- A new licensed three-photo attribution run for this campaign: **NOT_RUN**.
+  The historical HOST measurements above remain tied to their original source.
+- Android/controller pixel execution for this campaign: **NOT_RUN**. Parsing a
+  saved controller-shaped envelope is host reader coverage, not device execution.
+- Broader effects of depth-range, spacing or patch-size changes remain
+  unqualified. The separate [profile sweep](DENSE_PROFILE_SWEEP.md) is bounded
+  synthetic mechanism evidence and does not authorize a production change.
 - Physical object coverage, accuracy, watertightness: unchanged and unqualified.

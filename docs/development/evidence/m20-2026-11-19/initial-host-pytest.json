@@ -1,0 +1,77 @@
+{
+  "classification": "LOCAL_RELEASE_HOST_PYTEST_NOT_ANDROID_OR_SANITIZER_QUALIFICATION",
+  "exitCode": 1,
+  "sourceIdentity": {
+    "stagedTree": "4ab77b5a2cf637e0e0b743acea59dbe825f21651",
+    "manifestSha256": "6a9e5f7a7a56f0ed390186c0ca8f33f6c1de832ce1aa6e4bd560441b23e5f033",
+    "headContextOnly": "a373aff43a03bd736edb16707cbf5edabf5f2156"
+  },
+  "counts": {
+    "passedParentTests": 4955,
+    "passedSubtests": 362,
+    "failed": 1,
+    "skipped": 33,
+    "errors": 0,
+    "warnings": 2,
+    "totalCases": 5351,
+    "parentTestcaseElements": 4989
+  },
+  "terminalSeconds": 341.28,
+  "junitSeconds": 341.216,
+  "failures": [
+    {
+      "test": "tests.test_eight_view_header_provider::test_real_owned_six_probe_commands",
+      "kind": "failure",
+      "message": "tools.eight_view_host.runtime.Failure: Clang provider filesystem identity changed"
+    }
+  ],
+  "baselineSameTest": [
+    {
+      "class": "tests.test_eight_view_header_provider",
+      "name": "test_real_owned_six_probe_commands",
+      "outcome": "PASS"
+    }
+  ],
+  "skipReasonCounts": {
+    "JDK compiler unavailable; actual JVM JNI gate NOT_RUN": 1,
+    "Pinned NDK shader compiler unavailable; NOT_RUN shader gate": 1,
+    "Requires Android/Kotlin setup and real android-json host artifact; run Android corpus otherwise.": 1,
+    "Official fixture tools unavailable; no runtime qualification": 1,
+    "Actual resource failure archive unavailable; no replay claim": 1,
+    "Explicit retained e1fee artifact required; no download in test": 1,
+    "Real exporter JNI fixture prerequisites unavailable": 1,
+    "Gradle 8.13 not supplied; NOT runtime qualification": 1,
+    "NOT_RUN: actual JDK17 headers/GNU compiler unavailable": 1,
+    "NOT_RUN: actual javac unavailable": 1,
+    "Real contract fixture prerequisites unavailable; no runtime qualification": 1,
+    "Retained 97a artifact explicitly required for actual replay": 1,
+    "Real CMake/Ninja tools unavailable; no qualification": 9,
+    "Retained actual-run artifact unavailable; no hosted replay claim": 3,
+    "Retained scanner graph unavailable; no hosted replay claim": 1,
+    "Actual selection tools unavailable; no execution qualification": 1,
+    "Actual Kotlin/JDK tools unavailable": 1,
+    "Explicit pinned upstream module and official CMake3.31.6 required; no test downloads": 1,
+    "JDK/Kotlin compiler unavailable; bounded cache JVM regression NOT_RUN": 1,
+    "clang++ unavailable; compile/link regression NOT_RUN": 1,
+    "JDK compiler unavailable; actual JVM mapping detector control NOT_RUN": 1,
+    "Kotlin compiler/JVM unavailable for isolated failure-precedence helper": 1,
+    "Actual pinned Kotlin/JDK tools unavailable": 1
+  },
+  "artifacts": {
+    "candidate-pytest.xml": {
+      "sha256": "3cb03ecbe195a5d36b7bea367adbf3563f4abb3efd27b9f2fe29f1e7f1c23b36",
+      "bytes": 789882
+    },
+    "candidate-pytest.log": {
+      "sha256": "04d2d0445be98903b6812cd203234aaf462ca73c70120734c44cc19920491e55",
+      "bytes": 17898
+    }
+  },
+  "command": "/workspace/scratch/7c42079ae707/rf-qa/qa-python/bin/python -m pytest tests -q --junitxml=/workspace/scratch/7c42079ae707/m20-final-evidence/candidate-pytest.xml",
+  "environment": [
+    "source /workspace/scratch/7c42079ae707/rf-qa/activate.sh",
+    "PATH prepends /workspace/scratch/7c42079ae707/scanner-venv/bin",
+    "RF_NATIVE_LIBRARY=/workspace/scratch/7c42079ae707/3d-scanner/build/host/librealityforge.so"
+  ],
+  "accountingPluginEnabled": false
+}

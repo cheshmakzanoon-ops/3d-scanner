@@ -1,8 +1,40 @@
-> **Development paused at the owner's request.** The latest checkpoint contains work that is not fully integrated or runtime-qualified. See [checkpoint status](docs/DEVELOPMENT_PAUSED.md).
-
 # RealityForge — offline Android photo-to-3D scanner
 
-## Latest source-bound context — 25 October 2026
+## Current work — 19 November 2026
+
+**The next named milestone is M20: physical ARM64 benchmarks and topology
+evidence.** Development resumed under the owner's new instruction; the
+[October pause remains a historical checkpoint](docs/DEVELOPMENT_PAUSED.md).
+The application remains the **0.19.0-m19 engineering preview**, supporting
+2–12 input photographs and at most eight registered dense views.
+
+The current preparation campaign starts from `a373aff43a03bd736edb16707cbf5edabf5f2156`
+and strengthens the evidence used to judge reconstruction changes:
+
+- Profile promotion now requires complete intersection checks and no boundary,
+  intersection or nonmanifold regression, together with both normal and retained
+  fusion gains.
+- Surface diagnostic schema 4 attributes local and fallback weld rollback by
+  pass. Three synthetic baseline/candidate comparisons preserve geometry fields
+  and GLB/PLY bytes; this is equivalence evidence, not improved mesh quality.
+- Report readers validate saved Android preview envelopes and sample accounting,
+  preserve unknown measurements, and produce immutable receipts bound to their
+  input or measured native bytes.
+- The bounded native fuzz workflow writes evidence outside the checkout so its
+  reports cannot invalidate the source-integrity check.
+
+The native Release build and **53/53 CTest cases passed**. Full candidate pytest,
+new Android CI and sanitizer qualification are tracked separately in the
+[campaign evidence record](docs/development/M20_PREPARATION_2026_11_19.md);
+earlier passing results do not certify later source. Physical handsets, authorized
+captures and reference geometry remain **BLOCKED_EXTERNAL**. Follow the
+[M20 physical handoff](docs/development/M20_PHYSICAL_HANDOFF.md) for the remaining
+measurements and installed offline journey. M20 and release qualification remain
+open.
+
+## Historical source-bound context — 25 October 2026
+
+The records below retain their original source revisions and outcomes.
 
 - `0df4a2df5e` real-three HOST journey **PASS**, with unchanged fragmented model;
   v12 diagnostics report **80 source links and zero proposed welds**. This is
@@ -38,7 +70,7 @@
 correctness and integration work. Not a completed consumer product or a guarantee of
 high-quality complete-object scanning.**
 
-## Current validation — 25 October 2026
+## Historical validation — 25 October 2026
 
 **The fixed licensed three-photo HOST journey now passes with all three cameras
 registered; installed-device scanning and high-quality complete-object
@@ -62,7 +94,7 @@ Fresh `c215632` diagnostics retain the same mesh and locate the immediate fusion
 blocker: **all 3,181 cross-camera candidate visits reject at `missingNormal`**;
 only **10/2,510 normals** are supported. Later association gates were not exercised,
 not proved satisfactory. See [dense/surface findings and rejected experiments](docs/development/DENSE_SURFACE_DIAGNOSTIC_STATUS.md).
-Current priorities remain measured depth/normal support and coverage, not the
+At that checkpoint, priorities remained measured depth/normal support and coverage, not the
 resolved third-camera pose failure. No settings or quality gates are relaxed;
 a HOST pass does not establish full-object or metric quality.
 

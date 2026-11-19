@@ -28,6 +28,34 @@ void diagnostics(const rf::SurfaceMesh& mesh){
     check(rejectedCells==mesh.rejectedCells&&rejectedTriangles==mesh.rejectedTriangles,"legacy rejection counts changed");
     check(triangles==mesh.triangles.size()+all.removedExactFaces,"pre-cleanup triangle attempts do not reconcile");
     check(fusionAccepted>=mesh.fusedObservations,"fused observation lacks accepted candidate");
+    check((all.topologyAdmissionPasses>=1||mesh.inputSamples==0)&&all.topologyAdmissionPasses<=all.topologyPassDetails.size(),"admission pass count is not bounded");
+    check(all.locallyRolledBackWeldGroups+all.fallbackRolledBackWeldGroups==all.rolledBackWeldGroups&&
+          all.retainedWeldGroups+all.rolledBackWeldGroups==all.proposedWeldGroups,
+          "local/fallback/retained groups do not reconcile with proposed welds");
+    std::size_t newlyRolledBack=0,restored=0,remaining=all.proposedWeldGroups;
+    for(std::size_t pass=0;pass<all.topologyAdmissionPasses;++pass){
+        const auto& d=all.topologyPassDetails[pass];
+        if(!d.inspected){
+            check(pass+1==all.topologyAdmissionPasses&&remaining==0,
+                  "uninspected pass had retained welds or was not the final triangulation");
+            continue;
+        }
+        check(d.retainedWeldGroups==remaining&&d.invalidWeldGroups<=remaining&&d.rolledBackWeldGroups<=remaining,
+              "per-pass admitted/invalid/rollback groups exceed observed retained groups");
+        check(std::all_of(d.invalidLinkReasons.begin(),d.invalidLinkReasons.end(),[&](auto count){return count<=d.invalidWeldGroups;})&&
+              sum(d.invalidLinkReasons)>=d.invalidWeldGroups,"invalid welded group has no cause or a cause overcounts groups");
+        check(d.restoredSourceVertices>=2*d.rolledBackWeldGroups&&d.restoredSourceVertices<=all.viewCount*d.rolledBackWeldGroups,
+              "per-pass rollback restored impossible source multiplicity");
+        if(pass==0)check(d.rolledBackWeldGroups==d.invalidWeldGroups&&d.rolledBackWeldGroups==all.locallyRolledBackWeldGroups,
+                        "initial local rollback did not match implicated weld groups");
+        if(pass==1)check(d.rolledBackWeldGroups==all.fallbackRolledBackWeldGroups,
+                        "fallback rollback counted an already rejected weld again");
+        remaining-=d.rolledBackWeldGroups;newlyRolledBack+=d.rolledBackWeldGroups;restored+=d.restoredSourceVertices;
+    }
+    check(newlyRolledBack==all.rolledBackWeldGroups&&restored==all.restoredSourceVertices&&remaining==all.retainedWeldGroups,
+          "per-pass transitions do not reconcile with final topology admission");
+    check(mesh.fusedObservations>=remaining&&mesh.fusedObservations<=(all.viewCount-1)*remaining,
+          "retained weld group/fused observation multiplicity is impossible");
     check(rf::surfaceJson(mesh).find(R"("scope":"ORIGINATING_SURFACE_EVALUATION","available":true)")!=std::string::npos,"surface diagnostic provenance omitted");
 }
 std::pair<std::vector<rf::DenseView>,rf::DenseResult> plane(bool opposite){
@@ -114,6 +142,11 @@ int main(){
     const auto reported="\"fusedObservations\":"+std::to_string(mesh.fusedObservations);
     check(rf::surfaceJson(mesh).find(reported)!=std::string::npos,"reported surface dropped the retained fusion count");
     diagnostics(mesh);
+    auto emptyDepth=dense;emptyDepth.verifiedSamples.clear();
+    const auto emptyMesh=rf::fuseDepthSurfaces(views,emptyDepth);diagnostics(emptyMesh);
+    check(emptyMesh.lossDiagnostics.topologyAdmissionPasses==0&&
+          rf::surfaceJson(emptyMesh).find(R"("retainedWeldGroups":0,"passDetails":[])")!=std::string::npos,
+          "Empty verified-depth result fabricated an inspection or lost empty evidence");
     check(mesh.lossDiagnostics.views[0].missingDepthNeighborhoods>0&&mesh.lossDiagnostics.views[0].normalValidity[0]>0,"fixture does not distinguish missing neighborhoods from supported normals");
     auto zeroConfidence=dense;for(auto& map:zeroConfidence.maps)for(auto& c:map.confidence)if(c>0)c=0;
     const auto zeroMesh=rf::fuseDepthSurfaces(views,zeroConfidence);diagnostics(zeroMesh);
@@ -124,6 +157,13 @@ int main(){
     rf::SurfaceMesh unknown;check(rf::surfaceJson(unknown).find(R"("available":false,"viewCount":null,"removedExactFaces":null,"views":null)")!=std::string::npos,"default diagnostics fabricated zeros");
     unknown.lossDiagnostics.available=true;unknown.lossDiagnostics.viewCount=rf::MAX_DENSE_VIEWS+1;bool invalidDiagnostic=false;
     try{(void)rf::surfaceJson(unknown);}catch(const rf::Error&){invalidDiagnostic=true;}check(invalidDiagnostic,"unbounded surface diagnostic view count accepted");
+    unknown.lossDiagnostics.viewCount=2;
+    unknown.inputSamples=1;
+    for(std::size_t badPass:{0u,4u}){
+        unknown.lossDiagnostics.topologyAdmissionPasses=badPass;invalidDiagnostic=false;
+        try{(void)rf::surfaceJson(unknown);}catch(const rf::Error&){invalidDiagnostic=true;}
+        check(invalidDiagnostic,"unbounded topology pass count reached the fixed diagnostic array");
+    }
     // Confidence is an admitted observation weight, not a normal-vector length.
     // Identical supported planes must associate identically above the configured
     // minimum confidence; changing weights must not rotate or invalidate normals.
@@ -150,6 +190,13 @@ int main(){
     for(const auto* result:{&farOnly,&mixed}){
         check(result->lossDiagnostics.topologyAdmissionPasses==3&&result->lossDiagnostics.rolledBackWeldGroups==result->lossDiagnostics.proposedWeldGroups,
               "Known nonmanifold source-grid welds escaped bounded rollback");
+        const auto& attribution=result->lossDiagnostics;
+        check(attribution.locallyRolledBackWeldGroups>0&&attribution.fallbackRolledBackWeldGroups>0&&
+              attribution.retainedWeldGroups==0&&attribution.topologyPassDetails[0].inspected&&
+              attribution.topologyPassDetails[1].inspected&&!attribution.topologyPassDetails[2].inspected,
+              "Three-pass fallback fixture did not distinguish local rejection, fallback and final reconstruction");
+        check(attribution.topologyPassDetails[1].rolledBackWeldGroups==attribution.topologyPassDetails[1].retainedWeldGroups,
+              "Conservative fallback was mislabeled as only individually invalid weld groups");
         check(result->fusedObservations==0&&farFusions(*result)==0&&result->topology.nonmanifoldEdges==0&&result->observations.size()==result->inputSamples&&result->unattachedObservations.empty(),
               "Unsafe weld repair lost observations or retained nonmanifold edges");
     }

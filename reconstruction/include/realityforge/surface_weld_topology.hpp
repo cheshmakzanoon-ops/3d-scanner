@@ -11,6 +11,14 @@ namespace rf::surface_weld_topology {
 // Combinatorial admission only: no tolerance, positions, face removal or claims
 // about intersections. Source grids have <=8 incident faces per source pixel,
 // and a fusion group has at most one source from each of eight cameras.
+// Reasons overlap. A nonzero mask has exactly the same admission meaning as
+// the previous boolean; it does not relax any link condition or add storage.
+enum InvalidLinkReason : std::uint8_t {
+    BranchingLink = 1u << 0,
+    DirectionConflict = 1u << 1,
+    DisconnectedLink = 1u << 2,
+    InvalidEndpointCount = 1u << 3
+};
 struct Report { std::vector<std::uint8_t> invalidLinks; std::size_t invalidVertexCount{}; };
 inline Report inspect(const SurfaceMesh& mesh,std::span<const std::size_t> retainedFaces,bool excluded=false) {
     cancellation::checkpoint();
@@ -47,7 +55,7 @@ inline Report inspect(const SurfaceMesh& mesh,std::span<const std::size_t> retai
         std::array<std::size_t,16*MAX_DENSE_VIEWS> parent{},degree{},incoming{},outgoing{};std::size_t count=0;
         const auto index=[&](std::uint32_t id){for(std::size_t j=0;j<count;++j)if(neighbors[j]==id)return j;if(count>=neighbors.size())throw Error("Surface source-star neighbor budget exceeded");neighbors[count]=id;parent[count]=count;return count++;};
         const auto root=[&](std::size_t j){while(parent[j]!=j)j=parent[j];return j;};
-        bool invalid=false;
+        std::uint8_t invalid=0;
         std::size_t incident=0;
         for(auto node=heads[vertex];node!=none;node=next[node]){
             if(++incident>8*MAX_DENSE_VIEWS)throw Error("Surface source-star budget exceeded");
@@ -56,9 +64,14 @@ inline Report inspect(const SurfaceMesh& mesh,std::span<const std::size_t> retai
             ++degree[a];++degree[b];++outgoing[a];++incoming[b];parent[root(a)]=root(b);
         }
         std::size_t ends=0;const auto first=root(0);
-        for(std::size_t j=0;j<count;++j){invalid=invalid||degree[j]>2||incoming[j]>1||outgoing[j]>1||root(j)!=first;ends+=degree[j]==1;}
-        invalid=invalid||(ends!=0&&ends!=2);
-        if(invalid){result.invalidLinks[vertex]=1;++result.invalidVertexCount;}
+        for(std::size_t j=0;j<count;++j){
+            if(degree[j]>2)invalid|=BranchingLink;
+            if(incoming[j]>1||outgoing[j]>1)invalid|=DirectionConflict;
+            if(root(j)!=first)invalid|=DisconnectedLink;
+            ends+=degree[j]==1;
+        }
+        if(ends!=0&&ends!=2)invalid|=InvalidEndpointCount;
+        if(invalid){result.invalidLinks[vertex]=invalid;++result.invalidVertexCount;}
     }
     cancellation::checkpoint();return result;
 }

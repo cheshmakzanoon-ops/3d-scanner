@@ -1,0 +1,24 @@
+{
+  "classification": "SYNTHETIC_PROVIDER_SHARED_ANCESTOR_CONTROL",
+  "providerRoot": "/tmp/pytest-of-agent/pytest-27/test_real_owned_six_probe_comm0/installed",
+  "unrelatedSiblingCreated": true,
+  "filesystemComparisonEqual": false,
+  "driverHashesEqual": true,
+  "changedNodes": {
+    "/tmp": {
+      "ctimeNs": [
+        1795065081676940217,
+        1795065121761980943
+      ],
+      "mtimeNs": [
+        1795065081676940217,
+        1795065121761980943
+      ],
+      "size": [
+        220,
+        240
+      ]
+    }
+  },
+  "providerSubtreeNodesUnchanged": true
+}

@@ -1,6 +1,40 @@
 # Source status — integrated engineering preview
 
-## Latest source-bound context — 25 October 2026
+## Current M20 preparation checkpoint — 19 November 2026
+
+Development resumed under the owner's new instruction after the
+[October pause](DEVELOPMENT_PAUSED.md). The next named milestone is **M20:
+physical ARM64 benchmarks and topology evidence**. Version **0.19.0-m19** and
+the supported 2–12 photographs / eight registered dense views remain unchanged.
+The campaign begins at `a373aff43a03bd736edb16707cbf5edabf5f2156`; the
+[campaign record](development/M20_PREPARATION_2026_11_19.md) identifies the final
+candidate evidence and subsequent CI results.
+
+The implemented preparation includes stricter profile promotion, diagnostic
+schema 4 with bounded per-pass local/fallback rollback attribution, strict
+population and retained-fusion accounting, saved Android preview ingestion,
+immutable input/native-byte-bound receipts, and external fuzz report output.
+The three synthetic parity fixtures preserve non-diagnostic geometry fields and
+actual GLB/PLY bytes. No reconstruction threshold, input limit or quality gate
+was relaxed, and no improved physical geometry is claimed.
+
+| Evidence available at this checkpoint | Result and scope |
+| --- | --- |
+| Native Release build and CTest | **PASS: 53/53** cases on both baseline and candidate. |
+| Immutable baseline full pytest | **4,468 passed, 362 subtests passed, 33 skipped** on `a373aff`; this is baseline host evidence. |
+| Intermediate candidate report integration | **460 passed** across the focused report, provenance, controller and population suites. Later changes require their own final verification. |
+| Final candidate full pytest and new Android CI | Pending in the campaign record; no result is inferred from the baseline or focused suites. |
+| Local GCC sanitizer | Compilation **PASS**; runtime **BLOCKED_ENVIRONMENT** by LeakSanitizer's ptrace restriction. An empty instrumented C++ control fails the same way. This is not a sanitizer pass. |
+| Baseline [Verify run 40944757140](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40944757140) | Sanitizer qualification remains **FAIL**. The reviewed artifact contains **4,863 cases: 4,822 passed, 13 failed, 28 skipped**. These failures are retained; no gate is waived. |
+| Physical M20 capture and device measurements | **BLOCKED_EXTERNAL**: no authorized ARM64 handset/capture/reference evidence was supplied for this campaign. |
+
+The [physical handoff](development/M20_PHYSICAL_HANDOFF.md) specifies the
+remaining calibrated object, reference geometry, held-out appearance, ARM64
+resource and installed offline journey evidence. M20 and production release
+qualification remain open. The following October records are historical and
+do not replace the November campaign's source-specific results.
+
+## Historical source-bound context — 25 October 2026
 
 - `0df4a2df5e` real-three HOST journey **PASS**, with unchanged fragmented model;
   v12 diagnostics report **80 source links and zero proposed welds**. This is
@@ -32,15 +66,15 @@
   do not qualify the unrun sparse-evidence correction.
 
 
-## Current verified checkpoint — 25 October 2026
+## Historical verified checkpoint — 25 October 2026
 
-Current application version: **0.19.0-m19**, an engineering preview. Validation
+Application version at this checkpoint: **0.19.0-m19**, an engineering preview. Validation
 is source-bound: a passing earlier artifact does not certify subsequent source.
 Supported input remains **2–12 photographs**, with at most **eight registered
 dense views**. Physical scan quality, complete installed workflows and production
 release qualification remain open.
 
-### Latest source-bound checkpoint
+### Source-bound checkpoint recorded on 25 October
 
 - **`c215632` [HOST journey — PASS](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40227532716):**
   all three cameras and verified publication/export/reopen remain successful;
@@ -277,7 +311,8 @@ real captures now reconstruct. Its
 passed: **870 unit tests + 18 HOST JVM tests = 888**, with zero failures, errors
 or skips. Both release profiles and benchmark compilation also passed. These are
 historical `e493872` results, not qualification of current installed guidance.
-See the latest `c215632` checkpoint above for current evidence.
+See the `c215632` checkpoint above for that historical evidence and the November
+checkpoint for the current campaign.
 
 Public evidence: [real licensed stereo HOST failure](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715540),
 [`68ef9b7` Android build and required checks](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40176715542),

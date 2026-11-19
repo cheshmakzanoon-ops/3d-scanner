@@ -48,6 +48,76 @@ def bounded_counts(value):
         assert value is None or type(value) in (str, bool)
 
 
+def assert_topology_attribution(mesh):
+    """Check independent conservation identities on actual producer counters."""
+    loss = mesh['lossDiagnostics']
+    assert loss['schema'] == 4 and loss['available']
+    admission = loss['topologyAdmission']
+    assert set(admission) == {
+        'passes', 'proposedWeldGroups', 'rolledBackWeldGroups',
+        'restoredSourceVertices', 'unresolvedSourceVertexLinks',
+        'locallyRolledBackWeldGroups', 'fallbackRolledBackWeldGroups',
+        'retainedWeldGroups', 'passDetails',
+    }
+    details = admission['passDetails']
+    assert len(details) == admission['passes']
+    assert 1 <= len(details) <= 3
+    remaining = admission['proposedWeldGroups']
+    rolled_back = restored = local = fallback = 0
+    counters = {
+        'retainedWeldGroups', 'invalidWeldGroups', 'invalidLinkReasons',
+        'rolledBackWeldGroups', 'restoredSourceVertices',
+    }
+    for index, step in enumerate(details):
+        assert set(step) == {'pass', 'inspected'} | counters
+        assert type(step['pass']) is int and step['pass'] == index + 1
+        assert type(step['inspected']) is bool
+        if not step['inspected']:
+            # No remaining welds means no inspector ran. Missing measurements
+            # must stay null instead of becoming apparently measured zeros.
+            assert remaining == 0 and index == len(details) - 1
+            assert all(step[name] is None for name in counters)
+            continue
+        assert step['retainedWeldGroups'] == remaining > 0
+        invalid = step['invalidWeldGroups']
+        assert 0 <= invalid <= remaining
+        reasons = step['invalidLinkReasons']
+        assert set(reasons) == {
+            'branchingLink', 'directionConflict', 'disconnectedLink',
+            'invalidEndpointCount',
+        }
+        assert all(type(count) is int and 0 <= count <= invalid
+                   for count in reasons.values())
+        # A welded group can fail multiple link conditions. Individual causes
+        # are bounded by invalid groups, but their sum is not a unique count.
+        assert sum(reasons.values()) >= invalid
+        removed = step['rolledBackWeldGroups']
+        assert 0 <= removed <= remaining
+        assert 2 * removed <= step['restoredSourceVertices'] <= loss['viewCount'] * removed
+        if index == 0:
+            assert removed == invalid
+            local += removed
+        else:
+            # The bounded fallback removes every remaining group when an
+            # invalid link persists, including groups not independently invalid.
+            assert removed == (remaining if invalid else 0)
+            fallback += removed
+        remaining -= removed
+        rolled_back += removed
+        restored += step['restoredSourceVertices']
+    assert rolled_back == admission['rolledBackWeldGroups']
+    assert restored == admission['restoredSourceVertices']
+    assert local == admission['locallyRolledBackWeldGroups']
+    assert fallback == admission['fallbackRolledBackWeldGroups']
+    assert local + fallback == rolled_back
+    assert remaining == admission['retainedWeldGroups']
+    assert remaining == admission['proposedWeldGroups'] - rolled_back
+    assert remaining <= mesh['fusedObservations'] <= (loss['viewCount'] - 1) * remaining
+    assert restored + mesh['fusedObservations'] + remaining <= mesh['acceptedSamples']
+    if rolled_back:
+        assert len(details) >= 2
+
+
 @pytest.mark.parametrize('masked,uniform', [(False,False),(True,False),(False,True),(True,True)])
 def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(masked, uniform):
     images, cameras = photographs(masked=masked, uniform=uniform)
@@ -81,18 +151,9 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
         return
     mesh = result['mesh']
     loss = mesh['lossDiagnostics']
-    assert loss['schema'] == 3 and loss['available']
+    assert loss['schema'] == 4 and loss['available']
     assert loss['viewCount'] == len(loss['views']) == 3
-    admission = loss['topologyAdmission']
-    assert set(admission) == {'passes', 'proposedWeldGroups', 'rolledBackWeldGroups',
-                              'restoredSourceVertices', 'unresolvedSourceVertexLinks'}
-    assert 1 <= admission['passes'] <= 3
-    assert 0 <= admission['rolledBackWeldGroups'] <= admission['proposedWeldGroups']
-    assert 2*admission['rolledBackWeldGroups'] <= admission['restoredSourceVertices'] <= mesh['acceptedSamples']
-    if admission['rolledBackWeldGroups']:
-        assert admission['passes'] >= 2
-    else:
-        assert admission['restoredSourceVertices'] == 0
+    assert_topology_attribution(mesh)
     assert len(json.dumps(loss)) < 32768
     bounded_counts(loss)
     views = loss['views']
@@ -108,6 +169,35 @@ def test_originating_dense_and_surface_loss_counts_are_bounded_and_reconcile(mas
         assert sum(v['fusionCandidateFirstGate'].values()) == v['fusionCandidates']
         missing = v['missingNormalReasons']
         assert missing['sourceNormal'] + missing['accumulatorNormal'] + missing['bothNormals'] == v['fusionCandidateFirstGate']['missingNormal']
+
+
+def test_native_fixture_distinguishes_local_rejection_from_conservative_fallback():
+    images, cameras = photographs()
+    mesh = NativeEngine().surface(images, cameras, 3.1, 7.0, 56, 3)['mesh']
+    assert_topology_attribution(mesh)
+    admission = mesh['lossDiagnostics']['topologyAdmission']
+    assert admission['locallyRolledBackWeldGroups'] > 0
+    assert admission['fallbackRolledBackWeldGroups'] > 0
+    assert admission['retainedWeldGroups'] == mesh['fusedObservations'] == 0
+    assert admission['passes'] == 3
+    assert admission['passDetails'][-1]['inspected'] is False
+    assert any(sum(step['invalidLinkReasons'].values()) > step['invalidWeldGroups']
+               for step in admission['passDetails'] if step['inspected'])
+
+
+def test_topology_attribution_is_isolated_between_concurrent_native_calls():
+    from concurrent.futures import ThreadPoolExecutor
+
+    def run(masked):
+        images, cameras = photographs(masked=masked)
+        mesh = NativeEngine().surface(images, cameras, 3.1, 7.0, 56, 3)['mesh']
+        assert_topology_attribution(mesh)
+        return mesh['lossDiagnostics']['topologyAdmission']
+
+    expected = {masked: run(masked) for masked in (False, True)}
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        outputs = list(executor.map(run, [False, True, False, True]))
+    assert outputs == [expected[masked] for masked in (False, True, False, True)]
 
 
 def test_originating_counters_are_isolated_between_concurrent_native_calls():

@@ -7,6 +7,7 @@ import pytest
 from pathlib import Path
 import struct
 import sys
+import yaml
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -207,3 +208,58 @@ def test_fingerprint_catches_changes_when_head_and_dirty_flag_are_unchanged(stam
     code, evidence = run_fixture(f)
     assert code == 1 and evidence['status'] == 'FAIL'
     assert 'Buildstamp mismatch' in evidence['blocker']
+
+
+def test_external_evidence_preserves_clean_source_and_detects_later_source_changes(stamped_fixture):
+    """Writing a complete receipt must not invalidate its own source snapshot."""
+    f = stamped_fixture
+    before = module.source_snapshot()
+    assert before['source_dirty'] is False
+    code, evidence = run_fixture(f)
+    assert code == 0 and evidence['status'] == 'PASS'
+    assert (f['output'] / 'corpus.json').is_file()
+    assert (f['output'] / 'numeric.log').is_file()
+    assert module.source_snapshot() == before
+
+    # Moving output must not weaken the independent actual-source mutation gate.
+    (f['root'] / 'reconstruction/src/core.cpp').write_text('// changed after qualification\n')
+    changed_output = f['output'].with_name('evidence-after-change')
+    code, evidence = run_fixture(f, changed_output)
+    assert code == 1 and evidence['status'] == 'FAIL'
+    assert 'Buildstamp mismatch' in evidence['blocker']
+    assert evidence['steps'] == []
+
+
+def test_checkout_evidence_changes_dirty_state_without_changing_native_fingerprint(stamped_fixture):
+    """Reproduce the scheduled job's pre-execution failure on a clean checkout."""
+    f = stamped_fixture
+    before = module.source_snapshot()
+    output = f['root'] / 'reports/fuzz'
+    output.mkdir(parents=True)
+    assert module.source_snapshot() == before  # Git does not track empty directories.
+    module.corpus(output / 'corpus')
+    after = module.source_snapshot()
+    assert after['source_dirty'] is True and before['source_dirty'] is False
+    assert after['source_fingerprint'] == before['source_fingerprint']
+    assert after['source_sha'] == before['source_sha']
+
+
+def test_native_fuzz_workflow_uses_external_evidence_for_main_native_changes():
+    # BaseLoader preserves the GitHub Actions `on` key rather than YAML 1.1 bools.
+    workflow = yaml.load((ROOT / '.github/workflows/native-fuzz.yml').read_text(), Loader=yaml.BaseLoader)
+    push = workflow['on']['push']
+    assert set(push['branches']) == {
+        'main', 'agents/082-native-jni-parser-fuzzing', 'agents/100-integration-lead',
+    }
+    assert set(push['paths']) == set(workflow['on']['pull_request']['paths']) == {
+        'CMakeLists.txt', 'reconstruction/**', 'tools/qa/fuzz/**',
+        'tests/test_agent_082_fuzz_runner.py', '.github/workflows/native-fuzz.yml',
+    }
+    steps = workflow['jobs']['bounded-native-inputs']['steps']
+    run = next(step['run'] for step in steps if 'tools/qa/fuzz/run.py' in step.get('run', ''))
+    upload = next(step for step in steps if step.get('uses', '').startswith('actions/upload-artifact@'))
+    assert '--output "$RUNNER_TEMP/rf-fuzz"' in run
+    assert 'reports/fuzz' not in run
+    assert upload['with']['path'] == '${{ runner.temp }}/rf-fuzz/'
+    assert upload['if'] == 'always()'
+    assert upload['with']['if-no-files-found'] == 'error'

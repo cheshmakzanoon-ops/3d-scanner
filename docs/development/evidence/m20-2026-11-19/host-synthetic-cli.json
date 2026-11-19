@@ -1,0 +1,78 @@
+{
+  "assignment": 41,
+  "classification": "SYNTHETIC_REPORT_CLI_INTEGRATION_NOT_ANDROID_EXECUTION",
+  "status": "PASS",
+  "runs": [
+    {
+      "name": "legacy-schema3",
+      "returnCode": 0,
+      "stdoutBytes": 2629,
+      "stderr": "",
+      "outputExists": true,
+      "outputIdentity": {
+        "sha256": "cc00b57c6e1e84dd5365c88c5fab9eb65834cc89a83a65294f85d1391c731466",
+        "byteCount": 5516
+      },
+      "passAttributionStatus": "UNAVAILABLE_IN_LEGACY_SCHEMA",
+      "hasPassAttribution": false
+    },
+    {
+      "name": "saved-envelope-schema4",
+      "returnCode": 0,
+      "stdoutBytes": 3261,
+      "stderr": "",
+      "outputExists": true,
+      "outputIdentity": {
+        "sha256": "0ded9203547156944722c8ac9162887e2830f3f4feb583c4f098faf40e7d5ee3",
+        "byteCount": 7006
+      },
+      "passAttributionStatus": "AVAILABLE",
+      "hasPassAttribution": true
+    },
+    {
+      "name": "existing-destination",
+      "returnCode": 1,
+      "stdoutBytes": 0,
+      "stderr": "INVALID: Receipt path already exists; choose a new path: /workspace/scratch/7c42079ae707/m20-final-evidence/a41-cli-check/saved-envelope-schema4.receipt.json\n",
+      "outputExists": true,
+      "outputIdentity": {
+        "sha256": "0ded9203547156944722c8ac9162887e2830f3f4feb583c4f098faf40e7d5ee3",
+        "byteCount": 7006
+      }
+    },
+    {
+      "name": "unavailable-with-measurements",
+      "returnCode": 1,
+      "stdoutBytes": 0,
+      "stderr": "INVALID: Unavailable surface diagnostics contain measured viewCount\n",
+      "outputExists": false
+    },
+    {
+      "name": "accepted-exceeds-input",
+      "returnCode": 1,
+      "stdoutBytes": 0,
+      "stderr": "INVALID: Surface inputSamples do not reconcile with mesh\n",
+      "outputExists": false
+    }
+  ],
+  "originalInputsUnchanged": true,
+  "sourceInputIdentities": {
+    "baseline": {
+      "sha256": "a466c907917a44dd1bf1ad8bd05452a56577f372e9ab925bb4588b75aee8e58b",
+      "byteCount": 995826
+    },
+    "candidate": {
+      "sha256": "f745e3e76c96a8edcf851383cfb7dc6209ff7cefca2162f34a499adb9e5a0f08",
+      "byteCount": 997148
+    }
+  },
+  "savedEnvelopeIdentity": {
+    "sha256": "1baa7372b53d501df3ca220e8eb1b7cbf816ff0ef4a124d9de51669cbbb1acd6",
+    "byteCount": 468100
+  },
+  "limitations": [
+    "The saved-preview envelope was constructed from retained synthetic native output; no Android/controller execution was performed",
+    "No new reconstruction or geometry quality measurement was performed",
+    "Receipt input hashes identify the exact parsed bytes, not an independent authenticity attestation"
+  ]
+}

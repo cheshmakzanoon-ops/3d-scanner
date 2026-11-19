@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "classification": "LOCAL_DIRTY_WORKTREE_VALIDATION_NOT_COMMIT_QUALIFICATION",
+  "baselineCommit": "a373aff43a03bd736edb16707cbf5edabf5f2156",
+  "candidateTestedTree": "4ab77b5a2cf637e0e0b743acea59dbe825f21651",
+  "candidateManifest": {
+    "sha256": "6a9e5f7a7a56f0ed390186c0ca8f33f6c1de832ce1aa6e4bd560441b23e5f033",
+    "byteCount": 438972
+  },
+  "nativeLibrary": {
+    "sha256": "56b5eec450e36c6a97f1ac7f4e5efeb22dafec73b9b40030c57ec5afe247d42c",
+    "byteCount": 1549384
+  },
+  "nativeConfiguration": {
+    "buildType": "Release",
+    "warningsAsErrors": true,
+    "sanitizers": false
+  },
+  "limitations": [
+    "The staged tree identifies precommit tested source; baseline HEAD is not attributed as the candidate commit",
+    "Later documentation/evidence additions require a new manifest and contract checks; preserve this tested tree identity",
+    "Ordinary host pytest is not the complete native regression matrix or Android/device qualification"
+  ]
+}

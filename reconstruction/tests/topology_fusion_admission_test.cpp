@@ -93,6 +93,16 @@ int main(){
         check(admission.topologyAdmissionPasses==2&&admission.proposedWeldGroups==groups&&
               admission.rolledBackWeldGroups==groups&&admission.restoredSourceVertices==2*groups&&
               admission.unresolvedSourceVertexLinks==0,"Repair pass/rollback diagnostics do not match measured source groups");
+        check(admission.locallyRolledBackWeldGroups==groups&&admission.fallbackRolledBackWeldGroups==0&&
+              admission.retainedWeldGroups==0,"Local conflict rollback was confused with all-weld fallback");
+        const auto& firstPass=admission.topologyPassDetails[0];
+        check(firstPass.inspected&&firstPass.retainedWeldGroups==groups&&firstPass.invalidWeldGroups==groups&&
+              firstPass.rolledBackWeldGroups==groups&&firstPass.restoredSourceVertices==2*groups&&
+              !admission.topologyPassDetails[1].inspected,"Rollback pass attribution lost its inspected/uninspected distinction");
+        if(kind==Case::Bowtie)check(firstPass.invalidLinkReasons[2]==groups,
+              "Disconnected welded source fans were not attributed to their link cause");
+        check(rf::surfaceJson(mesh).find(R"("pass":2,"inspected":false,"retainedWeldGroups":null,"invalidWeldGroups":null,"invalidLinkReasons":null)")!=std::string::npos,
+              "Uninspected final triangulation was serialized as measured zero causes");
 #endif
         std::array<std::size_t,2> faces{};for(auto face:mesh.triangles)++faces[face.sourceCamera];
         check(faces[0]==expectedFaces/2&&faces[1]==expectedFaces/2,"Repair selected one camera sheet and deleted another");
@@ -118,6 +128,11 @@ int main(){
         check(mesh.lossDiagnostics.topologyAdmissionPasses==1&&mesh.lossDiagnostics.rolledBackWeldGroups==0&&
               mesh.lossDiagnostics.restoredSourceVertices==0&&mesh.lossDiagnostics.unresolvedSourceVertexLinks==0,
               "Safe patch reported repair/unknown source defects");
+        const auto& pass=mesh.lossDiagnostics.topologyPassDetails[0];
+        check(pass.inspected&&pass.invalidWeldGroups==0&&pass.rolledBackWeldGroups==0&&
+              pass.retainedWeldGroups==mesh.lossDiagnostics.proposedWeldGroups&&
+              pass.retainedWeldGroups==mesh.lossDiagnostics.retainedWeldGroups,
+              "Safe weld admission did not retain its measured successful inspection");
 #endif
     }
     // Large fully measured adjacent patches: the retained-face checker must
@@ -202,6 +217,25 @@ int main(){
     auto tooManyFaces=small;tooManyFaces.triangles.resize(80001);fails(tooManyFaces,{});
     const std::vector<std::size_t> both{0,1};const auto valid=rf::topology_probe::inspect(small,both);
     check(valid.invalidVertexCount==0,"Valid two-face source star was rejected");
+    // Distinct witnesses for the unchanged combinatorial rejection conditions.
+    // Reason masks overlap, so these are not mutually exclusive gate counts.
+    auto winding=small;winding.triangles[1]={0,3,2,0};
+    check(rf::topology_probe::inspect(winding,both).invalidLinks[0]==rf::topology_probe::DirectionConflict,
+          "An otherwise connected open fan did not isolate its winding conflict");
+    rf::SurfaceMesh branch;branch.vertices.resize(5);branch.triangles={{0,1,2,0},{0,2,3,0},{0,2,4,0}};
+    const std::vector<std::size_t> three{0,1,2};
+    check(rf::topology_probe::inspect(branch,three).invalidLinks[0]==
+          (rf::topology_probe::BranchingLink|rf::topology_probe::DirectionConflict|rf::topology_probe::InvalidEndpointCount),
+          "Branching fan did not retain all overlapping invalid-link reasons");
+    rf::SurfaceMesh disconnected;disconnected.vertices.resize(5);disconnected.triangles={{0,1,2,0},{0,3,4,0}};
+    check(rf::topology_probe::inspect(disconnected,both).invalidLinks[0]==
+          (rf::topology_probe::DisconnectedLink|rf::topology_probe::InvalidEndpointCount),
+          "Two open source fans did not distinguish connectivity from endpoint count");
+    rf::SurfaceMesh twoCycles;twoCycles.vertices.resize(7);
+    twoCycles.triangles={{0,1,2,0},{0,2,3,0},{0,3,1,0},{0,4,5,0},{0,5,6,0},{0,6,4,0}};
+    const std::vector<std::size_t> six{0,1,2,3,4,5};
+    check(rf::topology_probe::inspect(twoCycles,six).invalidLinks[0]==rf::topology_probe::DisconnectedLink,
+          "Disconnected closed fans with valid degrees/endpoints were not attributed exactly");
     const std::vector<std::size_t> second{1},first{0},none;
     const auto complement=rf::topology_probe::inspect(small,second,true);
     check(complement.invalidLinks==rf::topology_probe::inspect(small,first).invalidLinks,

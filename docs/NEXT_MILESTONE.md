@@ -1,6 +1,52 @@
 # Next integrated-candidate gates after M19
 
-## Latest source-bound context — 25 October 2026
+## Next phase — M20 physical ARM64 and topology evidence, 19 November 2026
+
+The current owner-authorized campaign resumes development from
+`a373aff43a03bd736edb16707cbf5edabf5f2156`. It prepares the measurements needed
+for M20 while keeping version **0.19.0-m19**, the 2–12-photo limit and the
+eight-dense-view cap. The [campaign record](development/M20_PREPARATION_2026_11_19.md)
+contains implementation and final validation evidence; the
+[physical handoff](development/M20_PHYSICAL_HANDOFF.md) gives the collection
+procedure and remaining external inputs.
+
+Software preparation now includes complete/nonregressing-topology requirements
+for profile promotion, surface diagnostic schema 4 with per-pass weld rollback
+attribution, validated native and saved-preview sample accounting, immutable
+source-bound receipts, and fuzz evidence outside the source checkout. Three
+synthetic parity fixtures retain the same geometry and GLB/PLY bytes. These
+changes improve the evidence for evaluating a candidate; they do not establish
+better reconstruction quality or complete M20.
+
+The next acceptance steps are:
+
+1. Finish source-specific candidate validation: the complete host suite, actual
+   Android compilation/lint/JVM and installed instrumentation, and an executed
+   bounded fuzz run. The local native Release build and 53/53 CTest cases pass;
+   focused report tests do not replace these remaining gates.
+2. Obtain a completed passing sanitizer qualification. The local runtime is
+   **BLOCKED_ENVIRONMENT** by an independently reproduced LeakSanitizer ptrace
+   restriction. Baseline [Verify run 40944757140](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40944757140)
+   remains failing; its reviewed sanitizer artifact has 13 failures among 4,863
+   cases. Preserve these outcomes and fix demonstrated causes without weakening
+   the checks.
+3. Collect the authorized calibrated object sessions, independent reference
+   geometry and held-out texture evidence, then execute the complete installed
+   offline import/reconstruct/reopen/export and interruption/recovery journeys.
+   Physical handset, capture and reference inputs are **BLOCKED_EXTERNAL** here.
+4. Measure ARM64 memory, sustained thermal/power behavior and relevant frame and
+   image-buffer lifetimes on the supported workloads. Report missing surfaces,
+   disconnected patches and incomplete intersection checks explicitly. Raise
+   limits or promote profiles only after their declared acceptance gates pass.
+
+Production signing and release qualification remain separate open gates. All
+unexecuted checks remain **NOT_RUN**; historical HOST, Android or synthetic
+successes do not certify the new candidate.
+
+## Historical source-bound context — 25 October 2026
+
+These records describe their named revisions and retain the outcomes known at
+that checkpoint.
 
 - `0df4a2df5e` real-three HOST journey **PASS**, with unchanged fragmented model;
   v12 diagnostics report **80 source links and zero proposed welds**. This is
@@ -58,7 +104,7 @@ interruption boundary or successful completion of every installed-app workflow;
 those checks remain explicit gates in the current status. Unknown surfaces stay
 unknown, scale stays arbitrary without measurement, and open patches stay open.
 
-## Immediate validation priorities — 25 October 2026
+## Historical validation priorities — 25 October 2026
 
 The fixed licensed three-photo [HOST journey passes on `c215632`](https://github.com/cheshmakzanoon-ops/3d-scanner/actions/runs/40227532716):
 all three cameras register, global typed bundle adjustment completes, and nine

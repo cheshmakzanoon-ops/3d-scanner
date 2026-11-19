@@ -1,6 +1,7 @@
 """Closed-provider synthetic filesystem/probe controls, not installed tool qualification."""
 import copy,hashlib,json,os,sys
 from pathlib import Path
+from types import SimpleNamespace
 import pytest
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.eight_view_host import header_provider as h,capability as c
@@ -36,7 +37,64 @@ def fixture(tmp_path,monkeypatch):
   for alias in role['aliases']:alias.symlink_to(role['rawTarget'])
   (role['root']/'header.h').write_text('header');roles.append(role)
  monkeypatch.setattr(h,'PROVIDERS',tuple(roles))
- run=ProbeRun(tmp_path/'work');return run,base
+ production_filesystem=h.filesystem
+ def synthetic_filesystem():
+  # These providers model an installation rooted at base, not the shared /tmp
+  # namespace hosting the test. Run the real canonical/type/symlink checks,
+  # then exclude unrelated directory-entry epochs strictly above that owned
+  # installation. Production filesystem() and its schema-2 proof are unchanged.
+  records=production_filesystem()
+  for node in records:
+   path=Path(node['path'])
+   if path in base.parents:
+    info=path.lstat()
+    if (str(info.st_dev),str(info.st_ino),info.st_mode)!=(node['device'],node['inode'],node['mode']):
+     raise Failure('Synthetic provider ancestor structural identity changed')
+    node['uid']=info.st_uid;node['gid']=info.st_gid
+    for field in ('size','mtimeNs','ctimeNs'):node.pop(field)
+  return records
+ monkeypatch.setattr(h,'filesystem',synthetic_filesystem)
+ run=ProbeRun(tmp_path/'work');run.production_filesystem=production_filesystem
+ return run,base
+
+
+def test_shared_ancestor_sibling_activity_does_not_change_synthetic_provider(fixture,tmp_path):
+ run,base=fixture;sibling=tmp_path/'unrelated-sibling'
+ def change(label):
+  if label==h.LABELS[0]:sibling.mkdir()
+  elif label==h.LABELS[-1]:sibling.rmdir()
+ run.after=change
+ proof=h.acquire(run,SOURCE)
+ assert h.validate(proof,SOURCE,run)==[role['root'] for role in h.PROVIDERS]
+ # Keep the real production policy observable: it still fingerprints every
+ # ancestor's full metadata, including the epochs normalized in this fixture.
+ raw={node['path']:node for node in run.production_filesystem()}
+ modeled={node['path']:node for node in proof['filesystem']}
+ assert {'size','mtimeNs','ctimeNs'}<=raw[str(tmp_path)].keys()
+ assert not {'size','mtimeNs','ctimeNs'}&modeled[str(tmp_path)].keys()
+ assert {'uid','gid','device','inode','mode'}<=modeled[str(tmp_path)].keys()
+ assert modeled[str(base)]==raw[str(base)]
+
+
+def test_owned_ancestor_rename_and_restore_is_still_rejected(fixture):
+ run,base=fixture;proof=h.acquire(run,SOURCE)
+ ancestor=base/'usr';moved=base/'held-usr';inode=ancestor.stat().st_ino
+ ancestor.rename(moved);moved.rename(ancestor)
+ assert ancestor.stat().st_ino==inode
+ with pytest.raises(Failure,match='filesystem identity changed'):h.validate(proof,SOURCE,run)
+
+
+@pytest.mark.parametrize('field',['st_uid','st_gid','st_ino','st_mode'])
+def test_shared_ancestor_structural_identity_is_not_normalized(fixture,tmp_path,monkeypatch,field):
+ run,_=fixture;proof=h.acquire(run,SOURCE);original=Path.lstat
+ def changed(path,*args,**kwargs):
+  info=original(path,*args,**kwargs)
+  if path!=tmp_path:return info
+  values={name:getattr(info,name) for name in dir(info) if name.startswith('st_')}
+  values[field]=values[field]^1
+  return SimpleNamespace(**values)
+ monkeypatch.setattr(Path,'lstat',changed)
+ with pytest.raises(Failure,match='identity changed'):h.validate(proof,SOURCE,run)
 
 
 def test_closed_provider_admission_and_unknown_escape(fixture):

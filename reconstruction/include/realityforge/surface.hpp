@@ -73,10 +73,22 @@ struct SurfaceLossView {
     std::array<std::size_t,static_cast<std::size_t>(SurfaceTriangleRejection::Count)> triangleRejections{};
     std::size_t acceptedTriangleAttempts{}, attachedObservations{}, unattachedObservations{};
 };
+struct SurfaceTopologyAdmissionPass {
+    // A triangulation without retained welds does not invoke the inspector.
+    // Its remaining fields serialize as null, not measured zero.
+    bool inspected{};
+    std::size_t retainedWeldGroups{},invalidWeldGroups{};
+    // Overlapping causes: branching, direction conflict, disconnected link,
+    // invalid endpoint count. Their sum is not a unique-group count.
+    std::array<std::size_t,4> invalidLinkReasons{};
+    std::size_t rolledBackWeldGroups{},restoredSourceVertices{};
+};
 struct SurfaceLossDiagnostics {
     bool available{}; // false for default/decoded old checkpoints; absence is NOT measured zero
     std::size_t viewCount{}, removedExactFaces{};
     std::size_t topologyAdmissionPasses{},proposedWeldGroups{},rolledBackWeldGroups{},restoredSourceVertices{},unresolvedSourceVertexLinks{};
+    std::size_t locallyRolledBackWeldGroups{},fallbackRolledBackWeldGroups{},retainedWeldGroups{};
+    std::array<SurfaceTopologyAdmissionPass,3> topologyPassDetails{};
     bool triangleLimitReached{}; // visited-cell counters may be partial when true
     std::array<SurfaceLossView,MAX_DENSE_VIEWS> views{};
 };

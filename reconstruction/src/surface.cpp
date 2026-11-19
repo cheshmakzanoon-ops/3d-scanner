@@ -484,6 +484,7 @@ static SurfaceMesh fuseCanonicalDepthSurfaces(std::span<const DenseView> views,c
     };
     for(std::size_t pass=0;pass<3;++pass){
         cancellation::checkpoint();triangulateSources();++mesh.lossDiagnostics.topologyAdmissionPasses;
+        auto& passLoss=mesh.lossDiagnostics.topologyPassDetails[pass];
         // With no retained welds this policy has nothing to admit. Existing final
         // topology analysis still reports source-grid defects (never fabricates zero).
         if(mesh.fusedObservations==0)break;
@@ -495,23 +496,41 @@ static SurfaceMesh fuseCanonicalDepthSurfaces(std::span<const DenseView> views,c
             +rollback.capacity()*sizeof(std::uint8_t)+mesh.vertices.size()*5+mesh.triangles.size()*12+8192;
         if(topologyScratchBytes>topologyScratchAllowance)throw Error("Surface topology admission scratch budget exceeded");
         const auto topology=surface_weld_topology::inspect(mesh,exact.removedFaces,true);
+        passLoss.inspected=true;
         // Each group contains at most one source per camera, so a camera-local
         // source star is injective. Reject invalid links at welded vertices,
         // not unrelated single-camera defects in neighboring stars.
         mesh.lossDiagnostics.unresolvedSourceVertexLinks=topology.invalidVertexCount;
         bool conflict=false;
+        const auto markRollback=[&](std::size_t group){
+            // Count transitions only: fallback also visits groups rejected in
+            // the first pass, but must not count them twice.
+            if(rollback[group])return;
+            rollback[group]=1;++passLoss.rolledBackWeldGroups;
+            passLoss.restoredSourceVertices+=accum[group].sourceCount;
+            if(pass==0)++mesh.lossDiagnostics.locallyRolledBackWeldGroups;
+            else ++mesh.lossDiagnostics.fallbackRolledBackWeldGroups;
+        };
         for(std::size_t i=0;i<accum.size();++i){if((i&127u)==0)cancellation::checkpoint();if(rollback[i]||accum[i].sourceCount<2)continue;
+            ++passLoss.retainedWeldGroups;
             const auto& sample=dense.verifiedSamples[accum[i].sourceIds[0]];
             const auto vertex=static_cast<std::size_t>(imageVertices[sample.camera][static_cast<std::size_t>(sample.y)*width+sample.x]);
-            if(topology.invalidLinks[vertex]){conflict=true;if(pass==0)rollback[i]=1;}
+            const auto reasons=topology.invalidLinks[vertex];
+            if(reasons){
+                conflict=true;++passLoss.invalidWeldGroups;
+                for(std::size_t reason=0;reason<passLoss.invalidLinkReasons.size();++reason)
+                    if(reasons&(1u<<reason))++passLoss.invalidLinkReasons[reason];
+                if(pass==0)markRollback(i);
+            }
         }
         if(!conflict)break;
         if(pass==2)throw Error("Unresolved unsafe surface weld after bounded rollback");
-        if(pass==1)for(std::size_t i=0;i<accum.size();++i)if(accum[i].sourceCount>1)rollback[i]=1;
+        if(pass==1)for(std::size_t i=0;i<accum.size();++i)if(accum[i].sourceCount>1)markRollback(i);
         mesh.lossDiagnostics.rolledBackWeldGroups=0;mesh.lossDiagnostics.restoredSourceVertices=0;
         for(std::size_t i=0;i<accum.size();++i)if(rollback[i]){++mesh.lossDiagnostics.rolledBackWeldGroups;mesh.lossDiagnostics.restoredSourceVertices+=accum[i].sourceCount;}
         restoreSources();
     }
+    mesh.lossDiagnostics.retainedWeldGroups=mesh.lossDiagnostics.proposedWeldGroups-mesh.lossDiagnostics.rolledBackWeldGroups;
     progress::advance(2*preparedCount);
     std::vector<std::int32_t> exactObservationTargets;
     {
@@ -567,6 +586,19 @@ std::string surfaceJson(const SurfaceMesh& m){
     validateSurfaceAliases(m);
     if(m.lossDiagnostics.available&&(m.lossDiagnostics.viewCount<2||m.lossDiagnostics.viewCount>MAX_DENSE_VIEWS))
         throw Error("Invalid surface diagnostic view count");
+    if(m.lossDiagnostics.available&&m.lossDiagnostics.topologyAdmissionPasses>m.lossDiagnostics.topologyPassDetails.size())
+        throw Error("Invalid surface topology diagnostic pass count");
+    // The validated empty-depth early return does not triangulate or inspect.
+    // Preserve that measured empty result, while refusing a nonempty zero-pass
+    // record rather than inventing a pass for it.
+    if(m.lossDiagnostics.available&&m.lossDiagnostics.topologyAdmissionPasses==0){
+        const auto& d=m.lossDiagnostics;
+        if(m.inputSamples||m.acceptedSamples||m.fusedObservations||!m.vertices.empty()||!m.triangles.empty()||
+           d.proposedWeldGroups||d.rolledBackWeldGroups||d.restoredSourceVertices||d.unresolvedSourceVertexLinks||
+           d.locallyRolledBackWeldGroups||d.fallbackRolledBackWeldGroups||d.retainedWeldGroups||
+           std::any_of(d.views.begin(),d.views.end(),[](const auto& view){return view.inputSamples||view.acceptedSamples||view.fusionCandidates;}))
+            throw Error("Nonempty surface topology diagnostics without an admission pass");
+    }
     std::ostringstream s;s.imbue(std::locale::classic());s<<std::setprecision(10);
     s<<"{\"schema\":8,\"representation\":\"observed_open_triangle_mesh\",\"scale\":\"arbitrary\","
      <<"\"textured\":false,\"watertight\":false,\"material\":\"vertex_colors\",\"vertexCount\":"<<m.vertices.size()
@@ -589,7 +621,7 @@ std::string surfaceJson(const SurfaceMesh& m){
     for(std::size_t i=0;i<m.topologyAliasSources.size();++i){if(i)s<<',';s<<m.topologyAliasSources[i];}
     s<<"],\"triangles\":[";
     for(std::size_t i=0;i<m.triangles.size();++i){if(i)s<<',';auto t=m.triangles[i];s<<'['<<t.a<<','<<t.b<<','<<t.c<<']';}
-    s<<"],\"lossDiagnostics\":{\"schema\":3,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
+    s<<"],\"lossDiagnostics\":{\"schema\":4,\"scope\":\"ORIGINATING_SURFACE_EVALUATION\",\"available\":"<<(m.lossDiagnostics.available?"true":"false");
     if(!m.lossDiagnostics.available)s<<",\"viewCount\":null,\"removedExactFaces\":null,\"views\":null,\"triangleLimitReached\":null,\"topologyAdmission\":null";
     else {
         const auto counts=[&](const auto& names,const auto& values){
@@ -601,7 +633,24 @@ std::string surfaceJson(const SurfaceMesh& m){
         const std::array triangleNames{"missingOrRepeatedVertex","depthJump","edgeLength","area","duplicateFace"};
         s<<",\"topologyAdmission\":{\"passes\":"<<m.lossDiagnostics.topologyAdmissionPasses
          <<",\"proposedWeldGroups\":"<<m.lossDiagnostics.proposedWeldGroups<<",\"rolledBackWeldGroups\":"<<m.lossDiagnostics.rolledBackWeldGroups
-         <<",\"restoredSourceVertices\":"<<m.lossDiagnostics.restoredSourceVertices<<",\"unresolvedSourceVertexLinks\":"<<m.lossDiagnostics.unresolvedSourceVertexLinks<<'}';
+         <<",\"restoredSourceVertices\":"<<m.lossDiagnostics.restoredSourceVertices<<",\"unresolvedSourceVertexLinks\":"<<m.lossDiagnostics.unresolvedSourceVertexLinks
+         <<",\"locallyRolledBackWeldGroups\":"<<m.lossDiagnostics.locallyRolledBackWeldGroups
+         <<",\"fallbackRolledBackWeldGroups\":"<<m.lossDiagnostics.fallbackRolledBackWeldGroups
+         <<",\"retainedWeldGroups\":"<<m.lossDiagnostics.retainedWeldGroups<<",\"passDetails\":[";
+        const std::array linkReasonNames{"branchingLink","directionConflict","disconnectedLink","invalidEndpointCount"};
+        for(std::size_t pass=0;pass<m.lossDiagnostics.topologyAdmissionPasses;++pass){
+            if(pass)s<<',';
+            const auto& d=m.lossDiagnostics.topologyPassDetails[pass];
+            s<<"{\"pass\":"<<pass+1<<",\"inspected\":"<<(d.inspected?"true":"false");
+            if(!d.inspected)s<<",\"retainedWeldGroups\":null,\"invalidWeldGroups\":null,\"invalidLinkReasons\":null,\"rolledBackWeldGroups\":null,\"restoredSourceVertices\":null";
+            else {
+                s<<",\"retainedWeldGroups\":"<<d.retainedWeldGroups<<",\"invalidWeldGroups\":"<<d.invalidWeldGroups<<",\"invalidLinkReasons\":";
+                counts(linkReasonNames,d.invalidLinkReasons);
+                s<<",\"rolledBackWeldGroups\":"<<d.rolledBackWeldGroups<<",\"restoredSourceVertices\":"<<d.restoredSourceVertices;
+            }
+            s<<'}';
+        }
+        s<<"]}";
         s<<",\"viewCount\":"<<m.lossDiagnostics.viewCount<<",\"removedExactFaces\":"<<m.lossDiagnostics.removedExactFaces<<",\"triangleLimitReached\":"<<(m.lossDiagnostics.triangleLimitReached?"true":"false")<<",\"views\":[";
         for(std::size_t camera=0;camera<m.lossDiagnostics.viewCount;++camera){
             if(camera)s<<',';
